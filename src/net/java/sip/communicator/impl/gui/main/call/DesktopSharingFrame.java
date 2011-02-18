@@ -259,19 +259,25 @@ public class DesktopSharingFrame
 
                 try
                 {
+                    AntialiasingManager.activateAntialiasing(g);
+
+                    Graphics2D g2d = (Graphics2D)g;
+
+                    g2d.setStroke(new BasicStroke((float) 4));
+
                     if (TransparentFrame.isTranslucencySupported)
                     {
-                        AntialiasingManager.activateAntialiasing(g);
-
-                        Graphics2D g2d = (Graphics2D)g;
-
                         g2d.setColor(new Color( Color.DARK_GRAY.getRed(),
                                                 Color.DARK_GRAY.getGreen(),
                                                 Color.DARK_GRAY.getBlue(), 180));
-                        g2d.setStroke(
-                            new BasicStroke((float) 4));
+
                         g2d.drawRoundRect(
                             0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                    }
+                    else
+                    {
+                        g.setColor(Color.DARK_GRAY);
+                        g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
                     }
                 }
                 finally
@@ -338,16 +344,21 @@ public class DesktopSharingFrame
                                 final ProtocolProviderService protocolProvider,
                                 final String contact)
     {
-        JPanel buttonPanel = new TransparentPanel(new GridBagLayout())
+        JPanel buttonPanel = new JPanel(new GridBagLayout())
         {
             public void paintComponent(Graphics g)
             {
-                if (!TransparentFrame.isTranslucencySupported)
+                // We experience some problems making this component
+                // semi-transparent on Linux.
+                if (!TransparentFrame.isTranslucencySupported
+                    || OSUtils.IS_LINUX)
                 {
                     super.paintComponent(g);
                     return;
                 }
 
+                // On all other operating systems supporting transparency we'll
+                // make this component semi-transparent.
                 Graphics2D g2d = (Graphics2D) g.create();
 
                 AntialiasingManager.activateAntialiasing(g2d);
@@ -381,6 +392,18 @@ public class DesktopSharingFrame
         };
 
         GridBagConstraints constraints = new GridBagConstraints();
+
+        // We experience some problems making this component semi-transparent on
+        // Linux.
+        if (TransparentFrame.isTranslucencySupported
+            && !OSUtils.IS_LINUX)
+        {
+            buttonPanel.setOpaque(false);
+        }
+        else
+        {
+            buttonPanel.setBackground(Color.DARK_GRAY);
+        }
 
         buttonPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         buttonPanel.setPreferredSize(
