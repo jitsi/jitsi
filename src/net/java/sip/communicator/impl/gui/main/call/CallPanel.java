@@ -268,7 +268,7 @@ public class CallPanel
         videoButton = new LocalVideoButton(call);
         showHideVideoButton = new ShowHideVideoButton(call);
 
-        showHideVideoButton.setPeerRenderer(((OneToOneCallPanel) callPanel)
+        showHideVideoButton.setPeerRenderer(((CallRenderer) callPanel)
             .getCallPeerRenderer(call.getCallPeers().next()));
 
         // When the local video is enabled/disabled we ensure that the show/hide
