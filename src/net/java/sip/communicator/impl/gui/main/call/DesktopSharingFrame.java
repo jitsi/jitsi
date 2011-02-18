@@ -405,7 +405,7 @@ public class DesktopSharingFrame
             constraints.gridx = 3;
             constraints.gridy = 0;
             constraints.weightx = 0;
-            constraints.insets = new Insets(0, 0, 2, 2);
+            constraints.insets = new Insets(0, 0, 0, 0);
             constraints.anchor = GridBagConstraints.SOUTHWEST;
             buttonPanel.add(
                 createResizeLabel(frame, sharingRegion, buttonPanel),
@@ -501,6 +501,9 @@ public class DesktopSharingFrame
                                             final JComponent buttonPanel)
     {
         final JLabel resizeLabel = new JLabel(resizeIcon);
+        resizeLabel.setCursor(
+            Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR));
+
         resizeLabel.addMouseMotionListener(new MouseMotionAdapter()
         {
             public void mouseDragged(MouseEvent e)
