@@ -515,7 +515,9 @@ public class DesktopSharingFrame
         {
             public void mouseDragged(MouseEvent e)
             {
-                Point p = e.getLocationOnScreen();
+                Point p = e.getPoint();
+                SwingUtilities.convertPointToScreen(p, resizeLabel);
+
                 Point regionLocation = sharingRegion.getLocationOnScreen();
 
                 int sharingWidth = (int) ( p.getX()
