@@ -108,8 +108,6 @@ public class DesktopSharingButton
         JMenuItem shareRegion = new JMenuItem(GuiActivator.getResources()
             .getI18NString("service.gui.SHARE_REGION"));
 
-        shareRegion.setEnabled(false);
-
         popupMenu.add(shareFullScreen);
         popupMenu.add(shareRegion);
 

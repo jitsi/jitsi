@@ -428,8 +428,6 @@ public class MetaContactRightButtonMenu
         {
             add(multiContactFullShareMenu);
             add(multiContactRegionShareMenu);
-
-            multiContactRegionShareMenu.setEnabled(false);
         }
         else
         {
@@ -444,7 +442,7 @@ public class MetaContactRightButtonMenu
                 .getI18NString("service.gui.SHARE_REGION"),
                 "shareRegion",
                 null);
-            menuItem.setEnabled(false);
+
             contactDesktopSharingMenu.add(menuItem);
 
             add(contactDesktopSharingMenu);
