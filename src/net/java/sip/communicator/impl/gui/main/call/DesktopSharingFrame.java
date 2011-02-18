@@ -91,14 +91,7 @@ public class DesktopSharingFrame
 
         initContentPane(frame, initialFrame);
 
-        JComponent sharingRegion = new TransparentPanel();
-        // The preferred width on MacOSX should be a multiple of 16, that's why
-        // we put 592 as a default width. On the other hand the width on
-        // Windows or Linux should be preferably a multiple of 2.
-        if (OSUtils.IS_MAC)
-            sharingRegion.setPreferredSize(new Dimension(592, 400));
-        else
-            sharingRegion.setPreferredSize(new Dimension(600, 400));
+        JComponent sharingRegion = createSharingRegion();
 
         frame.getContentPane().add(sharingRegion, BorderLayout.NORTH);
 
@@ -128,15 +121,7 @@ public class DesktopSharingFrame
 
         initContentPane(frame, initialFrame);
 
-        JComponent sharingRegion = new TransparentPanel();
-
-        // The preferred width on MacOSX should be a multiple of 16, that's why
-        // we put 592 as a default width. On the other hand the width on
-        // Windows or Linux should be preferably a multiple of 2.
-        if (OSUtils.IS_MAC)
-            sharingRegion.setPreferredSize(new Dimension(592, 400));
-        else
-            sharingRegion.setPreferredSize(new Dimension(600, 400));
+        JComponent sharingRegion = createSharingRegion();
 
         frame.getContentPane().add(sharingRegion, BorderLayout.NORTH);
 
@@ -268,30 +253,30 @@ public class DesktopSharingFrame
         {
             protected void paintComponent(Graphics g)
             {
-                if (TransparentFrame.isTranslucencySupported)
-                {
-                    AntialiasingManager.activateAntialiasing(g);
-                    final int R = 240;
-                    final int G = 240;
-                    final int B = 240;
+                super.paintComponent(g);
 
-                    Paint p =
-                    new GradientPaint(0.0f, 0.0f, new Color(R, G, B, 0),
-                        getWidth(), getHeight(), new Color(R, G, B, 0), true);
-                    Graphics2D g2d = (Graphics2D)g;
-                    g2d.setPaint(p);
-                    g2d.fillRect(0, 0, getWidth(), getHeight());
-                    g2d.setColor(new Color( Color.DARK_GRAY.getRed(),
-                                            Color.DARK_GRAY.getGreen(),
-                                            Color.DARK_GRAY.getBlue(), 180));
-                    g2d.setStroke(
-                        new BasicStroke((float) 4));
-                    g2d.drawRoundRect(
-                        0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-                }
-                else
+                g = g.create();
+
+                try
                 {
-                    super.paintComponent(g);
+                    if (TransparentFrame.isTranslucencySupported)
+                    {
+                        AntialiasingManager.activateAntialiasing(g);
+
+                        Graphics2D g2d = (Graphics2D)g;
+
+                        g2d.setColor(new Color( Color.DARK_GRAY.getRed(),
+                                                Color.DARK_GRAY.getGreen(),
+                                                Color.DARK_GRAY.getBlue(), 180));
+                        g2d.setStroke(
+                            new BasicStroke((float) 4));
+                        g2d.drawRoundRect(
+                            0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
+                    }
+                }
+                finally
+                {
+                    g.dispose();
                 }
             }
         };
@@ -308,6 +293,28 @@ public class DesktopSharingFrame
 
         if (TransparentFrame.isTranslucencySupported)
             frame.setAlwaysOnTop(true);
+    }
+
+    /**
+     * Creates the sharing region.
+     *
+     * @return the created sharing region
+     */
+    private static JComponent createSharingRegion()
+    {
+        JComponent sharingRegion = new TransparentPanel();
+
+        // The preferred width on MacOSX should be a multiple of 16, that's why
+        // we put 592 as a default width. On the other hand the width on
+        // Windows or Linux should be preferably a multiple of 2.
+        if (OSUtils.IS_MAC)
+            sharingRegion.setPreferredSize(new Dimension(592, 400));
+        else
+            sharingRegion.setPreferredSize(new Dimension(600, 400));
+
+        sharingRegion.setDoubleBuffered(false);
+
+        return sharingRegion;
     }
 
     /**

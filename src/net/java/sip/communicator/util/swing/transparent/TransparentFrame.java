@@ -67,10 +67,17 @@ public class TransparentFrame
             }
         }
 
-        return new TransparentFrame(translucencyCapableGC);
+        if (isTranslucencySupported)
+            return new TransparentFrame(translucencyCapableGC);
+
+        return new TransparentFrame();
     }
 
-    /** Creates new form FancyFrame */
+    /**
+     * Creates an undecorated transparent frame.
+     *
+     * @param gc the <tt>GraphicsConfiguration</tt> to use
+     */
     private TransparentFrame(GraphicsConfiguration gc)
     {
         super(gc);
@@ -78,5 +85,13 @@ public class TransparentFrame
         setUndecorated(true);
         AWTUtilitiesWrapper.setWindowOpaque(this, false);
         AWTUtilitiesWrapper.setWindowOpacity(this, 1f);
+    }
+
+    /**
+     * Creates an undecorated frame.
+     */
+    private TransparentFrame()
+    {
+        setUndecorated(true);
     }
 }
