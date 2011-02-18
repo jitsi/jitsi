@@ -423,6 +423,9 @@
             depends="load-properties">
         <property name="windows_native_path" value="${sc.basedir}\lib\native\windows"/>
         <property name="windows.jre.arch.file" value="${windows.jre.file}"/>
+        <condition property="windows.jre.arch.zip" value="${windows.jre.zip}">
+            <isset property="windows.jre.zip" />
+        </condition>
         <property name="windows.download.link" value="${link.download.windows32}"/>
         <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x86.exe"/>
         <property name="windows.arch" value="32"/>
@@ -434,11 +437,20 @@
             depends="load-properties">
         <property name="windows_native_path" value="${sc.basedir}\lib\native\windows-64"/>
         <property name="windows.jre.arch.file" value="${windows.jre64.file}"/>
+        <condition property="windows.jre.arch.zip" value="${windows.jre64.zip}">
+            <isset property="windows.jre64.zip" />
+        </condition>
         <property name="windows.download.link" value="${link.download.windows64}"/>
         <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x64.exe"/>
         <property name="windows.arch" value="64"/>
         <property name="mingw.home" value="C:/mingw-w64/mingw-w64" />
         <antcall target="build-installation-wix-base" />
+    </target>
+
+    <target name="unzip-windows-jre" if="windows.jre.arch.zip.isset">
+        <unzip
+                src="${unzip.windows.jre.src}"
+                dest="${unzip.windows.jre.dest}" />
     </target>
 
     <target name="build-installation-wix-base"
@@ -515,6 +527,19 @@
             </fileset>
         </copy>
 
+        <condition property="windows.jre.arch.zip.isset">
+            <and>
+                <isset property="windows.jre.arch.zip" />
+                <not>
+                    <equals arg1="${windows.jre.arch.zip}" arg2="" />
+                </not>
+            </and>
+        </condition>
+        <antcall target="unzip-windows-jre">
+            <param name="unzip.windows.jre.src" value="${windows.jre.arch.zip}" />
+            <param name="unzip.windows.jre.dest" value="${light.dir}" />
+        </antcall>
+
         <!--
             This update-location.properties file is the only of interest to the
             MSI i.e. it gets installed on the user machine.
@@ -537,7 +562,6 @@
             <arg value="-ag" />
             <arg value="-cg" />
             <arg value="ComponentGroup_HeatExe" />
-            <arg value="-ke" />
             <arg value="-out" />
             <arg value="${windows.app.dir}\tmp\heat.wxs" />
             <arg value="-sfrag" />
@@ -555,9 +579,7 @@
                 out="${windows.app.dir}/tmp/component-refs.wxi"
                 style="${inst.resrc}/windows/heat-component-refs.xsl" />
 
-        <condition property="windows.is.64"
-            value="yes"
-            else="no">
+        <condition property="windows.is.64" value="yes" else="no">
             <equals arg1="${windows.arch}" arg2="64" />
         </condition>
 
@@ -568,7 +590,6 @@
         <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
         <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
         <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
-        <filter token="WINDOWS_JRE_FILE" value="${windows.jre.arch.file}" />
         <filter token="WINDOWS_IS_64" value="${windows.is.64}" />
         <filter token="WIX_PRODUCT_ID" value="${wix.product.id}" />
         <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
@@ -585,20 +606,35 @@
         </copy>
 
         <!-- Execute candle.exe -->
-        <condition property="wix.var.Platform" value="x64" else="x86">
+        <condition property="candle.var.Platform" value="x64" else="x86">
             <equals arg1="${windows.arch}" arg2="64" />
+        </condition>
+        <condition
+                property="candle.arg.var.JRESetup"
+                value="-dJRESetup=${windows.jre.arch.file}"
+                else="-nologo">
+            <and>
+                <isset property="windows.jre.arch.file" />
+                <not>
+                    <equals arg1="${windows.jre.arch.file}" arg2="" />
+                </not>
+                <not>
+                    <isset property="windows.jre.arch.zip.isset" />
+                </not>
+            </and>
         </condition>
         <exec
                 executable="${wix.home}\candle.exe"
                 dir="${windows.app.dir}/tmp"
                 failonerror="true">
             <arg value="-nologo" />
-            <arg value="-dPlatform=${wix.var.Platform}" />
+            <arg value="-dPlatform=${candle.var.Platform}" />
             <arg value="-ext" />
             <arg value="WixUIExtension" />
             <arg value="-ext" />
             <arg value="WixUtilExtension" />
             <arg value="-dSourceDir=light" />
+            <arg value="${candle.arg.var.JRESetup}" />
             <arg value="installer-windows.wxs" />
         </exec>
 

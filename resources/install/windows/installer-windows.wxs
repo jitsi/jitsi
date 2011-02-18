@@ -109,7 +109,7 @@
   <ComponentGroupRef Id="ComponentGroup_RegistryEntries" />
 </Feature>
 
-<Media Id="1" Cabinet="Data1.cab" EmbedCab="yes" />
+<Media Id="1" Cabinet="Data1.cab" CompressionLevel="high" EmbedCab="yes" />
 
 <UI>
   <UIRef Id="WixUI_CInstallDir" />
@@ -184,6 +184,7 @@
       Value="LaunchApplication">
     <![CDATA[WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND JRE_VERSION >= "1.5" AND NOT Installed]]>
   </Publish>
+<?ifdef JRESetup ?>
   <Publish
       Control="Finish"
       Dialog="CExitDialog"
@@ -191,6 +192,7 @@
       Value="InstallJRE">
     <![CDATA[WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND JRE_VERSION < "1.5" AND NOT Installed]]>
   </Publish>
+<?endif?>
 
   <InstallUISequence>
     <Show Dialog="CExitDialog" OnExit="success">
@@ -237,9 +239,11 @@
       <![CDATA[NOT HAS_STARTUP_REGISTRY AND NOT (HAS_STARTUP_REGISTRY = "#1")]]>
     </Custom>
 
+<?ifdef JRESetup ?>
     <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
       <![CDATA[JRE_VERSION < "1.5" AND NOT Installed]]>
     </Custom>
+<?endif?>
   </InstallUISequence>
 
   <AdminUISequence>
@@ -249,11 +253,13 @@
   </AdminUISequence>
 </UI>
 
+<?ifdef JRESetup ?>
 <CustomAction
     Id="InstallJRE"
     BinaryKey="JRESetup"
     ExeCommand=""
     Return="asyncNoWait" />
+<?endif?>
 <CustomAction
     Id="LaunchApplication"
     BinaryKey="WixCA"
@@ -279,10 +285,12 @@
     Id="SetIS_AUTOUPDATE"
     Property="IS_AUTOUPDATE"
     Value="1" />
+<?ifdef JRESetup ?>
 <CustomAction
     Id="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
     Property="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
     Value="Install Java(TM) SE Runtime Environment" />
+<?endif?>
 <CustomAction
     Id="UnsetCREATE_DESKTOP_SHORTCUT"
     Property="CREATE_DESKTOP_SHORTCUT"
@@ -329,9 +337,11 @@
     <![CDATA[NOT HAS_STARTUP_REGISTRY AND NOT (HAS_STARTUP_REGISTRY = "#1")]]>
   </Custom>
 
+<?ifdef JRESetup ?>
   <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
     <![CDATA[JRE_VERSION < "1.5" AND NOT Installed]]>
   </Custom>
+<?endif?>
 </InstallExecuteSequence>
 
 <Property Id="HAS_DESKTOP_SHORTCUT">
@@ -370,6 +380,7 @@
      HAS_STARTUP_SHORTCUT
 </SetProperty>
 <Property Id="JRE_VERSION">
+<?ifdef JRESetup ?>
   <RegistrySearch
       Id="RegistrySearch_JREVersion"
       Key="Software\JavaSoft\Java Runtime Environment"
@@ -377,14 +388,17 @@
       Root="HKLM"
       Type="raw"
       Win64="@WINDOWS_IS_64@" />
+<?else?>
+  1.5
+<?endif?>
 </Property>
 
 <Property Id="ARPCONTACT" Value="@APP_EMAIL@" />
 <Property Id="ARPHELPLINK" Value="@APP_WEB@" />
 <Property Id="ARPPRODUCTICON" Value="Icon.ico" />
-<!-- we move from startup shortcut to registry entry, we
-    always set CREATE_STARTUP_SHORTCUT = 0 so on update
-    the old shortcuts will be removed
+<!--
+    We've switched the startup from shortcut to registry so we'll always set
+    CREATE_STARTUP_SHORTCUT to 0 in order to remove the old shortcut on update.
 -->
 <Property Id="CREATE_STARTUP_SHORTCUT" Value="0" />
 <Property Id="CREATE_FEED_REGISTRY_ENTRIES" Value="0" />
@@ -404,7 +418,9 @@
 
 <Icon Id="Icon.ico" SourceFile="sc-logo.ico" />
 
-<Binary Id="JRESetup" SourceFile="@WINDOWS_JRE_FILE@" />
+<?ifdef JRESetup ?>
+<Binary Id="JRESetup" SourceFile="$(var.JRESetup)" />
+<?endif?>
 
 </Product>
 
