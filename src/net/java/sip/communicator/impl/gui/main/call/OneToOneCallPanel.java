@@ -426,6 +426,7 @@ public class OneToOneCallPanel
             southPanel.add(enableDesktopRemoteControl);
 
             enableDesktopRemoteControl.setAlignmentX(CENTER_ALIGNMENT);
+            enableDesktopRemoteControl.setOpaque(false);
 
             enableDesktopRemoteControl.addItemListener(new ItemListener()
             {
