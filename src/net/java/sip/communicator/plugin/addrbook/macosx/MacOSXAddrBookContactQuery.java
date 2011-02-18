@@ -204,8 +204,27 @@ public class MacOSXAddrBookContactQuery
         super(contactSource, query);
     }
 
+    /**
+     * Gets the <tt>imageData</tt> of a specific <tt>ABPerson</tt> instance.
+     *
+     * @param person the pointer to the <tt>ABPerson</tt> instance to get the
+     * <tt>imageData</tt> of
+     * @return the <tt>imageData</tt> of the specified <tt>ABPerson</tt>
+     * instance
+     */
     private static native byte[] ABPerson_imageData(long person);
 
+    /**
+     * Gets the values of a specific set of <tt>ABRecord</tt> properties for a
+     * specific <tt>ABRecord</tt> instance.
+     *
+     * @param record the pointer to the <tt>ABRecord</tt> to get the property
+     * values of
+     * @param properties the set of <tt>ABRecord</tt> properties to get the
+     * values of
+     * @return the values of the specified set of <tt>ABRecord</tt> properties
+     * for the specified <tt>ABRecord</tt> instance
+     */
     private static native Object[] ABRecord_valuesForProperties(
             long record,
             long[] properties);
