@@ -950,24 +950,24 @@ public class MediaServiceImpl
         MediaLocator locator =
             ((MediaDeviceImpl)mediaDevice).getCaptureDeviceInfo().getLocator();
         int display = Integer.parseInt(locator.getRemainder());
-        int mod = 0;
+        int multiple = 0;
 
         /* on Mac OS X, width have to be a multiple of 16 */
         if(OSUtils.IS_MAC)
         {
-            mod = width % 16;
-            width += mod;
+            multiple =  Math.round(width / 16f);
+            width = multiple * 16;
         }
         else
         {
             /* JMF filter graph seems to not like odd width */
-            mod = width % 2;
-            width += mod;
+            multiple = Math.round(width / 2f);
+            width = multiple * 2;
         }
 
         /* JMF filter graph seems to not like odd height */
-        mod = height % 2;
-        height += mod;
+        multiple = Math.round(height / 2f);
+        height = multiple * 2;
 
         size = new Dimension(width, height);
 
