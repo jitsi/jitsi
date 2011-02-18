@@ -1107,11 +1107,6 @@ public class NetworkUtils
         implements NetworkConfigurationChangeListener
     {
         /**
-         * The last network change we have received.
-         */
-        private int lastChange = -1;
-
-        /**
          * Fired when a change has occurred in the
          * computer network configuration.
          *
@@ -1119,13 +1114,10 @@ public class NetworkUtils
          */
         public void configurationChanged(ChangeEvent event)
         {
-            if(lastChange == ChangeEvent.IFACE_DOWN
-                && event.getType() == ChangeEvent.IFACE_UP)
+            if(event.getType() == ChangeEvent.IFACE_UP)
             {
                 reloadDnsResolverConfig();
             }
-
-            lastChange = event.getType();
         }
     }
 

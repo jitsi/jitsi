@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.history;
 
 import java.util.*;
+import java.util.regex.*;
 
 import org.w3c.dom.*;
 
@@ -689,7 +690,8 @@ public class HistoryReaderImpl
 
             for (int i = 0; i < keywords.length; i++)
             {
-                if(!value.matches(regexpStart + keywords[i] + REGEXP_END))
+                if(!value.matches(
+                    regexpStart + Pattern.quote(keywords[i]) + REGEXP_END))
                     return false;
             }
 
