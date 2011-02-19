@@ -122,12 +122,20 @@ public class MetaContactRightButtonMenu
             "service.gui.VIDEO_CALL"));
 
     /**
-     * The menu responsible for desktop sharing when a single desktop sharing
-     * contact is available.
+     * The menu responsible for full screen sharing when more than one contact
+     * is available for sharing.
      */
-    private final SIPCommMenu contactDesktopSharingMenu = new SIPCommMenu(
+    private final JMenuItem fullShareMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString(
-            "service.gui.SHARE_DESKTOP"));
+            "service.gui.SHARE_FULL_SCREEN"));
+
+    /**
+     * The menu responsible for region screen sharing when more than one contact
+     * is available for sharing.
+     */
+    private final JMenuItem regionShareMenuItem = new JMenuItem(
+        GuiActivator.getResources().getI18NString(
+            "service.gui.SHARE_REGION"));
 
     /**
      * The menu responsible for full screen sharing when more than one contact
@@ -431,21 +439,11 @@ public class MetaContactRightButtonMenu
         }
         else
         {
-            // Create desktop sharing menu.
-            contactDesktopSharingMenu.add(
-                createMenuItem( GuiActivator.getResources()
-                                .getI18NString("service.gui.SHARE_FULL_SCREEN"),
-                                "shareFullScreen",
-                                null));
+            fullShareMenuItem.setName("shareFullScreen");
+            add(fullShareMenuItem);
 
-            JMenuItem menuItem = createMenuItem( GuiActivator.getResources()
-                .getI18NString("service.gui.SHARE_REGION"),
-                "shareRegion",
-                null);
-
-            contactDesktopSharingMenu.add(menuItem);
-
-            add(contactDesktopSharingMenu);
+            regionShareMenuItem.setName("shareRegion");
+            add(regionShareMenuItem);
         }
 
         add(sendFileItem);
@@ -501,7 +499,10 @@ public class MetaContactRightButtonMenu
 
         if (metaContact.getDefaultContact(
             OperationSetDesktopSharingServer.class) == null)
-            this.contactDesktopSharingMenu.setEnabled(false);
+        {
+            fullShareMenuItem.setEnabled(false);
+            regionShareMenuItem.setEnabled(false);
+        }
 
         if (metaContact.getDefaultContact(
             OperationSetBasicInstantMessaging.class) == null)
@@ -609,17 +610,6 @@ public class MetaContactRightButtonMenu
             this.videoCallItem.setMnemonic(videoCallMnemonic);
         }
 
-        char desktopSharingMnemonic = GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.SHARE_DESKTOP");
-
-        if (contactDesktopSharingMenu.getItemCount() > 1)
-        {
-            this.contactDesktopSharingMenu.setMnemonic(desktopSharingMnemonic);
-        }
-        else
-        {
-            this.contactDesktopSharingMenu.setMnemonic(desktopSharingMnemonic);
-        }
         this.sendSmsItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.SEND_SMS"));
         this.sendFileItem.setMnemonic(GuiActivator.getResources()
@@ -1045,8 +1035,20 @@ public class MetaContactRightButtonMenu
         videoCallItem.setIcon(new ImageIcon(
             ImageLoader.getImage(ImageLoader.VIDEO_CALL)));
 
-        contactDesktopSharingMenu.setIcon(new ImageIcon(
+        videoCallMenu.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.VIDEO_CALL)));
+
+        fullShareMenuItem.setIcon(new ImageIcon(
             ImageLoader.getImage(ImageLoader.DESKTOP_SHARING)));
+
+        regionShareMenuItem.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.REGION_DESKTOP_SHARING)));
+
+        multiContactFullShareMenu.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.DESKTOP_SHARING)));
+
+        multiContactRegionShareMenu.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.REGION_DESKTOP_SHARING)));
 
         sendMessageItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));

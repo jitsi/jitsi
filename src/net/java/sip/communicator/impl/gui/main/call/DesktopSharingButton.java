@@ -103,10 +103,14 @@ public class DesktopSharingButton
         popupMenu.setFocusable(true);
 
         JMenuItem shareFullScreen = new JMenuItem(GuiActivator.getResources()
-            .getI18NString("service.gui.SHARE_FULL_SCREEN"));
+            .getI18NString("service.gui.SHARE_FULL_SCREEN"),
+            new ImageIcon(
+                ImageLoader.getImage(ImageLoader.DESKTOP_SHARING)));
 
         JMenuItem shareRegion = new JMenuItem(GuiActivator.getResources()
-            .getI18NString("service.gui.SHARE_REGION"));
+            .getI18NString("service.gui.SHARE_REGION"),
+            new ImageIcon(
+                ImageLoader.getImage(ImageLoader.REGION_DESKTOP_SHARING)));
 
         popupMenu.add(shareFullScreen);
         popupMenu.add(shareRegion);

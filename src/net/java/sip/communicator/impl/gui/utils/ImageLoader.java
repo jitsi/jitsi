@@ -900,6 +900,12 @@ public class ImageLoader
         = new ImageID("service.gui.icons.DESKTOP_SHARING_16x16_ICON");
 
     /**
+     * The desktop sharing menu item icon.
+     */
+    public static final ImageID REGION_DESKTOP_SHARING
+        = new ImageID("service.gui.icons.REGION_SHARING_16x16_ICON");
+
+    /**
      * The volume control button icon.
      */
     public static final ImageID VOLUME_CONTROL_BUTTON
