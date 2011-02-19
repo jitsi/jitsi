@@ -28,6 +28,23 @@ public class MsOutlookAddrBookContactSourceService
     static
     {
         System.loadLibrary("jmsoutlookaddrbook");
+
+        /*
+         * We have multiple reports of an "UnsatisfiedLinkError: no
+         * jmsoutlookaddrbook in java.library.path" at
+         * MsOutlookAddrBookContactSourceService#queryContactSource() which
+         * seems strange since getting there means that we have already
+         * successfully gone through the System.loadLibrary() above. Try to load
+         * MsOutlookAddrBookContactQuery here and see how it goes.
+         */
+        try
+        {
+            Class.forName(MsOutlookAddrBookContactQuery.class.getName());
+        }
+        catch (ClassNotFoundException cnfe)
+        {
+            throw new RuntimeException(cnfe);
+        }
     }
 
     /**
