@@ -272,6 +272,7 @@ public class OneToOneCallPanel
         ShowHideVideoButton showHideButton = new ShowHideVideoButton(
             call, true, callContainer.isShowHideVideoButtonSelected());
         showHideButton.setPeerRenderer(peerPanel);
+        showHideButton.setEnabled(callContainer.isVideoButtonSelected());
 
         Component[] buttons
             = new Component[]
