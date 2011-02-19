@@ -440,9 +440,11 @@ public class MetaContactRightButtonMenu
         else
         {
             fullShareMenuItem.setName("shareFullScreen");
+            fullShareMenuItem.addActionListener(this);
             add(fullShareMenuItem);
 
             regionShareMenuItem.setName("shareRegion");
+            regionShareMenuItem.addActionListener(this);
             add(regionShareMenuItem);
         }
 

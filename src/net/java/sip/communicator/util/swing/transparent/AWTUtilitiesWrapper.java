@@ -14,8 +14,8 @@ import java.awt.Shape;
 import java.awt.Window;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import net.java.sip.communicator.util.*;
 
 /**
  *
@@ -23,6 +23,9 @@ import java.util.logging.Logger;
  */
 public class AWTUtilitiesWrapper
 {
+    private static final Logger logger  
+        = Logger.getLogger(AWTUtilitiesWrapper.class);
+
     private static Class<?> awtUtilitiesClass;
     private static Class<?> translucencyClass;
     private static Method mIsTranslucencySupported, mIsTranslucencyCapable,
@@ -61,18 +64,15 @@ public class AWTUtilitiesWrapper
         }
         catch (NoSuchMethodException ex)
         {
-            Logger.getLogger(AWTUtilitiesWrapper.class.getName())
-                .log(Level.SEVERE, null, ex);
+            logger.info("Not available transparent windows.");
         }
         catch (SecurityException ex)
         {
-            Logger.getLogger(AWTUtilitiesWrapper.class.getName())
-                .log(Level.SEVERE, null, ex);
+            logger.info("Not available transparent windows.");
         }
         catch (ClassNotFoundException ex)
         {
-            Logger.getLogger(AWTUtilitiesWrapper.class.getName())
-                .log(Level.SEVERE, null, ex);
+            logger.info("Not available transparent windows.");
         }
     }
 
@@ -97,18 +97,15 @@ public class AWTUtilitiesWrapper
         }
         catch (IllegalAccessException ex)
         {
-            Logger.getLogger(AWTUtilitiesWrapper.class.getName())
-                .log(Level.SEVERE, null, ex);
+            logger.info("Not available transparent windows.");
         }
         catch (IllegalArgumentException ex)
         {
-            Logger.getLogger(AWTUtilitiesWrapper.class.getName())
-                .log(Level.SEVERE, null, ex);
+            logger.info("Not available transparent windows.");
         }
         catch (InvocationTargetException ex)
         {
-            Logger.getLogger(AWTUtilitiesWrapper.class.getName())
-            .log(Level.SEVERE, null, ex);
+            logger.info("Not available transparent windows.");
         }
         return false;
     }
@@ -138,18 +135,15 @@ public class AWTUtilitiesWrapper
         }
         catch (IllegalAccessException ex)
         {
-            Logger.getLogger(AWTUtilitiesWrapper.class.getName())
-                .log(Level.SEVERE, null, ex);
+            logger.info("Not available transparent windows.");
         }
         catch (IllegalArgumentException ex)
         {
-            Logger.getLogger(AWTUtilitiesWrapper.class.getName())
-                .log(Level.SEVERE, null, ex);
+            logger.info("Not available transparent windows.");
         }
         catch (InvocationTargetException ex)
         {
-            Logger.getLogger(AWTUtilitiesWrapper.class.getName())
-                .log(Level.SEVERE, null, ex);
+            logger.info("Not available transparent windows.");
         }
     }
 
