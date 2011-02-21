@@ -405,6 +405,8 @@ public class NotificationContact
         {
             super(  messageAccount,
                     messageAccount,
+                    null,
+                    null,
                     ImageLoader.getAccountStatusImage(protocolProvider),
                     protocolProvider,
                     protocolProvider.getProtocolName());

@@ -6,7 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.contactsource;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -254,6 +256,8 @@ public class SourceUIContact
         {
             super(  detail.getContactAddress(),
                     detail.getContactAddress(),
+                    detail.getCategory(),
+                    detail.getLabels(),
                     null,
                     detail.getPreferredProtocolProvider(opSetClass),
                     detail.getPreferredProtocol(opSetClass));
@@ -295,22 +299,74 @@ public class SourceUIContact
 
         tip.setTitle(sourceContact.getDisplayName());
 
-        Iterator<ContactDetail> details
-            = sourceContact.getContactDetails().iterator();
+        List<ContactDetail> details = sourceContact.getContactDetails(
+                                        ContactDetail.CATEGORY_PHONE);
 
-        ContactDetail contactDetail;
-        while (details.hasNext())
-        {
-            contactDetail = details.next();
+        if (details != null && details.size() > 0)
+            addDetailsToToolTip(details,
+                                ContactDetail.CATEGORY_PHONE,
+                                tip);
 
-            String contactAddress = contactDetail.getContactAddress();
-            //String statusMessage = protocolContact.getStatusMessage();
+        details = sourceContact.getContactDetails(
+                    ContactDetail.CATEGORY_EMAIL);
 
-            tip.addLine(null, contactAddress);
-        }
+        if (details != null && details.size() > 0)
+            addDetailsToToolTip(details,
+                                ContactDetail.CATEGORY_EMAIL,
+                                tip);
+
+        details = sourceContact.getContactDetails(
+                    ContactDetail.CATEGORY_INSTANT_MESSAGING);
+
+        if (details != null && details.size() > 0)
+            addDetailsToToolTip(details,
+                                ContactDetail.CATEGORY_INSTANT_MESSAGING,
+                                tip);
 
         tip.setBottomText(getDisplayDetails());
 
         return tip;
+    }
+
+    private void addDetailsToToolTip(   List<ContactDetail> details,
+                                        String category,
+                                        ExtendedTooltip toolTip)
+    {
+        ContactDetail contactDetail;
+
+        JLabel categoryLabel = new JLabel(category + "s", null, JLabel.LEFT);
+        categoryLabel.setFont(categoryLabel.getFont().deriveFont(Font.BOLD));
+        categoryLabel.setForeground(Color.DARK_GRAY);
+
+        toolTip.addLine(null, " ");
+        toolTip.addLine(new JLabel[]{categoryLabel});
+
+        Iterator<ContactDetail> detailsIter = details.iterator();
+        while (detailsIter.hasNext())
+        {
+            contactDetail = detailsIter.next();
+            Collection<String> labels = contactDetail.getLabels();
+
+            JLabel[] jLabels = new JLabel[labels.size() + 1];
+            int i = 0;
+            if (labels != null && labels.size() > 0)
+            {
+                Iterator<String> labelsIter = labels.iterator();
+                while(labelsIter.hasNext())
+                {
+                    JLabel label = new JLabel(labelsIter.next().toLowerCase());
+                    label.setFont(label.getFont().deriveFont(Font.BOLD));
+                    label.setForeground(Color.GRAY);
+
+                    jLabels[i] = label;
+                    i++;
+                }
+            }
+
+            jLabels[i] = new JLabel(contactDetail.getContactAddress());
+
+            toolTip.addLine(jLabels);
+        }
+
     }
 }

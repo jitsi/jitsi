@@ -423,6 +423,8 @@ public class MetaUIContact
         {
             super(  contact.getAddress(),
                     contact.getDisplayName(),
+                    null,
+                    null,
                     new ImageIcon(
                         contact.getPresenceStatus().getStatusIcon()),
                     contact.getProtocolProvider(),

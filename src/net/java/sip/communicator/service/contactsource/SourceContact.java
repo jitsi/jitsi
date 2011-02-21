@@ -61,6 +61,15 @@ public interface SourceContact
                                     Class<? extends OperationSet> operationSet);
 
     /**
+     * Returns a list of all <tt>ContactDetail</tt>s corresponding to the given
+     * category.
+     * @param category the <tt>OperationSet</tt> class we're looking for
+     * @return a list of all <tt>ContactDetail</tt>s corresponding to the given
+     * category
+     */
+    public List<ContactDetail> getContactDetails(String category);
+
+    /**
      * Returns the preferred <tt>ContactDetail</tt> for a given
      * <tt>OperationSet</tt> class.
      * @param operationSet the <tt>OperationSet</tt> class, for which we would

@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
@@ -18,6 +19,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -252,7 +254,56 @@ public class ChooseCallAccountPopupMenu
             }
         });
 
-        this.add(contactItem);
+        String category = telephonyContact.getCategory();
+
+        if (category != null && category.equals(ContactDetail.CATEGORY_PHONE))
+        {
+            int index = findPhoneItemIndex();
+            if (index < 0)
+                add(contactItem);
+            else
+                insert(contactItem, findPhoneItemIndex());
+        }
+        else
+        {
+            Component lastComp = getComponent(getComponentCount() - 1);
+            if (lastComp instanceof ContactMenuItem)
+                category = ((ContactMenuItem) lastComp).getCategory();
+
+            if (category != null
+                && category.equals(ContactDetail.CATEGORY_PHONE))
+                addSeparator();
+
+            add(contactItem);
+        }
+    }
+
+    /**
+     * Returns the index of a phone menu item.
+     *
+     * @return the index of a phone menu item
+     */
+    private int findPhoneItemIndex()
+    {
+        int index = -1;
+        for (int i = getComponentCount() - 1; i > 1; i--)
+        {
+            Component c = getComponent(i);
+
+            if (c instanceof ContactMenuItem)
+            {
+                String category = ((ContactMenuItem) c).getCategory();
+                if (category == null
+                    || !category.equals(ContactDetail.CATEGORY_PHONE))
+                continue;
+            }
+            else if (c instanceof JSeparator)
+                index = i - 1;
+            else
+                return index;
+        }
+
+        return index;
     }
 
     /**
@@ -329,7 +380,10 @@ public class ChooseCallAccountPopupMenu
      */
     private Component createInfoLabel(String infoString)
     {
-        JLabel infoLabel = new JLabel();
+        JMenuItem infoLabel = new JMenuItem();
+
+        infoLabel.setEnabled(false);
+        infoLabel.setFocusable(false);
 
         infoLabel.setText("<html><b>" + infoString + "</b></html>");
 
@@ -395,8 +449,29 @@ public class ChooseCallAccountPopupMenu
         public ContactMenuItem(UIContactDetail contact)
         {
             this.contact = contact;
-            this.setText(contact.getDisplayName());
+
+            String itemName = "<html>";
+            Iterator<String> labels = contact.getLabels();
+
+            if (labels != null && labels.hasNext())
+                while (labels.hasNext())
+                    itemName += "<b style=\"color: gray\">"
+                                + labels.next().toLowerCase() + "</b> ";
+
+            itemName += contact.getDisplayName() + "</html>";
+
+            this.setText(itemName);
             loadSkin();
+        }
+
+        /**
+         * Returns the category of the underlying contact detail.
+         *
+         * @return the category of the underlying contact detail
+         */
+        public String getCategory()
+        {
+            return contact.getCategory();
         }
 
         /**

@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.plaf.metal.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The tooltip shown over a contact in the contact list.
@@ -120,23 +121,47 @@ public class ExtendedTooltip
     {
         JLabel lineLabel = new JLabel(  text,
                                         icon,
-                                        JLabel.CENTER);
+                                        JLabel.LEFT);
 
         linesPanel.add(lineLabel);
 
-        int iconWidth = 0;
-        if (icon != null)
-            iconWidth = icon.getIconWidth();
+        Dimension labelSize = calculateLabelSize(lineLabel);
 
-        int stringWidth
-            = GuiUtils.getStringWidth(lineLabel, text)
-                + iconWidth
-                + lineLabel.getIconTextGap();
+        recalculateTooltipSize(labelSize.width, labelSize.height);
+    }
 
-        if (textWidth < stringWidth)
-            textWidth = stringWidth;
+    /**
+     * Adds the given array of labels as one line in this tool tip.
+     *
+     * @param labels the labels to add
+     */
+    public void addLine(JLabel[] labels)
+    {
+        Dimension lineSize = null;
+        JPanel labelPanel = null;
 
-        textHeight += GuiUtils.getStringSize(lineLabel, text).height;
+        if (labels.length > 0)
+        {
+            labelPanel = new TransparentPanel(
+                new FlowLayout(FlowLayout.LEFT, 2, 0));
+            linesPanel.add(labelPanel);
+        }
+        else
+            return;
+
+        if (labelPanel != null)
+            for (JLabel label : labels)
+            {
+                labelPanel.add(label);
+                if (lineSize == null)
+                    lineSize = calculateLabelSize(label);
+                else
+                    lineSize = new Dimension(
+                        lineSize.width + calculateLabelSize(label).width,
+                        lineSize.height);
+            }
+
+        recalculateTooltipSize(lineSize.width, lineSize.height);
     }
 
     /**
@@ -146,6 +171,47 @@ public class ExtendedTooltip
     public void setBottomText(String text)
     {
         this.bottomLabel.setText(text);
+    }
+
+    /**
+     * Calculates label size.
+     *
+     * @param label the label, which size we should calculate
+     * @return the Dimension indicating the label size
+     */
+    private Dimension calculateLabelSize(JLabel label)
+    {
+        Icon icon = label.getIcon();
+        String text = label.getText();
+
+        int iconWidth = 0;
+        if (icon != null)
+            iconWidth = icon.getIconWidth();
+
+        int stringWidth
+            = GuiUtils.getStringWidth(label, text)
+                + iconWidth
+                + label.getIconTextGap();
+
+        int stringHeight = GuiUtils.getStringSize(label, text).height;
+
+        return new Dimension(stringWidth, stringHeight);
+    }
+
+    /**
+     * Re-calculates the tooltip size.
+     *
+     * @param newTextWidth the width of the newly added text that should be
+     * added to the global width
+     * @param newTextHeight the height of the newly added text that should be
+     * added to the global height
+     */
+    private void recalculateTooltipSize(int newTextWidth, int newTextHeight)
+    {
+        if (textWidth < newTextWidth)
+            textWidth = newTextWidth;
+
+        textHeight += newTextHeight;
     }
 
     /**

@@ -278,6 +278,19 @@ public class CallHistorySourceContact implements SourceContact
     }
 
     /**
+     * Returns a list of all <tt>ContactDetail</tt>s corresponding to the given
+     * category.
+     * @param category the <tt>OperationSet</tt> class we're looking for
+     * @return a list of all <tt>ContactDetail</tt>s corresponding to the given
+     * category
+     */
+    public List<ContactDetail> getContactDetails(String category)
+    {
+        // We don't support category for call history details, so we return null.
+        return null;
+    }
+
+    /**
      * Returns the preferred <tt>ContactDetail</tt> for a given
      * <tt>OperationSet</tt> class.
      * @param operationSet the <tt>OperationSet</tt> class, for which we would

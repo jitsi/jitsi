@@ -98,6 +98,26 @@ public class AddrBookSourceContact
     }
 
     /**
+     * Returns a list of all <tt>ContactDetail</tt>s corresponding to the given
+     * category.
+     * @param category the <tt>OperationSet</tt> class we're looking for
+     * @return a list of all <tt>ContactDetail</tt>s corresponding to the given
+     * category
+     */
+    public List<ContactDetail> getContactDetails(String category)
+    {
+        List<ContactDetail> contactDetails = new LinkedList<ContactDetail>();
+
+        for (ContactDetail contactDetail : getContactDetails())
+        {
+            String detailCategory = contactDetail.getCategory();
+            if (detailCategory != null && detailCategory.equals(category))
+                contactDetails.add(contactDetail);
+        }
+        return contactDetails;
+    }
+
+    /**
      * Gets the <tt>ContactSourceService</tt> which has created this
      * <tt>SourceContact</tt>.
      *

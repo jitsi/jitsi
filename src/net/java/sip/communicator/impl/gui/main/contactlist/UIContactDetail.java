@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
+import java.util.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -46,10 +48,22 @@ public abstract class UIContactDetail
     private final String preferredProtocol;
 
     /**
+     * The collection of labels associated with this detail.
+     */
+    private final Collection<String> labels;
+
+    /**
+     * The category of the underlying contact detail.
+     */
+    private final String category;
+
+    /**
      * Creates a <tt>UIContactDetail</tt> by specifying the contact
      * <tt>address</tt>, the <tt>displayName</tt> and <tt>preferredProvider</tt>.
      * @param address the contact address
      * @param displayName the contact display name
+     * @param category the category of the underlying contact detail
+     * @param labels the collection of labels associated with this detail
      * @param statusIcon the status icon of this contact detail
      * @param preferredProvider the preferred protocol provider
      * @param preferredProtocol the preferred protocol if no protocol provider
@@ -58,12 +72,16 @@ public abstract class UIContactDetail
     public UIContactDetail(
         String address,
         String displayName,
+        String category,
+        Collection<String> labels,
         ImageIcon statusIcon,
         ProtocolProviderService preferredProvider,
         String preferredProtocol)
     {
         this.address = address;
         this.displayName = displayName;
+        this.category = category;
+        this.labels = labels;
         this.statusIcon = statusIcon;
         this.protocolProvider = preferredProvider;
         this.preferredProtocol = preferredProtocol;
@@ -85,6 +103,31 @@ public abstract class UIContactDetail
     public String getAddress()
     {
         return address;
+    }
+
+    /**
+     * Returns the category of the underlying detail.
+     *
+     * @return the category of the underlying detail
+     */
+    public String getCategory()
+    {
+        return category;
+    }
+
+    /**
+     * Returns an iterator over the collection of labels associated with this
+     * detail.
+     *
+     * @return an iterator over the collection of labels associated with this
+     * detail
+     */
+    public Iterator<String> getLabels()
+    {
+        if (labels != null)
+            return labels.iterator();
+
+        return null;
     }
 
     /**
