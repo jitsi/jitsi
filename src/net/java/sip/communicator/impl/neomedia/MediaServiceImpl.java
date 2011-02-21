@@ -1071,6 +1071,8 @@ public class MediaServiceImpl
         }
 
         ScreenDevice screen = getScreenForPoint(new Point(x, y));
+        ScreenDevice currentScreen = screen;
+        
         if(x < 0)
         {
             x += screen.getSize().width;
@@ -1080,7 +1082,7 @@ public class MediaServiceImpl
             List<ScreenDevice> devs = getAvailableScreenDevices();
             if(screen.getIndex() > 0)
             {
-               screen = devs.get(screen.getIndex() - 1);
+                screen = devs.get(screen.getIndex() - 1);
             }
             x -= screen.getSize().width;
         }
@@ -1094,13 +1096,13 @@ public class MediaServiceImpl
             List<ScreenDevice> devs = getAvailableScreenDevices();
             if(screen.getIndex() > 0)
             {
-              screen = devs.get(screen.getIndex() - 1);
+                screen = devs.get(screen.getIndex() - 1);
             }
             y -= screen.getSize().height;
         }
 
         ((net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource)
-        ds).setOrigin(0, x, y);
+        ds).setOrigin(0, currentScreen.getIndex(), x, y);
     }
 
     /**

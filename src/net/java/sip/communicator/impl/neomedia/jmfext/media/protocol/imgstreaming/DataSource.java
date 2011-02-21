@@ -47,15 +47,17 @@ public class DataSource
     /**
      * Set origin of <tt>ImageStream</tt>.
      *
-     * @param streamIndex
+     * @param streamIndex stream index
+     * @param monitorIndex monitor index
      * @param x x coordinate
      * @param y y coordinate
      */
-    public void setOrigin(int streamIndex, int x, int y)
+    public void setOrigin(int streamIndex, int monitorIndex, int x, int y)
     {
         if(stream != null)
         {
             stream.setOrigin(x, y);
+            stream.setDisplayIndex(monitorIndex);
         }
     }
 
