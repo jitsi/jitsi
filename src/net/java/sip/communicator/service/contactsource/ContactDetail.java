@@ -36,10 +36,16 @@ import net.java.sip.communicator.service.protocol.*;
 public class ContactDetail
 {
     /**
-     * The standard/well-known label of a <tt>ContactDetail</tt> representing an
-     * e-mail address.
+     * The standard/well-known category of a <tt>ContactDetail</tt> representing
+     * an e-mail address.
      */
-    public static final String LABEL_EMAIL = "Email";
+    public static final String CATEGORY_EMAIL = "Email";
+
+    /**
+     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
+     * phone number.
+     */
+    public static final String CATEGORY_PHONE = "Phone";
 
     /**
      * The standard/well-known label of a <tt>ContactDetail</tt> representing an
@@ -54,16 +60,16 @@ public class ContactDetail
     public static final String LABEL_MOBILE = "Mobile";
 
     /**
-     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
-     * phone number.
-     */
-    public static final String LABEL_PHONE = "Phone";
-
-    /**
      * The standard/well-known label of a <tt>ContactDetail</tt> representing an
      * address of a contact at their work.
      */
     public static final String LABEL_WORK = "Work";
+
+    /**
+     * The category of this <tt>ContactQuery</tt>. For example,
+     * {@link #CATEGORY_PHONE} or {@link #CATEGORY_EMAIL}.
+     */
+    private final String category;
 
     /**
      * The address of this contact detail. This should be the address through
@@ -127,15 +133,25 @@ public class ContactDetail
     {
         // contactAddress
         this.contactAddress = contactAddress;
-        // labels
+
+        // category & labels
+        String category = null;
+
         if (labels != null)
         {
             for (String label : labels)
             {
                 if ((label != null) && !this.labels.contains(label))
-                    this.labels.add(label);
+                {
+                    if (label.equals(CATEGORY_EMAIL)
+                            || label.equals(CATEGORY_PHONE))
+                        category = label;
+                    else
+                        this.labels.add(label);
+                }
             }
         }
+        this.category = category;
     }
 
     /**
@@ -184,6 +200,18 @@ public class ContactDetail
                             List<Class<? extends OperationSet>> supportedOpSets)
     {
         this.supportedOpSets = supportedOpSets;
+    }
+
+    /**
+     * Gets the category, if any, of this <tt>ContactQuery</tt>. For example,
+     * {@link #CATEGORY_PHONE} or {@link #CATEGORY_EMAIL}.
+     *
+     * @return the category of this <tt>ContactQuery</tt> if it has any;
+     * otherwise, <tt>null</tt>
+     */
+    public String getCategory()
+    {
+        return category;
     }
 
     /**

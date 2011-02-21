@@ -221,22 +221,28 @@ public class MsOutlookAddrBookContactQuery
         case dispidEmail2EmailAddress:
         case dispidEmail3EmailAddress:
         case PR_EMAIL_ADDRESS:
-            return new String[] { ContactDetail.LABEL_EMAIL };
+            return new String[] { ContactDetail.CATEGORY_EMAIL };
         case PR_BUSINESS2_TELEPHONE_NUMBER:
         case PR_BUSINESS_TELEPHONE_NUMBER:
             return
                 new String[]
-                        { ContactDetail.LABEL_PHONE, ContactDetail.LABEL_WORK };
+                        {
+                            ContactDetail.CATEGORY_PHONE,
+                            ContactDetail.LABEL_WORK
+                        };
         case PR_HOME2_TELEPHONE_NUMBER:
         case PR_HOME_TELEPHONE_NUMBER:
             return
                 new String[]
-                        { ContactDetail.LABEL_PHONE, ContactDetail.LABEL_HOME };
+                        {
+                            ContactDetail.CATEGORY_PHONE,
+                            ContactDetail.LABEL_HOME
+                        };
         case PR_MOBILE_TELEPHONE_NUMBER:
             return
                 new String[]
                         {
-                            ContactDetail.LABEL_PHONE,
+                            ContactDetail.CATEGORY_PHONE,
                             ContactDetail.LABEL_MOBILE
                         };
         default:

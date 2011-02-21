@@ -253,10 +253,10 @@ public class MacOSXAddrBookContactQuery
         switch (property)
         {
         case kABEmailProperty:
-            p = ContactDetail.LABEL_EMAIL;
+            p = ContactDetail.CATEGORY_EMAIL;
             break;
         case kABPhoneProperty:
-            p = ContactDetail.LABEL_PHONE;
+            p = ContactDetail.CATEGORY_PHONE;
             break;
         default:
             p = null;
