@@ -91,7 +91,7 @@ public class DesktopSharingFrame
 
         initContentPane(frame, initialFrame);
 
-        JComponent sharingRegion = createSharingRegion();
+        JComponent sharingRegion = createSharingRegion(initialFrame);
 
         frame.getContentPane().add(sharingRegion, BorderLayout.NORTH);
 
@@ -121,7 +121,7 @@ public class DesktopSharingFrame
 
         initContentPane(frame, initialFrame);
 
-        JComponent sharingRegion = createSharingRegion();
+        JComponent sharingRegion = createSharingRegion(initialFrame);
 
         frame.getContentPane().add(sharingRegion, BorderLayout.NORTH);
 
@@ -297,18 +297,23 @@ public class DesktopSharingFrame
         frame.setContentPane(contentPane);
         ComponentMover.registerComponent(frame);
 
-        if (TransparentFrame.isTranslucencySupported)
+        // On Linux transparency is supported but mouse events do not pass
+        // through.
+        if (TransparentFrame.isTranslucencySupported
+            && !OSUtils.IS_LINUX)
             frame.setAlwaysOnTop(true);
     }
 
     /**
      * Creates the sharing region.
      *
+     * @param initialFrame indicates if this is the frame which initiates the
+     * desktop sharing 
      * @return the created sharing region
      */
-    private static JComponent createSharingRegion()
+    private static JComponent createSharingRegion(boolean initialFrame)
     {
-        JComponent sharingRegion = new TransparentPanel();
+        JComponent sharingRegion = new TransparentPanel(new BorderLayout());
 
         // The preferred width on MacOSX should be a multiple of 16, that's why
         // we put 592 as a default width. On the other hand the width on
@@ -319,6 +324,16 @@ public class DesktopSharingFrame
             sharingRegion.setPreferredSize(new Dimension(600, 400));
 
         sharingRegion.setDoubleBuffered(false);
+
+        if (!TransparentFrame.isTranslucencySupported
+            && !initialFrame)
+        {
+            JLabel label = new JLabel(GuiActivator.getResources()
+                .getI18NString("service.gui.DRAG_FOR_SHARING"), JLabel.CENTER);
+
+            label.setForeground(Color.GRAY);
+            sharingRegion.add(label);
+        }
 
         return sharingRegion;
     }
