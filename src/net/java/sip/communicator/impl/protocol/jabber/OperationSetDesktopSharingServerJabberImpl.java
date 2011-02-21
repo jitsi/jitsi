@@ -134,6 +134,7 @@ public class OperationSetDesktopSharingServerJabberImpl
 
         size = (((VideoMediaFormat)call.getDefaultDevice(
                 MediaType.VIDEO).getFormat()).getSize());
+        origin = null;
         return call;
     }
 
@@ -161,6 +162,7 @@ public class OperationSetDesktopSharingServerJabberImpl
 
         size = (((VideoMediaFormat)call.getDefaultDevice(
                 MediaType.VIDEO).getFormat()).getSize());
+        origin = null;
         return call;
     }
 
@@ -498,12 +500,15 @@ public class OperationSetDesktopSharingServerJabberImpl
                 hidService.mouseRelease(event.getModifiers());
                 break;
             case MouseEvent.MOUSE_MOVED:
+                int originX = origin != null ? origin.x : 0;
+                int originY = origin != null ? origin.y : 0;
+
                 /* x and y position are sent in percentage but we multiply
                  * by 1000 in depacketizer because we cannot passed the size
                  * to the Provider
                  */
-                int x = ((event.getX() * size.width) / 1000);
-                int y = ((event.getY() * size.height) / 1000);
+                int x = originX + ((event.getX() * size.width) / 1000);
+                int y = originY + ((event.getY() * size.height) / 1000);
                 hidService.mouseMove(x, y);
                 break;
             case MouseEvent.MOUSE_WHEEL:

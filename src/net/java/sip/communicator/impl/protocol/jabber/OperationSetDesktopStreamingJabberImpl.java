@@ -29,6 +29,12 @@ public class OperationSetDesktopStreamingJabberImpl
     protected Dimension size = null;
 
     /**
+     * Origin (x, y) of the zone streamed. This apply only in case of partial
+     * desktop streaming.
+     */
+    protected Point origin = null;
+
+    /**
      * Initializes a new <tt>OperationSetDesktopStreamingJabberImpl</tt>
      * instance which builds upon the telephony-related functionality of a
      * specific <tt>OperationSetBasicTelephonyJabberImpl</tt>.
@@ -115,6 +121,7 @@ public class OperationSetDesktopStreamingJabberImpl
         Call call = createOutgoingVideoCall(uri);
         size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
                 MediaType.VIDEO).getFormat()).getSize());
+        origin = null;
         return call;
     }
 
@@ -137,6 +144,7 @@ public class OperationSetDesktopStreamingJabberImpl
         Call call = createOutgoingVideoCall(callee.getAddress());
         size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
                 MediaType.VIDEO).getFormat()).getSize());
+        origin = null;
         return call;
     }
 
@@ -161,6 +169,7 @@ public class OperationSetDesktopStreamingJabberImpl
         size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
                 MediaType.VIDEO).getFormat()).getSize());
         ((CallJabberImpl)call).modifyVideoContent(allowed);
+        origin = null;
     }
 
     /**
@@ -188,6 +197,7 @@ public class OperationSetDesktopStreamingJabberImpl
         ((CallJabberImpl)call).setVideoDevice(mediaDevice);
         size = ((VideoMediaFormat)mediaDevice.getFormat()).getSize();
         ((CallJabberImpl)call).modifyVideoContent(allowed);
+        origin = null;
     }
 
     /**
@@ -235,6 +245,7 @@ public class OperationSetDesktopStreamingJabberImpl
         call.setLocalVideoAllowed(true, getMediaUseCase());
 
         basicTelephony.createOutgoingCall(call, calleeAddress);
+        origin = null;
         return call;
     }
 
@@ -277,6 +288,16 @@ public class OperationSetDesktopStreamingJabberImpl
         {
             MediaService mediaService = JabberActivator.getMediaService();
             mediaService.movePartialDesktopStreaming(device, x, y);
+
+            if(origin != null)
+            {
+                origin.x = x;
+                origin.y = y;
+            }
+            else
+            {
+                origin = new Point(x, y);
+            }
         }
     }
 }

@@ -272,12 +272,16 @@ public class DesktopSharingProtocolSipImpl
      * @param root XML root element
      * @param size size of the video (used to have right (x,y) for MouseMoved
      * and MouseDragged
+     * @param origin origin coordinate (upper left corner)
      * @return list of <tt>java.awt.Event</tt>
      */
-    public static List<ComponentEvent> parse(Element root, Dimension size)
+    public static List<ComponentEvent> parse(Element root, Dimension size,
+            Point origin)
     {
         List<ComponentEvent> events = new ArrayList<ComponentEvent>();
         NodeList nl = null;
+        int originX = origin != null ? origin.x : 0;
+        int originY = origin != null ? origin.y : 0;
 
         nl = root.getElementsByTagName(ELEMENT_MOUSE_PRESS);
         if(nl != null)
@@ -329,16 +333,16 @@ public class DesktopSharingProtocolSipImpl
                 if(el.hasAttribute("x"))
                 {
                     x = (int)(Double.parseDouble(
-                            el.getAttribute("x")) * size.width);
+                            el.getAttribute("x")) * size.width + originX);
                 }
 
                 if(el.hasAttribute("y"))
                 {
                     y = (int)(Double.parseDouble(
-                            el.getAttribute("y")) * size.height);
+                            el.getAttribute("y")) * size.height + originY);
                 }
 
-                if(x >= 0 && y >= 0)
+                //if(x >= 0 && y >= 0)
                 {
                     MouseEvent me = new MouseEvent(component,
                             MouseEvent.MOUSE_MOVED,

@@ -31,6 +31,12 @@ public class OperationSetDesktopStreamingSipImpl
     protected Dimension size = null;
 
     /**
+     * Origin (x, y) of the zone streamed. This apply only in case of partial
+     * desktop streaming.
+     */
+    protected Point origin = null;
+
+    /**
      * Initializes a new <tt>OperationSetDesktopStreamingSipImpl</tt> instance
      * which builds upon the telephony-related functionality of a specific
      * <tt>OperationSetBasicTelephonySipImpl</tt>.
@@ -80,6 +86,7 @@ public class OperationSetDesktopStreamingSipImpl
         call.setVideoDevice(mediaDevice);
         call.setLocalVideoAllowed(true, getMediaUseCase());
         call.invite(toAddress, null);
+        origin = null;
         return call;
     }
 
@@ -115,6 +122,7 @@ public class OperationSetDesktopStreamingSipImpl
         call.setLocalVideoAllowed(true, getMediaUseCase());
         call.setVideoDevice(mediaDevice);
         call.invite(toAddress, null);
+        origin = null;
 
         return call;
     }
@@ -142,6 +150,7 @@ public class OperationSetDesktopStreamingSipImpl
         size = (((VideoMediaFormat)((CallSipImpl)call).
                 getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
+        origin = null;
         return call;
     }
 
@@ -165,6 +174,7 @@ public class OperationSetDesktopStreamingSipImpl
         size = (((VideoMediaFormat)((CallSipImpl)call).
                 getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
+        origin = null;
         return call;
     }
 
@@ -189,6 +199,7 @@ public class OperationSetDesktopStreamingSipImpl
         size = (((VideoMediaFormat)((CallSipImpl)call).
                 getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
+        origin = null;
 
         /* reinvite all peers */
         ((CallSipImpl)call).reInvite();
@@ -235,6 +246,7 @@ public class OperationSetDesktopStreamingSipImpl
         size = (((VideoMediaFormat)((CallSipImpl)call).
                 getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
+        origin = null;
 
         /* reinvite all peers */
         ((CallSipImpl)call).reInvite();
@@ -269,8 +281,7 @@ public class OperationSetDesktopStreamingSipImpl
      * @param x new x coordinate origin
      * @param y new y coordinate origin
      */
-    public void movePartialDesktopStreaming(Call call, int x,
-            int y)
+    public void movePartialDesktopStreaming(Call call, int x, int y)
     {
         CallSipImpl callImpl = (CallSipImpl)call;
         MediaDevice device = callImpl.getDefaultDevice(MediaType.VIDEO);
@@ -279,6 +290,27 @@ public class OperationSetDesktopStreamingSipImpl
         {
             MediaService mediaService = SipActivator.getMediaService();
             mediaService.movePartialDesktopStreaming(device, x, y);
+
+            if(origin != null)
+            {
+                origin.x = x;
+                origin.y = y;
+            }
+            else
+            {
+                origin = new Point(x, y);
+            }
+
         }
+    }
+
+    /**
+     * Get origin of streamed zone.
+     *
+     * @return origin of streamed zone or null if we stream the full desktop
+     */
+    public Point getOrigin()
+    {
+        return origin;
     }
 }

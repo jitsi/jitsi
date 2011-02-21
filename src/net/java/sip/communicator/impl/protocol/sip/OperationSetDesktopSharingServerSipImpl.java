@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.io.*;
 import java.util.List; // disambiguation
 import java.text.*;
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.sip.Dialog; // disambiguation
@@ -170,6 +171,7 @@ public class OperationSetDesktopSharingServerSipImpl
 
         size = (((VideoMediaFormat)call.getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
+        origin = null;
         return call;
     }
 
@@ -198,6 +200,7 @@ public class OperationSetDesktopSharingServerSipImpl
 
         size = (((VideoMediaFormat)call.getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
+        origin = null;
         return call;
     }
 
@@ -505,8 +508,10 @@ public class OperationSetDesktopSharingServerSipImpl
                 {
                     Element root = document.getDocumentElement();
                     List<ComponentEvent> events = null;
+                    Point p = getOrigin();
 
-                    events = DesktopSharingProtocolSipImpl.parse(root, size);
+                    events = DesktopSharingProtocolSipImpl.parse(root, size,
+                            p);
 
                     for(ComponentEvent evt : events)
                     {
