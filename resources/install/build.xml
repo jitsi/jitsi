@@ -785,14 +785,17 @@
             value="org.osgi.framework.system.packages.extra= org.growl4j;"/>
 
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
-            token="reference:file:sc-bundles/swingnotification.jar \">
-      <replacevalue><![CDATA[reference:file:sc-bundles/growlnotification.jar \
- reference:file:sc-bundles/swingnotification.jar \]]></replacevalue>
+            token="swingnotification.jar">
+      <replacevalue><![CDATA[swingnotification.jar reference\:file\:sc-bundles/growlnotification.jar]]></replacevalue>
        </replace>
 
       <!-- Remove the reference to the updatechecker bundle -->
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
                token="reference:file:sc-bundles/updatechecker.jar"
+               value=""/>
+      <!-- colons can be escaped after some modifications -->
+      <replace file="${macosx.resrc.dir}/felix.client.run.properties"
+               token="reference\:file\:sc-bundles/updatechecker.jar"
                value=""/>
       <replaceregexp file="${macosx.resrc.dir}/felix.client.run.properties"
                 match="^org.osgi.framework.storage=\$\{user.home\}/.sip-communicator/sip-communicator.bin"

@@ -61,15 +61,25 @@ public class GrowlNotificationServiceImpl
         if(Growl.isGrowlRunning())
         {
             String[] dict = { "Default", "Welcome message" };
-            byte[] sipIcon = GrowlNotificationActivator.getResources().
-                                    getImageInBytes("service.gui.SIP_COMMUNICATOR_LOGO_45x45");
-            growl = new Growl ("SIP Communicator", "net.sip-communicator", sipIcon, dict, dict);
+            byte[] sipIcon =
+                GrowlNotificationActivator.getResources().
+                    getImageInBytes("service.gui.SIP_COMMUNICATOR_LOGO_45x45");
+            growl = new Growl (
+                GrowlNotificationActivator.getResources()
+                    .getSettingsString("service.gui.APPLICATION_NAME"),
+                "net.sip-communicator",
+                sipIcon,
+                dict,
+                dict);
             growl.addClickedNotificationsListener(this);
 
-            growl.notifyGrowlOf("SIP Communicator",
-                                "http://www.sip-communicator.org/",
-                                "Welcome message",
-                                null, null);
+            growl.notifyGrowlOf(
+                GrowlNotificationActivator.getResources()
+                    .getSettingsString("service.gui.APPLICATION_NAME"),
+                GrowlNotificationActivator.getResources()
+                    .getSettingsString("service.gui.APPLICATION_WEB_SITE"),
+                "Welcome message",
+                null, null);
         }
     }
 
