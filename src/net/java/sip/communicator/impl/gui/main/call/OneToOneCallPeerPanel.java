@@ -731,12 +731,11 @@ public class OneToOneCallPeerPanel
     {
         if (event != null && logger.isTraceEnabled())
             logger.trace("UI video event received originated in: "
-                    + event.getOrigin() + " and of type: " + event.getType());
+                    + event.getOrigin() + " and is of type: " + event.getType());
 
         synchronized (videoContainers)
         {
-            if ((event != null)
-                    && !event.isConsumed())
+            if ((event != null) && !event.isConsumed())
             {
                 Component video = event.getVisualComponent();
 

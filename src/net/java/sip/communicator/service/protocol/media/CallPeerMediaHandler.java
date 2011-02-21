@@ -979,19 +979,22 @@ public abstract class CallPeerMediaHandler<
      */
     public Component createLocalVisualComponent()
     {
-        return (videoStream == null || !isLocalVideoTransmissionEnabled())
-            ? null : videoStream.createLocalVisualComponent();
+        return
+            ((videoStream == null) || !isLocalVideoTransmissionEnabled())
+                ? null
+                : videoStream.createLocalVisualComponent();
     }
 
     /**
-     * Dispose local visual <tt>Component</tt> of the local peer.
+     * Disposes of a specific local visual <tt>Component</tt> of the local peer.
+     *
+     * @param component the local visual <tt>Component</tt> of the local peer to
+     * dispose of
      */
-    public void disposeLocalVisualComponent()
+    public void disposeLocalVisualComponent(Component component)
     {
-        if(videoStream != null)
-        {
-            videoStream.disposeLocalVisualComponent();
-        }
+        if (videoStream != null)
+            videoStream.disposeLocalVisualComponent(component);
     }
 
     /**

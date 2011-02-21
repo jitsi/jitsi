@@ -28,9 +28,12 @@ public interface VideoMediaStream
     public Component createLocalVisualComponent();
 
     /**
-     * Dispose local visual <tt>Component</tt> of the local peer.
+     * Disposes of a specific local visual <tt>Component</tt> of the local peer.
+     *
+     * @param component the local visual <tt>Component</tt> of the local peer to
+     * dispose of
      */
-    public void disposeLocalVisualComponent();
+    public void disposeLocalVisualComponent(Component component);
 
     /**
      * Returns a reference to the visual <tt>Component</tt> where video from the

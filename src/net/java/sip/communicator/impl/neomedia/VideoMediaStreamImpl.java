@@ -416,14 +416,17 @@ public class VideoMediaStreamImpl
 
     /**
      * Disposes of the visual <tt>Component</tt> of the local peer.
+     *
+     * @param component the visual <tt>Component</tt> of the local peer to
+     * dispose of
      */
-    public void disposeLocalVisualComponent()
+    public void disposeLocalVisualComponent(Component component)
     {
         MediaDeviceSession deviceSession = getDeviceSession();
 
         if(deviceSession instanceof VideoMediaDeviceSession)
             ((VideoMediaDeviceSession) deviceSession)
-                .disposeLocalVisualComponent();
+                .disposeLocalVisualComponent(component);
     }
 
     /**

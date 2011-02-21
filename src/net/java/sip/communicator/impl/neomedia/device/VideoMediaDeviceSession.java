@@ -594,16 +594,39 @@ public class VideoMediaDeviceSession
             canvas.setMaximumSize(iconSize);
             canvas.setPreferredSize(iconSize);
 
-            fireVideoEvent(VideoEvent.LOCAL, canvas, VideoEvent.LOCAL);
+            /*
+             * Set a clue so that we can recognize it if it gets received as an
+             * argument to #disposeLocalVisualComponent().
+             */
+            canvas.setName(DESKTOP_STREAMING_ICON);
+
+            fireVideoEvent(VideoEvent.VIDEO_ADDED, canvas, VideoEvent.LOCAL);
         }
         return canvas;
     }
 
     /**
      * Disposes the local visual <tt>Component</tt> of the local peer.
+     *
+     * @param component the local visual <tt>Component</tt> of the local peer to
+     * dispose of
      */
-    public void disposeLocalVisualComponent()
+    public void disposeLocalVisualComponent(Component component)
     {
+        /*
+         * Desktop streaming does not use a Player but a Canvas with its name
+         * equals to the value of DESKTOP_STREAMING_ICON.
+         */
+        if ((component != null)
+                && DESKTOP_STREAMING_ICON.equals(component.getName()))
+        {
+            fireVideoEvent(
+                    VideoEvent.VIDEO_REMOVED,
+                    component,
+                    VideoEvent.LOCAL);
+            return;
+        }
+
         Player localPlayer = this.localPlayer;
 
         if (localPlayer != null)

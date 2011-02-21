@@ -118,7 +118,7 @@ public abstract class AbstractOperationSetVideoTelephony<
     @SuppressWarnings("unchecked") // work with MediaAware* in media package
     public void disposeLocalVisualComponent(CallPeer peer, Component component)
     {
-        ((W)peer).getMediaHandler().disposeLocalVisualComponent();
+        ((W)peer).getMediaHandler().disposeLocalVisualComponent(component);
     }
 
     /**
