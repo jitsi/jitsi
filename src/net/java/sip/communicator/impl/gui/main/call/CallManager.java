@@ -259,7 +259,7 @@ public class CallManager
         {
             // First disable desktop sharing if it's currently enabled.
             if (enable && isDesktopSharingEnabled(call))
-                enableDesktopSharing(call, false);
+                getActiveCallContainer(call).setDesktopSharingButtonSelected(false);
 
             try
             {
@@ -556,7 +556,7 @@ public class CallManager
             // First make sure to disable the local video if it's currently
             // enabled.
             if (enable && isLocalVideoEnabled(call))
-                enableLocalVideo(call, false);
+                getActiveCallContainer(call).setVideoButtonSelected(false);
 
             try
             {
