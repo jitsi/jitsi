@@ -42,8 +42,14 @@ public class ContactDetail
     public static final String CATEGORY_EMAIL = "Email";
 
     /**
-     * The standard/well-known label of a <tt>ContactDetail</tt> representing a
-     * phone number.
+     * The standard/well-known category of a <tt>ContactDetail</tt> representing
+     * a contact address for instant messaging.
+     */
+    public static final String CATEGORY_INSTANT_MESSAGING = "Instant Messaging";
+
+    /**
+     * The standard/well-known category of a <tt>ContactDetail</tt> representing
+     * a phone number.
      */
     public static final String CATEGORY_PHONE = "Phone";
 
@@ -127,7 +133,11 @@ public class ContactDetail
      * convenience, <tt>null</tt> and duplicate values in the specified
      * <tt>String[]</tt> <tt>labels</tt> will be ignored i.e. will not appear in
      * the set of labels reported by the new <tt>ContactDetail</tt> instance
-     * later on.
+     * later on. Additionally, the <tt>category</tt> of the new
+     * <tt>ContactDetail</tt> instance will be implied from the specified
+     * <tt>labels</tt> by looking for the standard/well-known categories defined
+     * by the <tt>CATEGORY_XXX</tt> constants of the <tt>ContactDetail</tt>
+     * class
      */
     public ContactDetail(String contactAddress, String[] labels)
     {
@@ -144,6 +154,7 @@ public class ContactDetail
                 if ((label != null) && !this.labels.contains(label))
                 {
                     if (label.equals(CATEGORY_EMAIL)
+                            || label.equals(CATEGORY_INSTANT_MESSAGING)
                             || label.equals(CATEGORY_PHONE))
                         category = label;
                     else
@@ -152,6 +163,44 @@ public class ContactDetail
             }
         }
         this.category = category;
+    }
+
+    /**
+     * Initializes a new <tt>ContactDetail</tt> instance which is to represent a
+     * specific contact address and which is to be optionally labeled with a
+     * specific category and a specific set of labels.
+     *
+     * @param contactAddress the contact address to be represented by the new
+     * <tt>ContactDetail</tt> instance
+     * @param category the category (such as one of the <tt>CATEGORY_XXX</tt>
+     * constants defined by the <tt>ContactDetail</tt> class, for example) to be
+     * assigned to the new <tt>ContactDetail</tt> instance
+     * @param labels the set of labels with which the new <tt>ContactDetail</tt>
+     * instance is to be labeled. The labels may be arbitrary and may include
+     * any of the standard/well-known labels defined by the <tt>LABEL_XXX</tt>
+     * constants of the <tt>ContactDetail</tt> class. For the sake of
+     * convenience, <tt>null</tt> and duplicate values in the specified
+     * <tt>String[]</tt> <tt>labels</tt> will be ignored i.e. will not appear in
+     * the set of labels reported by the new <tt>ContactDetail</tt> instance
+     * later on.
+     */
+    public ContactDetail(
+            String contactAddress,
+            String category, String[] labels)
+    {
+        // contactAddress
+        this.contactAddress = contactAddress;
+        // category
+        this.category = category;
+        // labels
+        if (labels != null)
+        {
+            for (String label : labels)
+            {
+                if ((label != null) && !this.labels.contains(label))
+                    this.labels.add(label);
+            }
+        }
     }
 
     /**

@@ -248,18 +248,25 @@ public class MacOSXAddrBookContactQuery
             String contactAddress,
             Object label)
     {
-        String p, l;
+        String c, l;
 
         switch (property)
         {
         case kABEmailProperty:
-            p = ContactDetail.CATEGORY_EMAIL;
+            c = ContactDetail.CATEGORY_EMAIL;
             break;
         case kABPhoneProperty:
-            p = ContactDetail.CATEGORY_PHONE;
+            c = ContactDetail.CATEGORY_PHONE;
+            break;
+        case kABAIMInstantProperty:
+        case kABICQInstantProperty:
+        case kABJabberInstantProperty:
+        case kABMSNInstantProperty:
+        case kABYahooInstantProperty:
+            c = ContactDetail.CATEGORY_INSTANT_MESSAGING;
             break;
         default:
-            p = null;
+            c = null;
             break;
         }
 
@@ -272,7 +279,7 @@ public class MacOSXAddrBookContactQuery
                 l = null;
         }
 
-        return new ContactDetail(contactAddress, new String[] { p, l });
+        return new ContactDetail(contactAddress, c, new String[] { l });
     }
 
     /**
@@ -732,13 +739,13 @@ public class MacOSXAddrBookContactQuery
 
         switch (property)
         {
-        case kABEmailProperty:
-            break;
         case kABAIMInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);
             preferredProtocols.put(
                     OperationSetBasicInstantMessaging.class,
                     ProtocolNames.AIM);
+            break;
+        case kABEmailProperty:
             break;
         case kABICQInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);
@@ -756,6 +763,9 @@ public class MacOSXAddrBookContactQuery
                     OperationSetBasicTelephony.class,
                     ProtocolNames.JABBER);
             break;
+        case kABPhoneProperty:
+            supportedOpSets.add(OperationSetBasicTelephony.class);
+            break;
         case kABMSNInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);
             preferredProtocols.put(
@@ -767,9 +777,6 @@ public class MacOSXAddrBookContactQuery
             preferredProtocols.put(
                     OperationSetBasicInstantMessaging.class,
                     ProtocolNames.YAHOO);
-            break;
-        case kABPhoneProperty:
-            supportedOpSets.add(OperationSetBasicTelephony.class);
             break;
         default:
             break;
