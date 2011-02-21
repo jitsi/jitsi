@@ -146,7 +146,7 @@ public class DesktopSharingFrame
 
             frame.pack();
 
-            if (initialFrameX > -1 && initialFrameY > -1)
+            if (initialFrameX != -1 || initialFrameY != -1)
                 frame.setLocation(initialFrameX, initialFrameY);
             else
                 // By default we position the frame in the center of the screen.

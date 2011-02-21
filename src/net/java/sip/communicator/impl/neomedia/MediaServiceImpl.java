@@ -942,15 +942,24 @@ public class MediaServiceImpl
      * if problem
      */
     public MediaDevice getMediaDeviceForPartialDesktopStreaming(
-            MediaDevice mediaDevice, int width, int height, int x, int y)
+            int width, int height, int x, int y)
     {
         MediaDevice device = null;
         String name = "Partial desktop streaming";
         Dimension size = null;
-        MediaLocator locator =
-            ((MediaDeviceImpl)mediaDevice).getCaptureDeviceInfo().getLocator();
-        int display = Integer.parseInt(locator.getRemainder());
         int multiple = 0;
+        Point p = new Point(x, y);
+        ScreenDevice dev = getScreenForPoint(p);
+        int display = -1;
+
+        if(dev != null)
+        {
+            display = dev.getIndex();
+        }
+        else
+        {
+            return null;
+        }
 
         /* on Mac OS X, width have to be a multiple of 16 */
         if(OSUtils.IS_MAC)
@@ -988,6 +997,34 @@ public class MediaServiceImpl
                                         3 /* green */,
                                         4 /* blue */)
                              };
+
+        if(x < 0)
+        {
+            x += dev.getSize().width;
+        }
+        else if(x > dev.getSize().width)
+        {
+            List<ScreenDevice> devs = getAvailableScreenDevices();
+            if(dev.getIndex() > 0)
+            {
+                dev = devs.get(dev.getIndex() - 1);
+            }
+            x -= dev.getSize().width;
+        }
+
+        if(y < 0)
+        {
+            y += dev.getSize().height;
+        }
+        else if(y > dev.getSize().height)
+        {
+            List<ScreenDevice> devs = getAvailableScreenDevices();
+            if(dev.getIndex() > 0)
+            {
+                dev = devs.get(dev.getIndex() - 1);
+            }
+            y -= dev.getSize().height;
+        }
 
         CaptureDeviceInfo devInfo
             = new CaptureDeviceInfo(
@@ -1033,6 +1070,35 @@ public class MediaServiceImpl
             ds = ds2.getWrappedDataSource();
         }
 
+        ScreenDevice screen = getScreenForPoint(new Point(x, y));
+        if(x < 0)
+        {
+            x += screen.getSize().width;
+        }
+        else if(x > screen.getSize().width)
+        {
+            List<ScreenDevice> devs = getAvailableScreenDevices();
+            if(screen.getIndex() > 0)
+            {
+               screen = devs.get(screen.getIndex() - 1);
+            }
+            x -= screen.getSize().width;
+        }
+        
+        if(y < 0)
+        {
+            y += screen.getSize().height;
+        }
+        else if(y > screen.getSize().height)
+        {
+            List<ScreenDevice> devs = getAvailableScreenDevices();
+            if(screen.getIndex() > 0)
+            {
+              screen = devs.get(screen.getIndex() - 1);
+            }
+            y -= screen.getSize().height;
+        }
+
         ((net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource)
         ds).setOrigin(0, x, y);
     }
@@ -1056,5 +1122,26 @@ public class MediaServiceImpl
         }
 
         return false;
+    }
+
+    /**
+      * Find the screen device that contains specified point.
+      *
+      * @param p point coordinates
+      * @return screen device that contains point
+      */
+    public ScreenDevice getScreenForPoint(Point p)
+    {
+        List<ScreenDevice> devs = this.getAvailableScreenDevices();
+
+        for(ScreenDevice dev : devs)
+        {
+            if(dev.containsPoint(p))
+            {
+                return dev;
+            }
+        }
+
+        return null;
     }
 }

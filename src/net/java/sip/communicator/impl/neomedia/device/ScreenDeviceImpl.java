@@ -23,6 +23,11 @@ public class ScreenDeviceImpl implements ScreenDevice
     GraphicsDevice screen = null;
 
     /**
+     * Screen index.
+     */
+    private final int index;
+
+    /**
      * Returns all available <tt>ScreenDevice</tt> device.
      *
      * @return array of <tt>ScreenDevice</tt> device
@@ -61,7 +66,7 @@ public class ScreenDeviceImpl implements ScreenDevice
         for(GraphicsDevice dev : devices)
         {
             /* we know that GraphicsDevice type is TYPE_RASTER_SCREEN */
-            screens[i] = new ScreenDeviceImpl(dev);
+            screens[i] = new ScreenDeviceImpl(i, dev);
             i++;
         }
 
@@ -71,11 +76,23 @@ public class ScreenDeviceImpl implements ScreenDevice
     /**
      * Constructor.
      *
+     * @param number screen index
      * @param screen screen device
      */
-    protected ScreenDeviceImpl(GraphicsDevice screen)
+    protected ScreenDeviceImpl(int index, GraphicsDevice screen)
     {
+        this.index = index;
         this.screen = screen;
+    }
+
+    /**
+     * Get the screen index.
+     *
+     * @return screen index
+     */
+    public int getIndex()
+    {
+        return index;
     }
 
     /**
@@ -104,5 +121,27 @@ public class ScreenDeviceImpl implements ScreenDevice
     {
         return screen.getIDstring();
     }
-}
 
+    /**
+     * If the screen contains specified point.
+     *
+     * @param p point coordinate
+     * @return true if point belongs to screen, false otherwise
+     */
+    public boolean containsPoint(Point p)
+    {
+        GraphicsConfiguration configs[] = screen.getConfigurations();
+
+        for(GraphicsConfiguration config : configs)
+        {
+            Rectangle bounds = config.getBounds();
+
+            if(bounds.contains(p))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}

@@ -16,6 +16,21 @@ import java.awt.*;
 public interface ScreenDevice
 {
     /**
+     * Get the screen index.
+     *
+     * @return screen index
+     */
+    public int getIndex();
+
+    /**
+     * If the screen contains specified point.
+     *
+     * @param p point coordinate
+     * @return true if point belongs to screen, false otherwise
+     */
+    public boolean containsPoint(Point p);
+
+    /**
      * Get current resolution of <tt>ScreenDevice</tt> device.
      *
      * @return current resolution of the screen

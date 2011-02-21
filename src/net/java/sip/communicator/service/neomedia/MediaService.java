@@ -215,7 +215,7 @@ public interface MediaService
      * if problem
      */
     public MediaDevice getMediaDeviceForPartialDesktopStreaming(
-            MediaDevice mediaDevice, int width, int height, int x, int y);
+            int width, int height, int x, int y);
 
     /**
      * Move origin of a partial desktop streaming <tt>MediaDevice</tt>.
