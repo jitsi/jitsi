@@ -80,6 +80,7 @@ public class PortAudioAuto
         int defaultInputDeviceIx = PortAudio.Pa_GetDefaultInputDevice();
         int defaultOutputDeviceIx = PortAudio.Pa_GetDefaultOutputDevice();
 
+        /*
         // for windows we will search for directsound devices, to set them as
         // defualt, we need info for defualt devices host api
         PortAudio.PaHostApiTypeId defaultInputHostApi
@@ -100,6 +101,7 @@ public class PortAudioAuto
                 PortAudio.PaDeviceInfo_getHostApi(
                     PortAudio.Pa_GetDeviceInfo(defaultOutputDeviceIx)));
         }
+        */
 
         Vector<CaptureDeviceInfo> playbackDevVector =
             new Vector<CaptureDeviceInfo>();
@@ -114,9 +116,11 @@ public class PortAudioAuto
                 PortAudio.PaDeviceInfo_getMaxInputChannels(deviceInfo);
             int maxOutputChannels =
                 PortAudio.PaDeviceInfo_getMaxOutputChannels(deviceInfo);
+            /*
             PortAudio.PaHostApiTypeId hostApi =
                 PortAudio.PaHostApiTypeId.valueOf(
                     PortAudio.PaDeviceInfo_getHostApi(deviceInfo));
+            */
 
             String devName = PortAudio.PaDeviceInfo_getName(deviceInfo);
             if (devName != null)
@@ -146,6 +150,7 @@ public class PortAudioAuto
                                             Format.byteArray)
                                 });
 
+            /*
             // under windows we search for the first direct sound device
             // that we can use (output or input) and use it as default one
             if(OSUtils.IS_WINDOWS)
@@ -168,6 +173,7 @@ public class PortAudioAuto
                     defaultOutputDeviceIx = deviceIndex;
                 }
             }
+            */
 
             if(maxInputChannels > 0)
             {
