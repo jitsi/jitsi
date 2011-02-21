@@ -169,31 +169,41 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                         {
                         case PT_STRING8:
                         {
-                            jstring value;
-
-                            value = jniEnv->NewStringUTF(prop->Value.lpszA);
-                            if (value)
+                            if (prop->Value.lpszA)
                             {
-                                jniEnv->SetObjectArrayElement(props, j, value);
-                                if (jniEnv->ExceptionCheck())
-                                    props = NULL;
+                                jstring value;
+
+                                value = jniEnv->NewStringUTF(prop->Value.lpszA);
+                                if (value)
+                                {
+                                    jniEnv->SetObjectArrayElement(
+                                            props,
+                                            j, value);
+                                    if (jniEnv->ExceptionCheck())
+                                        props = NULL;
+                                }
                             }
                             break;
                         }
 
                         case PT_UNICODE:
                         {
-                            jstring value;
-
-                            value
-                                = jniEnv->NewString(
-                                        (const jchar *) (prop->Value.lpszW),
-                                        wcslen(prop->Value.lpszW));
-                            if (value)
+                            if (prop->Value.lpszW)
                             {
-                                jniEnv->SetObjectArrayElement(props, j, value);
-                                if (jniEnv->ExceptionCheck())
-                                    props = NULL;
+                                jstring value;
+
+                                value
+                                    = jniEnv->NewString(
+                                            (const jchar *) (prop->Value.lpszW),
+                                            wcslen(prop->Value.lpszW));
+                                if (value)
+                                {
+                                    jniEnv->SetObjectArrayElement(
+                                            props,
+                                            j, value);
+                                    if (jniEnv->ExceptionCheck())
+                                        props = NULL;
+                                }
                             }
                             break;
                         }
