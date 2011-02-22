@@ -69,11 +69,6 @@ public class OperationSetDesktopSharingServerJabberImpl
             {
                 disableRemoteControl(evt.getSourceCallPeer());
             }
-            else if(state != null && state.equals(CallPeerState.CONNECTED))
-            {
-                /* connected peer */
-                enableRemoteControl(evt.getSourceCallPeer());
-            }
         }
     };
 
@@ -128,7 +123,8 @@ public class OperationSetDesktopSharingServerJabberImpl
     public Call createVideoCall(String uri, MediaDevice device)
         throws OperationFailedException, ParseException
     {
-        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(uri, device);
+        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(uri,
+                device);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
         callPeer.addCallPeerListener(callPeerListener);
 
@@ -156,7 +152,8 @@ public class OperationSetDesktopSharingServerJabberImpl
     public Call createVideoCall(Contact callee, MediaDevice device)
         throws OperationFailedException
     {
-        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(callee, device);
+        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(callee,
+                device);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
         callPeer.addCallPeerListener(callPeerListener);
 
@@ -175,7 +172,27 @@ public class OperationSetDesktopSharingServerJabberImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
      */
+    @Override
     protected Call createOutgoingVideoCall(String calleeAddress)
+        throws OperationFailedException
+    {
+        return createOutgoingVideoCall(calleeAddress, null);
+    }
+
+    /**
+     * Check if the remote part supports Jingle video.
+     *
+     * @param calleeAddress Contact address
+     * @param videoDevice specific video device to use (null to use default
+     * device)
+     * @return true if contact support Jingle video, false otherwise
+     *
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     */
+    @Override
+    protected Call createOutgoingVideoCall(String calleeAddress, MediaDevice
+            videoDevice)
         throws OperationFailedException
     {
         boolean supported = false;
@@ -238,10 +255,17 @@ public class OperationSetDesktopSharingServerJabberImpl
 
         CallJabberImpl call = new CallJabberImpl(basicTelephony);
 
+        if(videoDevice != null)
+        {
+            call.setVideoDevice(videoDevice);
+        }
+
         /* enable video */
         call.setLocalVideoAllowed(true, getMediaUseCase());
         /* enable remote-control */
         call.setLocalInputEvtAware(supported);
+
+
 
         basicTelephony.createOutgoingCall(call, calleeAddress);
         return call;
@@ -316,7 +340,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     }
 
     /**
-     * Disable desktop remote control. Local desktop stop regenerates keyboard
+     * Disable desktop remote control. Local desktop stops regenerate keyboard
      * and mouse events received from peer.
      *
      * @param callPeer call peer that will stop controlling on local computer

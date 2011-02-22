@@ -310,7 +310,11 @@ public class OperationSetDesktopSharingServerSipImpl
                 /* if we have successfully established a SIP session, launch
                  * remote control
                  */
-                enableRemoteControl(sourceCallPeer);
+
+                /* we never launch directly sharing (future sharer is force to
+                 * toggle remote control.
+                 */
+                //enableRemoteControl(sourceCallPeer);
             }
         }
     }
