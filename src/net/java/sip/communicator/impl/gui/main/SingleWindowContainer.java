@@ -501,6 +501,8 @@ public class SingleWindowContainer
 
         addConversationTab(
             callPanel.getCallTitle(), null, callPanel, true);
+
+        callPanel.requestFocus();
     }
 
     /**
