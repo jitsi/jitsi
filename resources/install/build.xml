@@ -451,6 +451,54 @@
         <unzip
                 src="${unzip.windows.jre.src}"
                 dest="${unzip.windows.jre.dest}" />
+        <property name="unzip.windows.jre.dir" value="" />
+        <delete failonerror="false" includeemptydirs="true" quiet="true">
+            <fileset
+                    casesensitive="false"
+                    defaultexcludes="false"
+                    dir="${unzip.windows.jre.dest}/jre">
+                <include name="bin/rmid.exe" />
+                <include name="bin/rmiregistry.exe" />
+                <include name="bin/tnameserv.exe" />
+                <include name="bin/keytool.exe" />
+                <include name="bin/kinit.exe" />
+                <include name="bin/klist.exe" />
+                <include name="bin/ktab.exe" />
+                <include name="bin/policytool.exe" />
+                <include name="bin/orbd.exe" />
+                <include name="bin/servertool.exe" />
+                <include name="bin/javaws.exe" />
+                <include name="lib/javaws.jar" />
+                <include name="lib/javaws/**" />
+                <include name="bin/javacpl.exe" />
+                <include name="bin/jucheck.exe" />
+                <include name="bin/jusched.exe" />
+                <include name="bin/wsdetect.dll" />
+                <include name="bin/npjpi*.dll" />
+                <include name="bin/npjava11.dll" />
+                <include name="bin/npjava12.dll" />
+                <include name="bin/npjava13.dll" />
+                <include name="bin/npjava14.dll" />
+                <include name="bin/npjava32.dll" />
+                <include name="bin/npoji610.dll" />
+                <include name="bin/regutils.dll" />
+                <include name="bin/axbridge.dll" />
+                <include name="bin/deploy.dll" />
+                <include name="bin/jpicom.dll" />
+                <include name="bin/javacpl.cpl" />
+                <include name="bin/jpiexp.dll" />
+                <include name="bin/jpinscp.dll" />
+                <include name="bin/jpioji.dll" />
+                <include name="bin/jpishare.dll" />
+                <include name="lib/deploy.jar" />
+                <include name="lib/plugin.jar" />
+
+                <include name="bin/new_plugin/**" />
+                <include name="bin/jp2*.exe" />
+                <include name="lib/deploy/**" />
+                <include name="bin/jqs*.exe" />
+            </fileset>
+        </delete>
     </target>
 
     <target name="build-installation-wix-base"
@@ -527,6 +575,9 @@
             </fileset>
         </copy>
 
+        <!--
+            Include a private Java Runtime Environment if it has been specified.
+        -->
         <condition property="windows.jre.arch.zip.isset">
             <and>
                 <isset property="windows.jre.arch.zip" />
@@ -539,6 +590,14 @@
             <param name="unzip.windows.jre.src" value="${windows.jre.arch.zip}" />
             <param name="unzip.windows.jre.dest" value="${light.dir}" />
         </antcall>
+        <!-- Include any additional files if provided. -->
+        <copy todir="${light.dir}">
+            <fileset
+                    casesensitive="false"
+                    dir="${inst.resrc}/windows/installer-windows.wxs_FILES"
+                    erroronmissingdir="false"
+                    includes="**" />
+        </copy>
 
         <!--
             This update-location.properties file is the only of interest to the
@@ -566,6 +625,14 @@
             <arg value="${windows.app.dir}\tmp\heat.wxs" />
             <arg value="-sfrag" />
             <arg value="-suid" />
+            <!--
+                Suppress SelfReg because we do not have files that need it and
+                we do not want the private Java Runtime Environment to end up
+                registering such files.
+            -->
+            <arg value="-scom" />
+            <arg value="-sreg" />
+            <arg value="-svb6" />
             <arg value="-var" />
             <arg value="var.SourceDir" />
         </exec>
