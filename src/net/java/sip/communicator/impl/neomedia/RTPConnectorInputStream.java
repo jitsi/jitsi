@@ -271,7 +271,8 @@ public class RTPConnectorInputStream
 
             if(RTPConnectorOutputStream.logPacket(numberOfPackets)
                 && NeomediaActivator.getPacketLogging().isLoggingEnabled(
-                    PacketLoggingService.ProtocolName.RTP))
+                    PacketLoggingService.ProtocolName.RTP) &&
+                socket.getLocalAddress() != null)
             {
                 NeomediaActivator.getPacketLogging()
                     .logPacket(
