@@ -16,35 +16,20 @@ import org.xbill.DNS.*;
 
 /**
  * The purpose of this class is to help avoid the significant delays that occur
- * in networks where DNS servers would ignore SRV and NAPTR queries (i.e.
- * without even sending an error response).
+ * in networks where DNS servers would ignore SRV, NAPTR, and sometimes even
+ * A/AAAA queries (i.e. without even sending an error response). We also try to
+ * handle cases where DNS servers may return empty responses to some records.
  * <p>
  * We achieve this by entering a redundant mode whenever we detect an abnormal
- * delay (longer than <tt>DNS_PATIENCE</tt>) while waiting for a DNS answer.
+ * delay (longer than <tt>DNS_PATIENCE</tt>)  while waiting for a DNS resonse,
+ * or when that response is not considered satisfying.
+ * <p>
  * Once we enter redundant mode, we start duplicating all queries and sending
  * them to both our primary and backup resolvers (in case we have any). We then
- * always return the first response we get.
+ * always return the first response we get, regardless of who sent it.
  * <p>
  * We exit redundant mode after receiving <tt>DNS_REDEMPTION</tt> consecutive
- * timely responses from our primary resolver.
- * <p>
- * Note that this class does not attempt to fix everything that may be wrong
- * with local DNS servers. For example, some DNS servers would return
- * <tt>NXDOMAIN</tt> responses for all SRV queries even if the domain does have
- * an SRV record. We don't try to fix this case here. In case we receive
- * different responses from our primary and backup resolvers it is hard to trust
- * one more than the other. Just as local DNS servers might be systematically
- * returning flawed responses, so could our backup-resolvers. This is especially
- * likely to happen in enterprise network where firewalls block any DNS traffic
- * other than the one bound to a locally configured DNS server.
- * <p>
- * Besides, returning <tt>NXDOMAIN</tt> is not that much of an issue as we try
- * to handle that at the provider level where we assume that absence of an SRV
- * record simply means we should try with A/AAAA.
- * <p>
- * In other words, the goal of this class is to <b>only</b> help eliminate the
- * significant lag that may occur with servers that drop SRV and NAPTR request
- * without answering ... nothing more.
+ * timely and correct responses from our primary resolver.
  *
  * @author Emil Ivov
  */
@@ -119,7 +104,7 @@ public class ParallelResolver implements Resolver
     /**
      * The default resolver that we use if everything works properly.
      */
-    private final static Resolver defaultResolver;
+    private static Resolver defaultResolver;
 
     static
     {
@@ -158,11 +143,31 @@ public class ParallelResolver implements Resolver
     }
 
     /**
-     * A list of backup resolvers that we use only if the default resolver
-     * doesn't seem to work that well.
+     * Replaces the default resolver used by this class. Mostly meant for
+     * debugging.
+     *
+     * @param resolver the resolver we'd like to use by default from now on.
      */
-    private final List<Resolver> backupResolvers
-                                = new LinkedList<Resolver>();
+    public static void setDefaultResolver(Resolver resolver)
+    {
+        defaultResolver = resolver;
+    }
+
+    /**
+     * Returns the default resolver used by this class. Mostly meant for
+     * debugging.
+     *
+     * @return  the resolver this class consults first.
+     */
+    public static Resolver getDefaultResolver()
+    {
+        return defaultResolver;
+    }
+
+    /**
+     * An extended resolver that would be encapsulating all backup resolvers.
+     */
+    private final ExtendedResolver backupResolver;
 
     /**
      * Creates a <tt>ParallelResolver</tt> that would use the specified array
@@ -174,23 +179,23 @@ public class ParallelResolver implements Resolver
      */
     public ParallelResolver(InetSocketAddress[] backupServers)
     {
-        for(InetSocketAddress server : backupServers )
+        try
         {
-            SimpleResolver resolver;
-
-            try
+            backupResolver = new ExtendedResolver(new SimpleResolver[]{});
+            for(InetSocketAddress backupServer : backupServers )
             {
-                resolver = new SimpleResolver();
-            }
-            catch (UnknownHostException e)
-            {
-                //this shouldn't be thrown since we don't do any DNS querying
-                //in here. this is why we take an InetSocketAddress as a param.
-                return;
-            }
+                SimpleResolver sr = new SimpleResolver();
+                sr.setAddress(backupServer);
 
-            resolver.setAddress(server);
-            backupResolvers.add(resolver);
+                backupResolver.addResolver(sr);
+            }
+        }
+        catch (UnknownHostException e)
+        {
+            //this shouldn't be thrown since we don't do any DNS querying
+            //in here. this is why we take an InetSocketAddress as a param.
+            throw new IllegalStateException("The impossible just happened: "
+                        +"we could not initialize our backup DNS resolver");
         }
     }
 
@@ -421,12 +426,53 @@ public class ParallelResolver implements Resolver
     }
 
     /**
+     * Determines if <tt>response</tt> can be considered a satisfactory DNS
+     * response and returns accordingly.
+     * <p>
+     * We consider non-satisfactory responses that may indicate that the local
+     * DNS does not work properly and that we may hence need to fall back to
+     * the backup resolver.
+     * <p>
+     * Basically the goal here is to be able to go into redundant mode when we
+     * come across DNS servers that send empty responses to SRV and NAPTR
+     * requests.
+     *
+     * @param response the dnsjava {@link Message} that we'd like to inspect.
+     *
+     * @return <tt>true</tt> if <tt>response</tt> appears as a satisfactory
+     * response and <tt>false</tt> otherwise.
+     */
+    private boolean isResponseSatisfactory(Message response)
+    {
+        if ( response == null )
+            return false;
+
+        Record[] answerRR = response.getSectionArray(Section.ANSWER);
+        Record[] authorityRR = response.getSectionArray(Section.AUTHORITY);
+        Record[] additionalRR = response.getSectionArray(Section.ADDITIONAL);
+
+        if (    (answerRR     != null && answerRR.length > 0)
+             || (authorityRR  != null && authorityRR.length > 0)
+             || (additionalRR != null && additionalRR.length > 0))
+        {
+            return true;
+        }
+
+        //we didn't find any responses and unless the answer is NXDOMAIN then
+        //there's a problem and we need to fallback to the backup resolver
+        if(response.getRcode() == Rcode.NXDOMAIN)
+            return true;
+
+        //nope .. this doesn't make sense ...
+        return false;
+    }
+
+    /**
      * The class that listens for responses to any of the queries we send to
      * our default and backup servers and returns as soon as we get one or until
      * our default resolver fails.
      */
     private class ParallelResolution extends Thread
-                                implements ResolverListener
     {
         /**
          * The query that we have sent to the default and backup DNS servers.
@@ -456,6 +502,13 @@ public class ParallelResolver implements Resolver
         private boolean primaryResolverRespondedFirst = true;
 
         /**
+         * Indicates that the primary resolver has returned a response but that
+         * response did not seem valid so we are still using the backup
+         * resolvers.
+         */
+        private boolean primaryResolverFailed = false;
+
+        /**
          * Creates a {@link ParallelResolution} for the specified <tt>query</tt>
          *
          * @param query the DNS query that we'd like to send to our primary
@@ -463,6 +516,7 @@ public class ParallelResolver implements Resolver
          */
         public ParallelResolution(final Message query)
         {
+            super("ParallelResolutionThread");
             this.query = query;
         }
 
@@ -488,7 +542,7 @@ public class ParallelResolver implements Resolver
             catch (Throwable exc)
             {
                 logger.info("Exception occurred during parallel DNS resolving" +
-                        exc);
+                        exc, exc);
                 this.exception = exc;
             }
             synchronized(this)
@@ -498,10 +552,13 @@ public class ParallelResolver implements Resolver
                 if(done)
                     return;
 
-
-                response = localResponse;
-                done = true;
-
+                //if there was a response we're only done if it is satisfactory
+                if(    localResponse == null
+                    || isResponseSatisfactory(localResponse))
+                {
+                    response = localResponse;
+                    done = true;
+                }
                 notify();
             }
         }
@@ -512,15 +569,45 @@ public class ParallelResolver implements Resolver
         public void sendBackupQueries()
         {
             logger.info("Send DNS queries to backup resolvers");
-            synchronized(this)
-            {
-                for (Resolver resolver : backupResolvers)
+
+            //yes. a second thread in the thread ... it's ugly but it works
+            //and i do want to keep code simple to read ... this whole parallel
+            //resolving is complicated enough as it is.
+            new Thread(){
+                public void run()
                 {
-                    if (done)
-                        return;
-                    resolver.sendAsync(query, this);
+                    synchronized(ParallelResolution.this)
+                    {
+                        if (done)
+                            return;
+                        Message localResponse = null;
+                        try
+                        {
+                            localResponse = backupResolver.send(query);
+                        }
+                        catch (Throwable exc)
+                        {
+                            logger.info("Exception occurred during backup "
+                                        +"DNS resolving" + exc);
+
+                            //keep this so that we can rethrow it
+                            exception = exc;
+                        }
+                        //if the default resolver has already replied we
+                        //ignore the reply of the backup ones.
+                        if(done)
+                            return;
+
+                        //contrary to responses from the  primary resolver,
+                        //in this case we don't care whether the response is
+                        //satisfying: if it isn't, there's nothing we can do
+                        response = localResponse;
+                        done = true;
+
+                        ParallelResolution.this.notify();
+                    }
                 }
-            }
+            }.start();
         }
 
         /**
@@ -566,7 +653,7 @@ public class ParallelResolver implements Resolver
          * @throws RuntimeException if something unexpected happened
          * during resolution.
          * @throws IllegalArgumentException if something unexpected happened
-         * during resolution.
+         * during resolution or if there was no response.
          */
         public Message returnResponseOrThrowUp()
             throws IOException, RuntimeException, IllegalArgumentException
@@ -575,7 +662,9 @@ public class ParallelResolver implements Resolver
                 waitForResponse(0);
 
             if(response != null)
+            {
                 return response;
+            }
             else if (exception instanceof IOException)
             {
                 logger.warn("IO exception while using DNS resolver", exception);
@@ -594,46 +683,10 @@ public class ParallelResolver implements Resolver
             }
             else
             {
-                logger.warn("Illegal state exception while using DNS resolver",
+                logger.warn("Received a bad response from primary DNS resolver",
                         exception);
                 throw new IllegalStateException("ExtendedResolver failure");
             }
         }
-
-        /**
-         * Records the message and causes the collector to stop waiting and
-         * return.
-         *
-         * @param id The identifier returned by Resolver.sendAsync()
-         * @param message The response message as returned by the Resolver
-         */
-        public void receiveMessage(Object id, Message message)
-        {
-            synchronized (this)
-            {
-                if (done)
-                    return;
-
-                this.response = message;
-                this.primaryResolverRespondedFirst = false;
-
-                done = true;
-                notify();
-            }
-        }
-
-        /**
-         * Nothing to do here.
-         *
-         * @param id The identifier returned by Resolver.sendAsync()
-         * @param e The thrown exception
-         */
-        public void handleException(Object id, Exception e)
-        {
-            //nothing to do here. this means that we won't notice if our backup
-            //resolvers fail but that's not a problem as we need to wait for
-            //our primary resolver anyway.
-        }
-
     }
 }

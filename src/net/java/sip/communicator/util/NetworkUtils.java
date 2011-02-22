@@ -1040,7 +1040,18 @@ public class NetworkUtils
                 if(! StringUtils.isNullOrEmpty( customRslvrAddr ))
                     rslvrAddrStr = customRslvrAddr;
 
-                InetAddress resolverAddress = getInetAddress(rslvrAddrStr);
+                InetAddress resolverAddress = null;
+
+                try
+                {
+                    resolverAddress = getInetAddress(rslvrAddrStr);
+                }
+                catch(UnknownHostException exc)
+                {
+                    logger.warn("Oh! Seems like our primary DNS is down!"
+                                + "Don't panic! We'll try to fall back to "
+                                + customRslvrIP);
+                }
 
                 if(resolverAddress == null)
                 {
