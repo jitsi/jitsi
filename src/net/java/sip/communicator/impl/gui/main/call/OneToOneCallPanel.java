@@ -439,6 +439,13 @@ public class OneToOneCallPanel
             });
         }
 
+        if (OSUtils.IS_MAC)
+        {
+            southPanel.setOpaque(true);
+            southPanel.setBackground(new Color(GuiActivator.getResources()
+                .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+        }
+
         add(southPanel, BorderLayout.SOUTH);
         revalidate();
         repaint();
