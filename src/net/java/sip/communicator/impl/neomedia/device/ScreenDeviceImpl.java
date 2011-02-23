@@ -130,18 +130,25 @@ public class ScreenDeviceImpl implements ScreenDevice
      */
     public boolean containsPoint(Point p)
     {
-        GraphicsConfiguration configs[] = screen.getConfigurations();
+        GraphicsConfiguration config = screen.getDefaultConfiguration();
+        Rectangle bounds = config.getBounds();
 
-        for(GraphicsConfiguration config : configs)
+        if(bounds.contains(p))
         {
-            Rectangle bounds = config.getBounds();
-
-            if(bounds.contains(p))
-            {
-                return true;
-            }
+            return true;
         }
 
         return false;
+    }
+
+    /**
+     * Get bounds of the screen.
+     *
+     * @return bounds of the screen
+     */
+    public Rectangle getBounds()
+    {
+        GraphicsConfiguration config = screen.getDefaultConfiguration();
+        return config.getBounds();
     }
 }

@@ -998,33 +998,9 @@ public class MediaServiceImpl
                                         4 /* blue */)
                              };
 
-        if(x < 0)
-        {
-            x += dev.getSize().width;
-        }
-        else if(x > dev.getSize().width)
-        {
-            List<ScreenDevice> devs = getAvailableScreenDevices();
-            if(dev.getIndex() > 0)
-            {
-                dev = devs.get(dev.getIndex() - 1);
-            }
-            x -= dev.getSize().width;
-        }
-
-        if(y < 0)
-        {
-            y += dev.getSize().height;
-        }
-        else if(y > dev.getSize().height)
-        {
-            List<ScreenDevice> devs = getAvailableScreenDevices();
-            if(dev.getIndex() > 0)
-            {
-                dev = devs.get(dev.getIndex() - 1);
-            }
-            y -= dev.getSize().height;
-        }
+        Rectangle bounds = ((ScreenDeviceImpl)dev).getBounds();
+        x -= bounds.x;
+        y -= bounds.y;
 
         CaptureDeviceInfo devInfo
             = new CaptureDeviceInfo(
@@ -1072,37 +1048,18 @@ public class MediaServiceImpl
 
         ScreenDevice screen = getScreenForPoint(new Point(x, y));
         ScreenDevice currentScreen = screen;
-        
-        if(x < 0)
+
+        if(screen == null)
         {
-            x += screen.getSize().width;
-        }
-        else if(x > screen.getSize().width)
-        {
-            List<ScreenDevice> devs = getAvailableScreenDevices();
-            if(screen.getIndex() > 0)
-            {
-                screen = devs.get(screen.getIndex() - 1);
-            }
-            x -= screen.getSize().width;
-        }
-        
-        if(y < 0)
-        {
-            y += screen.getSize().height;
-        }
-        else if(y > screen.getSize().height)
-        {
-            List<ScreenDevice> devs = getAvailableScreenDevices();
-            if(screen.getIndex() > 0)
-            {
-                screen = devs.get(screen.getIndex() - 1);
-            }
-            y -= screen.getSize().height;
+            return;
         }
 
+        Rectangle bounds = ((ScreenDeviceImpl)screen).getBounds();
+        x -= bounds.x;
+        y -= bounds.y;
+
         ((net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource)
-        ds).setOrigin(0, currentScreen.getIndex(), x, y);
+        ds).setOrigin(0, currentScreen.getIndex(), x,  y);
     }
 
     /**
