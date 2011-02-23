@@ -805,14 +805,16 @@ public class TreeContactList
             {
                 public void run()
                 {
-                    // If in the meantime the corresponding query was canceled
-                    // we don't proceed with adding.
-                    if (query != null && !query.isCanceled())
-                        addContact(contact, group, isSorted, true);
+                    addContact(query, contact, group, isSorted);
                 }
             });
             return;
         }
+
+        // If in the meantime the corresponding query was canceled
+        // we don't proceed with adding.
+        if (query != null && !query.isCanceled())
+            addContact(contact, group, isSorted, true);
     }
 
     /**
@@ -823,7 +825,7 @@ public class TreeContactList
      * @param isSorted indicates if the contact should be sorted regarding to
      * the <tt>GroupNode</tt> policy
      */
-    private void addContact(final ContactQuery query,
+    public void addContact(final ContactQuery query,
                             final UIContact contact,
                             final UIGroup group,
                             final boolean isSorted)
@@ -834,16 +836,18 @@ public class TreeContactList
             {
                 public void run()
                 {
-                    // If in the meantime the filter has changed we don't
-                    // add the contact.
-                    if (query != null
-                        && currentFilterQuery.containsQuery(query))
-                    {
-                        addContact(contact, group, isSorted, true);
-                    }
+                    addContact(query, contact, group, isSorted);
                 }
             });
             return;
+        }
+
+        // If in the meantime the filter has changed we don't
+        // add the contact.
+        if (query != null
+            && currentFilterQuery.containsQuery(query))
+        {
+            addContact(contact, group, isSorted, true);
         }
     }
 
@@ -1362,21 +1366,20 @@ public class TreeContactList
         if (path == null)
             return;
 
-        // Select the node under the right button click.
-        if (!path.equals(getSelectionPath())
-            && (e.getModifiers() & InputEvent.BUTTON1_MASK) != 0
-                || (e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
-                || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
-                || (e.isControlDown() && !e.isMetaDown()))
-        {
-            this.setSelectionPath(path);
-        }
-
         Object lastComponent = path.getLastPathComponent();
 
         // We're interested only if the mouse is clicked over a tree node.
         if (!(lastComponent instanceof TreeNode))
             return;
+
+        // Select the node under the right button click.
+        if (!path.equals(getSelectionPath())
+            && (e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
+                || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
+                || (e.isControlDown() && !e.isMetaDown()))
+        {
+            this.setSelectionPath(path);
+        }
 
         // Open right button menu when right mouse is pressed.
         if (lastComponent instanceof ContactNode)
@@ -1852,9 +1855,8 @@ public class TreeContactList
 
             if (contactSource instanceof ExtendedContactSourceService)
             {
-                ContactQuery query
-                    = ((ExtendedContactSourceService)
-                            contactSource).queryContactSource(filterPattern);
+                ContactQuery query = ((ExtendedContactSourceService)
+                        contactSource).queryContactSource(filterPattern);
 
                 loadedQueries.add(query);
 

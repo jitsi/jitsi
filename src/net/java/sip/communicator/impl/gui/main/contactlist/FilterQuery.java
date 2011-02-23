@@ -22,6 +22,11 @@ public class FilterQuery
                 MetaContactQueryListener
 {
     /**
+     * The maximum result count for each contact source.
+     */
+    public static final int MAX_EXTERNAL_RESULT_COUNT = 10;
+
+    /**
      * A listener, which is notified when this query finishes.
      */
     private FilterQueryListener filterQueryListener;
@@ -48,8 +53,9 @@ public class FilterQuery
     /**
      * The list of filter queries.
      */
-    private Collection<Object> filterQueries
-        = Collections.synchronizedCollection(new Vector<Object>());
+    private Map<Object, List<SourceContact>> filterQueries
+        = Collections.synchronizedMap(new Hashtable<Object,
+                                                    List<SourceContact>>());
 
     /**
      * Indicates the number of running queries.
@@ -73,13 +79,27 @@ public class FilterQuery
                 return;
             }
 
-            filterQueries.add(contactQuery);
-            runningQueries++;
+            List<SourceContact> queryResults = new ArrayList<SourceContact>();
 
             if (contactQuery instanceof ContactQuery)
-                ((ContactQuery) contactQuery).addContactQueryListener(this);
+            {
+                ContactQuery externalQuery = (ContactQuery) contactQuery;
+
+                List<SourceContact> externalResults
+                    = externalQuery.getQueryResults();
+
+                if (externalResults != null && externalResults.size() > 0)
+                    queryResults = new ArrayList<SourceContact>(externalResults);
+
+                externalQuery.addContactQueryListener(this);
+            }
             else if (contactQuery instanceof MetaContactQuery)
+            {
                 ((MetaContactQuery) contactQuery).addContactQueryListener(this);
+            }
+
+            filterQueries.put(contactQuery, queryResults);
+            runningQueries++;
         }
     }
 
@@ -124,7 +144,7 @@ public class FilterQuery
         {
             isCanceled = true;
 
-            queriesIter = filterQueries.iterator();
+            queriesIter = filterQueries.keySet().iterator();
             while (queriesIter.hasNext())
             {
                 cancelQuery(queriesIter.next());
@@ -177,7 +197,7 @@ public class FilterQuery
         ContactQuery query = event.getQuerySource();
 
         // Check if this query is in our filter queries list.
-        if (!filterQueries.contains(query)
+        if (!filterQueries.containsKey(query)
             || event.getEventType() == ContactQuery.QUERY_IN_PROGRESS)
             return;
 
@@ -214,7 +234,7 @@ public class FilterQuery
         MetaContactQuery query = event.getQuerySource();
 
         // Check if this query is in our filter queries list.
-        if (!filterQueries.contains(query))
+        if (!filterQueries.containsKey(query))
             return;
 
         // First set the isSucceeded property.
@@ -270,10 +290,49 @@ public class FilterQuery
      */
     public boolean containsQuery(Object query)
     {
-        return filterQueries.contains(query);
+        return filterQueries.containsKey(query);
     }
 
-    public void contactReceived(ContactReceivedEvent event) {}
+    /**
+     * Cancels asynchronous queries after the maximum desired result count is
+     * reached.
+     *
+     * @param query the query we're interested in
+     * @param contact the source contact we just received as a result of the
+     * given query
+     */
+    private void contactReceived(ContactQuery query, SourceContact contact)
+    {
+        List<SourceContact> queryResults = filterQueries.get(query);
+
+        queryResults.add(contact);
+
+        if (queryResults.size() == MAX_EXTERNAL_RESULT_COUNT)
+        {
+            query.removeContactQueryListener(GuiActivator.getContactList());
+
+            ShowMoreContact moreInfoContact
+                = new ShowMoreContact(query, queryResults);
+
+            ContactSourceService contactSource = query.getContactSource();
+
+            GuiActivator.getContactList().addContact(
+                query,
+                moreInfoContact,
+                TreeContactList.getContactSource(contactSource).getUIGroup(),
+                false);
+        }
+    }
+
+    /**
+     * Indicates that a contact has been received as a result of a query.
+     *
+     * @param event the <tt>ContactReceivedEvent</tt> that notified us
+     */
+    public void contactReceived(ContactReceivedEvent event)
+    {
+        contactReceived(event.getQuerySource(), event.getContact());
+    }
 
     public void metaContactReceived(MetaContactQueryEvent event) {}
 

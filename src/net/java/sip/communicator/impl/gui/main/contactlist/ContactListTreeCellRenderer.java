@@ -23,8 +23,6 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -202,7 +200,6 @@ public class ContactListTreeCellRenderer
         this.displayDetailsLabel.setFont(getFont().deriveFont(9f));
         this.displayDetailsLabel.setForeground(Color.GRAY);
 
-        this.rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
         this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
 
         statusLabel.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 2));
@@ -365,7 +362,9 @@ public class ContactListTreeCellRenderer
 
             String displayName = contact.getDisplayName();
 
-            if (displayName == null || displayName.trim().length() < 1)
+            if ((displayName == null
+                || displayName.trim().length() < 1)
+                && !(contact instanceof ShowMoreContact))
             {
                 displayName = GuiActivator.getResources()
                     .getI18NString("service.gui.UNKNOWN");
@@ -382,7 +381,16 @@ public class ContactListTreeCellRenderer
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
 
             if (contactForegroundColor != null)
-                this.nameLabel.setForeground(contactForegroundColor);
+                nameLabel.setForeground(contactForegroundColor);
+
+            if (contact instanceof ShowMoreContact)
+            {
+                rightLabel.setFont(rightLabel.getFont().deriveFont(12f));
+                rightLabel.setForeground(Color.GRAY);
+                rightLabel.setText((String)contact.getDescriptor());
+            }
+            else
+                rightLabel.setText("");
 
             // Initializes status message components if the given meta contact
             // contains a status message.
@@ -410,7 +418,6 @@ public class ContactListTreeCellRenderer
             {
                 this.rightLabel.setIcon(avatar);
             }
-            this.rightLabel.setText("");
 
             this.setToolTipText(contact.getDescriptor().toString());
         }
@@ -440,10 +447,15 @@ public class ContactListTreeCellRenderer
 
             // We have no photo icon for groups.
             this.rightLabel.setIcon(null);
+            this.rightLabel.setText("");
 
             if (groupItem.countChildContacts() >= 0)
+            {
+                rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
+                this.rightLabel.setForeground(Color.BLACK);
                 this.rightLabel.setText( groupItem.countOnlineChildContacts()
                                         + "/" + groupItem.countChildContacts());
+            }
 
             this.setToolTipText(groupItem.getDescriptor().toString());
         }
@@ -599,10 +611,17 @@ public class ContactListTreeCellRenderer
         Dimension preferredSize = new Dimension();
 
         if (treeNode instanceof ContactNode)
-            if (isSelected)
+        {
+            UIContact contact
+                = ((ContactNode) treeNode).getContactDescriptor();
+
+            if (contact instanceof ShowMoreContact)
+                preferredSize.height = 18;
+            else if (isSelected)
                 preferredSize.height = 55;
             else
                 preferredSize.height = 30;
+        }
         else
             preferredSize.height = 18;
 

@@ -41,14 +41,25 @@ public class CallHistoryContactSource implements ContactSourceService
      */
     public ContactQuery queryContactSource(String queryString)
     {
+        return queryContactSource(queryString, 50);
+    }
+
+    /**
+     * Queries this contact source for the given <tt>searchString</tt>.
+     * @param queryString the string to search for
+     * @param contactCount the maximum count of result contacts
+     * @return the created query
+     */
+    public ContactQuery queryContactSource(String queryString, int contactCount)
+    {
         if (queryString != null && queryString.length() > 0)
             return new CallHistoryContactQuery(
                 CallHistoryActivator.getCallHistoryService()
-                    .findByPeer(queryString, 50));
+                    .findByPeer(queryString, contactCount));
         else
             return new CallHistoryContactQuery(
                 CallHistoryActivator.getCallHistoryService()
-                    .findLast(50));
+                    .findLast(contactCount));
     }
 
     /**

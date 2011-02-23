@@ -15,6 +15,9 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.tree.*;
 
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
+
 /**
  * SIPCommTreeUI implementation.
  * 
@@ -133,6 +136,31 @@ public class SIPCommTreeUI extends BasicTreeUI
     {
         layoutCache = new VariableLayoutCache();
         return layoutCache;
+    }
+
+    /**
+     * Do not select the <tt>ShowMoreContact</tt>.
+     *
+     * @param path the <tt>TreePath</tt> to select
+     * @param event the <tt>MouseEvent</tt> that provoked the select
+     */
+    protected void selectPathForEvent(TreePath path, MouseEvent event)
+    {
+        Object lastComponent = path.getLastPathComponent();
+
+        // Open right button menu when right mouse is pressed.
+        if (lastComponent instanceof ContactNode)
+        {
+            UIContact uiContact
+                = ((ContactNode) lastComponent).getContactDescriptor();
+
+            if (!(uiContact instanceof ShowMoreContact))
+            {
+                super.selectPathForEvent(path, event);
+            }
+        }
+        else
+            super.selectPathForEvent(path, event);
     }
 
     /**

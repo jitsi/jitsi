@@ -33,11 +33,27 @@ public abstract class AsyncContactSourceService
      */
     public ContactQuery queryContactSource(String query)
     {
-        return
-            queryContactSource(
-                    Pattern.compile(
-                            query,
-                            Pattern.CASE_INSENSITIVE | Pattern.LITERAL));
+        return queryContactSource(
+            Pattern.compile(query, Pattern.CASE_INSENSITIVE | Pattern.LITERAL));
+    }
+
+    /**
+     * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
+     * which match a specific <tt>query</tt> <tt>String</tt>.
+     *
+     * @param query the <tt>String</tt> which this <tt>ContactSourceService</tt>
+     * is being queried for
+     * @param contactCount the maximum count of result contacts
+     * @return a <tt>ContactQuery</tt> which represents the query of this
+     * <tt>ContactSourceService</tt> implementation for the specified
+     * <tt>String</tt> and via which the matching <tt>SourceContact</tt>s (if
+     * any) will be returned
+     * @see ContactSourceService#queryContactSource(String)
+     */
+    public ContactQuery queryContactSource(String query, int contactCount)
+    {
+        return queryContactSource(
+            Pattern.compile(query, Pattern.CASE_INSENSITIVE | Pattern.LITERAL));
     }
 
     /**

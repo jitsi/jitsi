@@ -40,4 +40,13 @@ public interface ContactSourceService
      * @return the created query
      */
     public ContactQuery queryContactSource(String queryString);
+
+    /**
+     * Queries this search source for the given <tt>queryString</tt>.
+     *
+     * @param queryString the string to search for
+     * @param contactCount the maximum count of result contacts
+     * @return the created query
+     */
+    public ContactQuery queryContactSource(String queryString, int contactCount);
 }

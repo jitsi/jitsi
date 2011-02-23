@@ -50,7 +50,7 @@ public class CallHistoryFilter
                 continue;
 
             // We're in a case of call history contact source.
-            ContactQuery query = sourceService.queryContactSource("");
+            ContactQuery query = sourceService.queryContactSource("", 50);
             filterQuery.addContactQuery(query);
 
             // Add first available results.
