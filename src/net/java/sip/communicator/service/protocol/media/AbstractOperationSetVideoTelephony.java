@@ -169,6 +169,7 @@ public abstract class AbstractOperationSetVideoTelephony<
     public void setLocalVideoAllowed(Call call, boolean allowed)
         throws OperationFailedException
     {
+        ((V)call).setVideoDevice(null);
         ((V)call).setLocalVideoAllowed(allowed, MediaUseCase.CALL);
     }
 

@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.text.*;
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -259,7 +261,16 @@ public class CallManager
         {
             // First disable desktop sharing if it's currently enabled.
             if (enable && isDesktopSharingEnabled(call))
-                getActiveCallContainer(call).setDesktopSharingButtonSelected(false);
+            {
+                getActiveCallContainer(call).setDesktopSharingButtonSelected(
+                        false);
+                JFrame frame = DesktopSharingFrame.getFrameForCall(call);
+
+                if(frame != null)
+                {
+                    frame.dispose();
+                }
+            }
 
             try
             {

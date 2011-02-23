@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.transparent.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class DesktopSharingFrame
@@ -168,6 +168,21 @@ public class DesktopSharingFrame
     }
 
     /**
+     * Get the frame for a <tt>Call</tt>.
+     *
+     * @param call the <tt>Call</tt>
+     * @return JFrame for the call or null if not found
+     */
+    public static JFrame getFrameForCall(Call call)
+    {
+        if(callDesktopFrames.containsKey(call))
+        {
+            return callDesktopFrames.get(call);
+        }
+        return null;
+    }
+
+    /**
      * Adds a call listener, which listens for call ended events and would
      * close any related desktop sharing frames when a call is ended.
      *
@@ -176,7 +191,7 @@ public class DesktopSharingFrame
      */
     private static void addCallListener(Call call, JFrame frame)
     {
-        OperationSetBasicTelephony telOpSet = call.getProtocolProvider()
+        OperationSetBasicTelephony<?> telOpSet = call.getProtocolProvider()
             .getOperationSet(OperationSetBasicTelephony.class);
 
         if (telOpSet != null) // This should be always true.
@@ -308,7 +323,7 @@ public class DesktopSharingFrame
      * Creates the sharing region.
      *
      * @param initialFrame indicates if this is the frame which initiates the
-     * desktop sharing 
+     * desktop sharing
      * @return the created sharing region
      */
     private static JComponent createSharingRegion(boolean initialFrame)
