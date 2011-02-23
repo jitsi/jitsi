@@ -429,7 +429,7 @@
         <property name="windows.download.link" value="${link.download.windows32}"/>
         <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x86.exe"/>
         <property name="windows.arch" value="32"/>
-        <property name="mingw.home" value="C:/mingw-w64/mingw-w32" />
+        <property name="mingw.home" value="C:/mingw/x86" />
         <antcall target="build-installation-wix-base" />
     </target>
 
@@ -443,7 +443,7 @@
         <property name="windows.download.link" value="${link.download.windows64}"/>
         <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x64.exe"/>
         <property name="windows.arch" value="64"/>
-        <property name="mingw.home" value="C:/mingw-w64/mingw-w64" />
+        <property name="mingw.home" value="C:/mingw/x64" />
         <antcall target="build-installation-wix-base" />
     </target>
 
