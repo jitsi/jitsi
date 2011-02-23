@@ -234,6 +234,22 @@ public class DeviceConfiguration
     }
 
     /**
+     * Reinitialize video capture devices.
+     */
+    public void reinitializeVideo()
+    {
+        try
+        {
+            JmfDeviceDetector.reinitializeVideoCaptureDevices();
+            //extractConfiguredCaptureDevices();
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to initialize media.", ex);
+        }
+    }
+
+    /**
      * Detects capture devices configured through JMF and disable audio and/or
      * video transmission if none were found.
      */

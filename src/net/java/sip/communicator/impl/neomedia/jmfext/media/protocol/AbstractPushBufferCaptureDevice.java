@@ -379,7 +379,8 @@ public abstract class AbstractPushBufferCaptureDevice
         MediaLocator locator = captureDevice.getLocator();
 
         for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
-            if (captureDeviceInfo.getLocator().equals(locator))
+            if (captureDeviceInfo.getLocator().toString().equals(
+                    locator.toString()))
                 return captureDeviceInfo;
         return null;
     }

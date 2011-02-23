@@ -229,11 +229,13 @@ public class DeviceConfigurationComboBoxModel
             throw new IllegalStateException("type");
         }
 
+
         for (CaptureDevice device : getDevices())
         {
             if (CaptureDevice.equals(device.info, info))
                 return device;
         }
+
         return null;
     }
 
@@ -250,7 +252,9 @@ public class DeviceConfigurationComboBoxModel
         if(type == AUDIO)
             return deviceConfiguration.getAudioSystem();
         else
+        {
             return getSelectedDevice();
+        }
     }
 
     public int getSize()
@@ -316,5 +320,16 @@ public class DeviceConfigurationComboBoxModel
         }
         else
             setSelectedDevice((CaptureDevice) item);
+    }
+
+    /**
+     * Reinitialize video devices.
+     */
+    public void reinitVideo()
+    {
+        if(type == VIDEO)
+        {
+            devices = null;
+        }
     }
 }

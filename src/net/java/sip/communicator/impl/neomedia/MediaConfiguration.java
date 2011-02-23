@@ -449,6 +449,9 @@ public class MediaConfiguration
                                     selection)
                                 .info;
 
+                    ((DeviceConfigurationComboBoxModel)comboBox.getModel()).
+                        reinitVideo();
+
                     if ((device != null) && device.equals(videoDeviceInPreview))
                         return;
 

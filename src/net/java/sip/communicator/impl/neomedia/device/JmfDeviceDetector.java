@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.media.*;
+import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.fileaccess.*;
@@ -118,6 +119,37 @@ public class JmfDeviceDetector
     }
 
     /**
+     * Reinitialize video capture devices.
+     */
+    @SuppressWarnings("unchecked")
+    public void reinitializeVideo()
+    {
+        Vector<CaptureDeviceInfo> devInfos =
+            (Vector<CaptureDeviceInfo>)CaptureDeviceManager.getDeviceList(null);
+        Vector<CaptureDeviceInfo> copyDevInfos =
+            new Vector<CaptureDeviceInfo>(devInfos.size());
+
+        for(CaptureDeviceInfo dev : devInfos)
+        {
+            Format fmts[] = dev.getFormats();
+
+            if(fmts.length > 0 && fmts[0] instanceof VideoFormat)
+            {
+                copyDevInfos.add(dev);
+            }
+        }
+
+        /* remove video devices */
+        for(CaptureDeviceInfo dev : copyDevInfos)
+        {
+            CaptureDeviceManager.removeDevice(dev);
+        }
+
+        // repopulates video capture devices
+        initializeVideo();
+    }
+
+    /**
      * Detect all existing capture devices and record them into the JMF
      * repository.
      */
@@ -172,7 +204,15 @@ public class JmfDeviceDetector
                         false))
             return;
 
-        // Try to configgure capture devices for any operating system.
+        initializeVideo();
+    }
+
+    /**
+     * Initialize video devices.
+     */
+    public void initializeVideo()
+    {
+        // Try to configure capture devices for any operating system.
         // those that do not apply will silently fail.
         if (logger.isInfoEnabled())
             logger.info("Looking for video capture devices");
@@ -188,7 +228,8 @@ public class JmfDeviceDetector
         catch (Throwable exc)
         {
             if (logger.isDebugEnabled())
-                logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(), exc);
+                logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(),
+                        exc);
             fmjVideoAvailable = false;
         }
 
@@ -213,7 +254,8 @@ public class JmfDeviceDetector
             catch (Throwable t)
             {
                 if (logger.isDebugEnabled())
-                    logger.debug("No Video4Linux2 detected: " + t.getMessage(), t);
+                    logger.debug("No Video4Linux2 detected: " + t.getMessage(),
+                            t);
             }
         }
         else if (OSUtils.IS_WINDOWS) /* DirectShow */
@@ -225,7 +267,8 @@ public class JmfDeviceDetector
             catch(Throwable t)
             {
                 if (logger.isDebugEnabled())
-                    logger.debug("No DirectShow detected: " + t.getMessage(), t);
+                    logger.debug("No DirectShow detected: " + t.getMessage(),
+                            t);
             }
         }
 
@@ -382,5 +425,14 @@ public class JmfDeviceDetector
     public static void detectAndConfigureCaptureDevices()
     {
         setupJMF();
+    }
+
+    /**
+     * Reinitialize video capture devices.
+     */
+    public static void reinitializeVideoCaptureDevices()
+    {
+        JmfDeviceDetector detector = new JmfDeviceDetector();
+        detector.reinitializeVideo();
     }
 }

@@ -132,6 +132,11 @@ public class MediaServiceImpl
     private static InputVolumeControl inputVolumeControl;
 
     /**
+     * Lock to protected reinitialization of video devices.
+     */
+    private final Object reinitVideoLock = new Object();
+
+    /**
      * Create a <tt>MediaStream</tt> which will use a specific
      * <tt>MediaDevice</tt> for capture and playback of media. The new instance
      * will not have a <tt>StreamConnector</tt> at the time of its construction
@@ -345,6 +350,17 @@ public class MediaServiceImpl
         CaptureDeviceInfo[] captureDeviceInfos;
         List<MediaDeviceImpl> privateDevices;
 
+        if(mediaType == MediaType.VIDEO)
+        {
+            /* in case a video capture device has been removed from system
+             * (i.e. webcam, monitors, ...), rescan video capture devices
+             */
+            synchronized(reinitVideoLock)
+            {
+                getDeviceConfiguration().reinitializeVideo();
+            }
+        }
+
         switch (mediaType)
         {
         case AUDIO:
@@ -451,6 +467,7 @@ public class MediaServiceImpl
             if (nonSendDevice != null)
                 publicDevices.add(nonSendDevice);
         }
+
         return publicDevices;
     }
 
@@ -933,7 +950,6 @@ public class MediaServiceImpl
     /**
      * Get a <tt>MediaDevice</tt> for a part of desktop streaming/sharing.
      *
-     * @param mediaDevice original desktop streaming <tt>MediaDevice</tt>
      * @param width width of the part
      * @param height height of the part
      * @param x origin of the x coordinate (relative to the full desktop)

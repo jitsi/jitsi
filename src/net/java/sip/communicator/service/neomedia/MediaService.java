@@ -206,7 +206,6 @@ public interface MediaService
     /**
      * Get a <tt>MediaDevice</tt> for a part of desktop streaming/sharing.
      *
-     * @param mediaDevice original desktop streaming <tt>MediaDevice</tt>
      * @param width width of the part
      * @param height height of the part
      * @param x origin of the x coordinate (relative to the full desktop)

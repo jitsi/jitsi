@@ -745,6 +745,11 @@ public abstract class AbstractPullBufferCaptureDevice
         }
     }
 
+    /**
+     * Set the capture device info.
+     *
+     * @param devInfo <tt>CaptureDeviceInfo</tt>
+     */
     public void setCaptureDeviceInfo(CaptureDeviceInfo devInfo)
     {
         this.devInfo = devInfo;
