@@ -74,6 +74,16 @@ public class ContactListTreeCellRenderer
     private static final int EXTENDED_AVATAR_WIDTH = 45;
 
     /**
+     * Left border value.
+     */
+    private static final int LEFT_BORDER = 5;
+
+    /**
+     * Status label right border.
+     */
+    private static final int STATUS_RIGHT_BORDER = 2;
+
+    /**
      * The icon used for opened groups.
      */
     private ImageIcon openedGroupIcon;
@@ -190,7 +200,7 @@ public class ContactListTreeCellRenderer
     {
         super(new GridBagLayout());
 
-        this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 2));
+        this.setBorder(BorderFactory.createEmptyBorder(2, LEFT_BORDER, 2, 2));
 
         loadSkin();
 
@@ -202,7 +212,8 @@ public class ContactListTreeCellRenderer
 
         this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
 
-        statusLabel.setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 2));
+        statusLabel.setBorder(
+            BorderFactory.createEmptyBorder(2, 0, 0, STATUS_RIGHT_BORDER));
 
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.NONE;
@@ -691,7 +702,7 @@ public class ContactListTreeCellRenderer
             imContact = uiContact.getDefaultContactDetail(
                          OperationSetBasicInstantMessaging.class);
 
-        int x = statusLabel.getWidth();
+        int x = statusLabel.getWidth() + LEFT_BORDER + STATUS_RIGHT_BORDER;
 
         if (imContact != null)
         {
