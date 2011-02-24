@@ -142,6 +142,20 @@ public class ProvisioningForm
         c.gridy = 3;
         mainPanel.add(uriField, c);
 
+        JTextPane pane = new JTextPane();
+        pane.setForeground(Color.RED);
+        pane.setEditable(false);
+        pane.setOpaque(false);
+        pane.setText(ProvisioningActivator.getResourceService().getI18NString(
+            "plugin.provisioning.RESTART_WARNING"));
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        c.insets = new Insets(30, 10, 0, 0);
+        c.gridx = 0;
+        c.gridy = 4;
+        mainPanel.add(pane, c);
+
         initButtonStates();
         initListeners();
     }

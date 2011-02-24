@@ -29,7 +29,8 @@ import com.explodingpixels.macwidgets.*;
  */
 public class ConfigurationFrame
     extends SIPCommDialog
-    implements ServiceListener
+    implements  ConfigurationContainer,
+                ServiceListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ConfigurationFrame</tt> class and its
@@ -231,7 +232,7 @@ public class ConfigurationFrame
      */
     public void setVisible(boolean isVisible)
     {
-        if (isVisible)
+        if (isVisible && configList.getSelectedIndex() < 0)
         {
             this.configList.setSelectedIndex(0);
         }
@@ -319,5 +320,10 @@ public class ConfigurationFrame
     private void removeConfigurationForm(ConfigurationForm configForm)
     {
         configList.removeConfigForm(configForm);
+    }
+
+    public void setSelected(ConfigurationForm configForm)
+    {
+        configList.setSelected(configForm);
     }
 }

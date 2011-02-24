@@ -557,7 +557,8 @@ public class MainToolBar
         }
         else if (buttonText.equals("options"))
         {
-            GuiActivator.getUIService().setConfigurationWindowVisible(true);
+            GuiActivator.getUIService()
+                .getConfigurationContainer().setVisible(true);
         }
         else if (buttonText.equals("font"))
             chatPanel.showFontChooserDialog();

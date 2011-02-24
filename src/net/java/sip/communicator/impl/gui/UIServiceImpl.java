@@ -1131,9 +1131,26 @@ public class UIServiceImpl
      */
     public void setConfigurationWindowVisible(boolean visible)
     {
+        if (isVisible() && configurationFrame == null)
+            configurationFrame = new ConfigurationFrame(mainFrame);
+
+        if (configurationFrame != null)
+            configurationFrame.setVisible(visible);
+    }
+
+    /**
+     * Returns the <tt>ConfigurationContainer</tt> associated with this
+     * <tt>UIService</tt>.
+     *
+     * @return the <tt>ConfigurationContainer</tt> associated with this
+     * <tt>UIService</tt>
+     */
+    public ConfigurationContainer getConfigurationContainer()
+    {
         if (configurationFrame == null)
             configurationFrame = new ConfigurationFrame(mainFrame);
-        configurationFrame.setVisible(visible);
+
+        return configurationFrame;
     }
 
     /**

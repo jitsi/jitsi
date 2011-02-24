@@ -12,17 +12,37 @@ import java.util.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
+/**
+ * 
+ * @author Yana Stamcheva
+ */
 public class SimpleAccountRegistrationActivator
     implements BundleActivator
 {
     private static final Logger logger
         = Logger.getLogger(SimpleAccountRegistrationActivator.class);
 
+    /**
+     * Advanced config form class name.
+     */
+    private static final String advancedConfigFormClassName
+        =   "net.java.sip.communicator.plugin" +
+            ".advancedconfig.AdvancedConfigurationPanel";
+
+    /**
+     * Provisioning form class name.
+     */
+    private static final String provisioningFormClassName
+        = "net.java.sip.communicator.plugin.provisioning.ProvisioningForm";
+
     public static BundleContext bundleContext;
+
+    private static ResourceManagementService resourcesService;
 
     public void start(BundleContext bc) throws Exception
     {
@@ -171,5 +191,123 @@ public class SimpleAccountRegistrationActivator
 
         return (UIService) bundleContext
             .getService(serviceReference);
+    }
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     *
+     * @return the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            resourcesService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ResourceManagementService.class);
+        }
+        return resourcesService;
+    }
+
+    /**
+     * Returns the first available advanced configuration form.
+     *
+     * @return the first available advanced configuration form
+     */
+    public static ConfigurationForm getAdvancedConfigForm()
+    {
+        // General configuration forms only.
+        String osgiFilter = "("
+            + ConfigurationForm.FORM_TYPE
+            + "="+ConfigurationForm.GENERAL_TYPE+")";
+
+        ServiceReference[] confFormsRefs = null;
+        try
+        {
+            confFormsRefs = bundleContext
+                .getServiceReferences(
+                    ConfigurationForm.class.getName(),
+                    osgiFilter);
+        }
+        catch (InvalidSyntaxException ex)
+        {}
+
+        if(confFormsRefs != null)
+        {
+            for (int i = 0; i < confFormsRefs.length; i++)
+            {
+                ConfigurationForm form
+                    = (ConfigurationForm) bundleContext
+                        .getService(confFormsRefs[i]);
+
+                if (form instanceof LazyConfigurationForm)
+                {
+                    LazyConfigurationForm lazyConfigForm
+                        = (LazyConfigurationForm) form;
+
+                    if (lazyConfigForm.getFormClassName().equals(
+                            advancedConfigFormClassName))
+                        return form;
+                }
+                else if (form.getClass().getName().equals(
+                            advancedConfigFormClassName))
+                {
+                    return form;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the first available provisioning configuration form.
+     *
+     * @return the first available provisioning configuration form
+     */
+    public static ConfigurationForm getProvisioningConfigForm()
+    {
+     // General configuration forms only.
+        String osgiFilter = "("
+            + ConfigurationForm.FORM_TYPE
+            + "="+ConfigurationForm.ADVANCED_TYPE+")";
+
+        ServiceReference[] confFormsRefs = null;
+        try
+        {
+            confFormsRefs = bundleContext
+                .getServiceReferences(
+                    ConfigurationForm.class.getName(),
+                    osgiFilter);
+        }
+        catch (InvalidSyntaxException ex)
+        {}
+
+        if(confFormsRefs != null)
+        {
+            for (int i = 0; i < confFormsRefs.length; i++)
+            {
+                ConfigurationForm form
+                    = (ConfigurationForm) bundleContext
+                        .getService(confFormsRefs[i]);
+
+                if (form instanceof LazyConfigurationForm)
+                {
+                    LazyConfigurationForm lazyConfigForm
+                        = (LazyConfigurationForm) form;
+
+                    if (lazyConfigForm.getFormClassName().equals(
+                            provisioningFormClassName))
+                    {
+                        return form;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

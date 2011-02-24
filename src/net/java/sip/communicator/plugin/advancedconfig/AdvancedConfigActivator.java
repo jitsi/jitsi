@@ -47,12 +47,7 @@ public class AdvancedConfigActivator
         bundleContext
             .registerService(
                 ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                    "net.java.sip.communicator.plugin.advancedconfig.AdvancedConfigurationPanel",
-                    getClass().getClassLoader(),
-                    "plugin.advancedconfig.PLUGIN_ICON",
-                    "service.gui.ADVANCED",
-                    300),
+                new AdvancedConfigurationPanel(),
                 properties);
 
         if (logger.isInfoEnabled())

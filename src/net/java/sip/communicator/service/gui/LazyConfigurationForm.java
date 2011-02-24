@@ -158,7 +158,7 @@ public class LazyConfigurationForm
      * Returns the form class name.
      * @return the form class name
      */
-    protected String getFormClassName()
+    public String getFormClassName()
     {
         return formClassName;
     }

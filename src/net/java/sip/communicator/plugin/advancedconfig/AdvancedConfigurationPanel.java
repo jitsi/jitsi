@@ -24,7 +24,9 @@ import org.osgi.framework.*;
  */
 public class AdvancedConfigurationPanel
     extends TransparentPanel
-    implements  ServiceListener,
+    implements  ConfigurationForm,
+                ConfigurationContainer,
+                ServiceListener,
                 ListSelectionListener
 {
     /**
@@ -181,8 +183,20 @@ public class AdvancedConfigurationPanel
                 break;
         }
         listModel.add(i, configForm);
+    }
 
-        configList.setSelectedIndex(0);
+    /**
+     * Implements <code>ApplicationWindow.show</code> method.
+     *
+     * @param isVisible specifies whether the frame is to be visible or not.
+     */
+    public void setVisible(boolean isVisible)
+    {
+        if (isVisible && configList.getSelectedIndex() < 0)
+        {
+            this.configList.setSelectedIndex(0);
+        }
+        super.setVisible(isVisible);
     }
 
     /**
@@ -305,5 +319,63 @@ public class AdvancedConfigurationPanel
             if(configForm != null)
                 showFormContent(configForm);
         }
+    }
+
+    /**
+     * Selects the given <tt>ConfigurationForm</tt>.
+     *
+     * @param configForm the <tt>ConfigurationForm</tt> to select
+     */
+    public void setSelected(ConfigurationForm configForm)
+    {
+        configList.setSelectedValue(configForm, true);
+    }
+
+    /**
+     * Returns the title of the form.
+     * @return the title of the form
+     */
+    public String getTitle()
+    {
+        return AdvancedConfigActivator.getResources()
+            .getI18NString("service.gui.ADVANCED");
+    }
+
+    /**
+     * Returns the icon of the form.
+     * @return a byte array containing the icon of the form
+     */
+    public byte[] getIcon()
+    {
+        return AdvancedConfigActivator.getResources()
+            .getImageInBytes("plugin.advancedconfig.PLUGIN_ICON");
+    }
+
+    /**
+     * Returns the form component.
+     * @return the form component
+     */
+    public Object getForm()
+    {
+        return this;
+    }
+
+    /**
+     * Returns the index of the form in its parent container.
+     * @return the index of the form in its parent container
+     */
+    public int getIndex()
+    {
+        return 300;
+    }
+
+    /**
+     * Indicates if the form is an advanced form.
+     * @return <tt>true</tt> to indicate that this is an advanced form,
+     * otherwise returns <tt>false</tt>
+     */
+    public boolean isAdvanced()
+    {
+        return true;
     }
 }

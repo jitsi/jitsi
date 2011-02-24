@@ -68,8 +68,6 @@ public class InitialAccountRegistrationFrame
             = new TransparentPanel(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        
-
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelButton
             = new JButton(Resources.getString("service.gui.CANCEL"));
@@ -93,6 +91,8 @@ public class InitialAccountRegistrationFrame
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         mainAccountsPanel.add(accountsPanel, BorderLayout.CENTER);
+
+        initProvisioningPanel();
 
         mainAccountsPanel.setOpaque(false);
         accountsPanel.setOpaque(false);
@@ -135,6 +135,62 @@ public class InitialAccountRegistrationFrame
                     "net.java.sip.communicator.impl.gui.addcontact.lastContactParent",
                     groupName);
         }
+    }
+
+    /**
+     * Initializes the provisioning panel.
+     */
+    private void initProvisioningPanel()
+    {
+        JPanel provisioningPanel = new TransparentPanel();
+
+        final JLabel provisioningLabel =
+            new JLabel("<html><a href=''>"
+                + SimpleAccountRegistrationActivator
+                    .getResources().getI18NString("service.gui.USE_PROVISIONING")
+                + "</a></html>");
+
+        provisioningLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        provisioningLabel.setToolTipText(
+            SimpleAccountRegistrationActivator
+                .getResources().getI18NString("service.gui.USE_PROVISIONING"));
+
+        provisioningLabel.addMouseListener(new MouseAdapter()
+        {
+            public void mousePressed(MouseEvent e)
+            {
+                ConfigurationContainer configContainer
+                    = SimpleAccountRegistrationActivator.getUIService()
+                        .getConfigurationContainer();
+
+                ConfigurationForm advancedConfigForm
+                    = SimpleAccountRegistrationActivator.getAdvancedConfigForm();
+
+                if (advancedConfigForm != null)
+                {
+                    configContainer.setSelected(advancedConfigForm);
+
+                    if (advancedConfigForm instanceof ConfigurationContainer)
+                    {
+                        ConfigurationForm provisioningForm
+                            = SimpleAccountRegistrationActivator
+                                .getProvisioningConfigForm();
+
+                        if (provisioningForm != null)
+                        {
+                            ((ConfigurationContainer) advancedConfigForm)
+                                .setSelected(provisioningForm);
+                        }
+                    }
+                }
+
+                configContainer.setVisible(true);
+            }
+        });
+
+        provisioningPanel.add(provisioningLabel);
+
+        mainAccountsPanel.add(provisioningPanel, BorderLayout.SOUTH);
     }
 
     private void initAccountWizards()

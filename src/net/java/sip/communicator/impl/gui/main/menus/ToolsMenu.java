@@ -173,7 +173,7 @@ public class ToolsMenu
      */
     void configActionPerformed()
     {
-        GuiActivator.getUIService().setConfigurationWindowVisible(true);
+        GuiActivator.getUIService().getConfigurationContainer().setVisible(true);
     }
 
     /**

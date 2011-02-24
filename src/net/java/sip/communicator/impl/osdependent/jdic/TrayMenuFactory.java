@@ -49,7 +49,7 @@ public final class TrayMenuFactory
         if (itemName.equals("settings"))
         {
             OsDependentActivator.getUIService()
-                .setConfigurationWindowVisible(true);
+                .getConfigurationContainer().setVisible(true);
         }
         else if (itemName.equals("service.gui.QUIT"))
         {

@@ -70,19 +70,24 @@ public class ConfigFormList
      */
     public void removeConfigForm(ConfigurationForm configForm)
     {
-        for(int count = listModel.getSize(), i = count - 1; i >= 0; i--)
-        {
-            ConfigFormDescriptor descriptor
-                = (ConfigFormDescriptor) listModel.get(i);
+        ConfigFormDescriptor descriptor = findDescriptor(configForm);
 
-            if(descriptor.getConfigForm().equals(configForm))
-            {
-                listModel.remove(i);
-                /*
-                 * TODO We may just consider not allowing duplicates on addition
-                 * and then break here.
-                 */
-            }
+        if (descriptor != null)
+            listModel.removeElement(descriptor);
+    }
+
+    /**
+     * Selects the given <tt>ConfigurationForm</tt>.
+     *
+     * @param configForm the <tt>ConfigurationForm</tt> to select
+     */
+    public void setSelected(ConfigurationForm configForm)
+    {
+        ConfigFormDescriptor descriptor = findDescriptor(configForm);
+
+        if (descriptor != null)
+        {
+            setSelectedValue(descriptor, true);
         }
     }
 
@@ -99,5 +104,30 @@ public class ConfigFormList
             if(configFormDescriptor != null)
                 configFrame.showFormContent(configFormDescriptor);
         }
+    }
+
+    /**
+     * Finds the list descriptor corresponding the given
+     * <tt>ConfigurationForm</tt>.
+     *
+     * @param configForm the <tt>ConfigurationForm</tt>, which descriptor we're
+     * looking for
+     * @return the list descriptor corresponding the given
+     * <tt>ConfigurationForm</tt>
+     */
+    private ConfigFormDescriptor findDescriptor(ConfigurationForm configForm)
+    {
+        for(int i = 0; i < listModel.getSize(); i++)
+        {
+            ConfigFormDescriptor descriptor
+                = (ConfigFormDescriptor) listModel.getElementAt(i);
+
+            if(descriptor.getConfigForm().equals(configForm))
+            {
+                return descriptor;
+            }
+        }
+
+        return null;
     }
 }
