@@ -11,6 +11,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
+import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -78,6 +79,8 @@ public class GroupNode
             logger.debug("Group node add contact: "
                     + uiContact.getDisplayName());
 
+        int selectedIndex = getLeadSelectionRow();
+
         ContactNode contactNode = new ContactNode(uiContact);
         uiContact.setContactNode(contactNode);
 
@@ -87,6 +90,8 @@ public class GroupNode
 
         if (contactIndex > -1)
             fireNodeInserted(contactIndex);
+
+        refreshSelection(selectedIndex, getLeadSelectionRow());
 
         return contactNode;
     }
@@ -132,6 +137,8 @@ public class GroupNode
         if (contactNode != null)
         {
             int index = getIndex(contactNode);
+            int selectedIndex = getLeadSelectionRow();
+
             // We remove the node directly from the list, thus skipping all
             // the checks verifying if the node belongs to this parent.
             children.removeElementAt(index);
@@ -141,6 +148,8 @@ public class GroupNode
             uiContact = null;
 
             fireNodeRemoved(contactNode, index);
+
+            refreshSelection(selectedIndex, getLeadSelectionRow());
         }
     }
 
@@ -152,6 +161,8 @@ public class GroupNode
      */
     public GroupNode addContactGroup(UIGroup uiGroup)
     {
+        int selectedIndex = getLeadSelectionRow();
+
         GroupNode groupNode = new GroupNode(treeModel, uiGroup);
         uiGroup.setGroupNode(groupNode);
 
@@ -161,6 +172,8 @@ public class GroupNode
 
         if (groupIndex > -1)
             fireNodeInserted(groupIndex);
+
+        refreshSelection(selectedIndex, getLeadSelectionRow());
 
         return groupNode;
     }
@@ -177,6 +190,8 @@ public class GroupNode
         if (groupNode != null)
         {
             int index = getIndex(groupNode);
+            int selectedIndex = getLeadSelectionRow();
+
             // We remove the node directly from the list, thus skipping all the
             // checks verifying if the node belongs to this parent.
             children.removeElementAt(index);
@@ -185,6 +200,8 @@ public class GroupNode
             uiGroup.setGroupNode(null);
 
             fireNodeRemoved(groupNode, index);
+
+            refreshSelection(selectedIndex, getLeadSelectionRow());
         }
     }
 
@@ -238,7 +255,7 @@ public class GroupNode
      * refreshed
      */
     @SuppressWarnings("unchecked")
-    public void sort(ContactListTreeModel treeModel)
+    public void sort(final ContactListTreeModel treeModel)
     {
         if (children != null)
         {
@@ -246,9 +263,16 @@ public class GroupNode
             {
                 public void run()
                 {
+                    TreePath selectionPath = getLeadSelectionPath();
+                    int oldSelectionIndex = getLeadSelectionRow();
+
                     Collections.sort(children, nodeComparator);
 
                     fireNodesChanged();
+
+                    treeModel.getParentTree().setSelectionPath(selectionPath);
+
+                    refreshSelection(oldSelectionIndex, getLeadSelectionRow());
                 }
             });
         }
@@ -370,6 +394,57 @@ public class GroupNode
             if (index1 > index2) return 1;
             else if (index1 < index2) return -1;
             else return 0;
+        }
+    }
+
+    /**
+     * Returns the current lead selection row.
+     *
+     * @return the current lead selection row
+     */
+    private int getLeadSelectionRow()
+    {
+        JTree tree = treeModel.getParentTree();
+
+        int[] rows = tree.getSelectionRows();
+
+        int selectedRow = -1;
+        if (rows != null && rows.length > 0)
+        {
+            selectedRow = rows[0];
+        }
+
+        return selectedRow;
+    }
+
+    /**
+     * Returns the current lead selection path.
+     *
+     * @return the current lead selection path
+     */
+    private TreePath getLeadSelectionPath()
+    {
+        return treeModel.getParentTree().getSelectionPath();
+    }
+
+    /**
+     * Refreshes the selection paths.
+     *
+     * @param lastSelectedIndex the last selected index
+     * @param newSelectedIndex the newly selected index
+     */
+    private void refreshSelection(int lastSelectedIndex, int newSelectedIndex)
+    {
+        JTree tree = treeModel.getParentTree();
+
+        TreePath oldSelectionPath = tree.getPathForRow(lastSelectedIndex);
+        TreePath newSelectionPath = tree.getPathForRow(newSelectedIndex);
+
+        if (tree.getUI() instanceof SIPCommTreeUI)
+        {
+            SIPCommTreeUI treeUI = (SIPCommTreeUI) tree.getUI();
+
+            treeUI.selectionChanged(oldSelectionPath, newSelectionPath);
         }
     }
 }

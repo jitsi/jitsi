@@ -23,13 +23,19 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
  * 
  * @author Yana Stamcheva
  */
-public class SIPCommTreeUI extends BasicTreeUI
+public class SIPCommTreeUI
+    extends BasicTreeUI
 {
     private static JTree tree;
 
     private JViewport parentViewport;
 
     private VariableLayoutCache layoutCache;
+
+    /**
+     * Last selected index.
+     */
+    private int lastSelectedIndex;
 
     /**
      * Creates the UI for the given component.
@@ -53,19 +59,14 @@ public class SIPCommTreeUI extends BasicTreeUI
 
         tree = (JTree)c;
 
-        tree.addTreeSelectionListener(new TreeSelectionListener()
+        tree.getSelectionModel().addTreeSelectionListener(
+            new TreeSelectionListener()
         {
             public void valueChanged(TreeSelectionEvent e)
             {
                 // Update cell size.
-                layoutCache.invalidatePathBounds(e.getOldLeadSelectionPath());
-                layoutCache.invalidatePathBounds(e.getNewLeadSelectionPath());
-
-                // Update tree height.
-                updateSize();
-
-                // Finally repaint in order the change to take place.
-                tree.repaint();
+                selectionChanged(   e.getOldLeadSelectionPath(),
+                                    e.getNewLeadSelectionPath());
             }
         });
 
@@ -81,6 +82,7 @@ public class SIPCommTreeUI extends BasicTreeUI
                 }
             }
         });
+
         super.installUI(c);
     }
 
@@ -186,5 +188,47 @@ public class SIPCommTreeUI extends BasicTreeUI
 
             return rect;
         }
+    }
+
+    /**
+     * Ensures the tree size.
+     */
+    private void ensureTreeSize()
+    {
+        // Update tree height.
+        updateSize();
+
+        // Finally repaint in order the change to take place.
+        tree.repaint();
+    }
+
+    /**
+     * Refreshes row sizes corresponding to the given paths.
+     *
+     * @param oldPath the old selection path
+     * @param newPath the new selection path
+     */
+    public void selectionChanged(TreePath oldPath, TreePath newPath)
+    {
+        if (oldPath != null)
+            layoutCache.invalidatePathBounds(oldPath);
+
+        if (newPath != null)
+        {
+            layoutCache.invalidatePathBounds(newPath);
+            lastSelectedIndex = tree.getRowForPath(newPath);
+        }
+        // If the selection has disappeared, for example when the selected row
+        // has been removed, refresh the previously selected row.
+        else
+        {
+            int nextRow = (tree.getRowCount() > lastSelectedIndex)
+                ? lastSelectedIndex : tree.getRowCount() - 1;
+
+            layoutCache.invalidatePathBounds(
+                tree.getPathForRow(nextRow));
+        }
+
+        ensureTreeSize();
     }
 }

@@ -145,7 +145,7 @@ public class TreeContactList
 
         GuiActivator.getContactListService().addMetaContactListListener(this);
 
-        treeModel = new ContactListTreeModel();
+        treeModel = new ContactListTreeModel(this);
 
         setTreeModel(treeModel);
 

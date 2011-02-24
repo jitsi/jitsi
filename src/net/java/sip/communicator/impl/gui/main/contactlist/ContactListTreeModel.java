@@ -25,11 +25,20 @@ public class ContactListTreeModel
     private final GroupNode rootGroupNode;
 
     /**
-     * Creates an instance of <tt>ContactListTreeModel</tt>.
+     * The parent tree.
      */
-    public ContactListTreeModel()
+    private final JTree parentTree;
+
+    /**
+     * Creates an instance of <tt>ContactListTreeModel</tt>.
+     *
+     * @param tree the parent tree
+     */
+    public ContactListTreeModel(JTree tree)
     {
         super(null);
+
+        this.parentTree = tree;
 
         RootUIGroup rootDescriptor = new RootUIGroup();
         rootGroupNode = new GroupNode(this, rootDescriptor);
@@ -94,6 +103,16 @@ public class ContactListTreeModel
 
         rootGroupNode.clear();
         nodesWereRemoved(rootGroupNode, removedIndexs, removedNodes);
+    }
+
+    /**
+     * Returns the parent tree.
+     *
+     * @return the parent tree
+     */
+    public JTree getParentTree()
+    {
+        return parentTree;
     }
 
     /**
