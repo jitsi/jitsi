@@ -147,7 +147,9 @@ public class ProvisioningForm
         pane.setEditable(false);
         pane.setOpaque(false);
         pane.setText(ProvisioningActivator.getResourceService().getI18NString(
-            "plugin.provisioning.RESTART_WARNING"));
+            "plugin.provisioning.RESTART_WARNING",
+            new String[]{ProvisioningActivator.getResourceService()
+                .getSettingsString("service.gui.APPLICATION_NAME")}));
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
