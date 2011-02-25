@@ -316,7 +316,7 @@ public class MainFrame
         }
         else
         {
-            JPanel panel = new TransparentPanel(new BorderLayout());
+            JPanel panel = new TransparentPanel(new BorderLayout(5, 5));
 
             panel.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
 
