@@ -1335,9 +1335,6 @@ public class TreeContactList
                 ((GroupNode) lastComponent).getGroupDescriptor(),
                 ContactListEvent.GROUP_CLICKED, e.getClickCount());
         }
-
-        if (e.getClickCount() < 2)
-            dispatchEventToButtons(e);
     }
 
     /**
@@ -1372,8 +1369,10 @@ public class TreeContactList
         if (!(lastComponent instanceof TreeNode))
             return;
 
+        boolean isSelected = path.equals(getSelectionPath());
+
         // Select the node under the right button click.
-        if (!path.equals(getSelectionPath())
+        if (!isSelected
             && (e.getModifiers() & InputEvent.BUTTON2_MASK) != 0
                 || (e.getModifiers() & InputEvent.BUTTON3_MASK) != 0
                 || (e.isControlDown() && !e.isMetaDown()))
@@ -1411,7 +1410,8 @@ public class TreeContactList
 
         // If not already consumed dispatch the event to underlying
         // cell buttons.
-        dispatchEventToButtons(e);
+        if (isSelected && e.getClickCount() < 2)
+            dispatchEventToButtons(e);
     }
 
     /**

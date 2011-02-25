@@ -394,15 +394,6 @@ public class ContactListTreeCellRenderer
             if (contactForegroundColor != null)
                 nameLabel.setForeground(contactForegroundColor);
 
-            if (contact instanceof ShowMoreContact)
-            {
-                rightLabel.setFont(rightLabel.getFont().deriveFont(12f));
-                rightLabel.setForeground(Color.GRAY);
-                rightLabel.setText((String)contact.getDescriptor());
-            }
-            else
-                rightLabel.setText("");
-
             // Initializes status message components if the given meta contact
             // contains a status message.
             this.initDisplayDetails(contact);
@@ -428,6 +419,18 @@ public class ContactListTreeCellRenderer
             if (avatar != null)
             {
                 this.rightLabel.setIcon(avatar);
+            }
+
+            if (contact instanceof ShowMoreContact)
+            {
+                rightLabel.setFont(rightLabel.getFont().deriveFont(12f));
+                rightLabel.setForeground(Color.GRAY);
+                rightLabel.setText((String)contact.getDescriptor());
+            }
+            else
+            {
+                rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
+                rightLabel.setText("");
             }
 
             this.setToolTipText(contact.getDescriptor().toString());
