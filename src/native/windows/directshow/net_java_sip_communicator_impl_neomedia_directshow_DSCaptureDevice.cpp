@@ -94,9 +94,8 @@ public:
                 bytesPerPixel = m_dev->getBitPerPixel() / 8;
 
                 /* flip image for RGB content */
-                flipImage = !m_dev->isFlip() &&
-                    (format.mediaType == MEDIASUBTYPE_ARGB32 ||
-                    format.mediaType == MEDIASUBTYPE_RGB32 ||
+                flipImage = (format.mediaType == MEDIASUBTYPE_ARGB32 ||
+                    format.mediaType == MEDIASUBTYPE_RGB32 || 
                     format.mediaType == MEDIASUBTYPE_RGB24);
 
                 sample->GetPointer(&data);
@@ -118,7 +117,7 @@ public:
                     m_bytesLength = length;
                 }
 
-                /* it seems that images is always inversed,
+                /* it seems that images is always inversed, 
                  * the following code from lti-civil is always used to flip
                  * images
                  */
@@ -140,7 +139,7 @@ public:
         }
         return S_OK;
     }
-
+    
     /**
      * \brief Java VM.
      */
@@ -154,7 +153,7 @@ public:
     /**
      * \brief Internal buffer.
      */
-    BYTE* m_bytes;
+    BYTE* m_bytes; 
 
     /**
      * \brief Length of internal buffer.
@@ -172,7 +171,7 @@ public:
  * \param env JNI environment
  * \param obj DSCaptureDevice object
  * \param ptr native pointer of DSCaptureDevice
- */
+ */ 
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSCaptureDevice_open
   (JNIEnv* env, jobject obj, jlong ptr)
 {
@@ -187,21 +186,21 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_D
  * \param env JNI environment
  * \param obj DSCaptureDevice object
  * \param ptr native pointer of DSCaptureDevice
- */
+ */ 
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSCaptureDevice_close
   (JNIEnv* env, jobject obj, jlong ptr)
 {
     DSCaptureDevice* dev = reinterpret_cast<DSCaptureDevice*>(ptr);
     dev->stop();
 }
-
+ 
 /**
  * \brief Get name of native capture device.
  * \param env JNI environment
  * \param obj DSCaptureDevice object
  * \param ptr native pointer of DSCaptureDevice
  * \return name of the native capture device
- */
+ */ 
 JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSCaptureDevice_getName
   (JNIEnv* env, jobject obj, jlong ptr)
 {
@@ -225,14 +224,14 @@ JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_directsho
  * \param obj DSCaptureDevice object
  * \param ptr native pointer of DSCaptureDevice
  * \param format DSFormat to set
- */
+ */ 
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSCaptureDevice_setFormat
   (JNIEnv* env, jobject obj, jlong ptr, jobject format)
 {
     DSCaptureDevice* dev = reinterpret_cast<DSCaptureDevice*>(ptr);
     VideoFormat fmt;
     jclass clazz = env->GetObjectClass(format);
-
+    
     if(clazz)
     {
         jfieldID fieldH = env->GetFieldID(clazz, "height", "I");
@@ -241,11 +240,11 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_D
         jlong f = env->GetLongField(format, fieldF);
         jint w = env->GetIntField(format, fieldW);
         jint h = env->GetIntField(format, fieldH);
-
+    
         fmt.width = w;
         fmt.height = h;
         fmt.pixelFormat = (unsigned long)f;
-
+    
         dev->setFormat(fmt);
         dev->start();
     }
@@ -292,7 +291,7 @@ JNIEXPORT jobject JNICALL Java_net_java_sip_communicator_impl_neomedia_directsho
  * \param obj DSCaptureDevice object
  * \param ptr native pointer of DSCaptureDevice
  * \return array of DSFormat object
- */
+ */ 
 JNIEXPORT jobjectArray JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_DSCaptureDevice_getSupportedFormats
   (JNIEnv* env, jobject obj, jlong ptr)
 {
@@ -356,7 +355,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_D
     Grabber* grab = NULL;
     DSCaptureDevice* dev = reinterpret_cast<DSCaptureDevice*>(ptr);
     DSGrabberCallback* prev = dev->getCallback();
-
+   
     if(delegate != NULL)
     {
         delegate = env->NewGlobalRef(delegate);
@@ -373,7 +372,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_directshow_D
     {
         dev->setCallback(NULL);
     }
-
+   
     if(prev)
     {
         jobject tmp_delegate = ((Grabber*)prev)->m_delegate;
