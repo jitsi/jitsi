@@ -418,7 +418,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             SSLContext ctx = certificateVerification.getSSLContext(
                 uri.getHost(), uri.getPort() == -1 ? 443 : uri.getPort());
             org.apache.http.conn.ssl.SSLSocketFactory ssf
-                = new org.apache.http.conn.ssl.SSLSocketFactory(ctx);
+                = new org.apache.http.conn.ssl.SSLSocketFactory(
+                        ctx, new HostNameResolverImpl());
             sr.register(new Scheme("https", ssf, 443));
         }
         catch(Throwable e)
@@ -529,6 +530,44 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
         {
             logger.error("XCapError cannot be parsed.");
             return null;
+        }
+    }
+
+    /**
+     * Using deprecated HostNameResolver as quick fix,
+     * Make apache http client lib to use our resolver when connecting to hosts.
+     */
+    private class HostNameResolverImpl
+        implements HostNameResolver
+    {
+        /**
+         * Resolves given hostname to its IP address
+         *
+         * @param hostname the hostname.
+         * @return IP address.
+         * @throws java.io.IOException
+         */
+        public InetAddress resolve(String hostname)
+            throws IOException
+        {
+            try
+            {
+                InetSocketAddress addr = null;
+                // use port 80 as we need only the address
+                if(ProtocolProviderServiceSipImpl.checkPreferIPv6Addresses())
+                    addr = NetworkUtils.getAAAARecord(hostname, 80);
+                else
+                    addr = NetworkUtils.getARecord(hostname, 80);
+
+                if(addr != null)
+                    return addr.getAddress();
+                else
+                    return null;
+            }
+            catch(java.text.ParseException e)
+            {
+                throw new IOException(e.getMessage());
+            }
         }
     }
 }

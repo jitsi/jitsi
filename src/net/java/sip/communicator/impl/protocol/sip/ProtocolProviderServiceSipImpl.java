@@ -2981,8 +2981,10 @@ public class ProtocolProviderServiceSipImpl
                 // to the host address from SRV records
                 try
                 {
+                    // as these are already resolved addresses (the SRV res.)
+                    // lets get it without triggering a PTR
                     resolveAddresses(
-                        s.getHostName(),
+                        s.getAddress().getHostName(),
                         tempResultAddresses,
                         preferIPv6Addresses,
                         s.getPort());
@@ -3171,7 +3173,7 @@ public class ProtocolProviderServiceSipImpl
      * if not set - use setting from the system property.
      * @return is property java.net.preferIPv6Addresses <code>"true"</code>.
      */
-    private boolean checkPreferIPv6Addresses()
+    public static boolean checkPreferIPv6Addresses()
     {
         String defaultSetting = SipActivator.getResources().getSettingsString(
                 PREFER_IPV6_ADDRESSES);

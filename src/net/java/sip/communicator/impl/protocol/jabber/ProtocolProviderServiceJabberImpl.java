@@ -739,6 +739,18 @@ public class ProtocolProviderServiceJabberImpl
                 serviceName, proxy
         );
 
+        /*
+        // as we resolve all addresses to ipaddresses before connecting
+        // DirectSocketFactoryImpl use NetworkUtils to make sure
+        // we don't trigger any PTR queries
+        // not enabled for now
+        if(proxy.getProxyType()
+            == org.jivesoftware.smack.proxy.ProxyInfo.ProxyType.NONE)
+        {
+            confConn.setSocketFactory(new DirectSocketFactoryImpl());
+        }
+        */
+
         confConn.setReconnectionAllowed(false);
 
         if(connection != null)
