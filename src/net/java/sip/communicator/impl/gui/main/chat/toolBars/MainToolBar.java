@@ -266,6 +266,7 @@ public class MainToolBar
             .getI18NString("service.gui.INSERT_SMILEY") + " Ctrl-M");
 
         SIPCommMenuBar smileyMenuBar = new SIPCommMenuBar();
+        smileyMenuBar.setOpaque(false);
         smileyMenuBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
         smileyMenuBar.add(smileysBox);
 
