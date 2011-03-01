@@ -171,7 +171,7 @@ public class OperationSetDesktopSharingServerSipImpl
 
         size = (((VideoMediaFormat)call.getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
-        origin = null;
+        origin = getOriginForMediaDevice(device);
         return call;
     }
 
@@ -200,7 +200,7 @@ public class OperationSetDesktopSharingServerSipImpl
 
         size = (((VideoMediaFormat)call.getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
-        origin = null;
+        origin = getOriginForMediaDevice(device);
         return call;
     }
 

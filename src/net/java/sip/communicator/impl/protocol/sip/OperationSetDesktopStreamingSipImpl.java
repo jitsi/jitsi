@@ -86,7 +86,7 @@ public class OperationSetDesktopStreamingSipImpl
         call.setVideoDevice(mediaDevice);
         call.setLocalVideoAllowed(true, getMediaUseCase());
         call.invite(toAddress, null);
-        origin = null;
+        origin = getOriginForMediaDevice(mediaDevice);
         return call;
     }
 
@@ -122,7 +122,7 @@ public class OperationSetDesktopStreamingSipImpl
         call.setLocalVideoAllowed(true, getMediaUseCase());
         call.setVideoDevice(mediaDevice);
         call.invite(toAddress, null);
-        origin = null;
+        origin = getOriginForMediaDevice(mediaDevice);
 
         return call;
     }
@@ -147,10 +147,10 @@ public class OperationSetDesktopStreamingSipImpl
         throws OperationFailedException, ParseException
     {
         Call call = super.createVideoCall(uri);
-        size = (((VideoMediaFormat)((CallSipImpl)call).
-                getDefaultDevice(MediaType.VIDEO).
-                getFormat()).getSize());
-        origin = null;
+        MediaDevice device = ((CallSipImpl)call).getDefaultDevice(
+                MediaType.VIDEO);
+        size = (((VideoMediaFormat)device.getFormat()).getSize());
+        origin = getOriginForMediaDevice(device);
         return call;
     }
 
@@ -171,10 +171,10 @@ public class OperationSetDesktopStreamingSipImpl
     public Call createVideoCall(Contact callee) throws OperationFailedException
     {
         Call call = super.createVideoCall(callee);
-        size = (((VideoMediaFormat)((CallSipImpl)call).
-                getDefaultDevice(MediaType.VIDEO).
-                getFormat()).getSize());
-        origin = null;
+        MediaDevice device = ((CallSipImpl)call).getDefaultDevice(
+                MediaType.VIDEO);
+        size = (((VideoMediaFormat)device.getFormat()).getSize());
+        origin = getOriginForMediaDevice(device);
         return call;
     }
 
@@ -196,10 +196,10 @@ public class OperationSetDesktopStreamingSipImpl
     {
         ((CallSipImpl)call).setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
 
-        size = (((VideoMediaFormat)((CallSipImpl)call).
-                getDefaultDevice(MediaType.VIDEO).
-                getFormat()).getSize());
-        origin = null;
+        MediaDevice device = ((CallSipImpl)call).getDefaultDevice(
+                MediaType.VIDEO);
+        size = (((VideoMediaFormat)device.getFormat()).getSize());
+        origin = getOriginForMediaDevice(device);
 
         /* reinvite all peers */
         ((CallSipImpl)call).reInvite();
@@ -246,7 +246,7 @@ public class OperationSetDesktopStreamingSipImpl
         size = (((VideoMediaFormat)((CallSipImpl)call).
                 getDefaultDevice(MediaType.VIDEO).
                 getFormat()).getSize());
-        origin = null;
+        origin = getOriginForMediaDevice(mediaDevice);
 
         /* reinvite all peers */
         ((CallSipImpl)call).reInvite();
@@ -312,5 +312,18 @@ public class OperationSetDesktopStreamingSipImpl
     public Point getOrigin()
     {
         return origin;
+    }
+    
+    /**
+     * Get origin of the screen.
+     *
+     * @param device media device
+     * @return origin
+     */
+    protected static Point getOriginForMediaDevice(MediaDevice device)
+    {
+        MediaService mediaService = SipActivator.getMediaService();
+
+        return mediaService.getOriginForDesktopStreamingDevice(device);
     }
 }

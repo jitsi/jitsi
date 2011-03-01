@@ -119,9 +119,10 @@ public class OperationSetDesktopStreamingJabberImpl
         throws OperationFailedException
     {
         Call call = createOutgoingVideoCall(uri);
-        size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
-                MediaType.VIDEO).getFormat()).getSize());
-        origin = null;
+        MediaDevice device = ((CallJabberImpl)call).getDefaultDevice(
+                MediaType.VIDEO);
+        size = (((VideoMediaFormat)device.getFormat()).getSize());
+        origin = getOriginForMediaDevice(device);
         return call;
     }
 
@@ -142,9 +143,10 @@ public class OperationSetDesktopStreamingJabberImpl
     public Call createVideoCall(Contact callee) throws OperationFailedException
     {
         Call call = createOutgoingVideoCall(callee.getAddress());
-        size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
-                MediaType.VIDEO).getFormat()).getSize());
-        origin = null;
+        MediaDevice device = ((CallJabberImpl)call).getDefaultDevice(
+                MediaType.VIDEO);
+        size = (((VideoMediaFormat)device.getFormat()).getSize());
+        origin = getOriginForMediaDevice(device);
         return call;
     }
 
@@ -166,10 +168,11 @@ public class OperationSetDesktopStreamingJabberImpl
     {
         ((CallJabberImpl)call).setLocalVideoAllowed(allowed,
                 MediaUseCase.DESKTOP);
-        size = (((VideoMediaFormat)((CallJabberImpl)call).getDefaultDevice(
-                MediaType.VIDEO).getFormat()).getSize());
+        MediaDevice device = ((CallJabberImpl)call).getDefaultDevice(
+                MediaType.VIDEO);
+        size = (((VideoMediaFormat)device.getFormat()).getSize());
         ((CallJabberImpl)call).modifyVideoContent(allowed);
-        origin = null;
+        origin = getOriginForMediaDevice(device);
     }
 
     /**
@@ -197,7 +200,7 @@ public class OperationSetDesktopStreamingJabberImpl
         ((CallJabberImpl)call).setVideoDevice(mediaDevice);
         size = ((VideoMediaFormat)mediaDevice.getFormat()).getSize();
         ((CallJabberImpl)call).modifyVideoContent(allowed);
-        origin = null;
+        origin = getOriginForMediaDevice(mediaDevice);
     }
 
     /**
@@ -245,7 +248,7 @@ public class OperationSetDesktopStreamingJabberImpl
         call.setLocalVideoAllowed(true, getMediaUseCase());
 
         basicTelephony.createOutgoingCall(call, calleeAddress);
-        origin = null;
+        origin = getOriginForMediaDevice(videoDevice);
         return call;
     }
 
@@ -299,5 +302,18 @@ public class OperationSetDesktopStreamingJabberImpl
                 origin = new Point(x, y);
             }
         }
+    }
+    
+    /**
+     * Get origin of the screen.
+     *
+     * @param device media device
+     * @return origin
+     */
+    protected static Point getOriginForMediaDevice(MediaDevice device)
+    {
+        MediaService mediaService = JabberActivator.getMediaService();
+
+        return mediaService.getOriginForDesktopStreamingDevice(device);
     }
 }

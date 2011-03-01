@@ -236,4 +236,13 @@ public interface MediaService
      * device, false otherwise
      */
     public boolean isPartialStreaming(MediaDevice mediaDevice);
+
+    /**
+     * Get origin for desktop streaming device.
+     *
+     * @param mediaDevice media device
+     * @return origin
+     */
+    public java.awt.Point getOriginForDesktopStreamingDevice(
+            MediaDevice mediaDevice);
 }

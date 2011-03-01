@@ -1119,4 +1119,44 @@ public class MediaServiceImpl
 
         return null;
     }
+    
+    /**
+     * Get origin for desktop streaming device.
+     *
+     * @param mediaDevice media device
+     */
+    public Point getOriginForDesktopStreamingDevice(MediaDevice mediaDevice)
+    {
+        MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
+        CaptureDeviceInfo devInfo = dev.getCaptureDeviceInfo();
+        MediaLocator locator = devInfo.getLocator();
+        
+        if(!locator.getProtocol().
+                equals(ImageStreamingAuto.LOCATOR_PROTOCOL))
+        {
+            return null;
+        }
+
+        String remainder = locator.getRemainder();
+        String split[] = remainder.split(",");
+        int index = 0;
+
+        if(split != null && split.length > 1)
+        {
+            index = Integer.parseInt(split[0]);
+        }
+        else
+        {
+            index = Integer.parseInt(remainder);
+        }
+
+        ScreenDevice devs[] = ScreenDeviceImpl.getAvailableScreenDevice();
+        if(devs.length - 1 >= index)
+        {
+            Rectangle r = ((ScreenDeviceImpl)devs[index]).getBounds();
+            return new Point(r.x, r.y);
+        }
+
+        return null;
+    }
 }
