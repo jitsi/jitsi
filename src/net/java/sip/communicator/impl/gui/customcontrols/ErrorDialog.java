@@ -16,19 +16,20 @@ import javax.swing.event.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * The <tt>MessageDialog</tt> is a <tt>JDialog</tt> that contains a question
- * message, two buttons to confirm or cancel the question and a check box that
- * allows user to choose to not be questioned any more over this subject.
- * <p>
- * The message and the name of the "OK" button could be configured.
+ * Implements a <tt>JDialog</tt> which displays an error message and,
+ * optionally, a <tt>Throwable</tt> stack trace. <tt>ErrorDialog</tt> has an OK
+ * button which dismisses the message and a link to display the
+ * <tt>Throwable</tt> stack trace upon request if available.
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Lyubomir Marinov
  */
 public class ErrorDialog
     extends SIPCommDialog
@@ -38,17 +39,21 @@ public class ErrorDialog
 {
     private static final long serialVersionUID = 1L;
 
-    private final Logger logger = Logger.getLogger(ErrorDialog.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>ErrorDialog</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(ErrorDialog.class);
 
-    private JButton okButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.OK"));
+    private JButton okButton
+        = new JButton(
+                GuiActivator.getResources().getI18NString("service.gui.OK"));
 
-    private JLabel iconLabel = new JLabel(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.ERROR_ICON)));
+    private JLabel iconLabel
+        = new JLabel(
+                new ImageIcon(ImageLoader.getImage(ImageLoader.ERROR_ICON)));
 
     private StyledHTMLEditorPane htmlMsgEditorPane = new StyledHTMLEditorPane();
-
-    private JEditorPane messageArea = new JEditorPane();
 
     private JTextArea stackTraceTextArea = new JTextArea();
 
@@ -66,16 +71,26 @@ public class ErrorDialog
         = new TransparentPanel(new BorderLayout(10, 10));
 
     /**
-     * Set visible or hide the details of the error.
-     * By default, this boolean is set to true, beacause while initialization it
-     * will be reversed and set to false.
+     * The indicator which determines whether the details of the error are
+     * currently shown.
+     * <p>
+     * The indicator is initially set to <tt>true</tt> because the constructor
+     * {@link #ErrorDialog(Frame, String, String, Throwable)} calls
+     * {@link #showOrHideDetails()} and thus <tt>ErrorDialog</tt> defaults to
+     * not showing the details of the error.
+     * </p>
      */
-    private boolean isDetailsShowed = true;
+    private boolean detailsShown = true;
 
+    /**
+     * The type of <tt>ErrorDialog</tt> which displays a warning instead of an
+     * error.
+     */
     public static final int WARNING = 1;
 
     /**
-     * Type of this dialog.
+     * The type of this <tt>ErrorDialog</tt> (e.g. {@link #WARNING}). The
+     * default <tt>ErrorDialog</tt> displays an error.
      */
     private int type = 0;
 
@@ -90,8 +105,8 @@ public class ErrorDialog
     private static final int MAX_MSG_PANE_HEIGHT = 800;
 
     /**
-     * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window and the message to be displayed.
+     * Initializes a new <tt>ErrorDialog</tt> with a specific owner
+     * <tt>Frame</tt>, title and message to be displayed.
      *
      * @param owner the dialog owner
      * @param title the title of the dialog
@@ -116,18 +131,29 @@ public class ErrorDialog
 
         this.infoMessagePanel.setLayout(new BorderLayout());
 
-        this.messageArea.setOpaque(false);
-        this.messageArea.setEditable(false);
-        this.messageArea.setContentType("text/html");
-        messageArea.setText("<html><body><p align=\"left\" >"+message+"</p></body></html>");
+        JEditorPane messageArea = new JEditorPane();
 
+        /*
+         * Make JEditorPane respect our default font because we will be using it
+         * to just display text.
+         */
+        messageArea.putClientProperty(
+                JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                true);
+
+        messageArea.setOpaque(false);
+        messageArea.setEditable(false);
+        messageArea.setContentType("text/html");
+        messageArea.setText(
+                "<html><body><p align=\"left\" >"+message+"</p></body></html>");
         //try to reevaluate the preferred size of the message pane.
         //(this is definitely not a neat way to do it ... but it works).
-        this.messageArea.setSize(
-                        new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
-        int height = this.messageArea.getPreferredSize().height;
-        this.messageArea.setPreferredSize(
-                        new Dimension(MAX_MSG_PANE_WIDTH, height));
+        messageArea.setSize(
+                new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
+        messageArea.setPreferredSize(
+                new Dimension(
+                        MAX_MSG_PANE_WIDTH,
+                        messageArea.getPreferredSize().height));
 
         this.infoMessagePanel.add(messageArea, BorderLayout.CENTER);
 
@@ -135,8 +161,10 @@ public class ErrorDialog
     }
 
     /**
-     * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window and the message to be displayed.
+     * Initializes a new <tt>ErrorDialog</tt> with a specific owner
+     * <tt>Frame</tt>, title, error message to be displayed and the
+     * <tt>Throwable</tt> associated with the error.
+     *
      * @param owner the dialog owner
      * @param title the title of the dialog
      * @param message the message to be displayed
@@ -156,7 +184,7 @@ public class ErrorDialog
 
         this.htmlMsgEditorPane.addHyperlinkListener(this);
 
-        displayOrHideDetails();
+        showOrHideDetails();
 
         this.infoMessagePanel.add(htmlMsgEditorPane, BorderLayout.SOUTH);
 
@@ -181,8 +209,8 @@ public class ErrorDialog
     }
 
     /**
-     * Creates an instance of <tt>MessageDialog</tt> by specifying the
-     * owner window and the message to be displayed.
+     * Initializes a new <tt>ErrorDialog</tt> with a specific owner
+     * <tt>Frame</tt>, title and message to be displayed and of a specific type.
      *
      * @param owner the dialog owner
      * @param title the title of the error dialog
@@ -230,18 +258,18 @@ public class ErrorDialog
     }
 
     /**
-     * This function show (if previously hided) or hide (if previously showed) the details of the error.
-     * Function called when the "more" link is clicked.
+     * Shows if previously hidden or hides if previously shown the details of
+     * the error. Called when the "more" link is clicked.
      */
-    public void displayOrHideDetails()
+    public void showOrHideDetails()
     {
         String startDivTag = "<div id=\"message\">";
         String endDivTag = "</div>";
         String msgString;
 
-        isDetailsShowed = !isDetailsShowed;
+        detailsShown = !detailsShown;
 
-        if(isDetailsShowed)
+        if(detailsShown)
         {
              msgString = startDivTag
                 + " <p align=\"right\"><a href=\"\">&lt;&lt; Hide info</a></p>"
@@ -260,7 +288,7 @@ public class ErrorDialog
 
         this.messagePanel.revalidate();
         this.messagePanel.repaint();
-        // restore default values for prefered size,
+        // restore default values for preferred size,
         // as we have resized its components let it calculate
         // that size
         setPreferredSize(null);
@@ -318,9 +346,7 @@ public class ErrorDialog
     public void hyperlinkUpdate(HyperlinkEvent e)
     {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
-        {
-            displayOrHideDetails();
-        }
+            showOrHideDetails();
     }
 
     /**
@@ -328,15 +354,11 @@ public class ErrorDialog
      */
     public void loadSkin()
     {
-        if(type == WARNING)
-        {
-            iconLabel.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.WARNING_ICON)));
-        }
-        else
-        {
-            iconLabel.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.ERROR_ICON)));
-        }
+        ImageID icon
+            = (type == WARNING)
+                ? ImageLoader.WARNING_ICON
+                : ImageLoader.ERROR_ICON;
+
+        iconLabel.setIcon(new ImageIcon(ImageLoader.getImage(icon)));
     }
 }
