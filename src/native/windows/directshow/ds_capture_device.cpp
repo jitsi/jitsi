@@ -112,6 +112,7 @@ DSCaptureDevice::DSCaptureDevice(const WCHAR* name)
         m_name = wcsdup(name);
     }
 
+    m_flip = false;
     m_callback = NULL;
 
     m_filterGraph = NULL;
@@ -376,6 +377,41 @@ bool DSCaptureDevice::initDevice(IMoniker* moniker)
     /* initialize the list of formats this device supports */
     initSupportedFormats();
 
+    /* see if camera support flipping */
+    IAMVideoControl* videoControl = NULL;
+    long caps = 0;
+
+    ret = m_captureGraphBuilder->FindInterface(&PIN_CATEGORY_CAPTURE, &MEDIATYPE_Video,
+        m_srcFilter, IID_IAMVideoControl, (void**)&videoControl);
+
+    if(!FAILED(ret))
+    {
+         IPin* pin = NULL;
+
+         ret = m_captureGraphBuilder->FindPin(
+             m_srcFilter, PINDIR_OUTPUT, &PIN_CATEGORY_CAPTURE, NULL, FALSE, 0, &pin);    
+
+        if(!FAILED(ret))
+        {
+            if(!FAILED(videoControl->GetCaps(pin, &caps)))
+            {
+                if((caps & VideoControlFlag_FlipVertical) > 0)
+                {
+                    m_flip = false;
+                    caps = caps & ~(VideoControlFlag_FlipVertical); 
+                }
+                else
+                {
+                    m_flip = false;
+                }
+                videoControl->SetMode(pin, caps);
+            }
+            pin->Release();
+        }
+
+        videoControl->Release();
+    }
+
     return setFormat(m_formats.front());
 }
 
@@ -496,5 +532,10 @@ VideoFormat DSCaptureDevice::getFormat() const
 size_t DSCaptureDevice::getBitPerPixel()
 {
     return m_bitPerPixel;
+}
+
+bool DSCaptureDevice::isFlip()
+{
+    return m_flip;
 }
 
