@@ -121,6 +121,10 @@ public class FirstWizardPage
         descriptionValue.setText(
             Resources.getString(
                 "plugin.facebookaccregwizz.DESCRIPTION"));
+        /* Display the description with the font we use elsewhere in the UI. */
+        descriptionValue.putClientProperty(
+                JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                true);
         descriptionValue.addHyperlinkListener(new HyperlinkListener()
             {
                 public void hyperlinkUpdate(HyperlinkEvent e)
