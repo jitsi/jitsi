@@ -14,43 +14,6 @@
 
 #include "ds_capture_device.h"
 
-/**
- * \brief Release the format block for a media type.
- * \param mt reference to release
- * \note This function comes from MSDN documentation. It is declared
- * here to avoid use DirectShow Base Classes and link against strmbase.lib.
- */
-static void FreeMediaType(AM_MEDIA_TYPE& mt)
-{
-    if (mt.cbFormat != 0)
-    {
-        CoTaskMemFree((PVOID)mt.pbFormat);
-        mt.cbFormat = 0;
-        mt.pbFormat = NULL;
-    }
-    if (mt.pUnk != NULL)
-    {
-        // pUnk should not be used.
-        mt.pUnk->Release();
-        mt.pUnk = NULL;
-    }
-}
-
-/**
- * \brief Delete a media type structure that was allocated on the heap.
- * \param pmt pointer to release
- * \note This function comes from MSDN documentation. It is declared
- * here to avoid use DirectShow Base Classes and link against strmbase.lib.
- */
-static void DeleteMediaType(AM_MEDIA_TYPE *pmt)
-{
-    if (pmt != NULL)
-    {
-        FreeMediaType(*pmt); 
-        CoTaskMemFree(pmt);
-    }
-}
-
 /* implementation of ISampleGrabber */
 DSGrabberCallback::DSGrabberCallback()
 {
@@ -203,60 +166,68 @@ bool DSCaptureDevice::setFormat(const VideoFormat& format)
 
     if(!FAILED(ret))
     {
-        VIDEOINFOHEADER* videoFormat = NULL;
         size_t bitCount = 0;
+        int nb = 0;
+        int size = 0;
+        BYTE* allocBytes = NULL;
+        AM_MEDIA_TYPE* mt;
+        bool found = false;
 
-        /* get the current format and change resolution */
-        if(FAILED(streamConfig->GetFormat(&mediaType)))
+        streamConfig->GetNumberOfCapabilities(&nb, &size);
+        allocBytes = new BYTE[size];
+ 
+        for(int i = 0 ; i < nb ; i++)
         {
-            streamConfig->Release();
-            return false;
-        }
-
-        videoFormat = (VIDEOINFOHEADER*)mediaType->pbFormat;
-        videoFormat->bmiHeader.biWidth = (LONG)format.width;
-        videoFormat->bmiHeader.biHeight = (LONG)format.height;
-
-        if(format.pixelFormat == MEDIASUBTYPE_ARGB32.Data1 || 
-            format.pixelFormat == MEDIASUBTYPE_RGB32.Data1)
-        {
-            bitCount = 32;
-        }
-        else if(format.pixelFormat == MEDIASUBTYPE_RGB24.Data1)
-        {
-            bitCount = 24;
-        }
-        else
-        {
-            bitCount = videoFormat->bmiHeader.biBitCount;
-        }
-
-        /* find the media type */
-        for(std::list<VideoFormat>::iterator it = m_formats.begin() ; 
-            it != m_formats.end() ; ++it)
-        {
-            if(format.pixelFormat == (*it).pixelFormat)
+            if(streamConfig->GetStreamCaps(i, &mt, allocBytes) == S_OK)
             {
-                mediaType->subtype = (*it).mediaType;
-                break;
+                VIDEOINFOHEADER* hdr = (VIDEOINFOHEADER*)mt->pbFormat;
+
+                if(hdr)
+                {
+                    if((long)format.height == hdr->bmiHeader.biHeight && 
+                        (long)format.width == hdr->bmiHeader.biWidth)
+                    {
+                        mediaType = mt;
+                        if(format.pixelFormat == MEDIASUBTYPE_ARGB32.Data1 || 
+                            format.pixelFormat == MEDIASUBTYPE_RGB32.Data1)
+                        {
+                            bitCount = 32;
+                        }
+                        else if(format.pixelFormat == MEDIASUBTYPE_RGB24.Data1)
+                        {
+                            bitCount = 24;
+                        }
+                        else
+                        {
+                            bitCount = hdr->bmiHeader.biBitCount;
+                        }
+
+                        found = true;
+                        break;
+                    }
+                }
             }
         }
 
-        ret = streamConfig->SetFormat(mediaType);
-
-        if(FAILED(ret))
+        if(found)
         {
-            fprintf(stderr, "Failed to set format\n");
-            fflush(stderr);
-        }
-        else
-        {
-            m_bitPerPixel = bitCount;
-            m_format = format;
-            m_format.mediaType = mediaType->subtype;
-        }
+            ret = streamConfig->SetFormat(mediaType);
 
-        DeleteMediaType(mediaType);
+            if(FAILED(ret))
+            {
+                fprintf(stderr, "Failed to set format\n");
+                fflush(stderr);
+            }
+            else
+            {
+                m_bitPerPixel = bitCount;
+                m_format = format;
+                m_format.mediaType = mediaType->subtype;
+            }
+        }
+        
+        delete allocBytes;
+
         streamConfig->Release();
     }
 
