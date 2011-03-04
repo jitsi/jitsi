@@ -30,7 +30,8 @@ public class AdvancedConfigurationPanel
                 ListSelectionListener
 {
     /**
-     * The logger.
+     * The <tt>Logger</tt> used by this <tt>AdvancedConfigurationPanel</tt> for
+     * logging output.
      */
     private final Logger logger
         = Logger.getLogger(AdvancedConfigurationPanel.class);
@@ -143,7 +144,11 @@ public class AdvancedConfigurationPanel
 
         ConfigurationForm configForm = (ConfigurationForm) sService;
 
-        if (!configForm.isAdvanced())
+        /*
+         * This AdvancedConfigurationPanel is an advanced ConfigurationForm so
+         * don't try to add it to itself.
+         */
+        if ((configForm == this) || !configForm.isAdvanced())
             return;
 
         switch (event.getType())
@@ -190,6 +195,7 @@ public class AdvancedConfigurationPanel
      *
      * @param isVisible specifies whether the frame is to be visible or not.
      */
+    @Override
     public void setVisible(boolean isVisible)
     {
         if (isVisible && configList.getSelectedIndex() < 0)
