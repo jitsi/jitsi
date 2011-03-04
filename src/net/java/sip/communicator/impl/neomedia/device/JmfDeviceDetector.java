@@ -135,7 +135,13 @@ public class JmfDeviceDetector
 
             if(fmts.length > 0 && fmts[0] instanceof VideoFormat)
             {
-                copyDevInfos.add(dev);
+                // XXX it seems that some problems appears when we reload
+                // the webcam devices, so for the moment just reinitialize
+                // desktop streaming ones.
+                if(dev.getName().startsWith("Desktop Streaming"))
+                {
+                    copyDevInfos.add(dev);
+                }
             }
         }
 
@@ -145,8 +151,20 @@ public class JmfDeviceDetector
             CaptureDeviceManager.removeDevice(dev);
         }
 
+        // XXX repopulates only the desktop streaming devices for the moment
+        try
+        {
+            new ImageStreamingAuto();
+        }
+        catch(Throwable exc)
+        {
+            logger
+                .debug(
+                    "No desktop streaming available: " + exc.getMessage(),
+                    exc);
+        }
         // repopulates video capture devices
-        initializeVideo();
+        //initializeVideo();
     }
 
     /**
