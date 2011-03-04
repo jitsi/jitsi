@@ -404,6 +404,12 @@ bool DSCaptureDevice::initDevice(IMoniker* moniker)
                 {
                     m_flip = false;
                 }
+
+                if((caps & VideoControlFlag_FlipHorizontal) != 0)
+                {
+                    caps = caps & ~(VideoControlFlag_FlipHorizontal);
+                }
+
                 videoControl->SetMode(pin, caps);
             }
             pin->Release();
