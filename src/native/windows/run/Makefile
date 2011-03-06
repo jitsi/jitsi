@@ -25,7 +25,7 @@ CPPFLAGS := $(CPPFLAGS) \
 	-DPSAPI_VERSION=1 \
 	-DWINVER=0x0502 -D_WIN32_WINNT=0x0502
 LDFLAGS = -mwindows
-LIBS = -lpsapi
+LIBS = -ladvapi32 -lpsapi
 
 MACHINE = $(shell $(CC) -dumpmachine)
 WINDRES = $(MINGW_HOME)/bin/windres
