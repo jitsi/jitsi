@@ -59,6 +59,11 @@ public class MainFrame
                 Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The logger.
      */
     private final Logger logger = Logger.getLogger(MainFrame.class);

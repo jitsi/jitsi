@@ -4,11 +4,9 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.addrbook;
+package net.java.sip.communicator.service.contactsource;
 
 import java.util.regex.*;
-
-import net.java.sip.communicator.service.contactsource.*;
 
 /**
  * Declares the interface of a <tt>ContactSourceService</tt> which performs

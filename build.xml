@@ -890,7 +890,7 @@
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
-        bundle-fileaccess-slick,bundle-neomedia,bundle-hid,
+        bundle-fileaccess-slick,bundle-neomedia,bundle-hid,bundle-ldap,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
@@ -927,7 +927,7 @@
         bundle-plugin-chatconfig,bundle-certificate,bundle-packetlogging,
         bundle-plugin-loggingutils,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
-        bundle-provisioning,bundle-addrbook"/>
+        bundle-provisioning,bundle-addrbook,bundle-plugin-ldap"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1187,6 +1187,17 @@
                 prefix="net/java/sip/communicator/service/hid"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/hid"
                 prefix="net/java/sip/communicator/impl/hid" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-LDAP-->
+    <target name="bundle-ldap">
+        <jar compress="false" destfile="${bundles.dest}/ldap.jar"
+            manifest="${src}/net/java/sip/communicator/impl/ldap/ldap.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/ldap"
+                prefix="net/java/sip/communicator/service/ldap"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/ldap"
+                prefix="net/java/sip/communicator/impl/ldap" />
         </jar>
     </target>
 
@@ -2677,4 +2688,13 @@ org.apache.http.util"/>
                 prefix="net/java/sip/communicator/plugin/loggingutils" />
         </jar>
     </target>
+
+    <target name="bundle-plugin-ldap">
+        <jar compress="false" destfile="${bundles.dest}/plugin-ldap.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/ldap/ldap.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/ldap"
+            prefix="net/java/sip/communicator/plugin/ldap"/>
+        </jar>
+    </target>
+  
 </project>

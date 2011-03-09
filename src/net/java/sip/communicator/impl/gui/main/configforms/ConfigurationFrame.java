@@ -33,6 +33,11 @@ public class ConfigurationFrame
                 ServiceListener
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>Logger</tt> used by the <tt>ConfigurationFrame</tt> class and its
      * instances for logging output.
      */

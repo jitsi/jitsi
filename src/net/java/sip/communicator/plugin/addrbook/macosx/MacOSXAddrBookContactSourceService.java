@@ -8,7 +8,6 @@ package net.java.sip.communicator.plugin.addrbook.macosx;
 
 import java.util.regex.*;
 
-import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
 
 /**

@@ -1,0 +1,108 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.service.ldap;
+
+import java.util.*;
+
+import net.java.sip.communicator.service.ldap.event.*;
+
+/**
+ * The LdapDirectorySet is a simple data structure
+ * linking server names (ie displayed name)
+ * to LdapDirectory objects. It store alls the
+ * servers registered in the configuration and
+ * provides methods that address them all.
+ *
+ * @author Sebastien Mazy
+ */
+public interface LdapDirectorySet
+    extends Iterable<LdapDirectory>,
+            LdapEventManager,
+            LdapListener
+{
+    /**
+     * @param name server name
+     * @return the LdapDirectory with name name or null
+     * if it isn't present in the LdapDirectorySet
+     */
+    public LdapDirectory getServerWithName(String name);
+
+    /**
+     * Tries to remove an LdapDirectory from the LdapDirectorySet
+     * using the name given by the getName method.
+     *
+     * @param name name of the LdapDirectory to remove
+     *
+     * @return LdapDirectory removed LdapDirectory or null if failed
+     */
+    public LdapDirectory removeServerWithName(String name);
+
+    /**
+     * Tries to add an LdapDirectory to the LdapDirectorySet
+     *
+     * @param server the server to be added
+     *
+     * @return whether it succeeded
+     */
+    public boolean addServer(LdapDirectory server);
+
+    /**
+     * @param name of the server to check presence in the LdapDirectorySet
+     *
+     * @return whether the server is in the LdapDirectorySet
+     */
+    public boolean containsServerWithName(String name);
+
+    /**
+     * @return the number of LdapDirectory(s) in the LdapDirectorySet
+     */
+    public int size();
+
+    /**
+     * Returns a set of the marked enabled
+     * LdapDirectory(s) alphabeticaly sorted
+     *
+     * @return a set of the enabled LdapDirectory(s)
+     */
+    public SortedSet<LdapDirectory> getEnabledServers();
+
+    /**
+     * Returns a set of the marked disabled
+     * LdapDirectory(s) alphabeticaly sorted
+     *
+     * @return a set of the disabled LdapDirectory(s)
+     */
+    public SortedSet<LdapDirectory> getDisabledServers();
+
+    /**
+     * Performs a search on every LdapDirectory provided
+     *
+     * @param servers a set of LdapDirectory to searchfor the person
+     * @param query the query to perform
+     * @param caller the LdapListener that will receive the results
+     * @param searchSettings the custom settings for this search
+     */
+    public void searchPerson(
+            Set<LdapDirectory> servers,
+            LdapQuery query,
+            LdapListener caller,
+            LdapSearchSettings searchSettings
+            );
+
+    /**
+     * Performs a search on every enabled LdapDirectory of this set.
+     *
+     * @param query the query to perform
+     * @param caller the LdapListener that will receive the results
+     * @param searchSettings the custom settings for this search
+     */
+    public void searchPerson(
+            LdapQuery query,
+            LdapListener caller,
+            LdapSearchSettings searchSettings
+            );
+}

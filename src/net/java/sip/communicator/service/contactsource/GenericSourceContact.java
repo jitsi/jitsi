@@ -4,11 +4,10 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.addrbook;
+package net.java.sip.communicator.service.contactsource;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -17,7 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Lyubomir Marinov
  */
-public class AddrBookSourceContact
+public class GenericSourceContact
     implements SourceContact
 {
     /**
@@ -49,7 +48,7 @@ public class AddrBookSourceContact
      * @param displayName the display name of the new instance
      * @param contactDetails the <tt>ContactDetail</tt>s of the new instance
      */
-    public AddrBookSourceContact(
+    public GenericSourceContact(
             ContactSourceService contactSource,
             String displayName,
             List<ContactDetail> contactDetails)

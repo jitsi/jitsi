@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<bundle>
+  <component class="net.java.sip.communicator.impl.ldap.LdapServiceImpl">
+    <provides service="net.java.sip.communicator.service.ldap.LdapService"/>
+  </component>
+</bundle>

@@ -1,0 +1,27 @@
+Bundle-Activator: net.java.sip.communicator.impl.ldap.LdapActivator
+Bundle-Name: LDAP service provider
+Bundle-Description: A bundle that implements LDAP service.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+System-Bundle: yes
+Import-Package: org.osgi.framework,
+ javax.naming,
+ javax.naming.directory,
+ javax.naming.event,
+ javax.swing,
+ javax.swing.border,
+ javax.swing.event,
+ javax.swing.table,
+ javax.swing.tree,
+ javax.swing.text,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.util.swing,
+ net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.service.ldap,
+ net.java.sip.communicator.service.ldap.event,
+Export-Package: net.java.sip.communicator.service.ldap,
+ net.java.sip.communicator.service.ldap.event
+Metadata-Location: /net/java/sip/communicator/impl/ldap/ldap.metadata.xml
+

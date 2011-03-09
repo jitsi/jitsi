@@ -48,5 +48,6 @@ public interface ContactSourceService
      * @param contactCount the maximum count of result contacts
      * @return the created query
      */
-    public ContactQuery queryContactSource(String queryString, int contactCount);
+    public ContactQuery queryContactSource(String queryString,
+            int contactCount);
 }

@@ -47,6 +47,11 @@ public class TreeContactList
                 TreeExpansionListener
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The logger.
      */
     private static final Logger logger
@@ -1583,6 +1588,8 @@ public class TreeContactList
         amap.put("main-rename", new RenameAction());
         amap.put("enter", new AbstractAction()
         {
+            private static final long serialVersionUID = 0L;
+
             public void actionPerformed(ActionEvent e)
             {
                 startSelectedContactChat();
@@ -1591,6 +1598,8 @@ public class TreeContactList
 
         amap.put("openGroup", new AbstractAction()
         {
+            private static final long serialVersionUID = 0L;
+
             public void actionPerformed(ActionEvent e)
             {
                 TreePath selectionPath = getSelectionPath();
@@ -1608,6 +1617,8 @@ public class TreeContactList
 
         amap.put("closeGroup", new AbstractAction()
         {
+            private static final long serialVersionUID = 0L;
+
             public void actionPerformed(ActionEvent e)
             {
                 TreePath selectionPath = getSelectionPath();
