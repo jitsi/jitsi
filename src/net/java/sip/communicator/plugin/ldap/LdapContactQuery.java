@@ -346,7 +346,10 @@ public class LdapContactQuery
     @Override
     public void cancel()
     {
-        ldapQuery.setState(LdapQuery.State.CANCELLED);
+        if(ldapQuery != null)
+        {
+            ldapQuery.setState(LdapQuery.State.CANCELLED);
+        }
         super.cancel();
     }
 }
