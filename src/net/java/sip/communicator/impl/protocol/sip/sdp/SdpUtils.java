@@ -1528,9 +1528,10 @@ public class SdpUtils
                                                   MediaDescription offer)
         throws IllegalArgumentException
     {
-        MediaType type = getMediaType(offer);
         try
         {
+            String mediaType = offer.getMedia().getMediaType();
+
             Vector<String> formatsVec = offer.getMedia().getMediaFormats(true);
 
             if(formatsVec == null)
@@ -1543,12 +1544,13 @@ public class SdpUtils
 
             String[] formatsArray = new String[formatsVec.size()];
 
-            return sdpFactory.createMediaDescription(type.toString(), 0, 1,
+            return sdpFactory.createMediaDescription(mediaType, 0, 1,
                 SdpConstants.RTP_AVP, formatsVec.toArray(formatsArray));
         }
         catch (Exception e)
         {
-            throw new IllegalArgumentException("Could not create an ");
+            throw new IllegalArgumentException("Could not create a disabling " +
+                    "answer", e);
         }
     }
 

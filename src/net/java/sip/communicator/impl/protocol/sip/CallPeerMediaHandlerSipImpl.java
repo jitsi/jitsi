@@ -359,7 +359,18 @@ public class CallPeerMediaHandlerSipImpl
 
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
-            MediaType mediaType = SdpUtils.getMediaType(mediaDescription);
+            MediaType mediaType = null;
+            try
+            {
+                mediaType = SdpUtils.getMediaType(mediaDescription);
+            }
+            catch (IllegalArgumentException iae)
+            {
+                //remote party offers a stream of a type that we don't support.
+                //we'll disable it and move on.
+                answerDescriptions.add(
+                        SdpUtils.createDisablingAnswer(mediaDescription));
+            }
 
             List<MediaFormat> remoteFormats = SdpUtils.extractFormats(
                             mediaDescription, getDynamicPayloadTypes());
@@ -523,10 +534,22 @@ public class CallPeerMediaHandlerSipImpl
 
         for ( MediaDescription mediaDescription : remoteDescriptions)
         {
-            MediaType mediaType = SdpUtils.getMediaType(mediaDescription);
+            MediaType mediaType;
+            try
+            {
+                mediaType = SdpUtils.getMediaType(mediaDescription);
+            }
+            catch(IllegalArgumentException iae)
+            {
+                logger.info("Remote party added to answer a media type that " +
+                        "we don't understand. Ignoring stream.");
+                continue;
+            }
+
             //stream target
             MediaStreamTarget target
                 = SdpUtils.extractDefaultTarget(mediaDescription, answer);
+
             // not target port - try next media description
             if(target.getDataAddress().getPort() == 0)
             {
@@ -556,7 +579,9 @@ public class CallPeerMediaHandlerSipImpl
             {
                 //remote party must have messed up our SDP. throw an exception.
                 ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                    "Remote party sent an invalid SDP answer.",
+                    "Remote party sent an invalid SDP answer. The codecs in " +
+                            "the answer are either not present or not " +
+                            "supported",
                      OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
             }
 
