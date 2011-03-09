@@ -919,7 +919,7 @@
         bundle-plugin-facebookaccregwizz,
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
         bundle-contactsource,bundle-plugin-reconnect,bundle-plugin-securityconfig,
-        bundle-plugin-advancedconfig,bundle-plugin-sip2sipaccregwizz,
+        bundle-plugin-advancedconfig,
         bundle-credentialsstorage,bundle-credentialsstorage-slick,
         bundle-replacement,bundle-youtube,bundle-dailymotion,bundle-smiley,
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
