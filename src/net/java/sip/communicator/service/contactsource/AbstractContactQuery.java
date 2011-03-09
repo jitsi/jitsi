@@ -210,8 +210,6 @@ public abstract class AbstractContactQuery<T extends ContactSourceService>
                 eventType = ContactQueryStatusEvent.QUERY_ERROR;
                 break;
             case QUERY_IN_PROGRESS:
-                eventType = ContactQueryStatusEvent.QUERY_IN_PROGRESS;
-                break;
             default:
                 throw new IllegalArgumentException("status");
             }
