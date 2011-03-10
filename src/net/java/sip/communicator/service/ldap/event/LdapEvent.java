@@ -8,9 +8,6 @@ package net.java.sip.communicator.service.ldap.event;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.ldap.*;
-
-
 /**
  * An LdapEvent is triggered when
  * the state of the LDAP connection changes.
@@ -26,9 +23,40 @@ public class LdapEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates the possible causes why an event was triggered
      */
-    public static enum LdapEventCause { NEW_SEARCH_RESULT, SEARCH_ACHIEVED, SEARCH_CANCELLED, SEARCH_ERROR }
+    public static enum LdapEventCause
+    {
+        /**
+         * New result is available.
+         */
+        NEW_SEARCH_RESULT,
+
+        /**
+         * Search is achieved.
+         */
+        SEARCH_ACHIEVED,
+
+        /**
+         * Search is cancelled.
+         */
+        SEARCH_CANCELLED,
+
+        /**
+         * Problem occurred during search.
+         */
+        SEARCH_ERROR,
+
+        /**
+         * Authentication failed.
+         */
+        SEARCH_AUTH_ERROR
+    }
 
     /**
      * the cause of this event
@@ -39,7 +67,6 @@ public class LdapEvent
      * the content of this event
      */
     private final Object content;
-
 
     /**
      * Simple constructor for this class
@@ -60,7 +87,8 @@ public class LdapEvent
      * @param cause the cause why it was triggered
      * @param content related content
      */
-    public LdapEvent(LdapEventManager source, LdapEventCause cause, Object content)
+    public LdapEvent(LdapEventManager source, LdapEventCause cause,
+            Object content)
     {
         super(source);
         this.cause = cause;

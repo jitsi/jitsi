@@ -100,7 +100,7 @@ public class LdapPersonFoundImpl
     }
 
     /**
-     * Returns the query which this Ldapperson found is a result of
+     * Returns the query which this Ldap person found is a result of
      *
      * @return the initial query
      */
@@ -364,6 +364,13 @@ public class LdapPersonFoundImpl
         return this.getDisplayName();
     }
 
+    /**
+     * Compare this object with another ones.
+     *
+     * @param other other object to compare with
+     * @return negative integer if less, 0 if equals and positive integer if
+     * over
+     */
     public int compareTo(LdapPersonFound other)
     {
         if(this.toString().equals(other.toString()))
@@ -372,6 +379,11 @@ public class LdapPersonFoundImpl
             return this.toString().compareTo(other.toString());
     }
 
+    /**
+     * Test equality between this object and another ones.
+     *
+     * @return true if the two objects are equal, false otherwise
+     */
     public boolean equals(Object o)
     {
         if(!(o instanceof LdapPersonFound) || o == null)

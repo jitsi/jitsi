@@ -10,8 +10,8 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.ldap.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -50,9 +50,9 @@ public class LdapServiceImpl
     private static ConfigurationService configService;
 
     /**
-     * Reference to the resource management service
+     * Reference to the credentials service
      */
-    private static ResourceManagementService resourceService;
+    private static CredentialsStorageService credentialsService;
 
     /**
      * Starts the service.
@@ -100,24 +100,25 @@ public class LdapServiceImpl
     }
 
     /**
-     * Returns a reference to a ConfigurationService implementation currently
-     * registered in the bundle context or null if no such implementation was
-     * found.
+     * Returns a reference to a CredentialsStorageConfigurationService
+     * implementation currently registered in the bundle context or null if no
+     * such implementation was found.
      *
-     * @return a currently valid implementation of the ConfigurationService.
+     * @return a currently valid implementation of the
+     * CredentialsStorageService.
      */
-    public static ResourceManagementService getResourceManagementService()
+    public static CredentialsStorageService getCredentialsService()
     {
-        if(resourceService == null)
+        if(credentialsService == null)
         {
             ServiceReference confReference
                 = bundleContext.getServiceReference(
-                        ResourceManagementService.class.getName());
-            resourceService
-                = (ResourceManagementService) bundleContext.getService(
+                        CredentialsStorageService.class.getName());
+            credentialsService
+                = (CredentialsStorageService) bundleContext.getService(
                         confReference);
         }
-        return resourceService;
+        return credentialsService;
     }
 
     /**
@@ -148,8 +149,7 @@ public class LdapServiceImpl
     }
 
     /**
-     * Loads config form the user preferences
-     * in the serverSet
+     * Loads configuration form the user preferences in the serverSet
      */
     private void loadPersistentConfig()
     {

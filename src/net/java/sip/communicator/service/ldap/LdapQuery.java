@@ -20,7 +20,24 @@ public interface LdapQuery
      */
     public static enum State
     {
-        PENDING, COMPLETED, RESULTS_LEFT, CANCELLED;
+        /**
+         * Pending state.
+         */
+        PENDING,
+        /**
+         * Completed state.
+         */
+        COMPLETED,
+
+        /**
+         * Results left.
+         */
+        RESULTS_LEFT,
+
+        /**
+         * Cancelled state.
+         */
+        CANCELLED;
     }
 
     /**

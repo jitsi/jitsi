@@ -4,11 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.ldap.configform;
+package net.java.sip.communicator.plugin.ldap.configform;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.ldap.*;
+import net.java.sip.communicator.plugin.ldap.*;
 
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
@@ -26,8 +26,21 @@ public class Resources
      */
     public static String getString(String key)
     {
-        return LdapServiceImpl.getResourceManagementService()
+        return LdapActivator.getResourceManagementService()
             .getI18NString(key);
+    }
+
+    /**
+     * Returns an internationalized string corresponding to the given key.
+     *
+     * @param key The key of the string.
+     * @param params additionnal parameters
+     * @return An internationalized string corresponding to the given key.
+     */
+    public static String getString(String key, String[] params)
+    {
+        return LdapActivator.getResourceManagementService()
+            .getI18NString(key, params);
     }
 
     /**
@@ -38,7 +51,7 @@ public class Resources
      */
     public static ImageIcon getImage(String imageID)
     {
-        return LdapServiceImpl.getResourceManagementService().getImage(imageID);
+        return LdapActivator.getResourceManagementService().getImage(imageID);
     }
 
     /**
@@ -49,7 +62,7 @@ public class Resources
      */
     public static byte[] getImageInBytes(String imageID)
     {
-        return LdapServiceImpl.getResourceManagementService().
+        return LdapActivator.getResourceManagementService().
             getImageInBytes(imageID);
     }
 }

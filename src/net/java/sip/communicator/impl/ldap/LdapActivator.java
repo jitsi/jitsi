@@ -6,13 +6,10 @@
  */
 package net.java.sip.communicator.impl.ldap;
 
-import java.util.*;
-
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.ldap.*;
-import net.java.sip.communicator.service.gui.*;
 
 /**
  * Activates the LdapService
@@ -64,22 +61,6 @@ public class LdapActivator
 
             bundleContext.registerService(
                     LdapService.class.getName(), ldapService, null);
-
-            /* registers the configuration form */
-            Dictionary<String, String> properties =
-                new Hashtable<String, String>();
-            properties.put( ConfigurationForm.FORM_TYPE,
-                            ConfigurationForm.ADVANCED_TYPE);
-
-            bundleContext.registerService(
-                ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                    "net.java.sip.communicator.impl.ldap.configform.LdapConfigForm",
-                    getClass().getClassLoader(),
-                    "impl.ldap.PLUGIN_ICON",
-                    "impl.ldap.CONFIG_FORM_TITLE",
-                    2000, true),
-                properties);
 
             logger.trace("LDAP Service ...[REGISTERED]");
         }

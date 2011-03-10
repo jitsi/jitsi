@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.ldap.configform;
+package net.java.sip.communicator.plugin.ldap.configform;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -15,7 +15,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.ldap.*;
-import net.java.sip.communicator.impl.ldap.*;
+import net.java.sip.communicator.plugin.ldap.*;
 
 /**
  * This ConfigurationForm shows the list of LDAP directories
@@ -123,6 +123,48 @@ public class LdapConfigForm
         this.directoryTable.setShowVerticalLines(false);
         this.directoryTable.setModel(tableModel);
         this.directoryTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        this.directoryTable.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(e.getClickCount() > 1)
+                {
+                    int row =
+                        LdapConfigForm.this.directoryTable.getSelectedRow();
+
+                    if(row >= 0)
+                    {
+                        LdapFactory factory =
+                            LdapActivator.getLdapService().getFactory();
+                        LdapDirectorySet serverSet =
+                            LdapActivator.getLdapService().getServerSet();
+                        LdapDirectory oldServer =
+                            LdapConfigForm.this.tableModel.getServerAt(row);
+                        LdapDirectorySettings settings =
+                            oldServer.getSettings();
+                        settingsForm.loadData(settings);
+                        settingsForm.setNameFieldEnabled(false);
+
+                        int ret = settingsForm.showDialog();
+
+                        if(ret == 1)
+                        {
+                            LdapActivator.disableContactSource(oldServer);
+                            LdapDirectory newServer = factory.createServer(
+                                    settingsForm.getSettings());
+                            serverSet.removeServerWithName(
+                                    oldServer.getSettings().
+                                    getName());
+                            serverSet.addServer(newServer);
+                            LdapActivator.enableContactSource(newServer);
+                            refresh();
+                        }
+                    }
+
+                }
+            }
+        });
 
         settingsForm.setModal(true);
 
@@ -217,6 +259,7 @@ public class LdapConfigForm
         {
             LdapDirectorySettings settings = factory.createServerSettings();
             settingsForm.loadData(settings);
+            settingsForm.setNameFieldEnabled(true);
 
             int ret = settingsForm.showDialog();
 
@@ -224,7 +267,9 @@ public class LdapConfigForm
             {
                 LdapDirectory server = factory.createServer(
                         settingsForm.getSettings());
+
                 serverSet.addServer(server);
+                LdapActivator.enableContactSource(server);
                 refresh();
             }
         }
@@ -234,32 +279,36 @@ public class LdapConfigForm
             LdapDirectory oldServer = this.tableModel.getServerAt(row);
             LdapDirectorySettings settings = oldServer.getSettings();
             settingsForm.loadData(settings);
+            settingsForm.setNameFieldEnabled(false);
 
             int ret = settingsForm.showDialog();
 
             if(ret == 1)
             {
+                LdapActivator.disableContactSource(oldServer);
                 LdapDirectory newServer = factory.createServer(
                         settingsForm.getSettings());
                 serverSet.removeServerWithName(oldServer.getSettings().
                         getName());
                 serverSet.addServer(newServer);
+                LdapActivator.enableContactSource(newServer);
                 refresh();
             }
         }
 
         if (e.getActionCommand().equals("remove") && row != -1)
         {
+            LdapActivator.disableContactSource(this.tableModel.getServerAt(
+                    row));
             serverSet.removeServerWithName(this.tableModel.getServerAt(row).
                     getSettings().getName());
-
             refresh();
         }
     }
 
     /**
      * Required by ListSelectionListener. Enables the "modify"
-     * button when a server is selectionned in the table
+     * button when a server is selected in the table
      *
      * @param e event triggered
      */

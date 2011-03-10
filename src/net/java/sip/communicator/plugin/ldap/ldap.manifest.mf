@@ -4,9 +4,18 @@ Bundle-Name: LDAP support
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 Import-Package: net.java.sip.communicator.service.contactsource,
+ net.java.sip.communicator.service.resources,
  net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.gui,
  net.java.sip.communicator.service.ldap,
  net.java.sip.communicator.service.ldap.event,
  net.java.sip.communicator.util,
+ net.java.sip.communicator.util.swing,
+ javax.swing,
+ javax.swing.border,
+ javax.swing.event,
+ javax.swing.table,
+ javax.swing.tree,
+ javax.swing.text,
  org.osgi.framework
 System-Bundle: yes

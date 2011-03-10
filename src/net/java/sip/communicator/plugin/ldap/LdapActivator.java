@@ -6,10 +6,13 @@
  */
 package net.java.sip.communicator.plugin.ldap;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -33,24 +36,22 @@ public class LdapActivator implements BundleActivator
     private static LdapService ldapService = null;
 
     /**
-     * The <tt>ContactSourceService</tt> implementation for the OS-specific
-     * Address Book.
-     */
-    private LdapContactSourceService css = null;
-
-    /**
-     * The <tt>ServiceRegistration</tt> of {@link #css} in the
-     * <tt>BundleContext</tt> in which this <tt>LdapActivator</tt> has been
-     * started.
-     */
-    private ServiceRegistration cssServiceRegistration = null;
-
-    /**
      * The cached reference to the <tt>PhoneNumberI18nService</tt> instance used
      * by the functionality of the LDAP plug-in and fetched from its
      * <tt>BundleContext</tt>.
      */
     private static PhoneNumberI18nService phoneNumberI18nService;
+
+    /**
+     * Reference to the resource management service
+     */
+    private static ResourceManagementService resourceService;
+
+    /**
+     * List of contact source service registrations.
+     */
+    private static Map<LdapContactSourceService, ServiceRegistration> cssList =
+        new HashMap<LdapContactSourceService, ServiceRegistration>();
 
     /**
      * Starts the LDAP plug-in.
@@ -65,23 +66,35 @@ public class LdapActivator implements BundleActivator
     {
         LdapActivator.bundleContext = bundleContext;
 
-        css = new LdapContactSourceService();
+        /* registers the configuration form */
+        Dictionary<String, String> properties =
+            new Hashtable<String, String>();
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.ADVANCED_TYPE);
 
-        try
+        bundleContext.registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                "net.java.sip.communicator.plugin.ldap.configform.LdapConfigForm",
+                getClass().getClassLoader(),
+                "impl.ldap.PLUGIN_ICON",
+                "impl.ldap.CONFIG_FORM_TITLE",
+                2000, true),
+            properties);
+
+        if(getLdapService().getServerSet().size() == 0)
         {
-            cssServiceRegistration
-                = bundleContext.registerService(
-                        ContactSourceService.class.getName(),
-                        css,
-                        null);
+            return;
         }
-        finally
+
+        for(LdapDirectory ldapDir : getLdapService().getServerSet())
         {
-            if (cssServiceRegistration == null)
+            if(!ldapDir.getSettings().isEnabled())
             {
-                css.stop();
-                css = null;
+                continue;
             }
+
+            enableContactSource(ldapDir);
         }
     }
 
@@ -112,20 +125,90 @@ public class LdapActivator implements BundleActivator
      */
     public void stop(BundleContext bundleContext) throws Exception
     {
+        for(Map.Entry<LdapContactSourceService, ServiceRegistration> entry :
+            cssList.entrySet())
+        {
+            if (entry.getValue() != null)
+            {
+                try
+                {
+                    entry.getValue().unregister();
+                }
+                finally
+                {
+                    entry.getKey().stop();
+                }
+            }
+        }
+        cssList.clear();
+    }
+
+    /**
+     * Enable contact source service with specified LDAP directory.
+     *
+     * @param ldapDir LDAP diretory
+     */
+    public static void enableContactSource(LdapDirectory ldapDir)
+    {
+        LdapContactSourceService css = new LdapContactSourceService(
+                ldapDir);
+        ServiceRegistration cssServiceRegistration = null;
+
         try
         {
-            if (cssServiceRegistration != null)
-            {
-                cssServiceRegistration.unregister();
-                cssServiceRegistration = null;
-            }
+            cssServiceRegistration
+                = bundleContext.registerService(
+                        ContactSourceService.class.getName(),
+                        css,
+                        null);
         }
         finally
         {
-            if (css != null)
+            if (cssServiceRegistration == null)
             {
                 css.stop();
+                css = null;
             }
+            else
+            {
+                cssList.put(css, cssServiceRegistration);
+            }
+        }
+    }
+
+    /**
+     * Disable contact source service with specified LDAP directory.
+     *
+     * @param ldapDir LDAP diretory
+     */
+    public static void disableContactSource(LdapDirectory ldapDir)
+    {
+        LdapContactSourceService found = null;
+
+        for(Map.Entry<LdapContactSourceService, ServiceRegistration> entry :
+            cssList.entrySet())
+        {
+            String cssName =
+                entry.getKey().getLdapDirectory().getSettings().getName();
+            String name = ldapDir.getSettings().getName();
+            if(cssName.equals(name))
+            {
+                try
+                {
+                    entry.getValue().unregister();
+                }
+                finally
+                {
+                    entry.getKey().stop();
+                }
+                found = entry.getKey();
+                break;
+            }
+        }
+
+        if(found != null)
+        {
+            cssList.remove(found);
         }
     }
 
@@ -146,5 +229,27 @@ public class LdapActivator implements BundleActivator
                         PhoneNumberI18nService.class);
         }
         return phoneNumberI18nService;
+    }
+
+    /**
+     * Returns a reference to a ResourceManagementService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * ResourceManagementService.
+     */
+    public static ResourceManagementService getResourceManagementService()
+    {
+        if(resourceService == null)
+        {
+            ServiceReference confReference
+                = bundleContext.getServiceReference(
+                        ResourceManagementService.class.getName());
+            resourceService
+                = (ResourceManagementService) bundleContext.getService(
+                        confReference);
+        }
+        return resourceService;
     }
 }

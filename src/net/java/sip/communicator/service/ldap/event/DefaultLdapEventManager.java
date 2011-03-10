@@ -23,7 +23,8 @@ public class DefaultLdapEventManager
     /**
      * All property change listeners registered so far.
      */
-    protected Set<LdapListener> ldapListeners = Collections.synchronizedSet(new HashSet<LdapListener>());
+    protected Set<LdapListener> ldapListeners =
+        Collections.synchronizedSet(new HashSet<LdapListener>());
 
     /**
      * Adds listener to our list of listeners
@@ -32,18 +33,18 @@ public class DefaultLdapEventManager
      *
      * @see net.java.sip.communicator.service.ldap.LdapDirectory#addLdapListener
      */
-        public void addLdapListener(
-                LdapListener listener)
-        {
-            this.ldapListeners.add(listener);
-        }
+    public void addLdapListener(LdapListener listener)
+    {
+        this.ldapListeners.add(listener);
+    }
 
     /**
      * Removes a LdapListener from the listener list.
      *
      * @param listener The LdapListener to be removed
      *
-     * @see net.java.sip.communicator.service.ldap.LdapDirectory#removeLdapListener
+     * @see net.java.sip.communicator.service.ldap.
+     * LdapDirectory#removeLdapListener
      */
     public void removeLdapListener(
             LdapListener listener)

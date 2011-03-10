@@ -313,15 +313,6 @@ public class LdapDirectoryImpl
         for(int i = 0 ; i < intermediateQueryStrings.length ; i++)
             serversList.add(this);
 
-        // cancel previous queries
-        /*
-        for(Map.Entry<LdapQuery, LdapPendingSearch> entry :
-            this.pendingSearches.entrySet())
-        {
-            entry.getKey().setState(LdapQuery.State.CANCELLED);
-        }
-        */
-
         // when the pendingSearches element will be empty,
         // all intermediate query strings will have been searched
         // and the search will be finished
@@ -402,6 +393,20 @@ public class LdapDirectoryImpl
 
                     endEvent = new LdapEvent(LdapDirectoryImpl.this,
                             LdapEvent.LdapEventCause.SEARCH_ACHIEVED, query);
+                }
+                catch(AuthenticationException e)
+                {
+                    logger.trace(
+                            "authentication failed during search" +
+                            " for real query \"" +
+                            realQueryString + "\" (initial query: \"" +
+                            query.toString() + "\") on directory \"" +
+                            LdapDirectoryImpl.this + "\": " + e);
+                    endEvent = new LdapEvent(
+                            LdapDirectoryImpl.this,
+                            LdapEvent.LdapEventCause.SEARCH_AUTH_ERROR,
+                            query
+                            );
                 }
                 catch(NamingException e)
                 {
@@ -1073,6 +1078,7 @@ public class LdapDirectoryImpl
                 }
                 break;
             case SEARCH_ERROR:
+            case SEARCH_AUTH_ERROR:
             case SEARCH_CANCELLED:
             case SEARCH_ACHIEVED:
                 query = (LdapQuery) event.getContent();

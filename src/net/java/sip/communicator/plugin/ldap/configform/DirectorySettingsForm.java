@@ -4,16 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.ldap.configform;
+package net.java.sip.communicator.plugin.ldap.configform;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.ldap.LdapConstants.*;
-import net.java.sip.communicator.impl.ldap.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.plugin.ldap.*;
 
 /**
  * The page with hostname/port/encryption fields
@@ -139,6 +139,7 @@ public class DirectorySettingsForm
 
         this.setTitle(Resources.getString("impl.ldap.CONFIG_FORM_TITLE"));
         getContentPane().add(getContentPanel());
+        pack();
     }
 
     /**
@@ -427,6 +428,7 @@ public class DirectorySettingsForm
         this.passwordField.addActionListener(this);
         this.saveBtn.addActionListener(this);
         this.cancelBtn.addActionListener(this);
+        this.authList.addActionListener(this);
 
         btnPanel.add(saveBtn);
         btnPanel.add(cancelBtn);
@@ -474,6 +476,8 @@ public class DirectorySettingsForm
 
         this.scopeList.setSelectedIndex(settings.getScope().ordinal());
         this.authList.setSelectedIndex(settings.getAuth().ordinal());
+        this.bindDNField.setEnabled(settings.getAuth() == Auth.SIMPLE);
+        this.passwordField.setEnabled(settings.getAuth() == Auth.SIMPLE);
     }
 
     /**
@@ -560,6 +564,27 @@ public class DirectorySettingsForm
         }
         else if(src == saveBtn)
         {
+            /* check if name does not match existing server ones */
+            if(this.nameField.isEnabled())
+            {
+                for(LdapDirectory s :
+                    LdapActivator.getLdapService().getServerSet())
+                {
+                    if(s.getSettings().getName().equals(
+                            this.nameField.getText()))
+                    {
+                        JOptionPane.showMessageDialog(
+                                this,
+                                Resources.getString(
+                                "impl.ldap.SERVER_EXIST"),
+                                Resources.getString(
+                                        "impl.ldap.SERVER_EXIST"),
+                                        JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                }
+            }
+
             this.saveData(settings);
             retCode = 1;
             dispose();
@@ -568,6 +593,11 @@ public class DirectorySettingsForm
         {
             retCode = 0;
             dispose();
+        }
+        else if(src == authList)
+        {
+            bindDNField.setEnabled(authList.getSelectedIndex() == 1);
+            passwordField.setEnabled(authList.getSelectedIndex() == 1);
         }
     }
 
@@ -596,7 +626,7 @@ public class DirectorySettingsForm
         setVisible(true);
 
         // this will block until user click on save/cancel/press escape/close
-        //the window
+        // the window
         setVisible(false);
         return retCode;
     }
@@ -609,5 +639,47 @@ public class DirectorySettingsForm
     public LdapDirectorySettings getSettings()
     {
         return settings;
+    }
+
+    /**
+     * Set the name field enable or not
+     *
+     * @param enable parameter to set
+     */
+    public void setNameFieldEnabled(boolean enable)
+    {
+        this.nameField.setEnabled(enable);
+    }
+
+    /**
+     * Set the hostname field enable or not
+     *
+     * @param enable parameter to set
+     */
+    public void setHostnameFieldEnabled(boolean enable)
+    {
+        this.hostnameField.setEnabled(enable);
+    }
+
+    /**
+     * Set the base DN field enable or not
+     *
+     * @param enable parameter to set
+     */
+    public void setBaseDNFieldEnabled(boolean enable)
+    {
+        this.scopeList.setEnabled(enable);
+        this.baseDNField.setEnabled(enable);
+    }
+
+    /**
+     * Set the port field enable or not
+     *
+     * @param enable parameter to set
+     */
+    public void setPortFieldEnabled(boolean enable)
+    {
+        this.encryptionBox.setEnabled(enable);
+        this.portSpinner.setEnabled(enable);
     }
 }

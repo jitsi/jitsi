@@ -178,7 +178,7 @@ public class LdapDirectorySetImpl
 
     /**
      * @return an iterator on all the
-     * LdapDirectory(s) alphabeticaly sorted
+     * LdapDirectory(s) alphabetically sorted
      */
     public Iterator<LdapDirectory> iterator()
     {
@@ -188,7 +188,7 @@ public class LdapDirectorySetImpl
     /**
      * Performs a search on every LdapDirectory provided
      *
-     * @param servers a set of LdapDirectory to searchfor the person
+     * @param servers a set of LdapDirectory to search for the person
      * @param query the query to perform
      * @param caller the LdapListener that will receive the results
      * @param searchSettings the custom settings for this search,
@@ -212,7 +212,7 @@ public class LdapDirectorySetImpl
         for(LdapDirectory server : servers)
         {
             if(server == null)
-                System.out.println("server is null");
+                logger.info("server is null");
             server.searchPerson(query, this, searchSettings);
         }
     }

@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.ldap.event.*;
 /**
  * The LdapDirectorySet is a simple data structure
  * linking server names (ie displayed name)
- * to LdapDirectory objects. It store alls the
+ * to LdapDirectory objects. It store all the
  * servers registered in the configuration and
  * provides methods that address them all.
  *
@@ -64,7 +64,7 @@ public interface LdapDirectorySet
 
     /**
      * Returns a set of the marked enabled
-     * LdapDirectory(s) alphabeticaly sorted
+     * LdapDirectory(s) alphabetically sorted
      *
      * @return a set of the enabled LdapDirectory(s)
      */
@@ -72,7 +72,7 @@ public interface LdapDirectorySet
 
     /**
      * Returns a set of the marked disabled
-     * LdapDirectory(s) alphabeticaly sorted
+     * LdapDirectory(s) alphabetically sorted
      *
      * @return a set of the disabled LdapDirectory(s)
      */
@@ -81,7 +81,7 @@ public interface LdapDirectorySet
     /**
      * Performs a search on every LdapDirectory provided
      *
-     * @param servers a set of LdapDirectory to searchfor the person
+     * @param servers a set of LdapDirectory to search for the person
      * @param query the query to perform
      * @param caller the LdapListener that will receive the results
      * @param searchSettings the custom settings for this search

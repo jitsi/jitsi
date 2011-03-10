@@ -17,7 +17,8 @@ public interface LdapService
     /**
      * Returns all the LDAP directories
      *
-     * @return the LdapDirectorySet containing all the LdapDirectory(s) registered
+     * @return the LdapDirectorySet containing all the LdapDirectory(s)
+     * registered
      */
     public LdapDirectorySet getServerSet();
 

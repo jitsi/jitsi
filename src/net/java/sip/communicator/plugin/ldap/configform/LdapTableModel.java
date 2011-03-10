@@ -4,16 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.ldap.configform;
+package net.java.sip.communicator.plugin.ldap.configform;
 
 import javax.swing.table.*;
 
 import net.java.sip.communicator.service.ldap.*;
-import net.java.sip.communicator.impl.ldap.*;
+import net.java.sip.communicator.plugin.ldap.*;
 
 /**
  * A table model suitable for the directories list in
- * the config form. Takes its data in an LdapDirectorySet.
+ * the configuration form. Takes its data in an LdapDirectorySet.
  *
  * @author Sebastien Mazy
  */
@@ -140,7 +140,7 @@ public class LdapTableModel
     }
 
     /**
-     * Overides a method that always returned Object.class
+     * Overrides a method that always returned Object.class
      * Now it will return Boolean.class for the first method,
      * letting the DefaultTableCellRenderer create checkboxes.
      *
@@ -162,8 +162,18 @@ public class LdapTableModel
             throw new IllegalArgumentException("non editable column!");
         LdapDirectory server = this.getServerAt(rowIndex);
 
-        /*toggle enabled marker and save */
+        /* toggle enabled marker and save */
         server.setEnabled(!server.isEnabled());
+
+        if(!server.isEnabled())
+        {
+            LdapActivator.disableContactSource(server);
+        }
+        else
+        {
+            LdapActivator.enableContactSource(server);
+        }
+
         server.getSettings().persistentSave();
     }
 }

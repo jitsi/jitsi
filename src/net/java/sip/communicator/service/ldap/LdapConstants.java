@@ -76,7 +76,15 @@ public interface LdapConstants
      */
     public static enum Auth
     {
-        NONE, SIMPLE;
+        /**
+         * No authentication.
+         */
+        NONE,
+
+        /**
+         * Authentication with login and password.
+         */
+        SIMPLE;
 
         /**
          * Returns default value for authentication.
@@ -94,7 +102,14 @@ public interface LdapConstants
      */
     public static enum Scope
     {
+        /**
+         * Subtree search.
+         */
         SUB(SearchControls.SUBTREE_SCOPE),
+
+        /**
+         * One level search.
+         */
         ONE(SearchControls.ONELEVEL_SCOPE);
 
         private int constant;

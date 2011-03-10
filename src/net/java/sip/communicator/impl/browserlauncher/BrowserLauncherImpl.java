@@ -14,7 +14,7 @@ import com.apple.eio.*;
 /**
  * Implements a <tt>BrowserLauncherService</tt> which opens a specified URL in
  * an OS-specific associated browser.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -38,10 +38,10 @@ public class BrowserLauncherImpl
      * URL or there was an error during the instruction of the found associated
      * browser to open the specified URL
      */
+    @SuppressWarnings("deprecation")
     private void launchBrowser(String url)
         throws Exception
     {
-
         if (OSUtils.IS_MAC)
         {
             FileManager.openURL(url);

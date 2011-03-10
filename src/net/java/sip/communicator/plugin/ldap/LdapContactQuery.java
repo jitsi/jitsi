@@ -2,11 +2,13 @@ package net.java.sip.communicator.plugin.ldap;
 
 import java.util.*;
 import java.util.regex.*;
+import javax.swing.*;
 
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.ldap.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.plugin.ldap.configform.*;
 
 /**
  * Implements <tt>ContactQuery</tt> for LDAP.
@@ -29,7 +31,7 @@ public class LdapContactQuery
     /**
      * LDAP query.
      */
-    LdapQuery ldapQuery = null;
+    private LdapQuery ldapQuery = null;
 
     /**
      * Object lock.
@@ -157,17 +159,15 @@ public class LdapContactQuery
          * characters
          */
         String queryStr = query.toString();
-        if(queryStr.length() < (4))// + LDAP_MINIMUM_CHARACTERS))
+        if(queryStr.length() < (4))
         {
             return;
         }
 
         /* remove \Q and \E from the Pattern */
         String queryString = queryStr.substring(2, queryStr.length() - 2);
-
         LdapService ldapService = LdapActivator.getLdapService();
         LdapFactory factory = ldapService.getFactory();
-
 
         ldapQuery = factory.createQuery(queryString);
         LdapSearchSettings settings = factory.createSearchSettings();
@@ -182,7 +182,13 @@ public class LdapContactQuery
             }
         };
 
-        ldapService.getServerSet().searchPerson(ldapQuery, caller, settings);
+        LdapDirectory ldapDir = getContactSource().getLdapDirectory();
+        if(ldapDir == null)
+        {
+            return;
+        }
+
+        ldapDir.searchPerson(ldapQuery, caller, settings);
 
         synchronized(objLock)
         {
@@ -313,6 +319,67 @@ public class LdapContactQuery
 
                 addQueryResult(sourceContact);
             }
+        }
+        else if(evt.getCause() == LdapEvent.LdapEventCause.SEARCH_AUTH_ERROR)
+        {
+            synchronized(objLock)
+            {
+                objLock.notify();
+            }
+
+            /* show settings form */
+            new Thread()
+            {
+                public void run()
+                {
+                    DirectorySettingsForm settingsForm =
+                        new DirectorySettingsForm();
+                    LdapDirectorySettings ldapSettings =
+                        getContactSource().getLdapDirectory().getSettings();
+
+                    settingsForm.setModal(true);
+
+                    settingsForm.loadData(ldapSettings);
+
+                    settingsForm.setNameFieldEnabled(false);
+                    settingsForm.setHostnameFieldEnabled(false);
+                    settingsForm.setBaseDNFieldEnabled(false);
+                    settingsForm.setPortFieldEnabled(false);
+
+                    JOptionPane.showMessageDialog(
+                            null,
+                            Resources.getString(
+                                "impl.ldap.WRONG_CREDENTIALS",
+                                    new String[]{ldapSettings.getName()}),
+                            Resources.getString(
+                                    "impl.ldap.WRONG_CREDENTIALS",
+                                    new String[]{ldapSettings.getName()}),
+                            JOptionPane.WARNING_MESSAGE);
+
+                    int ret = settingsForm.showDialog();
+
+                    if(ret == 1)
+                    {
+                        LdapService ldapService =
+                            LdapActivator.getLdapService();
+                        LdapFactory factory = ldapService.getFactory();
+                        LdapDirectory ldapDir =
+                            getContactSource().getLdapDirectory();
+                        LdapDirectorySettings settings =
+                            ldapDir.getSettings();
+
+                        LdapActivator.disableContactSource(ldapDir);
+                        ldapService.getServerSet().removeServerWithName(
+                                settings.getName());
+
+                        ldapDir = factory.createServer(
+                                settingsForm.getSettings());
+                        ldapService.getServerSet().addServer(ldapDir);
+
+                        LdapActivator.enableContactSource(ldapDir);
+                    }
+                }
+            }.start();
         }
     }
 

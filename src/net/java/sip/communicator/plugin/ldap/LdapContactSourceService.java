@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.ldap.*;
 
 /**
  * Implements <tt>ContactSourceService</tt> for LDAP.
@@ -25,6 +26,21 @@ public class LdapContactSourceService
      */
     private final List<LdapContactQuery> queries
         = new LinkedList<LdapContactQuery>();
+
+    /**
+     * LDAP name.
+     */
+    private final LdapDirectory ldapDirectory;
+
+    /**
+     * Constructor.
+     *
+     * @param ldapDirectory LDAP directory
+     */
+    public LdapContactSourceService(LdapDirectory ldapDirectory)
+    {
+        this.ldapDirectory = ldapDirectory;
+    }
 
     /**
      * Queries this search source for the given <tt>searchPattern</tt>.
@@ -52,12 +68,6 @@ public class LdapContactSourceService
 
         synchronized (queries)
         {
-            // cancel previous queries
-            for(LdapContactQuery q : queries)
-            {
-                q.cancel();
-            }
-
             queries.add(query);
         }
 
@@ -89,7 +99,7 @@ public class LdapContactSourceService
      */
     public String getDisplayName()
     {
-        return "LDAP directory";
+        return ldapDirectory.getSettings().getName();
     }
 
     /**
@@ -153,6 +163,16 @@ public class LdapContactSourceService
         }
         if (interrupted)
             Thread.currentThread().interrupt();
+    }
+
+    /**
+     * Get LDAP directory.
+     *
+     * @return LDAP directory
+     */
+    public LdapDirectory getLdapDirectory()
+    {
+        return ldapDirectory;
     }
 
     /**

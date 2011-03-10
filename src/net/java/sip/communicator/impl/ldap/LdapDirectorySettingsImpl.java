@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.ldap;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.ldap.*;
 
 /**
@@ -21,8 +22,8 @@ public class LdapDirectorySettingsImpl
     /**
      * Simple constructor for this class,
      * sets default values,
-     * note that you won't be able to create an LdapDirectory with these defaults
-     * (empty name, empty hostname forbidden by LdapDirectory)
+     * note that you won't be able to create an LdapDirectory with these
+     * defaults (empty name, empty hostname forbidden by LdapDirectory)
      */
     public LdapDirectorySettingsImpl()
     {
@@ -406,6 +407,8 @@ public class LdapDirectorySettingsImpl
     public void persistentSave()
     {
         ConfigurationService configService = LdapServiceImpl.getConfigService();
+        CredentialsStorageService credentialsService =
+            LdapServiceImpl.getCredentialsService();
         String node = "dir" + Math.abs(this.getName().hashCode());
 
         configService.setProperty(
@@ -429,8 +432,7 @@ public class LdapDirectorySettingsImpl
         configService.setProperty(
                 directoriesPath + "." + node + ".bindDN",
                 this.getBindDN());
-        configService.setProperty(
-                directoriesPath + "." + node + ".password",
+        credentialsService.storePassword(directoriesPath + "." + node,
                 this.getPassword());
         configService.setProperty(
                 directoriesPath + "." + node + ".scope",
@@ -451,6 +453,8 @@ public class LdapDirectorySettingsImpl
     public void persistentLoad(String name)
     {
         ConfigurationService configService = LdapServiceImpl.getConfigService();
+        CredentialsStorageService credentialsService =
+            LdapServiceImpl.getCredentialsService();
         String node = "dir" + Math.abs(name.hashCode());
 
         if(configService.getProperty(directoriesPath + "." + node) == null)
@@ -507,13 +511,16 @@ public class LdapDirectorySettingsImpl
                     configService.getProperty(
                             directoriesPath + "." + node + ".bindDN"));
 
-        if(configService.getProperty(directoriesPath + "." + node + ".password")
-                == null)
+        String password =
+            credentialsService.loadPassword(directoriesPath + "." + node);
+        if(password == null)
+        {
             this.setPassword("");
+        }
         else
-            this.setPassword( (String)
-                    configService.getProperty(
-                            directoriesPath + "." + node + ".password"));
+        {
+            this.setPassword(password);
+        }
 
         if(configService.getProperty(directoriesPath + "." + node + ".scope")
                 == null)
@@ -541,6 +548,8 @@ public class LdapDirectorySettingsImpl
     public void persistentRemove()
     {
         ConfigurationService configService = LdapServiceImpl.getConfigService();
+        CredentialsStorageService credentialsService =
+            LdapServiceImpl.getCredentialsService();
         String node = "dir" + Math.abs(this.getName().hashCode());
 
         configService.setProperty(
@@ -561,9 +570,7 @@ public class LdapDirectorySettingsImpl
         configService.setProperty(
                 directoriesPath + "." + node + ".bindDN",
                 null);
-        configService.setProperty(
-                directoriesPath + "." + node + ".password",
-                null);
+        credentialsService.removePassword(directoriesPath + "." + node);
         configService.setProperty(
                 directoriesPath + "." + node + ".baseDN",
                 null);

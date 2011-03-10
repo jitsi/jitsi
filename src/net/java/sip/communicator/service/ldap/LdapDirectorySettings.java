@@ -176,7 +176,7 @@ public interface LdapDirectorySettings
     /**
      * Saves these settings through the configuration service
      *
-     * @see net.java.sip.communicator.service.ldap.LdapDirectorySettings#persistentSave
+     * @see LdapDirectorySettings#persistentSave
      */
     public void persistentSave();
 
@@ -186,7 +186,7 @@ public interface LdapDirectorySettings
      *
      * @param name name of the settings
      *
-     * @see net.java.sip.communicator.service.ldap.LdapDirectorySettings#persistentLoad
+     * @see LdapDirectorySettings#persistentLoad
      */
     public void persistentLoad(String name);
 
