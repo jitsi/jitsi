@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.service.neomedia.MediaType;
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>MediaFormatFactory</tt> for the JMF <tt>Format</tt> types.
@@ -23,6 +24,11 @@ import net.java.sip.communicator.service.neomedia.format.*;
 public class MediaFormatFactoryImpl
     implements MediaFormatFactory
 {
+    /**
+     * Our class logger.
+     */
+    private static final Logger logger
+            = Logger.getLogger(MediaFormatFactoryImpl.class);
     /**
      * Creates an unknown <tt>MediaFormat</tt>.
      *
@@ -383,6 +389,16 @@ public class MediaFormatFactoryImpl
             String encoding,
             double clockRate)
     {
+        // As per RFC 3551.4.5.2, because of a mistake in RFC 1890 and for
+        // b-ward compatibility, G.722 should always be announced as 8000 even
+        // though it is wideband. So, if someone is looking for G722/16000
+        // then:    Forgive them, for they know not what they do!
+        if("G722".equals(encoding) && clockRate == 16000)
+        {
+            logger.info("Suppressing erroneous 16000 announcement for G.722");
+            clockRate = 8000;
+        }
+
         List<MediaFormat> supportedMediaFormats = new ArrayList<MediaFormat>();
 
         // uses equalsIgnoreCase, as some clients transmit some of the codecs
