@@ -7,7 +7,7 @@
       Id="Component_SipRegistryEntries"
       Directory="TARGETDIR"
       Guid="CF88EDC2-7D07-4269-946C-B8FF917887ED">
-    <Condition><![CDATA[CREATE_SIP_REGISTRY_ENTRIES]]></Condition>
+    <Condition><![CDATA[CREATE_SIP_REGISTRY_ENTRIES = 1]]></Condition>
     <RegistryKey Action="createAndRemoveOnUninstall" Key="sip" Root="HKCR">
       <RegistryValue Type="string" Value="URL: SIP Protocol handler" />
       <RegistryValue Name="URL Protocol" Type="string" Value="" />
@@ -24,7 +24,7 @@
       Id="Component_FeedRegistryEntries"
       Directory="TARGETDIR"
       Guid="BDB06CF9-F840-4CD6-B8B1-C24AC9CD11AB">
-    <Condition><![CDATA[CREATE_FEED_REGISTRY_ENTRIES]]></Condition>
+    <Condition><![CDATA[CREATE_FEED_REGISTRY_ENTRIES = 1]]></Condition>
     <RegistryKey Action="createAndRemoveOnUninstall" Key="feed" Root="HKCR">
       <RegistryValue Type="string" Value="URL: RSS Protocol handler" />
       <RegistryValue Name="URL Protocol" Type="string" Value="" />
@@ -41,7 +41,7 @@
       Id="Component_XmppRegistryEntries"
       Directory="TARGETDIR"
       Guid="3C9C09AE-1F57-11DE-B96D-6B8D56D89593">
-    <Condition><![CDATA[CREATE_XMPP_REGISTRY_ENTRIES]]></Condition>
+    <Condition><![CDATA[CREATE_XMPP_REGISTRY_ENTRIES = 1]]></Condition>
     <RegistryKey Action="createAndRemoveOnUninstall" Key="xmpp" Root="HKCR">
       <RegistryValue Type="string" Value="URL: XMPP Protocol handler" />
       <RegistryValue Name="URL Protocol" Type="string" Value="" />
