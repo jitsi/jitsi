@@ -73,6 +73,7 @@ public class LdapDirectoryImpl
         searchableAttributes.add("surname");
         searchableAttributes.add("gn");
         searchableAttributes.add("givenname");
+        searchableAttributes.add("mail");
         searchableAttributes.add("uid");
     }
 
@@ -393,6 +394,20 @@ public class LdapDirectoryImpl
 
                     endEvent = new LdapEvent(LdapDirectoryImpl.this,
                             LdapEvent.LdapEventCause.SEARCH_ACHIEVED, query);
+                }
+                catch(OperationNotSupportedException e)
+                {
+                    logger.trace(
+                            "use bind DN without password during search" +
+                            " for real query \"" +
+                            realQueryString + "\" (initial query: \"" +
+                            query.toString() + "\") on directory \"" +
+                            LdapDirectoryImpl.this + "\": " + e);
+                    endEvent = new LdapEvent(
+                            LdapDirectoryImpl.this,
+                            LdapEvent.LdapEventCause.SEARCH_AUTH_ERROR,
+                            query
+                            );
                 }
                 catch(AuthenticationException e)
                 {

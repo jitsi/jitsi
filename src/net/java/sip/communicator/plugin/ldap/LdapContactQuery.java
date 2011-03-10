@@ -417,6 +417,11 @@ public class LdapContactQuery
         {
             ldapQuery.setState(LdapQuery.State.CANCELLED);
         }
+
+        synchronized(objLock)
+        {
+            objLock.notify();
+        }
         super.cancel();
     }
 }

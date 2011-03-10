@@ -146,7 +146,7 @@ public class LdapActivator implements BundleActivator
     /**
      * Enable contact source service with specified LDAP directory.
      *
-     * @param ldapDir LDAP diretory
+     * @param ldapDir LDAP directory
      */
     public static void enableContactSource(LdapDirectory ldapDir)
     {
@@ -179,7 +179,7 @@ public class LdapActivator implements BundleActivator
     /**
      * Disable contact source service with specified LDAP directory.
      *
-     * @param ldapDir LDAP diretory
+     * @param ldapDir LDAP directory
      */
     public static void disableContactSource(LdapDirectory ldapDir)
     {
