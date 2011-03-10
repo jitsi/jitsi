@@ -672,6 +672,25 @@
             </fileset>
         </copy>
 
+        <!--
+          Build cleansweep.exe because it is to be included in the setup by
+          candle.exe
+        -->
+        <exec
+                executable="make"
+                dir="${src}/native/windows/setup/cleansweep"
+                failonerror="true">
+            <arg value="PRODUCTNAME=${application.name}" />
+            <arg value="MINGW_HOME=${mingw.home}" />
+            <arg value="TARGET_DIR=${light.dir}" />
+        </exec>
+        <delete file="${light.dir}/cleansweep.res"/>
+        <exec executable="mt.exe" dir="${light.dir}" failonerror="true">
+            <arg value="-manifest" />
+            <arg value="${inst.resrc}\windows\asInvoker.exe.manifest" />
+            <arg value="-outputresource:cleansweep.exe;#1" />
+        </exec>
+
         <!-- Execute candle.exe -->
         <condition property="candle.var.Platform" value="x64" else="x86">
             <equals arg1="${windows.arch}" arg2="64" />

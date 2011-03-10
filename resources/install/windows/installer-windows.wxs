@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 <!--
   SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
@@ -173,8 +173,29 @@
 
                 <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="130" Width="330" Height="50" Text="&amp;Associate Protocols" />
                 <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="145" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
-                <!--Control Id="FeedRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_FEED_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;FEED" /-->
+<!--
+  The RSS plug-in has been removed from SIP Communicator so it no longer makes
+  sense to associate SIP Communicator with the FEED protocol.
+
+                <Control Id="FeedRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_FEED_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;FEED" />
+-->
                 <Control Id="XmppRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_XMPP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;XMPP" />
+            </Dialog>
+
+            <Dialog Id="CleanSweepDlg" Width="370" Height="270" Title="!(loc.CleanSweepDlg_Title)">
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+                  <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+                </Control>
+
+                <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.CleanSweepDlgDescription)" />
+                <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.CleanSweepDlgTitle)" />
+                <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.CleanSweepDlgBannerBitmap)" />
+                <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+                <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+
+                <Control Id="CleanSweepCheckBox" Type="CheckBox" X="20" Y="60" Width="330" Height="15" Property="CLEAN_SWEEP" CheckBoxValue="1" Text="&amp;Remove personal @APP_NAME@ data and preferences" />
             </Dialog>
 
   <Publish 
@@ -211,6 +232,9 @@
 
     <Custom Action="LaunchApplication" After="ExecuteAction">
         IS_AUTOUPDATE = 1
+    </Custom>
+    <Custom Action="CleanSweep" After="ExecuteAction">
+        <![CDATA[NOT (IS_AUTOUPDATE = 1) AND (CLEAN_SWEEP = 1)]]>
     </Custom>
 
     <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
@@ -307,6 +331,12 @@
     Id="UnsetCREATE_STARTUP_REGISTRY"
     Property="CREATE_STARTUP_REGISTRY"
     Value="0" />
+<CustomAction
+    BinaryKey="CleanSweepExe"
+    ExeCommand=""
+    Id="CleanSweep"
+    Impersonate="yes"
+    Return="ignore" />
 
 <InstallExecuteSequence>
   <RemoveExistingProducts After="InstallFinalize" />
@@ -396,11 +426,16 @@
 <Property Id="ARPCONTACT" Value="@APP_EMAIL@" />
 <Property Id="ARPHELPLINK" Value="@APP_WEB@" />
 <Property Id="ARPPRODUCTICON" Value="Icon.ico" />
+<Property Id="CLEAN_SWEEP" Secure="yes" />
 <!--
     We've switched the startup from shortcut to registry so we'll always set
     CREATE_STARTUP_SHORTCUT to 0 in order to remove the old shortcut on update.
 -->
 <Property Id="CREATE_STARTUP_SHORTCUT" Value="0" />
+<!--
+  The RSS plug-in has been removed from SIP Communicator so it no longer makes
+  sense to associate SIP Communicator with the FEED protocol.
+-->
 <Property Id="CREATE_FEED_REGISTRY_ENTRIES" Value="0" />
 <Property Id="CREATE_SIP_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_XMPP_REGISTRY_ENTRIES" Value="1" />
@@ -421,6 +456,7 @@
 <?ifdef JRESetup ?>
 <Binary Id="JRESetup" SourceFile="$(var.JRESetup)" />
 <?endif?>
+<Binary Id="CleanSweepExe" SourceFile="cleansweep.exe" />
 
 </Product>
 
@@ -592,10 +628,13 @@
             <Publish Dialog="CMaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
 
             <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
-            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+            <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="CleanSweepDlg">1</Publish>
             <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="CMaintenanceWelcomeDlg">1</Publish>
 
-            <Property Id="ARPNOMODIFY" Value="1" />
+            <Publish Dialog="CleanSweepDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+            <Publish Dialog="CleanSweepDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+
+            <!-- Property Id="ARPNOMODIFY" Value="1" /-->
             <Property Id="ARPNOREPAIR" Value="1" />
         </UI>
 
