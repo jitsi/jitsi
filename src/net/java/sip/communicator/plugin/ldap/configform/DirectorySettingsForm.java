@@ -139,6 +139,9 @@ public class DirectorySettingsForm
 
         this.setTitle(Resources.getString("impl.ldap.CONFIG_FORM_TITLE"));
         getContentPane().add(getContentPanel());
+        setMinimumSize(new Dimension(400, getMinimumSize().height));
+        setSize(new Dimension(400, getMinimumSize().height));
+        setPreferredSize(new Dimension(400, getMinimumSize().height));
         pack();
     }
 

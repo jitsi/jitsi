@@ -224,6 +224,11 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     @Override
     protected Format[] getSupportedFormats(int streamIndex)
     {
+        if(device == null)
+        {
+            return new Format[0];
+        }
+
         DSFormat fmts[] = device.getSupportedFormats();
         List<Format> formats = new ArrayList<Format>();
 
