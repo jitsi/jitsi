@@ -243,8 +243,17 @@ public class SdpUtils
         //description. this loop also guarantees we keep the order of streams
         for(MediaDescription medToUpdate : prevMedias)
         {
-            MediaType type = getMediaType(medToUpdate);
-            MediaDescription desc = removeMediaDesc(newMediaDescriptions, type);
+            MediaDescription desc = null;
+            try
+            {
+                MediaType type = getMediaType(medToUpdate);
+                desc = removeMediaDesc(newMediaDescriptions, type);
+            }
+            catch (IllegalArgumentException e)
+            {
+                //remote party offers a stream of a type that we don't support.
+                //leave desc to null so that we'll disable it and move on.
+            }
 
             if (desc == null)
             {
@@ -1490,8 +1499,12 @@ public class SdpUtils
      *
      * @return the media type (e.g. audio or video) for the specified media
      * <tt>description</tt>.
+     *
+     * @throws IllegalArgumentException if <tt>description</tt> does not
+     * contain a known media type.
      */
     public static MediaType getMediaType(MediaDescription description)
+        throws  IllegalArgumentException
     {
         try
         {
