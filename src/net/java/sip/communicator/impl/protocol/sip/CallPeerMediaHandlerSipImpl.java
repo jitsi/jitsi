@@ -370,6 +370,7 @@ public class CallPeerMediaHandlerSipImpl
                 //we'll disable it and move on.
                 answerDescriptions.add(
                         SdpUtils.createDisablingAnswer(mediaDescription));
+                continue;
             }
 
             List<MediaFormat> remoteFormats = SdpUtils.extractFormats(
