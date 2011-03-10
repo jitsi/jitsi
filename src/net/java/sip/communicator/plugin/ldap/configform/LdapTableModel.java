@@ -161,19 +161,21 @@ public class LdapTableModel
         if(columnIndex != 0)
             throw new IllegalArgumentException("non editable column!");
         LdapDirectory server = this.getServerAt(rowIndex);
+        LdapConfigForm.RefreshContactSourceThread th = null;
 
         /* toggle enabled marker and save */
         server.setEnabled(!server.isEnabled());
 
         if(!server.isEnabled())
         {
-            LdapActivator.disableContactSource(server);
+            th = new LdapConfigForm.RefreshContactSourceThread(server, null);
         }
         else
         {
-            LdapActivator.enableContactSource(server);
+            th = new LdapConfigForm.RefreshContactSourceThread(null, server);
         }
 
+        th.start();
         server.getSettings().persistentSave();
     }
 }

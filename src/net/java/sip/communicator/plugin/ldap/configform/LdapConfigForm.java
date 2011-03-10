@@ -150,14 +150,14 @@ public class LdapConfigForm
 
                         if(ret == 1)
                         {
-                            LdapActivator.disableContactSource(oldServer);
                             LdapDirectory newServer = factory.createServer(
                                     settingsForm.getSettings());
                             serverSet.removeServerWithName(
                                     oldServer.getSettings().
                                     getName());
+                            new RefreshContactSourceThread(oldServer,
+                                    newServer).start();
                             serverSet.addServer(newServer);
-                            LdapActivator.enableContactSource(newServer);
                             refresh();
                         }
                     }
@@ -267,9 +267,8 @@ public class LdapConfigForm
             {
                 LdapDirectory server = factory.createServer(
                         settingsForm.getSettings());
-
+                new RefreshContactSourceThread(null, server).start();
                 serverSet.addServer(server);
-                LdapActivator.enableContactSource(server);
                 refresh();
             }
         }
@@ -285,21 +284,20 @@ public class LdapConfigForm
 
             if(ret == 1)
             {
-                LdapActivator.disableContactSource(oldServer);
                 LdapDirectory newServer = factory.createServer(
                         settingsForm.getSettings());
+                new RefreshContactSourceThread(oldServer, newServer).start();
                 serverSet.removeServerWithName(oldServer.getSettings().
                         getName());
                 serverSet.addServer(newServer);
-                LdapActivator.enableContactSource(newServer);
                 refresh();
             }
         }
 
         if (e.getActionCommand().equals("remove") && row != -1)
         {
-            LdapActivator.disableContactSource(this.tableModel.getServerAt(
-                    row));
+            new RefreshContactSourceThread(this.tableModel.getServerAt(row),
+                    null).start();
             serverSet.removeServerWithName(this.tableModel.getServerAt(row).
                     getSettings().getName());
             refresh();
@@ -342,6 +340,51 @@ public class LdapConfigForm
     public boolean isAdvanced()
     {
         return true;
+    }
+
+    /**
+     * Thread that will perform refresh of contact sources.
+     */
+    public static class RefreshContactSourceThread
+        extends Thread
+    {
+        /**
+         * LDAP directory to remove.
+         */
+        private LdapDirectory oldLdap = null;
+
+        /**
+         * LDAP directory to add.
+         */
+        private LdapDirectory newLdap = null;
+
+        /**
+         * Constructor.
+         *
+         * @param oldLdap LDAP directory to remove
+         * @param newLdap LDAP directory to add.
+         */
+        RefreshContactSourceThread(LdapDirectory oldLdap, LdapDirectory newLdap)
+        {
+            this.oldLdap = oldLdap;
+            this.newLdap = newLdap;
+        }
+
+        /**
+         * Thread entry point.
+         */
+        public void run()
+        {
+            if(oldLdap != null)
+            {
+                LdapActivator.disableContactSource(oldLdap);
+            }
+
+            if(newLdap != null)
+            {
+                LdapActivator.enableContactSource(newLdap);
+            }
+        }
     }
 }
 
