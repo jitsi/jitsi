@@ -158,9 +158,6 @@ public class DirectorySettingsForm
                 FlowLayout.RIGHT));
         BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
 
-        mainPanel.setBorder(BorderFactory.createTitledBorder(
-                "LDAP settings"));
-
         GridBagConstraints c = new GridBagConstraints();
 
         /* name text field */
