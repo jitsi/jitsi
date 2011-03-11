@@ -25,7 +25,6 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
  */
 public class DirectShowStream extends AbstractPushBufferStream
 {
-
     /**
      * The pool of <tt>ByteBuffer</tt>s this instances is using to transfer the
      * media data captured by {@link #grabber} out of this instance

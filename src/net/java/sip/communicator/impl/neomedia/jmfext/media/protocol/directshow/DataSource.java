@@ -124,6 +124,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     public void setLocator(MediaLocator locator)
     {
         DSCaptureDevice device = null;
+        logger.info("set locator to " + locator);
 
         if(getLocator() == null)
         {
@@ -131,6 +132,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         }
 
         locator = getLocator();
+        logger.info("getLocator() returns " + locator);
 
         if((locator != null) &&
                 DirectShowAuto.LOCATOR_PROTOCOL.equalsIgnoreCase(
@@ -138,18 +140,29 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         {
             DSCaptureDevice[] devices = manager.getCaptureDevices();
 
+            logger.info("Search directshow device...");
+
             /* find device */
             for(int i = 0 ; i < devices.length ; i++)
             {
                 if(devices[i].getName().equals(locator.getRemainder()))
                 {
                     device = devices[i];
+                    logger.info("Set directshow device: " + device);
                     break;
                 }
+            }
+
+            if(device == null)
+            {
+                logger.info("No devices matches locator's remainder: " +
+                        locator.getRemainder());
             }
         }
         else
         {
+            logger.info(
+                    "MediaLocator either null or does not have right protocol");
             device = null;
         }
         setDevice(device);
@@ -344,8 +357,9 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         if(manager == null)
         {
             manager = DSManager.getInstance();
-            setLocator(getLocator());
         }
+        setLocator(getLocator());
+
         super.doConnect();
     }
 
