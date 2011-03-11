@@ -70,8 +70,6 @@ public class LdapContactQuery
         PhoneNumberI18nService phoneNumberI18nService
             = LdapActivator.getPhoneNumberI18nService();
 
-        System.out.println("PhoneNumberService: " +
-                (phoneNumberI18nService != null));
         return
             (phoneNumberI18nService == null)
                 ? phoneNumber
