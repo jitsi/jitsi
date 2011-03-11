@@ -789,6 +789,8 @@ public class TreeContactList
         if ((!currentFilter.equals(presenceFilter)
             || !groupNode.isCollapsed()))
             this.expandGroup(groupNode);
+        else
+            this.expandGroup(treeModel.getRoot());
     }
 
     /**

@@ -233,13 +233,13 @@ public class PresenceFilter
         {
             MetaContactGroup subgroup = subgroups.next();
 
-            if (subgroup.countChildContacts() == 0
-                    && subgroup.countSubgroups() == 0
-                    && isMatching(subgroup))
+            if (isMatching(subgroup))
+            {
                 GuiActivator.getContactList().addGroup(
                     MetaContactListSource.createUIGroup(subgroup), true);
-            else
+
                 addMatching(subgroup, query, resultCount);
+            }
         }
     }
 }
