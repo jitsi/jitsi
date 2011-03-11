@@ -967,6 +967,12 @@ public class SipStackSharing
         {
             ProtocolProviderServiceSipImpl candidate = iterPP.next();
 
+            if(candidate.getRegistrarConnection() == null)
+            {
+                //RegistrarLess connections are ok
+                continue;
+            }
+
             if (   !candidate.getRegistrarConnection().isRegistrarless()
                 && !candidate.getRegistrarConnection()
                         .isRequestFromSameConnection(request))
