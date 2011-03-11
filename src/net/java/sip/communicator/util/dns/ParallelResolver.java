@@ -459,9 +459,19 @@ public class ParallelResolver implements Resolver
         }
 
         //we didn't find any responses and unless the answer is NXDOMAIN then
-        //there's a problem and we need to fallback to the backup resolver
+        //we may want to check with the backup resolver for a second opinion
         if(response.getRcode() == Rcode.NXDOMAIN)
             return true;
+
+        //if we received NODATA (same as NOERROR and no response records) for
+        // an AAAA or a NAPTR query then it makes sense since many existing
+        //domains come without those two.
+        if( response.getRcode() == Rcode.NOERROR
+            && (response.getQuestion().getType() == Type.AAAA
+                || response.getQuestion().getType() == Type.NAPTR))
+        {
+            return true;
+        }
 
         //nope .. this doesn't make sense ...
         return false;
@@ -500,13 +510,6 @@ public class ParallelResolver implements Resolver
          * Indicates that a response was received from the primary resolver.
          */
         private boolean primaryResolverRespondedFirst = true;
-
-        /**
-         * Indicates that the primary resolver has returned a response but that
-         * response did not seem valid so we are still using the backup
-         * resolvers.
-         */
-        private boolean primaryResolverFailed = false;
 
         /**
          * Creates a {@link ParallelResolution} for the specified <tt>query</tt>
