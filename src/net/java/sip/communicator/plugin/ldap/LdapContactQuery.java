@@ -70,6 +70,8 @@ public class LdapContactQuery
         PhoneNumberI18nService phoneNumberI18nService
             = LdapActivator.getPhoneNumberI18nService();
 
+        System.out.println("PhoneNumberService: " +
+                (phoneNumberI18nService != null));
         return
             (phoneNumberI18nService == null)
                 ? phoneNumber
@@ -230,8 +232,9 @@ public class LdapContactQuery
                 = new ArrayList<Class<? extends OperationSet>>(1);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
-            homePhone = this.normalizePhoneNumber(homePhone);
-            detail = new ContactDetail(homePhone, ContactDetail.CATEGORY_PHONE,
+            homePhone = normalizePhoneNumber(homePhone);
+            detail = new ContactDetail(homePhone,
+                    ContactDetail.CATEGORY_PHONE,
                     new String[]{ContactDetail.LABEL_HOME});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
@@ -243,7 +246,9 @@ public class LdapContactQuery
                 = new ArrayList<Class<? extends OperationSet>>(1);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
-            detail = new ContactDetail(workPhone, ContactDetail.CATEGORY_PHONE,
+            workPhone = normalizePhoneNumber(workPhone);
+            detail = new ContactDetail(workPhone,
+                    ContactDetail.CATEGORY_PHONE,
                     new String[]{ContactDetail.LABEL_WORK});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
@@ -255,7 +260,9 @@ public class LdapContactQuery
                 = new ArrayList<Class<? extends OperationSet>>(1);
 
             supportedOpSets.add(OperationSetBasicTelephony.class);
-            detail = new ContactDetail(mobilePhone, ContactDetail.CATEGORY_PHONE,
+            mobilePhone = normalizePhoneNumber(mobilePhone);
+            detail = new ContactDetail(mobilePhone,
+                    ContactDetail.CATEGORY_PHONE,
                     new String[]{ContactDetail.LABEL_MOBILE});
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
