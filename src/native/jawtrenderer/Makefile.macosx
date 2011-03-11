@@ -1,0 +1,18 @@
+CC=gcc -O2
+TARGET_BASENAME=jawtrenderer
+
+JAVA_HOME?=/Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/JavaVM.framework/Versions/1.5
+CC:=$(CC) -arch i386 -arch ppc -arch x86_64 -mmacosx-version-min=10.4
+CPPFLAGS=-I$(JAVA_HOME)/Headers
+LDFLAGS=-dynamiclib
+LIBS=-framework AppKit -framework Foundation -framework JavaVM -framework OpenGL
+TARGET=../../../lib/native/mac/lib$(TARGET_BASENAME).jnilib
+
+CPPFLAGS:=-Wall -Wreturn-type -DJNI_IMPLEMENTATION \
+	$(CPPFLAGS)
+LDFLAGS:=-fPIC $(LDFLAGS)
+LIBS:=$(LIBS)
+
+$(TARGET): net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer.c JAWTRenderer_MacOSX.m
+	$(CC) $(CPPFLAGS) $^ $(LDFLAGS) -o $@ $(LIBS)
+	-strip $(TARGET)
