@@ -62,7 +62,8 @@ public class LdapActivator implements BundleActivator
      * plug-in
      * @see BundleActivator#start(BundleContext)
      */
-    public void start(BundleContext bundleContext) throws Exception
+    public void start(BundleContext bundleContext)
+        throws Exception
     {
         LdapActivator.bundleContext = bundleContext;
 
@@ -123,7 +124,8 @@ public class LdapActivator implements BundleActivator
      * plug-in
      * @see BundleActivator#stop(BundleContext)
      */
-    public void stop(BundleContext bundleContext) throws Exception
+    public void stop(BundleContext bundleContext)
+        throws Exception
     {
         for(Map.Entry<LdapContactSourceService, ServiceRegistration> entry :
             cssList.entrySet())
