@@ -66,7 +66,7 @@ public class DSCaptureDevice
      */
     public String getName()
     {
-        return getName(ptr);
+        return getName(ptr).trim();
     }
 
     /**
