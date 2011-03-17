@@ -925,7 +925,7 @@
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
         bundle-plugin-chatconfig,bundle-certificate,bundle-packetlogging,
-        bundle-plugin-loggingutils,
+        bundle-plugin-loggingutils,bundle-plugin-dnsconfig,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap"/>
 
@@ -2696,5 +2696,12 @@ org.apache.http.util"/>
             prefix="net/java/sip/communicator/plugin/ldap"/>
         </jar>
     </target>
-  
+
+    <target name="bundle-plugin-dnsconfig">
+        <jar compress="false" destfile="${bundles.dest}/plugin-dnsconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/dnsconfig/dnsconfig.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/dnsconfig"
+                prefix="net/java/sip/communicator/plugin/dnsconfig" />
+        </jar>
+    </target>
 </project>

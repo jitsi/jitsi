@@ -52,10 +52,10 @@ public class ParallelResolver implements Resolver
      * The default number of milliseconds it takes us to get into redundant
      * mode while waiting for a DNS query response.
      */
-    public static final long DNS_PATIENCE = 1500;
+    public static final int DNS_PATIENCE = 1500;
 
     /**
-     * The name of the System property that allows us to override the default
+     * The name of the property that allows us to override the default
      * <tt>DNS_PATIENCE</tt> value.
      */
     public static final String PNAME_DNS_PATIENCE
@@ -75,7 +75,7 @@ public class ParallelResolver implements Resolver
     public static final int DNS_REDEMPTION = 3;
 
     /**
-     * The name of the System property that allows us to override the default
+     * The name of the property that allows us to override the default
      * <tt>DNS_REDEMPTION</tt> value.
      */
     public static final String PNAME_DNS_REDEMPTION
@@ -128,10 +128,10 @@ public class ParallelResolver implements Resolver
     {
         try
         {
-            currentDnsPatience
-                = Long.getLong(PNAME_DNS_PATIENCE, DNS_PATIENCE);
-            currentDnsRedemption
-                = Integer.getInteger(PNAME_DNS_REDEMPTION, DNS_REDEMPTION);
+            currentDnsPatience = UtilActivator.getConfigurationService()
+                .getLong(PNAME_DNS_PATIENCE, DNS_PATIENCE);
+            currentDnsRedemption = UtilActivator.getConfigurationService()
+                .getInt(PNAME_DNS_REDEMPTION, DNS_REDEMPTION);
         }
         catch(Throwable t)
         {

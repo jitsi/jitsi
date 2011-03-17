@@ -44,5 +44,6 @@ Export-Package: net.java.sip.communicator.util.xml,
  net.java.sip.communicator.util.swing.transparent,
  net.java.sip.communicator.util.swing.border,
  net.java.sip.communicator.util,
+ net.java.sip.communicator.util.dns,
  net.java.sip.communicator.util.skin,
  net.java.sip.communicator.util.launchutils

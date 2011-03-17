@@ -210,6 +210,23 @@ public interface ConfigurationService
     public String getString(String propertyName);
 
     /**
+     * Returns the String value of the specified property and null in case no
+     * property value was mapped against the specified propertyName, or in
+     * case the returned property string had zero length or contained
+     * whitespaces only.
+     *
+     * @param propertyName the name of the property that is being queried.
+     * @param defaultValue the value to be returned if the specified property
+     * name is not associated with a value in this
+     * <code>ConfigurationService</code>
+     * @return the result of calling the property's toString method and
+     * <code>defaultValue</code> in case there was no value mapped against
+     * the specified <tt>propertyName</tt>, or the returned string had zero
+     * length or contained whitespaces only.
+     */
+    public String getString(String propertyName, String defaultValue);
+
+    /**
      * Gets the value of a specific property as a boolean. If the specified
      * property name is associated with a value in this
      * <code>ConfigurationService</code>, the string representation of the value

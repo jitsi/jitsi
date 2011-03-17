@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.util;
 
+import java.beans.*;
 import java.net.*;
 import java.util.*;
 
@@ -79,14 +80,27 @@ public class NetworkUtils
     private static Random portNumberGenerator = new Random();
 
     /**
-     * The name of the system property that users may use to override the
+     * The name of the property that users may use to override the
      * address of our backup DNS resolver.
      */
     public static final String PNAME_BACKUP_RESOLVER
         = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER";
 
     /**
-     * The name of the system property that users may use to override the port
+     * The name of the property that users may use to disable
+     * our backup DNS resolver.
+     */
+    public static final String PNAME_BACKUP_RESOLVER_ENABLED
+        = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER_ENABLED";
+
+    /**
+     * The default of the property that users may use to disable
+     * our backup DNS resolver.
+     */
+    public static final boolean PDEFAULT_BACKUP_RESOLVER_ENABLED = true;
+
+    /**
+     * The name of the property that users may use to override the port
      * of our backup DNS resolver.
      */
     public static final String PNAME_BACKUP_RESOLVER_PORT
@@ -99,17 +113,23 @@ public class NetworkUtils
         = "backup-resolver.jitsi.net";
 
     /**
-     * The name of the system property that users may use to override the
-     * IP address of our backup DNS resolver.
+     * The name of the property that users may use to override the
+     * IP address of our backup DNS resolver. This is only used when the
+     * backup resolver name cannot be determined.
      */
-    public static final String PNAME_BACKUP_RESOLVER_IP
-        = "util.dns.BACKUP_RESOLVER_IP";
+    public static final String PNAME_BACKUP_RESOLVER_FALLBACK_IP
+        = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER_FALLBACK_IP";
 
     /**
      * The DNSjava resolver that we use with SRV and NAPTR queries in order to
      * try and smooth the problem of DNS servers that silently drop them.
      */
     private static Resolver parallelResolver = null;
+
+    /**
+     * Monitor object to set or reset the parallel resolver.
+     */
+    private final static Object parallelResolverLock = new Object();
 
     /**
      * Determines whether the address is the result of windows auto configuration.
@@ -1024,90 +1044,102 @@ public class NetworkUtils
     {
         Lookup lookup = new Lookup(domain, type);
 
-        //initiate our global parallel resolver if this is our first ever
-        //DNS query.
-        if(parallelResolver == null)
+        if(!UtilActivator.getConfigurationService()
+                .getBoolean(PNAME_BACKUP_RESOLVER_ENABLED,
+                    PDEFAULT_BACKUP_RESOLVER_ENABLED))
+            return lookup;
+
+        //Initiate our global parallel resolver if this is our first ever
+        //DNS query. The lock here is heavy but necessary as a) the config
+        //form can cause an intermittent reset and b) multiple accounts signing
+        //in at the same time could cause multiple ParallelResolver instances
+        synchronized(parallelResolverLock)
         {
-            try
+            if(parallelResolver == null)
             {
-                String customRslvrAddr
-                    = System.getProperty(PNAME_BACKUP_RESOLVER);
-                String rslvrAddrStr = DEFAULT_BACKUP_RESOLVER;
-                String customRslvrIP
-                    = UtilActivator.getResources().getSettingsString(
-                        PNAME_BACKUP_RESOLVER_IP);
-
-                if(! StringUtils.isNullOrEmpty( customRslvrAddr ))
-                    rslvrAddrStr = customRslvrAddr;
-
-                InetAddress resolverAddress = null;
-
                 try
                 {
-                    resolverAddress = getInetAddress(rslvrAddrStr);
-                }
-                catch(UnknownHostException exc)
-                {
-                    logger.warn("Oh! Seems like our primary DNS is down!"
-                                + "Don't panic! We'll try to fall back to "
-                                + customRslvrIP);
-                }
+                    String rslvrAddrStr
+                        = UtilActivator.getConfigurationService()
+                            .getString(PNAME_BACKUP_RESOLVER,
+                                DEFAULT_BACKUP_RESOLVER);
+                    String customRslvrIP
+                        = UtilActivator.getConfigurationService().getString(
+                            PNAME_BACKUP_RESOLVER_FALLBACK_IP,
+                            UtilActivator.getResources().getSettingsString(
+                                PNAME_BACKUP_RESOLVER_FALLBACK_IP));
 
-                if(resolverAddress == null)
-                {
-                    /* name resolution failed for backup DNS resolver,
-                     * try with the IP address of the default backup resolver
-                     */
-                    resolverAddress = getInetAddress(customRslvrIP);
-                }
+                    InetAddress resolverAddress = null;
 
-                int rslvrPort = SimpleResolver.DEFAULT_PORT;
+                    try
+                    {
+                        resolverAddress = getInetAddress(rslvrAddrStr);
+                    }
+                    catch(UnknownHostException exc)
+                    {
+                        logger.warn("Oh! Seems like our primary DNS is down!"
+                                    + "Don't panic! We'll try to fall back to "
+                                    + customRslvrIP);
+                    }
 
-                //just in case someone said sth else ... and we want no errs
-                try
-                {
-                    rslvrPort = Integer.getInteger(
-                                        PNAME_BACKUP_RESOLVER_PORT);
+                    if(resolverAddress == null)
+                    {
+                        /* name resolution failed for backup DNS resolver,
+                         * try with the IP address of the default backup resolver
+                         */
+                        resolverAddress = getInetAddress(customRslvrIP);
+                    }
+
+                    int rslvrPort = UtilActivator.getConfigurationService().getInt(
+                        PNAME_BACKUP_RESOLVER_PORT, SimpleResolver.DEFAULT_PORT);
+
+                    InetSocketAddress resolverSockAddr
+                        = new InetSocketAddress(resolverAddress, rslvrPort);
+
+                    parallelResolver = new ParallelResolver(
+                                    new InetSocketAddress[]{resolverSockAddr});
+
+                    // listens for network changes up/down so we can reset
+                    // dns configuration
+                    UtilActivator.getNetworkAddressManagerService()
+                        .addNetworkConfigurationChangeListener(
+                            new NetworkListener());
+
+                    //listens for changes on the parallel DNS settings
+                    UtilActivator.getConfigurationService()
+                        .addPropertyChangeListener(
+                            new DnsConfigurationChangeListener());
                 }
                 catch(Throwable t)
                 {
-                    logger.info("Ignoring invalid resolver port.");
+                    //We don't want to a problem with our parallel resolver to
+                    //make our entire DNS resolution to fail so in case something
+                    //goes wrong during initialization so we default to the
+                    //dns java default resolver
+                    logger.info("failed to initialize parallel resolver. we will "
+                                    +"be using dnsjava's default one instead");
+
+                    if(logger.isDebugEnabled())
+                        logger.debug("exception was: ", t);
+
+                    parallelResolver = Lookup.getDefaultResolver();
                 }
-
-                InetSocketAddress resolverSockAddr
-                    = new InetSocketAddress(resolverAddress, rslvrPort);
-
-                parallelResolver = new ParallelResolver(
-                                new InetSocketAddress[]{resolverSockAddr});
-
-                // listens for network changes up/down so we can reset
-                // dns configuration
-                UtilActivator.getNetworkAddressManagerService()
-                    .addNetworkConfigurationChangeListener(
-                        new NetworkListener());
             }
-            catch(Throwable t)
-            {
-                //We don't want to a problem with our parallel resolver to
-                //make our entire DNS resolution to fail so in case something
-                //goes wrong during initialization so we default to the
-                //dns java default resolver
-                logger.info("failed to initialize parallel resolver. we will "
-                                +"be using dnsjava's default one instead");
 
-                if(logger.isDebugEnabled())
-                    logger.debug("exception was: ", t);
-
-                parallelResolver = Lookup.getDefaultResolver();
-            }
-        }
-        // make sure we are not currently resetting the resolver
-        synchronized(parallelResolver)
-        {
-            lookup.setResolver( parallelResolver );
+            lookup.setResolver(parallelResolver);
         }
 
         return lookup;
+    }
+
+    /**
+     * Gets the default port used by DNS servers obtained through
+     * SimpleResolver.DEFAULT_PORT.
+     * @return The default DNS server port
+     */
+    public static short getDefaultDnsPort()
+    {
+        return SimpleResolver.DEFAULT_PORT;
     }
 
     /**
@@ -1133,13 +1165,42 @@ public class NetworkUtils
     }
 
     /**
+     * Listens for changes in the DNS configuration and resets
+     * the parallelResolver when necessary
+     */
+    private static class DnsConfigurationChangeListener
+        implements PropertyChangeListener
+    {
+        @SuppressWarnings("serial")
+        private final Set<String> configNames = new HashSet<String>(5){{
+            add(PNAME_BACKUP_RESOLVER);
+            add(PNAME_BACKUP_RESOLVER_FALLBACK_IP);
+            add(PNAME_BACKUP_RESOLVER_PORT);
+            add(ParallelResolver.PNAME_DNS_PATIENCE);
+            add(ParallelResolver.PNAME_DNS_REDEMPTION);
+        }};
+
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            if(configNames.contains(evt.getPropertyName()) &&
+                parallelResolver != null)
+            {
+                parallelResolver = null;
+                logger.info("Parallel DNS resolver reset");
+            }
+        }
+    }
+
+    /**
      * Reloads dns server configuration in the resolver.
      */
     public static void reloadDnsResolverConfig()
     {
         if(parallelResolver instanceof ParallelResolver)
         {
-            synchronized(parallelResolver)
+            //needs a separate lock object because the parallelResolver could
+            //be set to null in between
+            synchronized(parallelResolverLock)
             {
                 ((ParallelResolver)parallelResolver).reset();
             }
