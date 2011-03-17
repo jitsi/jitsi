@@ -12,7 +12,6 @@ import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.security.cert.*;
 import java.security.interfaces.*;
 import java.text.*;
@@ -113,20 +112,60 @@ public class CertificateVerificationServiceImpl
     }
 
     /**
+     * Add a certificate to the local trust store.
+     *
+     * @param cert The certificate to add to the trust store.
+     * @param trustMode Whether to trust the certificate permanently
+     *  or only for the current session.
+     * @throws GeneralSecurityException
+     */
+    public void addCertificateToTrust(X509Certificate cert, int trustMode)
+        throws GeneralSecurityException
+    {
+        switch (trustMode)
+        {
+            case TRUST_ALWAYS:
+                try
+                {
+                    KeyStore kStore = getKeyStore();
+                    synchronized (kStore)
+                    {
+                        kStore.setCertificateEntry(
+                            String.valueOf(System.currentTimeMillis()), cert);
+
+                        kStore.store(new FileOutputStream(getKeyStoreLocation()),
+                            defaultPassword);
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.error("cannot add certificate to truststore", e);
+                }
+                break;
+            case TRUST_THIS_SESSION_ONLY:
+                temporalyAllowed.add(cert);
+                break;
+            default:
+                throw new GeneralSecurityException(
+                    "Cannot add a certificate to truststore "
+                        + "when no trust is requested.");
+        }
+    }
+
+    /**
      * Checks does the user trust the supplied chain of certificates, when
      * connecting to the server and port.
      *
      * @param   chain the chain of the certificates to check with user.
-     * @param   toHost the host we are connecting.
-     * @param   toPort the port used when connecting.
+     * @param   message A text that describes why the verification failed.
      * @return  the result of user interaction on of DO_NOT_TRUST, TRUST_ALWAYS,
      *          TRUST_THIS_SESSION_ONLY.
      */
-    public int verify(
-        final X509Certificate[] chain, final String toHost, final int toPort)
+    protected int verify(
+        final X509Certificate[] chain, final String message)
     {
         final VerifyCertificateDialog dialog = new VerifyCertificateDialog(
-                        chain, toHost, toPort);
+                        chain, message);
         try
         {
             // show the dialog in the swing thread and wait for the user
@@ -154,6 +193,9 @@ public class CertificateVerificationServiceImpl
 
                 synchronized(kStore)
                 {
+                    // TODO this is potentially dangerous and not what the user
+                    // wanted (e.g. trusting a complete fraud CA instead of only
+                    // trusting one single certificate
                     for (X509Certificate c : chain)
                         kStore.setCertificateEntry(
                             String.valueOf(System.currentTimeMillis()), c);
@@ -182,13 +224,12 @@ public class CertificateVerificationServiceImpl
      * Obtain custom trust manager, which will try verify the certificate and
      * if verification fails will query the user for acceptance.
      *
-     * @param   toHost the host we are connecting.
-     * @param   toPort the port used when connecting.
+     * @param   message A text that describes why the verification failed.
      * @return the custom trust manager.
      * @throws GeneralSecurityException when there is problem creating
      *         the trust manager
      */
-    public X509TrustManager getTrustManager(String toHost, int toPort)
+    public X509TrustManager getTrustManager(String message)
         throws GeneralSecurityException
     {
         TrustManagerFactory tmFactory =
@@ -197,8 +238,7 @@ public class CertificateVerificationServiceImpl
         tmFactory.init((KeyStore)null);
 
         return new HostTrustManager(
-                    (X509TrustManager)tmFactory.getTrustManagers()[0],
-                    toHost, toPort);
+            (X509TrustManager)tmFactory.getTrustManagers()[0], message);
     }
 
     /**
@@ -208,34 +248,76 @@ public class CertificateVerificationServiceImpl
      *
      * @param   toHost the host we are connecting.
      * @param   toPort the port used when connecting.
-     * @return SSL context object
-     *
-     * @throws IOException if the SSLContext could not be initialized
+     * @return  the SSLContext
+     * @throws IOException throws exception when unable to initialize the
+     *  ssl context.
      */
     public SSLContext getSSLContext(String toHost, int toPort)
         throws IOException
     {
+        return getSSLContext(
+            CertificateVerificationActivator.getResources().
+                getI18NString(
+                    "service.gui.CERT_DIALOG_DESCRIPTION_TXT",
+                    new String[]{
+                        CertificateVerificationActivator.getResources()
+                            .getSettingsString("service.gui.APPLICATION_NAME"),
+                        toHost,
+                        Integer.toString(toPort)
+                    }
+                )
+            );
+    }
+
+    /**
+     * Returns SSLContext instance initialized with the custom trust manager,
+     * which will try verify the certificate and if verification fails
+     * will query the user for acceptance.
+     *
+     * @param message The message to show on the verification GUI if necessary
+     * @return  the SSLContext
+     * @throws IOException throws exception when unable to initialize the
+     *  ssl context.
+     */
+    public SSLContext getSSLContext(String message)
+        throws IOException
+    {
         try
         {
-            SSLContext sslContext;
-            sslContext = SSLContext.getInstance("TLS");
-            String algorithm = KeyManagerFactory.getDefaultAlgorithm();
-            TrustManagerFactory tmFactory =
-                TrustManagerFactory.getInstance(algorithm);
-            KeyManagerFactory kmFactory =
-                KeyManagerFactory.getInstance(algorithm);
-            SecureRandom secureRandom   = new SecureRandom();
-            secureRandom.nextInt();
+            KeyStore ks = KeyStore.getInstance(
+                    System.getProperty(
+                            "javax.net.ssl.keyStoreType",
+                            KeyStore.getDefaultType()
+                        )
+                );
+            KeyManagerFactory kmFactory = KeyManagerFactory.getInstance(
+                    KeyManagerFactory.getDefaultAlgorithm()
+            );
 
-            // init the default truststore
-            tmFactory.init((KeyStore)null);
-            kmFactory.init(null, null);
+            String keyStorePassword = System.getProperty("javax.net.ssl.keyStorePassword");
+            if(System.getProperty("javax.net.ssl.keyStore") != null)
+            {
+                ks.load(
+                        new FileInputStream(System.getProperty("javax.net.ssl.keyStore")),
+                        null
+                    );
+            }
+            else
+            {
+                ks.load(null, null);
+            }
 
-            sslContext.init(kmFactory.getKeyManagers(),
-                new TrustManager[]{new HostTrustManager(
-                    (X509TrustManager)tmFactory.getTrustManagers()[0],
-                    toHost, toPort)}
-                , secureRandom);
+            kmFactory.init(
+                    ks,
+                    keyStorePassword == null ? null : keyStorePassword.toCharArray()
+                );
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(
+                    kmFactory.getKeyManagers(),
+                    new TrustManager[]{getTrustManager(message)},
+                    null
+                );
 
             return sslContext;
         } catch (Exception e)
@@ -322,14 +404,9 @@ public class CertificateVerificationServiceImpl
         Certificate cert;
 
         /**
-         * The host we are connecting to.
+         * A text that describes why the verification failed.
          */
-        String host;
-
-        /**
-         * The port we use.
-         */
-        int port;
+        String message;
 
         /**
          * The certificate panel.
@@ -369,12 +446,10 @@ public class CertificateVerificationServiceImpl
          * Creates the dialog.
          *
          * @param certs the certificates list
-         * @param host the host
-         * @param port the port
+         * @param message A text that describes why the verification failed.
          */
         public VerifyCertificateDialog( Certificate[] certs,
-                                        String host,
-                                        int port)
+                                        String message)
         {
             super(false);
 
@@ -384,8 +459,7 @@ public class CertificateVerificationServiceImpl
 
             // for now shows only the first certificate from the chain
             this.cert = certs[0];
-            this.host = host;
-            this.port = port;
+            this.message = message;
 
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
@@ -414,20 +488,11 @@ public class CertificateVerificationServiceImpl
             imgLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             northPanel.add(imgLabel, BorderLayout.WEST);
 
-            String descriptionTxt = CertificateVerificationActivator
-                .getResources().getI18NString(
-                    "service.gui.CERT_DIALOG_DESCRIPTION_TXT",
-                    new String[]{
-                        CertificateVerificationActivator.getResources()
-                        .getSettingsString("service.gui.APPLICATION_NAME"),
-                        host,
-                        String.valueOf(port)});
-
             StyledHTMLEditorPane descriptionPane = new StyledHTMLEditorPane();
             descriptionPane.setOpaque(false);
             descriptionPane.setEditable(false);
             descriptionPane.setContentType("text/html");
-            descriptionPane.setText(descriptionTxt);
+            descriptionPane.setText(message);
             descriptionPane.setSize(
                         new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
             int height = descriptionPane.getPreferredSize().height;
@@ -1003,14 +1068,10 @@ public class CertificateVerificationServiceImpl
         implements X509TrustManager
     {
         /**
-         * The address we connect to.
+         * A text displayed on the gui that describes why the
+         * verification failed.
          */
-        String address;
-
-        /**
-         * The port we connect to.
-         */
-        int port;
+        String message;
 
         /**
          * The default trust manager.
@@ -1020,23 +1081,20 @@ public class CertificateVerificationServiceImpl
         /**
          * Creates the custom trust manager.
          * @param tm the default trust manager.
-         * @param address the address we are connecting to.
-         * @param port the port.
          */
-        HostTrustManager(X509TrustManager tm, String address, int port)
+        private HostTrustManager(X509TrustManager tm, String message)
         {
             this.tm = tm;
-            this.port = port;
-            this.address = address;
+            this.message = message;
         }
 
         /**
-         * Not used.
+         * Not used, returns an empty array.
          * @return UnsupportedOperationException
          */
         public X509Certificate[] getAcceptedIssuers()
         {
-            throw new UnsupportedOperationException();
+            return new X509Certificate[]{};
         }
 
         /**
@@ -1049,7 +1107,22 @@ public class CertificateVerificationServiceImpl
         public void checkClientTrusted(X509Certificate[] chain, String authType)
             throws CertificateException
         {
-            throw new UnsupportedOperationException();
+            if(CertificateVerificationActivator.getConfigurationService()
+                    .getBoolean(CertificateVerificationService
+                        .ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
+                        false))
+            {
+                return;
+            }
+
+            try
+            {
+                tm.checkClientTrusted(chain, authType);
+                // everything is fine certificate is globally trusted
+            } catch (CertificateException certificateException)
+            {
+                checkLocalTrust(chain, authType, certificateException);
+            }
         }
 
         /**
@@ -1084,44 +1157,52 @@ public class CertificateVerificationServiceImpl
             }
             catch (CertificateException certificateException)
             {
-                KeyStore kStore = getKeyStore();
+                checkLocalTrust(chain, authType, certificateException);
+            }
+        }
+        
+        private void checkLocalTrust(X509Certificate[] chain,
+                                    String authType,
+                                    CertificateException certificateException)
+            throws CertificateException
+        {
+            KeyStore kStore = getKeyStore();
 
-                if(kStore == null)
-                    throw certificateException;
+            if(kStore == null)
+                throw certificateException;
 
-                try
+            try
+            {
+                for (int i = 0; i < chain.length; i++)
                 {
-                    for (int i = 0; i < chain.length; i++)
+                    X509Certificate c = chain[i];
+
+                    // check for temporaly allowed certs
+                    if(temporalyAllowed.contains(c))
                     {
-                        X509Certificate c = chain[i];
-
-                        // check for temporaly allowed certs
-                        if(temporalyAllowed.contains(c))
-                        {
-                            return;
-                        }
-
-                        // now check for permanent allow of certs
-                        String alias = kStore.getCertificateAlias(c);
-                        if(alias != null)
-                        {
-                            return;
-                        }
+                        return;
                     }
 
-                    if(verify(chain, address, port)
-                        == CertificateVerificationService.DO_NOT_TRUST)
+                    // now check for permanent allow of certs
+                    String alias = kStore.getCertificateAlias(c);
+                    if(alias != null)
                     {
-                        throw certificateException;
+                        return;
                     }
-                } catch (Throwable e)
-                {
-                    // something happend
-                    logger.error("Error trying to " +
-                        "show certificate to user", e);
+                }
 
+                if(verify(chain, message)
+                    == CertificateVerificationService.DO_NOT_TRUST)
+                {
                     throw certificateException;
                 }
+            } catch (Throwable e)
+            {
+                // something happend
+                logger.error("Error trying to " +
+                    "show certificate to user", e);
+
+                throw certificateException;
             }
         }
     }

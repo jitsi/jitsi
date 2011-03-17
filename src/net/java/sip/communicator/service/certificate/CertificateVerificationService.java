@@ -42,28 +42,26 @@ public interface CertificateVerificationService
     public static int TRUST_THIS_SESSION_ONLY = 2;
 
     /**
-     * Checks does the user trust the supplied chain of certificates, when
-     * connecting to the server and port. If needed shows dialog to confirm.
-     *
-     * @param   chain the chain of the certificates to check with user.
-     * @param   toHost the host we are connecting.
-     * @param   toPort the port used when connecting.
-     * @return  the result of user interaction on of DO_NOT_TRUST, TRUST_ALWAYS,
-     *          TRUST_THIS_SESSION_ONLY.
+     * Add a certificate to the local trust store.
+     * 
+     * @param cert The certificate to add to the trust store.
+     * @param trustMode Whether to trust the certificate permanently
+     *  or only for the current session.
+     * @throws GeneralSecurityException
      */
-    public int verify(X509Certificate[] chain, String toHost, int toPort);
+    public void addCertificateToTrust(X509Certificate cert, int trustMode)
+        throws GeneralSecurityException;
 
     /**
-     * Obtain custom trust manager, which will try verify the certificate and
-     * if verification fails will query the user for acceptance.
-     *
-     * @param   toHost the host we are connecting.
-     * @param   toPort the port used when connecting.
+     * Obtain custom trust manager, which tries to verify the certificate and
+     * queries the user for acceptance when verification fails.
+     * 
+     * @param   message A text that describes why the verification failed.
      * @return the custom trust manager.
-     * @throws GeneralSecurityException when there is problem creating
+     * @throws GeneralSecurityException when there was a problem creating
      *         the trust manager
      */
-    public X509TrustManager getTrustManager(String toHost, int toPort)
+    public X509TrustManager getTrustManager(String message)
         throws GeneralSecurityException;
 
     /**
@@ -78,5 +76,18 @@ public interface CertificateVerificationService
      *  ssl context.
      */
     public SSLContext getSSLContext(String toHost, int toPort)
+        throws IOException;
+
+    /**
+     * Returns SSLContext instance initialized with the custom trust manager,
+     * which will try verify the certificate and if verification fails
+     * will query the user for acceptance.
+     *
+     * @param message The message to show on the verification GUI if necessary
+     * @return  the SSLContext
+     * @throws IOException throws exception when unable to initialize the
+     *  ssl context.
+     */
+    public SSLContext getSSLContext(String message)
         throws IOException;
 }

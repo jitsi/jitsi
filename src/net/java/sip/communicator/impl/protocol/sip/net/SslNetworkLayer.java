@@ -156,7 +156,15 @@ public class SslNetworkLayer
         String address, int port)
         throws IOException
     {
-        return getSSLContext(address, port).getServerSocketFactory();
+        return getSSLContext(SipActivator.getResources().
+                getI18NString(
+                    "service.gui.CERT_DIALOG_CLIENT_DESCRIPTION_TXT",
+                    new String[]
+                    {
+                        SipActivator.getResources()
+                            .getSettingsString("service.gui.APPLICATION_NAME")
+                    })
+                ).getServerSocketFactory();
     }
 
     /**
@@ -192,11 +200,32 @@ public class SslNetworkLayer
                     tmFactory.getTrustManagers(), secureRandom);
 
                 return sslContext;
-            } catch (Throwable e)
+            }
+            catch (Throwable e)
             {
                 throw new IOException("Cannot init SSLContext: " +
                     e.getMessage());
             }
+        }
+    }
+    
+    /**
+     * Creates the ssl context used to create ssl socket factories. Used
+     * to install our custom trust manager which knows the address
+     * we are connecting to.
+     * @param message the message to show on the verification GUI
+     * @return the ssl context.
+     * @throws IOException problem creating ssl context.
+     */
+    private SSLContext getSSLContext(String message)
+        throws IOException
+    {
+        if(certificateVerification != null)
+            return certificateVerification.getSSLContext(message);
+        else
+        {
+            //goes to the non-service case which doesn't use the a message/port
+        	return getSSLContext(null, 0);
         }
     }
 

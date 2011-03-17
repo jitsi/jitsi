@@ -25,7 +25,7 @@ public class CertificateVerificationActivator
     /**
      * The bundle context for this bundle.
      */
-    static BundleContext bundleContext;
+    protected static BundleContext bundleContext;
 
     /**
      * The configuration service.

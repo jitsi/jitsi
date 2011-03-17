@@ -770,8 +770,16 @@ public class ProtocolProviderServiceJabberImpl
             {
                 connection.setCustomTrustManager(
                     new HostTrustManager(gvs.getTrustManager(
-                        address,
-                        serverPort)));
+                        JabberActivator.getResources().getI18NString(
+                            "service.gui.CERT_DIALOG_DESCRIPTION_TXT",
+                            new String[]{ JabberActivator.getResources().
+                                getSettingsString(
+                                        "service.gui.APPLICATION_NAME"),
+                                address, Integer.toString(serverPort)
+                            }
+                        )
+                    )
+                ));
             }
         }
         catch(GeneralSecurityException e)
