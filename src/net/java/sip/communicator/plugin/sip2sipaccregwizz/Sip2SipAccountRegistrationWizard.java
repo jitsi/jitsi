@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.sip2sipaccregwizz;
 
+import java.util.*;
+
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
 
@@ -48,16 +50,50 @@ public class Sip2SipAccountRegistrationWizard
     public Sip2SipAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         super(wizardContainer);
+    }
 
+    /**
+     * Returns the set of pages contained in this wizard.
+     * @return Iterator
+     */
+    public Iterator<WizardPage> getPages()
+    {
+        SIPAccountRegistration reg = new SIPAccountRegistration();
+
+        setPredefinedProperties(reg);
+
+        return getPages(reg);
+    }
+
+    /**
+     * Returns the simple form.
+     * @return the simple form
+     */
+    public Object getSimpleForm()
+    {
+        SIPAccountRegistration reg = new SIPAccountRegistration();
+
+        setPredefinedProperties(reg);
+
+        return getSimpleForm(reg);
+    }
+
+    /**
+     * Sets all predefined properties specific for this account wizard.
+     *
+     * @param reg the registration object
+     */
+    private void setPredefinedProperties(SIPAccountRegistration reg)
+    {
         // set default proxy, common for sip2sip
-        getRegistration().setProxy("proxy.sipthor.net");
-        getRegistration().setKeepAliveMethod("NONE");
-        getRegistration().setDefaultKeepAliveMethod("NONE");
-        getRegistration().setDefaultDomain("sip2sip.info");
-        getRegistration().setXCapEnable(true);
-        getRegistration().setXCapServerUri(
+        reg.setProxy("proxy.sipthor.net");
+        reg.setKeepAliveMethod("NONE");
+        reg.setDefaultKeepAliveMethod("NONE");
+        reg.setDefaultDomain("sip2sip.info");
+        reg.setXCapEnable(true);
+        reg.setXCapServerUri(
                 "https://xcap.sipthor.net/xcap-root@sip2sip.info");
-        getRegistration().setXCapUseSipCredetials(true);
+        reg.setXCapUseSipCredetials(true);
     }
 
     /**

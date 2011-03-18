@@ -7,10 +7,6 @@
 package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.awt.*;
-import java.util.*;
-import java.util.List;
-
-import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -34,19 +30,13 @@ public class FirstWizardPage
 
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    private final AccountPanel accountPanel;
-
-    private final ConnectionPanel connectionPanel;
-
-    private final IceConfigPanel iceConfigPanel;
-
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
 
     private final JabberAccountRegistrationWizard wizard;
 
-    private boolean isCommitted = false;
+    private final JabberAccountRegistrationForm registrationForm;
 
-    private boolean isServerOverridden = false;
+    private boolean isCommitted = false;
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
@@ -59,31 +49,9 @@ public class FirstWizardPage
 
         this.wizard = wizard;
 
-        accountPanel = new AccountPanel(this);
-        connectionPanel = new ConnectionPanel(wizard);
-        iceConfigPanel = new IceConfigPanel();
+        this.registrationForm = new JabberAccountRegistrationForm(wizard);
 
-        this.init();
-    }
-
-    /**
-     * Initializes all panels, buttons, etc.
-     */
-    private void init()
-    {
-        JTabbedPane tabbedPane = new SIPCommTabbedPane();
-
-        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        tabbedPane.addTab(  Resources.getString("service.gui.ACCOUNT"),
-                            accountPanel);
-        tabbedPane.addTab(  Resources.getString("service.gui.CONNECTION"),
-                            connectionPanel);
-        tabbedPane.addTab(  Resources.getString("service.gui.ADVANCED"),
-                            iceConfigPanel);
-
-        add(tabbedPane, BorderLayout.NORTH);
-        tabbedPane.setSelectedIndex(0);
+        this.add(registrationForm);
     }
 
     /**
@@ -128,6 +96,8 @@ public class FirstWizardPage
      */
     public Object getWizardForm()
     {
+        registrationForm.init();
+
         return this;
     }
 
@@ -137,7 +107,7 @@ public class FirstWizardPage
      */
     public void pageShowing()
     {
-        this.setNextButtonAccordingToUserIDAndResource();
+        wizard.getWizardContainer().setBackButtonEnabled(false);
     }
 
     /**
@@ -145,93 +115,12 @@ public class FirstWizardPage
      */
     public void commitPage()
     {
-        JabberAccountRegistration registration = wizard.getRegistration();
-
-        String userID = accountPanel.getUsername();
-
-        if(userID == null || userID.trim().length() == 0)
-            throw new IllegalStateException("No user ID provided.");
-
-        registration.setUserID(userID);
-        registration.setPassword(new String(accountPanel.getPassword()));
-        registration.setRememberPassword(accountPanel.isRememberPassword());
-
-        registration.setServerAddress(connectionPanel.getServerAddress());
-        registration.setSendKeepAlive(connectionPanel.isSendKeepAlive());
-        registration.setGmailNotificationEnabled(
-            connectionPanel.isGmailNotificationsEnabled());
-        registration.setResource(connectionPanel.getResource());
-
-        String serverPort = connectionPanel.getServerPort();
-        if (serverPort != null)
-            registration.setPort(Integer.parseInt(serverPort));
-
-        String priority = connectionPanel.getPriority();
-        if (priority != null)
-            registration.setPriority(Integer.parseInt(priority));
-
-        registration.setUseIce(iceConfigPanel.isUseIce());
-        registration.setAutoDiscoverStun(iceConfigPanel.isAutoDiscoverStun());
-        registration.setUseDefaultStunServer(
-                iceConfigPanel.isUseDefaultStunServer());
-
-        //we will be reentering all stun servers so let's make sure we clear
-        //the servers vector in case we already did that with a "Next".
-        registration.getAdditionalStunServers().clear();
-
-        List<StunServerDescriptor> stunServers
-            = iceConfigPanel.getAdditionalStunServers();
-
-        for (StunServerDescriptor descriptor : stunServers)
-            registration.addStunServer(descriptor);
-
-        registration.setUseJingleNodes(iceConfigPanel.isUseJingleNodes());
-        registration.setAutoDiscoverJingleNodes(
-                iceConfigPanel.isAutoDiscoverJingleNodes());
-
-        //we will be reentering all Jingle nodes so let's make sure we clear
-        //the servers vector in case we already did that with a "Next".
-        registration.getAdditionalJingleNodes().clear();
-
-        List<JingleNodeDescriptor> jingleNodes
-            = iceConfigPanel.getAdditionalJingleNodes();
-
-        for (JingleNodeDescriptor descriptor : jingleNodes)
-            registration.addJingleNodes(descriptor);
-
-        registration.setUseUPNP(iceConfigPanel.isUseUPNP());
+        isCommitted
+            = registrationForm.commitPage(wizard.getRegistration());
 
         nextPageIdentifier = SUMMARY_PAGE_IDENTIFIER;
-
-        this.isCommitted = true;
     }
 
-    /**
-     * Enables or disables the "Next" wizard button according to whether the
-     * UserID field is empty.
-     */
-    void setNextButtonAccordingToUserIDAndResource()
-    {
-        boolean nextFinishButtonEnabled = false;
-
-        String userID = accountPanel.getUsername();
-        if ((userID != null) && !userID.equals(""))
-        {
-            String resource = connectionPanel.getResource();
-            if ((resource != null) && !resource.equals(""))
-            {
-                nextFinishButtonEnabled = true;
-            }
-        }
-
-        wizard
-            .getWizardContainer()
-                .setNextFinishButtonEnabled(nextFinishButtonEnabled);
-    }
-
-    /**
-     * Dummy implementation
-     */
     public void pageHiding() {}
 
     /**
@@ -253,139 +142,8 @@ public class FirstWizardPage
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-        AccountID accountID = protocolProvider.getAccountID();
-        Map<String, String> accountProperties
-            = accountID.getAccountProperties();
-
-        String password =
-            JabberAccRegWizzActivator.getJabberProtocolProviderFactory()
-                .loadPassword(accountID);
-
-        accountPanel.setRememberPassword(false);
-        accountPanel.setUsername(accountID.getUserID());
-
-        if (password != null)
-        {
-            accountPanel.setPassword(password);
-            accountPanel.setRememberPassword(true);
-        }
-
-        String serverAddress
-            = accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
-
-        connectionPanel.setServerAddress(serverAddress);
-
-        String serverPort
-            = accountProperties.get(ProtocolProviderFactory.SERVER_PORT);
-
-        connectionPanel.setServerPort(serverPort);
-
-        boolean keepAlive
-            = Boolean.parseBoolean(accountProperties.get("SEND_KEEP_ALIVE"));
-
-        connectionPanel.setSendKeepAlive(keepAlive);
-
-        boolean gmailNotificationEnabled
-            = Boolean.parseBoolean(
-                    accountProperties.get("GMAIL_NOTIFICATIONS_ENABLED"));
-
-        connectionPanel.setGmailNotificationsEnabled(gmailNotificationEnabled);
-
-        String resource
-            = accountProperties.get(ProtocolProviderFactory.RESOURCE);
-
-        connectionPanel.setResource(resource);
-
-        String priority
-            = accountProperties.get(ProtocolProviderFactory.RESOURCE_PRIORITY);
-
-        connectionPanel.setPriority(priority);
-
-        String useIce =
-            accountProperties.get(ProtocolProviderFactory.IS_USE_ICE);
-        boolean isUseIce = Boolean.parseBoolean(
-                (useIce != null && useIce.length() != 0) ? useIce : "true");
-
-        iceConfigPanel.setUseIce(isUseIce);
-
-        String useAutoDiscoverStun
-            = accountProperties.get(
-                    ProtocolProviderFactory.AUTO_DISCOVER_STUN);
-        boolean isUseAutoDiscoverStun = Boolean.parseBoolean(
-                (useAutoDiscoverStun != null &&
-                        useAutoDiscoverStun.length() != 0) ?
-                                useAutoDiscoverStun : "true");
-
-        iceConfigPanel.setAutoDiscoverStun(isUseAutoDiscoverStun);
-
-        String useDefaultStun
-            = accountProperties.get(
-                ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER);
-        boolean isUseDefaultStun = Boolean.parseBoolean(
-            (useDefaultStun != null &&
-                    useDefaultStun.length() != 0) ?
-                            useDefaultStun : "true");
-
-        iceConfigPanel.setUseDefaultStunServer(isUseDefaultStun);
-
-        for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
-        {
-            StunServerDescriptor stunServer
-                = StunServerDescriptor.loadDescriptor(
-                    accountProperties, ProtocolProviderFactory.STUN_PREFIX + i);
-
-            // If we don't find a stun server with the given index, it means
-            // that there're no more servers left in the table so we've nothing
-            // more to do here.
-            if (stunServer == null)
-                break;
-
-            iceConfigPanel.addStunServer(stunServer);
-        }
-
-        String useJN =
-            accountProperties.get(ProtocolProviderFactory.IS_USE_JINGLE_NODES);
-        boolean isUseJN = Boolean.parseBoolean(
-                (useJN != null && useJN.length() != 0) ? useJN : "true");
-
-        iceConfigPanel.setUseJingleNodes(isUseJN);
-
-        String useAutoDiscoverJN
-            = accountProperties.get(
-                    ProtocolProviderFactory.AUTO_DISCOVER_JINGLE_NODES);
-        boolean isUseAutoDiscoverJN = Boolean.parseBoolean(
-                (useAutoDiscoverJN != null &&
-                        useAutoDiscoverJN.length() != 0) ?
-                                useAutoDiscoverJN : "true");
-
-        iceConfigPanel.setAutoDiscoverJingleNodes(isUseAutoDiscoverJN);
-
-        for (int i = 0; i < JingleNodeDescriptor.MAX_JN_RELAY_COUNT ; i ++)
-        {
-            JingleNodeDescriptor jn
-                = JingleNodeDescriptor.loadDescriptor(
-                    accountProperties, JingleNodeDescriptor.JN_PREFIX + i);
-
-            // If we don't find a stun server with the given index, it means
-            // that there're no more servers left in the table so we've nothing
-            // more to do here.
-            if (jn == null)
-                break;
-
-            iceConfigPanel.addJingleNodes(jn);
-        }
-
-        String useUPNP =
-            accountProperties.get(ProtocolProviderFactory.IS_USE_UPNP);
-        boolean isUseUPNP = Boolean.parseBoolean(
-                (useUPNP != null && useUPNP.length() != 0) ? useUPNP : "false");
-
-        iceConfigPanel.setUseUPNP(isUseUPNP);
-
-        this.isServerOverridden
-            = accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
-                    false);
+        registrationForm.setModification(wizard.isModification());
+        registrationForm.loadAccount(protocolProvider.getAccountID());
     }
 
     /**
@@ -394,7 +152,7 @@ public class FirstWizardPage
      */
     public Object getSimpleForm()
     {
-        return accountPanel;
+        return registrationForm.getSimpleForm();
     }
 
     /**
@@ -405,28 +163,5 @@ public class FirstWizardPage
     public boolean isCommitted()
     {
         return isCommitted;
-    }
-
-    /**
-     * Parse the server part from the jabber id and set it to server as default
-     * value. If the server was overriden do nothing.
-     * @param username the username from which to extract the server address
-     */
-    void setServerFieldAccordingToUsername(String username)
-    {
-        if (!wizard.isModification() || !isServerOverridden)
-        {
-            connectionPanel.setServerAddress(
-                wizard.getServerFromUserName(username));
-        }
-    }
-
-    /**
-     * Returns the contained connection panel.
-     * @return the contained connection panel
-     */
-    ConnectionPanel getConnectionPanel()
-    {
-        return connectionPanel;
     }
 }

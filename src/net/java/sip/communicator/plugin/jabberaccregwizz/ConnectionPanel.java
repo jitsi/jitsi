@@ -19,6 +19,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class ConnectionPanel
     extends TransparentPanel
+    implements ValidatingPanel
 {
     private final TransparentPanel mainPanel = new TransparentPanel();
 
@@ -61,18 +62,19 @@ public class ConnectionPanel
     private final JTextField portField
         = new JTextField(JabberAccountRegistration.DEFAULT_PORT);
 
-    private final JabberAccountRegistrationWizard wizard;
+    private final JabberAccountRegistrationForm parentForm;
 
     /**
      * Creates an instance of <tt>ConnectionPanel</tt> by specifying the parent
      * wizard, where it's contained.
-     * @param wizard the parent wizard
+     * @param parentForm the parent form
      */
-    public ConnectionPanel(JabberAccountRegistrationWizard wizard)
+    public ConnectionPanel(JabberAccountRegistrationForm parentForm)
     {
         super(new BorderLayout());
 
-        this.wizard = wizard;
+        this.parentForm = parentForm;
+        parentForm.addValidatingPanel(this);
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -130,6 +132,10 @@ public class ConnectionPanel
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
 
         mainPanel.add(advancedOpPanel);
+
+        String serverAddress = parentForm.getServerAddress();
+        if (serverAddress != null)
+            serverField.setText(serverAddress);
 
         add(mainPanel, BorderLayout.NORTH);
     }
@@ -259,11 +265,25 @@ public class ConnectionPanel
         {
             Integer.parseInt(getServerPort());
             Integer.parseInt(getPriority());
-            wizard.getWizardContainer().setNextFinishButtonEnabled(true);
+            parentForm.reValidateInput();
         }
         catch (NumberFormatException ex)
         {
-            wizard.getWizardContainer().setNextFinishButtonEnabled(false);
+            parentForm.reValidateInput();
         }
+    }
+
+    /**
+     * Whether current inserted values into the panel are valid and enough
+     * to continue with account creation/modification.
+     * Checks whether proxy field values are ok to continue with
+     * account creating.
+     *
+     * @return whether the input values are ok to continue with account
+     * creation/modification.
+     */
+    public boolean isValidated()
+    {
+        return true;
     }
 }

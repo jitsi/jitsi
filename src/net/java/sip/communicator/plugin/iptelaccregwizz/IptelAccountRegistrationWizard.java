@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.iptelaccregwizz;
 
+import java.util.*;
+
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.service.gui.*;
 
@@ -43,9 +45,43 @@ public class IptelAccountRegistrationWizard
     public IptelAccountRegistrationWizard(WizardContainer wizardContainer)
     {
         super(wizardContainer);
+    }
 
-        getRegistration().setDefaultDomain("iptel.org");
-        getRegistration().setDefaultTransport("TCP");
+    /**
+     * Returns the set of pages contained in this wizard.
+     * @return Iterator
+     */
+    public Iterator<WizardPage> getPages()
+    {
+        SIPAccountRegistration reg = new SIPAccountRegistration();
+
+        setPredefinedProperties(reg);
+
+        return getPages(reg);
+    }
+
+    /**
+     * Returns the simple form.
+     * @return the simple form
+     */
+    public Object getSimpleForm()
+    {
+        SIPAccountRegistration reg = new SIPAccountRegistration();
+
+        setPredefinedProperties(reg);
+
+        return getSimpleForm(reg);
+    }
+
+    /**
+     * Sets all iptel specific properties.
+     *
+     * @param reg the registration object
+     */
+    private void setPredefinedProperties(SIPAccountRegistration reg)
+    {
+        reg.setDefaultDomain("iptel.org");
+        reg.setDefaultTransport("TCP");
     }
 
     /**

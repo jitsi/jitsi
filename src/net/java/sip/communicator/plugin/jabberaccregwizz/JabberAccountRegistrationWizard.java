@@ -42,11 +42,20 @@ public class JabberAccountRegistrationWizard
      */
     private static final String GOOGLE_CONNECT_SRV = "talk.google.com";
 
+    /**
+     * The first wizard page.
+     */
     private FirstWizardPage firstWizardPage;
 
-    private JabberAccountRegistration registration
-        = new JabberAccountRegistration();
+    /**
+     * The registration object, where all properties related to the account
+     * are stored.
+     */
+    private JabberAccountRegistration registration;
 
+    /**
+     * The parent wizard container.
+     */
     private final WizardContainer wizardContainer;
 
     /**
@@ -120,15 +129,27 @@ public class JabberAccountRegistrationWizard
      */
     public Iterator<WizardPage> getPages()
     {
+        return getPages(new JabberAccountRegistration());
+    }
+
+    /**
+     * Returns the set of pages contained in this wizard.
+     *
+     * @param registration the registration object
+     * @return Iterator
+     */
+    public Iterator<WizardPage> getPages(JabberAccountRegistration registration)
+    {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
 
         // create new registration, our container needs the pages
         // this means this is a new wizard and we must reset all data
         // it will be invoked and when the wizard cleans and unregister
         // our pages, but this fix don't hurt in this situation.
-        this.registration = new JabberAccountRegistration();
+        this.registration = registration;
 
-        firstWizardPage = new FirstWizardPage(this);
+        if (firstWizardPage == null)
+            firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
 
@@ -253,8 +274,16 @@ public class JabberAccountRegistrationWizard
         Hashtable<String, String> accountProperties
             = new Hashtable<String, String>();
 
-        accountProperties.put(ProtocolProviderFactory.ACCOUNT_ICON_PATH,
-            "resources/images/protocol/jabber/logo32x32.png");
+        accountProperties.put(ProtocolProviderFactory.PROTOCOL, getProtocol());
+        String protocolIconPath = getProtocolIconPath();
+        if (protocolIconPath != null)
+            accountProperties.put(  ProtocolProviderFactory.PROTOCOL_ICON_PATH,
+                                    protocolIconPath);
+
+        String accountIconPath = getAccountIconPath();
+        if (accountIconPath != null)
+            accountProperties.put(  ProtocolProviderFactory.ACCOUNT_ICON_PATH,
+                                    accountIconPath);
 
         if (registration.isRememberPassword())
         {
@@ -494,7 +523,7 @@ public class JabberAccountRegistrationWizard
      */
     public String getUserNameExample()
     {
-        return AccountPanel.USER_NAME_EXAMPLE;
+        return "Ex: johnsmith@jabber.org";
     }
 
     /**
@@ -541,7 +570,7 @@ public class JabberAccountRegistrationWizard
     public void webSignup()
     {
         JabberAccRegWizzActivator.getBrowserLauncher()
-            .openURL("http://mail.google.com/mail/signup");
+            .openURL("https://register.jabber.org/");
     }
 
     /**
@@ -565,9 +594,89 @@ public class JabberAccountRegistrationWizard
         // when creating first wizard page, create and new
         // AccountRegistration to avoid reusing old instances and
         // data left from old registrations
-        this.registration = new JabberAccountRegistration();
+        return getSimpleForm(new JabberAccountRegistration());
+    }
+
+    /**
+     * Returns the first wizard page.
+     *
+     * @param registration the registration object
+     * @return the first wizard page.
+     */
+    public Object getSimpleForm(JabberAccountRegistration registration)
+    {
+        this.registration = registration;
 
         firstWizardPage = new FirstWizardPage(this);
+
         return firstWizardPage.getSimpleForm();
+    }
+
+    /**
+     * Returns the protocol name as listed in "ProtocolNames" or just the name
+     * of the service.
+     * @return the protocol name
+     */
+    public String getProtocol()
+    {
+        return ProtocolNames.JABBER;
+    }
+
+    /**
+     * Returns the protocol icon path.
+     * @return the protocol icon path
+     */
+    public String getProtocolIconPath()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the account icon path.
+     * @return the account icon path
+     */
+    public String getAccountIconPath()
+    {
+        return null;
+    }
+
+    /**
+     * Returns an instance of <tt>CreateAccountService</tt> through which the
+     * user could create an account. This method is meant to be implemented by
+     * specific protocol provider wizards.
+     * @return an instance of <tt>CreateAccountService</tt>
+     */
+    protected JabberAccountCreationFormService getCreateAccountService()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the display label used for the jabber id field.
+     * @return the jabber id display label string.
+     */
+    protected String getUsernameLabel()
+    {
+        return Resources.getString("plugin.jabberaccregwizz.USERNAME");
+    }
+
+    /**
+     * Return the string for add existing account button.
+     * @return the string for add existing account button.
+     */
+    protected String getCreateAccountButtonLabel()
+    {
+        return Resources.getString(
+            "plugin.jabberaccregwizz.NEW_ACCOUNT_TITLE");
+    }
+
+    /**
+     * Return the string for create new account button.
+     * @return the string for create new account button.
+     */
+    protected String getCreateAccountLabel()
+    {
+        return Resources.getString(
+            "plugin.jabberaccregwizz.REGISTER_NEW_ACCOUNT_TEXT");
     }
 }

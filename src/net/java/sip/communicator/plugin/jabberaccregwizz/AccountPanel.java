@@ -20,11 +20,10 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class AccountPanel
     extends TransparentPanel
-    implements DocumentListener
+    implements  DocumentListener,
+                ValidatingPanel
 {
     private static final Logger logger = Logger.getLogger(AccountPanel.class);
-
-    public static final String USER_NAME_EXAMPLE = "Ex: johnsmith@jabber.org";
 
     private final JPanel userIDPassPanel
         = new TransparentPanel(new BorderLayout(10, 10));
@@ -33,15 +32,10 @@ public class AccountPanel
 
     private final JPanel valuesPanel = new TransparentPanel();
 
-    private final JLabel userIDLabel
-        = new JLabel(Resources.getString("plugin.jabberaccregwizz.USERNAME"));
-
     private final JLabel passLabel
         = new JLabel(Resources.getString("service.gui.PASSWORD"));
 
     private final JPanel emptyPanel = new TransparentPanel();
-
-    private final JLabel userIDExampleLabel = new JLabel(USER_NAME_EXAMPLE);
 
     private final JTextField userIDField = new TrimTextField();
 
@@ -56,26 +50,32 @@ public class AccountPanel
     private final JPanel buttonPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private final JTextArea registerArea = new JTextArea(Resources
-        .getString("plugin.jabberaccregwizz.REGISTER_NEW_ACCOUNT_TEXT"));
-
-    private final JButton registerButton = new JButton(Resources
-        .getString("plugin.jabberaccregwizz.NEW_ACCOUNT_TITLE"));
-
     private JabberNewAccountDialog jabberNewAccountDialog;
 
-    private final FirstWizardPage parentPage;
+    private final JabberAccountRegistrationForm parentForm;
 
     /**
      * Creates an instance of <tt>AccountPanel</tt> by specifying the parent
      * wizard page, where it's contained.
-     * @param parentPage the parent page where this panel is contained
+     * @param parentForm the parent form where this panel is contained
      */
-    public AccountPanel(final FirstWizardPage parentPage)
+    public AccountPanel(final JabberAccountRegistrationForm parentForm)
     {
         super(new BorderLayout());
 
-        this.parentPage = parentPage;
+        this.parentForm = parentForm;
+        this.parentForm.addValidatingPanel(this);
+
+        JLabel userIDLabel
+            = new JLabel(parentForm.getUsernameLabel());
+
+        JTextArea registerArea
+            = new JTextArea(parentForm.getCreateAccountLabel());
+
+        JButton registerButton
+            = new JButton(parentForm.getCreateAccountButtonLabel());
+
+        JLabel userIDExampleLabel = new JLabel(parentForm.getUsernameExample());
 
         labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
 
@@ -112,30 +112,28 @@ public class AccountPanel
                 if (logger.isDebugEnabled())
                     logger.debug("Reg OK");
 
-                // Open the new account dialog.
-                jabberNewAccountDialog = new JabberNewAccountDialog();
-
-                if (jabberNewAccountDialog.isOK == true)
+                if (parentForm.isWebSignupSupported())
                 {
-                    ConnectionPanel connectionPanel
-                        = parentPage.getConnectionPanel();
-
-                    if (connectionPanel != null)
-                    {
-                        connectionPanel
-                            .setServerAddress(jabberNewAccountDialog.server);
-                        connectionPanel
-                            .setServerPort(jabberNewAccountDialog.port);
-                    }
-
-                    // This userIDField contains the username "@" the server.
-                    userIDField.setText(jabberNewAccountDialog.userID + "@"
-                        + jabberNewAccountDialog.server);
-
-                    passField.setText(jabberNewAccountDialog.password);
+                    parentForm.webSignup();
                 }
-                if (logger.isDebugEnabled())
-                    logger.debug("Reg End");
+                else
+                {
+                    // Open the new account dialog.
+                    jabberNewAccountDialog = new JabberNewAccountDialog();
+
+                    if (jabberNewAccountDialog.isOK == true)
+                    {
+                        // This userIDField contains the username "@" the server.
+                        userIDField.setText(jabberNewAccountDialog.userID + "@"
+                            + jabberNewAccountDialog.server);
+
+                        parentForm.setServerFieldAccordingToUIN(
+                            userIDField.getText());
+                        passField.setText(jabberNewAccountDialog.password);
+                    }
+                    if (logger.isDebugEnabled())
+                        logger.debug("Reg End");
+                }
             }
         });
 
@@ -149,8 +147,8 @@ public class AccountPanel
         registerPanel.add(registerArea);
         registerPanel.add(buttonPanel);
 
-        registerPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.jabberaccregwizz.NEW_ACCOUNT_TITLE")));
+        registerPanel.setBorder(BorderFactory.createTitledBorder(
+            parentForm.getCreateAccountButtonLabel()));
 
         JPanel mainPanel = new TransparentPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -161,7 +159,6 @@ public class AccountPanel
         add(mainPanel, BorderLayout.NORTH);
     }
 
-
     /**
      * Handles the <tt>DocumentEvent</tt> triggered when user types in the
      * UserID field. Enables or disables the "Next" wizard button according to
@@ -171,9 +168,8 @@ public class AccountPanel
      */
     public void insertUpdate(DocumentEvent evt)
     {
-        parentPage.setNextButtonAccordingToUserIDAndResource();
-
-        parentPage.setServerFieldAccordingToUsername(userIDField.getText());
+        parentForm.setServerFieldAccordingToUIN(userIDField.getText());
+        parentForm.reValidateInput();
     }
 
     /**
@@ -185,9 +181,8 @@ public class AccountPanel
      */
     public void removeUpdate(DocumentEvent evt)
     {
-        parentPage.setNextButtonAccordingToUserIDAndResource();
-
-        parentPage.setServerFieldAccordingToUsername(userIDField.getText());
+        parentForm.setServerFieldAccordingToUIN(userIDField.getText());
+        parentForm.reValidateInput();
     }
 
     public void changedUpdate(DocumentEvent evt) {}
@@ -248,5 +243,18 @@ public class AccountPanel
     void setRememberPassword(boolean isRemember)
     {
         rememberPassBox.setSelected(isRemember);
+    }
+
+    /**
+     * Whether current inserted values into the panel are valid and enough
+     * to continue with account creation/modification.
+     *
+     * @return whether the input values are ok to continue with account
+     * creation/modification.
+     */
+    public boolean isValidated()
+    {
+        return userIDField.getText() != null
+                && userIDField.getText().length() > 0;
     }
 }

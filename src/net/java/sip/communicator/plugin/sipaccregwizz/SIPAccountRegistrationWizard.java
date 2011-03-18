@@ -76,7 +76,8 @@ public class SIPAccountRegistrationWizard
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
-    public byte[] getIcon() {
+    public byte[] getIcon()
+    {
         return Resources.getImage(Resources.SIP_LOGO);
     }
 
@@ -96,7 +97,8 @@ public class SIPAccountRegistrationWizard
      * method. Returns the protocol name for this wizard.
      * @return String
      */
-    public String getProtocolName() {
+    public String getProtocolName()
+    {
         return Resources.getString("plugin.sipaccregwizz.PROTOCOL_NAME");
     }
 
@@ -105,7 +107,8 @@ public class SIPAccountRegistrationWizard
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
-    public String getProtocolDescription() {
+    public String getProtocolDescription()
+    {
         return Resources.getString("plugin.sipaccregwizz.PROTOCOL_DESCRIPTION");
     }
 
@@ -113,14 +116,26 @@ public class SIPAccountRegistrationWizard
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
-    public Iterator<WizardPage> getPages() {
-        java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
-
+    public Iterator<WizardPage> getPages()
+    {
         // create new registration, our container needs the pages
         // this means this is a new wizard and we must reset all data
         // it will be invoked and when the wizard cleans and unregister
         // our pages, but this fix don't hurt in this situation.
-        this.registration = new SIPAccountRegistration();
+        return getPages(new SIPAccountRegistration());
+    }
+
+    /**
+     * Returns the set of pages contained in this wizard.
+     *
+     * @param registration the registration object
+     * @return Iterator
+     */
+    public Iterator<WizardPage> getPages(SIPAccountRegistration registration)
+    {
+        java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
+
+        this.registration = registration;
 
         // If the first wizard page was already created
         if (firstWizardPage == null)
@@ -691,10 +706,18 @@ public class SIPAccountRegistrationWizard
      */
     public Object getSimpleForm()
     {
-        // when creating first wizard page, create and new
-        // AccountRegistration to avoid reusing old instances and
-        // data left from old registrations
-        this.registration = new SIPAccountRegistration();
+        return getSimpleForm(new SIPAccountRegistration());
+    }
+
+    /**
+     * Returns the simple form.
+     *
+     * @param registration the registration object
+     * @return the simple form
+     */
+    public Object getSimpleForm(SIPAccountRegistration registration)
+    {
+        this.registration = registration;
 
         firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();

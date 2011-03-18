@@ -59,6 +59,11 @@ public class JabberAccountRegistration
     private String serverAddress;
 
     /**
+     * The default domain.
+     */
+    private String defaultUserSufix;
+
+    /**
      * The port.
      */
     private int port = new Integer(DEFAULT_PORT).intValue();
@@ -126,6 +131,11 @@ public class JabberAccountRegistration
     private boolean isUseUPNP = false;
 
     /**
+     * Indicates if the server is overriden.
+     */
+    private boolean isServerOverridden = false;
+
+    /**
      * Returns the password of the jabber registration account.
      * @return the password of the jabber registration account.
      */
@@ -169,6 +179,16 @@ public class JabberAccountRegistration
     public String getUserID()
     {
         return userID;
+    }
+
+    /**
+     * Returns the user sufix.
+     *
+     * @return the user sufix
+     */
+    public String getDefaultUserSufix()
+    {
+        return defaultUserSufix;
     }
 
     /**
@@ -223,6 +243,16 @@ public class JabberAccountRegistration
     }
 
     /**
+     * Sets the default value of the user sufix.
+     *
+     * @param userSufix the user name sufix (the domain name after the @ sign)
+     */
+    public void setDefaultUserSufix(String userSufix)
+    {
+        this.defaultUserSufix = userSufix;
+    }
+
+    /**
      * Sets the server
      *
      * @param serverAddress the IP address or FQDN of the server.
@@ -230,6 +260,26 @@ public class JabberAccountRegistration
     public void setServerAddress(String serverAddress)
     {
         this.serverAddress = serverAddress;
+    }
+
+    /**
+     * Indicates if the server address has been overridden.
+     *
+     * @return <tt>true</tt> if the server address has been overridden,
+     * <tt>false</tt> - otherwise.
+     */
+    public boolean isServerOverridden()
+    {
+        return isServerOverridden;
+    }
+
+    /**
+     * Sets <tt>isServerOverridden</tt> property.
+     * @param isServerOverridden indicates if the server is overridden
+     */
+    public void setServerOverridden(boolean isServerOverridden)
+    {
+        this.isServerOverridden = isServerOverridden;
     }
 
     /**

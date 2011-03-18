@@ -13,6 +13,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -24,6 +25,8 @@ public class GoogleTalkAccRegWizzActivator
     implements BundleActivator
 {
     public static BundleContext bundleContext;
+
+    private static ResourceManagementService resourcesService;
 
     /**
      * The <tt>Logger</tt> used by the <tt>GoogleTalkAccRegWizzActivator</tt>
@@ -108,14 +111,15 @@ public class GoogleTalkAccRegWizzActivator
     {
         return uiService;
     }
-    
+
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context.
      * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context
      */
-    public static BrowserLauncherService getBrowserLauncher() {
+    public static BrowserLauncherService getBrowserLauncher()
+    {
         if (browserLauncherService == null)
         {
             browserLauncherService =
@@ -126,5 +130,14 @@ public class GoogleTalkAccRegWizzActivator
         }
 
         return browserLauncherService;
+    }
+
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+            resourcesService =
+                ResourceManagementServiceUtils
+                    .getService(GoogleTalkAccRegWizzActivator.bundleContext);
+        return resourcesService;
     }
 }
