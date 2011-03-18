@@ -601,7 +601,8 @@ public class NetworkAddressManagerServiceImpl
                                                       byte[] userName,
                                                       byte[] password)
      {
-         InetSocketAddress srvrAddress = null;
+         String srvrAddress = null;
+         int port = 0;
 
          try
          {
@@ -610,7 +611,7 @@ public class NetworkAddressManagerServiceImpl
 
              if(srvRecord != null)
              {
-                 srvrAddress = srvRecord.getInetSocketAddress();
+                 srvrAddress = srvRecord.getTarget();
              }
 
              if(srvrAddress != null)
@@ -618,7 +619,9 @@ public class NetworkAddressManagerServiceImpl
                  //yay! we seem to have a TURN server, so we'll be using it for
                  //both TURN and STUN harvesting.
                  return new TurnCandidateHarvester(
-                             new TransportAddress(srvrAddress, Transport.UDP),
+                             new TransportAddress(srvrAddress,
+                                     srvRecord.getPort(),
+                                     Transport.UDP),
                              new LongTermCredential(userName, password));
              }
 
@@ -627,9 +630,9 @@ public class NetworkAddressManagerServiceImpl
                          STUN_SRV_NAME, Transport.UDP.toString(), domainName);
              if(srvRecord != null)
              {
-                 srvrAddress = srvRecord.getInetSocketAddress();
+                 srvrAddress = srvRecord.getTarget();
+                 port = srvRecord.getPort();
              }
-
          }
          catch (ParseException e)
          {
@@ -640,7 +643,10 @@ public class NetworkAddressManagerServiceImpl
          if(srvrAddress != null)
          {
              return new StunCandidateHarvester(
-                             new TransportAddress(srvrAddress, Transport.UDP));
+                             new TransportAddress(
+                                     srvrAddress,
+                                     port,
+                                     Transport.UDP));
          }
 
          //srvrAddress was still null. sigh ...

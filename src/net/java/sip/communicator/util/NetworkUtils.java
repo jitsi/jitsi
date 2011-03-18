@@ -802,7 +802,6 @@ public class NetworkUtils
             }
         }
 
-
         if (NetworkUtils.isValidIPAddress(hostAddress))
         {
             byte[] addr = null;

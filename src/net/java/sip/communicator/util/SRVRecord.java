@@ -6,9 +6,6 @@
  */
 package net.java.sip.communicator.util;
 
-import java.net.*;
-import java.text.*;
-
 /**
  * This class describes an DNS'S SRV record.
  *
@@ -19,7 +16,7 @@ public class SRVRecord
     /**
      * DNSJava SRVRecord.
      */
-    org.xbill.DNS.SRVRecord record;
+    private org.xbill.DNS.SRVRecord record;
 
     /**
      * Constructor.
@@ -29,20 +26,6 @@ public class SRVRecord
     public SRVRecord(org.xbill.DNS.SRVRecord record)
     {
         this.record = record;
-    }
-
-    /**
-     * Get <tt>InetSocketAddress</tt> for this record.
-     *
-     * @return <tt>InetSocketAddress</tt>
-     * @throws ParseException if an error occurred during address parsing
-     */
-    public InetSocketAddress getInetSocketAddress()
-        throws ParseException
-    {
-        InetSocketAddress address =
-            NetworkUtils.getARecord(getTarget(), getPort());
-        return address;
     }
 
     /**

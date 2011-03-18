@@ -2958,7 +2958,6 @@ public class ProtocolProviderServiceSipImpl
                             boolean srvQueryString)
             throws  ParseException
     {
-        InetSocketAddress[] socketAddresses = null;
         SRVRecord srvRecords[] = null;
 
         if(srvQueryString)
@@ -2977,20 +2976,10 @@ public class ProtocolProviderServiceSipImpl
 
         if(srvRecords != null)
         {
-            socketAddresses = new InetSocketAddress[srvRecords.length];
-
-            for(int i = 0 ; i < srvRecords.length ; i++)
-            {
-                socketAddresses[i] = srvRecords[i].getInetSocketAddress();
-            }
-        }
-
-        if(socketAddresses != null)
-        {
             ArrayList<InetSocketAddress> tempResultAddresses
                 = new ArrayList<InetSocketAddress>();
 
-            for(InetSocketAddress s : socketAddresses)
+            for(SRVRecord s : srvRecords)
             {
                 // add corresponding A and AAAA records
                 // to the host address from SRV records
@@ -2999,19 +2988,20 @@ public class ProtocolProviderServiceSipImpl
                     // as these are already resolved addresses (the SRV res.)
                     // lets get it without triggering a PTR
                     resolveAddresses(
-                        s.getAddress().getHostName(),
+                        s.getTarget(),
                         tempResultAddresses,
                         preferIPv6Addresses,
                         s.getPort());
                 }
                 catch(UnknownHostException e)
                 {
-                    logger.warn("Address unknown:" + s.getHostName(), e);
+                    logger.warn("Address unknown:" + s.getTarget(), e);
                 }
 
-                // add and every SRV address itself if not already there
+                /* add and every SRV address itself if not already there
                 if(!tempResultAddresses.contains(s))
                     tempResultAddresses.add(s);
+                */
 
                 if (logger.isTraceEnabled())
                     logger.trace("Returned SRV " + s);

@@ -53,7 +53,8 @@ public class AddressResolverImpl
             if (transport == null)
                 transport = ListeningPoint.UDP;
 
-            InetSocketAddress host = null;
+            String host = null;
+            int port = 0;
 
             // if it is a textual IP address, do no try to resolve it
             if(NetworkUtils.isValidIPAddress(hostAddress))
@@ -68,9 +69,12 @@ public class AddressResolverImpl
                     addr = NetworkUtils.strToIPv6(hostAddress);
                 }
 
-                host = new InetSocketAddress(
+                InetSocketAddress hostSocketAddress = new InetSocketAddress(
                         InetAddress.getByAddress(hostAddress, addr),
                         inputAddress.getPort());
+                return new HopImpl(hostSocketAddress.getHostName(),
+                        inputAddress.getPort(),
+                        transport);
             }
             else if (transport.equalsIgnoreCase(ListeningPoint.TLS))
             {
@@ -78,7 +82,8 @@ public class AddressResolverImpl
                         "sips", ListeningPoint.TCP, hostAddress);
                 if(srvRecord != null)
                 {
-                    host = srvRecord.getInetSocketAddress();
+                    host = srvRecord.getTarget();
+                    port = srvRecord.getPort();
                 }
             }
             else
@@ -87,7 +92,8 @@ public class AddressResolverImpl
                         "sip", transport, hostAddress);
                 if(srvRecord != null)
                 {
-                    host = srvRecord.getInetSocketAddress();
+                    host = srvRecord.getTarget();
+                    port = srvRecord.getPort();
                 }
             }
 
@@ -95,12 +101,12 @@ public class AddressResolverImpl
             {
                 if(logger.isTraceEnabled())
                     logger.trace("Returning hop as follows"
-                                    + " host= " + host.getHostName()
-                                    + " port= " + host.getPort()
+                                    + " host= " + host
+                                    + " port= " + port
                                     + " transport= " + transport);
 
                 return
-                    new HopImpl(host.getHostName(), host.getPort(), transport);
+                    new HopImpl(host, port, transport);
             }
         }
         catch (Exception ex)
