@@ -53,7 +53,7 @@ public class AddressResolverImpl
             if (transport == null)
                 transport = ListeningPoint.UDP;
 
-            InetSocketAddress host;
+            InetSocketAddress host = null;
 
             // if it is a textual IP address, do no try to resolve it
             if(NetworkUtils.isValidIPAddress(hostAddress))
@@ -74,13 +74,21 @@ public class AddressResolverImpl
             }
             else if (transport.equalsIgnoreCase(ListeningPoint.TLS))
             {
-                host = NetworkUtils.getSRVRecord(
+                SRVRecord srvRecord = NetworkUtils.getSRVRecord(
                         "sips", ListeningPoint.TCP, hostAddress);
+                if(srvRecord != null)
+                {
+                    host = srvRecord.getInetSocketAddress();
+                }
             }
             else
             {
-                host = NetworkUtils.getSRVRecord(
+                SRVRecord srvRecord = NetworkUtils.getSRVRecord(
                         "sip", transport, hostAddress);
+                if(srvRecord != null)
+                {
+                    host = srvRecord.getInetSocketAddress();
+                }
             }
 
             if (host != null)

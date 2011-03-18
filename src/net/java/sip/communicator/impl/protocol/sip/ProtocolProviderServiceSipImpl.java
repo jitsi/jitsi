@@ -2713,7 +2713,7 @@ public class ProtocolProviderServiceSipImpl
      * <tt>SRV</tt> record for <tt>address</tt> if one has been defined and the
      * A/AAAA record where it hasn't.
      * @param resultTransports the transports for the <tt>resultAddresses</tt>.
-     *
+     * @param resolveProtocol if the protocol should be resolved
      * @return the transports that is used, when the <tt>transport</tt> is with
      * value Auto we resolve the address with NAPTR query, if no NAPTR record
      * we will use the default one.
@@ -2958,17 +2958,32 @@ public class ProtocolProviderServiceSipImpl
                             boolean srvQueryString)
             throws  ParseException
     {
-        InetSocketAddress[] socketAddresses;
+        InetSocketAddress[] socketAddresses = null;
+        SRVRecord srvRecords[] = null;
 
-            if(srvQueryString)
-                socketAddresses = NetworkUtils.getSRVRecords(address);
-            else
-                socketAddresses = NetworkUtils.getSRVRecords(
+        if(srvQueryString)
+        {
+            srvRecords = NetworkUtils.getSRVRecords(address);
+        }
+        else
+        {
+            srvRecords = NetworkUtils.getSRVRecords(
                     transport.equalsIgnoreCase(ListeningPoint.TLS)
                             ? "sips" : "sip",
                     transport.equalsIgnoreCase(ListeningPoint.UDP)
                             ? ListeningPoint.UDP : ListeningPoint.TCP,
                     address);
+        }
+
+        if(srvRecords != null)
+        {
+            socketAddresses = new InetSocketAddress[srvRecords.length];
+
+            for(int i = 0 ; i < srvRecords.length ; i++)
+            {
+                socketAddresses[i] = srvRecords[i].getInetSocketAddress();
+            }
+        }
 
         if(socketAddresses != null)
         {

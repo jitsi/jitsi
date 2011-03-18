@@ -601,13 +601,17 @@ public class NetworkAddressManagerServiceImpl
                                                       byte[] userName,
                                                       byte[] password)
      {
-         InetSocketAddress srvrAddress;
+         InetSocketAddress srvrAddress = null;
 
          try
          {
-             srvrAddress = NetworkUtils.getSRVRecord(
-                          TURN_SRV_NAME, Transport.UDP.toString(), domainName);
+             SRVRecord srvRecord = NetworkUtils.getSRVRecord(
+                     TURN_SRV_NAME, Transport.UDP.toString(), domainName);
 
+             if(srvRecord != null)
+             {
+                 srvrAddress = srvRecord.getInetSocketAddress();
+             }
 
              if(srvrAddress != null)
              {
@@ -619,8 +623,13 @@ public class NetworkAddressManagerServiceImpl
              }
 
              //srvrAddres was null. try for a STUN only server.
-             srvrAddress = NetworkUtils.getSRVRecord(
+             srvRecord = NetworkUtils.getSRVRecord(
                          STUN_SRV_NAME, Transport.UDP.toString(), domainName);
+             if(srvRecord != null)
+             {
+                 srvrAddress = srvRecord.getInetSocketAddress();
+             }
+
          }
          catch (ParseException e)
          {

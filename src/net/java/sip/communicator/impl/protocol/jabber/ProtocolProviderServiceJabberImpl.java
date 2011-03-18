@@ -475,8 +475,19 @@ public class ProtocolProviderServiceJabberImpl
                 // check to see is there SRV records for this server domain
                 try
                 {
-                    InetSocketAddress[] srvAddresses = NetworkUtils
+                    InetSocketAddress[] srvAddresses = null;
+                    SRVRecord srvRecords[] = NetworkUtils
                         .getSRVRecords("xmpp-client", "tcp", serviceName);
+
+                    if(srvRecords != null)
+                    {
+                        srvAddresses = new InetSocketAddress[srvRecords.length];
+                        for(int i = 0 ; i < srvRecords.length ; i++)
+                        {
+                            srvAddresses[i] =
+                                srvRecords[i].getInetSocketAddress();
+                        }
+                    }
 
                     if(srvAddresses != null)
                     {

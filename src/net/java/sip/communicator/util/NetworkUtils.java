@@ -566,11 +566,11 @@ public class NetworkUtils
      * The records are ordered against the SRV record priority
      * @param domain the name of the domain we'd like to resolve (_proto._tcp
      * included).
-     * @return an array of InetSocketAddress containing records returned by the DNS
+     * @return an array of SRVRecord containing records returned by the DNS
      * server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      */
-    public static InetSocketAddress[] getSRVRecords(String domain)
+    public static SRVRecord[] getSRVRecords(String domain)
         throws ParseException
     {
         Record[] records = null;
@@ -589,52 +589,35 @@ public class NetworkUtils
             return null;
         }
 
-        String[][] pvhn = new String[records.length][4];
+        //String[][] pvhn = new String[records.length][4];
+        SRVRecord srvRecords[] = new SRVRecord[records.length];
+
         for (int i = 0; i < records.length; i++)
         {
-            SRVRecord srvRecord = (SRVRecord) records[i];
-            pvhn[i][0] = "" + srvRecord.getPriority();
-            pvhn[i][1] = "" + srvRecord.getWeight();
-            pvhn[i][2] = "" + srvRecord.getPort();
-            pvhn[i][3] = srvRecord.getTarget().toString();
-            if (pvhn[i][3].endsWith("."))
-            {
-                pvhn[i][3] = pvhn[i][3].substring(0, pvhn[i][3].length() - 1);
-            }
+            org.xbill.DNS.SRVRecord srvRecord =
+                (org.xbill.DNS.SRVRecord) records[i];
+            srvRecords[i] = new SRVRecord(srvRecord);
         }
 
         /* sort the SRV RRs by RR value (lower is preferred) */
-        Arrays.sort(pvhn, new Comparator<String[]>()
+        Arrays.sort(srvRecords, new Comparator<SRVRecord>()
         {
-            public int compare(String array1[], String array2[])
+            public int compare(SRVRecord obj1, SRVRecord obj2)
             {
-                return (Integer.parseInt(   array1[0])
-                        - Integer.parseInt( array2[0]));
+                return (obj1.getPriority() - obj2.getPriority());
             }
         });
-
-        /* put sorted host names in an array, get rid of any trailing '.' */
-        ArrayList<InetSocketAddress> sortedHostNames
-            = new ArrayList<InetSocketAddress>();
-        for (int i = 0; i < pvhn.length; i++)
-        {
-            InetSocketAddress address =
-                    getARecord(pvhn[i][3], Integer.valueOf(pvhn[i][2]));
-
-            if(address != null)
-                sortedHostNames.add(address);
-        }
 
         if (logger.isTraceEnabled())
         {
             logger.trace("DNS SRV query for domain " + domain + " returned:");
-            for (int i = 0; i < sortedHostNames.size(); i++)
+            for (int i = 0; i < srvRecords.length; i++)
             {
                 if (logger.isTraceEnabled())
-                    logger.trace(sortedHostNames.get(i));
+                    logger.trace(srvRecords[i]);
             }
         }
-        return sortedHostNames.toArray(new InetSocketAddress[0]);
+        return srvRecords;
     }
 
     /**
@@ -650,12 +633,12 @@ public class NetworkUtils
      * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      */
-    public static InetSocketAddress getSRVRecord(  String service,
-                                                   String proto,
-                                                   String domain)
+    public static SRVRecord getSRVRecord(String service,
+                                         String proto,
+                                         String domain)
         throws ParseException
     {
-        InetSocketAddress[] records = getSRVRecords("_" + service
+        SRVRecord[] records = getSRVRecords("_" + service
                                                  + "._" + proto
                                                  + "."  + domain);
 
@@ -678,12 +661,12 @@ public class NetworkUtils
      * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      */
-    public static InetSocketAddress[] getSRVRecords(String service,
+    public static SRVRecord[] getSRVRecords(String service,
                                                    String proto,
                                                    String domain)
         throws ParseException
     {
-        InetSocketAddress[] records = getSRVRecords("_" + service
+        SRVRecord[] records = getSRVRecords("_" + service
                                                  + "._" + proto
                                                  + "."  + domain);
 
