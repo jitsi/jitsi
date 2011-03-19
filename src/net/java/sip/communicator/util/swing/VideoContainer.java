@@ -9,19 +9,32 @@ package net.java.sip.communicator.util.swing;
 import java.awt.*;
 
 /**
- * @author Lubomir Marinov
+ * Implements a <tt>Container</tt> for video/visual <tt>Component</tt>s.
+ * <tt>VideoContainer</tt> uses {@link VideoLayout} to layout the video/visual
+ * <tt>Component</tt>s it contains. A specific <tt>Component</tt> can be
+ * displayed by default at {@link VideoLayout#CENTER_REMOTE}.
+ *
+ * @author Lyubomir Marinov
  * @author Yana Stamcheva
  */
 public class VideoContainer
     extends TransparentPanel
 {
+    /**
+     * The <tt>Component</tt> to be displayed by this <tt>VideoContainer</tt>
+     * at {@link VideoLayout#CENTER_REMOTE} when no other <tt>Component</tt> has
+     * been added to it to be displayed there. For example, the avatar of the
+     * remote peer may be displayed in place of the remote video when the remote
+     * video is not available.
+     */
     private final Component noVideoComponent;
 
     /**
-     * Creates a video container by specifying the default "no video" component.
+     * Initializes a new <tt>VideoContainer</tt> with a specific
+     * <tt>Component</tt> to be displayed when no remote video is available.
      *
-     * @param noVideoComponent the component shown when no remote video is
-     * available
+     * @param noVideoComponent the component to be displayed when no remote
+     * video is available
      */
     public VideoContainer(Component noVideoComponent)
     {
@@ -29,7 +42,7 @@ public class VideoContainer
 
         this.noVideoComponent = noVideoComponent;
 
-        this.add(this.noVideoComponent, VideoLayout.CENTER_REMOTE, -1);
+        add(this.noVideoComponent, VideoLayout.CENTER_REMOTE, -1);
         validate();
     }
 
@@ -37,6 +50,7 @@ public class VideoContainer
      * Adds the given component at the CENTER_REMOTE position in the default
      * video layout.
      *
+     * @param comp the component to add
      * @return the added component
      */
     @Override
@@ -49,16 +63,20 @@ public class VideoContainer
     /**
      * Overrides the default behavior of add in order to be sure to remove the
      * default "no video" component, when a remote video component is added.
+     *
+     * @param addedComp the component to add
+     * @param constraints
+     * @param index
      */
     @Override
     public void add(Component addedComp, Object constraints, int index)
     {
-        if (constraints.equals(VideoLayout.CENTER_REMOTE)
-            && noVideoComponent != null
-            && !addedComp.equals(noVideoComponent))
+        if (VideoLayout.CENTER_REMOTE.equals(constraints)
+                && (noVideoComponent != null)
+                && !noVideoComponent.equals(addedComp))
         {
             remove(noVideoComponent);
-            revalidate();
+            validate();
         }
 
         super.add(addedComp, constraints, index);
@@ -75,9 +93,11 @@ public class VideoContainer
     {
         super.remove(removedComp);
 
-        if (((VideoLayout) getLayout()).getComponentConstraints(removedComp)
-                    .equals(VideoLayout.CENTER_REMOTE)
-                && !removedComp.equals(noVideoComponent))
+        if (VideoLayout.CENTER_REMOTE.equals(
+                        ((VideoLayout) getLayout()).getComponentConstraints(
+                                removedComp))
+                && (noVideoComponent != null)
+                && !noVideoComponent.equals(removedComp))
         {
             add(noVideoComponent, VideoLayout.CENTER_REMOTE);
             validate();

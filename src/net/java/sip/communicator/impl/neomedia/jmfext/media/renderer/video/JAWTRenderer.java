@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
  * Implements a <tt>VideoRenderer</tt> which uses JAWT to perform native
  * painting in an AWT <tt>Canvas</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class JAWTRenderer
     extends ControlsAdapter
@@ -33,7 +33,7 @@ public class JAWTRenderer
     private static final String PLUGIN_NAME = "JAWT Renderer";
 
     /**
-     * Array of supported input formats.
+     * The array of supported input formats.
      */
     private static final Format[] SUPPORTED_INPUT_FORMATS
         = new Format[]
@@ -200,6 +200,12 @@ public class JAWTRenderer
                 @Override
                 public void removeNotify()
                 {
+                    /*
+                     * In case the associated JAWTRenderer has said that it does
+                     * not want paint events/notifications, ask it again next
+                     * time because the native handle of this Canvas may be
+                     * recreated.
+                     */
                     wantsPaint = true;
 
                     super.removeNotify();
