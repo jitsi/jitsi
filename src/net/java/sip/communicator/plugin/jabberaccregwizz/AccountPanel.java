@@ -45,10 +45,7 @@ public class AccountPanel
         .getString("service.gui.REMEMBER_PASSWORD"));
 
     private final JPanel registerPanel
-        = new TransparentPanel(new GridLayout(0, 1));
-
-    private final JPanel buttonPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+        = new TransparentPanel(new BorderLayout(5, 5));
 
     private JabberNewAccountDialog jabberNewAccountDialog;
 
@@ -68,12 +65,6 @@ public class AccountPanel
 
         JLabel userIDLabel
             = new JLabel(parentForm.getUsernameLabel());
-
-        JTextArea registerArea
-            = new JTextArea(parentForm.getCreateAccountLabel());
-
-        JButton registerButton
-            = new JButton(parentForm.getCreateAccountButtonLabel());
 
         JLabel userIDExampleLabel = new JLabel(parentForm.getUsernameExample());
 
@@ -104,6 +95,84 @@ public class AccountPanel
                 BorderFactory.createTitledBorder(
                         Resources.getString(
                                 "plugin.sipaccregwizz.USERNAME_AND_PASSWORD")));
+
+        String createAccountString = parentForm.getCreateAccountButtonLabel();
+
+        if (createAccountString != null)
+        {
+            JPanel buttonPanel
+                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+
+            buttonPanel.add(createRegisterButton(createAccountString));
+
+            registerPanel.add(buttonPanel, BorderLayout.SOUTH);
+        }
+
+        String createAccountInfoString = parentForm.getCreateAccountLabel();
+        if (createAccountInfoString != null)
+        {
+            registerPanel.add(createRegisterArea(createAccountInfoString));
+        }
+
+        JPanel mainPanel = new TransparentPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.add(userIDPassPanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+
+        if (registerPanel.getComponentCount() > 0)
+        {
+            registerPanel.setBorder(BorderFactory.createTitledBorder(""));
+
+            mainPanel.add(registerPanel);
+        }
+
+        add(mainPanel, BorderLayout.NORTH);
+    }
+
+    /**
+     * Creates the register area.
+     *
+     * @param text the text to show to the user
+     * @return the created component
+     */
+    private Component createRegisterArea(String text)
+    {
+        JEditorPane registerArea = new JEditorPane();
+
+        registerArea.setAlignmentX(JEditorPane.CENTER_ALIGNMENT);
+        registerArea.setOpaque(false);
+        registerArea.setContentType("text/html");
+        registerArea.setEditable(false);
+        registerArea.setText(text);
+        /* Display the description with the font we use elsewhere in the UI. */
+        registerArea.putClientProperty(
+                JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                true);
+        registerArea.addHyperlinkListener(new HyperlinkListener()
+            {
+                public void hyperlinkUpdate(HyperlinkEvent e)
+                {
+                    if (e.getEventType()
+                            .equals(HyperlinkEvent.EventType.ACTIVATED))
+                    {
+                        JabberAccRegWizzActivator
+                            .getBrowserLauncher().openURL(e.getURL().toString());
+                    }
+                }
+            });
+
+        return registerArea;
+    }
+
+    /**
+     * Creates the register button.
+     *
+     * @param text the text of the button
+     * @return the created component
+     */
+    private Component createRegisterButton(String text)
+    {
+        JButton registerButton = new JButton(text);
 
         registerButton.addActionListener(new ActionListener()
         {
@@ -137,26 +206,7 @@ public class AccountPanel
             }
         });
 
-        buttonPanel.add(registerButton);
-
-        registerArea.setEditable(false);
-        registerArea.setOpaque(false);
-        registerArea.setLineWrap(true);
-        registerArea.setWrapStyleWord(true);
-
-        registerPanel.add(registerArea);
-        registerPanel.add(buttonPanel);
-
-        registerPanel.setBorder(BorderFactory.createTitledBorder(
-            parentForm.getCreateAccountButtonLabel()));
-
-        JPanel mainPanel = new TransparentPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.add(userIDPassPanel);
-        mainPanel.add(Box.createVerticalStrut(10));
-        mainPanel.add(registerPanel);
-
-        add(mainPanel, BorderLayout.NORTH);
+        return registerButton;
     }
 
     /**

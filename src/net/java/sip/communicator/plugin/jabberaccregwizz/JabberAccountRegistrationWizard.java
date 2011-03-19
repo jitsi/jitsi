@@ -261,7 +261,7 @@ public class JabberAccountRegistrationWizard
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      * @throws OperationFailedException if the operation didn't succeed
      */
-    public ProtocolProviderService installAccount(
+    protected ProtocolProviderService installAccount(
         ProtocolProviderFactory providerFactory,
         String userName,
         String passwd)

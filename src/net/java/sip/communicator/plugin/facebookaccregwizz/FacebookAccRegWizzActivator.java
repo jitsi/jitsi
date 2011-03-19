@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.util.*;
 
@@ -53,6 +54,8 @@ public class FacebookAccRegWizzActivator
      * The browser launcher service.
      */
     private static BrowserLauncherService browserLauncherService;
+
+    private static ResourceManagementService resourcesService;
 
     /**
      * Starts this bundle.
@@ -165,5 +168,14 @@ public class FacebookAccRegWizzActivator
         }
 
         return browserLauncherService;
+    }
+
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+            resourcesService =
+                ResourceManagementServiceUtils
+                    .getService(FacebookAccRegWizzActivator.bundleContext);
+        return resourcesService;
     }
 }
