@@ -98,14 +98,17 @@
     <target name="-prepare-debian-sh-copy">
         <!-- Put correct version in the sip-communicator executable file -->
         <copy file="${inst.resrc}/debian/sip-communicator.sh.tmpl"
-            tofile="${inst.resrc}/debian/sip-communicator.sh"
+            tofile="${inst.resrc}/debian/${package.name}.sh"
                overwrite="true"/>
-        <replace file="${inst.resrc}/debian/sip-communicator.sh"
+        <replace file="${inst.resrc}/debian/${package.name}.sh"
             token="_SC_VERSION_"
             value="${sip-communicator.version}"/>
+        <replace file="${inst.resrc}/debian/${package.name}.sh"
+            token="_PACKAGE_NAME_"
+            value="${package.name}"/>
     </target>
     <target name="-prepare-debian-sh-homedir" if="application.home.dirname">
-        <replace file="${inst.resrc}/debian/sip-communicator.sh"
+        <replace file="${inst.resrc}/debian/_PACKAGE_NAME_.sh"
             token="net.java.sip.communicator.launcher.SIPCommunicator"
             value="-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${application.home.dirname} net.java.sip.communicator.launcher.SIPCommunicator"/>
     </target>
@@ -1188,6 +1191,9 @@
     <replace file="${inst.resrc}/debian/control"
         token="_PACKAGE_NAME_"
         value="${package.name}"/>
+    <replace file="${inst.resrc}/debian/control"
+        token="_APP_NAME_"
+        value="${application.name}"/>
 
     <!-- Prepare the rules file -->
     <copy file="${inst.resrc}/debian/rules.tmpl"
@@ -1197,6 +1203,58 @@
         token="_PACKAGE_NAME_"
         value="${package.name}"/>
     <chmod file="${inst.resrc}/debian/rules" perm="+x"/>
+
+    <!-- Prepare dirs file -->
+    <copy file="${inst.resrc}/debian/dirs.tmpl"
+        tofile="${inst.resrc}/debian/dirs"
+        overwrite="true"/>
+    <replace file="${inst.resrc}/debian/dirs"
+        token="_PACKAGE_NAME_"
+        value="${package.name}"/>
+
+    <!-- Prepare README.Debian file -->
+    <copy file="${inst.resrc}/debian/README.Debian.tmpl"
+        tofile="${inst.resrc}/debian/README.Debian"
+        overwrite="true"/>
+    <replace file="${inst.resrc}/debian/README.Debian"
+        token="_PACKAGE_NAME_"
+        value="${package.name}"/>
+    <replace file="${inst.resrc}/debian/README.Debian"
+        token="_APP_NAME_"
+        value="${application.name}"/>
+    <replace file="${inst.resrc}/debian/README.Debian"
+        token="_APP_WEB_"
+        value="${application.web}"/>
+
+    <!-- Prepare debian shortcuts -->
+    <copy file="${inst.resrc}/debian/sip-communicator.desktop.tmpl"
+        tofile="${inst.resrc}/debian/${package.name}.desktop"
+        overwrite="true"/>
+    <replace file="${inst.resrc}/debian/${package.name}.desktop"
+        token="_PACKAGE_NAME_"
+        value="${package.name}"/>
+    <replace file="${inst.resrc}/debian/${package.name}.desktop"
+        token="_APP_NAME_"
+        value="${application.name}"/>
+    <copy file="${inst.resrc}/debian/sip-communicator.menu.tmpl"
+        tofile="${inst.resrc}/debian/${package.name}.menu"
+        overwrite="true"/>
+    <replace file="${inst.resrc}/debian/${package.name}.menu"
+        token="_PACKAGE_NAME_"
+        value="${package.name}"/>
+    <replace file="${inst.resrc}/debian/${package.name}.menu"
+        token="_APP_NAME_"
+        value="${application.name}"/>
+    <!-- Prepare icon files -->
+    <copy file="${inst.resrc}/debian/sip-communicator-16.xpm"
+        tofile="${inst.resrc}/debian/${package.name}-16.xpm"
+        overwrite="true"/>
+    <copy file="${inst.resrc}/debian/sip-communicator-32.xpm"
+        tofile="${inst.resrc}/debian/${package.name}-32.xpm"
+        overwrite="true"/>
+    <copy file="${inst.resrc}/debian/sip-communicator.svg"
+        tofile="${inst.resrc}/debian/${package.name}.svg"
+        overwrite="true"/>
 
     <!-- Put the current date in the changelog -->
     <tstamp>
@@ -1270,8 +1328,15 @@
             <include name="changelog"/>
             <include name="control"/>
             <include name="rules"/>
-            <include name="sip-communicator.sh"/>
+            <include name="${package.name}.sh"/>
             <include name="felix.client.run.properties"/>
+            <include name="dirs"/>
+            <include name="README.Debian"/>
+            <include name="${package.name}.desktop"/>
+            <include name="${package.name}.menu"/>
+            <!--include name="${package.name}-16.xpm"/>
+            <include name="${package.name}-32.xpm"/>
+            <include name="${package.name}.svg"/-->
         </fileset>
     </delete>
 

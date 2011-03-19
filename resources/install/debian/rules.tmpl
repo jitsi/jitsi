@@ -45,41 +45,41 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/sip-communicator.
-	cp debian/sip-communicator-32.xpm debian/$(PACKAGE_NAME)/usr/share/pixmaps/
-	cp debian/sip-communicator-16.xpm debian/$(PACKAGE_NAME)/usr/share/pixmaps/
-	cp debian/sip-communicator.svg debian/$(PACKAGE_NAME)/usr/share/pixmaps/
-	cp debian/sip-communicator.desktop debian/$(PACKAGE_NAME)/usr/share/applications/
+	cp debian/$(PACKAGE_NAME)-32.xpm debian/$(PACKAGE_NAME)/usr/share/pixmaps/
+	cp debian/$(PACKAGE_NAME)-16.xpm debian/$(PACKAGE_NAME)/usr/share/pixmaps/
+	cp debian/$(PACKAGE_NAME).svg debian/$(PACKAGE_NAME)/usr/share/pixmaps/
+	cp debian/$(PACKAGE_NAME).desktop debian/$(PACKAGE_NAME)/usr/share/applications/
 
 	# Copy all libs 
-	cp $(BASEDIR)/lib/*.jar debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
-	cp $(BASEDIR)/resources/install/logging.properties debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
-	cp debian/felix.client.run.properties debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
-	cp -r $(BASEDIR)/lib/bundle debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
-	cp debian/update-location.properties debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/
+	cp $(BASEDIR)/lib/*.jar debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/
+	cp $(BASEDIR)/resources/install/logging.properties debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/
+	cp debian/felix.client.run.properties debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/
+	cp -r $(BASEDIR)/lib/bundle debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/
+	cp debian/update-location.properties debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/
 
 	# Copy OS specific and native libs
-	cp $(BASEDIR)/lib/os-specific/linux/*.jar debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/
+	cp $(BASEDIR)/lib/os-specific/linux/*.jar debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/
 ifeq ($(DEB_HOST_ARCH),amd64)
-	cp -r $(BASEDIR)/lib/native/linux-64 debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/native
+	cp -r $(BASEDIR)/lib/native/linux-64 debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/native
 else
-	cp -r $(BASEDIR)/lib/native/linux debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/native
+	cp -r $(BASEDIR)/lib/native/linux debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/native
 endif
 
 	# Copy SIP Communicator bundles
-	cp $(BASEDIR)/sc-bundles/*.jar debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/sc-bundles
-	cp $(BASEDIR)/sc-bundles/os-specific/linux/*.jar debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/sc-bundles
-	install -m 755 debian/sip-communicator.sh debian/$(PACKAGE_NAME)/usr/bin/sip-communicator
+	cp $(BASEDIR)/sc-bundles/*.jar debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/sc-bundles
+	cp $(BASEDIR)/sc-bundles/os-specific/linux/*.jar debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/sc-bundles
+	install -m 755 debian/$(PACKAGE_NAME).sh debian/$(PACKAGE_NAME)/usr/bin/$(PACKAGE_NAME)
 
 	# Remove all slicks, SVN info and unnecessary librairies.
-	rm debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/sc-bundles/slickless.jar
-	rm debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/sc-bundles/slick-runner.jar
-	rm debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/sc-bundles/*-slick.jar
-	rm -rf debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/native/.svn
-	rm -rf debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/bundle/.svn
-	rm debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/bundle/junit.jar
+	rm debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/sc-bundles/slickless.jar
+	rm debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/sc-bundles/slick-runner.jar
+	rm debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/sc-bundles/*-slick.jar
+	rm -rf debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/native/.svn
+	rm -rf debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/bundle/.svn
+	rm debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/bundle/junit.jar
 
 	# Make felix deploy its bundles in ~/.felix/sip-communicator.bin
-	sed -i -e "s/org.osgi.framework.storage=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" debian/$(PACKAGE_NAME)/usr/lib/sip-communicator/lib/felix.client.run.properties
+	sed -i -e "s/org.osgi.framework.storage=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" debian/$(PACKAGE_NAME)/usr/lib/$(PACKAGE_NAME)/lib/felix.client.run.properties
 
 
 # Build i386 files here.

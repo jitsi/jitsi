@@ -1,9 +1,0 @@
-sip-communicator for Debian
----------------------------
-
-The SIP Communicator is currently under active development and you may
-experience issues with this Debian package. The version you are running is
-only experimental and WILL NOT work as expected. Please refer to the SIP
-Communicator's website at http://sip-communicator.org for more information.
-
- -- Martin Andre <mandre@dev.java.net>, Mon, 25 Sep 2006 11:51:01 +0900
