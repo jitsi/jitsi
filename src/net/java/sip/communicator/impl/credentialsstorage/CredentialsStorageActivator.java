@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.credentialsstorage;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -31,16 +30,11 @@ public class CredentialsStorageActivator
      * The {@link CredentialsStorageService} implementation.
      */
     private CredentialsStorageServiceImpl impl;
-    
+
     /**
      * The {@link BundleContext}.
      */
     private static BundleContext bundleContext;
-    
-    /**
-     * The user interface service.
-     */
-    private static UIService uiService;
 
     /**
      * Starts the credentials storage service
@@ -84,20 +78,6 @@ public class CredentialsStorageActivator
         impl.stop();
         logger
             .info("The CredentialsStorageService stop method has been called.");
-    }
-
-    /**
-     * Returns a reference to an UIService implementation currently registered
-     * in the bundle context or null if no such implementation was found.
-     *
-     * @return a reference to an UIService implementation currently registered
-     * in the bundle context or null if no such implementation was found.
-     */
-    public static UIService getUIService()
-    {
-        if (uiService == null)
-            uiService = ServiceUtils.getService(bundleContext, UIService.class);
-        return uiService;
     }
 
     /**
