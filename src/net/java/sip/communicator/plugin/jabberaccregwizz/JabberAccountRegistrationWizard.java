@@ -679,4 +679,13 @@ public class JabberAccountRegistrationWizard
         return Resources.getString(
             "plugin.jabberaccregwizz.REGISTER_NEW_ACCOUNT_TEXT");
     }
+
+    /**
+     * Return the string for home page link label.
+     * @return the string for home page link label
+     */
+    protected String getHomeLinkLabel()
+    {
+        return null;
+    }
 }

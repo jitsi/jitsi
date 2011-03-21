@@ -101,10 +101,9 @@ public class AccountPanel
         String homeLinkString
             = Resources.getString("plugin.jabberaccregwizz.HOME_LINK_TEXT");
 
-        String homeLink = Resources.getSettingsString(
-                "service.gui.APPLICATION_WEB_SITE");
+        String homeLink = parentForm.getHomeLinkLabel();
 
-        if (homeLink != null && homeLink.length() > 0)
+        if (homeLink != null)
             southPanel.add( createHomeLink(homeLinkString, homeLink),
                             BorderLayout.EAST);
 

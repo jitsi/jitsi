@@ -475,4 +475,13 @@ public class JabberAccountRegistrationForm
     {
         return wizard.getCreateAccountLabel();
     }
+
+    /**
+     * Return the string for home page link label.
+     * @return the string for home page link label
+     */
+    protected String getHomeLinkLabel()
+    {
+        return wizard.getHomeLinkLabel();
+    }
 }
