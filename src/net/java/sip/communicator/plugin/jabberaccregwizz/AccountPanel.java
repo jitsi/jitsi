@@ -90,11 +90,25 @@ public class AccountPanel
 
         userIDPassPanel.add(labelsPanel, BorderLayout.WEST);
         userIDPassPanel.add(valuesPanel, BorderLayout.CENTER);
-        userIDPassPanel.add(rememberPassBox, BorderLayout.SOUTH);
         userIDPassPanel.setBorder(
                 BorderFactory.createTitledBorder(
                         Resources.getString(
                                 "plugin.sipaccregwizz.USERNAME_AND_PASSWORD")));
+
+        JPanel southPanel = new TransparentPanel(new BorderLayout());
+        southPanel.add(rememberPassBox, BorderLayout.WEST);
+
+        String homeLinkString
+            = Resources.getString("plugin.jabberaccregwizz.HOME_LINK_TEXT");
+
+        String homeLink = Resources.getSettingsString(
+                "service.gui.APPLICATION_WEB_SITE");
+
+        if (homeLink != null && homeLink.length() > 0)
+            southPanel.add( createHomeLink(homeLinkString, homeLink),
+                            BorderLayout.EAST);
+
+        userIDPassPanel.add(southPanel, BorderLayout.SOUTH);
 
         String createAccountString = parentForm.getCreateAccountButtonLabel();
 
@@ -207,6 +221,49 @@ public class AccountPanel
         });
 
         return registerButton;
+    }
+
+    /**
+     * Creates the home link label.
+     *
+     * @param homeLinkText the text of the home link
+     * @param homeLink the link
+     * @return the created component
+     */
+    private Component createHomeLink(   String homeLinkText,
+                                        final String homeLink)
+    {
+        JLabel homeLinkLabel =
+            new JLabel("<html><a href='"+ homeLink +"'>"
+                + homeLinkText + "</a></html>",
+                JLabel.RIGHT);
+
+        homeLinkLabel.setFont(homeLinkLabel.getFont().deriveFont(10f));
+        homeLinkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        homeLinkLabel.setToolTipText(
+                Resources.getString(
+                "plugin.simpleaccregwizz.SPECIAL_SIGNUP"));
+        homeLinkLabel.addMouseListener(new MouseAdapter()
+        {
+            public void mousePressed(MouseEvent e)
+            {
+                try
+                {
+                    JabberAccRegWizzActivator.getBrowserLauncher()
+                        .openURL(homeLink);
+                }
+                catch (UnsupportedOperationException ex)
+                {
+                    // This should not happen, because we check if the
+                    // operation is supported, before adding the sign
+                    // up.
+                    logger.error("The web sign up is not supported.",
+                        ex);
+                }
+            }
+        });
+
+        return homeLinkLabel;
     }
 
     /**

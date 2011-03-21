@@ -49,6 +49,17 @@ public class Resources
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
+    public static String getSettingsString(String key)
+    {
+        return getResources().getSettingsString(key);
+    }
+
+    /**
+     * Returns an internationalized string corresponding to the given key.
+     * 
+     * @param key The key of the string.
+     * @return An internationalized string corresponding to the given key.
+     */
     public static char getMnemonic(String key)
     {
         return getResources().getI18nMnemonic(key);
