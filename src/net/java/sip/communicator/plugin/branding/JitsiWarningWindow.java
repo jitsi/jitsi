@@ -170,11 +170,9 @@ public class JitsiWarningWindow
     private String getDownloadLink()
     {
         if (OSUtils.IS_WINDOWS)
-            return "http://download.sip-communicator.org/nightly/windows/";
+            return "http://download.jitsi.org/jitsi/windows/";
         else if (OSUtils.IS_MAC)
-            return "http://download.sip-communicator.org/nightly/macosx/";
-        else if (OSUtils.IS_LINUX)
-            return "http://download.sip-communicator.org/nightly/linux/";
+            return "http://download.jitsi.org/jitsi/macosx/";
 
         return "http://download.jitsi.org";
     }

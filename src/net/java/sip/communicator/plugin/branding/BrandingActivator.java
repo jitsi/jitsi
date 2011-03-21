@@ -65,10 +65,9 @@ public class BrandingActivator
         else
             welcomeWindow = null;
 
-//        TO BE ENABLED ON APPLICATION RENAME.
-//        if (getResources().getSettingsString(
-//                "service.gui.APPLICATION_NAME").equals("SIP Communicator"))
-//            new JitsiWarningWindow(null).setVisible(true);
+        if (getResources().getSettingsString(
+                "service.gui.APPLICATION_NAME").equals("SIP Communicator"))
+            new JitsiWarningWindow(null).setVisible(true);
 
         bundleContext.addBundleListener(new BundleListener()
         {
