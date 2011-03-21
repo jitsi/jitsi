@@ -56,7 +56,7 @@ public class VersionImpl
     /**
      * The default name of this application.
      */
-    public static final String DEFAULT_APPLICATION_NAME = "SIP Communicator";
+    public static final String DEFAULT_APPLICATION_NAME = "Jitsi";
 
     /**
      * The name of this application.

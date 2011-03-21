@@ -7,7 +7,7 @@
 #
 
 # sources.list setting for SIP Communicator updates.
-REPOCONFIG="deb http://download.sip-communicator.org/deb unstable/"
+REPOCONFIG="deb http://download.jitsi.org/deb unstable/"
 
 SOURCES_PREAMBLE="### THIS FILE IS AUTOMATICALLY CONFIGURED ###
 # You may comment out this entry, but any other modifications may be lost.\n"
@@ -80,7 +80,7 @@ create_sources_lists() {
 
   find_apt_sources
 
-  SOURCELIST="$APT_SOURCESDIR/sip-communicator.list"
+  SOURCELIST="$APT_SOURCESDIR/jitsi.list"
 
   # Check if the correct repository configuration is in there.
   REPOMATCH=$(grep "^[[:space:]#]*\b$REPOCONFIG\b" "$SOURCELIST" \

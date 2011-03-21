@@ -7,7 +7,7 @@
 #
 
 # sources.list setting for SIP Communicator updates.
-REPOCONFIG="deb http://download.sip-communicator.org/deb unstable/"
+REPOCONFIG="deb http://download.jitsi.org/deb unstable/"
 
 APT_CONFIG="`which apt-config 2> /dev/null`"
 
@@ -38,7 +38,7 @@ clean_sources_lists() {
 
   find_apt_sources
 
-  rm -f "$APT_SOURCESDIR/sip-communicator.list"
+  rm -f "$APT_SOURCESDIR/jitsi.list"
 }
 
 # Remove any SIP Communicator repository added by the package.

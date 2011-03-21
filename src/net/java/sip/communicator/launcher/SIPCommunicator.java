@@ -36,6 +36,19 @@ public class SIPCommunicator
             "net.java.sip.communicator.SC_HOME_DIR_NAME";
 
     /**
+     * The currently active name.
+     */
+    private static String overridableDirName = "Jitsi";
+
+    /**
+     * Legacy home directory names that we can use if current dir name
+     * is the crrently active name (overridableDirName).
+     */
+    private static String[] legacyDirNames =
+        {".sip-communicator", "SIP Communicator"};
+
+
+    /**
      * Starts the SIP Communicator.
      *
      * @param args command line args if any
@@ -198,6 +211,34 @@ public class SIPCommunicator
             {
                 location = defaultLocation;
                 name = defaultName;
+            }
+
+            // if we are after app name transition SIP Communicator -> Jitsi
+            // lets use old one (in case of windows and macosx) if
+            // there is a old home directory with settings
+            if(isHomeDirnameForced
+               && name.equals(overridableDirName)
+               && !new File(location, name).isDirectory())
+            {
+                // now check whether some of the legacy dir names
+                // exists, and use it if exist
+                for(int i = 0; i < legacyDirNames.length; i++)
+                {
+                    // check the platform specific directory
+                    if(new File(location, legacyDirNames[i]).isDirectory())
+                    {
+                        name = legacyDirNames[i];
+                        break;
+                    }
+
+                    // now check it and in the default location
+                    if(new File(defaultLocation, legacyDirNames[i]).isDirectory())
+                    {
+                        name = legacyDirNames[i];
+                        location = defaultLocation;
+                        break;
+                    }
+                }
             }
 
             System.setProperty(PNAME_SC_HOME_DIR_LOCATION, location);

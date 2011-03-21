@@ -13,7 +13,7 @@
     Manufacturer="@APP_NAME@"
     Name="@APP_NAME@"
     UpgradeCode="@WIX_UPGRADE_CODE@"
-    Version="0.0.0.0">
+    Version="1.0.0.0">
 
 <Package
     Comments="@PKG_COMMENTS@"
@@ -31,8 +31,8 @@
       IncludeMaximum="yes"
       IncludeMinimum="yes"
       Language="1033"
-      Maximum="0.0.0.0"
-      Minimum="0.0.0.0"
+      Maximum="1.0.0.0"
+      Minimum="1.0.0.0"
       Property="UPGRADEFOUND" />
 </Upgrade>
 
