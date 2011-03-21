@@ -505,12 +505,11 @@ public class SavedPasswordsDialog
         private void showOrHidePasswordsProtected()
         {
             String master;
-            UIService uiService = SecurityConfigActivator.getUIService();
             boolean correct = true;
 
             do
             {
-                master = uiService.getMasterPassword(correct);
+                master = MasterPasswordInputDialog.showInput(correct);
                 if (master == null)
                     return;
                 correct

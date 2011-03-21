@@ -3,16 +3,15 @@
  * 
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.utils;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The master password input dialog.
@@ -34,7 +33,7 @@ public class MasterPasswordInputDialog
      * the localized and internationalized resources of the application.
      */
     private final ResourceManagementService resources
-        = GuiActivator.getResources();
+        = UtilActivator.getResources();
 
     /**
      * Password obtained from the user.
@@ -265,7 +264,7 @@ public class MasterPasswordInputDialog
 
         JLabel iconLabel = new JLabel();
 
-        iconLabel.setIcon(GuiActivator.getResources()
+        iconLabel.setIcon(UtilActivator.getResources()
             .getImage("service.gui.icons.AUTHORIZATION_ICON"));
 
         wrapIconPanel.add(iconLabel, BorderLayout.NORTH);

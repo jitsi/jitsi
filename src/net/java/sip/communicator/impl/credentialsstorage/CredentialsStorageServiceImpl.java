@@ -10,8 +10,8 @@ import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -22,8 +22,7 @@ import org.osgi.framework.*;
  * @author Dmitri Melnikov
  */
 public class CredentialsStorageServiceImpl
-    implements CredentialsStorageService,
-               ServiceListener
+    implements CredentialsStorageService
 {
     /**
      * The <tt>Logger</tt> used by this <tt>CredentialsStorageServiceImpl</tt>
@@ -67,16 +66,6 @@ public class CredentialsStorageServiceImpl
     private Crypto crypto;
 
     /**
-     * Whether the <tt>UIService</tt> has been registered or not.
-     */
-    private boolean uiReady = false;
-
-    /**
-     * Lock to use for waiting for <tt>UIService</tt> to be registered. 
-     */
-    private final Object uiReadyLock = new Object();
-
-    /**
      * Initializes the credentials service by fetching the configuration service
      * reference from the bundle context. Encrypts and moves all passwords to
      * new properties.
@@ -87,21 +76,15 @@ public class CredentialsStorageServiceImpl
     {
         configurationService
                 = ServiceUtils.getService(bc, ConfigurationService.class);
-        try
-        {
-            /*
-             * If a master password is set, the migration of the unencrypted
-             * passwords will have to wait for the UIService to register in
-             * order to be able to ask for the master password. But that is
-             * unreasonably late in the case of no master password.
-             */
-            if (!isUsingMasterPassword())
-                moveAllPasswordProperties();
-        }
-        finally
-        {
-            bc.addServiceListener(this);
-        }
+
+        /*
+         * If a master password is set, the migration of the unencrypted
+         * passwords will have to wait for the UIService to register in
+         * order to be able to ask for the master password. But that is
+         * unreasonably late in the case of no master password.
+         */
+        if (!isUsingMasterPassword())
+            moveAllPasswordProperties();
     }
 
     /**
@@ -436,26 +419,6 @@ public class CredentialsStorageServiceImpl
             logger.debug("Crypto instance is null, creating.");
             if (isUsingMasterPassword())
             {
-                // Wait for the UIService.
-                boolean interrupted = false;
-
-                synchronized (uiReadyLock)
-                {
-                    while (!uiReady)
-                    {
-                        try
-                        {
-                            uiReadyLock.wait();
-                        }
-                        catch (InterruptedException iex)
-                        {
-                            interrupted = true;
-                        }
-                    }
-                }
-                if (interrupted)
-                    Thread.currentThread().interrupt();
-
                 String master = showPasswordPrompt();
 
                 if (master == null)
@@ -471,6 +434,8 @@ public class CredentialsStorageServiceImpl
                      */
                     setMasterPassword(master);
                 }
+
+                moveAllPasswordProperties();
             }
             else
             {
@@ -496,7 +461,6 @@ public class CredentialsStorageServiceImpl
     private String showPasswordPrompt()
     {
         String master;
-        UIService uiService = CredentialsStorageActivator.getUIService();
 
         // Ask for master password until the input is correct or
         // cancel button is pressed and null returned
@@ -504,7 +468,7 @@ public class CredentialsStorageServiceImpl
 
         do
         {
-            master = uiService.getMasterPassword(correct);
+            master = MasterPasswordInputDialog.showInput(correct);
             if (master == null)
                 return null;
             correct = ((master.length() != 0) && verifyMasterPassword(master));
@@ -587,36 +551,5 @@ public class CredentialsStorageServiceImpl
     {
         configurationService.setProperty(
                 accountPrefix + "." + ACCOUNT_UNENCRYPTED_PASSWORD, value);
-    }
-
-    /**
-     * Starts the password migration when the <tt>UIService</tt> is registered.
-     *
-     * @param event a <tt>ServiceEvent</tt> which carries the specifics of the
-     * service change
-     */
-    public void serviceChanged(ServiceEvent event)
-    {
-        if (!uiReady && (event.getType() == ServiceEvent.REGISTERED))
-        {
-            Object service
-                = CredentialsStorageActivator.getService(
-                        event.getServiceReference());
-
-            if (service instanceof UIService)
-            {
-                uiReady = true;
-                /*
-                 * XXX Wake up everyone blocked on uiReadyLock prior to
-                 * moveAllPasswordProperties() in order to avoid dealocks.
-                 */
-                synchronized (uiReadyLock)
-                {
-                    uiReadyLock.notifyAll();
-                }
-
-                moveAllPasswordProperties();
-            }
-        }
     }
 }

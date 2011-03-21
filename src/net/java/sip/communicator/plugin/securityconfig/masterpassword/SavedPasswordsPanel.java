@@ -74,12 +74,11 @@ public class SavedPasswordsPanel
     private void showSavedPasswordsDialog()
     {
         String master;
-        UIService uiService = SecurityConfigActivator.getUIService();
         boolean correct = true;
 
         do
         {
-            master = uiService.getMasterPassword(correct);
+            master = MasterPasswordInputDialog.showInput(correct);
             if (master == null)
                 return;
             correct
