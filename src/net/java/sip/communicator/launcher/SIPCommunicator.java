@@ -186,7 +186,7 @@ public class SIPCommunicator
                             + "Library" + File.separator
                             + "Application Support";
                 if (name == null)
-                    name = "SIP Communicator";
+                    name = "Jitsi";
             }
             else if (osName.startsWith("Windows"))
             {
@@ -199,7 +199,7 @@ public class SIPCommunicator
                 if (location == null)
                     location = System.getenv("APPDATA");
                 if (name == null)
-                    name = "SIP Communicator";
+                    name = "Jitsi";
             }
 
             /* If there're no OS specifics, use the defaults. */
