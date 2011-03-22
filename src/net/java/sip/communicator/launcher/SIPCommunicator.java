@@ -168,7 +168,15 @@ public class SIPCommunicator
         if ((location == null) || (name == null))
         {
             String defaultLocation = System.getProperty("user.home");
-            String defaultName = ".sip-communicator";
+            String defaultName = ".jitsi";
+
+            // Whether we should check legacy names
+            // 1) when such name is not forced we check
+            // 2) if such is forced and is the overridableDirName check it
+            //      (the later is the case with name transition SIP Communicator
+            //      -> Jitsi, check them only for Jitsi)
+            boolean chekLegacyDirNames = (name == null) ||
+                name.equals(overridableDirName);
 
             if (osName.startsWith("Mac"))
             {
@@ -213,11 +221,9 @@ public class SIPCommunicator
                 name = defaultName;
             }
 
-            // if we are after app name transition SIP Communicator -> Jitsi
-            // lets use old one (in case of windows and macosx) if
-            // there is a old home directory with settings
-            if(isHomeDirnameForced
-               && name.equals(overridableDirName)
+            // if we need to check legacy names and there is no
+            // current home dir already created
+            if(chekLegacyDirNames
                && !new File(location, name).isDirectory())
             {
                 // now check whether some of the legacy dir names
@@ -244,5 +250,8 @@ public class SIPCommunicator
             System.setProperty(PNAME_SC_HOME_DIR_LOCATION, location);
             System.setProperty(PNAME_SC_HOME_DIR_NAME, name);
         }
+
+        // when we end up with the home dirs, make sure we have log dir
+        new File(location, name + File.separator + "log").mkdirs();
     }
 }

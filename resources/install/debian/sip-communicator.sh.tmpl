@@ -26,9 +26,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBPATH/native
 # make LD_PRELOAD use libaoss so that java doesn't hog on the audio device.
 export LD_PRELOAD=/usr/lib/libaoss.so
 
-# create .sip-commnicator/log in home or otherwise java.util.logging will freak
-mkdir -p $HOME/.sip-communicator/log
-
 cd $SCDIR
 
 exec $COMMAND $*
