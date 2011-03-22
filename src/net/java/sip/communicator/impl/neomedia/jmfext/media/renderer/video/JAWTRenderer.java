@@ -65,7 +65,7 @@ public class JAWTRenderer
      * The indicator which determines whether <tt>CALayer</tt>-based painting is
      * to be performed by <tt>JAWTRenderer</tt> on Mac OS X.
      */
-    private static final boolean USE_MACOSX_CALAYERS = false;
+    private static final boolean USE_MACOSX_CALAYERS = true;
 
     static
     {
@@ -128,12 +128,17 @@ public class JAWTRenderer
                  * is delivered to the native counterpart of this JAWTRenderer.
                  * Anyway, do so for the sake of completeness.
                  */
-                if (JComponent.isLightweightComponent(component))
-                {
-                    Container parent = component.getParent();
-
-                    parent.remove(component);
-                }
+                /*
+                 * Unfortunately, doing so in the synchronized block leads to a
+                 * deadlock.
+                 */
+//                if (JComponent.isLightweightComponent(component))
+//                {
+//                    Container parent = component.getParent();
+//
+//                    if (parent != null)
+//                        parent.remove(component);
+//                }
             }
             finally
             {
@@ -237,30 +242,54 @@ public class JAWTRenderer
      *
      * @throws ResourceUnavailableException if there is a problem during opening
      */
-    public synchronized void open()
+    public void open()
         throws ResourceUnavailableException
     {
-        if (handle == 0)
-        {
-            /*
-             * If this JAWTRenderer gets opened after its visual/video Component
-             * has been created, send addNotify to the Component once this
-             * JAWTRenderer gets opened so that the Component may use the handle
-             * if it needs to.
-             */
-            boolean addNotify
-                = (this.component != null)
-                    && (this.component.getParent() != null);
+        boolean addNotify;
+        final Component component;
 
-            handle = open(getComponent());
+        synchronized (this)
+        {
             if (handle == 0)
             {
-                throw new ResourceUnavailableException(
-                        "Failed to open the native counterpart of JAWTRenderer");
-            }
+                /*
+                 * If this JAWTRenderer gets opened after its visual/video
+                 * Component has been created, send addNotify to the Component
+                 * once this JAWTRenderer gets opened so that the Component may
+                 * use the handle if it needs to.
+                 */
+                addNotify
+                    = (this.component != null)
+                        && (this.component.getParent() != null);
+                component = getComponent();
 
-            if (addNotify)
-                this.component.addNotify();
+                handle = open(component);
+                if (handle == 0)
+                {
+                    throw new ResourceUnavailableException(
+                            "Failed to open the native counterpart of JAWTRenderer");
+                }
+            }
+            else
+            {
+                addNotify = false;
+                component = null;
+            }
+        }
+        /*
+         * The #addNotify() invocation, if any, shoud happen outside the
+         * synchronized block in order to avoid a deadlock.
+         */
+        if (addNotify)
+        {
+            SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            component.addNotify();
+                        }
+                    });
         }
     }
 
@@ -670,6 +699,11 @@ public class JAWTRenderer
         @Override
         public void addNotify()
         {
+            Container parent = getParent();
+
+            if (parent == null)
+                return;
+
             super.addNotify();
 
             wantsPaint = true;
@@ -697,8 +731,10 @@ public class JAWTRenderer
                                     handle, this,
                                     canvasHandle);
                         }
-                        if (canvasHandle != 0)
+                        if ((canvasHandle != 0) && (this.canvas != canvas))
+                        {
                             this.canvas = canvas;
+                        }
                     }
 
                     /*
@@ -709,9 +745,7 @@ public class JAWTRenderer
                 }
             }
 
-            parent = getParent();
-            if (parent != null)
-                parent.addComponentListener(parentComponentListener);
+            parent.addComponentListener(parentComponentListener);
         }
 
         /**

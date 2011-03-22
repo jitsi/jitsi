@@ -1761,25 +1761,38 @@ public class OneToOneCallPeerPanel
                 {
                     if (isVisible)
                     {
-                        Container parent = localVideo.getParent();
-
-                        if (parent != null)
+                        if (OSUtils.IS_MAC
+                                && (localVideo instanceof JComponent))
                         {
-                            parent.remove(parent);
-                            parent.remove(closeButton);
+                            /*
+                             * There are overlapping issues on Mac OS X so we'd
+                             * better take the safest route.
+                             */
+                            handleVideoEvent(null, videoContainer);
                         }
+                        else
+                        {
+                            Container localVideoParent = localVideo.getParent();
 
-                        videoContainer.add(
-                            closeButton, VideoLayout.CLOSE_LOCAL_BUTTON, 0);
-                        videoContainer.add(localVideo, VideoLayout.LOCAL, 1);
+                            if (localVideoParent != null)
+                                localVideoParent.remove(localVideo);
+
+                            Container closeButtonParent
+                                = closeButton.getParent();
+
+                            if (closeButtonParent != null)
+                                closeButtonParent.remove(closeButton);
+
+                            videoContainer.add(localVideo, VideoLayout.LOCAL);
+                            videoContainer.add(
+                                    closeButton,
+                                    VideoLayout.CLOSE_LOCAL_BUTTON);
+                        }
                     }
                     else
                     {
-                        if (localVideo != null)
-                        {
-                            videoContainer.remove(localVideo);
-                            videoContainer.remove(closeButton);
-                        }
+                        videoContainer.remove(localVideo);
+                        videoContainer.remove(closeButton);
                     }
                 }
             }

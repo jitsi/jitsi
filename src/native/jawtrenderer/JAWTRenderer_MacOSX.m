@@ -22,6 +22,7 @@
 #import <OpenGL/OpenGL.h>
 #import <QuartzCore/CALayer.h>
 #import <QuartzCore/CAOpenGLLayer.h>
+#import <QuartzCore/CATransaction.h>
 
 #define JAWT_RENDERER_TEXTURE GL_TEXTURE_RECTANGLE_EXT
 #define JAWT_RENDERER_TEXTURE_FORMAT GL_BGRA
@@ -324,7 +325,9 @@ JAWTRenderer_processLightweightComponentEvent
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     if (renderer->layer)
+    {
         [renderer->layer setFrame:CGRectMake(x, y, width, height)];
+    }
 
     [autoreleasePool release];
 }
@@ -460,18 +463,23 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
         {
             if (subrenderers)
             {
-                NSUInteger index = 0;
-                NSUInteger count = [subrenderers count];
-
+                NSUInteger index;
+                NSUInteger count;
+                
+                index = 0;
+                count = [subrenderers count];
+                [CATransaction begin];
+                [CATransaction setValue:(id)kCFBooleanTrue
+                                 forKey:kCATransactionDisableActions];
                 while (index < count)
                 {
                     JAWTRenderer *subrenderer
                         = [subrenderers objectAtIndex:index];
-
+                    
                     @synchronized (subrenderer)
                     {
                         CALayer *sublayer = subrenderer->layer;
-
+                        
                         if (sublayer && ([sublayer superlayer] != layer))
                         {
                             [sublayer removeFromSuperlayer];
@@ -480,6 +488,7 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
                     }
                     index++;
                 }
+                [CATransaction commit];
             }
         }
 
