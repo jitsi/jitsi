@@ -27,6 +27,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Yana Stamcheva
  * @author Valentin Martinet
  * @author Adam Netocny
+ * @author Ingo Bauersachs
  */
 public class ChatContactRightButtonMenu
     extends JPopupMenu
@@ -295,7 +296,7 @@ public class ChatContactRightButtonMenu
 
             int result = new ChatOperationReasonDialog().showDialog();
 
-            if (result == 0)
+            if (result == MessageDialog.OK_RETURN_CODE)
                 new KickParticipantThread(  room,
                                             reasonDialog.getReason()).start();
         }
@@ -306,7 +307,7 @@ public class ChatContactRightButtonMenu
 
             int result = new ChatOperationReasonDialog().showDialog();
 
-            if (result == 0)
+            if (result == MessageDialog.OK_RETURN_CODE)
                 new BanParticipantThread(   room,
                                             reasonDialog.getReason()).start();
         }
@@ -328,7 +329,7 @@ public class ChatContactRightButtonMenu
 
             int result = reasonDialog.showDialog();
 
-            if (result == 0)
+            if (result == MessageDialog.OK_RETURN_CODE)
             {
                 try
                 {
@@ -358,7 +359,7 @@ public class ChatContactRightButtonMenu
 
             int result = reasonDialog.showDialog();
 
-            if (result == 0)
+            if (result == MessageDialog.OK_RETURN_CODE)
             {
                 try
                 {
