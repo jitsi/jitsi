@@ -65,7 +65,7 @@ public class JAWTRenderer
      * The indicator which determines whether <tt>CALayer</tt>-based painting is
      * to be performed by <tt>JAWTRenderer</tt> on Mac OS X.
      */
-    private static final boolean USE_MACOSX_CALAYERS = true;
+    private static final boolean USE_MACOSX_CALAYERS = false;
 
     static
     {
