@@ -147,6 +147,24 @@ void DSManager::initCaptureDevices()
         DSCaptureDevice* captureDevice = NULL;
         IPropertyBag* propertyBag = NULL;
 
+        {
+          IBaseFilter* cp = NULL;
+          if(!FAILED(moniker->BindToObject(0, 0, IID_IBaseFilter, (void**)&cp)))
+          {
+            IAMVfwCaptureDialogs* vfw = NULL;
+            if(!FAILED(
+                  cp->QueryInterface(IID_IAMVfwCaptureDialogs, (void**)&vfw)))
+            {
+              if(vfw)
+              {
+                vfw->Release();
+                cp->Release();
+                continue;
+              }
+            }
+          }
+        }
+
         /* get properties of the device */
         ret = moniker->BindToStorage(0, 0, IID_IPropertyBag, (void**)&propertyBag);
         if(!FAILED(ret))
