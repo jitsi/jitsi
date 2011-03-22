@@ -287,9 +287,10 @@ public class JabberAccountRegistrationForm
 
         connectionPanel.setGmailNotificationsEnabled(gmailNotificationEnabled);
 
-        boolean googleContactsEnabled
-            = Boolean.parseBoolean(
-                accountProperties.get("GOOGLE_CONTACTS_ENABLED"));
+	String useGC = 
+		accountProperties.get("GOOGLE_CONTACTS_ENABLED");
+        boolean googleContactsEnabled = Boolean.parseBoolean(
+		(useGC != null && useGC.length() != 0) ? useGC : "true"); 
 
         connectionPanel.setGoogleContactsEnabled(googleContactsEnabled);
 
