@@ -18,6 +18,11 @@ import javax.swing.*;
 public class VideoLayout extends FitLayout
 {
     /**
+     * The video canvas constraint.
+     */
+    public static final String CANVAS = "CANVAS";
+
+    /**
      * The center remote video constraint.
      */
     public static final String CENTER_REMOTE = "CENTER_REMOTE";
@@ -43,6 +48,22 @@ public class VideoLayout extends FitLayout
     private static final float LOCAL_TO_REMOTE_RATIO = 0.30f;
 
     /**
+     * The video canvas.
+     */
+    private Component canvas;
+
+    /**
+     * The close local video button component.
+     */
+    private Component closeButton;
+
+    /**
+     * The map of component constraints.
+     */
+    private final HashMap<Component, Object> constraints
+        = new HashMap<Component, Object>();
+
+    /**
      * The component containing the local video.
      */
     private Component local;
@@ -53,20 +74,9 @@ public class VideoLayout extends FitLayout
     private Component remote;
 
     /**
-     * The close local video button component.
-     */
-    private Component closeButton;
-
-    /**
      * The x coordinate alignment of the remote video.
      */
     private float remoteAlignmentX = Component.CENTER_ALIGNMENT;
-
-    /**
-     * A map of component constraints.
-     */
-    private HashMap<Component, Object> constraints
-        = new HashMap<Component, Object>();
 
     /**
      * Adds the given component in this layout on the specified by name
@@ -97,13 +107,11 @@ public class VideoLayout extends FitLayout
             remoteAlignmentX = Component.RIGHT_ALIGNMENT;
         }
         else if (name.equals(LOCAL))
-        {
             local = comp;
-        }
         else if (name.equals(CLOSE_LOCAL_BUTTON))
-        {
             closeButton = comp;
-        }
+        else if (name.equals(CANVAS))
+            canvas = comp;
     }
 
     /**
@@ -172,10 +180,11 @@ public class VideoLayout extends FitLayout
 
         super.layoutContainer(parent,
             (local == null) ? Component.CENTER_ALIGNMENT : remoteAlignmentX);
+        
+        Dimension parentSize = parent.getSize();
 
         if (local != null)
         {
-            Dimension parentSize = parent.getSize();
             int height = Math.round(parentSize.height * LOCAL_TO_REMOTE_RATIO);
             int width = Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO);
 
@@ -230,6 +239,15 @@ public class VideoLayout extends FitLayout
                         Component.CENTER_ALIGNMENT);
             }
         }
+
+        if (canvas != null)
+        {
+            /*
+             * The video canvas will get the locations of the other components
+             * to paint so it has to cover the parent completely.
+             */
+            canvas.setBounds(0, 0, parentSize.width, parentSize.height);
+        }
     }
 
     /**
@@ -272,5 +290,7 @@ public class VideoLayout extends FitLayout
             local = null;
         else if (closeButton == comp)
             closeButton = null;
+        else if (canvas == comp)
+            canvas = null;
     }
 }

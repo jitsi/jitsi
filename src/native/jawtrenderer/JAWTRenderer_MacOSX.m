@@ -8,9 +8,11 @@
 #include "JAWTRenderer.h"
 
 #include <jawt_md.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#import <ApplicationServices/ApplicationServices.h>
 #import <AppKit/NSView.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSAutoreleasePool.h>
@@ -60,16 +62,33 @@
     CGFloat boundsY;
 
     NSView *view;
+
+    /**
+     * The <tt>JAWTRenderer</tt>s which are to have their <tt>layer</tt>s
+     * contained in the <tt>layer</tt> of this <tt>JAWTRenderer</tt>.
+     */
+    NSMutableArray *subrenderers;
+    /**
+     * The <tt>JAWTRenderer</tt> which has this <tt>JAWTRenderer</tt> in its
+     * <tt>subrenderers</tt>.
+     */
+    JAWTRenderer *superrenderer;
 }
 
+- (void)addSubrenderer:(JAWTRenderer *)subrenderer;
 - (void)boundsDidChange:(NSNotification *)notification;
 - (void)copyCGLContext:(CGLContextObj)glContext
         forPixelFormat:(CGLPixelFormatObj)pixelFormat;
 - (void)dealloc;
 - (void)frameDidChange:(NSNotification *)notification;
 - (id)init;
+- (void)paint;
+- (void)removeFromSuperrenderer;
+- (void)removeSubrenderer:(JAWTRenderer *)subrenderer;
+- (void)removeSubrendererAtIndex:(NSUInteger)index;
 - (void)reshape;
 - (void)setLayer:(JAWTRendererCALayer *)aLayer;
+- (void)setSuperrenderer:(JAWTRenderer *)aSuperrenderer;
 - (void)setView:(NSView *)aView;
 - (void)update;
 @end /* JAWTRenderer */
@@ -86,6 +105,28 @@
 @end /* JAWTRendererCALayer */
 
 void
+JAWTRenderer_addNotifyLightweightComponent
+    (jlong handle, jobject component, jlong parentHandle)
+{
+    JAWTRenderer *renderer;
+    JAWTRenderer *parentRenderer;
+    NSAutoreleasePool *autoreleasePool;
+
+    renderer = (JAWTRenderer *) handle;
+    parentRenderer = (JAWTRenderer *) parentHandle;
+    autoreleasePool = [[NSAutoreleasePool alloc] init];
+
+    if (!(renderer->layer))
+    {
+        [renderer setLayer:[JAWTRendererCALayer layer]];
+        if (parentRenderer)
+            [parentRenderer addSubrenderer:renderer];
+    }
+
+    [autoreleasePool release];
+}
+
+void
 JAWTRenderer_close
     (JNIEnv *jniEnv, jclass clazz, jlong handle, jobject component)
 {
@@ -95,6 +136,7 @@ JAWTRenderer_close
     renderer = (JAWTRenderer *) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
+    JAWTRenderer_removeNotifyLightweightComponent(handle, component);
     [renderer release];
 
     [autoreleasePool release];
@@ -126,7 +168,6 @@ JAWTRenderer_paint
     {
         JAWTRenderer *renderer;
         NSAutoreleasePool *autoreleasePool;
-        CALayer *componentLayer;
 
         renderer = (JAWTRenderer *) handle;
         autoreleasePool = [[NSAutoreleasePool alloc] init];
@@ -158,14 +199,26 @@ JAWTRenderer_paint
             }
         }
 
-        /* Make the component and its layer paint. */
-        componentLayer = [component layer];
-        if (componentLayer)
-            [componentLayer setNeedsDisplay];
-        [component displayIfNeededIgnoringOpacity];
+        [renderer paint];
 
         [autoreleasePool release];
     }
+    return JNI_TRUE;
+}
+
+jboolean
+JAWTRenderer_paintLightweightComponent
+    (jlong handle, jobject component, jobject g)
+{
+    JAWTRenderer *renderer;
+    NSAutoreleasePool *autoreleasePool;
+
+    renderer = (JAWTRenderer *) handle;
+    autoreleasePool = [[NSAutoreleasePool alloc] init];
+
+    [renderer paint];
+
+    [autoreleasePool release];
     return JNI_TRUE;
 }
 
@@ -260,7 +313,53 @@ JAWTRenderer_process
     return JNI_TRUE;
 }
 
+void
+JAWTRenderer_processLightweightComponentEvent
+    (jlong handle, jint x, jint y, jint width, jint height)
+{
+    JAWTRenderer *renderer;
+    NSAutoreleasePool *autoreleasePool;
+
+    renderer = (JAWTRenderer *) handle;
+    autoreleasePool = [[NSAutoreleasePool alloc] init];
+
+    if (renderer->layer)
+        [renderer->layer setFrame:CGRectMake(x, y, width, height)];
+
+    [autoreleasePool release];
+}
+
+void
+JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
+{
+    JAWTRenderer *renderer;
+    NSAutoreleasePool *autoreleasePool;
+
+    renderer = (JAWTRenderer *) handle;
+    autoreleasePool = [[NSAutoreleasePool alloc] init];
+
+    [renderer removeFromSuperrenderer];
+    [renderer setLayer:nil];
+
+    [autoreleasePool release];
+}
+
 @implementation JAWTRenderer
+- (void)addSubrenderer:(JAWTRenderer *)subrenderer
+{
+    @synchronized (self)
+    {
+        if (!subrenderers)
+            subrenderers = [[NSMutableArray arrayWithCapacity:1] retain];
+        if (NSNotFound == [subrenderers indexOfObject:subrenderer])
+        {
+            [subrenderers addObject:subrenderer];
+            [subrenderer retain];
+            [subrenderer setSuperrenderer:self];
+        }
+    }
+}
+
 - (void)boundsDidChange:(NSNotification *)notification
 {
     if ([notification object] == view)
@@ -293,6 +392,23 @@ JAWTRenderer_process
 
 - (void)dealloc
 {
+    /* subrenderers */
+    @synchronized (self)
+    {
+        if (subrenderers)
+        {
+            NSUInteger subrendererCount = [subrenderers count];
+
+            while (subrendererCount > 0)
+            {
+                --subrendererCount;
+                [self removeSubrendererAtIndex:subrendererCount];
+            }
+            [subrenderers release];
+            subrenderers = nil;
+        }
+    }
+
     [self setView:nil];
     [self setLayer:nil];
     [self copyCGLContext:0 forPixelFormat:0];
@@ -328,8 +444,84 @@ JAWTRenderer_process
         boundsY = 0;
 
         view = nil;
+
+        subrenderers = nil;
+        superrenderer = nil;
     }
     return self;
+}
+
+- (void)paint
+{
+    /* Make the component and its layer paint. */
+    if (layer)
+    {
+        @synchronized (self)
+        {
+            if (subrenderers)
+            {
+                NSUInteger index = 0;
+                NSUInteger count = [subrenderers count];
+
+                while (index < count)
+                {
+                    JAWTRenderer *subrenderer
+                        = [subrenderers objectAtIndex:index];
+
+                    @synchronized (subrenderer)
+                    {
+                        CALayer *sublayer = subrenderer->layer;
+
+                        if (sublayer && ([sublayer superlayer] != layer))
+                        {
+                            [sublayer removeFromSuperlayer];
+                            [layer addSublayer:sublayer];
+                        }
+                    }
+                    index++;
+                }
+            }
+        }
+
+        [layer setNeedsDisplay];
+    }
+    if (view)
+        [view displayIfNeededIgnoringOpacity];
+}
+
+- (void)removeFromSuperrenderer
+{
+    if (superrenderer)
+        [superrenderer removeSubrenderer:self];
+}
+
+- (void)removeSubrenderer:(JAWTRenderer *)subrenderer
+{
+    @synchronized (self)
+    {
+        if (subrenderers)
+        {
+            NSUInteger index = [subrenderers indexOfObject:subrenderer];
+
+            if (NSNotFound != index)
+                [self removeSubrendererAtIndex:index];
+        }
+    }
+}
+
+- (void)removeSubrendererAtIndex:(NSUInteger)index
+{
+    @synchronized (self)
+    {
+        if (subrenderers)
+        {
+            JAWTRenderer *subrenderer = [subrenderers objectAtIndex:index];
+
+            [subrenderers removeObjectAtIndex:index];
+            [subrenderer setSuperrenderer:nil];
+            [subrenderer release];
+        }
+    }
 }
 
 - (void)reshape
@@ -356,8 +548,18 @@ JAWTRenderer_process
     {
         if (layer)
         {
+            CALayer *superlayer;
+
             if (layer->renderer == self)
                 [layer setRenderer:nil];
+
+            /*
+             * It may or may not be necessary to remove the layer from its
+             * superlayer but it should not hurt.
+             */
+            superlayer = [layer superlayer];
+            if (superlayer)
+                [layer removeFromSuperlayer];
 
             [layer release];
         }
@@ -369,27 +571,21 @@ JAWTRenderer_process
             [layer retain];
 
             [layer setRenderer:self];
-
-            /*
-             * Set the zPosition of the rendererLayer in accord with the
-             * z-order of the view. It should not make a difference
-             * because there is one JAWTRendererCALayer per JAWTRenderer
-             * NSView but anyway.
-             */
-            if (view)
-            {
-                NSView *superview = [view superview];
-
-                if (superview)
-                {
-                    NSUInteger zPosition
-                        = [[superview subviews] indexOfObject:view];
-                
-                    if (NSNotFound != zPosition)
-                        [layer setZPosition:zPosition];
-                }
-            }
         }
+    }
+}
+
+- (void)setSuperrenderer:(JAWTRenderer *)aSuperrenderer
+{
+    if (superrenderer != aSuperrenderer)
+    {
+        if (superrenderer)
+            [superrenderer release];
+
+        superrenderer = aSuperrenderer;
+
+        if (superrenderer)
+            [superrenderer retain];
     }
 }
 
@@ -443,7 +639,8 @@ JAWTRenderer_process
                 [self setLayer:(JAWTRendererCALayer *) viewLayer];
             else
             {
-                JAWTRendererCALayer *rendererLayer = [JAWTRendererCALayer layer];
+                JAWTRendererCALayer *rendererLayer
+                    = [JAWTRendererCALayer layer];
 
                 [self setLayer:rendererLayer];
                 if (rendererLayer)
@@ -451,6 +648,10 @@ JAWTRenderer_process
                     [view setLayer:rendererLayer];
                     [view setWantsLayer:YES];
 
+                    /*
+                     * Make sure that the view has accepted to host the
+                     * rendererLayer.
+                     */
                     if ([view layer] != rendererLayer)
                         [self setLayer:nil];
                 }
@@ -584,6 +785,7 @@ JAWTRenderer_process
     {
         renderer = nil;
 
+        [self setAnchorPoint:CGPointMake(0, 0)];
         /* AWT will be driving the painting. */
         [self setAsynchronous:YES];
     }

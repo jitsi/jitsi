@@ -7,17 +7,19 @@
 package net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.video;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.media.*;
 import javax.media.format.*;
 import javax.media.renderer.*;
+import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.util.*;
 
 /**
  * Implements a <tt>VideoRenderer</tt> which uses JAWT to perform native
- * painting in an AWT <tt>Canvas</tt>.
+ * painting in an AWT or Swing <tt>Component</tt>.
  *
  * @author Lyubomir Marinov
  */
@@ -59,6 +61,12 @@ public class JAWTRenderer
                                 0x00FF0000, 0x0000FF00, 0x000000FF)
                 };
 
+    /**
+     * The indicator which determines whether <tt>CALayer</tt>-based painting is
+     * to be performed by <tt>JAWTRenderer</tt> on Mac OS X.
+     */
+    private static final boolean USE_MACOSX_CALAYERS = false;
+
     static
     {
         System.loadLibrary("jawtrenderer");
@@ -99,6 +107,10 @@ public class JAWTRenderer
     {
     }
 
+    private static native void addNotifyLightweightComponent(
+            long handle, JComponent component,
+            long parentHandle);
+
     /**
      * Closes this <tt>PlugIn</tt> and releases the resources it has retained
      * during its execution. No more data will be accepted by this
@@ -109,8 +121,25 @@ public class JAWTRenderer
     {
         if (handle != 0)
         {
-            close(handle, getComponent());
-            handle = 0;
+            try
+            {
+                /*
+                 * It may or may not be necessary to ensure that #removeNotify()
+                 * is delivered to the native counterpart of this JAWTRenderer.
+                 * Anyway, do so for the sake of completeness.
+                 */
+                if (JComponent.isLightweightComponent(component))
+                {
+                    Container parent = component.getParent();
+
+                    parent.remove(component);
+                }
+            }
+            finally
+            {
+                close(handle, component);
+                handle = 0;
+            }
         }
     }
 
@@ -155,72 +184,25 @@ public class JAWTRenderer
     {
         if (component == null)
         {
-            component = new Canvas()
-            {
-                /**
-                 * Serial version UID.
-                 */
-                public static final long serialVersionUID = 0L;
+            component
+                = (USE_MACOSX_CALAYERS && OSUtils.IS_MAC)
+                    ? new SwingVideoComponent()
+                    : new AWTVideoComponent()
+                            {
+                                /* Implements AWTVideoComponent#getHandle(). */
+                                protected long getHandle()
+                                {
+                                    return JAWTRenderer.this.handle;
+                                }
 
-                /**
-                 * The indicator which determines whether the native counterpart
-                 * of this <tt>JAWTRenderer</tt> wants <tt>paint</tt> calls on
-                 * its AWT <tt>Component</tt> to be delivered. For example,
-                 * after the native counterpart has been able to acquire the
-                 * native handle of the AWT <tt>Component</tt>, it may be able
-                 * to determine when the native handle needs painting without
-                 * waiting for AWT to call <tt>paint</tt> on the
-                 * <tt>Component</tt>. In such a scenario, the native
-                 * counterpart may indicate with <tt>false</tt> that it does not
-                 * need further <tt>paint</tt> deliveries.
-                 */
-                private boolean wantsPaint = true;
-
-                @Override
-                public void addNotify()
-                {
-                    super.addNotify();
-
-                    wantsPaint = true;
-                }
-
-                @Override
-                public void paint(Graphics g)
-                {
-                    synchronized (JAWTRenderer.this)
-                    {
-                        if (wantsPaint && (handle != 0))
-                        {
-                            wantsPaint
-                                = JAWTRenderer.paint(handle, this, g);
-                        }
-                    }
-                }
-
-                @Override
-                public void removeNotify()
-                {
-                    /*
-                     * In case the associated JAWTRenderer has said that it does
-                     * not want paint events/notifications, ask it again next
-                     * time because the native handle of this Canvas may be
-                     * recreated.
-                     */
-                    wantsPaint = true;
-
-                    super.removeNotify();
-                }
-
-                @Override
-                public void update(Graphics g)
-                {
-                    /*
-                     * Skip the filling with the background color because it
-                     * causes flickering.
-                     */
-                    paint(g);
-                }
-            };
+                                /*
+                                 * Implements AWTVideoComponent#getHandleLock().
+                                 */
+                                protected Object getHandleLock()
+                                {
+                                    return JAWTRenderer.this;
+                                }
+                            };
         }
         return component;
     }
@@ -260,14 +242,25 @@ public class JAWTRenderer
     {
         if (handle == 0)
         {
+            /*
+             * If this JAWTRenderer gets opened after its visual/video Component
+             * has been created, send addNotify to the Component once this
+             * JAWTRenderer gets opened so that the Component may use the handle
+             * if it needs to.
+             */
+            boolean addNotify
+                = (this.component != null)
+                    && (this.component.getParent() != null);
+
             handle = open(getComponent());
             if (handle == 0)
             {
-                throw
-                    new ResourceUnavailableException(
-                            "Failed to open the native counterpart of"
-                                + " JAWTRenderer");
+                throw new ResourceUnavailableException(
+                        "Failed to open the native counterpart of JAWTRenderer");
             }
+
+            if (addNotify)
+                this.component.addNotify();
         }
     }
 
@@ -313,6 +306,9 @@ public class JAWTRenderer
      */
     private static native boolean paint(
             long handle, Component component, Graphics g);
+
+    private static native boolean paintLightweightComponent(
+            long handle, JComponent component, Graphics g);
 
     /**
      * Processes the data provided in a specific <tt>Buffer</tt> and renders it
@@ -362,14 +358,12 @@ public class JAWTRenderer
             Component component = getComponent();
             boolean repaint = false;
 
-            synchronized(this)
-            {
-               repaint = process(
+            repaint
+                = process(
                     handle,
                     component,
                     (int[]) buffer.getData(), buffer.getOffset(), bufferLength,
                     size.width, size.height);
-            }
 
             if (repaint)
                 component.repaint();
@@ -402,6 +396,13 @@ public class JAWTRenderer
             Component component,
             int[] data, int offset, int length,
             int width, int height);
+
+    private static native void processLightweightComponentEvent(
+            long handle,
+            int x, int y, int width, int height);
+
+    private static native void removeNotifyLightweightComponent(
+            long handle, JComponent component);
 
     /**
      * Resets the state of this <tt>PlugIn</tt>.
@@ -492,12 +493,32 @@ public class JAWTRenderer
             Component component = getComponent();
             Dimension preferredSize = component.getPreferredSize();
 
+            /*
+             * Apart from the simplest of cases in which the component has no
+             * preferredSize, it is also necessary to reflect the width and
+             * height of the input onto the preferredSize when the ratio of the
+             * input is different than the ratio of the preferredSize.
+             */
             if ((preferredSize == null)
                     || (preferredSize.width < 1)
-                    || (preferredSize.height < 1))
+                    || (preferredSize.height < 1)
+                    || (preferredSize.width * inputHeight
+                            != preferredSize.height * inputWidth))
             {
                 component.setPreferredSize(
                         new Dimension(inputWidth, inputHeight));
+            }
+
+            /*
+             * If the component does not have a size, it looks strange given
+             * that we know a preferredSize for it.
+             */
+            Dimension size = component.getSize();
+
+            if ((size.width < 1) || (size.height < 1))
+            {
+                preferredSize = component.getPreferredSize();
+                component.setSize(preferredSize.width, preferredSize.height);
             }
         }
 
@@ -517,5 +538,437 @@ public class JAWTRenderer
      */
     public void stop()
     {
+    }
+
+    /**
+     * Implements an AWT <tt>Component</tt> in which this <tt>JAWTRenderer</tt>
+     * paints.
+     */
+    private static abstract class AWTVideoComponent
+        extends Canvas
+    {
+
+        /**
+         * The indicator which determines whether the native counterpart of this
+         * <tt>JAWTRenderer</tt> wants <tt>paint</tt> calls on its AWT
+         * <tt>Component</tt> to be delivered. For example, after the native
+         * counterpart has been able to acquire the native handle of the AWT
+         * <tt>Component</tt>, it may be able to determine when the native
+         * handle needs painting without waiting for AWT to call <tt>paint</tt>
+         * on the <tt>Component</tt>. In such a scenario, the native counterpart
+         * may indicate with <tt>false</tt> that it does not need further
+         * <tt>paint</tt> deliveries.
+         */
+        private boolean wantsPaint = true;
+
+        @Override
+        public void addNotify()
+        {
+            super.addNotify();
+
+            wantsPaint = true;
+        }
+
+        /**
+         * Gets the handle of the native counterpart of the
+         * <tt>JAWTRenderer</tt> which paints in this
+         * <tt>AWTVideoComponent</tt>.
+         *
+         * @return the handle of the native counterpart of the
+         * <tt>JAWTRenderer</tt> which paints in this <tt>AWTVideoComponent</tt>
+         */
+        protected abstract long getHandle();
+
+        /**
+         * Gets the synchronization lock which protects the access to the
+         * <tt>handle</tt> property of this <tt>AWTVideoComponent</tt>.
+         *
+         * @return the synchronization lock which protects the access to the
+         * <tt>handle</tt> property of this <tt>AWTVideoComponent</tt>
+         */
+        protected abstract Object getHandleLock();
+
+        @Override
+        public void paint(Graphics g)
+        {
+            synchronized (getHandleLock())
+            {
+                long handle = getHandle();
+
+                if (wantsPaint && (handle != 0))
+                    wantsPaint = JAWTRenderer.paint(handle, this, g);
+            }
+        }
+
+        @Override
+        public void removeNotify()
+        {
+            /*
+             * In case the associated JAWTRenderer has said that it does not
+             * want paint events/notifications, ask it again next time because
+             * the native handle of this Canvas may be recreated.
+             */
+            wantsPaint = true;
+            
+            super.removeNotify();
+        }
+
+        @Override
+        public void update(Graphics g)
+        {
+            /*
+             * Skip the filling with the background color because it causes
+             * flickering.
+             */
+            paint(g);
+        }
+    };
+
+    /**
+     * Implements a Swing <tt>Component</tt> in which this <tt>JAWTRenderer</tt>
+     * paints.
+     */
+    public class SwingVideoComponent
+        extends JPanel
+    {
+        /**
+         * The <tt>SwingVideoComponentCanvas</tt> in which this
+         * <tt>SwingVideoComponent</tt> is painted according to the last call to
+         * {@link #addNotify()}.
+         */
+        private SwingVideoComponentCanvas canvas;
+
+        /**
+         * The <tt>Container</tt> which is the last-known parent of this
+         * <tt>SwingVideoComponent</tt>.
+         */
+        private Container parent;
+
+        /**
+         * The <tt>ComponentListener</tt> which is to be or is listening to
+         * <tt>ComponentEvent</tt>s fired by {@link #parent}.
+         */
+        private final ComponentListener parentComponentListener
+            = new ComponentAdapter()
+            {
+                @Override
+                public void componentResized(ComponentEvent e)
+                {
+                    processLightweightComponentEvent();
+                }
+            };
+
+        /**
+         * The indicator which determines whether the native counterpart of this
+         * <tt>JAWTRenderer</tt> wants <tt>paint</tt> calls on its Swing
+         * <tt>Component</tt> to be delivered.
+         *
+         * @see AWTVideoComponent#wantsPaint
+         */
+        private boolean wantsPaint = true;
+
+        @Override
+        public void addNotify()
+        {
+            super.addNotify();
+
+            wantsPaint = true;
+
+            synchronized (JAWTRenderer.this)
+            {
+                if (handle != 0)
+                {
+                    SwingVideoComponentCanvas canvas = findCanvas();
+
+                    if (canvas == null)
+                    {
+                        JAWTRenderer.addNotifyLightweightComponent(
+                                handle, this,
+                                0);
+                    }
+                    else
+                    {
+                        long canvasHandle;
+
+                        synchronized (canvas.getHandleLock())
+                        {
+                            canvasHandle = canvas.getHandle();
+                            JAWTRenderer.addNotifyLightweightComponent(
+                                    handle, this,
+                                    canvasHandle);
+                        }
+                        if (canvasHandle != 0)
+                            this.canvas = canvas;
+                    }
+
+                    /*
+                     * Emulate a ComponentEvent so that, for example, the native
+                     * counterpart of this Component gets its bounds up to date.
+                     */
+                    processLightweightComponentEvent();
+                }
+            }
+
+            parent = getParent();
+            if (parent != null)
+                parent.addComponentListener(parentComponentListener);
+        }
+
+        /**
+         * Creates a new AWT <tt>Component</tt> in which
+         * <tt>SwingVideoComponent</tt>s can be rendered.
+         */
+        public Component createCanvas()
+        {
+            return new SwingVideoComponentCanvas();
+        }
+
+        /**
+         * Finds a <tt>SwingVideoComponentCanvas</tt> in which this
+         * <tt>SwingVideoComponent</tt> can be painted.
+         *
+         * @return a <tt>SwingVideoComponentCanvas</tt> in which this
+         * <tt>SwingVideoComponent</tt> can be painted if any; otherwise,
+         * <tt>null</tt>
+         */
+        private SwingVideoComponentCanvas findCanvas()
+        {
+            Container parent = getParent();
+
+            if (parent != null)
+                for (Component component : parent.getComponents())
+                    if (component instanceof SwingVideoComponentCanvas)
+                        return (SwingVideoComponentCanvas) component;
+            return null;
+        }
+
+        /**
+         * Gets the <tt>SwingVideoComponentCanvas</tt> in which this
+         * <tt>SwingVideoComponent</tt> is being painted.
+         *
+         * @return the <tt>SwingVideoComponentCanvas</tt> in which this
+         * <tt>SwingVideoComponent</tt> is being painted if any; otherwise,
+         * <tt>null</tt>
+         */
+        SwingVideoComponentCanvas getCanvas()
+        {
+            return canvas;
+        }
+
+        @Override
+        public void paint(Graphics g)
+        {
+            synchronized (JAWTRenderer.this)
+            {
+                if (wantsPaint && (handle != 0))
+                {
+                    wantsPaint
+                        = JAWTRenderer.paintLightweightComponent(
+                                handle,
+                                this,
+                                g);
+                }
+            }
+        }
+
+        @Override
+        protected void processComponentEvent(ComponentEvent e)
+        {
+            super.processComponentEvent(e);
+
+            if (equals(e.getComponent()))
+            {
+                switch(e.getID())
+                {
+                case ComponentEvent.COMPONENT_MOVED:
+                case ComponentEvent.COMPONENT_RESIZED:
+                    processLightweightComponentEvent();
+                    break;
+                }
+            }
+        }
+
+        /**
+         * Notifies this <tt>SwingVideoComponent</tt> that a
+         * <tt>ComponentEvent</tt> related to it has occurred.
+         */
+        private void processLightweightComponentEvent()
+        {
+            Rectangle bounds = getBounds();
+
+            if (bounds != null)
+            {
+                synchronized (JAWTRenderer.this)
+                {
+                    if (handle != 0)
+                    {
+                        /*
+                         * CALayer on Mac OS X has a different coordinate
+                         * system.
+                         */
+                        Component parent = getParent();
+
+                        if (parent != null)
+                        {
+                            bounds.y
+                                = parent.getHeight()
+                                    - (bounds.y + bounds.height);
+                        }
+
+                        JAWTRenderer.processLightweightComponentEvent(
+                                handle,
+                                bounds.x,
+                                bounds.y,
+                                bounds.width,
+                                bounds.height);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void removeNotify()
+        {
+            if (parent != null)
+            {
+                parent.removeComponentListener(parentComponentListener);
+                parent = null;
+            }
+
+            synchronized (JAWTRenderer.this)
+            {
+                if (handle != 0)
+                {
+                    if (canvas != null)
+                    {
+                        synchronized (canvas.getHandleLock())
+                        {
+                            JAWTRenderer.removeNotifyLightweightComponent(
+                                    handle, this);
+                        }
+                        canvas = null;
+                    }
+                    else
+                    {
+                        JAWTRenderer.removeNotifyLightweightComponent(
+                                handle, this);
+                    }
+                }
+            }
+
+            /*
+             * In case the associated JAWTRenderer has said that it does not
+             * want paint events/notifications, ask it again next time because
+             * the native handle of this Canvas may be recreated.
+             */
+            wantsPaint = true;
+
+            super.removeNotify();
+        }
+
+        @Override
+        public void repaint()
+        {
+            super.repaint();
+
+            /*
+             * Since SwingVideoComponent is to be painted in a
+             * SwingVideoComponentCanvas, the latter should repaint when the
+             * former does.
+             */
+            Component canvas = getCanvas();
+
+            if (canvas != null)
+                canvas.repaint();
+        }
+
+        @Override
+        public void setBounds(int x, int y, int width, int height)
+        {
+            super.setBounds(x, y, width, height);
+
+            /*
+             * Calling #setBounds(int, int, int, int) does not seem to cause
+             * this SwingVideoComponent to process a ComponentEvent so force it
+             * because it is really necessary to deliver the up-to-date bounds
+             * to the native counterpart.
+             */
+            processLightweightComponentEvent();
+        }
+    }
+
+    /**
+     * Implements an AWT <tt>Component</tt> in which
+     * <tt>SwingVideoComponent</tt>s can be rendered.
+     */
+    private static class SwingVideoComponentCanvas
+        extends AWTVideoComponent
+    {
+        /**
+         * The handle to the native <tt>JAWTRenderer</tt> which does the actual
+         * paiting of this <tt>SwingVideoComponentCanvas</tt>.
+         */
+        private long handle;
+
+        @Override
+        public void addNotify()
+        {
+            super.addNotify();
+
+            synchronized (getHandleLock())
+            {
+                if (getHandle() == 0)
+                {
+                    try
+                    {
+                        this.handle = open(this);
+                    }
+                    catch (ResourceUnavailableException rue)
+                    {
+                        throw new RuntimeException(rue);
+                    }
+                    if (getHandle() == 0)
+                    {
+                        throw new RuntimeException(
+                                "JAWTRenderer#open(Component)");
+                    }
+                }
+            }
+        }
+
+        /* Implements AWTVideoComponent#getHandle(). */
+        protected long getHandle()
+        {
+            return handle;
+        }
+
+        /* Implements AWTVideoComponent#getHandleLock(). */
+        protected Object getHandleLock()
+        {
+            return this;
+        }
+
+        @Override
+        public void removeNotify()
+        {
+            synchronized (getHandleLock())
+            {
+                long handle = getHandle();
+
+                if (handle != 0)
+                {
+                    try
+                    {
+                        close(handle, this);
+                    }
+                    finally
+                    {
+                        this.handle = 0;
+                    }
+                }
+            }
+
+            super.removeNotify();
+        }
     }
 }

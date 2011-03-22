@@ -34,7 +34,7 @@ import net.java.sip.communicator.util.swing.transparent.*;
  * name, photo, call duration, etc.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  * @author Adam Netocny
  */
@@ -891,7 +891,7 @@ public class OneToOneCallPeerPanel
             if (videoParent != null)
                 videoParent.remove(video);
 
-            videoContainer.add(video, VideoLayout.CENTER_REMOTE, -1);
+            videoContainer.add(video, VideoLayout.CENTER_REMOTE);
         }
 
         // LOCAL
@@ -900,18 +900,21 @@ public class OneToOneCallPeerPanel
             Container localVideoParent = localVideo.getParent();
 
             if (localVideoParent != null)
-            {
                 localVideoParent.remove(localVideo);
-                localVideoParent.remove(closeButton);
-            }
+
+            Container closeButtonParent = closeButton.getParent();
+
+            if (closeButtonParent != null)
+                closeButtonParent.remove(closeButton);
 
             if (localVideoVisible)
             {
+                videoContainer.add(localVideo, VideoLayout.LOCAL);
+
                 if (!CallManager.isDesktopSharingEnabled(callPeer.getCall()))
                     videoContainer.add(
-                        closeButton, VideoLayout.CLOSE_LOCAL_BUTTON, 0);
-
-                videoContainer.add(localVideo, VideoLayout.LOCAL, 1);
+                            closeButton,
+                            VideoLayout.CLOSE_LOCAL_BUTTON);
             }
         }
 

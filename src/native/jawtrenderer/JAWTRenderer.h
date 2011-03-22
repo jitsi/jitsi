@@ -8,8 +8,8 @@
 #ifndef _JAWTRENDERER_H_
 #define _JAWTRENDERER_H_
 
-#include <jni.h>
 #include <jawt.h>
+#include <jni.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +25,17 @@ jboolean JAWTRenderer_process
      jlong handle, jobject component,
      jint *data, jint length,
      jint width, jint height);
+
+#ifdef __APPLE__
+void JAWTRenderer_addNotifyLightweightComponent
+    (jlong handle, jobject component, jlong parentHandle);
+jboolean JAWTRenderer_paintLightweightComponent
+    (jlong handle, jobject component, jobject g);
+void JAWTRenderer_processLightweightComponentEvent
+    (jlong handle, jint x, jint y, jint width, jint height);
+void JAWTRenderer_removeNotifyLightweightComponent
+    (jlong handle, jobject component);
+#endif /* #ifdef __APPLE__ */
 
 #ifdef __cplusplus
 } /* extern "C" { */
