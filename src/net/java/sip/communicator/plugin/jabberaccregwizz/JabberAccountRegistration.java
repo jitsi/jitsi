@@ -89,6 +89,11 @@ public class JabberAccountRegistration
     private boolean enableGmailNotification = false;
 
     /**
+     * Indicates if Google Contacts should be enabled.
+     */
+    private boolean enableGoogleContacts = false;
+
+    /**
      * Indicates if ICE should be used.
      */
     private boolean isUseIce = false;
@@ -233,6 +238,18 @@ public class JabberAccountRegistration
     }
 
     /**
+     * Determines whether SIP Communicator should use Google Contacts as
+     * ContactSource
+     *
+     * @return <tt>true</tt> if we are to enable Google Contacts and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isGoogleContactsEnabled()
+    {
+        return enableGoogleContacts;
+    }
+
+    /**
      * Sets the User ID of the jabber registration account.
      *
      * @param userID the identifier of the jabber registration account.
@@ -314,6 +331,18 @@ public class JabberAccountRegistration
     public void setGmailNotificationEnabled(boolean enabled)
     {
         this.enableGmailNotification = enabled;
+    }
+
+    /**
+     * Specifies whether SIP Communicator should use Google Contacts as
+     * ContactSource.
+     *
+     * @param enabled <tt>true</tt> if we are to enable Google Contacts and
+     * <tt>false</tt> otherwise.
+     */
+    public void setGoogleContactsEnabled(boolean enabled)
+    {
+        this.enableGoogleContacts = enabled;
     }
 
     /**

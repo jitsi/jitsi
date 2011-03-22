@@ -14,13 +14,18 @@ import javax.swing.event.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ConnectionPanel
     extends TransparentPanel
     implements ValidatingPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private final static long serialVersionUID = 0L;
+
     private final TransparentPanel mainPanel = new TransparentPanel();
 
     private final JPanel advancedOpPanel
@@ -38,6 +43,10 @@ public class ConnectionPanel
     private final JCheckBox gmailNotificationsBox = new SIPCommCheckBox(
         Resources.getString(
             "plugin.jabberaccregwizz.ENABLE_GMAIL_NOTIFICATIONS"));
+
+    private final JCheckBox googleContactsBox = new SIPCommCheckBox(
+            Resources.getString(
+                "plugin.jabberaccregwizz.ENABLE_GOOGLE_CONTACTS_SOURCE"));
 
     private final JLabel resourceLabel
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.RESOURCE"));
@@ -126,6 +135,7 @@ public class ConnectionPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
         checkBoxesPanel.add(sendKeepAliveBox);
         checkBoxesPanel.add(gmailNotificationsBox);
+        checkBoxesPanel.add(googleContactsBox);
 
         advancedOpPanel.add(checkBoxesPanel, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
@@ -254,6 +264,28 @@ public class ConnectionPanel
     void setGmailNotificationsEnabled(boolean isEnabled)
     {
         gmailNotificationsBox.setSelected(isEnabled);
+    }
+
+    /**
+     * Returns <tt>true</tt> if the "Google contacts" check box is selected,
+     * otherwise returns <tt>false</tt>.
+     * @return <tt>true</tt> if the "Google contacts" check box is selected,
+     * otherwise returns <tt>false</tt>
+     */
+    boolean isGoogleContactsEnabled()
+    {
+        return googleContactsBox.isSelected();
+    }
+
+    /**
+     * Selects/unselects the "Google contacts" check box according to the
+     * given <tt>isEnabled</tt> property.
+     * @param isEnabled indicates if the "Google contacts"
+     * check box should be selected or not
+     */
+    void setGoogleContactsEnabled(boolean isEnabled)
+    {
+        googleContactsBox.setSelected(isEnabled);
     }
 
     /**

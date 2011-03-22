@@ -158,7 +158,10 @@ public class ProtocolProviderFactoryJabberImpl
             try
             {
                 if(protocolProvider.isRegistered())
+                {
                     protocolProvider.unregister();
+                    protocolProvider.shutdown();
+                }
             } catch (Throwable e)
             {
                 // we don't care for this, cause we are modifying and

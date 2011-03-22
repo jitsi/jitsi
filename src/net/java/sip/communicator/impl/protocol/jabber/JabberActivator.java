@@ -16,8 +16,10 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.util.*;
 
+import org.jivesoftware.smack.util.StringUtils;
 import org.osgi.framework.*;
 
 /**
@@ -84,7 +86,17 @@ public class JabberActivator
      */
     private static HIDService hidService = null;
 
-    private static PacketLoggingService packetLoggingService  = null;
+    /**
+     * A reference to the currently valid <tt>PacketLoggingService</tt>
+     * instance.
+     */
+    private static PacketLoggingService packetLoggingService = null;
+
+    /**
+     * A reference to the currently valid <tt>GoogleContactsService</tt>
+     * instance.
+     */
+    private static GoogleContactsService googleService  = null;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -322,5 +334,25 @@ public class JabberActivator
                         bundleContext, PacketLoggingService.class);
         }
         return packetLoggingService;
+    }
+
+    /**
+     * Returns a reference to the GoogleContactsService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a reference to a GoogleContactsService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     */
+    public static GoogleContactsService getGoogleService()
+    {
+        if (googleService == null)
+        {
+            googleService
+                = ServiceUtils.getService(
+                        bundleContext, GoogleContactsService.class);
+        }
+        return googleService;
     }
 }

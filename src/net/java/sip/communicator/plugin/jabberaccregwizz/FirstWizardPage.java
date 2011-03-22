@@ -28,6 +28,9 @@ public class FirstWizardPage
      */
     private static final long serialVersionUID = 0L;
 
+    /**
+     * Identifier of the first page.
+     */
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;

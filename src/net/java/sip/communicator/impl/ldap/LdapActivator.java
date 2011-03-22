@@ -44,7 +44,7 @@ public class LdapActivator
      * Starts the LDAP service
      *
      * @param bundleContext BundleContext
-     * @throws Exception
+     * @throws Exception if something goes wrong when starting service
      */
     public void start(BundleContext bundleContext)
         throws Exception
@@ -72,6 +72,9 @@ public class LdapActivator
 
     /**
      * Stops the LDAP service
+     *
+     * @param bundleContext BundleContext
+     * @throws Exception if something goes wrong when stopping service
      */
     public void stop(BundleContext bundleContext)
         throws Exception

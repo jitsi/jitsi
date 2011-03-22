@@ -890,7 +890,7 @@
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
         bundle-slick-runner,bundle-sip,bundle-sip-slick,bundle-fileaccess,
-        bundle-fileaccess-slick,bundle-neomedia,bundle-hid,bundle-ldap,
+        bundle-fileaccess-slick,bundle-neomedia,bundle-hid,bundle-ldap,bundle-googlecontacts,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
@@ -1198,6 +1198,23 @@
                 prefix="net/java/sip/communicator/service/ldap"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/ldap"
                 prefix="net/java/sip/communicator/impl/ldap" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-GOOGLECONTACTS-->
+    <target name="bundle-googlecontacts">
+        <jar compress="false" destfile="${bundles.dest}/googlecontacts.jar"
+            manifest="${src}/net/java/sip/communicator/impl/googlecontacts/googlecontacts.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/googlecontacts"
+                prefix="net/java/sip/communicator/service/googlecontacts"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/googlecontacts"
+                prefix="net/java/sip/communicator/impl/googlecontacts" />
+            <zipfileset src="${lib.noinst}/google-collect-1.0-rc1.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/gdata-core-1.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/gdata-contacts-3.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/gdata-contacts-meta-3.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/gdata-client-1.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/gdata-client-meta-1.0.jar" prefix=""/>
         </jar>
     </target>
 

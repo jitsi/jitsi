@@ -295,6 +295,8 @@ public class JabberAccountRegistrationWizard
 
         accountProperties.put("GMAIL_NOTIFICATIONS_ENABLED",
                     String.valueOf(registration.isGmailNotificationEnabled()));
+        accountProperties.put("GOOGLE_CONTACTS_ENABLED",
+                String.valueOf(registration.isGoogleContactsEnabled()));
 
         String serverName = null;
         if (registration.getServerAddress() != null)

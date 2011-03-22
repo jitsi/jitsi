@@ -1,0 +1,427 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.googlecontacts;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.regex.*;
+
+import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.googlecontacts.*;
+import net.java.sip.communicator.util.*;
+
+import com.google.gdata.client.Service.*;
+import com.google.gdata.client.contacts.*;
+import com.google.gdata.data.*;
+import com.google.gdata.data.contacts.ContactFeed;
+import com.google.gdata.data.contacts.ContactEntry;
+import com.google.gdata.data.extensions.*;
+
+/**
+ * Implementation of Google Contacts service.
+ * We first get {@link #MAX_RESULT} contacts from Google Contacts then
+ * we filter it to get {@link #MAX_RESULT} that matched our query.
+ * If {@link #MAX_RESULT} is not reach, we try with additional
+ * contacts (if there are more than {@link #MAX_RESULT} contacts).
+ *
+ * @author Sebastien Vincent
+ */
+public class GoogleContactsServiceImpl
+    implements GoogleContactsService
+{
+    /**
+     * Logger.
+     */
+    private static final Logger logger =
+        Logger.getLogger(GoogleContactsServiceImpl.class);
+
+    /**
+     * Google Contacts feed URL string.
+     */
+    private static final String feedURL =
+        "https://www.google.com/m8/feeds/contacts/default/full";
+
+    /**
+     * Maximum number of results for a query.
+     */
+    public static final int MAX_RESULT = 20;
+
+    /**
+     * Maximum number of contacts retrieved for a query.
+     */
+    public static final int MAX_NUMBER = 1000;
+
+    /**
+     * List of Google Contacts account.
+     */
+    private final List<GoogleContactsConnectionImpl> accounts =
+        new ArrayList<GoogleContactsConnectionImpl>();
+
+    /**
+     * Path where to store the account settings
+     */
+    private final static String CONFIGURATION_PATH =
+        "net.java.sip.communicator.impl.googlecontacts";
+
+    /**
+     * Constructor.
+     */
+    public GoogleContactsServiceImpl()
+    {
+        loadConfig();
+    }
+
+    /**
+     * Get list of stored connections.
+     *
+     * @return list of connections
+     */
+    public List<GoogleContactsConnectionImpl> getAccounts()
+    {
+        return accounts;
+    }
+
+    /**
+     * Loads configuration.
+     */
+    private void loadConfig()
+    {
+        ConfigurationService configService =
+            GoogleContactsActivator.getConfigService();
+        CredentialsStorageService credentialsService =
+            GoogleContactsActivator.getCredentialsService();
+
+        List<String> list = configService.getPropertyNamesByPrefix(
+                    CONFIGURATION_PATH, true);
+
+        for(Object configEntry : list)
+        {
+            String path = configEntry.toString();
+            Object oen = configService.getProperty(path + ".enabled");
+            boolean enabled = Boolean.parseBoolean((String)oen);
+            String login =
+                (String)configService.getProperty(path + ".account");
+            String password = credentialsService.loadPassword(path);
+
+            GoogleContactsConnectionImpl cnx = (GoogleContactsConnectionImpl)
+                getConnection(login, password);
+            cnx.setEnabled(enabled);
+
+            if(cnx != null)
+            {
+                accounts.add(cnx);
+                /* register contact source */
+                if(cnx.isEnabled())
+                {
+                    addContactSource(cnx);
+                }
+            }
+        }
+    }
+
+    /**
+     * Perform a search for a contact using regular expression.
+     *
+     * @param cnx <tt>GoogleContactsConnection</tt> to perform the query
+     * @param gQuery Google query
+     * @param count maximum number of matched contacts
+     * @param callback object that will be notified for each new
+     * <tt>GoogleContactsEntry</tt> found
+     * @return list of <tt>GoogleContactsEntry</tt>
+     */
+    public List<GoogleContactsEntry> searchContact(
+            GoogleContactsConnection cnx, GoogleQuery gQuery, int count,
+            GoogleEntryCallback callback)
+    {
+        URL url = null;
+        ContactFeed contactFeed = null;
+        ContactQuery query = null;
+        List<GoogleContactsEntry> ret = new ArrayList<GoogleContactsEntry>();
+        boolean endOfContacts = false;
+        int matchedContacts = 0;
+        int index = 1;
+        GoogleContactsConnectionImpl cnxImpl =
+            (GoogleContactsConnectionImpl)cnx;
+
+        if(count <= 0)
+        {
+            count = MAX_RESULT;
+        }
+
+        try
+        {
+            url = new URL(feedURL);
+        }
+        catch(MalformedURLException e)
+        {
+            logger.info("Malformed URL", e);
+            return ret;
+        }
+
+        if(gQuery.isCancelled())
+        {
+            return ret;
+        }
+
+        while(matchedContacts < count || endOfContacts)
+        {
+            query = new ContactQuery(url);
+            query.setStartIndex(index);
+            query.setMaxResults(MAX_NUMBER);
+            query.setSortOrder(ContactQuery.SortOrder.DESCENDING);
+
+            if(gQuery.isCancelled())
+            {
+                return ret;
+            }
+
+            try
+            {
+                contactFeed = cnxImpl.getGoogleService().query(
+                        query, ContactFeed.class);
+            }
+            catch(Exception e)
+            {
+                logger.info(
+                        "Problem occurred during Google Contacts retrievment",
+                        e);
+                return ret;
+            }
+
+            if(contactFeed.getEntries().size() == 0)
+            {
+                endOfContacts = true;
+                break;
+            }
+
+            for (int i = 0; i < contactFeed.getEntries().size(); i++)
+            {
+                if(gQuery.isCancelled())
+                {
+                    return ret;
+                }
+
+                ContactEntry entry = contactFeed.getEntries().get(i);
+
+                if(filter(entry, gQuery.getQueryPattern()))
+                {
+                    GoogleContactsEntry gcEntry = null;
+
+                    gcEntry = getGoogleContactsEntry(entry);
+                    matchedContacts++;
+                    ret.add(gcEntry);
+
+                    if(callback != null)
+                    {
+                        callback.callback(gcEntry);
+                    }
+
+                    if(matchedContacts >= count)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            index += contactFeed.getEntries().size();
+        }
+        return ret;
+    }
+
+    /**
+     * Filter according to <tt>filter</tt>.
+     *
+     * @param entry <tt>ContactEntry</tt>
+     * @param filter regular expression
+     * @return true if entry match the filter, false otherwise
+     */
+    private boolean filter(ContactEntry entry, Pattern filter)
+    {
+        Name name = entry.getName();
+
+        /* try to see if name, mail or phone match */
+
+        if(name != null)
+        {
+            if(name.hasFamilyName())
+            {
+                Matcher m = filter.matcher(name.getFamilyName().getValue());
+                if(m.matches())
+                {
+                    return true;
+                }
+            }
+
+            if(name.hasGivenName())
+            {
+                Matcher m = filter.matcher(name.getGivenName().getValue());
+                if(m.find())
+                {
+                    return true;
+                }
+            }
+
+            if(name.hasFullName())
+            {
+                Matcher m = filter.matcher(name.getFullName().getValue());
+                if(m.find())
+                {
+                    return true;
+                }
+            }
+        }
+
+        for(Email mail : entry.getEmailAddresses())
+        {
+            Matcher m = filter.matcher(mail.getAddress());
+
+            if(m.find())
+            {
+                return true;
+            }
+        }
+
+        for(PhoneNumber phone : entry.getPhoneNumbers())
+        {
+            Matcher m = filter.matcher(phone.getPhoneNumber());
+
+            if(m.find())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get a <tt>GoogleContactsEntry</tt> from a <tt>ContactEntry</tt>
+     *
+     * @param entry <tt>ContactEntry</tt>
+     * @return <tt>GoogleContactsEntry</tt>
+     */
+    private GoogleContactsEntry getGoogleContactsEntry(ContactEntry entry)
+    {
+        GoogleContactsEntryImpl ret = new GoogleContactsEntryImpl();
+
+        ret.setField(entry);
+        return ret;
+    }
+
+    /**
+     * Get the full contacts list.
+     *
+     * @return list of <tt>GoogleContactsEntry</tt>
+     */
+    public List<GoogleContactsEntry> getContacts()
+    {
+        return null;
+    }
+
+    /**
+     * Get a <tt>GoogleContactsConnection</tt>.
+     *
+     * @param login login to connect to the service
+     * @param password password to connect to the service
+     * @return <tt>GoogleContactsConnection</tt>.
+     */
+    public GoogleContactsConnection getConnection(String login,
+            String password)
+    {
+        try
+        {
+            return new GoogleContactsConnectionImpl(login, password);
+        }
+        catch(Exception e)
+        {
+            logger.info("Failed to authenticate Google Contacts", e);
+            return null;
+        }
+    }
+
+    /**
+     * Add a contact source service with the specified.
+     *
+     * <tt>GoogleContactsConnection</tt>.
+     * @param cnx <tt>GoogleContactsConnection</tt>.
+     */
+    public void addContactSource(GoogleContactsConnection cnx)
+    {
+        GoogleContactsActivator.enableContactSource(cnx);
+    }
+
+    /**
+     * Add a contact source service with the specified
+     * <tt>GoogleContactsConnection</tt>.
+     *
+     * @param login login
+     * @param password password
+     */
+    public void addContactSource(String login, String password)
+    {
+        GoogleContactsActivator.enableContactSource(login, password);
+    }
+
+    /**
+     * Add a contact source service with the specified.
+     *
+     * <tt>GoogleContactsConnection</tt>.
+     * @param cnx <tt>GoogleContactsConnection</tt>.
+     */
+    public void removeContactSource(GoogleContactsConnection cnx)
+    {
+        GoogleContactsActivator.disableContactSource(cnx);
+    }
+
+    /**
+     * Remove a contact source service with the specified
+     * <tt>GoogleContactsConnection</tt>.
+     *
+     * @param login login
+     */
+    public void removeContactSource(String login)
+    {
+        GoogleContactsActivator.disableContactSource(login);
+    }
+
+    /**
+     * Retrieve photo of a contact. Adapted from Google sample.
+     *
+     * @param photoLink photo link
+     * @param service
+     * @return byte array containing image photo or null if problem happened
+     */
+    public static byte[] downloadPhoto(ILink photoLink,
+            ContactsService service)
+    {
+        try
+        {
+            if (photoLink != null)
+            {
+                GDataRequest request =
+                    service.createLinkQueryRequest(photoLink);
+                request.execute();
+                InputStream in = request.getResponseStream();
+
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                byte[] buffer = new byte[4096];
+
+                for (int read = 0 ; (read = in.read(buffer)) != -1;
+                    out.write(buffer, 0, read));
+
+                return out.toByteArray();
+            }
+        }
+        catch(Exception e)
+        {
+            logger.info("Failed to retrieve photo of the contact", e);
+        }
+        return null;
+    }
+}

@@ -17,6 +17,11 @@ import net.java.sip.communicator.util.swing.*;
 public class JabberAccountRegistrationForm
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final AccountPanel accountPanel;
 
     private final ConnectionPanel connectionPanel;
@@ -125,7 +130,7 @@ public class JabberAccountRegistrationForm
     }
 
     /**
-     * Adds panel to the list of panels with values which need validation. 
+     * Adds panel to the list of panels with values which need validation.
      * @param panel ValidatingPanel.
      */
     public void addValidatingPanel(ValidatingPanel panel)
@@ -163,7 +168,7 @@ public class JabberAccountRegistrationForm
     /**
      * Indicates if this wizard is modifying an existing account or is creating
      * a new one.
-     * 
+     *
      * @return <code>true</code> to indicate that this wizard is currently in
      * modification mode, <code>false</code> - otherwise.
      */
@@ -193,6 +198,8 @@ public class JabberAccountRegistrationForm
         registration.setSendKeepAlive(connectionPanel.isSendKeepAlive());
         registration.setGmailNotificationEnabled(
             connectionPanel.isGmailNotificationsEnabled());
+        registration.setGoogleContactsEnabled(
+                connectionPanel.isGoogleContactsEnabled());
         registration.setResource(connectionPanel.getResource());
 
         String serverPort = connectionPanel.getServerPort();
@@ -279,6 +286,12 @@ public class JabberAccountRegistrationForm
                     accountProperties.get("GMAIL_NOTIFICATIONS_ENABLED"));
 
         connectionPanel.setGmailNotificationsEnabled(gmailNotificationEnabled);
+
+        boolean googleContactsEnabled
+            = Boolean.parseBoolean(
+                accountProperties.get("GOOGLE_CONTACTS_ENABLED"));
+
+        connectionPanel.setGoogleContactsEnabled(googleContactsEnabled);
 
         String resource
             = accountProperties.get(ProtocolProviderFactory.RESOURCE);

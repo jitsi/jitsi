@@ -68,5 +68,11 @@
     <classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/forms-1.2.1.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/weupnp-0.1.2-SNAPSHOT.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/google-collect-1.0-rc1.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/gdata-client-1.0.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/gdata-client-meta-1.0.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/gdata-contacts-3.0.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/gdata-contacts-meta-3.0.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/gdata-core-1.0.jar"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

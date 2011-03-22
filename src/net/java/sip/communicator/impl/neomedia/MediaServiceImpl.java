@@ -1119,7 +1119,7 @@ public class MediaServiceImpl
 
         return null;
     }
-    
+
     /**
      * Get origin for desktop streaming device.
      *
@@ -1130,7 +1130,7 @@ public class MediaServiceImpl
         MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
         CaptureDeviceInfo devInfo = dev.getCaptureDeviceInfo();
         MediaLocator locator = devInfo.getLocator();
-        
+
         if(!locator.getProtocol().
                 equals(ImageStreamingAuto.LOCATOR_PROTOCOL))
         {
