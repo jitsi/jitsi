@@ -1909,7 +1909,7 @@ public class ProtocolProviderServiceJabberImpl
     {
         if(accountID.getAccountPropertyBoolean(
                 "GOOGLE_CONTACTS_ENABLED",
-                false))
+                true))
         {
             logger.info("Register Google Contacts service as contact source");
             GoogleContactsService googleService =
@@ -1935,7 +1935,7 @@ public class ProtocolProviderServiceJabberImpl
     {
         if(accountID.getAccountPropertyBoolean(
                 "GOOGLE_CONTACTS_ENABLED",
-                false))
+                true))
         {
             logger.info("Unregister Google Contacts service as contact source");
 
