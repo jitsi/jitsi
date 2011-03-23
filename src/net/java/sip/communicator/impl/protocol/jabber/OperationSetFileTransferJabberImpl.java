@@ -105,39 +105,15 @@ public class OperationSetFileTransferJabberImpl
                 throw new IllegalArgumentException(
                     "File length exceeds the allowed one for this protocol");
 
-            // Find the jid of the contact which support file transfer
-            // and is with highest priority if more than one found
-            Iterator<Presence> iter = jabberProvider.getConnection().getRoster()
-                .getPresences(toContact.getAddress());
-            int bestPriority = -1;
-            String fullJid = null;
-
-            while(iter.hasNext())
-            {
-                Presence presence = iter.next();
-
-                if(jabberProvider.isFeatureListSupported(presence.getFrom(),
-                    new String[]{"http://jabber.org/protocol/si",
-                        "http://jabber.org/protocol/si/profile/file-transfer"}))
-                {
-
-                    int priority =
-                        (presence.getPriority() == Integer.MIN_VALUE) ?
-                            0 : presence.getPriority();
-
-                    if(priority > bestPriority)
-                    {
-                        bestPriority = priority;
-                        fullJid = presence.getFrom();
-                    }
-                }
-            }
+            String fullJid = jabberProvider.getFullJid(toContact);
 
             // First we check if file transfer is at all supported for this
             // contact.
-            if (fullJid == null)
+            if (!jabberProvider.isFeatureListSupported(fullJid,
+                new String[]{"http://jabber.org/protocol/si",
+                    "http://jabber.org/protocol/si/profile/file-transfer"}))
             {
-                throw new OperationNotSupportedException(
+                new OperationNotSupportedException(
                     "Contact client or server does not support file transfers.");
             }
 
