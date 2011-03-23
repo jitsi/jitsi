@@ -8,12 +8,11 @@
 #include "JAWTRenderer.h"
 
 #include <jawt_md.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#import <ApplicationServices/ApplicationServices.h>
 #import <AppKit/NSView.h>
+#import <ApplicationServices/ApplicationServices.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSNotification.h>
@@ -37,7 +36,7 @@
     /**
      * The <tt>CAOpenGLLayer</tt> in which this <tt>JAWTRenderer</tt> paints.
      */
-    JAWTRendererCALayer *layer;
+    CALayer *layer;
 
     /**
      * The OpenGL context of this <tt>JAWTRenderer</tt> which shares
@@ -88,7 +87,7 @@
 - (void)removeSubrenderer:(JAWTRenderer *)subrenderer;
 - (void)removeSubrendererAtIndex:(NSUInteger)index;
 - (void)reshape;
-- (void)setLayer:(JAWTRendererCALayer *)aLayer;
+- (void)setLayer:(CALayer *)aLayer;
 - (void)setSuperrenderer:(JAWTRenderer *)aSuperrenderer;
 - (void)setView:(NSView *)aView;
 - (void)update;
@@ -325,9 +324,7 @@ JAWTRenderer_processLightweightComponentEvent
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     if (renderer->layer)
-    {
         [renderer->layer setFrame:CGRectMake(x, y, width, height)];
-    }
 
     [autoreleasePool release];
 }
@@ -463,14 +460,13 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
         {
             if (subrenderers)
             {
-                NSUInteger index;
-                NSUInteger count;
-                
-                index = 0;
-                count = [subrenderers count];
+                NSUInteger index = 0;
+                NSUInteger count = [subrenderers count];
+
                 [CATransaction begin];
                 [CATransaction setValue:(id)kCFBooleanTrue
                                  forKey:kCATransactionDisableActions];
+
                 while (index < count)
                 {
                     JAWTRenderer *subrenderer
@@ -488,6 +484,7 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
                     }
                     index++;
                 }
+
                 [CATransaction commit];
             }
         }
@@ -551,7 +548,7 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
     }
 }
 
-- (void)setLayer:(JAWTRendererCALayer *)aLayer
+- (void)setLayer:(CALayer *)aLayer
 {
     if (layer != aLayer)
     {
@@ -559,8 +556,14 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
         {
             CALayer *superlayer;
 
-            if (layer->renderer == self)
-                [layer setRenderer:nil];
+            if ([layer isKindOfClass:[JAWTRendererCALayer class]])
+            {
+                JAWTRendererCALayer *rendererLayer
+                    = (JAWTRendererCALayer *) layer;
+
+                if (rendererLayer->renderer == self)
+                    [rendererLayer setRenderer:nil];
+            }
 
             /*
              * It may or may not be necessary to remove the layer from its
@@ -579,7 +582,8 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
         {
             [layer retain];
 
-            [layer setRenderer:self];
+            if ([layer isKindOfClass:[JAWTRendererCALayer class]])
+                [((JAWTRendererCALayer *) layer) setRenderer:self];
         }
     }
 }
@@ -643,13 +647,15 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
 
             /* Host a JAWTRendererCALayer in the view. */
             viewLayer = [view layer];
-            if ((viewLayer
-                    && [viewLayer isKindOfClass:[JAWTRendererCALayer class]]))
-                [self setLayer:(JAWTRendererCALayer *) viewLayer];
+            if (viewLayer
+                    /*&& [viewLayer isKindOfClass:[JAWTRendererCALayer class]]*/)
+            {
+                [self setLayer:viewLayer];
+            }
             else
             {
-                JAWTRendererCALayer *rendererLayer
-                    = [JAWTRendererCALayer layer];
+                CALayer *rendererLayer
+                    = [CALayer layer];
 
                 [self setLayer:rendererLayer];
                 if (rendererLayer)
