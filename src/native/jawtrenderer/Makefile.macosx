@@ -14,11 +14,9 @@ CPPFLAGS=-I$(JAVA_HOME)/Headers
 LDFLAGS=-dynamiclib
 LIBS= \
 	-framework AppKit \
-	-framework ApplicationServices \
 	-framework Foundation \
 	-framework JavaVM \
-	-framework OpenGL \
-	-framework QuartzCore
+	-framework OpenGL
 TARGET=../../../lib/native/mac/lib$(TARGET_BASENAME).jnilib
 
 CPPFLAGS:=-Wall -Wreturn-type -DJNI_IMPLEMENTATION \

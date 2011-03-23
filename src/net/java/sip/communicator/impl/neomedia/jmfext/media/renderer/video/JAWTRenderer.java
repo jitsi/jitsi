@@ -836,19 +836,6 @@ public class JAWTRenderer
                 {
                     if (handle != 0)
                     {
-                        /*
-                         * CALayer on Mac OS X has a different coordinate
-                         * system.
-                         */
-                        Component parent = getParent();
-
-                        if (parent != null)
-                        {
-                            bounds.y
-                                = parent.getHeight()
-                                    - (bounds.y + bounds.height);
-                        }
-
                         JAWTRenderer.processLightweightComponentEvent(
                                 handle,
                                 bounds.x,

@@ -11,41 +11,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+#import <AppKit/NSOpenGL.h>
 #import <AppKit/NSView.h>
-#import <ApplicationServices/ApplicationServices.h>
 #import <Foundation/NSArray.h>
 #import <Foundation/NSAutoreleasePool.h>
 #import <Foundation/NSNotification.h>
 #import <Foundation/NSObject.h>
 #import <OpenGL/gl.h>
 #import <OpenGL/OpenGL.h>
-#import <QuartzCore/CALayer.h>
-#import <QuartzCore/CAOpenGLLayer.h>
-#import <QuartzCore/CATransaction.h>
 
 #define JAWT_RENDERER_TEXTURE GL_TEXTURE_RECTANGLE_EXT
 #define JAWT_RENDERER_TEXTURE_FORMAT GL_BGRA
 #define JAWT_RENDERER_TEXTURE_TYPE GL_UNSIGNED_BYTE
 
-@class JAWTRenderer;
-@class JAWTRendererCALayer;
-
 @interface JAWTRenderer : NSObject
 {
 @public
     /**
-     * The <tt>CAOpenGLLayer</tt> in which this <tt>JAWTRenderer</tt> paints.
-     */
-    CALayer *layer;
-
-    /**
      * The OpenGL context of this <tt>JAWTRenderer</tt> which shares
-     * <tt>texture</tt> with the OpenGL context of <tt>layer</tt> and enables
-     * this <tt>JAWTRederer</tt> to not directly access the OpenGL context of
-     * <tt>layer</tt> because it cannot guarantee synchronized access to it
-     * anyway.
+     * <tt>texture</tt> with the OpenGL contexts of <tt>subrenderers</tt> and
+     * enables this <tt>JAWTRederer</tt> to not directly access the OpenGL
+     * contexts of <tt>subrenderers</tt> because it cannot guarantee
+     * synchronized access to them anyway.
      */
-    CGLContextObj glContext;
+    NSOpenGLContext *glContext;
 
     jint height;
     GLuint texture;
@@ -77,7 +66,7 @@
 
 - (void)addSubrenderer:(JAWTRenderer *)subrenderer;
 - (void)boundsDidChange:(NSNotification *)notification;
-- (void)copyCGLContext:(CGLContextObj)glContext
+- (void)copyCGLContext:(NSOpenGLContext *)glContext
         forPixelFormat:(CGLPixelFormatObj)pixelFormat;
 - (void)dealloc;
 - (void)frameDidChange:(NSNotification *)notification;
@@ -87,22 +76,10 @@
 - (void)removeSubrenderer:(JAWTRenderer *)subrenderer;
 - (void)removeSubrendererAtIndex:(NSUInteger)index;
 - (void)reshape;
-- (void)setLayer:(CALayer *)aLayer;
 - (void)setSuperrenderer:(JAWTRenderer *)aSuperrenderer;
 - (void)setView:(NSView *)aView;
 - (void)update;
 @end /* JAWTRenderer */
-
-@interface JAWTRendererCALayer : CAOpenGLLayer
-{
-@public
-    JAWTRenderer *renderer;
-}
-
-- (void)dealloc;
-- (id)init;
-- (void)setRenderer:(JAWTRenderer *)aRenderer;
-@end /* JAWTRendererCALayer */
 
 void
 JAWTRenderer_addNotifyLightweightComponent
@@ -116,12 +93,9 @@ JAWTRenderer_addNotifyLightweightComponent
     parentRenderer = (JAWTRenderer *) parentHandle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-    if (!(renderer->layer))
-    {
-        [renderer setLayer:[JAWTRendererCALayer layer]];
-        if (parentRenderer)
-            [parentRenderer addSubrenderer:renderer];
-    }
+    if (parentRenderer)
+        [parentRenderer addSubrenderer:renderer];
+    [renderer copyCGLContext:nil forPixelFormat:0];
 
     [autoreleasePool release];
 }
@@ -216,7 +190,7 @@ JAWTRenderer_paintLightweightComponent
     renderer = (JAWTRenderer *) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-    [renderer paint];
+    // TODO Auto-generated method stub
 
     [autoreleasePool release];
     return JNI_TRUE;
@@ -241,7 +215,7 @@ JAWTRenderer_process
         {
             if (renderer->glContext)
             {
-                CGLSetCurrentContext(renderer->glContext);
+                [renderer->glContext makeCurrentContext];
 
                 if (renderer->texture
                         && ((width != renderer->width)
@@ -323,8 +297,13 @@ JAWTRenderer_processLightweightComponentEvent
     renderer = (JAWTRenderer *) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
-    if (renderer->layer)
-        [renderer->layer setFrame:CGRectMake(x, y, width, height)];
+    @synchronized (renderer)
+    {
+        renderer->boundsX = x;
+        renderer->boundsY = y;
+        renderer->boundsWidth = width;
+        renderer->boundsHeight = height;
+    }
 
     [autoreleasePool release];
 }
@@ -339,7 +318,6 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     [renderer removeFromSuperrenderer];
-    [renderer setLayer:nil];
 
     [autoreleasePool release];
 }
@@ -366,27 +344,37 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
         [self reshape];
 }
 
-- (void)copyCGLContext:(CGLContextObj)glContext
+- (void)copyCGLContext:(NSOpenGLContext *)glContext
         forPixelFormat:(CGLPixelFormatObj)pixelFormat
 {
     @synchronized (self)
     {
         if (self->glContext)
         {
-            CGLSetCurrentContext(self->glContext);
+            [self->glContext makeCurrentContext];
             if (texture)
             {
                 glDeleteTextures(1, &texture);
                 texture = 0;
             }
-            CGLSetCurrentContext(0);
+            [NSOpenGLContext clearCurrentContext];
 
-            CGLReleaseContext(self->glContext);
-            self->glContext = 0;
+            [self->glContext release];
+            self->glContext = nil;
         }
 
         if (glContext)
-            CGLCreateContext(pixelFormat, glContext, &(self->glContext));
+        {
+            NSOpenGLPixelFormat *format
+                = [[NSOpenGLPixelFormat alloc]
+                        initWithCGLPixelFormatObj:pixelFormat];
+
+            self->glContext
+                = [[NSOpenGLContext alloc]
+                        initWithFormat:format
+                          shareContext:glContext];
+            [format release];
+        }
     }
 }
 
@@ -410,8 +398,7 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
     }
 
     [self setView:nil];
-    [self setLayer:nil];
-    [self copyCGLContext:0 forPixelFormat:0];
+    [self copyCGLContext:nil forPixelFormat:0];
 
     [super dealloc];
 }
@@ -426,8 +413,11 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
 {
     if ((self = [super init]))
     {
-        layer = nil;
-        glContext = 0;
+        NSOpenGLPixelFormatAttribute pixelFormatAttribs[]
+            = { NSOpenGLPFAWindow, 0 };
+        NSOpenGLPixelFormat *pixelFormat;
+
+        glContext = nil;
 
         height = 0;
         texture = 0;
@@ -447,58 +437,158 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
 
         subrenderers = nil;
         superrenderer = nil;
+
+        pixelFormat
+            = [[NSOpenGLPixelFormat alloc]
+                    initWithAttributes:pixelFormatAttribs];
+        if (pixelFormat)
+        {
+            glContext
+                = [[NSOpenGLContext alloc]
+                        initWithFormat:pixelFormat
+                          shareContext:nil];
+            if (glContext)
+            {
+                GLint surfaceOpacity;
+
+                // prepareOpenGL
+                [glContext makeCurrentContext];
+
+                surfaceOpacity = 1;
+                [glContext setValues:&surfaceOpacity
+                        forParameter:NSOpenGLCPSurfaceOpacity];
+
+                glDisable(GL_BLEND);
+                glDisable(GL_DEPTH_TEST);
+                glDepthMask(GL_FALSE);
+                glDisable(GL_CULL_FACE);
+                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                glClear(GL_COLOR_BUFFER_BIT);
+            }
+            else
+            {
+                [self release];
+                self = nil;
+            }
+            [pixelFormat release];
+        }
+        else
+        {
+            [self release];
+            self = nil;
+        }
     }
     return self;
 }
 
 - (void)paint
 {
-    /* Make the component and its layer paint. */
-    if (layer)
+    [glContext makeCurrentContext];
+
+    // drawRect:
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    @synchronized (self)
     {
-        @synchronized (self)
+        if (texture)
         {
-            if (subrenderers)
+            /*
+             * It may be a misunderstanding of OpenGL context sharing but
+             * JAWT_RENDERER_TEXTURE does not seem to work in glContext unless
+             * it is explicitly bound to texture while glContext is current.
+             */
+            glBindTexture(JAWT_RENDERER_TEXTURE, texture);
+            glEnable(JAWT_RENDERER_TEXTURE);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0, 0);
+            glVertex2f(-1.0, 1.0);
+            glTexCoord2f(width, 0);
+            glVertex2f(1.0, 1.0);
+            glTexCoord2f(width, height);
+            glVertex2f(1.0, -1.0);
+            glTexCoord2f(0, height);
+            glVertex2f(-1.0, -1.0);
+            glEnd();
+            glDisable(JAWT_RENDERER_TEXTURE);
+        }
+            
+        /* Draw the subrenderers of this JAWTRenderer. */
+        if (subrenderers)
+        {
+            NSUInteger subrendererIndex = 0;
+            NSUInteger subrendererCount = [subrenderers count];
+            CGLPixelFormatObj pixelFormat = 0;
+
+            for (;
+                    subrendererIndex < subrendererCount;
+                    subrendererIndex++)
             {
-                NSUInteger index = 0;
-                NSUInteger count = [subrenderers count];
+                JAWTRenderer *subrenderer
+                    = [subrenderers objectAtIndex:subrendererIndex];
 
-                [CATransaction begin];
-                [CATransaction setValue:(id)kCFBooleanTrue
-                                 forKey:kCATransactionDisableActions];
-
-                while (index < count)
+                @synchronized (subrenderer)
                 {
-                    JAWTRenderer *subrenderer
-                        = [subrenderers objectAtIndex:index];
-                    
-                    @synchronized (subrenderer)
-                    {
-                        CALayer *sublayer = subrenderer->layer;
-                        
-                        if (sublayer && ([sublayer superlayer] != layer))
-                        {
-                            [sublayer removeFromSuperlayer];
-                            [layer addSublayer:sublayer];
-                        }
-                    }
-                    index++;
-                }
+                    GLfloat subrendererBoundsHeight;
+                    GLfloat subrendererBoundsWidth;
 
-                [CATransaction commit];
+                    /*
+                     * Make sure the subrenderer has an NSOpenGLContext
+                     * which is compatible with glContext and shares its
+                     * object state.
+                     */
+                    if (!(subrenderer->glContext))
+                    {
+                        if (!pixelFormat)
+                            pixelFormat
+                                = CGLGetPixelFormat([glContext CGLContextObj]);
+                        [subrenderer copyCGLContext:glContext
+                                     forPixelFormat:pixelFormat];
+                    }
+
+                    subrendererBoundsHeight = subrenderer->boundsHeight;
+                    subrendererBoundsWidth = subrenderer->boundsWidth;
+                    if (subrenderer->texture
+                            && (subrendererBoundsHeight > 0)
+                            && (subrendererBoundsWidth > 0))
+                    {
+                        GLfloat x_1
+                            = -1.0 + 2 * subrenderer->boundsX / boundsWidth;
+                        GLfloat y1
+                            = 1 - 2 * subrenderer->boundsY / boundsHeight;
+                        GLfloat x1
+                            = x_1 + 2 * subrendererBoundsWidth / boundsWidth;
+                        GLfloat y_1
+                            = y1 - 2 * subrendererBoundsHeight / boundsHeight;
+
+                        glBindTexture(
+                            JAWT_RENDERER_TEXTURE,
+                            subrenderer->texture);
+                        glEnable(JAWT_RENDERER_TEXTURE);
+                        glBegin(GL_QUADS);
+                        glTexCoord2f(0, 0);
+                        glVertex2f(x_1, y1);
+                        glTexCoord2f(subrenderer->width, 0);
+                        glVertex2f(x1, y1);
+                        glTexCoord2f(subrenderer->width, subrenderer->height);
+                        glVertex2f(x1, y_1);
+                        glTexCoord2f(0, subrenderer->height);
+                        glVertex2f(x_1, y_1);
+                        glEnd();
+                        glDisable(JAWT_RENDERER_TEXTURE);
+                    }
+                }
             }
         }
-
-        [layer setNeedsDisplay];
     }
-    if (view)
-        [view displayIfNeededIgnoringOpacity];
+
+    glFlush();
 }
 
 - (void)removeFromSuperrenderer
 {
     if (superrenderer)
         [superrenderer removeSubrenderer:self];
+    [self copyCGLContext:nil forPixelFormat:nil];
 }
 
 - (void)removeSubrenderer:(JAWTRenderer *)subrenderer
@@ -539,52 +629,13 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
     boundsWidth = bounds.size.width;
     boundsX = bounds.origin.x;
     boundsY = bounds.origin.y;
-    if ((bounds.size.width > 0) && (bounds.size.height > 0))
+    if ((bounds.size.width > 0) && (bounds.size.height > 0) && glContext)
     {
-//        [glContext makeCurrentContext];
-//        glViewport(
-//            bounds.origin.x, bounds.origin.y,
-//            bounds.size.width, bounds.size.height);
-    }
-}
+        [glContext makeCurrentContext];
 
-- (void)setLayer:(CALayer *)aLayer
-{
-    if (layer != aLayer)
-    {
-        if (layer)
-        {
-            CALayer *superlayer;
-
-            if ([layer isKindOfClass:[JAWTRendererCALayer class]])
-            {
-                JAWTRendererCALayer *rendererLayer
-                    = (JAWTRendererCALayer *) layer;
-
-                if (rendererLayer->renderer == self)
-                    [rendererLayer setRenderer:nil];
-            }
-
-            /*
-             * It may or may not be necessary to remove the layer from its
-             * superlayer but it should not hurt.
-             */
-            superlayer = [layer superlayer];
-            if (superlayer)
-                [layer removeFromSuperlayer];
-
-            [layer release];
-        }
-
-        layer = aLayer;
-
-        if (layer)
-        {
-            [layer retain];
-
-            if ([layer isKindOfClass:[JAWTRendererCALayer class]])
-                [((JAWTRendererCALayer *) layer) setRenderer:self];
-        }
+        glViewport(
+            bounds.origin.x, bounds.origin.y,
+            bounds.size.width, bounds.size.height);
     }
 }
 
@@ -608,8 +659,6 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
     {
         if (view)
         {
-            CALayer *viewLayer;
-
 #ifdef JAWT_RENDERER_USE_NSNOTIFICATIONCENTER
             NSNotificationCenter *notificationCenter;
 
@@ -627,10 +676,6 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
             }
 #endif /* JAWT_RENDERER_USE_NSNOTIFICATIONCENTER */
 
-            viewLayer = [view layer];
-            if (self->layer == viewLayer)
-                [self setLayer:nil];
-
             [view release];
         }
 
@@ -638,39 +683,14 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
 
         if (view)
         {
-            CALayer *viewLayer;
 #ifdef JAWT_RENDERER_USE_NSNOTIFICATIONCENTER
             NSNotificationCenter *notificationCenter;
 #endif /* JAWT_RENDERER_USE_NSNOTIFICATIONCENTER */
 
             [view retain];
 
-            /* Host a JAWTRendererCALayer in the view. */
-            viewLayer = [view layer];
-            if (viewLayer
-                    /*&& [viewLayer isKindOfClass:[JAWTRendererCALayer class]]*/)
-            {
-                [self setLayer:viewLayer];
-            }
-            else
-            {
-                CALayer *rendererLayer
-                    = [CALayer layer];
-
-                [self setLayer:rendererLayer];
-                if (rendererLayer)
-                {
-                    [view setLayer:rendererLayer];
-                    [view setWantsLayer:YES];
-
-                    /*
-                     * Make sure that the view has accepted to host the
-                     * rendererLayer.
-                     */
-                    if ([view layer] != rendererLayer)
-                        [self setLayer:nil];
-                }
-            }
+            if ([glContext view] != view)
+                [glContext setView:view];
 
 #ifdef JAWT_RENDERER_USE_NSNOTIFICATIONCENTER
             notificationCenter = [NSNotificationCenter defaultCenter];
@@ -705,127 +725,9 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
     frameWidth = frame.size.width;
     frameX = frame.origin.x;
     frameY = frame.origin.y;
-    //[glContext update];
+    if (glContext)
+        [glContext update];
 
     [self reshape];
 }
 @end /* JAWTRenderer */
-
-@implementation JAWTRendererCALayer
-- (CGLContextObj)copyCGLContextForPixelFormat:(CGLPixelFormatObj)pixelFormat
-{
-    CGLContextObj glContext = [super copyCGLContextForPixelFormat:pixelFormat];
-
-    if (glContext)
-    {
-        GLint surfaceOpacity;
-        GLclampf color;
-
-        surfaceOpacity = 1;
-        CGLSetParameter(glContext, kCGLCPSurfaceOpacity, &surfaceOpacity);
-
-        CGLSetCurrentContext(glContext);
-
-        glDisable(GL_BLEND);
-        glDisable(GL_DEPTH_TEST);
-        glDepthMask(GL_FALSE);
-        glDisable(GL_CULL_FACE);
-
-        color = 0.0f;
-        glClearColor(color, color, color, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
-
-    if (renderer)
-        [renderer copyCGLContext:glContext forPixelFormat:pixelFormat];
-
-    return glContext;
-}
-
-- (void)dealloc
-{
-    [self setRenderer:nil];
-
-    [super dealloc];
-}
-
-- (void)drawInCGLContext:(CGLContextObj)glContext
-             pixelFormat:(CGLPixelFormatObj)pixelFormat
-            forLayerTime:(CFTimeInterval)timeInterval
-             displayTime:(const CVTimeStamp *)timeStamp
-{
-    CGLSetCurrentContext(glContext);
-
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    if (renderer)
-    {
-        @synchronized (renderer)
-        {
-            if (renderer->texture)
-            {
-                /*
-                 * It may be a misunderstanding of OpenGL context sharing but
-                 * JAWT_RENDERER_TEXTURE does not seem to work in glContext
-                 * unless it is explicitly bound to renderer->texture while
-                 * glContext is current.
-                 */
-                glBindTexture(JAWT_RENDERER_TEXTURE, renderer->texture);
-
-                glEnable(JAWT_RENDERER_TEXTURE);
-                glBegin(GL_QUADS);
-                glTexCoord2f(0, 0);
-                glVertex2f(-1.0, 1.0);
-                glTexCoord2f(renderer->width, 0);
-                glVertex2f(1.0, 1.0);
-                glTexCoord2f(renderer->width, renderer->height);
-                glVertex2f(1.0, -1.0);
-                glTexCoord2f(0, renderer->height);
-                glVertex2f(-1.0, -1.0);
-                glEnd();
-                glDisable(JAWT_RENDERER_TEXTURE);
-            }
-        }
-    }
-
-    [super drawInCGLContext:glContext
-                pixelFormat:pixelFormat
-               forLayerTime:timeInterval
-                displayTime:timeStamp];
-}
-
-- (id)init
-{
-    if ((self = [super init]))
-    {
-        renderer = nil;
-
-        [self setAnchorPoint:CGPointMake(0, 0)];
-        /* AWT will be driving the painting. */
-        [self setAsynchronous:YES];
-    }
-    return self;
-}
-
-- (void)releaseCGLContext:(CGLContextObj)glContext
-{
-    if (renderer)
-        [renderer copyCGLContext:0 forPixelFormat:0];
-
-    [super releaseCGLContext:glContext];
-}
-
-- (void)setRenderer:(JAWTRenderer *)aRenderer
-{
-    if (renderer != aRenderer)
-    {
-        if (renderer)
-            [renderer release];
-
-        renderer = aRenderer;
-
-        if (renderer)
-            [renderer retain];
-    }
-}
-@end /* JAWTRendererCALayer */

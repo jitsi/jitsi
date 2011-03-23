@@ -1761,33 +1761,21 @@ public class OneToOneCallPeerPanel
                 {
                     if (isVisible)
                     {
-                        if (OSUtils.IS_MAC
-                                && (localVideo instanceof JComponent))
-                        {
-                            /*
-                             * There are overlapping issues on Mac OS X so we'd
-                             * better take the safest route.
-                             */
-                            handleVideoEvent(null, videoContainer);
-                        }
-                        else
-                        {
-                            Container localVideoParent = localVideo.getParent();
+                        Container localVideoParent = localVideo.getParent();
 
-                            if (localVideoParent != null)
-                                localVideoParent.remove(localVideo);
+                        if (localVideoParent != null)
+                            localVideoParent.remove(localVideo);
 
-                            Container closeButtonParent
-                                = closeButton.getParent();
+                        Container closeButtonParent
+                            = closeButton.getParent();
 
-                            if (closeButtonParent != null)
-                                closeButtonParent.remove(closeButton);
+                        if (closeButtonParent != null)
+                            closeButtonParent.remove(closeButton);
 
-                            videoContainer.add(localVideo, VideoLayout.LOCAL);
-                            videoContainer.add(
-                                    closeButton,
-                                    VideoLayout.CLOSE_LOCAL_BUTTON);
-                        }
+                        videoContainer.add(localVideo, VideoLayout.LOCAL);
+                        videoContainer.add(
+                                closeButton,
+                                VideoLayout.CLOSE_LOCAL_BUTTON);
                     }
                     else
                     {
