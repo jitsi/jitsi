@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.googlecontacts;
 
 import com.google.gdata.client.contacts.*;
+import com.google.gdata.util.*;
 
 import net.java.sip.communicator.service.googlecontacts.*;
 
@@ -44,15 +45,11 @@ public class GoogleContactsConnectionImpl
      *
      * @param login the login to connect to the service
      * @param password the password to connect to the service
-     * @throws Exception if something goes wrong during connection
      */
     public GoogleContactsConnectionImpl(String login, String password)
-        throws Exception
     {
         this.login = login;
         this.password = password;
-
-        googleService.setUserCredentials(login, password);
         googleService.useSsl();
     }
 
@@ -84,6 +81,25 @@ public class GoogleContactsConnectionImpl
     public String getPassword()
     {
         return password;
+    }
+
+    /**
+     * Initialize connection.
+     *
+     * @return true if connection succeed, false if credentials is wrong
+     */
+    public boolean connect()
+    {
+        try
+        {
+            googleService.setUserCredentials(login, password);
+        }
+        catch(AuthenticationException e)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     /**

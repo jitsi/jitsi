@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.googlecontacts;
 import java.util.*;
 import java.util.regex.*;
 
+import net.java.sip.communicator.impl.googlecontacts.configform.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.util.*;
@@ -167,6 +168,47 @@ public class GoogleContactsSourceService
                 if(cnx == null)
                 {
                     cnx = new GoogleContactsConnectionImpl(login, password);
+
+                    if(cnx.connect() == false)
+                    {
+                        AccountSettingsForm settings =
+                            new AccountSettingsForm();
+                        settings.setModal(true);
+                        settings.loadData(cnx);
+                        int ret = settings.showDialog();
+
+                        if(ret == 1)
+                        {
+                            cnx = (GoogleContactsConnectionImpl)
+                                settings.getConnection();
+                            GoogleContactsActivator.getGoogleContactsService().
+                                saveConfig(cnx);
+                        }
+                        else
+                        {
+                            cnx = null;
+                        }
+                    }
+                }
+                else if(!cnx.connect())
+                {
+                    AccountSettingsForm settings =
+                        new AccountSettingsForm();
+                    settings.setModal(true);
+                    settings.loadData(cnx);
+                    int ret = settings.showDialog();
+
+                    if(ret == 1)
+                    {
+                        cnx = (GoogleContactsConnectionImpl)
+                            settings.getConnection();
+                        GoogleContactsActivator.getGoogleContactsService().
+                            saveConfig(cnx);
+                    }
+                    else
+                    {
+                        cnx = null;
+                    }
                 }
             }
             else

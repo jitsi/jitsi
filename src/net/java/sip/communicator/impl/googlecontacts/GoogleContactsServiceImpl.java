@@ -14,6 +14,7 @@ import java.util.regex.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.googlecontacts.*;
+import net.java.sip.communicator.impl.googlecontacts.configform.*;
 import net.java.sip.communicator.util.*;
 
 import com.google.gdata.client.Service.*;
@@ -74,7 +75,13 @@ public class GoogleContactsServiceImpl
      */
     public GoogleContactsServiceImpl()
     {
-        loadConfig();
+        new Thread()
+        {
+            public void run()
+            {
+                loadConfig();
+            }
+        }.start();
     }
 
     /**
@@ -115,7 +122,26 @@ public class GoogleContactsServiceImpl
 
             if(cnx != null)
             {
+                if(!cnx.connect())
+                {
+                    cnx.setEnabled(false);
+                    AccountSettingsForm settings = new AccountSettingsForm();
+                    settings.setModal(true);
+                    settings.loadData(cnx);
+                    int ret = settings.showDialog();
+
+                    if(ret == 1)
+                    {
+                        cnx = (GoogleContactsConnectionImpl)
+                            settings.getConnection();
+                        // set the enabled state as before
+                        cnx.setEnabled(enabled);
+                        saveConfig(cnx);
+                    }
+                }
+
                 accounts.add(cnx);
+
                 /* register contact source */
                 if(cnx.isEnabled())
                 {
@@ -123,6 +149,45 @@ public class GoogleContactsServiceImpl
                 }
             }
         }
+    }
+
+    /**
+     * Remove a connection.
+     *
+     * @param cnx connection to save
+     */
+    public void removeConfig(GoogleContactsConnection cnx)
+    {
+        ConfigurationService configService =
+            GoogleContactsActivator.getConfigService();
+        configService.removeProperty(CONFIGURATION_PATH + ".acc" +
+                Math.abs(cnx.getLogin().hashCode()));
+    }
+
+    /**
+     * Save configuration.
+     *
+     * @param cnx connection to save
+     */
+    public void saveConfig(GoogleContactsConnection cnx)
+    {
+        ConfigurationService configService =
+            GoogleContactsActivator.getConfigService();
+        CredentialsStorageService credentialsService =
+            GoogleContactsActivator.getCredentialsService();
+        String login = cnx.getLogin();
+        String path = CONFIGURATION_PATH + ".acc" + Math.abs(login.hashCode());
+
+        configService.setProperty(
+                path,
+                login);
+        configService.setProperty(
+                path + ".account",
+                login);
+        configService.setProperty(
+                path + ".enabled",
+                ((GoogleContactsConnectionImpl)cnx).isEnabled());
+        credentialsService.storePassword(path, cnx.getPassword());
     }
 
     /**
@@ -340,7 +405,7 @@ public class GoogleContactsServiceImpl
         }
         catch(Exception e)
         {
-            logger.info("Failed to authenticate Google Contacts", e);
+            logger.info("Failed to obtain Google Contacts connection", e);
             return null;
         }
     }

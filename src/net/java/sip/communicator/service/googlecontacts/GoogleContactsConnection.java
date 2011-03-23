@@ -26,4 +26,11 @@ public interface GoogleContactsConnection
      * @return password to connect to the service
      */
     public String getPassword();
+
+    /**
+     * Initialize connection.
+     *
+     * @return true if connection succeed, false if credentials is wrong
+     */
+    public boolean connect();
 }

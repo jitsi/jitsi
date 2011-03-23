@@ -204,7 +204,7 @@ public class AccountSettingsForm
             cnx = GoogleContactsActivator.getGoogleContactsService().
                 getConnection(login, password);
 
-            if(cnx == null)
+            if(!cnx.connect())
             {
                 JOptionPane.showMessageDialog(
                         this,

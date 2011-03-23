@@ -15,8 +15,6 @@ import javax.swing.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.impl.googlecontacts.*;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 
@@ -100,12 +98,6 @@ public class GoogleContactsConfigForm
         new AccountSettingsForm();
 
     /**
-     * Path where to store the account settings
-     */
-    private final static String CONFIGURATION_PATH =
-        "net.java.sip.communicator.impl.googlecontacts";
-
-    /**
      * Constructor
      */
     public GoogleContactsConfigForm()
@@ -113,45 +105,6 @@ public class GoogleContactsConfigForm
         super(new BorderLayout());
         logger.trace("GoogleContacts configuration form.");
         initComponents();
-    }
-
-    /**
-     * Remove a connection.
-     *
-     * @param cnx connection to save
-     */
-    private void removeConfig(GoogleContactsConnection cnx)
-    {
-        ConfigurationService configService =
-            GoogleContactsActivator.getConfigService();
-        configService.removeProperty(CONFIGURATION_PATH + ".acc" +
-                Math.abs(cnx.getLogin().hashCode()));
-    }
-
-    /**
-     * Save configuration.
-     *
-     * @param cnx connection to save
-     */
-    private void saveConfig(GoogleContactsConnection cnx)
-    {
-        ConfigurationService configService =
-            GoogleContactsActivator.getConfigService();
-        CredentialsStorageService credentialsService =
-            GoogleContactsActivator.getCredentialsService();
-        String login = cnx.getLogin();
-        String path = CONFIGURATION_PATH + ".acc" + Math.abs(login.hashCode());
-
-        configService.setProperty(
-                path,
-                login);
-        configService.setProperty(
-                path + ".account",
-                login);
-        configService.setProperty(
-                path + ".enabled",
-                ((GoogleContactsConnectionImpl)cnx).isEnabled());
-        credentialsService.storePassword(path, cnx.getPassword());
     }
 
     /**
@@ -275,7 +228,8 @@ public class GoogleContactsConfigForm
                 GoogleContactsConnection cnx = settingsForm.getConnection();
                 tableModel.addAccount(cnx, true);
                 new RefreshContactSourceThread(null, cnx).start();
-                saveConfig(cnx);
+                GoogleContactsActivator.getGoogleContactsService().saveConfig(
+                        cnx);
                 refresh();
             }
         }
@@ -298,7 +252,8 @@ public class GoogleContactsConfigForm
         {
             GoogleContactsConnection cnx = tableModel.getAccountAt(row);
             tableModel.removeAccount(cnx.getLogin());
-            removeConfig(cnx);
+            GoogleContactsActivator.getGoogleContactsService().removeConfig(
+                    cnx);
             new RefreshContactSourceThread(cnx, null).start();
             refresh();
         }
@@ -322,7 +277,9 @@ public class GoogleContactsConfigForm
         {
             modifyButton.setEnabled(true);
             removeButton.setEnabled(true);
-            saveConfig(tableModel.getAccountAt(accountTable.getSelectedRow()));
+            GoogleContactsActivator.getGoogleContactsService().
+                saveConfig(tableModel.getAccountAt(
+                        accountTable.getSelectedRow()));
         }
     }
 
