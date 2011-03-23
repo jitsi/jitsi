@@ -98,14 +98,16 @@ public class AccountPanel
         JPanel southPanel = new TransparentPanel(new BorderLayout());
         southPanel.add(rememberPassBox, BorderLayout.WEST);
 
-        String homeLinkString
-            = Resources.getString("plugin.jabberaccregwizz.HOME_LINK_TEXT");
+        String homeLinkString = parentForm.getHomeLinkLabel();
 
-        String homeLink = parentForm.getHomeLinkLabel();
+        if (homeLinkString != null)
+        {
+            String homeLink = Resources.getSettingsString(
+                    "service.gui.APPLICATION_WEB_SITE");
 
-        if (homeLink != null)
             southPanel.add( createHomeLink(homeLinkString, homeLink),
                             BorderLayout.EAST);
+        }
 
         userIDPassPanel.add(southPanel, BorderLayout.SOUTH);
 
