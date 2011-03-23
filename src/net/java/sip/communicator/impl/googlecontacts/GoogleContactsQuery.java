@@ -203,7 +203,7 @@ public class GoogleContactsQuery
     @Override
     protected void run()
     {
-        GoogleContactsServiceImpl service = (GoogleContactsServiceImpl)
+        GoogleContactsServiceImpl service =
             GoogleContactsActivator.getGoogleContactsService();
         gQuery = new GoogleQuery(query);
 

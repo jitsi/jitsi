@@ -238,6 +238,8 @@ public class JmfDeviceDetector
         //FMJ
         boolean fmjVideoAvailable = isFMJVideoAvailable();
 
+        /* disable LTI-CIVIL for now as we have native capture for all OS */
+        /*
         try
         {
             if(fmjVideoAvailable)
@@ -250,6 +252,7 @@ public class JmfDeviceDetector
                         exc);
             fmjVideoAvailable = false;
         }
+        */
 
         if (OSUtils.IS_MAC) // QuickTime
         {
