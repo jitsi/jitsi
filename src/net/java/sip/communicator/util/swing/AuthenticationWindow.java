@@ -23,6 +23,8 @@ public class AuthenticationWindow
     extends SIPCommFrame
     implements ActionListener
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Info text area.
      */
@@ -86,6 +88,11 @@ public class AuthenticationWindow
      * A lock used to synchronize data setting.
      */
     private final Object lock = new Object();
+
+    /**
+     * The condition that decides whether to continue waiting for data.
+     */
+    private boolean buttonClicked = false;
 
     /**
      * Creates an instance of the <tt>LoginWindow</tt>.
@@ -328,6 +335,8 @@ public class AuthenticationWindow
             isCanceled = true;
         }
 
+        // release the caller that opened the window
+        buttonClicked = true;
         synchronized (lock)
         {
             lock.notify();
@@ -342,6 +351,7 @@ public class AuthenticationWindow
      */
     private void enableKeyActions()
     {
+        @SuppressWarnings("serial")
         UIAction act = new UIAction()
         {
             public void actionPerformed(ActionEvent e)
@@ -384,18 +394,22 @@ public class AuthenticationWindow
 
         if(isVisible)
         {
-            this.passwdField.requestFocus();
+            if (uinValue instanceof JTextField &&
+                "".equals(((JTextField) uinValue).getText()))
+                uinValue.requestFocus();
+            else
+                passwdField.requestFocus();
 
             synchronized (lock)
             {
-                try
+                while(!buttonClicked)
                 {
-                    lock.wait();
-                }
-                catch (InterruptedException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    try
+                    {
+                        lock.wait();
+                    }
+                    catch (InterruptedException e)
+                    {} // we don't care, just retry
                 }
             }
         }
