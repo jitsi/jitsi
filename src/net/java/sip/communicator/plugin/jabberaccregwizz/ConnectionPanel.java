@@ -137,6 +137,8 @@ public class ConnectionPanel
         checkBoxesPanel.add(gmailNotificationsBox);
         checkBoxesPanel.add(googleContactsBox);
 
+        // default for new account
+        googleContactsBox.setSelected(true);
         advancedOpPanel.add(checkBoxesPanel, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
