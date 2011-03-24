@@ -8,6 +8,9 @@ package net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.video;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
+import java.util.*;
+import java.util.List; // disambiguation
 
 import javax.media.*;
 import javax.media.format.*;
@@ -27,6 +30,11 @@ public class JAWTRenderer
     extends ControlsAdapter
     implements VideoRenderer
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>JAWTRenderer</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(JAWTRenderer.class);
 
     /**
      * The human-readable <tt>PlugIn</tt> name of the <tt>JAWTRenderer</tt>
@@ -108,7 +116,7 @@ public class JAWTRenderer
     }
 
     private static native void addNotifyLightweightComponent(
-            long handle, JComponent component,
+            long handle, Component component,
             long parentHandle);
 
     /**
@@ -431,7 +439,7 @@ public class JAWTRenderer
             int x, int y, int width, int height);
 
     private static native void removeNotifyLightweightComponent(
-            long handle, JComponent component);
+            long handle, Component component);
 
     /**
      * Resets the state of this <tt>PlugIn</tt>.
@@ -654,6 +662,123 @@ public class JAWTRenderer
     };
 
     /**
+     * Represents a <tt>Component</tt> which is neither a
+     * <tt>AWTVideoComponent</tt> nor a <tt>SwingVideoComponent</tt> but which
+     * is to be painted by a <tt>SwingVideoComponentCanvas</tt> anyway.
+     */
+    private static class NonVideoComponent
+    {
+        private BufferedImage bufferedImage;
+
+        /**
+         * The <tt>Component</tt> represented by this <tt>NonVideoComponent</tt>
+         * instance.
+         */
+        public final Component component;
+
+        /**
+         * The handle of the native <tt>JAWTRenderer</tt> which paints this
+         * <tt>NonVideoComponent</tt>.
+         */
+        private long handle;
+
+        private int height;
+
+        private int[] rgb;
+
+        private int width;
+
+        public NonVideoComponent(Component component, long parentHandle)
+        {
+            this.component = component;
+
+            try
+            {
+                handle = JAWTRenderer.open(this.component);
+                if (handle != 0)
+                {
+                    JAWTRenderer.addNotifyLightweightComponent(
+                            handle, this.component,
+                            parentHandle);
+                }
+            }
+            catch (ResourceUnavailableException rue)
+            {
+                logger.error(
+                        "Failed to JAWTRenderer.open for NonVideoComponent",
+                        rue);
+            }
+        }
+
+        public void dispose()
+        {
+            if (handle != 0)
+            {
+                JAWTRenderer.removeNotifyLightweightComponent(
+                        handle, component);
+                JAWTRenderer.close(handle, component);
+                handle = 0;
+            }
+        }
+
+        public void paint()
+        {
+            if (handle != 0)
+            {
+                Rectangle bounds = component.getBounds();
+
+                if (!component.isVisible())
+                {
+                    bounds.height = 0;
+                    bounds.width = 0;
+                }
+                JAWTRenderer.processLightweightComponentEvent(
+                        handle,
+                        bounds.x, bounds.y, bounds.width, bounds.height);
+
+                if ((bounds.height < 1) || (bounds.width < 1))
+                    return;
+
+                if ((height != bounds.height) || (width != bounds.width))
+                {
+                    rgb = new int[bounds.width * bounds.height];
+                    bufferedImage
+                        = new BufferedImage(
+                                bounds.width, bounds.height,
+                                BufferedImage.TYPE_INT_ARGB);
+                    height = bounds.height;
+                    width = bounds.width;
+                }
+                if ((bufferedImage != null) && (rgb != null))
+                {
+                    Graphics g = bufferedImage.createGraphics();
+                    boolean process = false;
+
+                    try
+                    {
+                        component.paint(g);
+                        process = true;
+                    }
+                    finally
+                    {
+                        g.dispose();
+                    }
+                    if (process)
+                    {
+                        bufferedImage.getRGB(
+                                0, 0, width, height,
+                                rgb, 0, width);
+                        JAWTRenderer.process(
+                                handle, component,
+                                rgb, 0, rgb.length,
+                                width, height);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Implements a Swing <tt>Component</tt> in which this <tt>JAWTRenderer</tt>
      * paints.
      */
@@ -707,6 +832,10 @@ public class JAWTRenderer
         @Override
         public void addNotify()
         {
+            /*
+             * Since JAWTRenderer#open() may be performing the call, it may be
+             * wrong about this SwingVideoComponent having a parent.
+             */
             Container parent = getParent();
 
             if (parent == null)
@@ -753,7 +882,11 @@ public class JAWTRenderer
                 }
             }
 
-            parent.addComponentListener(parentComponentListener);
+            if (this.parent != parent)
+            {
+                this.parent = parent;
+                this.parent.addComponentListener(parentComponentListener);
+            }
         }
 
         /**
@@ -924,6 +1057,14 @@ public class JAWTRenderer
              */
             processLightweightComponentEvent();
         }
+
+        @Override
+        public void setLocation(int x, int y)
+        {
+            super.setLocation(x, y);
+
+            processLightweightComponentEvent();
+        }
     }
 
     /**
@@ -938,6 +1079,56 @@ public class JAWTRenderer
          * painting of this <tt>SwingVideoComponentCanvas</tt>.
          */
         private long handle;
+
+        private final List<NonVideoComponent> nonVideoComponents
+            = new LinkedList<NonVideoComponent>();
+
+        /**
+         * The <tt>Container</tt> which is the last-known parent of this
+         * <tt>SwingVideoComponentCanvas</tt>.
+         */
+        private Container parent;
+
+        /**
+         * The <tt>ContainerListener</tt> which listens to {@link #parent}.
+         */
+        private final ContainerListener parentContainerListener
+            = new ContainerListener()
+            {
+                public void componentAdded(ContainerEvent e)
+                {
+                    Component c = e.getChild();
+
+                    if (!(c instanceof AWTVideoComponent)
+                            && !(c instanceof SwingVideoComponent))
+                    {
+                        nonVideoComponentAdded(c);
+                    }
+                }
+
+                public void componentRemoved(ContainerEvent e)
+                {
+                    Component c = e.getChild();
+
+                    if (!(c instanceof AWTVideoComponent)
+                            && !(c instanceof SwingVideoComponent))
+                    {
+                        nonVideoComponentRemoved(c);
+                    }
+                    else if (SwingVideoComponentCanvas.this.equals(c))
+                        removeAllNonVideoComponents();
+                }
+            };
+
+        /**
+         * Initializes a new <tt>SwingVideoComponentCanvas</tt> instance.
+         */
+        public SwingVideoComponentCanvas()
+        {
+            enableEvents(
+                    AWTEvent.MOUSE_EVENT_MASK
+                        | AWTEvent.MOUSE_MOTION_EVENT_MASK);
+        }
 
         @Override
         public void addNotify()
@@ -963,6 +1154,75 @@ public class JAWTRenderer
                     }
                 }
             }
+
+            Container parent = getParent();
+
+            if ((parent != null) && (this.parent != parent))
+            {
+                this.parent = parent;
+                this.parent.addContainerListener(parentContainerListener);
+            }
+        }
+
+        @Override
+        public boolean contains(int x, int y)
+        {
+            return false;
+        }
+
+        private boolean dispatchMouseEvent(MouseEvent e)
+        {
+            Component srcc = e.getComponent();
+
+            if (srcc != null)
+            {
+                Container parent = getParent();
+
+                if (parent != null)
+                {
+                    Point parentPoint
+                        = SwingUtilities.convertPoint(
+                                srcc,
+                                e.getPoint(),
+                                parent);
+                    Component dstc = getComponentAt(parent, parentPoint);
+
+                    if (dstc != null)
+                    {
+                        dstc.dispatchEvent(
+                                SwingUtilities.convertMouseEvent(
+                                        srcc,
+                                        e,
+                                        dstc));
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private Component getComponentAt(Container parent, Point point)
+        {
+            Component[] components = parent.getComponents();
+
+            for (int componentIndex = components.length - 1;
+                    componentIndex >= 0;
+                    componentIndex--)
+            {
+                Component component = components[componentIndex];
+
+                if (!equals(component)
+                        && component.isVisible()
+                        && component.contains(
+                                SwingUtilities.convertPoint(
+                                        parent,
+                                        point,
+                                        component)))
+                {
+                    return component;
+                }
+            }
+            return null;
         }
 
         /* Implements AWTVideoComponent#getHandle(). */
@@ -977,9 +1237,121 @@ public class JAWTRenderer
             return this;
         }
 
+        /**
+         * Notifies this <tt>SwingVideoComponentCanvas</tt> that a
+         * <tt>Component</tt> which is neither an <tt>AWTVideoComponent</tt> nor
+         * a <tt>SwingVideoComponent</tt> has been added to {@link #parent}.
+         *
+         * @param c the component which has been added
+         */
+        private void nonVideoComponentAdded(Component c)
+        {
+            synchronized (getHandleLock())
+            {
+                synchronized (nonVideoComponents)
+                {
+                    for (NonVideoComponent nonVideoComponent
+                            : nonVideoComponents)
+                    {
+                        if (nonVideoComponent.component.equals(c))
+                            return;
+                    }
+
+                    nonVideoComponents.add(
+                            new NonVideoComponent(c, getHandle()));
+                }
+            }
+        }
+
+        /**
+         * Notifies this <tt>SwingVideoComponentCanvas</tt> that a
+         * <tt>Component</tt> which is neither an <tt>AWTVideoComponent</tt> nor
+         * a <tt>SwingVideoComponent</tt> has been removed from {@link #parent}.
+         *
+         * @param c the component which has been removed
+         */
+        private void nonVideoComponentRemoved(Component c)
+        {
+            synchronized (nonVideoComponents)
+            {
+                Iterator<NonVideoComponent> nonVideoComponentIter
+                    = nonVideoComponents.iterator();
+
+                while (nonVideoComponentIter.hasNext())
+                {
+                    NonVideoComponent nonVideoComponent
+                        = nonVideoComponentIter.next();
+
+                    if (nonVideoComponent.component.equals(c))
+                    {
+                        nonVideoComponentIter.remove();
+                        nonVideoComponent.dispose();
+                        break;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void paint(Graphics g)
+        {
+            try
+            {
+                synchronized (nonVideoComponents)
+                {
+                    for (NonVideoComponent nonVideoComponent
+                            : nonVideoComponents)
+                        nonVideoComponent.paint();
+                }
+            }
+            finally
+            {
+                super.paint(g);
+            }
+        }
+
+        @Override
+        protected void processMouseEvent(MouseEvent e)
+        {
+            if (!dispatchMouseEvent(e))
+                super.processMouseEvent(e);
+        }
+
+        @Override
+        protected void processMouseMotionEvent(MouseEvent e)
+        {
+            if (!dispatchMouseEvent(e))
+                super.processMouseMotionEvent(e);
+        }
+
+        private void removeAllNonVideoComponents()
+        {
+            synchronized (nonVideoComponents)
+            {
+                Iterator<NonVideoComponent> nonVideoComponentIter
+                    = nonVideoComponents.iterator();
+
+                while (nonVideoComponentIter.hasNext())
+                {
+                    NonVideoComponent nonVideoComponent
+                        = nonVideoComponentIter.next();
+
+                    nonVideoComponentIter.remove();
+                    nonVideoComponent.dispose();
+                }
+            }
+        }
+
         @Override
         public void removeNotify()
         {
+            if (parent != null)
+            {
+                parent.removeContainerListener(parentContainerListener);
+                removeAllNonVideoComponents();
+                parent = null;
+            }
+
             synchronized (getHandleLock())
             {
                 long handle = getHandle();
