@@ -475,6 +475,9 @@ public class JabberAccountRegistrationWizard
      */
     public JabberAccountRegistration getRegistration()
     {
+        if (registration == null)
+            registration = new JabberAccountRegistration();
+
         return registration;
     }
 
