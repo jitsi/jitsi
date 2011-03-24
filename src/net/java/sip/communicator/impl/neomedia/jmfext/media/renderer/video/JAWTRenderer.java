@@ -683,7 +683,15 @@ public class JAWTRenderer
                 @Override
                 public void componentResized(ComponentEvent e)
                 {
-                    processLightweightComponentEvent();
+                    /*
+                     * It is necessary to call
+                     * #procesLightweightComponentEvent() when the parent gets
+                     * resized only if the native counterpart of this
+                     * SwingVideoComponent expects bounds in a coordinate system
+                     * which changes with respect to the bounds of this
+                     * SwingVideoComponent when the parent gets resized. 
+                     */
+                    //processLightweightComponentEvent();
                 }
             };
 
@@ -927,7 +935,7 @@ public class JAWTRenderer
     {
         /**
          * The handle to the native <tt>JAWTRenderer</tt> which does the actual
-         * paiting of this <tt>SwingVideoComponentCanvas</tt>.
+         * painting of this <tt>SwingVideoComponentCanvas</tt>.
          */
         private long handle;
 

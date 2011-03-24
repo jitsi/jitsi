@@ -9,8 +9,6 @@ package net.java.sip.communicator.util.swing;
 import java.awt.*;
 import java.lang.reflect.*;
 
-import javax.swing.*;
-
 import net.java.sip.communicator.util.*;
 
 /**
@@ -30,6 +28,15 @@ public class VideoContainer
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(VideoContainer.class);
+
+    /**
+     * The name of the instance method of <tt>Component</tt>s added to
+     * <tt>VideoContainer</tt> which creates a new <tt>Component</tt> acting as
+     * a canvas in which the other <tt>Component</tt>s contained in the
+     * <tt>VideoContainer</tt> are painted.
+     */
+    private static final String VIDEO_CANVAS_FACTORY_METHOD_NAME
+        = "createCanvas";
 
     /**
      * The <tt>Component</tt> which is the canvas, if any, in which the other
@@ -102,6 +109,14 @@ public class VideoContainer
     @Override
     public void add(Component comp, Object constraints, int index)
     {
+        if (VideoLayout.CENTER_REMOTE.equals(constraints)
+                && (noVideoComponent != null)
+                && !noVideoComponent.equals(comp))
+        {
+            remove(noVideoComponent);
+            validate();
+        }
+
         if ((canvas == null) || (canvas.getParent() != this))
         {
             if (OSUtils.IS_MAC && (comp != canvas))
@@ -119,7 +134,9 @@ public class VideoContainer
 
                 try
                 {
-                    Method m = comp.getClass().getMethod("createCanvas");
+                    Method m
+                        = comp.getClass().getMethod(
+                                VIDEO_CANVAS_FACTORY_METHOD_NAME);
 
                     if (m != null)
                     {
@@ -179,13 +196,11 @@ public class VideoContainer
                 index++;
         }
 
-        if (VideoLayout.CENTER_REMOTE.equals(constraints)
-                && (noVideoComponent != null)
-                && !noVideoComponent.equals(comp))
-        {
-            remove(noVideoComponent);
-            validate();
-        }
+        /*
+         * XXX Do not call #remove(Component) beyond this point and before
+         * #add(Component, Object, int) because #removeCanvasIfNecessary() will
+         * remove the canvas. 
+         */
 
         super.add(comp, constraints, index);
     }
@@ -204,7 +219,10 @@ public class VideoContainer
         if ((comp == canvas)
                 && (canvas != null)
                 && (canvas.getParent() != this))
+        {
             canvas = null;
+            validate();
+        }
 
         if (VideoLayout.CENTER_REMOTE.equals(
                         ((VideoLayout) getLayout()).getComponentConstraints(
@@ -215,6 +233,8 @@ public class VideoContainer
             add(noVideoComponent, VideoLayout.CENTER_REMOTE);
             validate();
         }
+
+        removeCanvasIfNecessary();
     }
 
     /**
@@ -236,5 +256,39 @@ public class VideoContainer
 
         add(noVideoComponent, VideoLayout.CENTER_REMOTE);
         validate();
+    }
+
+    /**
+     * Removes {@link #canvas} from this <tt>VideoContainer</tt> if no sibling
+     * <tt>Component</tt> needs it.
+     */
+    public void removeCanvasIfNecessary()
+    {
+        if ((canvas == null) || !OSUtils.IS_MAC)
+            return;
+
+        boolean removeCanvas = true;
+
+        for (Component component : getComponents())
+        {
+            if (component == canvas)
+                continue;
+            try
+            {
+                component.getClass().getMethod(
+                        VIDEO_CANVAS_FACTORY_METHOD_NAME);
+                removeCanvas = false;
+                break;
+            }
+            catch (NoSuchMethodException nsme)
+            {
+                /*
+                 * Ignore it because we already presume that component does not
+                 * need the canvas.
+                 */
+            }
+        }
+        if (removeCanvas)
+            remove(canvas);
     }
 }

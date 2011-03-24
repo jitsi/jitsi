@@ -5,14 +5,12 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import java.util.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 
 import javax.media.*;
-import javax.media.MediaException;
+import javax.media.MediaException; // disambiguation
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
@@ -25,8 +23,9 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Damian Minkov
+ * @author Yana Stamcheva
  */
 public class MediaConfiguration
 {
@@ -134,9 +133,11 @@ public class MediaConfiguration
         final SIPCommCheckBox echoCancelCheckBox = new SIPCommCheckBox(
             NeomediaActivator.getResources().getI18NString(
                 "impl.media.configform.ECHOCANCEL"));
-        // first set the selected one than add the listener
-        // in order to avoid saving tha value when using the default one
-        // and only showing to user without modification
+        /*
+         * First set the selected one, then add the listener in order to avoid
+         * saving the value when using the default one and only showing to user
+         * without modification.
+         */
         echoCancelCheckBox.setSelected(
             mediaService.getDeviceConfiguration().isEchoCancel());
         echoCancelCheckBox.addItemListener(
@@ -155,9 +156,11 @@ public class MediaConfiguration
         final SIPCommCheckBox denoiseCheckBox = new SIPCommCheckBox(
             NeomediaActivator.getResources().getI18NString(
                 "impl.media.configform.DENOISE"));
-        // first set the selected one than add the listener
-        // in order to avoid saving tha value when using the default one
-        // and only showing to user without modification
+        /*
+         * First set the selected one, then add the listener in order to avoid
+         * saving the value when using the default one and only showing to user
+         * without modification.
+         */
         denoiseCheckBox.setSelected(
             mediaService.getDeviceConfiguration().isDenoise());
         denoiseCheckBox.addItemListener(
@@ -207,10 +210,10 @@ public class MediaConfiguration
             {
                 public void itemStateChanged(ItemEvent e)
                 {
-                    if(e.getStateChange() == ItemEvent.SELECTED)
+                    if (ItemEvent.SELECTED == e.getStateChange())
                     {
-                        if(DeviceConfiguration
-                                .AUDIO_SYSTEM_PORTAUDIO.equals(e.getItem()))
+                        if (DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO.equals(
+                                e.getItem()))
                         {
                             createPortAudioControls(portAudioPanel);
                         }
@@ -224,8 +227,8 @@ public class MediaConfiguration
                     }
                 }
             });
-            if(comboBox.getSelectedItem()
-                .equals(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+            if (DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO.equals(
+                    comboBox.getSelectedItem()))
                 createPortAudioControls(portAudioPanel);
         }
         else
@@ -372,14 +375,16 @@ public class MediaConfiguration
     }
 
     /**
-     * Creates preview for the device(video) in the video container.
+     * Creates preview for the (video) device in the video container.
+     *
      * @param device the device
-     * @param videoContainer the container
-     * @throws IOException a problem accessing the device.
-     * @throws MediaException a problem getting preview.
+     * @param videoContainer the video container
+     * @throws IOException a problem accessing the device
+     * @throws MediaException a problem getting preview
      */
-    private static void createPreview(CaptureDeviceInfo device,
-                               final JComponent videoContainer)
+    private static void createPreview(
+            CaptureDeviceInfo device,
+            JComponent videoContainer)
         throws IOException,
                MediaException
     {
@@ -391,22 +396,23 @@ public class MediaConfiguration
         if (device == null)
             return;
 
-        Iterator<MediaDevice> mDevsIter =
-                NeomediaActivator.getMediaServiceImpl()
-                    .getDevices(MediaType.VIDEO, MediaUseCase.ANY)
-                    .iterator();
-        while(mDevsIter.hasNext())
-        {
-            MediaDeviceImpl dev = (MediaDeviceImpl)mDevsIter.next();
-            if(dev.getCaptureDeviceInfo().equals(device))
-            {
-                Component c = (Component)NeomediaActivator.getMediaServiceImpl()
-                    .getVideoPreviewComponent(
-                            dev,
-                            videoContainer.getSize().width,
-                            videoContainer.getSize().height);
+        MediaService mediaService = NeomediaActivator.getMediaServiceImpl();
+        Iterable<MediaDevice> devs
+            = mediaService.getDevices(MediaType.VIDEO, MediaUseCase.ANY);
 
-                videoContainer.add(c);
+        for (MediaDevice dev : devs)
+        {
+            if(((MediaDeviceImpl) dev).getCaptureDeviceInfo().equals(device))
+            {
+                Dimension videoContainerSize = videoContainer.getSize();
+                Component preview
+                    = (Component)
+                        mediaService.getVideoPreviewComponent(
+                                dev,
+                                videoContainerSize.width,
+                                videoContainerSize.height);
+
+                videoContainer.add(preview);
 
                 break;
             }
@@ -492,31 +498,81 @@ public class MediaConfiguration
              * described by pretending there's a selection in the video combo
              * box when the combo box in question becomes displayable.
              */
-            comboBox.addHierarchyListener(new HierarchyListener()
+            HierarchyListener hierarchyListener = new HierarchyListener()
             {
+                private Window window;
+
+                private WindowListener windowListener;
+
+                public void dispose()
+                {
+                    if (windowListener != null)
+                    {
+                        if (window != null)
+                        {
+                            window.removeWindowListener(windowListener);
+                            window = null;
+                        }
+                        windowListener = null;
+                    }
+
+                    videoDeviceInPreview = null;
+                }
+
                 public void hierarchyChanged(HierarchyEvent event)
                 {
-                    if (((event.getChangeFlags()
-                                    & HierarchyEvent.DISPLAYABILITY_CHANGED)
-                                != 0)
-                            && comboBox.isDisplayable())
+                    if ((event.getChangeFlags()
+                                & HierarchyEvent.DISPLAYABILITY_CHANGED)
+                            == 0)
+                        return;
+
+                    if (comboBox.isDisplayable())
                     {
-                        // let current changes end their execution
-                        // and after that trigger action on combobox
-                        SwingUtilities.invokeLater(new Runnable(){
+                        /*
+                         * Let current changes end their execution and trigger
+                         * action on combobox afterwards.
+                         */
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
                             public void run()
                             {
                                 comboBoxListener.actionPerformed(null);
                             }
                         });
+
+                        /*
+                         * FIXME When the Options dialog closes on Mac OS X, the
+                         * displayable property of the comboBox will not become
+                         * false. Consequently, the next time the Options dialog
+                         * opens, the displayable property will not change.
+                         * Which will lead to no preview being created for the
+                         * device selected in the comboBox.
+                         */
+                        if (windowListener == null)
+                        {
+                            window
+                                = SwingUtilities.windowForComponent(comboBox);
+                            if (window != null)
+                            {
+                                windowListener = new WindowAdapter()
+                                {
+                                    @Override
+                                    public void windowClosing(WindowEvent event)
+                                    {
+                                        dispose();
+                                    }
+                                };
+                                window.addWindowListener(windowListener);
+                            }
+                        }
                     }
                     else
                     {
-                        if(!comboBox.isDisplayable())
-                            videoDeviceInPreview = null;
+                        dispose();
                     }
                 }
-            });
+            };
+            comboBox.addHierarchyListener(hierarchyListener);
         } else
             preview = new TransparentPanel();
 

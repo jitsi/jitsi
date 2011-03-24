@@ -692,8 +692,9 @@ public class MediaServiceImpl
      * @param preferredHeight the height we prefer for the component
      * @return the preview component.
      */
-    public Object getVideoPreviewComponent(MediaDevice device
-                    , int preferredWidth, int preferredHeight)
+    public Object getVideoPreviewComponent(
+            MediaDevice device,
+            int preferredWidth, int preferredHeight)
     {
         JLabel noPreview =
         new JLabel(NeomediaActivator.getResources().getI18NString(
@@ -720,16 +721,17 @@ public class MediaServiceImpl
                 ((MediaDeviceImpl)device).getCaptureDeviceInfo().getLocator());
 
             /*
-            * Don't let the size be uselessly small just because the videoContainer
-            * has too small a preferred size.
-            */
+             * Don't let the size be uselessly small just because the
+             * videoContainer has too small a preferred size.
+             */
             if ((preferredWidth < 128) || (preferredHeight < 96))
             {
                 preferredHeight = 128;
                 preferredWidth = 96;
             }
-            VideoMediaStreamImpl
-                .selectVideoSize(dataSource, preferredWidth, preferredHeight);
+            VideoMediaStreamImpl.selectVideoSize(
+                    dataSource,
+                    preferredWidth, preferredHeight);
 
             // A Player is documented to be created on a connected DataSource.
             dataSource.connect();

@@ -933,7 +933,7 @@ public class OneToOneCallPeerPanel
      * Handles the change when we turn on/off local video streaming such as
      * creating/releasing visual component.
      *
-     * @param listener Listener that will be callbacked
+     * @param listener Listener that will be called back
      */
     private void handleLocalVideoStreamingChange(
             VideoTelephonyListener listener)
@@ -1782,6 +1782,14 @@ public class OneToOneCallPeerPanel
                         videoContainer.remove(localVideo);
                         videoContainer.remove(closeButton);
                     }
+
+                    /*
+                     * Just like #handleVideoEvent(VideoEvent, Container) says,
+                     * we have to be explicit in order to achieve a proper
+                     * layout and an up-to-date painting.
+                     */
+                    videoContainer.validate();
+                    videoContainer.repaint();
                 }
             }
         }
