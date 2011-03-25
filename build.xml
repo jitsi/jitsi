@@ -1319,11 +1319,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
                 prefix="net/java/sip/communicator/service/protocol"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol"
-                    prefix="net/java/sip/communicator/impl/protocol">
-                <depth max="0" />
-                <type type="file" />
-            </zipfileset>
             <zipfileset dir="${resources}/images"
                 prefix="resources/images">
                 <include name="protocol/icq/**/*"/>
