@@ -382,6 +382,10 @@ public class GoogleContactsEntryImpl
 
         for(PhoneNumber phone : contact.getPhoneNumbers())
         {
+            if(phone.getRel() == null)
+            {
+                homePhones.add(phone.getPhoneNumber());
+            }
             if(phone.getRel().contains("#work"))
             {
                 workPhones.add(phone.getPhoneNumber());

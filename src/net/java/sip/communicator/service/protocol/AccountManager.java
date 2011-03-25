@@ -18,7 +18,7 @@ import org.osgi.framework.*;
 /**
  * Represents an implementation of <tt>AccountManager</tt> which loads the
  * accounts in a separate thread.
- * 
+ *
  * @author Lubomir Marinov
  * @author Yana Stamcheva
  */
@@ -484,7 +484,7 @@ public class AccountManager
      * implementation tracks the registrations of
      * <tt>ProtocolProviderFactory</tt> services in order to queue them for
      * loading their stored accounts.
-     * 
+     *
      * @param serviceEvent the <tt>ServiceEvent</tt> containing the event
      *            data
      */

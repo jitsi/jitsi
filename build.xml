@@ -716,7 +716,7 @@
         <!-- SIP Communicator on Mac OS X uses a JVMTI agent to handle kAEGetURL
              AppleScript events. -->
         <condition property="jvmarg.line"
-                value="-agentlib:AEGetURLEventHandlerAgent -Xdock:name='SIP Communicator' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
+                value="-agentlib:AEGetURLEventHandlerAgent -Xdock:name='Jitsi' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
                 else="">
             <isset property="is.running.macos"/>
         </condition>

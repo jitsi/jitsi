@@ -28,18 +28,18 @@ public class ProviderStatusChangeEvent extends PropertyChangeEvent
      * <tt>newValue</tt>.
      * @param source the provider that generated the event
      * @param eventType the type of the newly created event.
-     * @param oldValue the status the source provider was int before enetering
+     * @param oldValue the status the source provider was int before entering
      * the new state.
      * @param newValue the status the source provider is currently in.
      */
-    public ProviderStatusChangeEvent(ProtocolProviderService source, String eventType,
-                               PresenceStatus oldValue, PresenceStatus newValue)
+    public ProviderStatusChangeEvent(ProtocolProviderService source,
+            String eventType, PresenceStatus oldValue, PresenceStatus newValue)
     {
         super(source, eventType, oldValue, newValue);
     }
 
     /**
-     * Returns the provider that has genereted this event
+     * Returns the provider that has generated this event
      * @return the provider that generated the event.
      */
     public ProtocolProviderService getProvider()

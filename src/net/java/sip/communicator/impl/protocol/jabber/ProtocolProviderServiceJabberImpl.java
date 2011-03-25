@@ -22,7 +22,6 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.service.googlecontacts.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
@@ -1258,9 +1257,6 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetGenericNotifications.class,
                 new OperationSetGenericNotificationsJabberImpl(this));
 
-            /* add Google Contacts as contact source if enabled */
-            registerGoogleContactsSource();
-
             isInitialized = true;
         }
     }
@@ -1276,8 +1272,6 @@ public class ProtocolProviderServiceJabberImpl
         {
             if (logger.isTraceEnabled())
                 logger.trace("Killing the Jabber Protocol Provider.");
-
-            unregisterGoogleContactsSource();
 
             //kill all active calls
             OperationSetBasicTelephonyJabberImpl telephony
@@ -1847,7 +1841,8 @@ public class ProtocolProviderServiceJabberImpl
     {
         // Jingle Nodes Service Initialization
         JabberAccountID accID = (JabberAccountID)getAccountID();
-        final SmackServiceNode service = new SmackServiceNode(connection, 60000);
+        final SmackServiceNode service = new SmackServiceNode(connection,
+                60000);
 
         for(JingleNodeDescriptor desc : accID.getJingleNodes())
         {
@@ -1900,56 +1895,6 @@ public class ProtocolProviderServiceJabberImpl
     public SmackServiceNode getJingleNodesServiceNode()
     {
         return jingleNodesServiceNode;
-    }
-
-    /**
-     * Register Google Contacts as contact source if user has enable it.
-     */
-    private void registerGoogleContactsSource()
-    {
-        if(accountID.getAccountPropertyBoolean(
-                "GOOGLE_CONTACTS_ENABLED",
-                true))
-        {
-            logger.info("Register Google Contacts service as contact source");
-            GoogleContactsService googleService =
-                JabberActivator.getGoogleService();
-
-            if(googleService != null)
-            {
-                googleService.addContactSource(
-                        org.jivesoftware.smack.util.StringUtils.parseName(
-                        getOurJID()) + "@" +
-                        StringUtils.parseServer(getAccountID().getUserID()),
-                        JabberActivator.
-                        getProtocolProviderFactory().loadPassword(
-                                getAccountID()));
-            }
-        }
-    }
-
-    /**
-     * Unregister Google Contacts as contact source.
-     */
-    private void unregisterGoogleContactsSource()
-    {
-        if(accountID.getAccountPropertyBoolean(
-                "GOOGLE_CONTACTS_ENABLED",
-                true))
-        {
-            logger.info("Unregister Google Contacts service as contact source");
-
-            GoogleContactsService googleService =
-                JabberActivator.getGoogleService();
-
-            if(googleService != null)
-            {
-                googleService.removeContactSource(
-                    org.jivesoftware.smack.util.StringUtils.parseName(
-                       getOurJID()) + "@" +
-                       StringUtils.parseServer(getAccountID().getUserID()));
-            }
-        }
     }
 
     /**

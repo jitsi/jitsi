@@ -208,8 +208,90 @@ public class GoogleContactsActivator implements BundleActivator
                 2000, true),
             properties);
 
+        bundleContext.addServiceListener(new ServiceListener()
+        {
+            public void serviceChanged(ServiceEvent serviceEvent)
+            {
+                GoogleContactsActivator.this.serviceChanged(serviceEvent);
+            }
+        });
         if (logger.isDebugEnabled())
             logger.debug("Google Contacts Service ... [REGISTERED]");
+    }
+
+    /**
+     * Implements the <tt>ServiceListener</tt> method. Verifies whether the
+     * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
+     * corresponding UI controls.
+     *
+     * @param event The <tt>ServiceEvent</tt> object.
+     */
+    private void serviceChanged(ServiceEvent event)
+    {
+        ServiceReference serviceRef = event.getServiceReference();
+
+        // if the event is caused by a bundle being stopped, we don't want to
+        // know
+        if (serviceRef.getBundle().getState() == Bundle.STOPPING)
+        {
+            return;
+        }
+
+        Object service = bundleContext.getService(serviceRef);
+
+        // we don't care if the source service is not a protocol provider
+        if (!(service instanceof ProtocolProviderService))
+        {
+            return;
+        }
+
+        // we don't care if the protocol provider is not a Jabber ones
+        if(((ProtocolProviderService)service).getProtocolName() !=
+            ProtocolNames.JABBER)
+        {
+            return;
+        }
+
+        switch (event.getType())
+        {
+        case ServiceEvent.REGISTERED:
+            this.handleProviderAdded((ProtocolProviderService) service);
+            break;
+        case ServiceEvent.UNREGISTERING:
+            this.handleProviderRemoved((ProtocolProviderService) service);
+            break;
+        }
+    }
+
+    /**
+     * Notifies this manager that a specific
+     * <tt>ProtocolProviderService</tt> has been registered as a service.
+     *
+     * @param provider the <tt>ProtocolProviderService</tt> which has been
+     * registered as a service.
+     */
+    private void handleProviderAdded(ProtocolProviderService provider)
+    {
+        String className = provider.getClass().getName();
+        className = className.substring(0, className.lastIndexOf('.'));
+        String acc = ProtocolProviderFactory.findAccountPrefix(
+                bundleContext, provider.getAccountID(), className);
+        String password = getCredentialsService().loadPassword(acc);
+
+        enableContactSource(provider.getAccountID().getAccountAddress(),
+                password);
+    }
+
+    /**
+     * Notifies this manager that a specific
+     * <tt>ProtocolProviderService</tt> has been unregistered as a service.
+     *
+     * @param provider the <tt>ProtocolProviderService</tt> which has been
+     * unregistered as a service.
+     */
+    private void handleProviderRemoved(ProtocolProviderService provider)
+    {
+        disableContactSource(provider.getAccountID().getAccountAddress());
     }
 
     /**
@@ -373,9 +455,17 @@ public class GoogleContactsActivator implements BundleActivator
         for(Map.Entry<GoogleContactsSourceService, ServiceRegistration> entry :
             cssList.entrySet())
         {
-            String cssName =
-                entry.getKey().getConnection().getLogin();
+            GoogleContactsConnection cnxEntry = entry.getKey().getConnection();
+
+            if(cnx == null)
+            {
+                found = entry.getKey();
+                break;
+            }
+
+            String cssName = cnxEntry.getLogin();
             String name = cnx.getLogin();
+
             if(cssName.equals(name))
             {
                 try

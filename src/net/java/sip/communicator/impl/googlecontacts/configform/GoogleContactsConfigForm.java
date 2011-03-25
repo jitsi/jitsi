@@ -237,13 +237,19 @@ public class GoogleContactsConfigForm
         if (e.getActionCommand().equals("modify") && row != -1)
         {
             settingsForm.setNameFieldEnabled(false);
-            GoogleContactsConnection cnx = tableModel.getAccountAt(row);
+            GoogleContactsConnectionImpl cnx = tableModel.getAccountAt(row);
             settingsForm.loadData(cnx);
 
             int ret = settingsForm.showDialog();
 
             if(ret == 1)
             {
+                GoogleContactsActivator.getGoogleContactsService().saveConfig(
+                        cnx);
+                if(cnx.isEnabled())
+                {
+                    new RefreshContactSourceThread(cnx, cnx).start();
+                }
                 refresh();
             }
         }

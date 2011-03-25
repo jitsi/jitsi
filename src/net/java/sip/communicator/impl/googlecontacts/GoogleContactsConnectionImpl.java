@@ -22,12 +22,12 @@ public class GoogleContactsConnectionImpl
     /**
      * Login.
      */
-    private final String login;
+    private String login = null;
 
     /**
      * Password.
      */
-    private final String password;
+    private String password = null;
 
     /**
      * If the connection is enabled.
@@ -81,6 +81,26 @@ public class GoogleContactsConnectionImpl
     public String getPassword()
     {
         return password;
+    }
+
+    /**
+     * Set login.
+     *
+     * @param login login to connect to the service
+     */
+    public void setLogin(String login)
+    {
+        this.login = login;
+    }
+
+    /**
+     * Set password.
+     *
+     * @param password password to connect to the service
+     */
+    public void setPassword(String password)
+    {
+        this.password = password;
     }
 
     /**

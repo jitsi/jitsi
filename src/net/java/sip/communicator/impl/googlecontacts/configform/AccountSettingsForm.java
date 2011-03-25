@@ -179,11 +179,13 @@ public class AccountSettingsForm
         {
             this.nameField.setText(cnx.getLogin());
             this.passwordField.setText(cnx.getPassword());
+            this.cnx = cnx;
         }
         else
         {
             this.nameField.setText("");
             this.passwordField.setText("");
+            this.cnx = null;
         }
     }
 
@@ -201,8 +203,16 @@ public class AccountSettingsForm
             String login = nameField.getText();
             String password = new String(passwordField.getPassword());
 
-            cnx = GoogleContactsActivator.getGoogleContactsService().
-                getConnection(login, password);
+            if(cnx == null)
+            {
+                cnx = GoogleContactsActivator.getGoogleContactsService().
+                    getConnection(login, password);
+            }
+            else
+            {
+                cnx.setLogin(login);
+                cnx.setPassword(password);
+            }
 
             if(!cnx.connect())
             {
@@ -261,7 +271,6 @@ public class AccountSettingsForm
     {
         retCode = 0;
 
-        cnx = null;
         setVisible(true);
 
         // this will block until user click on save/cancel/press escape/close
