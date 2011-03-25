@@ -1125,6 +1125,17 @@ public class JAWTRenderer
          */
         private long handle;
 
+        /**
+         * The <tt>Component</tt> to which this
+         * <tt>SwingVideoComponentCanvas</tt> has dispatched a
+         * {@link MouseEvent#MOUSE_PRESSED}.
+         */
+        private Component mousePressedComponent;
+
+        /**
+         * The <tt>NoVideoComponent</tt>s painted by this
+         * <tt>SwingVideoComponentCanvas</tt>.
+         */
         private final List<NonVideoComponent> nonVideoComponents
             = new LinkedList<NonVideoComponent>();
 
@@ -1154,6 +1165,9 @@ public class JAWTRenderer
                 public void componentRemoved(ContainerEvent e)
                 {
                     Component c = e.getChild();
+
+                    if (mousePressedComponent == c)
+                        mousePressedComponent = null;
 
                     if (!(c instanceof AWTVideoComponent)
                             && !(c instanceof SwingVideoComponent))
@@ -1230,26 +1244,52 @@ public class JAWTRenderer
 
             if (srcc != null)
             {
-                Container parent = getParent();
+                int id = e.getID();
+                Component dstc = null;
 
-                if (parent != null)
+                /*
+                 * After a MOUSE_PRESSED, this SwingVideoComponentCanvas will
+                 * continue to receive, for example, MouseMotionEvents even
+                 * when the point has moved out of it. Emulate the same behavior
+                 * for the Components this SwingVideoComponentCanvas dispatches
+                 * events to since it is transparent in this respect. 
+                 */
+                if (MouseEvent.MOUSE_PRESSED == id)
+                    mousePressedComponent = null;
+                else if (mousePressedComponent != null)
                 {
-                    Point parentPoint
-                        = SwingUtilities.convertPoint(
-                                srcc,
-                                e.getPoint(),
-                                parent);
-                    Component dstc = getComponentAt(parent, parentPoint);
+                    dstc = mousePressedComponent;
+                    if ((MouseEvent.MOUSE_CLICKED == id)
+                            || (MouseEvent.MOUSE_RELEASED == id))
+                        mousePressedComponent = null;
+                }
 
-                    if (dstc != null)
+                if (dstc == null)
+                {
+                    Container parent = getParent();
+
+                    if (parent != null)
                     {
-                        dstc.dispatchEvent(
-                                SwingUtilities.convertMouseEvent(
-                                        srcc,
-                                        e,
-                                        dstc));
-                        return true;
+                        Point parentPoint
+                            = SwingUtilities.convertPoint(
+                                    srcc,
+                                    e.getPoint(),
+                                    parent);
+
+                        dstc = getComponentAt(parent, parentPoint);
                     }
+                }
+
+                if (dstc != null)
+                {
+                    if (MouseEvent.MOUSE_PRESSED == id)
+                        mousePressedComponent = dstc;
+                    dstc.dispatchEvent(
+                            SwingUtilities.convertMouseEvent(
+                                    srcc,
+                                    e,
+                                    dstc));
+                    return true;
                 }
             }
             return false;
@@ -1427,6 +1467,8 @@ public class JAWTRenderer
         @Override
         public void removeNotify()
         {
+            mousePressedComponent = null;
+
             if (parent != null)
             {
                 parent.removeContainerListener(parentContainerListener);
