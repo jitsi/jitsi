@@ -398,7 +398,6 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
     }
 
     [self setView:nil];
-    [self copyCGLContext:nil forPixelFormat:0];
 
     [super dealloc];
 }
@@ -413,9 +412,6 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
 {
     if ((self = [super init]))
     {
-        NSOpenGLPixelFormatAttribute pixelFormatAttribs[]
-            = { NSOpenGLPFAWindow, 0 };
-        NSOpenGLPixelFormat *pixelFormat;
 
         glContext = nil;
 
@@ -437,52 +433,15 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
 
         subrenderers = nil;
         superrenderer = nil;
-
-        pixelFormat
-            = [[NSOpenGLPixelFormat alloc]
-                    initWithAttributes:pixelFormatAttribs];
-        if (pixelFormat)
-        {
-            glContext
-                = [[NSOpenGLContext alloc]
-                        initWithFormat:pixelFormat
-                          shareContext:nil];
-            if (glContext)
-            {
-                GLint surfaceOpacity;
-
-                // prepareOpenGL
-                [glContext makeCurrentContext];
-
-                surfaceOpacity = 1;
-                [glContext setValues:&surfaceOpacity
-                        forParameter:NSOpenGLCPSurfaceOpacity];
-
-                glDisable(GL_BLEND);
-                glDisable(GL_DEPTH_TEST);
-                glDepthMask(GL_FALSE);
-                glDisable(GL_CULL_FACE);
-                glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-                glClear(GL_COLOR_BUFFER_BIT);
-            }
-            else
-            {
-                [self release];
-                self = nil;
-            }
-            [pixelFormat release];
-        }
-        else
-        {
-            [self release];
-            self = nil;
-        }
     }
     return self;
 }
 
 - (void)paint
 {
+    if (!glContext)
+        return;
+
     [glContext makeCurrentContext];
 
     // drawRect:
@@ -676,6 +635,8 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
             }
 #endif /* JAWT_RENDERER_USE_NSNOTIFICATIONCENTER */
 
+            [self copyCGLContext:nil forPixelFormat:0];
+
             [view release];
         }
 
@@ -683,13 +644,46 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
 
         if (view)
         {
+            NSOpenGLPixelFormatAttribute pixelFormatAttribs[]
+                = { NSOpenGLPFAWindow, 0 };
+            NSOpenGLPixelFormat *pixelFormat;
+
 #ifdef JAWT_RENDERER_USE_NSNOTIFICATIONCENTER
             NSNotificationCenter *notificationCenter;
 #endif /* JAWT_RENDERER_USE_NSNOTIFICATIONCENTER */
 
             [view retain];
+            
+            pixelFormat
+                = [[NSOpenGLPixelFormat alloc]
+                        initWithAttributes:pixelFormatAttribs];
+            if (pixelFormat)
+            {
+                glContext
+                    = [[NSOpenGLContext alloc] initWithFormat:pixelFormat
+                                                 shareContext:nil];
+                if (glContext)
+                {
+                    GLint surfaceOpacity;
 
-            if ([glContext view] != view)
+                    // prepareOpenGL
+                    [glContext makeCurrentContext];
+
+                    surfaceOpacity = 1;
+                    [glContext setValues:&surfaceOpacity
+                            forParameter:NSOpenGLCPSurfaceOpacity];
+
+                    glDisable(GL_BLEND);
+                    glDisable(GL_DEPTH_TEST);
+                    glDepthMask(GL_FALSE);
+                    glDisable(GL_CULL_FACE);
+                    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                }
+                [pixelFormat release];
+            }
+
+            if (glContext && ([glContext view] != view))
                 [glContext setView:view];
 
 #ifdef JAWT_RENDERER_USE_NSNOTIFICATIONCENTER
