@@ -412,14 +412,7 @@ public class GoogleContactsActivator implements BundleActivator
         for(Map.Entry<GoogleContactsSourceService, ServiceRegistration> entry :
             cssList.entrySet())
         {
-            GoogleContactsConnectionImpl cnx = entry.getKey().getConnection();
-
-            if(cnx == null)
-            {
-                return;
-            }
-
-            String cssName = cnx.getLogin();
+            String cssName = entry.getKey().getLogin();
 
             if(cssName.equals(login))
             {
@@ -452,18 +445,15 @@ public class GoogleContactsActivator implements BundleActivator
     {
         GoogleContactsSourceService found = null;
 
+        if(cnx == null)
+        {
+            return;
+        }
+
         for(Map.Entry<GoogleContactsSourceService, ServiceRegistration> entry :
             cssList.entrySet())
         {
-            GoogleContactsConnection cnxEntry = entry.getKey().getConnection();
-
-            if(cnx == null)
-            {
-                found = entry.getKey();
-                break;
-            }
-
-            String cssName = cnxEntry.getLogin();
+            String cssName = entry.getKey().getLogin();
             String name = cnx.getLogin();
 
             if(cssName.equals(name))

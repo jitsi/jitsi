@@ -76,6 +76,16 @@ public class GoogleContactsSourceService
     }
 
     /**
+     * Returns login.
+     *
+     * @return login
+     */
+    public String getLogin()
+    {
+        return login;
+    }
+
+    /**
      * Queries this search source for the given <tt>searchPattern</tt>.
      *
      * @param queryPattern the pattern to search for
