@@ -623,10 +623,10 @@ public class ContactListPane
      */
     private class TypingTimer extends Timer
     {
-
         private MetaContact metaContact;
 
-        public TypingTimer() {
+        public TypingTimer()
+        {
             // Set delay
             super(5 * 1000, null);
 
@@ -640,7 +640,8 @@ public class ContactListPane
                 ChatPanel chatPanel
                     = chatWindowManager.getContactChat(metaContact, false);
 
-                chatPanel.removeTypingNotification();
+                if (chatPanel != null)
+                    chatPanel.removeTypingNotification();
             }
         }
 
