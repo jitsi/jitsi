@@ -186,14 +186,17 @@ public class VideoContainer
                     logger.error("Failed to create video canvas.", exception);
             }
         }
-        else
+        if ((canvas != null)
+                && (canvas.getParent() == this)
+                && OSUtils.IS_MAC
+                && (comp != canvas))
         {
             /*
              * The canvas in which the other components are to be painted should
-             * always be at index 0.
+             * always be at index 0. And the order of adding is important so no
+             * index should be specified
              */
-            if ((index == 0) && (comp != canvas))
-                index++;
+            index = -1;
         }
 
         /*

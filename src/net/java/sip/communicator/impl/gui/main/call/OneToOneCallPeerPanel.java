@@ -891,7 +891,7 @@ public class OneToOneCallPeerPanel
             if (videoParent != null)
                 videoParent.remove(video);
 
-            videoContainer.add(video, VideoLayout.CENTER_REMOTE);
+            videoContainer.add(video, VideoLayout.CENTER_REMOTE, 0);
         }
 
         // LOCAL
@@ -909,12 +909,12 @@ public class OneToOneCallPeerPanel
 
             if (localVideoVisible)
             {
-                videoContainer.add(localVideo, VideoLayout.LOCAL);
-
+                videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
                 if (!CallManager.isDesktopSharingEnabled(callPeer.getCall()))
                     videoContainer.add(
                             closeButton,
-                            VideoLayout.CLOSE_LOCAL_BUTTON);
+                            VideoLayout.CLOSE_LOCAL_BUTTON,
+                            0);
             }
         }
 
@@ -1772,10 +1772,11 @@ public class OneToOneCallPeerPanel
                         if (closeButtonParent != null)
                             closeButtonParent.remove(closeButton);
 
-                        videoContainer.add(localVideo, VideoLayout.LOCAL);
+                        videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
                         videoContainer.add(
                                 closeButton,
-                                VideoLayout.CLOSE_LOCAL_BUTTON);
+                                VideoLayout.CLOSE_LOCAL_BUTTON,
+                                0);
                     }
                     else
                     {
