@@ -365,9 +365,24 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
 
         if (glContext)
         {
-            NSOpenGLPixelFormat *format
-                = [[NSOpenGLPixelFormat alloc]
-                        initWithCGLPixelFormatObj:pixelFormat];
+            NSOpenGLPixelFormat *format = [NSOpenGLPixelFormat alloc];
+
+            /*
+             * Unfortunately, initWithCGLPixelFormatObj: is available starting
+             * with Mac OS X 10.6.
+             */
+            if ([format
+                    respondsToSelector:@selector(initWithCGLPixelFormatObj:)])
+            {
+                format = [format initWithCGLPixelFormatObj:pixelFormat];
+            }
+            else
+            {
+                NSOpenGLPixelFormatAttribute pixelFormatAttribs[]
+                    = { NSOpenGLPFAWindow, 0 };
+
+                format = [format initWithAttributes:pixelFormatAttribs];
+            }
 
             self->glContext
                 = [[NSOpenGLContext alloc]
