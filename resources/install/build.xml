@@ -1226,6 +1226,17 @@
         token="_APP_WEB_"
         value="${application.web}"/>
 
+    <!-- Prepare man page file -->
+    <copy file="${inst.resrc}/debian/sip-communicator.1.tmpl"
+        tofile="${inst.resrc}/debian/${package.name}.1"
+        overwrite="true"/>
+    <replace file="${inst.resrc}/debian/${package.name}.1"
+        token="_PACKAGE_NAME_"
+        value="${package.name}"/>
+    <replace file="${inst.resrc}/debian/${package.name}.1"
+        token="_APP_NAME_"
+        value="${application.name}"/>
+
     <!-- Prepare debian shortcuts -->
     <copy file="${inst.resrc}/debian/sip-communicator.desktop.tmpl"
         tofile="${inst.resrc}/debian/${package.name}.desktop"
@@ -1334,9 +1345,10 @@
             <include name="README.Debian"/>
             <include name="${package.name}.desktop"/>
             <include name="${package.name}.menu"/>
-            <!--include name="${package.name}-16.xpm"/>
+            <include name="${package.name}.1"/>
+            <include name="${package.name}-16.xpm"/>
             <include name="${package.name}-32.xpm"/>
-            <include name="${package.name}.svg"/-->
+            <include name="${package.name}.svg"/>
         </fileset>
     </delete>
 

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH sip-communicator 1 "October 10, 2008"
+.TH _PACKAGE_NAME_ 1 "October 10, 2008"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,20 +16,20 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-sip-communicator \- the Java VoIP and Instant Messaging client
+_PACKAGE_NAME_ \- the Java VoIP and Instant Messaging client
 .SH SYNOPSIS
-.B sip-communicator
+.B _PACKAGE_NAME_
 .RI [ options ] " " [ uri-to-call ]
 .SH DESCRIPTION
 .\" TeX users may be more comfortable with the \fB<whatever>\fP and
 .\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
 .\" respectively.
-\fBSIP Communicator\fP is an audio/video Internet phone and instant messenger
+\fB_APP_NAME_\fP is an audio/video Internet phone and instant messenger
 that supports some of the most popular instant messaging and telephony
 protocols such as SIP, Jabber, AIM/ICQ, MSN, Yahoo! Messenger, Bonjour, IRC,
 RSS and soon others like IAX.
 .PP
-.RI "An optional " uri-to-call " expression can be specified to start a call from the command-line. If SIP Communicator is already running then the call is handled by the running application, except when it is explicitly told to allow multiple instance launch."
+.RI "An optional " uri-to-call " expression can be specified to start a call from the command-line. If _APP_NAME_ is already running then the call is handled by the running application, except when it is explicitly told to allow multiple instance launch."
 .SH OPTIONS
 .TP
 .BI "\-c, \-\-config=" DIR
@@ -57,16 +57,16 @@ Display the current version and exit.
 .TP
 .SH FILES
 .TP
-.I ~/.sip-communicator/contactlist.xml
+.I ~/._PACKAGE_NAME_/contactlist.xml
 .RS
 The IM contact-list.
 .RE
 .TP
-.I ~/.sip-communicator/sip-communicator.xml
+.I ~/._PACKAGE_NAME_/sip-communicator.xml
 .RS
 The main configuration file.
 .SH AUTHOR
-SIP Communicator was written by Emil Ivov <emcho@sip-communicator.org>.
+_APP_NAME_ was written by Emil Ivov <emcho@jitsi.org>.
 .PP
 This manual page was written by Martin Andre <mandre@dev.java.net>, for the
 Debian project (but may be used by others).
