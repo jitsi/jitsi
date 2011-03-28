@@ -746,10 +746,26 @@ public class CallPeerSipImpl
         if (peerState.equals(CallPeerState.CONNECTED)
             || CallPeerState.isOnHold(peerState))
         {
-            boolean dialogIsAlive = sayBye();
-            if (!dialogIsAlive)
+            // if we fail to send the bye, lets close the call anyway
+            try
             {
-                setDisconnectedState(failed, reason);
+                boolean dialogIsAlive = sayBye();
+                if (!dialogIsAlive)
+                {
+                    setDisconnectedState(failed, reason);
+                }
+            }
+            catch(Throwable ex)
+            {
+                logger.error(
+                    "Error while trying to hangup, trying to handle!", ex);
+
+                // make sure we end media if exception occurs
+                setDisconnectedState(true, null);
+
+                // if its the handled OperationFailedException, pass it
+                if(ex instanceof OperationFailedException)
+                    throw (OperationFailedException)ex;
             }
         }
         else if (CallPeerState.CONNECTING.equals(getState())

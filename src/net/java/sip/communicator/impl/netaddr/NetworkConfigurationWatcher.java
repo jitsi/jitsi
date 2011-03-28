@@ -91,11 +91,11 @@ public class NetworkConfigurationWatcher
         {
             long curr = System.currentTimeMillis();
 
-            // if time spent between checks is more than 2 times
+            // if time spent between checks is more than 4 times
             // longer than the check interval we consider it as a
             // new check after standby
             if(!isAfterStandby && last != 0)
-                isAfterStandby = (last + 2*CHECK_INTERVAL - curr) < 0;
+                isAfterStandby = (last + 4*CHECK_INTERVAL - curr) < 0;
 
             if(isAfterStandby)
             {
