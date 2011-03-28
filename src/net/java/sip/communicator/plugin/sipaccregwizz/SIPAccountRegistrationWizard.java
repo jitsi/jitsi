@@ -788,4 +788,11 @@ public class SIPAccountRegistrationWizard
     {
         return Resources.getString("plugin.sipaccregwizz.CREATE_ACCOUNT");
     }
+
+    /**
+     * Indicates that the account corresponding to the given
+     * <tt>protocolProvider</tt> has been removed.
+     * @param protocolProvider the protocol provider that has been removed
+     */
+    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

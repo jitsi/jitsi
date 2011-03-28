@@ -37,13 +37,13 @@ public interface AccountRegistrationWizard
      * @return a short description of the protocol.
      */
     public byte[] getIcon();
-    
+
     /**
      * Returns the image that will be shown on the left of the wizard pages.
      * @return the image that will be shown on the left of the wizard pages
      */
     public byte[] getPageImage();
-    
+
     /**
      * Returns the protocol name that will be shown in the list, where user
      * will choose the protocol to register to.
@@ -51,7 +51,7 @@ public interface AccountRegistrationWizard
      * @return the protocol name.
      */
     public String getProtocolName();
-    
+
     /**
      * Returns a short description of the protocol that will be shown on the
      * right of the protocol name in the list, where user will choose the
@@ -78,7 +78,7 @@ public interface AccountRegistrationWizard
      * load data from.
      */
     public void loadAccount(ProtocolProviderService protocolProvider);
-    
+
     /**
      * Returns the set of <tt>WizardPage</tt>-s for this
      * wizard. 
@@ -138,6 +138,13 @@ public interface AccountRegistrationWizard
     public ProtocolProviderService signin(  String userName,
                                             String password)
         throws OperationFailedException;
+
+    /**
+     * Indicates that the account corresponding to the given
+     * <tt>protocolProvider</tt> has been removed.
+     * @param protocolProvider the protocol provider that has been removed
+     */
+    public void accountRemoved(ProtocolProviderService protocolProvider);
 
     /**
      * Returns <code>true</code> if the web sign up is supported by the current

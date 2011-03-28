@@ -230,7 +230,12 @@ class EmptyAccountRegistrationWizard
      * Empty interface method implementation, unused in the case of the
      * {@link EmptyAccountRegistrationWizard}
      */
-    public void webSignup() throws UnsupportedOperationException
-    {
-    }
+    public void webSignup() throws UnsupportedOperationException {}
+
+    /**
+     * Indicates that the account corresponding to the given
+     * <tt>protocolProvider</tt> has been removed.
+     * @param protocolProvider the protocol provider that has been removed
+     */
+    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

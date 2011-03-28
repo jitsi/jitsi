@@ -54,8 +54,10 @@ public class IcqAccountRegistrationWizard
     }
 
     /**
-     * Implements the <code>AccountRegistrationWizard.getIcon</code> method.
-     * Returns the icon to be used for this wizard.
+     * Returns the protocol icon that will be shown on the left of the protocol
+     * name in the list, where user will choose the protocol to register to.
+     * 
+     * @return a short description of the protocol.
      */
     public byte[] getIcon()
     {
@@ -74,8 +76,10 @@ public class IcqAccountRegistrationWizard
     }
 
     /**
-     * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
-     * method. Returns the protocol name for this wizard.
+     * Returns the protocol name that will be shown in the list, where user
+     * will choose the protocol to register to.
+     * 
+     * @return the protocol name.
      */
     public String getProtocolName()
     {
@@ -83,9 +87,11 @@ public class IcqAccountRegistrationWizard
     }
 
     /**
-     * Implements the <code>AccountRegistrationWizard.getProtocolDescription
-     * </code>
-     * method. Returns the description of the protocol for this wizard.
+     * Returns a short description of the protocol that will be shown on the
+     * right of the protocol name in the list, where user will choose the
+     * protocol to register to.
+     * 
+     * @return a short description of the protocol.
      */
     public String getProtocolDescription()
     {
@@ -93,7 +99,11 @@ public class IcqAccountRegistrationWizard
     }
 
     /**
-     * Returns the set of pages contained in this wizard.
+     * Returns the set of <tt>WizardPage</tt>-s for this
+     * wizard. 
+     * 
+     * @return the set of <tt>WizardPage</tt>-s for this
+     * wizard. 
      */
     public Iterator<WizardPage> getPages()
     {
@@ -106,7 +116,11 @@ public class IcqAccountRegistrationWizard
     }
 
     /**
-     * Returns the set of data that user has entered through this wizard.
+     * Returns a set of key-value pairs that will represent the summary for
+     * this wizard.
+     * 
+     * @return a set of key-value pairs that will represent the summary for
+     * this wizard. 
      */
     public Iterator<Map.Entry<String,String>> getSummary()
     {
@@ -137,6 +151,16 @@ public class IcqAccountRegistrationWizard
             .getPassword());
     }
 
+    /**
+     * Defines the operations that will be executed when the user clicks on
+     * the wizard "Signin" button.
+     *
+     * @param userName the user name to sign in with
+     * @param password the password to sign in with
+     * @return the created <tt>ProtocolProviderService</tt> corresponding to the
+     * new account
+     * @throws OperationFailedException if the operation didn't succeed
+     */
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
     {
@@ -318,7 +342,13 @@ public class IcqAccountRegistrationWizard
     }
 
     /**
-     * Enables the simple "Sign in" form.
+     * Indicates whether this wizard enables the simple "sign in" form shown
+     * when the user opens the application for the first time. The simple
+     * "sign in" form allows user to configure her account in one click, just
+     * specifying her username and password and leaving any other configuration
+     * as by default.
+     * @return <code>true</code> if the simple "Sign in" form is enabled or
+     * <code>false</code> otherwise.
      */
     public boolean isSimpleFormEnabled()
     {
@@ -345,10 +375,24 @@ public class IcqAccountRegistrationWizard
         return true;
     }
 
+    /**
+     * Returns a simple account registration form that would be the first form
+     * shown to the user. Only if the user needs more settings she'll choose
+     * to open the advanced wizard, consisted by all pages.
+     * 
+     * @return a simple account registration form
+     */
     public Object getSimpleForm()
     {
         firstWizardPage = new FirstWizardPage(this);
 
         return firstWizardPage.getSimpleForm();
     }
+
+    /**
+     * Indicates that the account corresponding to the given
+     * <tt>protocolProvider</tt> has been removed.
+     * @param protocolProvider the protocol provider that has been removed
+     */
+    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

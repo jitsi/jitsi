@@ -693,4 +693,11 @@ public class JabberAccountRegistrationWizard
     {
         return null;
     }
+
+    /**
+     * Indicates that the account corresponding to the given
+     * <tt>protocolProvider</tt> has been removed.
+     * @param protocolProvider the protocol provider that has been removed
+     */
+    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

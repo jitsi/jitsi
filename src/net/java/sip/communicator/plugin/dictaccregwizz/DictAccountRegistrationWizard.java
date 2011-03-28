@@ -132,8 +132,11 @@ public class DictAccountRegistrationWizard
     }
 
     /**
-     * Installs the account created through this wizard.
-     * @return ProtocolProviderService
+     * Defines the operations that will be executed when the user clicks on
+     * the wizard "Signin" button.
+     * @return the created <tt>ProtocolProviderService</tt> corresponding to the
+     * new account
+     * @throws OperationFailedException if the operation didn't succeed
      */
     public ProtocolProviderService signin()
         throws OperationFailedException
@@ -144,8 +147,14 @@ public class DictAccountRegistrationWizard
     }
 
     /**
-     * Installs the account created through this wizard.
-     * @return ProtocolProviderService
+     * Defines the operations that will be executed when the user clicks on
+     * the wizard "Signin" button.
+     *
+     * @param userName the user name to sign in with
+     * @param password the password to sign in with
+     * @return the created <tt>ProtocolProviderService</tt> corresponding to the
+     * new account
+     * @throws OperationFailedException if the operation didn't succeed
      */
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
@@ -405,7 +414,13 @@ public class DictAccountRegistrationWizard
     }
 
     /**
-     * Disables the simple "Sign in" form.
+     * Indicates whether this wizard enables the simple "sign in" form shown
+     * when the user opens the application for the first time. The simple
+     * "sign in" form allows user to configure her account in one click, just
+     * specifying her username and password and leaving any other configuration
+     * as by default.
+     * @return <code>true</code> if the simple "Sign in" form is enabled or
+     * <code>false</code> otherwise.
      */
     public boolean isSimpleFormEnabled()
     {
@@ -432,10 +447,24 @@ public class DictAccountRegistrationWizard
         return false;
     }
 
+    /**
+     * Returns a simple account registration form that would be the first form
+     * shown to the user. Only if the user needs more settings she'll choose
+     * to open the advanced wizard, consisted by all pages.
+     * 
+     * @return a simple account registration form
+     */
     public Object getSimpleForm()
     {
         firstWizardPage = new FirstWizardPage(this);
 
         return firstWizardPage.getSimpleForm();
     }
+
+    /**
+     * Indicates that the account corresponding to the given
+     * <tt>protocolProvider</tt> has been removed.
+     * @param protocolProvider the protocol provider that has been removed
+     */
+    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

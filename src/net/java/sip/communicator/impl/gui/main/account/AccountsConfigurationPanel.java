@@ -15,6 +15,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -119,6 +120,17 @@ public class AccountsConfigurationPanel
                 return;
 
             AccountID accountID = account.getAccountID();
+
+            // Notify the corresponding wizard that the account would be removed.
+            AccountRegWizardContainerImpl wizardContainer =
+                (AccountRegWizardContainerImpl) GuiActivator.getUIService()
+                    .getAccountRegWizardContainer();
+
+            AccountRegistrationWizard wizard
+                = wizardContainer.getProtocolWizard(
+                        account.getProtocolProvider());
+
+            wizard.accountRemoved(account.getProtocolProvider());
 
             ProtocolProviderFactory providerFactory =
                 GuiActivator.getProtocolProviderFactory(

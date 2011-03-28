@@ -140,11 +140,13 @@ public class SSHAccountRegistrationWizard
         
         return summaryTable.entrySet().iterator();
     }
-    
+
     /**
-     * Installs the account created through this wizard.
-     * @return the <tt>ProtocolProviderService</tt> corresponding to the newly
-     * created account.
+     * Defines the operations that will be executed when the user clicks on
+     * the wizard "Signin" button.
+     * @return the created <tt>ProtocolProviderService</tt> corresponding to the
+     * new account
+     * @throws OperationFailedException if the operation didn't succeed
      */
     public ProtocolProviderService signin()
         throws OperationFailedException
@@ -155,10 +157,14 @@ public class SSHAccountRegistrationWizard
     }
 
     /**
-     * Installs the account for the given userName and password.
-     * 
-     * @return the <tt>ProtocolProviderService</tt> corresponding to the newly
-     * created account.
+     * Defines the operations that will be executed when the user clicks on
+     * the wizard "Signin" button.
+     *
+     * @param userName the user name to sign in with
+     * @param password the password to sign in with
+     * @return the created <tt>ProtocolProviderService</tt> corresponding to the
+     * new account
+     * @throws OperationFailedException if the operation didn't succeed
      */
     public ProtocolProviderService signin(String userName, String password)
         throws OperationFailedException
@@ -193,20 +199,21 @@ public class SSHAccountRegistrationWizard
         accountProperties.put(
             ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
             new Boolean(true).toString());
-        
+
         accountProperties.put(ProtocolProviderFactorySSHImpl.IDENTITY_FILE,
                 registration.getIdentityFile());
-        
+
         accountProperties.put(ProtocolProviderFactorySSHImpl.KNOWN_HOSTS_FILE,
                 String.valueOf(registration.getKnownHostsFile()));
-        
-        try {
+
+        try
+        {
             AccountID accountID = providerFactory.installAccount(
                     user, accountProperties);
-            
+
             ServiceReference serRef = providerFactory
                     .getProviderForAccount(accountID);
-            
+
             protocolProvider = (ProtocolProviderService)
             SSHAccRegWizzActivator.bundleContext
                     .getService(serRef);
@@ -245,15 +252,16 @@ public class SSHAccountRegistrationWizard
         
         isModification = true;
     }
-    
+
     /**
      * Returns the size of this wizard.
      * @return the size of this wizard
      */
-    public Dimension getSize() {
+    public Dimension getSize()
+    {
         return new Dimension(600, 500);
     }
-    
+
     /**
      * Returns the identifier of the first account registration wizard page.
      * This method is meant to be used by the wizard container to determine,
@@ -261,14 +269,23 @@ public class SSHAccountRegistrationWizard
      *
      * @return the identifier of the first account registration wizard page
      */
-    public Object getFirstPageIdentifier() {
-        return firstWizardPage.getIdentifier();
-    }
-    
-    public Object getLastPageIdentifier() {
+    public Object getFirstPageIdentifier()
+    {
         return firstWizardPage.getIdentifier();
     }
 
+    public Object getLastPageIdentifier()
+    {
+        return firstWizardPage.getIdentifier();
+    }
+
+    /**
+     * Indicates if this wizard is modifying an existing account or is creating
+     * a new one.
+     * 
+     * @return <code>true</code> to indicate that this wizard is currently in
+     * modification mode, <code>false</code> - otherwise.
+     */
     public boolean isModification()
     {
         return isModification;
@@ -296,9 +313,15 @@ public class SSHAccountRegistrationWizard
     {
         return null;
     }
-    
+
     /**
-     * Disables the simple "Sign in" form.
+     * Indicates whether this wizard enables the simple "sign in" form shown
+     * when the user opens the application for the first time. The simple
+     * "sign in" form allows user to configure her account in one click, just
+     * specifying her username and password and leaving any other configuration
+     * as by default.
+     * @return <code>true</code> if the simple "Sign in" form is enabled or
+     * <code>false</code> otherwise.
      */
     public boolean isSimpleFormEnabled()
     {
@@ -325,9 +348,23 @@ public class SSHAccountRegistrationWizard
         return false;
     }
 
+    /**
+     * Returns a simple account registration form that would be the first form
+     * shown to the user. Only if the user needs more settings she'll choose
+     * to open the advanced wizard, consisted by all pages.
+     * 
+     * @return a simple account registration form
+     */
     public Object getSimpleForm()
     {
         firstWizardPage = new FirstWizardPage(registration, wizardContainer);
         return firstWizardPage.getSimpleForm();
     }
+
+    /**
+     * Indicates that the account corresponding to the given
+     * <tt>protocolProvider</tt> has been removed.
+     * @param protocolProvider the protocol provider that has been removed
+     */
+    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

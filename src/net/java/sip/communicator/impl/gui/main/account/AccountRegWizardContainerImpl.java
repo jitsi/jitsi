@@ -142,14 +142,26 @@ public class AccountRegWizardContainerImpl
      */
     public void modifyAccount(ProtocolProviderService protocolProvider)
     {
-        AccountRegistrationWizard wizard
-            = registeredWizards.get(protocolProvider.getProtocolDisplayName());
+        AccountRegistrationWizard wizard = getProtocolWizard(protocolProvider);
 
         this.setCurrentWizard(wizard);
 
         wizard.setModification(true);
 
         wizard.loadAccount(protocolProvider);
+    }
+
+    /**
+     * Returns the wizard corresponding to the given protocol provider.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, which
+     * corresponding wizard we're looking for
+     * @return the corresponding wizard
+     */
+    public AccountRegistrationWizard getProtocolWizard(
+                                    ProtocolProviderService protocolProvider)
+    {
+        return registeredWizards.get(protocolProvider.getProtocolDisplayName());
     }
 
     /**
