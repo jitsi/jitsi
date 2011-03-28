@@ -121,17 +121,6 @@ public class AccountsConfigurationPanel
 
             AccountID accountID = account.getAccountID();
 
-            // Notify the corresponding wizard that the account would be removed.
-            AccountRegWizardContainerImpl wizardContainer =
-                (AccountRegWizardContainerImpl) GuiActivator.getUIService()
-                    .getAccountRegWizardContainer();
-
-            AccountRegistrationWizard wizard
-                = wizardContainer.getProtocolWizard(
-                        account.getProtocolProvider());
-
-            wizard.accountRemoved(account.getProtocolProvider());
-
             ProtocolProviderFactory providerFactory =
                 GuiActivator.getProtocolProviderFactory(
                     accountID.getProtocolName());
@@ -172,6 +161,18 @@ public class AccountsConfigurationPanel
                     if (isUninstalled)
                     {
                         accountList.ensureAccountRemoved(accountID);
+
+                        // Notify the corresponding wizard that the account
+                        // would be removed.
+                        AccountRegWizardContainerImpl wizardContainer
+                            = (AccountRegWizardContainerImpl) GuiActivator
+                                .getUIService().getAccountRegWizardContainer();
+
+                        AccountRegistrationWizard wizard
+                            = wizardContainer.getProtocolWizard(
+                                    account.getProtocolProvider());
+
+                        wizard.accountRemoved(account.getProtocolProvider());
                     }
                 }
             }
