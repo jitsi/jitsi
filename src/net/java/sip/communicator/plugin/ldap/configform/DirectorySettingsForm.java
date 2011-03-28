@@ -187,7 +187,8 @@ public class DirectorySettingsForm
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.LINE_END;
         basePanel.add(nameField, c);
-        JLabel nameExampleLabel = new JLabel("My LDAP server");
+        JLabel nameExampleLabel = new JLabel(
+            Resources.getString("impl.ldap.SERVER_NAME_EXAMPLE"));
         //Resources.getString("ldapNameExample"));
         nameExampleLabel.setForeground(Color.GRAY);
         nameExampleLabel.setFont(nameExampleLabel.getFont().deriveFont(8));
