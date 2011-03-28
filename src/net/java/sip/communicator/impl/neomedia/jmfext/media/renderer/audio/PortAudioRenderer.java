@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
  * Implements an audio <tt>Renderer</tt> which uses PortAudio.
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class PortAudioRenderer
     extends ControlsAdapter
@@ -152,7 +152,8 @@ public class PortAudioRenderer
     private Format[] supportedInputFormats;
 
     /**
-     * Volume Control used to control volume/gain of current played media.
+     * The <tt>GainControl</tt> used to control volume/gain of current played
+     * media.
      */
     private GainControl gainControl = null;
 
@@ -173,6 +174,53 @@ public class PortAudioRenderer
         if(enableVolumeControl)
             this.gainControl = (GainControl)NeomediaActivator
                     .getMediaServiceImpl().getOutputVolumeControl();
+    }
+
+    /**
+     * Applies the gain specified by {@link #gainControl} to the signal defined
+     * by the <tt>length</tt> number of samples given in <tt>buffer</tt>
+     * starting at <tt>offset</tt>.
+     *
+     * @param buffer the samples of the signal to apply the gain to
+     * @param offset the start of the samples of the signal in <tt>buffer</tt>
+     * @param length the number of samples of the signal given in
+     * <tt>buffer</tt>
+     */
+    private void applyGain(byte[] buffer, int offset, int length)
+    {
+        if (gainControl.getMute())
+            Arrays.fill(buffer, offset, offset + length, (byte) 0);
+        else
+        {
+            float db = gainControl.getDB();
+
+            if (db != 0)
+            {
+                // factor = pow(10, dB/10)
+                double factor = Math.pow(10, (db / 10d));
+
+                for (int i = offset, toIndex = offset + length;
+                        i < toIndex;
+                        i += 2)
+                {
+                    int i1 = i + 1;
+                    short s = (short) ((buffer[i] & 0xff) | (buffer[i1] << 8));
+
+                    /* Clip, don't wrap. */
+                    int si = (int) (s * factor);
+
+                    if (si > Short.MAX_VALUE)
+                        s = Short.MAX_VALUE;
+                    else if (si < Short.MIN_VALUE)
+                        s = Short.MIN_VALUE;
+                    else
+                        s = (short) si;
+
+                    buffer[i] = (byte) s;
+                    buffer[i1] = (byte) (s >> 8);
+                }
+            }
+        }
     }
 
     /**
@@ -504,31 +552,8 @@ public class PortAudioRenderer
         if (numberOfWrites > 0)
         {
             // if we have some volume setting apply them
-            if(gainControl != null)
-            {
-                if(gainControl.getMute())
-                {
-                    Arrays.fill(buffer, (byte)0);
-                }
-                else if(gainControl.getDB() != 0)
-                {
-                    // increase/decrease a little more than
-                    // if using levels for factor
-                    // we use factor = pow(10, dB/10),
-                    // but    level  = pow(10, dB/20);
-                    double factor = Math.pow(10, (gainControl.getDB() / 10d));
-
-                    for (int i = 0; i < buffer.length; i+=2)
-                    {
-                        short s = (short)((buffer[i]&0xff)
-                                | (buffer[i + 1]<<8));
-                        s = (short)(s*factor);
-
-                        buffer[i] = (byte) s;
-                        buffer[i+1] = (byte) (s >> 8);
-                    }
-                }
-            }
+            if (gainControl != null)
+                applyGain(buffer, offset, length);
 
             PortAudio.Pa_WriteStream(
                     stream,
