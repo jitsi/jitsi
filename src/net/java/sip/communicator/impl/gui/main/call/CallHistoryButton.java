@@ -75,15 +75,14 @@ public class CallHistoryButton
 
         UINotificationManager.addNotificationListener(this);
 
-        this.setPreferredSize(new Dimension(29, 22));
+        // All items are now instantiated and could safely load the skin.
+        loadSkin();
+
         this.setForeground(Color.WHITE);
         this.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         this.setFont(getFont().deriveFont(Font.BOLD, 10f));
         this.setToolTipText(callHistoryToolTip);
         this.setBackground(new Color(255, 255, 255, 160));
-
-        // All items are now instantiated and could safely load the skin.
-        loadSkin();
 
         this.addActionListener(new ActionListener()
         {
@@ -218,6 +217,9 @@ public class CallHistoryButton
 
         pressedImage
             = ImageLoader.getImage(ImageLoader.CALL_HISTORY_BUTTON_PRESSED);
+
+        this.setPreferredSize(new Dimension(historyImage.getWidth(this),
+                                            historyImage.getHeight(this)));
 
         setHistoryView();
     }
