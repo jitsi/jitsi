@@ -916,7 +916,7 @@
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
         bundle-argdelegation,bundle-zrtp4j,bundle-json,
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
-        bundle-plugin-facebookaccregwizz,
+        bundle-plugin-facebookaccregwizz,bundle-plugin-ippiaccregwizz,
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
         bundle-contactsource,bundle-plugin-reconnect,bundle-plugin-securityconfig,
         bundle-plugin-advancedconfig,
@@ -1708,6 +1708,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/sip2sipaccregwizz/sip2sipaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sip2sipaccregwizz"
                 prefix="net/java/sip/communicator/plugin/sip2sipaccregwizz"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-IPPIACCREGWIZZ -->
+    <target name="bundle-plugin-ippiaccregwizz">
+        <!-- Creates a bundle for the plugin ippi Account Registration Wizard.-->
+        <jar compress="false" destfile="${bundles.dest}/ippiaccregwizz.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/ippiaccregwizz/ippiaccregwizz.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/ippiaccregwizz"
+                prefix="net/java/sip/communicator/plugin/ippiaccregwizz"/>
         </jar>
     </target>
 

@@ -577,6 +577,12 @@ public class NewAccountDialog
                         }
                     });
                 }
+                else
+                {
+                    // no provider, maybe an error, stop connecting
+                    // so we can proceed with the actions
+                    stopConnecting(wizardContainer);
+                }
             }
             catch (OperationFailedException e)
             {
