@@ -97,6 +97,11 @@ public class LaunchArgHandler
     private  static final String PNAME_APPLICATION_NAME = "APPLICATION_NAME";
 
     /**
+     * The package name of the applications (e.g. jitsi).
+     */
+    private  static final String PNAME_PACKAGE_NAME = "PACKAGE_NAME";
+
+    /**
      * The property name containing the current version.
      */
     private static final String PNAME_VERSION = "APPLICATION_VERSION";
@@ -393,7 +398,7 @@ public class LaunchArgHandler
 
         if (name == null || name.trim().length() == 0)
         {
-            name = "SIP Communicator";
+            name = "Jitsi";
         }
 
         if (version == null || version.trim().length() == 0)
@@ -421,7 +426,7 @@ public class LaunchArgHandler
     }
 
     /**
-     * Returns the name of the application. That should be SIP Communicator
+     * Returns the name of the application. That should be Jitsi
      * most of the time but who knows ..
      *
      * @return the name of the application (i.e. SIP Communicator until we
@@ -432,9 +437,25 @@ public class LaunchArgHandler
         String name = versionProperties.getProperty(PNAME_APPLICATION_NAME);
 
         return  name == null
-            ? "SIP Communicator"
+            ? "Jitsi"
             : name;
     }
+
+    /**
+     * Returns the package name of the application. That should be jitsi
+     * most of the time but who knows ..
+     *
+     * @return the package name of the application.
+     */
+    private String getPackageName()
+    {
+        String name = versionProperties.getProperty(PNAME_PACKAGE_NAME);
+
+        return  name == null
+            ? "jitsi"
+            : name;
+    }
+
     /**
      * Prints an error message and then prints the help message.
      *
@@ -448,13 +469,13 @@ public class LaunchArgHandler
 
     /**
      * Prints a help message containing usage instructions and descriptions of
-     * all options currently supported by SIP Communicator.
+     * all options currently supported by Jitsi.
      */
     public void handleHelpArg()
     {
         handleVersionArg();
 
-        System.out.println("Usage: sip-communicator [OPTIONS] [uri-to-call]");
+        System.out.println("Usage: " + getPackageName() + " [OPTIONS] [uri-to-call]");
         System.out.println("");
         System.out.println("  -c, --config=DIR  use DIR for config files");
         System.out.println("  -d, --debug       print debugging messages to stdout");

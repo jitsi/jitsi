@@ -476,7 +476,7 @@
 
         <sip-communicator-version property="sip-communicator.version" />
 
-        <echo message="SIP Communicator version ${sip-communicator.version}" />
+        <echo message="Jitsi version ${sip-communicator.version}" />
     </target>
 
     <!--INIT-->
@@ -1021,12 +1021,18 @@
         </jar>
     </target>
 
-    <!--BUNDLE-UTIL-->
-    <target name="bundle-util" depends="version">
+    <!--BUNDLE-UTIL
+        load-properties target is from resources/install/build.xml
+        loads the application name from the install settings.
+     -->
+    <target name="bundle-util" depends="version,load-properties">
         <!-- Create a properties file that the arg handler could use
         to determine SC's version -->
         <echo file="${dest}/net/java/sip/communicator/util/launchutils/version.properties"
-                    message="APPLICATION_NAME=SIP Communicator${line.separator}" />
+              message="APPLICATION_NAME=${application.name}${line.separator}" />
+        <echo file="${dest}/net/java/sip/communicator/util/launchutils/version.properties"
+              message="PACKAGE_NAME=${package.name}${line.separator}"
+              append="true"/>
         <echo file="${dest}/net/java/sip/communicator/util/launchutils/version.properties"
               message="APPLICATION_VERSION=${sip-communicator.version}${line.separator}"
               append="true"/>
