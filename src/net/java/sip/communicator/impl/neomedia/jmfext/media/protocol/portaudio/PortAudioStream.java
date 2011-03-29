@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio;
 
 import java.io.*;
-import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -23,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * Implements <tt>PullBufferStream</tt> for PortAudio.
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class PortAudioStream
     extends AbstractPullBufferStream
@@ -190,28 +189,9 @@ public class PortAudioStream
             // if we have some volume setting apply them
             if(volumeControl != null)
             {
-                if(volumeControl.getMute())
-                {
-                    Arrays.fill(bufferData, (byte) 0);
-                }
-                else if(volumeControl.getDB() != 0)
-                {
-                    // increase/decrease a little more than
-                    // if using levels for factor
-                    // we use factor = pow(10, dB/10),
-                    // but    level  = pow(10, dB/20);
-                    double factor = Math.pow(10, (volumeControl.getDB() / 10d));
-
-                    for (int i = 0; i < bufferData.length; i+=2)
-                    {
-                        short s = (short)((bufferData[i]&0xff)
-                                | (bufferData[i + 1]<<8));
-                        s = (short)(s*factor);
-
-                        bufferData[i] = (byte) s;
-                        bufferData[i+1] = (byte) (s >> 8);
-                    }
-                }
+                AbstractVolumeControl.applyGain(
+                        volumeControl,
+                        bufferData, 0, bytesPerBuffer);
             }
 
             long bufferTimeStamp = System.nanoTime();

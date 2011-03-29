@@ -111,6 +111,56 @@ public abstract class AbstractVolumeControl
     }
 
     /**
+     * Applies the gain specified by <tt>gainControl</tt> to the signal defined
+     * by the <tt>length</tt> number of samples given in <tt>buffer</tt>
+     * starting at <tt>offset</tt>.
+     *
+     * @param gainControl the <tt>GainControl</tt> which specifies the gain to
+     * apply
+     * @param buffer the samples of the signal to apply the gain to
+     * @param offset the start of the samples of the signal in <tt>buffer</tt>
+     * @param length the number of samples of the signal given in
+     * <tt>buffer</tt>
+     */
+    public static void applyGain(
+            GainControl gainControl,
+            byte[] buffer, int offset, int length)
+    {
+        if (gainControl.getMute())
+            Arrays.fill(buffer, offset, offset + length, (byte) 0);
+        else
+        {
+            // Assign the maximum of 200% to the volume scale.
+            float level = gainControl.getLevel() * 2;
+
+            if (level != 1)
+            {
+                for (int i = offset, toIndex = offset + length;
+                        i < toIndex;
+                        i += 2)
+                {
+                    int i1 = i + 1;
+                    short s = (short) ((buffer[i] & 0xff) | (buffer[i1] << 8));
+
+                    /* Clip, don't wrap. */
+                    int si = s;
+
+                    si = (int) (si * level);
+                    if (si > Short.MAX_VALUE)
+                        s = Short.MAX_VALUE;
+                    else if (si < Short.MIN_VALUE)
+                        s = Short.MIN_VALUE;
+                    else
+                        s = (short) si;
+
+                    buffer[i] = (byte) s;
+                    buffer[i1] = (byte) (s >> 8);
+                }
+            }
+        }
+    }
+
+    /**
      * Current volume value.
      *
      * @return the current volume level.
