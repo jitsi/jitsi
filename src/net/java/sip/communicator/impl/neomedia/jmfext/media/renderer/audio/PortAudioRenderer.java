@@ -192,13 +192,11 @@ public class PortAudioRenderer
             Arrays.fill(buffer, offset, offset + length, (byte) 0);
         else
         {
-            float db = gainControl.getDB();
+            // Assign the maximum of 200% to the volume scale.
+            float level = gainControl.getLevel() * 2;
 
-            if (db != 0)
+            if (level != 1)
             {
-                // factor = pow(10, dB/10)
-                double factor = Math.pow(10, (db / 10d));
-
                 for (int i = offset, toIndex = offset + length;
                         i < toIndex;
                         i += 2)
@@ -207,8 +205,9 @@ public class PortAudioRenderer
                     short s = (short) ((buffer[i] & 0xff) | (buffer[i1] << 8));
 
                     /* Clip, don't wrap. */
-                    int si = (int) (s * factor);
+                    int si = s;
 
+                    si = (int) (si * level);
                     if (si > Short.MAX_VALUE)
                         s = Short.MAX_VALUE;
                     else if (si < Short.MIN_VALUE)
