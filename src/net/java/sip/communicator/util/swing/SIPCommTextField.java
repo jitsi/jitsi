@@ -45,6 +45,16 @@ public class SIPCommTextField
     private boolean isDefaultTextVisible;
 
     /**
+     * The color of the foreground.
+     */
+    private Color foregroundColor = Color.BLACK;
+
+    /**
+     * The foreground color of the default text.
+     */
+    private Color defaultTextColor = Color.GRAY;
+
+    /**
      * Creates an instance of <tt>SIPCommTextField</tt> by specifying the text
      * we would like to show by default in it.
      * @param text the text we would like to enter by default
@@ -60,7 +70,7 @@ public class SIPCommTextField
         }
 
         this.setFont(getFont().deriveFont(10f));
-        this.setForeground(Color.GRAY);
+        this.setForeground(defaultTextColor);
 
         this.addMouseListener(this);
         this.addFocusListener(this);
@@ -133,7 +143,7 @@ public class SIPCommTextField
             setDefaultText();
         else
         {
-            this.setForeground(Color.BLACK);
+            this.setForeground(foregroundColor);
             super.setText(text);
         }
     }
@@ -144,7 +154,7 @@ public class SIPCommTextField
     private void setDefaultText()
     {
         super.setText(defaultText);
-        this.setForeground(Color.GRAY);
+        this.setForeground(defaultTextColor);
     }
 
     /**
@@ -155,7 +165,7 @@ public class SIPCommTextField
         if (super.getText().equals(defaultText))
         {
             super.setText("");
-            this.setForeground(Color.BLACK);
+            this.setForeground(foregroundColor);
         }
     }
 
@@ -229,6 +239,26 @@ public class SIPCommTextField
             fireTextFieldChangeListener(1);
         else
             isDefaultTextVisible = false;
+    }
+
+    /**
+     * Sets the foreground color.
+     *
+     * @param c the color to set for the text field foreground
+     */
+    public void setForegroundColor(Color c)
+    {
+        foregroundColor = c;
+    }
+
+    /**
+     * Sets the foreground color of the default text shown in this text field.
+     *
+     * @param c the color to set
+     */
+    public void setDefaultTextColor(Color c)
+    {
+        defaultTextColor = c;
     }
 
     /**

@@ -62,6 +62,34 @@ public class SIPCommTextFieldUI
     private boolean isDeleteIconVisible = false;
 
     /**
+     * The start background gradient color.
+     */
+    private final Color bgStartColor
+        = new Color(UtilActivator.getResources().getColor(
+            "service.gui.SEARCH_BACKGROUND"));
+
+    /**
+     * The end background gradient color.
+     */
+    private final Color bgEndColor
+        = new Color(UtilActivator.getResources().getColor(
+            "service.gui.SEARCH_GRADIENT"));
+
+    /**
+     * The start background gradient color.
+     */
+    private final Color bgBorderStartColor
+        = new Color(UtilActivator.getResources().getColor(
+            "service.gui.SEARCH_BORDER"));
+
+    /**
+     * The end background gradient color.
+     */
+    private final Color bgBorderEndColor
+        = new Color(UtilActivator.getResources().getColor(
+            "service.gui.SEARCH_BORDER_GRADIENT"));
+
+    /**
      * Creates a <tt>SIPCommTextFieldUI</tt>.
      */
     public SIPCommTextFieldUI()
@@ -130,7 +158,14 @@ public class SIPCommTextFieldUI
 
             AntialiasingManager.activateAntialiasing(g2);
             JTextComponent c = this.getComponent();
-            g2.setColor(Color.WHITE);
+
+            GradientPaint bgGradientColor =
+                new GradientPaint(  c.getWidth() / 2, 0,
+                                    bgStartColor,
+                                    c.getWidth() / 2, c.getHeight(),
+                                    bgEndColor);
+
+            g2.setPaint(bgGradientColor);
 
             if(isRounded)
             {
@@ -162,16 +197,22 @@ public class SIPCommTextFieldUI
                 isDeleteIconVisible = false;
 
             g2.setStroke(new BasicStroke(1f));
-            g2.setColor(Color.GRAY);
+            GradientPaint bgBorderGradientColor
+                = new GradientPaint(  c.getWidth() / 2, 0,
+                                    bgBorderStartColor,
+                                    c.getWidth() / 2, c.getHeight(),
+                                    bgBorderEndColor);
+
+            g2.setPaint(bgBorderGradientColor);
 
             if(isRounded)
             {
-                g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1,
+                g2.drawRoundRect(0, 0, c.getWidth() - 2, c.getHeight() - 2,
                         20, 20);
             }
             else
             {
-                g2.drawRect(0, 0, c.getWidth() - 1, c.getHeight() - 1);
+                g2.drawRect(0, 0, c.getWidth() - 2, c.getHeight() - 2);
             }
         }
         finally

@@ -59,10 +59,28 @@ public class SearchFieldUI
     private boolean isCallIconVisible = false;
 
     /**
+     * Indicates if the call button is enabled in this search field.
+     */
+    private boolean isCallButtonEnabled = true;
+
+    /**
      * Creates a <tt>SIPCommTextFieldUI</tt>.
      */
     public SearchFieldUI()
     {
+        // Indicates if the big call button outside the search is enabled.
+        String callButtonEnabledString = UtilActivator.getResources()
+            .getSettingsString("impl.gui.CALL_BUTTON_ENABLED");
+
+        if (callButtonEnabledString != null
+                && callButtonEnabledString.length() > 0)
+        {
+            // If the outside call button is enabled the call button in this
+            // search field is disabled.
+            isCallButtonEnabled
+                = !new Boolean(callButtonEnabledString).booleanValue();
+        }
+
         loadSkin();
     }
 
@@ -74,11 +92,14 @@ public class SearchFieldUI
     {
         super.installListeners();
 
-        getComponent().addMouseListener(
-            new TextFieldMouseListener());
+        if (isCallButtonEnabled)
+        {
+            getComponent().addMouseListener(
+                new TextFieldMouseListener());
 
-        getComponent().addMouseMotionListener(
-            new TextFieldMouseMotionListener());
+            getComponent().addMouseMotionListener(
+                new TextFieldMouseMotionListener());
+        }
     }
 
     /**
@@ -111,15 +132,16 @@ public class SearchFieldUI
 
             g2.drawImage(searchIcon.getImage(), c.getX() + 5, dy + 1, null);
 
-            // Paint call button.
-            Rectangle callRect = getCallButtonRect();
-            int dx = callRect.x;
-            dy = callRect.y;
-
             if (c.getText() != null
                 && c.getText().length() > 0
-                && CallManager.getTelephonyProviders().size() > 0)
+                && CallManager.getTelephonyProviders().size() > 0
+                && isCallButtonEnabled)
             {
+                // Paint call button.
+                Rectangle callRect = getCallButtonRect();
+                int dx = callRect.x;
+                dy = callRect.y;
+
                 if (isCallMouseOver)
                     g2.drawImage(callRolloverIcon, dx, dy, null);
                 else
@@ -150,8 +172,11 @@ public class SearchFieldUI
         if ((rect.width > 0) && (rect.height > 0))
         {
             rect.x += searchIcon.getIconWidth() + 8;
-            rect.width -= searchIcon.getIconWidth()
-                        + callRolloverIcon.getWidth(null) + 15;
+            rect.width -= searchIcon.getIconWidth() + 8;
+
+            if (isCallButtonEnabled)
+                rect.width -= callRolloverIcon.getWidth(null) + 12;
+
             return rect;
         }
         return null;
@@ -324,11 +349,14 @@ public class SearchFieldUI
         searchIcon = UtilActivator.getResources()
             .getImage("service.gui.icons.SEARCH_ICON");
 
-        callIcon = UtilActivator.getResources()
-            .getImage("service.gui.buttons.SEARCH_CALL_ICON").getImage();
+        if (isCallButtonEnabled)
+        {
+            callIcon = UtilActivator.getResources()
+                .getImage("service.gui.buttons.SEARCH_CALL_ICON").getImage();
 
-        callRolloverIcon = UtilActivator.getResources()
-            .getImage("service.gui.buttons.SEARCH_CALL_ROLLOVER_ICON")
-                .getImage();
+            callRolloverIcon = UtilActivator.getResources()
+                .getImage("service.gui.buttons.SEARCH_CALL_ROLLOVER_ICON")
+                    .getImage();
+        }
     }
 }
