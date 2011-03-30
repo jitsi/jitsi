@@ -33,6 +33,7 @@ static LPSTR Run_cmdLine = NULL;
  */
 static BOOL Run_launch = TRUE;
 
+static DWORD Run_addPath(LPCTSTR path);
 static int Run_displayMessageBoxFromString(DWORD textId, DWORD_PTR *textArgs, LPCTSTR caption, UINT type);
 static DWORD Run_equalsParentProcessExecutableFilePath(LPCTSTR executableFilePath, BOOL *equals);
 static DWORD Run_getExecutableFilePath(LPTSTR *executableFilePath);
@@ -55,6 +56,48 @@ static DWORD Run_runJavaFromJavaHome(LPCTSTR javaHome, BOOL searchForRuntimeLib,
 static DWORD Run_runJavaFromRegKey(HKEY key, BOOL *searchForJava);
 static DWORD Run_runJavaFromRuntimeLib(LPCTSTR runtimeLib, BOOL *searchForJava);
 static LPSTR Run_skipWhitespace(LPSTR str);
+
+static DWORD
+Run_addPath(LPCTSTR path)
+{
+    LPCTSTR envVarName = _T("PATH");
+    TCHAR envVar[4096];
+    DWORD envVarCapacity = sizeof(envVar) / sizeof(TCHAR);
+    DWORD envVarLength
+        = GetEnvironmentVariable(envVarName, envVar, envVarCapacity);
+    DWORD error;
+
+    if (envVarLength)
+    {
+        if (envVarLength >= envVarCapacity)
+            error = ERROR_NOT_ENOUGH_MEMORY;
+        else
+        {
+            DWORD pathLength = _tcslen(path);
+
+            if (envVarLength + 1 + pathLength + 1 > envVarCapacity)
+                error = ERROR_NOT_ENOUGH_MEMORY;
+            else
+            {
+                LPTSTR str = envVar + envVarLength;
+
+                *str = _T(';');
+                str++;
+                _tcsncpy(str, path, pathLength);
+                str += pathLength;
+                *str = 0;
+
+                if (SetEnvironmentVariable(envVarName, envVar))
+                    error = ERROR_SUCCESS;
+                else
+                    error = GetLastError();
+            }
+        }
+    }
+    else
+        error = GetLastError();
+    return error;
+}
 
 static int
 Run_displayMessageBoxFromString(
@@ -959,6 +1002,12 @@ Run_runAsLauncher(LPCTSTR executableFilePath, LPSTR cmdLine)
                 error = GetLastError();
         }
     }
+
+    /*
+     * Add the .\native directory to the PATH because adding it to
+     * java.library.path does not seem to always work.
+     */
+    Run_addPath(_T(".\\native"));
 
     error = Run_runJava(executableFilePath, commandLine);
     return error;
