@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia.format;
 import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
+import javax.sdp.Attribute;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
@@ -237,24 +238,34 @@ public class MediaFormatFactoryImpl
     {
         MediaFormat mediaFormat
             = createMediaFormat(encoding, clockRate, channels);
+        Map<String, String> formatParameters
+            = new HashMap<String, String>();
+        Map<String, String> advancedParameters
+            = new HashMap<String, String>();
+        boolean recreate = false;
 
         if ((mediaFormat != null)
                 && (formatParams != null)
                 && !formatParams.isEmpty())
         {
-            Map<String, String> formatParameters
-                = new HashMap<String, String>();
-            Map<String, String> advancedParameters
-                = new HashMap<String, String>();
+            recreate = true;
 
             //formatParameters.putAll(mediaFormat.getFormatParameters());
             formatParameters.putAll(formatParams);
+        }
+        else if(mediaFormat != null && (advancedParams != null ) &&
+                !advancedParams.isEmpty())
+        {
+            recreate = true;
 
             if(advancedParams != null)
             {
                 advancedParameters.putAll(advancedParams);
             }
+        }
 
+        if(recreate)
+        {
             switch (mediaFormat.getMediaType())
             {
             case AUDIO:
