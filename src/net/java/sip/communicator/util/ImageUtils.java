@@ -75,6 +75,62 @@ public class ImageUtils
     }
 
     /**
+     * Scales the given <tt>image</tt> to fit in the given <tt>width</tt> and
+     * <tt>height</tt>.
+     *
+     * @param imageBytes the bytes of the image to scale
+     * @param width the desired width
+     * @param height the desired height
+     * @return the scaled image
+     */
+    public static ImageIcon scaleImageWithinBounds( byte[] imageBytes,
+                                                    int width,
+                                                    int height)
+    {
+
+        if (imageBytes == null || !(imageBytes.length > 0))
+            return null;
+
+        Image imageIcon = null;
+
+        try
+        {
+            Image image = null;
+
+            // sometimes ImageIO fails, will fall back to awt Toolkit
+            try
+            {
+                image = ImageIO.read(new ByteArrayInputStream(imageBytes));
+            } catch (Exception e)
+            {
+                try
+                {
+                    image = Toolkit.getDefaultToolkit().createImage(imageBytes);
+                } catch (Exception e1)
+                {
+                    // if it fails throw the original exception
+                    throw e;
+                }
+            }
+            if(image != null)
+                imageIcon = scaleImageWithinBounds(image, width, height);
+            else
+                if (logger.isTraceEnabled())
+                    logger.trace("Unknown image format or error reading image");
+        }
+        catch (Exception e)
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("Could not create image.", e);
+        }
+
+        if (imageIcon != null)
+            return new ImageIcon(imageIcon);
+
+        return null;
+    }
+
+    /**
      * Creates a rounded avatar image.
      *
      * @param image image of the initial avatar image.
