@@ -309,7 +309,7 @@ public class MainFrame
         if (isCallButtonEnabled)
         {
             JPanel panel
-                = new TransparentPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+                = new TransparentPanel(new FlowLayout(FlowLayout.LEFT, 3, 0));
 
             panel.add(new CallButton(this));
             panel.add(historyButton);
