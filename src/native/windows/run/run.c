@@ -38,6 +38,7 @@ static int Run_displayMessageBoxFromString(DWORD textId, DWORD_PTR *textArgs, LP
 static DWORD Run_equalsParentProcessExecutableFilePath(LPCTSTR executableFilePath, BOOL *equals);
 static DWORD Run_getExecutableFilePath(LPTSTR *executableFilePath);
 static DWORD Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine);
+static LPTSTR Run_getJavaLibraryPath();
 static LONG Run_getJavaPathsFromRegKey(HKEY key, LPTSTR *runtimeLib, LPTSTR *javaHome);
 static LPTSTR Run_getLockFilePath();
 static DWORD Run_getParentProcessId(DWORD *ppid);
@@ -233,6 +234,7 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
             _T("sc-bundles\\util.jar"),
             NULL
         };
+    LPTSTR javaLibraryPath = Run_getJavaLibraryPath();
     LPCTSTR properties[]
         = {
             _T("felix.config.properties"),
@@ -240,9 +242,9 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
             _T("java.util.logging.config.file"),
             _T("lib/logging.properties"),
             _T("java.library.path"),
-            _T("./native"),
+            javaLibraryPath,
             _T("jna.library.path"),
-            _T("./native"),
+            javaLibraryPath,
             NULL
         };
     LPCTSTR scHomeDirNameProperty
@@ -328,7 +330,7 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
                             + mainClassLength
                             + cmdLineLength
                             + 1 /* 0 */));
-    if (*commandLine)
+    if (*commandLine && javaLibraryPath)
     {
         LPTSTR str = *commandLine;
 
@@ -422,7 +424,43 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
     }
     else
         error = ERROR_OUTOFMEMORY;
+
+    if (javaLibraryPath)
+        free(javaLibraryPath);
+
     return error;
+}
+
+static LPTSTR
+Run_getJavaLibraryPath()
+{
+    LPCTSTR relativeJavaLibraryPath = _T("native");
+    TCHAR javaLibraryPath[1 /* " */ + MAX_PATH + 1 /* " */ + 1];
+    DWORD javaLibraryPathCapacity
+        = (sizeof(javaLibraryPath) - 2 /* "" */) / sizeof(TCHAR);
+    DWORD javaLibraryPathLength
+        = GetFullPathName(
+                relativeJavaLibraryPath,
+                javaLibraryPathCapacity, javaLibraryPath + 1,
+                NULL);
+    LPCTSTR dup;
+
+    if (javaLibraryPathLength
+            && (javaLibraryPathLength < javaLibraryPathCapacity))
+    {
+        LPTSTR str = javaLibraryPath;
+
+        *str = _T('"');
+        str += (1 + javaLibraryPathLength);
+        *str = _T('"');
+        str++;
+        *str = 0;
+
+        dup = javaLibraryPath;
+    }
+    else
+        dup = relativeJavaLibraryPath;
+    return _tcsdup(dup);
 }
 
 static LONG
@@ -1002,12 +1040,6 @@ Run_runAsLauncher(LPCTSTR executableFilePath, LPSTR cmdLine)
                 error = GetLastError();
         }
     }
-
-    /*
-     * Add the .\native directory to the PATH because adding it to
-     * java.library.path does not seem to always work.
-     */
-    Run_addPath(_T(".\\native"));
 
     error = Run_runJava(executableFilePath, commandLine);
     return error;
