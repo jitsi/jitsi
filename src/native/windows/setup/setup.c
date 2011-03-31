@@ -5,12 +5,15 @@
  * See terms of license at gnu.org.
  */
 
+#include "lasterror.h"
 #include "setup.h"
 
 #include <ctype.h> /* isspace */
+#include <stdlib.h>
 #include <string.h>
 #include <tchar.h>
 
+#include <objbase.h>
 #ifndef ERROR_RESOURCE_ENUM_USER_STOP
 #define ERROR_RESOURCE_ENUM_USER_STOP 0x3B02
 #endif /* #ifndef ERROR_RESOURCE_ENUM_USER_STOP */
@@ -73,16 +76,28 @@ Setup_enumResNameProc(
                         error = Setup_extractAndExecuteMsi(ptr, size);
                     }
                     else
+                    {
                         error = GetLastError();
+                        LastError_setLastError(error, __FILE__, __LINE__);
+                    }
                 }
                 else
+                {
                     error = GetLastError();
+                    LastError_setLastError(error, __FILE__, __LINE__);
+                }
             }
             else
+            {
                 error = GetLastError();
+                LastError_setLastError(error, __FILE__, __LINE__);
+            }
         }
         else
+        {
             error = GetLastError();
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
     }
     if (param)
         *((DWORD *) param) = error;
@@ -109,6 +124,7 @@ Setup_executeMsi(LPCTSTR path)
     else
     {
         error = ERROR_OUTOFMEMORY;
+        LastError_setLastError(error, __FILE__, __LINE__);
         return error;
     }
     p2 = L"\" ";
@@ -147,6 +163,13 @@ Setup_executeMsi(LPCTSTR path)
         sei.lpFile = L"msiexec.exe";
         sei.lpParameters = parameters;
         sei.nShow = SW_SHOWNORMAL;
+
+        /*
+         * MSDN says it is good practice to always initialize COM before using
+         * ShellExecuteEx.
+         */
+        CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
         if (ShellExecuteExW(&sei) && (((int) (sei.hInstApp)) > 32))
         {
             if (sei.hProcess)
@@ -159,6 +182,7 @@ Setup_executeMsi(LPCTSTR path)
                     if (WAIT_FAILED == event)
                     {
                         error = GetLastError();
+                        LastError_setLastError(error, __FILE__, __LINE__);
                         break;
                     }
                 }
@@ -167,12 +191,18 @@ Setup_executeMsi(LPCTSTR path)
             }
         }
         else
+        {
             error = GetLastError();
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
 
         free(parameters);
     }
     else
+    {
         error = ERROR_OUTOFMEMORY;
+        LastError_setLastError(error, __FILE__, __LINE__);
+    }
 
     if (((LPVOID) p1) != ((LPVOID) path))
         free(p1);
@@ -191,7 +221,10 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
     if (tempPathLength)
     {
         if (tempPathLength > pathSize)
+        {
             error = ERROR_NOT_ENOUGH_MEMORY;
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
         else
         {
             LPCTSTR fileName = Setup_getFileName();
@@ -239,6 +272,7 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
                                         path))
                         {
                             error = GetLastError();
+                            LastError_setLastError(error, __FILE__, __LINE__);
                         }
                         else
                         {
@@ -256,7 +290,10 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
                         free(tempPath);
                     }
                     else
+                    {
                         error = ERROR_OUTOFMEMORY;
+                        LastError_setLastError(error, __FILE__, __LINE__);
+                    }
                 }
 
                 if (INVALID_HANDLE_VALUE != file)
@@ -267,6 +304,7 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
                             || (written != size))
                     {
                         error = GetLastError();
+                        LastError_setLastError(error, __FILE__, __LINE__);
                         CloseHandle(file);
                     }
                     else
@@ -283,7 +321,10 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
         }
     }
     else
+    {
         error = GetLastError();
+        LastError_setLastError(error, __FILE__, __LINE__);
+    }
     return error;
 }
 
@@ -357,7 +398,10 @@ Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName)
 
     snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (snapshot == INVALID_HANDLE_VALUE)
+    {
         error = GetLastError();
+        LastError_setLastError(error, __FILE__, __LINE__);
+    }
     else
     {
         PROCESSENTRY32 entry;
@@ -383,12 +427,17 @@ Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName)
                 if (!Process32Next(snapshot, &entry))
                 {
                     error = GetLastError();
+                    LastError_setLastError(error, __FILE__, __LINE__);
                     break;
                 }
             }
             while (1);
-        } else
+        }
+        else
+        {
             error = GetLastError();
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
         if ((ERROR_SUCCESS == error) && fileName && ppid && *ppid)
         {
             if (Process32First(snapshot, &entry))
@@ -399,18 +448,26 @@ Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName)
                     {
                         *fileName = _tcsdup(entry.szExeFile);
                         if (NULL == *fileName)
+                        {
                             error = ERROR_OUTOFMEMORY;
+                            LastError_setLastError(error, __FILE__, __LINE__);
+                        }
                         break;
                     }
                     if (!Process32Next(snapshot, &entry))
                     {
                         error = GetLastError();
+                        LastError_setLastError(error, __FILE__, __LINE__);
                         break;
                     }
                 }
                 while (1);
-            } else
+            }
+            else
+            {
                 error = GetLastError();
+                LastError_setLastError(error, __FILE__, __LINE__);
+            }
         }
         CloseHandle(snapshot);
     }
@@ -422,7 +479,6 @@ Setup_getProductName()
 {
     if (!Setup_productName)
     {
-        /* TODO Auto-generated method stub */
         LPCTSTR fileName = Setup_getFileName();
 
         if (fileName)
@@ -579,7 +635,10 @@ Setup_parseCommandLine(LPSTR cmdLine)
     {
         commandLine = Setup_str2wstr(cmdLine);
         if (!commandLine)
+        {
             error = ERROR_OUTOFMEMORY;
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
     }
     else
         commandLine = NULL;
@@ -611,7 +670,8 @@ Setup_parseCommandLine(LPSTR cmdLine)
 
         if (!up2date && !noAllowElevationCommandLineLength)
         {
-            DWORD envVarValueSize = (sizeof(envVarValue) / sizeof(TCHAR)) - 2 /* "" */;
+            DWORD envVarValueSize
+                = (sizeof(envVarValue) / sizeof(TCHAR)) - 2 /* "" */;
             DWORD envVarValueLength
                 = GetEnvironmentVariable(
                         _T("SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR"),
@@ -621,7 +681,10 @@ Setup_parseCommandLine(LPSTR cmdLine)
             if (envVarValueLength)
             {
                 if (envVarValueLength > envVarValueSize)
+                {
                     error = ERROR_NOT_ENOUGH_MEMORY;
+                    LastError_setLastError(error, __FILE__, __LINE__);
+                }
                 else
                 {
                     if ((envVarValueLength >= 2)
@@ -647,7 +710,10 @@ Setup_parseCommandLine(LPSTR cmdLine)
                 DWORD envVarError = GetLastError();
 
                 if (ERROR_ENVVAR_NOT_FOUND != envVarError)
+                {
                     error = envVarError;
+                    LastError_setLastError(error, __FILE__, __LINE__);
+                }
             }
         }
 
@@ -660,7 +726,10 @@ Setup_parseCommandLine(LPSTR cmdLine)
 #else
             commandLineW = Setup_str2wstr(noAllowElevationCommandLine);
             if (!commandLineW)
+            {
                 error = ERROR_OUTOFMEMORY;
+                LastError_setLastError(error, __FILE__, __LINE__);
+            }
 #endif /* #ifdef _UNICODE */
 
             if (commandLineW)
@@ -713,13 +782,21 @@ Setup_parseCommandLine(LPSTR cmdLine)
                                 *(str + propertyEndLength) = 0;
                             }
                             else
+                            {
                                 error = ERROR_OUTOFMEMORY;
+                                LastError_setLastError(
+                                        error,
+                                        __FILE__, __LINE__);
+                            }
                         }
                     }
                     LocalFree(argv);
                 }
                 else
+                {
                     error = GetLastError();
+                    LastError_setLastError(error, __FILE__, __LINE__);
+                }
 
                 if (((LPVOID) commandLineW)
                         != ((LPVOID) noAllowElevationCommandLine))
@@ -763,7 +840,10 @@ Setup_parseCommandLine(LPSTR cmdLine)
                 }
             }
             else
+            {
                 error = ERROR_OUTOFMEMORY;
+                LastError_setLastError(error, __FILE__, __LINE__);
+            }
         }
 
         if (commandLine != cmdLine)
@@ -837,11 +917,17 @@ Setup_terminateUp2DateExe()
             if (parentProcess)
             {
                 if (!TerminateProcess(parentProcess, 0))
+                {
                     error = GetLastError();
+                    LastError_setLastError(error, __FILE__, __LINE__);
+                }
                 CloseHandle(parentProcess);
             }
             else
+            {
                 error = GetLastError();
+                LastError_setLastError(error, __FILE__, __LINE__);
+            }
         }
     }
     return error;
@@ -869,6 +955,7 @@ Setup_waitForParentProcess()
                 if (WAIT_FAILED == event)
                 {
                     error = GetLastError();
+                    LastError_setLastError(error, __FILE__, __LINE__);
                     break;
                 }
             }
@@ -876,7 +963,10 @@ Setup_waitForParentProcess()
             CloseHandle(parentProcess);
         }
         else
+        {
             error = GetLastError();
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
     }
     return error;
 }
@@ -905,7 +995,10 @@ WinMain(
 
         if ((ERROR_SUCCESS != enumResourceNamesError)
                 && (ERROR_RESOURCE_ENUM_USER_STOP != enumResourceNamesError))
+        {
             error = enumResourceNamesError;
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
     }
 
     if (ERROR_SUCCESS != error)
@@ -923,11 +1016,51 @@ WinMain(
 
         if (messageLength)
         {
-            MessageBox(
-                    NULL,
-                    message,
-                    Setup_getProductName(),
-                    MB_ICONERROR | MB_OK);
+            LPCTSTR lastErrorFile = LastError_file();
+            LPCTSTR productName = Setup_getProductName();
+
+            if (lastErrorFile)
+            {
+                TCHAR lastErrorFormat[1024];
+                int lastErrorFormatLength
+                    = LoadString(
+                            GetModuleHandle(NULL),
+                            IDS_LASTERRORFORMAT,
+                            lastErrorFormat,
+                            sizeof(lastErrorFormat) / sizeof(TCHAR));
+
+                if (lastErrorFormatLength)
+                {
+                    LPTSTR lastErrorMessage;
+                    DWORD_PTR lastErrorArguments[]
+                        = {
+                            (DWORD_PTR) productName,
+                            (DWORD_PTR) error,
+                            (DWORD_PTR) lastErrorFile,
+                            (DWORD_PTR) LastError_line(),
+                            (DWORD_PTR) message
+                        };
+                    DWORD lastErrorMessageLength
+                        = FormatMessage(
+                                FORMAT_MESSAGE_ALLOCATE_BUFFER
+                                    | FORMAT_MESSAGE_ARGUMENT_ARRAY
+                                    | FORMAT_MESSAGE_FROM_STRING,
+                                lastErrorFormat,
+                                0,
+                                LANG_USER_DEFAULT,
+                                (LPTSTR) &lastErrorMessage,
+                                0,
+                                (va_list *) lastErrorArguments);
+
+                    if (lastErrorMessageLength)
+                    {
+                        LocalFree(message);
+                        message = lastErrorMessage;
+                    }
+                }
+            }
+
+            MessageBox(NULL, message, productName, MB_ICONERROR | MB_OK);
             LocalFree(message);
         }
     }

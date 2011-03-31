@@ -21,9 +21,10 @@ CC = $(MINGW_HOME)/bin/gcc
 CPPFLAGS = \
 	-O2 \
 	-Wall -Wreturn-type \
+	-DPRODUCTNAME='"$(PRODUCTNAME)"' \
 	-DWINVER=0x0502 -D_WIN32_WINNT=0x0502
 LDFLAGS = -mwindows
-LIBS =
+LIBS = -lole32 -lshell32
 
 MACHINE = $(shell $(CC) -dumpmachine)
 WINDRES = $(MINGW_HOME)/bin/windres
@@ -33,8 +34,8 @@ ifeq ($(wildcard $(MINGW_HOME)/bin/$(MACHINE)-windres.*),$(MINGW_HOME)/bin/$(MAC
 endif
 endif
 
-$(cygwin.target.dir)/$(TARGET_BASENAME).exe: setup.c $(cygwin.target.dir)/setup.res
-	$(CC) $(CPPFLAGS) setup.c "$(target.dir)/setup.res" $(LDFLAGS) -o "$(target.dir)/$(TARGET_BASENAME).exe" $(LIBS)
+$(cygwin.target.dir)/$(TARGET_BASENAME).exe: lasterror.c setup.c $(cygwin.target.dir)/setup.res
+	$(CC) $(CPPFLAGS) lasterror.c setup.c "$(target.dir)/setup.res" $(LDFLAGS) -o "$(target.dir)/$(TARGET_BASENAME).exe" $(LIBS)
 	-$(MINGW_HOME)/$(MACHINE)/bin/strip "$(target.dir)/$(TARGET_BASENAME).exe"
 
 $(cygwin.target.dir)/setup.res: setup.rc

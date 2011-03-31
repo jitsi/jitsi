@@ -13,6 +13,7 @@ STRINGTABLE
 BEGIN
     IDS_ISWOW64ACCEPTABLE2 "The version of this file is x86 (32-bit) and the version of Windows you're running is x64 (64-bit). It is recommended to install the x64 (64-bit) version of the program.\012\012Continue anyway?"
     IDS_ISWOW64ACCEPTABLE3 "The version of this file is x86 (32-bit) and the version of Windows you're running is x64 (64-bit). It is recommended to install the x64 (64-bit) version of the program."
+    IDS_LASTERRORFORMAT "%1!s! has encountered error %2!d! in file %3!s! at line %4!d!:\012\012%5!s!"
 END
 
 1 VERSIONINFO
