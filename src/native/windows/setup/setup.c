@@ -24,6 +24,17 @@
 #include <tlhelp32.h> /* CreateToolhelp32Snapshot */
 
 static LPWSTR Setup_commandLine = NULL;
+
+/*
+ * When <tt>FALSE</tt> is returned from <tt>Setup_enumResNameProc</tt> to stop
+ * <tt>EnumResourceNames</tt>, <tt>GetLastError</tt> on Windows XP seems to
+ * return an error code which is in contrast with the MSDN documentation. If
+ * <tt>Setup_enumResNameProc</tt> has managed to
+ * <tt>Setup_extractAndExecuteMsi</tt>, <tt>Setup_enumResNameProcUserStop</tt>
+ * indicates that the error code returned by <tt>GetLastError</tt> is to be
+ * ignored.
+ */
+static BOOL Setup_enumResNameProcUserStop = FALSE;
 static LPTSTR Setup_fileName = NULL;
 static LPTSTR Setup_productName = NULL;
 static BOOL Setup_waitForParentProcess_ = FALSE;
@@ -73,6 +84,7 @@ Setup_enumResNameProc(
                     if (ptr)
                     {
                         proceed = FALSE;
+                        Setup_enumResNameProcUserStop = TRUE;
                         error = Setup_extractAndExecuteMsi(ptr, size);
                     }
                     else
@@ -989,7 +1001,8 @@ WinMain(
                             RT_RCDATA,
                             Setup_enumResNameProc,
                             (LONG_PTR) &error))
-            && (ERROR_SUCCESS == error))
+            && (ERROR_SUCCESS == error)
+            && (FALSE == Setup_enumResNameProcUserStop))
     {
         DWORD enumResourceNamesError = GetLastError();
 
