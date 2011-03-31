@@ -251,7 +251,8 @@ public class MainFrame
         TransparentPanel searchPanel
             = new TransparentPanel(new BorderLayout(2, 0));
         searchPanel.add(searchField);
-        searchPanel.add(new CallHistoryButton(), BorderLayout.EAST);
+
+        searchPanel.add(createButtonPanel(), BorderLayout.EAST);
 
         northPanel.add(accountStatusPanel, BorderLayout.CENTER);
         northPanel.add(searchPanel, BorderLayout.SOUTH);
@@ -287,6 +288,36 @@ public class MainFrame
             contentPane.add(mainPanel, BorderLayout.CENTER);
             contentPane.add(statusBarPanel, BorderLayout.SOUTH);
         }
+    }
+
+    private Component createButtonPanel()
+    {
+        boolean isCallButtonEnabled = false;
+
+        // Indicates if the big call button outside the search is enabled.
+        String callButtonEnabledString = UtilActivator.getResources()
+            .getSettingsString("impl.gui.CALL_BUTTON_ENABLED");
+
+        if (callButtonEnabledString != null
+                && callButtonEnabledString.length() > 0)
+        {
+            isCallButtonEnabled
+                = new Boolean(callButtonEnabledString).booleanValue();
+        }
+
+        CallHistoryButton historyButton = new CallHistoryButton();
+        if (isCallButtonEnabled)
+        {
+            JPanel panel
+                = new TransparentPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+
+            panel.add(new CallButton(this));
+            panel.add(historyButton);
+
+            return panel;
+        }
+        else
+            return historyButton;
     }
 
     /**

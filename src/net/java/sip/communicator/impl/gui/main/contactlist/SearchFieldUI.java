@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
@@ -176,6 +182,8 @@ public class SearchFieldUI
 
             if (isCallButtonEnabled)
                 rect.width -= callRolloverIcon.getWidth(null) + 12;
+            else
+                rect.width -= 8;
 
             return rect;
         }
