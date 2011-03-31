@@ -136,7 +136,7 @@ public abstract class PreCallDialog
 
             if (accounts != null)
             {
-                accountsCombo = new JComboBox();
+                accountsCombo = new JComboBox(accounts);
             }
         }
 
