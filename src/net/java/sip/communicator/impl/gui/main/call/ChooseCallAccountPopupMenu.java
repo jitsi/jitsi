@@ -212,9 +212,7 @@ public class ChooseCallAccountPopupMenu
                         telephonyContact.getPreferredProtocolProvider(opSetClass),
                         telephonyContact.getPreferredProtocol(opSetClass));
 
-                int providersCount = providers.size();
-
-                if (providers == null || providersCount <= 0)
+                if (providers == null || providers.size() <= 0)
                 {
                     new ErrorDialog(null,
                         GuiActivator.getResources().getI18NString(
@@ -224,7 +222,7 @@ public class ChooseCallAccountPopupMenu
                         .showDialog();
                     return;
                 }
-                else if (providersCount > 1)
+                else if (providers.size() > 1)
                 {
                     new ChooseCallAccountDialog(
                         telephonyContact.getAddress(), opSetClass, providers)
