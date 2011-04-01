@@ -212,7 +212,7 @@ public class IppiAccountRegistrationWizard
      */
     protected String getUsernameLabel()
     {
-        return Resources.getString("plugin.ippiaccregwizz.USERNAME");
+        return Resources.getString("plugin.sip2sipaccregwizz.USERNAME");
     }
 
     /**

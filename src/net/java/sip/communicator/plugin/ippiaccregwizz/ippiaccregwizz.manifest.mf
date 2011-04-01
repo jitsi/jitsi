@@ -1,6 +1,6 @@
 Bundle-Activator: net.java.sip.communicator.plugin.ippiaccregwizz.IppiAccRegWizzActivator
-Bundle-Name: Sip 2 Sip account registration wizard
-Bundle-Description: Sip 2 Sip account registration wizard.
+Bundle-Name: Ippi account registration wizard
+Bundle-Description: Ippi account registration wizard.
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
