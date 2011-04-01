@@ -10,19 +10,17 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import javax.net.ssl.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.provdisc.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -98,11 +96,6 @@ public class ProvisioningActivator
      * that is registered with the bundle context.
      */
     private static CredentialsStorageService credentialsService = null;
-
-    /**
-     * The service we use to interact with user for SSL certificate stuff.
-     */
-    private static CertificateVerificationService certVerification = null;
 
     /**
      * A reference to the NetworkAddressManagerService implementation instance
@@ -337,156 +330,6 @@ public class ProvisioningActivator
     }
 
     /**
-     * Configure HTTP connection to provide HTTP authentication and SSL
-     * truster.
-     *
-     * @param url provisioning URL
-     * @param connection the <tt>URLConnection</tt>
-     */
-    private void configureHTTPConnection(URL url, HttpURLConnection connection)
-    {
-        try
-        {
-            connection.setRequestMethod(method);
-
-            if(method.equals("POST"))
-            {
-                connection.setRequestProperty("Content-Type",
-                        "application/x-www-form-urlencoded");
-            }
-
-            if(connection instanceof HttpsURLConnection)
-            {
-                CertificateVerificationService vs =
-                    getCertificateVerificationService();
-
-                int port = url.getPort();
-
-                /* if we do not specify port in the URL (http://domain.org:port)
-                 * we have to set up the default port of HTTP (80) or
-                 * HTTPS (443).
-                 */
-                if(port == -1)
-                {
-                    if(url.getProtocol().equals("http"))
-                    {
-                        port = 80;
-                    }
-                    else if(url.getProtocol().equals("https"))
-                    {
-                        port = 443;
-                    }
-                }
-
-                ((HttpsURLConnection)connection).setSSLSocketFactory(
-                        vs.getSSLContext(
-                        url.getHost(), port).getSocketFactory());
-
-                HostnameVerifier hv = new HostnameVerifier()
-                {
-                    public boolean verify(String urlHostName,
-                            SSLSession session)
-                    {
-                        logger.warn("Warning: URL Host: " + urlHostName +
-                                " vs. " + session.getPeerHost());
-                        return true;
-                    }
-                };
-
-                ((HttpsURLConnection)connection).setHostnameVerifier(hv);
-            }
-        }
-        catch (Exception e)
-        {
-            logger.warn("Failed to initialize secure connection", e);
-        }
-
-        Authenticator.setDefault(new Authenticator()
-        {
-            protected PasswordAuthentication getPasswordAuthentication()
-            {
-                // if there is something save return it
-                ConfigurationService config = getConfigurationService();
-                CredentialsStorageService credStorage =
-                    getCredentialsStorageService();
-
-                String uName
-                    = (String) config.getProperty(
-                            PROPERTY_PROVISIONING_USERNAME);
-
-                if(uName != null)
-                {
-                    String pass = credStorage.loadPassword(
-                            PROPERTY_PROVISIONING_PASSWORD);
-
-                    if(pass != null)
-                        return new PasswordAuthentication(uName,
-                            pass.toCharArray());
-                }
-
-                if(userCredentials != null)
-                {
-                    return new PasswordAuthentication(
-                        userCredentials.getUserName(),
-                        userCredentials.getPassword());
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        });
-    }
-
-    /**
-     * Handle authentication with the provisioning server.
-     */
-    private void handleProvisioningAuth()
-    {
-        ConfigurationService configService = getConfigurationService();
-        CredentialsStorageService credService =
-            getCredentialsStorageService();
-
-        String username = configService.getString(
-                PROPERTY_PROVISIONING_USERNAME);
-        String password = credService.loadPassword(
-                PROPERTY_PROVISIONING_PASSWORD);
-
-        if(username != null && password != null)
-        {
-            /* we have already the credentials stored so return them */
-            userCredentials = new UserCredentials();
-            userCredentials.setUserName(username);
-            userCredentials.setPassword(password.toCharArray());
-            userCredentials.setPasswordPersistent(true);
-            return;
-        }
-
-        AuthenticationWindow authWindow = new AuthenticationWindow(
-                "provisioning", true, null);
-
-        authWindow.setVisible(true);
-
-        if(!authWindow.isCanceled())
-        {
-            userCredentials = new UserCredentials();
-            userCredentials.setUserName(authWindow.getUserName());
-            userCredentials.setPassword(authWindow.getPassword());
-            userCredentials.setPasswordPersistent(
-                authWindow.isRememberPassword());
-
-            if(userCredentials.getUserName() == null)
-            {
-                userCredentials = null;
-            }
-        }
-        else
-        {
-            userCredentials = null;
-        }
-    }
-
-    /**
      * Retrieve configuration file from provisioning URL.
      * This method is blocking until configuration file is retrieved from the
      * network or if an exception happen
@@ -521,202 +364,126 @@ public class ProvisioningActivator
             }
 
             URL u = new URL(url);
-            URLConnection uc = u.openConnection();
-            OutputStreamWriter out = null;
 
-            if(uc instanceof HttpURLConnection)
+            InetAddress ipaddr = getNetworkAddressManagerService().
+                    getLocalHost(InetAddress.getByName(u.getHost()));
+            String[] paramNames = null;
+            String[] paramValues = null;
+            int usernameIx = -1;
+            int passwordIx = -1;
+
+            if(args != null && args.length > 0)
             {
-                configureHTTPConnection(u, (HttpURLConnection)uc);
-                ((HttpURLConnection)uc).setInstanceFollowRedirects(false);
-                uc.setDoInput(true);
-                uc.setDoOutput(true);
-                out = new OutputStreamWriter(uc.getOutputStream());
+                paramNames = new String[args.length];
+                paramValues = new String[args.length];
 
-                /* send out (via GET or POST) */
-                StringBuffer content = new StringBuffer();
-                InetAddress ipaddr = getNetworkAddressManagerService().
-                        getLocalHost(InetAddress.getByName(u.getHost()));
-
-                if(args != null && args.length > 0)
+                for(int i = 0; i < args.length; i++)
                 {
-                    for(String s : args)
+                    String s = args[i];
+                    if(s.equals("username=$username") ||
+                            s.equals("username"))
                     {
-                        if(s.equals("username=$username") ||
-                                s.equals("username"))
+                        paramNames[i] = "username";
+                        paramValues[i] = "";
+                        usernameIx = i;
+                    }
+                    else if(s.equals("password=$password") ||
+                            s.equals("password"))
+                    {
+                        paramNames[i] = "password";
+                        paramValues[i] = "";
+                        passwordIx = i;
+                    }
+                    else if(s.equals("osname=$osname") ||
+                            s.equals("osname"))
+                    {
+                        paramNames[i] = "osname";
+                        paramValues[i] = System.getProperty("os.name");
+                    }
+                    else if(s.equals("build=$build") ||
+                            s.equals("build"))
+                    {
+                        paramNames[i] = "build";
+                        paramValues[i] =
+                            System.getProperty("sip-communicator.version");
+                    }
+                    else if(s.equals("ipaddr=$ipaddr") ||
+                            s.equals("ipaddr"))
+                    {
+                        paramNames[i] = "ipaddr";
+                        paramValues[i] = ipaddr.getHostAddress();
+                    }
+                    else if(s.equals("hwaddr=$hwaddr") ||
+                            s.equals("hwaddr"))
+                    {
+                        paramNames[i] = "hwaddr";
+
+                        if(ipaddr != null)
                         {
-                            if(userCredentials == null)
+                            /* find the hardware address of the interface
+                             * that has this IP address
+                             */
+                            Enumeration<NetworkInterface> en =
+                                NetworkInterface.getNetworkInterfaces();
+
+                            while(en.hasMoreElements())
                             {
-                                handleProvisioningAuth();
-                            }
+                                NetworkInterface iface = en.nextElement();
 
-                            content.append("username=" +
-                                    URLEncoder.encode(
-                                            userCredentials.getUserName(),
-                                            "UTF-8"));
-                        }
-                        else if(s.equals("password=$password") ||
-                                s.equals("password"))
-                        {
-                            if(userCredentials == null)
-                            {
-                                handleProvisioningAuth();
-                            }
+                                Enumeration<InetAddress> enInet =
+                                    iface.getInetAddresses();
 
-                            content.append("password=" +
-                                    URLEncoder.encode(
-                                            userCredentials.
-                                                    getPasswordAsString(),
-                                                    "UTF-8"));
-                        }
-                        else if(s.equals("osname=$osname") ||
-                                s.equals("osname"))
-                        {
-                            content.append("osname=" + URLEncoder.encode(
-                                    System.getProperty("os.name"), "UTF-8"));
-                        }
-                        else if(s.equals("build=$build") ||
-                                s.equals("build"))
-                        {
-                            content.append("build=" + URLEncoder.encode(
-                                System.getProperty("sip-communicator.version"),
-                                "UTF-8"));
-                        }
-                        else if(s.equals("ipaddr=$ipaddr") ||
-                                s.equals("ipaddr"))
-                        {
-                            content.append("ipaddr=" + URLEncoder.encode(
-                                    ipaddr.getHostAddress(), "UTF-8"));
-                        }
-                        else if(s.equals("hwaddr=$hwaddr") ||
-                                s.equals("hwaddr"))
-                        {
-                            String hwaddr = null;
-
-                            if(ipaddr != null)
-                            {
-                                /* find the hardware address of the interface
-                                 * that has this IP address
-                                 */
-                                Enumeration<NetworkInterface> en =
-                                    NetworkInterface.getNetworkInterfaces();
-
-                                while(en.hasMoreElements())
+                                while(enInet.hasMoreElements())
                                 {
-                                    NetworkInterface iface = en.nextElement();
+                                    InetAddress inet = enInet.nextElement();
 
-                                    Enumeration<InetAddress> enInet =
-                                        iface.getInetAddresses();
-
-                                    while(enInet.hasMoreElements())
+                                    if(inet.equals(ipaddr))
                                     {
-                                        InetAddress inet = enInet.nextElement();
+                                        byte hw[] =
+                                        getNetworkAddressManagerService().
+                                            getHardwareAddress(iface);
+                                        StringBuffer buf =
+                                            new StringBuffer();
 
-                                        if(inet.equals(ipaddr))
+                                        for(byte h : hw)
                                         {
-                                            byte hw[] =
-                                            getNetworkAddressManagerService().
-                                                getHardwareAddress(iface);
-                                            StringBuffer buf =
-                                                new StringBuffer();
-
-                                            for(byte h : hw)
-                                            {
-                                                int hi = h >= 0 ? h : h + 256;
-                                                String t = new String(
-                                                        (hi <= 0xf) ? "0" : "");
-                                                t += Integer.toHexString(hi);
-                                                buf.append(t);
-                                                buf.append(":");
-                                            }
-
-                                            buf.deleteCharAt(buf.length() - 1);
-
-                                            hwaddr = buf.toString();
-                                            content.append("hwaddr=" +
-                                                    URLEncoder.encode(
-                                                    hwaddr, "UTF-8"));
-                                            break;
+                                            int hi = h >= 0 ? h : h + 256;
+                                            String t = new String(
+                                                    (hi <= 0xf) ? "0" : "");
+                                            t += Integer.toHexString(hi);
+                                            buf.append(t);
+                                            buf.append(":");
                                         }
+
+                                        buf.deleteCharAt(buf.length() - 1);
+
+                                        paramValues[i] = buf.toString();
+
+                                        break;
                                     }
                                 }
                             }
                         }
-
-                        content.append("&");
-                    }
-                }
-
-                out.write(content.toString());
-                out.flush();
-
-                int responseCode = ((HttpURLConnection)uc).getResponseCode();
-
-                if(responseCode == HttpURLConnection.HTTP_UNAUTHORIZED)
-                {
-                    /* remove stored username and password if authorization
-                     * failed
-                     */
-                    getConfigurationService().removeProperty(
-                            PROPERTY_PROVISIONING_USERNAME);
-                    getCredentialsStorageService().removePassword(
-                            PROPERTY_PROVISIONING_PASSWORD);
-                    AuthenticationWindow authWindow = new AuthenticationWindow(
-                            u.getHost(), true, null);
-
-                    authWindow.setVisible(true);
-
-                    userCredentials = new UserCredentials();
-                    userCredentials.setUserName(authWindow.getUserName());
-                    userCredentials.setPassword(authWindow.getPassword());
-                    userCredentials.setPasswordPersistent(
-                            authWindow.isRememberPassword());
-
-                    if(userCredentials.getUserName() == null)
-                    {
-                        userCredentials = null;
                     }
                     else
                     {
-                        tmpFile.delete();
-                        return retrieveConfigurationFile(url);
-                    }
-                }
-                else if(responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
-                    responseCode == HttpURLConnection.HTTP_MOVED_TEMP)
-                {
-                    String loc =
-                        ((HttpURLConnection)uc).getHeaderField("Location");
-
-                    if(loc != null && (loc.startsWith("http://") ||
-                            loc.startsWith("https://")))
-                    {
-                        tmpFile.delete();
-                        /* TODO detect loops */
-                        return retrieveConfigurationFile(loc);
-                    }
-                }
-                else if(responseCode == HttpURLConnection.HTTP_OK)
-                {
-                    if(userCredentials != null &&
-                            userCredentials.getUserName() != null &&
-                            userCredentials.isPasswordPersistent())
-                    {
-                        // if save password is checked save the pass
-                        getConfigurationService().setProperty(
-                                PROPERTY_PROVISIONING_USERNAME,
-                                userCredentials.getUserName());
-                        getCredentialsStorageService().storePassword(
-                            PROPERTY_PROVISIONING_PASSWORD,
-                            userCredentials.getPasswordAsString());
+                        paramNames[i] = "";
+                        paramValues[i] = "";
                     }
                 }
             }
-            else
-            {
-                return null;
-            }
 
-            InputStream in = uc.getInputStream();
+            HttpUtils.HTTPResponseResult res =
+                HttpUtils.postForm(
+                    url,
+                    PROPERTY_PROVISIONING_USERNAME,
+                    PROPERTY_PROVISIONING_PASSWORD,
+                    paramNames,
+                    paramValues,
+                    usernameIx,
+                    passwordIx);
+
+            InputStream in = res.getContent();
 
             // Chain a ProgressMonitorInputStream to the
             // URLConnection's InputStream
@@ -725,7 +492,7 @@ public class ProvisioningActivator
 
             // Set the maximum value of the ProgressMonitor
             ProgressMonitor pm = pin.getProgressMonitor();
-            pm.setMaximum(uc.getContentLength());
+            pm.setMaximum((int)res.getContentLength());
 
             final BufferedOutputStream bout
                 = new BufferedOutputStream(new FileOutputStream(temp));
@@ -743,7 +510,6 @@ public class ProvisioningActivator
                 pin.close();
                 bout.flush();
                 bout.close();
-                out.close();
 
                 return temp;
             }
@@ -755,7 +521,6 @@ public class ProvisioningActivator
                 {
                     pin.close();
                     bout.close();
-                    out.close();
                 }
                 catch (Exception e1)
                 {
@@ -948,27 +713,6 @@ public class ProvisioningActivator
                 config.removeProperty(key);
             }
         }
-    }
-
-    /**
-     * Return the certificate verification service impl.
-     * @return the CertificateVerification service.
-     */
-    private static CertificateVerificationService
-        getCertificateVerificationService()
-    {
-        if(certVerification == null)
-        {
-            ServiceReference certVerifyReference
-                = bundleContext.getServiceReference(
-                    CertificateVerificationService.class.getName());
-            if(certVerifyReference != null)
-                certVerification
-                = (CertificateVerificationService)bundleContext.getService(
-                        certVerifyReference);
-        }
-
-        return certVerification;
     }
 
     /**

@@ -62,11 +62,6 @@ public class LoggingUtilsActivator
     private static NotificationService notificationService;
 
     /**
-     * Reference to the <tt>CertificateVerificationService</tt>.
-     */
-    private static CertificateVerificationService certificateService = null;
-
-    /**
      * Creates and register logging configuration.
      *
      * @param bundleContext  OSGI bundle context
@@ -203,26 +198,4 @@ public class LoggingUtilsActivator
         }
         return notificationService;
     }
-
-    /**
-     * Return the certificate verification service impl.
-     * @return the CertificateVerification service.
-     */
-    public static CertificateVerificationService
-        getCertificateVerificationService()
-    {
-        if(certificateService == null)
-        {
-            ServiceReference certVerifyReference
-                = bundleContext.getServiceReference(
-                    CertificateVerificationService.class.getName());
-            if(certVerifyReference != null)
-                certificateService
-                = (CertificateVerificationService)bundleContext.getService(
-                        certVerifyReference);
-        }
-
-        return certificateService;
-    }
-
 }

@@ -901,7 +901,7 @@
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
-        bundle-httpcore,bundle-httpclient,bundle-plugin-spellcheck,
+        bundle-httputil,bundle-plugin-spellcheck,
         bundle-version,bundle-version-impl,bundle-shutdown-timeout,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
@@ -2013,77 +2013,16 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!--BUNDLE-HTTPCORE -->
-    <target name="bundle-httpcore">
-        <jar compress="true" destfile="${bundles.dest}/httpcore.jar"
-                filesetmanifest="merge">
-            <zipfileset src="${lib.noinst}/httpcore-4.0.1.jar" prefix=""/>
-            <manifest>
-                <attribute name="Export-Package"
-                    value="org.apache.http,
-org.apache.http.entity,
-org.apache.http.impl,
-org.apache.http.impl.entity,
-org.apache.http.impl.io,
-org.apache.http.io,
-org.apache.http.message,
-org.apache.http.params,
-org.apache.http.protocol,
-org.apache.http.util"/>
-                <attribute name="Import-Package"
-                    value="org.apache.commons.logging"/>
-                <attribute name="Bundle-Name"
-                    value="Apache HttpComponents Core"/>
-                <attribute name="Bundle-Description"
-                    value="A set of low level HTTP transport components."/>
-                <attribute name="System-Bundle" value="yes"/>
-            </manifest>
-        </jar>
-    </target>
-
-    <!--BUNDLE-HTTPCLIENT -->
-    <target name="bundle-httpclient">
-        <jar compress="true" destfile="${bundles.dest}/httpclient.jar"
-                filesetmanifest="merge">
-            <zipfileset src="${lib.noinst}/httpclient-4.0.1.jar" prefix=""/>
-            <manifest>
-                <attribute name="Export-Package"
-                    value="org.apache.http.annotation,
-org.apache.http.auth,
-org.apache.http.auth.params,
-org.apache.http.client,
-org.apache.http.client.entity,
-org.apache.http.client.methods,
-org.apache.http.client.params,
-org.apache.http.client.protocol,
-org.apache.http.client.utils,
-org.apache.http.conn,
-org.apache.http.conn.params,
-org.apache.http.conn.routing,
-org.apache.http.conn.scheme,
-org.apache.http.conn.ssl,
-org.apache.http.conn.util,
-org.apache.http.impl.client"/>
-                <attribute name="Import-Package"
-                    value="org.apache.commons.logging,
-javax.net.ssl,
-javax.security.auth.x500,
-org.apache.http,
-org.apache.http.entity,
-org.apache.http.impl,
-org.apache.http.impl.entity,
-org.apache.http.impl.io,
-org.apache.http.io,
-org.apache.http.message,
-org.apache.http.params,
-org.apache.http.protocol,
-org.apache.http.util"/>
-                <attribute name="Bundle-Name"
-                    value="Apache HttpComponents Client"/>
-                <attribute name="Bundle-Description"
-                    value="A set of low level HTTP transport components."/>
-                <attribute name="System-Bundle" value="yes"/>
-            </manifest>
+    <!--BUNDLE-HTTPUTIL -->
+    <target name="bundle-httputil">
+        <!-- Create the httputil.jar-->
+        <jar compress="false" destfile="${bundles.dest}/httputil.jar"
+            manifest="${src}/net/java/sip/communicator/service/httputil/httputil.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/httputil"
+                prefix="net/java/sip/communicator/service/httputil"/>
+            <zipfileset src="${lib.noinst}/httpclient-4.1.1.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/httpcore-4.1.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/httpmime-4.1.1.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2346,11 +2285,11 @@ org.apache.http.util"/>
                     gnu.java.zrtp.utils,
                     gnu.java.zrtp.zidfile"/>
                 <attribute name="Import-Package" value="org.bouncycastle.asn1,
-			        org.bouncycastle.asn1.nist,
-                	org.bouncycastle.asn1.sec,
-                	org.bouncycastle.asn1.x9,
-                	org.bouncycastle.crypto,
-                	org.bouncycastle.crypto.agreement,
+                    org.bouncycastle.asn1.nist,
+                    org.bouncycastle.asn1.sec,
+                    org.bouncycastle.asn1.x9,
+                    org.bouncycastle.crypto,
+                    org.bouncycastle.crypto.agreement,
                     org.bouncycastle.crypto.digests,
                     org.bouncycastle.crypto.engines,
                     org.bouncycastle.crypto.generators,

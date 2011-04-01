@@ -12,15 +12,14 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import javax.net.ssl.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container; // disambiguation
+import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
@@ -70,11 +69,6 @@ public class UpdateCheckActivator
      * Reference to the <tt>UIService</tt>.
      */
     private static UIService uiService = null;
-
-    /**
-     * Reference to the <tt>CertificateVerificationService</tt>.
-     */
-    private static CertificateVerificationService certificateVerification = null;
 
     /**
      * The download link of the update.
@@ -155,11 +149,6 @@ public class UpdateCheckActivator
      * whether it can be entered.
      */
     private int inCheckForUpdates = 0;
-
-    static
-    {
-        removeDownloadRestrictions();
-    }
 
     /**
      * Starts this bundle
@@ -299,23 +288,6 @@ public class UpdateCheckActivator
     }
 
     /**
-     * Returns the certificate verification service implementation.
-     *
-     * @return the <tt>CertificateVerificationService</tt>
-     */
-    private static CertificateVerificationService getCertificateVerification()
-    {
-        if(certificateVerification == null)
-        {
-            certificateVerification
-                = ServiceUtils.getService(
-                        bundleContext,
-                        CertificateVerificationService.class);
-        }
-        return certificateVerification;
-    }
-
-    /**
      * Checks the first link as files on the web are sorted by date.
      *
      * @return <tt>true</tt> if we are currently running the newest version;
@@ -347,43 +319,18 @@ public class UpdateCheckActivator
                 return true;
             }
 
-            URL url = new URL(configString);
-            URLConnection conn = url.openConnection();
-
-            if (conn instanceof HttpURLConnection)
-            {
-                while(((HttpURLConnection)conn).getResponseCode() ==
-                            HttpURLConnection.HTTP_UNAUTHORIZED
-                        && !isAuthenticationCanceled)
-                {
-                    if(userCredentials.getUserName() != null)
-                    {
-                        errorMessage = getResources().getI18NString(
-                            "service.gui.AUTHENTICATION_FAILED",
-                            new String[]{
-                                userCredentials.getUserName(),
-                                host});
-
-                        userCredentials.setUserName(null);
-                        userCredentials.setPasswordPersistent(false);
-                        userCredentials = null;
-
-                        getConfiguration().removeProperty(
-                                UPDATE_USERNAME_CONFIG);
-                        getConfiguration().removeProperty(
-                                UPDATE_PASSWORD_CONFIG);                        
-
-                        conn = url.openConnection();
-                    }
-                    else
-                        break;
-                }
-            }
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
-
             Properties props = new Properties();
-            props.load(conn.getInputStream());
+            HttpUtils.HTTPResponseResult res
+                = HttpUtils.openURLConnection(configString);
+
+            if(res == null)
+                return true;
+
+            InputStream in = res.getContent();
+
+            props.load(in);
+
+            in.close();
 
             lastVersion = props.getProperty("last_version");
             downloadLink = props.getProperty("download_link");
@@ -764,47 +711,22 @@ public class UpdateCheckActivator
 
             tempFileOutputStream = createTempFileOutputStream(u, tempFile);
 
-            URLConnection uc = u.openConnection();
+            HttpUtils.HTTPResponseResult res
+                = HttpUtils.openURLConnection(downloadLink);
 
-            if (uc instanceof HttpURLConnection)
-            {
-                if(uc instanceof HttpsURLConnection)
-                {
-                    CertificateVerificationService cvs
-                        = getCertificateVerification();
+            if(res == null)
+                return;
 
-                    int port = u.getPort();
-
-                    /*
-                     * If we do not specify port in the URL, we have to set up
-                     * the default port of HTTP (80) or HTTPS (443).
-                     */
-                    if(port == -1)
-                    {
-                        if(u.getProtocol().equals("http"))
-                            port = 80;
-                        else if(u.getProtocol().equals("https"))
-                            port = 443;
-                    }
-
-                    ((HttpsURLConnection)uc).setSSLSocketFactory(
-                            cvs.getSSLContext(u.getHost(), port)
-                                    .getSocketFactory());
-                }
-
-                // we don't handle here authentication fails cause
-                // still we gone to downloading file we have gone through
-                // successful authentication
-            }
+            InputStream in = res.getContent();
 
             // Track the progress of the download.
             final ProgressMonitorInputStream input
                 = new ProgressMonitorInputStream(
                         null,
-                        u.toString(),
-                        uc.getInputStream());
+                        downloadLink,
+                        in);
             // Set the maximum value of the ProgressMonitor
-            input.getProgressMonitor().setMaximum(uc.getContentLength());
+            input.getProgressMonitor().setMaximum((int)res.getContentLength());
 
             final BufferedOutputStream output
                 = new BufferedOutputStream(tempFileOutputStream);
@@ -1128,121 +1050,6 @@ public class UpdateCheckActivator
                     && (this.checkForUpdatesDialog == checkForUpdatesDialog))
                 this.checkForUpdatesDialog = null;
         }
-    }
-
-    /**
-     * Installs Dummy TrustManager will not try to validate self-signed certs.
-     * Fix some problems with not proper use of certs.
-     */
-    private static void removeDownloadRestrictions()
-    {
-        HostnameVerifier hv = new HostnameVerifier()
-        {
-            public boolean verify(String urlHostName, SSLSession session)
-            {
-                logger.warn("Warning: URL Host: " + urlHostName +
-                        " vs. " + session.getPeerHost());
-                return true;
-            }
-        };
-        HttpsURLConnection.setDefaultHostnameVerifier(hv);
-
-        Authenticator.setDefault(new Authenticator()
-        {
-            protected PasswordAuthentication getPasswordAuthentication()
-            {
-                if(userCredentials == null)
-                {
-                    // if there is something save return it
-                    ConfigurationService config = getConfiguration();
-                    String uName
-                        = (String) config.getProperty(UPDATE_USERNAME_CONFIG);
-                    if(uName != null)
-                    {
-                        String pass
-                            = (String) config.getProperty(UPDATE_PASSWORD_CONFIG);
-
-                        if(pass != null)
-                        {
-                            userCredentials = new UserCredentials();
-                            userCredentials.setUserName(uName);
-                            userCredentials.setPassword(new String(
-                                    Base64.decode(pass)).toCharArray());
-                            userCredentials.setPasswordPersistent(true);
-                        }
-                    }
-                }
-
-                if(userCredentials != null)
-                {
-                    return new PasswordAuthentication(
-                        userCredentials.getUserName(),
-                        userCredentials.getPassword());
-                }
-                else
-                {
-                    host = getRequestingHost();
-
-                    AuthenticationWindow authWindow = null;
-                    if(errorMessage == null)
-                    {
-                        authWindow = new AuthenticationWindow(host, true, null);
-                    }
-                    else
-                    {
-                        authWindow = new AuthenticationWindow(
-                                null, null, host, true, null, errorMessage);
-                        // we showed the message, remove it
-                        errorMessage = null;
-                    }
-
-                    userCredentials = new UserCredentials();
-
-                    authWindow.setVisible(true);
-
-                    if (!authWindow.isCanceled())
-                    {
-                        isAuthenticationCanceled = false;
-                        userCredentials.setUserName(authWindow.getUserName());
-                        userCredentials.setPassword(authWindow.getPassword());
-                        userCredentials.setPasswordPersistent(
-                            authWindow.isRememberPassword());
-
-                        if(authWindow.isRememberPassword())
-                        {
-                            // if save password is checked save the pass
-                            getConfiguration().setProperty(
-                                    UPDATE_USERNAME_CONFIG,
-                                    userCredentials.getUserName());
-                            getConfiguration().setProperty(
-                                    UPDATE_PASSWORD_CONFIG,
-                                    new String(
-                                            Base64.encode(
-                                                    userCredentials
-                                                        .getPasswordAsString()
-                                                            .getBytes())));
-                        }
-
-                         return new PasswordAuthentication(
-                            userCredentials.getUserName(),
-                            userCredentials.getPassword());
-                    }
-                    else
-                    {
-                        isAuthenticationCanceled = true;
-                        userCredentials.setUserName(null);
-                        userCredentials = null;
-
-                        getConfiguration().removeProperty(
-                                UPDATE_USERNAME_CONFIG);
-                        getConfiguration().removeProperty(
-                                UPDATE_PASSWORD_CONFIG);
-                    }
-
-                    return null;
-                }
-            }
-        });
     }
 
     /**

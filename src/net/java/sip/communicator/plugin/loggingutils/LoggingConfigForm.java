@@ -5,21 +5,18 @@
  */
 package net.java.sip.communicator.plugin.loggingutils;
 
-import com.sun.jndi.toolkit.url.*;
-import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
-import javax.net.ssl.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
 /**
@@ -697,128 +694,28 @@ public class LoggingConfigForm
             if(uploadLocation == null)
                 return;
 
-            URL url = new URL(uploadLocation);
-            URLConnection urlConn = url.openConnection();
-
-            if (!(urlConn instanceof HttpURLConnection))
-                return;
-
-            HttpURLConnection conn = (HttpURLConnection)urlConn;
-
-            if(urlConn instanceof HttpsURLConnection)
+            if(HttpUtils.postFile(uploadLocation, "logs", newDest) != null)
             {
-                CertificateVerificationService vs =
-                    LoggingUtilsActivator.getCertificateVerificationService();
+                NotificationService notificationService
+                    = LoggingUtilsActivator.getNotificationService();
 
-                int port = url.getPort();
-
-                /* if we do not specify port in the URL
-                 * (http://domain.org:port) we have to set up the default
-                 * port of HTTP (80) or
-                 * HTTPS (443).
-                 */
-                if(port == -1)
+                if(notificationService != null)
                 {
-                    if(url.getProtocol().equals("http"))
-                    {
-                        port = 80;
-                    }
-                    else if(url.getProtocol().equals("https"))
-                    {
-                        port = 443;
-                    }
+                    String bodyMsgKey = "plugin.loggingutils.ARCHIVE_MESSAGE_OK";
+
+                    ResourceManagementService resources =
+                        LoggingUtilsActivator.getResourceService();
+
+                    notificationService.fireNotification(
+                        LOGFILES_ARCHIVED,
+                        resources.getI18NString(
+                                "plugin.loggingutils.ARCHIVE_BUTTON"),
+                        resources.getI18NString(
+                                bodyMsgKey,
+                                new String[]{uploadLocation}),
+                        null,
+                        null);
                 }
-
-                ((HttpsURLConnection)urlConn).setSSLSocketFactory(
-                        vs.getSSLContext(
-                        url.getHost(), port).getSocketFactory());
-            }
-
-            Random random = new Random();
-
-            String boundary = "---------------------------" +
-                Long.toString(random.nextLong(), 36) +
-                Long.toString(random.nextLong(), 36) +
-                Long.toString(random.nextLong(), 36);
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Content-Type",
-                              "multipart/form-data; boundary=" + boundary);
-
-            OutputStream out = conn.getOutputStream();
-
-            out.write("--".getBytes());
-            out.write(boundary.getBytes());
-
-            out.write("\r\n".getBytes());
-            out.write("Content-Disposition: form-data; name=\"".getBytes());
-            out.write("logs".getBytes());
-            out.write('"');
-
-            out.write("; filename=\"".getBytes());
-            out.write(newDest.getPath().getBytes());
-            out.write('"');
-
-            out.write("\r\n".getBytes());
-            out.write("Content-Type: ".getBytes());
-            String type = conn.guessContentTypeFromName(newDest.getPath());
-            if (type == null)
-                type = "application/octet-stream";
-            out.write(type.getBytes());
-            out.write("\r\n".getBytes());
-            out.write("\r\n".getBytes());
-
-            byte[] buf = new byte[4096];
-            int nread;
-            FileInputStream in = new FileInputStream(newDest);
-            while((nread = in.read(buf, 0, buf.length)) >= 0)
-            {
-                out.write(buf, 0, nread);
-            }
-            out.flush();
-            buf = null;
-            out.write("\r\n".getBytes());
-
-            out.write("--".getBytes());
-            out.write(boundary.getBytes());
-            out.write("--".getBytes());
-            out.write("\r\n".getBytes());
-            out.close();
-            InputStream serverInput = conn.getInputStream();
-
-            // Get response data.
-            BufferedReader input =
-                new BufferedReader(new InputStreamReader(serverInput));
-
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("Log files uploaded result:");
-                String str;
-                while((str = input.readLine()) != null)
-                {
-                    logger.debug(str);
-                }
-            }
-            input.close ();
-
-            NotificationService notificationService
-                = LoggingUtilsActivator.getNotificationService();
-
-            if(notificationService != null)
-            {
-                String bodyMsgKey = "plugin.loggingutils.ARCHIVE_MESSAGE_OK";
-
-                ResourceManagementService resources =
-                    LoggingUtilsActivator.getResourceService();
-
-                notificationService.fireNotification(
-                    LOGFILES_ARCHIVED,
-                    resources.getI18NString(
-                            "plugin.loggingutils.ARCHIVE_BUTTON"),
-                    resources.getI18NString(
-                            bodyMsgKey,
-                            new String[]{uploadLocation}),
-                    null,
-                    null);
             }
         }
         catch(Throwable e)
