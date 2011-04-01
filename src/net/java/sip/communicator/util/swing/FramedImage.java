@@ -61,8 +61,7 @@ public class FramedImage
         loadSkin();
 
         if (imageIcon != null)
-            this.icon = ImageUtils.scaleIconWithinBounds(
-                imageIcon.getImage(), width, height);
+            this.icon = getScaledImage(imageIcon.getImage());
     }
 
     /**
@@ -83,7 +82,7 @@ public class FramedImage
      */
     public void setImageIcon(byte[] image)
     {
-        icon = ImageUtils.getScaledRoundedIcon(image, width - 2, height - 2);
+        icon = getScaledImage(image);
 
         if (this.isVisible())
         {
@@ -99,7 +98,7 @@ public class FramedImage
      */
     public void setImageIcon(Image image)
     {
-        icon = ImageUtils.getScaledRoundedIcon(image, width - 2, height - 2);
+        icon = getScaledImage(image);
 
         if (this.isVisible())
         {
@@ -159,5 +158,27 @@ public class FramedImage
                             .getImage("service.gui.USER_PHOTO_FRAME").getImage(),
                     width,
                     height);
+    }
+
+    /**
+     * Returns the scaled image version of the given image.
+     *
+     * @param image the image to transform
+     * @return the scaled image version of the given image
+     */
+    private ImageIcon getScaledImage(Image image)
+    {
+        return ImageUtils.getScaledRoundedIcon(image, width - 2, height - 2);
+    }
+
+    /**
+     * Returns the scaled image version of the given image.
+     *
+     * @param image the image to transform
+     * @return the scaled image version of the given image
+     */
+    private ImageIcon getScaledImage(byte[] image)
+    {
+        return ImageUtils.getScaledRoundedIcon(image, width - 2, height - 2);
     }
 }

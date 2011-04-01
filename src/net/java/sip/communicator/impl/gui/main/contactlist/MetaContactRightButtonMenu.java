@@ -408,7 +408,14 @@ public class MetaContactRightButtonMenu
         }
 
         this.add(sendMessageItem);
-        this.add(sendSmsItem);
+
+        if (metaContact.getDefaultContact(
+            OperationSetSmsMessaging.class) != null)
+        {
+            this.add(sendSmsItem);
+            sendSmsItem.addActionListener(this);
+            sendSmsItem.setName("sendSms");
+        }
 
         if (callContactMenu.getItemCount() > 1)
         {
@@ -471,8 +478,6 @@ public class MetaContactRightButtonMenu
         initPluginComponents();
 
         sendMessageItem.setName("sendMessage");
-
-        sendSmsItem.setName("sendSms");
         sendFileItem.setName("sendFile");
         moveToMenu.setName("moveToGroup");
         addContactItem.setName("addContact");
@@ -480,7 +485,6 @@ public class MetaContactRightButtonMenu
         viewHistoryItem.setName("viewHistory");
 
         sendMessageItem.addActionListener(this);
-        sendSmsItem.addActionListener(this);
         sendFileItem.addActionListener(this);
         renameContactItem.addActionListener(this);
         viewHistoryItem.addActionListener(this);
@@ -509,10 +513,6 @@ public class MetaContactRightButtonMenu
         if (metaContact.getDefaultContact(
             OperationSetBasicInstantMessaging.class) == null)
             this.sendMessageItem.setEnabled(false);
-
-        if (metaContact.getDefaultContact(
-            OperationSetSmsMessaging.class) == null)
-            this.sendSmsItem.setEnabled(false);
     }
 
     /**
