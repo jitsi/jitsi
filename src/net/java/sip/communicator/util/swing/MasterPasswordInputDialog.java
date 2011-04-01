@@ -65,7 +65,7 @@ public class MasterPasswordInputDialog
         this.setModal(true);
         this.setResizable(false);
 
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         mainPanel.add(createIconComponent(), BorderLayout.WEST);
@@ -260,7 +260,7 @@ public class MasterPasswordInputDialog
      */
     private static Component createIconComponent()
     {
-        JPanel wrapIconPanel = new JPanel(new BorderLayout());
+        JPanel wrapIconPanel = new TransparentPanel(new BorderLayout());
 
         JLabel iconLabel = new JLabel();
 

@@ -9,9 +9,11 @@ package net.java.sip.communicator.service.httputil;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import org.apache.http.*;
+import org.apache.http.Header;
 import org.apache.http.auth.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
+import org.apache.http.client.params.*;
 import org.apache.http.client.utils.*;
 import org.apache.http.conn.scheme.*;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -51,6 +53,11 @@ public class HttpUtils
      */
     private static final String HTTP_CREDENTIALS_PREFIX =
         "net.java.sip.communicator.util.http.credential.";
+
+    /**
+     * Maximum number of http redirects (301, 302, 303).
+     */
+    private static final int MAX_REDIRECTS = 10;
 
     /**
      * Opens a connection to the <tt>address</tt>.
@@ -116,6 +123,7 @@ public class HttpUtils
     {
         // do it when response (first execution) or till we are unauthorized
         HttpResponse response = null;
+        int redirects = 0;
         while(response == null
               || response.getStatusLine().getStatusCode()
                     == HttpStatus.SC_UNAUTHORIZED)
@@ -146,6 +154,44 @@ public class HttpUtils
                 if(logger.isDebugEnabled())
                     logger.debug("User canceled credentials input.");
                 break;
+            }
+
+            // check for post redirect as post redirects are not handled
+            // automatically
+            // RFC2616 (10.3 Redirection 3xx).
+            // The second request (forwarded method) can only be a GET or HEAD.
+            Header locationHeader = response.getFirstHeader("location");
+
+            if(locationHeader != null
+                && req instanceof HttpPost
+                &&  (response.getStatusLine().getStatusCode()
+                        == HttpStatus.SC_MOVED_PERMANENTLY
+                     || response.getStatusLine().getStatusCode()
+                        == HttpStatus.SC_MOVED_TEMPORARILY
+                     || response.getStatusLine().getStatusCode()
+                        == HttpStatus.SC_SEE_OTHER)
+                && redirects < MAX_REDIRECTS)
+            {
+                HttpRequestBase oldreq = req;
+                oldreq.abort();
+
+                String newLocation = locationHeader.getValue();
+
+                // append query string if any
+                HttpEntity en = ((HttpPost) oldreq).getEntity();
+                if(en != null && en instanceof StringEntity)
+                {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    en.writeTo(out);
+                    newLocation += "?" + out.toString("UTF-8");
+                }
+
+                req = new HttpGet(newLocation);
+                req.setParams(oldreq.getParams());
+                req.setHeaders(oldreq.getAllHeaders());
+
+                redirects++;
+                response = httpClient.execute(req);
             }
         }
 
@@ -361,6 +407,7 @@ public class HttpUtils
         HttpParams params = new BasicHttpParams();
         params.setParameter(CoreConnectionPNames.SO_TIMEOUT, 10000);
         params.setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
+        params.setParameter(ClientPNames.MAX_REDIRECTS, MAX_REDIRECTS);
 
         DefaultHttpClient httpClient = new DefaultHttpClient(params);
 

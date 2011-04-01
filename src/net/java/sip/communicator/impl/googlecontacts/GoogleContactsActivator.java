@@ -270,16 +270,23 @@ public class GoogleContactsActivator implements BundleActivator
      * @param provider the <tt>ProtocolProviderService</tt> which has been
      * registered as a service.
      */
-    private void handleProviderAdded(ProtocolProviderService provider)
+    private void handleProviderAdded(final ProtocolProviderService provider)
     {
-        String className = provider.getClass().getName();
-        className = className.substring(0, className.lastIndexOf('.'));
-        String acc = ProtocolProviderFactory.findAccountPrefix(
-                bundleContext, provider.getAccountID(), className);
-        String password = getCredentialsService().loadPassword(acc);
+        // don't block felix, can be blocked if master password is set
+        new Thread(new Runnable()
+        {
+            public void run()
+            {
+                String className = provider.getClass().getName();
+                className = className.substring(0, className.lastIndexOf('.'));
+                String acc = ProtocolProviderFactory.findAccountPrefix(
+                        bundleContext, provider.getAccountID(), className);
+                String password = getCredentialsService().loadPassword(acc);
 
-        enableContactSource(provider.getAccountID().getAccountAddress(),
-                password);
+                enableContactSource(provider.getAccountID().getAccountAddress(),
+                        password);
+            }
+        }).start();
     }
 
     /**
