@@ -2023,6 +2023,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/httpclient-4.1.1.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/httpcore-4.1.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/httpmime-4.1.1.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/commons-codec-1.4.jar" prefix=""/>
         </jar>
     </target>
 
