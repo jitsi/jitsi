@@ -287,23 +287,27 @@ public class HttpUtils
 
             // construct the name value pairs we will be sending
             List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-            for(int i = 0; i < formParamNames.length; i++)
+            // there can be no params
+            if(formParamNames != null)
             {
-                // we are on the username index, insert retrieved username value
-                if(i == usernameParamIx && creds != null)
+                for(int i = 0; i < formParamNames.length; i++)
                 {
-                    parameters.add(new BasicNameValuePair(
-                        formParamNames[i], creds.getUserPrincipal().getName()));
-                }// we are on the password index, insert retrieved password val
-                else if(i == passwordParamIx && creds != null)
-                {
-                    parameters.add(new BasicNameValuePair(
-                        formParamNames[i], creds.getPassword()));
-                }
-                else // common name value pair, all info is present
-                {
-                    parameters.add(new BasicNameValuePair(
-                        formParamNames[i], formParamValues[i]));
+                    // we are on the username index, insert retrieved username value
+                    if(i == usernameParamIx && creds != null)
+                    {
+                        parameters.add(new BasicNameValuePair(
+                            formParamNames[i], creds.getUserPrincipal().getName()));
+                    }// we are on the password index, insert retrieved password val
+                    else if(i == passwordParamIx && creds != null)
+                    {
+                        parameters.add(new BasicNameValuePair(
+                            formParamNames[i], creds.getPassword()));
+                    }
+                    else // common name value pair, all info is present
+                    {
+                        parameters.add(new BasicNameValuePair(
+                            formParamNames[i], formParamValues[i]));
+                    }
                 }
             }
 

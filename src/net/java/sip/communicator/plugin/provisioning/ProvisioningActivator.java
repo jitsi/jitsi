@@ -483,6 +483,10 @@ public class ProvisioningActivator
                     usernameIx,
                     passwordIx);
 
+            // if there was an error in retrieving stop
+            if(res == null)
+                return null;
+
             InputStream in = res.getContent();
 
             // Chain a ProgressMonitorInputStream to the
