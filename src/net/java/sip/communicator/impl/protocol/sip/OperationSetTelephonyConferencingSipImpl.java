@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import java.beans.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
@@ -42,10 +41,7 @@ public class OperationSetTelephonyConferencingSipImpl
             CallSipImpl,
             CallPeerSipImpl,
             Address>
-    implements CallChangeListener,
-               CallListener,
-               MethodProcessorListener,
-               PropertyChangeListener
+    implements MethodProcessorListener
 {
 
     /**
@@ -144,45 +140,6 @@ public class OperationSetTelephonyConferencingSipImpl
      * manages it.
      */
     private static final int SUBSCRIPTION_DURATION = 3600;
-
-    /**
-     * The <tt>CallPeerListener</tt> which listens to modifications in the
-     * properties/state of <tt>CallPeer</tt> so that NOTIFY requests can be sent
-     * from a conference focus to its conference members to update them with
-     * the latest information about the <tt>CallPeer</tt>.
-     */
-    private final CallPeerListener callPeerListener = new CallPeerAdapter()
-    {
-
-        /**
-         * Indicates that a change has occurred in the status of the source
-         * <tt>CallPeer</tt>.
-         *
-         * @param evt the <tt>CallPeerChangeEvent</tt> instance containing the
-         * source event as well as its previous and its new status
-         */
-        @Override
-        public void peerStateChanged(CallPeerChangeEvent evt)
-        {
-            CallPeer peer = evt.getSourceCallPeer();
-
-            if (peer != null)
-            {
-                Call call = peer.getCall();
-
-                if (call != null)
-                {
-                    CallPeerState state = peer.getState();
-
-                    if ((state != null)
-                            && !state.equals(CallPeerState.DISCONNECTED)
-                            && !state.equals(CallPeerState.FAILED))
-                        OperationSetTelephonyConferencingSipImpl.this
-                                .notifyAll(call);
-                }
-            }
-        }
-    };
 
     /**
      * The utility which encodes text so that it's acceptable as the text of an
@@ -287,60 +244,6 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Notifies this <tt>CallListener</tt> that a specific <tt>Call</tt> has
-     * been established.
-     *
-     * @param event a <tt>CallEvent</tt> which specified the newly-established
-     * <tt>Call</tt>
-     */
-    private void callBegun(CallEvent event)
-    {
-        Call call = event.getSourceCall();
-
-        call.addCallChangeListener(this);
-
-        /*
-         * If there were any CallPeers in the Call prior to our realization that
-         * it has begun, pretend that they are added afterwards.
-         */
-        Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
-
-        while (callPeerIter.hasNext())
-            callPeerAdded(
-                new CallPeerEvent(
-                        callPeerIter.next(),
-                        call,
-                        CallPeerEvent.CALL_PEER_ADDED));
-    }
-
-    /**
-     * Notifies this <tt>CallListener</tt> that a specific <tt>Call</tt> has
-     * ended.
-     *
-     * @param event a <tt>CallEvent</tt> which specified the <tt>Call</tt> which
-     * has just ended
-     */
-    public void callEnded(CallEvent event)
-    {
-        Call call = event.getSourceCall();
-
-        /*
-         * If there are still CallPeers after our realization that it has ended,
-         * pretend that they are removed before that.
-         */
-        Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
-
-        while (callPeerIter.hasNext())
-            callPeerRemoved(
-                new CallPeerEvent(
-                        callPeerIter.next(),
-                        call,
-                        CallPeerEvent.CALL_PEER_REMOVED));
-
-        call.removeCallChangeListener(this);
-    }
-
-    /**
      * Notifies this <tt>CallChangeListener</tt> that a specific
      * <tt>CallPeer</tt> has been added to a specific <tt>Call</tt>.
      *
@@ -350,12 +253,8 @@ public class OperationSetTelephonyConferencingSipImpl
     public void callPeerAdded(CallPeerEvent event)
     {
         CallPeerSipImpl callPeer = (CallPeerSipImpl) event.getSourceCallPeer();
-
         callPeer.addMethodProcessorListener(this);
-        callPeer.addCallPeerListener(callPeerListener);
-        callPeer.getMediaHandler().addPropertyChangeListener(this);
-
-        callPeersChanged(event);
+        super.callPeerAdded(event);
     }
 
     /**
@@ -368,37 +267,8 @@ public class OperationSetTelephonyConferencingSipImpl
     public void callPeerRemoved(CallPeerEvent event)
     {
         CallPeerSipImpl callPeer = (CallPeerSipImpl) event.getSourceCallPeer();
-
         callPeer.removeMethodProcessorListener(this);
-        callPeer.removeCallPeerListener(callPeerListener);
-        callPeer.getMediaHandler().removePropertyChangeListener(this);
-
-        callPeersChanged(event);
-    }
-
-    /**
-     * Notifies this <tt>CallChangeListener</tt> that the <tt>CallPeer</tt> list
-     * of a specific <tt>Call</tt> has been modified by adding or removing a
-     * specific <tt>CallPeer</tt>.
-     *
-     * @param event a <tt>CallPeerEvent</tt> which specifies the
-     * <tt>CallPeer</tt> which has been added to or removed from a <tt>Call</tt>
-     */
-    private void callPeersChanged(CallPeerEvent event)
-    {
-        notifyAll(event.getSourceCall());
-    }
-
-    /**
-     * Notifies this <tt>CallChangeListener</tt> that a specific <tt>Call</tt>
-     * has changed its state. Does nothing.
-     *
-     * @param event a <tt>CallChangeEvent</tt> which specifies the <tt>Call</tt>
-     * which has changed its state, the very state which has been changed and
-     * the values of the state before and after the change
-     */
-    public void callStateChanged(CallChangeEvent event)
-    {
+        super.callPeerRemoved(event);
     }
 
     /**
@@ -760,18 +630,6 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Notifies this <tt>CallListener</tt> that a specific incoming
-     * <tt>Call</tt> has been received.
-     *
-     * @param event a <tt>CallEvent</tt> which specifies the newly-received
-     * incoming <tt>Call</tt>
-     */
-    public void incomingCallReceived(CallEvent event)
-    {
-        callBegun(event);
-    }
-
-    /**
      * Invites a callee with a specific SIP <tt>Address</tt> to be joined in a
      * specific <tt>Call</tt> in the sense of SIP conferencing.
      *
@@ -878,7 +736,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * @param call the <tt>Call</tt> in which the <tt>Subscription</tt>s to be
      * notified have been established
      */
-    private void notifyAll(Call call)
+    protected void notifyAll(Call call)
     {
         notifyAll(SubscriptionStateHeader.ACTIVE, null, call);
     }
@@ -929,18 +787,6 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Notifies this <tt>CallListener</tt> that a specific outgoing
-     * <tt>Call</tt> has been created.
-     *
-     * @param event a <tt>CallEvent</tt> which specifies the newly-created
-     * outgoing <tt>Call</tt>
-     */
-    public void outgoingCallCreated(CallEvent event)
-    {
-        callBegun(event);
-    }
-
-    /**
      * Parses a <tt>String</tt> value which represents a SIP address into a SIP
      * <tt>Address</tt> value.
      *
@@ -967,32 +813,6 @@ public class OperationSetTelephonyConferencingSipImpl
                     pe,
                     logger);
             return null;
-        }
-    }
-
-    /**
-     * Notifies this <tt>PropertyChangeListener</tt> that the value of a
-     * specific property of the notifier it is registered with has changed.
-     *
-     * @param event a <tt>PropertyChangeEvent</tt> which describes the source of
-     * the event, the name of the property which has changed its value and the
-     * old and new values of the property
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent event)
-    {
-        String propertyName = event.getPropertyName();
-
-        if (CallPeerMediaHandlerSipImpl.AUDIO_LOCAL_SSRC.equals(propertyName)
-                || CallPeerMediaHandlerSipImpl.AUDIO_REMOTE_SSRC.equals(propertyName)
-                || CallPeerMediaHandlerSipImpl.VIDEO_LOCAL_SSRC.equals(propertyName)
-                || CallPeerMediaHandlerSipImpl.VIDEO_REMOTE_SSRC.equals(propertyName))
-        {
-            Call call = ((CallPeerMediaHandlerSipImpl) event.getSource())
-                .getPeer().getCall();
-
-            if (call != null)
-                notifyAll(call);
         }
     }
 

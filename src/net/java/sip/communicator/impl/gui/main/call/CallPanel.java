@@ -766,9 +766,11 @@ public class CallPanel
         });
     }
 
-    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent) {}
+    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
+    {}
 
-    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent) {}
+    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
+    {}
 
     /**
      * Checks if the contained call is a conference call.

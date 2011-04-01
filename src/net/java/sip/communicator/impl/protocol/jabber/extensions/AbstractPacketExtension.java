@@ -40,7 +40,7 @@ public abstract class AbstractPacketExtension
     /**
      * A map of all attributes that this extension is currently using.
      */
-    private final Map<String, String> attributes
+    protected final Map<String, String> attributes
                                     = new LinkedHashMap<String, String>();
 
     /**
@@ -367,7 +367,7 @@ public abstract class AbstractPacketExtension
      * Returns this packet's first direct child extension that matches the
      * specified <tt>type</tt>.
      *
-     * @param <T> the specific type of <tt>PacketExtension</tt> to be returned 
+     * @param <T> the specific type of <tt>PacketExtension</tt> to be returned
      *
      * @param type the <tt>Class</tt> of the extension we are looking for.
      *

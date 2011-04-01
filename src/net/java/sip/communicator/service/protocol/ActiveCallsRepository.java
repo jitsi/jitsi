@@ -17,6 +17,8 @@ import net.java.sip.communicator.util.*;
  * and others. This class is meant for use by protocol implementations and
  * cannot be accessed from other bundles.
  *
+ * @param <T> <tt>Call</tt>
+ * @param <U> <tt>OperationSetBasicTelephony</tt>
  * @author Emil Ivov
  */
 public abstract class ActiveCallsRepository<T extends Call,

@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.media;
 
+import java.beans.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -41,7 +42,10 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                         ProtocolProviderServiceT>,
         CalleeAddressT extends Object>
     implements OperationSetTelephonyConferencing,
-               RegistrationStateChangeListener
+               RegistrationStateChangeListener,
+               PropertyChangeListener,
+               CallListener,
+               CallChangeListener
 {
 
     /**
@@ -56,6 +60,46 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * by this instance.
      */
     protected final ProtocolProviderServiceT parentProvider;
+
+    /**
+     * The <tt>CallPeerListener</tt> which listens to modifications in the
+     * properties/state of <tt>CallPeer</tt> so that NOTIFY requests can be sent
+     * from a conference focus to its conference members to update them with
+     * the latest information about the <tt>CallPeer</tt>.
+     */
+    private final CallPeerListener callPeerListener = new CallPeerAdapter()
+    {
+        /**
+         * Indicates that a change has occurred in the status of the source
+         * <tt>CallPeer</tt>.
+         *
+         * @param evt the <tt>CallPeerChangeEvent</tt> instance containing the
+         * source event as well as its previous and its new status
+         */
+        @Override
+        public void peerStateChanged(CallPeerChangeEvent evt)
+        {
+            CallPeer peer = evt.getSourceCallPeer();
+
+            if (peer != null)
+            {
+                Call call = peer.getCall();
+
+                if (call != null)
+                {
+                    CallPeerState state = peer.getState();
+
+                    if ((state != null)
+                            && !state.equals(CallPeerState.DISCONNECTED)
+                            && !state.equals(CallPeerState.FAILED))
+                    {
+                        AbstractOperationSetTelephonyConferencing.this
+                                .notifyAll(call);
+                    }
+                }
+            }
+        }
+    };
 
     /**
      * Initializes a new <tt>AbstractOperationSetTelephonyConferencing</tt>
@@ -266,4 +310,184 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             }
         }
     }
+
+    /**
+     * Notifies this <tt>CallChangeListener</tt> that a specific
+     * <tt>CallPeer</tt> has been added to a specific <tt>Call</tt>.
+     *
+     * @param event a <tt>CallPeerEvent</tt> which specifies the
+     * <tt>CallPeer</tt> which has been added to a <tt>Call</tt>
+     */
+    @SuppressWarnings("unchecked")
+    public void callPeerAdded(CallPeerEvent event)
+    {
+        MediaAwareCallPeerT callPeer =
+            (MediaAwareCallPeerT)event.getSourceCallPeer();
+
+        callPeer.addCallPeerListener(callPeerListener);
+        callPeer.getMediaHandler().addPropertyChangeListener(this);
+        callPeersChanged(event);
+    }
+
+    /**
+     * Notifies this <tt>CallChangeListener</tt> that a specific
+     * <tt>CallPeer</tt> has been remove from a specific <tt>Call</tt>.
+     *
+     * @param event a <tt>CallPeerEvent</tt> which specifies the
+     * <tt>CallPeer</tt> which has been removed from a <tt>Call</tt>
+     */
+    @SuppressWarnings("unchecked")
+    public void callPeerRemoved(CallPeerEvent event)
+    {
+        MediaAwareCallPeerT callPeer =
+            (MediaAwareCallPeerT) event.getSourceCallPeer();
+
+        callPeer.removeCallPeerListener(callPeerListener);
+        callPeer.getMediaHandler().removePropertyChangeListener(this);
+        callPeersChanged(event);
+    }
+
+    /**
+     * Notifies this <tt>CallChangeListener</tt> that the <tt>CallPeer</tt> list
+     * of a specific <tt>Call</tt> has been modified by adding or removing a
+     * specific <tt>CallPeer</tt>.
+     *
+     * @param event a <tt>CallPeerEvent</tt> which specifies the
+     * <tt>CallPeer</tt> which has been added to or removed from a <tt>Call</tt>
+     */
+    private void callPeersChanged(CallPeerEvent event)
+    {
+        notifyAll(event.getSourceCall());
+    }
+
+    /**
+     * Notifies this <tt>PropertyChangeListener</tt> that the value of a
+     * specific property of the notifier it is registered with has changed.
+     *
+     * @param event a <tt>PropertyChangeEvent</tt> which describes the source of
+     * the event, the name of the property which has changed its value and the
+     * old and new values of the property
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    @SuppressWarnings("unchecked")
+    public void propertyChange(PropertyChangeEvent event)
+    {
+        String propertyName = event.getPropertyName();
+
+        if (CallPeerMediaHandler.AUDIO_LOCAL_SSRC.equals(
+                propertyName)
+                || CallPeerMediaHandler.AUDIO_REMOTE_SSRC.equals(
+                        propertyName)
+                || CallPeerMediaHandler.VIDEO_LOCAL_SSRC.equals(
+                        propertyName)
+                || CallPeerMediaHandler.VIDEO_REMOTE_SSRC.equals(
+                        propertyName))
+        {
+            Call call = ((CallPeerMediaHandler<MediaAwareCallPeerT>)
+                    event.getSource()).getPeer().getCall();
+
+            if (call != null)
+            {
+                notifyAll(call);
+            }
+        }
+    }
+
+    /**
+     * Notifies this <tt>CallListener</tt> that a specific incoming
+     * <tt>Call</tt> has been received.
+     *
+     * @param event a <tt>CallEvent</tt> which specifies the newly-received
+     * incoming <tt>Call</tt>
+     */
+    public void incomingCallReceived(CallEvent event)
+    {
+        callBegun(event);
+    }
+
+    /**
+     * Notifies this <tt>CallListener</tt> that a specific outgoing
+     * <tt>Call</tt> has been created.
+     *
+     * @param event a <tt>CallEvent</tt> which specifies the newly-created
+     * outgoing <tt>Call</tt>
+     */
+    public void outgoingCallCreated(CallEvent event)
+    {
+        callBegun(event);
+    }
+
+    /**
+     * Notifies this <tt>CallListener</tt> that a specific <tt>Call</tt> has
+     * ended.
+     *
+     * @param event a <tt>CallEvent</tt> which specified the <tt>Call</tt> which
+     * has just ended
+     */
+    public void callEnded(CallEvent event)
+    {
+        Call call = event.getSourceCall();
+
+        /*
+         * If there are still CallPeers after our realization that it has ended,
+         * pretend that they are removed before that.
+         */
+        Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
+
+        while (callPeerIter.hasNext())
+            callPeerRemoved(
+                new CallPeerEvent(
+                        callPeerIter.next(),
+                        call,
+                        CallPeerEvent.CALL_PEER_REMOVED));
+
+        call.removeCallChangeListener(this);
+    }
+
+    /**
+     * Notifies this <tt>CallListener</tt> that a specific <tt>Call</tt> has
+     * been established.
+     *
+     * @param event a <tt>CallEvent</tt> which specified the newly-established
+     * <tt>Call</tt>
+     */
+    protected void callBegun(CallEvent event)
+    {
+        Call call = event.getSourceCall();
+
+        call.addCallChangeListener(this);
+
+        /*
+         * If there were any CallPeers in the Call prior to our realization that
+         * it has begun, pretend that they are added afterwards.
+         */
+        Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
+
+        while (callPeerIter.hasNext())
+            callPeerAdded(
+                new CallPeerEvent(
+                        callPeerIter.next(),
+                        call,
+                        CallPeerEvent.CALL_PEER_ADDED));
+    }
+
+    /**
+     * Notifies this <tt>CallChangeListener</tt> that a specific <tt>Call</tt>
+     * has changed its state. Does nothing.
+     *
+     * @param event a <tt>CallChangeEvent</tt> which specifies the <tt>Call</tt>
+     * which has changed its state, the very state which has been changed and
+     * the values of the state before and after the change
+     */
+    public void callStateChanged(CallChangeEvent event)
+    {
+    }
+
+    /**
+     * Notifies all CallPeer associated with and established in a
+     * specific call for conference information.
+     *
+     * @param call the <tt>Call</tt>
+     */
+    protected abstract void notifyAll(Call call);
 }

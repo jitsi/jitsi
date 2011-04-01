@@ -163,6 +163,19 @@ public class CallJabberImpl
                 throw (ThreadDeath) t;
         }
 
+        CoinPacketExtension coin
+            = (CoinPacketExtension)
+            jingleIQ.getExtension(
+                    CoinPacketExtension.ELEMENT_NAME,
+                    CoinPacketExtension.NAMESPACE);
+
+        if(coin != null)
+        {
+            boolean b = (Boolean.parseBoolean((String)
+                    coin.getAttribute(CoinPacketExtension.ISFOCUS_ATTR_NAME)));
+            callPeer.setConferenceFocus(b);
+        }
+
         //before notifying about this call, make sure that it looks alright
         callPeer.processSessionInitiate(jingleIQ);
 

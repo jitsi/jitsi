@@ -59,12 +59,12 @@ public class JingleIQProvider implements IQProvider
             new DefaultPacketExtensionProvider
                 <ParameterPacketExtension>(ParameterPacketExtension.class));
 
-        //<extmap/> provider
+        //<rtp-hdrext/> provider
         providerManager.addExtensionProvider(
-            ExtmapPacketExtension.ELEMENT_NAME,
-            RtpDescriptionPacketExtension.NAMESPACE,
+            RTPHdrExtPacketExtension.ELEMENT_NAME,
+            RTPHdrExtPacketExtension.NAMESPACE,
             new DefaultPacketExtensionProvider
-                <ExtmapPacketExtension>(ExtmapPacketExtension.class));
+                <RTPHdrExtPacketExtension>(RTPHdrExtPacketExtension.class));
 
         //<zrtp-hash/> provider
         providerManager.addExtensionProvider(
@@ -114,6 +114,13 @@ public class JingleIQProvider implements IQProvider
                 InputEvtPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<InputEvtPacketExtension>(
                         InputEvtPacketExtension.class));
+
+        //coin <conference-info/> provider
+        providerManager.addExtensionProvider(
+                CoinPacketExtension.ELEMENT_NAME,
+                CoinPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<CoinPacketExtension>(
+                        CoinPacketExtension.class));
 
         /*
          * XEP-0251: Jingle Session Transfer <transfer/> and <transferred>
@@ -170,6 +177,9 @@ public class JingleIQProvider implements IQProvider
         DefaultPacketExtensionProvider<TransferPacketExtension> transferProvider
             = new DefaultPacketExtensionProvider<TransferPacketExtension>(
                     TransferPacketExtension.class);
+        DefaultPacketExtensionProvider<CoinPacketExtension> coinProvider
+            = new DefaultPacketExtensionProvider<CoinPacketExtension>(
+                    CoinPacketExtension.class);
 
         // Now go on and parse the jingle element's content.
         int eventType;
@@ -205,6 +215,10 @@ public class JingleIQProvider implements IQProvider
                 {
                     jingleIQ.addExtension(
                             transferProvider.parseExtension(parser));
+                }
+                else if(elementName.equals(CoinPacketExtension.ELEMENT_NAME))
+                {
+                    jingleIQ.addExtension(coinProvider.parseExtension(parser));
                 }
 
                 //<mute/> <active/> and other session-info elements

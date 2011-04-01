@@ -200,9 +200,9 @@ public class MediaUtils
 
         /* H263+ */
         Map<String, String> h263FormatParams
-        = new HashMap<String, String>();
+            = new HashMap<String, String>();
         Map<String, String> h263AdvancedAttributes
-        = new LinkedHashMap<String, String>();
+            = new LinkedHashMap<String, String>();
 
         // maximum resolution we can receive is the size of our screen device
         if(res != null)

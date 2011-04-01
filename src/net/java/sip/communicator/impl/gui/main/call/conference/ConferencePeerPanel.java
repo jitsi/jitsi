@@ -37,6 +37,11 @@ public class ConferencePeerPanel
                 Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The parent dialog containing this panel.
      */
     private final CallPanel callPanel;

@@ -29,7 +29,7 @@ import net.java.sip.communicator.util.*;
  * Extends <tt>MediaDeviceSession</tt> to add video-specific functionality.
  *
  * @author Lubomir Marinov
- * @author Sébastien Vincent
+ * @author Sebastien Vincent
  */
 public class VideoMediaDeviceSession
     extends MediaDeviceSession

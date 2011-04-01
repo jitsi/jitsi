@@ -62,8 +62,8 @@ public class RtpDescriptionPacketExtension
      * A <tt>List</tt> of the optional <tt>extmap</tt> elements that allow
      * negotiating RTP extension headers as per RFC 5282.
      */
-    private List<ExtmapPacketExtension> extmapList
-                                    = new ArrayList<ExtmapPacketExtension>();
+    private List<RTPHdrExtPacketExtension> extmapList
+                                    = new ArrayList<RTPHdrExtPacketExtension>();
 
     /**
      * The combined list of all child elements that this extension contains.
@@ -197,8 +197,8 @@ public class RtpDescriptionPacketExtension
         else if (childExtension instanceof BandwidthPacketExtension)
             this.setBandwidth((BandwidthPacketExtension)childExtension);
 
-        else if (childExtension instanceof ExtmapPacketExtension)
-            this.addExtmap((ExtmapPacketExtension)childExtension);
+        else if (childExtension instanceof RTPHdrExtPacketExtension)
+            this.addExtmap((RTPHdrExtPacketExtension)childExtension);
     }
 
     /**
@@ -256,7 +256,7 @@ public class RtpDescriptionPacketExtension
      * @param extmap an optional <tt>extmap</tt> element that allows negotiation
      * RTP extension headers as per RFC 5282.
      */
-    public void addExtmap(ExtmapPacketExtension extmap)
+    public void addExtmap(RTPHdrExtPacketExtension extmap)
     {
         this.extmapList.add(extmap);
     }
@@ -268,7 +268,7 @@ public class RtpDescriptionPacketExtension
      * @return a <tt>List</tt> of the optional <tt>extmap</tt> elements that
      * allow negotiating RTP extension headers as per RFC 5282.
      */
-    public List<ExtmapPacketExtension> getExtmapList()
+    public List<RTPHdrExtPacketExtension> getExtmapList()
     {
         return extmapList;
     }

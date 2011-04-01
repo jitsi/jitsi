@@ -20,6 +20,7 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
 import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 import net.java.sip.communicator.service.certificate.*;
 
@@ -104,6 +105,19 @@ public class ProtocolProviderServiceJabberImpl
      */
     public static final String URN_XMPP_JINGLE_TRANSFER_0
         = TransferPacketExtension.NAMESPACE;
+
+    /**
+     * Jingle's Discover Info URN for "XEP-XXXX :Delivering Conference
+     * Information to Jingle Participants (Coin)" support.
+     */
+    public static final String URN_XMPP_JINGLE_COIN = "urn:xmpp:coin";
+
+    /**
+     * Jingle's Discover Info URN for "XEP-0294: Jingle RTP Header Extensions
+     * Negotiation" support.
+     */
+    public static final String URN_XMPP_JINGLE_RTP_HDREXT =
+        "urn:xmpp:jingle:apps:rtp:rtp-hdrext:0";
 
     /**
      * Used to connect to a XMPP server.
@@ -1158,6 +1172,9 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add("http://jabber.org/protocol/muc#rooms");
             supportedFeatures.add("http://jabber.org/protocol/muc#traffic");
 
+            // RTP HDR extension
+            supportedFeatures.add(URN_XMPP_JINGLE_RTP_HDREXT);
+
             //register our jingle provider
             //register our home grown Jingle Provider.
             ProviderManager providerManager = ProviderManager.getInstance();
@@ -1169,6 +1186,12 @@ public class ProtocolProviderServiceJabberImpl
             providerManager.addIQProvider(InputEvtIQ.ELEMENT_NAME,
                                           InputEvtIQ.NAMESPACE,
                                           new InputEvtIQProvider());
+
+            // register our coin provider
+            providerManager.addIQProvider(CoinIQ.ELEMENT_NAME,
+                                          CoinIQ.NAMESPACE,
+                                          new CoinIQProvider());
+            supportedFeatures.add(URN_XMPP_JINGLE_COIN);
 
             //initialize the telephony operation set
             OperationSetBasicTelephonyJabberImpl basicTelephony

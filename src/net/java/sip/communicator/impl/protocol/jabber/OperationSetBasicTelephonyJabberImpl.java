@@ -721,6 +721,20 @@ public class OperationSetBasicTelephonyJabberImpl
                                 ofe);
                     }
                 }
+
+                packetExtension
+                    = jingleIQ.getExtension(
+                        CoinPacketExtension.ELEMENT_NAME,
+                        CoinPacketExtension.NAMESPACE);
+
+                if (packetExtension instanceof CoinPacketExtension)
+                {
+                    CoinPacketExtension coinExt =
+                        (CoinPacketExtension)packetExtension;
+                    callPeer.setConferenceFocus(
+                            Boolean.parseBoolean(coinExt.getAttributeAsString(
+                            CoinPacketExtension.ISFOCUS_ATTR_NAME)));
+                }
             }
         }
         else if (action == JingleAction.CONTENT_ACCEPT)

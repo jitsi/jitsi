@@ -185,14 +185,14 @@ public class JingleUtils
     {
         List<RTPExtension> extensionsList = new ArrayList<RTPExtension>();
 
-        List<ExtmapPacketExtension> extmapList = desc.getExtmapList();
+        List<RTPHdrExtPacketExtension> extmapList = desc.getExtmapList();
 
-        for (ExtmapPacketExtension extmap : extmapList)
+        for (RTPHdrExtPacketExtension extmap : extmapList)
         {
             RTPExtension rtpExtension
                     = new RTPExtension(
-                            extmap.getUri(),
-                            MediaDirection.parseString(extmap.getDirection()),
+                            extmap.getURI(),
+                            getDirection(extmap.getSenders(), false),
                             extmap.getAttributes());
 
             if(rtpExtension != null)
@@ -274,6 +274,30 @@ public class JingleUtils
     {
         SendersEnum senders = content.getSenders();
 
+        return getDirection(senders, initiatorPerspective);
+    }
+
+    /**
+     * Determines the direction of the media stream that <tt>content</tt>
+     * describes and returns the corresponding <tt>MediaDirection</tt> enum
+     * entry. The method looks for a direction specifier attribute (i.e. the
+     * content 'senders' attribute) or the absence thereof and returns the
+     * corresponding <tt>MediaDirection</tt> entry. The
+     * <tt>initiatorPerspectice</tt> allows callers to specify whether the
+     * direction is to be considered from the session initiator's perspective
+     * or that of the responder.
+     *
+     * @param senders senders direction
+     * @param initiatorPerspective <tt>true</tt> if the senders argument is to
+     * be translated into a direction from the initiator's perspective and
+     * <tt>false</tt> for the sender's.
+     *
+     * @return one of the <tt>MediaDirection</tt> values indicating the
+     * direction of the media steam described by <tt>content</tt>.
+     */
+    public static MediaDirection getDirection(SendersEnum senders,
+            boolean initiatorPerspective)
+    {
         if(senders == null)
             return MediaDirection.SENDRECV;
 
@@ -448,7 +472,7 @@ public class JingleUtils
         content.setCreator(creator);
         content.setName(contentName);
 
-        //senders - ony if we have them and if they are different from default
+        //senders - only if we have them and if they are different from default
         if(senders != null && senders != SendersEnum.both)
             content.setSenders(senders);
 
@@ -463,6 +487,28 @@ public class JingleUtils
                             formatToPayloadType(fmt, dynamicPayloadTypes));
         }
 
+        // extmap attributes
+        if (rtpExtensions != null && rtpExtensions.size() > 0)
+        {
+            for (RTPExtension extension : rtpExtensions)
+            {
+                byte extID
+                    = rtpExtensionsRegistry.obtainExtensionMapping(extension);
+                URI uri = extension.getURI();
+                MediaDirection extDirection = extension.getDirection();
+                String attributes = extension.getExtensionAttributes();
+                SendersEnum sendersEnum = getSenders(extDirection,
+                        false);
+                RTPHdrExtPacketExtension ext = new RTPHdrExtPacketExtension();
+
+                ext.setURI(uri);
+                ext.setSenders(sendersEnum);
+                ext.setID(Byte.toString(extID));
+                ext.setAttributes(attributes);
+
+                description.addChildExtension(ext);
+            }
+        }
         return content;
     }
 

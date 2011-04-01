@@ -160,6 +160,25 @@ public class CallPeerJabberImpl
         try
         {
             getMediaHandler().processOffer(offer);
+
+            CoinPacketExtension coin = null;
+
+            for(PacketExtension ext : sessionInitIQ.getExtensions())
+            {
+                if(ext.getElementName().equals(
+                        CoinPacketExtension.ELEMENT_NAME))
+                {
+                    coin = (CoinPacketExtension)ext;
+                    break;
+                }
+            }
+
+            /* does the call peer acts as a conference focus ? */
+            if(coin != null)
+            {
+                setConferenceFocus(Boolean.parseBoolean(
+                        (String)coin.getAttribute("isfocus")));
+            }
         }
         catch(Exception ex)
         {
@@ -230,6 +249,7 @@ public class CallPeerJabberImpl
                 sessionInitIQ.addExtension(sessionInitiateExtension);
             }
         }
+
         protocolProvider.getConnection().sendPacket(sessionInitIQ);
     }
 
@@ -397,7 +417,7 @@ public class CallPeerJabberImpl
      */
     public String getJingleSID()
     {
-        return sessionInitIQ.getSID();
+        return sessionInitIQ != null ? sessionInitIQ.getSID() : null;
     }
 
     /**
@@ -409,7 +429,7 @@ public class CallPeerJabberImpl
      */
     public String getSessInitID()
     {
-        return sessionInitIQ.getPacketID();
+        return sessionInitIQ != null ? sessionInitIQ.getPacketID() : null;
     }
 
     /**
@@ -696,6 +716,23 @@ public class CallPeerJabberImpl
 
         protocolProvider.getConnection().sendPacket(contentIQ);
         mediaHandler.removeContent(remoteContent.getName());
+    }
+
+    /**
+     * Send a <tt>content</tt> message to reflect change in audio setup (start,
+     * stop or conference starts).
+     *
+     * @param isConference if the call if now a conference call
+     */
+    public void sendCoinSessionInfo(boolean isConference)
+    {
+        JingleIQ sessionInfoIQ = JinglePacketFactory.createSessionInfo(
+                        getProtocolProvider().getOurJID(),
+                        this.peerJID, getJingleSID());
+        CoinPacketExtension coinExt = new CoinPacketExtension(isConference);
+        sessionInfoIQ.addExtension(coinExt);
+
+        getProtocolProvider().getConnection().sendPacket(sessionInfoIQ);
     }
 
     /**
