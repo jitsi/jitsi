@@ -139,7 +139,7 @@ Setup_executeMsi(LPCTSTR path)
         LastError_setLastError(error, __FILE__, __LINE__);
         return error;
     }
-    p2 = L"\" ";
+    p2 = L"\" REINSTALLMODE=amus ";
     p2Length = wcslen(p2);
     p3 = Setup_commandLine;
     p3Length = p3 ? wcslen(p3) : 0;
