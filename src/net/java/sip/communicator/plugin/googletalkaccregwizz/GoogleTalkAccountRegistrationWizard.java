@@ -83,6 +83,7 @@ public class GoogleTalkAccountRegistrationWizard
      */
     private void setPredefinedProperties(JabberAccountRegistration reg)
     {
+        reg.setDefaultUserSufix("gmail.com");
         reg.setServerAddress("talk.google.com");
 
         reg.setServerOverridden(true);
@@ -141,7 +142,7 @@ public class GoogleTalkAccountRegistrationWizard
      */
     public String getUserNameExample()
     {
-        return "Ex: johnsmith@gmail.com";
+        return "Ex: johnsmith@gmail.com or johnsmith";
     }
 
     /**

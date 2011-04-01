@@ -313,6 +313,10 @@ public class JabberAccountRegistrationWizard
             serverName = getServerFromUserName(userName);
         }
 
+        if(userName.indexOf('@') < 0
+           && registration.getDefaultUserSufix() != null)
+            userName = userName + '@' + registration.getDefaultUserSufix();
+
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             serverName);
 

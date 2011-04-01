@@ -118,6 +118,42 @@ public class IceUdpTransportManager
                 = JabberActivator.getProtocolProviderFactory().loadPassword(
                         accID);
 
+            // ask for password if not saved
+            if (password == null)
+            {
+                //create a default credentials object
+                UserCredentials credentials = new UserCredentials();
+                credentials.setUserName(accID.getUserID());
+
+                //request a password from the user
+                credentials = provider.getAuthority().obtainCredentials(
+                    ProtocolNames.JABBER,
+                    credentials,
+                    SecurityAuthority.AUTHENTICATION_REQUIRED);
+
+                // in case user has canceled the login window
+                if(credentials == null)
+                {
+                    return null;
+                }
+
+                //extract the password the user passed us.
+                char[] pass = credentials.getPassword();
+
+                // the user didn't provide us a password (canceled the operation)
+                if(pass == null)
+                {
+                    return null;
+                }
+                password = new String(pass);
+
+                if (credentials.isPasswordPersistent())
+                {
+                    JabberActivator.getProtocolProviderFactory()
+                        .storePassword(accID, password);
+                }
+            }
+
             StunCandidateHarvester autoHarvester
                 = namSer.discoverStunServer(
                         accID.getService(),

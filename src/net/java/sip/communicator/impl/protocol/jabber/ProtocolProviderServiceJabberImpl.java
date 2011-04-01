@@ -375,7 +375,7 @@ public class ProtocolProviderServiceJabberImpl
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
-    private synchronized void connectAndLogin(SecurityAuthority authority,
+    private void connectAndLogin(SecurityAuthority authority,
                                               int reasonCode)
         throws XMPPException, OperationFailedException
     {
@@ -1927,5 +1927,14 @@ public class ProtocolProviderServiceJabberImpl
             throw new OperationFailedException(message, errorCode);
         else
             throw new OperationFailedException(message, errorCode, cause);
+    }
+
+    /**
+     * Used when we need to re-register or someone needs to obtain credentials.
+     * @return the SecurityAuthority.
+     */
+    public SecurityAuthority getAuthority()
+    {
+        return authority;
     }
 }

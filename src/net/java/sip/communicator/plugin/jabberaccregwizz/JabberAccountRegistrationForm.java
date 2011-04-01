@@ -190,6 +190,10 @@ public class JabberAccountRegistrationForm
         if(userID == null || userID.trim().length() == 0)
             throw new IllegalStateException("No user ID provided.");
 
+        if(userID.indexOf('@') < 0
+           && registration.getDefaultUserSufix() != null)
+            userID = userID + '@' + registration.getDefaultUserSufix();
+
         registration.setUserID(userID);
         registration.setPassword(new String(accountPanel.getPassword()));
         registration.setRememberPassword(accountPanel.isRememberPassword());

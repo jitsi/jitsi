@@ -817,6 +817,27 @@ public class ServerStoredContactListJabberImpl
             }
         }
 
+        // now search all root contacts for unresolved ones
+        Iterator<Contact> iter = rootGroup.contacts();
+        List<ContactJabberImpl> contactsToRemove
+            = new ArrayList<ContactJabberImpl>();
+        while(iter.hasNext())
+        {
+            ContactJabberImpl contact = (ContactJabberImpl)iter.next();
+            if(!contact.isResolved())
+            {
+                contactsToRemove.add(contact);
+            }
+        }
+
+        for(ContactJabberImpl contact : contactsToRemove)
+        {
+            rootGroup.removeContact(contact);
+
+            fireContactRemoved(rootGroup, contact);
+        }
+        contactsToRemove.clear();
+
         // fill in root group
         for (RosterGroup item : roster.getGroups())
         {
@@ -845,9 +866,47 @@ public class ServerStoredContactListJabberImpl
                 //fire an event saying that the group has been resolved
                 fireGroupEvent(group
                                , ServerStoredGroupEvent.GROUP_RESOLVED_EVENT);
-
-                /** @todo  if something to delete . delete it */
             }
+        }
+
+        Iterator<ContactGroup> iterGroups = rootGroup.subgroups();
+        List<ContactGroupJabberImpl> groupsToRemove
+            = new ArrayList<ContactGroupJabberImpl>();
+        while(iterGroups.hasNext())
+        {
+            ContactGroupJabberImpl group =
+                (ContactGroupJabberImpl)iterGroups.next();
+
+            if(!group.isResolved())
+            {
+                groupsToRemove.add(group);
+            }
+
+            Iterator<Contact> iterContacts = group.contacts();
+            while(iterContacts.hasNext())
+            {
+                ContactJabberImpl contact =
+                    (ContactJabberImpl)iterContacts.next();
+                if(!contact.isResolved())
+                {
+                    contactsToRemove.add(contact);
+                }
+            }
+            for(ContactJabberImpl contact : contactsToRemove)
+            {
+                group.removeContact(contact);
+
+                fireContactRemoved(group, contact);
+            }
+            contactsToRemove.clear();
+        }
+
+        for(ContactGroupJabberImpl group: groupsToRemove)
+        {
+            rootGroup.removeSubGroup(group);
+
+            fireGroupEvent(
+                group, ServerStoredGroupEvent.GROUP_REMOVED_EVENT);
         }
     }
 
