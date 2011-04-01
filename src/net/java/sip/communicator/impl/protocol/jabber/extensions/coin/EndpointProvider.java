@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.coin;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
@@ -83,6 +85,16 @@ public class EndpointProvider
                 {
                     ext.setStatus(EndpointStatusType.parseString(
                             CoinIQProvider.parseText(parser)));
+                }
+                else if(elementName.equals(
+                        CallInfoPacketExtension.ELEMENT_NAME))
+                {
+                    PacketExtensionProvider provider
+                        = new DefaultPacketExtensionProvider<
+                        CallInfoPacketExtension>(CallInfoPacketExtension.class);
+                    PacketExtension childExtension = provider.parseExtension(
+                            parser);
+                    ext.addChildExtension(childExtension);
                 }
                 else if(elementName.equals(MediaPacketExtension.ELEMENT_NAME))
                 {

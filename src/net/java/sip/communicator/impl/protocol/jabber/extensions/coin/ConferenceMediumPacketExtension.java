@@ -13,37 +13,27 @@ import org.jivesoftware.smack.packet.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
- * Media packet extension.
+ * Conference medium packet extension.
  *
  * @author Sebastien Vincent
  */
-public class MediaPacketExtension
+public class ConferenceMediumPacketExtension
     extends AbstractPacketExtension
 {
     /**
-     * The namespace that media belongs to.
+     * The namespace that conference medium belongs to.
      */
-    public static final String NAMESPACE = null;
+    public static final String NAMESPACE = "";
 
     /**
-     * The name of the element that contains the media data.
+     * The name of the element that contains the conference medium.
      */
-    public static final String ELEMENT_NAME = "media";
+    public static final String ELEMENT_NAME = "medium";
 
     /**
      * Display text element name.
      */
     public static final String ELEMENT_DISPLAY_TEXT = "display-text";
-
-    /**
-     * Source ID element name.
-     */
-    public static final String ELEMENT_SRC_ID = "src-id";
-
-    /**
-     * Label element name.
-     */
-    public static final String ELEMENT_LABEL = "label";
 
     /**
      * Type element name.
@@ -56,24 +46,14 @@ public class MediaPacketExtension
     public static final String ELEMENT_STATUS = "status";
 
     /**
-     * ID attribute name.
+     * Label attribute name.
      */
-    public static final String ID_ATTR_NAME = "id";
-
-    /**
-     * Source ID.
-     */
-    private String srcId = null;
+    public static final String LABEL_ATTR_NAME = "label";
 
     /**
      * Type.
      */
     private String type = null;
-
-    /**
-     * Label.
-     */
-    private String label = null;
 
     /**
      * Display text.
@@ -88,22 +68,13 @@ public class MediaPacketExtension
     /**
      * Constructor.
      *
-     * @param id media ID
-     */
-    public MediaPacketExtension(String id)
-    {
-        super(NAMESPACE, ELEMENT_NAME);
-        setAttribute(ID_ATTR_NAME, id);
-    }
-
-    /**
-     * Set label.
-     *
+     * @param elementName element name
      * @param label label
      */
-    public void setLabel(String label)
+    public ConferenceMediumPacketExtension(String elementName, String label)
     {
-        this.label = label;
+        super(NAMESPACE, elementName);
+        setAttribute(LABEL_ATTR_NAME, label);
     }
 
     /**
@@ -114,16 +85,6 @@ public class MediaPacketExtension
     public void setStatus(String status)
     {
         this.status = status;
-    }
-
-    /**
-     * Set src-id.
-     *
-     * @param srcId src-id
-     */
-    public void setSrcID(String srcId)
-    {
-        this.srcId = srcId;
     }
 
     /**
@@ -166,16 +127,6 @@ public class MediaPacketExtension
     }
 
     /**
-     * Get label.
-     *
-     * @return label
-     */
-    public String getLabel()
-    {
-        return label;
-    }
-
-    /**
      * Get status.
      *
      * @return status.
@@ -183,16 +134,6 @@ public class MediaPacketExtension
     public String getStatus()
     {
         return status;
-    }
-
-    /**
-     * Get src-id.
-     *
-     * @return src-id
-     */
-    public String getSrcID()
-    {
-        return srcId;
     }
 
     /**
@@ -232,20 +173,10 @@ public class MediaPacketExtension
                     type).append("</").append(
                             ELEMENT_TYPE).append(">");
 
-        if(srcId != null)
-            bldr.append("<").append(ELEMENT_SRC_ID).append(">").append(
-                    srcId).append("</").append(
-                            ELEMENT_SRC_ID).append(">");
-
         if(status != null)
             bldr.append("<").append(ELEMENT_STATUS).append(">").append(
                     status).append("</").append(
                             ELEMENT_STATUS).append(">");
-
-        if(label != null)
-            bldr.append("<").append(ELEMENT_LABEL).append(">").append(
-                    label).append("</").append(
-                            ELEMENT_LABEL).append(">");
 
         for(PacketExtension ext : getChildExtensions())
         {

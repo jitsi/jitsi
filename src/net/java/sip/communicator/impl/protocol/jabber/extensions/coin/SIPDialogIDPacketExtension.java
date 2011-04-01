@@ -13,22 +13,22 @@ import org.jivesoftware.smack.packet.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
- * Host Information packet extension.
+ * SIP Dialog ID packet extension.
  *
  * @author Sebastien Vincent
  */
-public class HostInfoPacketExtension
+public class SIPDialogIDPacketExtension
     extends AbstractPacketExtension
 {
     /**
-     * The namespace that media belongs to.
+     * The namespace that SIP Dialog ID belongs to.
      */
-    public static final String NAMESPACE = null;
+    public static final String NAMESPACE = "";
 
     /**
-     * The name of the element that contains the media data.
+     * The name of the element that contains the SIP Dialog ID data.
      */
-    public static final String ELEMENT_NAME = "host-info";
+    public static final String ELEMENT_NAME = "sip";
 
     /**
      * Display text element name.
@@ -36,9 +36,19 @@ public class HostInfoPacketExtension
     public static final String ELEMENT_DISPLAY_TEXT = "display-text";
 
     /**
-     * Web page element name.
+     * Call ID element name.
      */
-    public static final String ELEMENT_WEB_PAGE = "web-page";
+    public static final String ELEMENT_CALLID = "call-id";
+
+    /**
+     * From tag element name.
+     */
+    public static final String ELEMENT_FROMTAG = "from-tag";
+
+    /**
+     * From tag element name.
+     */
+    public static final String ELEMENT_TOTAG = "to-tag";
 
     /**
      * Display text.
@@ -46,62 +56,33 @@ public class HostInfoPacketExtension
     private String displayText = null;
 
     /**
-     * Web page.
+     * Call ID.
      */
-    private String webPage = null;
+    private String callID = null;
 
     /**
-     * Constructor.
+     * From tag.
      */
-    public HostInfoPacketExtension()
+    private String fromTag = null;
+
+    /**
+     * To tag.
+     */
+    private String toTag = null;
+
+    /**
+     * Constructor
+     */
+    public SIPDialogIDPacketExtension()
     {
         super(NAMESPACE, ELEMENT_NAME);
     }
 
     /**
-     * Set display text.
-     * @param displayText display text
-     */
-    public void setDisplayText(String displayText)
-    {
-        this.displayText = displayText;
-    }
-
-    /**
-     * Get display text.
+     * Returns an XML representation of this extension.
      *
-     * @return display text
+     * @return an XML representation of this extension.
      */
-    public String getDisplayText()
-    {
-        return displayText;
-    }
-
-    /**
-     * Set web page.
-     * @param webPage web page
-     */
-    public void setWebPage(String webPage)
-    {
-        this.webPage = webPage;
-    }
-
-    /**
-     * Get web page.
-     *
-     * @return web page
-     */
-    public String getWebPage()
-    {
-        return webPage;
-    }
-
-    /**
-     * Get an XML string representation.
-     *
-     * @return XML string representation
-     */
-    @Override
     public String toXML()
     {
         StringBuilder bldr = new StringBuilder();
@@ -128,17 +109,27 @@ public class HostInfoPacketExtension
                     displayText).append("</").append(
                             ELEMENT_DISPLAY_TEXT).append(">");
 
-        if(webPage != null)
-            bldr.append("<").append(ELEMENT_WEB_PAGE).append(">").append(
-                    webPage).append("</").append(
-                            ELEMENT_WEB_PAGE).append(">");
+        if(callID != null)
+            bldr.append("<").append(ELEMENT_CALLID).append(">").append(
+                    callID).append("</").append(
+                            ELEMENT_CALLID).append(">");
+
+        if(fromTag != null)
+            bldr.append("<").append(ELEMENT_FROMTAG).append(">").append(
+                    fromTag).append("</").append(
+                            ELEMENT_FROMTAG).append(">");
+
+        if(toTag != null)
+            bldr.append("<").append(ELEMENT_TOTAG).append(">").append(
+                    toTag).append("</").append(
+                            ELEMENT_TOTAG).append(">");
 
         for(PacketExtension ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }
 
-        bldr.append("</").append(ELEMENT_NAME).append(">");
+        bldr.append("</").append(getElementName()).append(">");
 
         return bldr.toString();
     }

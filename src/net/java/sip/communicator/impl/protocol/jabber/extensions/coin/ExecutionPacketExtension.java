@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.coin;
 
 import java.util.*;
 
+import org.jivesoftware.smack.packet.*;
+
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
@@ -185,6 +187,12 @@ public class ExecutionPacketExtension
             bldr.append("<").append(ELEMENT_REASON).append(">").append(
                     reason).append("</").append(
                             ELEMENT_REASON).append(">");
+
+
+        for(PacketExtension ext : getChildExtensions())
+        {
+            bldr.append(ext.toXML());
+        }
 
         bldr.append("</").append(getElementName()).append(">");
         return bldr.toString();

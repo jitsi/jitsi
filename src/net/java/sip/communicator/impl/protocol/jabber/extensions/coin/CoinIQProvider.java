@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.coin;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
@@ -35,10 +37,66 @@ public class CoinIQProvider
     private final StateProvider stateProvider = new StateProvider();
 
     /**
+     * Provider for URIs packet extension.
+     */
+    private final DefaultPacketExtensionProvider<URIsPacketExtension>
+       urisProvider = new DefaultPacketExtensionProvider<URIsPacketExtension>(
+               URIsPacketExtension.class);
+
+    /**
+     * Provider for sidbars by val packet extension.
+     */
+    private final DefaultPacketExtensionProvider<SidebarsByValPacketExtension>
+       sidebarsByValProvider =
+           new DefaultPacketExtensionProvider<SidebarsByValPacketExtension>(
+               SidebarsByValPacketExtension.class);
+
+    /**
      * Constructor.
      */
     public CoinIQProvider()
     {
+        ProviderManager providerManager = ProviderManager.getInstance();
+
+        providerManager.addExtensionProvider(
+                UserRolesPacketExtension.ELEMENT_NAME,
+                UserRolesPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                    <UserRolesPacketExtension>(
+                                    UserRolesPacketExtension.class));
+
+        providerManager.addExtensionProvider(
+                URIPacketExtension.ELEMENT_NAME,
+                URIPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                    <URIPacketExtension>(
+                                    URIPacketExtension.class));
+
+        providerManager.addExtensionProvider(
+                SIPDialogIDPacketExtension.ELEMENT_NAME,
+                SIPDialogIDPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                    <SIPDialogIDPacketExtension>(
+                                    SIPDialogIDPacketExtension.class));
+
+        providerManager.addExtensionProvider(
+                ConferenceMediumPacketExtension.ELEMENT_NAME,
+                ConferenceMediumPacketExtension.NAMESPACE,
+                new ConferenceMediumProvider());
+
+        providerManager.addExtensionProvider(
+                ConferenceMediaPacketExtension.ELEMENT_NAME,
+                ConferenceMediaPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                    <ConferenceMediaPacketExtension>(
+                                    ConferenceMediaPacketExtension.class));
+
+        providerManager.addExtensionProvider(
+                CallInfoPacketExtension.ELEMENT_NAME,
+                CallInfoPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                    <CallInfoPacketExtension>(
+                                    CallInfoPacketExtension.class));
     }
 
     /**
@@ -100,6 +158,19 @@ public class CoinIQProvider
                 {
                     PacketExtension childExtension =
                         stateProvider.parseExtension(parser);
+                    coinIQ.addExtension(childExtension);
+                }
+                else if(elementName.equals(URIsPacketExtension.ELEMENT_NAME))
+                {
+                    PacketExtension childExtension =
+                        urisProvider.parseExtension(parser);
+                    coinIQ.addExtension(childExtension);
+                }
+                else if(elementName.equals(
+                        SidebarsByValPacketExtension.ELEMENT_NAME))
+                {
+                    PacketExtension childExtension =
+                        sidebarsByValProvider.parseExtension(parser);
                     coinIQ.addExtension(childExtension);
                 }
             }

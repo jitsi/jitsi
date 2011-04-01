@@ -182,9 +182,9 @@ public class CoinIQ
             {
                 bldr.append(pe.toXML());
             }
+            bldr.append("</").append(ELEMENT_NAME).append(">");
         }
 
-        bldr.append("</").append(ELEMENT_NAME).append(">");
         return bldr.toString();
     }
 }

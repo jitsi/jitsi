@@ -13,22 +13,22 @@ import org.jivesoftware.smack.packet.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
- * Host Information packet extension.
+ * URI packet extension.
  *
  * @author Sebastien Vincent
  */
-public class HostInfoPacketExtension
+public class URIPacketExtension
     extends AbstractPacketExtension
 {
     /**
-     * The namespace that media belongs to.
+     * The namespace that URI belongs to.
      */
-    public static final String NAMESPACE = null;
+    public static final String NAMESPACE = "";
 
     /**
-     * The name of the element that contains the media data.
+     * The name of the element that contains the URI data.
      */
-    public static final String ELEMENT_NAME = "host-info";
+    public static final String ELEMENT_NAME = "uri";
 
     /**
      * Display text element name.
@@ -36,9 +36,9 @@ public class HostInfoPacketExtension
     public static final String ELEMENT_DISPLAY_TEXT = "display-text";
 
     /**
-     * Web page element name.
+     * Purpose element name.
      */
-    public static final String ELEMENT_WEB_PAGE = "web-page";
+    public static final String ELEMENT_PURPOSE = "purpose";
 
     /**
      * Display text.
@@ -46,20 +46,23 @@ public class HostInfoPacketExtension
     private String displayText = null;
 
     /**
-     * Web page.
+     * Purpose.
      */
-    private String webPage = null;
+    private String purpose = null;
 
     /**
      * Constructor.
+     *
+     * @param elementName element name
      */
-    public HostInfoPacketExtension()
+    public URIPacketExtension(String elementName)
     {
-        super(NAMESPACE, ELEMENT_NAME);
+        super(NAMESPACE, elementName);
     }
 
     /**
-     * Set display text.
+     * Set the display text.
+     *
      * @param displayText display text
      */
     public void setDisplayText(String displayText)
@@ -78,30 +81,30 @@ public class HostInfoPacketExtension
     }
 
     /**
-     * Set web page.
-     * @param webPage web page
+     * Set the purpose.
+     *
+     * @param purpose purpose
      */
-    public void setWebPage(String webPage)
+    public void setPurpose(String purpose)
     {
-        this.webPage = webPage;
+        this.purpose = purpose;
     }
 
     /**
-     * Get web page.
+     * Get purpose.
      *
-     * @return web page
+     * @return purpose
      */
-    public String getWebPage()
+    public String getPurpose()
     {
-        return webPage;
+        return purpose;
     }
 
     /**
-     * Get an XML string representation.
+     * Returns an XML representation of this extension.
      *
-     * @return XML string representation
+     * @return an XML representation of this extension.
      */
-    @Override
     public String toXML()
     {
         StringBuilder bldr = new StringBuilder();
@@ -128,17 +131,17 @@ public class HostInfoPacketExtension
                     displayText).append("</").append(
                             ELEMENT_DISPLAY_TEXT).append(">");
 
-        if(webPage != null)
-            bldr.append("<").append(ELEMENT_WEB_PAGE).append(">").append(
-                    webPage).append("</").append(
-                            ELEMENT_WEB_PAGE).append(">");
+        if(purpose != null)
+            bldr.append("<").append(ELEMENT_PURPOSE).append(">").append(
+                    purpose).append("</").append(
+                            ELEMENT_PURPOSE).append(">");
 
         for(PacketExtension ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }
 
-        bldr.append("</").append(ELEMENT_NAME).append(">");
+        bldr.append("</").append(getElementName()).append(">");
 
         return bldr.toString();
     }
