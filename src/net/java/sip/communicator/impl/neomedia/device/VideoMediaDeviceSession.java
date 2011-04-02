@@ -10,8 +10,8 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.media.*;
-import javax.media.format.*;
 import javax.media.control.*;
+import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.swing.*;
 

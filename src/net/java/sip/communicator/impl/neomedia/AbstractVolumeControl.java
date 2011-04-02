@@ -6,14 +6,15 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.event.*;
-import net.java.sip.communicator.util.*;
-
-import javax.media.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+
+import javax.media.*;
+
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Controls media service volume input or output. If a playback volume level

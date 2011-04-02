@@ -7,9 +7,9 @@
 package net.java.sip.communicator.impl.neomedia.transform.rtcp;
 
 import com.sun.media.rtp.*;
+
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
-
 import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.rtp.*;
 
