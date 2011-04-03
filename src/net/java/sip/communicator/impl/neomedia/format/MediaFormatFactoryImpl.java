@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.neomedia.format;
 import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
-import javax.sdp.Attribute;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;

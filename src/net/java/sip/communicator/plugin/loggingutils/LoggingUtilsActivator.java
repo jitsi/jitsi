@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.plugin.loggingutils;
 
-import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;

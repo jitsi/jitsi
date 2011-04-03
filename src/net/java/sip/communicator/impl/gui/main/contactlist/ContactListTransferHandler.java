@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.*;
 import java.util.*;

@@ -236,10 +236,10 @@ public class JmfDeviceDetector
             logger.info("Looking for video capture devices");
 
         //FMJ
-        boolean fmjVideoAvailable = isFMJVideoAvailable();
-
         /* disable LTI-CIVIL for now as we have native capture for all OS */
         /*
+        boolean fmjVideoAvailable = isFMJVideoAvailable();
+
         try
         {
             if(fmjVideoAvailable)

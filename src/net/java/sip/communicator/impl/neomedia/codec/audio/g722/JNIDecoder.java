@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.neomedia.codec.audio.g722;
 import javax.media.*;
 import javax.media.format.*;
 
-import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 
 /**

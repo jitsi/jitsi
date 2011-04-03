@@ -7,7 +7,6 @@ package net.java.sip.communicator.impl.replacement.bliptv;
 
 import java.io.*;
 import java.net.*;
-import java.util.regex.*;
 
 import org.json.*;
 

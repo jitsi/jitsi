@@ -10,7 +10,6 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.replacement.smilies.*;
-import net.java.sip.communicator.service.resources.*;
 
 /**
  * The <tt>Smiley</tt> is used to store a smiley.

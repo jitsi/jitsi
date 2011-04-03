@@ -19,7 +19,6 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.util.*;
 
-import org.jivesoftware.smack.util.StringUtils;
 import org.osgi.framework.*;
 
 /**
