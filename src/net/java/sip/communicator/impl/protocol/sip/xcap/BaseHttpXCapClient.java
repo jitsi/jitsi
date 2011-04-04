@@ -420,6 +420,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             org.apache.http.conn.ssl.SSLSocketFactory ssf
                 = new org.apache.http.conn.ssl.SSLSocketFactory(
                         ctx, new HostNameResolverImpl());
+            ssf.setHostnameVerifier(org.apache.http.conn.ssl.SSLSocketFactory
+                .ALLOW_ALL_HOSTNAME_VERIFIER);
             sr.register(new Scheme("https", ssf, 443));
         }
         catch(Throwable e)

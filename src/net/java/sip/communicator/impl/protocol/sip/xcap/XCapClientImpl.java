@@ -121,7 +121,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
             }
             String xml = ResourceListsParser.toXml(resourceLists);
             XCapResource resource = new XCapResource(resourceId, xml,
-                    XCapCapsClient.CONTENT_TYPE);
+                    ResourceListsClient.RESOURCE_LISTS_CONTENT_TYPE);
             // Put resource-lists to the server
             putResource(resource);
         }
