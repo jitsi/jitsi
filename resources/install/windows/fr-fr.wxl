@@ -18,8 +18,8 @@
   <String Id="ShortcutsAndRegistryDlg_CreateAutoStart" Overridable="yes">Lancer automatiquement quand l’ordinateur démarre</String>
   <String Id="ShortcutsAndRegistryDlg_AssociateProtocols" Overridable="yes">&amp;Protocoles associés</String>
 
-  <String Id="WelcomeText1" Overridable="yes"><![CDATA[Ce logiciel est developpé par la communauté de APP_NAME ]]></String>
-  <String Id="WelcomeText2" Overridable="yes"><![CDATA[Découvrir notre site : APP_WEB]]></String>
+  <String Id="WelcomeText1" Overridable="yes"><![CDATA[Ce logiciel est developpé par la communauté de [ProductName] ]]></String>
+  <String Id="WelcomeText2" Overridable="yes"><![CDATA[Découvrir notre site : @APP_WEB@]]></String>
   <String Id="WelcomeText3" Overridable="yes"></String>
   
   <String Id="ExitDialogOptionaCheckBoxText" Overridable="yes">Launch [ProductName]</String>
