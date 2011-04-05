@@ -20,7 +20,7 @@
 
   <String Id="WelcomeText1" Overridable="yes"><![CDATA[Ce logiciel est developpé par la communauté de APP_NAME ]]></String>
   <String Id="WelcomeText2" Overridable="yes"><![CDATA[Découvrir notre site : APP_WEB]]></String>
-  <String Id="WelcomeText3" Overridable="yes">/String>
+  <String Id="WelcomeText3" Overridable="yes"></String>
   
   <String Id="ExitDialogOptionaCheckBoxText" Overridable="yes">Launch [ProductName]</String>
 </WixLocalization>
