@@ -237,6 +237,11 @@ public class JavaEncoder
             oFormat.getDataType())
         {
             /**
+             * Serial version UID.
+             */
+            private static final long serialVersionUID = 0L;
+
+            /**
              * The length in nanoseconds.
              */
             @Override
@@ -246,7 +251,7 @@ public class JavaEncoder
                 return 20 * 1000000;
             }
         };
-    
+
         encoder = new SpeexEncoder();
 
         int sampleRate = (int) inFormat.getSampleRate();

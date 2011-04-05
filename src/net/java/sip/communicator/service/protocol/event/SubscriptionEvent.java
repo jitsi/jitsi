@@ -93,6 +93,8 @@ public class SubscriptionEvent
      * is located
      * @param eventID one of the SUBSCRIPTION_XXX static fields indicating the
      * nature of the event.
+     * @param errorCode the error code
+     * @param errorReason the error reason string
      */
     public SubscriptionEvent( Contact source,
                        ProtocolProviderService provider,

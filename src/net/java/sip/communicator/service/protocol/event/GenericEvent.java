@@ -19,6 +19,11 @@ public class GenericEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The contact which is the source of this event.
      */
     private Contact from;
@@ -34,7 +39,7 @@ public class GenericEvent
     private String eventValue;
 
     /**
-     * The source contact for this event. 
+     * The source contact for this event.
      */
     private Contact sourceContact;
 
@@ -82,7 +87,7 @@ public class GenericEvent
 
     /**
      * The contact which is the source of this event.
-     * @return the contact which is the source of this event.  
+     * @return the contact which is the source of this event.
      */
     public Contact getFrom()
     {
@@ -107,7 +112,7 @@ public class GenericEvent
     public String toString()
     {
         return "GenericEvent from:" + from + " - eventName:"+ eventName
-                + " eventValue:" + eventValue; 
+                + " eventValue:" + eventValue;
     }
 
     /**

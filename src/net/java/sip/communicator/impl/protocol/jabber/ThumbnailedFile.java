@@ -10,12 +10,17 @@ import java.io.*;
 
 /**
  * A <tt>ThumbnailedFile</tt> is a file with a thumbnail.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ThumbnailedFile
     extends File
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final int thumbnailWidth;
 
     private final int thumbnailHeight;

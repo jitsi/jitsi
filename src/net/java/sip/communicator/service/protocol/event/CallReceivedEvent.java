@@ -23,11 +23,21 @@ public class CallReceivedEvent
      */
     private static final long serialVersionUID = 0L;
 
+    /**
+     * Constructor.
+     *
+     * @param call the <tt>Call</tt> received
+     */
     public CallReceivedEvent(Call call)
     {
         super(call);
     }
 
+    /**
+     * Returns the received call.
+     *
+     * @return received <tt>Call</tt>
+     */
     public Call getCall()
     {
         return (Call) getSource();

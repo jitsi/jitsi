@@ -20,6 +20,11 @@ public class MessageWaitingEvent
         extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The URI we can use to reach messages from provider that is firing
      * the event.
      */

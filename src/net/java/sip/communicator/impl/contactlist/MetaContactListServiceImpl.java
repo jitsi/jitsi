@@ -3008,7 +3008,7 @@ public class MetaContactListServiceImpl
         /**
          * Called whoever an indication is received that a new server stored
          * group is created.
-         * @param evt a ServerStoredGroupChangeEvent containing a reference to
+         * @param event a ServerStoredGroupChangeEvent containing a reference to
          * the newly created group.
          */
         public synchronized void groupCreated(ServerStoredGroupEvent event)
@@ -3022,21 +3022,21 @@ public class MetaContactListServiceImpl
 
         /**
          * Evens delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void groupRemoved(ServerStoredGroupEvent event)
         {}
 
         /**
          * Evens delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void groupNameChanged(ServerStoredGroupEvent event)
         {}
 
         /**
          * Evens delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void groupResolved(ServerStoredGroupEvent event)
         {}
@@ -3080,21 +3080,21 @@ public class MetaContactListServiceImpl
 
         /**
          * Events delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void groupResolved(ServerStoredGroupEvent event)
         {}
 
         /**
          * Events delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void groupRemoved(ServerStoredGroupEvent event)
         {}
 
         /**
          * Events delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void groupNameChanged(ServerStoredGroupEvent event)
         {}
@@ -3148,7 +3148,7 @@ public class MetaContactListServiceImpl
 
         /**
          * Events delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void subscriptionRemoved(SubscriptionEvent event)
         {}
@@ -3172,21 +3172,21 @@ public class MetaContactListServiceImpl
 
         /**
          * Events delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void subscriptionMoved(SubscriptionMovedEvent event)
         {}
 
         /**
          * Events delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void subscriptionResolved(SubscriptionEvent event)
         {}
 
         /**
          * Events delivered through this method are ignored
-         * @param evt param ignored
+         * @param event param ignored
          */
         public void contactModified(ContactPropertyChangeEvent event)
         {}
@@ -3218,7 +3218,7 @@ public class MetaContactListServiceImpl
     /**
      * Notifies this listener that the list of the <tt>OperationSet</tt>
      * capabilities of a <tt>Contact</tt> has changed.
-     * 
+     *
      * @param event a <tt>ContactCapabilitiesEvent</tt> with ID
      * {@link ContactCapabilitiesEvent#SUPPORTED_OPERATION_SETS_CHANGED} which
      * specifies the <tt>Contact</tt> whose list of <tt>OperationSet</tt>

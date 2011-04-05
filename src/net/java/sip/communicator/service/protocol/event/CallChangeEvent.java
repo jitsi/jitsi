@@ -114,6 +114,8 @@ public class CallChangeEvent
     /**
      * The event which was the cause for current event, like last peer
      * removed from call will hangup current call, if any, otherwise is null.
+     *
+     * @return <tt>CallPeerChangeEvent</tt> that represents the cause
      */
     public CallPeerChangeEvent getCause()
     {

@@ -29,7 +29,11 @@ public class DataSource
     protected AlsaStream [] streams = null;
     protected AlsaStream stream = null;
 
-    public DataSource() {
+    /**
+     * Constructs a new ALSA <tt>DataSource</tt>.
+     */
+    public DataSource()
+    {
     }
 
     /**
@@ -37,59 +41,65 @@ public class DataSource
      *
      * @return "raw"
      */
-    public String getContentType() {
-    if (!connected){
+    public String getContentType()
+    {
+        if (!connected)
+        {
             System.err.println("Error: DataSource not connected");
             return null;
         }
-    return contentType;
+        return contentType;
     }
 
     /**
      * Connect the datasource
      */
-    public void connect() throws IOException {
-     if (connected)
+    public void connect() throws IOException
+    {
+        if (connected)
             return;
-     connected = true;
+        connected = true;
     }
 
     /**
      * Disconnect the datasource
      */
-    public void disconnect() {
-    try {
+    public void disconnect()
+    {
+        try
+        {
             if (started)
                 stop();
-        } catch (IOException e) {}
-    connected = false;
+        }
+        catch (IOException e) {}
+        connected = false;
     }
 
     /**
      * Start the datasource and the underlying stream
      */
-    public void start() throws IOException {
+    public void start() throws IOException
+    {
         if (!connected)
             throw new java.lang.Error("DataSource must be connected");
 
         if (started)
             return;
 
-    started = true;
-    stream.start(true);
+        started = true;
+        stream.start(true);
     }
 
     /**
      * Stop the datasource and it's underlying stream
      */
-    public void stop() throws IOException {
+    public void stop() throws IOException
+    {
+        if ((!connected) || (!started))
+            return;
 
-    if ((!connected) || (!started))
-        return;
-
-    started = false;
-    stream.start(false);
-
+        started = false;
+        stream.start(false);
     }
 
     /**
@@ -116,8 +126,9 @@ public class DataSource
      *
      * @return DURATION_UNKNOWN
      */
-    public Time getDuration() {
-    return duration;
+    public Time getDuration()
+    {
+        return duration;
     }
 
     /**
@@ -128,12 +139,13 @@ public class DataSource
      *
      * @return Array of one stream
      */
-    public PushBufferStream [] getStreams() {
-    if (streams == null) {
-        streams = new AlsaStream[1];
-        stream = streams[0] = new AlsaStream();
+    public PushBufferStream [] getStreams()
+    {
+        if (streams == null)
+        {
+            streams = new AlsaStream[1];
+            stream = streams[0] = new AlsaStream();
+        }
+        return streams;
     }
-    return streams;
-    }
-
 }

@@ -24,10 +24,15 @@ import net.java.sip.communicator.util.swing.*;
  * @author Dmitri Melnikov
  */
 public class CallRecordingConfigForm
-    extends TransparentPanel 
+    extends TransparentPanel
     implements ActionListener,
                DocumentListener
 {
+    /**
+     * Sesrial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The <tt>Logger</tt> used by the <tt>CallRecordingConfigForm</tt> class
      * and its instances for logging output.
@@ -58,7 +63,7 @@ public class CallRecordingConfigForm
     private JTextField callDirTextField;
     private JComboBox formatsComboBox;
     private JCheckBox saveCallsToCheckBox;
-    
+
     /**
      * Creates an instance of the <tt>CallConfigurationPanel</tt>.
      * Checks for the <tt>SAVED_CALLS_PATH</tt> and sets it if it does not
@@ -124,7 +129,7 @@ public class CallRecordingConfigForm
         labelsPanel.add(formatsLabel);
         labelsPanel.add(saveCallsToCheckBox);
 
-        // saved calls directory panel 
+        // saved calls directory panel
         JPanel callDirPanel = new TransparentPanel(new BorderLayout());
 
         callDirTextField = new JTextField();
@@ -157,7 +162,7 @@ public class CallRecordingConfigForm
 
     /**
      * Creates a combo box with supported audio formats.
-     * 
+     *
      * @return a combo box with supported audio formats
      */
     private Component createFormatsComboBox()
@@ -187,7 +192,7 @@ public class CallRecordingConfigForm
     /**
      * Indicates that one of the contained in this panel components has
      * performed an action.
-     * 
+     *
      * @param e the <tt>ActionEvent</tt> that notified us
      */
     public void actionPerformed(ActionEvent e)
@@ -236,7 +241,7 @@ public class CallRecordingConfigForm
 
     /**
      * Sets the new directory for the saved calls to <tt>dir</tt>.
-     * 
+     *
      * @param dir the new chosen directory
      * @param changeCallDirTextField whether we will set the directory
      * path in callDirTextField.
@@ -253,7 +258,7 @@ public class CallRecordingConfigForm
             NeomediaActivator
                 .getConfigurationService()
                     .setProperty(Recorder.SAVED_CALLS_PATH, savedCallsDir);
-            
+
             if (logger.isDebugEnabled())
                 logger.debug("Calls directory changed to " + savedCallsDir);
             return true;

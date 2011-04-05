@@ -30,6 +30,11 @@ public class AdvancedConfigurationPanel
                 ListSelectionListener
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>Logger</tt> used by this <tt>AdvancedConfigurationPanel</tt> for
      * logging output.
      */
@@ -167,7 +172,7 @@ public class AdvancedConfigurationPanel
     }
 
     /**
-     * Adds a new <tt>ConfigurationForm</tt> to this list. 
+     * Adds a new <tt>ConfigurationForm</tt> to this list.
      * @param configForm The <tt>ConfigurationForm</tt> to add.
      */
     public void addConfigForm(ConfigurationForm configForm)
@@ -206,7 +211,7 @@ public class AdvancedConfigurationPanel
     }
 
     /**
-     * Removes a <tt>ConfigurationForm</tt> from this list. 
+     * Removes a <tt>ConfigurationForm</tt> from this list.
      * @param configForm The <tt>ConfigurationForm</tt> to remove.
      */
     public void removeConfigForm(ConfigurationForm configForm)
@@ -234,6 +239,11 @@ public class AdvancedConfigurationPanel
      */
     private class ConfigListCellRenderer extends DefaultListCellRenderer
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private boolean isSelected = false;
 
         private final Color selectedColor

@@ -703,7 +703,7 @@ public class SipCommunicatorLock extends Thread
          * would handle parameters received through the
          * <tt>connectionSocket</tt>.
          *
-         * @param connectedSocket
+         * @param connectionSocket
          *            the socket that we will be using to read arguments from
          *            the remote SIP Communicator instance.
          */

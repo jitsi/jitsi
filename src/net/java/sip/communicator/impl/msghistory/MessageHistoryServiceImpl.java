@@ -71,7 +71,7 @@ public class MessageHistoryServiceImpl
     private Object syncRoot_HistoryService = new Object();
 
     private Hashtable<MessageHistorySearchProgressListener,
-        HistorySearchProgressListener> progressListeners = 
+        HistorySearchProgressListener> progressListeners =
             new Hashtable<MessageHistorySearchProgressListener,
             HistorySearchProgressListener>();
 
@@ -103,7 +103,7 @@ public class MessageHistoryServiceImpl
                                                     Date startDate)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = 
+        TreeSet<EventObject> result =
             new TreeSet<EventObject>(new MessageEventComparator<EventObject>());
         // get the readers for this contact
         Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
@@ -553,7 +553,7 @@ public class MessageHistoryServiceImpl
             account.getService(),
             room.getName());
     }
-    
+
     /**
      * Returns the history by specified local contact
      * (if is null the default is used)
@@ -973,7 +973,7 @@ public class MessageHistoryServiceImpl
             logger.error("Could not add message to history", e);
         }
     }
-    
+
     /**
      * Writes a message to the history.
      * @param history The history to which will write the message
@@ -1849,6 +1849,11 @@ public class MessageHistoryServiceImpl
         return resultAsList.subList(startIndex, resultAsList.size());
     }
 
+    /**
+     * Get <tt>ResourceManagementService<tt> registered.
+     *
+     * @return <tt>ResourceManagementService</tt>
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)
@@ -2204,7 +2209,7 @@ public class MessageHistoryServiceImpl
         }
     }
 
-    public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt) 
+    public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt)
     {
         try
         {
@@ -2245,8 +2250,8 @@ public class MessageHistoryServiceImpl
      * Called to notify interested parties that a change in our presence in
      * an ad-hoc chat room has occurred. Changes may include us being join,
      * left.
-     * @param evt the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt> 
-     * instance containing the ad-hoc chat room and the type, and reason of the 
+     * @param evt the <tt>LocalUserAdHocChatRoomPresenceChangeEvent</tt>
+     * instance containing the ad-hoc chat room and the type, and reason of the
      * change
      */
     public void localUserAdHocPresenceChanged(

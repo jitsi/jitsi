@@ -107,8 +107,9 @@ public class JNIEncoder
     }
 
     /**
+     * Get the output <tt>Format</tt>.
      *
-     * @return
+     * @return output <tt>Format</tt> configured for this <tt>Codec</tt>
      * @see net.sf.fmj.media.AbstractCodec#getOutputFormat()
      */
     @Override
@@ -133,6 +134,8 @@ public class JNIEncoder
                             outputAudioFormat.getFrameRate(),
                             outputAudioFormat.getDataType())
                         {
+                            private static final long serialVersionUID = 0L;
+
                             @Override
                             public long computeDuration(long length)
                             {

@@ -137,6 +137,7 @@ public class OperationSetDesktopSharingClientJabberImpl
         inputIQ.setFrom(parentProvider.getOurJID());
         inputIQ.setTo(callPeer.getAddress());
         inputIQ.addRemoteControl(payload);
+
         parentProvider.getConnection().sendPacket(inputIQ);
     }
 

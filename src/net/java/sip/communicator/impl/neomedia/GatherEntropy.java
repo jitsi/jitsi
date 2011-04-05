@@ -73,6 +73,12 @@ public class GatherEntropy
      */
     private static final int NUM_OF_SECONDS = 2;
 
+    /**
+     * Constructor.
+     *
+     * @param deviceConfiguration <tt>DeviceConfiguration</tt> needed to
+     * initialize <tt>GatherEntropy</tt>
+     */
     public GatherEntropy(DeviceConfiguration deviceConfiguration)
     {
         this.deviceConfiguration = deviceConfiguration;

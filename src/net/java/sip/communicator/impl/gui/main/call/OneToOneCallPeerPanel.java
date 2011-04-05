@@ -1643,8 +1643,8 @@ public class OneToOneCallPeerPanel
             if (!closeButton.isVisible())
             {
                 Component c = (Component) event.getSource();
-                closeButton.setLocation( 
-                    c.getX() + c.getWidth() - closeButton.getWidth() - 3, 
+                closeButton.setLocation(
+                    c.getX() + c.getWidth() - closeButton.getWidth() - 3,
                     c.getY() + 3);
                 closeButton.setVisible(true);
             }

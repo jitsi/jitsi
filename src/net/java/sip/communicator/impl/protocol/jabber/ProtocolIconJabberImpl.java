@@ -19,7 +19,7 @@ import org.osgi.framework.*;
 /**
  * Represents the Jabber protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide a Jabber icon image in two different sizes.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -28,18 +28,18 @@ public class ProtocolIconJabberImpl
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ProtocolIconJabberImpl</tt> class and
-     * its instances for logging output. 
+     * its instances for logging output.
      */
     private static final Logger logger
-        = Logger.getLogger(ProtocolIconJabberImpl.class); 
+        = Logger.getLogger(ProtocolIconJabberImpl.class);
 
     /**
      * The path where all protocol icons are placed.
      */
     private final String iconPath;
-    
+
     private static ResourceManagementService resourcesService;
-    
+
     /**
      * A hash table containing the protocol icon in different sizes.
      */
@@ -55,7 +55,7 @@ public class ProtocolIconJabberImpl
     /**
      * Creates an instance of this class by passing to it the path, where all
      * protocol icons are placed.
-     * 
+     *
      * @param iconPath the protocol icon path
      */
     public ProtocolIconJabberImpl(String iconPath)
@@ -77,10 +77,10 @@ public class ProtocolIconJabberImpl
         iconPathsTable.put(ProtocolIcon.ICON_SIZE_32x32,
             iconPath + "/logo32x32.png");
 
-        iconPathsTable.put(ProtocolIcon.ICON_SIZE_48x48, 
+        iconPathsTable.put(ProtocolIcon.ICON_SIZE_48x48,
             iconPath + "/logo48x48.png");
     }
- 
+
     /**
      * Implements the <tt>ProtocolIcon.getSupportedSizes()</tt> method. Returns
      * an iterator to a set containing the supported icon sizes.
@@ -93,14 +93,14 @@ public class ProtocolIconJabberImpl
 
     /**
      * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
-     * 
+     *
      * @return TRUE if a icon with the given size is supported, FALSE-otherwise.
      */
     public boolean isSizeSupported(String iconSize)
     {
         return iconsTable.containsKey(iconSize);
     }
-    
+
     /**
      * Returns the icon image in the given size.
      * @param iconSize the icon size; one of ICON_SIZE_XXX constants
@@ -128,16 +128,16 @@ public class ProtocolIconJabberImpl
     {
         return loadIcon(iconPath + "/status16x16-connecting.gif");
     }
-    
+
     /**
      * Loads an image from a given image path.
      * @param imagePath The identifier of the image.
      * @return The image for the given identifier.
      */
     public static byte[] loadIcon(String imagePath) {
-        
+
         InputStream is = null;
-        
+
         try
         {
             // try to load path it maybe valid url
@@ -145,10 +145,10 @@ public class ProtocolIconJabberImpl
         }
         catch (Exception e)
         {}
-        
+
         if(is == null)
             is = getResources().getImageInputStreamForPath(imagePath);
-        
+
         byte[] icon = null;
         try {
             icon = new byte[is.available()];
@@ -157,8 +157,13 @@ public class ProtocolIconJabberImpl
             logger.error("Failed to load icon: " + imagePath, e);
         }
         return icon;
-    } 
-    
+    }
+
+    /**
+     * Get the <tt>ResourceMaangementService</tt> registered.
+     *
+     * @return <tt>ResourceManagementService</tt> registered
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

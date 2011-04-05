@@ -78,6 +78,7 @@ public abstract class AbstractOperationSetBasicTelephony
      *
      * @param eventID the ID of the event to dispatch
      * @param sourceCall the call on which the event has occurred.
+     * @param mediaTypes list of media types
      */
     public void fireCallEvent(int eventID, Call sourceCall,
                   List<MediaType> mediaTypes)

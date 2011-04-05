@@ -96,6 +96,11 @@ public class Packetizer
         return controls;
     }
 
+    /**
+     * Set packet size.
+     *
+     * @param newPacketSize new packet size for this <tt>Packetizer</tt>
+     */
     public synchronized void setPacketSize(int newPacketSize)
     {
         packetSize = newPacketSize;

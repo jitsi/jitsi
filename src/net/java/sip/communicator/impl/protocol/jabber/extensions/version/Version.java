@@ -15,7 +15,14 @@ import org.jivesoftware.smack.packet.*;
 public class Version
     implements PacketExtension
 {
+    /**
+     * Element name.
+     */
     public static final String ELEMENT_NAME = "c";
+
+    /**
+     * Namespace.
+     */
     public static final String NAMESPACE = "http://jabber.org/protocol/caps";
 
     /**

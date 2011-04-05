@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * on all players. Implements interface exposed from media service, also
  * implements the interface used in the Renderer part of JMF and merges the two
  * functionalities to work as one.
- * 
+ *
  * @author Damian Minkov
  */
 public abstract class AbstractVolumeControl
@@ -98,7 +98,7 @@ public abstract class AbstractVolumeControl
             if(initialLevel != null)
             {
                 currentVolumeLevel = Float.valueOf(initialLevel);
-                initialVolumeLevel = currentVolumeLevel; 
+                initialVolumeLevel = currentVolumeLevel;
 
                 if(logger.isDebugEnabled())
                     logger.debug("Restore volume: "
@@ -271,7 +271,7 @@ public abstract class AbstractVolumeControl
         db = (float)((Math.log((double)f1 != 0.0D ?
                 f1
                 : 0.0001D) / Math.log(10D)) * 20D);
-        
+
         fireGainEvents();
 
         return this.currentVolumeLevel;
@@ -449,7 +449,7 @@ public abstract class AbstractVolumeControl
 
     /**
      * Not used.
-     * @return
+     * @return null
      */
     public Component getControlComponent()
     {
