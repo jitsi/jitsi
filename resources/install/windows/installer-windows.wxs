@@ -10,21 +10,23 @@
 <Product
     Id="*"
     Language="1033"
+    Codepage='$(var.codepage)'
     Manufacturer="@APP_NAME@"
     Name="@APP_NAME@"
     UpgradeCode="@WIX_UPGRADE_CODE@"
     Version="1.0.0.0">
 
+<!-- in Language we list all languages we support for localize -->
 <Package
     Comments="@PKG_COMMENTS@"
     Compressed="yes"
     Description="@PKG_DESCRIPTION@"
     InstallerVersion="200"
     InstallScope="perMachine"
-    Languages="1033"
+    Languages="1033,1036"
     Manufacturer="@APP_NAME@"
     Platform="$(var.Platform)"
-    SummaryCodepage="1252" />
+    SummaryCodepage='$(var.codepage)' />
 
 <Upgrade Id="@WIX_UPGRADE_CODE@">
   <UpgradeVersion
@@ -166,12 +168,12 @@
                 <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
                 <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
 
-                <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="60" Width="330" Height="65" Text="&amp;Create Shortcuts" />
-                <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="75" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="S&amp;tart Menu" />
-                <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="90" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="&amp;Desktop" />
-                <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="105" Width="320" Height="15" Property="HAS_STARTUP_REGISTRY" CheckBoxValue="1" Text="&amp;Auto-start when computer restarts or reboots" />
+                <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="60" Width="330" Height="65" Text="!(loc.ShortcutsAndRegistryDlg_CreateShortcuts)" />
+                <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="75" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateStartMenu)" />
+                <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="90" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateDesktop)" />
+                <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="105" Width="320" Height="15" Property="HAS_STARTUP_REGISTRY" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateAutoStart)" />
 
-                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="130" Width="330" Height="50" Text="&amp;Associate Protocols" />
+                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="130" Width="330" Height="50" Text="!(loc.ShortcutsAndRegistryDlg_AssociateProtocols)" />
                 <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="145" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
 <!--
   The RSS plug-in has been removed from SIP Communicator so it no longer makes
@@ -442,7 +444,7 @@
 <Property Id="IS_AUTOUPDATE" Value="0" Hidden="yes" />
 <Property Id="WixShellExecTarget" Value="[#run.exe]" />
 <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
-<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch @APP_NAME@" />
+<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.ExitDialogOptionaCheckBoxText)" />
 <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
 <?include windows_shortcut_specification.wxi ?>

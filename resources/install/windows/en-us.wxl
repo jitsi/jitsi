@@ -12,7 +12,15 @@
   <String Id="ShortcutsAndRegistryDlgDescription" Overridable="yes">Which additional tasks should be done?</String>
   <String Id="ShortcutsAndRegistryDlgTitle" Overridable="yes">{\WixUI_Font_Title}Additional Tasks</String>
 
+  <String Id="ShortcutsAndRegistryDlg_CreateShortcuts" Overridable="yes">&amp;Create Shortcuts</String>  
+  <String Id="ShortcutsAndRegistryDlg_CreateStartMenu" Overridable="yes">S&amp;tart Menu</String>
+  <String Id="ShortcutsAndRegistryDlg_CreateDesktop" Overridable="yes">&amp;Desktop</String>
+  <String Id="ShortcutsAndRegistryDlg_CreateAutoStart" Overridable="yes">&amp;Auto-start when computer restarts or reboots</String>
+  <String Id="ShortcutsAndRegistryDlg_AssociateProtocols" Overridable="yes">&amp;Associate Protocols</String>
+
   <String Id="WelcomeText1" Overridable="yes"><![CDATA[@WelcomeText1@]]></String>
   <String Id="WelcomeText2" Overridable="yes"><![CDATA[@WelcomeText2@]]></String>
   <String Id="WelcomeText3" Overridable="yes">{\GreyText}@WelcomeText3@</String>
+  
+  <String Id="ExitDialogOptionaCheckBoxText" Overridable="yes">Launch [ProductName]</String>
 </WixLocalization>
