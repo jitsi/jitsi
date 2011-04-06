@@ -27,6 +27,8 @@ public class SIPCommButton
 
     private Image pressedImage;
 
+    private Image rolloverImage;
+
     private Image iconImage;
 
     /**
@@ -41,10 +43,12 @@ public class SIPCommButton
      * Creates a button with custom background image and icon image.
      *
      * @param bgImage       The background image.
+     * @param rolloverImage The rollover image.
      * @param pressedImage  The pressed image.
      * @param iconImage     The icon.
      */
     public SIPCommButton(   Image bgImage,
+                            Image rolloverImage,
                             Image pressedImage,
                             Image iconImage)
     {
@@ -61,6 +65,7 @@ public class SIPCommButton
         this.setContentAreaFilled(false);
 
         this.bgImage = bgImage;
+        this.rolloverImage = rolloverImage;
         this.pressedImage = pressedImage;
         this.iconImage = iconImage;
 
@@ -71,6 +76,20 @@ public class SIPCommButton
 
             this.setIcon(new ImageIcon(this.bgImage));
         }
+    }
+
+    /**
+     * Creates a button with custom background image and icon image.
+     *
+     * @param bgImage       The background image.
+     * @param pressedImage  The pressed image.
+     * @param iconImage     The icon.
+     */
+    public SIPCommButton(   Image bgImage,
+                            Image pressedImage,
+                            Image iconImage)
+    {
+        this(bgImage, null, pressedImage, iconImage);
     }
 
     /**
@@ -181,32 +200,40 @@ public class SIPCommButton
                     this);
             }
         }
-
-        // Paint a roll over fade out.
-        FadeTracker fadeTracker = FadeTracker.getInstance();
-
-        float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
-        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
+        else if (this.getModel().isRollover() && this.rolloverImage != null)
         {
-            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
+            g.drawImage(this.rolloverImage, 0, 0, this);
         }
 
-        visibility /= 2;
-
-        g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
-
-        if (this.bgImage != null)
+        if (rolloverImage == null)
         {
-            g.fillRoundRect(
-                this.getWidth() / 2 - this.bgImage.getWidth(null) / 2,
-                this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
-                bgImage.getWidth(null),
-                bgImage.getHeight(null),
-                10, 10);
-        }
-        else if (isContentAreaFilled() || (visibility != 0.0f))
-        {
-            g.fillRoundRect(0, 0, this.getWidth(), this.getHeight(), 10, 10);
+         // Paint a roll over fade out.
+            FadeTracker fadeTracker = FadeTracker.getInstance();
+
+            float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
+            if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
+            {
+                visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
+            }
+
+            visibility /= 2;
+
+            g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
+
+            if (this.bgImage != null)
+            {
+                g.fillRoundRect(
+                    this.getWidth() / 2 - this.bgImage.getWidth(null) / 2,
+                    this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
+                    bgImage.getWidth(null),
+                    bgImage.getHeight(null),
+                    10, 10);
+            }
+            else if (isContentAreaFilled() || (visibility != 0.0f))
+            {
+                g.fillRoundRect(
+                    0, 0, this.getWidth(), this.getHeight(), 10, 10);
+            }
         }
 
         if (this.iconImage != null)
@@ -263,6 +290,16 @@ public class SIPCommButton
     public void setPressedImage(Image pressedImage)
     {
         this.pressedImage = pressedImage;
+    }
+
+    /**
+     * Sets the rollover image of this button.
+     *
+     * @param rolloverImage the rollover image of this button.
+     */
+    public void setRolloverImage(Image rolloverImage)
+    {
+        this.rolloverImage = rolloverImage;
     }
 
     /**
