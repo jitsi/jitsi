@@ -27,7 +27,9 @@ public class SIPCommButton
 
     private Image pressedImage;
 
-    private Image rolloverImage;
+    private Image rolloverIconImage;
+
+    private Image pressedIconImage;
 
     private Image iconImage;
 
@@ -43,14 +45,16 @@ public class SIPCommButton
      * Creates a button with custom background image and icon image.
      *
      * @param bgImage       The background image.
-     * @param rolloverImage The rollover image.
      * @param pressedImage  The pressed image.
      * @param iconImage     The icon.
+     * @param rolloverIconImage The rollover icon image.
+     * @param pressedIconImage The pressed icon image.
      */
     public SIPCommButton(   Image bgImage,
-                            Image rolloverImage,
                             Image pressedImage,
-                            Image iconImage)
+                            Image iconImage,
+                            Image rolloverIconImage,
+                            Image pressedIconImage)
     {
         MouseRolloverHandler mouseHandler = new MouseRolloverHandler();
 
@@ -61,11 +65,11 @@ public class SIPCommButton
          * Explicitly remove all borders that may be set from the current look
          * and feel.
          */
-        this.setBorder(null);
         this.setContentAreaFilled(false);
 
         this.bgImage = bgImage;
-        this.rolloverImage = rolloverImage;
+        this.rolloverIconImage = rolloverIconImage;
+        this.pressedIconImage = pressedIconImage;
         this.pressedImage = pressedImage;
         this.iconImage = iconImage;
 
@@ -89,7 +93,7 @@ public class SIPCommButton
                             Image pressedImage,
                             Image iconImage)
     {
-        this(bgImage, null, pressedImage, iconImage);
+        this(bgImage, pressedImage, iconImage, null, null);
     }
 
     /**
@@ -186,59 +190,50 @@ public class SIPCommButton
         }
 
         // Paint pressed state.
-        if (this.getModel().isPressed())
+        if (this.getModel().isPressed() && this.pressedImage != null)
         {
-            if (this.pressedImage != null)
-            {
-                g.drawImage(this.pressedImage, 0, 0, this);
-            }
-            else if (this.iconImage != null)
-            {
-                g.drawImage(this.iconImage,
-                    this.getWidth()/2 - this.iconImage.getWidth(null)/2 + 1,
-                    this.getHeight()/2 - this.iconImage.getHeight(null)/2 + 1,
-                    this);
-            }
-        }
-        else if (this.getModel().isRollover() && this.rolloverImage != null)
-        {
-            g.drawImage(this.rolloverImage, 0, 0, this);
+            g.drawImage(this.pressedImage, 0, 0, this);
         }
 
-        if (rolloverImage == null)
+        // Paint a roll over fade out.
+        FadeTracker fadeTracker = FadeTracker.getInstance();
+
+        float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
+        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
         {
-         // Paint a roll over fade out.
-            FadeTracker fadeTracker = FadeTracker.getInstance();
-
-            float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
-            if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
-            {
-                visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
-            }
-
-            visibility /= 2;
-
-            g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
-
-            if (this.bgImage != null)
-            {
-                g.fillRoundRect(
-                    this.getWidth() / 2 - this.bgImage.getWidth(null) / 2,
-                    this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
-                    bgImage.getWidth(null),
-                    bgImage.getHeight(null),
-                    10, 10);
-            }
-            else if (isContentAreaFilled() || (visibility != 0.0f))
-            {
-                g.fillRoundRect(
-                    0, 0, this.getWidth(), this.getHeight(), 10, 10);
-            }
+            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
         }
 
-        if (this.iconImage != null)
+        visibility /= 2;
+
+        g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
+
+        if (this.bgImage != null)
         {
-            Image paintIconImage;
+            g.fillRoundRect(
+                this.getWidth() / 2 - this.bgImage.getWidth(null) / 2,
+                this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
+                bgImage.getWidth(null),
+                bgImage.getHeight(null),
+                10, 10);
+        }
+        else if (isContentAreaFilled() || (visibility != 0.0f))
+        {
+            g.fillRoundRect(
+                0, 0, this.getWidth(), this.getHeight(), 10, 10);
+        }
+
+        Image paintIconImage = null;
+        if (getModel().isPressed() && pressedIconImage != null)
+        {
+            paintIconImage = pressedIconImage;
+        }
+        else if (this.getModel().isRollover() && rolloverIconImage != null)
+        {
+            paintIconImage = rolloverIconImage;
+        }
+        else if (this.iconImage != null)
+        {
             if (!isEnabled())
             {
                 paintIconImage = new ImageIcon(LightGrayFilter
@@ -246,12 +241,13 @@ public class SIPCommButton
             }
             else
                 paintIconImage = iconImage;
-
-            g.drawImage(paintIconImage,
-                        this.getWidth()/2 - this.iconImage.getWidth(null)/2,
-                        this.getHeight()/2 - this.iconImage.getHeight(null)/2,
-                        this);
         }
+
+        if (paintIconImage != null)
+            g.drawImage(paintIconImage,
+                this.getWidth()/2 - this.iconImage.getWidth(null)/2,
+                this.getHeight()/2 - this.iconImage.getHeight(null)/2,
+                this);
     }
 
     /**
@@ -293,13 +289,23 @@ public class SIPCommButton
     }
 
     /**
-     * Sets the rollover image of this button.
+     * Sets the rollover icon image of this button.
      *
-     * @param rolloverImage the rollover image of this button.
+     * @param rolloverIconImage the rollover icon image of this button.
      */
-    public void setRolloverImage(Image rolloverImage)
+    public void setRolloverIcon(Image rolloverIconImage)
     {
-        this.rolloverImage = rolloverImage;
+        this.rolloverIconImage = rolloverIconImage;
+    }
+
+    /**
+     * Sets the pressed icon image of this button.
+     *
+     * @param pressedIconImage the pressed icon image of this button.
+     */
+    public void setPressedIcon(Image pressedIconImage)
+    {
+        this.pressedIconImage = pressedIconImage;
     }
 
     /**
