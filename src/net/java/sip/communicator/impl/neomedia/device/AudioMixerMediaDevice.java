@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
  * Implements a <tt>MediaDevice</tt> which performs audio mixing using
  * {@link AudioMixer}.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Emil Ivov
  */
 public class AudioMixerMediaDevice
@@ -83,17 +83,28 @@ public class AudioMixerMediaDevice
         = new AudioLevelEventDispatcher();
 
     /**
-     * The <tt>List</tt> where we store all listeners interested in changes
-     * of the local audio level and the number of times each one of them has
-     * been added. We wrap listeners because we may have multiple subscriptions
-     * with the same listener and we would only store it once. If one of the
-     * multiple subscriptions of a particular listener is removed, however,
-     * we wouldn't want to reset the listener to <tt>null</tt> as there are
-     * others still interested, and hence the refCounter in the wrapper.
+     * The <tt>List</tt> where we store all listeners interested in changes of
+     * the local audio level and the number of times each one of them has been
+     * added. We wrap listeners because we may have multiple subscriptions with
+     * the same listener and we would only store it once. If one of the multiple
+     * subscriptions of a particular listener is removed, however, we wouldn't
+     * want to reset the listener to <tt>null</tt> as there are others still
+     * interested, and hence the <tt>referenceCount</tt> in the wrapper.
+     * <p>
+     * <b>Note</b>: <tt>localUserAudioLevelListeners</tt> is a copy-on-write
+     * storage and access to it is synchronized by
+     * {@link #localUserAudioLevelListenersSyncRoot}.
+     * </p>
      */
-    private final List<SimpleAudioLevelListenerWrapper>
+    private List<SimpleAudioLevelListenerWrapper>
         localUserAudioLevelListeners
             = new ArrayList<SimpleAudioLevelListenerWrapper>();
+
+    /**
+     * The <tt>Object</tt> which synchronizes the access to
+     * {@link #localUserAudioLevelListeners}.
+     */
+    private final Object localUserAudioLevelListenersSyncRoot = new Object();
 
     /**
      * The levels map that we use to cache last measured audio levels for all
@@ -213,7 +224,13 @@ public class AudioMixerMediaDevice
      */
     private void fireLocalUserAudioLevelException(int level)
     {
-        synchronized(localUserAudioLevelListeners)
+        List<SimpleAudioLevelListenerWrapper> localUserAudioLevelListeners;
+
+        synchronized(localUserAudioLevelListenersSyncRoot)
+        {
+            localUserAudioLevelListeners = this.localUserAudioLevelListeners;
+        }
+
         {
             /*
              * XXX These events are going to happen veeery often (~50 times per
@@ -223,8 +240,8 @@ public class AudioMixerMediaDevice
                 = localUserAudioLevelListeners.size();
 
             for(int i = 0; i < localUserAudioLevelListenerCount; i++)
-                localUserAudioLevelListeners
-                    .get(i).listener.audioLevelChanged(level);
+                localUserAudioLevelListeners.get(i).listener.audioLevelChanged(
+                        level);
         }
     }
 
@@ -276,7 +293,7 @@ public class AudioMixerMediaDevice
                          * The audio of the very CaptureDevice to be contributed
                          * to the mix.
                          */
-                        synchronized(localUserAudioLevelListeners)
+                        synchronized(localUserAudioLevelListenersSyncRoot)
                         {
                             if (localUserAudioLevelListeners.isEmpty())
                                 return;
@@ -458,7 +475,7 @@ public class AudioMixerMediaDevice
          */
         public void addLocalUserAudioLevelListener(SimpleAudioLevelListener l)
         {
-            synchronized(localUserAudioLevelListeners)
+            synchronized(localUserAudioLevelListenersSyncRoot)
             {
                 //if this is the first listener that we are seeing then we also
                 //need to create the dispatcher.
@@ -475,15 +492,26 @@ public class AudioMixerMediaDevice
                 //check if this listener has already been added.
                 SimpleAudioLevelListenerWrapper wrapper
                     = new SimpleAudioLevelListenerWrapper(l);
-
                 int index = localUserAudioLevelListeners.indexOf(wrapper);
+
                 if( index != -1)
                 {
                     wrapper = localUserAudioLevelListeners.get(index);
-                    wrapper.refCounter++;
+                    wrapper.referenceCount++;
                 }
                 else
                 {
+                    /*
+                     * XXX localUserAudioLevelListeners must be a copy-on-write
+                     * storage so that firing events to its
+                     * SimpleAudioLevelListeners can happen outside a block
+                     * synchronized by localUserAudioLevelListenersSyncRoot and
+                     * thus reduce the chances for a deadlock (which was,
+                     * otherwise, observed in practice).
+                     */
+                    localUserAudioLevelListeners
+                        = new ArrayList<SimpleAudioLevelListenerWrapper>(
+                                localUserAudioLevelListeners);
                     localUserAudioLevelListeners.add(wrapper);
                 }
             }
@@ -607,23 +635,35 @@ public class AudioMixerMediaDevice
         public void removeLocalUserAudioLevelListener(
                 SimpleAudioLevelListener l)
         {
-            synchronized(localUserAudioLevelListeners)
+            synchronized(localUserAudioLevelListenersSyncRoot)
             {
                 //check if this listener has already been added.
-                SimpleAudioLevelListenerWrapper wrapper
-                    = new SimpleAudioLevelListenerWrapper(l);
-                localUserAudioLevelListeners.remove(wrapper);
-
-                int index = localUserAudioLevelListeners.indexOf(wrapper);
+                int index
+                    = localUserAudioLevelListeners.indexOf(
+                            new SimpleAudioLevelListenerWrapper(l));
 
                 if( index != -1)
                 {
-                    wrapper = localUserAudioLevelListeners.get(index);
+                    SimpleAudioLevelListenerWrapper wrapper
+                        = localUserAudioLevelListeners.get(index);
 
-                    if(wrapper.refCounter > 1)
-                        wrapper.refCounter--;
+                    if(wrapper.referenceCount > 1)
+                        wrapper.referenceCount--;
                     else
+                    {
+                        /*
+                         * XXX localUserAudioLevelListeners must be a
+                         * copy-on-write storage so that firing events to its
+                         * SimpleAudioLevelListeners can happen outside a block
+                         * synchronized by localUserAudioLevelListenersSyncRoot
+                         * and thus reduce the chances for a deadlock (whic
+                         * was, otherwise, observed in practice).
+                         */
+                        localUserAudioLevelListeners
+                            = new ArrayList<SimpleAudioLevelListenerWrapper>(
+                                    localUserAudioLevelListeners);
                         localUserAudioLevelListeners.remove(wrapper);
+                    }
                 }
 
                 //if this was the last listener then we also need to remove the
@@ -1092,7 +1132,7 @@ public class AudioMixerMediaDevice
         public final SimpleAudioLevelListener listener;
 
         /** The number of times this listener has been added. */
-        int refCounter;
+        int referenceCount;
 
         /**
          * Creates a wrapper of the <tt>l</tt> listener.
@@ -1102,7 +1142,7 @@ public class AudioMixerMediaDevice
         public SimpleAudioLevelListenerWrapper(SimpleAudioLevelListener l)
         {
             this.listener = l;
-            this.refCounter = 1;
+            this.referenceCount = 1;
         }
 
         /**

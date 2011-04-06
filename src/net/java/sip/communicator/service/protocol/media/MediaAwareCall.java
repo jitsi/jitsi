@@ -425,7 +425,7 @@ public abstract class MediaAwareCall<
     {
         synchronized(localUserAudioLevelListeners)
         {
-            localUserAudioLevelListeners.add(l);
+            localUserAudioLevelListeners.remove(l);
 
             if (localUserAudioLevelListeners.isEmpty())
             {
