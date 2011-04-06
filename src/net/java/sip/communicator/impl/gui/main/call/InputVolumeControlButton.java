@@ -91,8 +91,8 @@ public class InputVolumeControlButton
         this(   call,
                 ImageLoader.MICROPHONE,
                 ImageLoader.MUTE_BUTTON,
-                true,
                 fullScreen,
+                true,
                 selected);
     }
 
