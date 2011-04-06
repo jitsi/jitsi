@@ -22,5 +22,5 @@
   <String Id="WelcomeText2" Overridable="yes"><![CDATA[@WelcomeText2@]]></String>
   <String Id="WelcomeText3" Overridable="yes">{\GreyText}@WelcomeText3@</String>
   
-  <String Id="ExitDialogOptionaCheckBoxText" Overridable="yes">Launch [ProductName]</String>
+  <String Id="ExitDialogOptionaCheckBoxText" Overridable="yes">Launch @APP_NAME@</String>
 </WixLocalization>
