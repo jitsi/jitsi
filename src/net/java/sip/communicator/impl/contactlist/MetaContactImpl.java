@@ -1346,14 +1346,17 @@ public class MetaContactImpl
     private void removeCapabilities(Contact contact,
                                     Map<String, ? extends OperationSet> opSets)
     {
-        Iterator<String> caps = this.capabilities.keySet().iterator();
+        Iterator<Map.Entry<String, List<Contact>>> caps
+                = this.capabilities.entrySet().iterator();
 
         Set<String> contactNewCaps = opSets.keySet();
 
         while (caps.hasNext())
         {
-            String opSetName = caps.next();
-            List<Contact> contactsForCap = capabilities.get(opSetName);
+            Map.Entry<String, List<Contact>> entry = caps.next();
+
+            String opSetName = entry.getKey();
+            List<Contact> contactsForCap = entry.getValue();
 
             if (contactsForCap.contains(contact)
                 && !contactNewCaps.contains(opSetName))
@@ -1361,7 +1364,7 @@ public class MetaContactImpl
                 contactsForCap.remove(contact);
 
                 if (contactsForCap.size() == 0)
-                    capabilities.remove(opSetName);
+                    caps.remove();
             }
         }
     }
