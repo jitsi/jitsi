@@ -995,6 +995,8 @@ public class TestOperationSetMultiUserChat2
     {
         String testRoomName = testRoomBaseName + roomID++;
 
+        logger.info("--- Start testConferenceChat room:" + testRoomName);
+
         // we create the test room
         ChatRoom opSet1Room =
             opSetMUC1.createChatRoom(testRoomName, null);
@@ -1063,6 +1065,8 @@ public class TestOperationSetMultiUserChat2
         assertEquals(
             "received message differ from sent message"
             , message1, messageEvent.getMessage().getContent());
+
+        logger.info("--- End testConferenceChat room:" + testRoomName);
     }
 
     /**
@@ -1074,6 +1078,8 @@ public class TestOperationSetMultiUserChat2
         OperationNotSupportedException
     {
         String testRoomName = testRoomBaseName + roomID++;
+
+        logger.info("--- Start testMemberBan room:" + testRoomName);
 
         // we create the test room
         ChatRoom opSet1Room =
@@ -1146,6 +1152,8 @@ public class TestOperationSetMultiUserChat2
         }
         assertFalse("user2 just joined a room where he is banned"
             , opSet2Room.isJoined());
+
+        logger.info("--- End testMemberBan room:" + testRoomName);
     }
 
 
@@ -1158,6 +1166,8 @@ public class TestOperationSetMultiUserChat2
         OperationNotSupportedException
     {
         String testRoomName = testRoomBaseName + roomID++;
+
+        logger.info("--- Start testMemberKick room:" + testRoomName);
 
         // we create the test room
         ChatRoom opSet1Room =
@@ -1240,6 +1250,8 @@ public class TestOperationSetMultiUserChat2
 
         assertTrue("user2 not on list when joining after a kick"
             , nameIsOnMemberList(fixture.userID2, opSet1Room.getMembers()));
+
+        logger.info("--- End testMemberKick room:" + testRoomName);
     }
 
     /**
@@ -1255,6 +1267,8 @@ public class TestOperationSetMultiUserChat2
     {
         String roomName = testRoomBaseName + roomID;
 
+        logger.info("--- Start testInitialParticipantsRoles room:" + roomName);
+
         // We create the test room
         ChatRoom roomUser1 = opSetMUC1.createChatRoom(roomName, null);
         roomUser1.join();
@@ -1265,9 +1279,9 @@ public class TestOperationSetMultiUserChat2
         // User1 who just created the room is supposed to be the owner:
         assertEquals("Unexpected role for user1", 
             roomUser1.getUserRole(), ChatRoomMemberRole.MODERATOR);
-        assertEquals("Unexpected role for user1", roomUser1.getUserRole(), 
-            roomUser1.getMembers().remove(0).getRole());
-        
+        assertEquals("Unexpected role for user1", roomUser1.getUserRole(),
+            getRole(fixture.userID1, roomUser1.getMembers()));
+
         // Both of our peers join the room:
         ChatRoom roomUser2 = opSetMUC2.findRoom(roomName);
         assertNotNull("Room can't be retrieved on user2's side", roomUser2);
@@ -1288,16 +1302,37 @@ public class TestOperationSetMultiUserChat2
         
         // Three members are supposed to be in the room:
         assertEquals("Unexpected members count", 3, members.size());
-        
+
         // We are sure two of these members are our peers (checked before the 
         // last assertion), now we make sure they are both members:
         // (Note that the first element of the list refers to the owner)
         assertEquals("The current implementation requires that room's new " +
             "comers must have MEMBER role", 
-            ChatRoomMemberRole.MEMBER, members.get(1).getRole());
+            ChatRoomMemberRole.MEMBER, getRole(fixture.userID2, members));
         assertEquals("The current implementation requires that room's new " +
             "comers must have the MEMBER role", 
-            ChatRoomMemberRole.MEMBER, members.get(2).getRole());
+            ChatRoomMemberRole.MEMBER, getRole(fixture.userID3, members));
+
+        logger.info("--- End testInitialParticipantsRoles room:" + roomName);
+    }
+
+    /**
+     * Search the user in the list by address and return its role.
+     * @param userID
+     * @param members
+     * @return
+     */
+    private ChatRoomMemberRole getRole(String userID,
+                                       List<ChatRoomMember> members)
+    {
+        for(ChatRoomMember mem : members)
+        {
+            if(mem.getContactAddress().equals(userID))
+                return mem.getRole();
+        }
+
+        // missing in list
+        return null;
     }
     
     /**
@@ -1314,6 +1349,9 @@ public class TestOperationSetMultiUserChat2
     throws OperationFailedException, OperationNotSupportedException
     {
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("--- Start testGrantMembership room:" + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1362,6 +1400,8 @@ public class TestOperationSetMultiUserChat2
             ChatRoomMemberRole.GUEST, roleEventUser3.getPreviousRole());
         assertEquals("Unexpected new role",
             ChatRoomMemberRole.MEMBER, roleEventUser3.getNewRole());
+
+        logger.info("--- End testGrantMembership room:" + roomName);
     }
     
     /**
@@ -1378,9 +1418,10 @@ public class TestOperationSetMultiUserChat2
     public void testGrantModerator() 
     throws OperationFailedException, OperationNotSupportedException
     {
-        logger.info("---= Start test for GrantModerator =---");
-
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("--- Start testGrantModerator room:" + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1429,6 +1470,8 @@ public class TestOperationSetMultiUserChat2
             ChatRoomMemberRole.MEMBER, roleEventUser3.getPreviousRole());
         assertEquals("Unexpected new role",
             ChatRoomMemberRole.MODERATOR, roleEventUser3.getNewRole());
+
+        logger.info("--- End testGrantModerator room:" + roomName);
     }
     
     /**
@@ -1444,9 +1487,10 @@ public class TestOperationSetMultiUserChat2
     public void testRevokeVoice() 
     throws OperationFailedException, OperationNotSupportedException
     {
-        logger.info("---= Start test for RevokeVoice =---");
-
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("---= Start test for RevokeVoice =--- room: " + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1498,6 +1542,8 @@ public class TestOperationSetMultiUserChat2
             ChatRoomMemberRole.MEMBER, roleEventUser2.getPreviousRole());
         assertEquals("Unexpected new role",
             ChatRoomMemberRole.SILENT_MEMBER, roleEventUser2.getNewRole());
+
+        logger.info("---= End test for RevokeVoice =--- room: " + roomName);
     }
     
     /**
@@ -1514,9 +1560,10 @@ public class TestOperationSetMultiUserChat2
     public void testGrantVoice() 
     throws OperationFailedException, OperationNotSupportedException
     {
-        logger.info("---= Start test for GrantVoice =---");
-
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("---= Start test for GrantVoice =--- room: " + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1564,7 +1611,9 @@ public class TestOperationSetMultiUserChat2
         assertEquals("User3's previous role does not match",
             ChatRoomMemberRole.SILENT_MEMBER, roleEventUser2.getPreviousRole());
         assertEquals("Unexpected new role",
-            ChatRoomMemberRole.MEMBER, roleEventUser2.getNewRole());        
+            ChatRoomMemberRole.MEMBER, roleEventUser2.getNewRole());
+
+        logger.info("---= End test for GrantVoice =--- room: " + roomName);
     }
     
     /**
@@ -1581,6 +1630,9 @@ public class TestOperationSetMultiUserChat2
     throws OperationFailedException, OperationNotSupportedException
     {
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("--- Start testGrantAdmin room:" + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1632,6 +1684,8 @@ public class TestOperationSetMultiUserChat2
             ChatRoomMemberRole.MEMBER, roleEventUser3.getPreviousRole());
         assertEquals("Unexpected new role",
             ChatRoomMemberRole.ADMINISTRATOR, roleEventUser3.getNewRole());
+
+        logger.info("--- End testGrantAdmin room:" + roomName);
     }
     
     /**
@@ -1648,6 +1702,9 @@ public class TestOperationSetMultiUserChat2
     throws OperationFailedException, OperationNotSupportedException
     {
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("--- Start testGrantOwnership room:" + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1696,6 +1753,8 @@ public class TestOperationSetMultiUserChat2
             ChatRoomMemberRole.ADMINISTRATOR, roleEventUser3.getPreviousRole());
         assertEquals("Unexpected new role",
             ChatRoomMemberRole.OWNER, roleEventUser3.getNewRole());
+
+        logger.info("--- End testGrantOwnership room:" + roomName);
     }
     
     /**
@@ -1711,6 +1770,9 @@ public class TestOperationSetMultiUserChat2
     throws OperationFailedException, OperationNotSupportedException
     {
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("--- Start testRevokeMembership room:" + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1740,6 +1802,8 @@ public class TestOperationSetMultiUserChat2
             ChatRoomMemberRole.MEMBER, roleEventUser3.getPreviousRole());
         assertEquals("Unexpected new role",
             ChatRoomMemberRole.GUEST, roleEventUser3.getNewRole());
+
+        logger.info("--- End testRevokeMembership room:" + roomName);
     }
     
     /**
@@ -1754,6 +1818,9 @@ public class TestOperationSetMultiUserChat2
     throws OperationFailedException, OperationNotSupportedException
     {
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("--- Start testRevokeModerator room:" + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1802,6 +1869,8 @@ public class TestOperationSetMultiUserChat2
             ChatRoomMemberRole.MODERATOR, roleEventUser3.getPreviousRole());
         assertEquals("Unexpected new role",
             ChatRoomMemberRole.MEMBER, roleEventUser3.getNewRole());
+
+        logger.info("--- End testRevokeModerator room:" + roomName);
     }
     
     /**
@@ -1817,6 +1886,9 @@ public class TestOperationSetMultiUserChat2
     throws OperationFailedException, OperationNotSupportedException
     {
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("--- Start testRevokeAdmin room:" + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1865,6 +1937,8 @@ public class TestOperationSetMultiUserChat2
             ChatRoomMemberRole.ADMINISTRATOR, roleEventUser3.getPreviousRole());
         assertEquals("Unexpected new role",
             ChatRoomMemberRole.MODERATOR, roleEventUser3.getNewRole());
+
+        logger.info("--- End testRevokeAdmin room:" + roomName);
     }
     
     /**
@@ -1880,6 +1954,9 @@ public class TestOperationSetMultiUserChat2
     throws OperationFailedException, OperationNotSupportedException
     {
         String roomName = testRoomBaseName + roomID;
+
+        logger.info("--- Start testRevokeOwnership room:" + roomName);
+
         ChatRoom roomUser1 = opSetMUC1.findRoom(roomName);
         assertNotNull("The room can't be retrieved on user1's side", roomUser1);
         
@@ -1928,6 +2005,8 @@ public class TestOperationSetMultiUserChat2
             ChatRoomMemberRole.OWNER, roleEventUser3.getPreviousRole());
         assertEquals("Unexpected new role",
             ChatRoomMemberRole.ADMINISTRATOR, roleEventUser3.getNewRole());
+
+        logger.info("--- End testRevokeOwnership room:" + roomName);
     }
     
     /**
