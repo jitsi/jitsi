@@ -156,6 +156,24 @@ public class JabberAccountRegistrationForm
     }
 
     /**
+     * Return the user part of the user name (i.e. the string before the @
+     * sign).
+     *
+     * @param userName the username.
+     * @return the user part of the jabber user name.
+     */
+    static String getUserFromUserName(String userName)
+    {
+        int delimIndex = userName.indexOf("@");
+        if (delimIndex != -1)
+        {
+            return userName.substring(0, delimIndex - 1);
+        }
+
+        return null;
+    }
+
+    /**
      * Returns the server address.
      *
      * @return the server address
