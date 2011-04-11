@@ -162,15 +162,15 @@ public class JabberAccountRegistrationForm
      * @param userName the username.
      * @return the user part of the jabber user name.
      */
-    static String getUserFromUserName(String userName)
+    public static String getUserFromUserName(String userName)
     {
         int delimIndex = userName.indexOf("@");
         if (delimIndex != -1)
         {
-            return userName.substring(0, delimIndex - 1);
+            return userName.substring(0, delimIndex);
         }
 
-        return null;
+        return userName;
     }
 
     /**
