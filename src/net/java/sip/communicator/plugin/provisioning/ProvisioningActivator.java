@@ -381,6 +381,7 @@ public class ProvisioningActivator
                 {
                     String s = args[i];
                     if(s.equals("username=$username") ||
+                            s.equals("username=${username}") ||
                             s.equals("username"))
                     {
                         paramNames[i] = "username";
@@ -388,6 +389,7 @@ public class ProvisioningActivator
                         usernameIx = i;
                     }
                     else if(s.equals("password=$password") ||
+                            s.equals("password=${password}") ||
                             s.equals("password"))
                     {
                         paramNames[i] = "password";
@@ -395,12 +397,14 @@ public class ProvisioningActivator
                         passwordIx = i;
                     }
                     else if(s.equals("osname=$osname") ||
+                            s.equals("osname=${osname}") ||
                             s.equals("osname"))
                     {
                         paramNames[i] = "osname";
                         paramValues[i] = System.getProperty("os.name");
                     }
                     else if(s.equals("build=$build") ||
+                            s.equals("build=${build}") ||
                             s.equals("build"))
                     {
                         paramNames[i] = "build";
@@ -408,12 +412,14 @@ public class ProvisioningActivator
                             System.getProperty("sip-communicator.version");
                     }
                     else if(s.equals("ipaddr=$ipaddr") ||
+                            s.equals("ipaddr=${ipaddr}") ||
                             s.equals("ipaddr"))
                     {
                         paramNames[i] = "ipaddr";
                         paramValues[i] = ipaddr.getHostAddress();
                     }
                     else if(s.equals("hwaddr=$hwaddr") ||
+                            s.equals("hwaddr=${hwaddr}") ||
                             s.equals("hwaddr"))
                     {
                         paramNames[i] = "hwaddr";
