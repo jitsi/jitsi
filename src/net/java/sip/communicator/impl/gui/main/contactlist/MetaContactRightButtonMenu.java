@@ -1068,7 +1068,7 @@ public class MetaContactRightButtonMenu
                 ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
 
         moveToMenu.setIcon(new ImageIcon(
-                ImageLoader.getImage(ImageLoader.GROUPS_16x16_ICON)));
+                ImageLoader.getImage(ImageLoader.MOVE_TO_GROUP_16x16_ICON)));
 
         addContactItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));

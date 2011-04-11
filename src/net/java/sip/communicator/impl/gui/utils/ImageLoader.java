@@ -713,6 +713,12 @@ public class ImageLoader
         = new ImageID("service.gui.icons.MOVE_CONTACT");
 
     /**
+     * The image used in the right button menu for the move to group item.
+     */
+    public static final ImageID MOVE_TO_GROUP_16x16_ICON
+        = new ImageID("service.gui.icons.MOVE_TO_GROUP_16x16_ICON");
+
+    /**
      * The image used for error messages in the chat window.
      */
     public static final ImageID EXCLAMATION_MARK
