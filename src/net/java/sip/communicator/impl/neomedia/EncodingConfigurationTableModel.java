@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
+ * Implements {@link TableModel} for {@link EncodingConfiguration}.
  *
  * @author Lyubomir Marinov
  */
@@ -51,8 +52,10 @@ public class EncodingConfigurationTableModel
     @Override
     public Class<?> getColumnClass(int columnIndex)
     {
-        return (columnIndex == 0) ? Boolean.class : super
-            .getColumnClass(columnIndex);
+        return
+            (columnIndex == 0)
+                ? Boolean.class
+                : super.getColumnClass(columnIndex);
     }
 
     public int getColumnCount()
@@ -67,23 +70,70 @@ public class EncodingConfigurationTableModel
 
         MediaFormat[] availableEncodings
             = encodingConfiguration.getAvailableEncodings(type);
+        int encodingCount = availableEncodings.length;
 
-        final int encodingCount = availableEncodings.length;
         if (encodingCount < 1)
             encodings = MediaUtils.EMPTY_MEDIA_FORMATS;
         else
         {
+            /*
+             * The MediaFormats will be displayed by encoding (name) and clock
+             * rate and EncodingConfiguration will store them that way so this
+             * TableModel should better display unique encoding-clock rate
+             * pairs.
+             */
+            HashMap<String, MediaFormat> availableEncodingSet
+                = new HashMap<String, MediaFormat>();
+
+            for (MediaFormat availableEncoding : availableEncodings)
+            {
+                availableEncodingSet.put(
+                        availableEncoding.getEncoding()
+                            + "/"
+                            + availableEncoding.getClockRateString(),
+                        availableEncoding);
+            }
+            availableEncodings
+                = availableEncodingSet.values().toArray(
+                        MediaUtils.EMPTY_MEDIA_FORMATS);
+            encodingCount = availableEncodings.length;
+
             encodings = new MediaFormat[encodingCount];
             System
                 .arraycopy(availableEncodings, 0, encodings, 0, encodingCount);
+            // Display the encodings in decreasing priority.
             Arrays
                 .sort(encodings, 0, encodingCount, new Comparator<MediaFormat>()
                 {
                     public int compare(MediaFormat format0, MediaFormat format1)
                     {
-                        return
-                            encodingConfiguration.getPriority(format1)
+                        int ret
+                            = encodingConfiguration.getPriority(format1)
                                 - encodingConfiguration.getPriority(format0);
+
+                        if (ret == 0)
+                        {
+                            /*
+                             * In the cases of equal priorities, display them
+                             * sorted by encoding name in increasing order.
+                             */
+                            ret
+                                = format0.getEncoding().compareToIgnoreCase(
+                                        format1.getEncoding());
+                            if (ret == 0)
+                            {
+                                /*
+                                 * In the cases of equal priorities and equal
+                                 * encoding names, display them sorted by clock
+                                 * rate in decreasing order.  
+                                 */
+                                ret
+                                    = Double.compare(
+                                            format1.getClockRate(),
+                                            format0.getClockRate());
+                            }
+                        }
+                        return ret;
                     }
                 });
         }
@@ -95,9 +145,11 @@ public class EncodingConfigurationTableModel
         MediaFormat[] encodings = getEncodings();
         final int count = encodings.length;
         int[] priorities = new int[count];
+
         for (int i = 0; i < count; i++)
         {
             int priority = encodingConfiguration.getPriority(encodings[i]);
+
             priorities[i] = (priority > 0) ? (count - i) : 0;
         }
         return priorities;
@@ -111,6 +163,7 @@ public class EncodingConfigurationTableModel
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         MediaFormat encoding = getEncodings()[rowIndex];
+
         switch (columnIndex)
         {
         case 0:
@@ -161,6 +214,7 @@ public class EncodingConfigurationTableModel
 
         int[] priorities = getPriorities();
         final int nextRowIndex = rowIndex + 1;
+
         if (priorities[rowIndex] > 0)
             priorities[rowIndex] = priorities.length - nextRowIndex;
         if (priorities[nextRowIndex] > 0)
@@ -168,6 +222,7 @@ public class EncodingConfigurationTableModel
         setPriorities(priorities);
 
         MediaFormat swap = encodings[rowIndex];
+
         encodings[rowIndex] = encodings[nextRowIndex];
         encodings[nextRowIndex] = swap;
 
@@ -178,9 +233,9 @@ public class EncodingConfigurationTableModel
     private void setPriorities(int[] priorities)
     {
         final int count = encodings.length;
+
         if (priorities.length != count)
             throw new IllegalArgumentException("priorities");
-
         for (int i = 0; i < count; i++)
             encodingConfiguration.setPriority(encodings[i], priorities[i]);
     }
@@ -191,8 +246,9 @@ public class EncodingConfigurationTableModel
         if ((columnIndex == 0) && (value instanceof Boolean))
         {
             int[] priorities = getPriorities();
-            priorities[rowIndex] =
-                ((Boolean) value) ? (priorities.length - rowIndex) : 0;
+
+            priorities[rowIndex]
+                = ((Boolean) value) ? (priorities.length - rowIndex) : 0;
             setPriorities(priorities);
 
             fireTableCellUpdated(rowIndex, columnIndex);

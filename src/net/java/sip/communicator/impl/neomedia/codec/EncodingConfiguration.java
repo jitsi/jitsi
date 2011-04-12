@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * Simple configuration of encoding priorities.
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class EncodingConfiguration
 {
@@ -130,8 +130,8 @@ public class EncodingConfiguration
      * would be decorelated and other components (such as the UI) should present
      * them separately.
      */
-    private final Map<MediaFormat, Integer> encodingPreferences =
-        new Hashtable<MediaFormat, Integer>();
+    private final Map<String, Integer> encodingPreferences
+        = new HashMap<String, Integer>();
 
     /**
      * The cache of supported <tt>AudioMediaFormat</tt>s ordered by decreasing
@@ -206,14 +206,13 @@ public class EncodingConfiguration
         setEncodingPreference(Constants.TELEPHONE_EVENT, 8000, 1);
 
         // now override with those that are specified by the user.
-        ConfigurationService confService
+        ConfigurationService config
             = NeomediaActivator.getConfigurationService();
 
         for (String pName
-                : confService
-                    .getPropertyNamesByPrefix(PROP_SDP_PREFERENCE, false))
+                : config.getPropertyNamesByPrefix(PROP_SDP_PREFERENCE, false))
         {
-            String prefStr = confService.getString(pName);
+            String prefStr = config.getString(pName);
             String fmtName = pName.substring(pName.lastIndexOf('.') + 1);
 
             // legacy
@@ -224,7 +223,7 @@ public class EncodingConfiguration
                  * If the current version of the property name is also
                  * associated with a value, ignore the value for the legacy one.
                  */
-                if (confService.getString(PROP_SDP_PREFERENCE + "." + fmtName)
+                if (config.getString(PROP_SDP_PREFERENCE + "." + fmtName)
                         != null)
                     continue;
             }
@@ -242,10 +241,9 @@ public class EncodingConfiguration
                 {
                     encoding = fmtName.substring(0, encodingClockRateSeparator);
                     clockRate
-                        = Double
-                            .parseDouble(
-                                fmtName
-                                    .substring(encodingClockRateSeparator + 1));
+                        = Double.parseDouble(
+                                fmtName.substring(
+                                        encodingClockRateSeparator + 1));
                 }
                 else
                 {
@@ -318,36 +316,53 @@ public class EncodingConfiguration
      * @param clockRate clock rate
      * @param pref a positive int indicating the preference for that encoding.
      */
-    private void setEncodingPreference(String encoding, double clockRate,
+    private void setEncodingPreference(
+            String encoding, double clockRate,
             int pref)
     {
-        MediaFormat mediaFormat = MediaUtils.getMediaFormat(encoding, clockRate);
+        MediaFormat mediaFormat
+            = MediaUtils.getMediaFormat(encoding, clockRate);
 
         if (mediaFormat != null)
-            encodingPreferences.put(mediaFormat, pref);
+        {
+            encodingPreferences.put(
+                    getEncodingPreferenceKey(mediaFormat),
+                    pref);
+        }
     }
 
     /**
-     * Sets <tt>pref</tt> as the preference associated with <tt>encoding</tt>.
-     * Use this method for both audio and video encodings and don't worry if
-     * preferences are equal since we rarely need to compare prefs of video
-     * encodings to those of audio encodings.
+     * Sets <tt>priority</tt> as the preference associated with
+     * <tt>encoding</tt>. Use this method for both audio and video encodings and
+     * don't worry if the preferences are equal since we rarely need to compare
+     * the preferences of video encodings to those of audio encodings.
      *
-     * @param encoding a string containing the SDP int of the encoding whose
-     * pref we're setting.
-     * @param priority a positive int indicating the preference for that encoding.
+     * @param encoding the <tt>MediaFormat</tt> specifying the encoding to set
+     * the priority of
+     * @param priority a positive <tt>int</tt> indicating the priority of
+     * <tt>encoding</tt> to set
      */
     public void setPriority(MediaFormat encoding, int priority)
     {
-        encodingPreferences.put(encoding, priority);
+        String encodingEncoding = encoding.getEncoding();
+
+        /*
+         * Since we'll be remembering the priority in the ConfigurationService
+         * by associating it with a property name/key based on encoding and
+         * clock rate only, it does not make sense to store the MediaFormat in
+         * encodingPreferences because MediaFormat is much more specific than
+         * just encoding and clock rate. 
+         */
+        setEncodingPreference(
+                encodingEncoding, encoding.getClockRate(),
+                priority);
 
         // save the settings
-        NeomediaActivator
-            .getConfigurationService()
-                .setProperty(
+        NeomediaActivator.getConfigurationService()
+            .setProperty(
                     PROP_SDP_PREFERENCE
                         + "."
-                        + encoding.getEncoding()
+                        + encodingEncoding
                         + "/"
                         + encoding.getClockRateString(),
                     priority);
@@ -368,7 +383,8 @@ public class EncodingConfiguration
          * NullPointerException if encodingPreferences does not contain a
          * mapping for encoding.
          */
-        Integer priority = encodingPreferences.get(encoding);
+        Integer priority
+            = encodingPreferences.get(getEncodingPreferenceKey(encoding));
 
         return (priority == null) ? 0 : priority;
     }
@@ -583,8 +599,8 @@ public class EncodingConfiguration
             return MediaUtils.EMPTY_MEDIA_FORMATS;
         }
         return
-            supportedEncodings
-                .toArray(new MediaFormat[supportedEncodings.size()]);
+            supportedEncodings.toArray(
+                    new MediaFormat[supportedEncodings.size()]);
     }
 
     /**
@@ -600,24 +616,32 @@ public class EncodingConfiguration
      */
     private int compareEncodingPreferences(MediaFormat enc1, MediaFormat enc2)
     {
-        Integer pref1 = encodingPreferences.get(enc1);
-        int pref1IntValue = (pref1 == null) ? 0 : pref1;
-
-        Integer pref2 = encodingPreferences.get(enc2);
-        int pref2IntValue = (pref2 == null) ? 0 : pref2;
-
-        int res = pref2IntValue - pref1IntValue;
+        int res = getPriority(enc2) - getPriority(enc1);
 
         /*
          * If the encodings are with same priority, compare them by name. If we
-         * return equals TreeSet will not add equal encodings.
+         * return equals, TreeSet will not add equal encodings.
          */
         if (res == 0)
         {
-            res = enc1.getEncoding().compareTo(enc2.getEncoding());
+            res = enc1.getEncoding().compareToIgnoreCase(enc2.getEncoding());
             if (res == 0)
-                res = Double.compare(enc1.getClockRate(), enc2.getClockRate());
+                res = Double.compare(enc2.getClockRate(), enc1.getClockRate());
         }
         return res;
+    }
+
+    /**
+     * Gets the key in {@link #encodingPreferences} which is associated with the
+     * priority of a specific <tt>MediaFormat</tt>.
+     *
+     * @param encoding the <tt>MediaFormat</tt> to get the key in
+     * {@link #encodingPreferences} of
+     * @return the key in {@link #encodingPreferences} which is associated with
+     * the priority of the specified <tt>encoding</tt>
+     */
+    private String getEncodingPreferenceKey(MediaFormat encoding)
+    {
+        return encoding.getEncoding() + "/" + encoding.getClockRateString();
     }
 }
