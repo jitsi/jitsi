@@ -184,8 +184,8 @@ public class SIPCommButton
                 paintBgImage = bgImage;
 
             g.drawImage(paintBgImage,
-                        this.getWidth()/2 - this.bgImage.getWidth(null)/2,
-                        this.getHeight()/2 - this.bgImage.getHeight(null)/2,
+                        this.getWidth()/2 - paintBgImage.getWidth(null)/2,
+                        this.getHeight()/2 - paintBgImage.getHeight(null)/2,
                         this);
         }
 
@@ -245,8 +245,8 @@ public class SIPCommButton
 
         if (paintIconImage != null)
             g.drawImage(paintIconImage,
-                this.getWidth()/2 - this.iconImage.getWidth(null)/2,
-                this.getHeight()/2 - this.iconImage.getHeight(null)/2,
+                this.getWidth()/2 - paintIconImage.getWidth(null)/2,
+                this.getHeight()/2 - paintIconImage.getHeight(null)/2,
                 this);
     }
 
