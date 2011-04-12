@@ -84,8 +84,8 @@ class ilbc_constants {
 
     /* bit stream defs */
 
-    static int NO_OF_BYTES_20MS = 38;
-    static int NO_OF_BYTES_30MS = 50;
+    static final int NO_OF_BYTES_20MS = 38;
+    static final int NO_OF_BYTES_30MS = 50;
     static int NO_OF_WORDS_20MS = 19;
     static int NO_OF_WORDS_30MS = 25;
     static int STATE_BITS = 3;

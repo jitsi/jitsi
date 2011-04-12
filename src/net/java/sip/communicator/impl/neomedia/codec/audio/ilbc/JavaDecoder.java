@@ -12,130 +12,138 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 
-/** iLbc to PCM java decoder
- *  @author Damian Minkov
- **/
+/**
+ * iLbc to PCM java decoder
+ *
+ * @author Damian Minkov
+ * @author Lyubomir Marinov
+ */
 public class JavaDecoder
-    extends com.ibm.media.codec.audio.AudioCodec
+    extends AbstractCodecExt
 {
-    private Format lastFormat = null;
 
     /**
      * The decoder
      */
-    private ilbc_decoder dec = null;
+    private ilbc_decoder dec;
+
+    /**
+     * The input length in bytes with which {@link #dec} has been initialized. 
+     */
+    private int inputLength;
 
     public JavaDecoder()
     {
-        inputFormats = new Format[]
-            {
-            new AudioFormat(
-                Constants.ILBC_RTP,
-                8000,
-                16,
-                1,
-                Format.NOT_SPECIFIED,
-                Format.NOT_SPECIFIED
-            )};
+        super(
+                "iLBC Decoder",
+                AudioFormat.class,
+                new Format[] { new AudioFormat(AudioFormat.LINEAR) });
 
-        supportedInputFormats = new AudioFormat[]
-            {
-            new AudioFormat(Constants.ILBC_RTP,
-                            8000,
-                            16,
-                            1,
-                            Format.NOT_SPECIFIED,
-                            Format.NOT_SPECIFIED
-            )};
+        inputFormats
+            = new Format[]
+                    {
+                        new AudioFormat(
+                                Constants.ILBC_RTP,
+                                8000,
+                                16,
+                                1,
+                                Format.NOT_SPECIFIED /* endian */,
+                                Format.NOT_SPECIFIED /* signed */)
+                    };
 
-        defaultOutputFormats = new AudioFormat[]
-            {
-            new AudioFormat(AudioFormat.LINEAR)};
-
-        PLUGIN_NAME = "iLbc Decoder";
+        addControl(
+                new com.sun.media.controls.SilenceSuppressionAdapter(
+                        this,
+                        false,
+                        false));
     }
 
-    protected Format[] getMatchingOutputFormats(Format in)
+    /**
+     * Implements {@link AbstractCodecExt#doClose()}.
+     *
+     * @see AbstractCodecExt#doClose()
+     */
+    protected void doClose()
     {
-        AudioFormat af = (AudioFormat) in;
-
-        supportedOutputFormats = new AudioFormat[]
-            {
-            new AudioFormat(
-                AudioFormat.LINEAR,
-                af.getSampleRate(),
-                16,
-                1,
-                AudioFormat.LITTLE_ENDIAN, //isBigEndian(),
-                AudioFormat.SIGNED //isSigned());
-            )};
-
-        return supportedOutputFormats;
-
     }
 
-    public void open()
-    {}
-
-    public void close()
-    {}
-
-    private void initConverter(AudioFormat inFormat, int inputLength)
+    /**
+     * Implements {@link AbstractCodecExt#doOpen()}.
+     *
+     * @see AbstractCodecExt#doOpen()
+     */
+    protected void doOpen()
     {
-        lastFormat = inFormat;
-
-        if(inputLength == ilbc_constants.NO_OF_BYTES_20MS)
-            dec = new ilbc_decoder(20, 1);
-        else if(inputLength == ilbc_constants.NO_OF_BYTES_30MS)
-            dec = new ilbc_decoder(30, 1);
     }
 
-    public int process(Buffer inputBuffer, Buffer outputBuffer)
+    /**
+     * Implements {@link AbstractCodecExt#doProcess(Buffer, Buffer)}.
+     *
+     * @param inputBuffer
+     * @param outputBuffer
+     * @return
+     * @see AbstractCodecExt#doProcess(Buffer, Buffer)
+     */
+    protected int doProcess(Buffer inputBuffer, Buffer outputBuffer)
     {
-        if (!checkInputBuffer(inputBuffer))
-        {
-            return BUFFER_PROCESSED_FAILED;
-        }
-
-        if (isEOM(inputBuffer))
-        {
-            propagateEOM(outputBuffer);
-            return BUFFER_PROCESSED_OK;
-        }
-
         byte[] inData = (byte[]) inputBuffer.getData();
 
         int inpLength = inputBuffer.getLength();
         int inOffset = inputBuffer.getOffset();
 
-        Format newFormat = inputBuffer.getFormat();
-
-        if (lastFormat != newFormat)
-        {
-            initConverter( (AudioFormat) newFormat, inpLength);
-        }
+        if (this.inputLength != inpLength)
+            initConverter(inpLength);
 
         short[] data = Utils.byteToShortArray(inData, inOffset, inpLength, false);
-
         short[] decodedData = new short[dec.ULP_inst.blockl];
+
         dec.decode(decodedData, data, (short) 1);
+
         int outLength = dec.ULP_inst.blockl * 2;
         byte[] outData = validateByteArraySize(outputBuffer, outLength);
 
         Utils.shortArrToByteArr(decodedData, outData, true);
 
-        updateOutput(outputBuffer, outputFormat, outLength, 0);
+        updateOutput(outputBuffer, getOutputFormat(), outLength, 0);
 
         return BUFFER_PROCESSED_OK;
     }
 
-    public java.lang.Object[] getControls()
+    @Override
+    protected Format[] getMatchingOutputFormats(Format inputFormat)
     {
-        if (controls == null)
+        AudioFormat inputAudioFormat = (AudioFormat) inputFormat;
+
+        return
+            new AudioFormat[]
+                    {
+                        new AudioFormat(
+                                AudioFormat.LINEAR,
+                                inputAudioFormat.getSampleRate(),
+                                16,
+                                1,
+                                AudioFormat.LITTLE_ENDIAN,
+                                AudioFormat.SIGNED)
+                    };
+    }
+
+    private void initConverter(int inputLength)
+    {
+        int mode;
+
+        switch (inputLength)
         {
-            controls = new Control[1];
-            controls[0] = new com.sun.media.controls.SilenceSuppressionAdapter(this, false, false);
+        case ilbc_constants.NO_OF_BYTES_20MS:
+            mode = 20;
+            break;
+        case ilbc_constants.NO_OF_BYTES_30MS:
+            mode = 30;
+            break;
+        default:
+            throw new IllegalArgumentException("inputLength");
         }
-        return controls;
+
+        dec = new ilbc_decoder(mode, 1);
+        this.inputLength = inputLength;
     }
 }

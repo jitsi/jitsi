@@ -14,7 +14,7 @@ import net.sf.fmj.media.*;
  * Extends FMJ's <tt>AbstractCodec</tt> to make it even easier to implement a
  * <tt>Codec</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractCodecExt
     extends AbstractCodec
@@ -181,6 +181,25 @@ public abstract class AbstractCodecExt
             return null;
 
         return super.setOutputFormat(format);
+    }
+
+    /**
+     * Updates the <tt>format</tt>, <tt>length</tt> and <tt>offset</tt> of a
+     * specific output <tt>Buffer</tt> to specific values.
+     *
+     * @param outputBuffer the output <tt>Buffer</tt> to update the properties
+     * of
+     * @param format the <tt>Format</tt> to set on <tt>outputBuffer</tt>
+     * @param length the length to set on <tt>outputBuffer</tt>
+     * @param offset the offset to set on <tt>outputBuffer</tt>
+     */
+    protected void updateOutput(
+            Buffer outputBuffer,
+            Format format, int length, int offset)
+    {
+        outputBuffer.setFormat(format);
+        outputBuffer.setLength(length);
+        outputBuffer.setOffset(offset);
     }
 
     protected byte[] validateByteArraySize(Buffer buffer, int newSize)
