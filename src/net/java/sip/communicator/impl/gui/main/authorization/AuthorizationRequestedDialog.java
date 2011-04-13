@@ -140,7 +140,6 @@ public class AuthorizationRequestedDialog
         this.rejectButton.setName("reject");
         this.ignoreButton.setName("ignore");
 
-        this.getRootPane().setDefaultButton(acceptButton);
         this.acceptButton.addActionListener(this);
         this.rejectButton.addActionListener(this);
         this.ignoreButton.addActionListener(this);
