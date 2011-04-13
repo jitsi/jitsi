@@ -57,7 +57,6 @@ public class SearchField
         this.setUI(textFieldUI);
         this.setBorder(null);
         this.setOpaque(false);
-        this.setPreferredSize(new Dimension(100, 22));
 
         this.setDragEnabled(true);
         this.addTextChangeListener(this);

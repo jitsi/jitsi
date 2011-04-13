@@ -169,12 +169,12 @@ public class SIPCommTextFieldUI
 
             if(isRounded)
             {
-                g2.fillRoundRect(1, 1, c.getWidth() - 2, c.getHeight() - 2,
+                g2.fillRoundRect(1, 1, c.getWidth() - 1, c.getHeight() - 1,
                         20, 20);
             }
             else
             {
-                g2.fillRect(1, 1, c.getWidth() - 2, c.getHeight() - 2);
+                g2.fillRect(1, 1, c.getWidth() - 1, c.getHeight() - 1);
             }
 
             Rectangle deleteButtonRect = getDeleteButtonRect();
@@ -207,12 +207,12 @@ public class SIPCommTextFieldUI
 
             if(isRounded)
             {
-                g2.drawRoundRect(0, 0, c.getWidth() - 2, c.getHeight() - 2,
+                g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1,
                         20, 20);
             }
             else
             {
-                g2.drawRect(0, 0, c.getWidth() - 2, c.getHeight() - 2);
+                g2.drawRect(0, 0, c.getWidth() - 1, c.getHeight() - 1);
             }
         }
         finally

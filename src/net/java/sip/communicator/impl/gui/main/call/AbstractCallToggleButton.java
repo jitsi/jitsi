@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.*;
 import java.awt.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -170,6 +171,13 @@ public abstract class AbstractCallToggleButton
 
         // All items are now instantiated and could safely load the skin.
         loadSkin();
+
+        int width = getBgImage().getWidth(null);
+        int height = getBgImage().getHeight(null);
+
+        this.setPreferredSize(new Dimension(width, height));
+        this.setMaximumSize(new Dimension(width, height));
+        this.setMinimumSize(new Dimension(width, height));
     }
 
     /**

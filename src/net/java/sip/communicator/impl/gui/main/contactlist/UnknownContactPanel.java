@@ -46,7 +46,12 @@ public class UnknownContactPanel
     /**
      * The main application window.
      */
-    private final MainFrame parentWindow;
+    private MainFrame parentWindow;
+
+    /**
+     * An empty constructor allowing to extend this class.
+     */
+    public UnknownContactPanel() {}
 
     /**
      * Creates the <tt>UnknownContactPanel</tt> by specifying the parent window.

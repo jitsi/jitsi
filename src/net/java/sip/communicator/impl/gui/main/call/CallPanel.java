@@ -150,7 +150,7 @@ public class CallPanel
     /**
      * The call represented in this dialog.
      */
-    private final Call call;
+    private Call call;
 
     /**
      * Indicates if the last call was a conference call.
@@ -197,6 +197,11 @@ public class CallPanel
      */
     private Collection<CallTitleListener> titleListeners
         = new Vector<CallTitleListener>();
+
+    /**
+     * Creates an empty constructor allowing to extend this panel.
+     */
+    public CallPanel() {}
 
     /**
      * Creates a <tt>CallDialog</tt> by specifying the underlying call panel.

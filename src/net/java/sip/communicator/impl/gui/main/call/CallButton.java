@@ -10,8 +10,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -35,6 +35,11 @@ public class CallButton
     private Image pressedImage;
 
     /**
+     * The rollover image.
+     */
+    private Image rolloverImage;
+
+    /**
      * Creates the contact list call button.
      *
      * @param mainFrame the main window
@@ -42,9 +47,6 @@ public class CallButton
     public CallButton(final MainFrame mainFrame)
     {
         loadSkin();
-
-        setBackgroundImage(image);
-        setPressedImage(pressedImage);
 
         addActionListener(new ActionListener()
         {
@@ -82,10 +84,22 @@ public class CallButton
     public void loadSkin()
     {
         image
-            = ImageLoader.getImage(ImageLoader.CALL_BUTTON_SMALL);
+            = GuiActivator.getResources()
+                .getImage("service.gui.buttons.CALL_NUMBER_BUTTON").getImage();
 
         pressedImage
-            = ImageLoader.getImage(ImageLoader.CALL_BUTTON_SMALL_PRESSED);
+            = GuiActivator.getResources()
+                .getImage("service.gui.buttons.CALL_NUMBER_BUTTON_PRESSED")
+                    .getImage();
+
+        rolloverImage
+            = GuiActivator.getResources()
+                .getImage("service.gui.buttons.CALL_NUMBER_BUTTON_ROLLOVER")
+                    .getImage();
+
+        setBackgroundImage(image);
+        setPressedImage(pressedImage);
+        setRolloverIcon(rolloverImage);
 
         this.setPreferredSize(new Dimension(image.getWidth(this),
                                             image.getHeight(this)));
