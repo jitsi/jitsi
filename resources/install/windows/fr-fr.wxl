@@ -22,5 +22,5 @@
   <String Id="WelcomeText2" Overridable="yes"><![CDATA[Découvrir notre site : @APP_WEB@]]></String>
   <String Id="WelcomeText3" Overridable="yes"></String>
   
-  <String Id="ExitDialogOptionaCheckBoxText" Overridable="yes">Launch [ProductName]</String>
+  <String Id="ExitDialogOptionaCheckBoxText" Overridable="yes">Lancer @APP_NAME@</String>
 </WixLocalization>
