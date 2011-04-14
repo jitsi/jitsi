@@ -531,9 +531,11 @@ public class ChatWindow
     {
         int tabIndex = chatTabbedPane.indexOfComponent(chatPanel);
 
-        chatPanel.unreadMessageNumber ++;
-
-        chatTabbedPane.highlightTab(tabIndex, chatPanel.unreadMessageNumber);
+        if (tabIndex > -1)
+        {
+            chatPanel.unreadMessageNumber ++;
+            chatTabbedPane.highlightTab(tabIndex, chatPanel.unreadMessageNumber);
+        }
     }
 
     /**
@@ -545,7 +547,8 @@ public class ChatWindow
     public void setTabIcon(ChatPanel chatPanel, Icon icon)
     {
         int index = this.chatTabbedPane.indexOfComponent(chatPanel);
-        this.chatTabbedPane.setIconAt(index, icon);
+        if (index > -1)
+            this.chatTabbedPane.setIconAt(index, icon);
     }
 
     /**
