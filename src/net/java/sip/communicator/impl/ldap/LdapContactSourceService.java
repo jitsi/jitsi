@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.ldap;
+package net.java.sip.communicator.impl.ldap;
 
 import java.util.*;
 import java.util.regex.*;
@@ -14,6 +14,12 @@ import net.java.sip.communicator.service.ldap.*;
 
 /**
  * Implements <tt>ContactSourceService</tt> for LDAP.
+ * <p>
+ * In contrast to other contact source implementations like AddressBook and
+ * Outlook the LDAP contact source implementation is explicitly moved to the
+ * "impl.ldap" package in order to allow us to create LDAP contact sources
+ * for ldap directories through the LdapService.
+ * </p>
  *
  * @author Sebastien Vincent
  */

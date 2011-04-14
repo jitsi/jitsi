@@ -4,22 +4,28 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.plugin.ldap;
+package net.java.sip.communicator.impl.ldap;
 
 import java.util.*;
 import java.util.regex.*;
-import javax.swing.*;
 
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.ldap.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.contactsource.*;
-import net.java.sip.communicator.plugin.ldap.configform.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Implements <tt>ContactQuery</tt> for LDAP.
- *
+ * <p>
+ * In contrast to other contact source implementations like AddressBook and
+ * Outlook the LDAP contact source implementation is explicitly moved to the
+ * "impl.ldap" package in order to allow us to create LDAP contact sources
+ * for ldap directories through the LdapService.
+ * </p>
+ * 
  * @author Sebastien Vincent
+ * @author Yana Stamcheva
  */
 public class LdapContactQuery
     extends AsyncContactQuery<LdapContactSourceService>
@@ -338,56 +344,52 @@ public class LdapContactQuery
                 objLock.notify();
             }
 
-            /* show settings form */
+            /* show authentication window to obtain new credentials */
             new Thread()
             {
                 public void run()
                 {
-                    DirectorySettingsForm settingsForm =
-                        new DirectorySettingsForm();
-                    LdapDirectorySettings ldapSettings =
-                        getContactSource().getLdapDirectory().getSettings();
+                    LdapDirectorySettingsImpl ldapSettings =
+                        (LdapDirectorySettingsImpl) getContactSource()
+                            .getLdapDirectory().getSettings();
 
-                    settingsForm.setModal(true);
-
-                    settingsForm.loadData(ldapSettings);
-
-                    settingsForm.setNameFieldEnabled(false);
-                    settingsForm.setHostnameFieldEnabled(false);
-                    settingsForm.setBaseDNFieldEnabled(false);
-                    settingsForm.setPortFieldEnabled(false);
-
-                    JOptionPane.showMessageDialog(
-                            null,
-                            Resources.getString(
+                    AuthenticationWindow authWindow
+                        = new AuthenticationWindow(ldapSettings.getUserName(),
+                            ldapSettings.getPassword().toCharArray(),
+                            ldapSettings.getName(),
+                            false,
+                            LdapActivator.getResourceService().getImage(
+                                "service.gui.icons.AUTHORIZATION_ICON"),
+                            LdapActivator.getResourceService().getI18NString(
                                 "impl.ldap.WRONG_CREDENTIALS",
-                                    new String[]{ldapSettings.getName()}),
-                            Resources.getString(
-                                    "impl.ldap.WRONG_CREDENTIALS",
-                                    new String[]{ldapSettings.getName()}),
-                            JOptionPane.WARNING_MESSAGE);
+                                new String[]{ldapSettings.getName()}));
 
-                    int ret = settingsForm.showDialog();
+                    authWindow.setVisible(true);
 
-                    if(ret == 1)
+                    if(!authWindow.isCanceled())
                     {
-                        LdapService ldapService =
-                            LdapActivator.getLdapService();
+                        LdapDirectorySettings newSettings
+                            = new LdapDirectorySettingsImpl(ldapSettings);
+
+                        // Remove old server.
+                        LdapService ldapService
+                            = LdapActivator.getLdapService();
+
                         LdapFactory factory = ldapService.getFactory();
-                        LdapDirectory ldapDir =
-                            getContactSource().getLdapDirectory();
-                        LdapDirectorySettings settings =
-                            ldapDir.getSettings();
-
-                        LdapActivator.disableContactSource(ldapDir);
+                        LdapDirectory ldapDir
+                            = getContactSource().getLdapDirectory();
+                        LdapActivator.unregisterContactSource(ldapDir);
                         ldapService.getServerSet().removeServerWithName(
-                                settings.getName());
+                                ldapSettings.getName());
 
-                        ldapDir = factory.createServer(
-                                settingsForm.getSettings());
+                        // Add new server.
+                        newSettings.setPassword(
+                            new String(authWindow.getPassword()));
+
+                        ldapDir = factory.createServer(newSettings);
                         ldapService.getServerSet().addServer(ldapDir);
 
-                        LdapActivator.enableContactSource(ldapDir);
+                        LdapActivator.registerContactSource(ldapDir);
                     }
                 }
             }.start();

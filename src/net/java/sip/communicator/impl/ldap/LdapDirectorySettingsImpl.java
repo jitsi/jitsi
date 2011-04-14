@@ -267,6 +267,31 @@ public class LdapDirectorySettingsImpl
     }
 
     /**
+     * Returns the user name associated with the corresponding ldap directory.
+     *
+     * @return the user name associated with the corresponding ldap directory
+     */
+    public String getUserName()
+    {
+        if (bindDN == null)
+            return null;
+
+        String userName = null;
+        int uidIndex = bindDN.indexOf("uid=");
+        if (uidIndex > -1)
+        {
+            int commaIndex = bindDN.indexOf(",", uidIndex + 5);
+
+            if (commaIndex > -1)
+                userName = bindDN.substring(uidIndex + 4, commaIndex);
+            else
+                userName = bindDN.substring(uidIndex + 4);
+        }
+
+        return userName;
+    }
+
+    /**
      * simple setter for bindDN
      *
      * @param bindDN the bindDN property

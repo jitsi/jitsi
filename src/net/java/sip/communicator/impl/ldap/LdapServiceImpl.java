@@ -10,6 +10,7 @@ import java.util.*;
 
 import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.contactsource.ContactSourceService;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.util.*;
@@ -146,6 +147,29 @@ public class LdapServiceImpl
     public LdapFactory getFactory()
     {
         return factory;
+    }
+
+    /**
+     * Creates a contact source corresponding to the given ldap directory.
+     *
+     * @param ldapDir the ldap directory, for which we're creating the contact
+     * source
+     * @return the created contact source service
+     */
+    public ContactSourceService createContactSource(LdapDirectory ldapDir)
+    {
+        return LdapActivator.registerContactSource(ldapDir);
+    }
+
+    /**
+     * Removes the contact source corresponding to the given ldap directory.
+     *
+     * @param ldapDir the ldap directory, which contact source we'd like to
+     * remove
+     */
+    public void removeContactSource(LdapDirectory ldapDir)
+    {
+        LdapActivator.unregisterContactSource(ldapDir);
     }
 
     /**

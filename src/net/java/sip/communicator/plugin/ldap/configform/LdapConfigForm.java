@@ -375,14 +375,15 @@ public class LdapConfigForm
          */
         public void run()
         {
+            LdapService service = LdapActivator.getLdapService();
             if(oldLdap != null)
             {
-                LdapActivator.disableContactSource(oldLdap);
+                service.removeContactSource(oldLdap);
             }
 
             if(newLdap != null)
             {
-                LdapActivator.enableContactSource(newLdap);
+                service.createContactSource(newLdap);
             }
         }
     }
