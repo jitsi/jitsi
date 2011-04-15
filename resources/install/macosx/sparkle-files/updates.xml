@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"> 
+    <channel> 
+        <title>@APP_NAME@ (Build @BUILD@) Changelog</title>
+        <link>@SPARKLE_UPDATES@</link>
+        <description>Build @BUILD@ for MacOSX generated on @DATE@.</description>
+        <language>en</language> 
+        <item> 
+            <title>Build @BUILD@</title>
+            <description>@SPARKLE_INDEX@</description>
+            <pubDate>@DATE@</pubDate>
+            <enclosure sparkle:version="@BUILD@"
+               url="@DOWNLOAD_DMG_LINK@"
+               length="@LEN@"
+               type="application/octet-stream"
+               sparkle:dsaSignature="@SIGNATURE@"
+            />
+            <sparkle:deltas>
+            @SPARKLE_DELTAS@
+            </sparkle:deltas>
+        </item> 
+    </channel> 
+</rss> 

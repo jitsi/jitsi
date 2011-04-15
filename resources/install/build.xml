@@ -58,6 +58,13 @@
             classname="net.charabia.jsmoothgen.ant.JSmoothGen"
             classpath="${inst.resrc}/windows/jsmoothgen-ant.jar"/>
     </target>
+
+    <!-- include ant-contrib tasks-->
+    <target name="define-ant-contrib-task">
+        <taskdef resource="net/sf/antcontrib/antlib.xml"
+            classpath="${inst.resrc}/lib/ant-contrib-1.0b3.jar"/>
+    </target>
+
     <!--target name="windows-generate-exe" depends="define-jsmooth-task"
             if="application.home.dirname">
 
@@ -1232,6 +1239,230 @@
       <!-- Delete the temporary image -->
       <delete file="${macosx.app.dir}/${macosx.dmg.tmpname}"
               quiet="yes" failonerror="false"/>
+
+      <!-- creates the sparkle xmls -->
+      <antcall target="macosx-sparkle-files"/>
+      <antcall target="macosx-sparkle-delta-updates"/>
+
+      <!-- To be able to insert deltas in the updates xml
+        we use the token @SPARKLE_DELTAS@. And when finished
+        puting deltas (no matter if there were any at all if option
+        is not enabled) we must remove the SPARKLE_DELTAS token if left.
+      -->
+      <filter token="SPARKLE_DELTAS" value="" />
+      <move file="${macosx.app.dir}/sparkle/updates-tmp.xml"
+                tofile="${macosx.app.dir}/sparkle/updates.xml"
+                overwrite="true" filtering="yes"/>
+    </target>
+
+    <target name="macosx-sparkle-files" if="sparkle.signiture.location">
+
+        <exec executable="bash" os="Mac OS X" failonerror="true"
+              outputproperty="signature.base64">
+            <arg value="-c"/>
+            <arg value="openssl dgst -sha1 -binary &lt; ${macosx.app.dir}/${macosx.dmg.name} | openssl dgst -dss1 -sign ${sparkle.signiture.location} | openssl enc -base64"/>
+        </exec>
+
+        <length file="${macosx.app.dir}/${macosx.dmg.name}"
+                property="dmg.file.length" />
+
+        <copy todir="${macosx.app.dir}/sparkle">
+            <fileset dir="${macosx.resrc.dir}/sparkle-files/sparkle"/>
+        </copy>
+
+        <tstamp>
+            <format property="current.tstamp" pattern="EEE d MMM yyyy HH:mm:ss"/>
+        </tstamp>
+
+        <filter token="BUILD" value="${sparkle.build}" />
+        <filter token="DATE" value="${current.tstamp}" />
+        <filter token="APP_NAME" value="${application.name}" />
+        <filter token="SPARKLE_UPDATES" value="${link.updates.macosx}" />
+        <filter token="SPARKLE_INDEX" value="${link.sparkle.updates.index}" />
+        <filter token="LEN" value="${dmg.file.length}" />
+        <filter token="SIGNATURE" value="${signature.base64}" />
+        <filter token="DOWNLOAD_DMG_LINK" value="${link.download.macosx}" />
+        <copy file="${macosx.resrc.dir}/sparkle-files/updates.xml"
+                tofile="${macosx.app.dir}/sparkle/updates-tmp.xml"
+                overwrite="true" filtering="yes"/>
+        <copy file="${macosx.resrc.dir}/sparkle-files/index-top.html"
+              todir="${macosx.app.dir}/sparkle"
+                overwrite="true" filtering="yes"/>
+
+        <get src="${link.update.changelog.prefix}/extended-changelog-${label}.html"
+             dest="changelog-${label}.html"
+             ignoreerrors="true"/>
+        <loadfile property="latest.changelog"
+                  srcFile="changelog-${label}.html"
+                  failonerror="false"/>
+        <!-- Load a default value if file with changelogs is missing -->
+        <condition property="latest.changelog" value="Nightly builds">
+            <not>
+                <isset property="latest.changelog"/>
+            </not>
+        </condition>
+
+        <concat destfile="${macosx.app.dir}/sparkle/index.html">
+            <fileset dir="${macosx.app.dir}/sparkle/">
+                <include name="index-top.html"/>
+            </fileset>
+            <propertyset>
+                <propertyref name="latest.changelog"/>
+            </propertyset>
+            <fileset dir="${macosx.resrc.dir}/sparkle-files">
+                <include name="index-bottom.html"/>
+            </fileset>
+        </concat>
+        <delete file="${macosx.app.dir}/sparkle/index-top.html"/>
+
+    </target>
+
+    <target name="macosx-sparkle-delta-updates"
+            if="sparkle.delta.history.location"
+            depends="define-ant-contrib-task">
+
+        <!-- create temp dir for making delta diffs -->
+        <mkdir dir="${macosx.app.dir}/tmp"/>
+
+        <!-- Attach the current image -->
+        <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
+            <arg value="attach"/>
+            <arg value="${macosx.app.dir}/${macosx.dmg.name}"/>
+            <arg value="-mountroot"/>
+            <arg value="${macosx.app.dir}/tmp/"/>
+        </exec>
+
+        <unzip src="${macosx.resrc.dir}/Sparkle.framework.zip"
+               dest="${macosx.app.dir}/tmp"/>
+        <copy file="${macosx.resrc.dir}/BinaryDelta"
+              todir="${macosx.app.dir}/tmp"/>
+        <chmod file="${macosx.app.dir}/tmp/BinaryDelta"
+               perm="ugo+rx"/>
+
+
+        <!-- Find all previous builds we have to build deltas for them -->
+        <foreach param="build-location" target="-make-sparkle-delta"
+                 inheritall="true" inheritrefs="true">
+            <path>
+                <dirset dir="${sparkle.delta.history.location}">
+                    <include name="*"/>
+                </dirset>
+            </path>
+        </foreach>
+
+        <!-- Detach the temporary image -->
+        <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
+            <arg value="detach"/>
+            <arg value="${macosx.app.dir}/tmp/${application.name}"/>
+        </exec>
+
+        <!-- delete the temp dir -->
+        <delete dir="${macosx.app.dir}/tmp"/>
+
+        <!-- copy data for next delta builds-->
+        <mkdir dir="${sparkle.delta.history.location}/${sparkle.build}"/>
+        <copy file="${macosx.app.dir}/${macosx.dmg.name}"
+              tofile="${sparkle.delta.history.location}/${sparkle.build}/${package.name}.dmg"/>
+
+        <!-- now delete old one -->
+        <antcall target="-make-sparkle-delta-delete-oldest-data"/>
+    </target>
+
+    <target name="-make-sparkle-delta">
+
+        <basename property="old.sparkle.build" file="${build-location}"/>
+        <echo message="Creating dmg delta for ${old.sparkle.build}-${sparkle.build}"/>
+
+
+        <!-- create temp dir for making delta diffs -->
+        <mkdir dir="${macosx.app.dir}/tmp/${old.sparkle.build}"/>
+
+        <!-- Attach the  image -->
+        <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
+            <arg value="attach"/>
+            <arg value="${build-location}/${package.name}.dmg"/>
+            <arg value="-mountroot"/>
+            <arg value="${macosx.app.dir}/tmp/${old.sparkle.build}/"/>
+        </exec>
+
+        <!-- make the actual diff -->
+        <exec executable="${macosx.app.dir}/tmp/BinaryDelta"
+              os="Mac OS X" failonerror="true">
+            <arg value="create"/>
+            <arg value="${macosx.app.dir}/tmp/${old.sparkle.build}/${application.name}/${application.name}.app"/>
+            <arg value="${macosx.app.dir}/tmp/${application.name}/${application.name}.app"/>
+            <arg value="${macosx.app.dir}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta"/>
+        </exec>
+
+        <!-- Detach the temporary image -->
+        <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
+            <arg value="detach"/>
+            <arg value="${macosx.app.dir}/tmp/${old.sparkle.build}/${application.name}"/>
+        </exec>
+
+        <!-- delete the temp dir -->
+        <delete dir="${macosx.app.dir}/tmp/${old.sparkle.build}"/>
+
+        <exec executable="bash" os="Mac OS X" failonerror="true"
+              outputproperty="delta.signature.base64">
+            <arg value="-c"/>
+            <arg value="openssl dgst -sha1 -binary &lt; ${macosx.app.dir}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta | openssl dgst -dss1 -sign ${sparkle.signiture.location} | openssl enc -base64"/>
+        </exec>
+
+        <length file="${macosx.app.dir}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta"
+                property="delta.file.length" />
+
+        <copy file="${macosx.app.dir}/sparkle/updates-tmp.xml"
+              tofile="${macosx.app.dir}/sparkle/updates-tmp1.xml"/>
+        <move file="${macosx.app.dir}/sparkle/updates-tmp1.xml"
+                tofile="${macosx.app.dir}/sparkle/updates-tmp.xml"
+                overwrite="true" filtering="yes">
+
+        <filterset recurse="false">
+            <filter token="SPARKLE_DELTAS" value="
+
+        &lt;enclosure type=&quot;application/octet-stream&quot;
+	  sparkle:version=&quot;${sparkle.build}&quot; length=&quot;${delta.file.length}&quot;
+          sparkle:dsaSignature=&quot;${delta.signature.base64}&quot;
+	  sparkle:deltaFrom=&quot;${old.sparkle.build}&quot;
+	  url=&quot;${sparkle.delta.download.location}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta&quot;/&gt;
+          @SPARKLE_DELTAS@
+        " />
+        </filterset>
+      </move>
+
+    </target>
+
+    <target name="-make-sparkle-delta-delete-oldest-data">
+        <resourcecount property="build.history.current.size">
+            <dirset dir="${sparkle.delta.history.location}">
+                <include name="*"/>
+            </dirset>
+        </resourcecount>
+        <math result="build.history.to.delete"
+            operand1="${build.history.current.size}"
+            operation="-"
+            operand2="${sparkle.delta.history.size}"
+            datatype="int"/>
+
+        <timestampselector outputsetid="oldest.builds"
+                        count="${build.history.to.delete}"
+                        age="eldest">
+          <path>
+             <dirset dir="${sparkle.delta.history.location}">
+               <include name="*" />
+             </dirset>
+          </path>
+        </timestampselector>
+
+        <foreach param="build.to.delete"
+                 target="-make-wix-patch-delete-data-folder">
+            <path refid="oldest.builds"/>
+        </foreach>
+    </target>
+    <target name="-make-sparkle-delta-delete-data-folder">
+        <echo message="!!! Deleting old data dir ${build.to.delete} !!! " />
+        <delete dir="${build.to.delete}" failonerror="false"/>
     </target>
 
     <!-- Outputs a warning notifying the user that a dpkg tool is missing. -->
@@ -1256,7 +1487,7 @@
           token="_PACKAGE_NAME_"
           value="${package.name}"/>
 
-      <get src="http://bluejimp.com/sip-communicator/changelogs/extended-changelog-${label}.txt"
+      <get src="${link.update.changelog.prefix}/extended-changelog-${label}.txt"
           dest="changelog-${label}.txt" ignoreerrors="true"/>
       <loadfile property="latest.changelog"
           srcFile="changelog-${label}.txt" failonerror="false"/>
