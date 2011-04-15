@@ -1823,12 +1823,13 @@ class ilbc_encoder {
     //     else
     //         return ilbc_constants.BLOCKL_30MS;
     //     }
-    public short encode(
-            byte[] encoded, int encodedOffset, int encodedLength,
+    public int encode(
+            byte[] encoded, int encodedOffset,
             byte[] decoded, int decodedOffset)
     {
     float block[] = new float [this.ULP_inst.blockl];
-    bitstream en_data = new bitstream(this.ULP_inst.no_of_bytes * 2);
+    bitstream en_data
+        = new bitstream(encoded, encodedOffset, this.ULP_inst.no_of_bytes);
     //    char en_data[] = new char [this.ULP_inst.no_of_bytes];
     int k;
 
@@ -1843,10 +1844,7 @@ class ilbc_encoder {
 
     iLBC_encode(en_data, block);
 
-    for (k=0; k < encodedLength; k++, encodedOffset++)
-        encoded[encodedOffset] = (byte) (((short) en_data.buffer[k]) & 0xff);
-
-    return ((short) this.ULP_inst.no_of_bytes);
+    return this.ULP_inst.no_of_bytes;
 
     }
 

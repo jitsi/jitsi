@@ -93,7 +93,6 @@ public class JavaDecoder
         byte[] input = (byte[]) inputBuffer.getData();
 
         int inputLength = inputBuffer.getLength();
-        int inputOffset = inputBuffer.getOffset();
 
         if (this.inputLength != inputLength)
             initDec(inputLength);
@@ -104,7 +103,7 @@ public class JavaDecoder
 
         dec.decode(
                 output, outputOffset,
-                input, inputOffset, inputLength,
+                input, inputBuffer.getOffset(),
                 (short) 1);
 
         updateOutput(

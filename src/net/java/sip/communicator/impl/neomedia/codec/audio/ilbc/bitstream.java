@@ -7,7 +7,9 @@
 package net.java.sip.communicator.impl.neomedia.codec.audio.ilbc;
 
 /**
+ *
  * @author Jean Lorchat
+ * @author Lyubomir Marinov
  */
 class bitstream {
 
@@ -15,25 +17,31 @@ class bitstream {
 
     int pos;
 
-    char [] buffer;
-    int buffer_len;
-    int buffer_pos;
+    final byte [] buffer;
 
-    public bitstream(int size) {
-    pos = 0;
+    /**
+     * The offset in {@link #buffer} of the first octet of this
+     * <tt>bitstream</tt>.
+     */
+    final int buffer_off;
 
-    buffer_len = size;
-    buffer_pos = 0;
-    buffer = new char[size];
-    bitcount = 0;
-    }
+    /**
+     * The length in {@link #buffer} which is available to octets of this
+     * <tt>bitstream</tt>.
+     */
+    final int buffer_len;
+    private int buffer_pos;
 
-    public bitstream() {
-    pos = 0;
+    public bitstream(byte[] buffer, int offset, int length)
+    {
+        pos = 0;
 
-    buffer_len = 128;
-    buffer_pos = 0;
-    buffer = new char[128];
+        this.buffer = buffer;
+        buffer_off = offset;
+        buffer_len = length;
+
+        buffer_pos = buffer_off;
+        bitcount = 0;
     }
 
    /*----------------------------------------------------------------*
@@ -119,11 +127,11 @@ class bitstream {
            /* Insert index into the bitstream */
 
            if (bitno <= posLeft) {
-               buffer[buffer_pos] |= (char) (index << (posLeft - bitno));
+               buffer[buffer_pos] |= (byte) (index << (posLeft - bitno));
                pos += bitno;
                bitno = 0;
            } else {
-               buffer[buffer_pos] |= (char)(index >>> (bitno - posLeft));
+               buffer[buffer_pos] |= (byte) (index >>> (bitno - posLeft));
 
                pos = 8;
                index -= ((index >>> (bitno - posLeft)) << (bitno - posLeft));

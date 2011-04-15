@@ -184,7 +184,7 @@ public class JavaEncoder
                         outputBuffer,
                         outputOffset + outputLength);
 
-            enc.encode(output, outputOffset, outputLength, input, inputOffset);
+            enc.encode(output, outputOffset, input, inputOffset);
 
             updateOutput(
                     outputBuffer,

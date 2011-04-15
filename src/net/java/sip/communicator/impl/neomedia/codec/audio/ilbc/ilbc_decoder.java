@@ -1363,14 +1363,15 @@ class ilbc_decoder {
 
     public short decode(       /* (o) Number of decoded samples */
        byte[] decoded, int decodedOffset,        /* (o) Decoded signal block */
-       byte[] encoded, int encodedOffset, int encodedLength,        /* (i) Encoded bytes */
+       byte[] encoded, int encodedOffset,        /* (i) Encoded bytes */
        short mode)                       /* (i) 0=PL, 1=Normal */
     {
        int k;
        float decblock [] = new float[ilbc_constants.BLOCKL_MAX];
        float dtmp;
        //       char en_data[] = new char [this.ULP_inst.no_of_bytes];
-       bitstream en_data = new bitstream(this.ULP_inst.no_of_bytes);
+       bitstream en_data
+           = new bitstream(encoded, encodedOffset, this.ULP_inst.no_of_bytes);
 
        /* check if mode is valid */
        if ( (mode < 0) || (mode > 1)) {
@@ -1378,11 +1379,6 @@ class ilbc_decoder {
        }
 
        /* do actual decoding of block */
-       for (k = 0; k < encodedLength; k++, encodedOffset++) {
-       en_data.buffer[k] = (char) (encoded[encodedOffset] & 0xff);
-//        System.out.println("on decode " + (en_data.buffer[2*k]+0) + " et " + (en_data.buffer[2*k+1]+0));
-       }
-
        iLBC_decode(decblock, en_data, mode);
 
        /* convert to short */
