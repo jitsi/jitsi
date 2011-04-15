@@ -6,8 +6,13 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec.audio.ilbc;
 
+import net.java.sip.communicator.impl.neomedia.*;
+
 /**
+ * Implements an iLBC decoder.
+ *
  * @author Jean Lorchat
+ * @author Lyubomir Marinov
  */
 class ilbc_decoder {
 
@@ -1357,8 +1362,8 @@ class ilbc_decoder {
 //     }
 
     public short decode(       /* (o) Number of decoded samples */
-       short decoded_data[],        /* (o) Decoded signal block*/
-       short encoded_data[],        /* (i) Encoded bytes */
+       byte[] decoded, int decodedOffset,        /* (o) Decoded signal block */
+       byte[] encoded, int encodedOffset, int encodedLength,        /* (i) Encoded bytes */
        short mode)                       /* (i) 0=PL, 1=Normal */
     {
        int k;
@@ -1368,30 +1373,28 @@ class ilbc_decoder {
        bitstream en_data = new bitstream(this.ULP_inst.no_of_bytes);
 
        /* check if mode is valid */
-
        if ( (mode < 0) || (mode > 1)) {
            System.out.println("\nERROR - Wrong mode - 0, 1 allowed\n");
        }
 
        /* do actual decoding of block */
-       for (k = 0; k < encoded_data.length; k++) {
-       en_data.buffer[2*k+1] = (char) (encoded_data[k] & 0xff);
-       en_data.buffer[2*k] = (char) ((encoded_data[k] >> 8) & 0xff);
+       for (k = 0; k < encodedLength; k++, encodedOffset++) {
+       en_data.buffer[k] = (char) (encoded[encodedOffset] & 0xff);
 //        System.out.println("on decode " + (en_data.buffer[2*k]+0) + " et " + (en_data.buffer[2*k+1]+0));
        }
 
        iLBC_decode(decblock, en_data, mode);
 
        /* convert to short */
-       for (k = 0; k < this.ULP_inst.blockl; k++) {
+       for (k = 0; k < this.ULP_inst.blockl; k++, decodedOffset += 2) {
            dtmp=decblock[k];
 //        System.out.println("on a eu : " + dtmp);
-
            if (dtmp < ilbc_constants.MIN_SAMPLE)
                dtmp = ilbc_constants.MIN_SAMPLE;
            else if (dtmp > ilbc_constants.MAX_SAMPLE)
                dtmp = ilbc_constants.MAX_SAMPLE;
-           decoded_data[k] = (short) dtmp;
+
+           ArrayIOUtils.writeShort((short) dtmp, decoded, decodedOffset);
        }
 
        return ((short) this.ULP_inst.blockl);

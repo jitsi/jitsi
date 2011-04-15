@@ -10,10 +10,9 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
-import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 
 /**
- * The ilbc Encoder
+ * Implements an iLBC encoder and RTP packetizer as a {@link Codec}.
  *
  * @author Damian Minkov
  * @author Lyubomir Marinov
@@ -21,10 +20,37 @@ import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 public class JavaEncoder
     extends AbstractCodecExt
 {
-    private ilbc_encoder enc = null;
 
-    private int ILBC_NO_OF_BYTES = 0;
+    /**
+     * The <tt>ilbc_encoder</tt> adapted to <tt>Codec</tt> by this instance.
+     */
+    private ilbc_encoder enc;
 
+    /**
+     * The input length in bytes with which {@link #enc} has been initialized.
+     */
+    private int inputLength;
+
+    /**
+     * The output length in bytes with which {@link #enc} has been initialized.
+     */
+    private int outputLength;
+
+    /**
+     * The input from previous calls to {@link #doProcess(Buffer, Buffer)} which
+     * has not been consumed yet.
+     */
+    private byte[] prevInput;
+
+    /**
+     * The number of bytes in {@link #prevInput} which have not been consumed
+     * yet.
+     */
+    private int prevInputLength;
+
+    /**
+     * Initializes a new iLBC <tt>JavaEncoder</tt> instance.
+     */
     public JavaEncoder()
     {
         super(
@@ -67,16 +93,19 @@ public class JavaEncoder
      */
     protected void doClose()
     {
+        enc = null;
+        outputLength = 0;
+        inputLength = 0;
+        prevInput = null;
+        prevInputLength = 0;
     }
 
     /**
      * Implements {@link AbstractCodecExt#doOpen()}.
      *
-     * @throws ResourceUnavailableException
      * @see AbstractCodecExt#doOpen()
      */
     protected void doOpen()
-        throws ResourceUnavailableException
     {
         int mode = Constants.ILBC_MODE;
 
@@ -85,14 +114,17 @@ public class JavaEncoder
         switch (mode)
         {
         case 20:
-            ILBC_NO_OF_BYTES = ilbc_constants.NO_OF_BYTES_20MS;
+            outputLength = ilbc_constants.NO_OF_BYTES_20MS;
             break;
         case 30:
-            ILBC_NO_OF_BYTES = ilbc_constants.NO_OF_BYTES_30MS;
+            outputLength = ilbc_constants.NO_OF_BYTES_30MS;
             break;
         default:
             throw new IllegalStateException("mode");
         }
+        inputLength = enc.ULP_inst.blockl * 2;
+        prevInput = new byte[inputLength];
+        prevInputLength = 0;
     }
 
     /**
@@ -105,27 +137,65 @@ public class JavaEncoder
      */
     protected int doProcess(Buffer inputBuffer, Buffer outputBuffer)
     {
-        int inpLength = inputBuffer.getLength();
-        int inOffset = inputBuffer.getOffset();
-        byte[] inpData = (byte[]) inputBuffer.getData();
+        int inputLength = inputBuffer.getLength();
+        byte[] input = (byte[]) inputBuffer.getData();
+        int inputOffset = inputBuffer.getOffset();
 
-        if ((inpLength == 0) || (inpLength < enc.ULP_inst.blockl*2))
-            return OUTPUT_BUFFER_NOT_FILLED;
+        if ((prevInputLength != 0) || (inputLength < this.inputLength))
+        {
+            int bytesToCopy = this.inputLength - prevInputLength;
 
-        short[] encoded_data = new short[ILBC_NO_OF_BYTES / 2];
-        int outLength = ILBC_NO_OF_BYTES;
-        byte[] outdata = validateByteArraySize(outputBuffer, outLength);
-        short[] data = Utils.byteToShortArray(inpData, inOffset, inpLength, true);
+            if (bytesToCopy > inputLength)
+                bytesToCopy = inputLength;
+            System.arraycopy(
+                    input, inputOffset,
+                    prevInput, prevInputLength,
+                    bytesToCopy);
+            prevInputLength += bytesToCopy;
 
-        enc.encode(encoded_data, data);
+            inputBuffer.setLength(inputLength - bytesToCopy);
+            inputBuffer.setOffset(inputOffset + bytesToCopy);
 
-        Utils.shortArrToByteArr(encoded_data, outdata, false);
+            inputLength = prevInputLength;
+            input = prevInput;
+            inputOffset = 0;
+        }
+        else
+        {
+            inputBuffer.setLength(inputLength - this.inputLength);
+            inputBuffer.setOffset(inputOffset + this.inputLength);
+        }
 
-        updateOutput(outputBuffer, outputFormat, outLength, 0);
+        int ret;
 
-        inputBuffer.setLength(inpLength - enc.ULP_inst.blockl*2);
-        inputBuffer.setOffset(inOffset + enc.ULP_inst.blockl*2);
+        if (inputLength >= this.inputLength)
+        {
+            /*
+             * If we are about to encode from prevInput, we already have
+             * prevInputLength taken into consideration by using prevInput in
+             * the first place and we have to make sure that we will not use the
+             * same prevInput more than once.
+             */
+            prevInputLength = 0;
 
-        return BUFFER_PROCESSED_OK | INPUT_BUFFER_NOT_CONSUMED;
+            int outputOffset = 0;
+            byte[] output
+                = validateByteArraySize(
+                        outputBuffer,
+                        outputOffset + outputLength);
+
+            enc.encode(output, outputOffset, outputLength, input, inputOffset);
+
+            updateOutput(
+                    outputBuffer,
+                    outputFormat, outputLength, outputOffset);
+            ret = BUFFER_PROCESSED_OK;
+        }
+        else
+            ret = OUTPUT_BUFFER_NOT_FILLED;
+
+        if (inputBuffer.getLength() > 0)
+            ret |= INPUT_BUFFER_NOT_CONSUMED;
+        return ret;
     }
 }

@@ -21,18 +21,40 @@ public abstract class AbstractCodecExt
 {
     private final Class<? extends Format> formatClass;
 
+    /**
+     * The name of this <tt>PlugIn</tt>.
+     */
     private final String name;
 
     private final Format[] supportedOutputFormats;
 
+    /**
+     * Initializes a new <tt>AbstractCodecExt</tt> instance with a specific
+     * <tt>PlugIn</tt> name, a specific <tt>Class</tt> of input and output
+     * <tt>Format</tt>s and a specific list of <tt>Format</tt>s supported as
+     * output.
+     *
+     * @param name the <tt>PlugIn</tt> name of the new instance
+     * @param formatClass the <tt>Class</tt> of input and output
+     * <tt>Format</tt>s supported by the new instance
+     * @param supportedOutputFormats the list of <tt>Format</tt>s supported by
+     * the new instance as output
+     */
     protected AbstractCodecExt(
-        String name,
-        Class<? extends Format> formatClass,
-        Format[] supportedOutputFormats)
+            String name,
+            Class<? extends Format> formatClass,
+            Format[] supportedOutputFormats)
     {
         this.formatClass = formatClass;
         this.name = name;
         this.supportedOutputFormats = supportedOutputFormats;
+
+        /*
+         * An Effect is a Codec that does not modify the Format of the data, it
+         * modifies the contents.
+         */
+        if (this instanceof Effect)
+            inputFormats = this.supportedOutputFormats;
     }
 
     @Override
@@ -71,6 +93,13 @@ public abstract class AbstractCodecExt
 
     protected Format[] getMatchingOutputFormats(Format inputFormat)
     {
+        /*
+         * An Effect is a Codec that does not modify the Format of the data, it
+         * modifies the contents.
+         */
+        if (this instanceof Effect)
+            return new Format[] { inputFormat };
+
         if (supportedOutputFormats != null)
             return supportedOutputFormats.clone();
         return new Format[0];

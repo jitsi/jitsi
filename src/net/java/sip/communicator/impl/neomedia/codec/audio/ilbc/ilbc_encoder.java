@@ -6,8 +6,13 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec.audio.ilbc;
 
+import net.java.sip.communicator.impl.neomedia.*;
+
 /**
+ * Implements an iLBC encoder.
+ *
  * @author Jean Lorchat
+ * @author Lyubomir Marinov
  */
 class ilbc_encoder {
     /* encoding mode, either 20 or 30 ms */
@@ -1818,7 +1823,9 @@ class ilbc_encoder {
     //     else
     //         return ilbc_constants.BLOCKL_30MS;
     //     }
-    public short encode(short encoded_data[], short data[])
+    public short encode(
+            byte[] encoded, int encodedOffset, int encodedLength,
+            byte[] decoded, int decodedOffset)
     {
     float block[] = new float [this.ULP_inst.blockl];
     bitstream en_data = new bitstream(this.ULP_inst.no_of_bytes * 2);
@@ -1826,9 +1833,8 @@ class ilbc_encoder {
     int k;
 
     /* convert signal to float */
-
-    for (k = 0; k < this.ULP_inst.blockl; k++)
-        block[k] = data[k];
+    for (k = 0; k < this.ULP_inst.blockl; k++, decodedOffset += 2)
+        block[k] = ArrayIOUtils.readShort(decoded, decodedOffset);
 
     //    for (int li = 0; li < block.length; li++)
     //        System.out.println("block " + li + " : " + block[li]);
@@ -1837,8 +1843,8 @@ class ilbc_encoder {
 
     iLBC_encode(en_data, block);
 
-    for (k=0; k < encoded_data.length; k++)
-        encoded_data[k] = (short) (((en_data.buffer[2*k] << 8) & 0xff00) | ( ((short) en_data.buffer[2*k+1]) & 0x00ff));
+    for (k=0; k < encodedLength; k++, encodedOffset++)
+        encoded[encodedOffset] = (byte) (((short) en_data.buffer[k]) & 0xff);
 
     return ((short) this.ULP_inst.no_of_bytes);
 

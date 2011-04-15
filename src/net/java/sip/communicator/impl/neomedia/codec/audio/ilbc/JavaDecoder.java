@@ -10,10 +10,9 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
-import net.java.sip.communicator.impl.neomedia.codec.audio.*;
 
 /**
- * iLbc to PCM java decoder
+ * Implements an iLBC decoder and RTP depacketizer as a {@link Codec}.
  *
  * @author Damian Minkov
  * @author Lyubomir Marinov
@@ -23,7 +22,7 @@ public class JavaDecoder
 {
 
     /**
-     * The decoder
+     * The <tt>ilbc_decoder</tt> adapted to <tt>Codec</tt> by this instance.
      */
     private ilbc_decoder dec;
 
@@ -32,6 +31,9 @@ public class JavaDecoder
      */
     private int inputLength;
 
+    /**
+     * Initializes a new iLBC <tt>JavaDecoder</tt> instance.
+     */
     public JavaDecoder()
     {
         super(
@@ -65,6 +67,8 @@ public class JavaDecoder
      */
     protected void doClose()
     {
+        dec = null;
+        inputLength = 0;
     }
 
     /**
@@ -86,26 +90,26 @@ public class JavaDecoder
      */
     protected int doProcess(Buffer inputBuffer, Buffer outputBuffer)
     {
-        byte[] inData = (byte[]) inputBuffer.getData();
+        byte[] input = (byte[]) inputBuffer.getData();
 
-        int inpLength = inputBuffer.getLength();
-        int inOffset = inputBuffer.getOffset();
+        int inputLength = inputBuffer.getLength();
+        int inputOffset = inputBuffer.getOffset();
 
-        if (this.inputLength != inpLength)
-            initConverter(inpLength);
+        if (this.inputLength != inputLength)
+            initDec(inputLength);
 
-        short[] data = Utils.byteToShortArray(inData, inOffset, inpLength, false);
-        short[] decodedData = new short[dec.ULP_inst.blockl];
+        int outputLength = dec.ULP_inst.blockl * 2;
+        byte[] output = validateByteArraySize(outputBuffer, outputLength);
+        int outputOffset = 0;
 
-        dec.decode(decodedData, data, (short) 1);
+        dec.decode(
+                output, outputOffset,
+                input, inputOffset, inputLength,
+                (short) 1);
 
-        int outLength = dec.ULP_inst.blockl * 2;
-        byte[] outData = validateByteArraySize(outputBuffer, outLength);
-
-        Utils.shortArrToByteArr(decodedData, outData, true);
-
-        updateOutput(outputBuffer, getOutputFormat(), outLength, 0);
-
+        updateOutput(
+                outputBuffer,
+                getOutputFormat(), outputLength, outputOffset);
         return BUFFER_PROCESSED_OK;
     }
 
@@ -127,7 +131,14 @@ public class JavaDecoder
                     };
     }
 
-    private void initConverter(int inputLength)
+    /**
+     * Initializes {@link #dec} so that it processes a specific number of bytes
+     * as input.
+     *
+     * @param inputLength the number of bytes of input to be processed by
+     * {@link #dec}
+     */
+    private void initDec(int inputLength)
     {
         int mode;
 
