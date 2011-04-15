@@ -1,4 +1,4 @@
-<project name="sip-communicator-native" default="help-native">
+<project name="jitsi-native" default="help-native">
   <import file="../../build.xml"/>
 
   <!-- additionnal property -->
@@ -303,19 +303,23 @@
       <linkerarg value="-L${ffmpeg}/libavformat" />
       <linkerarg value="-L${ffmpeg}/libavcodec" />
       <linkerarg value="-L${ffmpeg}/libavutil" />
-      <linkerarg value="-L${ffmpeg}/libavcore" />
       <linkerarg value="-L${ffmpeg}/libavfilter" />
       <linkerarg value="-L${ffmpeg}/libswscale" />
       <linkerarg value="-L${x264}" />
+      <!--
+        Depending on the way that lame is built, libmp3lame.a may be in
+        libmp3lame/ or libmp3lame/.libs/.
+      -->
+      <linkerarg value="-L${lame}/libmp3lame" />
       <linkerarg value="-L${lame}/libmp3lame/.libs" />
-      <!-- static libraries MUST be at the end otherwise
-      they will not be added to shared library
+      <!--
+        Static libraries MUST be at the end otherwise they will not be added to
+        the shared library.
       -->
       <linkerarg value="-lavformat" location="end" /> 
       <linkerarg value="-lavcodec" location="end" />
       <linkerarg value="-lavfilter" location="end" />
       <linkerarg value="-lavutil" location="end" />
-      <linkerarg value="-lavcore" location="end" />
       <linkerarg value="-lswscale" location="end" />
       <linkerarg value="-lx264" location="end" />
       <linkerarg value="-lmp3lame" location="end" />
@@ -369,6 +373,8 @@
 
       <fileset dir="${src}/native/ffmpeg" includes="*.c"/>
     </cc>
+    <delete dir="${obj}" failonerror="false" />
+    <delete file="${native_install_dir}/history.xml" failonerror="false" />
   </target>
 
   <!-- compile jnportaudio library -->

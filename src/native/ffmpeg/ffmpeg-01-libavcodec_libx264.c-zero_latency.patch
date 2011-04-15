@@ -1,0 +1,18 @@
+Index: libavcodec/libx264.c
+===================================================================
+--- libavcodec/libx264.c	(révision 25669)
++++ libavcodec/libx264.c	(copie de travail)
+@@ -303,6 +303,13 @@
+     if (avctx->flags & CODEC_FLAG_GLOBAL_HEADER)
+         x4->params.b_repeat_headers = 0;
+ 
++    /* zero latency */
++    x4->params.rc.i_lookahead = 0;
++    x4->params.i_sync_lookahead = 0;
++    x4->params.i_bframe = 0;
++    x4->params.b_sliced_threads = 1;
++    x4->params.b_vfr_input = 0;
++
+     x4->enc = x264_encoder_open(&x4->params);
+     if (!x4->enc)
+         return -1;

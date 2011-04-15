@@ -28,7 +28,7 @@
         - there is app-version variable in the izpack installer xml
         - you must change the installer jar name in the launcher.ini file
 -->
-<project name="sip-communicator-installer" basedir="." default="ant-usage">
+<project name="jitsi-installer" basedir="." default="ant-usage">
 
     <import file="../../build.xml"/>
 

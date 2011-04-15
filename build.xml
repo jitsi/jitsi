@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created by Emil Ivov on Jul 6, 2005 8:30:22 PM-->
 
-<project default="ant-usage" name="sip-communicator">
+<project default="ant-usage" name="jitsi">
 
-    <dirname property="sc.basedir" file="${ant.file.sip-communicator}"/>
+    <dirname property="sc.basedir" file="${ant.file.jitsi}"/>
     <property environment="system"/>
     <property name="jdk.home" value="/usr/java/java"/>
     <property name="dest" value="classes"/>
@@ -412,7 +412,7 @@
             <bottom>
                 <![CDATA[
                 <font size="-1">
-                    <a href="http://sip-communicator.org"> SIP Communicator, the OpenSource Java VoIP and Instant Messaging client. </a>
+                    <a href="http://jitsi.org"> Jitsi, the OpenSource Java VoIP and Instant Messaging client. </a>
                     <br>
                     <a href="http://gnu.org"> Distributable under LGPL license. </a>
                     <br>
