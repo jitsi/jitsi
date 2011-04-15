@@ -1243,16 +1243,8 @@
       <!-- creates the sparkle xmls -->
       <antcall target="macosx-sparkle-files"/>
       <antcall target="macosx-sparkle-delta-updates"/>
+      <antcall target="macosx-sparkle-files-finish"/>
 
-      <!-- To be able to insert deltas in the updates xml
-        we use the token @SPARKLE_DELTAS@. And when finished
-        puting deltas (no matter if there were any at all if option
-        is not enabled) we must remove the SPARKLE_DELTAS token if left.
-      -->
-      <filter token="SPARKLE_DELTAS" value="" />
-      <move file="${macosx.app.dir}/sparkle/updates-tmp.xml"
-                tofile="${macosx.app.dir}/sparkle/updates.xml"
-                overwrite="true" filtering="yes"/>
     </target>
 
     <target name="macosx-sparkle-files" if="sparkle.signiture.location">
@@ -1315,6 +1307,20 @@
         </concat>
         <delete file="${macosx.app.dir}/sparkle/index-top.html"/>
 
+    </target>
+
+    <!-- task only finishes generating sparkle files if needed -->
+    <target name="macosx-sparkle-files-finish"
+            if="sparkle.signiture.location">
+        <!-- To be able to insert deltas in the updates xml
+            we use the token @SPARKLE_DELTAS@. And when finished
+            puting deltas (no matter if there were any at all if option
+            is not enabled) we must remove the SPARKLE_DELTAS token if left.
+        -->
+        <filter token="SPARKLE_DELTAS" value="" />
+        <move file="${macosx.app.dir}/sparkle/updates-tmp.xml"
+              tofile="${macosx.app.dir}/sparkle/updates.xml"
+              overwrite="true" filtering="yes"/>
     </target>
 
     <target name="macosx-sparkle-delta-updates"
