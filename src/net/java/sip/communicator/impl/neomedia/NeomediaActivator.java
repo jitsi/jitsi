@@ -162,7 +162,7 @@ public class NeomediaActivator
                 "net.java.sip.communicator.impl.neomedia.ZrtpConfigurePanel",
                 getClass().getClassLoader(),
                 "impl.media.security.zrtp.CONF_ICON",
-                "service.gui.CALL",
+                "impl.media.security.zrtp.TITLE",
                 0),
             securityProps);
 
