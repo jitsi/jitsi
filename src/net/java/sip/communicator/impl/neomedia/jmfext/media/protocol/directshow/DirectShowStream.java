@@ -20,7 +20,7 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 /**
  * Implements a <tt>PushBufferStream</tt> using DirectShow.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
 public class DirectShowStream extends AbstractPushBufferStream
@@ -87,9 +87,9 @@ public class DirectShowStream extends AbstractPushBufferStream
     /**
      * Delegate class to handle video data.
      */
-    final DSCaptureDevice.GrabberDelegate grabber =
-        new DSCaptureDevice.GrabberDelegate() {
-
+    final DSCaptureDevice.GrabberDelegate grabber
+        = new DSCaptureDevice.GrabberDelegate()
+        {
             @Override
             public void frameReceived(long ptr, int length)
             {
@@ -108,7 +108,7 @@ public class DirectShowStream extends AbstractPushBufferStream
     DirectShowStream(FormatControl formatControl)
     {
         super(formatControl);
-        format = ((VideoFormat)formatControl.getFormat());
+        format = (VideoFormat) formatControl.getFormat();
     }
 
     /**
@@ -209,6 +209,7 @@ public class DirectShowStream extends AbstractPushBufferStream
 
         return format;
     }
+
     /**
      * Releases the resources used by this instance throughout its existence and
      * makes it available for garbage collection. This instance is considered
@@ -311,7 +312,6 @@ public class DirectShowStream extends AbstractPushBufferStream
             transferDataThread.start();
         }
     }
-
 
     /**
      * Stops the transfer of media data from this <tt>PushBufferStream</tt>.

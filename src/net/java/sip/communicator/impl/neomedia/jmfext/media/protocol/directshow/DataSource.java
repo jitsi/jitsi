@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
 /**
  * <tt>DataSource</tt> for DirectShow capture devices.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
 public class DataSource extends AbstractPushBufferCaptureDevice
@@ -41,10 +41,11 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     private DSCaptureDevice device = null;
 
     /**
-     * Delegate grabber. Each frame captured by device
-     * will be pass through this grabber.
+     * Delegate grabber. Each frame captured by device will be pass through this
+     * grabber.
      */
     private DSCaptureDevice.GrabberDelegate grabber = null;
+
 
     /**
      * DirectShow manager.
@@ -77,6 +78,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
                     DSFormat.I420,
                     FFmpeg.PIX_FMT_YUV420P,
                 };
+
     /**
      * The default width of <tt>DataSource</tt>.
      */
@@ -127,10 +129,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         logger.info("set locator to " + locator);
 
         if(getLocator() == null)
-        {
             super.setLocator(locator);
-        }
-
         locator = getLocator();
         logger.info("getLocator() returns " + locator);
 
@@ -216,6 +215,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         */
 
         grabber = stream.grabber;
+
         return stream;
     }
 
@@ -238,9 +238,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     protected Format[] getSupportedFormats(int streamIndex)
     {
         if(device == null)
-        {
             return new Format[0];
-        }
 
         DSFormat fmts[] = device.getSupportedFormats();
         List<Format> formats = new ArrayList<Format>();
@@ -339,6 +337,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
             return super.setFormat(streamIndex, oldValue, newValue);
         }
     }
+
     /**
      * Opens a connection to the media source specified by the
      * <tt>MediaLocator</tt> of this <tt>DataSource</tt>.
@@ -352,12 +351,12 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     protected void doConnect() throws IOException
     {
         if (logger.isInfoEnabled())
+
             logger.info("doConnect");
 
         if(manager == null)
-        {
             manager = DSManager.getInstance();
-        }
+
         setLocator(getLocator());
 
         super.doConnect();
@@ -373,7 +372,9 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     protected void doDisconnect()
     {
         if (logger.isInfoEnabled())
+
             logger.info("doDisconnect");
+
         super.doDisconnect();
 
         if(manager != null)
@@ -402,9 +403,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         /* open and start capture */
         device.open();
         if(nativeFormat != null)
-        {
             device.setFormat(nativeFormat);
-        }
 
         device.setDelegate(grabber);
 
@@ -423,6 +422,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     {
         if (logger.isInfoEnabled())
             logger.info("stop");
+
         /* close capture */
         super.doStop();
         device.close();
@@ -459,4 +459,3 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         return -1;
     }
 }
-

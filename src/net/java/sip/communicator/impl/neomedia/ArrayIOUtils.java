@@ -7,10 +7,10 @@
 package net.java.sip.communicator.impl.neomedia;
 
 /**
- * Implements functionality aiding the reading and writing of <tt>byte</tt>
- * arrays and primitive types such as <tt>short</tt>.
+ * Implements functionality aiding the reading and writing in little endian of
+ * <tt>byte</tt> arrays and primitive types such as <tt>short</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class ArrayIOUtils
 {
