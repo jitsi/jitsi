@@ -234,10 +234,7 @@ public class SIPAccountRegistrationForm
 
         registration.setServerAddress(serverAddress);
 
-        // set the proxy only if its not already set by some custom
-        // extending wizard like sip2sip
-        if(registration.getProxy() == null)
-            registration.setProxy(proxyAddress);
+        registration.setProxy(proxyAddress);
 
         String displayName = accountPanel.getDisplayName();
         registration.setDisplayName(displayName);

@@ -86,8 +86,7 @@ public class IppiAccountRegistrationWizard
      */
     private void setPredefinedProperties(SIPAccountRegistration reg)
     {
-        // set default proxy, common for ippi
-        reg.setProxy("ippi.fr");
+        // set properties common for ippi
         reg.setDefaultTransport("TCP");
         reg.setDefaultDomain("ippi.fr");
     }

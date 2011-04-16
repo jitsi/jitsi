@@ -85,8 +85,7 @@ public class Sip2SipAccountRegistrationWizard
      */
     private void setPredefinedProperties(SIPAccountRegistration reg)
     {
-        // set default proxy, common for sip2sip
-        reg.setProxy("proxy.sipthor.net");
+        // set properties common for sip2sip
         reg.setKeepAliveMethod("NONE");
         reg.setDefaultKeepAliveMethod("NONE");
         reg.setDefaultDomain("sip2sip.info");
