@@ -391,9 +391,6 @@ public class ParallelResolver implements Resolver
      */
     public void reset()
     {
-        // reset configuration
-        ResolverConfig.refresh();
-
         ExtendedResolver resolver = (ExtendedResolver)defaultResolver;
 
         // remove old ones

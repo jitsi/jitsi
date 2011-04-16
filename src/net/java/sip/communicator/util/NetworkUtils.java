@@ -1178,6 +1178,8 @@ public class NetworkUtils
      */
     public static void reloadDnsResolverConfig()
     {
+        // reread system dns configuration
+        ResolverConfig.refresh();
         if(parallelResolver instanceof ParallelResolver)
         {
             //needs a separate lock object because the parallelResolver could
