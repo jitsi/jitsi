@@ -752,7 +752,10 @@ public class AudioMixerMediaDevice
                 AudioLevelEventDispatcher dispatcher =
                     streamAudioLevelListeners.remove(stream);
 
-                dispatcher.setAudioLevelListener(null);
+                if(dispatcher != null)
+                {
+                    dispatcher.setAudioLevelListener(null);
+                }
             }
         }
     }
@@ -983,7 +986,7 @@ public class AudioMixerMediaDevice
         /**
          * Override it here cause we won't register effects to that stream
          * cause we already have one.
-         * 
+         *
          * @param processor the processor.
          */
         @Override
@@ -1103,7 +1106,7 @@ public class AudioMixerMediaDevice
          */
         @Override
         public void setMute(boolean mute)
-        {            
+        {
             if(super.isMute() == mute)
                 return;
 

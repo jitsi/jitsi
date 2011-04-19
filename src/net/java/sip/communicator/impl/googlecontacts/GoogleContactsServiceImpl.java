@@ -485,7 +485,7 @@ public class GoogleContactsServiceImpl
         }
         catch(Exception e)
         {
-            logger.info("Failed to retrieve photo of the contact", e);
+            logger.debug("Failed to retrieve photo of the contact", e);
         }
         return null;
     }

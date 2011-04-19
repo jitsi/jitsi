@@ -29,6 +29,11 @@ public class ConferenceCallPanel
     implements CallRenderer
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The conference call.
      */
     private final Call call;
@@ -251,6 +256,11 @@ public class ConferenceCallPanel
         extends JViewport
     {
         /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
          * Subclassers can override this to install a different
          * layout manager (or <code>null</code>) in the constructor.  Returns
          * the <code>LayoutManager</code> to install on the
@@ -269,6 +279,11 @@ public class ConferenceCallPanel
      */
     private static class MyViewportLayout extends ViewportLayout
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         // Single instance used by JViewport.
         static MyViewportLayout SHARED_INSTANCE = new MyViewportLayout();
 
@@ -339,10 +354,10 @@ public class ConferenceCallPanel
                     = Math.max(0, viewSize.height - extentSize.height);
             }
 
-            /* If we haven't been advised about how the viewports size 
+            /* If we haven't been advised about how the viewports size
              * should change wrt to the viewport, i.e. if the view isn't
              * an instance of Scrollable, then adjust the views size as follows.
-             * 
+             *
              * If the origin of the view is showing and the viewport is
              * bigger than the views preferred size, then make the view
              * the same size as the viewport.

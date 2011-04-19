@@ -461,9 +461,30 @@ public class ConferencePeerPanel
 
         if (memberPanel != null)
         {
+            int i = 0;
             this.remove(memberPanel);
             conferenceMembersPanels.remove(member);
             member.removePropertyChangeListener(memberPanel);
+
+            for(Map.Entry<ConferenceMember, ConferenceMemberPanel> m :
+                conferenceMembersPanels.entrySet())
+            {
+                GridBagConstraints constraints = new GridBagConstraints();
+                ConferenceMemberPanel mV = m.getValue();
+
+                this.remove(mV);
+
+                // Add again the member panel to this container
+                constraints.fill = GridBagConstraints.BOTH;
+                constraints.gridx = 0;
+                constraints.gridy = i;
+                constraints.weightx = 1;
+                constraints.weighty = 0;
+                constraints.insets = new Insets(10, 0, 0, 0);
+
+                this.add(mV, constraints);
+                i++;
+            }
         }
     }
 

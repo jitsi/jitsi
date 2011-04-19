@@ -114,7 +114,6 @@ public class OperationSetTelephonyConferencingJabberImpl
             while(it.hasNext())
             {
                 CallPeer callPeer = it.next();
-                System.out.print(callPeer.getAddress());
                 notify(callPeer);
             }
             version++;
@@ -652,6 +651,12 @@ public class OperationSetTelephonyConferencingJabberImpl
                 if(endpoints.size() > 0)
                 {
                     EndpointPacketExtension endpoint = endpoints.get(0);
+
+                    if(endpoint.getStatus() == null)
+                    {
+                        break;
+                    }
+
                     endpointStatus = endpoint.getStatus().toString();
 
                     List<MediaPacketExtension> medias =
