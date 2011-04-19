@@ -164,7 +164,7 @@ public class PacketLoggingServiceImpl
             files[i] = PacketLoggingActivator.getFileAccessService()
                 .getPrivatePersistentFile(
                     PacketLoggingActivator.LOGGING_DIR_NAME
-                        + File.separator + "sip-communicator" + i + ".pcap");
+                        + File.separator + "jitsi" + i + ".pcap");
         }
     }
 

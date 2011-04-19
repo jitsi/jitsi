@@ -145,6 +145,11 @@ public class ProtocolProviderServiceJabberImpl
     private SecurityAuthority authority = null;
 
     /**
+     * The resource we will use when connecting during this run.
+     */
+    private String resource = null;
+
+    /**
      * The icon corresponding to the jabber protocol.
      */
     private ProtocolIconJabberImpl jabberIcon;
@@ -479,12 +484,28 @@ public class ProtocolProviderServiceJabberImpl
                 int serverPort = getAccountID().getAccountPropertyInt(
                         ProtocolProviderFactory.SERVER_PORT, 5222);
 
-                String accountResource
-                    = getAccountID().getAccountPropertyString(
-                        ProtocolProviderFactory.RESOURCE);
+                if(resource == null)
+                {
+                    String defaultResource = "jitsi";
+                    String autoGenenerateResource =
+                        getAccountID().getAccountPropertyString(
+                            ProtocolProviderFactory.AUTO_GENERATE_RESOURCE);
+                    if(autoGenenerateResource == null ||
+                        Boolean.parseBoolean(autoGenenerateResource))
+                    {
+                        resource = defaultResource +
+                            net.java.sip.communicator.util.StringUtils
+                                .randomString(8);
+                    }
+                    else
+                    {
+                        resource = getAccountID().getAccountPropertyString(
+                            ProtocolProviderFactory.RESOURCE);
 
-                if(accountResource == null || accountResource.equals(""))
-                    accountResource = "sip-comm";
+                        if(resource == null || resource.length() == 0)
+                            resource = defaultResource;
+                    }
+                }
 
                 // check to see is there SRV records for this server domain
                 try
@@ -645,7 +666,7 @@ public class ProtocolProviderServiceJabberImpl
                     {
                         ConnectState state = connectAndLogin(
                             currentAddress, serverPort, serviceName,
-                            userID, password, accountResource);
+                            userID, password, resource);
 
                         if(state == ConnectState.ABORT_CONNECTING)
                             return;
@@ -670,7 +691,7 @@ public class ProtocolProviderServiceJabberImpl
                             ConnectState state = connectAndLogin(
                                 currentAddress, serverPort, serviceName,
                                 userID + "@" + serviceName,
-                                password, accountResource);
+                                password, resource);
 
                             if(state == ConnectState.ABORT_CONNECTING)
                                 return;

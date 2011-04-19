@@ -167,6 +167,12 @@ public abstract class ProtocolProviderFactory
     public static final String PREFERRED_TRANSPORT = "PREFERRED_TRANSPORT";
 
     /**
+     * The name of the property under which we store whether we generate
+     * resource values or we just use the stored one.
+     */
+    public static final String AUTO_GENERATE_RESOURCE = "AUTO_GENERATE_RESOURCE";
+
+    /**
      * The name of the property under which we store resources such as the
      * jabber resource property.
      */

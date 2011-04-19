@@ -7,6 +7,7 @@
 package net.java.sip.communicator.util;
 
 import java.io.*;
+import java.util.*;
 
 /**
  * Utility class that helps to work with <tt>String</tt> class.
@@ -193,5 +194,21 @@ public final class StringUtils
         }
 
         return true;
+    }
+
+    /**
+     * Generates random alpha-numeric string with given length.
+     * @param length the length.
+     * @return the random string.
+     */
+    public static String randomString(int length)
+    {
+        Random random = new Random();
+
+        StringBuilder s = new StringBuilder();
+        while (s.length() < length)
+            s.append(Integer.toHexString(random.nextInt()));
+
+        return s.toString();
     }
 }

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -71,6 +72,10 @@ public class ConnectionPanel
     private final JTextField portField
         = new JTextField(JabberAccountRegistration.DEFAULT_PORT);
 
+    private final JCheckBox autoGenerateResource = new JCheckBox(
+            Resources.getString("plugin.jabberaccregwizz.AUTORESOURCE"),
+                JabberAccountRegistration.DEFAULT_RESOURCE_AUTOGEN);
+
     private final JabberAccountRegistrationForm parentForm;
 
     /**
@@ -123,13 +128,9 @@ public class ConnectionPanel
 
         labelsAdvOpPanel.add(serverLabel);
         labelsAdvOpPanel.add(portLabel);
-        labelsAdvOpPanel.add(resourceLabel);
-        labelsAdvOpPanel.add(priorityLabel);
 
         valuesAdvOpPanel.add(serverField);
         valuesAdvOpPanel.add(portField);
-        valuesAdvOpPanel.add(resourceField);
-        valuesAdvOpPanel.add(priorityField);
 
         JPanel checkBoxesPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
@@ -137,11 +138,40 @@ public class ConnectionPanel
         checkBoxesPanel.add(gmailNotificationsBox);
         checkBoxesPanel.add(googleContactsBox);
 
+        final JPanel resourcePanel
+                = new TransparentPanel(new BorderLayout(10, 10));
+        resourcePanel.setBorder(BorderFactory.createTitledBorder(
+            Resources.getString("plugin.jabberaccregwizz.RESOURCE")));
+        resourcePanel.add(autoGenerateResource, BorderLayout.NORTH);
+        JPanel resSubPanelLabel =
+            new TransparentPanel(new GridLayout(0, 1, 10, 10));
+        JPanel resSubPanelValue =
+            new TransparentPanel(new GridLayout(0, 1, 10, 10));
+        resSubPanelLabel.add(resourceLabel);
+        resSubPanelLabel.add(priorityLabel);
+        resSubPanelValue.add(resourceField);
+        resSubPanelValue.add(priorityField);
+        resourcePanel.add(resSubPanelLabel, BorderLayout.WEST);
+        resourcePanel.add(resSubPanelValue, BorderLayout.CENTER);
+
         // default for new account
         googleContactsBox.setSelected(true);
         advancedOpPanel.add(checkBoxesPanel, BorderLayout.NORTH);
         advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
         advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
+        advancedOpPanel.add(resourcePanel, BorderLayout.SOUTH);
+
+        if(autoGenerateResource.isSelected())
+        {
+            resourceField.setEnabled(false);
+        }
+        autoGenerateResource.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                resourceField.setEnabled(!autoGenerateResource.isSelected());
+            }
+        });
 
         mainPanel.add(advancedOpPanel);
 
@@ -319,5 +349,24 @@ public class ConnectionPanel
     public boolean isValidated()
     {
         return true;
+    }
+
+    /**
+     * Set auto generate resource value.
+     * Set checkbox state.
+     * @param value the new value.
+     */
+    void setAutogenerateResource(boolean value)
+    {
+        autoGenerateResource.setSelected(value);
+    }
+
+    /**
+     * Is resource auto generate enabled. Returns checkbox state.
+     * @return is resource auto generate enabled.
+     */
+    boolean isAutogenerateResourceEnabled()
+    {
+        return autoGenerateResource.isSelected();
     }
 }
