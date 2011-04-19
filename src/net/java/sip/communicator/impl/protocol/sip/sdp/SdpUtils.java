@@ -710,14 +710,10 @@ public class SdpUtils
 
         //now create the format.
         MediaFormat format
-            = SipActivator
-                .getMediaService()
-                    .getFormatFactory()
-                        .createMediaFormat(
+            = SipActivator.getMediaService().getFormatFactory()
+                    .createMediaFormat(
                             payloadType,
-                            encoding,
-                            clockRate,
-                            numChannels,
+                            encoding, clockRate, numChannels,
                             fmtParamsMap,
                             advancedAttrMap);
 

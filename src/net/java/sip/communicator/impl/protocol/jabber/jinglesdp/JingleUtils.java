@@ -140,9 +140,9 @@ public class JingleUtils
         if(format == null)
         {
             unknown = true;
-            format =
-                JabberActivator.getMediaService().getFormatFactory().
-                    createUnknownMediaFormat(MediaType.AUDIO);
+            format
+                = JabberActivator.getMediaService().getFormatFactory()
+                        .createUnknownMediaFormat(MediaType.AUDIO);
         }
 
         /*

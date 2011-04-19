@@ -18,16 +18,12 @@ import javax.media.format.*;
  * used, it is conceived as an appropriate way to avoid possible matching with
  * other <tt>VideoFormat</tt>s and a very obvious one.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
 public class AVFrameFormat
     extends VideoFormat
 {
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
 
     /**
      * The encoding of the <tt>AVFrameFormat</tt> instances.
@@ -98,8 +94,12 @@ public class AVFrameFormat
     @Override
     public Object clone()
     {
-        AVFrameFormat f = new AVFrameFormat(size, frameRate, pixFmt,
-                devicePixFmt);
+        AVFrameFormat f
+            = new AVFrameFormat(
+                    getSize(),
+                    getFrameRate(),
+                    pixFmt,
+                    devicePixFmt);
 
         f.copy(this);
         return f;
@@ -161,7 +161,7 @@ public class AVFrameFormat
     /**
      * Gets the native capture device format represented by this instance.
      *
-     * @return native capture device format reprensented by this instance
+     * @return native capture device format represented by this instance
      */
     public int getDevicePixFmt()
     {

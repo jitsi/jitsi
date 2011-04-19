@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
  * <tt>ProtocolProviderServiceJabberImpl</tt>
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Yana Stamcheva
  */
 public abstract class AbstractCallPeer<T extends Call,
@@ -533,8 +533,10 @@ public abstract class AbstractCallPeer<T extends Call,
         {
             this.conferenceFocus = conferenceFocus;
 
-            fireCallPeerConferenceEvent( new CallPeerConferenceEvent(
-                    this, CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED));
+            fireCallPeerConferenceEvent(
+                    new CallPeerConferenceEvent(
+                            this,
+                            CallPeerConferenceEvent.CONFERENCE_FOCUS_CHANGED));
         }
     }
 
