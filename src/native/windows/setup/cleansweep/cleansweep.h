@@ -11,7 +11,7 @@
 #include <windows.h>
 
 #ifndef PRODUCTNAME
-#define PRODUCTNAME "SIP Communicator"
+#define PRODUCTNAME "Jitsi"
 #endif /* #ifndef PRODUCTNAME */
 
 #endif /* #ifndef _NET_JAVA_SIP_COMMUNICATOR_WINDOWS_SETUP_CLEANSWEEP_H_ */

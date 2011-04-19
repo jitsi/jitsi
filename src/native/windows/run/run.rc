@@ -25,13 +25,13 @@ BEGIN
         BLOCK "040904E4"
         BEGIN
             VALUE "Comments", ""
-            VALUE "CompanyName", "sip-communicator.org"
-            VALUE "FileDescription", "SIP Communicator"
-            VALUE "FileVersion", "0.0.0.0"
+            VALUE "CompanyName", "jitsi.org"
+            VALUE "FileDescription", PRODUCTNAME
+            VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "run"
             VALUE "OriginalFilename", "run.exe"
             VALUE "ProductName", PRODUCTNAME
-            VALUE "ProductVersion", "0.0.0.0"
+            VALUE "ProductVersion", "1.0.0.0"
         END
     END
     BLOCK "VarFileInfo"

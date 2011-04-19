@@ -18,13 +18,13 @@ BEGIN
         BLOCK "040904E4"
         BEGIN
             VALUE "Comments", ""
-            VALUE "CompanyName", "sip-communicator.org"
-            VALUE "FileDescription", "SIP Communicator Setup Clean Sweep"
-            VALUE "FileVersion", "0.0.0.0"
+            VALUE "CompanyName", "jitsi.org"
+            VALUE "FileDescription", PRODUCTNAME " Setup Clean Sweep"
+            VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "cleansweep"
             VALUE "OriginalFilename", "cleansweep.exe"
-            VALUE "ProductName", "SIP Communicator"
-            VALUE "ProductVersion", "0.0.0.0"
+            VALUE "ProductName", PRODUCTNAME
+            VALUE "ProductVersion", "1.0.0.0"
         END
     END
     BLOCK "VarFileInfo"

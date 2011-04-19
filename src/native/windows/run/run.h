@@ -14,7 +14,7 @@
 #define IDS_JAVANOTFOUND 2
 
 #ifndef PRODUCTNAME
-#define PRODUCTNAME "SIP Communicator"
+#define PRODUCTNAME "Jitsi"
 #endif /* #ifndef PRODUCTNAME */
 
 #endif /* _NET_JAVA_SIP_COMMUNICATOR_RUN_H_ */
