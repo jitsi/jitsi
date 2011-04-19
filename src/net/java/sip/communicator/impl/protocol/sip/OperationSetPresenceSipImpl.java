@@ -2882,6 +2882,29 @@ public class OperationSetPresenceSipImpl
         }
     }
 
+    /**
+     * Sets the display name for <tt>contact</tt> to be <tt>newName</tt>.
+     * <p>
+     * @param contact the <tt>Contact</tt> that we are renaming
+     * @param newName a <tt>String</tt> containing the new display name for
+     * <tt>metaContact</tt>.
+     * @throws IllegalArgumentException if <tt>contact</tt> is not an
+     * instance that belongs to the underlying implementation.
+     */
+    public void setDisplayName(Contact contact, String newName)
+        throws IllegalArgumentException
+    {
+        assertConnected();
+
+        if (!(contact instanceof ContactSipImpl))
+        {
+            throw new IllegalArgumentException("The contact is not a SIP " +
+                    "contact");
+        }
+
+        ssContactList.renameContact((ContactSipImpl) contact, newName);
+    }
+
      /**
       * Cancels the timer which handles all scheduled tasks and disposes of the
       * currently existing tasks scheduled with it.

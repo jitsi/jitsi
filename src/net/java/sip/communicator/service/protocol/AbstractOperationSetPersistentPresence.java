@@ -500,4 +500,18 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
             subscriptionListeners.remove(listener);
         }
     }
+
+    /**
+     * Sets the display name for <tt>contact</tt> to be <tt>newName</tt>.
+     * <p>
+     * @param contact the <tt>Contact</tt> that we are renaming
+     * @param newName a <tt>String</tt> containing the new display name for
+     * <tt>metaContact</tt>.
+     * @throws IllegalArgumentException if <tt>contact</tt> is not an
+     * instance that belongs to the underlying implementation.
+     */
+    public void setDisplayName(Contact contact, String newName)
+        throws IllegalArgumentException
+    {
+    }
 }

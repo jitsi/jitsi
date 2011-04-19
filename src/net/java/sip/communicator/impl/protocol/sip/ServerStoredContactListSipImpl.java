@@ -480,7 +480,6 @@ public class ServerStoredContactListSipImpl
     synchronized public void renameContact(
             ContactSipImpl contact,
             String newName)
-            throws OperationFailedException
     {
         if (contact == null)
         {
@@ -502,9 +501,8 @@ public class ServerStoredContactListSipImpl
             catch (XCapException e)
             {
                 contact.setDisplayName(oldName);
-                throw new OperationFailedException(
-                        "Error while renaming XCAP group",
-                        OperationFailedException.NETWORK_FAILURE, e);
+                throw new IllegalStateException(
+                        "Error while renaming XCAP group", e);
             }
         }
         parentOperationSet.fireContactPropertyChangeEvent(

@@ -651,6 +651,27 @@ public class OperationSetPersistentPresenceMsnImpl
     }
 
     /**
+     * Sets the display name for <tt>contact</tt> to be <tt>newName</tt>.
+     * <p>
+     * @param contact the <tt>Contact</tt> that we are renaming
+     * @param newName a <tt>String</tt> containing the new display name for
+     * <tt>metaContact</tt>.
+     * @throws IllegalArgumentException if <tt>contact</tt> is not an
+     * instance that belongs to the underlying implementation.
+     */
+    public void setDisplayName(Contact contact, String newName)
+        throws IllegalArgumentException
+    {
+        assertConnected();
+
+        if( !(contact instanceof ContactMsnImpl) )
+            throw new IllegalArgumentException(
+                "The specified contact is not an msn contact." + contact);
+
+        ssContactList.setDisplayName((ContactMsnImpl)contact, newName);
+    }
+
+    /**
      * Our listener that will tell us when we're registered to server
      * and is ready to accept us as a listener.
      */

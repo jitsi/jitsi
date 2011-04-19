@@ -826,6 +826,16 @@ public class ServerStoredContactListMsnImpl
     }
 
     /**
+     * Changes the contact display name on the server.
+     * @param contact the contact to change,
+     * @param newName the new name.
+     */
+    void setDisplayName(ContactMsnImpl contact, String newName)
+    {
+        messenger.renameFriend(contact.getSourceContact().getEmail(), newName);
+    }
+
+    /**
      * Waits for init in the contact list and populates the contacts and fills
      * or resolves our contact list
      */

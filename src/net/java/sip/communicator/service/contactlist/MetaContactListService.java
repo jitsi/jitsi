@@ -299,8 +299,6 @@ public interface MetaContactListService
 
     /**
      * Sets the display name for <tt>metaContact</tt> to be <tt>newName</tt>.
-     * The method will not in any way change any of the contacts wrapped by
-     * this meta contact.
      * <p>
      * @param metaContact the <tt>MetaContact</tt> that we are renaming
      * @param newName a <tt>String</tt> containing the new display name for

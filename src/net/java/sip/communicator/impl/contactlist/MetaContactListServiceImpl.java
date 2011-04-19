@@ -798,6 +798,33 @@ public class MetaContactListServiceImpl
 
         ((MetaContactImpl)metaContact).setDisplayName(newDisplayName);
 
+        Iterator<Contact> contacts = metaContact.getContacts();
+
+        while (contacts.hasNext())
+        {
+            Contact protoContact =  contacts.next();
+
+            //get a persistent presence operation set
+            OperationSetPersistentPresence opSetPresence
+                = protoContact
+                    .getProtocolProvider()
+                        .getOperationSet(
+                            OperationSetPersistentPresence.class);
+
+            if (opSetPresence != null)
+            {
+                try
+                {
+                    opSetPresence.setDisplayName(protoContact, newDisplayName);
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error renaming protocol contact: "
+                        + protoContact, t);
+                }
+            }
+        }
+
         fireMetaContactEvent(new MetaContactRenamedEvent(
             metaContact, oldDisplayName, newDisplayName));
 
