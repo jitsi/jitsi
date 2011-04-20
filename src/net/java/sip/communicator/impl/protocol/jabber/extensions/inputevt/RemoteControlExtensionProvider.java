@@ -66,7 +66,7 @@ public class RemoteControlExtensionProvider
      * Namespace of this extension.
      */
     public static final String NAMESPACE =
-        "http://sip-communicator.org/protocol/inputevt";
+        "http://jitsi.org/protocol/inputevt";
 
     /**
      * Component to be used in custom generated <tt>MouseEvent</tt> and

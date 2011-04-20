@@ -61,7 +61,7 @@ public class EntityCapsManager
     /**
      * The node value to advertise.
      */
-    private static String entityNode = "http://sip-communicator.org";
+    private static String entityNode = "http://jitsi.org";
 
     /**
      * The <tt>Map</tt> of <tt>Caps</tt> to <tt>DiscoverInfo</tt> which

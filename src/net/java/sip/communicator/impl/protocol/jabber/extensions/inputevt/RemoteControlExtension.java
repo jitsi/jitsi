@@ -97,7 +97,7 @@ public class RemoteControlExtension
 
     /**
      * Returns the XML namespace of the extension sub-packet root element.
-     * The namespace is always "http://sip-communicator.org/protocol/inputevt".
+     * The namespace is always "http://jitsi.org/protocol/inputevt".
      *
      * @return the XML namespace of the packet extension.
      */

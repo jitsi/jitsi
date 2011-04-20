@@ -195,20 +195,4 @@ public final class StringUtils
 
         return true;
     }
-
-    /**
-     * Generates random alpha-numeric string with given length.
-     * @param length the length.
-     * @return the random string.
-     */
-    public static String randomString(int length)
-    {
-        Random random = new Random();
-
-        StringBuilder s = new StringBuilder();
-        while (s.length() < length)
-            s.append(Integer.toHexString(random.nextInt()));
-
-        return s.toString();
-    }
 }

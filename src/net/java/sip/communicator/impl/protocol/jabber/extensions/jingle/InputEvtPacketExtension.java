@@ -25,7 +25,7 @@ public class InputEvtPacketExtension extends AbstractPacketExtension
      * Namespace..
      */
     public final static String NAMESPACE =
-        "http://sip-communicator.org/protocol/inputevt";
+        "http://jitsi.org/protocol/inputevt";
 
     /**
      * Constructs a new <tt>inputevt</tt> extension.

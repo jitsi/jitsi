@@ -215,7 +215,7 @@ public class CapsPacketExtension implements PacketExtension
          * <presence from='bard@shakespeare.lit/globe'>
          *   <c xmlns='http://jabber.org/protocol/caps'
          *      hash='sha-1'
-         *      node='http://sip-communicator.org'
+         *      node='http://jitsi.org'
          *      ver='zHyEOgxTrkpSdGcQKH8EFPLsriY='/>
          * </presence>
          */

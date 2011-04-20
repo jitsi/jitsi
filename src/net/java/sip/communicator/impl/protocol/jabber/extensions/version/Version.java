@@ -55,7 +55,7 @@ public class Version
         StringBuffer buf = new StringBuffer();
         buf.append("<").append(getElementName()).
             append(" xmlns=\"").append(getNamespace()).append("\"").
-            append(" node=\"http://sip-communicator.org\"").
+            append(" node=\"http://jitsi.org\"").
             append(" ver=\"").
             append(System.getProperty("sip-communicator.version")).
             append("\"/>");

@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.math.*;
 import java.net.*;
 import java.security.*;
 import java.security.cert.*;
@@ -493,9 +494,10 @@ public class ProtocolProviderServiceJabberImpl
                     if(autoGenenerateResource == null ||
                         Boolean.parseBoolean(autoGenenerateResource))
                     {
-                        resource = defaultResource +
-                            net.java.sip.communicator.util.StringUtils
-                                .randomString(8);
+                        SecureRandom random = new SecureRandom();
+
+                        resource = defaultResource + "-" +
+                            new BigInteger(32, random).toString(32);
                     }
                     else
                     {

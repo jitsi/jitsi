@@ -21,7 +21,7 @@ public class InputEvtIQ extends IQ
      * The namespace that input event belongs to.
      */
     public static final String NAMESPACE =
-        "http://sip-communicator.org/protocol/inputevt";
+        "http://jitsi.org/protocol/inputevt";
 
     /**
      * The name of the element that contains the input event data.

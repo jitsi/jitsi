@@ -20,7 +20,7 @@ public class KeepAliveEventProvider
     implements IQProvider
 {
     public static final String ELEMENT_NAME = "keepalive";
-    public static final String NAMESPACE = "sip-communicator:iq:keepalive";
+    public static final String NAMESPACE = "jitsi:iq:keepalive";
 
     /**
      * Creates a new KeepAliveEventProvider.
