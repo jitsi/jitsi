@@ -275,8 +275,6 @@ public class InitialAccountRegistrationFrame
 
             this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-            this.setPreferredSize(new Dimension(230, 150));
-
             this.setOpaque(false);
 
             this.inputPanel.setOpaque(false);
@@ -481,17 +479,19 @@ public class InitialAccountRegistrationFrame
             mainAccountsPanel.add(
                 accountPanel,
                 BorderLayout.NORTH);
+
+            mainAccountsPanel.validate();
         }
         else
         {
             accountPanel = new AccountRegistrationPanel(wizard, false);
 
-            this.accountsPanel.add(accountPanel);
+            accountsPanel.add(accountPanel);
+
+            accountsPanel.validate();
         }
 
         this.registrationForms.add(accountPanel);
-
-        this.pack();
     }
 
     /**
