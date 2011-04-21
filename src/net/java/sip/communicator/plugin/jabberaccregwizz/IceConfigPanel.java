@@ -771,6 +771,20 @@ public class IceConfigPanel
     }
 
     /**
+     * Remove all <tt>stunServer</tt>s to the list of additional stun
+     * servers.
+     */
+    protected void removeAllStunServer()
+    {
+        int i = tableModel.getRowCount();
+        while(i != 0)
+        {
+            tableModel.removeRow(0);
+            i--;
+        }
+    }
+
+    /**
      * Modify the given <tt>stunServer</tt> from the list of stun servers.
      *
      * @param stunServer the stun server to modify

@@ -77,7 +77,7 @@ public class JabberAccountRegistrationForm
                                 connectionPanel);
 
         if (iceConfigPanel.getParent() != tabbedPane)
-            tabbedPane.addTab(Resources.getString("service.gui.PRESENCE"),
+            tabbedPane.addTab(Resources.getString("service.gui.ICE"),
                                 iceConfigPanel);
 
         if (tabbedPane.getParent() != this)
@@ -367,6 +367,7 @@ public class JabberAccountRegistrationForm
 
         iceConfigPanel.setUseDefaultStunServer(isUseDefaultStun);
 
+        iceConfigPanel.removeAllStunServer();
         for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
         {
             StunServerDescriptor stunServer
