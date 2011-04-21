@@ -27,6 +27,8 @@ public class SIPCommButton
 
     private Image pressedImage;
 
+    private Image rolloverImage;
+
     private Image rolloverIconImage;
 
     private Image pressedIconImage;
@@ -45,12 +47,14 @@ public class SIPCommButton
      * Creates a button with custom background image and icon image.
      *
      * @param bgImage       The background image.
+     * @param rolloverImage The rollover background image.
      * @param pressedImage  The pressed image.
      * @param iconImage     The icon.
      * @param rolloverIconImage The rollover icon image.
      * @param pressedIconImage The pressed icon image.
      */
     public SIPCommButton(   Image bgImage,
+                            Image rolloverImage,
                             Image pressedImage,
                             Image iconImage,
                             Image rolloverIconImage,
@@ -68,9 +72,10 @@ public class SIPCommButton
         this.setContentAreaFilled(false);
 
         this.bgImage = bgImage;
+        this.rolloverImage = rolloverImage;
+        this.pressedImage = pressedImage;
         this.rolloverIconImage = rolloverIconImage;
         this.pressedIconImage = pressedIconImage;
-        this.pressedImage = pressedImage;
         this.iconImage = iconImage;
 
         if (bgImage != null)
@@ -93,7 +98,7 @@ public class SIPCommButton
                             Image pressedImage,
                             Image iconImage)
     {
-        this(bgImage, pressedImage, iconImage, null, null);
+        this(bgImage, null, pressedImage, iconImage, null, null);
     }
 
     /**
@@ -189,38 +194,45 @@ public class SIPCommButton
                         this);
         }
 
+        // Paint a roll over fade out.
+        if (rolloverImage == null)
+        {
+            FadeTracker fadeTracker = FadeTracker.getInstance();
+
+            float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
+            if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
+            {
+                visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
+            }
+
+            visibility /= 2;
+
+            g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
+
+            if (this.bgImage != null)
+            {
+                g.fillRoundRect(
+                    this.getWidth() / 2 - this.bgImage.getWidth(null) / 2,
+                    this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
+                    bgImage.getWidth(null),
+                    bgImage.getHeight(null),
+                    10, 10);
+            }
+            else if (isContentAreaFilled() || (visibility != 0.0f))
+            {
+                g.fillRoundRect(
+                    0, 0, this.getWidth(), this.getHeight(), 10, 10);
+            }
+        }
+
         // Paint pressed state.
         if (this.getModel().isPressed() && this.pressedImage != null)
         {
             g.drawImage(this.pressedImage, 0, 0, this);
         }
-
-        // Paint a roll over fade out.
-        FadeTracker fadeTracker = FadeTracker.getInstance();
-
-        float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
-        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
+        else if (this.getModel().isRollover() && this.rolloverImage != null)
         {
-            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
-        }
-
-        visibility /= 2;
-
-        g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
-
-        if (this.bgImage != null)
-        {
-            g.fillRoundRect(
-                this.getWidth() / 2 - this.bgImage.getWidth(null) / 2,
-                this.getHeight() / 2 - this.bgImage.getHeight(null) / 2,
-                bgImage.getWidth(null),
-                bgImage.getHeight(null),
-                10, 10);
-        }
-        else if (isContentAreaFilled() || (visibility != 0.0f))
-        {
-            g.fillRoundRect(
-                0, 0, this.getWidth(), this.getHeight(), 10, 10);
+            g.drawImage(this.rolloverImage, 0, 0, this);
         }
 
         Image paintIconImage = null;
@@ -276,6 +288,16 @@ public class SIPCommButton
 
             this.setIcon(new ImageIcon(this.bgImage));
         }
+    }
+
+    /**
+     * Sets the rollover background image of this button.
+     *
+     * @param rolloverIconImage the rollover background image of this button.
+     */
+    public void setRolloverImage(Image rolloverImage)
+    {
+        this.rolloverImage = rolloverImage;
     }
 
     /**
