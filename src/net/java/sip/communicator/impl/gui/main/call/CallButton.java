@@ -48,6 +48,10 @@ public class CallButton
     {
         loadSkin();
 
+        setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.CALL")
+            + " " + mainFrame.getCurrentSearchText());
+
         addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -99,9 +103,6 @@ public class CallButton
 
         setBackgroundImage(image);
         setPressedImage(pressedImage);
-        setRolloverIcon(rolloverImage);
-
-        this.setPreferredSize(new Dimension(image.getWidth(this),
-                                            image.getHeight(this)));
+        setRolloverImage(rolloverImage);
     }
 }
