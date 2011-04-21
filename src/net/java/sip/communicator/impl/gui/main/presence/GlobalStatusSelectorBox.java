@@ -910,7 +910,9 @@ public class GlobalStatusSelectorBox
                 g.drawImage(
                     arrowImage,
                     textWidth + 2*IMAGE_INDENT + 2,
-                    (this.getHeight() - arrowImage.getHeight(null)) / 2 + 3,
+                    getX()
+                        + (this.getHeight() - arrowImage.getHeight(null)) / 2
+                        + 1,
                     null);
             }
             finally
