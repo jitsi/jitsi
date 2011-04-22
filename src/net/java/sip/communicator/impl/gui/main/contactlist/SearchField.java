@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -74,6 +73,8 @@ public class SearchField
                 SearchField.this.mainFrame.requestFocusInCenterPanel();
             }
         });
+
+        loadSkin();
     }
 
     /**
