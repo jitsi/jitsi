@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.event.TextFieldChangeListener;
 
 /**
  * 
@@ -22,7 +23,8 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class CallButton
     extends SIPCommButton
-    implements Skinnable
+    implements  Skinnable,
+                TextFieldChangeListener
 {
     /**
      * The history icon.
@@ -40,17 +42,28 @@ public class CallButton
     private Image rolloverImage;
 
     /**
+     * The main application window.
+     */
+    private final MainFrame mainFrame;
+
+    private final String defaultTooltip
+        = GuiActivator.getResources().getI18NString(
+            "service.gui.CALL_NAME_OR_NUMBER");
+
+    /**
      * Creates the contact list call button.
      *
      * @param mainFrame the main window
      */
     public CallButton(final MainFrame mainFrame)
     {
+        this.mainFrame = mainFrame;
+
         loadSkin();
 
-        setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.CALL")
-            + " " + mainFrame.getCurrentSearchText());
+        mainFrame.addSearchFieldListener(this);
+
+        setToolTipText(defaultTooltip);
 
         addActionListener(new ActionListener()
         {
@@ -104,5 +117,36 @@ public class CallButton
         setBackgroundImage(image);
         setPressedImage(pressedImage);
         setRolloverImage(rolloverImage);
+    }
+
+    /**
+     * Invoked when any text is inserted in the search field.
+     */
+    public void textInserted()
+    {
+        updateTooltip();
+    }
+
+    /**
+     * Invoked when any text is removed from the search field.
+     */
+    public void textRemoved()
+    {
+        updateTooltip();
+    }
+
+    /**
+     * Updates the tooltip of this button.
+     */
+    private void updateTooltip()
+    {
+        String searchText = mainFrame.getCurrentSearchText();
+
+        if (searchText != null && searchText.length() > 0)
+            setToolTipText(
+                GuiActivator.getResources().getI18NString("service.gui.CALL")
+                    + " " + searchText);
+        else
+            setToolTipText(defaultTooltip);
     }
 }
