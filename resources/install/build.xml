@@ -1428,10 +1428,10 @@
             <filter token="SPARKLE_DELTAS" value="
 
         &lt;enclosure type=&quot;application/octet-stream&quot;
-	  sparkle:version=&quot;${sparkle.build}&quot; length=&quot;${delta.file.length}&quot;
+      sparkle:version=&quot;${sparkle.build}&quot; length=&quot;${delta.file.length}&quot;
           sparkle:dsaSignature=&quot;${delta.signature.base64}&quot;
-	  sparkle:deltaFrom=&quot;${old.sparkle.build}&quot;
-	  url=&quot;${sparkle.delta.download.location}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta&quot;/&gt;
+      sparkle:deltaFrom=&quot;${old.sparkle.build}&quot;
+      url=&quot;${sparkle.delta.download.location}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta&quot;/&gt;
           @SPARKLE_DELTAS@
         " />
         </filterset>
@@ -1462,7 +1462,7 @@
         </timestampselector>
 
         <foreach param="build.to.delete"
-                 target="-make-wix-patch-delete-data-folder">
+                 target="-make-sparkle-delta-delete-data-folder">
             <path refid="oldest.builds"/>
         </foreach>
     </target>
