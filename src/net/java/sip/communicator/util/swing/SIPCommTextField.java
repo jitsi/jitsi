@@ -259,6 +259,9 @@ public class SIPCommTextField
     public void setDefaultTextColor(Color c)
     {
         defaultTextColor = c;
+
+        if (isDefaultTextVisible)
+            setForeground(defaultTextColor);
     }
 
     /**
