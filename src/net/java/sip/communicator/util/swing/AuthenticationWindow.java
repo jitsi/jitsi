@@ -178,6 +178,32 @@ public class AuthenticationWindow
      * @param server the server name this authentication window is about
      * @param isUserNameEditable indicates if the user name should be editable
      * by the user or not
+     * @param isRememberPassword indicates if the password should be rememberd
+     * @param icon the icon displayed on the left of the authentication window
+     * @param errorMessage an error message explaining a reason for opening
+     * the authentication dialog (when a wrong password was provided, etc.)
+     */
+    public AuthenticationWindow(String userName,
+                                char[] password,
+                                String server,
+                                boolean isUserNameEditable,
+                                boolean isRememberPassword,
+                                ImageIcon icon,
+                                String errorMessage)
+    {
+        this(userName, password, server, isUserNameEditable, icon, errorMessage);
+
+        this.isRememberPassword = isRememberPassword;
+    }
+
+    /**
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     *
+     * @param userName the user name to set by default
+     * @param password the password to set by default
+     * @param server the server name this authentication window is about
+     * @param isUserNameEditable indicates if the user name should be editable
+     * by the user or not
      * @param icon the icon displayed on the left of the authentication window
      */
     public AuthenticationWindow(
