@@ -98,7 +98,8 @@ public class CallJabberImpl
         if (remoteParty == null)
             remoteParty = jingleIQ.getFrom();
 
-        CallPeerJabberImpl callPeer = new CallPeerJabberImpl(remoteParty, this);
+        CallPeerJabberImpl callPeer = new CallPeerJabberImpl(remoteParty, this,
+		jingleIQ);
 
         addCallPeer(callPeer);
 

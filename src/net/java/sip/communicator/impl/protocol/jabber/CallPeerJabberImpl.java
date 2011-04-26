@@ -74,6 +74,21 @@ public class CallPeerJabberImpl
     }
 
     /**
+     * Creates a new call peer with address <tt>peerAddress</tt>.
+     *
+     * @param peerAddress the Jabber address of the new call peer.
+     * @param owningCall the call that contains this call peer.
+     * @param sessionIQ Session initiate IQ
+     */
+    public CallPeerJabberImpl(String         peerAddress,
+                              CallJabberImpl owningCall,
+                              JingleIQ       sessionIQ)
+    {
+        this(peerAddress, owningCall);
+        this.sessionInitIQ = sessionIQ;
+    }
+
+    /**
      * Returns a String locator for that peer.
      *
      * @return the peer's address or phone number.
