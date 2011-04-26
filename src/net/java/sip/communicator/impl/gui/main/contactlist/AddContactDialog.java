@@ -58,7 +58,13 @@ public class AddContactDialog
         GuiActivator.getResources().getI18NString(
             "service.gui.CONTACT_NAME") + ": ");
 
+    private final JLabel displayNameLabel = new JLabel(
+        GuiActivator.getResources().getI18NString(
+            "service.gui.DISPLAY_NAME") + ": ");
+
     private final JTextField contactAddressField = new JTextField();
+
+    private final JTextField displayNameField = new JTextField();
 
     private final JButton addButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.ADD"));
@@ -105,6 +111,7 @@ public class AddContactDialog
 
         this.metaContact = metaContact;
 
+        this.displayNameField.setText(metaContact.getDisplayName());
         this.setSelectedGroup(metaContact.getParentMetaContactGroup());
         this.groupCombo.setEnabled(false);
 
@@ -164,6 +171,9 @@ public class AddContactDialog
 
         labelsPanel.add(contactAddressLabel);
         fieldsPanel.add(contactAddressField);
+
+        labelsPanel.add(displayNameLabel);
+        fieldsPanel.add(displayNameField);
 
         contactAddressField.getDocument().addDocumentListener(
             new DocumentListener()
@@ -354,13 +364,14 @@ public class AddContactDialog
                     {
                         try
                         {
-                            GuiActivator.getContactListService()
-                                .createMetaContact(
-                                    (ProtocolProviderService) accountCombo
-                                        .getSelectedItem(),
-                                    (MetaContactGroup) groupCombo
-                                        .getSelectedItem(),
-                                    contactName);
+                            metaContact
+                                = GuiActivator.getContactListService()
+                                    .createMetaContact(
+                                        (ProtocolProviderService) accountCombo
+                                            .getSelectedItem(),
+                                        (MetaContactGroup) groupCombo
+                                            .getSelectedItem(),
+                                        contactName);
                         }
                         catch (MetaContactListException ex)
                         {
@@ -406,6 +417,23 @@ public class AddContactDialog
                                 .showDialog();
                             }
                         }
+                    }
+                }.start();
+            }
+
+            final String displayName = displayNameField.getText();
+            if (metaContact != null
+                && displayName != null
+                && displayName.length() > 0
+                && !metaContact.getDisplayName().equals(displayName))
+            {
+                new Thread()
+                {
+                    @Override
+                    public void run()
+                    {
+                        GuiActivator.getContactListService()
+                            .renameMetaContact(metaContact, displayName);
                     }
                 }.start();
             }
