@@ -50,6 +50,11 @@ public class GoogleContactsSourceService
     private GoogleContactsConnection cnx = null;
 
     /**
+     * The account settings form.
+     */
+    private AccountSettingsForm settings = null;
+
+    /**
      * Constructor.
      *
      * @param login login
@@ -181,8 +186,18 @@ public class GoogleContactsSourceService
 
                     if(cnx.connect() == false)
                     {
-                        AccountSettingsForm settings =
-                            new AccountSettingsForm();
+                        synchronized(this)
+                        {
+                            if(settings != null)
+                            {
+                                cnx = null;
+                                return null;
+                            }
+                            else
+                            {
+                                settings = new AccountSettingsForm();
+                            }
+                        }
                         settings.setModal(true);
                         settings.loadData(cnx);
                         int ret = settings.showDialog();
@@ -202,8 +217,18 @@ public class GoogleContactsSourceService
                 }
                 else if(!cnx.connect())
                 {
-                    AccountSettingsForm settings =
-                        new AccountSettingsForm();
+                    synchronized(this)
+                    {
+                        if(settings != null)
+                        {
+                            cnx = null;
+                            return null;
+                        }
+                        else
+                        {
+                            settings = new AccountSettingsForm();
+                        }
+                    }
                     settings.setModal(true);
                     settings.loadData(cnx);
                     int ret = settings.showDialog();
