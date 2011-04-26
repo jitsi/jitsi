@@ -400,6 +400,7 @@ public class JabberAccountRegistrationForm
 
         iceConfigPanel.setAutoDiscoverJingleNodes(isUseAutoDiscoverJN);
 
+        iceConfigPanel.removeAllJingleNodes();
         for (int i = 0; i < JingleNodeDescriptor.MAX_JN_RELAY_COUNT ; i ++)
         {
             JingleNodeDescriptor jn

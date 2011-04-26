@@ -158,19 +158,19 @@ public class IceConfigPanel
         //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JButton addButton
+        final JButton addButton
             = new JButton(Resources.getString("service.gui.ADD"));
         addButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
                 StunConfigDialog stunDialog = new StunConfigDialog(false);
-
+                stunDialog.setModal(true);
                 stunDialog.setVisible(true);
             }
         });
 
-        JButton editButton
+        final JButton editButton
             = new JButton(Resources.getString("service.gui.EDIT"));
         editButton.addActionListener(new ActionListener()
         {
@@ -193,13 +193,13 @@ public class IceConfigPanel
                                                     stunServer.getUsername()),
                                     StringUtils.getUTF8String(
                                                     stunServer.getPassword()));
-
+                    dialog.setModal(true);
                     dialog.setVisible(true);
                 }
             }
         });
 
-        JButton deleteButton
+        final JButton deleteButton
             = new JButton(Resources.getString("service.gui.DELETE"));
         deleteButton.addActionListener(new ActionListener()
         {
@@ -222,6 +222,22 @@ public class IceConfigPanel
                 "plugin.jabberaccregwizz.ADDITIONAL_STUN_SERVERS")));
         mainPanel.add(scrollPane);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+        table.addMouseListener(new MouseAdapter()
+        {
+            /**
+             * {@inheritDoc}
+             */
+            public void mouseClicked(MouseEvent evt)
+            {
+                if (evt.getComponent().isEnabled() &&
+                        evt.getButton() == MouseEvent.BUTTON1 &&
+                        evt.getClickCount() == 2)
+                {
+                    editButton.doClick();
+                }
+            }
+        });
 
         return mainPanel;
     }
@@ -290,6 +306,16 @@ public class IceConfigPanel
         private static final String DEFAULT_STUN_PORT = "3478";
 
         /**
+         * Previous server name (in case of edit).
+         */
+        private String previousServer = null;
+
+        /**
+         * Previous port number (in case of edit).
+         */
+        private int previousPort = 0;
+
+        /**
          * Creates a new StunConfigDialog with filled in values.
          *
          * @param address the IP or FQDN of the server
@@ -313,6 +339,9 @@ public class IceConfigPanel
             usernameField.setText(username);
             passwordField.setText(password);
 
+            previousServer = address;
+            previousPort = port;
+
             if(isSupportTurn)
             {
                 usernameField.setEnabled(true);
@@ -332,8 +361,9 @@ public class IceConfigPanel
 
             this.isEditMode = editMode;
 
-            setTitle(Resources.getString(
-                "plugin.jabberaccregwizz.ADD_STUN_SERVER"));
+            setTitle(Resources.getString(!editMode ?
+                "plugin.jabberaccregwizz.ADD_STUN_SERVER" :
+                    "plugin.jabberaccregwizz.EDIT_STUN_SERVER"));
 
             JLabel addressLabel = new JLabel(
                 Resources.getString("plugin.jabberaccregwizz.IP_ADDRESS"));
@@ -371,8 +401,7 @@ public class IceConfigPanel
             portField.setInputVerifier(portVerifier);
 
             JButton addButton
-                = new JButton(Resources.getString(isEditMode ?
-                        "service.gui.EDIT" : "service.gui.ADD"));
+                = new JButton(Resources.getString("service.gui.OK"));
             JButton cancelButton
                 = new JButton(Resources.getString("service.gui.CANCEL"));
 
@@ -401,7 +430,17 @@ public class IceConfigPanel
                         errorMessage = Resources.getString(
                             "plugin.jabberaccregwizz.NO_STUN_USERNAME");
 
-                    stunServer = getStunServer(address, port);
+                    if(isEditMode)
+                    {
+                        // if user edit address or port, we have to find the row
+                        // with the previous value
+                        stunServer = getStunServer(previousServer,
+                                previousPort);
+                    }
+                    else
+                    {
+                        stunServer = getStunServer(address, port);
+                    }
 
                     if(stunServer != null && !isEditMode)
                     {
@@ -894,19 +933,19 @@ public class IceConfigPanel
         //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(jnTable);
 
-        JButton addButton
+        final JButton addButton
             = new JButton(Resources.getString("service.gui.ADD"));
         addButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
                 JNConfigDialog jnDialog = new JNConfigDialog(false);
-
+                jnDialog.setModal(true);
                 jnDialog.setVisible(true);
             }
         });
 
-        JButton editButton
+        final JButton editButton
             = new JButton(Resources.getString("service.gui.EDIT"));
         editButton.addActionListener(new ActionListener()
         {
@@ -923,13 +962,13 @@ public class IceConfigPanel
                 {
                     JNConfigDialog dialog = new JNConfigDialog(
                                     jn.getJID(), jn.isRelaySupported());
-
+                    dialog.setModal(true);
                     dialog.setVisible(true);
                 }
             }
         });
 
-        JButton deleteButton
+        final JButton deleteButton
             = new JButton(Resources.getString("service.gui.DELETE"));
         deleteButton.addActionListener(new ActionListener()
         {
@@ -953,6 +992,21 @@ public class IceConfigPanel
         mainPanel.add(scrollPane);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
+        jnTable.addMouseListener(new MouseAdapter()
+        {
+            /**
+             * {@inheritDoc}
+             */
+            public void mouseClicked(MouseEvent evt)
+            {
+                if (evt.getComponent().isEnabled() &&
+                        evt.getButton() == MouseEvent.BUTTON1 &&
+                        evt.getClickCount() == 2)
+                {
+                    editButton.doClick();
+                }
+            }
+        });
         return mainPanel;
     }
 
@@ -995,6 +1049,11 @@ public class IceConfigPanel
         private final boolean isEditMode;
 
         /**
+         * Previous JID (in case of edit).
+         */
+        private String previousJID = null;
+
+        /**
          * Creates a new JNConfigDialog with filled in values.
          *
          * @param address the IP or FQDN of the server
@@ -1005,6 +1064,7 @@ public class IceConfigPanel
         {
             this(true);
 
+            previousJID = address;
             addressField.setText(address);
             supportRelayCheckBox.setSelected(isRelaySupport);
         }
@@ -1021,8 +1081,9 @@ public class IceConfigPanel
 
             this.isEditMode = editMode;
 
-            setTitle(Resources.getString(
-                "plugin.jabberaccregwizz.ADD_JINGLE_NODE"));
+            setTitle(Resources.getString(!editMode ?
+                "plugin.jabberaccregwizz.ADD_JINGLE_NODE" :
+                    "plugin.jabberaccregwizz.EDIT_JINGLE_NODE"));
 
             JLabel addressLabel = new JLabel(
                 Resources.getString("plugin.jabberaccregwizz.JID_ADDRESS"));
@@ -1040,8 +1101,7 @@ public class IceConfigPanel
             valuesPanel.add(supportRelayCheckBox);
 
             JButton addButton
-                = new JButton(Resources.getString(isEditMode ?
-                        "service.gui.EDIT" : "service.gui.ADD"));
+                = new JButton(Resources.getString("service.gui.OK"));
             JButton cancelButton
                 = new JButton(Resources.getString("service.gui.CANCEL"));
 
@@ -1057,7 +1117,14 @@ public class IceConfigPanel
                         errorMessage = Resources.getString(
                             "plugin.jabberaccregwizz.NO_STUN_ADDRESS");
 
-                    jnServer = getJingleNodes(address);
+                    if(isEditMode)
+                    {
+                        jnServer = getJingleNodes(previousJID);
+                    }
+                    else
+                    {
+                        jnServer = getJingleNodes(address);
+                    }
 
                     if(jnServer != null && !isEditMode)
                     {
@@ -1082,7 +1149,6 @@ public class IceConfigPanel
                     {
                         /* edit an existing Jingle Node */
                         jnServer.setAddress(address);
-
                         jnServer.setRelay(supportRelayCheckBox.isSelected());
                         modifyJingleNodes(jnServer);
                     }
@@ -1255,6 +1321,19 @@ public class IceConfigPanel
     }
 
     /**
+     * Remove all <tt>jingleNode</tt>s to the list of additional Jingle Nodes.
+     */
+    protected void removeAllJingleNodes()
+    {
+        int i = jnTableModel.getRowCount();
+        while(i != 0)
+        {
+            jnTableModel.removeRow(0);
+            i--;
+        }
+    }
+
+    /**
      * Modify the given <tt>jingleNode</tt> from the list of Jingle Nodes.
      *
      * @param jingleNode the Jingle Node to modify
@@ -1294,5 +1373,4 @@ public class IceConfigPanel
     {
         upnpBox.setSelected(isUseUPNP);
     }
-
 }
