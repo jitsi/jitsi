@@ -46,6 +46,12 @@ public class ConfigurationServiceImpl
         = "net.java.sip.communicator.SYS_PROPS_FILE_NAME";
 
     /**
+     * Name of the UUID property.
+     */
+    private static final String UUID_PROPERTY
+        = "net.java.sip.communicator.UUID";
+
+    /**
      * A reference to the currently used configuration file.
      */
     private File configurationFile = null;
@@ -561,6 +567,13 @@ public class ConfigurationServiceImpl
         catch (IOException ex)
         {
             logger.error("Failed to load the configuration file", ex);
+        }
+
+        String uuid = (String)getProperty(UUID_PROPERTY);
+        if(uuid == null || uuid.equals(""))
+        {
+            uuid = UUID.randomUUID().toString();
+            setProperty(UUID_PROPERTY, uuid);
         }
     }
 

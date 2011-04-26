@@ -7,11 +7,13 @@
 package net.java.sip.communicator.plugin.provisioning;
 
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -66,8 +68,11 @@ public class ProvisioningForm
     {
         super(new BorderLayout());
 
-        ResourceManagementService resources
+        final ResourceManagementService resources
             = ProvisioningActivator.getResourceService();
+
+        ConfigurationService config
+            = ProvisioningActivator.getConfigurationService();
 
         enableCheckBox = new SIPCommCheckBox(
             resources.getI18NString("plugin.provisioning.ENABLE_DISABLE"));
@@ -142,6 +147,65 @@ public class ProvisioningForm
         c.gridy = 3;
         mainPanel.add(uriField, c);
 
+        JPanel uuidPanel = new TransparentPanel(
+                new FlowLayout(FlowLayout.LEFT));
+
+        final JTextField uuidPane = new JTextField();
+        uuidPane.setEditable(false);
+        uuidPane.setOpaque(false);
+        uuidPane.setText(
+                config.getString(ProvisioningActivator.PROVISIONING_UUID_PROP));
+
+        uuidPanel.add(new JLabel(resources.getI18NString(
+                "plugin.provisioning.UUID")));
+        uuidPanel.add(uuidPane);
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0;
+        c.insets = new Insets(10, 10, 0, 0);
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.gridx = 0;
+        c.gridy = 4;
+        mainPanel.add(uuidPanel, c);
+
+        JButton clipboardBtn = new JButton(resources.getI18NString(
+                "plugin.provisioning.COPYTOCLIPBOARD"));
+        clipboardBtn.addActionListener(new ActionListener()
+        {
+            /**
+             * {@inheritsDoc}
+             */
+            public void actionPerformed(ActionEvent evt)
+            {
+                Clipboard clipboard =
+                    Toolkit.getDefaultToolkit().getSystemClipboard();
+                if(clipboard != null)
+                {
+                    String selection = uuidPane.getText();
+                    StringSelection data = new StringSelection(selection);
+                    clipboard.setContents(data, data);
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(
+                            ProvisioningForm.this,
+                            resources.getI18NString(
+                                    "plugin.provisioning.CLIPBOARD_FAILED"),
+                            resources.getI18NString(
+                                    "plugin.provisioning.CLIPBOARD_FAILED"),
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        c.insets = new Insets(5, 10, 0, 0);
+        c.gridwidth = 0;
+        c.gridx = 0;
+        c.gridy = 5;
+        mainPanel.add(clipboardBtn, c);
+
         JTextPane pane = new JTextPane();
         pane.setForeground(Color.RED);
         pane.setEditable(false);
@@ -153,9 +217,10 @@ public class ProvisioningForm
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        c.insets = new Insets(30, 10, 0, 0);
+        c.insets = new Insets(5, 10, 0, 0);
+        c.gridwidth = 0;
         c.gridx = 0;
-        c.gridy = 4;
+        c.gridy = 6;
         mainPanel.add(pane, c);
 
         initButtonStates();

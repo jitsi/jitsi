@@ -17,7 +17,6 @@ import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.netaddr.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.provdisc.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -86,6 +85,12 @@ public class ProvisioningActivator
         = "provisioning.ENFORCE_PREFIX";
 
     /**
+     * Name of the UUID property.
+     */
+    public static final String PROVISIONING_UUID_PROP
+        = "net.java.sip.communicator.UUID";
+
+    /**
      * A reference to the ConfigurationService implementation instance that
      * is currently registered with the bundle context.
      */
@@ -104,12 +109,6 @@ public class ProvisioningActivator
     private static NetworkAddressManagerService netaddrService = null;
 
     /**
-     * User credentials to access URL (protected by HTTP authentication and/or
-     * by provisioning) if any.
-     */
-    private static UserCredentials userCredentials = null;
-
-    /**
      * The user interface service.
      */
     private static UIService uiService;
@@ -118,11 +117,6 @@ public class ProvisioningActivator
      * The resource service.
      */
     private static ResourceManagementService resourceService;
-
-    /**
-     * HTTP method to request a page.
-     */
-    private String method = "POST";
 
     /**
      * List of allowed configuration prefixes.
@@ -380,6 +374,7 @@ public class ProvisioningActivator
                 for(int i = 0; i < args.length; i++)
                 {
                     String s = args[i];
+
                     if(s.equals("username=$username") ||
                             s.equals("username=${username}") ||
                             s.equals("username"))
@@ -395,6 +390,15 @@ public class ProvisioningActivator
                         paramNames[i] = "password";
                         paramValues[i] = "";
                         passwordIx = i;
+                    }
+                    else if(s.equals("uuid=$uuid") ||
+                            s.equals("uuid=${uuid}") ||
+                            s.equals("uuid"))
+                    {
+                        paramNames[i] = "uuid";
+                        paramValues[i] =
+                            (String)getConfigurationService().getProperty(
+                                PROVISIONING_UUID_PROP);
                     }
                     else if(s.equals("osname=$osname") ||
                             s.equals("osname=${osname}") ||
