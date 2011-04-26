@@ -62,6 +62,10 @@ public class AccountPanel
 
     private Component registrationForm;
 
+    private boolean isSimpleForm;
+
+    private Component registerChoicePanel;
+
     /**
      * Creates an instance of the <tt>AccountPanel</tt>.
      * @param regform the parent registration form
@@ -124,10 +128,11 @@ public class AccountPanel
         SIPAccountCreationFormService createAccountService
             = regform.getCreateAccountService();
 
-        if (createAccountService != null)
+        if (createAccountService != null && isSimpleForm)
         {
             registrationForm = createAccountService.getForm();
-            mainPanel.add(createRegisterChoicePanel(), BorderLayout.NORTH);
+            registerChoicePanel = createRegisterChoicePanel();
+            mainPanel.add(registerChoicePanel, BorderLayout.NORTH);
         }
         else
             mainPanel.add(uinPassPanel, BorderLayout.NORTH);
@@ -150,6 +155,9 @@ public class AccountPanel
 
         // Select the existing account radio button by default.
         existingAccountButton.setSelected(true);
+
+        // Indicate that this panel is opened in a simple form.
+        setSimpleForm(false);
     }
 
     /**
@@ -385,5 +393,49 @@ public class AccountPanel
     {
         return userIDField.getText() != null
                 && userIDField.getText().length() > 0;
+    }
+
+    /**
+     * Sets to <tt>true</tt> if this panel is opened in a simple form and
+     * <tt>false</tt> if it's opened in an advanced form.
+     *
+     * @param isSimpleForm indicates if this panel is opened in a simple form or
+     * in an advanced form
+     */
+    void setSimpleForm(boolean isSimpleForm)
+    {
+        this.isSimpleForm = isSimpleForm;
+
+        SIPAccountCreationFormService createAccountService
+            = regform.getCreateAccountService();
+
+        if (createAccountService != null && isSimpleForm)
+        {
+            registrationForm = createAccountService.getForm();
+            if (uinPassPanel != null)
+                mainPanel.remove(uinPassPanel);
+
+            registerChoicePanel = createRegisterChoicePanel();
+            mainPanel.add(registerChoicePanel, BorderLayout.NORTH);
+        }
+        else
+        {
+            if (registerChoicePanel != null)
+                mainPanel.remove(registerChoicePanel);
+
+            mainPanel.add(uinPassPanel, BorderLayout.NORTH);
+        }
+    }
+
+    /**
+     * Returns <tt>true</tt> if this panel is opened in a simple form and
+     * <tt>false</tt> if it's opened in an advanced form.
+     *
+     * @return <tt>true</tt> if this panel is opened in a simple form and
+     * <tt>false</tt> if it's opened in an advanced form
+     */
+    boolean isSimpleForm()
+    {
+        return isSimpleForm;
     }
 }

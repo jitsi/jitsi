@@ -438,9 +438,14 @@ public class SIPAccountRegistrationForm
      */
     public Component getSimpleForm()
     {
-        SIPAccountCreationFormService createAccountService = getCreateAccountService();
+        SIPAccountCreationFormService createAccountService
+            = getCreateAccountService();
+
         if (createAccountService != null)
             createAccountService.clear();
+
+        // Indicate that this panel is opened in a simple form.
+        accountPanel.setSimpleForm(true);
 
         return accountPanel;
     }
