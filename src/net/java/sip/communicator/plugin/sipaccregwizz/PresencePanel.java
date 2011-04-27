@@ -133,6 +133,7 @@ public class PresencePanel
         presenceOpPanel.setBorder(BorderFactory.createTitledBorder(
                 Resources.getString("plugin.sipaccregwizz.PRESENCE_OPTIONS")));
 
+        xCapEnableBox.setSelected(regform.getRegistration().isXCapEnable());
         xCapEnableBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
@@ -157,6 +158,9 @@ public class PresencePanel
                 = new TransparentPanel(new BorderLayout(10, 10));
         xCapServerUriPanel.add(xCapServerUriLabel, BorderLayout.WEST);
         xCapServerUriPanel.add(xCapServerUriValue, BorderLayout.CENTER);
+        String xcapUri = regform.getRegistration().getXCapServerUri();
+        if (xcapUri != null)
+            xCapServerUriValue.setText(xcapUri);
 
         xCapButtonsPanel.add(xCapEnableBox);
         xCapButtonsPanel.add(xCapServerUriPanel);
