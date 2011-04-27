@@ -16,6 +16,8 @@ import javax.swing.text.*;
 
 import org.json.*;
 
+import net.java.sip.communicator.plugin.ippiaccregwizz.CreateIppiAccountForm;
+import net.java.sip.communicator.plugin.ippiaccregwizz.IppiAccRegWizzActivator;
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -183,6 +185,18 @@ public class CreateSip2SipAccountForm
      */
     public NewAccount createAccount()
     {
+        // Check if the two passwords match.
+        String pass1 = new String( passField.getPassword());
+        String pass2 = new String( retypePassField.getPassword()); 
+        if (!pass1.equals(pass2))
+        {
+            showErrorMessage(
+                IppiAccRegWizzActivator.getResources().getI18NString(
+                    "plugin.sipaccregwizz.NOT_SAME_PASSWORD"));
+
+            return null;
+        }
+
         NewAccount newAccount = null;
         try
         {
@@ -322,14 +336,7 @@ public class CreateSip2SipAccountForm
             }
             else
             {
-                String errorMessage
-                    = jsonObject.getString("error_message");
-
-                errorPane.setText(errorMessage);
-                add(errorPane, BorderLayout.NORTH);
-
-                SwingUtilities.getWindowAncestor(
-                    CreateSip2SipAccountForm.this).pack();
+                showErrorMessage(jsonObject.getString("error_message"));
             }
         }
         catch (JSONException e1)
@@ -339,5 +346,20 @@ public class CreateSip2SipAccountForm
         }
 
         return newAccount;
+    }
+
+    /**
+     * Shows the given error message.
+     *
+     * @param text the text of the error
+     */
+    private void showErrorMessage(String text)
+    {
+        errorPane.setText(text);
+
+        if (errorPane.getParent() == null)
+            add(errorPane, BorderLayout.NORTH);
+
+        SwingUtilities.getWindowAncestor(CreateSip2SipAccountForm.this).pack();
     }
 }
