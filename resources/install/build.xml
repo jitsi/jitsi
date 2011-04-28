@@ -49,55 +49,10 @@
                                classname="com.izforge.izpack.ant.IzPackTask"/>
     </target>
 
-    <!-- if application.home.dirname is set we are going to change application
-        home directory so we will generate new exe file, so we must define
-        jmsooth task
-    -->
-    <target name="define-jsmooth-task" if="application.home.dirname">
-        <taskdef name="jsmoothgen"
-            classname="net.charabia.jsmoothgen.ant.JSmoothGen"
-            classpath="${inst.resrc}/windows/jsmoothgen-ant.jar"/>
-    </target>
-
     <!-- include ant-contrib tasks-->
     <target name="define-ant-contrib-task">
         <taskdef resource="net/sf/antcontrib/antlib.xml"
             classpath="${inst.resrc}/lib/ant-contrib-1.0b3.jar"/>
-    </target>
-
-    <!--target name="windows-generate-exe" depends="define-jsmooth-task"
-            if="application.home.dirname">
-
-        <copy file="${inst.resrc}/windows/run.exe.jsmooth"
-            tofile="${inst.resrc}/windows/tmp.run.exe.jsmooth"/>
-
-        <replace file="${inst.resrc}/windows/tmp.run.exe.jsmooth">
-        <replacetoken><![CDATA[<name>felix.config.properties</name>]]></replacetoken>
-        <replacevalue><![CDATA[<name>net.java.sip.communicator.SC_HOME_DIR_NAME</name>
-<value>_APP_NAME_</value>
-</javaProperties>
-<javaProperties>
-<name>felix.config.properties</name>]]></replacevalue>
-      </replace>
-
-      <replace  file="${inst.resrc}/windows/tmp.run.exe.jsmooth"
-        token="_APP_NAME_" value="${application.name}"/>
-
-        <jsmoothgen project="${inst.resrc}/windows/tmp.run.exe.jsmooth"
-            skeletonroot="${inst.resrc}/windows/skeletons"/>
-
-        <delete file="${inst.resrc}/windows/tmp.run.exe.jsmooth"/>
-    </target-->
-    <target name="windows-generate-exe">
-        <exec
-                executable="make"
-                dir="${src}/native/windows/run"
-                failonerror="true">
-            <arg value="PRODUCTNAME=${application.name}" />
-            <arg value="MINGW_HOME=${mingw.home}" />
-            <arg value="TARGET_DIR=${inst.resrc}/windows" />
-        </exec>
-        <delete file="${inst.resrc}/windows/run.res"/>
     </target>
 
     <target name="-prepare-debian-sh"
@@ -174,9 +129,8 @@
         <echo message="Useful ant commands for the SIP Communicator Build Installer..." />
         <echo message="'ant build-installation-generic' for building generic installator jar" />
         <echo message="'ant build-installation-linux' for building linux instalation file" />
-        <echo message="'ant build-installation-windows' for building windows instalation file" />
-        <echo message="'ant build-installation-wix' for building Windows MSI instalation file using WiX and mt.exe" />
-        <echo message="'ant build-installation-wix-64' for building Windows x64 MSI instalation file using WiX and mt.exe" />
+        <echo message="'ant build-installation-wix' for building Windows MSI instalation file using WiX" />
+        <echo message="'ant build-installation-wix-64' for building Windows x64 MSI instalation file using WiX" />
     </target>
 
     <target name="clean-install-generic">
@@ -208,18 +162,11 @@
         <copy
             tofile="${generic.app.dir}/tmp-installer-generic.xml"
             file="${inst.resrc}/generic/installer-generic.xml"
-            filtering="yes"
-        />
-        <copy
-            tofile="${generic.app.dir}/tmp-windows_shortcut_specification.xml"
-            file="${inst.resrc}/windows/windows_shortcut_specification.xml"
-            filtering="yes"
-        />
+            filtering="yes" />
         <copy
             tofile="${generic.app.dir}/tmp-linux_shortcut_specification.xml"
             file="${inst.resrc}/linux/linux_shortcut_specification.xml"
-            filtering="yes"
-        />
+            filtering="yes" />
 
         <izpack
                input="${generic.app.dir}/tmp-installer-generic.xml"
@@ -269,6 +216,7 @@
             </fileset>
         </copy>
         <!-- copy the jre -->
+        <mkdir dir="${linux.app.dir}/tmp/jre" />
         <copy todir="${linux.app.dir}/tmp/jre">
             <fileset dir="${linux.jre.path}">
                 <include name="**/*"/>
@@ -278,13 +226,11 @@
         <copy
             tofile="${linux.app.dir}/tmp/tmp-installer-linux.xml"
             file="${inst.resrc}/linux/installer-linux.xml"
-            filtering="yes"
-        />
+            filtering="yes" />
         <copy
             tofile="${linux.app.dir}/tmp-linux_shortcut_specification.xml"
             file="${inst.resrc}/linux/linux_shortcut_specification.xml"
-            filtering="yes"
-        />
+            filtering="yes" />
 
         <!-- Prepare felix.client.run.properties and put some specific bundles -->
         <copy file="${lib}/felix.client.run.properties"
@@ -333,100 +279,6 @@
         <delete dir="${windows.app.dir}"/>
         <mkdir dir="${windows.app.dir}"/>
         <mkdir dir="${windows.app.dir}/tmp"/>
-        <mkdir dir="${windows.app.dir}/tmp/jre"/>
-    </target>
-
-    <target name="build-installation-windows"
-            depends="clean-install-windows,define-izpack-task,load-properties">
-
-        <propertyfile file="${windows.app.dir}/versionupdate.properties"
-            comment="Last Build Version">
-            <entry  key="last_version" value="${sip-communicator.version}"/>
-            <entry  key="download_link"
-                    value="${link.download.windows}"/>
-        </propertyfile>
-
-        <filter token="VERSION" value="${sip-communicator.version}" />
-        <filter token="BUILDDATE" value="${build.date}" />
-        <filter token="PKG_NAME" value="${package.name}" />
-        <filter token="APP_NAME" value="${application.name}" />
-        <filter token="APP_EMAIL" value="${application.email}" />
-        <filter token="APP_WEB" value="${application.web}" />
-        <filter token="DEST_DIR" value="${release}" />
-        <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
-        <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
-        <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
-
-        <copy
-            tofile="${windows.app.dir}/tmp-windows_shortcut_specification.xml"
-            file="${inst.resrc}/windows/windows_shortcut_specification.xml"
-            filtering="yes"
-        />
-
-        <!-- Copy with replacing some parameters in text files -->
-        <copy todir="${windows.app.dir}/tmp" filtering="yes">
-            <fileset dir="${inst.resrc}/windows">
-                <include name="launcher.ini"/>
-            </fileset>
-        </copy>
-
-        <!-- Copy other needed files to tmp folder -->
-        <copy todir="${windows.app.dir}/tmp">
-            <fileset dir="${inst.resrc}/windows">
-                <include name="setup-sip-communicator.exe"/>
-            </fileset>
-        </copy>
-
-        <!-- Copy the Windows JRE setup file -->
-        <copy
-                file="${windows.jre.file}"
-                tofile="${windows.app.dir}/tmp/jre/jre-windows.exe" />
-
-        <copy
-                file="${inst.resrc}/windows/installer-windows.xml"
-                tofile="${windows.app.dir}/tmp/tmp-installer-windows.xml"
-                filtering="yes" />
-
-        <izpack
-               input="${windows.app.dir}/tmp/tmp-installer-windows.xml"
-               output="${windows.app.dir}/tmp/sip-communicator-windows.jar"
-               installerType="standard"
-               basedir="${sc.basedir}"
-               izPackDir="${izpack.dir}/"/>
-
-        <zip destfile="${windows.app.dir}/${package.name}-${sip-communicator.version}-windows.zip"
-                basedir="${windows.app.dir}/tmp"/>
-
-        <exec dir="${windows.app.dir}/tmp" executable="${7zip.executable}" failifexecutionfails="false">
-            <arg line="a -y data.7z *"/>
-        </exec>
-
-        <copy
-            tofile="${windows.app.dir}/tmp/7zip.conf"
-            file="${inst.resrc}/windows/7zip.conf"
-            filtering="yes"
-        />
-
-        <concat destfile="${windows.app.dir}/${package.name}-${sip-communicator.version}.exe"
-                binary="true">
-            <fileset dir="${inst.resrc}/windows">
-                <include name="7zS.sfx"/>
-            </fileset>
-            <fileset dir="${windows.app.dir}/tmp">
-                <include name="7zip.conf"/>
-            </fileset>
-            <fileset dir="${windows.app.dir}/tmp">
-                <include name="data.7z"/>
-            </fileset>
-      </concat>
-
-        <!-- Delete the temp directory-->
-        <delete dir="${windows.app.dir}/tmp"/>
-        <delete quiet="yes" failonerror="false">
-            <fileset dir="${windows.app.dir}">
-                <include name="tmp-*"/>
-            </fileset>
-        </delete>
     </target>
 
     <target name="build-installation-wix"
@@ -512,7 +364,7 @@
     </target>
 
     <target name="build-installation-wix-base"
-            depends="clean-install-windows,windows-generate-exe">
+            depends="clean-install-windows">
         <!--
             This versionupdate.properties file isn't of interest to the MSI but
             is necessary for the site.
@@ -529,19 +381,29 @@
             preparation for the execution of candle.exe).
         -->
         <property name="light.dir" value="${windows.app.dir}/tmp/light" />
-
         <mkdir dir="${light.dir}" />
+
+    	<!-- Build run.exe (which is the launcher of the application). -->
+        <exec
+                executable="make"
+                dir="${src}/native/windows/run"
+                failonerror="true">
+            <arg value="PRODUCTNAME=${application.name}" />
+            <arg value="MINGW_HOME=${mingw.home}" />
+            <arg value="TARGET_DIR=${light.dir}" />
+        </exec>
+        <delete>
+            <fileset dir="${light.dir}">
+                <include name="config.h" />
+                <include name="run.res" />
+            </fileset>
+        </delete>
+
         <copy todir="${light.dir}" overwrite="true">
             <fileset dir="${inst.resrc}/windows">
-                <include name="run.exe" />
                 <include name="sc-logo.ico" />
             </fileset>
         </copy>
-        <exec executable="mt.exe" dir="${light.dir}" failonerror="true">
-            <arg value="-manifest" />
-            <arg value="${inst.resrc}\windows\asInvoker.exe.manifest" />
-            <arg value="-outputresource:run.exe;#1" />
-        </exec>
 
         <mkdir dir="${light.dir}/lib" />
         <copy todir="${light.dir}/lib" overwrite="true">
@@ -694,12 +556,12 @@
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
         </exec>
-        <delete file="${light.dir}/cleansweep.res"/>
-        <exec executable="mt.exe" dir="${light.dir}" failonerror="true">
-            <arg value="-manifest" />
-            <arg value="${inst.resrc}\windows\asInvoker.exe.manifest" />
-            <arg value="-outputresource:cleansweep.exe;#1" />
-        </exec>
+        <delete>
+            <fileset dir="${light.dir}">
+                <include name="config.h" />
+                <include name="cleansweep.res" />
+            </fileset>
+        </delete>
 
         <!-- Execute candle.exe -->
         <condition property="candle.var.Platform" value="x64" else="x86">
@@ -768,7 +630,6 @@
             <param name="locale.name" value="fr-fr"/>
             <param name="locale.codepage" value="1252"/>
         </antcall>
-        
         <!--antcall target="build-installation-wix-locale">
             <property name="locale.name" value="bg-bg"/>
             <property name="locale.codepage" value="1251"/>
@@ -781,7 +642,8 @@
             LCID info at:
             http://msdn.microsoft.com/en-us/library/0h88fahh(v=vs.85).aspx
             -->
-        <exec   executable="cscript.exe"
+        <exec
+                executable="cscript.exe"
                 dir="${light.dir}"
                 failonerror="true">
             <arg value="${inst.resrc}\windows\WiSubStg.vbs" />
@@ -789,7 +651,8 @@
             <arg value="${windows.app.dir}\tmp\fr-fr.mst" />
             <arg value="1036" />
         </exec>
-        <!--exec   executable="cscript.exe"
+        <!--exec
+                executable="cscript.exe"
                 dir="${light.dir}"
                 failonerror="true">
             <arg value="${inst.resrc}\windows\WiSubStg.vbs" />
@@ -798,54 +661,25 @@
             <arg value="1026" />
         </exec-->
 
-        <!-- Bootstrap the MSI into an EXE -->
-        <!--copy
-                file="${inst.resrc}/windows/setup.exe"
-                todir="${windows.app.dir}/tmp"
-                overwrite="true" />
+        <!-- Bootstrap the MSI into an EXE. -->
         <exec
-                executable="msistuff.exe"
                 dir="${windows.app.dir}/tmp"
+                executable="${inst.resrc}/windows/xz.exe"
                 failonerror="true">
-            <arg value="setup.exe" />
-            <arg value="/v" />
-            <arg value="200" />
-            <arg value="/n" />
-            <arg value="${application.name}" />
-            <arg value="/o" />
-            <arg value="INSTALL" />
-            <arg value="/d" />
-            <arg value="setup.msi" />
-            <arg value="/b" />
+            <arg value="-zk9ev" />
             <arg value="setup.msi" />
         </exec>
-        <copy
-                file="${windows.app.dir}/tmp/setup.exe"
-                tofile="${windows.app.dir}/${windows.package.name}"
-                overwrite="true" /-->
         <exec
-                executable="make"
                 dir="${src}/native/windows/setup"
+                executable="make.exe"
                 failonerror="true">
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
         </exec>
-        <exec
-                executable="${wix.home}/setupbld.exe"
-                dir="${windows.app.dir}/tmp"
-                failonerror="true">
-            <arg value="-out" />
-            <arg value="${windows.app.dir}\${windows.package.name}" />
-            <arg value="-ms" />
-            <arg value="setup.msi" />
-            <arg value="-setup" />
-            <arg value="setup.exe" />
-        </exec>
-        <exec executable="mt.exe" dir="${windows.app.dir}" failonerror="true">
-            <arg value="-manifest" />
-            <arg value="${inst.resrc}\windows\asInvoker.exe.manifest" />
-            <arg value="-outputresource:${windows.package.name};#1" />
-        </exec>
+        <move
+                file="${windows.app.dir}/tmp/setup.exe"
+                preservelastmodified="true"
+                tofile="${windows.app.dir}\${windows.package.name}" />
 
         <delete dir="${light.dir}" />
         <delete dir="${windows.app.dir}/tmp" />
@@ -972,13 +806,13 @@
       <replacevalue><![CDATA[swingnotification.jar reference\:file\:sc-bundles/growlnotification.jar]]></replacevalue>
        </replace>
 
-      <!-- Remove the reference to the updatechecker bundle -->
+      <!-- Remove the reference to the update bundle -->
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
-               token="reference:file:sc-bundles/updatechecker.jar"
+               token="reference:file:sc-bundles/update.jar"
                value=""/>
       <!-- colons can be escaped after some modifications -->
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
-               token="reference\:file\:sc-bundles/updatechecker.jar"
+               token="reference\:file\:sc-bundles/update.jar"
                value=""/>
       <replaceregexp file="${macosx.resrc.dir}/felix.client.run.properties"
                 match="^org.osgi.framework.storage=\$\{user.home\}/.sip-communicator/sip-communicator.bin"
@@ -1057,7 +891,7 @@
             <include name="${bundles.dest}/*.jar" />
             <exclude name="${bundles.dest}/*-slick.jar" />
             <exclude name="${bundles.dest}/sparkle.jar" />
-            <exclude name="${bundles.dest}/updatechecker.jar" />
+            <exclude name="${bundles.dest}/update.jar" />
             <include name="resources/images/logo/sc_logo_128x128.icns" />
         </jarfileset>
         <javafilelist dir="${macosx.resrc.dir}"

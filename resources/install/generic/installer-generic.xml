@@ -85,7 +85,7 @@
                     <file targetdir="$INSTALL_PATH/lib" src="resources/install/logging.properties" override="true"/>
 		</pack>
                 <pack name="bundles" required="yes">
-                    <description>SIP Communicator bundles</description>
+                    <description>Jitsi bundles</description>
                     <fileset  targetdir="$INSTALL_PATH/sc-bundles" dir="sc-bundles" override="true">
                         <include name="*.jar"/>
                         <exclude name="*slick.jar"/>
@@ -93,18 +93,13 @@
 		</pack>
 		<!-- The executable files -->
 		<pack name="run" required="yes">
-                    <description>Exceutable</description>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/generic/update-location.properties" override="true"/>
+                    <description>Executable</description>
                     <file targetdir="$INSTALL_PATH" src="resources/install/generic/run.sh" os="linux" override="true"/>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux" override="true"/>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/run.exe" os="windows" override="true"/>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/sc-logo.ico" os="windows" override="true"/>
                     <file targetdir="$INSTALL_PATH" src="resources/install/generic/uninstall.sh"  os="linux"  override="true"/>
-                    <file targetdir="$INSTALL_PATH" src="resources/install/windows/uninstall.bat" os="windows" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/generic/update-location.properties" override="true"/>
+                    <file targetdir="$INSTALL_PATH" src="resources/install/linux/sc-logo.png" os="linux" override="true"/>
                     <executable targetfile="$INSTALL_PATH/run.sh" stage="never" os="linux"/>
                     <executable targetfile="$INSTALL_PATH/uninstall.sh" stage="never" os="linux"/>
-                    <executable targetfile="$INSTALL_PATH/run.exe" stage="never" os="windows"/>
-                    <executable targetfile="$INSTALL_PATH/uninstall.bat" stage="never" os="windows"/>
 		</pack>
 	</packs>
 

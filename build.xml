@@ -911,7 +911,7 @@
         bundle-notification-config,bundle-contacteventhandler,
         bundle-plugin-contactinfo,bundle-plugin-chatalerter, bundle-keybindings,
         bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
-        bundle-jfontchooserlib,bundle-updatecheckplugin,
+        bundle-jfontchooserlib,bundle-plugin-update,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
         bundle-argdelegation,bundle-zrtp4j,bundle-json,
@@ -2110,12 +2110,12 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!--BUNDLE-UpdateCheckPlugin-->
-    <target name="bundle-updatecheckplugin">
-        <jar compress="false" destfile="${bundles.dest}/updatechecker.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/updatechecker/updatecheck.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/updatechecker"
-                prefix="net/java/sip/communicator/plugin/updatechecker" />
+    <!--BUNDLE-UPDATE-->
+    <target name="bundle-plugin-update">
+        <jar compress="false" destfile="${bundles.dest}/update.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/update/update.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/update"
+                prefix="net/java/sip/communicator/plugin/update" />
         </jar>
     </target>
 

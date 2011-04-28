@@ -1,4 +1,3 @@
-
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 <!--
   SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
@@ -34,7 +33,7 @@
       IncludeMinimum="yes"
       Language="1033"
       Maximum="1.0.0.0"
-      Minimum="1.0.0.0"
+      Minimum="0.0.0.0"
       Property="UPGRADEFOUND" />
 </Upgrade>
 
@@ -111,13 +110,20 @@
   <ComponentGroupRef Id="ComponentGroup_RegistryEntries" />
 </Feature>
 
-<Media Id="1" Cabinet="Data1.cab" CompressionLevel="high" EmbedCab="yes" />
+<!--
+  If the Media is uncompressed, the (binary) patches on the resulting MSI will
+  be smaller in comparison to the case of compressed Media. Of course, if the
+  Media is uncompressed, the resulting MSI will be larger. In order to solve the
+  latter problem, we will compress the resulting MSI upon embedding it into the
+  setup bootstrapper.
+-->
+<Media Id="1" Cabinet="Data1.cab" CompressionLevel="none" EmbedCab="yes" />
 
 <UI>
   <UIRef Id="WixUI_CInstallDir" />
 
-  <TextStyle Id="GreyText" Blue="127" FaceName="Tahoma" Green="127" Red="127" Size="8" />
-  <TextStyle Id="WhiteText" Blue="240" FaceName="Tahoma" Green="240" Red="240" Size="9"/>
+  <TextStyle Id="GreyText" Blue="127" FaceName="Ms Shell Dlg" Green="127" Red="127" Size="8" />
+  <TextStyle Id="WhiteText" Blue="240" FaceName="Ms Shell Dlg" Green="240" Red="240" Size="9"/>
 
             <!-- Modified ExitDialog -->
             <Dialog Id="CExitDialog" Width="370" Height="270" Title="!(loc.ExitDialog_Title)">
@@ -584,9 +590,9 @@
     <!-- Modified WixUI_InstallDir -->
     <Fragment>
         <UI Id="WixUI_CInstallDir">
-            <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
-            <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
-            <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+            <TextStyle Id="WixUI_Font_Normal" FaceName="Ms Shell Dlg" Size="8" />
+            <TextStyle Id="WixUI_Font_Bigger" FaceName="Ms Shell Dlg" Size="12" />
+            <TextStyle Id="WixUI_Font_Title" FaceName="Ms Shell Dlg" Size="9" Bold="yes" />
 
             <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
             <Property Id="WixUI_Mode" Value="InstallDir" />

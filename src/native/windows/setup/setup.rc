@@ -1,5 +1,5 @@
 /*
- * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
@@ -7,7 +7,19 @@
 
 #include "setup.h"
 
+#ifndef RT_MANIFEST
+#define RT_MANIFEST 24
+#endif /* #ifndef RT_MANIFEST */
+1 RT_MANIFEST "asInvoker.exe.manifest"
+
+/*
+ * The .ico may be larger than this .exe with respect to size in bytes. So when
+ * building this .exe as a means of distributing a .bspatch, do not include the
+ * .ico in the .exe in order to minimize the size in bytes.
+ */
+#ifndef PACKAGECODE
 SCLogoIcon ICON sc-logo.ico
+#endif /* #ifndef PACKAGECODE */
 
 STRINGTABLE
 BEGIN
@@ -15,6 +27,12 @@ BEGIN
     IDS_ISWOW64ACCEPTABLE3 "The version of this file is x86 (32-bit) and the version of Windows you're running is x64 (64-bit). It is recommended to install the x64 (64-bit) version of the program."
     IDS_LASTERRORFORMAT "%1!s! has encountered error %2!d! in file %3!s! at line %4!d!:\012\012%5!s!"
 END
+
+#ifdef PACKAGECODE
+IDRCDATA_PAYLOAD RCDATA "setup.bspatch"
+#else /* #ifdef PACKAGECODE */
+IDRCDATA_PAYLOAD RCDATA "setup.msi.xz"
+#endif /* #ifdef PACKAGECODE */
 
 1 VERSIONINFO
     FILEVERSION 0,0,0,0
@@ -26,13 +44,13 @@ BEGIN
         BLOCK "040904E4"
         BEGIN
             VALUE "Comments", ""
-            VALUE "CompanyName", "sip-communicator.org"
-            VALUE "FileDescription", "SIP Communicator Setup"
-            VALUE "FileVersion", "0.0.0.0"
+            VALUE "CompanyName", "jitsi.org"
+            VALUE "FileDescription", PRODUCTNAME " Setup"
+            VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "setup"
             VALUE "OriginalFilename", "setup.exe"
-            VALUE "ProductName", "SIP Communicator"
-            VALUE "ProductVersion", "0.0.0.0"
+            VALUE "ProductName", PRODUCTNAME
+            VALUE "ProductVersion", "1.0.0.0"
         END
     END
     BLOCK "VarFileInfo"

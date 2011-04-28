@@ -325,20 +325,18 @@ public class LaunchArgHandler
 
         //then find a console handler (or create a new one) and set its level
         //to FINEST
-        java.util.logging.Logger rootLogger = java.util.logging
-            .Logger.getAnonymousLogger().getParent();
-
-        Handler[] handlers = rootLogger.getHandlers();
+        java.util.logging.Logger rootLogger
+            = java.util.logging.Logger.getAnonymousLogger().getParent();
         ConsoleHandler conHan = null;
-        for (int i = 0; i < handlers.length; i++)
+
+        for (Handler handler : rootLogger.getHandlers())
         {
-            if(handlers[i] instanceof ConsoleHandler)
+            if(handler instanceof ConsoleHandler)
             {
-                conHan = (ConsoleHandler)handlers[i];
+                conHan = (ConsoleHandler) handler;
                 break;
             }
         }
-
         if(conHan == null)
         {
             conHan = new ConsoleHandler();

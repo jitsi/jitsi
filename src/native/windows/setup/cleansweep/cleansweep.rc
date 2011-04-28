@@ -1,10 +1,16 @@
 /*
- * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
+
 #include "cleansweep.h"
+
+#ifndef RT_MANIFEST
+#define RT_MANIFEST 24
+#endif /* #ifndef RT_MANIFEST */
+1 RT_MANIFEST "asInvoker.exe.manifest"
 
 SCLogoIcon ICON sc-logo.ico
 

@@ -1,11 +1,12 @@
 #
-# SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+# Jitsi, the OpenSource Java VoIP and Instant Messaging client.
 #
 # Distributable under LGPL license.
 # See terms of license at gnu.org.
 #
 
 MINGW_HOME ?= C:/mingw
+PRODUCTNAME ?= Jitsi
 TARGET_BASENAME ?= cleansweep
 TARGET_DIR ?= ../../../../../release/windows/tmp
 
@@ -17,26 +18,38 @@ else
     cygwin.target.dir := "$(TARGET_DIR)"
 endif
 
-CC = $(MINGW_HOME)/bin/gcc
+CC = $(MINGW_HOME)/bin/gcc.exe
 CPPFLAGS = \
 	-O2 \
 	-Wall -Wreturn-type \
-	-DPRODUCTNAME='"$(PRODUCTNAME)"' \
-	-DWINVER=0x0502 -D_WIN32_WINNT=0x0502
+	-DWINVER=0x0502 -D_WIN32_WINNT=0x0502 \
+	-I$(target.dir)
 LDFLAGS = -mwindows
 LIBS = -lshell32
 
 MACHINE = $(shell $(CC) -dumpmachine)
-WINDRES = $(MINGW_HOME)/bin/windres
+WINDRES = $(MINGW_HOME)/bin/windres.exe
 ifneq ("x$(MACHINE)","x")
 ifeq ($(wildcard $(MINGW_HOME)/bin/$(MACHINE)-windres.*),$(MINGW_HOME)/bin/$(MACHINE)-windres.exe)
-    WINDRES = $(MINGW_HOME)/bin/$(MACHINE)-windres
+    WINDRES = $(MINGW_HOME)/bin/$(MACHINE)-windres.exe
 endif
 endif
 
-$(cygwin.target.dir)/$(TARGET_BASENAME).exe: cleansweep.c $(cygwin.target.dir)/cleansweep.res
-	$(CC) $(CPPFLAGS) cleansweep.c "$(target.dir)/cleansweep.res" $(LDFLAGS) -o "$(target.dir)/$(TARGET_BASENAME).exe" $(LIBS)
-	-$(MINGW_HOME)/$(MACHINE)/bin/strip "$(target.dir)/$(TARGET_BASENAME).exe"
+ifdef PACKAGECODE
+    DEFINE_PACKAGECODE = define PACKAGECODE "$(strip $(PACKAGECODE))"
+else
+    DEFINE_PACKAGECODE = undef PACKAGECODE
+endif
 
-$(cygwin.target.dir)/cleansweep.res: cleansweep.rc
-	$(WINDRES) -I../../../../../resources/install/windows $^ -O coff -o "$(target.dir)/cleansweep.res"
+$(cygwin.target.dir)/$(TARGET_BASENAME).exe: cleansweep.c $(cygwin.target.dir)/config.h $(cygwin.target.dir)/cleansweep.res
+	$(CC) $(CPPFLAGS) cleansweep.c $(target.dir)/cleansweep.res $(LDFLAGS) -o $(target.dir)/$(TARGET_BASENAME).exe $(LIBS)
+	-$(MINGW_HOME)/$(MACHINE)/bin/strip.exe $(target.dir)/$(TARGET_BASENAME).exe
+
+.PHONY: $(cygwin.target.dir)/config.h
+
+$(cygwin.target.dir)/config.h:
+	-rm.exe -f ../../../../../resources/install/windows/config.h
+	echo.exe -e '#define PRODUCTNAME "$(PRODUCTNAME)"\n#$(DEFINE_PACKAGECODE)' > $(cygwin.target.dir)/config.h
+
+$(cygwin.target.dir)/cleansweep.res: cleansweep.rc $(cygwin.target.dir)/config.h
+	$(WINDRES) -I../../../../../resources/install/windows -I$(target.dir) cleansweep.rc -O coff -o $(target.dir)/cleansweep.res

@@ -1,11 +1,12 @@
 /*
- * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
 
 #include "lasterror.h"
+#include "registry.h"
 #include "setup.h"
 
 #include <ctype.h> /* isspace */
@@ -23,36 +24,76 @@
 #endif /* #ifndef SEE_MASK_NOASYNC */
 #include <tlhelp32.h> /* CreateToolhelp32Snapshot */
 
-static LPWSTR Setup_commandLine = NULL;
+#include <bspatch.h>
+#include <lzma.h>
 
-/*
- * When <tt>FALSE</tt> is returned from <tt>Setup_enumResNameProc</tt> to stop
- * <tt>EnumResourceNames</tt>, <tt>GetLastError</tt> on Windows XP seems to
- * return an error code which is in contrast with the MSDN documentation. If
- * <tt>Setup_enumResNameProc</tt> has managed to
- * <tt>Setup_extractAndExecuteMsi</tt>, <tt>Setup_enumResNameProcUserStop</tt>
- * indicates that the error code returned by <tt>GetLastError</tt> is to be
- * ignored.
- */
-static BOOL Setup_enumResNameProcUserStop = FALSE;
+static LPWSTR Setup_commandLine = NULL;
 static LPTSTR Setup_fileName = NULL;
+
+/**
+ * The indicator which determines whether this setup is to execute as msiexec
+ * only and is to just execute an MSI specified on the command line.
+ */
+static BOOL Setup_msiexec_ = FALSE;
 static LPTSTR Setup_productName = NULL;
+
+/**
+ * The indicator which determines whether this setup is to display no user
+ * interface such as error message dialogs and the error status of the
+ * application is to be reported as its exit code.
+ */
+static BOOL Setup_quiet = FALSE;
 static BOOL Setup_waitForParentProcess_ = FALSE;
 
+/**
+ * The indicator which determines whether this setup is to execute as xzdec only
+ * and is to just extract its payload in the current directory.
+ */
+static BOOL Setup_xzdec_ = FALSE;
+
 BOOL CALLBACK Setup_enumResNameProc(HMODULE module, LPCTSTR type, LPTSTR name, LONG_PTR param);
-static DWORD Setup_executeMsi(LPCTSTR path);
-static DWORD Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size);
-static LPTSTR Setup_getBoolArg(LPCTSTR argName, LPTSTR commandLine, BOOL *boolValue);
+static DWORD Setup_executeBspatch(LPCTSTR path);
+static DWORD Setup_executeMsiA(LPCSTR path);
+static DWORD Setup_executeMsiW(LPCWSTR path);
+static DWORD Setup_extractAndExecutePayload(LPVOID ptr, DWORD size);
+#ifdef PACKAGECODE
+static LONG Setup_findLocalPackageByProductId(LPCTSTR productId, LPTSTR *localPackage);
+static LONG Setup_findProductIdByPackageCode(LPCTSTR packageCode, LPTSTR *productId);
+#endif /* #ifdef PACKAGECODE */
+static void Setup_fixCommandLineQuotes();
+static LPWSTR Setup_getArgW(LPWSTR commandLine, LPWSTR *value);
+static LPSTR Setup_getBoolArgA(LPCSTR argName, LPSTR commandLine, BOOL *boolValue);
+static LPWSTR Setup_getBoolArgW(LPCWSTR argName, LPWSTR commandLine, BOOL *boolValue);
 static LPCTSTR Setup_getFileName();
 static DWORD Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName);
 static LPCTSTR Setup_getProductName();
 static int Setup_isWow64Acceptable();
 LRESULT CALLBACK Setup_isWow64AcceptableMessageBoxCallWndRetProc(int code, WPARAM wParam, LPARAM lParam);
+static DWORD Setup_msiexec();
 static DWORD Setup_parseCommandLine(LPSTR cmdLine);
-static LPTSTR Setup_skipWhitespace(LPTSTR str);
+static LPSTR Setup_skipWhitespaceA(LPSTR str);
+static LPWSTR Setup_skipWhitespaceW(LPWSTR str);
 static LPWSTR Setup_str2wstr(LPCSTR str);
 static DWORD Setup_terminateUp2DateExe();
 static DWORD Setup_waitForParentProcess();
+static LPSTR Setup_wstr2str(LPCWSTR wstr);
+static DWORD Setup_xzdec(LPVOID ptr, DWORD size, HANDLE file);
+
+#ifdef _UNICODE
+#define Setup_executeMsi(path) \
+    Setup_executeMsiW(path)
+#define Setup_getBoolArg(argName, commandLine, boolValue) \
+    Setup_getBoolArgW(argName, commandLine, boolValue)
+#define Setup_skipWhitespace(str) \
+    Setup_skipWhitespaceW(str)
+#else /* #ifdef _UNICODE */
+#define Setup_executeMsi(path) \
+    Setup_executeMsiA(path)
+#define Setup_getBoolArg(argName, commandLine, boolValue) \
+    Setup_getBoolArgA(argName, commandLine, boolValue)
+#define Setup_skipWhitespace(str) \
+    Setup_skipWhitespaceA(str)
+#endif /* #ifdef _UNICODE */
 
 BOOL CALLBACK
 Setup_enumResNameProc(
@@ -60,38 +101,26 @@ Setup_enumResNameProc(
         LPCTSTR type, LPTSTR name,
         LONG_PTR param)
 {
+    HRSRC rsrc = FindResource(module, name, type);
     BOOL proceed = TRUE;
     DWORD error = ERROR_SUCCESS;
 
-    if (!IS_INTRESOURCE(name)
-            && (_tcslen(name) > 3)
-            && (_tcsnicmp(name, _T("MSI"), 3) == 0))
+    if (rsrc)
     {
-        HRSRC rsrc = FindResource(module, name, type);
+        DWORD size = SizeofResource(module, rsrc);
 
-        if (rsrc)
+        if (size)
         {
-            DWORD size = SizeofResource(module, rsrc);
+            HGLOBAL global = LoadResource(module, rsrc);
 
-            if (size)
+            if (global)
             {
-                HGLOBAL global = LoadResource(module, rsrc);
+                LPVOID ptr = LockResource(global);
 
-                if (global)
+                if (ptr)
                 {
-                    LPVOID ptr = LockResource(global);
-
-                    if (ptr)
-                    {
-                        proceed = FALSE;
-                        Setup_enumResNameProcUserStop = TRUE;
-                        error = Setup_extractAndExecuteMsi(ptr, size);
-                    }
-                    else
-                    {
-                        error = GetLastError();
-                        LastError_setLastError(error, __FILE__, __LINE__);
-                    }
+                    proceed = FALSE;
+                    error = Setup_extractAndExecutePayload(ptr, size);
                 }
                 else
                 {
@@ -111,31 +140,211 @@ Setup_enumResNameProc(
             LastError_setLastError(error, __FILE__, __LINE__);
         }
     }
+    else
+    {
+        error = GetLastError();
+        LastError_setLastError(error, __FILE__, __LINE__);
+    }
     if (param)
         *((DWORD *) param) = error;
     return proceed;
 }
 
 static DWORD
-Setup_executeMsi(LPCTSTR path)
+Setup_executeBspatch(LPCTSTR path)
+{
+    DWORD error;
+
+#ifdef PACKAGECODE
+    LPTSTR packageCode = _tcsdup(PACKAGECODE);
+
+    if (packageCode)
+    {
+        /*
+         * Strip the display characters from the GUID, only its bytes are
+         * important.
+         */
+        size_t i;
+        size_t j;
+        size_t packageCodeLength = _tcslen(packageCode);
+
+        for (i = 0, j = 0; i < packageCodeLength; i++)
+        {
+            TCHAR c = packageCode[i];
+
+            if ((_T('{') != c) && (_T('}') != c) && (_T('-') != c))
+                packageCode[j++] = c;
+        }
+        packageCode[j] = 0;
+        packageCodeLength = j;
+
+        if (32 == packageCodeLength)
+        {
+            TCHAR swap;
+            LPTSTR pc = packageCode;
+            LPTSTR productId;
+
+            /* 8 */
+            swap = pc[7]; pc[7] = pc[0]; pc[0] = swap;
+            swap = pc[6]; pc[6] = pc[1]; pc[1] = swap;
+            swap = pc[5]; pc[5] = pc[2]; pc[2] = swap;
+            swap = pc[4]; pc[4] = pc[3]; pc[3] = swap;
+            /* 4 */
+            swap = pc[11]; pc[11] = pc[8]; pc[8] = swap;
+            swap = pc[10]; pc[10] = pc[9]; pc[9] = swap;
+            /* 4 */
+            swap = pc[15]; pc[15] = pc[12]; pc[12] = swap;
+            swap = pc[14]; pc[14] = pc[13]; pc[13] = swap;
+            /* 4 */
+            swap = pc[17]; pc[17] = pc[16]; pc[16] = swap;
+            swap = pc[19]; pc[19] = pc[18]; pc[18] = swap;
+            /* 12 */
+            swap = pc[21]; pc[21] = pc[20]; pc[20] = swap;
+            swap = pc[23]; pc[23] = pc[22]; pc[22] = swap;
+            swap = pc[25]; pc[25] = pc[24]; pc[24] = swap;
+            swap = pc[27]; pc[27] = pc[26]; pc[26] = swap;
+            swap = pc[29]; pc[29] = pc[28]; pc[28] = swap;
+            swap = pc[31]; pc[31] = pc[30]; pc[30] = swap;
+
+            error = Setup_findProductIdByPackageCode(packageCode, &productId);
+            if (ERROR_SUCCESS == error)
+            {
+                LPTSTR localPackage;
+
+                error
+                    = Setup_findLocalPackageByProductId(
+                            productId,
+                            &localPackage);
+                if (ERROR_SUCCESS == error)
+                {
+                    /*
+                     * The path to the new file to be produced by bspatch.exe is
+                     * optional. If it is not specified on the command line,
+                     * default to a path derived from the path to the .bspatch
+                     * file.
+                     */
+                    LPWSTR wNewPath;
+                    LPTSTR newPath;
+
+                    Setup_commandLine
+                        = Setup_getArgW(Setup_commandLine, &wNewPath);
+                    if (wNewPath)
+                    {
+#ifdef _UNICODE
+                        newPath = wNewPath;
+#else /* #ifdef _UNICODE */
+                        newPath = Setup_wstr2str(wNewPath);
+#endif /* #ifdef _UNICODE */
+                    }
+                    else
+                    {
+                        size_t pathLength = _tcslen(path);
+                        LPCTSTR extension = _T(".msi");
+                        size_t extensionLength = _tcslen(extension);
+
+                        newPath
+                            = malloc(
+                                    sizeof(TCHAR)
+                                        * (pathLength + extensionLength + 1));
+                        if (newPath)
+                        {
+                            LPTSTR str;
+
+                            str = newPath;
+                            _tcsncpy(str, path, pathLength);
+                            str += pathLength;
+                            _tcsncpy(str, extension, extensionLength);
+                            str += extensionLength;
+                            *str = 0;
+                        }
+                    }
+                    /*
+                     * Execute bspatch.exe (or rather the function it has been
+                     * compiled into).
+                     */
+                    if (newPath)
+                    {
+                        LPCTSTR argv[]
+                            = {
+                                _T("bspatch.exe"),
+                                localPackage, newPath, path,
+                                NULL
+                            };
+
+                        if (bspatch_main(
+                                (sizeof(argv) / sizeof(LPCTSTR)) - 1,
+                                argv))
+                        {
+                            error = ERROR_GEN_FAILURE;
+                            LastError_setLastError(error, __FILE__, __LINE__);
+                        }
+                        if (((LPVOID) newPath) != ((LPVOID) wNewPath))
+                            free(newPath);
+                    }
+                    else
+                    {
+                        error = ERROR_NOT_ENOUGH_MEMORY;
+                        LastError_setLastError(error, __FILE__, __LINE__);
+                    }
+                    free(localPackage);
+                }
+                free(productId);
+            }
+        }
+        else
+        {
+            error = ERROR_INVALID_PARAMETER;
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
+        free(packageCode);
+    }
+    else
+    {
+        error = ERROR_NOT_ENOUGH_MEMORY;
+        LastError_setLastError(error, __FILE__, __LINE__);
+    }
+#else /* #ifdef PACKAGECODE */
+    error = ERROR_CALL_NOT_IMPLEMENTED;
+    LastError_setLastError(error, __FILE__, __LINE__);
+#endif /* #ifdef PACKAGECODE */
+    return error;
+}
+
+static DWORD
+Setup_executeMsiA(LPCSTR path)
+{
+    LPWSTR wpath = Setup_str2wstr(path);
+    DWORD error;
+
+    if (wpath)
+    {
+        error = Setup_executeMsiW(wpath);
+        free(wpath);
+    }
+    else
+    {
+        error = ERROR_OUTOFMEMORY;
+        LastError_setLastError(error, __FILE__, __LINE__);
+    }
+    return error;
+}
+
+static DWORD
+Setup_executeMsiW(LPCWSTR path)
 {
     DWORD error = ERROR_SUCCESS;
-    LPWSTR p0, p1, p2, p3;
+    LPCWSTR p0, p1, p2, p3;
     size_t p0Length, p1Length, p2Length, p3Length;
     LPWSTR parameters;
 
     p0 = L"/i \"";
     p0Length = wcslen(p0);
-#ifdef _UNICODE
     p1 = path;
-#else
-    p1 = Setup_str2wstr(path);
-#endif /* #ifdef _UNICODE */
     if (p1)
         p1Length = wcslen(p1);
     else
     {
-        error = ERROR_OUTOFMEMORY;
+        error = ERROR_INVALID_PARAMETER;
         LastError_setLastError(error, __FILE__, __LINE__);
         return error;
     }
@@ -215,21 +424,37 @@ Setup_executeMsi(LPCTSTR path)
         error = ERROR_OUTOFMEMORY;
         LastError_setLastError(error, __FILE__, __LINE__);
     }
-
-    if (((LPVOID) p1) != ((LPVOID) path))
-        free(p1);
-
     return error;
 }
 
 static DWORD
-Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
+Setup_extractAndExecutePayload(LPVOID ptr, DWORD size)
 {
     TCHAR path[MAX_PATH + 1];
     DWORD pathSize = sizeof(path) / sizeof(TCHAR);
-    DWORD tempPathLength = GetTempPath(pathSize, path);
+    DWORD tempPathLength;
     DWORD error = ERROR_SUCCESS;
 
+    /*
+     * When this application is to execute in the fashion of xzdec only, it does
+     * not sound like a nice idea to extract its payload in the TEMP directory
+     * and the current directory sounds like an acceptable compromise (given
+     * that it is far more complex to accept the path to extract to as a command
+     * line argument).
+     */
+    if (Setup_xzdec_)
+    {
+        path[0] = _T('.');
+        path[1] = _T('\\');
+        /*
+         * It is not necessary to null-terminate path because it will
+         * automatically be done later in accord with the value of
+         * tempPathLength.
+         */
+        tempPathLength = 2;
+    }
+    else
+        tempPathLength = GetTempPath(pathSize, path);
     if (tempPathLength)
     {
         if (tempPathLength > pathSize)
@@ -245,16 +470,46 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
             if (fileName)
             {
                 size_t fileNameLength = _tcslen(fileName);
+                size_t freePathSize;
+#ifdef PACKAGECODE
+                LPCTSTR fileType = _T("bspatch");
+                BOOL xzdec = FALSE;
+#else /* #ifdef PACKAGECODE */
+                LPCTSTR fileType = _T("msi");
+                BOOL xzdec = TRUE;
+#endif /* #ifdef PACKAGECODE */
 
                 if ((fileNameLength > 4 /* .exe */)
-                        && (tempPathLength + fileNameLength + 1 <= pathSize))
+                        && ((freePathSize
+                                    = (pathSize
+                                        - (tempPathLength
+                                            + fileNameLength
+                                            + 1)))
+                                >= 0))
                 {
                     LPTSTR str = path + tempPathLength;
+                    size_t fileTypeLength = _tcslen(fileType);
 
                     _tcsncpy(str, fileName, fileNameLength - 4);
                     str += (fileNameLength - 4);
-                    _tcsncpy(str, _T(".msi"), 4);
-                    *(str + 4) = 0;
+                    *str = _T('.');
+                    str++;
+                    _tcsncpy(str, fileType, 3);
+                    str += 3;
+
+                    /*
+                     * If possible, use the whole fileType for the extension and
+                     * not just its first 3 characters.
+                     */
+                    fileTypeLength -= 3;
+                    if ((fileTypeLength > 0)
+                            && (fileTypeLength <= freePathSize))
+                    {
+                        _tcsncpy(str, fileType + 3, fileTypeLength);
+                        str += fileTypeLength;
+                    }
+
+                    *str = 0;
 
                     file
                         = CreateFile(
@@ -279,7 +534,7 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
                         if (0
                                 == GetTempFileName(
                                         tempPath,
-                                        _T("MSI"),
+                                        fileType,
                                         0,
                                         path))
                         {
@@ -297,8 +552,14 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
                                         CREATE_ALWAYS,
                                         FILE_ATTRIBUTE_TEMPORARY,
                                         NULL);
+                            if (INVALID_HANDLE_VALUE == file)
+                            {
+                                error = GetLastError();
+                                LastError_setLastError(
+                                        error,
+                                        __FILE__, __LINE__);
+                            }
                         }
-
                         free(tempPath);
                     }
                     else
@@ -310,24 +571,49 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
 
                 if (INVALID_HANDLE_VALUE != file)
                 {
-                    DWORD written;
-
-                    if ((FALSE == WriteFile(file, ptr, size, &written, NULL))
-                            || (written != size))
-                    {
-                        error = GetLastError();
-                        LastError_setLastError(error, __FILE__, __LINE__);
-                        CloseHandle(file);
-                    }
+                    if (xzdec)
+                        error = Setup_xzdec(ptr, size, file);
                     else
+                    {
+                        DWORD numberOfBytesWritten;
+
+                        if (!WriteFile(
+                                file,
+                                ptr, size,
+                                &numberOfBytesWritten,
+                                NULL))
+                        {
+                            error = GetLastError();
+                            LastError_setLastError(error, __FILE__, __LINE__);
+                        }
+                    }
+
+                    /* When executing as xzdec, do not execute the MSI. */
+                    if ((ERROR_SUCCESS == error) && !Setup_xzdec_)
                     {
                         if (Setup_waitForParentProcess_)
                             Setup_waitForParentProcess();
 
                         CloseHandle(file);
-                        error = Setup_executeMsi(path);
+                        if (_tcsnicmp(_T("bspatch"), fileType, 3) == 0)
+                            error = Setup_executeBspatch(path);
+                        else if (_tcsnicmp(_T("msi"), fileType, 3) == 0)
+                            error = Setup_executeMsi(path);
+                        else
+                        {
+                            error = ERROR_CALL_NOT_IMPLEMENTED;
+                            LastError_setLastError(error, __FILE__, __LINE__);
+                        }
                     }
-                    DeleteFile(path);
+                    else
+                        CloseHandle(file);
+                    /*
+                     * Delete the MSI if executing as setup or if executing as
+                     * xzdec and the extraction has failed (in the fashion of
+                     * other popular decompressors).
+                     */
+                    if (!Setup_xzdec_ || (ERROR_SUCCESS != error))
+                        DeleteFile(path);
                 }
             }
         }
@@ -340,25 +626,403 @@ Setup_extractAndExecuteMsi(LPVOID ptr, DWORD size)
     return error;
 }
 
-static LPTSTR
-Setup_getBoolArg(LPCTSTR argName, LPTSTR commandLine, BOOL *boolValue)
+#ifdef PACKAGECODE
+static LONG
+Setup_findLocalPackageByProductId(LPCTSTR productId, LPTSTR *localPackage)
 {
-    size_t argNameLength;
-    BOOL argValue;
+    HKEY userDataKey;
+    LONG error
+        = RegOpenKeyEx(
+                HKEY_LOCAL_MACHINE,
+                _T("Software\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData"),
+                0,
+                KEY_ENUMERATE_SUB_KEYS,
+                &userDataKey);
 
-    argNameLength = _tcslen(argName);
-    commandLine = Setup_skipWhitespace(commandLine);
-    if (0 == _tcsnicmp(commandLine, argName, argNameLength))
+    if (ERROR_SUCCESS == error)
     {
-        argValue = TRUE;
-        commandLine = Setup_skipWhitespace(commandLine + argNameLength);
+        TCHAR userDataSubKeyName[1024];
+        const DWORD userDataSubKeyNameCapacity
+            = sizeof(userDataSubKeyName) / sizeof(TCHAR);
+        DWORD index = 0;
+        LPCTSTR products = _T("\\Products\\");
+        const DWORD productsLength = 10;
+        const DWORD productIdLength = 32;
+        LPCTSTR installProperties = _T("\\InstallProperties");
+        const DWORD installPropertiesLength = 18;
+        TCHAR installPropertiesKeyName[
+                userDataSubKeyNameCapacity
+                    + productsLength
+                    + productIdLength
+                    + installPropertiesLength];
+
+        *localPackage = NULL;
+        do
+        {
+            DWORD userDataSubKeyNameLength = userDataSubKeyNameCapacity;
+            LPTSTR str;
+            HKEY installPropertiesKey;
+
+            error
+                = RegEnumKeyEx(
+                        userDataKey,
+                        index,
+                        userDataSubKeyName, &userDataSubKeyNameLength,
+                        NULL,
+                        NULL, NULL,
+                        NULL);
+            index++;
+            if (ERROR_MORE_DATA == error)
+                continue;
+            if (ERROR_SUCCESS != error)
+            {
+                LastError_setLastError(error, __FILE__, __LINE__);
+                break;
+            }
+
+            str = installPropertiesKeyName;
+            _tcsncpy(str, userDataSubKeyName, userDataSubKeyNameLength);
+            str += userDataSubKeyNameLength;
+            _tcsncpy(str, products, productsLength);
+            str += productsLength;
+            _tcsncpy(str, productId, productIdLength);
+            str += productIdLength;
+            _tcsncpy(str, installProperties, installPropertiesLength);
+            str += installPropertiesLength;
+            *str = 0;
+
+            error
+                = RegOpenKeyEx(
+                        userDataKey,
+                        installPropertiesKeyName,
+                        0,
+                        KEY_QUERY_VALUE,
+                        &installPropertiesKey);
+            if (ERROR_SUCCESS == error)
+            {
+                error
+                    = Run_getRegSzValue(
+                            installPropertiesKey,
+                            _T("LocalPackage"),
+                            localPackage);
+                /*
+                 * Reset the value stored at localPackage to NULL in case
+                 * Run_getRegSzValue has failed but has assigned an invalid
+                 * value prior to the failure.
+                 */
+                if (ERROR_SUCCESS != error)
+                    *localPackage = NULL;
+                RegCloseKey(installPropertiesKey);
+            }
+        }
+        while (!(*localPackage));
+        RegCloseKey(userDataKey);
+        if ((ERROR_SUCCESS == error) && !(*localPackage))
+        {
+            error = ERROR_FILE_NOT_FOUND;
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
     }
     else
-        argValue = FALSE;
-    if (boolValue)
-        *boolValue = argValue;
+        LastError_setLastError(error, __FILE__, __LINE__);
+    return error;
+}
+#endif /* #ifdef PACKAGECODE */
+
+#ifdef PACKAGECODE
+static LONG
+Setup_findProductIdByPackageCode(LPCTSTR packageCode, LPTSTR *productId)
+{
+    HKEY key;
+    LONG error
+        = RegOpenKeyEx(
+                HKEY_LOCAL_MACHINE,
+                _T("Software\\Classes\\Installer\\Products"),
+                0,
+                KEY_ENUMERATE_SUB_KEYS,
+                &key);
+
+    if (ERROR_SUCCESS == error)
+    {
+        TCHAR subKeyName[33];
+        const DWORD subKeyNameCapacity = sizeof(subKeyName) / sizeof(TCHAR);
+        DWORD index = 0;
+
+        *productId = NULL;
+        do
+        {
+            DWORD subKeyNameLength = subKeyNameCapacity;
+            HKEY subKey;
+            LPTSTR packageCodeOfProductId;
+
+            error
+                = RegEnumKeyEx(
+                        key,
+                        index,
+                        subKeyName, &subKeyNameLength,
+                        NULL,
+                        NULL, NULL,
+                        NULL);
+            index++;
+            if (ERROR_MORE_DATA == error)
+                continue;
+            if (ERROR_SUCCESS != error)
+            {
+                LastError_setLastError(error, __FILE__, __LINE__);
+                break;
+            }
+            if (32 != subKeyNameLength)
+                continue;
+            error = RegOpenKeyEx(key, subKeyName, 0, KEY_QUERY_VALUE, &subKey);
+            if (ERROR_SUCCESS != error)
+            {
+                LastError_setLastError(error, __FILE__, __LINE__);
+                break;
+            }
+            error
+                = Run_getRegSzValue(
+                        subKey,
+                        _T("PackageCode"),
+                        &packageCodeOfProductId);
+            if (ERROR_SUCCESS == error)
+            {
+                if (_tcsnicmp(
+                            packageCodeOfProductId, packageCode,
+                            subKeyNameLength)
+                        == 0)
+                {
+                    *productId = _tcsdup(subKeyName);
+                    if (!(*productId))
+                    {
+                        error = ERROR_NOT_ENOUGH_MEMORY;
+                        LastError_setLastError(error, __FILE__, __LINE__);
+                    }
+                }
+                free(packageCodeOfProductId);
+            }
+            else
+                LastError_setLastError(error, __FILE__, __LINE__);
+            RegCloseKey(subKey);
+            if (ERROR_SUCCESS != error)
+                break;
+        }
+        while (!(*productId));
+        RegCloseKey(key);
+        if ((ERROR_SUCCESS == error) && !(*productId))
+        {
+            error = ERROR_FILE_NOT_FOUND;
+            LastError_setLastError(error, __FILE__, __LINE__);
+        }
+    }
+    else
+        LastError_setLastError(error, __FILE__, __LINE__);
+    return error;
+}
+#endif /* #ifdef PACKAGECODE */
+
+static void
+Setup_fixCommandLineQuotes()
+{
+    LPWSTR readCmdLine = Setup_commandLine;
+    LPWSTR writeCmdLine = Setup_commandLine;
+
+    do
+    {
+        LPWSTR arg;
+
+        readCmdLine = Setup_getArgW(readCmdLine, &arg);
+        if (arg)
+        {
+            /*
+             * If the argument has unquoted whitespace, quote the whole
+             * argument.
+             */
+            wchar_t c;
+            LPWSTR a = arg;
+            BOOL quoted = FALSE;
+            BOOL whitespace = FALSE;
+            size_t argLength;
+
+            while ((c = *a))
+            {
+                if (iswspace(c))
+                {
+                    if (!quoted)
+                    {
+                        whitespace = TRUE;
+                        break;
+                    }
+                }
+                else if (L'\"' == c)
+                    quoted = quoted ? FALSE : TRUE;
+                a++;
+            }
+
+            /*
+             * If the argument is not the first one, separate it from the
+             * previous one with a space.
+             */
+            if (writeCmdLine != Setup_commandLine)
+            {
+                *writeCmdLine = L' ';
+                writeCmdLine++;
+            }
+            /* Append the argument to the command line. */
+            argLength = wcslen(arg);
+            if (whitespace
+                    && ((writeCmdLine + (argLength + 1)) < readCmdLine))
+            {
+                *writeCmdLine = L'\"';
+                writeCmdLine++;
+                wcsncpy(writeCmdLine, arg, argLength);
+                writeCmdLine += argLength;
+                *writeCmdLine = L'\"';
+                writeCmdLine++;
+            }
+            else
+            {
+                wcsncpy(writeCmdLine, arg, argLength);
+                writeCmdLine += argLength;
+            }
+        }
+        else
+            break;
+    }
+    while (1);
+    /* At long last, terminate the command line. */
+    *writeCmdLine = 0;
+}
+
+static LPWSTR
+Setup_getArgW(LPWSTR commandLine, LPWSTR *value)
+{
+    if (commandLine)
+    {
+        LPWSTR v;
+        size_t quoted;
+        wchar_t prevC;
+        wchar_t c;
+
+        /* Obviously, any leading whitespace is not a part of an argument. */
+        commandLine = Setup_skipWhitespaceW(commandLine);
+        v = commandLine;
+
+        quoted = 0;
+        prevC = 0;
+        while ((c = *commandLine))
+        {
+            if (iswspace(c))
+            {
+                if (!quoted)
+                    break;
+            }
+            else if (L'\"' == c)
+            {
+                if (quoted)
+                {
+                    /*
+                     * Quotes cannot simply be nested but the Java
+                     * ProcessBuilder does nest them (in cases in which nesting
+                     * is not even necessary) so try to deal with them. Clearly,
+                     * the implementation will be heuristic in nature.
+                     */
+                    wchar_t nextC;
+
+                    if ((1 == quoted)
+                            && ((nextC = *(commandLine + 1)))
+                            && !iswspace(nextC)
+                            && ((L'=' == prevC)
+                                    || ((L'\"' == prevC)
+                                            && (v + 1 == commandLine))))
+                        quoted++;
+                    else
+                        quoted--;
+                }
+                else
+                    quoted = 1;
+            }
+            prevC = c;
+            commandLine++;
+        }
+        /*
+         * If there are more arguments, get rid of any whitespace before them.
+         */
+        if (c)
+        {
+            LPWSTR vEnd = commandLine;
+
+            commandLine = Setup_skipWhitespaceW(commandLine);
+            *vEnd = 0;
+        }
+        /*
+         * If the argument is quoted, drop the quotes. Since the Java
+         * ProcessBuilder will quote even the quoted command line arguments,
+         * drop as many quotes as possible.
+         */
+        while (L'\"' == *v)
+        {
+            size_t vLength = wcslen(v);
+
+            if (vLength > 1)
+            {
+                LPWSTR vEnd = v + (vLength - 1);
+
+                if (L'\"' == *vEnd)
+                {
+                    /*
+                     * Convert the opening quote to a whitespace character (just
+                     * in case) and the closing quote to the null character (in
+                     * order to terminate the argument).
+                     */
+                    *v = L' ';
+                    v++;
+                    *vEnd = 0;
+                }
+            }
+        }
+
+        if (value)
+            *value = *v ? v : NULL;
+    }
+    else
+    {
+        if (value)
+            *value = NULL;
+    }
     return commandLine;
 }
+
+#define DEFINE_SETUP_GETBOOLARG(f, t, len, nicmp) \
+    static LP ## t \
+    Setup_getBoolArg ## f (LPC ## t argName, LP ## t commandLine, BOOL *boolValue) \
+    { \
+        size_t argNameLength; \
+        BOOL argValue; \
+     \
+        argNameLength = len(argName); \
+        commandLine = Setup_skipWhitespace ## f (commandLine); \
+        if (0 == nicmp(commandLine, argName, argNameLength)) \
+        { \
+            argValue = TRUE; \
+            commandLine = Setup_skipWhitespace ## f (commandLine + argNameLength); \
+        } \
+        else \
+            argValue = FALSE; \
+        if (boolValue) \
+            *boolValue = argValue; \
+        return commandLine; \
+    }
+#ifdef _UNICODE
+#undef _UNICODE
+DEFINE_SETUP_GETBOOLARG(A, STR, strlen, _strnicmp)
+#define _UNICODE
+DEFINE_SETUP_GETBOOLARG(W, WSTR, wcslen, _wcsnicmp)
+#else /* #ifdef _UNICODE */
+DEFINE_SETUP_GETBOOLARG(A, STR, strlen, _strnicmp)
+#define _UNICODE
+DEFINE_SETUP_GETBOOLARG(W, WSTR, wcslen, _wcsnicmp)
+#undef _UNICODE
+#endif /* #ifdef _UNICODE */
 
 static LPCTSTR
 Setup_getFileName()
@@ -381,7 +1045,7 @@ Setup_getFileName()
             {
                 TCHAR c = *fileNameBegin;
 
-                if (('\\' == c) || ('/' == c))
+                if ((_T('\\') == c) || (_T('/') == c))
                     break;
             }
             fileNameBegin
@@ -637,6 +1301,23 @@ Setup_isWow64AcceptableMessageBoxCallWndRetProc(
 }
 
 static DWORD
+Setup_msiexec()
+{
+    LPWSTR msi;
+    DWORD error;
+
+    Setup_commandLine = Setup_getArgW(Setup_commandLine, &msi);
+    if (msi)
+        error = Setup_executeMsiW(msi);
+    else
+    {
+        error = ERROR_BAD_ARGUMENTS;
+        LastError_setLastError(error, __FILE__, __LINE__);
+    }
+    return error;
+}
+
+static DWORD
 Setup_parseCommandLine(LPSTR cmdLine)
 {
     LPTSTR commandLine;
@@ -680,6 +1361,13 @@ Setup_parseCommandLine(LPSTR cmdLine)
             = _tcslen(noAllowElevationCommandLine);
         TCHAR envVarValue[1 /* " */ + MAX_PATH + 1 /* " */ + 1];
 
+        /*
+         * If there are no arguments on the command line to reveal that up2date
+         * is involved, try detecting it by the fact that it sets the
+         * SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR environment variable. If the
+         * environment variable in question is not set, it is sure that this
+         * setup is to execute its post-up2date logic.
+         */
         if (!up2date && !noAllowElevationCommandLineLength)
         {
             DWORD envVarValueSize
@@ -728,7 +1416,13 @@ Setup_parseCommandLine(LPSTR cmdLine)
                 }
             }
         }
-
+        /*
+         * If the up2date logic is in effect, then there are no post-up2date
+         * command line arguments to parse and any command line just tells the
+         * value of SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR. The latter can
+         * easily be translated to the post-up2date logic at this point by
+         * converting it to an msiexec property.
+         */
         if (up2date && noAllowElevationCommandLineLength)
         {
             LPWSTR commandLineW;
@@ -824,6 +1518,10 @@ Setup_parseCommandLine(LPSTR cmdLine)
         if (up2date)
             Setup_terminateUp2DateExe();
 
+        /*
+         * If this is the post-up2date logic, then there may be post-up2date
+         * command line arguments to parse.
+         */
         if (!up2date && noAllowElevationCommandLineLength)
         {
 #ifdef _UNICODE
@@ -834,22 +1532,38 @@ Setup_parseCommandLine(LPSTR cmdLine)
             if (Setup_commandLine)
             {
                 /*
-                 * At the time of this writing, we expect a single property to
-                 * pass on to msiexec which wants it in the format
-                 * PROPERTY="VALUE" if value contains spaces. Unfortunately,
-                 * ProcessBuilder on the Java side will break it by quoting the
-                 * whole command line argument.
+                 * It is just easier to parse the command line arguments if they
+                 * are ordered.
                  */
-                size_t commandLineLength = wcslen(Setup_commandLine);
 
-                if ((commandLineLength > 3)
-                        && (L'"' == *Setup_commandLine)
-                        && (L'"' == *(Setup_commandLine + (commandLineLength - 2)))
-                        && (L'"' == *(Setup_commandLine + (commandLineLength - 1))))
+                Setup_commandLine
+                    = Setup_getBoolArgW(
+                            L"--quiet",
+                            Setup_commandLine,
+                            &Setup_quiet);
+#ifdef PACKAGECODE
+                Setup_commandLine
+                    = Setup_getBoolArgW(
+                            L"--msiexec",
+                            Setup_commandLine,
+                            &Setup_msiexec_);
+#endif /* #ifdef PACKAGECODE */
+                if (!Setup_msiexec_)
                 {
-                    *(Setup_commandLine + (commandLineLength - 1)) = 0;
-                    Setup_commandLine++;
+                    Setup_commandLine
+                        = Setup_getBoolArgW(
+                                L"--xzdec",
+                                Setup_commandLine,
+                                &Setup_xzdec_);
                 }
+
+                /*
+                 * Unfortunately, the Java ProcessBuilder will break the format
+                 * PROPERTY="VALUE" by quoting the whole command line argument.
+                 * Solve the problem in general regardless of the formats of the
+                 * command line arguments.
+                 */
+                Setup_fixCommandLineQuotes();
             }
             else
             {
@@ -864,42 +1578,55 @@ Setup_parseCommandLine(LPSTR cmdLine)
     return error;
 }
 
-static LPTSTR
-Setup_skipWhitespace(LPTSTR str)
-{
-    TCHAR c;
-
-    while ((c = *str) && _istspace(c))
-        ++str;
-    return str;
-}
+#define DEFINE_SETUP_SKIPWHITESPACE(f, tc, ts, space) \
+    static LP ## ts \
+    Setup_skipWhitespace ## f (LP ## ts str) \
+    { \
+        tc c; \
+     \
+        while ((c = *str) && space(c)) \
+            ++str; \
+        return str; \
+    }
+#ifdef _UNICODE
+#undef _UNICODE
+DEFINE_SETUP_SKIPWHITESPACE(A, char, STR, isspace)
+#define _UNICODE
+DEFINE_SETUP_SKIPWHITESPACE(W, wchar_t, WSTR, iswspace)
+#else /* #ifdef _UNICODE */
+DEFINE_SETUP_SKIPWHITESPACE(A, char, STR, isspace)
+#define _UNICODE
+DEFINE_SETUP_SKIPWHITESPACE(W, wchar_t, WSTR, iswspace)
+#undef _UNICODE
+#endif /* #ifdef _UNICODE */
 
 static LPWSTR
 Setup_str2wstr(LPCSTR str)
 {
-    int tstrSize;
-    LPWSTR tstr;
+    int wstrSize = MultiByteToWideChar(CP_THREAD_ACP, 0, str, -1, NULL, 0);
+    LPWSTR wstr;
 
-    tstrSize = MultiByteToWideChar(CP_THREAD_ACP, 0, str, -1, NULL, 0);
-    if (tstrSize)
+    if (wstrSize)
     {
-        tstr = (LPWSTR) malloc(tstrSize * sizeof(WCHAR));
-        if (tstr)
+        wstr = malloc(wstrSize * sizeof(WCHAR));
+        if (wstr)
         {
-            tstrSize
-                = MultiByteToWideChar(CP_THREAD_ACP, 0, str, -1, tstr, tstrSize);
-            if (!tstrSize)
+            wstrSize
+                = MultiByteToWideChar(
+                        CP_THREAD_ACP,
+                        0,
+                        str, -1,
+                        wstr, wstrSize);
+            if (!wstrSize)
             {
-                free(tstr);
-                tstr = NULL;
+                free(wstr);
+                wstr = NULL;
             }
         }
-        else
-            tstr = NULL;
     }
     else
-        tstr = NULL;
-    return tstr;
+        wstr = NULL;
+    return wstr;
 }
 
 static DWORD
@@ -983,38 +1710,174 @@ Setup_waitForParentProcess()
     return error;
 }
 
+static LPSTR
+Setup_wstr2str(LPCWSTR wstr)
+{
+    int strSize
+        = WideCharToMultiByte(
+                CP_THREAD_ACP,
+                WC_NO_BEST_FIT_CHARS,
+                wstr, -1,
+                NULL, 0,
+                NULL, NULL);
+    LPSTR str;
+
+    if (strSize)
+    {
+        str = malloc(strSize);
+        if (str)
+        {
+            strSize
+                = WideCharToMultiByte(
+                        CP_THREAD_ACP,
+                        WC_NO_BEST_FIT_CHARS,
+                        wstr, -1,
+                        str, strSize,
+                        NULL, NULL);
+            if (!strSize)
+            {
+                free(str);
+                str = NULL;
+            }
+        }
+    }
+    else
+        str = NULL;
+    return str;
+}
+
+static DWORD
+Setup_xzdec(LPVOID ptr, DWORD size, HANDLE file)
+{
+    lzma_stream strm = LZMA_STREAM_INIT;
+    lzma_stream *_strm = &strm;
+    DWORD error;
+
+    switch (lzma_stream_decoder(_strm, UINT64_MAX, 0))
+    {
+    case LZMA_OK:
+        error = ERROR_SUCCESS;
+        {
+            uint8_t *input = (uint8_t *) ptr;
+            const size_t maxInputLengthPerCode = 8 * 1024;
+            uint8_t output[maxInputLengthPerCode];
+            const size_t outputCapacity = sizeof(output);
+
+            while (size)
+            {
+                size_t inputLength;
+                lzma_action action;
+                DWORD outputLength;
+
+                strm.next_in = input;
+                strm.avail_in
+                    = inputLength
+                        = (maxInputLengthPerCode < size)
+                            ? maxInputLengthPerCode
+                            : size;
+
+                size -= inputLength;
+                action = size ? LZMA_RUN : LZMA_FINISH;
+
+                do
+                {
+                    DWORD numberOfBytesWritten;
+
+                    strm.next_out = output;
+                    strm.avail_out = outputCapacity;
+
+                    switch (lzma_code(_strm, action))
+                    {
+                    case LZMA_OK:
+                    case LZMA_STREAM_END:
+                        outputLength = outputCapacity - strm.avail_out;
+                        if (outputLength
+                                && !WriteFile(
+                                        file,
+                                        output, outputLength,
+                                        &numberOfBytesWritten,
+                                        NULL))
+                        {
+                            error = GetLastError();
+                            LastError_setLastError(error, __FILE__, __LINE__);
+                        }
+                        break;
+                    default:
+                        error = ERROR_WRITE_FAULT;
+                        LastError_setLastError(error, __FILE__, __LINE__);
+                        break;
+                    }
+
+                    if (ERROR_SUCCESS != error)
+                    {
+                        action = LZMA_FINISH; /* Break out of the input loop. */
+                        break; /* Break out of the output loop. */
+                    }
+                }
+                while (outputLength);
+
+                if (LZMA_FINISH == action)
+                    break;
+                else
+                    input += inputLength;
+            }
+        }
+        break;
+    case LZMA_MEM_ERROR:
+        error = ERROR_NOT_ENOUGH_MEMORY;
+        LastError_setLastError(error, __FILE__, __LINE__);
+        break;
+    case LZMA_OPTIONS_ERROR:
+        error = ERROR_INVALID_PARAMETER;
+        LastError_setLastError(error, __FILE__, __LINE__);
+        break;
+    case LZMA_PROG_ERROR:
+    default:
+        error = ERROR_OPEN_FAILED; /* For the lack of a better idea. */
+        LastError_setLastError(error, __FILE__, __LINE__);
+        break;
+    }
+    lzma_end(_strm);
+    return error;
+}
+
 int CALLBACK
 WinMain(
         HINSTANCE instance, HINSTANCE prevInstance,
         LPSTR cmdLine,
         int cmdShow)
 {
-    DWORD error = ERROR_SUCCESS;
+    DWORD error;
 
     Setup_parseCommandLine(cmdLine);
 
-    if ((ERROR_SUCCESS == error)
-            && (IDYES == Setup_isWow64Acceptable())
-            && (FALSE
-                    == EnumResourceNames(
-                            NULL,
-                            RT_RCDATA,
-                            Setup_enumResNameProc,
-                            (LONG_PTR) &error))
-            && (ERROR_SUCCESS == error)
-            && (FALSE == Setup_enumResNameProcUserStop))
+    /*
+     * If the --xzdec command line argument has been specified, the caller
+     * obviously knows what they are doing so do not ask whether Wow64 is
+     * acceptable.
+     */
+    if (Setup_quiet || Setup_xzdec_ || (IDYES == Setup_isWow64Acceptable()))
     {
-        DWORD enumResourceNamesError = GetLastError();
-
-        if ((ERROR_SUCCESS != enumResourceNamesError)
-                && (ERROR_RESOURCE_ENUM_USER_STOP != enumResourceNamesError))
+        if (Setup_msiexec_)
+            error = Setup_msiexec();
+        else
         {
-            error = enumResourceNamesError;
-            LastError_setLastError(error, __FILE__, __LINE__);
+            Setup_enumResNameProc(
+                    NULL,
+                    RT_RCDATA,
+                    MAKEINTRESOURCE(IDRCDATA_PAYLOAD),
+                    (LONG_PTR) &error);
         }
     }
+    else
+        error = ERROR_SUCCESS;
 
-    if (ERROR_SUCCESS != error)
+    /*
+     * If anything has gone wrong, report it to the user. In accord with the
+     * --quiet command line argument, report the error via either an error
+     * message dialog or the application exit code.
+     */
+    if ((ERROR_SUCCESS != error) && !Setup_quiet)
     {
         LPTSTR message;
         DWORD messageLength
@@ -1029,6 +1892,12 @@ WinMain(
 
         if (messageLength)
         {
+            /*
+             * If there is debug information about the particular piece of
+             * source code which has caused the error, display it to the user as
+             * well so that we/the developers may get a more accurate report and
+             * have a greater chance of understanding and fixing the problem.
+             */
             LPCTSTR lastErrorFile = LastError_file();
             LPCTSTR productName = Setup_getProductName();
 
@@ -1075,13 +1944,24 @@ WinMain(
 
             MessageBox(NULL, message, productName, MB_ICONERROR | MB_OK);
             LocalFree(message);
+
+            /*
+             * The error has just been reported to the user as an error message
+             * dialog so assume it is enough and do not report it as the
+             * application exit code.
+             */
+            error = ERROR_SUCCESS;
         }
     }
 
+    /*
+     * Clean up. (It is not really necessary because this application is about
+     * to exit.)
+     */
     if (Setup_productName && (Setup_productName != Setup_fileName))
         free(Setup_productName);
     if (Setup_fileName)
         free(Setup_fileName);
 
-    return 0;
+    return error;
 }
