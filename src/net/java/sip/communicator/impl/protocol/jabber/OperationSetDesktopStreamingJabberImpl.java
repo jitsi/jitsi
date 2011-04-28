@@ -168,6 +168,7 @@ public class OperationSetDesktopStreamingJabberImpl
     {
         ((CallJabberImpl)call).setLocalVideoAllowed(allowed,
                 MediaUseCase.DESKTOP);
+        ((CallJabberImpl)call).setVideoDevice(null);
         MediaDevice device = ((CallJabberImpl)call).getDefaultDevice(
                 MediaType.VIDEO);
         size = (((VideoMediaFormat)device.getFormat()).getSize());
@@ -303,7 +304,7 @@ public class OperationSetDesktopStreamingJabberImpl
             }
         }
     }
-    
+
     /**
      * Get origin of the screen.
      *

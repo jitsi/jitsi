@@ -2120,7 +2120,7 @@ public class MediaStreamImpl
                         new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
 
                 buff.append("Received a report for ")
-                    .append(getFormat().getMediaType().toString())
+                    .append(getFormat() != null ? getFormat().getMediaType().toString() : "")
                     .append(" stream SSRC:")
                     .append(getLocalSourceID())
                     .append(" [packet count:")
@@ -2232,7 +2232,7 @@ public class MediaStreamImpl
                     new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
 
             buff.append("call stats for outgoing ")
-                .append(getFormat().getMediaType())
+                .append(getFormat() != null ? getFormat().getMediaType() : "")
                 .append(" stream SSRC:")
                 .append(getLocalSourceID())
                     .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)

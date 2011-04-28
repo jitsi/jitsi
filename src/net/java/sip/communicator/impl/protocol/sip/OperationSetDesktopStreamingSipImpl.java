@@ -195,7 +195,7 @@ public class OperationSetDesktopStreamingSipImpl
         throws OperationFailedException
     {
         ((CallSipImpl)call).setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
-
+        ((CallSipImpl)call).setVideoDevice(null);
         MediaDevice device = ((CallSipImpl)call).getDefaultDevice(
                 MediaType.VIDEO);
         size = (((VideoMediaFormat)device.getFormat()).getSize());
@@ -313,7 +313,7 @@ public class OperationSetDesktopStreamingSipImpl
     {
         return origin;
     }
-    
+
     /**
      * Get origin of the screen.
      *
