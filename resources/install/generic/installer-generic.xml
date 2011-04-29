@@ -53,7 +53,6 @@
 	<resources>
             <res id="InfoPanel.info" src="resources/install/doc/readme.txt" parse="yes"/>
             <res id="LicencePanel.licence" src="resources/install/doc/License.txt"/>
-            <res src="@DEST_DIR@/generic/tmp-windows_shortcut_specification.xml" id="shortcutSpec.xml"/>\
             <res src="@DEST_DIR@/generic/tmp-linux_shortcut_specification.xml" id="Unix_shortcutSpec.xml"/>
             <res id="Installer.image.0" src="resources/install/doc/welcome.png" />
 	</resources>
