@@ -88,10 +88,12 @@ public class HttpUtils
     {
         try
         {
+            HttpGet httpGet = new HttpGet(address);
             DefaultHttpClient httpClient = getHttpClient(
-                usernamePropertyName, passwordPropertyName);
+                usernamePropertyName, passwordPropertyName,
+                httpGet.getURI().getHost());
 
-            HttpEntity result = executeMethod(httpClient, new HttpGet(address));
+            HttpEntity result = executeMethod(httpClient, httpGet);
 
             if(result == null)
                 return null;
@@ -244,10 +246,11 @@ public class HttpUtils
         DefaultHttpClient httpClient = null;
         try
         {
-            httpClient = getHttpClient(
-                usernamePropertyName, passwordPropertyName);
-
             HttpPost postMethod = new HttpPost(address);
+
+            httpClient = getHttpClient(
+                usernamePropertyName, passwordPropertyName,
+                postMethod.getURI().getHost());
 
             String mimeType = URLConnection.guessContentTypeFromName(
                 file.getPath());
@@ -311,10 +314,10 @@ public class HttpUtils
         DefaultHttpClient httpClient = null;
         try
         {
-            httpClient = getHttpClient(
-                usernamePropertyName, passwordPropertyName);
-
             HttpPost postMethod = new HttpPost(address);
+            httpClient = getHttpClient(
+                usernamePropertyName, passwordPropertyName,
+                postMethod.getURI().getHost());
 
             // if we have username and password in the parameters, lets
             // retrieve their values
@@ -398,10 +401,12 @@ public class HttpUtils
      * @param passwordPropertyName the property to use to retrieve/store
      * password value if protected site is hit, for password
      * CredentialsStorageService service is used.
+     * @param address the address we will be connecting to
      */
     private static DefaultHttpClient getHttpClient(
         String usernamePropertyName,
-        String passwordPropertyName)
+        String passwordPropertyName,
+        String address)
         throws IOException
     {
         HttpParams params = new BasicHttpParams();
@@ -420,12 +425,14 @@ public class HttpUtils
                 .getCertificateVerificationService().getSSLContext(
                     HttpUtilActivator.getResources().
                         getI18NString(
-                            "service.gui.CERT_DIALOG_CLIENT_DESCRIPTION_TXT",
-                            new String[]
-                            {
-                                HttpUtilActivator.getResources().getSettingsString(
-                                    "service.gui.APPLICATION_NAME")
-                            }));
+                            "service.gui.CERT_DIALOG_DESCRIPTION_TXT",
+                        new String[]{
+                            HttpUtilActivator.getResources().getSettingsString(
+                                "service.gui.APPLICATION_NAME"),
+                            address,
+                            Integer.toString(443)
+                        }
+                    ));
 
         Scheme sch = new Scheme("https", 443,
             new SSLSocketFactory(
