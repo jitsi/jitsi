@@ -625,8 +625,37 @@ public class EncodingConfiguration
         if (res == 0)
         {
             res = enc1.getEncoding().compareToIgnoreCase(enc2.getEncoding());
+            /*
+             * There are formats with one and the same encoding (name) but
+             * different clock rates.
+             */
             if (res == 0)
+            {
                 res = Double.compare(enc2.getClockRate(), enc1.getClockRate());
+                /*
+                 * And then again, there are formats (e.g. H.264) with one and
+                 * the same encoding (name) and clock rate but different format
+                 * parameters (e.g. packetization-mode).
+                 */
+                if (res == 0)
+                {
+                    /*
+                     * The format with more parameters will be considered here
+                     * to be the format with higher priority.
+                     */
+                    Map<String, String> fmtps1 = enc1.getFormatParameters();
+                    Map<String, String> fmtps2 = enc2.getFormatParameters();
+                    int fmtpCount1 = (fmtps1 == null) ? 0 : fmtps1.size();
+                    int fmtpCount2 = (fmtps2 == null) ? 0 : fmtps2.size();
+
+                    /*
+                     * TODO Even if the number of format parameters is equal,
+                     * the two formats may still be different. Consider ordering
+                     * by the values of the format parameters as well.
+                     */
+                    return fmtpCount2 - fmtpCount1;
+                }
+            }
         }
         return res;
     }
