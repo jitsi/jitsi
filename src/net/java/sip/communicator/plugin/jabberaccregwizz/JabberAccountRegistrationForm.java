@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -380,6 +381,14 @@ public class JabberAccountRegistrationForm
             if (stunServer == null)
                 break;
 
+            String stunPassword = loadStunPassword(accountID,
+                    ProtocolProviderFactory.STUN_PREFIX + i);
+
+            if(stunPassword != null)
+            {
+                stunServer.setPassword(stunPassword);
+            }
+
             iceConfigPanel.addStunServer(stunServer);
         }
 
@@ -535,5 +544,41 @@ public class JabberAccountRegistrationForm
     protected String getHomeLinkLabel()
     {
         return wizard.getHomeLinkLabel();
+    }
+
+    /**
+     * Load password for this STUN descriptor.
+     *
+     * @param accountID account ID
+     * @param namePrefix name prefix
+     * @return password or null if empty
+     */
+    private static String loadStunPassword(AccountID accountID,
+            String namePrefix)
+    {
+        ProtocolProviderFactory providerFactory =
+            JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
+        String password = null;
+        String className = providerFactory.getClass().getName();
+        String packageSourceName = className.substring(0, className.lastIndexOf('.'));
+
+        String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
+                JabberAccRegWizzActivator.bundleContext,
+                accountID, packageSourceName);
+
+        CredentialsStorageService credentialsService =
+            JabberAccRegWizzActivator.getCredentialsService();
+
+        try
+        {
+            password = credentialsService.
+                loadPassword(accountPrefix + "." + namePrefix);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+
+        return password;
     }
 }

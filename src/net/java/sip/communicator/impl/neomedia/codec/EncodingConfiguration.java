@@ -351,7 +351,7 @@ public class EncodingConfiguration
          * by associating it with a property name/key based on encoding and
          * clock rate only, it does not make sense to store the MediaFormat in
          * encodingPreferences because MediaFormat is much more specific than
-         * just encoding and clock rate. 
+         * just encoding and clock rate.
          */
         setEncodingPreference(
                 encodingEncoding, encoding.getClockRate(),

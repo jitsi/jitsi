@@ -208,7 +208,11 @@ public class StunServerDescriptor
                       StringUtils.getUTF8String(getUsername()));
 
         if (getPassword() != null && getPassword().length > 0)
-            props.put(namePrefix + STUN_PASSWORD, new String(getPassword()));
+        {
+            //props.put(namePrefix + STUN_PASSWORD, new String(getPassword()));
+            props.put(namePrefix + "." + STUN_PASSWORD,
+                    new String(getPassword()));
+        }
 
         props.put(namePrefix + STUN_IS_TURN_SUPPORTED,
                         Boolean.toString( isTurnSupported() ));

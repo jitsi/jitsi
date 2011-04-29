@@ -582,21 +582,32 @@ public class AccountManager
         {
             String property = entry.getKey();
             String value = entry.getValue();
+            String secureStorePrefix = null;
 
             // If the property is a password, store it securely.
             if (property.equals(ProtocolProviderFactory.PASSWORD))
             {
-                CredentialsStorageService credentialsStorage
-                    = ServiceUtils.getService(
-                            bundleContext,
-                            CredentialsStorageService.class);
                 String accountPrefix = factoryPackage + "." + accountNodeName;
+                secureStorePrefix = accountPrefix;
+            }
+            else if(property.endsWith("." + ProtocolProviderFactory.PASSWORD))
+            {
+                secureStorePrefix = factoryPackage + "." + accountNodeName +
+                    "." + property.substring(0, property.lastIndexOf("."));
+            }
+
+            if(secureStorePrefix != null)
+            {
+                CredentialsStorageService credentialsStorage
+                        = ServiceUtils.getService(
+                                bundleContext,
+                                CredentialsStorageService.class);
 
                 // encrypt and store
                 if ((value != null)
                         && (value.length() != 0)
                         && !credentialsStorage.storePassword(
-                                accountPrefix,
+                                secureStorePrefix,
                                 value))
                 {
                     throw

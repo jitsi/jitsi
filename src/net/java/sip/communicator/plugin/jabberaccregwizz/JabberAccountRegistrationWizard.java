@@ -361,10 +361,10 @@ public class JabberAccountRegistrationWizard
                 ProtocolProviderFactory.AUTO_DISCOVER_JINGLE_NODES,
                 String.valueOf(registration.isAutoDiscoverJingleNodes()));
 
-         serverIndex = -1;
-         List<JingleNodeDescriptor> jnRelays
+        List<JingleNodeDescriptor> jnRelays
             = registration.getAdditionalJingleNodes();
 
+        serverIndex = -1;
         for(JingleNodeDescriptor jnRelay : jnRelays)
         {
             serverIndex ++;

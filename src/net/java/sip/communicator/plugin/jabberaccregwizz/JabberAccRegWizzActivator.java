@@ -11,6 +11,7 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -24,12 +25,17 @@ public class JabberAccRegWizzActivator
     implements BundleActivator
 {
 
+    /**
+     * The OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static final Logger logger =
         Logger.getLogger(JabberAccRegWizzActivator.class);
 
     private static BrowserLauncherService browserLauncherService;
+
+    private static CredentialsStorageService credentialsService = null;
 
     private static WizardContainer wizardContainer;
 
@@ -103,22 +109,24 @@ public class JabberAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()
     {
         return uiService;
     }
-    
+
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context.
      * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context
      */
-    public static BrowserLauncherService getBrowserLauncher() {
-        if (browserLauncherService == null) {
+    public static BrowserLauncherService getBrowserLauncher()
+    {
+        if (browserLauncherService == null)
+        {
             ServiceReference serviceReference = bundleContext
                 .getServiceReference(BrowserLauncherService.class.getName());
 
@@ -127,5 +135,25 @@ public class JabberAccRegWizzActivator
         }
 
         return browserLauncherService;
+    }
+
+    /**
+     * Returns the <tt>CredentialsStorageService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>CredentialsStorageService</tt> obtained from the bundle
+     * context
+     */
+    public static CredentialsStorageService getCredentialsService()
+    {
+        if (credentialsService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(CredentialsStorageService.class.getName());
+
+            credentialsService = (CredentialsStorageService)bundleContext
+                .getService(serviceReference);
+        }
+
+        return credentialsService;
     }
 }

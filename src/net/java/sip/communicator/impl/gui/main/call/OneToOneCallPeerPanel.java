@@ -1655,6 +1655,8 @@ public class OneToOneCallPeerPanel
         extends Label
         implements MouseListener
     {
+        private static final long serialVersionUID = 0L;
+
         Image image = ImageLoader.getImage(ImageLoader.CLOSE_VIDEO);
 
         public CloseButton()
