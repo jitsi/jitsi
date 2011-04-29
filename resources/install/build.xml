@@ -366,6 +366,12 @@
     <target name="build-installation-wix-base"
             depends="clean-install-windows">
         <!--
+            Provide access to the environment variables via the prefix "env."
+            because we will modify at least the PATH.
+        -->
+        <property environment="env" />
+
+        <!--
             This versionupdate.properties file isn't of interest to the MSI but
             is necessary for the site.
         -->
@@ -383,11 +389,12 @@
         <property name="light.dir" value="${windows.app.dir}/tmp/light" />
         <mkdir dir="${light.dir}" />
 
-    	<!-- Build run.exe (which is the launcher of the application). -->
+        <!-- Build run.exe (which is the launcher of the application). -->
         <exec
-                executable="make"
                 dir="${src}/native/windows/run"
+                executable="make.exe"
                 failonerror="true">
+            <env key="PATH" path="${mingw.home}/bin;${env.PATH}" />
             <arg value="PRODUCTNAME=${application.name}" />
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
@@ -549,9 +556,10 @@
           candle.exe
         -->
         <exec
-                executable="make"
                 dir="${src}/native/windows/setup/cleansweep"
+                executable="make.exe"
                 failonerror="true">
+            <env key="PATH" path="${mingw.home}/bin;${env.PATH}" />
             <arg value="PRODUCTNAME=${application.name}" />
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
@@ -673,6 +681,7 @@
                 dir="${src}/native/windows/setup"
                 executable="make.exe"
                 failonerror="true">
+            <env key="PATH" path="${mingw.home}/bin;${env.PATH}" />
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
         </exec>
