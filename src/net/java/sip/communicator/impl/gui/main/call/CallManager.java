@@ -251,47 +251,7 @@ public class CallManager
      */
     public static void enableLocalVideo(Call call, boolean enable)
     {
-        OperationSetVideoTelephony telephony
-            = call.getProtocolProvider()
-                .getOperationSet(OperationSetVideoTelephony.class);
-
-        boolean enableSucceeded = false;
-
-        if (telephony != null)
-        {
-            // First disable desktop sharing if it's currently enabled.
-            if (enable && isDesktopSharingEnabled(call))
-            {
-                getActiveCallContainer(call).setDesktopSharingButtonSelected(
-                        false);
-                JFrame frame = DesktopSharingFrame.getFrameForCall(call);
-
-                if(frame != null)
-                {
-                    frame.dispose();
-                }
-            }
-
-            try
-            {
-                telephony.setLocalVideoAllowed(
-                    call,
-                    enable);
-
-                enableSucceeded = true;
-            }
-            catch (OperationFailedException ex)
-            {
-                logger.error(
-                    "Failed to toggle the streaming of local video.",
-                    ex);
-            }
-        }
-
-        // If the operation didn't succeeded for some reason we make sure
-        // to unselect the video button.
-        if (enable && !enableSucceeded)
-            getActiveCallContainer(call).setVideoButtonSelected(false);
+        new EnableLocalVideoThread(call, enable).start();
     }
 
     /**
@@ -1446,6 +1406,75 @@ public class CallManager
                 logger.error("Could not hang up : " + callPeer
                     + " caused by the following exception: " + e);
             }
+        }
+    }
+
+    /**
+     * Creates the enable local video call thread.
+     */
+    private static class EnableLocalVideoThread
+        extends Thread
+    {
+        private final Call call;
+
+        private boolean enable;
+
+        /**
+         * Creates the enable local video call thread.
+         *
+         * @param call the call, for which to enable/disable 
+         * @param enable
+         */
+        public EnableLocalVideoThread(Call call, boolean enable)
+        {
+            this.call = call;
+            this.enable = enable;
+        }
+
+        @Override
+        public void run()
+        {
+            OperationSetVideoTelephony telephony
+                = call.getProtocolProvider()
+                    .getOperationSet(OperationSetVideoTelephony.class);
+
+            boolean enableSucceeded = false;
+
+        if (telephony != null)
+        {
+            // First disable desktop sharing if it's currently enabled.
+            if (enable && isDesktopSharingEnabled(call))
+            {
+                getActiveCallContainer(call).setDesktopSharingButtonSelected(
+                        false);
+                JFrame frame = DesktopSharingFrame.getFrameForCall(call);
+
+                if(frame != null)
+                {
+                    frame.dispose();
+                }
+            }
+
+            try
+            {
+                telephony.setLocalVideoAllowed(
+                    call,
+                    enable);
+
+                enableSucceeded = true;
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error(
+                    "Failed to toggle the streaming of local video.",
+                    ex);
+            }
+        }
+
+        // If the operation didn't succeeded for some reason we make sure
+        // to unselect the video button.
+        if (enable && !enableSucceeded)
+            getActiveCallContainer(call).setVideoButtonSelected(false);
         }
     }
 
