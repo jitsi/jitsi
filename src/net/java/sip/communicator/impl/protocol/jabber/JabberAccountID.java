@@ -180,6 +180,6 @@ public class JabberAccountID
     {
         return getAccountPropertyBoolean(
                 ProtocolProviderFactory.IS_USE_UPNP,
-                false);
+                true);
     }
 }

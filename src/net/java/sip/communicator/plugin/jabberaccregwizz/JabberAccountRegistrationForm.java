@@ -65,7 +65,8 @@ public class JabberAccountRegistrationForm
     {
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JabberAccountCreationFormService createService = getCreateAccountService();
+        JabberAccountCreationFormService createService =
+            getCreateAccountService();
         if (createService != null)
             createService.clear();
 
@@ -428,7 +429,7 @@ public class JabberAccountRegistrationForm
         String useUPNP =
             accountProperties.get(ProtocolProviderFactory.IS_USE_UPNP);
         boolean isUseUPNP = Boolean.parseBoolean(
-                (useUPNP != null && useUPNP.length() != 0) ? useUPNP : "false");
+                (useUPNP != null && useUPNP.length() != 0) ? useUPNP : "true");
 
         iceConfigPanel.setUseUPNP(isUseUPNP);
 
@@ -560,7 +561,8 @@ public class JabberAccountRegistrationForm
             JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
         String password = null;
         String className = providerFactory.getClass().getName();
-        String packageSourceName = className.substring(0, className.lastIndexOf('.'));
+        String packageSourceName = className.substring(0,
+                className.lastIndexOf('.'));
 
         String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
                 JabberAccRegWizzActivator.bundleContext,

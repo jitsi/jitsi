@@ -116,7 +116,7 @@ public class IceConfigPanel
         jnBox.setSelected(true);
         jnAutoDiscoverBox.setSelected(true);
 
-        //upnpBox.setSelected(true);
+        upnpBox.setSelected(true);
 
         JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
         checkBoxPanel.add(iceBox);
