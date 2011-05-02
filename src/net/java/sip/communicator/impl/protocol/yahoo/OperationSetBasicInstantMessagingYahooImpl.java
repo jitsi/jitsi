@@ -38,12 +38,17 @@ public class OperationSetBasicInstantMessagingYahooImpl
      * Yahoo has limit of message length. If exceeded 
      * message is not delivered and no notification is received for that.
      */
-    private static int MAX_MESSAGE_LENGTH = 800; // 949
+    private static final int MAX_MESSAGE_LENGTH = 800; // 949
+
+    /**
+     * A regexp that is used to escape some chars in messages.
+     */
+    private static final Pattern MESSAGE_CHARS_ESCAPE = Pattern.compile("([.()^&$*|])");
 
     /**
      * A list of filters registered for message events.
      */
-    private Vector<EventFilter> eventFilters = new Vector<EventFilter>();
+    private final List<EventFilter> eventFilters = new ArrayList<EventFilter>();
     
     /**
      * The provider that created us.
@@ -54,7 +59,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
      * Message decoder allows to convert Yahoo formated messages, which can
      * contains some specials characters, to HTML or to plain text.
      */
-     private MessageDecoder messageDecoder = new MessageDecoder();
+     private final MessageDecoder messageDecoder = new MessageDecoder();
 
     /**
      * A reference to the persistent presence operation set that we use
@@ -106,13 +111,14 @@ public class OperationSetBasicInstantMessagingYahooImpl
      */
     public boolean isContentTypeSupported(String contentType)
     {
-        if(contentType.equals(DEFAULT_MIME_TYPE) || 
+        if(contentType.equals(DEFAULT_MIME_TYPE) ||
            contentType.equals(HTML_MIME_TYPE))
             return true;
         else
            return false;
     }
 
+    @Override
     public Message createMessage(String content, String contentType,
         String encoding, String subject)
     {
@@ -208,7 +214,6 @@ public class OperationSetBasicInstantMessagingYahooImpl
             
             if (evt != null)
                 fireMessageEvent(evt);
-            return;
         }
     }
 
@@ -267,6 +272,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
      * @param evt the <tt>EventObject</tt> that we'd like delivered to all
      * registered message listerners.
      */
+    @Override
     protected void fireMessageEvent(EventObject evt)
     {
         // check if this event should be filtered out
@@ -315,6 +321,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
          *
          * @param ev Event with information on the received message
          */
+        @Override
         public void messageReceived(SessionEvent ev)
         {
             handleNewMessage(ev);
@@ -327,6 +334,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
          *
          * @param ev Event with information on the received message
          */
+        @Override
         public void offlineMessageReceived(SessionEvent ev)
         {
             handleNewMessage(ev);
@@ -342,62 +350,63 @@ public class OperationSetBasicInstantMessagingYahooImpl
          *
          * @param ev Event with information on the received email
          */
-         public void newMailReceived(SessionNewMailEvent ev)
-         {
-             // why, if I provide mail@yahoo.FR when registering my account,
-             // SC later tells me that my email address is mail@yahoo.COM ??
-             // because of this users will always be sent on yahoo.com mail
-             // login page rather than their usual (yahoo.XXX) login page.
-             String myEmail = yahooProvider.getAccountID().getAccountAddress();
+        @Override
+        public void newMailReceived(SessionNewMailEvent ev)
+        {
+            // why, if I provide mail@yahoo.FR when registering my account,
+            // SC later tells me that my email address is mail@yahoo.COM ??
+            // because of this users will always be sent on yahoo.com mail
+            // login page rather than their usual (yahoo.XXX) login page.
+            String myEmail = yahooProvider.getAccountID().getAccountAddress();
 
-             // we don't process incoming email event without source address.
-             // it allows us to avoid some spams
-             if ((ev.getEmailAddress() == null)
-                    || (ev.getEmailAddress().indexOf('@') < 0))
-             {
-                 return;
-             }
+            // we don't process incoming email event without source address.
+            // it allows us to avoid some spams
+            if ((ev.getEmailAddress() == null)
+                   || (ev.getEmailAddress().indexOf('@') < 0))
+            {
+                return;
+            }
 
-             String yahooMailLogon = "http://mail."
-                     + myEmail.substring(myEmail.indexOf("@") + 1);
+            String yahooMailLogon = "http://mail."
+                    + myEmail.substring(myEmail.indexOf('@') + 1);
 
-             yahooMailLogon = "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""
-                     + yahooMailLogon + "\">"
-                     + yahooMailLogon + "</a>";
+            yahooMailLogon = "&nbsp;&nbsp;&nbsp;&nbsp;<a href=\""
+                    + yahooMailLogon + "\">"
+                    + yahooMailLogon + "</a>";
 
-             String newMail = YahooActivator.getResources().getI18NString(
-                 "service.gui.NEW_MAIL",
-                 new String[]{ev.getFrom(), 
-                              "&lt;" + ev.getEmailAddress() + "&gt", 
-                              ev.getSubject(),
-                              "&nbsp;&nbsp;&nbsp;&nbsp"+yahooMailLogon}) ;
+            String newMail = YahooActivator.getResources().getI18NString(
+                "service.gui.NEW_MAIL",
+                new String[]{ev.getFrom(),
+                             "&lt;" + ev.getEmailAddress() + "&gt",
+                             ev.getSubject(),
+                             "&nbsp;&nbsp;&nbsp;&nbsp"+yahooMailLogon}) ;
 
-             Message newMailMessage = new MessageYahooImpl(
-                     newMail,
-                     HTML_MIME_TYPE,
-                     DEFAULT_MIME_ENCODING,
-                     null);
+            Message newMailMessage = new MessageYahooImpl(
+                    newMail,
+                    HTML_MIME_TYPE,
+                    DEFAULT_MIME_ENCODING,
+                    null);
 
-             Contact sourceContact = opSetPersPresence.
-                 findContactByID(ev.getEmailAddress());
+            Contact sourceContact = opSetPersPresence.
+                findContactByID(ev.getEmailAddress());
 
-             if (sourceContact == null)
-             {
-                 if (logger.isDebugEnabled())
-                     logger.debug("received a new mail from an unknown contact: "
-                                    + ev.getFrom()
-                                    + " &lt;" + ev.getEmailAddress() + "&gt;");
-                 //create the volatile contact
-                 sourceContact = opSetPersPresence
-                     .createVolatileContact(ev.getEmailAddress());
-             }
-             MessageReceivedEvent msgReceivedEvt
-                 = new MessageReceivedEvent(
-                     newMailMessage, sourceContact, System.currentTimeMillis(),
-                     MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+            if (sourceContact == null)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("received a new mail from an unknown contact: "
+                                   + ev.getFrom()
+                                   + " &lt;" + ev.getEmailAddress() + "&gt;");
+                //create the volatile contact
+                sourceContact = opSetPersPresence
+                    .createVolatileContact(ev.getEmailAddress());
+            }
+            MessageReceivedEvent msgReceivedEvt
+                = new MessageReceivedEvent(
+                    newMailMessage, sourceContact, System.currentTimeMillis(),
+                    MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
 
-             fireMessageEvent(msgReceivedEvt);
-         }
+            fireMessageEvent(msgReceivedEvt);
+        }
 
         /**
          * Handle incoming message by creating an appropriate Sip Communicator
@@ -503,7 +512,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
             String matchGroup1 = m.group(1);
             String matchGroup2 = m.group(2);
 
-            String formattedString = this.formatLinksToHTML(matchGroup1);
+            String formattedString = formatLinksToHTML(matchGroup1);
 
             m.appendReplacement(msgBuffer,
                 replaceSpecialRegExpChars(formattedString) + matchGroup2);
@@ -524,23 +533,23 @@ public class OperationSetBasicInstantMessagingYahooImpl
      * @param text The initial text.
      * @return the formatted text
      */
-    private String replaceSpecialRegExpChars(String text)
+    private static String replaceSpecialRegExpChars(String text)
     {
-        return text.replaceAll("([.()^&$*|])", "\\\\$1");
+        return MESSAGE_CHARS_ESCAPE.matcher(text).replaceAll("\\\\$1");
     }
 
     /**
      * Goes through the given text and converts all links to HTML links.
      * <p>
-     * For example all occurrences of http://sip-communicator.org will be
-     * replaced by <a href="http://sip-communicator.org">
-     * http://sip-communicator.org</a\>. The same is true for all strings
+     * For example all occurrences of http://jitsi.org/ will be
+     * replaced by <a href="http://jitsi.org/">
+     * http://jitsi.org/</a>. The same is true for all strings
      * starting with "www".
      * 
      * @param text the text on which the regular expression would be performed 
      * @return the initial text containing only HTML links
      */
-    private String formatLinksToHTML(String text)
+    private static String formatLinksToHTML(String text)
     {
         String wwwURL = "(www\\." + // Matches the "www" string.
                         "[^/?#<\"'\\s]+" + // Matches at least one char of
@@ -565,7 +574,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     "(\\?[^#<\"'\\s]*)?" +
                     "(#.*)?)";
 
-        String url = "(" + wwwURL + "|" + protocolURL + ")";
+        String url = '(' + wwwURL + '|' + protocolURL + ')';
 
         Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
 
@@ -573,12 +582,11 @@ public class OperationSetBasicInstantMessagingYahooImpl
 
         StringBuffer linkBuffer = new StringBuffer();
 
-        String replacement;
-
         while (m.find())
         {
             String linkGroup = m.group();
 
+            String replacement;
             if (linkGroup.startsWith("www"))
             {
                 replacement = "<A href=\"" + "http://"
