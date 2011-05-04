@@ -2061,7 +2061,13 @@ public class MediaStreamImpl
      */
     public void update(SendStreamEvent event)
     {
-        // TODO Auto-generated method stub
+        if(event instanceof NewSendStreamEvent)
+        {
+            if(event.getSendStream().getSSRC() != this.localSourceID)
+            {
+                setLocalSourceID(event.getSendStream().getSSRC());
+            }
+        }
     }
 
     /**
