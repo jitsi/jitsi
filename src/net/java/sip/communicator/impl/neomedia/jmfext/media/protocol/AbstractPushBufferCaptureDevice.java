@@ -369,7 +369,7 @@ public abstract class AbstractPushBufferCaptureDevice
      */
     public PushBufferStream[] getStreams()
     {
-        return impl.getStreams(AbstractPushBufferStream.class);
+        return impl.getStreams(PushBufferStream.class);
     }
 
     /**

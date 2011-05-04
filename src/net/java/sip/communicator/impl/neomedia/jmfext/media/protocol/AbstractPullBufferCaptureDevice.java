@@ -348,7 +348,7 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     public PullBufferStream[] getStreams()
     {
-        return impl.getStreams(AbstractPullBufferStream.class);
+        return impl.getStreams(PullBufferStream.class);
     }
 
     /**
