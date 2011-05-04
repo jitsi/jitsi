@@ -34,7 +34,6 @@ import net.java.sip.communicator.util.*;
 public class VideoMediaDeviceSession
     extends MediaDeviceSession
 {
-
     /**
      * The <tt>Logger</tt> used by the <tt>VideoMediaDeviceSession</tt> class
      * and its instances for logging output.

@@ -23,6 +23,11 @@ import net.java.sip.communicator.service.neomedia.format.*;
 public class EncodingConfigurationTableModel
     extends AbstractTableModel
 {
+    /**
+     * Serial version UID.
+     */
+    private final long serialVersionUID = 0L;
+
     private final EncodingConfiguration encodingConfiguration;
 
     private MediaFormat[] encodings;
@@ -125,7 +130,7 @@ public class EncodingConfigurationTableModel
                                 /*
                                  * In the cases of equal priorities and equal
                                  * encoding names, display them sorted by clock
-                                 * rate in decreasing order.  
+                                 * rate in decreasing order.
                                  */
                                 ret
                                     = Double.compare(

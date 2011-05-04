@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.net.DatagramSocket;
+import java.net.*;
 import java.util.*;
 
 import org.ice4j.*;

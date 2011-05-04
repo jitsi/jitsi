@@ -46,7 +46,7 @@ public class InfoRetreiver
         this.jabberProvider = jabberProvider;
         this.ownerUin = ownerUin;
     }
-    
+
     /**
      * returns the user details from the specified class or its descendants
      * the class is one from the
@@ -284,6 +284,11 @@ public class InfoRetreiver
     public static class WorkDepartmentNameDetail
         extends ServerStoredDetails.NameDetail
     {
+        /**
+         * Constructor.
+         *
+         * @param workDepartmentName name of the work department
+         */
         public WorkDepartmentNameDetail(String workDepartmentName)
         {
             super("Work Department Name", workDepartmentName);
@@ -296,6 +301,11 @@ public class InfoRetreiver
     public static class WorkFaxDetail
         extends ServerStoredDetails.FaxDetail
     {
+        /**
+         * Constructor.
+         *
+         * @param number work fax number
+         */
         public WorkFaxDetail(String number)
         {
             super(number);
@@ -309,6 +319,11 @@ public class InfoRetreiver
     public static class WorkPagerDetail
         extends ServerStoredDetails.PhoneNumberDetail
     {
+        /**
+         * Constructor.
+         *
+         * @param number work pager number
+         */
         public WorkPagerDetail(String number)
         {
             super(number);

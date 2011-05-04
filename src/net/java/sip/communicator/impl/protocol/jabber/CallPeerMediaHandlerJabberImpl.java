@@ -74,7 +74,7 @@ public class CallPeerMediaHandlerJabberImpl
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
-     * @param peer that <tt>CallPeerSipImpl</tt> instance that we will be
+     * @param peer that <tt>CallPeerJabberImpl</tt> instance that we will be
      * managing media for.
      */
     public CallPeerMediaHandlerJabberImpl(CallPeerJabberImpl peer)

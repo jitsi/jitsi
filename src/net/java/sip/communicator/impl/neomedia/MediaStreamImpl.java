@@ -1619,9 +1619,9 @@ public class MediaStreamImpl
                             = receiveStream.getDataSource();
 
                         /*
-                         * For an unknown reason, the stream DataSource can be null
-                         * at the end of the Call after re-INVITEs have been
-                         * handled.
+                         * For an unknown reason, the stream DataSource can be
+                         * null at the end of the Call after re-INVITEs have
+                         * been handled.
                          */
                         if (receiveStreamDataSource != null)
                             receiveStreamDataSource.start();
@@ -1848,16 +1848,17 @@ public class MediaStreamImpl
                             = receiveStream.getDataSource();
 
                         /*
-                         * For an unknown reason, the stream DataSource can be null
-                         * at the end of the Call after re-INVITEs have been
-                         * handled.
+                         * For an unknown reason, the stream DataSource can be
+                         * null at the end of the Call after re-INVITEs have
+                         * been handled.
                          */
                         if (receiveStreamDataSource != null)
                             receiveStreamDataSource.stop();
                     }
                     catch (IOException ioex)
                     {
-                        logger.warn("Failed to stop stream " + receiveStream, ioex);
+                        logger.warn("Failed to stop stream " + receiveStream,
+                                ioex);
                     }
                 }
             }
@@ -1975,7 +1976,8 @@ public class MediaStreamImpl
 
     /**
      * Notifies this <tt>ReceiveStreamListener</tt> that the <tt>RTPManager</tt>
-     * it is registered with has generated an event related to a <tt>ReceiveStream</tt>.
+     * it is registered with has generated an event related to a
+     * <tt>ReceiveStream</tt>.
      *
      * @param event the <tt>ReceiveStreamEvent</tt> which specifies the
      * <tt>ReceiveStream</tt> that is the cause of the event and the very type
@@ -2062,7 +2064,6 @@ public class MediaStreamImpl
         // TODO Auto-generated method stub
     }
 
-
     /**
      * Notifies this <tt>SessionListener</tt> that the <tt>RTPManager</tt> it is
      * registered with has generated an event which pertains to the session as a
@@ -2120,7 +2121,8 @@ public class MediaStreamImpl
                         new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
 
                 buff.append("Received a report for ")
-                    .append(getFormat() != null ? getFormat().getMediaType().toString() : "")
+                    .append(getFormat() != null ?
+                            getFormat().getMediaType().toString() : "")
                     .append(" stream SSRC:")
                     .append(getLocalSourceID())
                     .append(" [packet count:")

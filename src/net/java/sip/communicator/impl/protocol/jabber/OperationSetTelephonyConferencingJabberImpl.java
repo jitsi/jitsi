@@ -367,17 +367,17 @@ public class OperationSetTelephonyConferencingJabberImpl
 
         if (registrationState == RegistrationState.REGISTERED)
         {
-            if(logger.isInfoEnabled())
+            if(logger.isDebugEnabled())
             {
-                logger.info("Subscribes to Coin packets");
+                logger.debug("Subscribes to Coin packets");
             }
             subscribeForCoinPackets();
         }
         else if (registrationState == RegistrationState.UNREGISTERED)
         {
-            if(logger.isInfoEnabled())
+            if(logger.isDebugEnabled())
             {
-                logger.info("Unsubscribes to Coin packets");
+                logger.debug("Unsubscribes to Coin packets");
             }
             unsubscribeForCoinPackets();
         }

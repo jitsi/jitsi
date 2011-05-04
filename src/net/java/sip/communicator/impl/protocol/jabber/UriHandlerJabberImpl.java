@@ -16,7 +16,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-
 /**
  * The jabber implementation of the URI handler. This class handles xmpp URIs by
  * trying to establish a chat with them or add you to a chatroom.
