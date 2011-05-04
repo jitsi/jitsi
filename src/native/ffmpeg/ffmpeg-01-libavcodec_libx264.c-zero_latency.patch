@@ -1,7 +1,5 @@
-Index: libavcodec/libx264.c
-===================================================================
---- libavcodec/libx264.c	(révision 25669)
-+++ libavcodec/libx264.c	(copie de travail)
+--- a/libavcodec/libx264.c	2011-04-30 17:06:44.304599700 +0300
++++ b/libavcodec/libx264.c	2011-04-16 05:01:34.391924200 +0300
 @@ -303,6 +303,13 @@
      if (avctx->flags & CODEC_FLAG_GLOBAL_HEADER)
          x4->params.b_repeat_headers = 0;
