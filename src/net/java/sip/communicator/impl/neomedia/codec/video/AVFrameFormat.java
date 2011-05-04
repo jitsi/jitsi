@@ -31,17 +31,18 @@ public class AVFrameFormat
     public static final String AVFRAME = "AVFrame";
 
     /**
+     * The native device-specific format represented by this instance. It's
+     * necessary in the cases of multiple device-specific formats corresponding
+     * to one and the same native FFmpeg format in which JMF is unable to
+     * differentiate them, yet the device needs to know its device-specific
+     * format.
+     */
+    private int devicePixFmt;
+
+    /**
      * The native FFmpeg format represented by this instance.
      */
     private int pixFmt;
-
-    /**
-     * Native format of the capture device. Because some native capture device
-     * formats can correspond to the same FFmpeg format, JMF's stream is unable
-     * to differentiate them. So having the native format here
-     * allow JMF stream to know it directly.
-     */
-    private int devicePixFmt;
 
     /**
      * Initializes a new <tt>AVFrameFormat</tt> instance with unspecified size,
@@ -75,8 +76,10 @@ public class AVFrameFormat
      * @param devicePixFmt the capture device colorspace to be represented by
      * the new instance
      */
-    public AVFrameFormat(Dimension size, float frameRate, int pixFmt,
-            int devicePixFmt)
+    public AVFrameFormat(
+            Dimension size,
+            float frameRate,
+            int pixFmt, int devicePixFmt)
     {
         super(AVFRAME, size, NOT_SPECIFIED, AVFrame.class, frameRate);
 
@@ -98,8 +101,7 @@ public class AVFrameFormat
             = new AVFrameFormat(
                     getSize(),
                     getFrameRate(),
-                    pixFmt,
-                    devicePixFmt);
+                    pixFmt, devicePixFmt);
 
         f.copy(this);
         return f;
@@ -184,11 +186,11 @@ public class AVFrameFormat
 
         if (intersection == null)
             return null;
-        if (!(format instanceof AVFrameFormat))
-            return intersection;
 
-        ((AVFrameFormat) intersection).pixFmt
-            = (pixFmt == NOT_SPECIFIED)
+        AVFrameFormat avFrameFormatIntersection = (AVFrameFormat) intersection;
+
+        avFrameFormatIntersection.pixFmt
+            = ((pixFmt == NOT_SPECIFIED) && (format instanceof AVFrameFormat))
                 ? ((AVFrameFormat) format).pixFmt
                 : pixFmt;
         return intersection;
