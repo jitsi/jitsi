@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
+import java.awt.Dimension;
 import java.io.*;
 import java.util.*;
 
@@ -212,6 +213,85 @@ public class DeviceConfiguration
      * The audio system we use.
      */
     private String audioSystem = null;
+
+    /**
+     * The property we use to store the video framerate settings.
+     */
+    private static final String PROP_VIDEO_FRAMERATE =
+        "net.java.sip.communicator.impl.neomedia.video.framerate";
+
+    /**
+     * Current frame rate settings.
+     */
+    private int frameRate = -1;
+
+    /**
+     * The default frame rate.
+     */
+    public static final int DEFAULT_FRAME_RATE = 20;
+
+    /**
+     * The property we use to store the settings for maximum allowed video
+     * bandwidth.
+     */
+    private static final String PROP_VIDEO_MAX_BANDWIDTH =
+        "net.java.sip.communicator.impl.neomedia.video.maxbandwidth";
+
+    /**
+     * The default value for video maximum bandwidth.
+     */
+    public static final int DEFAULT_VIDEO_MAX_BANDWIDTH = 100;
+
+    /**
+     * Current setting for video maximum bandwidth.
+     */
+    private int videoMaxBandwidth = -1;
+
+    /**
+     * The default video width.
+     */
+    public static final int DEFAULT_VIDEO_WIDTH = 640;
+
+    /**
+     * The default video height.
+     */
+    public static final int DEFAULT_VIDEO_HEIGHT = 480;
+
+    /**
+     * Property we use to store video settings - width.
+     */
+    private static final String PROP_VIDEO_RESOLUTION_WIDTH =
+        "net.java.sip.communicator.impl.neomedia.video.resolution.width";
+
+    /**
+     * Property we use to store video settings - height.
+     */
+    private static final String PROP_VIDEO_RESOLUTION_HEIGHT =
+        "net.java.sip.communicator.impl.neomedia.video.resolution.height";
+
+    /**
+     * The current resolution settings.
+     */
+    private Dimension resolution = null;
+
+    /**
+     * The currently supported resolutions we will show as option
+     * and user can select.
+     */
+    public static final Dimension[] SUPPORTED_RESOLUTIONS =
+        new Dimension[]
+            {
+                //QCIF
+                new Dimension(176, 144),
+                // QVGA
+                new Dimension(320, 240),
+                //CIF
+                new Dimension(352, 288),
+                // VGA
+                new Dimension(640, 480),
+                // HD 720
+                new Dimension(1280, 720)
+            };
 
     /**
      * Initializes capture devices.
@@ -1156,5 +1236,134 @@ public class DeviceConfiguration
                         "Failed to commit changes to the JMF plug-in list.");
             }
         }
+    }
+
+    /**
+     * Returns the currently set video maximum bandwidth allowed or the
+     * default value.
+     * @return the currently set video maximum bandwidth allowed or the
+     * default value.
+     */
+    public int getVideoMaxBandwidth()
+    {
+        if(videoMaxBandwidth == -1)
+        {
+            videoMaxBandwidth =
+                NeomediaActivator.getConfigurationService().getInt(
+                    PROP_VIDEO_MAX_BANDWIDTH,
+                    DEFAULT_VIDEO_MAX_BANDWIDTH
+                );
+        }
+
+        return videoMaxBandwidth;
+    }
+
+    /**
+     * Sets and stores the maximum allowed video bandwidth.
+     * @param videoMaxBandwidth
+     */
+    public void setVideoMaxBandwidth(int videoMaxBandwidth)
+    {
+        this.videoMaxBandwidth = videoMaxBandwidth;
+
+        if(videoMaxBandwidth != DEFAULT_VIDEO_MAX_BANDWIDTH)
+        {
+            NeomediaActivator.getConfigurationService().setProperty(
+                PROP_VIDEO_MAX_BANDWIDTH, videoMaxBandwidth);
+        }
+        else
+        {
+            NeomediaActivator.getConfigurationService().removeProperty(
+                PROP_VIDEO_MAX_BANDWIDTH);
+        }
+    }
+
+    /**
+     * Returns the frame rate setting or the default value.
+     * @return the frame rate setting or the default value.
+     */
+    public int getFrameRate()
+    {
+        if(frameRate == -1)
+        {
+            frameRate =
+                NeomediaActivator.getConfigurationService().getInt(
+                    PROP_VIDEO_FRAMERATE,
+                    DEFAULT_FRAME_RATE
+                );
+        }
+
+        return frameRate;
+    }
+
+    /**
+     * Sets and stores the frame rate.
+     * @param frameRate the new frame rate value.
+     */
+    public void setFrameRate(int frameRate)
+    {
+        this.frameRate = frameRate;
+
+        if(frameRate != DEFAULT_FRAME_RATE)
+        {
+            NeomediaActivator.getConfigurationService().setProperty(
+                PROP_VIDEO_FRAMERATE, frameRate);
+        }
+        else
+        {
+            NeomediaActivator.getConfigurationService().removeProperty(
+                PROP_VIDEO_FRAMERATE);
+        }
+    }
+
+    /**
+     * Returns the current resolution setting or the default one.
+     * @return the current resolution setting or the default one.
+     */
+    public Dimension getResolution()
+    {
+        if(resolution == null)
+        {
+            int height = NeomediaActivator.getConfigurationService().getInt(
+                    PROP_VIDEO_RESOLUTION_HEIGHT,
+                    DEFAULT_VIDEO_HEIGHT
+                );
+            int width = NeomediaActivator.getConfigurationService().getInt(
+                    PROP_VIDEO_RESOLUTION_WIDTH,
+                    DEFAULT_VIDEO_WIDTH
+                );
+
+            resolution = new Dimension(width, height);
+        }
+
+        return resolution;
+    }
+
+    /**
+     * Sets and stores new resolution setting.
+     * @param resolution the new resolution value.
+     */
+    public void setResolution(Dimension resolution)
+    {
+        if(resolution.getWidth() != DEFAULT_VIDEO_WIDTH
+            && resolution.getHeight() != DEFAULT_VIDEO_HEIGHT)
+        {
+            NeomediaActivator.getConfigurationService().setProperty(
+                PROP_VIDEO_RESOLUTION_WIDTH, resolution.width);
+            NeomediaActivator.getConfigurationService().setProperty(
+                PROP_VIDEO_RESOLUTION_HEIGHT, resolution.height);
+        }
+        else
+        {
+            NeomediaActivator.getConfigurationService().removeProperty(
+                PROP_VIDEO_RESOLUTION_HEIGHT);
+            NeomediaActivator.getConfigurationService().removeProperty(
+                PROP_VIDEO_RESOLUTION_WIDTH);
+        }
+
+        this.resolution = resolution;
+
+        firePropertyChange(VIDEO_CAPTURE_DEVICE,
+            videoCaptureDevice, videoCaptureDevice);
     }
 }

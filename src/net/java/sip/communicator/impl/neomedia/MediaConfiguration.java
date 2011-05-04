@@ -59,6 +59,11 @@ public class MediaConfiguration
     private static CaptureDeviceInfo videoDeviceInPreview;
 
     /**
+     * The listener that listens and changes the preview panel.
+     */
+    private static ActionListener videoDeviceChangeListener;
+
+    /**
      * Returns the audio configuration panel.
      * @return the audio configuration panel
      */
@@ -265,6 +270,12 @@ public class MediaConfiguration
 
         secondContainer.add(createEncodingControls(type));
 
+        //TODO to be enabled when video resolution/framerate changing is enabled
+//        if(portAudioPanel == null)
+//        {
+//            secondContainer.add(createVideoAdvancedSettings());
+//        }
+
         JPanel container = new TransparentPanel(new BorderLayout());
         container.add(firstContainer, BorderLayout.NORTH);
         container.add(secondContainer, BorderLayout.CENTER);
@@ -396,7 +407,6 @@ public class MediaConfiguration
         if (device == null)
             return;
 
-        MediaService mediaService = NeomediaActivator.getMediaServiceImpl();
         Iterable<MediaDevice> devs
             = mediaService.getDevices(MediaType.VIDEO, MediaUseCase.ANY);
 
@@ -441,7 +451,7 @@ public class MediaConfiguration
             preview.setPreferredSize(new Dimension(WIDTH, 280));
             preview.setMaximumSize(new Dimension(WIDTH, 280));
 
-            final ActionListener comboBoxListener = new ActionListener()
+            videoDeviceChangeListener = new ActionListener()
             {
                 public void actionPerformed(ActionEvent event)
                 {
@@ -487,7 +497,7 @@ public class MediaConfiguration
                     videoDeviceInPreview = device;
                 }
             };
-            comboBox.addActionListener(comboBoxListener);
+            comboBox.addActionListener(videoDeviceChangeListener);
 
             /*
              * We have to initialize the controls to reflect the configuration
@@ -536,7 +546,7 @@ public class MediaConfiguration
                         {
                             public void run()
                             {
-                                comboBoxListener.actionPerformed(null);
+                                videoDeviceChangeListener.actionPerformed(null);
                             }
                         });
 
@@ -649,5 +659,203 @@ public class MediaConfiguration
             ((EncodingConfigurationTableModel) table.getModel()).move(table
                 .getSelectedRow(), up);
         table.getSelectionModel().setSelectionInterval(index, index);
+    }
+
+    /**
+     * Creates the video advanced settings.
+     * @return video advanced settings panel.
+     */
+    private static Component createVideoAdvancedSettings()
+    {
+        ResourceManagementService resources = NeomediaActivator.getResources();
+
+        final TransparentPanel advancedPanel =
+            new TransparentPanel(new BorderLayout());
+        advancedPanel.setMaximumSize(new Dimension(WIDTH, 150));
+        final JLabel advButton = new JLabel(NeomediaActivator.getResources()
+            .getI18NString("impl.media.configform.VIDEO_MORE_SETTINGS"));
+        advButton.setIcon(NeomediaActivator.getResources()
+            .getImage("service.gui.icons.RIGHT_ARROW_ICON"));
+        TransparentPanel buttonPanel = new TransparentPanel(
+            new BorderLayout());
+        buttonPanel.add(advButton, BorderLayout.WEST);
+        advancedPanel.add(buttonPanel, BorderLayout.NORTH);
+
+        final DeviceConfiguration deviceConfig =
+            mediaService.getDeviceConfiguration();
+
+        final TransparentPanel centerPanel =
+            new TransparentPanel(new GridBagLayout());
+        centerPanel.setMaximumSize(new Dimension(WIDTH, 150));
+        centerPanel.setVisible(false);
+        advancedPanel.add(centerPanel, BorderLayout.CENTER);
+
+        advButton.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if(centerPanel.isVisible())
+                {
+                    advButton.setIcon(NeomediaActivator.getResources()
+                        .getImage("service.gui.icons.RIGHT_ARROW_ICON"));
+                }
+                else
+                {
+                    advButton.setIcon(NeomediaActivator.getResources()
+                        .getImage("service.gui.icons.DOWN_ARROW_ICON"));
+                }
+
+                centerPanel.setVisible(!centerPanel.isVisible());
+
+                advancedPanel.revalidate();
+
+                NeomediaActivator.getUIService().getConfigurationContainer()
+                   .validateCurrentForm();
+            }
+        });
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.gridx = 0;
+        constraints.weightx = 0;
+        constraints.weighty = 0;
+        constraints.gridy = 0;
+
+        centerPanel.add(new JLabel(
+            resources.getI18NString("impl.media.configform.VIDEO_RESOLUTION")),
+            constraints);
+        constraints.gridy = 1;
+        centerPanel.add(new JLabel(
+            resources.getI18NString("impl.media.configform.VIDEO_FRAME_RATE")),
+            constraints);
+        constraints.gridy = 2;
+        centerPanel.add(new JLabel(
+            resources.getI18NString("impl.media.configform.VIDEO_PACKETS_POLICY")),
+            constraints);
+
+        constraints.weightx = 1;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        Object[] resolutionValues
+            = new Object[DeviceConfiguration.SUPPORTED_RESOLUTIONS.length + 1];
+        System.arraycopy(DeviceConfiguration.SUPPORTED_RESOLUTIONS, 0,
+                        resolutionValues, 1,
+                        DeviceConfiguration.SUPPORTED_RESOLUTIONS.length);
+        final JComboBox sizeCombo = new JComboBox(resolutionValues);
+        sizeCombo.setRenderer(new ResolutionCellRenderer());
+        sizeCombo.setEditable(false);
+        centerPanel.add(sizeCombo, constraints);
+
+        final JSpinner frameRate = new JSpinner(new SpinnerNumberModel(
+            DeviceConfiguration.DEFAULT_FRAME_RATE, 5, 25, 1));
+        frameRate.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                deviceConfig.setFrameRate(
+                        ((SpinnerNumberModel)frameRate.getModel())
+                            .getNumber().intValue());
+            }
+        });
+        constraints.gridy = 1;
+        centerPanel.add(frameRate, constraints);
+
+        final JSpinner videoMaxBandwidth = new JSpinner(new SpinnerNumberModel(
+            deviceConfig.getVideoMaxBandwidth(),
+            1, DeviceConfiguration.DEFAULT_VIDEO_MAX_BANDWIDTH, 1));
+        videoMaxBandwidth.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                deviceConfig.setVideoMaxBandwidth(
+                        ((SpinnerNumberModel)videoMaxBandwidth.getModel())
+                            .getNumber().intValue());
+            }
+        });
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        centerPanel.add(videoMaxBandwidth, constraints);
+
+        // load selected value or auto
+        Dimension currentResolution = deviceConfig.getResolution();
+
+        if(currentResolution.getHeight()
+                != DeviceConfiguration.DEFAULT_VIDEO_HEIGHT
+           && currentResolution.getWidth()
+                != DeviceConfiguration.DEFAULT_VIDEO_WIDTH)
+        {
+            sizeCombo.setSelectedItem(deviceConfig.getResolution());
+        }
+        else
+            sizeCombo.setSelectedIndex(0);
+        sizeCombo.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                Dimension selectedResolution =
+                    (Dimension)sizeCombo.getSelectedItem();
+                if(selectedResolution == null)
+                {
+                    // the auto value, default one
+                    selectedResolution = new Dimension(
+                        DeviceConfiguration.DEFAULT_VIDEO_WIDTH,
+                        DeviceConfiguration.DEFAULT_VIDEO_HEIGHT);
+                }
+
+                deviceConfig.setResolution(selectedResolution);
+
+                videoDeviceInPreview = null;
+                videoDeviceChangeListener.actionPerformed(null);
+            }
+        });
+
+        frameRate.setValue(deviceConfig.getFrameRate());
+
+        return advancedPanel;
+    }
+
+    /**
+     * Renders the available resolutions in the combo box.
+     */
+    private static class ResolutionCellRenderer
+        extends DefaultListCellRenderer
+    {
+        /**
+         * Sets readable text describing the resolution if the selected
+         * value is null we return the string "Auto".
+         *
+         * @param list
+         * @param value
+         * @param index
+         * @param isSelected
+         * @param cellHasFocus
+         * @return
+         */
+        public Component getListCellRendererComponent(
+            JList list,
+            Object value,
+            int index,
+            boolean isSelected,
+            boolean cellHasFocus)
+        {
+            // call super to set backgrounds and fonts
+            super.getListCellRendererComponent(
+                list, value, index, isSelected, cellHasFocus);
+
+            // now just change the text
+            if(value == null)
+            {
+                setText("Auto");
+            }
+            else if(value instanceof Dimension)
+            {
+                Dimension d = (Dimension)value;
+                setText((int)d.getWidth() + "x" + (int)d.getHeight());
+            }
+
+            return this;
+        }
     }
 }

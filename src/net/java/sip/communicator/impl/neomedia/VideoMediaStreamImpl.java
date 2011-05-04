@@ -279,7 +279,12 @@ public class VideoMediaStreamImpl
     {
         super.configureDataOutputStream(dataOutputStream);
 
-        dataOutputStream.setMaxPacketsPerMillis(1, 10);
+        int maxBandwidth =
+            NeomediaActivator.getMediaServiceImpl().getDeviceConfiguration()
+                .getVideoMaxBandwidth();
+
+        //maximum one packet for X milliseconds(the settings are for one second)
+        dataOutputStream.setMaxPacketsPerMillis(1, 1000/maxBandwidth);
     }
 
     /**

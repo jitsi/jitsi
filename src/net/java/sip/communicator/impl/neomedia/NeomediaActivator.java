@@ -92,6 +92,11 @@ public class NeomediaActivator
     private static PacketLoggingService packetLoggingService  = null;
 
     /**
+     * A reference to the <tt>UIService</tt> currently in use.
+     */
+    private static UIService uiService = null;
+
+    /**
      * Starts the execution of the neomedia bundle in the specified context.
      *
      * @param bundleContext the context in which the neomedia bundle is to start
@@ -357,5 +362,19 @@ public class NeomediaActivator
                 = (PacketLoggingService)bundleContext.getService(plReference);
         }
         return packetLoggingService;
+    }
+
+    /**
+     * Returns a reference to an UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     *
+     * @return a reference to an UIService implementation currently registered
+     * in the bundle context or null if no such implementation was found.
+     */
+    public static UIService getUIService()
+    {
+        if(uiService == null)
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
+        return uiService;
     }
 }
