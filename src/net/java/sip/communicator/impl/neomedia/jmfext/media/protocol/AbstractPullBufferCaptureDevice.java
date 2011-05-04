@@ -7,21 +7,17 @@
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol;
 
 import java.io.*;
-import java.lang.reflect.*;
 
 import javax.media.*;
 import javax.media.control.*;
 import javax.media.protocol.*;
-
-import net.java.sip.communicator.impl.neomedia.control.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Provides a base implementation of <tt>PullBufferDataSource</tt> and
  * <tt>CaptureDevice</tt> in order to facilitate implementers by taking care of
  * boilerplate in the most common cases.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractPullBufferCaptureDevice
     extends PullBufferDataSource
@@ -29,64 +25,82 @@ public abstract class AbstractPullBufferCaptureDevice
 {
 
     /**
-     * The <tt>Logger</tt> used by the <tt>AbstractPullBufferCaptureDevice</tt>
-     * class and its instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(AbstractPullBufferCaptureDevice.class);
-
-    /**
-     * The value of the <tt>formatControls</tt> property of
-     * <tt>AbstractPullBufferCaptureDevice</tt> which represents an empty array
-     * of <tt>FormatControl</tt>s. Explicitly defined in order to reduce
-     * unnecessary allocations.
-     */
-    protected static final FormatControl[] EMPTY_FORMAT_CONTROLS
-        = new FormatControl[0];
-
-    /**
-     * The value of the <tt>streams</tt> property of
-     * <tt>AbstractPullBufferCaptureDevice</tt> which represents an empty array
-     * of <tt>PullBufferStream</tt>s. Explicitly defined in order to reduce
-     * unnecessary allocations.
-     */
-    protected static final PullBufferStream[] EMPTY_STREAMS
-        = new PullBufferStream[0];
-
-    /**
-     * The indicator which determines whether a connection to the media source
-     * specified by the <tt>MediaLocator</tt> of this <tt>DataSource</tt> has
-     * been opened.
-     */
-    private boolean connected = false;
-
-    /**
-     * The array of <tt>FormatControl</tt> instances each one of which can be
-     * used before {@link #connect()} to get and set the capture <tt>Format</tt>
-     * of each one of the capture streams.
-     */
-    private FormatControl[] formatControls;
-
-    /**
-     * The indicator which determines whether the transfer of media data from
-     * this <tt>DataSource</tt> has been started.
-     */
-    private boolean started = false;
-
-    /**
      * The <tt>CaptureDeviceInfo</tt>.
      */
-    private CaptureDeviceInfo devInfo = null;
+    private CaptureDeviceInfo deviceInfo;
 
     /**
-     * The <tt>PullBufferStream</tt>s through which this
-     * <tt>PullBufferDataSource</tt> gives access to its media data.
-     * <p>
-     * Warning: Caution is advised when directly using the field and access to
-     * it is to be synchronized with sync root <tt>this</tt>.
-     * </p>
+     * The <tt>AbstractBufferCaptureDevice</tt> which provides the
+     * implementation of this <tt>AbstractPullBufferCaptureDevice</tt>.
      */
-    protected AbstractPullBufferStream[] streams;
+    private final AbstractBufferCaptureDevice<AbstractPullBufferStream> impl
+        = new AbstractBufferCaptureDevice<AbstractPullBufferStream>()
+                {
+                    protected AbstractPullBufferStream createStream(
+                            int streamIndex,
+                            FormatControl formatControl)
+                    {
+                        return
+                            AbstractPullBufferCaptureDevice.this.createStream(
+                                    streamIndex,
+                                    formatControl);
+                    }
+
+                    protected void doConnect()
+                        throws IOException
+                    {
+                        AbstractPullBufferCaptureDevice.this.doConnect();
+                    }
+
+                    protected void doDisconnect()
+                    {
+                        AbstractPullBufferCaptureDevice.this.doDisconnect();
+                    }
+
+                    protected void doStart()
+                        throws IOException
+                    {
+                        AbstractPullBufferCaptureDevice.this.doStart();
+                    }
+
+                    protected void doStop()
+                        throws IOException
+                    {
+                        AbstractPullBufferCaptureDevice.this.doStop();
+                    }
+
+                    public CaptureDeviceInfo getCaptureDeviceInfo()
+                    {
+                        return
+                            AbstractPullBufferCaptureDevice.this
+                                    .getCaptureDeviceInfo();
+                    }
+
+                    protected Format getFormat(int streamIndex, Format oldValue)
+                    {
+                        return
+                            AbstractPullBufferCaptureDevice.this.getFormat(
+                                    streamIndex,
+                                    oldValue);
+                    }
+
+                    protected Format[] getSupportedFormats(int streamIndex)
+                    {
+                        return
+                            AbstractPullBufferCaptureDevice.this
+                                    .getSupportedFormats(streamIndex);
+                    }
+
+                    protected Format setFormat(
+                            int streamIndex,
+                            Format oldValue, Format newValue)
+                    {
+                        return
+                            AbstractPullBufferCaptureDevice.this.setFormat(
+                                    streamIndex,
+                                    oldValue, newValue);
+                    }
+                };
 
     /**
      * Initializes a new <tt>AbstractPullBufferCaptureDevice</tt> instance.
@@ -114,133 +128,10 @@ public abstract class AbstractPullBufferCaptureDevice
      * to the media source specified by the <tt>MediaLocator</tt> of this
      * <tt>DataSource</tt>
      */
-    public synchronized void connect()
+    public void connect()
         throws IOException
     {
-        if (!connected)
-        {
-            try
-            {
-                doConnect();
-            }
-            catch (IOException ioex)
-            {
-                logger.error(
-                        "Failed to connect "
-                            + getClass().getSimpleName()
-                            + " "
-                            + getLocator(),
-                        ioex);
-                throw ioex;
-            }
-            connected = true;
-        }
-    }
-
-    /**
-     * Creates a new <tt>FormatControl</tt> instance which is to be associated
-     * with a <tt>PullBufferStream</tt> at a specific zero-based index in the
-     * list of streams of this <tt>PullBufferDataSource</tt>. As the
-     * <tt>FormatControl</tt>s of a <tt>PullBufferDataSource</tt> can be
-     * requested before {@link #connect()}, its <tt>PullBufferStream</tt>s may
-     * not exist at the time of the request for the creation of the
-     * <tt>FormatControl</tt>.
-     *
-     * @param streamIndex the zero-based index of the <tt>PullBufferStream</tt>
-     * in the list of streams of this <tt>PullBufferDataSource</tt> which is to
-     * be associated with the new <tt>FormatControl</tt> instance
-     * @return a new <tt>FormatControl</tt> instance which is to be associated
-     * with a <tt>PullBufferStream</tt> at the specified <tt>streamIndex</tt> in
-     * the list of streams of this <tt>PullBufferDataSource</tt>
-     */
-    protected FormatControl createFormatControl(final int streamIndex)
-    {
-        return
-            new AbstractFormatControl()
-            {
-                /**
-                 * The <tt>Format</tt> of this <tt>FormatControl</tt> and,
-                 * respectively, of the media data of its owner.
-                 */
-                private Format format;
-
-                /**
-                 * Gets the <tt>Format</tt> of the media data of the owner of
-                 * this <tt>FormatControl</tt>.
-                 *
-                 * @return the <tt>Format</tt> of the media data of the owner of
-                 * this <tt>FormatControl</tt>
-                 */
-                public Format getFormat()
-                {
-                    format
-                        = AbstractPullBufferCaptureDevice.this
-                                .internalGetFormat(streamIndex, format);
-                    return format;
-                }
-
-                /**
-                 * Gets the <tt>Format</tt>s in which the owner of this
-                 * <tt>FormatControl</tt> is capable of providing media data.
-                 *
-                 * @return an array of <tt>Format</tt>s in which the owner of
-                 * this <tt>FormatControl</tt> is capable of providing media
-                 * data
-                 */
-                public Format[] getSupportedFormats()
-                {
-                    return
-                        AbstractPullBufferCaptureDevice.this
-                                .getSupportedFormats(streamIndex);
-                }
-
-                /**
-                 * Implements {@link FormatControl#setFormat(Format)}. Attempts
-                 * to set the <tt>Format</tt> in which the owner of this
-                 * <tt>FormatControl</tt> is to provide media data.
-                 *
-                 * @param format the <tt>Format</tt> to be set on this instance
-                 * @return the currently set <tt>Format</tt> after the attempt
-                 * to set it on this instance if <tt>format</tt> is supported by
-                 * this instance and regardless of whether it was actually set;
-                 * <tt>null</tt> if <tt>format</tt> is not supported by this
-                 * instance
-                 */
-                @Override
-                public Format setFormat(Format format)
-                {
-                    Format setFormat = super.setFormat(format);
-
-                    if (setFormat != null)
-                    {
-                        setFormat
-                            = AbstractPullBufferCaptureDevice.this
-                                    .internalSetFormat(
-                                        streamIndex,
-                                        setFormat,
-                                        format);
-                        if (setFormat != null)
-                            this.format = setFormat;
-                    }
-                    return setFormat;
-                }
-            };
-    }
-
-    /**
-     * Creates the <tt>FormatControl</tt>s of this <tt>CaptureDevice</tt>.
-     *
-     * @return an array of the <tt>FormatControl</tt>s of this
-     * <tt>CaptureDevice</tt>
-     */
-    protected FormatControl[] createFormatControls()
-    {
-        FormatControl formatControl = createFormatControl(0);
-
-        return
-            (formatControl == null)
-                ? EMPTY_FORMAT_CONTROLS
-                : new FormatControl[] { formatControl };
+        impl.connect();
     }
 
     /**
@@ -268,26 +159,9 @@ public abstract class AbstractPullBufferCaptureDevice
      * <tt>MediaLocator</tt> of this <tt>DataSource</tt>. If such a connection
      * has not been opened, the call is ignored.
      */
-    public synchronized void disconnect()
+    public void disconnect()
     {
-        try
-        {
-            stop();
-        }
-        catch (IOException ioex)
-        {
-            logger.error(
-                    "Failed to stop "
-                        + getClass().getSimpleName()
-                        + " "
-                        + getLocator(), ioex);
-        }
-
-        if (connected)
-        {
-            doDisconnect();
-            connected = false;
-        }
+        impl.disconnect();
     }
 
     /**
@@ -300,7 +174,7 @@ public abstract class AbstractPullBufferCaptureDevice
      * to the media source specified by the <tt>MediaLocator</tt> of this
      * <tt>DataSource</tt>
      */
-    protected synchronized void doConnect()
+    protected void doConnect()
         throws IOException
     {
     }
@@ -311,7 +185,7 @@ public abstract class AbstractPullBufferCaptureDevice
      * override and be sure that there will be no request to close a connection
      * if the connection has not been opened yet.
      */
-    protected synchronized void doDisconnect()
+    protected void doDisconnect()
     {
         /*
          * While it is not clear whether the streams can be released upon
@@ -321,16 +195,6 @@ public abstract class AbstractPullBufferCaptureDevice
          * Unfortunately, it means that it isn't clear when the streams are to
          * be disposed.
          */
-//        if (streams != null)
-//            try
-//            {
-//                for (AbstractPullBufferStream stream : streams)
-//                    stream.close();
-//            }
-//            finally
-//            {
-//                streams = null;
-//            }
     }
 
     /**
@@ -341,12 +205,10 @@ public abstract class AbstractPullBufferCaptureDevice
      * @throws IOException if anything goes wrong while starting the transfer of
      * media data from this <tt>DataSource</tt>
      */
-    protected synchronized void doStart()
+    protected void doStart()
         throws IOException
     {
-        if (streams != null)
-            for (AbstractPullBufferStream stream : streams)
-                stream.start();
+        impl.defaultDoStart();
     }
 
     /**
@@ -357,12 +219,10 @@ public abstract class AbstractPullBufferCaptureDevice
      * @throws IOException if anything goes wrong while stopping the transfer of
      * media data from this <tt>DataSource</tt>
      */
-    protected synchronized void doStop()
+    protected void doStop()
         throws IOException
     {
-        if (streams != null)
-            for (AbstractPullBufferStream stream : streams)
-                stream.stop();
+        impl.defaultDoStop();
     }
 
     /**
@@ -374,12 +234,10 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     public CaptureDeviceInfo getCaptureDeviceInfo()
     {
-        if(devInfo != null)
-        {
-            return devInfo;
-        }
-
-        return AbstractPushBufferCaptureDevice.getCaptureDeviceInfo(this);
+        return
+            (deviceInfo == null)
+                ? AbstractPushBufferCaptureDevice.getCaptureDeviceInfo(this)
+                : deviceInfo;
     }
 
     /**
@@ -405,7 +263,7 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     public Object getControl(String controlType)
     {
-        return AbstractControls.getControl(this, controlType);
+        return impl.getControl(controlType);
     }
 
     /**
@@ -417,22 +275,7 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     public Object[] getControls()
     {
-        FormatControl[] formatControls = internalGetFormatControls();
-
-        if ((formatControls == null) || (formatControls.length == 0))
-            return ControlsAdapter.EMPTY_CONTROLS;
-        else
-        {
-            Object[] controls = new Object[formatControls.length];
-
-            System.arraycopy(
-                    formatControls,
-                    0,
-                    controls,
-                    0,
-                    formatControls.length);
-            return controls;
-        }
+        return impl.getControls();
     }
 
     /**
@@ -467,15 +310,7 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     protected Format getFormat(int streamIndex, Format oldValue)
     {
-        if (oldValue != null)
-            return oldValue;
-
-        Format[] supportedFormats = getSupportedFormats(streamIndex);
-
-        return
-            ((supportedFormats == null) || (supportedFormats.length < 1))
-                ? null
-                : supportedFormats[0];
+        return impl.defaultGetFormat(streamIndex, oldValue);
     }
 
     /**
@@ -489,7 +324,19 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     public FormatControl[] getFormatControls()
     {
-        return AbstractFormatControl.getFormatControls(this);
+        return impl.getFormatControls();
+    }
+
+    /**
+     * Gets the <tt>Object</tt> which is to synchronize the access to
+     * {@link #streams()} and its return value.
+     *
+     * @return the <tt>Object</tt> which is to synchronize the access to
+     * {@link #streams()} and its return value 
+     */
+    protected Object getStreamSyncRoot()
+    {
+        return impl.getStreamSyncRoot();
     }
 
     /**
@@ -499,45 +346,9 @@ public abstract class AbstractPullBufferCaptureDevice
      * @return an array of the <tt>PullBufferStream</tt>s through which this
      * <tt>PullBufferDataSource</tt> gives access to its media data
      */
-    public synchronized PullBufferStream[] getStreams()
+    public PullBufferStream[] getStreams()
     {
-        if (streams == null)
-        {
-            FormatControl[] formatControls = internalGetFormatControls();
-
-            if (formatControls != null)
-            {
-                int formatControlCount = formatControls.length;
-
-                streams = new AbstractPullBufferStream[formatControlCount];
-                for (int i = 0; i < formatControlCount; i++)
-                    streams[i] = createStream(i, formatControls[i]);
-
-                /*
-                 * Start the streams if this DataSource has already been
-                 * started.
-                 */
-                if (started)
-                    for (AbstractPullBufferStream stream : streams)
-                        try
-                        {
-                            stream.start();
-                        }
-                        catch (IOException ioex)
-                        {
-                            throw new UndeclaredThrowableException(ioex);
-                        }
-            }
-        }
-        if (streams == null)
-            return EMPTY_STREAMS;
-        else
-        {
-            PullBufferStream[] clone = new PullBufferStream[streams.length];
-
-            System.arraycopy(streams, 0, clone, 0, streams.length);
-            return clone;
-        }
+        return impl.getStreams(AbstractPullBufferStream.class);
     }
 
     /**
@@ -556,96 +367,19 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     protected Format[] getSupportedFormats(int streamIndex)
     {
-        CaptureDeviceInfo captureDeviceInfo = getCaptureDeviceInfo();
-
-        return
-            (captureDeviceInfo == null) ? null : captureDeviceInfo.getFormats();
+        return impl.defaultGetSupportedFormats(streamIndex);
     }
 
     /**
-     * Gets the <tt>Format</tt> to be reported by the <tt>FormatControl</tt> of
-     * a <tt>PullBufferStream</tt> at a specific zero-based index in the list of
-     * streams of this <tt>PullBufferDataSource</tt>. The
-     * <tt>PullBufferStream</tt> may not exist at the time of requesting its
-     * <tt>Format</tt>.
+     * Sets a specific <tt>CaptureDeviceInfo</tt> on this
+     * <tt>CaptureDevice</tt>. 
      *
-     * @param streamIndex the zero-based index of the <tt>PullBufferStream</tt>
-     * the <tt>Format</tt> of which is to be retrieved
-     * @param oldValue the last-known <tt>Format</tt> for the
-     * <tt>PullBufferStream</tt> at the specified <tt>streamIndex</tt>
-     * @return the <tt>Format</tt> to be reported by the <tt>FormatControl</tt>
-     * of the <tt>PullBufferStream</tt> at the specified <tt>streamIndex</tt> in
-     * the list of streams of this <tt>PullBufferDataSource</tt>.
+     * @param deviceInfo the <tt>CaptureDeviceInfo</tt> on this
+     * <tt>CaptureDevice</tt>
      */
-    private Format internalGetFormat(int streamIndex, Format oldValue)
+    public void setCaptureDeviceInfo(CaptureDeviceInfo deviceInfo)
     {
-        synchronized (this)
-        {
-            if (streams != null)
-            {
-                AbstractPullBufferStream stream = streams[streamIndex];
-
-                if (stream != null)
-                {
-                    Format streamFormat = stream.internalGetFormat();
-
-                    if (streamFormat != null)
-                        return streamFormat;
-                }
-            }
-        }
-        return getFormat(streamIndex, oldValue);
-    }
-
-    /**
-     * Gets an array of <tt>FormatControl</tt> instances each one of which can
-     * be used before {@link #connect()} to get and set the capture
-     * <tt>Format</tt> of each one of the capture streams.
-     *
-     * @return an array of <tt>FormatControl</tt> instances each one of which
-     * can be used before {@link #connect()} to get and set the capture
-     * <tt>Format</tt> of each one of the capture streams
-     */
-    private synchronized FormatControl[] internalGetFormatControls()
-    {
-        if (formatControls == null)
-            formatControls = createFormatControls();
-        return formatControls;
-    }
-
-    /**
-     * Attempts to set the <tt>Format</tt> to be reported by the
-     * <tt>FormatControl</tt> of a <tt>PullBufferStream</tt> at a specific
-     * zero-based index in the list of streams of this
-     * <tt>PullBufferDataSource</tt>.
-     *
-     * @param streamIndex the zero-based index of the <tt>PullBufferStream</tt>
-     * the <tt>Format</tt> of which is to be set
-     * @param oldValue the last-known <tt>Format</tt> for the
-     * <tt>PullBufferStream</tt> at the specified <tt>streamIndex</tt>
-     * @param newValue the <tt>Format</tt> which is to be set
-     * @return the <tt>Format</tt> to be reported by the <tt>FormatControl</tt>
-     * of the <tt>PullBufferStream</tt> at the specified <tt>streamIndex</tt>
-     * in the list of streams of this <tt>PullBufferStream</tt> or <tt>null</tt>
-     * if the attempt to set the <tt>Format</tt> did not success and any
-     * last-known <tt>Format</tt> is to be left in effect
-     */
-    private Format internalSetFormat(
-            int streamIndex,
-            Format oldValue,
-            Format newValue)
-    {
-        synchronized (this)
-        {
-            if (streams != null)
-            {
-                AbstractPullBufferStream stream = streams[streamIndex];
-
-                if (stream != null)
-                    return stream.internalSetFormat(newValue);
-            }
-        }
-        return setFormat(streamIndex, oldValue, newValue);
+        this.deviceInfo = deviceInfo;
     }
 
     /**
@@ -689,31 +423,7 @@ public abstract class AbstractPullBufferCaptureDevice
     public synchronized void start()
         throws IOException
     {
-        if (!started)
-        {
-            if (!connected)
-            {
-                throw
-                    new IOException(
-                            getClass().getSimpleName() + " not connected");
-            }
-
-            try
-            {
-                doStart();
-            }
-            catch (IOException ioex)
-            {
-                logger.error(
-                        "Failed to start "
-                            + getClass().getSimpleName()
-                            + " "
-                            + getLocator(),
-                        ioex);
-                throw ioex;
-            }
-            started = true;
-        }
+        impl.start();
     }
 
     /**
@@ -725,33 +435,20 @@ public abstract class AbstractPullBufferCaptureDevice
     public synchronized void stop()
         throws IOException
     {
-        if (started)
-        {
-            try
-            {
-                doStop();
-            }
-            catch (IOException ioex)
-            {
-                logger.error(
-                        "Failed to stop "
-                            + getClass().getSimpleName()
-                            + " "
-                            + getLocator(),
-                        ioex);
-                throw ioex;
-            }
-            started = false;
-        }
+        impl.stop();
     }
 
     /**
-     * Set the capture device info.
-     *
-     * @param devInfo <tt>CaptureDeviceInfo</tt>
+     * Gets the internal array of <tt>AbstractPushBufferStream</tt>s through
+     * which this <tt>AbstractPushBufferCaptureDevice</tt> gives access to its
+     * media data.
+     * 
+     * @return the internal array of <tt>AbstractPushBufferStream</tt>s through
+     * which this <tt>AbstractPushBufferCaptureDevice</tt> gives access to its
+     * media data
      */
-    public void setCaptureDeviceInfo(CaptureDeviceInfo devInfo)
+    protected AbstractBufferStream[] streams()
     {
-        this.devInfo = devInfo;
+        return impl.streams();
     }
 }

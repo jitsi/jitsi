@@ -52,7 +52,7 @@ public class DirectShowStream extends AbstractPushBufferStream
      * The last-known <tt>Format</tt> of the media data made available by this
      * <tt>PushBufferStream</tt>.
      */
-    private Format format;
+    private final Format format;
 
     /**
      * The captured media data to become the value of {@link #data} as soon as
@@ -108,6 +108,7 @@ public class DirectShowStream extends AbstractPushBufferStream
     DirectShowStream(FormatControl formatControl)
     {
         super(formatControl);
+
         format = (VideoFormat) formatControl.getFormat();
     }
 
@@ -196,18 +197,7 @@ public class DirectShowStream extends AbstractPushBufferStream
     @Override
     protected Format doGetFormat()
     {
-        Format format;
-
-        if(this.format == null)
-        {
-            format = super.doGetFormat();
-        }
-        else
-        {
-            format = this.format;
-        }
-
-        return format;
+        return (this.format == null) ? super.doGetFormat() : this.format;
     }
 
     /**

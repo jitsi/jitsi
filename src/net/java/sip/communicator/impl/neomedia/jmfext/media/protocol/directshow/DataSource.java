@@ -22,12 +22,14 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * <tt>DataSource</tt> for DirectShow capture devices.
+ * Implements a <tt>CaptureDevice</tt> and a <tt>DataSource</tt> using
+ * DirectShow.
  *
  * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
-public class DataSource extends AbstractPushBufferCaptureDevice
+public class DataSource
+    extends AbstractPushBufferCaptureDevice
 {
     /**
      * The <tt>Logger</tt> used by the <tt>DataSource</tt> class and its
@@ -206,11 +208,13 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         DirectShowStream stream = new DirectShowStream(formatControl);
 
         /*
-        DSFormat fmts[] = device.getSupportedFormats();
-        for(int i = 0 ; i < fmts.length ; i++)
+        DSFormat deviceFmts[] = device.getSupportedFormats();
+
+        for (DSFormat deviceFmt : deviceFmts)
         {
-            System.out.println(fmts[i].getWidth() + " " + fmts[i].getHeight()
-                    + "  " + fmts[i].getPixelFormat());
+            System.out.println(
+                    deviceFmt.getWidth() + " " + deviceFmt.getHeight() + "  "
+                        + deviceFmt.getPixelFormat());
         }
         */
 
@@ -240,20 +244,23 @@ public class DataSource extends AbstractPushBufferCaptureDevice
         if(device == null)
             return new Format[0];
 
-        DSFormat fmts[] = device.getSupportedFormats();
-        List<Format> formats = new ArrayList<Format>();
+        DSFormat[] deviceFmts = device.getSupportedFormats();
+        List<Format> fmts = new ArrayList<Format>(deviceFmts.length);
 
-        for(DSFormat fmt : fmts)
+        for (DSFormat deviceFmt : deviceFmts)
         {
-            Dimension size = new Dimension(fmt.getWidth(), fmt.getHeight());
-            long f = fmt.getPixelFormat();
-            int pixelFormat = (int)getFFmpegPixFmt(f);
+            Dimension size
+                = new Dimension(deviceFmt.getWidth(), deviceFmt.getHeight());
+            long devicePixFmt = deviceFmt.getPixelFormat();
+            int pixFmt = (int) getFFmpegPixFmt(devicePixFmt);
 
-            formats.add(new AVFrameFormat(size, Format.NOT_SPECIFIED,
-                    pixelFormat, (int)f));
+            fmts.add(
+                    new AVFrameFormat(
+                            size,
+                            Format.NOT_SPECIFIED,
+                            pixFmt, (int) devicePixFmt));
         }
-
-        return formats.toArray(new Format[formats.size()]);
+        return fmts.toArray(new Format[fmts.size()]);
     }
 
     /**
@@ -313,29 +320,31 @@ public class DataSource extends AbstractPushBufferCaptureDevice
 
             if(newValue instanceof AVFrameFormat)
             {
-                AVFrameFormat f = (AVFrameFormat)newValue;
-                long pixelFormat = f.getDevicePixFmt();
+                AVFrameFormat newAVFrameFormatValue
+                    = (AVFrameFormat) newValue;
+                long pixelFormat = newAVFrameFormatValue.getDevicePixFmt();
 
                 if(pixelFormat != -1)
                 {
-                    DSFormat fmt = new DSFormat(newSize.width, newSize.height,
-                            pixelFormat);
-                    /* we will set native format in doStart() because in case of
-                     * sequence connect/disconnect/connect native capture device
-                     * can ordered its formats in different way. Thus as
-                     * setFormat() is not called anymore by JMF it can cause
-                     * crash because of wrong format later (typically scaling)
+                    /*
+                     * We will set the native format in doStart() because a
+                     * connect-disconnect-connect sequence of the native
+                     * capture device may reorder its formats in a different
+                     * way. Consequently, in the absence of further calls to
+                     * setFormat() by JMF, a crash may occur later (typically,
+                     * during scaling) because of a wrong format.
                      */
-                    nativeFormat = fmt;
+                    nativeFormat
+                        = new DSFormat(
+                                newSize.width, newSize.height,
+                                pixelFormat);
                 }
             }
 
             return newValue;
         }
         else
-        {
             return super.setFormat(streamIndex, oldValue, newValue);
-        }
     }
 
     /**
@@ -351,7 +360,6 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     protected void doConnect() throws IOException
     {
         if (logger.isInfoEnabled())
-
             logger.info("doConnect");
 
         if(manager == null)
@@ -372,7 +380,6 @@ public class DataSource extends AbstractPushBufferCaptureDevice
     protected void doDisconnect()
     {
         if (logger.isInfoEnabled())
-
             logger.info("doDisconnect");
 
         super.doDisconnect();
@@ -433,7 +440,7 @@ public class DataSource extends AbstractPushBufferCaptureDevice
      * format.
      *
      * @param dsPixFmt the DirectShow pixel format to get the matching
-     * Ffmpeg pixel format of
+     * FFmpeg pixel format of
      * @return the FFmpeg pixel format matching the specified DirectShow pixel
      */
     public static long getFFmpegPixFmt(long dsPixFmt)

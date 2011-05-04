@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  * Implements <tt>DataSource</tt> and <tt>CaptureDevice</tt> for PortAudio.
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class DataSource
     extends AbstractPullBufferCaptureDevice
@@ -132,7 +132,7 @@ public class DataSource
 
         int deviceIndex = getDeviceIndex();
 
-        synchronized (this)
+        synchronized (getStreamSyncRoot())
         {
             for (Object stream : getStreams())
                 ((PortAudioStream) stream).setDeviceIndex(deviceIndex);
@@ -150,8 +150,10 @@ public class DataSource
     {
         try
         {
-            synchronized (this)
+            synchronized (getStreamSyncRoot())
             {
+                Object[] streams = streams();
+
                 if (streams != null)
                 {
                     for (Object stream : streams)

@@ -16,7 +16,7 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
  * image and desktop streaming.
  *
  * @author Sebastien Vincent
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Damian Minkov
  */
 public class DataSource
@@ -82,16 +82,17 @@ public class DataSource
             int streamIndex,
             FormatControl formatControl)
     {
-        /* full desktop: remainder => index
+        /*
+         * full desktop: remainder => index
          * part of desktop: remainder => index,x,y
          */
-        int index = -1;
         String remainder = getLocator().getRemainder();
         String split[] = remainder.split(",");
+        int index = -1;
         int x = 0;
         int y = 0;
 
-        if(split != null && split.length > 1)
+        if ((split != null) && (split.length > 1))
         {
             index = Integer.parseInt(split[0]);
             x = Integer.parseInt(split[1]);
@@ -99,12 +100,14 @@ public class DataSource
         }
         else
         {
-            index = Integer.parseInt(getLocator().getRemainder());
+            index = Integer.parseInt(remainder);
         }
 
         ImageStream stream = new ImageStream(formatControl);
+
         stream.setDisplayIndex(index);
         stream.setOrigin(x, y);
+
         this.stream = stream;
         return stream;
     }

@@ -19,7 +19,7 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
  * Implements a <tt>PullBufferDataSource</tt> and <tt>CaptureDevice</tt> using
  * the Video for Linux Two API Specification.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class DataSource
     extends AbstractPullBufferCaptureDevice
@@ -129,7 +129,7 @@ public class DataSource
 
             try
             {
-                synchronized (this)
+                synchronized (getStreamSyncRoot())
                 {
                     for (Object stream : getStreams())
                         ((Video4Linux2Stream) stream).setFd(fd);
@@ -161,11 +161,13 @@ public class DataSource
              * closed is necessary at least because
              * AbstractPullBufferStream#close() is not guaranteed.
              */
-            synchronized (this)
+            synchronized (getStreamSyncRoot())
             {
+                Object[] streams = streams();
+
                 if (streams != null)
                 {
-                    for (AbstractPullBufferStream stream : streams)
+                    for (Object stream : streams)
                     {
                         try
                         {

@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.*;
  * Implements a <tt>PushBufferDataSource</tt> and <tt>CaptureDevice</tt> using
  * QuickTime/QTKit.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class DataSource
     extends AbstractPushBufferCaptureDevice
@@ -173,10 +173,12 @@ public class DataSource
          * Add the QTCaptureOutputs represented by the QuickTimeStreams (if any)
          * to the QTCaptureSession.
          */
-        synchronized (this)
+        synchronized (getStreamSyncRoot())
         {
+            Object[] streams = streams();
+
             if (streams != null)
-                for (AbstractPushBufferStream stream : streams)
+                for (Object stream : streams)
                     if (stream != null)
                         try
                         {
