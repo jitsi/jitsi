@@ -289,7 +289,7 @@
             <isset property="windows.jre.zip" />
         </condition>
         <property name="windows.download.link" value="${link.download.windows32}"/>
-        <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x86.exe"/>
+        <property name="windows.package.name.suffix" value="x86.exe"/>
         <property name="windows.arch" value="32"/>
         <property name="mingw.home" value="C:/mingw/x86" />
         <antcall target="build-installation-wix-base" />
@@ -303,7 +303,7 @@
             <isset property="windows.jre64.zip" />
         </condition>
         <property name="windows.download.link" value="${link.download.windows64}"/>
-        <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-x64.exe"/>
+        <property name="windows.package.name.suffix" value="x64.exe"/>
         <property name="windows.arch" value="64"/>
         <property name="mingw.home" value="C:/mingw/x64" />
         <antcall target="build-installation-wix-base" />
@@ -365,6 +365,7 @@
 
     <target name="build-installation-wix-base"
             depends="clean-install-windows">
+        <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-${windows.package.name.suffix}"/>
         <!--
             Provide access to the environment variables via the prefix "env."
             because we will modify at least the PATH.
@@ -690,6 +691,9 @@
                 preservelastmodified="true"
                 tofile="${windows.app.dir}\${windows.package.name}" />
 
+        <!-- before deleting try building the deltas -->
+        <antcall target="build-wix-delta-updates"/>
+
         <delete dir="${light.dir}" />
         <delete dir="${windows.app.dir}/tmp" />
     </target>
@@ -743,6 +747,64 @@
             <arg value="-out" />
             <arg value="${windows.app.dir}\tmp\${locale.name}.mst" />
         </exec>
+    </target>
+
+    <target name="build-wix-delta-updates"
+            if="delta.history.location"
+            depends="define-ant-contrib-task">
+
+        <!-- Find all previous builds we have to build deltas for them -->
+        <foreach param="build-location" target="-make-wix-delta"
+                 inheritall="true" inheritrefs="true">
+            <path>
+                <dirset dir="${delta.history.location}">
+                    <include name="*"/>
+                </dirset>
+            </path>
+        </foreach>
+
+        <!-- copy data for next delta builds-->
+        <mkdir dir="${delta.history.location}/${build.label}/${windows.arch}"/>
+        <copy file="${windows.app.dir}\tmp\setup.msi"
+              todir="${delta.history.location}/${build.label}/${windows.arch}"/>
+
+        <!-- now delete old one -->
+        <antcall target="-delete-oldest-delta-data"/>
+    </target>
+
+    <target name="-make-wix-delta">
+
+        <basename property="old.wix.build" file="${build-location}"/>
+        <echo message="Creating msi delta for ${old.wix.build}-${build.label}"/>
+
+        <!-- make the actual diff -->
+        <exec executable="${inst.resrc}\windows\bsdiff.exe" failonerror="true">
+            <arg value="${build-location}\${windows.arch}\setup.msi"/>
+            <arg value="${windows.app.dir}\tmp\setup.msi"/>
+            <arg value="${windows.app.dir}\tmp\setup.bspatch"/>
+        </exec>
+
+        <exec
+                executable="cscript.exe"
+                dir="${light.dir}"
+                outputproperty="old.packagecode"
+                failonerror="true">
+            <arg value="${inst.resrc}\windows\WiSumInf.vbs" />
+            <arg value="${build-location}\${windows.arch}\setup.msi" />
+        </exec>
+        <exec
+                dir="${src}/native/windows/setup"
+                executable="make.exe"
+                failonerror="true">
+            <env key="PATH" path="${mingw.home}/bin;${env.PATH}" />
+            <arg value="MINGW_HOME=${mingw.home}" />
+            <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
+            <arg value="PACKAGECODE=${old.packagecode}" />
+        </exec>
+        <move
+                file="${windows.app.dir}/tmp/setup.exe"
+                preservelastmodified="true"
+                tofile="${windows.app.dir}\${package.name}-${sip-communicator.version}-delta-${old.wix.build}-${windows.package.name.suffix}" />
     </target>
 
     <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
@@ -1167,7 +1229,7 @@
     </target>
 
     <target name="macosx-sparkle-delta-updates"
-            if="sparkle.delta.history.location"
+            if="delta.history.location"
             depends="define-ant-contrib-task">
 
         <!-- create temp dir for making delta diffs -->
@@ -1193,7 +1255,7 @@
         <foreach param="build-location" target="-make-sparkle-delta"
                  inheritall="true" inheritrefs="true">
             <path>
-                <dirset dir="${sparkle.delta.history.location}">
+                <dirset dir="${delta.history.location}">
                     <include name="*"/>
                 </dirset>
             </path>
@@ -1209,12 +1271,12 @@
         <delete dir="${macosx.app.dir}/tmp"/>
 
         <!-- copy data for next delta builds-->
-        <mkdir dir="${sparkle.delta.history.location}/${sparkle.build}"/>
+        <mkdir dir="${delta.history.location}/${sparkle.build}"/>
         <copy file="${macosx.app.dir}/${macosx.dmg.name}"
-              tofile="${sparkle.delta.history.location}/${sparkle.build}/${package.name}.dmg"/>
+              tofile="${delta.history.location}/${sparkle.build}/${package.name}.dmg"/>
 
         <!-- now delete old one -->
-        <antcall target="-make-sparkle-delta-delete-oldest-data"/>
+        <antcall target="-delete-oldest-delta-data"/>
     </target>
 
     <target name="-make-sparkle-delta">
@@ -1282,34 +1344,34 @@
 
     </target>
 
-    <target name="-make-sparkle-delta-delete-oldest-data">
+    <target name="-delete-oldest-delta-data">
         <resourcecount property="build.history.current.size">
-            <dirset dir="${sparkle.delta.history.location}">
+            <dirset dir="${delta.history.location}">
                 <include name="*"/>
             </dirset>
         </resourcecount>
         <math result="build.history.to.delete"
             operand1="${build.history.current.size}"
             operation="-"
-            operand2="${sparkle.delta.history.size}"
+            operand2="${delta.history.size}"
             datatype="int"/>
 
         <timestampselector outputsetid="oldest.builds"
                         count="${build.history.to.delete}"
                         age="eldest">
           <path>
-             <dirset dir="${sparkle.delta.history.location}">
+             <dirset dir="${delta.history.location}">
                <include name="*" />
              </dirset>
           </path>
         </timestampselector>
 
         <foreach param="build.to.delete"
-                 target="-make-sparkle-delta-delete-data-folder">
+                 target="-delete-oldest-delta-data-folder">
             <path refid="oldest.builds"/>
         </foreach>
     </target>
-    <target name="-make-sparkle-delta-delete-data-folder">
+    <target name="-delete-oldest-delta-data-folder">
         <echo message="!!! Deleting old data dir ${build.to.delete} !!! " />
         <delete dir="${build.to.delete}" failonerror="false"/>
     </target>

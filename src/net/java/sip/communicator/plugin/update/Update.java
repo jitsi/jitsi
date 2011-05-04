@@ -396,14 +396,14 @@ public class Update
      *
      * @return the current (software) version
      */
-    private static String getCurrentVersion()
+    private static Version getCurrentVersion()
     {
         VersionService verService
             = ServiceUtils.getService(
                     UpdateActivator.bundleContext,
                     VersionService.class);
 
-        return verService.getCurrentVersion().toString();
+        return verService.getCurrentVersion();
     }
 
     /**
@@ -460,7 +460,8 @@ public class Update
                                 updateLink.lastIndexOf("/") + 1)
                             + props.getProperty("changes_html");
 
-                    return latestVersion.compareTo(getCurrentVersion()) <= 0;
+                    return latestVersion.compareTo(
+                                getCurrentVersion().toString()) <= 0;
                 }
             }
         }
@@ -847,7 +848,9 @@ public class Update
             String deltaLink
                 = downloadLink.replace(
                         latestVersion,
-                        latestVersion + "-delta-" + getCurrentVersion());
+                        latestVersion
+                            + "-delta-"
+                            + getCurrentVersion().getNightlyBuildID());
 
             /*
              * TODO Download the delta update regardless of the logging level
