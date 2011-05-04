@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.Dimension;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -39,6 +40,8 @@ public class CallDialog
     public CallDialog()
     {
         super(false);
+
+        setMinimumSize(new Dimension(360, 300));
     }
 
     /**

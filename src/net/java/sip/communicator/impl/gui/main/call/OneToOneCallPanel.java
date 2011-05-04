@@ -381,6 +381,14 @@ public class OneToOneCallPanel
                     newFrameY = screenBounds.y;
             }
 
+            // Don't get smaller than the min size.
+            Dimension minSize = frame.getMinimumSize();
+
+            if (newFrameWidth < minSize.width)
+                newFrameWidth = minSize.width;
+            if (newFrameHeight < minSize.height)
+                newFrameHeight = minSize.height;
+
             /*
              * XXX Unreliable because VideoRenderer Components such as the
              * Component of the AWTRenderer on Linux overrides its
