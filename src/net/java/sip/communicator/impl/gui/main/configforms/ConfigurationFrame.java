@@ -212,7 +212,7 @@ public class ConfigurationFrame
     {
         this.centerPanel.removeAll();
 
-        JComponent configFormPanel
+        final JComponent configFormPanel
             = (JComponent) configFormDescriptor.getConfigFormPanel();
 
         configFormPanel.setOpaque(false);
@@ -330,5 +330,26 @@ public class ConfigurationFrame
     public void setSelected(ConfigurationForm configForm)
     {
         configList.setSelected(configForm);
+    }
+
+    /**
+     * Validates the currently selected configuration form. This method is meant
+     * to be used by configuration forms the re-validate when a new component
+     * has been added or size has changed.
+     */
+    public void validateCurrentForm()
+    {
+        centerPanel.revalidate();
+
+        centerPanel.setPreferredSize(null);
+
+        validate();
+
+        // Set the height of the center panel to be equal to the height of the
+        // currently contained panel + all borders.
+        centerPanel.setPreferredSize(
+            new Dimension(550, centerPanel.getHeight()));
+
+        pack();
     }
 }

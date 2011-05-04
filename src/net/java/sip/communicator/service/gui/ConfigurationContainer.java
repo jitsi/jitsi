@@ -18,4 +18,11 @@ public interface ConfigurationContainer
      * @param configForm the <tt>ConfigurationForm</tt> to select
      */
     public void setSelected(ConfigurationForm configForm);
+
+    /**
+     * Validates the currently selected configuration form. This method is meant
+     * to be used by configuration forms the re-validate when a new component
+     * has been added or size has changed.
+     */
+    public void validateCurrentForm();
 }
