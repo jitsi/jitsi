@@ -464,8 +464,20 @@ public class OneToOneCallPeerPanel
         /**
          * {@inheritDoc}
          */
-        public void propertyChange(PropertyChangeEvent event)
+        public void propertyChange(final PropertyChangeEvent event)
         {
+            if (!SwingUtilities.isEventDispatchThread())
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        propertyChange(event);
+                    }
+                });
+                return;
+            }
+
             if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
                     .equals(event.getPropertyName()))
             {
@@ -746,19 +758,13 @@ public class OneToOneCallPeerPanel
                     {
                         this.localVideo = video;
                         this.closeButton = new CloseButton();
-
-                        localVideo.addMouseMotionListener(localVideoListener);
-                        localVideo.addMouseListener(localVideoListener);
                     }
                     else if(event.getOrigin() == VideoEvent.REMOTE)
                     {
                         this.remoteVideo = video;
-
-                        if(allowRemoteControl)
-                        {
-                            addMouseAndKeyListeners();
-                        }
                     }
+
+                    addMouseListeners(event.getOrigin());
 
                     /*
                      * Let the creator of the local visual Component know it
@@ -807,6 +813,41 @@ public class OneToOneCallPeerPanel
                     = videoContainers.get(videoContainerCount - 1);
 
                 handleVideoEvent(event, videoContainer);
+            }
+        }
+    }
+
+    /**
+     * Adds mouse listeners in the event dispatch thread.
+     *
+     * @param videoType the type of the video.
+     */
+    private void addMouseListeners(final int videoType)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addMouseListeners(videoType);
+                }
+            });
+            return;
+        }
+
+        if(videoType == VideoEvent.LOCAL)
+        {
+            localVideo.addMouseMotionListener(
+                localVideoListener);
+            localVideo.addMouseListener(
+                localVideoListener);
+        }
+        else if(videoType == VideoEvent.REMOTE)
+        {
+            if(allowRemoteControl)
+            {
+                addMouseAndKeyListeners();
             }
         }
     }
