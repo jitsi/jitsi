@@ -775,6 +775,19 @@
     <target name="-make-wix-delta">
 
         <basename property="old.wix.build" file="${build-location}"/>
+
+        <!-- we must skip building deltas for current build -->
+        <condition property="process.delta">
+            <not>
+                <equals arg1="${old.wix.build}" arg2="${build.label}"/>
+            </not>
+        </condition>
+
+        <antcall target="-make-wix-delta-msi"/>
+    </target>
+
+    <target name="-make-wix-delta-msi" if="process.delta">
+
         <echo message="Creating msi delta for ${old.wix.build}-${build.label}"/>
 
         <!-- make the actual diff -->
