@@ -40,7 +40,7 @@ import java.util.*;
  * RTP/SRTP stack and the operating system:
  * <ul>
  * <li> The GNU ZRTP core is independent of a specific RTP/SRTP stack and the
- * operationg system and consists of the ZRTP protocol state engine, the ZRTP
+ * operating system and consists of the ZRTP protocol state engine, the ZRTP
  * protocol messages, and the GNU ZRTP4J engine. The GNU ZRTP4J engine provides
  * methods to setup ZRTP message and to analyze received ZRTP messages, to
  * compute the crypto data required for SRTP, and to maintain the required
@@ -328,6 +328,11 @@ public class ZRTPTransformEngine
     private int ownSSRC = 0;
 
     /**
+     * Remote SSRC identifier.
+     */
+    private int remoteSSRC = 0;
+
+    /**
      * ZRTP packet sequence number
      */
     private short senderZrtpSeqNo = 0;
@@ -408,7 +413,8 @@ public class ZRTPTransformEngine
      * @param autoEnable If true start with auto-sensing mode.
      * @return true if initialization fails, false if succeeds
      */
-    public boolean initialize(String zidFilename, boolean autoEnable) {
+    public boolean initialize(String zidFilename, boolean autoEnable)
+    {
         return initialize(zidFilename, autoEnable, null);
     }
 
@@ -421,7 +427,8 @@ public class ZRTPTransformEngine
      * @param zidFilename The ZID file name
      * @return true if initialization fails, false if succeeds
      */
-    public boolean initialize(String zidFilename) {
+    public boolean initialize(String zidFilename)
+    {
         return initialize(zidFilename, true, null);
     }
 
@@ -495,7 +502,8 @@ public class ZRTPTransformEngine
                 return false;
             }
         }
-        if (config == null) {
+        if (config == null)
+        {
             config = new ZrtpConfigure();
             config.setStandardConfig();
         }
@@ -590,7 +598,8 @@ public class ZRTPTransformEngine
      *
      * @param ssrc SSRC to set
      */
-    public void setOwnSSRC(long ssrc) {
+    public void setOwnSSRC(long ssrc)
+    {
         ownSSRC = (int)(ssrc & 0xffffffff);
     }
 
@@ -638,8 +647,13 @@ public class ZRTPTransformEngine
         if (!started && enableZrtp && ownSSRC != 0)
             startZrtp();
 
+        if(remoteSSRC == 0)
+        {
+            remoteSSRC = pkt.getSSRC();
+        }
+
         /*
-         * Check if incoming packt is a ZRTP packet, if not treat
+         * Check if incoming packet is a ZRTP packet, if not treat
          * it as normal RTP packet and handle it accordingly.
          */
         if (!ZrtpRawPacket.isZrtpData(pkt))
@@ -647,23 +661,32 @@ public class ZRTPTransformEngine
             if (srtpInTransformer == null)
             {
                 if(muted)
+                {
                     return null;
+                }
                 else
                     return pkt;
             }
 
-            pkt = srtpInTransformer.reverseTransform(pkt);
+            RawPacket pkt2 = srtpInTransformer.reverseTransform(pkt);
             // if packet was valid (i.e. not null) and ZRTP engine started and
             // in Wait for Confirm2 Ack then emulate a Conf2Ack packet.
             // See ZRTP specification chap. 5.6
-            if ((pkt != null)
+            if ((pkt2 != null)
                     && started
                     && zrtpEngine
                         .inState(ZrtpStateClass.ZrtpStates.WaitConfAck))
             {
                 zrtpEngine.conf2AckSecure();
             }
-            return pkt;
+
+            // if we change SSRC, returns the original packet
+            if(remoteSSRC != pkt.getSSRC())
+            {
+                return pkt;
+            }
+
+            return pkt2;
         }
 
         /*
@@ -753,19 +776,19 @@ public class ZRTPTransformEngine
         SRTPPolicy srtpPolicy = null;
         int cipher = 0, authn = 0, authKeyLen = 0;
 
-        if (secrets.getAuthAlgorithm() == ZrtpConstants.SupportedAuthAlgos.HS) 
+        if (secrets.getAuthAlgorithm() == ZrtpConstants.SupportedAuthAlgos.HS)
         {
             authn = SRTPPolicy.HMACSHA1_AUTHENTICATION;
             authKeyLen = 20;
         }
-        if (secrets.getAuthAlgorithm() == ZrtpConstants.SupportedAuthAlgos.SK) 
+        if (secrets.getAuthAlgorithm() == ZrtpConstants.SupportedAuthAlgos.SK)
         {
             authn = SRTPPolicy.SKEIN_AUTHENTICATION;
             authKeyLen = 32;
         }
         if (secrets.getSymEncAlgorithm() == ZrtpConstants.SupportedSymAlgos.AES)
             cipher = SRTPPolicy.AESCM_ENCRYPTION;
-        
+
         if (secrets.getSymEncAlgorithm() == ZrtpConstants.SupportedSymAlgos.TwoFish)
             cipher = SRTPPolicy.TWOFISH_ENCRYPTION;
 

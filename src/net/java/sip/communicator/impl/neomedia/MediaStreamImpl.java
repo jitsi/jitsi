@@ -1109,7 +1109,11 @@ public class MediaStreamImpl
          * for us to hear. So we mute it till a secure connection is again
          * established.
          */
-        zrtpControl.getZrtpEngine().setStartMuted(true);
+        // disable it because it can cause problems when switching from camera
+        // to desktop sharing. Moreover if ZRTP see unencrypted packets, it will
+        // not try to decrypt them (maybe the noise come from the decryption of
+        // unencrypted data).
+        //zrtpControl.getZrtpEngine().setStartMuted(true);
 
         RTPTransformConnector rtpConnector = getRTPConnector();
 

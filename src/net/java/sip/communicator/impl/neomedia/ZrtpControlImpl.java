@@ -202,8 +202,8 @@ public class ZrtpControlImpl
     /**
      * Start multi-stream ZRTP sessions.
      *
-     * After the ZRTP Master (DH) session reached secure state the SCCallback calls
-     * this method to start the multi-stream ZRTP sessions.
+     * After the ZRTP Master (DH) session reached secure state the SCCallback
+     * calls this method to start the multi-stream ZRTP sessions.
      *
      * enable auto-start mode (auto-sensing) to the engine.
      * @param multiStreamData

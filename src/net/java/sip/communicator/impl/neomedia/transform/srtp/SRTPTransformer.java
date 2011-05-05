@@ -3,9 +3,9 @@
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
- * 
+ *
  * Some of the code in this class is derived from ccRtp's SRTP implementation,
- * which has the following copyright notice: 
+ * which has the following copyright notice:
  *
   Copyright (C) 2004-2006 the Minisip Team
 
@@ -34,11 +34,11 @@ import net.java.sip.communicator.impl.neomedia.transform.*;
  * SRTPTransformer implements PacketTransformer and provides implementations
  * for RTP packet to SRTP packet transformation and SRTP packet to RTP packet
  * transformation logic.
- * 
+ *
  * It will first find the corresponding SRTPCryptoContext for each packet based
  * on their SSRC and then invoke the context object to perform the
- * transformation and reverse transformation operation. 
- * 
+ * transformation and reverse transformation operation.
+ *
  * @author Bing SU (nova.su@gmail.com)
  */
 public class SRTPTransformer
@@ -48,7 +48,7 @@ public class SRTPTransformer
      * The SRTPTransformEngine we are using
      */
     private SRTPTransformEngine engine;
-    
+
     /**
      * All the known SSRC's corresponding SRTPCryptoContexts
      */
@@ -76,7 +76,7 @@ public class SRTPTransformer
         long ssrc = pkt.getSSRC();
 
         SRTPCryptoContext context = this.contexts.get(ssrc);
-        
+
         if (context == null)
         {
             context = this.engine.getDefaultContext().deriveContext(ssrc, 0, 0);
@@ -86,7 +86,7 @@ public class SRTPTransformer
                     this.contexts.put(ssrc, context);
                 }
         }
-        
+
         if (context != null)
         {
             context.transformPacket(pkt);
@@ -107,11 +107,11 @@ public class SRTPTransformer
         long ssrc  = pkt.getSSRC();
         int seqNum = pkt.getSequenceNumber();
         SRTPCryptoContext context = this.contexts.get(ssrc);
- 
+
         if (context == null)
         {
             context = this.engine.getDefaultContext().deriveContext(ssrc, 0, 0);
-            
+
             if (context != null)
             {
                 context.deriveSrtpKeys(seqNum);
@@ -122,7 +122,7 @@ public class SRTPTransformer
         if (context != null)
         {
             boolean validPacket = context.reverseTransformPacket(pkt);
-        
+
             if (!validPacket)
             {
                 return null;
@@ -134,10 +134,10 @@ public class SRTPTransformer
 
     /**
      * Getter to use in derived classes.
-     * 
+     *
      * @return the engine
      */
-    public SRTPTransformEngine getEngine() 
+    public SRTPTransformEngine getEngine()
     {
         return engine;
     }
