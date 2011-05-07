@@ -1556,6 +1556,11 @@ public class TreeContactList
         Component mouseComponent
             = renderer.findComponentAt(translatedX, translatedY);
 
+        if (logger.isDebugEnabled())
+            logger.debug("DISPATCH MOUSE EVENT TO COMPONENT: "
+                    + mouseComponent + " for x: " + translatedX
+                    + " and y: " + translatedY);
+
         if (mouseComponent instanceof SIPCommButton)
         {
             MouseEvent evt = new MouseEvent(mouseComponent,
