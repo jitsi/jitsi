@@ -642,10 +642,10 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
  * Method:    get_filtered_video_frame
- * Signature: (JJJJ)J
+ * Signature: (JIIIJJJ)J
  */
 JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_get_1filtered_1video_1frame
-  (JNIEnv *, jclass, jlong, jlong, jlong, jlong);
+  (JNIEnv *, jclass, jlong, jint, jint, jint, jlong, jlong, jlong);
 
 #ifdef __cplusplus
 }

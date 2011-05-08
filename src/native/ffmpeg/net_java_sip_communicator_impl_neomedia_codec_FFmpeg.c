@@ -728,12 +728,17 @@ Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avfilter_1unref_1buffe
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_get_1filtered_1video_1frame
     (JNIEnv *jniEnv, jclass clazz,
-    jlong input, jlong buffer, jlong ffsink, jlong output)
+    jlong input, jint width, jint height, jint pixFmt,
+    jlong buffer, jlong ffsink, jlong output)
 {
+    AVFrame *input_ = (AVFrame *) input;
     AVFilterContext *buffer_ = (AVFilterContext *) buffer;
     AVFilterBufferRef *ref = NULL;
 
-    if (av_vsrc_buffer_add_frame(buffer_, (AVFrame *) input) == 0)
+    input_->width = width;
+    input_->height = height;
+    input_->format = pixFmt;
+    if (av_vsrc_buffer_add_frame(buffer_, input_) == 0)
     {
         AVFilterContext *ffsink_ = (AVFilterContext *) ffsink;
         AVFilterLink *ffsinkLink = (ffsink_->inputs)[0];
