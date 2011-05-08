@@ -733,12 +733,7 @@ Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_get_1filtered_1video_1
     AVFilterContext *buffer_ = (AVFilterContext *) buffer;
     AVFilterBufferRef *ref = NULL;
 
-    if (av_vsrc_buffer_add_frame(
-                buffer_,
-                (AVFrame *) input,
-                AV_NOPTS_VALUE,
-                (AVRational) { 1, 1 })
-            == 0)
+    if (av_vsrc_buffer_add_frame(buffer_, (AVFrame *) input) == 0)
     {
         AVFilterContext *ffsink_ = (AVFilterContext *) ffsink;
         AVFilterLink *ffsinkLink = (ffsink_->inputs)[0];
