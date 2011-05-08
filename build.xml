@@ -267,7 +267,7 @@
     <!-- Ant-external target will appear in -projecthelp output       -->
     <target name="ant-usage"
        description="simply execute 'ant' to discover the most useful targets.">
-       <echo message="Useful ant commands for the SIP Communicator Project..." />
+       <echo message="Useful ant commands for the Jitsi Project..." />
        <echo message="'ant rebuild' for a safe clean/build sequence" />
        <echo message="'ant rebuild run' for a safe clean/build/run" />
        <echo message="'ant make run' for incremental build/run" />
@@ -395,7 +395,7 @@
     <target name="javadoc"
         description="Generates project javadoc.">
         <javadoc author="true" destdir="${java.doc}" package="true"
-            version="true" use="true" windowtitle="SIP Communicator API"
+            version="true" use="true" windowtitle="Jitsi API"
             classpathref="compile.class.path" source="1.5+" maxmemory="256m">
             <packageset dir="${src}">
                 <exclude name="net/java/sip/communicator/impl/version/**"/>
@@ -406,7 +406,7 @@
             <link href="${j2se_api}" />
             <header>
                 <![CDATA[
-                <b> SIP Communicator: the OpenSource Java VoIP and Instant Messaging client. </b>
+                <b> Jitsi: the OpenSource Java VoIP and Instant Messaging client. </b>
                 ]]>
             </header>
             <bottom>
@@ -436,7 +436,7 @@
         <echo message="ver=${sip-communicator.version}"/>
     </target>
 
-    <!-- Determines SIP Communicator version if any-->
+    <!-- Determines the Jitsi version if any-->
     <target name="-pre-version" if="build.label" >
         <!-- create a class that would contain our nightly build.id if any -->
         <copy file="${src}/net/java/sip/communicator/impl/version/NightlyBuildID.java.tmpl"
@@ -457,7 +457,7 @@
             token="revision.id" value="${build.label}"/>
     </target>
 
-    <!-- SIP Communicator Version -->
+    <!-- Jitsi Version -->
     <target name="version" depends="-pre-version">
         <!-- Recompile ant task classes-->
         <delete failonerror="false">
@@ -703,7 +703,7 @@
     </target>
 
 
-    <!--RUN-SIP-COMMUNICATOR -->
+    <!--RUN-JITSI -->
     <target name="run" depends="deploy-os-specific-bundles"
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
@@ -713,7 +713,7 @@
              the value ${args}-->
         <property name="args" value=""/>
 
-        <!-- SIP Communicator on Mac OS X uses a JVMTI agent to handle kAEGetURL
+        <!-- Jitsi on Mac OS X uses a JVMTI agent to handle kAEGetURL
              AppleScript events. -->
         <condition property="jvmarg.line"
                 value="-agentlib:AEGetURLEventHandlerAgent -Xdock:name='Jitsi' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
@@ -736,7 +736,7 @@
             <!-- Sets the charset for the messages -->
             <!--sysproperty key="icq.custom.message.charset" value="windows-1252"/-->
 
-            <!-- Tell felix to run sip-communicator-->
+            <!-- Tell felix to run Jitsi -->
             <sysproperty key="felix.config.properties"
                 value="file:${lib}/felix.client.run.properties"/>
 
@@ -774,7 +774,7 @@
             <sysproperty key="user.variant" value="${user.variant}" />
 
             <!-- make sure that we automatically enable system.out when running
-                 SIP Communicator from Ant-->
+                 Jitsi from Ant-->
             <arg line="--debug"/>
             <!-- pass to SC args that have been specified by the user -->
             <arg line="${args}"/>
@@ -794,7 +794,7 @@
         </java>
     </target>
 
-    <!--RUN-SIP-COMMUNICATOR-WITH-INTEGRATED-PROFILER -->
+    <!--RUN-JITSI-WITH-INTEGRATED-PROFILER -->
     <target name="run-with-profiler"
         description="Starts felix and runs sip-comunicator gui (use latest build) with the hooked classloader."
         depends="bundle-plugin-profiler4j">
@@ -815,7 +815,7 @@
         </ant>
     </target>
 
-    <!--PROFILE-SIP-COMMUNICATOR-IN-NETBEANS-IDE -->
+    <!--PROFILE-JITSI-IN-NETBEANS-IDE -->
     <target name="profile" depends="bundle-plugin-profiler4j,deploy-os-specific-bundles"
         description="Profile Project">
         <fail unless="netbeans.home">
@@ -833,7 +833,7 @@
 
             <jvmarg value="${profiler.info.jvmargs.agent}"/>
 
-            <!-- Tell felix to run sip-communicator-->
+            <!-- Tell felix to run Jitsi -->
             <sysproperty key="felix.config.properties"
                 value="file:${lib}/felix.client.run.properties"/>
 
@@ -1567,7 +1567,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-UI-SERVICE -->
     <target name="bundle-ui-service">
-        <!-- Bundle sip-communicator's UI.-->
+        <!-- Bundle Jitsi's UI.-->
         <jar compress="false" destfile="${bundles.dest}/ui-service.jar"
             manifest="${src}/net/java/sip/communicator/service/gui/gui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/gui"
@@ -1579,7 +1579,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!-- BUNDLE-SWING-UI -->
     <target name="bundle-swing-ui">
-        <!-- Bundle sip-communicator's UI.-->
+        <!-- Bundle Jitsi's UI.-->
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
             manifest="${src}/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
