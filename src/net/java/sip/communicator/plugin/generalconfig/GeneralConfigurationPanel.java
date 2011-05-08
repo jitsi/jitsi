@@ -31,7 +31,8 @@ public class GeneralConfigurationPanel
     extends TransparentPanel
 {
     /**
-     * The logger.
+     * The <tt>Logger</tt> used by this <tt>GeneralConfigurationPanel</tt> for
+     * logging output.
      */
     private final Logger logger
         = Logger.getLogger(GeneralConfigurationPanel.class);
@@ -727,19 +728,6 @@ public class GeneralConfigurationPanel
      */
     public Component createStartupConfigPanel()
     {
-        // If we're on a Mac nothing would be added in this panel, so we return
-        // null.
-        if (OSUtils.IS_MAC)
-            return null;
-
-        JPanel updateConfigPanel = new TransparentPanel(new BorderLayout());
-
-        updateConfigPanel.add(
-            GeneralConfigPluginActivator.createConfigSectionComponent(
-                Resources.getString("plugin.generalconfig.STARTUP_CONFIG")
-                    + ":"),
-            BorderLayout.WEST);
-
         Component updateCheckBox = null;
         Component autoStartCheckBox = null;
 
@@ -749,18 +737,32 @@ public class GeneralConfigurationPanel
             updateCheckBox = createUpdateCheckBox();
         }
 
-        if (updateCheckBox != null && autoStartCheckBox != null)
-        {
-            JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
-            checkBoxPanel.add(autoStartCheckBox);
-            checkBoxPanel.add(updateCheckBox);
-            updateConfigPanel.add(checkBoxPanel);
-        }
-        else if (updateCheckBox != null)
-            updateConfigPanel.add(updateCheckBox);
-        else if (autoStartCheckBox != null)
-            updateConfigPanel.add(autoStartCheckBox);
+        JPanel updateConfigPanel = null;
 
+        if ((updateCheckBox != null) || (autoStartCheckBox != null))
+        {
+            updateConfigPanel = new TransparentPanel(new BorderLayout());
+            updateConfigPanel.add(
+                    GeneralConfigPluginActivator.createConfigSectionComponent(
+                            Resources.getString(
+                                    "plugin.generalconfig.STARTUP_CONFIG")
+                                + ":"),
+                    BorderLayout.WEST);
+
+            if ((updateCheckBox != null) && (autoStartCheckBox != null))
+            {
+                JPanel checkBoxPanel
+                    = new TransparentPanel(new GridLayout(0, 1));
+
+                checkBoxPanel.add(autoStartCheckBox);
+                checkBoxPanel.add(updateCheckBox);
+                updateConfigPanel.add(checkBoxPanel);
+            }
+            else if (updateCheckBox != null)
+                updateConfigPanel.add(updateCheckBox);
+            else if (autoStartCheckBox != null)
+                updateConfigPanel.add(autoStartCheckBox);
+        }
         return updateConfigPanel;
     }
 
