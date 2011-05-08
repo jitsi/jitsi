@@ -12,9 +12,23 @@
     </classpath>
   </taskdef>
 
-  <!-- Cross compilation, this is mainly used for Linux (cross-compile 32-bit binaries
-       from 64-bit host. It is also used to compile ffmpeg for Mac OS X for each 
-       architecture before create universal binary with lupo tool. 
+  <condition property="arch" value="32">
+    <or>
+      <os arch="x86" />
+      <os arch="i386" />
+      <os arch="i486" />
+      <os arch="i586" />
+      <os arch="i686" />
+    </or>
+  </condition>
+  <condition property="arch" value="64">
+    <os arch="amd64" />
+  </condition>
+
+  <!--
+    Cross compilation. It is mainly used on Linux to cross-compile 32-bit
+    binaries on a 64-bit host. It is also used to compile ffmpeg on Mac OS X for
+    each architecture before creating an universal binary with the lipo tool. 
   -->
   <condition property="cross_32" value="y" >
     <equals arg1="${arch}" arg2="32" />
@@ -33,47 +47,29 @@
   <condition property="native_install_dir" value="${native.libs}/windows">
     <and>
       <isset property="is.running.windows"/>
-      <or>
-        <os arch="x86" />
-        <os arch="i386" />
-        <equals arg1="${arch}" arg2="32" />
-      </or>
+      <equals arg1="${arch}" arg2="32" />
     </and>
   </condition>
 
   <condition property="native_install_dir" value="${native.libs}/windows-64">
     <and>
       <isset property="is.running.windows"/>
-      <or>   
-        <os arch="amd64" />
-        <equals arg1="${arch}" arg2="64" />
-      </or>
+      <equals arg1="${arch}" arg2="64" />
     </and>                                    
   </condition>
 
   <condition property="native_install_dir" value="${native.libs}/linux">
     <and>   
       <isset property="is.running.linux"/>
-      <or>
-        <os arch="x86" />
-        <os arch="i386" />
-        <equals arg1="${arch}" arg2="32" />
-      </or>
+      <equals arg1="${arch}" arg2="32" />
     </and>                                    
   </condition>
 
   <condition property="native_install_dir" value="${native.libs}/linux-64">
     <and>
       <isset property="is.running.linux"/>
-      <or>   
-        <os arch="amd64" />
-        <equals arg1="${arch}" arg2="64" />
-      </or>
+      <equals arg1="${arch}" arg2="64" />
     </and>                                    
-  </condition>
-
-  <condition property="native_install_dir" value="${native.libs}/mac">
-    <isset property="is.running.macos"/>
   </condition>
 
   <condition property="native_install_dir" value="${native.libs}/mac">
@@ -291,7 +287,7 @@
     <fail message="x264 repository not set!" unless="x264" />
     <fail message="lame repository not set!" unless="lame" />
 
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/ffmpeg" objdir="${obj}">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnffmpeg" objdir="${obj}">
       <!-- common compiler flags -->
       <compilerarg value="-std=c99" />
       <compilerarg value="-D_XOPEN_SOURCE=600" />
@@ -346,21 +342,23 @@
       <!-- ffmpeg/x264 libraries cannot be built as universal binaries
            so you have to setup and compile ffmpeg/x264 for each architecture separately.
            Run this ant script with:
-           -Darch=32 (rename libffmpeg.dyld to libffmpeg.dyld.32)
-           -Darch=64 (rename libffmpeg.dyld to libffmpeg.dyld.64)
-           -Darch=ppc (rename libffmpeg.dyld to libffmpeg.dyld.ppc)
+           -Darch=32 (rename libjnffmpeg.dyld to libjnffmpeg.dyld.32)
+           -Darch=64 (rename libjnffmpeg.dyld to libjnffmpeg.dyld.64)
+           -Darch=ppc (rename libjnffmpeg.dyld to libjnffmpeg.dyld.ppc)
 
            Finally create the universal binary with:
-           lipo -create libffmpeg.dyld.32 libffmpeg.dyld.64 libffmpeg.dyld.ppc -output libffmpeg.jnilib
+           lipo -create libjnffmpeg.dyld.32 libjnffmpeg.dyld.64 libjnffmpeg.dyld.ppc -output libjnffmpeg.jnilib
       -->
       <linkerarg value="-o" location="end" if="is.running.macos" />
-      <linkerarg value="libffmpeg.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="libjnffmpeg.jnilib" location="end" if="is.running.macos" />
+<!--
       <linkerarg value="-arch" if="cross_32" unless="is.running.linux" />
       <linkerarg value="-i386" if="cross_32" unless="is.running.linux" />
       <linkerarg value="-arch" if="cross_64" unless="is.running.linux" />
       <linkerarg value="x86_64" if="cross_64" unless="is.running.linux" />
       <linkerarg value="-arch" if="cross_ppc" unless="is.running.linux" />
       <linkerarg value="ppc" if="cross_ppc" unless="is.running.linux" />
+-->
       <linkerarg value="-dynamiclib" if="is.running.macos" />
       <linkerarg value="-Wl,-read_only_relocs,suppress" if="is.running.macos" />
       
@@ -368,7 +366,7 @@
       <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
       
-      <linkerarg value="-offmpeg.dll" if="is.running.windows" />
+      <linkerarg value="-ojnffmpeg.dll" if="is.running.windows" />
       <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
 
       <fileset dir="${src}/native/ffmpeg" includes="*.c"/>
