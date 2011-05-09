@@ -802,9 +802,11 @@
                 dir="${light.dir}"
                 outputproperty="old.packagecode"
                 failonerror="true">
+            <arg value="//NoLogo" />
             <arg value="${inst.resrc}\windows\WiSumInf.vbs" />
             <arg value="${build-location}\${windows.arch}\setup.msi" />
         </exec>
+        <echo message="Old package code is: ${old.packagecode}"/>
         <exec
                 dir="${src}/native/windows/setup"
                 executable="make.exe"
