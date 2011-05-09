@@ -269,10 +269,6 @@ public class HttpUtils
             if(resEntity == null)
                 return null;
 
-            if(logger.isDebugEnabled())
-                logger.debug("Post file response: "
-                    + EntityUtils.toString(resEntity));
-
             return new HTTPResponseResult(reqEntity, httpClient);
         }
         catch(Throwable e)
@@ -375,15 +371,11 @@ public class HttpUtils
             if(resEntity == null)
                 return null;
 
-            if(logger.isDebugEnabled())
-                logger.debug("Post form response: "
-                    + EntityUtils.toString(resEntity));
-
             return new HTTPResponseResult(resEntity, httpClient);
         }
         catch(Throwable e)
         {
-            e.printStackTrace();
+            logger.error("Error posting form", e);
         }
 
         return null;

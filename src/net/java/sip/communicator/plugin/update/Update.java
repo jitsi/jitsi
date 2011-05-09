@@ -845,13 +845,19 @@ public class Update
 
         try
         {
+            String deltaTarget = null;
+
+            Version ver = getCurrentVersion();
+
+            if(ver.isPreRelease())
+                deltaTarget = ver.getNightlyBuildID();
+            else
+                deltaTarget = String.valueOf(ver.getVersionRevision());
+
             String deltaLink
                 = downloadLink.replace(
                         latestVersion,
-                        latestVersion
-                            + "-delta-"
-                            + getCurrentVersion().getNightlyBuildID());
-
+                        latestVersion + "-delta-" + deltaTarget);
             /*
              * TODO Download the delta update regardless of the logging level
              * once the generation of delta updates is implemented and the whole
