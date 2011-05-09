@@ -44,7 +44,7 @@ public class CheckForUpdatesMenuItemComponent
         {
             public void actionPerformed(ActionEvent e)
             {
-                Update.checkForUpdates(true);
+                UpdateActivator.getUpdateService().checkForUpdates(true);
             }
         });
     }

@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.shutdown.*;
+import net.java.sip.communicator.service.update.UpdateService;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -59,6 +60,11 @@ public class UpdateActivator
      * Reference to the <tt>UIService</tt>.
      */
     private static UIService uiService;
+
+    /**
+     * The update service.
+     */
+    private static UpdateService updateService;
 
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
@@ -144,6 +150,13 @@ public class UpdateActivator
 
         if (OSUtils.IS_WINDOWS)
         {
+            updateService = new Update();
+
+            bundleContext.registerService(
+                UpdateService.class.getName(),
+                updateService,
+                null);
+
             // Register the "Check for Updates" menu item.
             CheckForUpdatesMenuItemComponent checkForUpdatesMenuItemComponent
                 = new CheckForUpdatesMenuItemComponent(
@@ -163,7 +176,7 @@ public class UpdateActivator
             // Check for software update upon startup if enabled.
             ConfigurationService cfg = getConfiguration();
             if(cfg.getBoolean(UPDATE_ENABLED, true))
-                Update.checkForUpdates(false);
+                updateService.checkForUpdates(false);
         }
 
         if (logger.isDebugEnabled())
@@ -179,5 +192,15 @@ public class UpdateActivator
     {
         if (logger.isDebugEnabled())
             logger.debug("Update checker [STOPPED]");
+    }
+
+    /**
+     * Returns the update service instance.
+     *
+     * @return the update service instance
+     */
+    static UpdateService getUpdateService()
+    {
+        return updateService;
     }
 }

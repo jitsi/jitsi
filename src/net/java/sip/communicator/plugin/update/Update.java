@@ -19,6 +19,7 @@ import javax.swing.text.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.update.UpdateService;
 import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -31,6 +32,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lyubomir Marinov
  */
 public class Update
+    implements UpdateService
 {
     /**
      * The <tt>Logger</tt> used by the <tt>Update</tt> class for logging output.
@@ -82,7 +84,7 @@ public class Update
      * notified if they have the newest version already; otherwise,
      * <tt>false</tt>
      */
-    public static synchronized void checkForUpdates(
+    public synchronized void checkForUpdates(
             final boolean notifyAboutNewestVersion)
     {
         if (inCheckForUpdates > 0)

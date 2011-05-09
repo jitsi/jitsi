@@ -911,7 +911,7 @@
         bundle-notification-config,bundle-contacteventhandler,
         bundle-plugin-contactinfo,bundle-plugin-chatalerter, bundle-keybindings,
         bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
-        bundle-jfontchooserlib,bundle-plugin-update,
+        bundle-jfontchooserlib,bundle-update,bundle-plugin-update,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
         bundle-argdelegation,bundle-zrtp4j,bundle-json,
@@ -2110,7 +2110,17 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!--BUNDLE-UPDATE-->
+    <!-- BUNDLE-UPDATE-->
+    <target name="bundle-update">
+        <!-- Creates a bundle containing the provisioning discovery service.-->
+        <jar compress="false" destfile="${bundles.dest}/updateservice.jar"
+            manifest="${src}/net/java/sip/communicator/service/update/update.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/update"
+                prefix="net/java/sip/communicator/service/update"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-PLUGIN-WIN-UPDATE-->
     <target name="bundle-plugin-update">
         <jar compress="false" destfile="${bundles.dest}/update.jar"
             manifest="${src}/net/java/sip/communicator/plugin/update/update.manifest.mf">
