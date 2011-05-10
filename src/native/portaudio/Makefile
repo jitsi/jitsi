@@ -19,7 +19,7 @@ else
   ifeq "$(OS)" "linux"
     JAVA_HOME?=/usr/lib/jvm/java-6-sun
     CPPFLAGS=-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
-    LIBS=-Wl,-Bstatic -lportaudio -lspeexdsp -Wl,-Bdynamic -lasound -lm -lpthread
+    LIBS=-Wl,-Bstatic -lportaudio -lspeexdsp -Wl,-Bdynamic -lrt -lasound -lm -lpthread
     TARGET=../../../lib/native/$(OS)$(ARCH)/lib$(TARGET_BASENAME).so
   else ifeq "$(OS)" "windows"
     DXSDK_HOME?=/c/Users/lyubomir/Downloads/DXSDK_Jun10

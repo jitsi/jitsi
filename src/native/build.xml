@@ -409,6 +409,7 @@
       <linkerarg value="-lportaudio" location="end" if="is.running.linux" />
       <linkerarg value="-lspeexdsp" location="end" if="is.running.linux" />
       <linkerarg value="-Wl,-Bdynamic" location="end" if="is.running.linux" />
+      <linkerarg value="-lrt" location="end" if="is.running.linux" />
       <linkerarg value="-lasound" location="end" if="is.running.linux" />
       <linkerarg value="-lm" location="end" if="is.running.linux" />
       <linkerarg value="-lpthread" location="end" if="is.running.linux" />
