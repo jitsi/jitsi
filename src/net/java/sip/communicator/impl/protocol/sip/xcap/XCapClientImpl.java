@@ -53,14 +53,15 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
      * anaylyze if resource-lists, pres-rules, pres-content is supported.
      *
      * @param uri         the server location.
-     * @param userAddress the user name.
+     * @param userAddress the URI of the user used for requests
+     * @param username the user name.
      * @param password    the user password.
      * @throws XCapException if there is some error during operation.
      */
-    public void connect(URI uri, Address userAddress, String password)
+    public void connect(URI uri, Address userAddress, String username, String password)
             throws XCapException
     {
-        super.connect(uri, userAddress, password);
+        super.connect(uri, userAddress, username, password);
         try
         {
             xCapCaps = loadXCapCaps();

@@ -22,11 +22,12 @@ public interface HttpXCapClient
      * Connects user to XCAP server.
      *
      * @param uri         the server location.
-     * @param userAddress the user name.
+     * @param userAddress the URI of the user used for requests
+     * @param username the user name.
      * @param password    the user password.
      * @throws XCapException if there is some error during operation.
      */
-    public void connect(URI uri, Address userAddress, String password)
+    public void connect(URI uri, Address userAddress, String username, String password)
             throws XCapException;
 
     /**

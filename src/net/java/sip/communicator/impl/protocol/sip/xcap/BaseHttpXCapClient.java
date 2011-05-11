@@ -80,6 +80,11 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     protected Address userAddress;
 
     /**
+     * Current user loginname.
+     */
+    private String username;
+
+    /**
      * Current user password.
      */
     private String password;
@@ -120,11 +125,12 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
      * Connects user to XCap server.
      *
      * @param uri         the server location.
-     * @param userAddress the user name.
+     * @param userAddress the URI of the user used for requests
+     * @param username the user name.
      * @param password    the user password.
      * @throws XCapException if there is some error during operation.
      */
-    public void connect(URI uri, Address userAddress, String password)
+    public void connect(URI uri, Address userAddress, String username, String password)
             throws XCapException
     {
         if (!userAddress.getURI().isSipURI())
@@ -133,6 +139,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
         }
         this.uri = uri;
         this.userAddress = (Address) userAddress.clone();
+        this.username = username;
         this.password = password == null ? "" : password;
         connected = true;
     }
@@ -333,8 +340,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
      */
     public String getUserName()
     {
-        return userAddress != null ?
-                ((SipURI) userAddress.getURI()).getUser() : null;
+        return username;
     }
 
     /**

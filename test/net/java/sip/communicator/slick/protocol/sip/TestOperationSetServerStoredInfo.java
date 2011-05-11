@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
+import gov.nist.javax.sip.address.*;
 import junit.framework.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -150,7 +151,10 @@ public class TestOperationSetServerStoredInfo extends TestCase
         XCapClient xCapClient = new XCapClientImpl();
         xCapClient.connect(new URI(xCapServerUri),
                 ((ProtocolProviderServiceSipImpl) fixture.provider1).
-                        parseAddressString(userName), password);
+                        parseAddressString(userName),
+                ((SipUri)(((ProtocolProviderServiceSipImpl) fixture.provider1).
+                        parseAddressString(userName))).getUser(),
+                password);
         return xCapClient;
     }
 

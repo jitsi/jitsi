@@ -350,28 +350,28 @@ public class ProtocolProviderServiceSipImpl
                                 XCAP_USE_SIP_CREDETIALS, true);
                 String serverUri =
                         accountID.getAccountPropertyString(XCAP_SERVER_URI);
-                String user;
+                String username = accountID.getAccountPropertyString(
+                                  ProtocolProviderFactory.USER_ID);
+                Address userAddress = parseAddressString(username);
                 String password;
                 if (useSipCredetials)
                 {
-                    user = accountID.getAccountPropertyString(
-                            ProtocolProviderFactory.USER_ID);
+                    username = ((SipUri)userAddress.getURI()).getUser();
                     password = SipActivator.getProtocolProviderFactory().
                             loadPassword(accountID);
                 }
                 else
                 {
-                    user = accountID.getAccountPropertyString(XCAP_USER);
+                    username = accountID.getAccountPropertyString(XCAP_USER);
                     password = accountID.getAccountPropertyString(XCAP_PASSWORD);
                 }
                 // Connect to xcap server
-                Address userAddress = parseAddressString(user);
                 if(enableXCap && serverUri != null)
                 {
                     URI uri = new URI(serverUri.trim());
                     if(uri.getHost() != null && uri.getPath() != null)
                     {
-                        xCapClient.connect(uri, userAddress, password);
+                        xCapClient.connect(uri, userAddress, username, password);
                     }
                 }
             }
