@@ -865,9 +865,9 @@ public class Update
              * once the generation of delta updates is implemented and the whole
              * functionality performs satisfactory.
              */
-            if (!deltaLink.equalsIgnoreCase(downloadLink)
-                    && logger.isDebugEnabled())
+            if (!deltaLink.equalsIgnoreCase(downloadLink))
                 delta = download(deltaLink);
+
             if (delta != null)
             {
                 File[] deltaMsi = new File[1];
