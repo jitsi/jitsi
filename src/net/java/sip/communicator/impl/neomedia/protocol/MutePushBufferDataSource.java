@@ -21,7 +21,7 @@ import javax.media.protocol.*;
  * <tt>DataSource</tt> (if it supports the interface in question).
  * </p>
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class MutePushBufferDataSource
     extends PushBufferDataSourceDelegate<PushBufferDataSource>
@@ -59,9 +59,17 @@ public class MutePushBufferDataSource
         PushBufferStream[] streams = dataSource.getStreams();
 
         if (streams != null)
-            for (int streamIndex = 0; streamIndex < streams.length; streamIndex++)
-                streams[streamIndex] =
-                    new MutePushBufferStream(streams[streamIndex]);
+        {
+            for (int streamIndex = 0;
+                    streamIndex < streams.length;
+                    streamIndex++)
+            {
+                PushBufferStream stream = streams[streamIndex];
+
+                if (stream != null)
+                    streams[streamIndex] = new MutePushBufferStream(stream);
+            }
+        }
         return streams;
     }
 

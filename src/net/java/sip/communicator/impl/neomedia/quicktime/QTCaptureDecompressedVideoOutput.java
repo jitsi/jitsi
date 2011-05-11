@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.neomedia.quicktime;
 /**
  * Represents a QTKit <tt>QTCaptureDecompressedVideoOutput</tt> object.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class QTCaptureDecompressedVideoOutput
     extends QTCaptureOutput
@@ -51,6 +51,37 @@ public class QTCaptureDecompressedVideoOutput
         release();
     }
 
+    /**
+     * Gets the minimum time interval between which this
+     * <tt>QTCaptureDecompressedVideoOutput</tt> will output consecutive video
+     * frames.
+     *
+     * @return the minimum time interval between which this
+     * <tt>QTCaptureDecompressedVideoOutput</tt> will output consecutive video
+     * frames. It is equivalent to the inverse of the maximum frame rate. The
+     * value of <tt>0</tt> indicates an unlimited maximum frame rate.
+     */
+    public double minimumVideoFrameInterval()
+    {
+        return minimumVideoFrameInterval(getPtr());
+    }
+
+    /**
+     * Gets the minimum time interval between which a specific
+     * <tt>QTCaptureDecompressedVideoOutput</tt> instance will output
+     * consecutive video frames.
+     *
+     * @param ptr a pointer to the <tt>QTCaptureDecompressedVideoOutput</tt>
+     * instance to get the minimum time interval between consecutive video frame
+     * output of
+     * @return the minimum time interval between which a specific
+     * <tt>QTCaptureDecompressedVideoOutput</tt> instance will output
+     * consecutive video frames. It is equivalent to the inverse of the maximum
+     * frame rate. The value of <tt>0</tt> indicates an unlimited maximum frame
+     * rate.
+     */
+    private static native double minimumVideoFrameInterval(long ptr);
+
     public NSDictionary pixelBufferAttributes()
     {
         long pixelBufferAttributesPtr = pixelBufferAttributes(getPtr());
@@ -82,6 +113,39 @@ public class QTCaptureDecompressedVideoOutput
     }
 
     private static native void setDelegate(long ptr, Delegate delegate);
+
+    /**
+     * Sets the minimum time interval between which this
+     * <tt>QTCaptureDecompressedVideoOutput</tt> is to output consecutive video
+     * frames.
+     *
+     * @param minimumVideoFrameInterval the minimum time interval between which
+     * this <tt>QTCaptureDecompressedVideoOutput</tt> is to output consecutive
+     * video frames. It is equivalent to the inverse of the maximum frame rate.
+     * The value of <tt>0</tt> indicates an unlimited frame rate.
+     */
+    public void setMinimumVideoFrameInterval(double minimumVideoFrameInterval)
+    {
+        setMinimumVideoFrameInterval(getPtr(), minimumVideoFrameInterval);
+    }
+
+    /**
+     * Sets the minimum time interval between which a specific
+     * <tt>QTCaptureDecompressedVideoOutput</tt> instance is to output
+     * consecutive video frames.
+     *
+     * @param ptr a pointer to the <tt>QTCaptureDecompressedVideoOutput</tt>
+     * instance to set the minimum time interval between consecutive video frame
+     * output on
+     * @param minimumVideoFrameInterval the minimum time interval between which
+     * a specific <tt>QTCaptureDecompressedVideoOutput</tt> instance is to
+     * output consecutive video frames. It is equivalent to the inverse of the
+     * maximum frame rate. The value of <tt>0</tt> indicates an unlimited frame
+     * rate.
+     */
+    private static native void setMinimumVideoFrameInterval(
+            long ptr,
+            double minimumVideoFrameInterval);
 
     public void setPixelBufferAttributes(NSDictionary pixelBufferAttributes)
     {

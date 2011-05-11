@@ -102,12 +102,14 @@ public class DirectShowStream extends AbstractPushBufferStream
      * <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
      *
+     * @param dataSource the <tt>DataSource</tt> which is creating the new
+     * instance so that it becomes one of its <tt>streams</tt>
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
      */
-    DirectShowStream(FormatControl formatControl)
+    DirectShowStream(DataSource dataSource, FormatControl formatControl)
     {
-        super(formatControl);
+        super(dataSource, formatControl);
 
         format = (VideoFormat) formatControl.getFormat();
     }
@@ -271,9 +273,7 @@ public class DirectShowStream extends AbstractPushBufferStream
                     transferData = (data != null);
                 }
                 else
-                {
                     transferData = true;
-                }
             }
         }
     }

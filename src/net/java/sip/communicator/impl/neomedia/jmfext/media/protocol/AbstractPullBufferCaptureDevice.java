@@ -236,7 +236,7 @@ public abstract class AbstractPullBufferCaptureDevice
     {
         return
             (deviceInfo == null)
-                ? AbstractPushBufferCaptureDevice.getCaptureDeviceInfo(this)
+                ? AbstractBufferCaptureDevice.getCaptureDeviceInfo(this)
                 : deviceInfo;
     }
 

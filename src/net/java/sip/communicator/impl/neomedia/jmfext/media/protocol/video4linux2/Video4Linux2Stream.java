@@ -13,6 +13,7 @@ import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
@@ -21,7 +22,7 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
  * Implements a <tt>PullBufferStream</tt> using the Video for Linux Two API
  * Specification.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class Video4Linux2Stream
     extends AbstractPullBufferStream
@@ -113,12 +114,16 @@ public class Video4Linux2Stream
      * its <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
      *
+     * @param dataSource the <tt>DataSource</tt> which is creating the new
+     * instance so that it becomes one of its <tt>streams</tt>
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
      */
-    public Video4Linux2Stream(FormatControl formatControl)
+    public Video4Linux2Stream(
+            DataSource dataSource,
+            FormatControl formatControl)
     {
-        super(formatControl);
+        super(dataSource, formatControl);
 
         v4l2_buffer
             = Video4Linux2.v4l2_buffer_alloc(
@@ -645,14 +650,17 @@ public class Video4Linux2Stream
             int height = Video4Linux2.v4l2_pix_format_getHeight(fmtPix);
             boolean setFdFormat = false;
 
-            if ((size == null)
-                    && ((DataSource.DEFAULT_WIDTH > width)
-                        || (DataSource.DEFAULT_HEIGHT > height)))
+            if (size == null)
             {
-                size
-                    = new Dimension(
-                            DataSource.DEFAULT_WIDTH,
-                            DataSource.DEFAULT_HEIGHT);
+                Dimension defaultSize
+                    = NeomediaActivator
+                        .getMediaServiceImpl()
+                            .getDeviceConfiguration()
+                                .getVideoSize();
+
+                if ((width < defaultSize.width)
+                        || (height < defaultSize.height))
+                    size = defaultSize;
             }
 
             if ((size != null)

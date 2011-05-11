@@ -112,7 +112,8 @@ public class DataSource
             int streamIndex,
             FormatControl formatControl)
     {
-        return new PortAudioStream(formatControl, audioQualityImprovement);
+        return
+            new PortAudioStream(this, formatControl, audioQualityImprovement);
     }
 
     /**

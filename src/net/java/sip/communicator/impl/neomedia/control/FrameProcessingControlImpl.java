@@ -17,7 +17,7 @@ import javax.media.control.*;
  * and doesn't implement the <tt>controlComponent</tt> and
  * <tt>framesDropped</tt> properties.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class FrameProcessingControlImpl
     implements FrameProcessingControl
@@ -31,9 +31,10 @@ public class FrameProcessingControlImpl
     private boolean minimalProcessing = false;
 
     /**
-     * Gets the <tt>Component</tt> associated with this <tt>Control</tt> object.
+     * Gets the UI <tt>Component</tt> associated with this <tt>Control</tt>
+     * object.
      *
-     * @return the <tt>Component</tt> associated with this <tt>Control</tt>
+     * @return the UI <tt>Component</tt> associated with this <tt>Control</tt>
      * object
      */
     public Component getControlComponent()

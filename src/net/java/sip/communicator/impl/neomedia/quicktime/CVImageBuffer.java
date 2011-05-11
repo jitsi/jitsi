@@ -9,13 +9,13 @@ package net.java.sip.communicator.impl.neomedia.quicktime;
 /**
  * Represents a CoreVideo <tt>CVImageBufferRef</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class CVImageBuffer
 {
     static
     {
-        System.loadLibrary("jquicktime");
+        System.loadLibrary("jnquicktime");
     }
 
     /**

@@ -32,12 +32,16 @@ public abstract class AbstractPushBufferStream
      * have its <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
      *
+     * @param dataSource the <tt>PushBufferDataSource</tt> which is creating the
+     * new instance so that it becomes one of its <tt>streams</tt>
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
      */
-    protected AbstractPushBufferStream(FormatControl formatControl)
+    protected AbstractPushBufferStream(
+            PushBufferDataSource dataSource,
+            FormatControl formatControl)
     {
-        super(formatControl);
+        super(dataSource, formatControl);
     }
 
     /**

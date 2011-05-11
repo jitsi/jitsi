@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
  * The stream used by JMF for our image streaming.
  *
  * @author Sebastien Vincent
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Damian Minkov
  */
 public class ImageStream
@@ -74,12 +74,14 @@ public class ImageStream
      * Initializes a new <tt>ImageStream</tt> instance which is to have a
      * specific <tt>FormatControl</tt>
      *
+     * @param dataSource the <tt>DataSource</tt> which is creating the new
+     * instance so that it becomes one of its <tt>streams</tt>
      * @param formatControl the <tt>FormatControl</tt> of the new instance which
      * is to specify the format in which it is to provide its media data
      */
-    ImageStream(FormatControl formatControl)
+    ImageStream(DataSource dataSource, FormatControl formatControl)
     {
-        super(formatControl);
+        super(dataSource, formatControl);
     }
 
     /**

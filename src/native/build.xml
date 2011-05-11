@@ -371,6 +371,7 @@
 
       <fileset dir="${src}/native/ffmpeg" includes="*.c"/>
     </cc>
+
     <delete dir="${obj}" failonerror="false" />
     <delete file="${native_install_dir}/history.xml" failonerror="false" />
   </target>
@@ -774,10 +775,10 @@
     </cc>
   </target>
 
-  <!-- compile jquicktime library for Mac OS X (32-bit/64-bit/ppc) -->
-  <target name="quicktime" description="Build jquicktime shared library for Mac OS X" if="is.running.macos"
+  <!-- compile jnquicktime library for Mac OS X (32-bit/64-bit/ppc) -->
+  <target name="quicktime" description="Build jnquicktime shared library for Mac OS X" if="is.running.macos"
     depends="init-native">
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jquicktime" objdir="${obj}">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnquicktime" objdir="${obj}">
       <compilerarg value="-Wall" />
       <compilerarg value="-O2" />
       <compilerarg value="-arch" />
@@ -789,7 +790,7 @@
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" />
 
       <linkerarg value="-o" location="end" />
-      <linkerarg value="libjquicktime.jnilib" location="end" />
+      <linkerarg value="libjnquicktime.jnilib" location="end" />
       <linkerarg value="-arch" />
       <linkerarg value="x86_64" />
       <linkerarg value="-arch" />
@@ -797,14 +798,17 @@
       <linkerarg value="-arch" />
       <linkerarg value="ppc" />
       <linkerarg value="-framework" />
+      <linkerarg value="Foundation" />
+      <linkerarg value="-framework" />
       <linkerarg value="QTKit" />
       <linkerarg value="-framework" />
       <linkerarg value="Quartz" />
-      <linkerarg value="-framework" />
-      <linkerarg value="Foundation" />
 
       <fileset dir="${src}/native/macosx/quicktime" includes="*.c *.m"/>
     </cc>
+
+    <delete dir="${obj}" failonerror="false" />
+    <delete file="${native_install_dir}/history.xml" failonerror="false" />
   </target>
 
   <!-- Cleanup object file and shared libraries -->

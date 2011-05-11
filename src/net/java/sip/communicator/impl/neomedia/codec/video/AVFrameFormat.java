@@ -58,6 +58,17 @@ public class AVFrameFormat
      * colorspace and unspecified size and frame rate.
      *
      * @param pixFmt the FFmpeg colorspace to be represented by the new instance
+     */
+    public AVFrameFormat(int pixFmt)
+    {
+        this(pixFmt, NOT_SPECIFIED);
+    }
+
+    /**
+     * Initializes a new <tt>AVFrameFormat</tt> instance with a specific FFmpeg
+     * colorspace and unspecified size and frame rate.
+     *
+     * @param pixFmt the FFmpeg colorspace to be represented by the new instance
      * @param devicePixFmt the capture device colorspace to be represented by
      * the new instance
      */

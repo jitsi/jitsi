@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Discovers and registers QuickTime/QTKit capture devices with JMF.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class QuickTimeAuto
 {
@@ -59,8 +59,7 @@ public class QuickTimeAuto
                                     + inputDevice.uniqueID()),
                         new Format[]
                                 {
-                                    new AVFrameFormat(FFmpeg.PIX_FMT_ARGB,
-                                            Format.NOT_SPECIFIED),
+                                    new AVFrameFormat(FFmpeg.PIX_FMT_ARGB),
                                     new RGBFormat()
                                 });
 

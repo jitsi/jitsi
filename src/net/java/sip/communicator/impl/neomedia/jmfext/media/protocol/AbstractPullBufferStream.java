@@ -26,12 +26,16 @@ public abstract class AbstractPullBufferStream
      * have its <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
      *
+     * @param dataSource the <tt>PullBufferDataSource</tt> which is creating the
+     * new instance so that it becomes one of its <tt>streams</tt>
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
      */
-    protected AbstractPullBufferStream(FormatControl formatControl)
+    protected AbstractPullBufferStream(
+            PullBufferDataSource dataSource,
+            FormatControl formatControl)
     {
-        super(formatControl);
+        super(dataSource, formatControl);
     }
 
     /**

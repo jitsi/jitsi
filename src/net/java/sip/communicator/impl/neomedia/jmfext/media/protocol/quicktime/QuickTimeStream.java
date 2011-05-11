@@ -14,6 +14,7 @@ import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
@@ -22,7 +23,7 @@ import net.java.sip.communicator.impl.neomedia.quicktime.*;
 /**
  * Implements a <tt>PushBufferStream</tt> using QuickTime/QTKit.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class QuickTimeStream
     extends AbstractPushBufferStream
@@ -116,12 +117,14 @@ public class QuickTimeStream
      * <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
      *
+     * @param dataSource the <tt>DataSource</tt> which is creating the new
+     * instance so that it becomes one of its <tt>streams</tt>
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
      */
-    QuickTimeStream(FormatControl formatControl)
+    QuickTimeStream(DataSource dataSource, FormatControl formatControl)
     {
-        super(formatControl);
+        super(dataSource, formatControl);
 
         if (formatControl != null)
         {
@@ -133,8 +136,7 @@ public class QuickTimeStream
 
         automaticallyDropsLateVideoFrames
             = captureOutput.setAutomaticallyDropsLateVideoFrames(true);
-        captureOutput
-            .setDelegate(
+        captureOutput.setDelegate(
                 new QTCaptureDecompressedVideoOutput.Delegate()
                 {
 
@@ -160,6 +162,18 @@ public class QuickTimeStream
                             sampleBuffer);
                     }
                 });
+
+        FrameRateControl frameRateControl
+            = (FrameRateControl)
+                dataSource.getControl(FrameRateControl.class.getName());
+
+        if (frameRateControl != null)
+        {
+            float frameRate = frameRateControl.getFrameRate();
+
+            if (frameRate > 0)
+                setFrameRate(frameRate);
+        }
     }
 
     /**
@@ -290,17 +304,24 @@ public class QuickTimeStream
                 if (videoFormat.getSize() != null)
                     this.format = format;
                 else
+                {
+                    Dimension defaultSize
+                        = NeomediaActivator
+                            .getMediaServiceImpl()
+                                .getDeviceConfiguration()
+                                    .getVideoSize();
+
                     format
-                        = videoFormat
-                            .intersects(
+                        = videoFormat.intersects(
                                 new VideoFormat(
                                         null,
                                         new Dimension(
-                                                DataSource.DEFAULT_WIDTH,
-                                                DataSource.DEFAULT_HEIGHT),
+                                                defaultSize.width,
+                                                defaultSize.height),
                                         Format.NOT_SPECIFIED,
                                         Format.byteArray,
                                         Format.NOT_SPECIFIED));
+                }
             }
         }
         else
@@ -363,9 +384,11 @@ public class QuickTimeStream
                 if ((width == 0) && (height == 0))
                 {
                     if (captureOutputFormat instanceof AVFrameFormat)
-                        return new AVFrameFormat(FFmpeg.PIX_FMT_YUV420P,
-                                CVPixelFormatType.
-                                    kCVPixelFormatType_420YpCbCr8Planar);
+                        return
+                            new AVFrameFormat(
+                                    FFmpeg.PIX_FMT_YUV420P,
+                                    CVPixelFormatType
+                                        .kCVPixelFormatType_420YpCbCr8Planar);
                     else
                         return new YUVFormat(YUVFormat.YUV_420);
                 }
@@ -400,6 +423,20 @@ public class QuickTimeStream
             }
         }
         return null;
+    }
+
+    /**
+     * Gets the output frame rate of the
+     * <tt>QTCaptureDecompressedVideoOutput</tt> represented by this
+     * <tt>QuickTimeStream</tt>.
+     *
+     * @return the output frame rate of the
+     * <tt>QTCaptureDecompressedVideoOutput</tt> represented by this
+     * <tt>QuickTimeStream</tt>
+     */
+    public float getFrameRate()
+    {
+        return (float) (1.0d / captureOutput.minimumVideoFrameInterval());
     }
 
     /**
@@ -597,8 +634,14 @@ public class QuickTimeStream
          */
         if (size == null)
         {
-            width = DataSource.DEFAULT_WIDTH;
-            height = DataSource.DEFAULT_HEIGHT;
+            Dimension defaultSize
+                = NeomediaActivator
+                    .getMediaServiceImpl()
+                        .getDeviceConfiguration()
+                            .getVideoSize();
+
+            width = defaultSize.width;
+            height = defaultSize.height;
         }
         else
         {
@@ -612,12 +655,10 @@ public class QuickTimeStream
         {
             if (pixelBufferAttributes == null)
                 pixelBufferAttributes = new NSMutableDictionary();
-            pixelBufferAttributes
-                .setIntForKey(
+            pixelBufferAttributes.setIntForKey(
                     width,
                     CVPixelBufferAttributeKey.kCVPixelBufferWidthKey);
-            pixelBufferAttributes
-                .setIntForKey(
+            pixelBufferAttributes.setIntForKey(
                     height,
                     CVPixelBufferAttributeKey.kCVPixelBufferHeightKey);
         }
@@ -646,8 +687,7 @@ public class QuickTimeStream
         {
             if (pixelBufferAttributes == null)
                 pixelBufferAttributes = new NSMutableDictionary();
-            pixelBufferAttributes
-                .setIntForKey(
+            pixelBufferAttributes.setIntForKey(
                     CVPixelFormatType.kCVPixelFormatType_32ARGB,
                     CVPixelBufferAttributeKey.kCVPixelBufferPixelFormatTypeKey);
         }
@@ -655,8 +695,7 @@ public class QuickTimeStream
         {
             if (pixelBufferAttributes == null)
                 pixelBufferAttributes = new NSMutableDictionary();
-            pixelBufferAttributes
-                .setIntForKey(
+            pixelBufferAttributes.setIntForKey(
                     CVPixelFormatType.kCVPixelFormatType_420YpCbCr8Planar,
                     CVPixelBufferAttributeKey.kCVPixelBufferPixelFormatTypeKey);
         }
@@ -668,6 +707,24 @@ public class QuickTimeStream
             captureOutput.setPixelBufferAttributes(pixelBufferAttributes);
             captureOutputFormat = videoFormat;
         }
+    }
+
+    /**
+     * Sets the output frame rate of the
+     * <tt>QTCaptureDecompressedVideoOutput</tt> represented by this
+     * <tt>QuickTimeStream</tt>.
+     *
+     * @param frameRate the output frame rate to be set on the
+     * <tt>QTCaptureDecompressedVideoOutput</tt> represented by this
+     * <tt>QuickTimeStream</tt> 
+     * @return the output frame rate of the
+     * <tt>QTCaptureDecompressedVideoOutput</tt> represented by this
+     * <tt>QuickTimeStream</tt>
+     */
+    public float setFrameRate(float frameRate)
+    {
+        captureOutput.setMinimumVideoFrameInterval(1.0d / frameRate);
+        return getFrameRate();
     }
 
     /**

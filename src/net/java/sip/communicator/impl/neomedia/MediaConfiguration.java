@@ -219,13 +219,9 @@ public class MediaConfiguration
                     {
                         if (DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO.equals(
                                 e.getItem()))
-                        {
                             createPortAudioControls(portAudioPanel);
-                        }
                         else
-                        {
                             portAudioPanel.removeAll();
-                        }
 
                         portAudioPanel.revalidate();
                         portAudioPanel.repaint();
@@ -237,9 +233,7 @@ public class MediaConfiguration
                 createPortAudioControls(portAudioPanel);
         }
         else
-        {
             portAudioPanel = null;
-        }
 
         JLabel label = new JLabel(getLabelText(type));
         label.setDisplayedMnemonic(getDisplayedMnemonic(type));
@@ -259,9 +253,7 @@ public class MediaConfiguration
         // if creating controls for audio will add devices panel
         // otherwise it is video controls and will add preview panel
         if (portAudioPanel != null)
-        {
             secondContainer.add(portAudioPanel);
-        }
         else
         {
             comboBox.setLightWeightPopupEnabled(false);
@@ -270,11 +262,8 @@ public class MediaConfiguration
 
         secondContainer.add(createEncodingControls(type));
 
-        //TODO to be enabled when video resolution/framerate changing is enabled
-//        if(portAudioPanel == null)
-//        {
-//            secondContainer.add(createVideoAdvancedSettings());
-//        }
+        if (portAudioPanel == null)
+            secondContainer.add(createVideoAdvancedSettings());
 
         JPanel container = new TransparentPanel(new BorderLayout());
         container.add(firstContainer, BorderLayout.NORTH);
@@ -663,6 +652,7 @@ public class MediaConfiguration
 
     /**
      * Creates the video advanced settings.
+     *
      * @return video advanced settings panel.
      */
     private static Component createVideoAdvancedSettings()
@@ -695,16 +685,11 @@ public class MediaConfiguration
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                if(centerPanel.isVisible())
-                {
-                    advButton.setIcon(NeomediaActivator.getResources()
-                        .getImage("service.gui.icons.RIGHT_ARROW_ICON"));
-                }
-                else
-                {
-                    advButton.setIcon(NeomediaActivator.getResources()
-                        .getImage("service.gui.icons.DOWN_ARROW_ICON"));
-                }
+                advButton.setIcon(
+                        NeomediaActivator.getResources().getImage(
+                                centerPanel.isVisible()
+                                    ? "service.gui.icons.RIGHT_ARROW_ICON"
+                                    : "service.gui.icons.DOWN_ARROW_ICON"));
 
                 centerPanel.setVisible(!centerPanel.isVisible());
 
@@ -732,7 +717,8 @@ public class MediaConfiguration
             constraints);
         constraints.gridy = 2;
         centerPanel.add(new JLabel(
-            resources.getI18NString("impl.media.configform.VIDEO_PACKETS_POLICY")),
+            resources.getI18NString(
+                    "impl.media.configform.VIDEO_PACKETS_POLICY")),
             constraints);
 
         constraints.weightx = 1;
@@ -779,32 +765,30 @@ public class MediaConfiguration
         centerPanel.add(videoMaxBandwidth, constraints);
 
         // load selected value or auto
-        Dimension currentResolution = deviceConfig.getResolution();
+        Dimension videoSize = deviceConfig.getVideoSize();
 
-        if(currentResolution.getHeight()
-                != DeviceConfiguration.DEFAULT_VIDEO_HEIGHT
-           && currentResolution.getWidth()
-                != DeviceConfiguration.DEFAULT_VIDEO_WIDTH)
-        {
-            sizeCombo.setSelectedItem(deviceConfig.getResolution());
-        }
+        if((videoSize.getHeight() != DeviceConfiguration.DEFAULT_VIDEO_HEIGHT)
+                && (videoSize.getWidth()
+                        != DeviceConfiguration.DEFAULT_VIDEO_WIDTH))
+            sizeCombo.setSelectedItem(deviceConfig.getVideoSize());
         else
             sizeCombo.setSelectedIndex(0);
         sizeCombo.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                Dimension selectedResolution =
-                    (Dimension)sizeCombo.getSelectedItem();
-                if(selectedResolution == null)
+                Dimension selectedVideoSize
+                    = (Dimension) sizeCombo.getSelectedItem();
+
+                if(selectedVideoSize == null)
                 {
                     // the auto value, default one
-                    selectedResolution = new Dimension(
-                        DeviceConfiguration.DEFAULT_VIDEO_WIDTH,
-                        DeviceConfiguration.DEFAULT_VIDEO_HEIGHT);
+                    selectedVideoSize
+                        = new Dimension(
+                                DeviceConfiguration.DEFAULT_VIDEO_WIDTH,
+                                DeviceConfiguration.DEFAULT_VIDEO_HEIGHT);
                 }
-
-                deviceConfig.setResolution(selectedResolution);
+                deviceConfig.setVideoSize(selectedVideoSize);
 
                 videoDeviceInPreview = null;
                 videoDeviceChangeListener.actionPerformed(null);
@@ -823,6 +807,14 @@ public class MediaConfiguration
         extends DefaultListCellRenderer
     {
         /**
+         * The serialization version number of the
+         * <tt>ResolutionCellRenderer</tt> class. Defined to the value of
+         * <tt>0</tt> because the <tt>ResolutionCellRenderer</tt> instances do
+         * not have state of their own.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
          * Sets readable text describing the resolution if the selected
          * value is null we return the string "Auto".
          *
@@ -833,6 +825,7 @@ public class MediaConfiguration
          * @param cellHasFocus
          * @return
          */
+        @Override
         public Component getListCellRendererComponent(
             JList list,
             Object value,
@@ -842,19 +835,21 @@ public class MediaConfiguration
         {
             // call super to set backgrounds and fonts
             super.getListCellRendererComponent(
-                list, value, index, isSelected, cellHasFocus);
+                    list,
+                    value,
+                    index,
+                    isSelected,
+                    cellHasFocus);
 
             // now just change the text
             if(value == null)
-            {
                 setText("Auto");
-            }
             else if(value instanceof Dimension)
             {
                 Dimension d = (Dimension)value;
-                setText((int)d.getWidth() + "x" + (int)d.getHeight());
-            }
 
+                setText(((int) d.getWidth()) + "x" + ((int) d.getHeight()));
+            }
             return this;
         }
     }

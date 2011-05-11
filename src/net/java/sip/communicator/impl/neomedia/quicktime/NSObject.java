@@ -11,13 +11,13 @@ package net.java.sip.communicator.impl.neomedia.quicktime;
  * inherit a basic interface to the runtime system and the ability to behave as
  * Objective-C objects.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class NSObject
 {
     static
     {
-        System.loadLibrary("jquicktime");
+        System.loadLibrary("jnquicktime");
     }
 
     /**

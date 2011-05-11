@@ -16,6 +16,7 @@ import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.quicktime.*;
@@ -28,7 +29,7 @@ import net.java.sip.communicator.util.*;
  * @author Lyubomir Marinov
  */
 public class DataSource
-    extends AbstractPushBufferCaptureDevice
+    extends AbstractVideoPushBufferCaptureDevice
 {
 
     /**
@@ -36,18 +37,6 @@ public class DataSource
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(DataSource.class);
-
-    /**
-     * The default width of <tt>DataSource</tt> when the associated
-     * <tt>QTCaptureDevice</tt> does not report the actual width.
-     */
-    static final int DEFAULT_WIDTH = 640;
-
-    /**
-     * The default height of <tt>DataSource</tt> when the associated
-     * <tt>QTCaptureDevice</tt> does not report the actual height.
-     */
-    static final int DEFAULT_HEIGHT = 480;
 
     /**
      * The <tt>QTCaptureSession</tt> which captures from {@link #device} and
@@ -87,6 +76,106 @@ public class DataSource
     }
 
     /**
+     * Overrides
+     * {@link AbstractVideoPushBufferCaptureDevice#createFrameRateControl()} to
+     * provide a <tt>FrameRateControl</tt> which gets and sets the frame rate of
+     * the <tt>QTCaptureDecompressedVideoOutput</tt> represented by the
+     * <tt>QuickTimeStream</tt> made available by this <tt>DataSource</tt>.
+     *
+     * {@inheritDoc}
+     * @see AbstractVideoPushBufferCaptureDevice#createFrameRateControl()
+     */
+    @Override
+    protected FrameRateControl createFrameRateControl()
+    {
+        return
+            new FrameRateControlAdapter()
+            {
+                /**
+                 * The output frame rate to be managed by this
+                 * <tt>FrameRateControl</tt> when there is no
+                 * <tt>QuickTimeStream</tt> to delegate to.
+                 */
+                private float frameRate = -1;
+
+                @Override
+                public float getFrameRate()
+                {
+                    float frameRate = -1;
+                    boolean frameRateFromQuickTimeStream = false;
+
+                    synchronized (getStreamSyncRoot())
+                    {
+                        Object[] streams = streams();
+
+                        if ((streams != null) && (streams.length != 0))
+                        {
+                            for (Object stream : streams)
+                            {
+                                QuickTimeStream quickTimeStream
+                                    = (QuickTimeStream) stream;
+
+                                if (quickTimeStream != null)
+                                {
+                                    frameRate = quickTimeStream.getFrameRate();
+                                    frameRateFromQuickTimeStream = true;
+                                    if (frameRate != -1)
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    return
+                        frameRateFromQuickTimeStream
+                            ? frameRate
+                            : this.frameRate;
+                }
+
+                @Override
+                public float setFrameRate(float frameRate)
+                {
+                    float setFrameRate = -1;
+                    boolean frameRateFromQuickTimeStream = false;
+
+                    synchronized (getStreamSyncRoot())
+                    {
+                        Object[] streams = streams();
+
+                        if ((streams != null) && (streams.length != 0))
+                        {
+                            for (Object stream : streams)
+                            {
+                                QuickTimeStream quickTimeStream
+                                    = (QuickTimeStream) stream;
+
+                                if (quickTimeStream != null)
+                                {
+                                    float quickTimeStreamFrameRate
+                                        = quickTimeStream.setFrameRate(
+                                                frameRate);
+
+                                    if (quickTimeStreamFrameRate != -1)
+                                    {
+                                        setFrameRate
+                                            = quickTimeStreamFrameRate;
+                                    }
+                                    frameRateFromQuickTimeStream = true;
+                                }
+                            }
+                        }
+                    }
+                    if (frameRateFromQuickTimeStream)
+                        return setFrameRate;
+                    else
+                    {
+                        this.frameRate = frameRate;
+                        return this.frameRate;
+                    }
+                }
+            };
+    }
+
+    /**
      * Creates a new <tt>PushBufferStream</tt> which is to be at a specific
      * zero-based index in the list of streams of this
      * <tt>PushBufferDataSource</tt>. The <tt>Format</tt>-related information of
@@ -107,7 +196,7 @@ public class DataSource
             int streamIndex,
             FormatControl formatControl)
     {
-        QuickTimeStream stream = new QuickTimeStream(formatControl);
+        QuickTimeStream stream = new QuickTimeStream(this, formatControl);
 
         if (captureSession != null)
             try
@@ -253,80 +342,6 @@ public class DataSource
     }
 
     /**
-     * Gets the <tt>Format</tt> to be reported by the <tt>FormatControl</tt> of
-     * a <tt>PushBufferStream</tt> at a specific zero-based index in the list of
-     * streams of this <tt>PushBufferDataSource</tt>. The
-     * <tt>PushBufferStream</tt> may not exist at the time of requesting its
-     * <tt>Format</tt>.
-     *
-     * @param streamIndex the zero-based index of the <tt>PushBufferStream</tt>
-     * the <tt>Format</tt> of which is to be retrieved
-     * @param oldValue the last-known <tt>Format</tt> for the
-     * <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt>
-     * @return the <tt>Format</tt> to be reported by the <tt>FormatControl</tt>
-     * of the <tt>PushBufferStream</tt> at the specified <tt>streamIndex</tt> in
-     * the list of streams of this <tt>PushBufferDataSource</tt>
-     * @see AbstractPushBufferCaptureDevice#getFormat(int, Format)
-     */
-    @Override
-    protected Format getFormat(int streamIndex, Format oldValue)
-    {
-        Format format = super.getFormat(streamIndex, oldValue);
-
-        if (format instanceof VideoFormat)
-        {
-            VideoFormat videoFormat = (VideoFormat) format;
-            Dimension size = videoFormat.getSize();
-
-            if (size == null)
-            {
-                QTFormatDescription[] formatDescriptions
-                    = device.formatDescriptions();
-
-                if ((formatDescriptions != null)
-                        && (streamIndex < formatDescriptions.length))
-                {
-                    size
-                        = formatDescriptions[streamIndex]
-                            .sizeForKey(
-                                QTFormatDescription
-                                    .VideoEncodedPixelsSizeAttribute);
-                    if (size != null)
-                    {
-                        /*
-                         * If the actual capture device reports too small a
-                         * resolution, we end up using it while it can actually
-                         * be set to one with better quality. We've decided that
-                         * DEFAULT_WIDTH and DEFAULT_HEIGHT make sense as the
-                         * minimum resolution to request from the capture
-                         * device.
-                         */
-                        if ((size.width < DEFAULT_WIDTH)
-                                && (size.height < DEFAULT_HEIGHT))
-                        {
-                            double ratio = size.height / (double) size.width;
-
-                            size.width = DEFAULT_WIDTH;
-                            size.height = (int) (size.width * ratio);
-                        }
-
-                        format
-                            = format
-                                .intersects(
-                                    new VideoFormat(
-                                            format.getEncoding(),
-                                            size,
-                                            videoFormat.getMaxDataLength(),
-                                            format.getDataType(),
-                                            videoFormat.getFrameRate()));
-                    }
-                }
-            }
-        }
-        return format;
-    }
-
-    /**
      * Gets the <tt>Format</tt>s which are to be reported by a
      * <tt>FormatControl</tt> as supported formats for a
      * <tt>PushBufferStream</tt> at a specific zero-based index in the list of
@@ -373,19 +388,6 @@ public class DataSource
 
             if (genericVideoFormat.getSize() == null)
             {
-//                specificFormats
-//                    .add(
-//                        genericFormat
-//                            .intersects(
-//                                new VideoFormat(
-//                                        null,
-//                                        new Dimension(
-//                                                DEFAULT_WIDTH,
-//                                                DEFAULT_HEIGHT),
-//                                        Format.NOT_SPECIFIED,
-//                                        null,
-//                                        Format.NOT_SPECIFIED)));
-
                 @SuppressWarnings("unchecked")
                 Vector<String> codecs
                     = PlugInManager
@@ -468,36 +470,9 @@ public class DataSource
             int streamIndex,
             Format oldValue, Format newValue)
     {
-        /*
-         * A resolution that is too small will yield bad image quality. We've
-         * decided that DEFAULT_WIDTH and DEFAULT_HEIGHT make sense as the
-         * minimum resolution to request from the capture device.
-         */
         if (newValue instanceof VideoFormat)
         {
-            VideoFormat newVideoFormatValue = (VideoFormat) newValue;
-            Dimension newSize = newVideoFormatValue.getSize();
-
-            if ((newSize != null)
-                    && (newSize.width < DEFAULT_WIDTH)
-                    && (newSize.height < DEFAULT_HEIGHT))
-            {
-                String encoding = newVideoFormatValue.getEncoding();
-                Class<?> dataType = newVideoFormatValue.getDataType();
-                float frameRate = newVideoFormatValue.getFrameRate();
-
-                newSize = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-                newValue
-                    = ((Format) newVideoFormatValue.clone())
-                        .relax()
-                            .intersects(
-                                new VideoFormat(
-                                        encoding,
-                                        newSize,
-                                        Format.NOT_SPECIFIED,
-                                        dataType,
-                                        frameRate));
-            }
+            // This DataSource supports setFormat.
             return newValue;
         }
         else

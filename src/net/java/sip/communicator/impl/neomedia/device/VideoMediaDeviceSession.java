@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Extends <tt>MediaDeviceSession</tt> to add video-specific functionality.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
 public class VideoMediaDeviceSession
@@ -150,36 +150,45 @@ public class VideoMediaDeviceSession
         {
             MediaLocator locator = captureDevice.getLocator();
             String protocol = (locator == null) ? null : locator.getProtocol();
+            float frameRate;
+            DeviceConfiguration deviceConfig
+                = NeomediaActivator
+                    .getMediaServiceImpl()
+                        .getDeviceConfiguration();
 
-            /*
-             * We'll probably have the frame size, frame size and such quality
-             * and/or bandwidth preferences controlled by the user (e.g. through
-             * a dumbed down present scale). But for now we try to make sure
-             * that our codecs are as generic as possible and we select the
-             * default preset here.
-             */
+            // Apply the video size and the frame rate configured by the user.
             if (ImageStreamingAuto.LOCATOR_PROTOCOL.equals(protocol))
             {
                 /*
                  * It is not clear at this time what the default frame rate for
-                 * desktop streaming should be but at least we establish that it
-                 * is good to have a control from the outside rather than have a
-                 * hardcoded value in the imgstreaming CaptureDevice.
+                 * desktop streaming should be.
                  */
-                FrameRateControl frameRateControl
-                    = (FrameRateControl)
-                        captureDevice.getControl(
-                                FrameRateControl.class.getName());
-                float defaultFrameRate = 10;
-
-                if ((frameRateControl != null)
-                        && (defaultFrameRate
-                                <= frameRateControl.getMaxSupportedFrameRate()))
-                    frameRateControl.setFrameRate(defaultFrameRate);
+                frameRate = 10;
             }
             else
             {
-                VideoMediaStreamImpl.selectVideoSize(captureDevice, 640, 480);
+                Dimension videoSize = deviceConfig.getVideoSize();
+
+                VideoMediaStreamImpl.selectVideoSize(
+                        captureDevice,
+                        videoSize.width, videoSize.height);
+
+                frameRate = deviceConfig.getFrameRate();
+            }
+
+            FrameRateControl frameRateControl
+                = (FrameRateControl)
+                    captureDevice.getControl(FrameRateControl.class.getName());
+
+            if (frameRateControl != null)
+            {
+                float maxSupportedFrameRate
+                    = frameRateControl.getMaxSupportedFrameRate();
+
+                if ((maxSupportedFrameRate > 0)
+                        && (frameRate > maxSupportedFrameRate))
+                    frameRate = maxSupportedFrameRate;
+                frameRateControl.setFrameRate(frameRate);
             }
 
             /*
@@ -188,8 +197,8 @@ public class VideoMediaDeviceSession
              */
             if (!(captureDevice instanceof PullBufferDataSource))
             {
-                DataSource cloneableDataSource =
-                    Manager.createCloneableDataSource(captureDevice);
+                DataSource cloneableDataSource
+                    = Manager.createCloneableDataSource(captureDevice);
 
                 if (cloneableDataSource != null)
                     captureDevice = cloneableDataSource;

@@ -29,7 +29,7 @@ import net.java.sip.communicator.util.*;
  * @author Sebastien Vincent
  */
 public class DataSource
-    extends AbstractPushBufferCaptureDevice
+    extends AbstractVideoPushBufferCaptureDevice
 {
     /**
      * The <tt>Logger</tt> used by the <tt>DataSource</tt> class and its
@@ -80,16 +80,6 @@ public class DataSource
                     DSFormat.I420,
                     FFmpeg.PIX_FMT_YUV420P,
                 };
-
-    /**
-     * The default width of <tt>DataSource</tt>.
-     */
-    static final int DEFAULT_WIDTH = 640;
-
-    /**
-     * The default height of <tt>DataSource</tt>.
-     */
-    static final int DEFAULT_HEIGHT = 480;
 
     /**
      * Last known native DirectShow format.
@@ -205,18 +195,20 @@ public class DataSource
             int streamIndex,
             FormatControl formatControl)
     {
-        DirectShowStream stream = new DirectShowStream(formatControl);
+        DirectShowStream stream = new DirectShowStream(this, formatControl);
 
-        /*
-        DSFormat deviceFmts[] = device.getSupportedFormats();
-
-        for (DSFormat deviceFmt : deviceFmts)
+        if (logger.isTraceEnabled())
         {
-            System.out.println(
-                    deviceFmt.getWidth() + " " + deviceFmt.getHeight() + "  "
-                        + deviceFmt.getPixelFormat());
+            DSFormat deviceFmts[] = device.getSupportedFormats();
+
+            for (DSFormat deviceFmt : deviceFmts)
+            {
+                logger.trace(
+                        "width= " + deviceFmt.getWidth()
+                            + ", height= " + deviceFmt.getHeight()
+                            + ", pixelFormat= " + deviceFmt.getPixelFormat());
+            }
         }
-        */
 
         grabber = stream.grabber;
 
@@ -287,37 +279,8 @@ public class DataSource
             int streamIndex,
             Format oldValue, Format newValue)
     {
-        /*
-         * A resolution that is too small will yield bad image quality. We've
-         * decided that DEFAULT_WIDTH and DEFAULT_HEIGHT make sense as the
-         * minimum resolution to request from the capture device.
-         */
         if(newValue instanceof VideoFormat)
         {
-            VideoFormat newVideoFormatValue = (VideoFormat) newValue;
-            Dimension newSize = newVideoFormatValue.getSize();
-
-            if((newSize != null)
-                    && (newSize.width < DEFAULT_WIDTH)
-                    && (newSize.height < DEFAULT_HEIGHT))
-            {
-                String encoding = newVideoFormatValue.getEncoding();
-                Class<?> dataType = newVideoFormatValue.getDataType();
-                float frameRate = newVideoFormatValue.getFrameRate();
-
-                newSize = new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-                newValue
-                    = ((Format) newVideoFormatValue.clone())
-                        .relax()
-                            .intersects(
-                                new VideoFormat(
-                                        encoding,
-                                        newSize,
-                                        Format.NOT_SPECIFIED,
-                                        dataType,
-                                        frameRate));
-            }
-
             if(newValue instanceof AVFrameFormat)
             {
                 AVFrameFormat newAVFrameFormatValue
@@ -326,6 +289,8 @@ public class DataSource
 
                 if(pixelFormat != -1)
                 {
+                    Dimension size = newAVFrameFormatValue.getSize();
+
                     /*
                      * We will set the native format in doStart() because a
                      * connect-disconnect-connect sequence of the native
@@ -336,11 +301,12 @@ public class DataSource
                      */
                     nativeFormat
                         = new DSFormat(
-                                newSize.width, newSize.height,
+                                size.width, size.height,
                                 pixelFormat);
                 }
             }
 
+            // This DataSource supports setFormat.
             return newValue;
         }
         else

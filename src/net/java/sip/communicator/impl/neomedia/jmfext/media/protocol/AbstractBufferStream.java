@@ -30,7 +30,8 @@ abstract class AbstractBufferStream
      * The <tt>Logger</tt> used by the <tt>AbstractBufferStream</tt> class and
      * its instances.
      */
-    private static final Logger logger = Logger.getLogger(AbstractBufferStream.class);
+    private static final Logger logger
+        = Logger.getLogger(AbstractBufferStream.class);
 
     /**
      * The (default) <tt>ContentDescriptor</tt> of the
@@ -40,22 +41,33 @@ abstract class AbstractBufferStream
         = new ContentDescriptor(ContentDescriptor.RAW);
 
     /**
+     * The <tt>DataSource</tt> which has created this instance and which
+     * contains it as one of its <tt>streams</tt>.
+     */
+    protected final DataSource dataSource;
+
+    /**
      * The <tt>FormatControl</tt> which gives access to the <tt>Format</tt> of
      * the media data provided by this <tt>SourceStream</tt> and which,
      * optionally, allows setting it.
      */
-    private final FormatControl formatControl;
+    protected final FormatControl formatControl;
 
     /**
      * Initializes a new <tt>AbstractBufferStream</tt> instance which is to have
      * its <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
      *
+     * @param dataSource the <tt>DataSource</tt> which is creating the new
+     * instance so that it becomes one of its <tt>streams</tt>
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
      */
-    protected AbstractBufferStream(FormatControl formatControl)
+    protected AbstractBufferStream(
+            DataSource dataSource,
+            FormatControl formatControl)
     {
+        this.dataSource = dataSource;
         this.formatControl = formatControl;
     }
 

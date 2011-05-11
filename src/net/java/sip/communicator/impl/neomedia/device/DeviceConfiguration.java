@@ -258,21 +258,21 @@ public class DeviceConfiguration
     public static final int DEFAULT_VIDEO_HEIGHT = 480;
 
     /**
-     * Property we use to store video settings - width.
+     * The name of the property which specifies the height of the video.
      */
-    private static final String PROP_VIDEO_RESOLUTION_WIDTH =
-        "net.java.sip.communicator.impl.neomedia.video.resolution.width";
+    private static final String PROP_VIDEO_HEIGHT =
+        "net.java.sip.communicator.impl.neomedia.video.height";
 
     /**
-     * Property we use to store video settings - height.
+     * The name of the property which specifies the width of the video.
      */
-    private static final String PROP_VIDEO_RESOLUTION_HEIGHT =
-        "net.java.sip.communicator.impl.neomedia.video.resolution.height";
+    private static final String PROP_VIDEO_WIDTH =
+        "net.java.sip.communicator.impl.neomedia.video.width";
 
     /**
      * The current resolution settings.
      */
-    private Dimension resolution = null;
+    private Dimension videoSize;
 
     /**
      * The currently supported resolutions we will show as option
@@ -1239,131 +1239,121 @@ public class DeviceConfiguration
     }
 
     /**
-     * Returns the currently set video maximum bandwidth allowed or the
-     * default value.
-     * @return the currently set video maximum bandwidth allowed or the
-     * default value.
+     * Gets the maximum allowed video bandwidth.
+     *
+     * @return the maximum allowed video bandwidth. The default value is
+     * {@link #DEFAULT_VIDEO_MAX_BANDWIDTH}.
      */
     public int getVideoMaxBandwidth()
     {
         if(videoMaxBandwidth == -1)
         {
-            videoMaxBandwidth =
-                NeomediaActivator.getConfigurationService().getInt(
-                    PROP_VIDEO_MAX_BANDWIDTH,
-                    DEFAULT_VIDEO_MAX_BANDWIDTH
-                );
+            videoMaxBandwidth
+                = NeomediaActivator.getConfigurationService().getInt(
+                        PROP_VIDEO_MAX_BANDWIDTH,
+                        DEFAULT_VIDEO_MAX_BANDWIDTH);
         }
-
         return videoMaxBandwidth;
     }
 
     /**
      * Sets and stores the maximum allowed video bandwidth.
-     * @param videoMaxBandwidth
+     *
+     * @param videoMaxBandwidth the maximum allowed video bandwidth
      */
     public void setVideoMaxBandwidth(int videoMaxBandwidth)
     {
         this.videoMaxBandwidth = videoMaxBandwidth;
 
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+
         if(videoMaxBandwidth != DEFAULT_VIDEO_MAX_BANDWIDTH)
-        {
-            NeomediaActivator.getConfigurationService().setProperty(
-                PROP_VIDEO_MAX_BANDWIDTH, videoMaxBandwidth);
-        }
+            cfg.setProperty(PROP_VIDEO_MAX_BANDWIDTH, videoMaxBandwidth);
         else
-        {
-            NeomediaActivator.getConfigurationService().removeProperty(
-                PROP_VIDEO_MAX_BANDWIDTH);
-        }
+            cfg.removeProperty(PROP_VIDEO_MAX_BANDWIDTH);
     }
 
     /**
-     * Returns the frame rate setting or the default value.
-     * @return the frame rate setting or the default value.
+     * Gets the frame rate set on this <tt>DeviceConfiguration</tt>.
+     *
+     * @return the frame rate set on this <tt>DeviceConfiguration</tt>. The
+     * default value is {@link #DEFAULT_FRAME_RATE}
      */
     public int getFrameRate()
     {
         if(frameRate == -1)
         {
-            frameRate =
-                NeomediaActivator.getConfigurationService().getInt(
-                    PROP_VIDEO_FRAMERATE,
-                    DEFAULT_FRAME_RATE
-                );
+            frameRate
+                = NeomediaActivator.getConfigurationService().getInt(
+                        PROP_VIDEO_FRAMERATE,
+                        DEFAULT_FRAME_RATE);
         }
-
         return frameRate;
     }
 
     /**
      * Sets and stores the frame rate.
-     * @param frameRate the new frame rate value.
+     *
+     * @param frameRate the frame rate to be set on this
+     * <tt>DeviceConfiguration</tt>
      */
     public void setFrameRate(int frameRate)
     {
         this.frameRate = frameRate;
 
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+
         if(frameRate != DEFAULT_FRAME_RATE)
-        {
-            NeomediaActivator.getConfigurationService().setProperty(
-                PROP_VIDEO_FRAMERATE, frameRate);
-        }
+            cfg.setProperty(PROP_VIDEO_FRAMERATE, frameRate);
         else
-        {
-            NeomediaActivator.getConfigurationService().removeProperty(
-                PROP_VIDEO_FRAMERATE);
-        }
+            cfg.removeProperty(PROP_VIDEO_FRAMERATE);
     }
 
     /**
-     * Returns the current resolution setting or the default one.
-     * @return the current resolution setting or the default one.
+     * Gets the video size set on this <tt>DeviceConfiguration</tt>.
+     *
+     * @return the video size set on this <tt>DeviceConfiguration</tt>
      */
-    public Dimension getResolution()
+    public Dimension getVideoSize()
     {
-        if(resolution == null)
+        if(videoSize == null)
         {
-            int height = NeomediaActivator.getConfigurationService().getInt(
-                    PROP_VIDEO_RESOLUTION_HEIGHT,
-                    DEFAULT_VIDEO_HEIGHT
-                );
-            int width = NeomediaActivator.getConfigurationService().getInt(
-                    PROP_VIDEO_RESOLUTION_WIDTH,
-                    DEFAULT_VIDEO_WIDTH
-                );
+            ConfigurationService cfg
+                = NeomediaActivator.getConfigurationService();
+            int height = cfg.getInt(PROP_VIDEO_HEIGHT, DEFAULT_VIDEO_HEIGHT);
+            int width = cfg.getInt(PROP_VIDEO_WIDTH, DEFAULT_VIDEO_WIDTH);
 
-            resolution = new Dimension(width, height);
+            videoSize = new Dimension(width, height);
         }
-
-        return resolution;
+        return videoSize;
     }
 
     /**
-     * Sets and stores new resolution setting.
-     * @param resolution the new resolution value.
+     * Sets and stores the video size.
+     *
+     * @param videoSize the video size to be set on this
+     * <tt>DeviceConfiguration</tt>
      */
-    public void setResolution(Dimension resolution)
+    public void setVideoSize(Dimension videoSize)
     {
-        if(resolution.getWidth() != DEFAULT_VIDEO_WIDTH
-            && resolution.getHeight() != DEFAULT_VIDEO_HEIGHT)
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+
+        if((videoSize.getHeight() != DEFAULT_VIDEO_HEIGHT)
+                || (videoSize.getWidth() != DEFAULT_VIDEO_WIDTH))
         {
-            NeomediaActivator.getConfigurationService().setProperty(
-                PROP_VIDEO_RESOLUTION_WIDTH, resolution.width);
-            NeomediaActivator.getConfigurationService().setProperty(
-                PROP_VIDEO_RESOLUTION_HEIGHT, resolution.height);
+            cfg.setProperty(PROP_VIDEO_HEIGHT, videoSize.height);
+            cfg.setProperty(PROP_VIDEO_WIDTH, videoSize.width);
         }
         else
         {
-            NeomediaActivator.getConfigurationService().removeProperty(
-                PROP_VIDEO_RESOLUTION_HEIGHT);
-            NeomediaActivator.getConfigurationService().removeProperty(
-                PROP_VIDEO_RESOLUTION_WIDTH);
+            cfg.removeProperty(PROP_VIDEO_HEIGHT);
+            cfg.removeProperty(PROP_VIDEO_WIDTH);
         }
 
-        this.resolution = resolution;
+        this.videoSize = videoSize;
 
-        firePropertyChange(VIDEO_CAPTURE_DEVICE,
-            videoCaptureDevice, videoCaptureDevice);
+        firePropertyChange(
+                VIDEO_CAPTURE_DEVICE,
+                videoCaptureDevice, videoCaptureDevice);
     }
 }

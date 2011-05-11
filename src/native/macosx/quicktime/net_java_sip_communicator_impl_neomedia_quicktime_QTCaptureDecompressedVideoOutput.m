@@ -49,6 +49,24 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVide
     return (jlong) captureDecompressedVideoOutput;
 }
 
+JNIEXPORT jdouble JNICALL
+Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVideoOutput_minimumVideoFrameInterval
+    (JNIEnv *jniEnv, jclass clazz, jlong ptr)
+{
+    QTCaptureDecompressedVideoOutput *captureDecompressedVideoOutput;
+    NSAutoreleasePool *autoreleasePool;
+    NSTimeInterval minimumVideoFrameInterval;
+
+    captureDecompressedVideoOutput = (QTCaptureDecompressedVideoOutput *) ptr;
+    autoreleasePool = [[NSAutoreleasePool alloc] init];
+
+    minimumVideoFrameInterval
+        = [captureDecompressedVideoOutput minimumVideoFrameInterval];
+
+    [autoreleasePool release];
+    return (jdouble) minimumVideoFrameInterval;
+}
+
 JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVideoOutput_pixelBufferAttributes
     (JNIEnv *jniEnv, jclass clazz, jlong ptr)
@@ -122,6 +140,22 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVide
         if (oPrevDelegate)
             [oPrevDelegate release];
     }
+
+    [autoreleasePool release];
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_quicktime_QTCaptureDecompressedVideoOutput_setMinimumVideoFrameInterval
+    (JNIEnv *jniEnv, jclass clazz, jlong ptr, jdouble minimumVideoFrameInterval)
+{
+    QTCaptureDecompressedVideoOutput *captureDecompressedVideoOutput;
+    NSAutoreleasePool *autoreleasePool;
+
+    captureDecompressedVideoOutput = (QTCaptureDecompressedVideoOutput *) ptr;
+    autoreleasePool = [[NSAutoreleasePool alloc] init];
+
+    [captureDecompressedVideoOutput
+	    setMinimumVideoFrameInterval:(NSTimeInterval)minimumVideoFrameInterval];
 
     [autoreleasePool release];
 }

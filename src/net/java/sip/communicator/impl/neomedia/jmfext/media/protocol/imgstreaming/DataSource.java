@@ -103,7 +103,7 @@ public class DataSource
             index = Integer.parseInt(remainder);
         }
 
-        ImageStream stream = new ImageStream(formatControl);
+        ImageStream stream = new ImageStream(this, formatControl);
 
         stream.setDisplayIndex(index);
         stream.setOrigin(x, y);

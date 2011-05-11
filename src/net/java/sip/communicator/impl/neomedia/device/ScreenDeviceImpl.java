@@ -20,7 +20,7 @@ public class ScreenDeviceImpl implements ScreenDevice
     /**
      * AWT <tt>GraphicsDevice</tt>.
      */
-    GraphicsDevice screen = null;
+    final GraphicsDevice screen;
 
     /**
      * Screen index.
@@ -50,16 +50,12 @@ public class ScreenDeviceImpl implements ScreenDevice
         }
 
         if(ge == null)
-        {
             return null;
-        }
 
         devices = ge.getScreenDevices();
 
         if(devices == null || devices.length == 0)
-        {
             return null;
-        }
 
         screens = new ScreenDevice[devices.length];
 
@@ -76,7 +72,7 @@ public class ScreenDeviceImpl implements ScreenDevice
     /**
      * Constructor.
      *
-     * @param number screen index
+     * @param index screen index
      * @param screen screen device
      */
     protected ScreenDeviceImpl(int index, GraphicsDevice screen)
@@ -105,11 +101,10 @@ public class ScreenDeviceImpl implements ScreenDevice
         /* get current display resolution */
         DisplayMode mode = screen.getDisplayMode();
 
-        if(mode != null)
-        {
-            return new Dimension(mode.getWidth(), mode.getHeight());
-        }
-        return null;
+        return
+            (mode == null)
+                ? null
+                : new Dimension(mode.getWidth(), mode.getHeight());
     }
 
     /**
@@ -130,15 +125,7 @@ public class ScreenDeviceImpl implements ScreenDevice
      */
     public boolean containsPoint(Point p)
     {
-        GraphicsConfiguration config = screen.getDefaultConfiguration();
-        Rectangle bounds = config.getBounds();
-
-        if(bounds.contains(p))
-        {
-            return true;
-        }
-
-        return false;
+        return screen.getDefaultConfiguration().getBounds().contains(p);
     }
 
     /**
@@ -148,7 +135,6 @@ public class ScreenDeviceImpl implements ScreenDevice
      */
     public Rectangle getBounds()
     {
-        GraphicsConfiguration config = screen.getDefaultConfiguration();
-        return config.getBounds();
+        return screen.getDefaultConfiguration().getBounds();
     }
 }

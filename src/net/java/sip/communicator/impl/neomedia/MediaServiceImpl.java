@@ -32,7 +32,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * Implements <tt>MediaService</tt> for JMF.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Dmitri Melnikov
  */
 public class MediaServiceImpl
@@ -711,14 +711,17 @@ public class MediaServiceImpl
 
         try
         {
-            if (device == null ||
-                    ((MediaDeviceImpl)device).getCaptureDeviceInfo() == null)
-            {
-                return videoContainer;
-            }
+            CaptureDeviceInfo captureDeviceInfo;
 
-            DataSource dataSource = Manager.createDataSource(
-                ((MediaDeviceImpl)device).getCaptureDeviceInfo().getLocator());
+            if ((device == null) ||
+                    ((captureDeviceInfo
+                                = ((MediaDeviceImpl)device)
+                                    .getCaptureDeviceInfo())
+                            == null))
+                return videoContainer;
+
+            DataSource dataSource
+                = Manager.createDataSource(captureDeviceInfo.getLocator());
 
             /*
              * Don't let the size be uselessly small just because the
@@ -736,9 +739,8 @@ public class MediaServiceImpl
             // A Player is documented to be created on a connected DataSource.
             dataSource.connect();
 
-            final MediaLocator locator = dataSource.getLocator();
-
             Processor player = Manager.createProcessor(dataSource);
+            final MediaLocator locator = dataSource.getLocator();
 
             player.addControllerListener(new ControllerListener()
             {
@@ -1123,9 +1125,10 @@ public class MediaServiceImpl
     }
 
     /**
-     * Get origin for desktop streaming device.
+     * Gets the origin of a specific desktop streaming device.
      *
-     * @param mediaDevice media device
+     * @param mediaDevice the desktop streaming device to get the origin on
+     * @return the origin of the specified desktop streaming device
      */
     public Point getOriginForDesktopStreamingDevice(MediaDevice mediaDevice)
     {
@@ -1133,11 +1136,8 @@ public class MediaServiceImpl
         CaptureDeviceInfo devInfo = dev.getCaptureDeviceInfo();
         MediaLocator locator = devInfo.getLocator();
 
-        if(!locator.getProtocol().
-                equals(ImageStreamingAuto.LOCATOR_PROTOCOL))
-        {
+        if(!locator.getProtocol().equals(ImageStreamingAuto.LOCATOR_PROTOCOL))
             return null;
-        }
 
         String remainder = locator.getRemainder();
         String split[] = remainder.split(",");

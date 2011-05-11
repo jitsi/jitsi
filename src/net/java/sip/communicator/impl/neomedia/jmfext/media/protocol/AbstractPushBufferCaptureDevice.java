@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol;
 
 import java.io.*;
-import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -69,6 +68,21 @@ public abstract class AbstractPushBufferCaptureDevice
                         return
                             AbstractPushBufferCaptureDevice.this
                                     .getCaptureDeviceInfo();
+                    }
+
+                    /**
+                     * Overrides
+                     * {@link AbstractBufferCaptureDevice#getControls()} to add
+                     * controls specific to this
+                     * <tt>AbstractPushBufferCaptureDevice</tt>.
+                     *
+                     * {@inheritDoc}
+                     */
+                    @Override
+                    public Object[] getControls()
+                    {
+                        return
+                            AbstractPushBufferCaptureDevice.this.getControls();
                     }
 
                     protected Format getFormat(int streamIndex, Format oldValue)
@@ -229,36 +243,7 @@ public abstract class AbstractPushBufferCaptureDevice
      */
     public CaptureDeviceInfo getCaptureDeviceInfo()
     {
-        return getCaptureDeviceInfo(this);
-    }
-
-    /**
-     * Gets the <tt>CaptureDeviceInfo</tt> of a specific <tt>CaptureDevice</tt>
-     * by locating its registration in JMF using its <tt>MediaLocator</tt>.
-     *
-     * @param captureDevice the <tt>CaptureDevice</tt> to gets the
-     * <tt>CaptureDeviceInfo</tt> of
-     * @return the <tt>CaptureDeviceInfo</tt> of the specified
-     * <tt>CaptureDevice</tt> as registered in JMF
-     */
-    public static CaptureDeviceInfo getCaptureDeviceInfo(
-            DataSource captureDevice)
-    {
-        /*
-         * TODO The implemented search for the CaptureDeviceInfo of this
-         * CaptureDevice by looking for its MediaLocator is inefficient.
-         */
-        @SuppressWarnings("unchecked")
-        Vector<CaptureDeviceInfo> captureDeviceInfos
-            = (Vector<CaptureDeviceInfo>)
-                CaptureDeviceManager.getDeviceList(null);
-        MediaLocator locator = captureDevice.getLocator();
-
-        for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
-            if (captureDeviceInfo.getLocator().toString().equals(
-                    locator.toString()))
-                return captureDeviceInfo;
-        return null;
+        return AbstractBufferCaptureDevice.getCaptureDeviceInfo(this);
     }
 
     /**
@@ -296,7 +281,7 @@ public abstract class AbstractPushBufferCaptureDevice
      */
     public Object[] getControls()
     {
-        return impl.getControls();
+        return impl.defaultGetControls();
     }
 
     /**

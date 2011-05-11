@@ -27,7 +27,7 @@ import net.java.sip.communicator.util.*;
  * Extends <tt>MediaStreamImpl</tt> in order to provide an implementation of
  * <tt>VideoMediaStream</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sébastien Vincent
  */
 public class VideoMediaStreamImpl
@@ -74,8 +74,7 @@ public class VideoMediaStreamImpl
      */
     public static Dimension selectVideoSize(
             DataSource videoDS,
-            final int preferredWidth,
-            final int preferredHeight)
+            final int preferredWidth, final int preferredHeight)
     {
         if (videoDS == null)
             return null;
@@ -161,36 +160,37 @@ public class VideoMediaStreamImpl
                 selectedFormat = infos[0].format;
             }
 
-            // If videoDS states to support any size, use the preferred one.
+            /*
+             * If videoDS states to support any size, use the default size
+             * because we don't know anything about the correctness of the
+             * preferred size.
+             */
             if ((selectedFormat != null)
                     && (selectedFormat.getSize() == null))
             {
                 VideoFormat currentFormat
                     = (VideoFormat) formatControl.getFormat();
+                Dimension currentSize = null;
                 int width = preferredWidth;
                 int height = preferredHeight;
 
                 // Try to preserve the aspect ratio
                 if (currentFormat != null)
+                    currentSize = currentFormat.getSize();
+                if (currentSize == null)
+                    currentSize
+                        = NeomediaActivator
+                            .getMediaServiceImpl()
+                                .getDeviceConfiguration()
+                                    .getVideoSize();
+                if ((currentSize.width > 0) && (currentSize.height > 0))
                 {
-                    Dimension currentSize = currentFormat.getSize();
-
-                    if ((currentSize != null)
-                            && (currentSize.width > 0)
-                            && (currentSize.height > 0))
-                    {
-                        height
-                            = (int)
-                                (width
-                                    * (currentSize.height
-                                        / (double) currentSize.width));
-                    }
+                    width = currentSize.width;
+                    height = currentSize.height;
                 }
-
                 selectedFormat
                     = (VideoFormat)
-                        selectedFormat
-                            .intersects(
+                        selectedFormat.intersects(
                                 new VideoFormat(
                                         null,
                                         new Dimension(width, height),
@@ -234,7 +234,7 @@ public class VideoMediaStreamImpl
      * both capture and playback of video exchanged via the specified
      * <tt>StreamConnector</tt>
      * @param zrtpControl a control which is already created, used to control
-     *        the zrtp operations.
+     * the zrtp operations.
      */
     public VideoMediaStreamImpl(StreamConnector connector, MediaDevice device,
         ZrtpControlImpl zrtpControl)

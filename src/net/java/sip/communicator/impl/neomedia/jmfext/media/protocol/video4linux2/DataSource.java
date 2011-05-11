@@ -24,19 +24,6 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 public class DataSource
     extends AbstractPullBufferCaptureDevice
 {
-
-    /**
-     * The default height to request from Video for Linux Two API Specification
-     * devices.
-     */
-    public static final int DEFAULT_HEIGHT = 480;
-
-    /**
-     * The default width to request from Video for Linux Two API Specification
-     * devices.
-     */
-    public static final int DEFAULT_WIDTH = 640;
-
     /**
      * The map of Video for Linux Two API Specification pixel formats to FFmpeg
      * pixel formats which allows converting between the two.
@@ -100,7 +87,7 @@ public class DataSource
             int streamIndex,
             FormatControl formatControl)
     {
-        return new Video4Linux2Stream(formatControl);
+        return new Video4Linux2Stream(this, formatControl);
     }
 
     /**

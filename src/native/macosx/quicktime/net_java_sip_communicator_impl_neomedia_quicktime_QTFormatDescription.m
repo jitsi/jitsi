@@ -18,7 +18,7 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_QTFormatDescription_sizeF
     (JNIEnv *jniEnv, jclass clazz, jlong ptr, jstring key)
 {
     const char *cKey;
-    jobject size;
+    jobject size = NULL;
 
     cKey = (const char *) (*jniEnv)->GetStringUTFChars(jniEnv, key, NULL);
     if (cKey)
@@ -65,13 +65,9 @@ Java_net_java_sip_communicator_impl_neomedia_quicktime_QTFormatDescription_sizeF
                                 (jint) oSize.height);
             }
         }
-        else
-            size = NULL;
 
         [autoreleasePool release];
     }
-    else
-        size = NULL;
     return size;
 }
 

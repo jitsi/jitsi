@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.util.*;
 
 import javax.media.*;
 import javax.media.Controls; // disambiguation
@@ -260,6 +261,33 @@ public abstract class AbstractBufferCaptureDevice
 
     /**
      * Provides the default implementation of
+     * <tt>AbstractBufferCaptureDevice</tt> for {@link #getControls()}.
+     *
+     * @return an array of <tt>Object</tt>s which represent the controls
+     * available for this instance
+     */
+    final Object[] defaultGetControls()
+    {
+        FormatControl[] formatControls = internalGetFormatControls();
+
+        if ((formatControls == null) || (formatControls.length == 0))
+            return ControlsAdapter.EMPTY_CONTROLS;
+        else
+        {
+            Object[] controls = new Object[formatControls.length];
+
+            System.arraycopy(
+                    formatControls,
+                    0,
+                    controls,
+                    0,
+                    formatControls.length);
+            return controls;
+        }
+    }
+
+    /**
+     * Provides the default implementation of
      * <tt>AbstractBufferCaptureDevice</tt> for {@link #getFormat(int, Format)}.
      *
      * @param streamIndex the zero-based index of the
@@ -385,6 +413,35 @@ public abstract class AbstractBufferCaptureDevice
     public abstract CaptureDeviceInfo getCaptureDeviceInfo();
 
     /**
+     * Gets the <tt>CaptureDeviceInfo</tt> of a specific <tt>CaptureDevice</tt>
+     * by locating its registration in JMF using its <tt>MediaLocator</tt>.
+     *
+     * @param captureDevice the <tt>CaptureDevice</tt> to gets the
+     * <tt>CaptureDeviceInfo</tt> of
+     * @return the <tt>CaptureDeviceInfo</tt> of the specified
+     * <tt>CaptureDevice</tt> as registered in JMF
+     */
+    public static CaptureDeviceInfo getCaptureDeviceInfo(
+            DataSource captureDevice)
+    {
+        /*
+         * TODO The implemented search for the CaptureDeviceInfo of this
+         * CaptureDevice by looking for its MediaLocator is inefficient.
+         */
+        @SuppressWarnings("unchecked")
+        Vector<CaptureDeviceInfo> captureDeviceInfos
+            = (Vector<CaptureDeviceInfo>)
+                CaptureDeviceManager.getDeviceList(null);
+        MediaLocator locator = captureDevice.getLocator();
+
+        for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
+            if (captureDeviceInfo.getLocator().toString().equals(
+                    locator.toString()))
+                return captureDeviceInfo;
+        return null;
+    }
+
+    /**
      * Gets the control of the specified type available for this instance.
      *
      * @param controlType the type of the control available for this instance to
@@ -407,22 +464,7 @@ public abstract class AbstractBufferCaptureDevice
      */
     public Object[] getControls()
     {
-        FormatControl[] formatControls = internalGetFormatControls();
-
-        if ((formatControls == null) || (formatControls.length == 0))
-            return ControlsAdapter.EMPTY_CONTROLS;
-        else
-        {
-            Object[] controls = new Object[formatControls.length];
-
-            System.arraycopy(
-                    formatControls,
-                    0,
-                    controls,
-                    0,
-                    formatControls.length);
-            return controls;
-        }
+        return defaultGetControls();
     }
 
     /**
@@ -483,8 +525,9 @@ public abstract class AbstractBufferCaptureDevice
      * @return an array of the <tt>SourceStream</tt>s through which this
      * <tt>AbstractBufferCaptureDevice</tt> gives access to its media data
      */
-    public synchronized <SourceStreamT> SourceStreamT[] getStreams(
-            Class<SourceStreamT> clz)
+    public synchronized
+        <SourceStreamT extends SourceStream>
+            SourceStreamT[] getStreams(Class<SourceStreamT> clz)
     {
         if (streams == null)
         {

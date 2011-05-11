@@ -89,13 +89,15 @@ public class PortAudioStream
     /**
      * Volume Control used to control volume of current captured media.
      */
-    private GainControl volumeControl = null;
+    private final GainControl volumeControl;
 
     /**
      * Initializes a new <tt>PortAudioStream</tt> instance which is to have its
      * <tt>Format</tt>-related information abstracted by a specific
      * <tt>FormatControl</tt>.
      *
+     * @param dataSource the <tt>DataSource</tt> which is creating the new
+     * instance so that it becomes one of its <tt>streams</tt>
      * @param formatControl the <tt>FormatControl</tt> which is to abstract the
      * <tt>Format</tt>-related information of the new instance
      * @param audioQualityImprovement <tt>true</tt> to enable audio quality
@@ -103,15 +105,17 @@ public class PortAudioStream
      * user or <tt>false</tt> to completely disable audio quality improvement
      */
     public PortAudioStream(
+            DataSource dataSource,
             FormatControl formatControl,
             boolean audioQualityImprovement)
     {
-        super(formatControl);
+        super(dataSource, formatControl);
 
         this.audioQualityImprovement = audioQualityImprovement;
 
-        this.volumeControl = (GainControl)NeomediaActivator
-                    .getMediaServiceImpl().getInputVolumeControl();
+        this.volumeControl
+            = (GainControl)
+                NeomediaActivator.getMediaServiceImpl().getInputVolumeControl();
     }
 
     /**
