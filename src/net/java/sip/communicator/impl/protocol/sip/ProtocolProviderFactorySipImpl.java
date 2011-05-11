@@ -204,6 +204,9 @@ public class ProtocolProviderFactorySipImpl
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, ProtocolNames.SIP);
 
+        // make a backup of the account properties to restore them if a failure
+        // occurs with the new ones
+        Map<String,String> oldAcccountProps = accountID.getAccountProperties();
         accountID.setAccountProperties(accountProperties);
 
         // First store the account and only then load it as the load generates
@@ -220,11 +223,21 @@ public class ProtocolProviderFactorySipImpl
 
         try
         {
-            ((ProtocolProviderServiceSipImpl)protocolProvider)
-                .initialize(userIDStr, accountID);
+            Exception initializationException = null;
+            try
+            {
+                ((ProtocolProviderServiceSipImpl)protocolProvider)
+                    .initialize(userIDStr, accountID);
+            }
+            catch (Exception ex)
+            {
+                initializationException = ex;
+                accountID.setAccountProperties(oldAcccountProps);
+            }
 
             // We store again the account in order to store all properties added
-            // during the protocol provider initialization.
+            // during the protocol provider initialization. Do this even if the
+            // initialization failed - after all we're _modifying_ an account
             this.storeAccount(accountID);
 
             registration
@@ -234,11 +247,13 @@ public class ProtocolProviderFactorySipImpl
                             properties);
 
             registeredAccounts.put(accountID, registration);
+            if (initializationException != null)
+                throw initializationException;
         }
-        catch (OperationFailedException ex)
+        catch (Exception ex)
         {
             logger.error("Failed to initialize account", ex);
-            throw new IllegalArgumentException("Failed to initialize account"
+            throw new IllegalArgumentException("Failed to initialize account. "
                 + ex.getMessage());
         }
     }
