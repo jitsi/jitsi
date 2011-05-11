@@ -246,9 +246,12 @@ public class JabberAccountRegistrationWizard
         ProtocolProviderFactory factory
             = JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
 
-        return this.installAccount(factory,
-                                   userName,
-                                   password);
+        return this.installAccount(
+            factory,
+            registration.getUserID(),  // The user id may get changed.Server
+                                       // part can be added in the data
+                                       // commit.
+            password);
     }
 
     /**
@@ -299,7 +302,8 @@ public class JabberAccountRegistrationWizard
                 String.valueOf(registration.isGoogleContactsEnabled()));
 
         String serverName = null;
-        if (registration.getServerAddress() != null)
+        if (registration.getServerAddress() != null
+            && registration.getServerAddress().length() > 0)
         {
             serverName = registration.getServerAddress();
 
