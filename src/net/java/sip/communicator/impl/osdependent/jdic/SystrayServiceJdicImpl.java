@@ -338,7 +338,7 @@ public class SystrayServiceJdicImpl
         // auto switch to the configured one when it will be available.
         // we will be aware of it since we listen for new registered
         // service in the bundle context.
-        if (activePopupHandler == null)
+        if (activePopupHandler == null && pph != null)
         {
             setActivePopupMessageHandler(pph);
         }
@@ -678,12 +678,14 @@ public class SystrayServiceJdicImpl
                     } else
                         logger.warn("the following popup handler has not " +
                             "been added since it is already known : " + handler);
-                    
+
                     String configuredHandler = (String) configService.
                         getProperty("systray.POPUP_HANDLER");
-                    
-                    if (configuredHandler == null && 
-                        (handler.getPreferenceIndex() > activePopupHandler.getPreferenceIndex()))
+
+                    if (configuredHandler == null
+                        && (activePopupHandler == null
+                            || (handler.getPreferenceIndex()
+                                > activePopupHandler.getPreferenceIndex())))
                     {
                         // The user doesn't have a preferred handler set and new 
                         // handler with better preference index has arrived, 
