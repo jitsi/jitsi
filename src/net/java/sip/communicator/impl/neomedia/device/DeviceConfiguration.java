@@ -226,9 +226,9 @@ public class DeviceConfiguration
     private int frameRate = -1;
 
     /**
-     * The default frame rate.
+     * The default frame rate, -1 unlimited.
      */
-    public static final int DEFAULT_FRAME_RATE = 20;
+    public static final int DEFAULT_FRAME_RATE = -1;
 
     /**
      * The property we use to store the settings for maximum allowed video

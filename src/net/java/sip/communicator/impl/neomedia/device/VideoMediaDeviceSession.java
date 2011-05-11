@@ -188,7 +188,9 @@ public class VideoMediaDeviceSession
                 if ((maxSupportedFrameRate > 0)
                         && (frameRate > maxSupportedFrameRate))
                     frameRate = maxSupportedFrameRate;
-                frameRateControl.setFrameRate(frameRate);
+
+                if(frameRate > 0)
+                    frameRateControl.setFrameRate(frameRate);
             }
 
             /*

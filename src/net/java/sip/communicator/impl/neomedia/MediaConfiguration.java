@@ -674,11 +674,26 @@ public class MediaConfiguration
         final DeviceConfiguration deviceConfig =
             mediaService.getDeviceConfiguration();
 
-        final TransparentPanel centerPanel =
+        TransparentPanel centerPanel =
             new TransparentPanel(new GridBagLayout());
         centerPanel.setMaximumSize(new Dimension(WIDTH, 150));
-        centerPanel.setVisible(false);
-        advancedPanel.add(centerPanel, BorderLayout.CENTER);
+
+        JButton resetDefaultsButton = new JButton(
+            resources.getI18NString(
+                    "impl.media.configform.VIDEO_RESET"));
+        JPanel resetButtonPanel = new TransparentPanel(
+                new FlowLayout(FlowLayout.RIGHT));
+        resetButtonPanel.add(resetDefaultsButton);
+
+        final JPanel centerAdvancedPanel =
+            new TransparentPanel(new BorderLayout());
+        centerAdvancedPanel.add(centerPanel, BorderLayout.CENTER);
+        centerAdvancedPanel.add(resetButtonPanel, BorderLayout.SOUTH);
+        centerAdvancedPanel.setBorder(BorderFactory.createLineBorder(
+                centerAdvancedPanel.getForeground()));
+        centerAdvancedPanel.setVisible(false);
+
+        advancedPanel.add(centerAdvancedPanel, BorderLayout.CENTER);
 
         advButton.addMouseListener(new MouseAdapter()
         {
@@ -687,11 +702,12 @@ public class MediaConfiguration
             {
                 advButton.setIcon(
                         NeomediaActivator.getResources().getImage(
-                                centerPanel.isVisible()
+                                centerAdvancedPanel.isVisible()
                                     ? "service.gui.icons.RIGHT_ARROW_ICON"
                                     : "service.gui.icons.DOWN_ARROW_ICON"));
 
-                centerPanel.setVisible(!centerPanel.isVisible());
+                centerAdvancedPanel.setVisible(
+                        !centerAdvancedPanel.isVisible());
 
                 advancedPanel.revalidate();
 
@@ -703,6 +719,7 @@ public class MediaConfiguration
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.insets = new Insets(5, 5, 0, 0);
         constraints.gridx = 0;
         constraints.weightx = 0;
         constraints.weighty = 0;
@@ -712,10 +729,12 @@ public class MediaConfiguration
             resources.getI18NString("impl.media.configform.VIDEO_RESOLUTION")),
             constraints);
         constraints.gridy = 1;
-        centerPanel.add(new JLabel(
-            resources.getI18NString("impl.media.configform.VIDEO_FRAME_RATE")),
-            constraints);
+        constraints.insets = new Insets(0, 0, 0, 0);
+        final JCheckBox frameRateCheck = new JCheckBox(
+            resources.getI18NString("impl.media.configform.VIDEO_FRAME_RATE"));
+        centerPanel.add(frameRateCheck, constraints);
         constraints.gridy = 2;
+        constraints.insets = new Insets(5, 5, 0, 0);
         centerPanel.add(new JLabel(
             resources.getI18NString(
                     "impl.media.configform.VIDEO_PACKETS_POLICY")),
@@ -724,6 +743,7 @@ public class MediaConfiguration
         constraints.weightx = 1;
         constraints.gridx = 1;
         constraints.gridy = 0;
+        constraints.insets = new Insets(5, 0, 0, 5);
         Object[] resolutionValues
             = new Object[DeviceConfiguration.SUPPORTED_RESOLUTIONS.length + 1];
         System.arraycopy(DeviceConfiguration.SUPPORTED_RESOLUTIONS, 0,
@@ -734,8 +754,9 @@ public class MediaConfiguration
         sizeCombo.setEditable(false);
         centerPanel.add(sizeCombo, constraints);
 
+        // default value is 20
         final JSpinner frameRate = new JSpinner(new SpinnerNumberModel(
-            DeviceConfiguration.DEFAULT_FRAME_RATE, 5, 25, 1));
+            20, 5, 30, 1));
         frameRate.addChangeListener(new ChangeListener()
         {
             public void stateChanged(ChangeEvent e)
@@ -746,11 +767,29 @@ public class MediaConfiguration
             }
         });
         constraints.gridy = 1;
+        constraints.insets = new Insets(0, 0, 0, 5);
         centerPanel.add(frameRate, constraints);
+
+        frameRateCheck.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(frameRateCheck.isSelected())
+                {
+                    deviceConfig.setFrameRate(
+                        ((SpinnerNumberModel)frameRate.getModel())
+                            .getNumber().intValue());
+                }
+                else // unlimited framerate
+                    deviceConfig.setFrameRate(-1);
+
+                frameRate.setEnabled(frameRateCheck.isSelected());
+            }
+        });
 
         final JSpinner videoMaxBandwidth = new JSpinner(new SpinnerNumberModel(
             deviceConfig.getVideoMaxBandwidth(),
-            1, DeviceConfiguration.DEFAULT_VIDEO_MAX_BANDWIDTH, 1));
+            1, 256, 1));
         videoMaxBandwidth.addChangeListener(new ChangeListener()
         {
             public void stateChanged(ChangeEvent e)
@@ -762,7 +801,23 @@ public class MediaConfiguration
         });
         constraints.gridx = 1;
         constraints.gridy = 2;
+        constraints.insets = new Insets(0, 0, 5, 5);
         centerPanel.add(videoMaxBandwidth, constraints);
+
+        resetDefaultsButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                // reset to defaults
+                sizeCombo.setSelectedIndex(0);
+                frameRateCheck.setSelected(false);
+                frameRate.setEnabled(false);
+                // unlimited framerate
+                deviceConfig.setFrameRate(-1);
+                videoMaxBandwidth.setValue(
+                        DeviceConfiguration.DEFAULT_VIDEO_MAX_BANDWIDTH);
+            }
+        });
 
         // load selected value or auto
         Dimension videoSize = deviceConfig.getVideoSize();
@@ -795,7 +850,13 @@ public class MediaConfiguration
             }
         });
 
-        frameRate.setValue(deviceConfig.getFrameRate());
+        frameRateCheck.setSelected(
+            deviceConfig.getFrameRate()
+                != DeviceConfiguration.DEFAULT_FRAME_RATE);
+        frameRate.setEnabled(frameRateCheck.isSelected());
+
+        if(frameRate.isEnabled())
+            frameRate.setValue(deviceConfig.getFrameRate());
 
         return advancedPanel;
     }
