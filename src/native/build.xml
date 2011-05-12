@@ -335,8 +335,6 @@
       <compilerarg value="x86_64" if="is.running.macos" />
       <compilerarg value="-arch" if="is.running.macos" />
       <compilerarg value="i386" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="ppc" if="is.running.macos" />
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
 
       <!-- ffmpeg/x264 libraries cannot be built as universal binaries
@@ -351,14 +349,10 @@
       -->
       <linkerarg value="-o" location="end" if="is.running.macos" />
       <linkerarg value="libjnffmpeg.jnilib" location="end" if="is.running.macos" />
-<!--
       <linkerarg value="-arch" if="cross_32" unless="is.running.linux" />
-      <linkerarg value="-i386" if="cross_32" unless="is.running.linux" />
+      <linkerarg value="i386" if="cross_32" unless="is.running.linux" />
       <linkerarg value="-arch" if="cross_64" unless="is.running.linux" />
       <linkerarg value="x86_64" if="cross_64" unless="is.running.linux" />
-      <linkerarg value="-arch" if="cross_ppc" unless="is.running.linux" />
-      <linkerarg value="ppc" if="cross_ppc" unless="is.running.linux" />
--->
       <linkerarg value="-dynamiclib" if="is.running.macos" />
       <linkerarg value="-Wl,-read_only_relocs,suppress" if="is.running.macos" />
       
