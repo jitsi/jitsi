@@ -328,11 +328,6 @@ public class ZRTPTransformEngine
     private int ownSSRC = 0;
 
     /**
-     * Remote SSRC identifier.
-     */
-    private int remoteSSRC = 0;
-
-    /**
      * ZRTP packet sequence number
      */
     private short senderZrtpSeqNo = 0;
@@ -647,11 +642,6 @@ public class ZRTPTransformEngine
         if (!started && enableZrtp && ownSSRC != 0)
             startZrtp();
 
-        if(remoteSSRC == 0)
-        {
-            remoteSSRC = pkt.getSSRC();
-        }
-
         /*
          * Check if incoming packet is a ZRTP packet, if not treat
          * it as normal RTP packet and handle it accordingly.
@@ -678,12 +668,6 @@ public class ZRTPTransformEngine
                         .inState(ZrtpStateClass.ZrtpStates.WaitConfAck))
             {
                 zrtpEngine.conf2AckSecure();
-            }
-
-            // if we change SSRC, returns the original packet
-            if(remoteSSRC != pkt.getSSRC())
-            {
-                return pkt;
             }
 
             return pkt2;

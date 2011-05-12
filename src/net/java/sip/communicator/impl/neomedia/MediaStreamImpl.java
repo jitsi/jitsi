@@ -1171,7 +1171,7 @@ public class MediaStreamImpl
             closeSendStreams();
 
             // this will restart and reinit zrtp control if needed.
-            restartZrtpControl();
+            //restartZrtpControl();
 
             if ((getDeviceSession() != null) && (rtpManager != null))
             {
@@ -2033,8 +2033,10 @@ public class MediaStreamImpl
              * example, when we are already in a call and the remote peer
              * converts his side of the call into a conference call.
              */
+            /*
             if(!zrtpRestarted)
                 restartZrtpControl();
+            */
 
             if (receiveStream != null)
             {

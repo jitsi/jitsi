@@ -227,7 +227,8 @@ public class AudioMediaStreamImpl
         for (AudioFormat format : CUSTOM_CODEC_FORMATS)
         {
             if (logger.isDebugEnabled())
-                logger.debug("registering format " + format + " with RTP manager");
+                logger.debug("registering format " + format +
+                        " with RTP manager");
 
             /*
              * NOTE (mkoch@rowa.de): com.sun.media.rtp.RtpSessionMgr.addFormat
