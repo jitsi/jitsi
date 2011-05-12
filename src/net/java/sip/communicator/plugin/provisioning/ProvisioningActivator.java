@@ -138,6 +138,15 @@ public class ProvisioningActivator
 
         ProvisioningActivator.bundleContext = bundleContext;
 
+        String uuid = (String)getConfigurationService().getProperty(
+                PROVISIONING_UUID_PROP);
+
+        if(uuid == null || uuid.equals(""))
+        {
+            uuid = UUID.randomUUID().toString();
+            getConfigurationService().setProperty(PROVISIONING_UUID_PROP, uuid);
+        }
+
         Dictionary<String, String> properties = new Hashtable<String, String>();
         properties.put( ConfigurationForm.FORM_TYPE,
                         ConfigurationForm.ADVANCED_TYPE);
