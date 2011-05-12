@@ -252,7 +252,8 @@ public class MediaFormatFactoryImpl
             //formatParameters.putAll(mediaFormat.getFormatParameters());
             formatParameters.putAll(formatParams);
         }
-        else if(mediaFormat != null && (advancedParams != null ) &&
+
+        if(mediaFormat != null && (advancedParams != null ) &&
                 !advancedParams.isEmpty())
         {
             recreate = true;
