@@ -353,6 +353,83 @@ public class ProvisioningActivator
 
             tmpFile = temp;
 
+            URL u = new URL(url);
+            InetAddress ipaddr = getNetworkAddressManagerService().
+                getLocalHost(InetAddress.getByName(u.getHost()));
+
+            if(url.indexOf("${uuid}") != -1)
+            {
+                url = url.replace("${uuid}", (String)getConfigurationService()
+                        .getProperty(PROVISIONING_UUID_PROP));
+            }
+
+            if(url.indexOf("${osname}") != -1)
+            {
+                url = url.replace("${osname}", System.getProperty("os.name"));
+            }
+
+            if(url.indexOf("${build}") != -1)
+            {
+                url = url.replace("${build}",
+                        System.getProperty("sip-communicator.version"));
+            }
+
+            if(url.indexOf("${ipaddr}") != -1)
+            {
+                url = url.replace("${ipaddr}", ipaddr.getHostAddress());
+            }
+
+            if(url.indexOf("${hwaddr}") != -1)
+            {
+                if(ipaddr != null)
+                {
+                    /* find the hardware address of the interface
+                     * that has this IP address
+                     */
+                    Enumeration<NetworkInterface> en =
+                        NetworkInterface.getNetworkInterfaces();
+
+                    while(en.hasMoreElements())
+                    {
+                        NetworkInterface iface = en.nextElement();
+
+                        Enumeration<InetAddress> enInet =
+                            iface.getInetAddresses();
+
+                        while(enInet.hasMoreElements())
+                        {
+                            InetAddress inet = enInet.nextElement();
+
+                            if(inet.equals(ipaddr))
+                            {
+                                byte hw[] =
+                                getNetworkAddressManagerService().
+                                    getHardwareAddress(iface);
+                                StringBuffer buf =
+                                    new StringBuffer();
+
+                                for(byte h : hw)
+                                {
+                                    int hi = h >= 0 ? h : h + 256;
+                                    String t = new String(
+                                            (hi <= 0xf) ? "0" : "");
+                                    t += Integer.toHexString(hi);
+                                    buf.append(t);
+                                    buf.append(":");
+                                }
+
+                                buf.deleteCharAt(buf.length() - 1);
+
+                                url = url.replace("${hwaddr}",
+                                        buf.toString());
+
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
             if(url.contains("?"))
             {
                 /* do not handle URL of type http://domain/index.php? (no
@@ -366,10 +443,6 @@ public class ProvisioningActivator
                 url = url.substring(0, url.indexOf('?'));
             }
 
-            URL u = new URL(url);
-
-            InetAddress ipaddr = getNetworkAddressManagerService().
-                    getLocalHost(InetAddress.getByName(u.getHost()));
             String[] paramNames = null;
             String[] paramValues = null;
             int usernameIx = -1;
@@ -384,105 +457,42 @@ public class ProvisioningActivator
                 {
                     String s = args[i];
 
-                    if(s.equals("username=$username") ||
-                            s.equals("username=${username}") ||
-                            s.equals("username"))
+                    if(s.startsWith("username="))
                     {
                         paramNames[i] = "username";
                         paramValues[i] = "";
                         usernameIx = i;
                     }
-                    else if(s.equals("password=$password") ||
-                            s.equals("password=${password}") ||
-                            s.equals("password"))
+                    else if(s.startsWith("password="))
                     {
                         paramNames[i] = "password";
                         paramValues[i] = "";
                         passwordIx = i;
                     }
-                    else if(s.equals("uuid=$uuid") ||
-                            s.equals("uuid=${uuid}") ||
-                            s.equals("uuid"))
+                    else if(s.startsWith("uuid="))
                     {
                         paramNames[i] = "uuid";
-                        paramValues[i] =
-                            (String)getConfigurationService().getProperty(
-                                PROVISIONING_UUID_PROP);
+                        paramValues[i] = s.substring(s.indexOf("=") + 1);
                     }
-                    else if(s.equals("osname=$osname") ||
-                            s.equals("osname=${osname}") ||
-                            s.equals("osname"))
+                    else if(s.startsWith("osname="))
                     {
                         paramNames[i] = "osname";
-                        paramValues[i] = System.getProperty("os.name");
+                        paramValues[i] = s.substring(s.indexOf("=") + 1);
                     }
-                    else if(s.equals("build=$build") ||
-                            s.equals("build=${build}") ||
-                            s.equals("build"))
+                    else if(s.startsWith("build="))
                     {
                         paramNames[i] = "build";
-                        paramValues[i] =
-                            System.getProperty("sip-communicator.version");
+                        paramValues[i] = s.substring(s.indexOf("=") + 1);
                     }
-                    else if(s.equals("ipaddr=$ipaddr") ||
-                            s.equals("ipaddr=${ipaddr}") ||
-                            s.equals("ipaddr"))
+                    else if(s.startsWith("ipaddr="))
                     {
                         paramNames[i] = "ipaddr";
-                        paramValues[i] = ipaddr.getHostAddress();
+                        paramValues[i] = s.substring(s.indexOf("=") + 1);
                     }
-                    else if(s.equals("hwaddr=$hwaddr") ||
-                            s.equals("hwaddr=${hwaddr}") ||
-                            s.equals("hwaddr"))
+                    else if(s.startsWith("hwaddr="))
                     {
                         paramNames[i] = "hwaddr";
-
-                        if(ipaddr != null)
-                        {
-                            /* find the hardware address of the interface
-                             * that has this IP address
-                             */
-                            Enumeration<NetworkInterface> en =
-                                NetworkInterface.getNetworkInterfaces();
-
-                            while(en.hasMoreElements())
-                            {
-                                NetworkInterface iface = en.nextElement();
-
-                                Enumeration<InetAddress> enInet =
-                                    iface.getInetAddresses();
-
-                                while(enInet.hasMoreElements())
-                                {
-                                    InetAddress inet = enInet.nextElement();
-
-                                    if(inet.equals(ipaddr))
-                                    {
-                                        byte hw[] =
-                                        getNetworkAddressManagerService().
-                                            getHardwareAddress(iface);
-                                        StringBuffer buf =
-                                            new StringBuffer();
-
-                                        for(byte h : hw)
-                                        {
-                                            int hi = h >= 0 ? h : h + 256;
-                                            String t = new String(
-                                                    (hi <= 0xf) ? "0" : "");
-                                            t += Integer.toHexString(hi);
-                                            buf.append(t);
-                                            buf.append(":");
-                                        }
-
-                                        buf.deleteCharAt(buf.length() - 1);
-
-                                        paramValues[i] = buf.toString();
-
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                        paramValues[i] = s.substring(s.indexOf("=") + 1);
                     }
                     else
                     {
