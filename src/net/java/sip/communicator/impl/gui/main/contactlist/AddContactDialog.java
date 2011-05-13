@@ -161,6 +161,7 @@ public class AddContactDialog
 
         labelsPanel.add(accountLabel);
         fieldsPanel.add(accountCombo);
+
         initAccountCombo();
         accountCombo.setRenderer(new AccountComboRenderer());
 
@@ -197,17 +198,18 @@ public class AddContactDialog
         dataPanel.add(fieldsPanel);
 
         TransparentPanel mainPanel
-            = new TransparentPanel(new BorderLayout(20, 20));
+            = new TransparentPanel(new BorderLayout(20, 10));
 
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         mainPanel.add(imageLabel, BorderLayout.WEST);
         mainPanel.add(dataPanel, BorderLayout.CENTER);
+        mainPanel.add(createButtonsPanel(), BorderLayout.SOUTH);
 
-        this.getContentPane().add(mainPanel, BorderLayout.NORTH);
-        this.getContentPane().add(createButtonsPanel(), BorderLayout.SOUTH);
+        this.getContentPane().add(mainPanel, BorderLayout.CENTER);
 
-        this.setPreferredSize(new Dimension(450, 200));
+        this.setPreferredSize(new Dimension(450, 250));
+        this.setResizable(false);
         this.addWindowFocusListener(this);
 
         // All items are now instantiated and could safely load the skin.
