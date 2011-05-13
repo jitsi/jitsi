@@ -1176,7 +1176,7 @@
         <exec executable="bash" os="Mac OS X" failonerror="true"
               outputproperty="signature.base64">
             <arg value="-c"/>
-            <arg value="openssl dgst -sha1 -binary &lt; ${macosx.app.dir}/${macosx.dmg.name} | openssl dgst -dss1 -sign ${sparkle.signiture.location} | openssl enc -base64"/>
+            <arg value="openssl dgst -sha1 -binary &lt; '${macosx.app.dir}/${macosx.dmg.name}' | openssl dgst -dss1 -sign ${sparkle.signiture.location} | openssl enc -base64"/>
         </exec>
 
         <length file="${macosx.app.dir}/${macosx.dmg.name}"
@@ -1336,7 +1336,7 @@
         <exec executable="bash" os="Mac OS X" failonerror="true"
               outputproperty="delta.signature.base64">
             <arg value="-c"/>
-            <arg value="openssl dgst -sha1 -binary &lt; ${macosx.app.dir}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta | openssl dgst -dss1 -sign ${sparkle.signiture.location} | openssl enc -base64"/>
+            <arg value="openssl dgst -sha1 -binary &lt; '${macosx.app.dir}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta' | openssl dgst -dss1 -sign ${sparkle.signiture.location} | openssl enc -base64"/>
         </exec>
 
         <length file="${macosx.app.dir}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta"
