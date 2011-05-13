@@ -806,14 +806,9 @@
             <arg value="${build-location}\${windows.arch}\setup.msi" />
         </exec>
         <echo message="Old package code is: ${old.packagecode}"/>
-    	<exec
-    	        executable="sh"
-    	        dir="${light.dir}"
-    	        outputproperty="old.packagesize"
-    	        failonerror="true">
-    	    <arg value="-c" />
-    	    <arg value="wc --bytes &lt; '${build-location}/${windows.arch}/setup.msi'" />
-    	</exec>
+    	<length
+    	        file="${build-location}/${windows.arch}/setup.msi"
+    	        property="old.packagesize" />
         <echo message="Old package size is: ${old.packagesize}"/>
         <exec
                 dir="${src}/native/windows/setup"
