@@ -193,6 +193,16 @@ public class AccountRegSummaryPage
                     GuiActivator.getResources()
                         .getI18NString("service.gui.USER_EXISTS_ERROR"));
             }
+            else if (e.getErrorCode()
+                    == OperationFailedException.SERVER_NOT_SPECIFIED)
+            {
+                new ErrorDialog(
+                    GuiActivator.getUIService().getMainFrame(),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.SPECIFY_SERVER"));
+            }
             else
                 throw new RuntimeException(e.getMessage(), e);
         }

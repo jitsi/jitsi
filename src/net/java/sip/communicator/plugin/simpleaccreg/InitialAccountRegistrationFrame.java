@@ -550,6 +550,17 @@ public class InitialAccountRegistrationFrame
                                     "service.gui.ERROR"),
                                 PopupDialog.ERROR_MESSAGE);
                         }
+                        else if (e.getErrorCode()
+                                    == OperationFailedException
+                                        .SERVER_NOT_SPECIFIED)
+                        {
+                            popupDialog.showMessagePopupDialog(
+                                Resources.getString(
+                                    "service.gui.SPECIFY_SERVER"),
+                                Resources.getString(
+                                    "service.gui.ERROR"),
+                                PopupDialog.ERROR_MESSAGE);
+                        }
                     }
                 }
             }

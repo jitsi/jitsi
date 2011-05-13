@@ -66,8 +66,13 @@ public class ProtocolProviderFactoryJabberImpl
         // if server address is null, we must extract it from userID
         if(accountProperties.get(SERVER_ADDRESS) == null)
         {
-            accountProperties.put(SERVER_ADDRESS,
-                                  StringUtils.parseServer(userIDStr));
+            String serverAddress = StringUtils.parseServer(userIDStr);
+
+            if (serverAddress != null)
+                accountProperties.put(SERVER_ADDRESS,
+                                      StringUtils.parseServer(userIDStr));
+            else throw new IllegalArgumentException(
+                "Should specify a server for user name " + userIDStr + ".");
         }
 
         // if server port is null, we will set default value

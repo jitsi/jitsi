@@ -134,6 +134,12 @@ public class OperationFailedException
     public static final int OPERATION_CANCELED = 16;
 
     /**
+     * Indicates that the operation has been canceled because of a missing
+     * server information.
+     */
+    public static final int SERVER_NOT_SPECIFIED = 17;
+
+    /**
      * The error code of the exception
      */
     private final int errorCode;

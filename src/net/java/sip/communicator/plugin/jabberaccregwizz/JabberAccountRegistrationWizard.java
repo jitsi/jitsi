@@ -317,6 +317,11 @@ public class JabberAccountRegistrationWizard
             serverName = getServerFromUserName(userName);
         }
 
+        if (serverName == null || serverName.length() <= 0)
+            throw new OperationFailedException(
+                "Should specify a server for user name " + userName + ".",
+                OperationFailedException.SERVER_NOT_SPECIFIED);
+
         if(userName.indexOf('@') < 0
            && registration.getDefaultUserSufix() != null)
             userName = userName + '@' + registration.getDefaultUserSufix();
@@ -415,7 +420,7 @@ public class JabberAccountRegistrationWizard
             logger.warn(exc.getMessage());
 
             throw new OperationFailedException(
-                "Username or password is null.",
+                "Username, password or server is null.",
                 OperationFailedException.ILLEGAL_ARGUMENT);
         }
         catch (IllegalStateException exc)
@@ -431,7 +436,7 @@ public class JabberAccountRegistrationWizard
             logger.warn(exc.getMessage());
 
             throw new OperationFailedException(
-                "Failed to add account",
+                "Failed to add account.",
                 OperationFailedException.GENERAL_ERROR);
         }
 

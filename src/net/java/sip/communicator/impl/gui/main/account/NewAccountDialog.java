@@ -613,6 +613,12 @@ public class NewAccountDialog
                     loadErrorMessage(GuiActivator.getResources().getI18NString(
                             "service.gui.USER_EXISTS_ERROR"));
                 }
+                else if (e.getErrorCode()
+                        == OperationFailedException.SERVER_NOT_SPECIFIED)
+                {
+                    loadErrorMessage(GuiActivator.getResources().getI18NString(
+                            "service.gui.SPECIFY_SERVER"));
+                }
                 else
                 {
                     loadErrorMessage(GuiActivator.getResources().getI18NString(
