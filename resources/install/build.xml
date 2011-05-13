@@ -787,7 +787,6 @@
     </target>
 
     <target name="-make-wix-delta-msi" if="process.delta">
-
         <echo message="Creating msi delta for ${old.wix.build}-${build.label}"/>
 
         <!-- make the actual diff -->
@@ -807,6 +806,15 @@
             <arg value="${build-location}\${windows.arch}\setup.msi" />
         </exec>
         <echo message="Old package code is: ${old.packagecode}"/>
+    	<exec
+    	        executable="sh"
+    	        dir="${light.dir}"
+    	        outputproperty="old.packagesize"
+    	        failonerror="true">
+    	    <arg value="-c" />
+    	    <arg value="wc --bytes &lt; '${build-location}/${windows.arch}/setup.msi'" />
+    	</exec>
+        <echo message="Old package size is: ${old.packagesize}"/>
         <exec
                 dir="${src}/native/windows/setup"
                 executable="make.exe"
@@ -815,6 +823,7 @@
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
             <arg value="PACKAGECODE=${old.packagecode}" />
+            <arg value="PACKAGESIZE=${old.packagesize}" />
         </exec>
         <move
                 file="${windows.app.dir}/tmp/setup.exe"

@@ -50,6 +50,11 @@ ifdef PACKAGECODE
 else
     DEFINE_PACKAGECODE = undef PACKAGECODE
 endif
+ifdef PACKAGESIZE
+    DEFINE_PACKAGESIZE = define PACKAGESIZE $(strip $(PACKAGESIZE))
+else
+    DEFINE_PACKAGESIZE = undef PACKAGESIZE
+endif
 
 $(cygwin.target.dir)/$(TARGET_BASENAME).exe: bspatch.c $(cygwin.target.dir)/config.h lasterror.c ../run/registry.c setup.c $(cygwin.target.dir)/setup.res
 	$(CC) $(CPPFLAGS) bspatch.c lasterror.c ../run/registry.c setup.c $(target.dir)/setup.res $(LDFLAGS) -o $(target.dir)/$(TARGET_BASENAME).exe $(LIBS)
@@ -59,7 +64,7 @@ $(cygwin.target.dir)/$(TARGET_BASENAME).exe: bspatch.c $(cygwin.target.dir)/conf
 
 $(cygwin.target.dir)/config.h:
 	-rm.exe -f ../../../../resources/install/windows/config.h
-	echo.exe -e '#define PRODUCTNAME "$(PRODUCTNAME)"\n#$(DEFINE_PACKAGECODE)' > $(cygwin.target.dir)/config.h
+	echo.exe -e '#define PRODUCTNAME "$(PRODUCTNAME)"\n#$(DEFINE_PACKAGECODE)\n#$(DEFINE_PACKAGESIZE)' > $(cygwin.target.dir)/config.h
 
 $(cygwin.target.dir)/setup.res: $(cygwin.target.dir)/config.h setup.rc
 	$(WINDRES) -I../../../../resources/install/windows -I$(target.dir) setup.rc -O coff -o $(target.dir)/setup.res

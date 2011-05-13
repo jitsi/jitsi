@@ -215,6 +215,56 @@ Setup_executeBspatch(LPCTSTR path)
                     = Setup_findLocalPackageByProductId(
                             productId,
                             &localPackage);
+#ifdef PACKAGESIZE
+                /*
+                 * Windows Installer on Windows XP caches the MSI database only
+                 * so the localPackage cannot really be used with bspatch as the
+                 * old file to produce the new file. Unfortunately, bspatch will
+                 * report that it has successfully produced the new file from
+                 * the old file in this scenario but the resulting MSI will be
+                 * malformed. As a workaround to detect this error, make sure
+                 * that the localPackage is with the expected size in bytes.
+                 */
+                if (ERROR_SUCCESS == error)
+                {
+                    HANDLE hLocalPackage
+                        = CreateFile(
+                                localPackage,
+                                GENERIC_READ,
+                                FILE_SHARE_READ,
+                                NULL,
+                                OPEN_EXISTING,
+                                0,
+                                NULL);
+
+                    if (INVALID_HANDLE_VALUE == hLocalPackage)
+                    {
+                        error = GetLastError();
+                        LastError_setLastError(error, __FILE__, __LINE__);
+                    }
+                    else
+                    {
+                        LARGE_INTEGER packageSize;
+
+                        if (GetFileSizeEx(hLocalPackage, &packageSize))
+                        {
+                            if (PACKAGESIZE != packageSize.QuadPart)
+                            {
+                                error = ERROR_FILE_NOT_FOUND;
+                                LastError_setLastError(
+                                        error,
+                                        __FILE__, __LINE__);
+                            }
+                        }
+                        else
+                        {
+                            error = GetLastError();
+                            LastError_setLastError(error, __FILE__, __LINE__);
+                        }
+                        CloseHandle(hLocalPackage);
+                    }
+                }
+#endif /* #ifdef PACKAGESIZE */
                 if (ERROR_SUCCESS == error)
                 {
                     /*
@@ -636,7 +686,7 @@ Setup_findLocalPackageByProductId(LPCTSTR productId, LPTSTR *localPackage)
                 HKEY_LOCAL_MACHINE,
                 _T("Software\\Microsoft\\Windows\\CurrentVersion\\Installer\\UserData"),
                 0,
-                KEY_ENUMERATE_SUB_KEYS,
+                KEY_ENUMERATE_SUB_KEYS | KEY_WOW64_64KEY,
                 &userDataKey);
 
     if (ERROR_SUCCESS == error)
@@ -696,7 +746,7 @@ Setup_findLocalPackageByProductId(LPCTSTR productId, LPTSTR *localPackage)
                         userDataKey,
                         installPropertiesKeyName,
                         0,
-                        KEY_QUERY_VALUE,
+                        KEY_QUERY_VALUE | KEY_WOW64_64KEY,
                         &installPropertiesKey);
             if (ERROR_SUCCESS == error)
             {
@@ -739,7 +789,7 @@ Setup_findProductIdByPackageCode(LPCTSTR packageCode, LPTSTR *productId)
                 HKEY_LOCAL_MACHINE,
                 _T("Software\\Classes\\Installer\\Products"),
                 0,
-                KEY_ENUMERATE_SUB_KEYS,
+                KEY_ENUMERATE_SUB_KEYS | KEY_WOW64_64KEY,
                 &key);
 
     if (ERROR_SUCCESS == error)
@@ -773,7 +823,13 @@ Setup_findProductIdByPackageCode(LPCTSTR packageCode, LPTSTR *productId)
             }
             if (32 != subKeyNameLength)
                 continue;
-            error = RegOpenKeyEx(key, subKeyName, 0, KEY_QUERY_VALUE, &subKey);
+            error
+                = RegOpenKeyEx(
+                        key,
+                        subKeyName,
+                        0,
+                        KEY_QUERY_VALUE | KEY_WOW64_64KEY,
+                        &subKey);
             if (ERROR_SUCCESS != error)
             {
                 LastError_setLastError(error, __FILE__, __LINE__);
