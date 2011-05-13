@@ -237,7 +237,8 @@ public class InitialAccountRegistrationFrame
         extends JPanel
     {
         private JLabel usernameLabel
-            = new JLabel(Resources.getString("service.gui.LOGIN"));
+            = new JLabel(Resources.getString(
+                "plugin.simpleaccregwizz.LOGIN_USERNAME"));
 
         private JLabel passwordLabel
             = new JLabel(Resources.getString("service.gui.PASSWORD"));
