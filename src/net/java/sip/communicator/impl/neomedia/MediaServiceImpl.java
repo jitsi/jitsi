@@ -9,11 +9,11 @@ package net.java.sip.communicator.impl.neomedia;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
+import java.util.List; // disambiguation
 
 import javax.media.*;
 import javax.media.control.*;
-import javax.media.format.RGBFormat;
+import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.swing.*;
 
@@ -22,7 +22,6 @@ import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
-import net.java.sip.communicator.impl.neomedia.videoflip.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -788,20 +787,12 @@ public class MediaServiceImpl
                         Codec codecs[] = null;
                         SwScaler scaler = new SwScaler();
 
-                        if(locator.getProtocol().equals(
-                                ImageStreamingAuto.LOCATOR_PROTOCOL))
-                        {
-                            // do not flip desktop
-                            codecs = new Codec[1];
-                            codecs[0] = scaler;
-                        }
+                        // do not flip desktop
+                        if (ImageStreamingAuto.LOCATOR_PROTOCOL.equals(
+                                locator.getProtocol()))
+                            codecs = new Codec[] { scaler };
                         else
-                        {
-                            VideoFlipEffect flipEffect = new VideoFlipEffect();
-                            codecs = new Codec[2];
-                            codecs[0] = flipEffect;
-                            codecs[1] = scaler;
-                        }
+                            codecs = new Codec[] { new HFlip(), scaler };
 
                         trackControl.setCodecChain(codecs);
                         break;
@@ -1136,26 +1127,23 @@ public class MediaServiceImpl
         CaptureDeviceInfo devInfo = dev.getCaptureDeviceInfo();
         MediaLocator locator = devInfo.getLocator();
 
-        if(!locator.getProtocol().equals(ImageStreamingAuto.LOCATOR_PROTOCOL))
+        if(!ImageStreamingAuto.LOCATOR_PROTOCOL.equals(locator.getProtocol()))
             return null;
 
         String remainder = locator.getRemainder();
         String split[] = remainder.split(",");
-        int index = 0;
-
-        if(split != null && split.length > 1)
-        {
-            index = Integer.parseInt(split[0]);
-        }
-        else
-        {
-            index = Integer.parseInt(remainder);
-        }
+        int index
+            = Integer.parseInt(
+                    ((split != null) && (split.length > 1))
+                        ? split[0]
+                        : remainder);
 
         ScreenDevice devs[] = ScreenDeviceImpl.getAvailableScreenDevice();
-        if(devs.length - 1 >= index)
+
+        if (devs.length - 1 >= index)
         {
             Rectangle r = ((ScreenDeviceImpl)devs[index]).getBounds();
+
             return new Point(r.x, r.y);
         }
 

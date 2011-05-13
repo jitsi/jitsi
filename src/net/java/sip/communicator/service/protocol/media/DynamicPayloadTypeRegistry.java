@@ -7,7 +7,6 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
-import java.util.Map.*;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -37,11 +36,11 @@ public class DynamicPayloadTypeRegistry
     private byte nextDynamicPayloadType = MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE;
 
     /**
-     * A table mapping <tt>MediaFormat</tt> instances to the dynamic payload
-     * type number they have obtained for the lifetime of this registry.
+     * The mappings of <tt>MediaFormat</tt> instances to the dynamic payload
+     * type numbers they have obtained for the lifetime of this registry.
      */
-    private Map<MediaFormat, Byte> payloadTypeMappings
-        = new Hashtable<MediaFormat, Byte>();
+    private final Map<MediaFormat, Byte> payloadTypeMappings
+        = new HashMap<MediaFormat, Byte>();
 
     /**
      * Returns the dynamic payload type that has been allocated for
@@ -50,7 +49,7 @@ public class DynamicPayloadTypeRegistry
      * primarily during generation of SDP descriptions.
      *
      * @param format the <tt>MediaFormat</tt> instance that we'd like to obtain
-     * a payload type number for..
+     * a payload type number for.
      *
      * @return the (possibly newly allocated) payload type number corresponding
      * to the specified <tt>format</tt> instance for the lifetime of the media
@@ -70,13 +69,15 @@ public class DynamicPayloadTypeRegistry
                 ? ((AudioMediaFormat) format).getChannels()
                 : MediaFormatFactory.CHANNELS_NOT_SPECIFIED;
         Byte payloadType = null;
+        Map<String, String> formatParameters
+            = format.getFormatParameters();
 
         for (Map.Entry<MediaFormat, Byte> payloadTypeMapping
                 : payloadTypeMappings.entrySet())
         {
             if (AbstractMediaStream.matches(
                     payloadTypeMapping.getKey(),
-                    mediaType, encoding, clockRate, channels))
+                    mediaType, encoding, clockRate, channels, formatParameters))
             {
                 payloadType = payloadTypeMapping.getValue();
                 break;
@@ -121,8 +122,9 @@ public class DynamicPayloadTypeRegistry
      */
     private Byte getPreferredDynamicPayloadType(MediaFormat format)
     {
-        return ProtocolMediaActivator.getMediaService()
-            .getDynamicPayloadTypePreferences().get(format);
+        return
+            ProtocolMediaActivator.getMediaService()
+                    .getDynamicPayloadTypePreferences().get(format);
     }
 
     /**
@@ -147,16 +149,18 @@ public class DynamicPayloadTypeRegistry
 
         if(alreadyMappedFmt != null)
         {
-            throw new IllegalArgumentException(payloadType
-                    + " has already been allocated to " + alreadyMappedFmt);
+            throw new IllegalArgumentException(
+                    payloadType + " has already been allocated to "
+                        + alreadyMappedFmt);
         }
 
         if( payloadType < MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
         {
-            throw new IllegalArgumentException(payloadType
-                + " is not a valid dynamic payload type number."
-                + " (must be between " + MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE
-                + " and " + MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE);
+            throw new IllegalArgumentException(
+                    payloadType + " is not a valid dynamic payload type number."
+                        + " (must be between "
+                        + MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE + " and "
+                        + MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE);
         }
 
         payloadTypeMappings.put(format, Byte.valueOf(payloadType));
@@ -203,19 +207,21 @@ public class DynamicPayloadTypeRegistry
             if (nextDynamicPayloadType < 0)
             {
                 throw new IllegalStateException(
-                    "Impossible to allocate more than the already 32 mapped "
-                    +"dynamic payload type numbers");
+                        "Impossible to allocate more than the already 32 "
+                            + "mapped dynamic payload type numbers");
             }
 
             byte payloadType = nextDynamicPayloadType++;
 
-            if(findFormat(payloadType) == null
-               && findFormatWithPreference(payloadType) == null)
+            if ((findFormat(payloadType) == null)
+                    && (findFormatWithPreference(payloadType) == null))
                 return payloadType;
 
-            //if we get here then that means that the number we obtained by
-            //incrementing our PT counter was already occupied (probably by an
-            //incoming SDP). continue bravely and get the next free one.
+            /*
+             * If we get here, then that means that the number we obtained by
+             * incrementing our PT counter was already occupied (probably by an
+             * incoming SDP). Continue bravely and get the next free one.
+             */
         }
     }
 
@@ -234,14 +240,13 @@ public class DynamicPayloadTypeRegistry
      */
     private MediaFormat findFormatWithPreference(Byte payloadTypePreference)
     {
-        for(Entry<MediaFormat, Byte> entry
-                        : ProtocolMediaActivator.getMediaService()
-                            .getDynamicPayloadTypePreferences().entrySet())
+        for(Map.Entry<MediaFormat, Byte> entry
+                : ProtocolMediaActivator.getMediaService()
+                        .getDynamicPayloadTypePreferences().entrySet())
         {
             if(entry.getValue() == payloadTypePreference)
                 return entry.getKey();
         }
-
         return null;
     }
 
@@ -252,6 +257,6 @@ public class DynamicPayloadTypeRegistry
      */
     public Map<MediaFormat, Byte> getMappings()
     {
-        return new Hashtable<MediaFormat, Byte>(payloadTypeMappings);
+        return new HashMap<MediaFormat, Byte>(payloadTypeMappings);
     }
 }

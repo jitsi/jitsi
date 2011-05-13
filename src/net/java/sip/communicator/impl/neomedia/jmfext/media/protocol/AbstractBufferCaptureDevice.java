@@ -66,6 +66,12 @@ public abstract class AbstractBufferCaptureDevice
     private FormatControl[] formatControls;
 
     /**
+     * The <tt>FrameRateControl</tt>s of this
+     * <tt>AbstractBufferCaptureDevice</tt>.
+     */
+    private FrameRateControl[] frameRateControls;
+
+    /**
      * The indicator which determines whether the transfer of media data from
      * this <tt>DataSource</tt> has been started.
      */
@@ -206,6 +212,20 @@ public abstract class AbstractBufferCaptureDevice
     }
 
     /**
+     * Creates a new <tt>FrameRateControl</tt> instance which is to allow the
+     * getting and setting of the frame rate of this
+     * <tt>AbstractBufferCaptureDevice</tt>.
+     *
+     * @return a new <tt>FrameRateControl</tt> instance which is to allow the
+     * getting and setting of the frame rate of this
+     * <tt>AbstractBufferCaptureDevice</tt>
+     */
+    protected FrameRateControl createFrameRateControl()
+    {
+        return null;
+    }
+
+    /**
      * Create a new <tt>AbstractBufferStream</tt> which is to be at a specific
      * zero-based index in the list of streams of this
      * <tt>AbstractBufferCaptureDevice</tt>. The <tt>Format</tt>-related
@@ -269,19 +289,27 @@ public abstract class AbstractBufferCaptureDevice
     final Object[] defaultGetControls()
     {
         FormatControl[] formatControls = internalGetFormatControls();
+        FrameRateControl[] frameRateControls = internalGetFrameRateControls();
 
-        if ((formatControls == null) || (formatControls.length == 0))
+        if (((formatControls == null) || (formatControls.length == 0))
+                && ((frameRateControls == null)
+                        || (frameRateControls.length == 0)))
             return ControlsAdapter.EMPTY_CONTROLS;
         else
         {
-            Object[] controls = new Object[formatControls.length];
+            Object[] controls
+                = new Object[formatControls.length + frameRateControls.length];
+            int offset = 0;
 
             System.arraycopy(
-                    formatControls,
-                    0,
-                    controls,
-                    0,
+                    formatControls, 0,
+                    controls, offset,
                     formatControls.length);
+            offset += formatControls.length;
+            System.arraycopy(
+                    frameRateControls, 0,
+                    controls, offset,
+                    frameRateControls.length);
             return controls;
         }
     }
@@ -634,6 +662,30 @@ public abstract class AbstractBufferCaptureDevice
         if (formatControls == null)
             formatControls = createFormatControls();
         return formatControls;
+    }
+
+    /**
+     * Gets an array of <tt>FrameRateControl</tt> instances which can be used to
+     * get and/or set the output frame rate of this
+     * <tt>AbstractBufferCaptureDevice</tt>.
+     *
+     * @return an array of <tt>FrameRateControl</tt> instances which can be used
+     * to get and/or set the output frame rate of this
+     * <tt>AbstractBufferCaptureDevice</tt>.
+     */
+    private synchronized FrameRateControl[] internalGetFrameRateControls()
+    {
+        if (frameRateControls == null)
+        {
+            FrameRateControl frameRateControl = createFrameRateControl();
+
+            // Don't try to create the FrameRateControl more than once.
+            frameRateControls
+                = (frameRateControl == null)
+                    ? new FrameRateControl[0]
+                    : new FrameRateControl[] { frameRateControl };
+        }
+        return frameRateControls;
     }
 
     /**

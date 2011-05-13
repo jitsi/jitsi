@@ -20,7 +20,7 @@ import net.sf.fmj.media.*;
  * <tt>AVFrame</tt>s (i.e. in YUV format).
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
 public class JNIDecoder
@@ -40,7 +40,7 @@ public class JNIDecoder
     /**
      *  The codec context native pointer we will use.
      */
-    private long avcontext;
+    private long avctx;
 
     /**
      *  The decoded data is stored in avpicture in native ffmpeg format (YUV).
@@ -53,7 +53,7 @@ public class JNIDecoder
     private final boolean[] got_picture = new boolean[1];
 
     /**
-     * The last known height of {@link #avcontext} i.e. the video output by this
+     * The last known height of {@link #avctx} i.e. the video output by this
      * <tt>JNIDecoder</tt>. Used to detect changes in the output size.
      */
     private int height;
@@ -64,7 +64,7 @@ public class JNIDecoder
     private final VideoFormat[] outputFormats;
 
     /**
-     * The last known width of {@link #avcontext} i.e. the video output by this
+     * The last known width of {@link #avctx} i.e. the video output by this
      * <tt>JNIDecoder</tt>. Used to detect changes in the output size.
      */
     private int width;
@@ -117,9 +117,9 @@ public class JNIDecoder
             opened = false;
             super.close();
 
-            FFmpeg.avcodec_close(avcontext);
-            FFmpeg.av_free(avcontext);
-            avcontext = 0;
+            FFmpeg.avcodec_close(avctx);
+            FFmpeg.av_free(avctx);
+            avctx = 0;
 
             FFmpeg.av_free(avframe);
             avframe = 0;
@@ -189,22 +189,30 @@ public class JNIDecoder
     /**
      * Get all supported output <tt>Format</tt>s.
      *
-     * @param in input <tt>Format</tt> to determine corresponding output
-     * <tt>Format/tt>s
-     * @return array of supported <tt>Format</tt>
+     * @param inputFormat input <tt>Format</tt> to determine corresponding
+     * output <tt>Format/tt>s
+     * @return an array of supported output <tt>Format</tt>s
      */
-    public Format[] getSupportedOutputFormats(Format in)
+    public Format[] getSupportedOutputFormats(Format inputFormat)
     {
-        if (in == null)
-            return DEFAULT_OUTPUT_FORMATS;
+        Format[] supportedOutputFormats;
 
-        // mismatch input format
-        if (!(in instanceof VideoFormat)
-                || (AbstractCodecExt.matches(in, inputFormats) == null))
-            return new Format[0];
-
-        // match input format
-        return getMatchingOutputFormats(in);
+        if (inputFormat == null)
+            supportedOutputFormats = DEFAULT_OUTPUT_FORMATS;
+        else
+        {
+            // mismatch input format
+            if (!(inputFormat instanceof VideoFormat)
+                    || (AbstractCodecExt.matches(inputFormat, inputFormats)
+                            == null))
+                supportedOutputFormats = new Format[0];
+            else
+            {
+                // match input format
+                supportedOutputFormats = getMatchingOutputFormats(inputFormat);
+            }
+        }
+        return supportedOutputFormats;
     }
 
     /**
@@ -221,14 +229,15 @@ public class JNIDecoder
 
         long avcodec = FFmpeg.avcodec_find_decoder(FFmpeg.CODEC_ID_H264);
 
-        avcontext = FFmpeg.avcodec_alloc_context();
-        FFmpeg.avcodeccontext_set_workaround_bugs(avcontext,
-            FFmpeg.FF_BUG_AUTODETECT);
+        avctx = FFmpeg.avcodec_alloc_context();
+        FFmpeg.avcodeccontext_set_workaround_bugs(avctx,
+                FFmpeg.FF_BUG_AUTODETECT);
 
         /* allow to pass incomplete frame to decoder */
-        FFmpeg.avcodeccontext_add_flags2(avcontext, FFmpeg.CODEC_FLAG2_CHUNKS);
+        FFmpeg.avcodeccontext_add_flags2(avctx,
+                FFmpeg.CODEC_FLAG2_CHUNKS);
 
-        if (FFmpeg.avcodec_open(avcontext, avcodec) < 0)
+        if (FFmpeg.avcodec_open(avctx, avcodec) < 0)
             throw new RuntimeException("Could not open codec CODEC_ID_H264");
 
         avframe = FFmpeg.avcodec_alloc_frame();
@@ -263,10 +272,9 @@ public class JNIDecoder
 
         // Ask FFmpeg to decode.
         got_picture[0] = false;
-
         // TODO Take into account the offset of inputBuffer.
         FFmpeg.avcodec_decode_video(
-                avcontext,
+                avctx,
                 avframe,
                 got_picture,
                 (byte[]) inBuffer.getData(), inBuffer.getLength());
@@ -278,8 +286,8 @@ public class JNIDecoder
         }
 
         // format
-        int width = FFmpeg.avcodeccontext_get_width(avcontext);
-        int height = FFmpeg.avcodeccontext_get_height(avcontext);
+        int width = FFmpeg.avcodeccontext_get_width(avctx);
+        int height = FFmpeg.avcodeccontext_get_height(avctx);
 
         if ((width > 0)
                 && (height > 0)

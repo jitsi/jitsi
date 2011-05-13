@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol;
 
+import javax.media.*;
 import javax.media.control.*;
 import javax.media.protocol.*;
 
@@ -39,7 +40,7 @@ public abstract class AbstractPullBufferStream
     }
 
     /**
-     * Determines if read will block.
+     * Determines if {@link #read(Buffer)} will block.
      *
      * @return <tt>true</tt> if read block, <tt>false</tt> otherwise
      */

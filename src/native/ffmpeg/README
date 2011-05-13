@@ -35,18 +35,15 @@ When building the x64 library on Windows x86, add --host=x86_64-w64-mingw32 to
 the configure line.
 
 ./configure --enable-win32thread
-make
 
 - FreeBSD
 
 patch -Np1 -i x264-01-freebsd.patch
 ./configure --enable-pic
-gmake
 
 - Linux, Mac OS X
 
 ./configure --enable-pic
-make
 
 3. ffmpeg
 
@@ -75,35 +72,11 @@ Add --target-os=mingw32, --enable-memalign-hack, --disable-pthreads and
 x64:
 Add --arch=amd64 and --enable-cross-compile to the configure line used for x86.
 
-mingw32-make
-
-- Linux, FreeBSD
+- FreeBSD, Linux, Mac OS X
 
 Add --enable-pic and --enable-pthreads.
 
-- Mac OS X 
-
-Note: Remove from the configure script the option to add -mdynamic-no-pic unless
-building for the i386 architecture. For i386, remove "--enable-pic" from the
-following command.
-
-./configure \
-  --enable-pic \
-  --enable-static --disable-shared --shlibdir=. \
-  --disable-encoders --disable-decoders --disable-muxers --disable-demuxers \
-  --disable-parsers --disable-bsfs --disable-protocols --disable-devices \
-  --disable-network \
-  --enable-libx264 --enable-gpl --enable-parser=h264 --enable-encoder=libx264 \
-  --enable-decoder=h264 --enable-muxer=h264 --enable-demuxer=h264 \
-  --enable-parser=h263 --enable-encoder=h263p \
-  --enable-decoder=h263 --enable-muxer=h263 --enable-demuxer=h263 \
-  --enable-libmp3lame --enable-encoder=libmp3lame \
-  --extra-ldflags="-fPIC -L$MP3LAME_HOME/libmp3lame/.libs -L$X264_HOME" --extra-cflags="-fPIC -I$MP3LAME_HOME/include -I$X264_HOME" \
-  --disable-debug \
-  --disable-ffserver --disable-ffprobe --disable-ffplay --disable-ffmpeg \
-  --enable-pthreads
-
-4. libffmpeg
+4. jnffmpeg
 
 Define the environment variable JAVA_HOME so that the JNI headers can be found.
 Change the current directory to src\native and run "ant ffmpeg" passing it

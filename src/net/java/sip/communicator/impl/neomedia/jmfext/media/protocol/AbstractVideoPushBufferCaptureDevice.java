@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol;
 
-import java.util.*;
-
 import javax.media.*;
 import javax.media.control.*;
 
@@ -21,11 +19,6 @@ import javax.media.control.*;
 public abstract class AbstractVideoPushBufferCaptureDevice
     extends AbstractPushBufferCaptureDevice
 {
-    /**
-     * The <tt>FrameRateControl</tt>s of this
-     * <tt>AbstractVideoPushBufferCaptureDevice</tt>.
-     */
-    private FrameRateControl[] frameRateControls;
 
     /**
      * Initializes a new <tt>AbstractVideoPushBufferCaptureDevice</tt> instance.
@@ -53,47 +46,11 @@ public abstract class AbstractVideoPushBufferCaptureDevice
      * @return a new <tt>FrameRateControl</tt> instance which is to allow the
      * getting and setting of the frame rate of this
      * <tt>AbstractVideoPushBufferCaptureDevice</tt>
+     * @see AbstractPushBufferCaptureDevice#createFrameRateControl()
      */
+    @Override
     protected FrameRateControl createFrameRateControl()
     {
         return null;
-    }
-
-    /**
-     * Implements {@link javax.media.protocol.DataSource#getControls()}. Gets
-     * the controls available for this instance.
-     *
-     * @return an array of <tt>Object</tt>s which represent the controls
-     * available for this instance
-     */
-    @Override
-    public Object[] getControls()
-    {
-        List<Object> controls = new ArrayList<Object>();
-
-        Collections.addAll(controls, super.getControls());
-
-        /*
-         * Add any FrameRateControl that this AbstractPushBufferCaptureDevice
-         * may want to have.
-         */
-        synchronized (this)
-        {
-            if (frameRateControls == null)
-            {
-                FrameRateControl frameRateControl = createFrameRateControl();
-
-                // Don't try to create the FrameRateControl more than once.
-                if (frameRateControl == null)
-                    frameRateControls = new FrameRateControl[0];
-                else
-                    frameRateControls
-                        = new FrameRateControl[] { frameRateControl };
-            }
-            if (frameRateControls != null)
-                Collections.addAll(controls, frameRateControls);
-        }
-
-        return controls.toArray();
     }
 }

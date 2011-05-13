@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
  *
  * @param <T> the type of the wrapped <tt>Format</tt>
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class MediaFormatImpl<T extends Format>
     implements MediaFormat
@@ -32,7 +32,7 @@ public abstract class MediaFormatImpl<T extends Format>
      * received via SIP/SDP or XMPP/Jingle. Explicitly defined in order to
      * reduce unnecessary allocations.
      */
-    private static final Map<String, String> EMPTY_FORMAT_PARAMETERS
+    static final Map<String, String> EMPTY_FORMAT_PARAMETERS
         = Collections.emptyMap();
 
     /**
@@ -112,38 +112,72 @@ public abstract class MediaFormatImpl<T extends Format>
      * number of parameters and assign them equal values. Since the values are
      * <tt>String</tt>s, presumes that a value of <tt>null</tt> is equal to the
      * empty <tt>String</tt>.
+     * <p>
+     * The two <tt>Map</tt> instances of format parameters to be checked for
+     * equality are presumed to be modifiable in the sense that if the lack of a
+     * format parameter in a given <tt>Map</tt> is equivalent to it having a
+     * specific value, an association of the format parameter to the value in
+     * question may be added to or removed from the respective <tt>Map</tt>
+     * instance for the purposes of determining equality.
+     * </p>
      *
-     * @param formatParameters1 the first set of format parameters to be tested
-     * for equality
-     * @param formatParameters2 the second set of format parameters to be tested
-     * for equality
+     * @param fmtps1 the first set of format parameters to be tested for
+     * equality
+     * @param fmtps2 the second set of format parameters to be tested for
+     * equality
      * @return <tt>true</tt> if the specified sets of format parameters are
      * equal; <tt>false</tt>, otherwise
      */
-    static boolean formatParametersAreEqual(
-            Map<String, String> formatParameters1,
-            Map<String, String> formatParameters2)
+    protected boolean formatParametersAreEqual(
+            Map<String, String> fmtps1,
+            Map<String, String> fmtps2)
     {
-        if (formatParameters1 == null)
-            return
-                (formatParameters2 == null)
-                    || formatParameters2.isEmpty();
-        if (formatParameters2 == null)
-            return
-                (formatParameters1 == null)
-                    || formatParameters1.isEmpty();
-        if (formatParameters1.size() == formatParameters2.size())
-        {
-            for (Map.Entry<String, String> formatParameter1
-                    : formatParameters1.entrySet())
-            {
-                String key1 = formatParameter1.getKey();
+        return formatParametersAreEqual(getEncoding(), fmtps1, fmtps2);
+    }
 
-                if (!formatParameters2.containsKey(key1))
+    /**
+     * Determines whether a specific set of format parameters is equal to
+     * another set of format parameters in the sense that they define an equal
+     * number of parameters and assign them equal values. Since the values are
+     * <tt>String</tt>s, presumes that a value of <tt>null</tt> is equal to the
+     * empty <tt>String</tt>.
+     * <p>
+     * The two <tt>Map</tt> instances of format parameters to be checked for
+     * equality are presumed to be modifiable in the sense that if the lack of a
+     * format parameter in a given <tt>Map</tt> is equivalent to it having a
+     * specific value, an association of the format parameter to the value in
+     * question may be added to or removed from the respective <tt>Map</tt>
+     * instance for the purposes of determining equality.
+     * </p>
+     *
+     * @param encoding the encoding (name) related to the two sets of format
+     * parameters to be tested for equality
+     * @param fmtps1 the first set of format parameters to be tested for
+     * equality
+     * @param fmtps2 the second set of format parameters to be tested for
+     * equality
+     * @return <tt>true</tt> if the specified sets of format parameters are
+     * equal; <tt>false</tt>, otherwise
+     */
+    public static boolean formatParametersAreEqual(
+            String encoding,
+            Map<String, String> fmtps1, Map<String, String> fmtps2)
+    {
+        if (fmtps1 == null)
+            return (fmtps2 == null) || fmtps2.isEmpty();
+        if (fmtps2 == null)
+            return (fmtps1 == null) || fmtps1.isEmpty();
+        if (fmtps1.size() == fmtps2.size())
+        {
+            for (Map.Entry<String, String> fmtp1 : fmtps1.entrySet())
+            {
+                String key1 = fmtp1.getKey();
+
+                if (!fmtps2.containsKey(key1))
                     return false;
 
-                String value1 = formatParameter1.getValue();
-                String value2 = formatParameters2.get(key1);
+                String value1 = fmtp1.getValue();
+                String value2 = fmtps2.get(key1);
 
                 /*
                  * Since the values are strings, allow null to be equal to the
@@ -161,6 +195,19 @@ public abstract class MediaFormatImpl<T extends Format>
         }
         else
             return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The default implementation of <tt>MediaFormatImpl</tt> always returns
+     * <tt>true</tt> because format parameters in general do not cause the
+     * distinction of payload types.
+     * </p>
+     */
+    public boolean formatParametersMatch(Map<String, String> fmtps)
+    {
+        return true;
     }
 
     /**
@@ -205,7 +252,9 @@ public abstract class MediaFormatImpl<T extends Format>
      * @param advancedParameters any parameters that have been
      * received via SIP/SDP or XMPP/Jingle
      */
-    protected MediaFormatImpl(T format, Map<String, String> formatParameters,
+    protected MediaFormatImpl(
+            T format,
+            Map<String, String> formatParameters,
             Map<String, String> advancedParameters)
     {
         if (format == null)
@@ -372,7 +421,7 @@ public abstract class MediaFormatImpl<T extends Format>
     public String getClockRateString()
     {
         double clockRate = getClockRate();
-        long   clockRateL = (long)clockRate;
+        long clockRateL = (long) clockRate;
 
         if (clockRateL == clockRate)
             return Long.toString(clockRateL);

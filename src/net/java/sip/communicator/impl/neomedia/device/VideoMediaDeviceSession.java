@@ -18,8 +18,8 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
+import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
-import net.java.sip.communicator.impl.neomedia.videoflip.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.resources.*;
@@ -34,6 +34,7 @@ import net.java.sip.communicator.util.*;
 public class VideoMediaDeviceSession
     extends MediaDeviceSession
 {
+
     /**
      * The <tt>Logger</tt> used by the <tt>VideoMediaDeviceSession</tt> class
      * and its instances for logging output.
@@ -188,7 +189,6 @@ public class VideoMediaDeviceSession
                 if ((maxSupportedFrameRate > 0)
                         && (frameRate > maxSupportedFrameRate))
                     frameRate = maxSupportedFrameRate;
-
                 if(frameRate > 0)
                     frameRateControl.setFrameRate(frameRate);
             }
@@ -421,11 +421,8 @@ public class VideoMediaDeviceSession
                 {
                     for (TrackControl trackControl : trackControls)
                     {
-                        VideoFlipEffect flipEffect = new VideoFlipEffect();
-                        SwScaler scaler = new SwScaler();
-
                         trackControl.setCodecChain(
-                                new Codec[] {flipEffect, scaler});
+                                new Codec[] { new HFlip(), new SwScaler() });
                         break;
                     }
                 }
@@ -788,31 +785,33 @@ public class VideoMediaDeviceSession
                      * For H.264, we will use RTCP feedback. For example, to
                      * tell the sender that we've missed a frame.
                      */
-                    if(format.getEncoding().equals("h264/rtp") && usePLI)
+                    if (usePLI
+                            && "h264/rtp".equalsIgnoreCase(
+                                    getFormat().getJMFEncoding()))
                     {
-                        DePacketizer depack = new DePacketizer();
+                        DePacketizer depacketizer = new DePacketizer();
 
-                        depack.setRtcpFeedbackPLI(usePLI);
-
+                        depacketizer.setRtcpFeedbackPLI(usePLI);
                         try
                         {
-                            depack.setConnector(rtpConnector.
-                                    getControlOutputStream());
+                            depacketizer.setConnector(
+                                    rtpConnector.getControlOutputStream());
                         }
                         catch(Exception e)
                         {
-                            logger.error("Error cannot get RTCP output stream",
+                            logger.error(
+                                    "Error cannot get RTCP output stream",
                                     e);
                         }
+                        depacketizer.setSSRC(localSSRC, remoteSSRC);
 
-                        depack.setSSRC(localSSRC, remoteSSRC);
-
-                        trackControl.setCodecChain(new Codec[] {
-                            depack, playerScaler});
+                        trackControl.setCodecChain(
+                                new Codec[] { depacketizer, playerScaler });
                     }
                     else
                     {
-                        trackControl.setCodecChain(new Codec[] {playerScaler});
+                        trackControl.setCodecChain(
+                                new Codec[] { playerScaler });
                     }
                     break;
                 }
@@ -1123,28 +1122,31 @@ public class VideoMediaDeviceSession
     }
 
     /**
-     * Sets the JMF <tt>Format</tt> in which a specific <tt>Processor</tt>
+     * Sets the <tt>MediaFormatImpl</tt> in which a specific <tt>Processor</tt>
      * producing media to be streamed to the remote peer is to output.
      *
-     * @param processor the <tt>Processor</tt> to set the output <tt>Format</tt>
-     * of
-     * @param format the JMF <tt>Format</tt> to set to <tt>processor</tt>
-     * @see MediaDeviceSession#setProcessorFormat(Processor, Format)
+     * @param processor the <tt>Processor</tt> to set the output
+     * <tt>MediaFormatImpl</tt> of
+     * @param mediaFormat the <tt>MediaFormatImpl</tt> to set on
+     * <tt>processor</tt>
+     * @see MediaDeviceSession#setProcessorFormat(Processor, MediaFormatImpl)
      */
     @Override
-    protected void setProcessorFormat(Processor processor, Format format)
+    protected void setProcessorFormat(
+            Processor processor,
+            MediaFormatImpl<? extends Format> mediaFormat)
     {
-        if(format.getEncoding().equals("h263-1998/rtp"))
+        Format format = mediaFormat.getFormat();
+
+        if ("h263-1998/rtp".equalsIgnoreCase(format.getEncoding()))
         {
-            /* if no output size has been defined, it means that no SDP's fmtp
-             * has been found with QCIF, CIF, VGA or CUSTOM elements
-             *
-             * Let's choose QCIF size (176x144)
+            /*
+             * If no output size has been defined, then no SDP fmtp has been
+             * found with QCIF, CIF, VGA or CUSTOM parameters. Let's default to
+             * QCIF (176x144).
              */
-            if(outputSize == null)
-            {
+            if (outputSize == null)
                 outputSize = new Dimension(176, 144);
-            }
         }
 
         /*
@@ -1152,7 +1154,7 @@ public class VideoMediaDeviceSession
          * recreate the object. Also check whether capture device can output
          * such a size.
          */
-        if((outputSize != null)
+        if ((outputSize != null)
                 && (outputSize.width > 0)
                 && (outputSize.height > 0))
         {
@@ -1179,39 +1181,52 @@ public class VideoMediaDeviceSession
         else
             outputSize = null;
 
-        super.setProcessorFormat(processor, format);
+        super.setProcessorFormat(processor, mediaFormat);
     }
 
     /**
-     * Sets the JMF <tt>Format</tt> of a specific <tt>TrackControl</tt> of the
-     * <tt>Processor</tt> which produces the media to be streamed by this
+     * Sets the <tt>MediaFormatImpl</tt> of a specific <tt>TrackControl</tt> of
+     * the <tt>Processor</tt> which produces the media to be streamed by this
      * <tt>MediaDeviceSession</tt> to the remote peer. Allows extenders to
      * override the set procedure and to detect when the JMF <tt>Format</tt> of
      * the specified <tt>TrackControl</tt> changes.
      *
      * @param trackControl the <tt>TrackControl</tt> to set the JMF
      * <tt>Format</tt> of
+     * @param mediaFormat the <tt>MediaFormatImpl</tt> to be set on the
+     * specified <tt>TrackControl</tt>. Though <tt>mediaFormat</tt> encapsulates
+     * a JMF <tt>Format</tt>, <tt>format</tt> is to be set on the specified
+     * <tt>trackControl</tt> because it may be more specific. In any case, the
+     * two JMF <tt>Format</tt>s match. The <tt>MediaFormatImpl</tt> is provided
+     * anyway because it carries additional information such as format
+     * parameters.
      * @param format the JMF <tt>Format</tt> to be set on the specified
-     * <tt>TrackControl</tt>
+     * <tt>TrackControl</tt>. Though <tt>mediaFormat</tt> encapsulates a JMF
+     * <tt>Format</tt>, the specified <tt>format</tt> is to be set on the
+     * specified <tt>trackControl</tt> because it may be more specific than the
+     * JMF <tt>Format</tt> of the <tt>mediaFormat</tt>
      * @return the JMF <tt>Format</tt> set on <tt>TrackControl</tt> after the
-     * attempt to set the specified <tt>format</tt> or <tt>null</tt> if the
+     * attempt to set the specified <tt>mediaFormat</tt> or <tt>null</tt> if the
      * specified <tt>format</tt> was found to be incompatible with
      * <tt>trackControl</tt>
-     * @see MediaDeviceSession#setProcessorFormat(TrackControl, Format)
+     * @see MediaDeviceSession#setProcessorFormat(TrackControl, MediaFormatImpl,
+     * Format)
      */
     @Override
     protected Format setProcessorFormat(
             TrackControl trackControl,
+            MediaFormatImpl<? extends Format> mediaFormat,
             Format format)
     {
         JNIEncoder encoder = null;
         SwScaler scaler = null;
         int codecCount = 0;
 
-        /* For H.264 we will monitor RTCP feedback. For example, if we receive a
+        /*
+         * For H.264 we will monitor RTCP feedback. For example, if we receive a
          * PLI/FIR message, we will send a keyframe.
          */
-        if(format.getEncoding().equals("h264/rtp") && usePLI)
+        if (usePLI && "h264/rtp".equalsIgnoreCase(format.getEncoding()))
         {
             encoder = new JNIEncoder();
 
@@ -1222,14 +1237,15 @@ public class VideoMediaDeviceSession
                         rtpConnector.getControlInputStream())
                     .addRTCPFeedbackListener(encoder);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.error("Error cannot get RTCP input stream", e);
             }
+
             codecCount++;
         }
 
-        if(outputSize != null)
+        if (outputSize != null)
         {
             /* We have been explicitly told to use a specified output size so
              * create a custom SwScaler that will scale and convert color spaces
@@ -1265,7 +1281,7 @@ public class VideoMediaDeviceSession
             }
         }
 
-        return super.setProcessorFormat(trackControl, format);
+        return super.setProcessorFormat(trackControl, mediaFormat, format);
     }
 
     /**

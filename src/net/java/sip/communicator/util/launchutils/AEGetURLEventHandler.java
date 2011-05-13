@@ -49,8 +49,10 @@ public class AEGetURLEventHandler
         catch(Throwable err)
         {
             //we don't have logging here so dump to stderr
-            System.err.println("Warning: Failed to register our ARG handler.");
-            System.err.println("We won't be able to handle command line arguments.");
+            System.err.println(
+                    "Warning: Failed to register our command line argument"
+                        + " handler. We won't be able to handle command line"
+                        + " arguments.");
             err.printStackTrace();
 
         }

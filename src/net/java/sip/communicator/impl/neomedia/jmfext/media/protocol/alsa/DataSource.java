@@ -23,7 +23,6 @@ public class DataSource
     extends PushBufferDataSource
 {
     protected boolean started = false;
-    protected String contentType = "raw";
     protected boolean connected = false;
     protected Time duration = DURATION_UNKNOWN;
     protected AlsaStream [] streams = null;
@@ -37,18 +36,15 @@ public class DataSource
     }
 
     /**
-     * Tell we are a raw datasource
+     * Gets the type of the content made available by this <tt>DataSource</tt>
+     * (i.e. raw).
      *
-     * @return "raw"
+     * @return the type of the content made available by this
+     * <tt>DataSource</tt> (i.e. raw)
      */
     public String getContentType()
     {
-        if (!connected)
-        {
-            System.err.println("Error: DataSource not connected");
-            return null;
-        }
-        return contentType;
+        return ContentDescriptor.RAW;
     }
 
     /**

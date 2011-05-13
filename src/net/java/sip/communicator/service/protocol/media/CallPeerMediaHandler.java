@@ -1280,8 +1280,8 @@ public abstract class CallPeerMediaHandler<
      */
     private void registerDynamicPTsWithStream(MediaStream stream)
     {
-        for ( Map.Entry<MediaFormat, Byte> mapEntry
-                        : dynamicPayloadTypes.getMappings().entrySet())
+        for (Map.Entry<MediaFormat, Byte> mapEntry
+                : dynamicPayloadTypes.getMappings().entrySet())
         {
             byte pt = mapEntry.getValue();
             MediaFormat fmt = mapEntry.getKey();
@@ -1402,12 +1402,14 @@ public abstract class CallPeerMediaHandler<
             = MediaType.AUDIO.equals(mediaType)
                 ? ((AudioMediaFormat) format).getChannels()
                 : MediaFormatFactory.CHANNELS_NOT_SPECIFIED;
+        Map<String, String> formatParameters = format.getFormatParameters();
 
         for(MediaFormat match : formats)
         {
             if (AbstractMediaStream.matches(
                         match,
-                        mediaType, encoding, clockRate, channels))
+                        mediaType,
+                        encoding, clockRate, channels, formatParameters))
                 return match;
         }
         return null;

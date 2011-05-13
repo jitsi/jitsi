@@ -7,20 +7,21 @@
 package net.java.sip.communicator.impl.neomedia.codec.video.h264;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.media.*;
 import javax.media.format.*;
 
-import net.java.sip.communicator.service.neomedia.event.*;
-
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.impl.neomedia.format.*;
+import net.java.sip.communicator.service.neomedia.event.*;
 import net.sf.fmj.media.*;
 
 /**
  * Implements a H.264 encoder.
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
 public class JNIEncoder
@@ -35,15 +36,15 @@ public class JNIEncoder
     private static final int DEFAULT_FRAME_RATE = 15;
 
     /**
-     * Default output formats.
-     */
-    private static final Format[] DEFAULT_OUTPUT_FORMATS
-        = { new VideoFormat(Constants.H264) };
-
-    /**
      * Key frame every 150 frames.
      */
     private static final int IFRAME_INTERVAL = 150;
+
+    /**
+     * The name of the format parameter which specifies the packetization mode
+     * of H.264 RTP payload.
+     */
+    public static final String PACKETIZATION_MODE_FMTP = "packetization-mode";
 
     /**
      * Minimum interval between two PLI request processing (in milliseconds).
@@ -56,9 +57,23 @@ public class JNIEncoder
     private static final String PLUGIN_NAME = "H.264 Encoder";
 
     /**
+     * The list of <tt>Formats</tt> supported by <tt>JNIEncoder</tt> instances
+     * as output.
+     */
+    static final Format[] SUPPORTED_OUTPUT_FORMATS
+        = {
+            new ParameterizedVideoFormat(
+                    Constants.H264,
+                    PACKETIZATION_MODE_FMTP, "0"),
+            new ParameterizedVideoFormat(
+                    Constants.H264,
+                    PACKETIZATION_MODE_FMTP, "1")
+        };
+
+    /**
      * The codec we will use.
      */
-    private long avcontext;
+    private long avctx;
 
     /**
      * The encoded data is stored in avpicture.
@@ -101,8 +116,8 @@ public class JNIEncoder
      * manage to decode the first keyframe and must wait for the next periodic
      * intra refresh to display the video to the user.
      *
-     * Temporary solution for this probolem: send the two first frames as
-     * keyframe to display video stream.
+     * Temporary solution for this problem: send the two first frames as
+     * keyframes to display video stream.
      */
     private boolean secondKeyFrame = true;
 
@@ -139,9 +154,9 @@ public class JNIEncoder
             opened = false;
             super.close();
 
-            FFmpeg.avcodec_close(avcontext);
-            FFmpeg.av_free(avcontext);
-            avcontext = 0;
+            FFmpeg.avcodec_close(avctx);
+            FFmpeg.av_free(avctx);
+            avctx = 0;
 
             FFmpeg.av_free(avframe);
             avframe = 0;
@@ -149,6 +164,38 @@ public class JNIEncoder
             rawFrameBuffer = 0;
 
             encFrameBuffer = null;
+        }
+    }
+
+    /**
+     * Event fired when RTCP feedback message is received.
+     *
+     * @param event <tt>RTCPFeedbackEvent</tt>
+     */
+    public void feedbackReceived(RTCPFeedbackEvent event)
+    {
+        /*
+         * If RTCP message is a Picture Loss Indication (PLI) or a
+         * Full Intra-frame Request (FIR) the encoder will force the next frame
+         * to be a keyframe.
+         */
+        if (event.getPayloadType() == RTCPFeedbackEvent.PT_PS)
+        {
+            switch (event.getFeedbackMessageType())
+            {
+                case RTCPFeedbackEvent.FMT_PLI:
+                case RTCPFeedbackEvent.FMT_FIR:
+                    if (System.currentTimeMillis()
+                            > (lastKeyframeRequestTime + PLI_INTERVAL))
+                    {
+                        lastKeyframeRequestTime = System.currentTimeMillis();
+                        // Disable PLI.
+                        //forceKeyFrame = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -163,14 +210,17 @@ public class JNIEncoder
         VideoFormat videoIn = (VideoFormat) in;
 
         return
-            new VideoFormat[]
+            new Format[]
             {
-                new VideoFormat(
+                new ParameterizedVideoFormat(
                         Constants.H264,
                         videoIn.getSize(),
                         Format.NOT_SPECIFIED,
                         Format.byteArray,
-                        videoIn.getFrameRate())
+                        videoIn.getFrameRate(),
+                        ParameterizedVideoFormat.toMap(
+                                PACKETIZATION_MODE_FMTP,
+                                "1"))
             };
     }
 
@@ -196,7 +246,7 @@ public class JNIEncoder
     {
         // null input format
         if (in == null)
-            return DEFAULT_OUTPUT_FORMATS;
+            return SUPPORTED_OUTPUT_FORMATS;
 
         // mismatch input format
         if (!(in instanceof VideoFormat)
@@ -228,12 +278,12 @@ public class JNIEncoder
 
         long avcodec = FFmpeg.avcodec_find_encoder(FFmpeg.CODEC_ID_H264);
 
-        avcontext = FFmpeg.avcodec_alloc_context();
+        avctx = FFmpeg.avcodec_alloc_context();
 
-        FFmpeg.avcodeccontext_set_pix_fmt(avcontext, FFmpeg.PIX_FMT_YUV420P);
-        FFmpeg.avcodeccontext_set_size(avcontext, width, height);
+        FFmpeg.avcodeccontext_set_pix_fmt(avctx, FFmpeg.PIX_FMT_YUV420P);
+        FFmpeg.avcodeccontext_set_size(avctx, width, height);
 
-        FFmpeg.avcodeccontext_set_qcompress(avcontext, 0.6f);
+        FFmpeg.avcodeccontext_set_qcompress(avctx, 0.6f);
 
         int bitRate = 128000;
         int frameRate = (int) outputVideoFormat.getFrameRate();
@@ -242,58 +292,52 @@ public class JNIEncoder
             frameRate = DEFAULT_FRAME_RATE;
 
         // average bit rate
-        FFmpeg.avcodeccontext_set_bit_rate(avcontext, bitRate);
+        FFmpeg.avcodeccontext_set_bit_rate(avctx, bitRate);
         // so to be 1 in x264
-        FFmpeg.avcodeccontext_set_bit_rate_tolerance(avcontext, (bitRate /
+        FFmpeg.avcodeccontext_set_bit_rate_tolerance(avctx, (bitRate /
                 frameRate));
-        FFmpeg.avcodeccontext_set_rc_max_rate(avcontext, bitRate);
-        FFmpeg.avcodeccontext_set_sample_aspect_ratio(avcontext, 0, 0);
-        FFmpeg.avcodeccontext_set_thread_count(avcontext, 1);
+        FFmpeg.avcodeccontext_set_rc_max_rate(avctx, bitRate);
+        FFmpeg.avcodeccontext_set_sample_aspect_ratio(avctx, 0, 0);
+        FFmpeg.avcodeccontext_set_thread_count(avctx, 1);
 
         // time_base should be 1 / frame rate
-        FFmpeg.avcodeccontext_set_time_base(avcontext, 1, frameRate);
-        FFmpeg.avcodeccontext_set_ticks_per_frame(avcontext, 2);
-        FFmpeg.avcodeccontext_set_quantizer(avcontext, 30, 31, 4);
+        FFmpeg.avcodeccontext_set_time_base(avctx, 1, frameRate);
+        FFmpeg.avcodeccontext_set_ticks_per_frame(avctx, 2);
+        FFmpeg.avcodeccontext_set_quantizer(avctx, 30, 31, 4);
 
-        // avcontext.chromaoffset = -2;
+        // avctx.chromaoffset = -2;
 
-        FFmpeg.avcodeccontext_add_partitions(avcontext, 0x111);
+        FFmpeg.avcodeccontext_add_partitions(avctx, 0x111);
         // X264_PART_I4X4 0x001
         // X264_PART_P8X8 0x010
         // X264_PART_B8X8 0x100
 
-        FFmpeg.avcodeccontext_set_mb_decision(avcontext,
+        FFmpeg.avcodeccontext_set_mb_decision(avctx,
             FFmpeg.FF_MB_DECISION_SIMPLE);
 
-        FFmpeg.avcodeccontext_set_rc_eq(avcontext, "blurCplx^(1-qComp)");
+        FFmpeg.avcodeccontext_set_rc_eq(avctx, "blurCplx^(1-qComp)");
 
-        FFmpeg.avcodeccontext_add_flags(avcontext,
-            FFmpeg.CODEC_FLAG_LOOP_FILTER);
-        FFmpeg.avcodeccontext_set_me_method(avcontext, 7);
-        FFmpeg.avcodeccontext_set_me_subpel_quality(avcontext, 2);
-        FFmpeg.avcodeccontext_set_me_range(avcontext, 16);
-        FFmpeg.avcodeccontext_set_me_cmp(avcontext, FFmpeg.FF_CMP_CHROMA);
-        FFmpeg.avcodeccontext_set_scenechange_threshold(avcontext, 40);
+        FFmpeg.avcodeccontext_add_flags(avctx,
+                FFmpeg.CODEC_FLAG_LOOP_FILTER);
+        FFmpeg.avcodeccontext_add_flags2(avctx,
+                FFmpeg.CODEC_FLAG2_INTRA_REFRESH);
+        FFmpeg.avcodeccontext_set_me_method(avctx, 7);
+        FFmpeg.avcodeccontext_set_me_subpel_quality(avctx, 2);
+        FFmpeg.avcodeccontext_set_me_range(avctx, 16);
+        FFmpeg.avcodeccontext_set_me_cmp(avctx, FFmpeg.FF_CMP_CHROMA);
+        FFmpeg.avcodeccontext_set_scenechange_threshold(avctx, 40);
         // Constant quality mode (also known as constant ratefactor)
-        FFmpeg.avcodeccontext_set_crf(avcontext, 0);
-        FFmpeg.avcodeccontext_set_rc_buffer_size(avcontext, 10);
-        FFmpeg.avcodeccontext_set_gop_size(avcontext, IFRAME_INTERVAL);
-        FFmpeg.avcodeccontext_set_i_quant_factor(avcontext, 1f / 1.4f);
+        FFmpeg.avcodeccontext_set_crf(avctx, 0);
+        FFmpeg.avcodeccontext_set_rc_buffer_size(avctx, 10);
+        FFmpeg.avcodeccontext_set_gop_size(avctx, IFRAME_INTERVAL);
+        FFmpeg.avcodeccontext_set_i_quant_factor(avctx, 1f / 1.4f);
 
-        FFmpeg.avcodeccontext_set_refs(avcontext, 1);
-        //FFmpeg.avcodeccontext_set_trellis(avcontext, 2);
+        FFmpeg.avcodeccontext_set_refs(avctx, 1);
+        //FFmpeg.avcodeccontext_set_trellis(avctx, 2);
 
-        /*
-         * AVCodecContext's rtp_payload_size is supposed to try to provide an
-         * alternative to the "Fragmentation Units (FUs)" created by Packetizer
-         * but the former does not seem to be guaranteed and the video looks
-         * better at the time of this writing when only Packetizer takes care of
-         * ensuring MAX_PAYLOAD_SIZE.
-         */
-        //FFmpeg.avcodeccontext_set_rtp_payload_size(avcontext,
-        //        Packetizer.MAX_PAYLOAD_SIZE);
+        FFmpeg.avcodeccontext_set_keyint_min(avctx, 0);
 
-        if (FFmpeg.avcodec_open(avcontext, avcodec) < 0)
+        if (FFmpeg.avcodec_open(avctx, avcodec) < 0)
         {
             throw
                 new ResourceUnavailableException(
@@ -305,7 +349,6 @@ public class JNIEncoder
         encFrameLen = (width * height * 3) / 2;
 
         rawFrameBuffer = FFmpeg.av_malloc(encFrameLen);
-
         avframe = FFmpeg.avcodec_alloc_frame();
 
         int sizeInBytes = width * height;
@@ -389,7 +432,7 @@ public class JNIEncoder
         // encode data
         int encLen
             = FFmpeg.avcodec_encode_video(
-                    avcontext,
+                    avctx,
                     encFrameBuffer, encFrameLen,
                     avframe);
 
@@ -417,22 +460,6 @@ public class JNIEncoder
         outBuffer.setLength(encLen);
         outBuffer.setOffset(0);
         outBuffer.setTimeStamp(inBuffer.getTimeStamp());
-
-/*
-        // flags
-        int inFlags = inBuffer.getFlags();
-        int outFlags = outBuffer.getFlags();
-
-        if ((inFlags & Buffer.FLAG_LIVE_DATA) != 0)
-            outFlags |= Buffer.FLAG_LIVE_DATA;
-        if ((inFlags & Buffer.FLAG_RELATIVE_TIME) != 0)
-            outFlags |= Buffer.FLAG_RELATIVE_TIME;
-        if ((inFlags & Buffer.FLAG_RTP_TIME) != 0)
-            outFlags |= Buffer.FLAG_RTP_TIME;
-        if ((inFlags & Buffer.FLAG_SYSTEM_TIME) != 0)
-            outFlags |= Buffer.FLAG_SYSTEM_TIME;
-        outBuffer.setFlags(outFlags);
-*/
         return BUFFER_PROCESSED_OK;
     }
 
@@ -517,46 +544,24 @@ public class JNIEncoder
                     : inSize;
         }
 
+        Map<String, String> fmtps = null;
+
+        if (out instanceof ParameterizedVideoFormat)
+            fmtps = ((ParameterizedVideoFormat) out).getFormatParameters();
+        if (fmtps == null)
+            fmtps = new HashMap<String, String>();
+        fmtps.put(PACKETIZATION_MODE_FMTP, "1");
+
         outputFormat
-            = new VideoFormat(
+            = new ParameterizedVideoFormat(
                     videoOut.getEncoding(),
                     outSize,
                     Format.NOT_SPECIFIED,
                     Format.byteArray,
-                    videoOut.getFrameRate());
+                    videoOut.getFrameRate(),
+                    fmtps);
 
         // Return the selected outputFormat
         return outputFormat;
-    }
-
-    /**
-     * Event fired when RTCP feedback message is received.
-     *
-     * @param event <tt>RTCPFeedbackEvent</tt>
-     */
-    public void feedbackReceived(RTCPFeedbackEvent event)
-    {
-        /* if RTCP message is a Picture Loss Indication (PLI)
-         * or a Full Intra-frame Request (FIR) the encoder will
-         * force the next frame to be a keyframe
-         */
-        if(event.getPayloadType() == RTCPFeedbackEvent.PT_PS)
-        {
-            switch(event.getFeedbackMessageType())
-            {
-                case RTCPFeedbackEvent.FMT_PLI:
-                case RTCPFeedbackEvent.FMT_FIR:
-                    if(System.currentTimeMillis() > lastKeyframeRequestTime
-                            + PLI_INTERVAL)
-                    {
-                        lastKeyframeRequestTime = System.currentTimeMillis();
-                        /* disable PLI */
-                        //forceKeyFrame = true;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 }

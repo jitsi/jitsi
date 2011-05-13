@@ -112,7 +112,7 @@ public abstract class AbstractCodecExt
     }
 
     /**
-     * Implements {AbstractCodec#getSupportedOutputFormats(Format)}.
+     * Implements {@link AbstractCodec#getSupportedOutputFormats(Format)}.
      *
      * @param inputFormat
      * @return

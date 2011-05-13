@@ -20,7 +20,7 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
  * @author Damian Minkov
  */
 public class DataSource
-    extends AbstractPullBufferCaptureDevice
+    extends AbstractVideoPullBufferCaptureDevice
 {
     /**
      * Stream created.

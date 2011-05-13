@@ -12,23 +12,25 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
-import net.java.sip.communicator.service.neomedia.MediaType;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>MediaFormatFactory</tt> for the JMF <tt>Format</tt> types.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class MediaFormatFactoryImpl
     implements MediaFormatFactory
 {
     /**
-     * Our class logger.
+     * The <tt>Logger</tt> used by the <tt>MediaFormatFactoryImpl</tt> class and
+     * its instances for logging output.
      */
     private static final Logger logger
             = Logger.getLogger(MediaFormatFactoryImpl.class);
+
     /**
      * Creates an unknown <tt>MediaFormat</tt>.
      *
@@ -39,14 +41,14 @@ public class MediaFormatFactoryImpl
     {
         Format unknown = null;
 
+        /*
+         * FIXME Why is a VideoFormat instance created for MediaType.AUDIO and
+         * an AudioFormat instance for MediaType.VIDEO?
+         */
         if(type.equals(MediaType.AUDIO))
-        {
             unknown = new VideoFormat("unknown");
-        }
         else if(type.equals(MediaType.VIDEO))
-        {
             unknown = new AudioFormat("unknown");
-        }
         return MediaFormatImpl.createInstance(unknown);
     }
 
@@ -88,11 +90,10 @@ public class MediaFormatFactoryImpl
      */
     public MediaFormat createMediaFormat(byte rtpPayloadType)
     {
-
         /*
-         * We know which are the MediaFormat instance with the specified
+         * We know which are the MediaFormat instances with the specified
          * rtpPayloadType but we cannot directly return them because they do not
-         * reflect the user configuration with respect to being enabled and
+         * reflect the user's configuration with respect to being enabled and
          * disabled.
          */
         for (MediaFormat rtpPayloadTypeMediaFormat
@@ -126,9 +127,7 @@ public class MediaFormatFactoryImpl
      * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
      * @see MediaFormatFactory#createMediaFormat(String, double)
      */
-    public MediaFormat createMediaFormat(
-            String encoding,
-            double clockRate)
+    public MediaFormat createMediaFormat(String encoding, double clockRate)
     {
         return createMediaFormat(encoding, clockRate, 1);
     }
@@ -145,7 +144,7 @@ public class MediaFormatFactoryImpl
      * <tt>MediaFormat</tt> for
      * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
      * for
-     * @param channels the number of availabe channels (1 for mono, 2 for
+     * @param channels the number of available channels (1 for mono, 2 for
      * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
      * <tt>encoding</tt>; otherwise, ignored
      * @return a <tt>MediaFormat</tt> with the specified <tt>encoding</tt>,
@@ -156,22 +155,30 @@ public class MediaFormatFactoryImpl
      * @see MediaFormatFactory#createMediaFormat(String, double, int)
      */
     public MediaFormat createMediaFormat(
-            String encoding,
-            double clockRate,
-            int channels)
+            String encoding, double clockRate, int channels)
+    {
+        return createMediaFormat(encoding, clockRate, channels, null);
+    }
+
+    private MediaFormat createMediaFormat(
+            String encoding, double clockRate, int channels,
+            Map<String, String> fmtps)
     {
         for (MediaFormat format : getSupportedMediaFormats(encoding, clockRate))
-            if ((CHANNELS_NOT_SPECIFIED != channels)
-                    && (format instanceof AudioMediaFormat))
-            {
-                AudioMediaFormat audioFormat = (AudioMediaFormat) format;
-                int audioFormatChannels = audioFormat.getChannels();
-
-                if ((CHANNELS_NOT_SPECIFIED == audioFormatChannels)
-                        || (audioFormatChannels == channels))
-                    return audioFormat;
-            } else
+        {
+            /*
+             * The mediaType, encoding and clockRate properties are sure to
+             * match because format is the result of the search for encoding and
+             * clockRate. We just want to make sure that the channels and the
+             * format parameters match.
+             */
+            if (AbstractMediaStream.matches(
+                    format,
+                    format.getMediaType(),
+                    format.getEncoding(), format.getClockRate(), channels,
+                    fmtps))
                 return format;
+        }
         return null;
     }
 
@@ -195,13 +202,16 @@ public class MediaFormatFactoryImpl
      * otherwise, <tt>null</tt>
      * @see MediaFormatFactory#createMediaFormat(String, double, Map, Map)
      */
-    public MediaFormat createMediaFormat( String              encoding,
-                                          double              clockRate,
-                                          Map<String, String> formatParams,
-                                          Map<String, String> advancedParams)
+    public MediaFormat createMediaFormat(
+            String encoding, double clockRate,
+            Map<String, String> formatParams,
+            Map<String, String> advancedParams)
     {
-        return createMediaFormat( encoding, clockRate, 1, formatParams,
-                        advancedParams);
+        return
+            createMediaFormat(
+                    encoding, clockRate, 1,
+                    formatParams,
+                    advancedParams);
     }
 
     /**
@@ -215,7 +225,7 @@ public class MediaFormatFactoryImpl
      * <tt>MediaFormat</tt> for
      * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
      * for
-     * @param channels the number of availabe channels (1 for mono, 2 for
+     * @param channels the number of available channels (1 for mono, 2 for
      * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
      * <tt>encoding</tt>; otherwise, ignored
      * @param formatParams any codec specific parameters which have been
@@ -229,42 +239,31 @@ public class MediaFormatFactoryImpl
      * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
      * @see MediaFormatFactory#createMediaFormat(String, double, int, Map, Map)
      */
-    public MediaFormat createMediaFormat(String              encoding,
-                                         double              clockRate,
-                                         int                 channels,
-                                         Map<String, String> formatParams,
-                                         Map<String, String> advancedParams)
+    public MediaFormat createMediaFormat(
+            String encoding, double clockRate, int channels,
+            Map<String, String> formatParams,
+            Map<String, String> advancedParams)
     {
         MediaFormat mediaFormat
-            = createMediaFormat(encoding, clockRate, channels);
-        Map<String, String> formatParameters
-            = new HashMap<String, String>();
-        Map<String, String> advancedParameters
-            = new HashMap<String, String>();
-        boolean recreate = false;
+            = createMediaFormat(encoding, clockRate, channels, formatParams);
 
-        if ((mediaFormat != null)
-                && (formatParams != null)
-                && !formatParams.isEmpty())
-        {
-            recreate = true;
+        if (mediaFormat == null)
+            return null;
 
-            //formatParameters.putAll(mediaFormat.getFormatParameters());
-            formatParameters.putAll(formatParams);
-        }
+         /*
+          * MediaFormatImpl is immutable so if the caller wants to change the
+          * format parameters and/or the advanced attributes, we'll have to
+          * create a new MediaFormatImpl.
+          */
+        Map<String, String> formatParameters = null;
+        Map<String, String> advancedParameters = null;
 
-        if(mediaFormat != null && (advancedParams != null ) &&
-                !advancedParams.isEmpty())
-        {
-            recreate = true;
+        if ((formatParams != null) && !formatParams.isEmpty())
+            formatParameters = formatParams;
+        if ((advancedParams != null ) && !advancedParams.isEmpty())
+            advancedParameters = advancedParams;
 
-            if(advancedParams != null)
-            {
-                advancedParameters.putAll(advancedParams);
-            }
-        }
-
-        if(recreate)
+        if ((formatParameters != null) || (advancedParameters != null))
         {
             switch (mediaFormat.getMediaType())
             {
@@ -278,12 +277,23 @@ public class MediaFormatFactoryImpl
                 VideoMediaFormatImpl videoMediaFormatImpl
                     = (VideoMediaFormatImpl) mediaFormat;
 
+                /*
+                 * If the format of VideoMediaFormatImpl is
+                 * a ParameterizedVideoFormat, it's possible for the format
+                 * parameters of that ParameterizedVideoFormat and of the new
+                 * VideoMediaFormatImpl (to be created) to be out of sync. While
+                 * it's not technically perfect, it should be practically safe
+                 * for the format parameters which distinguish VideoFormats with
+                 * the same encoding and clock rate because mediaFormat has
+                 * already been created in sync with formatParams (with respect
+                 * to the format parameters which distinguish VideoFormats with
+                 * the same encoding and clock rate).
+                 */
                 mediaFormat
                     = new VideoMediaFormatImpl(
                             videoMediaFormatImpl.getFormat(),
                             videoMediaFormatImpl.getClockRate(),
-                            formatParameters,
-                            advancedParameters);
+                            formatParameters, advancedParameters);
                 break;
             default:
                 mediaFormat = null;
@@ -312,7 +322,7 @@ public class MediaFormatFactoryImpl
      * <tt>MediaFormat</tt> for; <tt>null</tt>
      * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
      * for
-     * @param channels the number of availabe channels (1 for mono, 2 for
+     * @param channels the number of available channels (1 for mono, 2 for
      * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
      * <tt>encoding</tt>; otherwise, ignored
      * @param formatParams any codec specific parameters which have been
@@ -327,9 +337,7 @@ public class MediaFormatFactoryImpl
      */
     public MediaFormat createMediaFormat(
             byte rtpPayloadType,
-            String encoding,
-            double clockRate,
-            int channels,
+            String encoding, double clockRate, int channels,
             Map<String, String> formatParams,
             Map<String, String> advancedParams)
     {
@@ -374,8 +382,11 @@ public class MediaFormatFactoryImpl
             }
         }
 
-        return createMediaFormat(encoding, clockRate, channels, formatParams,
-                advancedParams);
+        return
+            createMediaFormat(
+                    encoding, clockRate, channels,
+                    formatParams,
+                    advancedParams);
     }
 
     /**
@@ -397,28 +408,37 @@ public class MediaFormatFactoryImpl
      */
     private List<MediaFormat> getMatchingMediaFormats(
             MediaFormat[] mediaFormats,
-            String encoding,
-            double clockRate)
+            String encoding, double clockRate)
     {
-        // As per RFC 3551.4.5.2, because of a mistake in RFC 1890 and for
-        // b-ward compatibility, G.722 should always be announced as 8000 even
-        // though it is wideband. So, if someone is looking for G722/16000
-        // then:    Forgive them, for they know not what they do!
-        if("G722".equals(encoding) && clockRate == 16000)
+        /*
+         * XXX Use String#equalsIgnoreCase(String) because some clients transmit
+         * some of the codecs starting with capital letters.
+         */
+
+        /*
+         * As per RFC 3551.4.5.2, because of a mistake in RFC 1890 and for
+         * backward compatibility, G.722 should always be announced as 8000 even
+         * though it is wideband. So, if someone is looking for G722/16000,
+         * then: Forgive them, for they know not what they do!
+         */
+        if("G722".equalsIgnoreCase(encoding) && (16000 == clockRate))
         {
-            logger.info("Suppressing erroneous 16000 announcement for G.722");
             clockRate = 8000;
+            if (logger.isInfoEnabled())
+                logger.info("Suppressing erroneous 16000 announcement for G.722");
         }
 
         List<MediaFormat> supportedMediaFormats = new ArrayList<MediaFormat>();
 
-        // uses equalsIgnoreCase, as some clients transmit some of the codecs
-        // starting with capital letters
         for (MediaFormat mediaFormat : mediaFormats)
+        {
             if (mediaFormat.getEncoding().equalsIgnoreCase(encoding)
                     && ((CLOCK_RATE_NOT_SPECIFIED == clockRate)
                             || (mediaFormat.getClockRate() == clockRate)))
+            {
                 supportedMediaFormats.add(mediaFormat);
+            }
+        }
         return supportedMediaFormats;
     }
 
@@ -438,24 +458,23 @@ public class MediaFormatFactoryImpl
      * and having the specified encoding and, optionally, clock rate
      */
     private List<MediaFormat> getSupportedMediaFormats(
-            String encoding,
-            double clockRate)
+            String encoding, double clockRate)
     {
         EncodingConfiguration encodingConfiguration
-            = NeomediaActivator
-                .getMediaServiceImpl().getEncodingConfiguration();
+            = NeomediaActivator.getMediaServiceImpl()
+                    .getEncodingConfiguration();
         List<MediaFormat> supportedMediaFormats
             = getMatchingMediaFormats(
-                encodingConfiguration
-                    .getSupportedEncodings(MediaType.AUDIO),
+                encodingConfiguration.getSupportedEncodings(
+                        MediaType.AUDIO),
                 encoding,
                 clockRate);
 
         if (supportedMediaFormats.isEmpty())
             supportedMediaFormats
                 = getMatchingMediaFormats(
-                    encodingConfiguration
-                        .getSupportedEncodings(MediaType.VIDEO),
+                    encodingConfiguration.getSupportedEncodings(
+                            MediaType.VIDEO),
                     encoding,
                     clockRate);
         return supportedMediaFormats;

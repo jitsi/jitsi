@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
  * Represents the use of a specific <tt>MediaDevice</tt> by a
  * <tt>MediaStream</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Damian Minkov
  * @author Emil Ivov
  */
@@ -88,7 +88,7 @@ public class MediaDeviceSession
      * {@link #setFormat(MediaFormat)} and to be set as the output format of
      * {@link #processor}.
      */
-    protected Format format;
+    private MediaFormatImpl<? extends Format> format;
 
     /**
      * The indicator which determines whether this <tt>MediaDeviceSession</tt>
@@ -738,7 +738,7 @@ public class MediaDeviceSession
                         ? MediaType.VIDEO
                         : MediaType.AUDIO;
 
-                if(mediaType.equals(type))
+                if (mediaType.equals(type))
                     return jmfFormat;
             }
         }
@@ -752,20 +752,28 @@ public class MediaDeviceSession
      * @return the <tt>MediaFormat</tt> in which this instance captures media
      * from its associated <tt>MediaDevice</tt>
      */
-    public MediaFormat getFormat()
+    public MediaFormatImpl<? extends Format> getFormat()
     {
-        // if processor is not present we will not query for format
-        // and return the locally stored one.
-        Format jmfFormat = (processor == null) ?
-                this.format : getProcessorFormat();
-
-        if(jmfFormat != null)
+        /*
+         * If the Format of the processor is different than the format of this
+         * MediaDeviceSession, we'll likely run into unexpected issues so debug
+         * whether there are such cases.
+         */
+        if (logger.isDebugEnabled() && (processor != null))
         {
-            MediaFormat format
-                = MediaFormatImpl.createInstance(jmfFormat);
-            return format;
+            Format processorFormat = getProcessorFormat();
+            Format format
+                = (this.format == null) ? null : this.format.getFormat();
+            boolean processorFormatEqualsFormat
+                = (processorFormat == null)
+                    ? (format == null)
+                    : processorFormat.equals(format);
+
+            if (!processorFormatEqualsFormat)
+                logger.debug("processorFormat != format");
         }
-        return null;
+
+        return format;
     }
 
     /**
@@ -1277,9 +1285,7 @@ public class MediaDeviceSession
      */
     public void setFormat(MediaFormat format)
     {
-        MediaType mediaType = getMediaType();
-
-        if (!mediaType.equals(format.getMediaType()))
+        if (!getMediaType().equals(format.getMediaType()))
             throw new IllegalArgumentException("format");
 
         /*
@@ -1290,7 +1296,14 @@ public class MediaDeviceSession
         MediaFormatImpl<? extends Format> mediaFormatImpl
             = (MediaFormatImpl<? extends Format>) format;
 
-        this.format = mediaFormatImpl.getFormat();
+        this.format = mediaFormatImpl;
+        if (logger.isTraceEnabled())
+        {
+            logger.trace(
+                    "Set format " + this.format
+                        + " on "
+                        + getClass().getSimpleName() + " " + hashCode());
+        }
 
         /*
          * If the processor is after Configured, setting a different format will
@@ -1305,7 +1318,8 @@ public class MediaDeviceSession
                 setProcessorFormat(processor, this.format);
             else if (processorIsPrematurelyClosed
                         || ((processorState > Processor.Configured)
-                                && !this.format.equals(getProcessorFormat())))
+                                && !this.format.getFormat().equals(
+                                        getProcessorFormat())))
             {
                 setProcessor(null);
             }
@@ -1313,17 +1327,21 @@ public class MediaDeviceSession
     }
 
     /**
-     * Sets the JMF <tt>Format</tt> in which a specific <tt>Processor</tt>
+     * Sets the <tt>MediaFormatImpl</tt> in which a specific <tt>Processor</tt>
      * producing media to be streamed to the remote peer is to output.
      *
-     * @param processor the <tt>Processor</tt> to set the output <tt>Format</tt>
-     * of
-     * @param format the JMF <tt>Format</tt> to set to <tt>processor</tt>
+     * @param processor the <tt>Processor</tt> to set the output
+     * <tt>MediaFormatImpl</tt> of
+     * @param mediaFormat the <tt>MediaFormatImpl</tt> to set on
+     * <tt>processor</tt>
      */
-    protected void setProcessorFormat(Processor processor, Format format)
+    protected void setProcessorFormat(
+            Processor processor,
+            MediaFormatImpl<? extends Format> mediaFormat)
     {
         TrackControl[] trackControls = processor.getTrackControls();
         MediaType mediaType = getMediaType();
+        Format format = mediaFormat.getFormat();
 
         for (int trackIndex = 0;
                 trackIndex < trackControls.length;
@@ -1393,7 +1411,9 @@ public class MediaDeviceSession
             else if (!supportedFormat.equals(trackControl.getFormat()))
             {
                 Format setFormat
-                    = setProcessorFormat(trackControl, supportedFormat);
+                    = setProcessorFormat(
+                            trackControl,
+                            mediaFormat, supportedFormat);
 
                 if (setFormat == null)
                     logger
@@ -1427,16 +1447,26 @@ public class MediaDeviceSession
     }
 
     /**
-     * Sets the JMF <tt>Format</tt> of a specific <tt>TrackControl</tt> of the
-     * <tt>Processor</tt> which produces the media to be streamed by this
+     * Sets the <tt>MediaFormatImpl</tt> of a specific <tt>TrackControl</tt> of
+     * the <tt>Processor</tt> which produces the media to be streamed by this
      * <tt>MediaDeviceSession</tt> to the remote peer. Allows extenders to
      * override the set procedure and to detect when the JMF <tt>Format</tt> of
      * the specified <tt>TrackControl</tt> changes.
      *
      * @param trackControl the <tt>TrackControl</tt> to set the JMF
      * <tt>Format</tt> of
+     * @param mediaFormat the <tt>MediaFormatImpl</tt> to be set on the
+     * specified <tt>TrackControl</tt>. Though <tt>mediaFormat</tt> encapsulates
+     * a JMF <tt>Format</tt>, <tt>format</tt> is to be set on the specified
+     * <tt>trackControl</tt> because it may be more specific. In any case, the
+     * two JMF <tt>Format</tt>s match. The <tt>MediaFormatImpl</tt> is provided
+     * anyway because it carries additional information such as format
+     * parameters.
      * @param format the JMF <tt>Format</tt> to be set on the specified
-     * <tt>TrackControl</tt>
+     * <tt>TrackControl</tt>. Though <tt>mediaFormat</tt> encapsulates a JMF
+     * <tt>Format</tt>, the specified <tt>format</tt> is to be set on the
+     * specified <tt>trackControl</tt> because it may be more specific than the
+     * JMF <tt>Format</tt> of the <tt>mediaFormat</tt>
      * @return the JMF <tt>Format</tt> set on <tt>TrackControl</tt> after the
      * attempt to set the specified <tt>format</tt> or <tt>null</tt> if the
      * specified <tt>format</tt> was found to be incompatible with
@@ -1444,6 +1474,7 @@ public class MediaDeviceSession
      */
     protected Format setProcessorFormat(
             TrackControl trackControl,
+            MediaFormatImpl<? extends Format> mediaFormat,
             Format format)
     {
         return trackControl.setFormat(format);

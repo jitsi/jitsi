@@ -12,6 +12,7 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.sf.fmj.media.*;
 
@@ -20,17 +21,11 @@ import net.sf.fmj.media.*;
  * 3984 "RTP Payload Format for H.264 Video".
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class Packetizer
     extends AbstractPacketizer
 {
-    /**
-     * Array of default output formats.
-     */
-    private static final Format[] DEFAULT_OUTPUT_FORMATS
-        = { new VideoFormat(Constants.H264_RTP) };
-
     /**
      * Maximum payload size without the headers.
      */
@@ -40,6 +35,20 @@ public class Packetizer
      * Name of the plugin.
      */
     private static final String PLUGIN_NAME = "H264 Packetizer";
+
+    /**
+     * The <tt>Formats</tt> supported by <tt>Packetizer</tt> instances as
+     * output.
+     */
+    static final Format[] SUPPORTED_OUTPUT_FORMATS
+        = {
+            new ParameterizedVideoFormat(
+                    Constants.H264_RTP,
+                    JNIEncoder.PACKETIZATION_MODE_FMTP, "0"),
+            new ParameterizedVideoFormat(
+                    Constants.H264_RTP,
+                    JNIEncoder.PACKETIZATION_MODE_FMTP, "1")
+        };
 
     /**
      * The list of NAL units to be sent as payload in RTP packets.
@@ -64,7 +73,7 @@ public class Packetizer
      */
     public Packetizer()
     {
-        inputFormats = new Format[] { new VideoFormat(Constants.H264) };
+        inputFormats = JNIEncoder.SUPPORTED_OUTPUT_FORMATS;
 
         inputFormat = null;
         outputFormat = null;
@@ -112,36 +121,64 @@ public class Packetizer
     }
 
     /**
-     * Get the matching output formats for a specific format.
+     * Gets the output formats matching a specific input format.
      *
-     * @param in input format
-     * @return array for formats matching input format
+     * @param input the input format to get the matching output formats for
+     * @return an array of output formats matching the specified input format
      */
-    private Format[] getMatchingOutputFormats(Format in)
+    private Format[] getMatchingOutputFormats(Format input)
     {
-        VideoFormat videoIn = (VideoFormat) in;
-        Dimension inSize = videoIn.getSize();
+        VideoFormat videoInput = (VideoFormat) input;
+        Dimension size = videoInput.getSize();
+        float frameRate = videoInput.getFrameRate();
+        String packetizationMode = getPacketizationMode(input);
 
         return
-            new VideoFormat[]
+            new Format[]
             {
-                new VideoFormat(
+                new ParameterizedVideoFormat(
                         Constants.H264_RTP,
-                        inSize,
+                        size,
                         Format.NOT_SPECIFIED,
                         Format.byteArray,
-                        videoIn.getFrameRate())
+                        frameRate,
+                        ParameterizedVideoFormat.toMap(
+                                JNIEncoder.PACKETIZATION_MODE_FMTP,
+                                packetizationMode))
             };
     }
+
     /**
-     * Get codec name.
+     * Gets the name of this <tt>PlugIn</tt>.
      *
-     * @return codec name
+     * @return the name of this <tt>PlugIn</tt>
      */
     @Override
     public String getName()
     {
         return PLUGIN_NAME;
+    }
+
+    /**
+     * Gets the value of the <tt>packetization-mode</tt> format parameter
+     * assigned by a specific <tt>Format</tt>.
+     *
+     * @param format the <tt>Format</tt> which assigns a value to the
+     * <tt>packetization-mode</tt> format parameter
+     * @return the value of the <tt>packetization-mode</tt> format parameter
+     * assigned by the specified <tt>format</tt>
+     */
+    private String getPacketizationMode(Format format)
+    {
+        String packetizationMode = null;
+
+        if (format instanceof ParameterizedVideoFormat)
+            packetizationMode
+                = ((ParameterizedVideoFormat) format).getFormatParameter(
+                        JNIEncoder.PACKETIZATION_MODE_FMTP);
+        if (packetizationMode == null)
+            packetizationMode = "0";
+        return packetizationMode;
     }
 
     /**
@@ -154,7 +191,7 @@ public class Packetizer
     {
         // null input format
         if (in == null)
-            return DEFAULT_OUTPUT_FORMATS;
+            return SUPPORTED_OUTPUT_FORMATS;
 
         // mismatch input format
         if (!(in instanceof VideoFormat)
@@ -298,20 +335,6 @@ public class Packetizer
             outBuffer.setTimeStamp(nalsTimeStamp);
             outBuffer.setSequenceNumber(sequenceNumber++);
 
-            // flags
-//            int inFlags = inBuffer.getFlags();
-//            int outFlags = outBuffer.getFlags();
-
-//            if ((inFlags & Buffer.FLAG_LIVE_DATA) != 0)
-//                outFlags |= Buffer.FLAG_LIVE_DATA;
-//            if ((inFlags & Buffer.FLAG_RELATIVE_TIME) != 0)
-//                outFlags |= Buffer.FLAG_RELATIVE_TIME;
-//            if ((inFlags & Buffer.FLAG_RTP_TIME) != 0)
-//                outFlags |= Buffer.FLAG_RTP_TIME;
-//            if ((inFlags & Buffer.FLAG_SYSTEM_TIME) != 0)
-//                outFlags |= Buffer.FLAG_SYSTEM_TIME;
-//            outBuffer.setFlags(outFlags);
-
             // If there are other NALs, send them as well.
             if(nals.size() > 0)
                 return (BUFFER_PROCESSED_OK | INPUT_BUFFER_NOT_CONSUMED);
@@ -319,7 +342,7 @@ public class Packetizer
             {
                 // It's the last NAL of the current frame so mark it.
                 outBuffer.setFlags(
-                    outBuffer.getFlags() | Buffer.FLAG_RTP_MARKER);
+                        outBuffer.getFlags() | Buffer.FLAG_RTP_MARKER);
                 return BUFFER_PROCESSED_OK;
             }
         }
@@ -377,8 +400,7 @@ public class Packetizer
                         && ((nextBeginIndex
                                 = ff_avc_find_startcode(
                                     inData,
-                                    beginIndex,
-                                    endIndex))
+                                    beginIndex, endIndex))
                             <= endIndex);
                     beginIndex = nextBeginIndex + 3)
             {
@@ -427,48 +449,60 @@ public class Packetizer
      * Sets the <tt>Format</tt> in which this <tt>Codec</tt> is to output media
      * data.
      *
-     * @param out the <tt>Format</tt> in which this <tt>Codec</tt> is to
+     * @param output the <tt>Format</tt> in which this <tt>Codec</tt> is to
      * output media data
      * @return the <tt>Format</tt> in which this <tt>Codec</tt> is currently
      * configured to output media data or <tt>null</tt> if <tt>format</tt> was
      * found to be incompatible with this <tt>Codec</tt>
      */
     @Override
-    public Format setOutputFormat(Format out)
+    public Format setOutputFormat(Format output)
     {
         /*
          * Return null if the specified output Format is incompatible with this
          * Packetizer.
          */
-        if (!(out instanceof VideoFormat)
+        if (!(output instanceof VideoFormat)
                 || (null
                         == AbstractCodecExt.matches(
-                                out,
+                                output,
                                 getMatchingOutputFormats(inputFormat))))
             return null;
 
-        VideoFormat videoOut = (VideoFormat) out;
-        Dimension outSize = videoOut.getSize();
+        VideoFormat videoOutput = (VideoFormat) output;
+        Dimension outputSize = videoOutput.getSize();
 
-        if (outSize == null)
+        if (outputSize == null)
         {
-            Dimension inSize = ((VideoFormat) inputFormat).getSize();
+            Dimension inputSize = ((VideoFormat) inputFormat).getSize();
 
-            outSize
-                = (inSize == null)
+            outputSize
+                = (inputSize == null)
                     ? new Dimension(
                             Constants.VIDEO_WIDTH,
                             Constants.VIDEO_HEIGHT)
-                    : inSize;
+                    : inputSize;
         }
 
+        Map<String, String> fmtps = null;
+
+        if (output instanceof ParameterizedVideoFormat)
+            fmtps = ((ParameterizedVideoFormat) output).getFormatParameters();
+        if (fmtps == null)
+            fmtps = new HashMap<String, String>();
+        if (fmtps.get(JNIEncoder.PACKETIZATION_MODE_FMTP) == null)
+            fmtps.put(
+                    JNIEncoder.PACKETIZATION_MODE_FMTP,
+                    getPacketizationMode(inputFormat));
+
         outputFormat
-            = new VideoFormat(
-                    videoOut.getEncoding(),
-                    outSize,
-                    outSize.width * outSize.height,
+            = new ParameterizedVideoFormat(
+                    videoOutput.getEncoding(),
+                    outputSize,
+                    outputSize.width * outputSize.height,
                     Format.byteArray,
-                    videoOut.getFrameRate());
+                    videoOutput.getFrameRate(),
+                    fmtps);
 
         // Return the outputFormat which is actually set.
         return outputFormat;

@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
  * Implements static utility methods used by media classes.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class MediaUtils
 {
@@ -70,8 +70,9 @@ public class MediaUtils
             AudioFormat.ULAW_RTP,
             8000);
 
-        /* some codecs depend on JMF native libraries which are only available
-         * on Windows 32-bit and Linux 32-bit
+        /*
+         * Some codecs depend on JMF native libraries which are only available
+         * on 32-bit Linux and 32-bit Windows.
          */
         if(OSUtils.IS_LINUX32 || OSUtils.IS_WINDOWS32)
         {
@@ -174,12 +175,13 @@ public class MediaUtils
         /* H264 */
         Map<String, String> h264FormatParams
             = new HashMap<String, String>();
+        String packetizationMode = "packetization-mode";
         Map<String, String> h264AdvancedAttributes
         = new HashMap<String, String>();
 
-        h264FormatParams.put("packetization-mode", "1");
+        h264FormatParams.put(packetizationMode, "1");
         /*
-         * Disable PLI since we use periodic intra-refresh feature of
+         * Disable PLI since we use the periodic intra-refresh feature of
          * FFmpeg/x264.
          */
         //h264AdvancedAttributes.put("rtcp-fb", "nack pli");
@@ -190,6 +192,7 @@ public class MediaUtils
 
         h264AdvancedAttributes.put("imageattr", createImageAttr(null, res));
 
+        // packetization-mode=1
         addMediaFormats(
             MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
             "H264",
@@ -206,10 +209,7 @@ public class MediaUtils
 
         // maximum resolution we can receive is the size of our screen device
         if(res != null)
-        {
             h263FormatParams.put("CUSTOM", res.width + "," + res.height + ",2");
-        }
-
         h263FormatParams.put("VGA", "2");
         h263FormatParams.put("CIF", "1");
         h263FormatParams.put("QCIF", "1");
@@ -293,36 +293,37 @@ public class MediaUtils
             = new ArrayList<MediaFormat>(clockRateCount);
 
         if (clockRateCount > 0)
+        {
             for (double clockRate : clockRates)
             {
                 Format format;
 
                 switch (mediaType)
                 {
-                    case AUDIO:
-                        format = new AudioFormat(jmfEncoding);
-                        break;
-                    case VIDEO:
-                        format = new VideoFormat(jmfEncoding);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("mediaType");
+                case AUDIO:
+                    format = new AudioFormat(jmfEncoding);
+                    break;
+                case VIDEO:
+                    format
+                        = new ParameterizedVideoFormat(
+                                jmfEncoding,
+                                formatParameters);
+                    break;
+                default:
+                    throw new IllegalArgumentException("mediaType");
                 }
 
-                if (format != null)
-                {
-                    MediaFormat mediaFormat
-                        = MediaFormatImpl
-                            .createInstance(
-                                format,
-                                clockRate,
-                                formatParameters,
-                                advancedAttributes);
+                MediaFormat mediaFormat
+                    = MediaFormatImpl.createInstance(
+                            format,
+                            clockRate,
+                            formatParameters,
+                            advancedAttributes);
 
-                    if (mediaFormat != null)
-                        mediaFormats.add(mediaFormat);
-                }
+                if (mediaFormat != null)
+                    mediaFormats.add(mediaFormat);
             }
+        }
         else
         {
             Format format;
@@ -330,30 +331,32 @@ public class MediaUtils
 
             switch (mediaType)
             {
-                case AUDIO:
-                    AudioFormat audioFormat = new AudioFormat(jmfEncoding);
+            case AUDIO:
+                AudioFormat audioFormat = new AudioFormat(jmfEncoding);
 
-                    format = audioFormat;
-                    clockRate = audioFormat.getSampleRate();
-                    break;
-                case VIDEO:
-                    format = new VideoFormat(jmfEncoding);
-                    clockRate = VideoMediaFormatImpl.DEFAULT_CLOCK_RATE;
-                    break;
-                default:
-                    throw new IllegalArgumentException("mediaType");
+                format = audioFormat;
+                clockRate = audioFormat.getSampleRate();
+                break;
+            case VIDEO:
+                format
+                    = new ParameterizedVideoFormat(
+                            jmfEncoding,
+                            formatParameters);
+                clockRate = VideoMediaFormatImpl.DEFAULT_CLOCK_RATE;
+                break;
+            default:
+                throw new IllegalArgumentException("mediaType");
             }
 
-            if (format != null)
-            {
-                MediaFormat mediaFormat
-                    = MediaFormatImpl
-                        .createInstance(format, clockRate, formatParameters,
-                                advancedAttributes);
+            MediaFormat mediaFormat
+                = MediaFormatImpl.createInstance(
+                        format,
+                        clockRate,
+                        formatParameters,
+                        advancedAttributes);
 
-                if (mediaFormat != null)
-                    mediaFormats.add(mediaFormat);
-            }
+            if (mediaFormat != null)
+                mediaFormats.add(mediaFormat);
         }
 
         if (mediaFormats.size() > 0)
@@ -361,13 +364,11 @@ public class MediaUtils
             if (MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN == rtpPayloadType)
                 rtpPayloadTypelessMediaFormats.addAll(mediaFormats);
             else
-                rtpPayloadTypeStrToMediaFormats
-                    .put(
+                rtpPayloadTypeStrToMediaFormats.put(
                         Byte.toString(rtpPayloadType),
                         mediaFormats.toArray(EMPTY_MEDIA_FORMATS));
 
-            jmfEncodingToEncodings
-                .put(
+            jmfEncodingToEncodings.put(
                     ((MediaFormatImpl<? extends Format>) mediaFormats.get(0))
                         .getJMFEncoding(),
                     encoding);

@@ -199,9 +199,11 @@ public class CallSipImpl
     public void reInvite() throws OperationFailedException
     {
         Iterator<CallPeerSipImpl> peers = getCallPeers();
+
         while (peers.hasNext())
         {
             CallPeerSipImpl peer = peers.next();
+
             peer.sendReInvite();
         }
     }

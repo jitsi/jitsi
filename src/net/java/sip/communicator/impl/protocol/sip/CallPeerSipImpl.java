@@ -1127,8 +1127,11 @@ public class CallPeerSipImpl
         try
         {
             // Content-Type
-            invite.setContent(sdpOffer, getProtocolProvider().getHeaderFactory()
-                .createContentTypeHeader("application", "sdp"));
+            invite.setContent(
+                    sdpOffer,
+                    getProtocolProvider()
+                        .getHeaderFactory()
+                            .createContentTypeHeader("application", "sdp"));
 
             /*
              * If the local peer represented by the Call of this CallPeer is
@@ -1140,12 +1143,14 @@ public class CallPeerSipImpl
         catch (ParseException ex)
         {
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to parse SDP offer for the new invite.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
+                    "Failed to parse SDP offer for the new invite.",
+                    OperationFailedException.INTERNAL_ERROR,
+                    ex,
+                    logger);
         }
 
         getProtocolProvider().sendInDialogRequest(
-                        getJainSipProvider(), invite, dialog);
+                getJainSipProvider(), invite, dialog);
     }
 
     /**
@@ -1173,8 +1178,9 @@ public class CallPeerSipImpl
                     .getHeaderFactory()
                         .createContentTypeHeader("application", "sdp");
 
-            invite
-                .setContent(getMediaHandler().createOffer(), contentTypeHeader);
+            invite.setContent(
+                    getMediaHandler().createOffer(),
+                    contentTypeHeader);
 
             /*
              * If the local peer represented by the Call of this CallPeer is
@@ -1190,8 +1196,10 @@ public class CallPeerSipImpl
         catch (Exception ex)
         {
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "An error occurred while sending invite request",
-                OperationFailedException.NETWORK_FAILURE, ex, logger);
+                    "An error occurred while sending invite request",
+                    OperationFailedException.NETWORK_FAILURE,
+                    ex,
+                    logger);
         }
     }
 

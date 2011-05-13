@@ -20,7 +20,7 @@ import net.sf.fmj.media.*;
  * Implements <tt>Codec</tt> to represent a depacketizer of H.264 RTP packets
  * into NAL units.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Damian Minkov
  */
 public class DePacketizer
@@ -83,7 +83,7 @@ public class DePacketizer
     private long lastSequenceNumber = -1;
 
     /**
-     * The timestamp of the last received RTP packet.
+     * The time stamp of the last received RTP packet.
      */
     private long lastTimeStamp = -1;
 
@@ -117,31 +117,31 @@ public class DePacketizer
     private boolean usePLI = false;
 
     /**
-     * Last timestamp of keyframe request.
-     *
-     * This is used to retransmit keyframe request in case previous get lost
-     * and codec doesn't receive keyframe.
+     * The time stamp of the last keyframe request. Used to retransmit a
+     * keyframe request in case a previous one gets lost and this
+     * <tt>DePacketizer</tt> does not receive a keyframe.
      */
     private long lastPLIRequestTime = -1;
 
     /**
-     * Last timestamp of received keyframe.
+     * The time stamp of the last received keyframe.
      */
     private long lastReceivedKeyframeTime = -1;
 
     /**
-     * If <tt>Codec</tt> has detected frames lost.
+     * The indicator which determines whether this <tt>DePacketizer</tt> has
+     * detected lost frames.
      */
-    private boolean missFrame = false;
+    private boolean lostFrame = false;
 
     /**
-     * State of PLISendThread.
+     * The indicator which determines whether {@link #pliSendThread} is running.
      */
-    private boolean isPLIThreadRunning = false;
+    private boolean pliSendThreadIsRunning = false;
 
     /**
-     * Thread that will monitor time between PLI request, keyframes received
-     * and will send or not a PLI.
+     * The <tt>Thread</tt> which monitors the time between PLI request,
+     * keyframes received and sends a PLI.
      */
     private PLISendThread pliSendThread = new PLISendThread();
 
@@ -156,8 +156,18 @@ public class DePacketizer
             VideoFormat.class,
             new VideoFormat[] { new VideoFormat(Constants.H264) });
 
-        inputFormats
-            = new VideoFormat[] { new VideoFormat(Constants.H264_RTP) };
+        List<Format> inputFormats = new ArrayList<Format>();
+
+        inputFormats.add(new VideoFormat(Constants.H264_RTP));
+        /*
+         * Apart from the generic Constants.H264_RTP VideoFormat, add the
+         * possible respective ParameterizedVideoFormats because
+         * ParameterizedVideoFormat will not match every VideoFormat due to the
+         * fact that a missing packetization-mode format parameter is
+         * interpreted as it having a value of 0.
+         */
+        Collections.addAll(inputFormats, Packetizer.SUPPORTED_OUTPUT_FORMATS);
+        this.inputFormats = inputFormats.toArray(new Format[inputFormats.size()]);
     }
 
     /**
@@ -201,7 +211,7 @@ public class DePacketizer
         if(keyframe)
         {
             /* keyframe received */
-            missFrame = false;
+            lostFrame = false;
             lastReceivedKeyframeTime = System.currentTimeMillis();
         }
 
@@ -308,7 +318,7 @@ public class DePacketizer
         if(nal_unit_type == 5)
         {
             /* keyframe received */
-            missFrame = false;
+            lostFrame = false;
             lastReceivedKeyframeTime = System.currentTimeMillis();
         }
 
@@ -321,7 +331,7 @@ public class DePacketizer
     protected void doClose()
     {
         /* will end PLISendThread loop */
-        isPLIThreadRunning = false;
+        pliSendThreadIsRunning = false;
         pliSendThread = null;
     }
 
@@ -343,6 +353,7 @@ public class DePacketizer
         lastSequenceNumber = -1;
         lastTimeStamp = -1;
     }
+
     /**
      * Processes (depacketizes) a buffer.
      *
@@ -382,12 +393,12 @@ public class DePacketizer
             /* detection of missed frames */
             if(usePLI)
             {
-                missFrame = true;
+                lostFrame = true;
 
                 /* if the PLI thread is not started, start it! */
-                if(!isPLIThreadRunning)
+                if(!pliSendThreadIsRunning)
                 {
-                    isPLIThreadRunning = true;
+                    pliSendThreadIsRunning = true;
                     pliSendThread.start();
                 }
             }
@@ -574,35 +585,39 @@ public class DePacketizer
     }
 
     /**
-     * Thread that will handle Picture Loss Indication (PLI) transmission.
-     * Note that PLI will be sent with a delay if recently we received a
+     * Represents a <tt>Thread<tt> which is to handle Picture Loss Indication
+     * (PLI) transmission.
+     * <p>
+     * <b>Note</b>: PLI will be sent with a delay if we have recently received a
      * keyframe or sent a PLI.
+     * </p>
      *
      * @author Sebastien Vincent
      */
-    private class PLISendThread extends Thread
+    private class PLISendThread
+        extends Thread
     {
         /**
-         * Represents the entry point of <tt>PLISendThread</tt>.
+         * Implements the entry point of this <tt>PLISendThread</tt>.
          */
         @Override
         public void run()
         {
-            while(isPLIThreadRunning)
+            while(pliSendThreadIsRunning)
             {
                 long time = System.currentTimeMillis();
 
-                if(missFrame)
+                if(lostFrame)
                 {
                     /* we keep some delay with the latest keyframe */
-                    if(time > (lastReceivedKeyframeTime +
-                            PLI_KEYFRAME_INTERVAL))
+                    if(time >
+                            (lastReceivedKeyframeTime + PLI_KEYFRAME_INTERVAL))
                     {
                         /* we keep delay between latest PLI to not spam sender
                          * with a lot of PLI request
                          */
-                        if(lastPLIRequestTime == -1 ||
-                                time > lastPLIRequestTime + PLI_INTERVAL)
+                        if((lastPLIRequestTime == -1) ||
+                                (time > lastPLIRequestTime + PLI_INTERVAL))
                         {
                             lastPLIRequestTime = time;
                             sendRTCPFeedbackPLI();
@@ -614,7 +629,7 @@ public class DePacketizer
                 {
                     Thread.sleep(100);
                 }
-                catch(Exception e)
+                catch (InterruptedException ie)
                 {
                 }
             }

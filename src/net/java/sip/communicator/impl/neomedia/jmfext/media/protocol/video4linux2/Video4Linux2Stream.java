@@ -25,7 +25,7 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
  * @author Lyubomir Marinov
  */
 public class Video4Linux2Stream
-    extends AbstractPullBufferStream
+    extends AbstractVideoPullBufferStream
 {
     /**
      * The pool of <tt>ByteBuffer</tt>s this instances is using to transfer the
@@ -186,6 +186,124 @@ public class Video4Linux2Stream
         else
             format = this.format;
         return format;
+    }
+
+    /**
+     * Reads media data from this <tt>PullBufferStream</tt> into a specific
+     * <tt>Buffer</tt> with blocking.
+     *
+     * @param buffer the <tt>Buffer</tt> in which media data is to be read from
+     * this <tt>PullBufferStream</tt>
+     * @throws IOException if anything goes wrong while reading media data from
+     * this <tt>PullBufferStream</tt> into the specified <tt>buffer</tt>
+     * @see AbstractVideoPullBufferStream#doRead(Buffer)
+     */
+    protected void doRead(Buffer buffer)
+        throws IOException
+    {
+        Format format = buffer.getFormat();
+
+        if (!(format instanceof AVFrameFormat))
+            format = null;
+        if (format == null)
+        {
+            format = getFormat();
+            if (format != null)
+                buffer.setFormat(format);
+        }
+
+        if(startInRead)
+        {
+            startInRead = false;
+
+            long v4l2_buf_type
+                = Video4Linux2.v4l2_buf_type_alloc(
+                        Video4Linux2.V4L2_BUF_TYPE_VIDEO_CAPTURE);
+
+            if (0 == v4l2_buf_type)
+                throw new OutOfMemoryError("v4l2_buf_type_alloc");
+            try
+            {
+                if (Video4Linux2.ioctl(fd, Video4Linux2.VIDIOC_STREAMON,
+                        v4l2_buf_type) == -1)
+                {
+                    throw new IOException("ioctl: request= VIDIOC_STREAMON");
+                }
+            }
+            finally
+            {
+                Video4Linux2.free(v4l2_buf_type);
+            }
+        }
+
+        if (Video4Linux2.ioctl(fd, Video4Linux2.VIDIOC_DQBUF, v4l2_buffer)
+                == -1)
+            throw new IOException("ioctl: request= VIDIOC_DQBUF");
+
+        long timeStamp = System.nanoTime();
+
+        try
+        {
+            ByteBuffer data = null;
+            int index = Video4Linux2.v4l2_buffer_getIndex(v4l2_buffer);
+            long mmap = mmaps[index];
+            int bytesused = Video4Linux2.v4l2_buffer_getBytesused(v4l2_buffer);
+
+            if(nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_MJPEG ||
+                    nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_JPEG)
+            {
+                /* initialize FFmpeg's MJPEG decoder if not already done */
+                if(mjpeg_context == 0)
+                {
+                    long avcodec = FFmpeg.avcodec_find_decoder(
+                            FFmpeg.CODEC_ID_MJPEG);
+
+                    mjpeg_context = FFmpeg.avcodec_alloc_context();
+                    FFmpeg.avcodeccontext_set_workaround_bugs(mjpeg_context,
+                        FFmpeg.FF_BUG_AUTODETECT);
+
+                    if (FFmpeg.avcodec_open(mjpeg_context, avcodec) < 0)
+                    {
+                        throw new RuntimeException("" +
+                                "Could not open codec CODEC_ID_MJPEG");
+                    }
+
+                    avframe = FFmpeg.avcodec_alloc_frame();
+                }
+
+                if(FFmpeg.avcodec_decode_video(mjpeg_context, avframe, mmap,
+                        bytesused) != -1)
+                {
+                    Object out = buffer.getData();
+
+                    if (!(out instanceof AVFrame) ||
+                            (((AVFrame) out).getPtr() != avframe))
+                    {
+                        buffer.setData(new AVFrame(avframe));
+                    }
+                }
+            }
+            else
+            {
+                data = byteBufferPool.getFreeBuffer(bytesused);
+
+                if (data != null)
+                {
+                    Video4Linux2.memcpy(data.ptr, mmap, bytesused);
+                }
+                data.setLength(bytesused);
+                FinalizableAVFrame.read(buffer, format, data, byteBufferPool);
+            }
+        }
+        finally
+        {
+            if (Video4Linux2.ioctl(fd, Video4Linux2.VIDIOC_QBUF, v4l2_buffer)
+                    == -1)
+                throw new IOException("ioctl: request= VIDIOC_QBUF");
+        }
+
+        buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
+        buffer.setTimeStamp(timeStamp);
     }
 
     /**
@@ -420,124 +538,6 @@ public class Video4Linux2Stream
         {
             Video4Linux2.free(v4l2_buffer);
         }
-    }
-
-    /**
-     * Reads media data from this <tt>PullBufferStream</tt> into a specific
-     * <tt>Buffer</tt> with blocking.
-     *
-     * @param buffer the <tt>Buffer</tt> in which media data is to be read from
-     * this <tt>PullBufferStream</tt>
-     * @throws IOException if anything goes wrong while reading media data from
-     * this <tt>PullBufferStream</tt> into the specified <tt>buffer</tt>
-     */
-    public void read(Buffer buffer)
-        throws IOException
-    {
-        Format format = buffer.getFormat();
-
-        if (!(format instanceof AVFrameFormat))
-            format = null;
-
-        if (format == null)
-        {
-            format = getFormat();
-            if (format != null)
-                buffer.setFormat(format);
-        }
-
-        if(startInRead)
-        {
-            startInRead = false;
-
-            long v4l2_buf_type
-                = Video4Linux2.v4l2_buf_type_alloc(
-                        Video4Linux2.V4L2_BUF_TYPE_VIDEO_CAPTURE);
-
-            if (0 == v4l2_buf_type)
-                throw new OutOfMemoryError("v4l2_buf_type_alloc");
-            try
-            {
-                if (Video4Linux2.ioctl(fd, Video4Linux2.VIDIOC_STREAMON,
-                        v4l2_buf_type) == -1)
-                {
-                    throw new IOException("ioctl: request= VIDIOC_STREAMON");
-                }
-            }
-            finally
-            {
-                Video4Linux2.free(v4l2_buf_type);
-            }
-        }
-
-        if (Video4Linux2.ioctl(fd, Video4Linux2.VIDIOC_DQBUF, v4l2_buffer)
-                == -1)
-            throw new IOException("ioctl: request= VIDIOC_DQBUF");
-
-        long timeStamp = System.nanoTime();
-
-        try
-        {
-            ByteBuffer data = null;
-            int index = Video4Linux2.v4l2_buffer_getIndex(v4l2_buffer);
-            long mmap = mmaps[index];
-            int bytesused = Video4Linux2.v4l2_buffer_getBytesused(v4l2_buffer);
-
-            if(nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_MJPEG ||
-                    nativePixelFormat == Video4Linux2.V4L2_PIX_FMT_JPEG)
-            {
-                /* initialize FFmpeg's MJPEG decoder if not already done */
-                if(mjpeg_context == 0)
-                {
-                    long avcodec = FFmpeg.avcodec_find_decoder(
-                            FFmpeg.CODEC_ID_MJPEG);
-
-                    mjpeg_context = FFmpeg.avcodec_alloc_context();
-                    FFmpeg.avcodeccontext_set_workaround_bugs(mjpeg_context,
-                        FFmpeg.FF_BUG_AUTODETECT);
-
-                    if (FFmpeg.avcodec_open(mjpeg_context, avcodec) < 0)
-                    {
-                        throw new RuntimeException("" +
-                                "Could not open codec CODEC_ID_MJPEG");
-                    }
-
-                    avframe = FFmpeg.avcodec_alloc_frame();
-                }
-
-                if(FFmpeg.avcodec_decode_video(mjpeg_context, avframe, mmap,
-                        bytesused) != -1)
-                {
-                    Object out = buffer.getData();
-
-                    if (!(out instanceof AVFrame) ||
-                            (((AVFrame) out).getPtr() != avframe))
-                    {
-                        buffer.setData(new AVFrame(avframe));
-                    }
-                }
-            }
-            else
-            {
-                data = byteBufferPool.getFreeBuffer(bytesused);
-
-                if (data != null)
-                {
-                    Video4Linux2.memcpy(data.ptr, mmap, bytesused);
-                }
-                data.setLength(bytesused);
-                FinalizableAVFrame.read(buffer, format, data, byteBufferPool);
-            }
-        }
-        finally
-        {
-            if (Video4Linux2.ioctl(fd, Video4Linux2.VIDIOC_QBUF, v4l2_buffer)
-                    == -1)
-                throw new IOException("ioctl: request= VIDIOC_QBUF");
-        }
-
-        buffer.setFlags(Buffer.FLAG_LIVE_DATA | Buffer.FLAG_SYSTEM_TIME);
-        buffer.setTimeStamp(timeStamp);
     }
 
     /**

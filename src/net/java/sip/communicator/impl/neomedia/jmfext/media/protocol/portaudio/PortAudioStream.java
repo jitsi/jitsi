@@ -144,6 +144,7 @@ public class PortAudioStream
      * @throws IOException if anything goes wrong while reading media data from
      * this <tt>PullBufferStream</tt> into the specified <tt>buffer</tt>
      */
+    @Override
     public void read(Buffer buffer)
         throws IOException
     {

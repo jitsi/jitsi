@@ -411,16 +411,12 @@ public class CallManager
         else if (showDesktopSharingWarning())
         {
             MediaService mediaService = GuiActivator.getMediaService();
-
-            List<MediaDevice> desktopDevices = mediaService.getDevices(
-                MediaType.VIDEO, MediaUseCase.DESKTOP);
-
+            List<MediaDevice> desktopDevices
+                = mediaService.getDevices(MediaType.VIDEO, MediaUseCase.DESKTOP);
             int deviceNumber = desktopDevices.size();
 
             if (deviceNumber == 1)
-            {
                 enableDesktopSharing(call, null, enable);
-            }
             else if (deviceNumber > 1)
             {
                 SelectScreenDialog selectDialog
@@ -517,7 +513,6 @@ public class CallManager
         OperationSetDesktopSharingServer desktopOpSet
             = call.getProtocolProvider().getOperationSet(
                     OperationSetDesktopSharingServer.class);
-
         boolean enableSucceeded = false;
 
         // This shouldn't happen at this stage, because we disable the button

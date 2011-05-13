@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.neomedia.codec;
 /**
  * Provides the interface to the native FFmpeg library.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
 public class FFmpeg
@@ -230,13 +230,13 @@ public class FFmpeg
     /**
      * Decode a video frame.
      *
-     * @param avcontext codec context
+     * @param avctx codec context
      * @param avframe frame decoded
      * @param src input buffer
      * @param src_length input buffer size
      * @return number of bytes written to buff if success
      */
-    public static native int avcodec_decode_video(long avcontext,
+    public static native int avcodec_decode_video(long avctx,
             long avframe, long src, int src_length);
 
     /**
@@ -320,9 +320,9 @@ public class FFmpeg
      * Add specific flags to AVCodecContext's flags2 member.
      *
      * @param avctx pointer to AVCodecContext
-     * @param flags flags to add
+     * @param flags2 flags to add
      */
-    public static native void avcodeccontext_add_flags2(long avctx, int flags);
+    public static native void avcodeccontext_add_flags2(long avctx, int flags2);
 
     public static native void avcodeccontext_add_partitions(long avctx,
         int partitions);
@@ -422,6 +422,15 @@ public class FFmpeg
 
     public static native void avcodeccontext_set_i_quant_factor(long avctx,
         float i_quant_factor);
+
+    /**
+     * Sets the minimum GOP size.
+     *
+     * @param avctx the <tt>AVCodecContext</tt> to set the minimum GOP size of
+     * @param keyint_min the minimum GOP size to set on <tt>avctx</tt>
+     */
+    public static native void avcodeccontext_set_keyint_min(long avctx,
+            int keyint_min);
 
     /**
      * Set the maximum B frames.
@@ -662,88 +671,85 @@ public class FFmpeg
         Object dst, int dstFormat, int dstW, int dstH);
 
     /**
-     * Register all filter from libavfilter.
+     * Allocates a new <tt>AVFilterGraph</tt> instance.
+     *
+     * @return a pointer to the newly-allocated <tt>AVFilterGraph</tt> instance 
+     */
+    public static native long avfilter_graph_alloc();
+
+    /**
+     * Checks the validity and configures all the links and formats in a
+     * specific <tt>AVFilterGraph</tt> instance.
+     *
+     * @param graph a pointer to the <tt>AVFilterGraph</tt> instance to check
+     * the validity of and configure
+     * @param log_ctx the <tt>AVClass</tt> context to be used for logging
+     * @return <tt>0</tt> on success; a negative <tt>AVERROR</tt> on error
+     */
+    public static native int avfilter_graph_config(long graph, long log_ctx);
+
+    /**
+     * Frees a specific <tt>AVFilterGraph</tt> instance and destroys its links.
+     *
+     * @param graph a pointer to the <tt>AVFilterGraph</tt> instance to free
+     */
+    public static native void avfilter_graph_free(long graph);
+
+    /**
+     * Gets a pointer to an <tt>AVFilterContext</tt> instance with a specific
+     * name in a specific <tt>AVFilterGraph</tt> instance.
+     *
+     * @param graph a pointer to the <tt>AVFilterGraph</tt> instance where the
+     * <tt>AVFilterContext</tt> instance with the specified name is to be found
+     * @param name the name of the <tt>AVFilterContext</tt> instance which is to
+     * be found in the specified <tt>graph</tt>
+     */
+    public static native long avfilter_graph_get_filter(
+            long graph,
+            String name);
+
+    /**
+     * Adds a filter graph described by a <tt>String</tt> to a specific
+     * <tt>AVFilterGraph</tt> instance.
+     *
+     * @param graph a pointer to the <tt>AVFilterGraph</tt> instance where to
+     * link the parsed graph context
+     * @param filters the <tt>String</tt> to be parsed
+     * @param inputs a pointer to a linked list to the inputs of the graph if
+     * any; otherwise, <tt>0</tt>
+     * @param outputs a pointer to a linked list to the outputs of the graph if
+     * any; otherwise, <tt>0</tt>
+     * @param log_ctx the <tt>AVClass</tt> context to be used for logging
+     * @return <tt>0</tt> on success; a negative <tt>AVERROR</tt> on error
+     */
+    public static native int avfilter_graph_parse(
+            long graph,
+            String filters, long inputs, long outputs, long log_ctx);
+
+    /**
+     * Initializes the <tt>libavfilter</tt> system and registers all built-in
+     * filters.
      */
     public static native void avfilter_register_all();
 
     /**
-     * Allocate a AVFilterGraph.
+     * Removes a reference to a buffer. If the specified
+     * <tt>AVFilterBufferRef</tt> is the last reference to the buffer, the
+     * buffer is also automatically freed.
      *
-     * @return pointer to graph
+     * @param ref a pointer to the <tt>AVFilterBufferRef</tt> instance to remove
      */
-    public static native long avfilter_alloc_filtergraph();
+    public static native void avfilter_unref_buffer(long ref);
 
-    /**
-     * Free a AVFilterGraph.
-     *
-     * @param ptr native pointer
-     */
-    public static native void avfilter_free_filtergraph(long ptr);
-
-    /**
-     * Allocate a AVInputStream.
-     *
-     * @return native pointer or 0 if failure
-     */
-    public static native long avfilter_alloc_inputstream();
-
-    /**
-     * Free a AVInputStream.
-     *
-     * @param ptr native pointer
-     */
-    public static native void avfilter_free_inputstream(long ptr);
-
-    /**
-     * Allocate a AVOutputStream.
-     *
-     * @return native pointer or 0 if failure
-     */
-    public static native long avfilter_alloc_outputstream();
-
-    /**
-     * Free a AVOutputStream.
-     *
-     * @param ptr native pointer
-     */
-    public static native void avfilter_free_outputstream(long ptr);
-
-    /**
-     * Configure the filters.
-     *
-     * @param filters filters list
-     * @param avinputstream AVInputStream pointer
-     * @param pix_fmt pixel format
-     * @param width width of the video
-     * @param height height of the video
-     * @param graph AVFilterGraph pointer
-     * @return 0 if success, -1 otherwise
-     */
-    public static native int avfilter_configure_filters(String filters,
-            long avinputstream, int pix_fmt, int width, int height, long graph);
-
-    /**
-     * Add the <tt>picture</tt> to the <tt>inputstream</tt> to be filtered.
-     *
-     * @param avinputstream AVInputStream pointer
-     * @param avframe AVFrame pointer
-     */
-    public static native void av_vsrc_buffer_add_frame(long avinputstream,
-            long avframe);
-
-    /**
-     * Get the filtered video frame.
-     *
-     * @param avinputstream AVInputStream pointer
-     * @param avframe AVFrame pointer
-     * @return 0 if success, -1 otherwise
-     */
-    public static native int av_get_filtered_video_frame(long avinputstream,
-            long avframe);
+    public static native long get_filtered_video_frame(
+            long input, int width, int height, int pixFmt,
+            long buffer,
+            long ffsink,
+            long output);
 
     static
     {
-        System.loadLibrary("ffmpeg");
+        System.loadLibrary("jnffmpeg");
 
         av_register_all();
         avfilter_register_all();

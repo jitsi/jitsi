@@ -22,7 +22,7 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
  * @author Lyubomir Marinov
  */
 public class DataSource
-    extends AbstractPullBufferCaptureDevice
+    extends AbstractVideoPullBufferCaptureDevice
 {
     /**
      * The map of Video for Linux Two API Specification pixel formats to FFmpeg

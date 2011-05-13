@@ -135,6 +135,7 @@ public class AVFrameFormat
             AVFrameFormat avFrameFormat = (AVFrameFormat) f;
 
             pixFmt = avFrameFormat.pixFmt;
+            devicePixFmt = avFrameFormat.devicePixFmt;
         }
     }
 
@@ -181,6 +182,12 @@ public class AVFrameFormat
         return devicePixFmt;
     }
 
+    @Override
+    public int hashCode()
+    {
+        return super.hashCode() + pixFmt;
+    }
+
     /**
      * Finds the attributes shared by two matching <tt>Format</tt>s. If the
      * specified <tt>Format</tt> does not match this one, the result is
@@ -195,15 +202,17 @@ public class AVFrameFormat
     {
         Format intersection = super.intersects(format);
 
-        if (intersection == null)
-            return null;
+        if (intersection != null)
+        {
+            AVFrameFormat avFrameFormatIntersection
+                = (AVFrameFormat) intersection;
 
-        AVFrameFormat avFrameFormatIntersection = (AVFrameFormat) intersection;
-
-        avFrameFormatIntersection.pixFmt
-            = ((pixFmt == NOT_SPECIFIED) && (format instanceof AVFrameFormat))
-                ? ((AVFrameFormat) format).pixFmt
-                : pixFmt;
+            avFrameFormatIntersection.pixFmt
+                = ((pixFmt == NOT_SPECIFIED)
+                        && (format instanceof AVFrameFormat))
+                    ? ((AVFrameFormat) format).pixFmt
+                    : pixFmt;
+        }
         return intersection;
     }
 
@@ -219,16 +228,30 @@ public class AVFrameFormat
     @Override
     public boolean matches(Format format)
     {
-        if (!super.matches(format))
-            return false;
-        if (!(format instanceof AVFrameFormat))
-            return true;
+        boolean matches;
 
-        AVFrameFormat avFrameFormat = (AVFrameFormat) format;
+        if (super.matches(format))
+        {
+            if (format instanceof AVFrameFormat)
+            {
+                AVFrameFormat avFrameFormat = (AVFrameFormat) format;
 
-        return
-            (pixFmt == NOT_SPECIFIED
-                || (avFrameFormat.pixFmt == NOT_SPECIFIED)
-                || (pixFmt == avFrameFormat.pixFmt));
+                matches
+                    = ((pixFmt == NOT_SPECIFIED)
+                        || (avFrameFormat.pixFmt == NOT_SPECIFIED)
+                        || (pixFmt == avFrameFormat.pixFmt));
+            }
+            else
+                matches = true;
+        }
+        else
+            matches = false;
+        return matches;
+    }
+
+    @Override
+    public String toString()
+    {
+        return super.toString() + ", pixFmt= " + pixFmt;
     }
 }

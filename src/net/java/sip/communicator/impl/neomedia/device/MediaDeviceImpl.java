@@ -134,8 +134,8 @@ public class MediaDeviceImpl
             {
                 if(captureDevice instanceof AbstractPullBufferCaptureDevice)
                 {
-                    ((AbstractPullBufferCaptureDevice)captureDevice).
-                        setCaptureDeviceInfo(captureDeviceInfo);
+                    ((AbstractPullBufferCaptureDevice)captureDevice)
+                        .setCaptureDeviceInfo(captureDeviceInfo);
                 }
 
                 // Try to enable tracing on captureDevice.

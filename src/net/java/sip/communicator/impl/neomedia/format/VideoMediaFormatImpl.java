@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
 /**
  * Implements <tt>VideoMediaFormat</tt> for the JMF <tt>VideoFormat</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class VideoMediaFormatImpl
     extends MediaFormatImpl<VideoFormat>
@@ -148,6 +148,88 @@ public class VideoMediaFormatImpl
             videoMediaFormatImplClockRate = DEFAULT_CLOCK_RATE;
 
         return (clockRate == videoMediaFormatImplClockRate);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @see MediaFormatImpl#formatParametersAreEqual(Map, Map)
+     */
+    @Override
+    protected boolean formatParametersAreEqual(
+            Map<String, String> fmtps1,
+            Map<String, String> fmtps2)
+    {
+        return formatParametersAreEqual(getEncoding(), fmtps1, fmtps2);
+    }
+
+    /**
+     * Determines whether a specific set of format parameters is equal to
+     * another set of format parameters in the sense that they define an equal
+     * number of parameters and assign them equal values. Since the values are
+     * <tt>String</tt>s, presumes that a value of <tt>null</tt> is equal to the
+     * empty <tt>String</tt>.
+     * <p>
+     * The two <tt>Map</tt> instances of format parameters to be checked for
+     * equality are presumed to be modifiable in the sense that if the lack of a
+     * format parameter in a given <tt>Map</tt> is equivalent to it having a
+     * specific value, an association of the format parameter to the value in
+     * question may be added to or removed from the respective <tt>Map</tt>
+     * instance for the purposes of determining equality.
+     * </p>
+     *
+     * @param encoding the encoding (name) related to the two sets of format
+     * parameters to be tested for equality
+     * @param fmtps1 the first set of format parameters to be tested for
+     * equality
+     * @param fmtps2 the second set of format parameters to be tested for
+     * equality
+     * @return <tt>true</tt> if the specified sets of format parameters are
+     * equal; <tt>false</tt>, otherwise
+     */
+    public static boolean formatParametersAreEqual(
+            String encoding,
+            Map<String, String> fmtps1, Map<String, String> fmtps2)
+    {
+        return
+            MediaFormatImpl.formatParametersAreEqual(encoding, fmtps1, fmtps2);
+    }
+
+    /**
+     * Determines whether the format parameters of this <tt>MediaFormat</tt>
+     * match a specific set of format parameters.
+     *
+     * @param fmtps the set of format parameters to match to the format
+     * parameters of this <tt>MediaFormat</tt>
+     * @return <tt>true</tt> if this <tt>MediaFormat</tt> considers
+     * <tt>fmtps</tt> matching its format parameters; otherwise, <tt>false</tt>
+     */
+    @Override
+    public boolean formatParametersMatch(Map<String, String> fmtps)
+    {
+        return
+            formatParametersMatch(getEncoding(), getFormatParameters(), fmtps)
+                && super.formatParametersMatch(fmtps);
+    }
+
+    /**
+     * Determines whether two sets of format parameters match in the context of
+     * a specific encoding.
+     *
+     * @param encoding the encoding (name) related to the two sets of format
+     * parameters to be matched.
+     * @param fmtps1 the first set of format parameters which is to be matched
+     * against <tt>fmtps2</tt>
+     * @param fmtps2 the second set of format parameters which is to be matched
+     * against <tt>fmtps1</tt>
+     * @return <tt>true</tt> if the two sets of format parameters match in the
+     * context of the specified <tt>encoding</tt>; otherwise, <tt>false</tt>
+     */
+    public static boolean formatParametersMatch(
+            String encoding,
+            Map<String, String> fmtps1 , Map<String, String> fmtps2)
+    {
+        return true;
     }
 
     /**

@@ -20,6 +20,7 @@ import net.java.sip.communicator.service.neomedia.*;
  * or video formats are likely to add other methods.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public interface MediaFormat
 {
@@ -80,16 +81,26 @@ public interface MediaFormat
 
     /**
      * Determines whether this <tt>MediaFormat</tt> is equal to
-     * <tt>mediaFormat</tt>, or in other words that they have the same encoding
-     * and attributes (e.g. refreshRate, channels, etc.).
+     * <tt>mediaFormat</tt> i.e. they have the same encoding, clock rate, format
+     * parameters, advanced attributes, etc.
      *
-     * @param mediaFormat The <tt>MediaFormat</tt> that we would like to compare
-     * with the current one.
+     * @param mediaFormat the <tt>MediaFormat</tt> to compare to this instance
      * @return <tt>true</tt> if <tt>mediaFormat</tt> is equal to this format and
      * <tt>false</tt> otherwise.
      */
     @Override
     public boolean equals(Object mediaFormat);
+
+    /**
+     * Determines whether the format parameters of this <tt>MediaFormat</tt>
+     * match a specific set of format parameters.
+     *
+     * @param fmtps the set of format parameters to match to the format
+     * parameters of this <tt>MediaFormat</tt>
+     * @return <tt>true</tt> if this <tt>MediaFormat</tt> considers
+     * <tt>fmtps</tt> matching its format parameters; otherwise, <tt>false</tt>
+     */
+    public boolean formatParametersMatch(Map<String, String> fmtps);
 
     /**
      * Returns a <tt>Map</tt> containing advanced parameters specific to this

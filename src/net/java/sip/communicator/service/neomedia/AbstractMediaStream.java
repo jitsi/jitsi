@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.neomedia;
 
 import java.beans.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.neomedia.format.*;
 
@@ -14,7 +15,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
  * Abstract base implementation of <tt>MediaStream</tt> to ease the
  * implementation of the interface.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractMediaStream
     implements MediaStream
@@ -80,6 +81,8 @@ public abstract class AbstractMediaStream
      * @param encoding the encoding we are looking for.
      * @param clockRate the clock rate that we'd like the format to have.
      * @param channels the number of channels that expect to find in this format
+     * @param formatParameters the format parameters expected to match these of
+     * the specified <tt>format</tt>
      * @return <tt>true</tt> if the specified <tt>format</tt> has specific
      * values for its properties <tt>mediaType</tt>, <tt>encoding</tt>,
      * <tt>clockRate</tt> and <tt>channels</tt>; otherwise, <tt>false</tt>
@@ -87,9 +90,8 @@ public abstract class AbstractMediaStream
     public static boolean matches(
             MediaFormat format,
             MediaType mediaType,
-            String encoding,
-            double clockRate,
-            int channels)
+            String encoding, double clockRate,  int channels,
+            Map<String, String> formatParameters)
     {
         // mediaType
         // encoding
@@ -121,7 +123,8 @@ public abstract class AbstractMediaStream
                 return false;
         }
 
-        return true;
+        // formatParameters
+        return format.formatParametersMatch(formatParameters);
     }
 
     /**

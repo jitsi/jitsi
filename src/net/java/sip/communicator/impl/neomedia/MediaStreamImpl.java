@@ -402,8 +402,9 @@ public class MediaStreamImpl
             dynamicRTPPayloadTypes.put(Byte.valueOf(rtpPayloadType), format);
 
             if (rtpManager != null)
-                rtpManager
-                    .addFormat(mediaFormatImpl.getFormat(), rtpPayloadType);
+                rtpManager.addFormat(
+                        mediaFormatImpl.getFormat(),
+                        rtpPayloadType);
         }
     }
 
@@ -1068,10 +1069,14 @@ public class MediaStreamImpl
             //sure you check that the line below still works.
             rtpManager.initialize(rtpConnector);
 
-            //JMF inits the local SSRC upon initialize(RTPConnector) so now's
-            //the time to ask:
-            //as JMF keep the ssrc in int value, we cast here from
-            //signed int to unsigned
+            /*
+             * JMF initializes the local SSRC upon #initialize(RTPConnector) so
+             * now's the time to ask.
+             */
+            /*
+             * As JMF keeps the SSRC as a signed int value, convert it to
+             * unsigned.
+             */
             setLocalSourceID(
                     ((RTPSessionMgr) rtpManager).getLocalSSRC() & 0xFFFFFFFFL);
         }
@@ -1205,8 +1210,9 @@ public class MediaStreamImpl
                     = (MediaFormatImpl<? extends Format>)
                         dynamicRTPPayloadType.getValue();
 
-                rtpManager.addFormat( mediaFormatImpl.getFormat(),
-                                      dynamicRTPPayloadType.getKey());
+                rtpManager.addFormat(
+                        mediaFormatImpl.getFormat(),
+                        dynamicRTPPayloadType.getKey());
             }
         }
     }
@@ -1430,25 +1436,27 @@ public class MediaStreamImpl
      */
     public void setFormat(MediaFormat format)
     {
-        if(logger.isTraceEnabled())
-            logger.trace("Changing format of stream " + hashCode()
-                // getDeviceSession().getFormat() will activate
-                // device in order to get its format
-                //+ " from:" + getDeviceSession().getFormat()
-                + " to:" + format);
+        if (logger.isTraceEnabled())
+            logger.trace(
+                    "Changing format of stream " + hashCode()
+                        + " from: " + getDeviceSession().getFormat()
+                        + " to: " + format);
 
         setAdvancedAttributes(format.getAdvancedAttributes());
-        handleAttributes(format.getAdvancedAttributes());
-        handleAttributes(format.getFormatParameters());
+        handleAttributes(format, format.getAdvancedAttributes());
+        handleAttributes(format, format.getFormatParameters());
         getDeviceSession().setFormat(format);
     }
 
     /**
      * Handles attributes contained in <tt>MediaFormat</tt>.
      *
-     * @param attrs the attributes list to handle
+     * @param format the <tt>MediaFormat</tt> to handle the attributes of
+     * @param attrs the attributes <tt>Map</tt> to handle
      */
-    protected void handleAttributes(Map<String, String> attrs)
+    protected void handleAttributes(
+            MediaFormat format,
+            Map<String, String> attrs)
     {
     }
 
@@ -1623,9 +1631,9 @@ public class MediaStreamImpl
                             = receiveStream.getDataSource();
 
                         /*
-                         * For an unknown reason, the stream DataSource can be
-                         * null at the end of the Call after re-INVITEs have
-                         * been handled.
+                         * For an unknown reason, the stream DataSource can be null
+                         * at the end of the Call after re-INVITEs have been
+                         * handled.
                          */
                         if (receiveStreamDataSource != null)
                             receiveStreamDataSource.start();
@@ -1852,17 +1860,16 @@ public class MediaStreamImpl
                             = receiveStream.getDataSource();
 
                         /*
-                         * For an unknown reason, the stream DataSource can be
-                         * null at the end of the Call after re-INVITEs have
-                         * been handled.
+                         * For an unknown reason, the stream DataSource can be null
+                         * at the end of the Call after re-INVITEs have been
+                         * handled.
                          */
                         if (receiveStreamDataSource != null)
                             receiveStreamDataSource.stop();
                     }
                     catch (IOException ioex)
                     {
-                        logger.warn("Failed to stop stream " + receiveStream,
-                                ioex);
+                        logger.warn("Failed to stop stream " + receiveStream, ioex);
                     }
                 }
             }
@@ -1980,8 +1987,7 @@ public class MediaStreamImpl
 
     /**
      * Notifies this <tt>ReceiveStreamListener</tt> that the <tt>RTPManager</tt>
-     * it is registered with has generated an event related to a
-     * <tt>ReceiveStream</tt>.
+     * it is registered with has generated an event related to a <tt>ReceiveStream</tt>.
      *
      * @param event the <tt>ReceiveStreamEvent</tt> which specifies the
      * <tt>ReceiveStream</tt> that is the cause of the event and the very type
@@ -2067,13 +2073,9 @@ public class MediaStreamImpl
      */
     public void update(SendStreamEvent event)
     {
-        if(event instanceof NewSendStreamEvent)
-        {
-            if(event.getSendStream().getSSRC() != this.localSourceID)
-            {
-                setLocalSourceID(event.getSendStream().getSSRC());
-            }
-        }
+        if ((event instanceof NewSendStreamEvent)
+                && (event.getSendStream().getSSRC() != this.localSourceID))
+            setLocalSourceID(event.getSendStream().getSSRC());
     }
 
     /**
@@ -2129,12 +2131,15 @@ public class MediaStreamImpl
                 if(numberOfReceivedSenderReports%4 != 1)
                     return;
 
-                StringBuilder buff =
-                        new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
+                StringBuilder buff
+                    = new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
+                MediaFormat format = getFormat();
 
                 buff.append("Received a report for ")
-                    .append(getFormat() != null ?
-                            getFormat().getMediaType().toString() : "")
+                    .append(
+                            (format == null)
+                                ? ""
+                                : format.getMediaType().toString())
                     .append(" stream SSRC:")
                     .append(getLocalSourceID())
                     .append(" [packet count:")

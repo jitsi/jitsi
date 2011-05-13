@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  */
 public class ImageStream
-    extends AbstractPullBufferStream
+    extends AbstractVideoPullBufferStream
 {
     /**
      * The <tt>Logger</tt>
@@ -85,20 +85,18 @@ public class ImageStream
     }
 
     /**
-     * Block and read a buffer from the stream.
+     * Blocks and reads into a <tt>Buffer</tt> from this
+     * <tt>PullBufferStream</tt>.
      *
-     * @param buffer the <tt>Buffer</tt> to read captured media into
-     * @throws IOException if an error occurs while reading.
+     * @param buffer the <tt>Buffer</tt> this <tt>PullBufferStream</tt> is to
+     * read into
+     * @throws IOException if an I/O error occurs while this
+     * <tt>PullBufferStream</tt> reads into the specified <tt>Buffer</tt>
+     * @see AbstractVideoPullBufferStream#doRead(Buffer)
      */
-    public void read(Buffer buffer)
+    protected void doRead(Buffer buffer)
         throws IOException
     {
-        //System.out.println(System.currentTimeMillis());
-        long begin = System.currentTimeMillis();
-        /* maximum time allowed for a capture to respect frame rate */
-        long maxTime = 1000 / 10;
-        int wait = 0;
-
         /*
          * Determine the Format in which we're expected to output. We cannot
          * rely on the Format always being specified in the Buffer because it is
@@ -116,8 +114,9 @@ public class ImageStream
 
         if(bufferFormat instanceof AVFrameFormat)
         {
-            /* native transfert: we keep data in native memory rather
-             * than Java Heap until we reach SwScaler
+            /*
+             * Native transfer: we keep data in native memory rather than the
+             * Java heap until we reach SwScaler.
              */
             Object dataAv = buffer.getData();
             AVFrame bufferFrame = null;
@@ -184,29 +183,6 @@ public class ImageStream
         buffer.setSequenceNumber(seqNo);
         buffer.setFlags(Buffer.FLAG_SYSTEM_TIME | Buffer.FLAG_LIVE_DATA);
         seqNo++;
-
-        wait = (int)(maxTime - (System.currentTimeMillis() - begin));
-
-        try
-        {
-            /* sleep to respect as much as possible the
-             * frame rate
-             */
-            if(wait > 0)
-            {
-                Thread.sleep(wait);
-            }
-            else
-            {
-                /* yield a little bit to not use all the
-                 * CPU
-                 */
-                Thread.yield();
-            }
-        }
-        catch(Exception e)
-        {
-        }
     }
 
     /**

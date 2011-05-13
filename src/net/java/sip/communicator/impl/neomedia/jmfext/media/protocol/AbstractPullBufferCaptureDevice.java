@@ -35,72 +35,80 @@ public abstract class AbstractPullBufferCaptureDevice
      */
     private final AbstractBufferCaptureDevice<AbstractPullBufferStream> impl
         = new AbstractBufferCaptureDevice<AbstractPullBufferStream>()
-                {
-                    protected AbstractPullBufferStream createStream(
-                            int streamIndex,
-                            FormatControl formatControl)
-                    {
-                        return
-                            AbstractPullBufferCaptureDevice.this.createStream(
-                                    streamIndex,
-                                    formatControl);
-                    }
+        {
+            @Override
+            protected FrameRateControl createFrameRateControl()
+            {
+                return
+                    AbstractPullBufferCaptureDevice.this
+                            .createFrameRateControl();
+            }
 
-                    protected void doConnect()
-                        throws IOException
-                    {
-                        AbstractPullBufferCaptureDevice.this.doConnect();
-                    }
+            protected AbstractPullBufferStream createStream(
+                    int streamIndex,
+                    FormatControl formatControl)
+            {
+                return
+                    AbstractPullBufferCaptureDevice.this.createStream(
+                            streamIndex,
+                            formatControl);
+            }
 
-                    protected void doDisconnect()
-                    {
-                        AbstractPullBufferCaptureDevice.this.doDisconnect();
-                    }
+            protected void doConnect()
+                throws IOException
+            {
+                AbstractPullBufferCaptureDevice.this.doConnect();
+            }
 
-                    protected void doStart()
-                        throws IOException
-                    {
-                        AbstractPullBufferCaptureDevice.this.doStart();
-                    }
+            protected void doDisconnect()
+            {
+                AbstractPullBufferCaptureDevice.this.doDisconnect();
+            }
 
-                    protected void doStop()
-                        throws IOException
-                    {
-                        AbstractPullBufferCaptureDevice.this.doStop();
-                    }
+            protected void doStart()
+                throws IOException
+            {
+                AbstractPullBufferCaptureDevice.this.doStart();
+            }
 
-                    public CaptureDeviceInfo getCaptureDeviceInfo()
-                    {
-                        return
-                            AbstractPullBufferCaptureDevice.this
-                                    .getCaptureDeviceInfo();
-                    }
+            protected void doStop()
+                throws IOException
+            {
+                AbstractPullBufferCaptureDevice.this.doStop();
+            }
 
-                    protected Format getFormat(int streamIndex, Format oldValue)
-                    {
-                        return
-                            AbstractPullBufferCaptureDevice.this.getFormat(
-                                    streamIndex,
-                                    oldValue);
-                    }
+            public CaptureDeviceInfo getCaptureDeviceInfo()
+            {
+                return
+                    AbstractPullBufferCaptureDevice.this
+                            .getCaptureDeviceInfo();
+            }
 
-                    protected Format[] getSupportedFormats(int streamIndex)
-                    {
-                        return
-                            AbstractPullBufferCaptureDevice.this
-                                    .getSupportedFormats(streamIndex);
-                    }
+            protected Format getFormat(int streamIndex, Format oldValue)
+            {
+                return
+                    AbstractPullBufferCaptureDevice.this.getFormat(
+                            streamIndex,
+                            oldValue);
+            }
 
-                    protected Format setFormat(
-                            int streamIndex,
-                            Format oldValue, Format newValue)
-                    {
-                        return
-                            AbstractPullBufferCaptureDevice.this.setFormat(
-                                    streamIndex,
-                                    oldValue, newValue);
-                    }
-                };
+            protected Format[] getSupportedFormats(int streamIndex)
+            {
+                return
+                    AbstractPullBufferCaptureDevice.this
+                            .getSupportedFormats(streamIndex);
+            }
+
+            protected Format setFormat(
+                    int streamIndex,
+                    Format oldValue, Format newValue)
+            {
+                return
+                    AbstractPullBufferCaptureDevice.this.setFormat(
+                            streamIndex,
+                            oldValue, newValue);
+            }
+        };
 
     /**
      * Initializes a new <tt>AbstractPullBufferCaptureDevice</tt> instance.
@@ -132,6 +140,20 @@ public abstract class AbstractPullBufferCaptureDevice
         throws IOException
     {
         impl.connect();
+    }
+
+    /**
+     * Creates a new <tt>FrameRateControl</tt> instance which is to allow the
+     * getting and setting of the frame rate of this
+     * <tt>AbstractPullBufferCaptureDevice</tt>.
+     *
+     * @return a new <tt>FrameRateControl</tt> instance which is to allow the
+     * getting and setting of the frame rate of this
+     * <tt>AbstractPullBufferCaptureDevice</tt>
+     */
+    protected FrameRateControl createFrameRateControl()
+    {
+        return null;
     }
 
     /**

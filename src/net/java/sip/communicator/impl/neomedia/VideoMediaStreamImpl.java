@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.util.*;
 
@@ -28,7 +29,7 @@ import net.java.sip.communicator.util.*;
  * <tt>VideoMediaStream</tt>.
  *
  * @author Lyubomir Marinov
- * @author Sébastien Vincent
+ * @author Sebastien Vincent
  */
 public class VideoMediaStreamImpl
     extends MediaStreamImpl
@@ -279,12 +280,12 @@ public class VideoMediaStreamImpl
     {
         super.configureDataOutputStream(dataOutputStream);
 
-        int maxBandwidth =
-            NeomediaActivator.getMediaServiceImpl().getDeviceConfiguration()
-                .getVideoMaxBandwidth();
+        int maxBandwidth
+            = NeomediaActivator.getMediaServiceImpl().getDeviceConfiguration()
+                    .getVideoMaxBandwidth();
 
         //maximum one packet for X milliseconds(the settings are for one second)
-        dataOutputStream.setMaxPacketsPerMillis(1, 1000/maxBandwidth);
+        dataOutputStream.setMaxPacketsPerMillis(1, 1000 / maxBandwidth);
     }
 
     /**
@@ -353,8 +354,8 @@ public class VideoMediaStreamImpl
         if ((oldValue instanceof VideoMediaDeviceSession)
                 && (deviceSessionVideoListener != null))
         {
-            ((VideoMediaDeviceSession) oldValue)
-                .removeVideoListener(deviceSessionVideoListener);
+            ((VideoMediaDeviceSession) oldValue).removeVideoListener(
+                    deviceSessionVideoListener);
         }
         if (newValue instanceof VideoMediaDeviceSession)
         {
@@ -551,9 +552,13 @@ public class VideoMediaStreamImpl
     /**
      * Handles attributes contained in <tt>MediaFormat</tt>.
      *
-     * @param attrs the attributes list to handle
+     * @param format the <tt>MediaFormat</tt> to handle the attributes of
+     * @param attrs the attributes <tt>Map</tt> to handle
      */
-    protected void handleAttributes(Map<String, String> attrs)
+    @Override
+    protected void handleAttributes(
+            MediaFormat format,
+            Map<String, String> attrs)
     {
         /* walk through attributes and see if we recognized something
          * we support
@@ -565,9 +570,10 @@ public class VideoMediaStreamImpl
                 String key = mapEntry.getKey();
                 String value = mapEntry.getValue();
 
-                if(key.equals("rtcp-fb") && value.equals("nack pli"))
+                if(key.equals("rtcp-fb"))
                 {
-                    usePLI = true;
+                    if (value.equals("nack pli"))
+                        usePLI = true;
                 }
                 else if(key.equals("imageattr"))
                 {
@@ -624,9 +630,7 @@ public class VideoMediaStreamImpl
                     String args[] = value.split(",");
 
                     if(args.length < 3)
-                    {
                         continue;
-                    }
 
                     try
                     {
@@ -656,7 +660,7 @@ public class VideoMediaStreamImpl
      * @param imgattr send/recv resolution string
      * @return maximum resolution array (first element is send, second one is
      * recv). Elements could be null if image attribute is not present or if
-     * resoluion is a wildcard.
+     * resolution is a wildcard.
      */
     public static java.awt.Dimension[] parseSendRecvResolution(String imgattr)
     {

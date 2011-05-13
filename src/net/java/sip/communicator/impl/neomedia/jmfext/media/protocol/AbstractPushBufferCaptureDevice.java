@@ -29,87 +29,93 @@ public abstract class AbstractPushBufferCaptureDevice
      */
     private final AbstractBufferCaptureDevice<AbstractPushBufferStream> impl
         = new AbstractBufferCaptureDevice<AbstractPushBufferStream>()
-                {
-                    protected AbstractPushBufferStream createStream(
-                            int streamIndex,
-                            FormatControl formatControl)
-                    {
-                        return
-                            AbstractPushBufferCaptureDevice.this.createStream(
-                                    streamIndex,
-                                    formatControl);
-                    }
+        {
+            @Override
+            protected FrameRateControl createFrameRateControl()
+            {
+                return
+                    AbstractPushBufferCaptureDevice.this
+                            .createFrameRateControl();
+            }
 
-                    protected void doConnect()
-                        throws IOException
-                    {
-                        AbstractPushBufferCaptureDevice.this.doConnect();
-                    }
+            protected AbstractPushBufferStream createStream(
+                    int streamIndex,
+                    FormatControl formatControl)
+            {
+                return
+                    AbstractPushBufferCaptureDevice.this.createStream(
+                            streamIndex,
+                            formatControl);
+            }
 
-                    protected void doDisconnect()
-                    {
-                        AbstractPushBufferCaptureDevice.this.doDisconnect();
-                    }
+            protected void doConnect()
+                throws IOException
+            {
+                AbstractPushBufferCaptureDevice.this.doConnect();
+            }
 
-                    protected void doStart()
-                        throws IOException
-                    {
-                        AbstractPushBufferCaptureDevice.this.doStart();
-                    }
+            protected void doDisconnect()
+            {
+                AbstractPushBufferCaptureDevice.this.doDisconnect();
+            }
 
-                    protected void doStop()
-                        throws IOException
-                    {
-                        AbstractPushBufferCaptureDevice.this.doStop();
-                    }
+            protected void doStart()
+                throws IOException
+            {
+                AbstractPushBufferCaptureDevice.this.doStart();
+            }
 
-                    public CaptureDeviceInfo getCaptureDeviceInfo()
-                    {
-                        return
-                            AbstractPushBufferCaptureDevice.this
-                                    .getCaptureDeviceInfo();
-                    }
+            protected void doStop()
+                throws IOException
+            {
+                AbstractPushBufferCaptureDevice.this.doStop();
+            }
 
-                    /**
-                     * Overrides
-                     * {@link AbstractBufferCaptureDevice#getControls()} to add
-                     * controls specific to this
-                     * <tt>AbstractPushBufferCaptureDevice</tt>.
-                     *
-                     * {@inheritDoc}
-                     */
-                    @Override
-                    public Object[] getControls()
-                    {
-                        return
-                            AbstractPushBufferCaptureDevice.this.getControls();
-                    }
+            public CaptureDeviceInfo getCaptureDeviceInfo()
+            {
+                return
+                    AbstractPushBufferCaptureDevice.this
+                            .getCaptureDeviceInfo();
+            }
 
-                    protected Format getFormat(int streamIndex, Format oldValue)
-                    {
-                        return
-                            AbstractPushBufferCaptureDevice.this.getFormat(
-                                    streamIndex,
-                                    oldValue);
-                    }
+            /**
+             * Overrides {@link AbstractBufferCaptureDevice#getControls()} to
+             * add controls specific to this
+             * <tt>AbstractPushBufferCaptureDevice</tt>.
+             *
+             * {@inheritDoc}
+             */
+            @Override
+            public Object[] getControls()
+            {
+                return AbstractPushBufferCaptureDevice.this.getControls();
+            }
 
-                    protected Format[] getSupportedFormats(int streamIndex)
-                    {
-                        return
-                            AbstractPushBufferCaptureDevice.this
-                                    .getSupportedFormats(streamIndex);
-                    }
+            protected Format getFormat(int streamIndex, Format oldValue)
+            {
+                return
+                    AbstractPushBufferCaptureDevice.this.getFormat(
+                            streamIndex,
+                            oldValue);
+            }
 
-                    protected Format setFormat(
-                            int streamIndex,
-                            Format oldValue, Format newValue)
-                    {
-                        return
-                            AbstractPushBufferCaptureDevice.this.setFormat(
-                                    streamIndex,
-                                    oldValue, newValue);
-                    }
-                };
+            protected Format[] getSupportedFormats(int streamIndex)
+            {
+                return
+                    AbstractPushBufferCaptureDevice.this
+                            .getSupportedFormats(streamIndex);
+            }
+
+            protected Format setFormat(
+                    int streamIndex,
+                    Format oldValue, Format newValue)
+            {
+                return
+                    AbstractPushBufferCaptureDevice.this.setFormat(
+                            streamIndex,
+                            oldValue, newValue);
+            }
+        };
 
     /**
      * Initializes a new <tt>AbstractPushBufferCaptureDevice</tt> instance.
@@ -141,6 +147,20 @@ public abstract class AbstractPushBufferCaptureDevice
         throws IOException
     {
         impl.connect();
+    }
+
+    /**
+     * Creates a new <tt>FrameRateControl</tt> instance which is to allow the
+     * getting and setting of the frame rate of this
+     * <tt>AbstractPushBufferCaptureDevice</tt>.
+     *
+     * @return a new <tt>FrameRateControl</tt> instance which is to allow the
+     * getting and setting of the frame rate of this
+     * <tt>AbstractPushBufferCaptureDevice</tt>
+     */
+    protected FrameRateControl createFrameRateControl()
+    {
+        return null;
     }
 
     /**

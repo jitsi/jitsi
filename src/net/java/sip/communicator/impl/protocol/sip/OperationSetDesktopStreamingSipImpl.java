@@ -241,15 +241,18 @@ public class OperationSetDesktopStreamingSipImpl
                                      boolean allowed)
         throws OperationFailedException
     {
-        ((CallSipImpl)call).setVideoDevice(mediaDevice);
-        ((CallSipImpl)call).setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
-        size = (((VideoMediaFormat)((CallSipImpl)call).
-                getDefaultDevice(MediaType.VIDEO).
-                getFormat()).getSize());
+        CallSipImpl sipCall = (CallSipImpl) call;
+
+        sipCall.setVideoDevice(mediaDevice);
+        sipCall.setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
+        size
+            = (((VideoMediaFormat)
+                        sipCall.getDefaultDevice(MediaType.VIDEO).getFormat())
+                    .getSize());
         origin = getOriginForMediaDevice(mediaDevice);
 
         /* reinvite all peers */
-        ((CallSipImpl)call).reInvite();
+        sipCall.reInvite();
     }
 
     /**
