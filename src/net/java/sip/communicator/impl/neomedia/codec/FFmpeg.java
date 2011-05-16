@@ -19,6 +19,8 @@ public class FFmpeg
      */
     public static final long AV_NOPTS_VALUE = 0x8000000000000000L;
 
+    public static final int AV_SAMPLE_FMT_S16 = 1;
+
     /**
      * Loop filter flag.
      */
@@ -492,6 +494,9 @@ public class FFmpeg
 
     public static native void avcodeccontext_set_sample_aspect_ratio(
         long avctx, int num, int den);
+
+    public static native void avcodeccontext_set_sample_fmt(
+            long avctx, int sample_fmt);
 
     /**
      * Sets the samples per second of the specified <tt>AVCodecContext</tt>. The

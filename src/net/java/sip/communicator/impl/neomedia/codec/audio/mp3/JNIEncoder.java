@@ -10,16 +10,22 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.*;
 
 /**
  * Implements a MP3 encoder using the native FFmpeg library.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class JNIEncoder
     extends AbstractCodecExt
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>JNIEncoder</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(JNIEncoder.class);
 
     /**
      * The list of <tt>Format</tt>s of audio data supported as input by
@@ -153,6 +159,18 @@ public class JNIEncoder
 
             FFmpeg.avcodeccontext_set_bit_rate(avctx, 128000);
             FFmpeg.avcodeccontext_set_channels(avctx, channels);
+
+            // FIXME
+            try
+            {
+                FFmpeg.avcodeccontext_set_sample_fmt(avctx,
+                        FFmpeg.AV_SAMPLE_FMT_S16);
+            }
+            catch (UnsatisfiedLinkError ule)
+            {
+                logger.warn("The FFmpeg JNI library is out-of-date.");
+            }
+
             if (sampleRate != Format.NOT_SPECIFIED)
                 FFmpeg.avcodeccontext_set_sample_rate(avctx, sampleRate);
 

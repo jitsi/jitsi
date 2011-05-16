@@ -354,6 +354,7 @@ Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avcodeccontext_1set_1s
     sample_aspect_ratio->den = (int) den;
 }
 
+DEFINE_AVCODECCONTEXT_I_PROPERTY_SETTER(sample_1fmt, sample_fmt)
 DEFINE_AVCODECCONTEXT_I_PROPERTY_SETTER(sample_1rate, sample_rate)
 DEFINE_AVCODECCONTEXT_I_PROPERTY_SETTER(scenechange_1threshold, scenechange_threshold)
 
