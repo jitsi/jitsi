@@ -152,11 +152,13 @@ public class ChatTransferHandler
                     logger.debug("Failed to drop files.", e);
             }
         }
-        else if (t.isDataFlavorSupported(uriListFlavor))
+
+        if (t.isDataFlavorSupported(uriListFlavor))
         {
             try
             {
                 Object o = t.getTransferData(uriListFlavor);
+                boolean dataProcessed = false;
 
                 StringTokenizer tokens = new StringTokenizer((String)o);
                 while (tokens.hasMoreTokens())
@@ -166,7 +168,10 @@ public class ChatTransferHandler
                     File file = new File(
                         URLDecoder.decode(url.getFile(), "UTF-8"));
                     chatPanel.sendFile(file);
+                    dataProcessed = true;
                 }
+
+                return dataProcessed;
             }
             catch (UnsupportedFlavorException e)
             {
@@ -179,7 +184,8 @@ public class ChatTransferHandler
                     logger.debug("Failed to drop files.", e);
             }
         }
-        else if (t.isDataFlavorSupported(uiContactDataFlavor))
+
+        if (t.isDataFlavorSupported(uiContactDataFlavor))
         {
             Object o = null;
 
@@ -238,7 +244,8 @@ public class ChatTransferHandler
                     .showDialog();
             }
         }
-        else if (t.isDataFlavorSupported(DataFlavor.stringFlavor))
+
+        if (t.isDataFlavorSupported(DataFlavor.stringFlavor))
         {
             InputContext inputContext = comp.getInputContext();
             if (inputContext != null)
@@ -250,7 +257,7 @@ public class ChatTransferHandler
                 BufferedReader reader = new BufferedReader(
                     DataFlavor.stringFlavor.getReaderForText(t));
 
-                StringBuffer buffToPaste = new StringBuffer();
+                StringBuilder buffToPaste = new StringBuilder();
                 String line = reader.readLine();
 
                 while(line != null)
@@ -278,6 +285,7 @@ public class ChatTransferHandler
                     logger.debug("Failed to drop string.", ioe);
             }
         }
+
         return false;
     }
 }

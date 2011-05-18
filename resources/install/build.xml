@@ -776,11 +776,16 @@
 
         <basename property="old.wix.build" file="${build-location}"/>
 
-        <!-- we must skip building deltas for current build -->
+        <!-- we must skip building deltas for current build
+            and if the source setup file is missing
+        -->
         <condition property="process.delta">
-            <not>
-                <equals arg1="${old.wix.build}" arg2="${build.label}"/>
-            </not>
+            <and>
+                <not>
+                    <equals arg1="${old.wix.build}" arg2="${build.label}"/>
+                </not>
+                <available file="${build-location}\${windows.arch}\setup.msi"/>
+            </and>
         </condition>
 
         <antcall target="-make-wix-delta-msi"/>
