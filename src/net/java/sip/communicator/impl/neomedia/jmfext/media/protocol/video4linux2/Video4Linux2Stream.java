@@ -652,15 +652,11 @@ public class Video4Linux2Stream
 
             if (size == null)
             {
-                Dimension defaultSize
-                    = NeomediaActivator
+                // if there is no size in the format, respect settings
+                size = NeomediaActivator
                         .getMediaServiceImpl()
                             .getDeviceConfiguration()
                                 .getVideoSize();
-
-                if ((width < defaultSize.width)
-                        || (height < defaultSize.height))
-                    size = defaultSize;
             }
 
             if ((size != null)
