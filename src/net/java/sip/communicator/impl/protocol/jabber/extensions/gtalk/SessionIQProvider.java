@@ -102,7 +102,6 @@ public class SessionIQProvider
      *
      * @throws Exception if an error occurs parsing the XML.
      */
-    @Override
     public IQ parseIQ(XmlPullParser parser) throws Exception
     {
         SessionIQ sessionIQ = new SessionIQ();
