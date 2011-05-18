@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
-import java.util.logging.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 import org.jivesoftware.smack.provider.*;
@@ -20,13 +18,6 @@ import org.xmlpull.v1.XmlPullParser;
  */
 public class JingleIQProvider implements IQProvider
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>JingleIQProvider</tt>
-     * class and its instances for logging output.
-     */
-    private static final Logger logger = Logger
-                    .getLogger(JingleIQProvider.class.getName());
-
     /**
      * Creates a new instance of the <tt>JingleIQProvider</tt> and register all
      * jingle related extension providers. It is the responsibility of the

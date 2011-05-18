@@ -23,6 +23,11 @@ public class SecurityStatusLabel
     implements Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates the state of the audio security (on or off).
      */
     private boolean isAudioSecurityOn = false;

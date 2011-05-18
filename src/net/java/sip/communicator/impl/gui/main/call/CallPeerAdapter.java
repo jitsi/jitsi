@@ -275,7 +275,8 @@ public class CallPeerAdapter
 
             renderer.setEncryptionCipher(securityOnEvent.getCipher());
 
-            switch (securityOnEvent.getSessionType()) {
+            switch (securityOnEvent.getSessionType())
+            {
             case CallPeerSecurityOnEvent.AUDIO_SESSION:
                 renderer.setAudioSecurityOn(true);
                 break;

@@ -103,6 +103,15 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
                 {
                     PacketExtension childExtension
                         = provider.parseExtension(parser);
+
+                    if(namespace != null)
+                    {
+                        if(childExtension instanceof AbstractPacketExtension)
+                        {
+                            ((AbstractPacketExtension)childExtension).
+                                setNamespace(namespace);
+                        }
+                    }
                     packetExtension.addChildExtension(childExtension);
                 }
             }

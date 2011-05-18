@@ -46,7 +46,6 @@ public class EncryptionPacketExtension
         super(null, ELEMENT_NAME);
     }
 
-
     /**
      * Adds a new <tt>crypto</tt> element to this encryption element.
      *

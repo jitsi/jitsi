@@ -84,6 +84,11 @@ public class ScServiceDiscoveryManager
     private final List<DiscoverInfo.Identity> identities;
 
     /**
+     * Capabilities to put in ext attribute of capabilities stanza.
+     */
+    private final List<String> extCapabilities = new ArrayList<String>();
+
+    /**
      * Creates a new <tt>ScServiceDiscoveryManager</tt> wrapping the default
      * discovery manager of the specified <tt>connection</tt>.
      *
@@ -309,6 +314,50 @@ public class ScServiceDiscoveryManager
     }
 
     /**
+     * Add feature to put in "ext" attribute.
+     *
+     * @param ext ext feature to add
+     */
+    public void addExtFeature(String ext)
+    {
+        synchronized(extCapabilities)
+        {
+            extCapabilities.add(ext);
+        }
+    }
+
+    /**
+     * Remove "ext" feature.
+     *
+     * @param ext ext feature to remove
+     */
+    public void removeExtFeature(String ext)
+    {
+        synchronized(extCapabilities)
+        {
+            extCapabilities.remove(ext);
+        }
+    }
+
+    /**
+     * Get "ext" value.
+     *
+     * @return string that represents "ext" value
+     */
+    public synchronized String getExtFeatures()
+    {
+        StringBuilder bldr = new StringBuilder("");
+
+        for(String e : extCapabilities)
+        {
+            bldr.append(e);
+            bldr.append(" ");
+        }
+
+        return bldr.toString();
+    }
+
+    /**
      * Intercepts outgoing presence packets and adds entity capabilities at
      * their ends.
      *
@@ -322,7 +371,7 @@ public class ScServiceDiscoveryManager
             String ver = getEntityCapsVersion();
             CapsPacketExtension caps
                 = new CapsPacketExtension(
-                        null,
+                        getExtFeatures(),
                         capsManager.getNode(),
                         CapsPacketExtension.HASH_METHOD,
                         ver);
@@ -423,9 +472,12 @@ public class ScServiceDiscoveryManager
 
         if ((caps != null) && !caps.isValid(discoverInfo))
         {
-            logger.error(
-                    "Invalid DiscoverInfo for " + caps.getNodeVer() + ": "
-                        + discoverInfo);
+            if(!caps.hash.equals(""))
+            {
+                logger.error(
+                        "Invalid DiscoverInfo for " + caps.getNodeVer() + ": "
+                            + discoverInfo);
+            }
             caps = null;
         }
 

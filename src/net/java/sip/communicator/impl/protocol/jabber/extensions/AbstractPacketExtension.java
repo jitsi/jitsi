@@ -29,7 +29,7 @@ public abstract class AbstractPacketExtension
      * The name space of this packet extension. Should remain <tt>null</tt> if
      * there's no namespace associated with this element.
      */
-    private final String namespace;
+    private String namespace;
 
     /**
      * The name space of this packet extension. Should remain <tt>null</tt> if
@@ -75,6 +75,16 @@ public abstract class AbstractPacketExtension
     public String getElementName()
     {
         return elementName;
+    }
+
+    /**
+     * Set the XML namespace for this element.
+     *
+     * @param namespace the XML namespace for this element.
+     */
+    public void setNamespace(String namespace)
+    {
+        this.namespace = namespace;
     }
 
     /**

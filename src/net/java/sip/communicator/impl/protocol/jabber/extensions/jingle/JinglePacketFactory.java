@@ -194,9 +194,8 @@ public class JinglePacketFactory
      * @param contentList the content elements containing media and transport
      * descriptions.
      *
-     * @return the newly constructed {@link JingleIQ} <tt>session-terminate</tt>
+     * @return the newly constructed {@link JingleIQ} <tt>session-accept</tt>
      * packet.
-     * .
      */
     public static JingleIQ createSessionAccept(
             String                           from,
@@ -230,7 +229,7 @@ public class JinglePacketFactory
      * @param contentList the content elements containing media and transport
      * descriptions.
      *
-     * @return the newly constructed {@link JingleIQ} <tt>session-terminate</tt>
+     * @return the newly constructed {@link JingleIQ} <tt>session-initiate</tt>
      * packet.
      */
     public static JingleIQ createSessionInitiate(

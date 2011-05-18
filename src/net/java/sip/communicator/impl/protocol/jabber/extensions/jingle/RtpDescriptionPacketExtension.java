@@ -79,6 +79,17 @@ public class RtpDescriptionPacketExtension
     }
 
     /**
+     * Create a new <tt>RtpDescriptionPacketExtension</tt> with a different
+     * namespace.
+     *
+     * @param namespace namespace to use
+     */
+    public RtpDescriptionPacketExtension(String namespace)
+    {
+        super(namespace, ELEMENT_NAME);
+    }
+
+    /**
      * Specifies the media type for the stream that this description element
      * represents, such as "audio" or "video".
      *
@@ -177,6 +188,8 @@ public class RtpDescriptionPacketExtension
         if (extmapList != null)
             children.addAll(extmapList);
 
+        children.addAll(super.getChildExtensions());
+
         return children;
     }
 
@@ -199,6 +212,8 @@ public class RtpDescriptionPacketExtension
 
         else if (childExtension instanceof RTPHdrExtPacketExtension)
             this.addExtmap((RTPHdrExtPacketExtension)childExtension);
+        else
+            super.addChildExtension(childExtension);
     }
 
     /**

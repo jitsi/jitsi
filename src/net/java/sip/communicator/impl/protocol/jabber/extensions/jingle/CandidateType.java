@@ -48,5 +48,15 @@ public enum CandidateType
      * Binding request, or TURN servers, which provides both a relayed and
      * server reflexive candidate.
      */
-    srflx;
+    srflx,
+
+    /**
+     * Old name for Server Reflexive Candidate used by Google Talk.
+     */
+    stun,
+
+    /**
+     * Old name for Host Candidate used by Google Talk.
+     */
+    local;
 }

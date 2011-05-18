@@ -179,12 +179,14 @@ public class EntityCapsManager
      * @param node the node (of the caps packet extension)
      * @param hash the hashing algorithm used to calculate <tt>ver</tt>
      * @param ver the version (of the caps packet extension)
+     * @param ext the ext (of the caps packet extension)
      * @param online indicates if the user is online
      */
     private void addUserCapsNode(   String user,
                                     String node,
                                     String hash,
                                     String ver,
+                                    String ext,
                                     boolean online)
     {
         if ((user != null) && (node != null) && (hash != null) && (ver != null))
@@ -196,7 +198,7 @@ public class EntityCapsManager
                     || !caps.hash.equals(hash)
                     || !caps.ver.equals(ver))
             {
-                caps = new Caps(node, hash, ver);
+                caps = new Caps(node, hash, ver, ext);
 
                 userCaps.put(user, caps);
             }
@@ -230,7 +232,7 @@ public class EntityCapsManager
      *
      * @param listener the <tt>UserCapsNodeListener</tt> which is interested in
      * events notifying about changes in the list of user caps nodes of this
-     * <tt>EntityCapsManager</tt> 
+     * <tt>EntityCapsManager</tt>
      */
     public void addUserCapsNodeListener(UserCapsNodeListener listener)
     {
@@ -281,7 +283,7 @@ public class EntityCapsManager
      *
      * @param listener the <tt>UserCapsNodeListener</tt> which is no longer
      * interested in events notifying about changes in the list of user caps
-     * nodes of this <tt>EntityCapsManager</tt> 
+     * nodes of this <tt>EntityCapsManager</tt>
      */
     public void removeUserCapsNodeListener(UserCapsNodeListener listener)
     {
@@ -365,7 +367,7 @@ public class EntityCapsManager
 
             /*
              * If we don't have the discoverInfo in the runtime cache yet, we
-             * may have it remembered in a previous application instance. 
+             * may have it remembered in a previous application instance.
              */
             if (discoverInfo == null)
             {
@@ -577,7 +579,7 @@ public class EntityCapsManager
      * the specified <tt>hashAlgorithm</tt>.
      *
      * @param hashAlgorithm the name of the algorithm to be used to generate the
-     * hash 
+     * hash
      * @param capsString the capabilities string that we'd like to compute a
      * hash for.
      *
@@ -667,7 +669,7 @@ public class EntityCapsManager
                                  *
                                  * Since sort by xml:lang is currently missing,
                                  * use the last supported sort criterion i.e.
-                                 * type. 
+                                 * type.
                                  */
                                 return type;
                             }
@@ -778,7 +780,8 @@ public class EntityCapsManager
                                       String capsVersion)
     {
         Caps caps
-            = new Caps(getNode(), CapsPacketExtension.HASH_METHOD, capsVersion);
+            = new Caps(getNode(), CapsPacketExtension.HASH_METHOD, capsVersion,
+                    null);
 
         /*
          * DiscoverInfo carries the node and the ver and we're now setting a new
@@ -827,9 +830,15 @@ public class EntityCapsManager
              * validate the DiscoverInfo sent by the client. If
              * EntityCapsManager receives no 'hash' attribute, it will assume
              * the legacy format and will not cache it because the DiscoverInfo
-             * to be received from the client later on will not be trustworthy. 
+             * to be received from the client later on will not be trustworthy.
              */
             String hash = ext.getHash();
+
+            /* Google Talk web does not set hash but we need it to be cached */
+            if(hash == null)
+            {
+                hash = "";
+            }
 
             if (hash != null)
             {
@@ -841,8 +850,9 @@ public class EntityCapsManager
                     online = ((Presence) packet).isAvailable();
 
                 addUserCapsNode(
-                    packet.getFrom(),
-                    ext.getNode(), hash, ext.getVersion(), online);
+                        packet.getFrom(),
+                        ext.getNode(), hash, ext.getVersion(),
+                        ext.getExtensions(), online);
             }
         }
     }
@@ -850,7 +860,7 @@ public class EntityCapsManager
     /**
      * Implements an immutable value which stands for a specific node, a
      * specific hash (algorithm) and a specific ver.
-     * 
+     *
      * @author Lubomir Marinov
      */
     public static class Caps
@@ -860,6 +870,9 @@ public class EntityCapsManager
 
         /** The node of this <tt>Caps</tt> value. */
         public final String node;
+
+        /** The ext info of this <tt>Caps</tt> value. */
+        public String ext;
 
         /**
          * The String which is the concatenation of {@link #node} and the
@@ -879,8 +892,9 @@ public class EntityCapsManager
          * @param hash the hash (algorithm) to be represented by the new
          * instance
          * @param ver the ver to be represented by the new instance
+         * @param ext the ext to be represented by the new instance
          */
-        public Caps(String node, String hash, String ver)
+        public Caps(String node, String hash, String ver, String ext)
         {
             if (node == null)
                 throw new NullPointerException("node");
@@ -892,6 +906,7 @@ public class EntityCapsManager
             this.node = node;
             this.hash = hash;
             this.ver = ver;
+            this.ext = ext;
 
             this.nodeVer = this.node + '#' + this.ver;
         }
@@ -931,6 +946,7 @@ public class EntityCapsManager
             return
                 (discoverInfo != null)
                     && getNodeVer().equals(discoverInfo.getNode())
+                    && !hash.equals("")
                     && ver.equals(
                             capsToHash(
                                 hash,
