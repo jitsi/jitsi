@@ -49,12 +49,6 @@ public class ContactListTreeCellRenderer
      */
     private static final long serialVersionUID = 0L;
 
-    /**
-     * The <tt>ContactListTreeCellRenderer</tt> logger.
-     */
-    private static final Logger logger
-        = Logger.getLogger(ContactListTreeCellRenderer.class);
-
     private static final Color glowOuterHigh = new Color(223, 238, 249, 100);
 
     private static final Color glowOuterLow = new Color(219, 233, 243, 100);
@@ -689,10 +683,10 @@ public class ContactListTreeCellRenderer
      */
     private void initButtonsPanel(UIContact uiContact)
     {
+        this.remove(chatButton);
         this.remove(callButton);
         this.remove(callVideoButton);
         this.remove(desktopSharingButton);
-        this.remove(chatButton);
         this.remove(addContactButton);
 
         if (!isSelected)
@@ -711,7 +705,8 @@ public class ContactListTreeCellRenderer
             imContact = uiContact.getDefaultContactDetail(
                          OperationSetBasicInstantMessaging.class);
 
-        int x = statusLabel.getWidth() + LEFT_BORDER + STATUS_RIGHT_BORDER;
+        int x = statusIcon.getIconWidth() + statusLabel.getIconTextGap()
+                + LEFT_BORDER + STATUS_RIGHT_BORDER;
 
         if (imContact != null)
         {
@@ -729,9 +724,6 @@ public class ContactListTreeCellRenderer
             chatButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight,
                 28, 28);
-
-            if (logger.isInfoEnabled())
-                logger.info("CHAT_BUTTON_BOUNDS: " + chatButton.getBounds());
 
             x += chatButton.getWidth();
         }
@@ -760,9 +752,6 @@ public class ContactListTreeCellRenderer
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
             callButton.setEnabled(telephonyContact != null);
 
-            if (logger.isInfoEnabled())
-                logger.info("CALL_BUTTON_BOUNDS: " + callButton.getBounds());
-
             x += callButton.getWidth();
         }
 
@@ -785,10 +774,6 @@ public class ContactListTreeCellRenderer
 
             callVideoButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
-
-            if (logger.isInfoEnabled())
-                logger.info("CALL_VIDEO_BUTTON_BOUNDS: "
-                        + callVideoButton.getBounds());
 
             x += callVideoButton.getWidth();
         }
@@ -813,10 +798,6 @@ public class ContactListTreeCellRenderer
             desktopSharingButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
 
-            if (logger.isInfoEnabled())
-                logger.info("DESKTOP_SHARING_BUTTON_BOUNDS: "
-                        + desktopSharingButton.getBounds());
-
             x += desktopSharingButton.getWidth();
         }
 
@@ -835,10 +816,6 @@ public class ContactListTreeCellRenderer
 
             addContactButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
-
-            if (logger.isInfoEnabled())
-                logger.info("ADD_CONTACT_BUTTON_BOUNDS: "
-                        + addContactButton.getBounds());
 
             x += addContactButton.getWidth();
         }
