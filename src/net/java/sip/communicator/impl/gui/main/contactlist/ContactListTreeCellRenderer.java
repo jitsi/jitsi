@@ -730,8 +730,8 @@ public class ContactListTreeCellRenderer
                 nameLabel.getHeight() + statusMessageLabelHeight,
                 28, 28);
 
-            if (logger.isDebugEnabled())
-                logger.debug("CHAT_BUTTON_BOUNDS: " + chatButton.getBounds());
+            if (logger.isInfoEnabled())
+                logger.info("CHAT_BUTTON_BOUNDS: " + chatButton.getBounds());
 
             x += chatButton.getWidth();
         }
@@ -760,8 +760,8 @@ public class ContactListTreeCellRenderer
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
             callButton.setEnabled(telephonyContact != null);
 
-            if (logger.isDebugEnabled())
-                logger.debug("CALL_BUTTON_BOUNDS: " + callButton.getBounds());
+            if (logger.isInfoEnabled())
+                logger.info("CALL_BUTTON_BOUNDS: " + callButton.getBounds());
 
             x += callButton.getWidth();
         }
@@ -786,8 +786,8 @@ public class ContactListTreeCellRenderer
             callVideoButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
 
-            if (logger.isDebugEnabled())
-                logger.debug("CALL_VIDEO_BUTTON_BOUNDS: "
+            if (logger.isInfoEnabled())
+                logger.info("CALL_VIDEO_BUTTON_BOUNDS: "
                         + callVideoButton.getBounds());
 
             x += callVideoButton.getWidth();
@@ -813,8 +813,8 @@ public class ContactListTreeCellRenderer
             desktopSharingButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
 
-            if (logger.isDebugEnabled())
-                logger.debug("DESKTOP_SHARING_BUTTON_BOUNDS: "
+            if (logger.isInfoEnabled())
+                logger.info("DESKTOP_SHARING_BUTTON_BOUNDS: "
                         + desktopSharingButton.getBounds());
 
             x += desktopSharingButton.getWidth();
@@ -836,8 +836,8 @@ public class ContactListTreeCellRenderer
             addContactButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
 
-            if (logger.isDebugEnabled())
-                logger.debug("ADD_CONTACT_BUTTON_BOUNDS: "
+            if (logger.isInfoEnabled())
+                logger.info("ADD_CONTACT_BUTTON_BOUNDS: "
                         + addContactButton.getBounds());
 
             x += addContactButton.getWidth();

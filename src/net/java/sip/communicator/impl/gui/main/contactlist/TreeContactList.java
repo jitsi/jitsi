@@ -1077,8 +1077,8 @@ public class TreeContactList
      */
     public FilterQuery applyFilter(ContactListFilter filter)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("Contact list filter applied: " + filter);
+        if (logger.isInfoEnabled())
+            logger.info("Contact list filter applied: " + filter);
 
         if (currentFilterQuery != null && !currentFilterQuery.isCanceled())
             currentFilterQuery.cancel();
@@ -1157,8 +1157,8 @@ public class TreeContactList
                     }
                     catch (InterruptedException e)
                     {
-                        if (logger.isDebugEnabled())
-                            logger.debug("Filter thread was interrupted.", e);
+                        if (logger.isInfoEnabled())
+                            logger.info("Filter thread was interrupted.", e);
                     }
                 }
             }
@@ -1556,8 +1556,8 @@ public class TreeContactList
         Component mouseComponent
             = renderer.findComponentAt(translatedX, translatedY);
 
-        if (logger.isDebugEnabled())
-            logger.debug("DISPATCH MOUSE EVENT TO COMPONENT: "
+        if (logger.isInfoEnabled())
+            logger.info("DISPATCH MOUSE EVENT TO COMPONENT: "
                     + mouseComponent + " for x: " + translatedX
                     + " and y: " + translatedY);
 
