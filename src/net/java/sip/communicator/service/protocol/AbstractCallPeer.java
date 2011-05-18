@@ -100,6 +100,11 @@ public abstract class AbstractCallPeer<T extends Call,
     private boolean isMute = false;
 
     /**
+     * The last fired security event.
+     */
+    private CallPeerSecurityStatusEvent lastSecurityEvent;
+
+    /**
      * Registers the <tt>listener</tt> to the list of listeners that would be
      * receiving CallPeerEvents.
      *
@@ -278,6 +283,8 @@ public abstract class AbstractCallPeer<T extends Call,
             = new CallPeerSecurityOnEvent(
                 this, sessionType, cipher, securityString, isVerified);
 
+        lastSecurityEvent = evt;
+
         if (logger.isDebugEnabled())
             logger.debug("Dispatching a CallPeerSecurityStatusEvent event to "
                      + callPeerSecurityListeners.size()
@@ -309,6 +316,8 @@ public abstract class AbstractCallPeer<T extends Call,
     {
         CallPeerSecurityOffEvent event
             = new CallPeerSecurityOffEvent( this, sessionType);
+
+        lastSecurityEvent = event;
 
         if (logger.isDebugEnabled())
             logger.debug(
@@ -770,6 +779,17 @@ public abstract class AbstractCallPeer<T extends Call,
             }
             return null;
         }
+    }
+
+    /**
+     * Returns the currently used security settings of this <tt>CallPeer</tt>.
+     *
+     * @return the <tt>CallPeerSecurityStatusEvent</tt> that contains the
+     * current security settings.
+     */
+    public CallPeerSecurityStatusEvent getCurrentSecuritySettings()
+    {
+        return lastSecurityEvent;
     }
 
     /**

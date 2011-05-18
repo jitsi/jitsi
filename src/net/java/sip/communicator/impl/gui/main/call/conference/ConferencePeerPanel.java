@@ -194,6 +194,46 @@ public class ConferencePeerPanel
         // Add the UI for all contained conference members.
         for (ConferenceMember member : callPeer.getConferenceMembers())
             this.addConferenceMemberPanel(member);
+
+        initSecuritySettings();
+    }
+
+    /**
+     * Initializes the security settings for this call peer.
+     */
+    private void initSecuritySettings()
+    {
+        OperationSetSecureTelephony secure
+            = callPeer.getProtocolProvider().getOperationSet(
+                        OperationSetSecureTelephony.class);
+
+        if (secure != null)
+        {
+            CallPeerSecurityStatusEvent securityEvent
+                = callPeer.getCurrentSecuritySettings();
+
+            if (securityEvent != null
+                && securityEvent instanceof CallPeerSecurityOnEvent)
+            {
+                CallPeerSecurityOnEvent securityOnEvt
+                    = (CallPeerSecurityOnEvent) securityEvent;
+
+                securityOn( securityOnEvt.getSecurityString(),
+                            securityOnEvt.isSecurityVerified());
+
+                setEncryptionCipher(securityOnEvt.getCipher());
+
+                switch (securityOnEvt.getSessionType())
+                {
+                case CallPeerSecurityOnEvent.AUDIO_SESSION:
+                    setAudioSecurityOn(true);
+                    break;
+                case CallPeerSecurityOnEvent.VIDEO_SESSION:
+                    setVideoSecurityOn(true);
+                    break;
+                }
+            }
+        }
     }
 
     /**

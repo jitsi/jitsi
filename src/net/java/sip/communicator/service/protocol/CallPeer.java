@@ -296,4 +296,12 @@ public interface CallPeer
      */
     public void removeConferenceMembersSoundLevelListener(
         ConferenceMembersSoundLevelListener listener);
+
+    /**
+     * Returns the currently used security settings of this <tt>CallPeer</tt>.
+     *
+     * @return the <tt>CallPeerSecurityStatusEvent</tt> that contains the
+     * current security settings.
+     */
+    public CallPeerSecurityStatusEvent getCurrentSecuritySettings();
 }

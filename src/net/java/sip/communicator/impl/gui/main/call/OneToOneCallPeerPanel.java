@@ -260,7 +260,8 @@ public class OneToOneCallPeerPanel
             add(statusBar, constraints);
         }
 
-        this.createSoundLevelIndicators();
+        createSoundLevelIndicators();
+        initSecuritySettings();
 
         addVideoListener();
         addRemoteControlListener();
@@ -450,6 +451,44 @@ public class OneToOneCallPeerPanel
                     localLevelIndicator.updateSoundLevel(event.getLevel());
                 }
             });
+    }
+
+    /**
+     * Initializes the security settings for this call peer.
+     */
+    private void initSecuritySettings()
+    {
+        OperationSetSecureTelephony secure
+            = callPeer.getProtocolProvider().getOperationSet(
+                        OperationSetSecureTelephony.class);
+
+        if (secure != null)
+        {
+            CallPeerSecurityStatusEvent securityEvent
+                = callPeer.getCurrentSecuritySettings();
+
+            if (securityEvent != null
+                && securityEvent instanceof CallPeerSecurityOnEvent)
+            {
+                CallPeerSecurityOnEvent securityOnEvt
+                    = (CallPeerSecurityOnEvent) securityEvent;
+
+                securityOn( securityOnEvt.getSecurityString(),
+                            securityOnEvt.isSecurityVerified());
+
+                setEncryptionCipher(securityOnEvt.getCipher());
+
+                switch (securityOnEvt.getSessionType())
+                {
+                case CallPeerSecurityOnEvent.AUDIO_SESSION:
+                    setAudioSecurityOn(true);
+                    break;
+                case CallPeerSecurityOnEvent.VIDEO_SESSION:
+                    setVideoSecurityOn(true);
+                    break;
+                }
+            }
+        }
     }
 
     /**
