@@ -289,7 +289,6 @@ public class CallPeerMediaHandlerJabberImpl
                 = content.getFirstChildOfType(
                         IceUdpTransportPacketExtension.class);
 
-
             // stream target
             MediaStreamTarget target
                 = JingleUtils.extractDefaultTarget(content);
@@ -347,12 +346,17 @@ public class CallPeerMediaHandlerJabberImpl
 
                 if(helloHash != null && helloHash[1].length() > 0)
                 {
+                    EncryptionPacketExtension encryption = new
+                        EncryptionPacketExtension();
                     ZrtpHashPacketExtension hash
                         = new ZrtpHashPacketExtension();
                     hash.setVersion(helloHash[0]);
                     hash.setValue(helloHash[1]);
 
-                    ourContent.addChildExtension(hash);
+                    encryption.addChildExtension(hash);
+                    RtpDescriptionPacketExtension rtpDescription =
+                        JingleUtils.getRtpDescription(ourContent);
+                    rtpDescription.setEncryption(encryption);
                 }
             }
 
@@ -550,13 +554,18 @@ public class CallPeerMediaHandlerJabberImpl
 
                 if(helloHash != null && helloHash[1].length() > 0)
                 {
+                    EncryptionPacketExtension encryption = new
+                        EncryptionPacketExtension();
                     ZrtpHashPacketExtension hash
                         = new ZrtpHashPacketExtension();
 
                     hash.setVersion(helloHash[0]);
                     hash.setValue(helloHash[1]);
 
-                    content.addChildExtension(hash);
+                    encryption.addChildExtension(hash);
+                    RtpDescriptionPacketExtension description =
+                        JingleUtils.getRtpDescription(content);
+                    description.setEncryption(encryption);
                 }
             }
 
@@ -670,12 +679,17 @@ public class CallPeerMediaHandlerJabberImpl
 
                         if(helloHash != null && helloHash[1].length() > 0)
                         {
+                            EncryptionPacketExtension encryption = new
+                                EncryptionPacketExtension();
                             ZrtpHashPacketExtension hash
                                 = new ZrtpHashPacketExtension();
                             hash.setVersion(helloHash[0]);
                             hash.setValue(helloHash[1]);
 
-                            content.addChildExtension(hash);
+                            encryption.addChildExtension(hash);
+                            RtpDescriptionPacketExtension description =
+                                JingleUtils.getRtpDescription(content);
+                            description.setEncryption(encryption);
                         }
                     }
 

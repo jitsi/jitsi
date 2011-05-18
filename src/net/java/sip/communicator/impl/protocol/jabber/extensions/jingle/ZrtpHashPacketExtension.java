@@ -24,7 +24,7 @@ public class ZrtpHashPacketExtension extends AbstractPacketExtension
     /**
      * The namespace for the "zrtp-hash" element.
      */
-    public static final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:zrtp:0";
+    public static final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:zrtp:1";
 
     /**
      * The name of the <tt>version</tt> attribute.

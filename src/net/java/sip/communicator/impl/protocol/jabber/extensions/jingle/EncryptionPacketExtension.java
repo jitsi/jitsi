@@ -22,6 +22,11 @@ public class EncryptionPacketExtension
     extends AbstractPacketExtension
 {
     /**
+     * The namespace of the "encryption" element.
+     */
+    public static final String NAMESPACE = null;
+
+    /**
      * The name of the "encryption" element.
      */
     public static final String ELEMENT_NAME = "encryption";
@@ -43,7 +48,7 @@ public class EncryptionPacketExtension
      */
     public EncryptionPacketExtension()
     {
-        super(null, ELEMENT_NAME);
+        super(NAMESPACE, ELEMENT_NAME);
     }
 
     /**
@@ -104,6 +109,10 @@ public class EncryptionPacketExtension
     @Override
     public List<? extends PacketExtension> getChildExtensions()
     {
-        return getCryptoList();
+        List<PacketExtension> ret = new ArrayList<PacketExtension>();
+
+        ret.addAll(getCryptoList());
+        ret.addAll(super.getChildExtensions());
+        return ret;
     }
 }
