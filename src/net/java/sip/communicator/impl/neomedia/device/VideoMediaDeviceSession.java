@@ -113,6 +113,22 @@ public class VideoMediaDeviceSession
     }
 
     /**
+     * Initializes a new <tt>VideoMediaDeviceSession</tt> instance which is to
+     * represent the work of a <tt>MediaStream</tt> with a specific video
+     * <tt>MediaDevice</tt>.
+     *
+     * @param session previous <tt>MediaDeviceSession</tt>
+     * @param device the video <tt>MediaDevice</tt> the use of which by a
+     * <tt>MediaStream</tt> is to be represented by the new instance
+     */
+    public VideoMediaDeviceSession(AbstractMediaDevice device,
+            MediaDeviceSession session)
+    {
+        this(device);
+        transferRenderingSession(session);
+    }
+
+    /**
      * Adds a specific <tt>VideoListener</tt> to this instance in order to
      * receive notifications when visual/video <tt>Component</tt>s are being
      * added and removed.

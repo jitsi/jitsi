@@ -59,6 +59,28 @@ public abstract class AbstractMediaDevice
     }
 
     /**
+     * Creates a new <tt>MediaDeviceSession</tt> instance which is to represent
+     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt> and the
+     * rendering part of a previous <tt>MediaDeviceSession</tt>.
+     *
+     * @param session previous <tt>MediaDeviceSession</tt>
+     * @return a new <tt>MediaDeviceSession</tt> instance which is to represent
+     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt>
+     */
+    public MediaDeviceSession createSession(MediaDeviceSession session)
+    {
+        switch (getMediaType())
+        {
+        case VIDEO:
+            session = new VideoMediaDeviceSession(this, session);
+            return session;
+        default:
+            session = new AudioMediaDeviceSession(this, session);
+            return session;
+        }
+    }
+
+    /**
      * Get the last used <tt>MediaDeviceSession</tt>.
      *
      * @return <tt>MediaDeviceSession</tt>

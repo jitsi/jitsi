@@ -38,6 +38,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Lyubomir Marinov
  * @author Emil Ivov
+ * @author Sebastien Vincent
  */
 public class MediaStreamImpl
     extends AbstractMediaStream
@@ -1333,13 +1334,28 @@ public class MediaStreamImpl
                 deviceSession.removePropertyChangeListener(
                     deviceSessionPropertyChangeListener);
 
+                // keep player active
+                deviceSession.setDisposePlayerWhenClose(false);
                 deviceSession.close();
                 deviceSession = null;
             }
             else
+            {
                 startedDirection = MediaDirection.INACTIVE;
+            }
 
-            deviceSession = abstractMediaDevice.createSession();
+            if(oldValue != null)
+            {
+                // transfer the rendering session objects (JMF player, ...)
+                // to the new MediaDeviceSession. So we do not have a
+                // reinitialization of the receive stream if we just change our
+                // device (switch from camera to desktop streaming).
+                deviceSession = abstractMediaDevice.createSession(oldValue);
+            }
+            else
+            {
+                deviceSession = abstractMediaDevice.createSession();
+            }
 
             deviceSession.addPropertyChangeListener(
                 deviceSessionPropertyChangeListener);

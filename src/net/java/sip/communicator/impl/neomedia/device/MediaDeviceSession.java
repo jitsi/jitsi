@@ -35,7 +35,6 @@ import net.java.sip.communicator.util.*;
 public class MediaDeviceSession
     extends PropertyChangeNotifier
 {
-
     /**
      * The <tt>Logger</tt> used by the <tt>MediaDeviceSession</tt> class and its
      * instances for logging output.
@@ -175,6 +174,11 @@ public class MediaDeviceSession
     private MediaDirection startedDirection = MediaDirection.INACTIVE;
 
     /**
+     * If the player have to be disposed when we #close() this instance.
+     */
+    private boolean disposePlayerWhenClose = true;
+
+    /**
      * Initializes a new <tt>MediaDeviceSession</tt> instance which is to
      * represent the use of a specific <tt>MediaDevice</tt> by a
      * <tt>MediaStream</tt>.
@@ -187,6 +191,16 @@ public class MediaDeviceSession
         checkDevice(device);
 
         this.device = device;
+    }
+
+    /**
+     * Dispose (or not) the player when this instance closes.
+     *
+     * @param dispose value to set
+     */
+    public void setDisposePlayerWhenClose(boolean dispose)
+    {
+        disposePlayerWhenClose = dispose;
     }
 
     /**
@@ -315,8 +329,11 @@ public class MediaDeviceSession
         disconnectCaptureDevice();
         closeProcessor();
 
-        // playback
-        disposePlayer();
+        if(disposePlayerWhenClose)
+        {
+            // playback
+            disposePlayer();
+        }
     }
 
     /**
@@ -343,6 +360,7 @@ public class MediaDeviceSession
                 if (dataOutput != null)
                     dataOutput.disconnect();
             }
+
             processor.deallocate();
             processor.close();
             processorIsPrematurelyClosed = false;
@@ -470,7 +488,6 @@ public class MediaDeviceSession
              * it reads some media. In the case of a ReceiveStream not sending
              * media (e.g. abnormally stopped), it will leave us blocked.
              */
-
             if (playerControllerListener == null)
                 playerControllerListener = new ControllerListener()
                 {
@@ -1771,5 +1788,26 @@ public class MediaDeviceSession
     private static boolean waitForState(Processor processor, int state)
     {
         return new ProcessorUtility().waitForState(processor, state);
+    }
+
+    /**
+     * Transfer rendering part from <tt>session</tt> to this instance.
+     *
+     * @param session <tt>MediaDeviceSession</tt> to transfer data from
+     */
+    protected void transferRenderingSession(MediaDeviceSession session)
+    {
+        if(session.disposePlayerWhenClose)
+        {
+            logger.error("Cannot tranfer rendering session if " +
+                    "MediaDeviceSession has closed it");
+        }
+        else
+        {
+            this.player = session.player;
+            this.playbackDataSource = session.playbackDataSource;
+            this.receiveStream = session.receiveStream;
+            setSsrcList(session.ssrcList);
+        }
     }
 }

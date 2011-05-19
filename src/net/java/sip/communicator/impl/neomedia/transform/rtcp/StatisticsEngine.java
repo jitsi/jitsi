@@ -116,13 +116,15 @@ public class StatisticsEngine
 
                     // As sender reports are send on every 5 seconds
                     // print every 4th packet, on every 20 seconds
-                    if(numberOfSenderReports%4 != 1)
+                    if(numberOfSenderReports % 4 != 1)
                         return pkt;
 
                     StringBuilder buff = new StringBuilder(RTP_STAT_PREFIX);
 
                     buff.append("Sending a report for ")
-                        .append(mediaStream.getFormat().getMediaType())
+                        .append(mediaStream.getFormat() != null ?
+                                mediaStream.getFormat().getMediaType()
+                                : "")
                         .append(" stream SSRC:")
                         .append(feedback.getSSRC())
                         .append(" [packet count:")
