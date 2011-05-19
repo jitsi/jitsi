@@ -12,6 +12,8 @@ import java.io.*;
 import javax.media.*;
 import javax.media.MediaException; // disambiguation
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EtchedBorder;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
@@ -660,8 +662,9 @@ public class MediaConfiguration
         ResourceManagementService resources = NeomediaActivator.getResources();
 
         final TransparentPanel advancedPanel =
-            new TransparentPanel(new BorderLayout());
+            new TransparentPanel(new BorderLayout(5, 5));
         advancedPanel.setMaximumSize(new Dimension(WIDTH, 150));
+        advancedPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
         final JLabel advButton = new JLabel(NeomediaActivator.getResources()
             .getI18NString("impl.media.configform.VIDEO_MORE_SETTINGS"));
         advButton.setIcon(NeomediaActivator.getResources()
@@ -685,12 +688,12 @@ public class MediaConfiguration
                 new FlowLayout(FlowLayout.RIGHT));
         resetButtonPanel.add(resetDefaultsButton);
 
-        final JPanel centerAdvancedPanel =
-            new TransparentPanel(new BorderLayout());
+        final JPanel centerAdvancedPanel
+            = new TransparentPanel(new BorderLayout());
         centerAdvancedPanel.add(centerPanel, BorderLayout.CENTER);
         centerAdvancedPanel.add(resetButtonPanel, BorderLayout.SOUTH);
-        centerAdvancedPanel.setBorder(BorderFactory.createLineBorder(
-                centerAdvancedPanel.getForeground()));
+        centerAdvancedPanel.setBorder(
+            BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
         centerAdvancedPanel.setVisible(false);
 
         advancedPanel.add(centerAdvancedPanel, BorderLayout.CENTER);
