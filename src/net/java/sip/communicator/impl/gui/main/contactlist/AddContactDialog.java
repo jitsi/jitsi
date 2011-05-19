@@ -19,6 +19,8 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactlist.event.MetaContactEvent;
+import net.java.sip.communicator.service.contactlist.event.MetaContactListAdapter;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -339,6 +341,36 @@ public class AddContactDialog
 
         if (button.equals(addButton))
         {
+            final ProtocolProviderService protocolProvider
+                = (ProtocolProviderService) accountCombo.getSelectedItem();
+            final String contactAddress = contactAddressField.getText();
+            final String displayName = displayNameField.getText();
+
+            if (displayName != null && displayName.length() > 0)
+            {
+                GuiActivator.getContactListService().addMetaContactListListener(
+                    new MetaContactListAdapter()
+                    {
+                        public void metaContactAdded(MetaContactEvent evt)
+                        {
+                            if (evt.getSourceMetaContact().getContact(
+                                contactAddress, protocolProvider) != null)
+                            {
+                                new Thread()
+                                {
+                                    @Override
+                                    public void run()
+                                    {
+                                        GuiActivator.getContactListService()
+                                            .renameMetaContact( metaContact,
+                                                                displayName);
+                                    }
+                                }.start();
+                            }
+                        }
+                    });
+            }
+
             if (metaContact != null)
             {
                 new Thread()
@@ -348,17 +380,14 @@ public class AddContactDialog
                     {
                         GuiActivator.getContactListService()
                             .addNewContactToMetaContact(
-                                (ProtocolProviderService) accountCombo
-                                    .getSelectedItem(),
+                                protocolProvider,
                                 metaContact,
-                                contactAddressField.getText());
+                                contactAddress);
                     }
                 }.start();
             }
             else
             {
-                final String contactName = contactAddressField.getText();
-
                 new Thread()
                 {
                     @Override
@@ -369,11 +398,10 @@ public class AddContactDialog
                             metaContact
                                 = GuiActivator.getContactListService()
                                     .createMetaContact(
-                                        (ProtocolProviderService) accountCombo
-                                            .getSelectedItem(),
+                                        protocolProvider,
                                         (MetaContactGroup) groupCombo
                                             .getSelectedItem(),
-                                        contactName);
+                                        contactAddress);
                         }
                         catch (MetaContactListException ex)
                         {
@@ -390,7 +418,7 @@ public class AddContactDialog
                                     "service.gui.ADD_CONTACT_ERROR_TITLE"),
                                     GuiActivator.getResources().getI18NString(
                                             "service.gui.ADD_CONTACT_EXIST_ERROR",
-                                            new String[]{contactName}),
+                                            new String[]{contactAddress}),
                                     ex)
                                 .showDialog();
                             }
@@ -403,7 +431,7 @@ public class AddContactDialog
                                     "service.gui.ADD_CONTACT_ERROR_TITLE"),
                                     GuiActivator.getResources().getI18NString(
                                         "service.gui.ADD_CONTACT_NETWORK_ERROR",
-                                        new String[]{contactName}),
+                                        new String[]{contactAddress}),
                                     ex)
                                 .showDialog();
                             }
@@ -414,28 +442,11 @@ public class AddContactDialog
                                     "service.gui.ADD_CONTACT_ERROR_TITLE"),
                                     GuiActivator.getResources().getI18NString(
                                             "service.gui.ADD_CONTACT_ERROR",
-                                            new String[]{contactName}),
+                                            new String[]{contactAddress}),
                                     ex)
                                 .showDialog();
                             }
                         }
-                    }
-                }.start();
-            }
-
-            final String displayName = displayNameField.getText();
-            if (metaContact != null
-                && displayName != null
-                && displayName.length() > 0
-                && !metaContact.getDisplayName().equals(displayName))
-            {
-                new Thread()
-                {
-                    @Override
-                    public void run()
-                    {
-                        GuiActivator.getContactListService()
-                            .renameMetaContact(metaContact, displayName);
                     }
                 }.start();
             }
