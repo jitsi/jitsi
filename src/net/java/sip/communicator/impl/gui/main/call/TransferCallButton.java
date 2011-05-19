@@ -118,7 +118,10 @@ public class TransferCallButton
             Call activeCall = activeCalls.next();
             if (!activeCall.equals(call)
                 // We're only interested in one to one calls
-                && activeCall.getCallPeerCount() == 1)
+                && activeCall.getCallPeerCount() == 1
+                // we are interested only in calls from same protocol
+                && call.getProtocolProvider().getProtocolName().equals(
+                        activeCall.getProtocolProvider().getProtocolName()))
             {
                 if (transferCalls == null)
                     transferCalls = new LinkedList<CallPeer>();
