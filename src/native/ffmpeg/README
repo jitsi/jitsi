@@ -66,15 +66,22 @@ patch -Np1 -i ffmpeg-02-libavcodec_libx264.c-rtp_payload_size.patch
 - Windows
 
 x86:
-Add --target-os=mingw32, --enable-memalign-hack, --disable-pthreads and
---enable-w32threads.
+Add the following to the configure line:
+--target-os=mingw32 --enable-memalign-hack --disable-pthreads --enable-w32threads
 
 x64:
-Add --arch=amd64 and --enable-cross-compile to the configure line used for x86.
+Add the following to the configure line used for x86:
+--arch=amd64 --enable-cross-compile
 
-- FreeBSD, Linux, Mac OS X
+- FreeBSD, Linux
 
-Add --enable-pic and --enable-pthreads.
+Add the following to the configure line:
+--enable-pic --enable-pthreads --enable-decoder=mjpeg --enable-parser=mjpeg
+
+- Mac OS X
+
+Add the following to the configure line:
+--enable-pic --enable-pthreads --enable-memalign-hack
 
 4. jnffmpeg
 
