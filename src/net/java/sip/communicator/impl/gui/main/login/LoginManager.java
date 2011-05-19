@@ -61,8 +61,9 @@ public class LoginManager
      */
     public void login(ProtocolProviderService protocolProvider)
     {
-        SecurityAuthorityImpl secAuth
-            = new SecurityAuthorityImpl(protocolProvider);
+        SecurityAuthority secAuth
+            = GuiActivator.getUIService()
+                .getDefaultSecurityAuthority(protocolProvider);
 
         mainFrame.getAccountStatusPanel().startConnecting(protocolProvider);
 

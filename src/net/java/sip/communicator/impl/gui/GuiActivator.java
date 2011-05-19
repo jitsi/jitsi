@@ -84,6 +84,8 @@ public class GuiActivator implements BundleActivator
 
     private static List<ContactSourceService> contactSources;
 
+    private static SecurityAuthority securityAuthority;
+
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
 
@@ -801,6 +803,57 @@ public class GuiActivator implements BundleActivator
                     SmiliesReplacementService.class);
         }
         return smiliesService;
+    }
+
+    /**
+     * Returns the <tt>SecurityAuthority</tt> implementation registered to
+     * handle security authority events.
+     *
+     * @return the <tt>SecurityAuthority</tt> implementation obtained
+     * from the bundle context
+     */
+    public static SecurityAuthority getSecurityAuthority()
+    {
+        if (securityAuthority == null)
+        {
+            securityAuthority
+                = ServiceUtils.getService(bundleContext,
+                    SecurityAuthority.class);
+        }
+        return securityAuthority;
+    }
+
+    /**
+     * Returns the <tt>SecurityAuthority</tt> implementation registered to
+     * handle security authority events.
+     *
+     * @return the <tt>SecurityAuthority</tt> implementation obtained
+     * from the bundle context
+     */
+    public static SecurityAuthority getSecurityAuthority(String protocolName)
+    {
+        String osgiFilter = "("
+            + ProtocolProviderFactory.PROTOCOL
+            + "=" + protocolName + ")";
+
+        SecurityAuthority securityAuthority = null;
+        try
+        {
+            ServiceReference[] serRefs
+                = bundleContext.getServiceReferences(
+                    SecurityAuthority.class.getName(), osgiFilter);
+
+            if (serRefs != null && serRefs.length > 0)
+                securityAuthority
+                    = (SecurityAuthority) bundleContext
+                        .getService(serRefs[0]);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            logger.error("GuiActivator : " + ex);
+        }
+
+        return securityAuthority;
     }
 
     /**

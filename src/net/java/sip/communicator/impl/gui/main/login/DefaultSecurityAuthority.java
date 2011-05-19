@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.login;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.GuiActivator;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.AuthenticationWindow;
@@ -16,71 +17,77 @@ import net.java.sip.communicator.util.swing.AuthenticationWindow;
  * Utility class that can be used in cases where components other than the main
  * user interface may need to launch provider registration. At the time I am
  * writing this, the <tt>DefaultSecurityAuthority</tt> is being used by the
- * systray and
+ * systray and uri handlers.
  *
+ * @author Yana Stamcheva
  * @author Emil Ivov
  */
 public class DefaultSecurityAuthority
     implements SecurityAuthority
 {
+    private ProtocolProviderService protocolProvider;
+
     private boolean isUserNameEditable = false;
 
     /**
-     * The provider that this authority would be responsible for.
-     */
-    private ProtocolProviderService provider = null;
-
-    /**
-     * Creates this authority for a particular provider.
+     * Creates an instance of <tt>SecurityAuthorityImpl</tt>.
      *
-     * @param provider the protocol provider, for which this security authority
-     * is about
+     * @param protocolProvider The <tt>ProtocolProviderService</tt> for this
+     * <tt>SecurityAuthority</tt>.
      */
-    public DefaultSecurityAuthority(ProtocolProviderService provider)
+    public DefaultSecurityAuthority(ProtocolProviderService protocolProvider)
     {
-        this.provider = provider;
+        this.protocolProvider = protocolProvider;
     }
 
     /**
-     * Used to login to the protocol providers
-     *
-     * @param realm the realm that the credentials are needed for
+     * Implements the <code>SecurityAuthority.obtainCredentials</code> method.
+     * Creates and show an <tt>AuthenticationWindow</tt>, where user could enter
+     * its password.
+     * @param realm The realm that the credentials are needed for.
      * @param userCredentials the values to propose the user by default
-     * @return The Credentials associated with the speciefied realm
-     */
-    public UserCredentials obtainCredentials(
-            String realm,
-            UserCredentials userCredentials)
-    {
-        return obtainCredentials(   realm,
-                                    userCredentials,
-                                    SecurityAuthority.AUTHENTICATION_REQUIRED);
-    }
-
-
-    /**
-     * Used to login to the protocol providers
-     *
-     * @param realm the realm that the credentials are needed for
-     * @param userCredentials the values to propose the user by default
-     * @param reasonCode the reason for which we're asking for credentials
-     * @return The Credentials associated with the speciefied realm
+     * @param reasonCode indicates the reason for which we're obtaining the
+     * credentials.
+     * @return The credentials associated with the specified realm or null if
+     * none could be obtained.
      */
     public UserCredentials obtainCredentials(
             String realm,
             UserCredentials userCredentials,
             int reasonCode)
     {
+        String errorMessage = null;
+
+        if (reasonCode == WRONG_PASSWORD
+            || reasonCode == WRONG_USERNAME)
+        {
+            errorMessage
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.AUTHENTICATION_FAILED");
+        }
+
+        AuthenticationWindow loginWindow = null;
+
         String userName = userCredentials.getUserName();
         char[] password = userCredentials.getPassword();
-        ImageIcon icon = ImageLoader.getAuthenticationWindowIcon(provider);
+        ImageIcon icon
+            = ImageLoader.getAuthenticationWindowIcon(protocolProvider);
 
-        AuthenticationWindow loginWindow
-            = new AuthenticationWindow( userName,
-                                        password,
-                                        realm,
-                                        isUserNameEditable,
-                                        icon);
+        if (errorMessage == null)
+            loginWindow = new AuthenticationWindow(
+                userName,
+                password,
+                realm,
+                isUserNameEditable,
+                icon);
+        else
+            loginWindow = new AuthenticationWindow(
+                userName,
+                password,
+                realm,
+                isUserNameEditable,
+                icon,
+                errorMessage);
 
         loginWindow.setVisible(true);
 
@@ -100,14 +107,29 @@ public class DefaultSecurityAuthority
         return userCredentials;
     }
 
+    /**
+     * Implements the <code>SecurityAuthority.obtainCredentials</code> method.
+     * Creates and show an <tt>AuthenticationWindow</tt>, where user could enter
+     * its password.
+     * @param realm The realm that the credentials are needed for.
+     * @param userCredentials the values to propose the user by default
+     * @return The credentials associated with the specified realm or null if
+     * none could be obtained.
+     */
+    public UserCredentials obtainCredentials(
+            String realm,
+            UserCredentials userCredentials)
+    {
+        return this.obtainCredentials(realm, userCredentials,
+            SecurityAuthority.AUTHENTICATION_REQUIRED);
+    }
 
     /**
-     * Sets the userNameEditable property, which should indicate to the
-     * implementations of this interface if the user name could be changed
-     * by user or not.
-     *
-     * @param isUserNameEditable indicates if the user name could be changed
-     * by user in the implementation of this interface.
+     * Sets the userNameEditable property, which indicates if the user name
+     * could be changed by user or not.
+     * 
+     * @param isUserNameEditable indicates if the user name could be changed by
+     * user
      */
     public void setUserNameEditable(boolean isUserNameEditable)
     {
@@ -115,11 +137,11 @@ public class DefaultSecurityAuthority
     }
 
     /**
-     * Indicates if the user name is currently editable, i.e. could be
-     * changed by user or not.
-     *
-     * @return <tt>true</tt> if the user name could be changed and
-     * <tt>false</tt> otherwise.
+     * Indicates if the user name is currently editable, i.e. could be changed
+     * by user or not.
+     * 
+     * @return <code>true</code> if the user name could be changed,
+     * <code>false</code> - otherwise.
      */
     public boolean isUserNameEditable()
     {

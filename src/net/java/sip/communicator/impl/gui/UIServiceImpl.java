@@ -704,7 +704,16 @@ public class UIServiceImpl
     public SecurityAuthority getDefaultSecurityAuthority(
                     ProtocolProviderService protocolProvider)
     {
-        return new DefaultSecurityAuthority(protocolProvider);
+        SecurityAuthority secAuthority = GuiActivator.getSecurityAuthority(
+            protocolProvider.getProtocolName());
+
+        if (secAuthority == null)
+            secAuthority = GuiActivator.getSecurityAuthority();
+
+        if (secAuthority == null)
+            secAuthority = new DefaultSecurityAuthority(protocolProvider);
+
+        return secAuthority;
     }
 
     /**

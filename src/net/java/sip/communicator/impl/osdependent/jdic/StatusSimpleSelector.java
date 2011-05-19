@@ -100,7 +100,7 @@ public class StatusSimpleSelector
                 new ProviderRegistration(provider).start();
             }
         }
-        else 
+        else
         {
             RegistrationState registrationState
                 = provider.getRegistrationState();
