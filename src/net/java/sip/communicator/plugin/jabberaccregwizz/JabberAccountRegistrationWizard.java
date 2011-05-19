@@ -606,6 +606,17 @@ public class JabberAccountRegistrationWizard
     }
 
     /**
+     * Indicates if a sign up form is supported by this wizard.
+     *
+     * @return <tt>true</tt> if a sign up form is supported by this wizard,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isSignupSupported()
+    {
+        return false;
+    }
+
+    /**
      * Returns the first wizard page.
      *
      * @return the first wizard page.

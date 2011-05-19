@@ -289,7 +289,7 @@ public class InitialAccountRegistrationFrame
 
             inputRegisterPanel.add(inputPanel, BorderLayout.NORTH);
 
-            if (wizard.isWebSignupSupported())
+            if (wizard.isSignupSupported() || wizard.isWebSignupSupported())
             {
                 String textKey =
                     isPreferredWizard ? "plugin.simpleaccregwizz.SPECIAL_SIGNUP"
@@ -310,7 +310,14 @@ public class InitialAccountRegistrationFrame
                     {
                         try
                         {
-                            wizard.webSignup();
+                            if (wizard.isSignupSupported())
+                            {
+                                showCreateAccountWindow(wizard);
+                            }
+                            else if (wizard.isWebSignupSupported())
+                            {
+                                wizard.webSignup();
+                            }
                         }
                         catch (UnsupportedOperationException ex)
                         {
@@ -656,6 +663,22 @@ public class InitialAccountRegistrationFrame
         titlePane.setOpaque(false);
 
         return titlePane;
+    }
+
+    /**
+     * Show the create account window for the given wizard.
+     *
+     * @param wizard the <tt>AccountRegistrationWizard</tt>, for which we're
+     * opening the window
+     */
+    private void showCreateAccountWindow(AccountRegistrationWizard wizard)
+    {
+        CreateAccountWindow createAccountWindow
+            = SimpleAccountRegistrationActivator
+                .getUIService().getCreateAccountWindow();
+
+        createAccountWindow.setSelectedWizard(wizard);
+        createAccountWindow.setVisible(true);
     }
 
     @Override

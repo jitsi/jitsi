@@ -157,10 +157,19 @@ public interface AccountRegistrationWizard
     /**
      * Defines the operation that will be executed when user clicks on the
      * "Sign up" link.
+     *
      * @throws UnsupportedOperationException if the web sign up operation is
      * not supported by the current implementation.
      */
     public void webSignup() throws UnsupportedOperationException;
+
+    /**
+     * Indicates if a sign up form is supported by this wizard.
+     *
+     * @return <tt>true</tt> if a sign up form is supported by this wizard,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isSignupSupported();
 
     /**
      * Returns the preferred dimensions of this wizard.

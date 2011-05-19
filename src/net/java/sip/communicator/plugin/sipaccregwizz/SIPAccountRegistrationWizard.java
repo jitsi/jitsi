@@ -701,6 +701,20 @@ public class SIPAccountRegistrationWizard
     }
 
     /**
+     * Indicates if a sign up form is supported by this wizard.
+     *
+     * @return <tt>true</tt> if a sign up form is supported by this wizard,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isSignupSupported()
+    {
+        if (getCreateAccountService() != null)
+            return true;
+
+        return false;
+    }
+
+    /**
      * Returns the simple form.
      * @return the simple form
      */

@@ -1377,4 +1377,14 @@ public class UIServiceImpl
                 reloadComponents((java.awt.Container) c);
         }
     }
+
+    /**
+     * Returns the create account window.
+     *
+     * @return the create account window
+     */
+    public CreateAccountWindow getCreateAccountWindow()
+    {
+        return new NewAccountDialog();
+    }
 }

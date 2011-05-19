@@ -388,6 +388,13 @@ public interface UIService
     public ConfigurationContainer getConfigurationContainer();
 
     /**
+     * Returns the create account window.
+     *
+     * @return the create account window
+     */
+    public CreateAccountWindow getCreateAccountWindow();
+
+    /**
      * Adds the given <tt>WindowListener</tt> listening for events triggered
      * by the main UIService component. This is normally the main application
      * window component, the one containing the contact list. This listener

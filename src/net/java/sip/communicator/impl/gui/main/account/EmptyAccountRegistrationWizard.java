@@ -191,6 +191,17 @@ class EmptyAccountRegistrationWizard
     }
 
     /**
+     * Indicates if a sign up form is supported by this wizard.
+     *
+     * @return <tt>true</tt> if a sign up form is supported by this wizard,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isSignupSupported()
+    {
+        return false;
+    }
+
+    /**
      * Empty interface method implementation, unused in the case of the
      * {@link EmptyAccountRegistrationWizard}
      */

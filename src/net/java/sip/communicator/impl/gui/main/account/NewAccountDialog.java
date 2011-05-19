@@ -30,7 +30,8 @@ import org.osgi.framework.*;
  */
 public class NewAccountDialog
     extends SIPCommDialog
-    implements  ActionListener,
+    implements  CreateAccountWindow,
+                ActionListener,
                 PropertyChangeListener
 {
     /**
@@ -648,5 +649,16 @@ public class NewAccountDialog
                         new String[]{e.getMessage()}));
             }
         }
+    }
+
+    /**
+     * Sets the given wizard as a selected wizard.
+     *
+     * @param wizard the <tt>AccountRegistrationWizard</tt> to set as a selected
+     * wizard
+     */
+    public void setSelectedWizard(AccountRegistrationWizard wizard)
+    {
+        networkComboBox.setSelectedItem(wizard);
     }
 }
