@@ -491,7 +491,7 @@ public class IceUdpTransportManager
         throws OperationFailedException
     {
         Collection<ContentPacketExtension> transportInfoContents
-            = (transportInfoSender ==null)
+            = (transportInfoSender == null)
                 ? null
                 : new LinkedList<ContentPacketExtension>();
 

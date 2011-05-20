@@ -265,8 +265,6 @@ public class OperationSetDesktopSharingServerJabberImpl
         /* enable remote-control */
         call.setLocalInputEvtAware(supported);
 
-
-
         basicTelephony.createOutgoingCall(call, calleeAddress);
         return call;
     }

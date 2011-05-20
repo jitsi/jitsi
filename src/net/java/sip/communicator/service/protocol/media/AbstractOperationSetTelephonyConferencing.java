@@ -245,7 +245,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * @throws OperationFailedException if inviting the specified callee to the
      * specified call fails
      */
-    protected abstract MediaAwareCallPeerT inviteCalleeToCall(
+    protected abstract CallPeer inviteCalleeToCall(
             CalleeAddressT calleeAddress,
             MediaAwareCallT call,
             boolean wasConferenceFocus)

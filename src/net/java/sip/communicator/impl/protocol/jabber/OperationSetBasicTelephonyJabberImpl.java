@@ -59,6 +59,13 @@ public class OperationSetBasicTelephonyJabberImpl
         = new ActiveCallsRepositoryJabberImpl(this);
 
     /**
+     * Contains references for all currently active (non ended) Google Talk
+     * calls.
+     */
+    private ActiveCallsRepositoryGTalkImpl activeGTalkCallsRepository
+        = new ActiveCallsRepositoryGTalkImpl(this);
+
+    /**
      * Creates a new instance.
      *
      * @param protocolProvider a reference to the
@@ -340,6 +347,16 @@ public class OperationSetBasicTelephonyJabberImpl
     public Iterator<CallJabberImpl> getActiveCalls()
     {
         return activeCallsRepository.getActiveCalls();
+    }
+
+    /**
+     * Returns an iterator over all currently Google Talk active calls.
+     *
+     * @return an iterator over all currently Google Talk active calls.
+     */
+    public Iterator<CallGTalkImpl> getGTalkActiveCalls()
+    {
+        return activeGTalkCallsRepository.getActiveCalls();
     }
 
     /**
@@ -773,6 +790,18 @@ public class OperationSetBasicTelephonyJabberImpl
     protected ActiveCallsRepositoryJabberImpl getActiveCallsRepository()
     {
         return activeCallsRepository;
+    }
+
+    /**
+     * Returns a reference to the {@link ActiveCallsRepositoryGTalkImpl} that
+     * we are currently using.
+     *
+     * @return a reference to the {@link ActiveCallsRepositoryGTalkImpl} that
+     * we are currently using.
+     */
+    protected ActiveCallsRepositoryGTalkImpl getGTalkActiveCallsRepository()
+    {
+        return activeGTalkCallsRepository;
     }
 
     /**

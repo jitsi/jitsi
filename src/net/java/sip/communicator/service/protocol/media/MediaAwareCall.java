@@ -520,6 +520,16 @@ public abstract class MediaAwareCall<
     }
 
     /**
+     * Get the media use case.
+     *
+     * @return media use case
+     */
+    public MediaUseCase getMediaUseCase()
+    {
+        return mediaUseCase;
+    }
+
+    /**
      * Determines whether the streaming of local video in this <tt>Call</tt>
      * is currently allowed. The setting does not reflect the availability of
      * actual video capture devices, it just expresses the local policy (or

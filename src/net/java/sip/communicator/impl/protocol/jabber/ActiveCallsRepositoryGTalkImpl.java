@@ -1,5 +1,5 @@
 /*
- * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
@@ -18,9 +18,9 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov
  * @author Symphorien Wanko
  */
-public class ActiveCallsRepositoryJabberImpl
-    extends ActiveCallsRepository<CallJabberImpl,
-                                  OperationSetBasicTelephonyJabberImpl>
+public class ActiveCallsRepositoryGTalkImpl extends ActiveCallsRepository<
+    CallGTalkImpl,
+    OperationSetBasicTelephonyJabberImpl>
 {
     /**
      * It's where we store all active calls
@@ -28,31 +28,31 @@ public class ActiveCallsRepositoryJabberImpl
      * @param opSet the <tt>OperationSetBasicTelphony</tt> instance which has
      * been used to create calls in this repository
      */
-    public ActiveCallsRepositoryJabberImpl(
+    public ActiveCallsRepositoryGTalkImpl(
                                     OperationSetBasicTelephonyJabberImpl opSet)
     {
         super(opSet);
     }
 
     /**
-     * Returns the {@link CallJabberImpl} containing a {@link
-     * CallPeerJabberImpl} whose corresponding jingle session has the specified
+     * Returns the {@link CallGTalkImpl} containing a {@link
+     * CallPeerGTalkImpl} whose corresponding jingle session has the specified
      * jingle <tt>sid</tt>.
      *
      * @param sid the jingle <tt>sid</tt> we're looking for.
      *
-     * @return the {@link CallJabberImpl} containing the peer with the
+     * @return the {@link CallGTalkImpl} containing the peer with the
      * specified <tt>sid</tt> or <tt>null</tt> if we couldn't find one matching
      * it.
      */
-    public CallJabberImpl findJingleSID(String sid)
+    public CallGTalkImpl findSessionID(String sid)
     {
-        Iterator<CallJabberImpl> calls = getActiveCalls();
+        Iterator<CallGTalkImpl> calls = getActiveCalls();
 
         while (calls.hasNext())
         {
-            CallJabberImpl call = calls.next();
-            if (call.containsJingleSID(sid))
+            CallGTalkImpl call = calls.next();
+            if (call.containsSessionID(sid))
                 return call;
         }
 
@@ -60,22 +60,22 @@ public class ActiveCallsRepositoryJabberImpl
     }
 
     /**
-     * Returns the {@link CallPeerJabberImpl} whose jingle session has the
+     * Returns the {@link CallPeerGTalkImpl} whose jingle session has the
      * specified jingle <tt>sid</tt>.
      *
      * @param sid the jingle <tt>sid</tt> we're looking for.
      *
-     * @return the {@link CallPeerJabberImpl} with the specified <tt>sid</tt>
+     * @return the {@link CallPeerGTalkImpl} with the specified <tt>sid</tt>
      * or  tt>null</tt> if we couldn't find one matching it.
      */
-    public CallPeerJabberImpl findCallPeer(String sid)
+    public CallPeerGTalkImpl findCallPeer(String sid)
     {
-        Iterator<CallJabberImpl> calls = getActiveCalls();
+        Iterator<CallGTalkImpl> calls = getActiveCalls();
 
         while (calls.hasNext())
         {
-            CallJabberImpl call = calls.next();
-            CallPeerJabberImpl peer = call.getPeer(sid);
+            CallGTalkImpl call = calls.next();
+            CallPeerGTalkImpl peer = call.getPeer(sid);
             if ( peer != null )
                 return peer;
         }
@@ -84,22 +84,22 @@ public class ActiveCallsRepositoryJabberImpl
     }
 
     /**
-     * Returns the {@link CallPeerJabberImpl} whose session-init's ID has
+     * Returns the {@link CallPeerGTalkImpl} whose session-init's ID has
      * the specified IQ <tt>id</tt>.
      *
      * @param id the IQ <tt>id</tt> we're looking for.
      *
-     * @return the {@link CallPeerJabberImpl} with the specified <tt>id</tt>
+     * @return the {@link CallPeerGTalkImpl} with the specified <tt>id</tt>
      * or <tt>null</tt> if we couldn't find one matching it.
      */
-    public CallPeerJabberImpl findCallPeerBySessInitPacketID(String id)
+    public CallPeerGTalkImpl findCallPeerBySessInitPacketID(String id)
     {
-        Iterator<CallJabberImpl> calls = getActiveCalls();
+        Iterator<CallGTalkImpl> calls = getActiveCalls();
 
         while (calls.hasNext())
         {
-            CallJabberImpl call = calls.next();
-            CallPeerJabberImpl peer = call.getPeerBySessInitPacketID(id);
+            CallGTalkImpl call = calls.next();
+            CallPeerGTalkImpl peer = call.getPeerBySessInitPacketID(id);
             if ( peer != null )
                 return peer;
         }
