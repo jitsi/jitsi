@@ -417,4 +417,31 @@ public abstract class SIPCommDialog
      * the Esc key; otherwise, <tt>false</tt>
      */
     protected abstract void close(boolean escaped);
+
+    /**
+     * Sets the title for this frame to the specified string.
+     * @param title the title to be displayed in the frame's border.
+     */
+    public void setTitle(String title)
+    {
+        super.setTitle(title);
+
+        if(title != null)
+        {
+            // under linux and gnome3 there is a bug in java where all windows
+            // have the name java-lang-thread, this is a fix for it
+            try
+            {
+                Toolkit xToolkit = Toolkit.getDefaultToolkit();
+                java.lang.reflect.Field awtAppClassNameField =
+                xToolkit.getClass().getDeclaredField("awtAppClassName");
+                awtAppClassNameField.setAccessible(true);
+                awtAppClassNameField.set(xToolkit, title);
+            }
+            catch(Throwable t)
+            {
+                // we do nothing for it
+            }
+        }
+    }
 }
