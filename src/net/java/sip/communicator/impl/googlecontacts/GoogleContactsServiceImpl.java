@@ -122,7 +122,9 @@ public class GoogleContactsServiceImpl
 
             if(cnx != null)
             {
-                if(!cnx.connect())
+                if(cnx.connect() ==
+                    GoogleContactsConnection.ConnectionStatus.
+                        ERROR_INVALID_CREDENTIALS)
                 {
                     cnx.setEnabled(false);
                     AccountSettingsForm settings = new AccountSettingsForm();

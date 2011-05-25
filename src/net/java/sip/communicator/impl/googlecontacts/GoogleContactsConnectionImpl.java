@@ -6,10 +6,12 @@
  */
 package net.java.sip.communicator.impl.googlecontacts;
 
+import com.google.gdata.client.*;
 import com.google.gdata.client.contacts.*;
 import com.google.gdata.util.*;
 
 import net.java.sip.communicator.service.googlecontacts.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Google Contacts credentials to connect to the service.
@@ -19,6 +21,12 @@ import net.java.sip.communicator.service.googlecontacts.*;
 public class GoogleContactsConnectionImpl
     implements GoogleContactsConnection
 {
+    /**
+     * Logger.
+     */
+    private static final Logger logger =
+        Logger.getLogger(GoogleContactsConnectionImpl.class);
+
     /**
      * Login.
      */
@@ -106,9 +114,9 @@ public class GoogleContactsConnectionImpl
     /**
      * Initialize connection.
      *
-     * @return true if connection succeed, false if credentials is wrong
+     * @return connection status
      */
-    public boolean connect()
+    public ConnectionStatus connect()
     {
         try
         {
@@ -116,10 +124,18 @@ public class GoogleContactsConnectionImpl
         }
         catch(AuthenticationException e)
         {
-            return false;
+            logger.info("Google contacts connection failure: " + e);
+            if(e instanceof GoogleService.InvalidCredentialsException)
+            {
+                return ConnectionStatus.ERROR_INVALID_CREDENTIALS;
+            }
+            else
+            {
+                return ConnectionStatus.ERROR_UNKNOWN;
+            }
         }
 
-        return true;
+        return ConnectionStatus.SUCCESS;
     }
 
     /**

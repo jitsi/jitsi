@@ -214,7 +214,8 @@ public class AccountSettingsForm
                 cnx.setPassword(password);
             }
 
-            if(!cnx.connect())
+            if(cnx.connect() == GoogleContactsConnection.ConnectionStatus.
+                    ERROR_INVALID_CREDENTIALS)
             {
                 JOptionPane.showMessageDialog(
                         this,

@@ -184,7 +184,9 @@ public class GoogleContactsSourceService
                 {
                     cnx = new GoogleContactsConnectionImpl(login, password);
 
-                    if(cnx.connect() == false)
+                    if(cnx.connect() ==
+                        GoogleContactsConnection.ConnectionStatus.
+                            ERROR_INVALID_CREDENTIALS)
                     {
                         synchronized(this)
                         {
@@ -215,7 +217,9 @@ public class GoogleContactsSourceService
                         }
                     }
                 }
-                else if(!cnx.connect())
+                else if(cnx.connect() ==
+                    GoogleContactsConnection.ConnectionStatus.
+                        ERROR_INVALID_CREDENTIALS)
                 {
                     synchronized(this)
                     {

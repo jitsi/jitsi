@@ -14,6 +14,28 @@ package net.java.sip.communicator.service.googlecontacts;
 public interface GoogleContactsConnection
 {
     /**
+     * Enumeration for connection status.
+     *
+     */
+    public enum ConnectionStatus
+    {
+        /**
+         * Connection has failed due to invalid credentials.
+         */
+        ERROR_INVALID_CREDENTIALS,
+
+        /**
+         * Connection has failed due to unknown reason.
+         */
+        ERROR_UNKNOWN,
+
+        /**
+         * Connection has succeed.
+         */
+        SUCCESS;
+    }
+
+    /**
      * Get login.
      *
      * @return login to connect to the service
@@ -44,7 +66,7 @@ public interface GoogleContactsConnection
     /**
      * Initialize connection.
      *
-     * @return true if connection succeed, false if credentials is wrong
+     * @return connection status
      */
-    public boolean connect();
+    public ConnectionStatus connect();
 }
