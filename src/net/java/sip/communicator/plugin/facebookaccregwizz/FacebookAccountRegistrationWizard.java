@@ -66,17 +66,21 @@ public class FacebookAccountRegistrationWizard
     }
 
     /**
-     * Returns the first wizard page.
+     * Returns a simple account registration form that would be the first form
+     * shown to the user. Only if the user needs more settings she'll choose
+     * to open the advanced wizard, consisted by all pages.
      *
-     * @return the first wizard page.
+     * @param isCreateAccount indicates if the simple form should be opened as 
+     * a create account form or as a login form
+     * @return a simple account registration form
      */
-    public Object getSimpleForm()
+    public Object getSimpleForm(boolean isCreateAccount)
     {
         JabberAccountRegistration reg = new JabberAccountRegistration();
 
         setPredefinedProperties(reg);
 
-        return getSimpleForm(reg);
+        return getSimpleForm(reg, isCreateAccount);
     }
 
     /**

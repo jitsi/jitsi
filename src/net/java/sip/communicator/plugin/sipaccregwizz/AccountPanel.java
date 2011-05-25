@@ -438,4 +438,12 @@ public class AccountPanel
     {
         return isSimpleForm;
     }
+
+    /**
+     * Selects the create account button.
+     */
+    void setCreateButtonSelected()
+    {
+        createAccountButton.setSelected(true);
+    }
 }

@@ -150,4 +150,14 @@ public class FirstWizardPage
     {
         return isCommitted;
     }
+
+    /**
+     * Returns the SIPAccountRegistrationForm used in this page.
+     *
+     * @return the SIPAccountRegistrationForm
+     */
+    SIPAccountRegistrationForm getRegistrationForm()
+    {
+        return registrationForm;
+    }
 }

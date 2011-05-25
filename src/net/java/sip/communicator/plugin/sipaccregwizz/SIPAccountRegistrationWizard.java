@@ -24,7 +24,7 @@ import org.osgi.framework.*;
  * @author Grigorii Balutsel
  */
 public class SIPAccountRegistrationWizard
-    implements AccountRegistrationWizard
+    implements ExtendedAccountRegistrationWizard
 {
     /**
      * The first wizard page.
@@ -715,12 +715,28 @@ public class SIPAccountRegistrationWizard
     }
 
     /**
-     * Returns the simple form.
-     * @return the simple form
+     * Sets the create account view of this registration wizard.
      */
-    public Object getSimpleForm()
+    public void setCreateAccountView()
     {
-        return getSimpleForm(new SIPAccountRegistration());
+        if (getCreateAccountService() != null)
+        {
+            firstWizardPage.getRegistrationForm().setCreateButtonSelected();
+        }
+    }
+
+    /**
+     * Returns a simple account registration form that would be the first form
+     * shown to the user. Only if the user needs more settings she'll choose
+     * to open the advanced wizard, consisted by all pages.
+     *
+     * @param isCreateAccount indicates if the simple form should be opened as 
+     * a create account form or as a login form
+     * @return a simple account registration form
+     */
+    public Object getSimpleForm(boolean isCreateAccount)
+    {
+        return getSimpleForm(new SIPAccountRegistration(), isCreateAccount);
     }
 
     /**
@@ -729,7 +745,8 @@ public class SIPAccountRegistrationWizard
      * @param registration the registration object
      * @return the simple form
      */
-    public Object getSimpleForm(SIPAccountRegistration registration)
+    public Object getSimpleForm(SIPAccountRegistration registration,
+                                boolean isCreateAccount)
     {
         this.registration = registration;
 

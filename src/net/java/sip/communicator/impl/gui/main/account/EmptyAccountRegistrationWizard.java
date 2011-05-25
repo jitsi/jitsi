@@ -126,11 +126,15 @@ class EmptyAccountRegistrationWizard
     }
 
     /**
-     * Returns our only wizard page.
+     * Returns a simple account registration form that would be the first form
+     * shown to the user. Only if the user needs more settings she'll choose
+     * to open the advanced wizard, consisted by all pages.
      *
-     * @return our only wizard page.
+     * @param isCreateAccount indicates if the simple form should be opened as 
+     * a create account form or as a login form
+     * @return a simple account registration form
      */
-    public Object getSimpleForm()
+    public Object getSimpleForm(boolean isCreateAccount)
     {
         return page.getSimpleForm();
     }
@@ -186,17 +190,6 @@ class EmptyAccountRegistrationWizard
      * {@link EmptyAccountRegistrationWizard}
      */
     public boolean isWebSignupSupported()
-    {
-        return false;
-    }
-
-    /**
-     * Indicates if a sign up form is supported by this wizard.
-     *
-     * @return <tt>true</tt> if a sign up form is supported by this wizard,
-     * <tt>false</tt> - otherwise
-     */
-    public boolean isSignupSupported()
     {
         return false;
     }

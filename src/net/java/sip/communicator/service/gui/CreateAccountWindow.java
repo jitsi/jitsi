@@ -24,6 +24,9 @@ public interface CreateAccountWindow
      * Sets the selected wizard.
      *
      * @param wizard the wizard to select
+     * @param isCreatedForm indicates if the selected wizard should be opened
+     * in create account mode
      */
-    public void setSelectedWizard(AccountRegistrationWizard wizard);
+    public void setSelectedWizard(  AccountRegistrationWizard wizard,
+                                    boolean isCreateAccount);
 }

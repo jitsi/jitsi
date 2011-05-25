@@ -531,4 +531,12 @@ public class SIPAccountRegistrationForm
     {
         return wizard.getCreateAccountLabel();
     }
+
+    /**
+     * Selects the create account button.
+     */
+    void setCreateButtonSelected()
+    {
+        accountPanel.setCreateButtonSelected();
+    }
 }

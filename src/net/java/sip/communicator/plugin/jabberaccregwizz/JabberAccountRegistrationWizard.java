@@ -606,27 +606,20 @@ public class JabberAccountRegistrationWizard
     }
 
     /**
-     * Indicates if a sign up form is supported by this wizard.
+     * Returns a simple account registration form that would be the first form
+     * shown to the user. Only if the user needs more settings she'll choose
+     * to open the advanced wizard, consisted by all pages.
      *
-     * @return <tt>true</tt> if a sign up form is supported by this wizard,
-     * <tt>false</tt> - otherwise
+     * @param isCreateAccount indicates if the simple form should be opened as 
+     * a create account form or as a login form
+     * @return a simple account registration form
      */
-    public boolean isSignupSupported()
-    {
-        return false;
-    }
-
-    /**
-     * Returns the first wizard page.
-     *
-     * @return the first wizard page.
-     */
-    public Object getSimpleForm()
+    public Object getSimpleForm(boolean isCreateAccount)
     {
         // when creating first wizard page, create and new
         // AccountRegistration to avoid reusing old instances and
         // data left from old registrations
-        return getSimpleForm(new JabberAccountRegistration());
+        return getSimpleForm(new JabberAccountRegistration(), isCreateAccount);
     }
 
     /**
@@ -635,7 +628,8 @@ public class JabberAccountRegistrationWizard
      * @param registration the registration object
      * @return the first wizard page.
      */
-    public Object getSimpleForm(JabberAccountRegistration registration)
+    public Object getSimpleForm(JabberAccountRegistration registration,
+                                boolean isCreateAccount)
     {
         this.registration = registration;
 

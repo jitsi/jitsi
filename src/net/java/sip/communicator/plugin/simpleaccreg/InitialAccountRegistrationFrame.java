@@ -289,7 +289,9 @@ public class InitialAccountRegistrationFrame
 
             inputRegisterPanel.add(inputPanel, BorderLayout.NORTH);
 
-            if (wizard.isSignupSupported() || wizard.isWebSignupSupported())
+            if (((wizard instanceof ExtendedAccountRegistrationWizard)
+                    && ((ExtendedAccountRegistrationWizard) wizard)
+                        .isSignupSupported()) || wizard.isWebSignupSupported())
             {
                 String textKey =
                     isPreferredWizard ? "plugin.simpleaccregwizz.SPECIAL_SIGNUP"
@@ -310,7 +312,10 @@ public class InitialAccountRegistrationFrame
                     {
                         try
                         {
-                            if (wizard.isSignupSupported())
+                            if ((wizard
+                                    instanceof ExtendedAccountRegistrationWizard)
+                                && ((ExtendedAccountRegistrationWizard) wizard)
+                                    .isSignupSupported())
                             {
                                 showCreateAccountWindow(wizard);
                             }
@@ -677,7 +682,7 @@ public class InitialAccountRegistrationFrame
             = SimpleAccountRegistrationActivator
                 .getUIService().getCreateAccountWindow();
 
-        createAccountWindow.setSelectedWizard(wizard);
+        createAccountWindow.setSelectedWizard(wizard, true);
         createAccountWindow.setVisible(true);
     }
 

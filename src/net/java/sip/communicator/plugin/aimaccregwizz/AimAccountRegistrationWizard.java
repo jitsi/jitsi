@@ -379,24 +379,15 @@ public class AimAccountRegistrationWizard
     }
 
     /**
-     * Indicates if a sign up form is supported by this wizard.
-     *
-     * @return <tt>true</tt> if a sign up form is supported by this wizard,
-     * <tt>false</tt> - otherwise
-     */
-    public boolean isSignupSupported()
-    {
-        return false;
-    }
-
-    /**
      * Returns a simple account registration form that would be the first form
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
-     * 
+     *
+     * @param isCreateAccount indicates if the simple form should be opened as 
+     * a create account form or as a login form
      * @return a simple account registration form
      */
-    public Object getSimpleForm()
+    public Object getSimpleForm(boolean isCreateAccount)
     {
         firstWizardPage = new FirstWizardPage(this);
 

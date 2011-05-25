@@ -341,7 +341,7 @@ public class NewAccountDialog
         fixedWidthPanel.setMinimumSize(new Dimension(430, 3));
         fixedWidthPanel.setMaximumSize(new Dimension(430, 3));
 
-        JComponent simpleWizardForm = (JComponent) wizard.getSimpleForm();
+        JComponent simpleWizardForm = (JComponent) wizard.getSimpleForm(false);
         simpleWizardForm.setOpaque(false);
 
         accountPanel.add(simpleWizardForm);
@@ -652,13 +652,16 @@ public class NewAccountDialog
     }
 
     /**
-     * Sets the given wizard as a selected wizard.
+     * Sets the selected wizard.
      *
-     * @param wizard the <tt>AccountRegistrationWizard</tt> to set as a selected
-     * wizard
+     * @param wizard the wizard to select
+     * @param isCreatedForm indicates if the selected wizard should be opened
+     * in create account mode
      */
-    public void setSelectedWizard(AccountRegistrationWizard wizard)
+    public void setSelectedWizard(  AccountRegistrationWizard wizard,
+                                    boolean isCreateAccount)
     {
         networkComboBox.setSelectedItem(wizard);
+
     }
 }
