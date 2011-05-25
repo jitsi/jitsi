@@ -358,7 +358,6 @@ public class GoogleContactsEntryImpl
             {
                 givenName = name.getGivenName().getValue();
             }
-
         }
 
         photoLink = contact.getContactPhotoLink().getHref();
@@ -366,7 +365,11 @@ public class GoogleContactsEntryImpl
 
         for(Email mail : contact.getEmailAddresses())
         {
-            if(mail.getRel().contains("#home"))
+            if(mail.getRel() == null)
+            {
+                homeMails.add(mail.getAddress());
+            }
+            else if(mail.getRel().contains("#home"))
             {
                 homeMails.add(mail.getAddress());
             }
@@ -386,7 +389,7 @@ public class GoogleContactsEntryImpl
             {
                 homePhones.add(phone.getPhoneNumber());
             }
-            if(phone.getRel().contains("#work"))
+            else if(phone.getRel().contains("#work"))
             {
                 workPhones.add(phone.getPhoneNumber());
             }
@@ -409,7 +412,11 @@ public class GoogleContactsEntryImpl
             String protocol = imAddress.getProtocol();
             IMProtocol proto;
 
-            if(protocol.equals(GOOGLETALK_PROTOCOL))
+            if(protocol == null)
+            {
+                proto = GoogleContactsEntry.IMProtocol.OTHER;
+            }
+            else if(protocol.equals(GOOGLETALK_PROTOCOL))
             {
                 proto = GoogleContactsEntry.IMProtocol.GOOGLETALK;
             }
