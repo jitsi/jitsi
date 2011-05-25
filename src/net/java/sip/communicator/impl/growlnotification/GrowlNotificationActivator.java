@@ -67,7 +67,7 @@ public class GrowlNotificationActivator
 
         handler = new GrowlNotificationServiceImpl();
 
-        if (handler.isGrowlInstalled())
+        if (handler.isGrowlInstalled() && handler.isGrowlRunning())
         {
             handler.start(bc);
             bc.registerService(PopupMessageHandler.class.getName(), handler, null);
