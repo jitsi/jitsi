@@ -683,6 +683,12 @@ public class InitialAccountRegistrationFrame
                 .getUIService().getCreateAccountWindow();
 
         createAccountWindow.setSelectedWizard(wizard, true);
+
+        if (wizard instanceof ExtendedAccountRegistrationWizard)
+        {
+            ((ExtendedAccountRegistrationWizard) wizard).setCreateAccountView();
+        }
+
         createAccountWindow.setVisible(true);
     }
 
