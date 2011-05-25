@@ -624,15 +624,57 @@ public abstract class MediaAwareCall<
 
         if (recorder != null)
         {
+            // listens for mute event to update recorder
+            final PropertyChangeListener muteListener
+                = new PropertyChangeListener()
+            {
+                public void propertyChange(PropertyChangeEvent evt)
+                {
+                    if(evt.getPropertyName()
+                        .equals(CallPeer.MUTE_PROPERTY_NAME))
+                    {
+                        updateRecorderMuteState(recorder);
+                    }
+                }
+            };
+
             // Make sure the recorder is stopped when this call ends.
             final CallChangeListener callChangeListener
-                = new CallChangeAdapter()
+                = new CallChangeListener()
                 {
-                    @Override
+                    /**
+                     * When call ends we stop recording.
+                     * @param evt the <tt>CallChangeEvent</tt> instance
+                     * containing the source
+                     */
                     public void callStateChanged(CallChangeEvent evt)
                     {
                         if (CallState.CALL_ENDED.equals(evt.getNewValue()))
                             recorder.stop();
+                    }
+
+                    /**
+                     * We listen for mute on newly added call peers.
+                     * @param evt the <tt>CallPeerEvent</tt> containing
+                     * the source call
+                     */
+                    public void callPeerAdded(CallPeerEvent evt)
+                    {
+                        updateRecorderMuteState(recorder);
+                        evt.getSourceCallPeer()
+                            .addPropertyChangeListener(muteListener);
+                    }
+
+                    /**
+                     * We stop listen for mute on removed call peers.
+                     * @param evt the <tt>CallPeerEvent</tt> containing
+                     * the source call
+                     */
+                    public void callPeerRemoved(CallPeerEvent evt)
+                    {
+                        updateRecorderMuteState(recorder);
+                        evt.getSourceCallPeer()
+                            .removePropertyChangeListener(muteListener);
                     }
                 };
 
@@ -651,8 +693,39 @@ public abstract class MediaAwareCall<
                             removeCallChangeListener(callChangeListener);
                         }
                     });
+
+            // add listener for mute event to all current peers
+            Iterator<T> iter = getCallPeers();
+            while(iter.hasNext())
+            {
+                iter.next().addPropertyChangeListener(muteListener);
+            }
+
+            updateRecorderMuteState(recorder);
         }
         return recorder;
+    }
+
+    /**
+     * Updates the recorder mute state by looking at the peers state.
+     * If one of the peers is not muted and the recorder is not.
+     * If all the peers are muted so must be and the recorder.
+     * @param recorder the recorder we are operating on.
+     */
+    private void updateRecorderMuteState(Recorder recorder)
+    {
+        Iterator<T> iter = getCallPeers();
+        while(iter.hasNext())
+        {
+            if(!iter.next().isMute())
+            {
+                // one peer is not muted so we unmute.
+                recorder.setMute(true);
+                return;
+            }
+        }
+        // all peers are muted, so we mute the recorder
+        recorder.setMute(true);
     }
 
     /**

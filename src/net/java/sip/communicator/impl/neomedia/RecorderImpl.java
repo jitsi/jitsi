@@ -302,4 +302,18 @@ public class RecorderImpl
                 listener.recorderStopped(this);
         }
     }
+
+    /**
+     * Put the recorder in mute state. It won't record the local input.
+     * This is used when the local call is muted and we don't won't to record
+     * the local input.
+     * @param mute the new value of the mute property
+     */
+    public void setMute(boolean mute)
+    {
+        if(deviceSession != null)
+        {
+            deviceSession.setMute(mute);
+        }
+    }
 }
