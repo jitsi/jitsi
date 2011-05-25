@@ -341,11 +341,25 @@ public class LoggingConfigForm
         }
         else if(source.equals(archiveButton))
         {
-            collectLogs();
+            // don't block the UI thread
+            new Thread(new Runnable()
+            {
+                public void run()
+                {
+                    collectLogs();
+                }
+            }).start();
         }
         else if(source.equals(uploadLogsButton))
         {
-            uploadLogs();
+            // don't block the UI thread
+            new Thread(new Runnable()
+            {
+                public void run()
+                {
+                    uploadLogs();
+                }
+            }).start();
         }
     }
 
