@@ -346,8 +346,6 @@ public class AccountPanel
                 if (createAccountButton.isSelected())
                 {
                     mainPanel.remove(uinPassPanel);
-                    // clear the pannel before add
-                    regform.getCreateAccountService().clear();
                     mainPanel.add(registrationForm, BorderLayout.CENTER);
                     SwingUtilities.getWindowAncestor(AccountPanel.this).pack();
                 }
