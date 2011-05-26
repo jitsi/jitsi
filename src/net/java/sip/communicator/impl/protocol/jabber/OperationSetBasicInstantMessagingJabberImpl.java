@@ -106,7 +106,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * The timer executing tasks on specified intervals
      */
-    private final Timer keepAliveTimer = new Timer();
+    private final Timer keepAliveTimer =
+        new Timer("Jabber keepalive timer", true);
 
     /**
      * Indicates the time of the last Mailbox report that we received from

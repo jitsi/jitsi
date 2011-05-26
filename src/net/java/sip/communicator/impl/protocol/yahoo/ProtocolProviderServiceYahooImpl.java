@@ -290,6 +290,13 @@ public class ProtocolProviderServiceYahooImpl
     {
         RegistrationState currRegState = getRegistrationState();
 
+        if(fireEvent)
+            fireRegistrationStateChanged(
+                currRegState,
+                RegistrationState.UNREGISTERING,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                null);
+
         try
         {
             if(connectionListener != null && yahooSession != null)

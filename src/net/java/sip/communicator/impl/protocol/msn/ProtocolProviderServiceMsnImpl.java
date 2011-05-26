@@ -248,6 +248,13 @@ public class ProtocolProviderServiceMsnImpl
     {
         RegistrationState currRegState = getRegistrationState();
 
+        if(fireEvent)
+            fireRegistrationStateChanged(
+                currRegState,
+                RegistrationState.UNREGISTERING,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                null);
+
         // The synchronization is for logoutReceived at least.
         synchronized (initializationLock)
         {

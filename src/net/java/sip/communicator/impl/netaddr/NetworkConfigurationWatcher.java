@@ -59,7 +59,11 @@ public class NetworkConfigurationWatcher
         if(!isRunning)
         {
             isRunning = true;
-            new Thread(this).start();
+            Thread th = new Thread(this);
+            // set to max priority to prevent detecting sleep if the cpu is
+            // overloaded
+            th.setPriority(Thread.MAX_PRIORITY);
+            th.start();
         }
     }
 
@@ -175,6 +179,18 @@ public class NetworkConfigurationWatcher
                 // now we leave with only with the new and up interfaces
                 // in currentActiveInterfaces list
                 currentActiveInterfaces.removeAll(activeInterfaces);
+
+                // calm for a while, we sometimes receive those events and
+                // configuration has not yet finished (dns can be the old one)
+                if(currentActiveInterfaces.size() != 0)
+                {
+                    synchronized(this)
+                    {
+                        try{
+                            wait(1000);
+                        }catch(InterruptedException ex){}
+                    }
+                }
 
                 // fire that interface has gone up
                 for (int i = 0; i < currentActiveInterfaces.size(); i++)

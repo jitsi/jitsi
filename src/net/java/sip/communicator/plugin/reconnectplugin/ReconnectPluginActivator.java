@@ -161,7 +161,7 @@ public class ReconnectPluginActivator
         bundleContext.addServiceListener(this);
 
         if(timer == null)
-            timer = new Timer("Reconnect timer");
+            timer = new Timer("Reconnect timer", true);
 
         this.networkAddressManagerService
             = ServiceUtils.getService(
@@ -486,21 +486,15 @@ public class ReconnectPluginActivator
                 while (iter.hasNext())
                 {
                     ProtocolProviderService pp = iter.next();
-                    try
-                    {
-                        // if provider is scheduled for reconnect,
-                        // cancel it there is no network
-                        if(currentlyReconnecting.containsKey(pp))
-                        {
-                            currentlyReconnecting.remove(pp).cancel();
-                        }
 
-                        unregisteredProviders.add(pp);
-                        pp.unregister();
-                    } catch (Exception e)
+                    // if provider is scheduled for reconnect,
+                    // cancel it there is no network
+                    if(currentlyReconnecting.containsKey(pp))
                     {
-                        logger.error("Cannot unregister provider", e);
+                        currentlyReconnecting.remove(pp).cancel();
                     }
+
+                    unregister(pp);
                 }
 
                 connectedInterfaces.clear();
@@ -517,6 +511,37 @@ public class ReconnectPluginActivator
                     + " src=" + event.getSource());
             traceCurrentPPState();
         }
+    }
+
+    /**
+     * Unregisters the ProtocolProvider. Make sure to do it in separate thread
+     * so we don't block other processing.
+     * @param pp the protocol provider to unregister.
+     */
+    private void unregister(final ProtocolProviderService pp)
+    {
+        unregisteredProviders.add(pp);
+
+        if(pp.getRegistrationState().equals(RegistrationState.UNREGISTERING)
+           || pp.getRegistrationState().equals(RegistrationState.UNREGISTERED)
+           || pp.getRegistrationState().equals(
+                RegistrationState.CONNECTION_FAILED))
+            return;
+
+        new Thread(new Runnable()
+        {
+            public void run()
+            {
+                try
+                {
+                    pp.unregister();
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error unregistering pp:" + pp, t);
+                }
+            }
+        }).start();
     }
 
     /**
@@ -558,13 +583,18 @@ public class ReconnectPluginActivator
      *
      * @param evt the event describing the status change.
      */
-    public synchronized void registrationStateChanged(RegistrationStateChangeEvent evt)
+    public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
         // we don't care about protocol providers that don't support
-        // reconnection
-        if(!(evt.getSource() instanceof ProtocolProviderService))
+        // reconnection and we are interested only in few state changes
+        if(!(evt.getSource() instanceof ProtocolProviderService)
+            ||
+            !(evt.getNewState().equals(RegistrationState.REGISTERED)
+              || evt.getNewState().equals(RegistrationState.UNREGISTERED)
+              || evt.getNewState().equals(RegistrationState.CONNECTION_FAILED)))
             return;
 
+        synchronized(this) {
         try
         {
             ProtocolProviderService pp = (ProtocolProviderService)evt.getSource();
@@ -671,6 +701,7 @@ public class ReconnectPluginActivator
         {
             logger.error("Error dispatching protocol registration change", ex);
         }
+        }
     }
 
     /**
@@ -698,14 +729,7 @@ public class ReconnectPluginActivator
         }
 
         // as we will reconnect, lets unregister
-        try
-        {
-            unregisteredProviders.add(pp);
-            pp.unregister();
-        } catch (OperationFailedException e)
-        {
-            logger.error("Cannot unregister provider", e);
-        }
+        unregister(pp);
 
         ReconnectTask task = new ReconnectTask(pp);
         task.delay = delay;
@@ -733,6 +757,11 @@ public class ReconnectPluginActivator
         private long delay;
 
         /**
+         * The thread to execute this task.
+         */
+        private Thread thread = null;
+
+        /**
          * Creates the task.
          *
          * @param provider the <tt>ProtocolProviderService</tt> to reconnect
@@ -747,16 +776,24 @@ public class ReconnectPluginActivator
          */
         public void run()
         {
-            try
+            if(thread == null || !Thread.currentThread().equals(thread))
             {
-                if (logger.isTraceEnabled())
-                    logger.trace("Start reconnecting!");
+                thread = new Thread(this);
+                thread.start();
+            }
+            else
+            {
+                try
+                {
+                    if (logger.isTraceEnabled())
+                        logger.trace("Start reconnecting!");
 
-                provider.register(
-                    getUIService().getDefaultSecurityAuthority(provider));
-            } catch (OperationFailedException ex)
-            {
-                logger.error("cannot reregister provider will keep going", ex);
+                    provider.register(
+                        getUIService().getDefaultSecurityAuthority(provider));
+                } catch (OperationFailedException ex)
+                {
+                    logger.error("cannot reregister provider will keep going", ex);
+                }
             }
         }
     }

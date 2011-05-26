@@ -410,6 +410,10 @@ public class AccountStatusPanel
             if (avatarOpSet != null)
                 avatarOpSet.removeAvatarListener(this);
         }
+        else if (evt.getNewState().equals(RegistrationState.REGISTERING))
+        {
+            startConnecting(protocolProvider);
+        }
     }
 
     /**

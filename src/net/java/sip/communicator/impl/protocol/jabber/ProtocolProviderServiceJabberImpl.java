@@ -372,11 +372,11 @@ public class ProtocolProviderServiceJabberImpl
         {
             logger.error("Error ReRegistering", ex);
 
+            disconnectAndCleanConnection();
+
             fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR, null);
-
-            disconnectAndCleanConnection();
         }
         catch (XMPPException ex)
         {
@@ -791,7 +791,8 @@ public class ProtocolProviderServiceJabberImpl
         {
             logger.error("Connection is not null and isConnected:"
                 + connection.isConnected(),
-                new Exception("Trace possible duplicate connections"));
+                new Exception("Trace possible duplicate connections: " +
+                    getAccountID().getAccountAddress()));
         }
 
         connection = new XMPPConnection(confConn);
@@ -900,13 +901,13 @@ public class ProtocolProviderServiceJabberImpl
         }
         else
         {
+            disconnectAndCleanConnection();
+
             fireRegistrationStateChanged(
                 getRegistrationState()
                 , RegistrationState.UNREGISTERED
                 , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
                 , null);
-
-            disconnectAndCleanConnection();
 
             return ConnectState.CONTINUE_TRYING;
         }
@@ -1002,6 +1003,8 @@ public class ProtocolProviderServiceJabberImpl
     {
         synchronized(initializationLock)
         {
+            disconnectAndCleanConnection();
+
             RegistrationState currRegState = getRegistrationState();
 
             if(fireEvent)
@@ -1011,8 +1014,6 @@ public class ProtocolProviderServiceJabberImpl
                     RegistrationState.UNREGISTERED,
                     RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
             }
-
-            disconnectAndCleanConnection();
         }
     }
 
@@ -1443,9 +1444,6 @@ public class ProtocolProviderServiceJabberImpl
             }
         }
 
-        fireRegistrationStateChanged(
-            getRegistrationState(), regState, reason, null);
-
         if(regState == RegistrationState.UNREGISTERED
             || regState == RegistrationState.CONNECTION_FAILED)
         {
@@ -1453,6 +1451,9 @@ public class ProtocolProviderServiceJabberImpl
             // lets clean the connection state for any future connections
             disconnectAndCleanConnection();
         }
+
+        fireRegistrationStateChanged(
+            getRegistrationState(), regState, reason, null);
     }
 
     /**
@@ -1510,12 +1511,12 @@ public class ProtocolProviderServiceJabberImpl
                         }
                     }
 
+                    disconnectAndCleanConnection();
+
                     fireRegistrationStateChanged(getRegistrationState(),
                         RegistrationState.UNREGISTERED,
                         RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS,
                         "Connecting multiple times with the same resource");
-
-                    disconnectAndCleanConnection();
 
                     return;
                 }
@@ -1543,12 +1544,12 @@ public class ProtocolProviderServiceJabberImpl
                 }
             }
 
+            disconnectAndCleanConnection();
+
             fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
                 exception.getMessage());
-
-            disconnectAndCleanConnection();
         }
 
         /**

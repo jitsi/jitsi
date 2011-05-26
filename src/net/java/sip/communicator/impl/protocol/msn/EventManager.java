@@ -177,7 +177,7 @@ public class EventManager
         synchronized (this)
         {
             if (this.connectionTimer == null)
-                this.connectionTimer = new Timer();
+                this.connectionTimer = new Timer("Msn connection timer", true);
             connectionTimer = this.connectionTimer;
         }
 

@@ -420,6 +420,12 @@ public class ProtocolProviderServiceIcqImpl
      */
     public void unregister()
     {
+        fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.UNREGISTERING,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                null);
+
         if(aimConnection != null)
             aimConnection.disconnect(true);
     }
