@@ -126,7 +126,7 @@
     <!-- default Ant target does nothing except print helpful options -->
     <target name="ant-usage"
             description="simply execute 'ant' to discover the most useful targets.">
-        <echo message="Useful ant commands for the SIP Communicator Build Installer..." />
+        <echo message="Useful ant commands for the Jitsi Build Installer..." />
         <echo message="'ant build-installation-generic' for building generic installator jar" />
         <echo message="'ant build-installation-linux' for building linux instalation file" />
         <echo message="'ant build-installation-wix' for building Windows MSI instalation file using WiX" />
@@ -950,8 +950,8 @@
                   jvmversion="1.5+"
                   version="${sip-communicator.version}"
                   build="${sparkle.build}"
-                  infostring="SIP Communicator"
-                  bundleid="org.sip-communicator"
+                  infostring="${application.name}"
+                  bundleid="org.${package.name}"
                   stubfile="${macosx.stubfile}"
                   extraclasspath="/System/Library/Java"
                   workingdirectory="$APP_PACKAGE/Contents/Resources/Java"

@@ -921,8 +921,8 @@ public class OperationSetPersistentPresenceJabberImpl
                 String userID
                     = StringUtils.parseBareAddress(presence.getFrom());
 
-                if (logger.isInfoEnabled())
-                    logger.info("Received a status update for buddy=" + userID);
+                if (logger.isDebugEnabled())
+                    logger.debug("Received a status update for buddy=" + userID);
 
                 // all contact statuses that are received from all its resources
                 // ordered by priority

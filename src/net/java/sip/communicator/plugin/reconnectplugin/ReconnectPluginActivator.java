@@ -522,18 +522,24 @@ public class ReconnectPluginActivator
     {
         unregisteredProviders.add(pp);
 
-        if(pp.getRegistrationState().equals(RegistrationState.UNREGISTERING)
-           || pp.getRegistrationState().equals(RegistrationState.UNREGISTERED)
-           || pp.getRegistrationState().equals(
-                RegistrationState.CONNECTION_FAILED))
-            return;
-
         new Thread(new Runnable()
         {
             public void run()
             {
                 try
                 {
+                    // getRegistrationState() for some protocols(icq) can trigger
+                    // registrationStateChanged so make checks here
+                    // to prevent synchronize in registrationStateChanged
+                    // and deadlock
+                    if(pp.getRegistrationState().equals(
+                            RegistrationState.UNREGISTERING)
+                       || pp.getRegistrationState().equals(
+                            RegistrationState.UNREGISTERED)
+                       || pp.getRegistrationState().equals(
+                            RegistrationState.CONNECTION_FAILED))
+                        return;
+
                     pp.unregister();
                 }
                 catch(Throwable t)
