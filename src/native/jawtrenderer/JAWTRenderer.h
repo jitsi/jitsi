@@ -35,6 +35,7 @@ void JAWTRenderer_processLightweightComponentEvent
     (jlong handle, jint x, jint y, jint width, jint height);
 void JAWTRenderer_removeNotifyLightweightComponent
     (jlong handle, jobject component);
+jstring JAWTRenderer_sysctlbyname(JNIEnv *jniEnv, jstring name);
 #endif /* #ifdef __APPLE__ */
 
 #ifdef __cplusplus

@@ -10,7 +10,7 @@ extern "C" {
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer
  * Method:    addNotifyLightweightComponent
- * Signature: (JLjavax/swing/JComponent;J)V
+ * Signature: (JLjava/awt/Component;J)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer_addNotifyLightweightComponent
   (JNIEnv *, jclass, jlong, jobject, jlong);
@@ -66,10 +66,18 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer
  * Method:    removeNotifyLightweightComponent
- * Signature: (JLjavax/swing/JComponent;)V
+ * Signature: (JLjava/awt/Component;)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer_removeNotifyLightweightComponent
   (JNIEnv *, jclass, jlong, jobject);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer
+ * Method:    sysctlbyname
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer_sysctlbyname
+  (JNIEnv *, jclass, jstring);
 
 #ifdef __cplusplus
 }

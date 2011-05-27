@@ -142,3 +142,12 @@ Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRen
     JAWTRenderer_removeNotifyLightweightComponent(handle, component);
 #endif /* #ifdef __APPLE__ */
 }
+
+JNIEXPORT jstring JNICALL
+Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer_sysctlbyname
+    (JNIEnv *jniEnv, jclass clazz, jstring name)
+{
+#ifdef __APPLE__
+    return JAWTRenderer_sysctlbyname(jniEnv, name);
+#endif /* #ifdef __APPLE__ */
+}

@@ -73,11 +73,34 @@ public class JAWTRenderer
      * The indicator which determines whether <tt>CALayer</tt>-based painting is
      * to be performed by <tt>JAWTRenderer</tt> on Mac OS X.
      */
-    private static final boolean USE_MACOSX_CALAYERS = true;
+    private static final boolean USE_MACOSX_CALAYERS;
 
     static
     {
         System.loadLibrary("jawtrenderer");
+
+        /*
+         * XXX The native JAWTRenderer implementation on Mac OS X which paints
+         * in a CALayer-like fashion has been determined through testing to not
+         * work as expected on MacBookPro8. Unfortunately, the cause of the
+         * problem has not been determined. As a workaround, fall back to the
+         * alternative implementation (currently used on the other supported
+         * operating systems) on the problematic model. 
+         */
+        if (OSUtils.IS_MAC)
+        {
+            String hwModel = sysctlbyname("hw.model");
+
+            if ((hwModel != null) && hwModel.startsWith("MacBookPro8"))
+                USE_MACOSX_CALAYERS = false;
+            else
+                USE_MACOSX_CALAYERS = true;
+        }
+        else
+        {
+            // CALayer-like painting is currently only supported on Mac OS X.
+            USE_MACOSX_CALAYERS = false;
+        }
     }
 
     /**
@@ -576,6 +599,8 @@ public class JAWTRenderer
     public void stop()
     {
     }
+
+    private static native String sysctlbyname(String name);
 
     /**
      * Implements an AWT <tt>Component</tt> in which this <tt>JAWTRenderer</tt>

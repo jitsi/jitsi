@@ -11,6 +11,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* sysctlbyname */
+#include <sys/types.h>
+#include <sys/sysctl.h>
+
 #import <AppKit/NSOpenGL.h>
 #import <AppKit/NSView.h>
 #import <Foundation/NSArray.h>
@@ -320,6 +324,47 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
     [renderer removeFromSuperrenderer];
 
     [autoreleasePool release];
+}
+
+jstring
+JAWTRenderer_sysctlbyname(JNIEnv *jniEnv, jstring name)
+{
+    const char *_name;
+    jstring value = NULL;
+
+    _name = (*jniEnv)->GetStringUTFChars(jniEnv, name, NULL);
+    if (_name)
+    {
+        size_t valueLength;
+        char *_value;
+
+        if ((0 == sysctlbyname(_name, NULL, &valueLength, NULL, 0))
+                && valueLength)
+        {
+            _value = malloc(sizeof(char) * (valueLength + 1));
+            if (_value)
+            {
+                if ((0 == sysctlbyname(_name, _value, &valueLength, NULL, 0))
+                        && valueLength)
+                    _value[valueLength] = 0;
+                else
+                {
+                    free(_value);
+                    _value = NULL;
+                }
+            }
+        }
+        else
+            _value = NULL;
+        (*jniEnv)->ReleaseStringUTFChars(jniEnv, name, _name);
+
+        if (_value)
+        {
+            value = (*jniEnv)->NewStringUTF(jniEnv, _value);
+            free(_value);
+        }
+    }
+    return value;
 }
 
 @implementation JAWTRenderer
