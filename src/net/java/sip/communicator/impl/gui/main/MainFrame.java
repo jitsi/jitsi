@@ -210,6 +210,21 @@ public class MainFrame
 
         this.setTitle(applicationName);
 
+        // sets the title to application name
+        // fix for some windows managers(gnome3)
+        try
+        {
+            Toolkit xToolkit = Toolkit.getDefaultToolkit();
+            java.lang.reflect.Field awtAppClassNameField =
+            xToolkit.getClass().getDeclaredField("awtAppClassName");
+            awtAppClassNameField.setAccessible(true);
+            awtAppClassNameField.set(xToolkit, applicationName);
+        }
+        catch(Throwable t)
+        {
+            // we do nothing for it
+        }
+
         this.mainPanel.setBackground(new Color(
                 GuiActivator.getResources()
                     .getColor("service.gui.MAIN_WINDOW_BACKGROUND")));
