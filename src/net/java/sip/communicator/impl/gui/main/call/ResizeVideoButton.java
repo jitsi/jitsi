@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.neomedia.QualityPreset;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -94,17 +95,26 @@ public class ResizeVideoButton
 
         JMenuItem lowQuality = new JMenuItem(
             GuiActivator.getResources()
-                .getI18NString("service.gui.LOW_QUALITY"),
+                .getI18NString("service.gui.LOW_QUALITY")
+                + " ("
+                + (int) QualityPreset.LO_QUALITY.getResolution().getHeight()
+                + "p)",
             GuiActivator.getResources()
                 .getImage("service.gui.icons.LO_VIDEO_ICON"));
 
         JMenuItem normalQuality = new JMenuItem(GuiActivator.getResources()
-                .getI18NString("service.gui.SD_QUALITY"),
+                .getI18NString("service.gui.SD_QUALITY")
+                + " ("
+                + (int) QualityPreset.SD_QUALITY.getResolution().getHeight()
+                + "p)",
             GuiActivator.getResources()
                 .getImage("service.gui.icons.SD_VIDEO_ICON"));
 
         JMenuItem hdQuality = new JMenuItem(GuiActivator.getResources()
-                .getI18NString("service.gui.HD_QUALITY"),
+                .getI18NString("service.gui.HD_QUALITY")
+                + " ("
+                + (int) QualityPreset.HD_QUALITY.getResolution().getHeight()
+                + "p)",
             GuiActivator.getResources()
                 .getImage("service.gui.icons.HD_VIDEO_ICON"));
 
@@ -127,7 +137,10 @@ public class ResizeVideoButton
                 popupMenu.setVisible(false);
 
                 setIconImageID(ImageLoader.LO_VIDEO_BUTTON);
-                // TODO: set low quality.
+
+                CallManager.setVideoQualityPreset(
+                        call.getCallPeers().next(),
+                        QualityPreset.LO_QUALITY);
             }
         });
 
@@ -138,7 +151,9 @@ public class ResizeVideoButton
                 popupMenu.setVisible(false);
 
                 setIconImageID(ImageLoader.SD_VIDEO_BUTTON);
-                // TODO: set normal quality.
+
+                CallManager.setVideoQualityPreset(
+                        call.getCallPeers().next(), QualityPreset.SD_QUALITY);
             }
         });
 
@@ -149,7 +164,9 @@ public class ResizeVideoButton
                 popupMenu.setVisible(false);
 
                 setIconImageID(ImageLoader.HD_VIDEO_BUTTON);
-                // TODO: set hd quality.
+
+                CallManager.setVideoQualityPreset(
+                        call.getCallPeers().next(), QualityPreset.HD_QUALITY);
             }
         });
 

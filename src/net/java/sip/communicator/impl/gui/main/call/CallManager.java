@@ -896,6 +896,50 @@ public class CallManager
     }
 
     /**
+     * Sets the given quality preset for the video of the given call peer.
+     *
+     * @param callPeer the peer, which video quality we're setting
+     * @param qualityPreset the new quality settings
+     */
+    public static void setVideoQualityPreset(final CallPeer callPeer,
+                                            final QualityPreset qualityPreset)
+    {
+
+        ProtocolProviderService provider = callPeer.getProtocolProvider();
+        final OperationSetVideoTelephony videoOpSet
+            = (OperationSetVideoTelephony) provider
+                .getOperationSet(OperationSetVideoTelephony.class);
+
+        if (videoOpSet != null)
+        {
+            new Thread(new Runnable()
+            {
+                public void run()
+                {
+                    try
+                    {
+                        videoOpSet.setQualityPreset(
+                            callPeer, qualityPreset);
+                    }
+                    catch(OperationFailedException e)
+                    {
+                        logger.info("Unable to change video quality.", e);
+
+                        new ErrorDialog(
+                                null,
+                                GuiActivator.getResources()
+                                    .getI18NString("service.gui.WARNING"),
+                                GuiActivator.getResources().getI18NString(
+                                    "service.gui.UNABLE_TO_CHANGE_VIDEO_QUALITY"),
+                                e)
+                            .showDialog();
+                    }
+                }
+            }).start();
+        }
+    }
+
+    /**
      * Adds a missed call notification.
      *
      * @param peerName the name of the peer

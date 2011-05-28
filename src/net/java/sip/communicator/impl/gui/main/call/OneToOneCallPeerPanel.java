@@ -972,6 +972,14 @@ public class OneToOneCallPeerPanel
                 videoParent.remove(video);
 
             videoContainer.add(video, VideoLayout.CENTER_REMOTE, 0);
+
+            callRenderer.getCallContainer()
+                .addRemoteVideoSpecificComponents();
+        }
+        else
+        {
+            callRenderer.getCallContainer()
+                .removeRemoteVideoSpecificComponents();
         }
 
         // LOCAL

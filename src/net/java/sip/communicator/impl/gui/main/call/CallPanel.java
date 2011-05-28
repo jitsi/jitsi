@@ -296,11 +296,11 @@ public class CallPanel
                 else
                     settingsPanel.remove(showHideVideoButton);
 
-                settingsPanel.revalidate();
-                settingsPanel.repaint();
-
                 showHideVideoButton.setEnabled(isVideoSelected);
                 showHideVideoButton.setSelected(isVideoSelected);
+
+                settingsPanel.revalidate();
+                settingsPanel.repaint();
             }
         });
 
@@ -354,7 +354,6 @@ public class CallPanel
             desktopSharingButton.setEnabled(false);
             videoButton.setEnabled(false);
             showHideVideoButton.setEnabled(false);
-            resizeVideoButton.setEnabled(false);
             fullScreenButton.setEnabled(false);
 
             addOneToOneSpecificComponents();
@@ -1036,6 +1035,27 @@ public class CallPanel
     public CallRenderer getCurrentCallRenderer()
     {
         return (CallRenderer) callPanel;
+    }
+
+    /**
+     * Adds remote video specific components.
+     */
+    public void addRemoteVideoSpecificComponents()
+    {
+        settingsPanel.add(resizeVideoButton,
+            GuiUtils.getComponentIndex(showHideVideoButton, settingsPanel) + 1);
+        settingsPanel.revalidate();
+        settingsPanel.repaint();
+    }
+
+    /**
+     * Adds remote video specific components.
+     */
+    public void removeRemoteVideoSpecificComponents()
+    {
+        settingsPanel.remove(resizeVideoButton);
+        settingsPanel.revalidate();
+        settingsPanel.repaint();
     }
 
     /**
