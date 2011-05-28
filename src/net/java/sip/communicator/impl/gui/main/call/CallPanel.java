@@ -114,6 +114,11 @@ public class CallPanel
     private ShowHideVideoButton showHideVideoButton;
 
     /**
+     * The video resize button.
+     */
+    private ResizeVideoButton resizeVideoButton;
+
+    /**
      * The desktop sharing button.
      */
     private DesktopSharingButton desktopSharingButton;
@@ -272,6 +277,7 @@ public class CallPanel
         recordButton = new RecordButton(call);
         videoButton = new LocalVideoButton(call);
         showHideVideoButton = new ShowHideVideoButton(call);
+        resizeVideoButton = new ResizeVideoButton(call);
 
         showHideVideoButton.setPeerRenderer(((CallRenderer) callPanel)
             .getCallPeerRenderer(call.getCallPeers().next()));
@@ -283,6 +289,16 @@ public class CallPanel
             public void stateChanged(ChangeEvent e)
             {
                 boolean isVideoSelected = videoButton.isSelected();
+                if (isVideoSelected)
+                    settingsPanel.add(showHideVideoButton,
+                        GuiUtils.getComponentIndex(
+                            videoButton, settingsPanel) + 1);
+                else
+                    settingsPanel.remove(showHideVideoButton);
+
+                settingsPanel.revalidate();
+                settingsPanel.repaint();
+
                 showHideVideoButton.setEnabled(isVideoSelected);
                 showHideVideoButton.setSelected(isVideoSelected);
             }
@@ -334,10 +350,11 @@ public class CallPanel
         {
             // Buttons would be enabled once the call has entered in state
             // connected.
+            transferCallButton.setEnabled(false);
+            desktopSharingButton.setEnabled(false);
             videoButton.setEnabled(false);
             showHideVideoButton.setEnabled(false);
-            desktopSharingButton.setEnabled(false);
-            transferCallButton.setEnabled(false);
+            resizeVideoButton.setEnabled(false);
             fullScreenButton.setEnabled(false);
 
             addOneToOneSpecificComponents();
@@ -1061,6 +1078,7 @@ public class CallPanel
 
         settingsPanel.remove(videoButton);
         settingsPanel.remove(showHideVideoButton);
+        settingsPanel.remove(resizeVideoButton);
         settingsPanel.remove(desktopSharingButton);
         settingsPanel.remove(transferCallButton);
         settingsPanel.remove(fullScreenButton);
@@ -1071,10 +1089,9 @@ public class CallPanel
      */
     private void addOneToOneSpecificComponents()
     {
-        settingsPanel.add(videoButton);
-        settingsPanel.add(showHideVideoButton);
-        settingsPanel.add(desktopSharingButton);
         settingsPanel.add(transferCallButton);
+        settingsPanel.add(desktopSharingButton);
+        settingsPanel.add(videoButton);
         settingsPanel.add(fullScreenButton);
     }
 

@@ -50,11 +50,12 @@ public class LocalVideoButton
      */
     public LocalVideoButton(Call call, boolean fullScreen, boolean selected)
     {
-        super(
-            call,
+        super(  call,
             fullScreen,
+            true,
             selected,
             ImageLoader.LOCAL_VIDEO_BUTTON,
+            ImageLoader.LOCAL_VIDEO_BUTTON_PRESSED,
             "service.gui.LOCAL_VIDEO_BUTTON_TOOL_TIP");
 
         MediaDevice videoDevice

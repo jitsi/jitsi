@@ -464,6 +464,25 @@ public class GuiUtils
     }
 
     /**
+     * Returns the index of the given component in the given container.
+     *
+     * @param c the Component to look for
+     * @param container the parent container, where this component is added
+     * @return the index of the component in the container or -1 if no such
+     * component is contained in the container
+     */
+    public static int getComponentIndex(Component c, Container container)
+    {
+        for (int i = 0; i < container.getComponentCount(); i++)
+        {
+            if (container.getComponent(i).equals(c))
+                return i;
+        }
+
+        return -1;
+    }
+
+    /**
      * Repaints UI tree recursively.
      * @param c UI component.
      */

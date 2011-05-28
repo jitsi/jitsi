@@ -51,10 +51,12 @@ public class ShowHideVideoButton
                                 boolean selected)
     {
         super(  call,
-                fullScreen,
-                selected,
-                ImageLoader.SHOW_LOCAL_VIDEO_BUTTON,
-                "service.gui.SHOW_LOCAL_VIDEO_BUTTON_TOOL_TIP");
+            fullScreen,
+            true,
+            selected,
+            ImageLoader.SHOW_LOCAL_VIDEO_BUTTON,
+            ImageLoader.SHOW_LOCAL_VIDEO_BUTTON_PRESSED,
+            "service.gui.SHOW_LOCAL_VIDEO_BUTTON_TOOL_TIP");
     }
 
     /**

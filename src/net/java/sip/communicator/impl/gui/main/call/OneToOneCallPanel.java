@@ -277,6 +277,8 @@ public class OneToOneCallPanel
         Component[] buttons
             = new Component[]
             {
+                new InputVolumeControlButton(call, true, callPeer.isMute()),
+                new OutputVolumeControlButton(true),
                 new HoldButton(call,
                                true,
                                CallPeerState.isOnHold(callPeer.getState())),
@@ -284,10 +286,6 @@ public class OneToOneCallPanel
                 new LocalVideoButton(
                     call, true, callContainer.isVideoButtonSelected()),
                 showHideButton,
-                new InputVolumeControlButton(call,
-                               true,
-                               callPeer.isMute()),
-                new OutputVolumeControlButton(true),
                 CallPeerRendererUtils.createExitFullScreenButton(this)
             };
 

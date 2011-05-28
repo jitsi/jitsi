@@ -92,7 +92,13 @@ public class RecordButton
      */
     public RecordButton(Call call, boolean fullScreen, boolean selected)
     {
-        super(call, fullScreen, selected, ImageLoader.RECORD_BUTTON, null);
+        super(  call,
+            fullScreen,
+            true,
+            selected,
+            ImageLoader.RECORD_BUTTON,
+            ImageLoader.RECORD_BUTTON_PRESSED,
+            null);
 
         String toolTip
             = resources.getI18NString("service.gui.RECORD_BUTTON_TOOL_TIP");

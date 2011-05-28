@@ -281,6 +281,22 @@ public abstract class AbstractCallToggleButton
     }
 
     /**
+     * Sets the icon image of this button.
+     *
+     * @param iconImageID the identifier of the icon image
+     */
+    public void setIconImageID(ImageID iconImageID)
+    {
+        this.iconImageID = iconImageID;
+
+        if (!fullScreen && !settingsPanel)
+            setIconImage(ImageUtils.scaleImageWithinBounds(
+                ImageLoader.getImage(iconImageID), 12, 12));
+        else
+            setIconImage(ImageLoader.getImage(iconImageID));
+    }
+
+    /**
      * Notifies this <tt>AbstractCallToggleButton</tt> that its associated
      * action has been performed and that it should execute its very logic.
      */

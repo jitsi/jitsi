@@ -489,6 +489,13 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.HOLD_BUTTON");
 
     /**
+     * A put-on/off-hold button icon. The icon shown in the CallPeer
+     * panel.
+     */
+    public static final ImageID HOLD_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.HOLD_BUTTON_PRESSED");
+
+    /**
      * The icon shown when the status of the call is "On hold".
      */
     public static final ImageID HOLD_STATUS_ICON
@@ -507,10 +514,22 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.MUTE_BUTTON");
 
     /**
+     * A mute button pressed icon. The icon shown in the CallPeer panel.
+     */
+    public static final ImageID MUTE_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.MUTE_BUTTON_PRESSED");
+
+    /**
      * A record button icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID RECORD_BUTTON
         = new ImageID("service.gui.buttons.RECORD_BUTTON");
+
+    /**
+     * A record button pressed icon. The icon shown in the CallPeer panel.
+     */
+    public static final ImageID RECORD_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.RECORD_BUTTON_PRESSED");
 
     /**
      * A local video button icon. The icon shown in the CallPeer panel.
@@ -519,11 +538,42 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.LOCAL_VIDEO_BUTTON");
 
     /**
+     * A local video button pressed icon. The icon shown in the CallPeer panel.
+     */
+    public static final ImageID LOCAL_VIDEO_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.LOCAL_VIDEO_BUTTON_PRESSED");
+
+    /**
      * A show/hide local video button icon. The icon shown in the CallPeer
      * panel.
      */
     public static final ImageID SHOW_LOCAL_VIDEO_BUTTON
         = new ImageID("service.gui.buttons.SHOW_LOCAL_VIDEO_BUTTON");
+
+    /**
+     * A show/hide local video button pressed icon. The icon shown in the
+     * CallPeer panel.
+     */
+    public static final ImageID SHOW_LOCAL_VIDEO_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.SHOW_LOCAL_VIDEO_BUTTON_PRESSED");
+
+    /**
+     * The resize video button.
+     */
+    public static final ImageID HD_VIDEO_BUTTON
+        = new ImageID("service.gui.buttons.HD_VIDEO_BUTTON");
+
+    /**
+     * The resize video button.
+     */
+    public static final ImageID SD_VIDEO_BUTTON
+        = new ImageID("service.gui.buttons.SD_VIDEO_BUTTON");
+
+    /**
+     * The resize video button.
+     */
+    public static final ImageID LO_VIDEO_BUTTON
+        = new ImageID("service.gui.buttons.LO_VIDEO_BUTTON");
 
     /**
      * A call-transfer button icon. The icon shown in the CallPeer panel.

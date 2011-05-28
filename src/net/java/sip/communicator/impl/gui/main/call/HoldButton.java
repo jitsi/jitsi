@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.ImageID;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -63,8 +64,10 @@ public class HoldButton
     {
         super(  call,
                 fullScreen,
+                true,
                 selected,
                 ImageLoader.HOLD_BUTTON,
+                ImageLoader.HOLD_BUTTON_PRESSED,
                 "service.gui.HOLD_BUTTON_TOOL_TIP");
     }
 
