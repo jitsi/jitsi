@@ -101,6 +101,7 @@ public abstract class MediaFormatImpl<T extends Format>
                 new VideoMediaFormatImpl(
                         (VideoFormat) format,
                         clockRate,
+                        -1,
                         formatParameters,
                         advancedAttrs);
         return null;

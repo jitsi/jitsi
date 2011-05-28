@@ -166,10 +166,24 @@ public class CallPeerMediaHandlerSipImpl
                 {
                     MediaDescription md =
                         createMediaDescription(
-                           dev.getSupportedFormats(),
+                           dev.getSupportedFormats(videoQualityPreset),
                            getTransportManager().getStreamConnector(mediaType),
                            direction,
                            dev.getSupportedExtensions());
+
+                    try
+                    {
+                        // if we have setting for video preset lets
+                        // send info for the desired framerate
+                        if(videoQualityPreset != null)
+                            md.setAttribute("framerate",
+                                String.valueOf(
+                                    videoQualityPreset.getFameRate()));
+                    }
+                    catch(SdpException e)
+                    {
+                        // do nothing in case of error.
+                    }
 
                     updateMediaDescriptionForZrtp(mediaType, md);
 

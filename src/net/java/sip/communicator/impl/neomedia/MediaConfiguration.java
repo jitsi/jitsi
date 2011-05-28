@@ -815,6 +815,7 @@ public class MediaConfiguration
                 sizeCombo.setSelectedIndex(0);
                 frameRateCheck.setSelected(false);
                 frameRate.setEnabled(false);
+                frameRate.setValue(20);
                 // unlimited framerate
                 deviceConfig.setFrameRate(-1);
                 videoMaxBandwidth.setValue(

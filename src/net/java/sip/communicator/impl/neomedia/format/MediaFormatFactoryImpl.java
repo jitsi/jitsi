@@ -209,7 +209,7 @@ public class MediaFormatFactoryImpl
     {
         return
             createMediaFormat(
-                    encoding, clockRate, 1,
+                    encoding, clockRate, 1, -1,
                     formatParams,
                     advancedParams);
     }
@@ -225,6 +225,8 @@ public class MediaFormatFactoryImpl
      * <tt>MediaFormat</tt> for
      * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
      * for
+     * @param frameRate the frame rate in number of frames per second to
+     * create a <tt>MediaFormat</tt> for
      * @param channels the number of available channels (1 for mono, 2 for
      * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
      * <tt>encoding</tt>; otherwise, ignored
@@ -237,10 +239,10 @@ public class MediaFormatFactoryImpl
      * is either an <tt>AudioMediaFormat</tt> or a <tt>VideoMediaFormat</tt>
      * instance if <tt>encoding</tt> is known to this
      * <tt>MediaFormatFactory</tt>; otherwise, <tt>null</tt>
-     * @see MediaFormatFactory#createMediaFormat(String, double, int, Map, Map)
+     * @see MediaFormatFactory#createMediaFormat(String, double, int, float, Map, Map)
      */
     public MediaFormat createMediaFormat(
-            String encoding, double clockRate, int channels,
+            String encoding, double clockRate, int channels, float frameRate,
             Map<String, String> formatParams,
             Map<String, String> advancedParams)
     {
@@ -293,6 +295,7 @@ public class MediaFormatFactoryImpl
                     = new VideoMediaFormatImpl(
                             videoMediaFormatImpl.getFormat(),
                             videoMediaFormatImpl.getClockRate(),
+                            frameRate,
                             formatParameters, advancedParameters);
                 break;
             default:
@@ -322,6 +325,8 @@ public class MediaFormatFactoryImpl
      * <tt>MediaFormat</tt> for; <tt>null</tt>
      * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
      * for
+     * @param frameRate the frame rate in number of frames per second to
+     * create a <tt>MediaFormat</tt> for
      * @param channels the number of available channels (1 for mono, 2 for
      * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
      * <tt>encoding</tt>; otherwise, ignored
@@ -337,7 +342,7 @@ public class MediaFormatFactoryImpl
      */
     public MediaFormat createMediaFormat(
             byte rtpPayloadType,
-            String encoding, double clockRate, int channels,
+            String encoding, double clockRate, int channels, float frameRate,
             Map<String, String> formatParams,
             Map<String, String> advancedParams)
     {
@@ -384,7 +389,7 @@ public class MediaFormatFactoryImpl
 
         return
             createMediaFormat(
-                    encoding, clockRate, channels,
+                    encoding, clockRate, channels, frameRate,
                     formatParams,
                     advancedParams);
     }

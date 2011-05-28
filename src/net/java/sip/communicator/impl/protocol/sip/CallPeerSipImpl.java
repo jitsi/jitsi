@@ -16,6 +16,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -1354,5 +1355,30 @@ public class CallPeerSipImpl
             setState(CallPeerState.FAILED, reason);
         else
             setState(CallPeerState.DISCONNECTED, reason);
+    }
+
+    /**
+     * Changes video quality preset.
+     * @param preset the preset to use.
+     */
+    public void setVideoQualityPreset(QualityPreset preset)
+        throws OperationFailedException
+    {
+        CallPeerMediaHandlerSipImpl mediaHandler = getMediaHandler();
+
+        // set the new preset
+        mediaHandler.setVideoQualityPreset(preset);
+
+        try
+        {
+            // re-invites the peer with the new settings
+            sendReInvite(mediaHandler.createOffer());
+        }
+        catch (Exception ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create SDP offer to hold.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
     }
 }

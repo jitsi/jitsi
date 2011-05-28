@@ -260,6 +260,20 @@ public abstract class AbstractOperationSetVideoTelephony<
     }
 
     /**
+     * Changes the current video settings for the peer with the desired
+     * quality settings and inform the peer to stream the video
+     * with those settings.
+     *
+     * @param peer the peer that is sending us the video
+     * @param preset the desired video settings
+     * @throws OperationFailedException
+     */
+    public void setQualityPreset(CallPeer peer,
+                                 QualityPreset preset)
+        throws OperationFailedException
+    {}
+
+    /**
      * Represents a <tt>VideoListener</tt> which forwards notifications to a
      * specific delegate <tt>VideoListener</tt> and hides the original
      * <tt>VideoEvent</tt> sender from it by pretending the sender is a

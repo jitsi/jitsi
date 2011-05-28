@@ -607,7 +607,7 @@ public class MediaUtils
      * @return string that represent imgattr that can be encoded via SIP/SDP or
      * XMPP/Jingle
      */
-    private static String createImageAttr(java.awt.Dimension sendSize,
+    public static String createImageAttr(java.awt.Dimension sendSize,
             java.awt.Dimension maxRecvSize)
     {
         StringBuffer img = new StringBuffer();

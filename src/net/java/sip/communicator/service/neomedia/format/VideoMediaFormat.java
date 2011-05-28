@@ -26,4 +26,11 @@ public interface VideoMediaFormat
      * (in pixels) of this <tt>VideoMediaFormat</tt>.
      */
     public Dimension getSize();
+
+    /**
+     * Returns the frame rate associated with this <tt>MediaFormat</tt>.
+     *
+     * @return The frame rate associated with this format.
+     */
+    public float getFrameRate();
 }

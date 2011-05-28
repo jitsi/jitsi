@@ -29,6 +29,16 @@ public interface MediaDevice
     public List<MediaFormat> getSupportedFormats();
 
     /**
+     * Returns a list of <tt>MediaFormat</tt> instances representing the media
+     * formats supported by this <tt>MediaDevice</tt>.
+     *
+     * @param preset the preset used to set some of the format parameters,
+     * used for video and settings.
+     * @return the list of <tt>MediaFormat</tt>s supported by this device.
+     */
+    public List<MediaFormat> getSupportedFormats(QualityPreset preset);
+
+    /**
      * Returns the <tt>List</tt> of <tt>RTPExtension</tt>s that this device
      * know how to handle.
      *

@@ -179,6 +179,12 @@ public class MediaDeviceSession
     private boolean disposePlayerWhenClose = true;
 
     /**
+     * Whether output size has changed after latest processor config.
+     * Used for video streams.
+     */
+    protected boolean outputsizeChanged = false;
+
+    /**
      * Initializes a new <tt>MediaDeviceSession</tt> instance which is to
      * represent the use of a specific <tt>MediaDevice</tt> by a
      * <tt>MediaStream</tt>.
@@ -1336,8 +1342,10 @@ public class MediaDeviceSession
             else if (processorIsPrematurelyClosed
                         || ((processorState > Processor.Configured)
                                 && !this.format.getFormat().equals(
-                                        getProcessorFormat())))
+                                        getProcessorFormat()))
+                        || outputsizeChanged)
             {
+                outputsizeChanged = false;
                 setProcessor(null);
             }
         }

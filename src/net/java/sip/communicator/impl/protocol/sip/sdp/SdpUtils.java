@@ -366,6 +366,19 @@ public class SdpUtils
             return mediaFmts;
         }
 
+        float frameRate = -1;
+        // check for frame rate setting
+        try
+        {
+            String frStr = mediaDesc.getAttribute("framerate");
+            if(frStr != null)
+                frameRate = Integer.parseInt(frStr);
+        }
+        catch(SdpParseException e)
+        {
+            // do nothing
+        }
+
         for(String ptStr : formatStrings)
         {
             byte pt = -1;
@@ -428,7 +441,8 @@ public class SdpUtils
             MediaFormat mediaFormat = null;
             try
             {
-                mediaFormat = createFormat(pt, rtpmap, fmtp, advp, ptRegistry);
+                mediaFormat = createFormat(
+                    pt, rtpmap, fmtp, frameRate, advp, ptRegistry);
             }
             catch (SdpException e)
             {
@@ -628,6 +642,7 @@ public class SdpUtils
                                         byte                       payloadType,
                                         Attribute                  rtpmap,
                                         Attribute                  fmtp,
+                                        float                      frameRate,
                                         List<Attribute>            advp,
                                         DynamicPayloadTypeRegistry ptRegistry)
         throws SdpException
@@ -713,7 +728,7 @@ public class SdpUtils
             = SipActivator.getMediaService().getFormatFactory()
                     .createMediaFormat(
                             payloadType,
-                            encoding, clockRate, numChannels,
+                            encoding, clockRate, numChannels, frameRate,
                             fmtParamsMap,
                             advancedAttrMap);
 

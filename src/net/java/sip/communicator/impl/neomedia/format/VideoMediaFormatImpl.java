@@ -36,6 +36,11 @@ public class VideoMediaFormatImpl
     private final double clockRate;
 
     /**
+     * The frame rate of this <tt>VideoMediaFormat</tt>.
+     */
+    private float frameRate;
+
+    /**
      * Initializes a new <tt>VideoMediaFormatImpl</tt> instance with a specific
      * encoding.
      *
@@ -86,7 +91,7 @@ public class VideoMediaFormatImpl
      */
     VideoMediaFormatImpl(VideoFormat format, double clockRate)
     {
-        this(format, clockRate, null, null);
+        this(format, clockRate, -1, null, null);
     }
 
     /**
@@ -99,6 +104,8 @@ public class VideoMediaFormatImpl
      * and provide an implementation of <tt>VideoMediaFormat</tt> for
      * @param clockRate the clock rate of the new <tt>VideoMediaFormatImpl</tt>
      * instance
+     * @param frameRate the frame rate of the new <tt>VideoMediaFormatImpl</tt>
+     * instance
      * @param formatParameters the set of format-specific parameters of the new
      * instance
      * @param advancedParameters set of advanced parameters of the new instance
@@ -106,12 +113,14 @@ public class VideoMediaFormatImpl
     VideoMediaFormatImpl(
             VideoFormat format,
             double clockRate,
+            float frameRate,
             Map<String, String> formatParameters,
             Map<String, String> advancedParameters)
     {
         super(format, formatParameters, advancedParameters);
 
         this.clockRate = clockRate;
+        this.frameRate = frameRate;
     }
 
     /**
@@ -241,6 +250,17 @@ public class VideoMediaFormatImpl
     public double getClockRate()
     {
         return clockRate;
+    }
+
+    /**
+     * Gets the frame rate associated with this <tt>MediaFormat</tt>.
+     *
+     * @return the frame rate associated with this <tt>MediaFormat</tt>
+     * @see VideoMediaFormat#getFrameRate()
+     */
+    public float getFrameRate()
+    {
+        return frameRate;
     }
 
     /**

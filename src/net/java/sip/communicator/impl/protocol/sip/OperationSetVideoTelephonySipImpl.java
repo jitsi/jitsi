@@ -10,6 +10,7 @@ import java.text.*;
 
 import javax.sip.address.Address;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
@@ -158,5 +159,22 @@ public class OperationSetVideoTelephonySipImpl
         /* answer with video */
         callPeer.getCall().setLocalVideoAllowed(true, getMediaUseCase());
         callPeer.answer();
+    }
+
+    /**
+     * Changes the current video settings for the peer with the desired
+     * quality settings and inform the peer to stream the video
+     * with those settings.
+     *
+     * @param peer the peer that is sending us the video
+     * @param preset the desired video settings
+     * @throws OperationFailedException
+     */
+    public void setQualityPreset(CallPeer peer,
+                                 QualityPreset preset)
+        throws OperationFailedException
+    {
+        CallPeerSipImpl sipPeer = (CallPeerSipImpl) peer;
+        sipPeer.setVideoQualityPreset(preset);
     }
 }

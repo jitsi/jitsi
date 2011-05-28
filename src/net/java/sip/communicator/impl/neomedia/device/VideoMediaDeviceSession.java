@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -185,6 +186,13 @@ public class VideoMediaDeviceSession
             else
             {
                 Dimension videoSize = deviceConfig.getVideoSize();
+
+                // if we have an output size that is smaller than our current
+                // settings, respect that size
+                if(outputSize != null
+                   && videoSize.height > outputSize.height
+                   && videoSize.width > outputSize.width)
+                    videoSize = outputSize;
 
                 VideoMediaStreamImpl.selectVideoSize(
                         captureDevice,
@@ -1103,6 +1111,11 @@ public class VideoMediaDeviceSession
      */
     public void setOutputSize(Dimension size)
     {
+        if((size != null && outputSize == null)
+            || (size == null && outputSize != null)
+            || (size != null && outputSize != null && !outputSize.equals(size)))
+            outputsizeChanged = true;
+
         outputSize = size;
     }
 
@@ -1298,6 +1311,43 @@ public class VideoMediaDeviceSession
         }
 
         return super.setProcessorFormat(trackControl, mediaFormat, format);
+    }
+
+    /**
+     * Sets the <tt>MediaFormat</tt> in which this <tt>MediaDeviceSession</tt>
+     * outputs the media captured by its <tt>MediaDevice</tt>.
+     *
+     * @param format the <tt>MediaFormat</tt> in which this
+     * <tt>MediaDeviceSession</tt> is to output the media captured by its
+     * <tt>MediaDevice</tt>
+     */
+    public void setFormat(MediaFormat format)
+    {
+        if(format instanceof VideoMediaFormat &&
+            ((VideoMediaFormat)format).getFrameRate() != -1)
+        {
+            FrameRateControl frameRateControl
+                = (FrameRateControl)
+                    getCaptureDevice().getControl(FrameRateControl.class.getName());
+
+            if (frameRateControl != null)
+            {
+                float frameRate = ((VideoMediaFormat)format).getFrameRate();
+
+                float maxSupportedFrameRate
+                    = frameRateControl.getMaxSupportedFrameRate();
+
+                if ((maxSupportedFrameRate > 0)
+                        && (frameRate > maxSupportedFrameRate))
+                    frameRate = maxSupportedFrameRate;
+                if(frameRate > 0)
+                {
+                    frameRateControl.setFrameRate(frameRate);
+                }
+            }
+        }
+
+        super.setFormat(format);
     }
 
     /**

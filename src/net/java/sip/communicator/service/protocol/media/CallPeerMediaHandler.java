@@ -204,6 +204,11 @@ public abstract class CallPeerMediaHandler<
         = new LinkedList<VideoListener>();
 
     /**
+     * The currently used video quality preset.
+     */
+    protected QualityPreset videoQualityPreset = null;
+
+    /**
      * The <tt>PropertyChangeListener</tt> which listens to changes in the
      * values of the properties of {@link #audioStream} and
      * {@link #videoStream}.
@@ -1604,6 +1609,15 @@ public abstract class CallPeerMediaHandler<
     public T getPeer()
     {
         return peer;
+    }
+
+    /**
+     * Changes video quality preset.
+     * @param preset the preset to use.
+     */
+    public void setVideoQualityPreset(QualityPreset preset)
+    {
+        this.videoQualityPreset = preset;
     }
 
     /**

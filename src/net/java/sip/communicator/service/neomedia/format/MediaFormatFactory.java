@@ -157,6 +157,8 @@ public interface MediaFormatFactory
      * <tt>MediaFormat</tt> for
      * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
      * for
+     * @param frameRate the frame rate in number of frames per second to
+     * create a <tt>MediaFormat</tt> for
      * @param channels the number of available channels (1 for mono, 2 for
      * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
      * <tt>encoding</tt>; otherwise, ignored
@@ -174,6 +176,7 @@ public interface MediaFormatFactory
             String encoding,
             double clockRate,
             int channels,
+            float frameRate,
             Map<String, String> formatParams,
             Map<String, String> advancedAttrs);
 
@@ -197,6 +200,8 @@ public interface MediaFormatFactory
      * <tt>MediaFormat</tt> for; <tt>null</tt>
      * @param clockRate the clock rate in Hz to create a <tt>MediaFormat</tt>
      * for
+     * @param frameRate the frame rate in number of frames per second to
+     * create a <tt>MediaFormat</tt> for
      * @param channels the number of available channels (1 for mono, 2 for
      * stereo) if it makes sense for the <tt>MediaFormat</tt> with the specified
      * <tt>encoding</tt>; otherwise, ignored
@@ -215,6 +220,7 @@ public interface MediaFormatFactory
             String encoding,
             double clockRate,
             int channels,
+            float frameRate,
             Map<String, String> formatParams,
             Map<String, String> advancedAttrs);
 }

@@ -10,6 +10,7 @@ import java.awt.*;
 import java.beans.*;
 import java.text.*;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
@@ -222,5 +223,18 @@ public interface OperationSetVideoTelephony
      * encounter an error while performing this operation.
      */
     public void answerVideoCallPeer(CallPeer peer)
+        throws OperationFailedException;
+
+    /**
+     * Changes the current video settings for the peer with the desired
+     * quality settings and inform the peer to stream the video
+     * with those settings.
+     *
+     * @param peer the peer that is sending us the video
+     * @param preset the desired video settings
+     * @throws OperationFailedException
+     */
+    public void setQualityPreset(CallPeer peer,
+                                 QualityPreset preset)
         throws OperationFailedException;
 }

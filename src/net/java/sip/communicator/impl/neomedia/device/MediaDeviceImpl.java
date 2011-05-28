@@ -323,6 +323,18 @@ public class MediaDeviceImpl
      */
     public List<MediaFormat> getSupportedFormats()
     {
+        return this.getSupportedFormats(null);
+    }
+    /**
+     * Gets a list of <tt>MediaFormat</tt>s supported by this
+     * <tt>MediaDevice</tt>.
+     * @param preset the preset used to set some of the format parameters,
+     * used for video and settings.
+     * @return the list of <tt>MediaFormat</tt>s supported by this device
+     * @see MediaDevice#getSupportedFormats()
+     */
+    public List<MediaFormat> getSupportedFormats(QualityPreset preset)
+    {
         EncodingConfiguration encodingConfiguration
             = NeomediaActivator
                 .getMediaServiceImpl().getEncodingConfiguration();
@@ -333,6 +345,42 @@ public class MediaDeviceImpl
         if (supportedEncodings != null)
             for (MediaFormat supportedEncoding : supportedEncodings)
                 supportedFormats.add(supportedEncoding);
+
+        // if there is preset check and set the format attributes
+        // where needed
+        if(preset != null)
+        {
+            MediaFormat customFormat = null;
+            MediaFormat toRemove = null;
+            for(MediaFormat f : supportedFormats)
+            {
+                if("h264".equalsIgnoreCase(f.getEncoding()))
+                {
+                    Map<String,String> h264AdvancedAttributes =
+                            f.getAdvancedAttributes();
+                    if(h264AdvancedAttributes == null)
+                        h264AdvancedAttributes = new HashMap<String, String>();
+
+                    h264AdvancedAttributes.put("imageattr",
+                        MediaUtils.createImageAttr(null,
+                                preset.getResolution()));
+
+                    customFormat = NeomediaActivator.getMediaServiceImpl()
+                            .getFormatFactory().createMediaFormat(
+                                f.getEncoding(),
+                                f.getClockRate(),
+                                f.getFormatParameters(),
+                                h264AdvancedAttributes);
+                    toRemove = f;
+                }
+            }
+
+            if(toRemove != null && customFormat != null)
+            {
+                supportedFormats.remove(toRemove);
+                supportedFormats.add(customFormat);
+            }
+        }
 
         return supportedFormats;
     }

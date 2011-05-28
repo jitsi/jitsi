@@ -162,9 +162,8 @@ public class VideoMediaStreamImpl
             }
 
             /*
-             * If videoDS states to support any size, use the default size
-             * because we don't know anything about the correctness of the
-             * preferred size.
+             * If videoDS states to support any size, use the sizes that we
+             * support which is closest(or smaller) to the preferred one.
              */
             if ((selectedFormat != null)
                     && (selectedFormat.getSize() == null))
@@ -178,26 +177,29 @@ public class VideoMediaStreamImpl
                 // Try to preserve the aspect ratio
                 if (currentFormat != null)
                     currentSize = currentFormat.getSize();
-                if (currentSize == null)
-                    currentSize
-                        = NeomediaActivator
-                            .getMediaServiceImpl()
-                                .getDeviceConfiguration()
-                                    .getVideoSize();
+
+                // lets choose the closest size to the preferred one
+                for(Dimension supported :
+                        DeviceConfiguration.SUPPORTED_RESOLUTIONS)
+                {
+                    if(supported.height <= preferredHeight
+                       && supported.width <= preferredWidth)
+                        currentSize = supported;
+                }
+
                 if ((currentSize.width > 0) && (currentSize.height > 0))
                 {
                     width = currentSize.width;
                     height = currentSize.height;
                 }
                 selectedFormat
-                    = (VideoFormat)
-                        selectedFormat.intersects(
-                                new VideoFormat(
+                    = (VideoFormat)new VideoFormat(
                                         null,
                                         new Dimension(width, height),
                                         Format.NOT_SPECIFIED,
                                         null,
-                                        Format.NOT_SPECIFIED));
+                                        Format.NOT_SPECIFIED)
+                                .intersects(selectedFormat);
             }
         }
 
