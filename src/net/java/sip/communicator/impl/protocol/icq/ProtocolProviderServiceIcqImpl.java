@@ -136,9 +136,7 @@ public class ProtocolProviderServiceIcqImpl
         if(getAimConnection() == null)
             return RegistrationState.UNREGISTERED;
 
-        State connState = getAimConnection().getState();
-
-        return joustSimStateToRegistrationState(connState);
+        return lastRegistrationState;
     }
 
     /**
