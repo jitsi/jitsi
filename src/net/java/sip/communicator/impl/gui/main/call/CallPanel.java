@@ -1042,8 +1042,8 @@ public class CallPanel
      */
     public void addRemoteVideoSpecificComponents()
     {
-        settingsPanel.add(resizeVideoButton,
-            GuiUtils.getComponentIndex(showHideVideoButton, settingsPanel) + 1);
+        settingsPanel.add(resizeVideoButton);
+        settingsPanel.add(fullScreenButton);
         settingsPanel.revalidate();
         settingsPanel.repaint();
     }
@@ -1054,6 +1054,7 @@ public class CallPanel
     public void removeRemoteVideoSpecificComponents()
     {
         settingsPanel.remove(resizeVideoButton);
+        settingsPanel.remove(fullScreenButton);
         settingsPanel.revalidate();
         settingsPanel.repaint();
     }
@@ -1112,7 +1113,6 @@ public class CallPanel
         settingsPanel.add(transferCallButton);
         settingsPanel.add(desktopSharingButton);
         settingsPanel.add(videoButton);
-        settingsPanel.add(fullScreenButton);
     }
 
     /**
