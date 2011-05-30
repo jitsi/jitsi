@@ -132,8 +132,8 @@ public class JingleUtils
                             pt,
                             payloadType.getName(),
                             (double)payloadType.getClockrate(),
-                            -1,
                             payloadType.getChannels(),
+                            -1,
                             paramsMap,
                             null);
 
