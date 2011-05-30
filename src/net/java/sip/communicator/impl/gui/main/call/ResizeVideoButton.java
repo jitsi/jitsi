@@ -93,28 +93,26 @@ public class ResizeVideoButton
         popupMenu.setInvoker(this);
         popupMenu.setFocusable(true);
 
+        Dimension loDimension = QualityPreset.LO_QUALITY.getResolution();
+        Dimension sdDimension = QualityPreset.SD_QUALITY.getResolution();
+        Dimension hdDimension = QualityPreset.HD_QUALITY.getResolution();
+
         JMenuItem lowQuality = new JMenuItem(
             GuiActivator.getResources()
                 .getI18NString("service.gui.LOW_QUALITY")
-                + " ("
-                + (int) QualityPreset.LO_QUALITY.getResolution().getHeight()
-                + "p)",
+                + getFormattedDimension(loDimension),
             GuiActivator.getResources()
                 .getImage("service.gui.icons.LO_VIDEO_ICON"));
 
         JMenuItem normalQuality = new JMenuItem(GuiActivator.getResources()
                 .getI18NString("service.gui.SD_QUALITY")
-                + " ("
-                + (int) QualityPreset.SD_QUALITY.getResolution().getHeight()
-                + "p)",
+                + getFormattedDimension(sdDimension),
             GuiActivator.getResources()
                 .getImage("service.gui.icons.SD_VIDEO_ICON"));
 
         JMenuItem hdQuality = new JMenuItem(GuiActivator.getResources()
                 .getI18NString("service.gui.HD_QUALITY")
-                + " ("
-                + (int) QualityPreset.HD_QUALITY.getResolution().getHeight()
-                + "p)",
+                + getFormattedDimension(hdDimension),
             GuiActivator.getResources()
                 .getImage("service.gui.icons.HD_VIDEO_ICON"));
 
@@ -171,5 +169,16 @@ public class ResizeVideoButton
         });
 
         return popupMenu;
+    }
+
+    /**
+     * Returns a formatted string representing the given dimension.
+     *
+     * @param d the dimension to represent in the string
+     * @return the formatted dimension string
+     */
+    private String getFormattedDimension(Dimension d)
+    {
+        return " (" + (int) d.getWidth() + "x" + (int) d.getHeight() + ")";
     }
 }
