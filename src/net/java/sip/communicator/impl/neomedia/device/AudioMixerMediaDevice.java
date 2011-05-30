@@ -486,6 +486,10 @@ public class AudioMixerMediaDevice
          */
         public void addLocalUserAudioLevelListener(SimpleAudioLevelListener l)
         {
+            // If the listener is null, we have nothing more to do here.
+            if (l == null)
+                return;
+
             synchronized(localUserAudioLevelListenersSyncRoot)
             {
                 //if this is the first listener that we are seeing then we also

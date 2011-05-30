@@ -360,6 +360,8 @@ public class CallPanel
         }
         else
         {
+            // These buttons are only added in the conference call. For the one
+            // to one call mute and sound buttons are in the call peer panel.
             localLevel.setEnabled(false);
             remoteLevel.setEnabled(false);
 
@@ -650,6 +652,8 @@ public class CallPanel
         conferenceButton.setEnabled(true);
         holdButton.setEnabled(true);
         recordButton.setEnabled(true);
+        localLevel.setEnabled(true);
+        remoteLevel.setEnabled(true);
 
         if (!isLastConference)
         {
