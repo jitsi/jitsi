@@ -2174,9 +2174,10 @@ public class TreeContactList
         {
             if (currentFilter != null && !currentFilter.isMatching(uiContact))
             {
-                if (logger.isInfoEnabled())
-                    logger.info("Remove unmatching contact due to status change: "
-                    + uiContact.getDisplayName());
+                if (logger.isDebugEnabled())
+                    logger.debug(
+                        "Remove unmatching contact due to status change: "
+                        + uiContact.getDisplayName());
                 removeContact(uiContact);
             }
             else
