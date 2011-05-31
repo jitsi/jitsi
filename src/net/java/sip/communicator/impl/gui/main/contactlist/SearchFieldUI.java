@@ -276,6 +276,8 @@ public class SearchFieldUI
             if (searchText == null)
                 return;
 
+            searchText = GuiUtils.formatCallString(searchText);
+
             // Show a tool tip over the call button.
             getComponent().setToolTipText(callString + " " + searchText);
             ToolTipManager.sharedInstance().mouseEntered(

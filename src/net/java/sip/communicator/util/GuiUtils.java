@@ -53,6 +53,46 @@ public class GuiUtils
      */
     public static final long MILLIS_PER_DAY = 24 * MILLIS_PER_HOUR;
 
+    // These mappings map a character (key) to a specific digit that should replace it for
+    // normalization purposes. Non-European digits that may be used in phone numbers are mapped to a
+    // European equivalent.
+    private static final Map<Character, Character> DIGIT_MAPPINGS;
+    static {
+        HashMap<Character, Character> digitMap
+            = new HashMap<Character, Character>(50);
+        digitMap.put('0', '0');
+        digitMap.put('\uFF10', '0');  // Fullwidth digit 0
+        digitMap.put('\u0660', '0');  // Arabic-indic digit 0
+        digitMap.put('1', '1');
+        digitMap.put('\uFF11', '1');  // Fullwidth digit 1
+        digitMap.put('\u0661', '1');  // Arabic-indic digit 1
+        digitMap.put('2', '2');
+        digitMap.put('\uFF12', '2');  // Fullwidth digit 2
+        digitMap.put('\u0662', '2');  // Arabic-indic digit 2
+        digitMap.put('3', '3');
+        digitMap.put('\uFF13', '3');  // Fullwidth digit 3
+        digitMap.put('\u0663', '3');  // Arabic-indic digit 3
+        digitMap.put('4', '4');
+        digitMap.put('\uFF14', '4');  // Fullwidth digit 4
+        digitMap.put('\u0664', '4');  // Arabic-indic digit 4
+        digitMap.put('5', '5');
+        digitMap.put('\uFF15', '5');  // Fullwidth digit 5
+        digitMap.put('\u0665', '5');  // Arabic-indic digit 5
+        digitMap.put('6', '6');
+        digitMap.put('\uFF16', '6');  // Fullwidth digit 6
+        digitMap.put('\u0666', '6');  // Arabic-indic digit 6
+        digitMap.put('7', '7');
+        digitMap.put('\uFF17', '7');  // Fullwidth digit 7
+        digitMap.put('\u0667', '7');  // Arabic-indic digit 7
+        digitMap.put('8', '8');
+        digitMap.put('\uFF18', '8');  // Fullwidth digit 8
+        digitMap.put('\u0668', '8');  // Arabic-indic digit 8
+        digitMap.put('9', '9');
+        digitMap.put('\uFF19', '9');  // Fullwidth digit 9
+        digitMap.put('\u0669', '9');  // Arabic-indic digit 9
+        DIGIT_MAPPINGS = Collections.unmodifiableMap(digitMap);
+    }
+
     /**
      * Replaces some chars that are special in a regular expression.
      * @param text The initial text.
@@ -285,6 +325,60 @@ public class GuiUtils
         timeStrBuf.append(':');
         GuiUtils.formatTime(c1.get(Calendar.SECOND), timeStrBuf);
         return timeStrBuf.toString();
+    }
+
+    /**
+     * Formats the given call string by removing any special characters, such as
+     * intervals and brackets. Dashes are removed from number only strings.
+     *
+     * @param callString a string that would be called
+     * @return the formatted string, ready to be called
+     */
+    public static String formatCallString(String callString)
+    {
+        boolean isDigitsOnly = isDigitsOnly(callString);
+
+        StringBuffer normalizedCallString
+            = new StringBuffer(callString.length());
+        char[] stringAsCharArray = callString.toCharArray();
+
+        for (char character : stringAsCharArray)
+        {
+            if ((character != ' '
+                && character != '('
+                && character != ')')
+                && (!isDigitsOnly || character != '-'))
+            {
+                normalizedCallString.append(character);
+            }
+        }
+
+        return normalizedCallString.toString();
+    }
+
+    /**
+     * Indicates if the given string contains only digits.
+     *
+     * @param s the string to verify
+     * @return <tt>true</tt> if the given string contains only digits or
+     * <tt>false</tt> if the string contains also other characters
+     */
+    public static boolean isDigitsOnly(String s)
+    {
+        char[] stringAsCharArray = s.toCharArray();
+
+        boolean digitsOnly = true;
+        for (char character : stringAsCharArray)
+        {
+            if (character != ' '
+                && character != '('
+                && character != ')'
+                && character != '-'
+                && DIGIT_MAPPINGS.get(Character.toUpperCase(character)) == null)
+                digitsOnly = false;
+        }
+
+        return digitsOnly;
     }
 
     /**
