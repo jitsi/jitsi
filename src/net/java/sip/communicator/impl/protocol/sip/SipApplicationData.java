@@ -93,7 +93,7 @@ public class SipApplicationData
     {
         if (container == null)
         {
-            logger.warn("container is null");
+            logger.debug("container is null");
             return null;
         }
         if (key == null)

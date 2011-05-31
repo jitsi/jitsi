@@ -923,7 +923,7 @@ public class SipStackSharing
                 // fallback on the first candidate
                 ProtocolProviderServiceSipImpl target =
                     candidates.iterator().next();
-                logger.warn("Will randomly dispatch to \""
+                logger.info("Will randomly dispatch to \""
                         + target.getAccountID()
                         + "\" because there is ambiguity on the username from"
                         + " the Request-URI");
@@ -935,8 +935,9 @@ public class SipStackSharing
             // fallback on any account
             ProtocolProviderServiceSipImpl target =
                 currentListenersCopy.iterator().next();
-            if (logger.isInfoEnabled())
-                logger.info("Will randomly dispatch to \"" + target.getAccountID()
+            if (logger.isDebugEnabled())
+                logger.debug("Will randomly dispatch to \"" + target
+                        .getAccountID()
                         + "\" because the username in the Request-URI "
                         + "is unknown or empty");
             if (logger.isTraceEnabled())
@@ -1072,7 +1073,8 @@ public class SipStackSharing
 
     /**
      * Returns a local address to use with the specified TCP destination.
-     * The method forces the JAIN-SIP stack to creates and binds (if necessary)
+     * The method forces the JAIN-SIP stack to create
+     * s and binds (if necessary)
      * and return a socket connected to the specified destination address and
      * port and then return its local address.
      *
