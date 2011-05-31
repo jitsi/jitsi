@@ -653,7 +653,9 @@ public class TreeContactList
 
         if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
         {
-            //TODO: Show the error to the user??
+            if (logger.isInfoEnabled())
+                logger.info("Contact query error occured: "
+                                + event.getQuerySource());
         }
         event.getQuerySource().removeContactQueryListener(this);
     }
@@ -2161,9 +2163,9 @@ public class TreeContactList
                             .createUIGroup(parentGroup);
                 }
 
-                if (logger.isInfoEnabled())
-                    logger.info("Add matching contact due to status change: "
-                    + uiContact.getDisplayName());
+                if (logger.isDebugEnabled())
+                    logger.debug("Add matching contact due to status change: "
+                        + uiContact.getDisplayName());
                 addContact(uiContact, uiGroup, true, true);
             }
             else
