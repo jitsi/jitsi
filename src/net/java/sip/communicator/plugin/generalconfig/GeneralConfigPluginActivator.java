@@ -102,12 +102,26 @@ public class GeneralConfigPluginActivator
             .registerService(
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
-                    "net.java.sip.communicator.plugin.generalconfig.GeneralConfigurationPanel",
+                    "net.java.sip.communicator.plugin." +
+                    "generalconfig.GeneralConfigurationPanel",
                     getClass().getClassLoader(),
                     "plugin.generalconfig.PLUGIN_ICON",
                     "service.gui.GENERAL",
                     0),
                 properties);
+
+        // Registers the sip config panel as advanced configuration form.
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.ADVANCED_TYPE);
+        bundleContext.registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                SIPConfigForm.class.getName(),
+                getClass().getClassLoader(),
+                null,
+                "plugin.generalconfig.SIP_CALL_CONFIG",
+                51, true),
+            properties);
 
         /*
          * Wait for the first ProtocolProviderService to register in order to

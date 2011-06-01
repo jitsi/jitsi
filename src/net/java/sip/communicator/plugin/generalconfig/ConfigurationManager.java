@@ -15,31 +15,36 @@ import net.java.sip.communicator.service.resources.*;
 public class ConfigurationManager
 {
     public static final String ENTER_COMMAND = "Enter";
-    
+
     public static final String CTRL_ENTER_COMMAND = "Ctrl-Enter";
-    
+
     /**
      * Indicates whether the message automatic popup is enabled.
      */
     private static boolean autoPopupNewMessage;
-    
+
     private static String sendMessageCommand;
-    
+
     private static boolean isSendTypingNotifications;
-    
+
     private static boolean isMultiChatWindowEnabled;
 
     private static boolean isLeaveChatRoomOnWindowCloseEnabled;
-    
+
     private static boolean isHistoryLoggingEnabled;
-    
+
     private static boolean isHistoryShown;
-    
+
     private static int chatHistorySize;
-    
+
     private static int windowTransparency;
-    
+
     private static boolean isTransparentWindowEnabled;
+
+    /**
+     * Indicates if phone numbers should be normalized before dialed.
+     */
+    private static boolean isNormalizePhoneNumber;
 
     private static ConfigurationService configService
         = GeneralConfigPluginActivator.getConfigurationService();
@@ -52,12 +57,12 @@ public class ConfigurationManager
         // Load the "auPopupNewMessage" property.
         String autoPopupProperty = 
             "service.gui.AUTO_POPUP_NEW_MESSAGE";
-        
+
         String autoPopup = configService.getString(autoPopupProperty);
 
         if(autoPopup == null)
             autoPopup = Resources.getSettingsString(autoPopupProperty);
-        
+
         if(autoPopup != null && autoPopup.equalsIgnoreCase("yes"))
             autoPopupNewMessage = true;
 
@@ -65,7 +70,7 @@ public class ConfigurationManager
         String messageCommandProperty = 
             "service.gui.SEND_MESSAGE_COMMAND";
         String messageCommand = configService.getString(messageCommandProperty);
-        
+
         if(messageCommand == null)
             messageCommand = 
                 Resources.getSettingsString(messageCommandProperty);
@@ -134,11 +139,11 @@ public class ConfigurationManager
         // Load the "isHistoryLoggingEnabled" property.
         String isHistoryLoggingEnabledPropertyString =
             "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED";
-        
+
         String isHistoryLoggingEnabledString
             = configService.getString(
             isHistoryLoggingEnabledPropertyString);
-        
+
         if(isHistoryLoggingEnabledString == null)
             isHistoryLoggingEnabledString = 
                 Resources.
@@ -151,14 +156,14 @@ public class ConfigurationManager
                 = new Boolean(isHistoryLoggingEnabledString)
                 .booleanValue();
         }
-        
+
         // Load the "isHistoryShown" property.
         String isHistoryShownStringProperty = 
             "service.gui.IS_MESSAGE_HISTORY_SHOWN";
-        
+
         String isHistoryShownString
             = configService.getString(isHistoryShownStringProperty);
-        
+
         if(isHistoryShownString == null)
             isHistoryShownString = 
                 Resources.getSettingsString(isHistoryShownStringProperty);
@@ -223,6 +228,14 @@ public class ConfigurationManager
             windowTransparency
                 = Integer.parseInt(windowTransparencyString);
         }
+
+        // Load the "NORMALIZE_PHONE_NUMBER" property.
+        String normalizePhoneNumberProperty =
+            "impl.gui.NORMALIZE_PHONE_NUMBER";
+
+        isNormalizePhoneNumber
+            = GeneralConfigPluginActivator.getConfigurationService()
+                .getBoolean(normalizePhoneNumberProperty, true);
     }
 
     /**
@@ -365,6 +378,32 @@ public class ConfigurationManager
     }
 
     /**
+     * Returns <code>true</code> if phone numbers should be normalized,
+     * <code>false</code> otherwise.
+     * 
+     * @return <code>true</code> if phone numbers should be normalized,
+     * <code>false</code> otherwise.
+     */
+    public static boolean isNormalizePhoneNumber()
+    {
+        return isNormalizePhoneNumber;
+    }
+
+    /**
+     * Updates the "NORMALIZE_PHONE_NUMBER" property.
+     *
+     * @param isNormalize indicates to the user interface whether all dialed
+     * phone numbers should be normalized
+     */
+    public static void setNormalizePhoneNumber(boolean isNormalize)
+    {
+        ConfigurationManager.isNormalizePhoneNumber = isNormalize;
+
+        configService.setProperty("impl.gui.NORMALIZE_PHONE_NUMBER",
+            Boolean.toString(isNormalize));
+    }
+
+    /**
      * Returns the transparency value for all transparent windows.
      * 
      * @return the transparency value for all transparent windows.
@@ -374,6 +413,12 @@ public class ConfigurationManager
         return windowTransparency;
     }
 
+    /**
+     * Updates the "WINDOW_TRANSPARENCY" property.
+     * 
+     * @param windowTransparency indicates to the user interface what is the
+     * window transparency value
+     **/
     public static void setWindowTransparency(int windowTransparency)
     {
         ConfigurationManager.windowTransparency = windowTransparency;

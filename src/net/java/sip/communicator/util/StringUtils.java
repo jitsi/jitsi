@@ -7,7 +7,6 @@
 package net.java.sip.communicator.util;
 
 import java.io.*;
-import java.util.*;
 
 /**
  * Utility class that helps to work with <tt>String</tt> class.
@@ -194,5 +193,45 @@ public final class StringUtils
         }
 
         return true;
+    }
+
+    /**
+     * Indicates if the given string contains any letters.
+     *
+     * @param string the string to check for letters
+     * @return <tt>true</tt> if the given string contains letters,
+     * <tt>false</tt> - otherwise
+     */
+    public static boolean containsLetters(String string)
+    {
+        for (int i = 0; i < string.length(); i++)
+        {
+            if (Character.isLetter(string.charAt(i)))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Removes all spaces from the given string and returns a concatenated
+     * result string.
+     *
+     * @param string the string to concatenate
+     * @return the concatenated string
+     */
+    public static String concatenateWords(String string)
+    {
+        StringBuffer buff = new StringBuffer();
+        char[] stringAsCharArray = string.toCharArray();
+
+        for (char character : stringAsCharArray)
+        {
+            if (character != ' ')
+            {
+                buff.append(character);
+            }
+        }
+        return buff.toString();
     }
 }

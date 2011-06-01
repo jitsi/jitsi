@@ -738,6 +738,19 @@ public class ConfigurationManager
     }
 
     /**
+     * Returns <code>true</code> if phone numbers should be normalized,
+     * <code>false</code> otherwise.
+     * 
+     * @return <code>true</code> if phone numbers should be normalized,
+     * <code>false</code> otherwise.
+     */
+    public static boolean isNormalizePhoneNumber()
+    {
+        return configService.getBoolean(
+            "impl.gui.NORMALIZE_PHONE_NUMBER", true);
+    }
+
+    /**
      * Sets the transparency value for all transparent windows.
      * 
      * @param transparency the transparency value for all transparent windows.

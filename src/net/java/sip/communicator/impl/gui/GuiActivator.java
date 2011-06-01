@@ -80,6 +80,8 @@ public class GuiActivator implements BundleActivator
 
     private static SmiliesReplacementService smiliesService;
 
+    private static PhoneNumberI18nService phoneNumberService;
+
     private static AccountManager accountManager;
 
     private static List<ContactSourceService> contactSources;
@@ -803,6 +805,24 @@ public class GuiActivator implements BundleActivator
                     SmiliesReplacementService.class);
         }
         return smiliesService;
+    }
+
+    /**
+     * Returns the <tt>PhoneNumberI18nService</tt> obtained from the bundle
+     * context.
+     * 
+     * @return the <tt>PhoneNumberI18nService</tt> implementation obtained
+     * from the bundle context
+     */
+    public static PhoneNumberI18nService getPhoneNumberService()
+    {
+        if (phoneNumberService == null)
+        {
+            phoneNumberService
+                = ServiceUtils.getService(bundleContext,
+                    PhoneNumberI18nService.class);
+        }
+        return phoneNumberService;
     }
 
     /**

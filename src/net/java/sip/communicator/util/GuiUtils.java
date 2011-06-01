@@ -328,60 +328,6 @@ public class GuiUtils
     }
 
     /**
-     * Formats the given call string by removing any special characters, such as
-     * intervals and brackets. Dashes are removed from number only strings.
-     *
-     * @param callString a string that would be called
-     * @return the formatted string, ready to be called
-     */
-    public static String formatCallString(String callString)
-    {
-        boolean isDigitsOnly = isDigitsOnly(callString);
-
-        StringBuffer normalizedCallString
-            = new StringBuffer(callString.length());
-        char[] stringAsCharArray = callString.toCharArray();
-
-        for (char character : stringAsCharArray)
-        {
-            if ((character != ' '
-                && character != '('
-                && character != ')')
-                && (!isDigitsOnly || character != '-'))
-            {
-                normalizedCallString.append(character);
-            }
-        }
-
-        return normalizedCallString.toString();
-    }
-
-    /**
-     * Indicates if the given string contains only digits.
-     *
-     * @param s the string to verify
-     * @return <tt>true</tt> if the given string contains only digits or
-     * <tt>false</tt> if the string contains also other characters
-     */
-    public static boolean isDigitsOnly(String s)
-    {
-        char[] stringAsCharArray = s.toCharArray();
-
-        boolean digitsOnly = true;
-        for (char character : stringAsCharArray)
-        {
-            if (character != ' '
-                && character != '('
-                && character != ')'
-                && character != '-'
-                && DIGIT_MAPPINGS.get(Character.toUpperCase(character)) == null)
-                digitsOnly = false;
-        }
-
-        return digitsOnly;
-    }
-
-    /**
      * Subtracts the two dates.
      * @param date1 the first date argument
      * @param date2 the second date argument

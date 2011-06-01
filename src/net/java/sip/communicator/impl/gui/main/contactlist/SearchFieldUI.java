@@ -15,6 +15,7 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -276,7 +277,20 @@ public class SearchFieldUI
             if (searchText == null)
                 return;
 
-            searchText = GuiUtils.formatCallString(searchText);
+            if (ConfigurationManager.isNormalizePhoneNumber())
+            {
+                if (!StringUtils.containsLetters(searchText)
+                        && GuiActivator.getPhoneNumberService()
+                            .isPhoneNumber(searchText))
+                {
+                    searchText = GuiActivator.getPhoneNumberService()
+                        .normalize(searchText);
+                }
+                else
+                {
+                    searchText = StringUtils.concatenateWords(searchText);
+                }
+            }
 
             // Show a tool tip over the call button.
             getComponent().setToolTipText(callString + " " + searchText);

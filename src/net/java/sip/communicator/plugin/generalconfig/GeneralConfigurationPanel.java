@@ -79,7 +79,7 @@ public class GeneralConfigurationPanel
         mainPanel.add(new JSeparator());
         mainPanel.add(Box.createVerticalStrut(10));
 
-        mainPanel.add(createSipConfigPanel());
+        mainPanel.add(createCallConfigPanel());
         mainPanel.add(Box.createVerticalStrut(10));
     }
 
@@ -596,10 +596,11 @@ public class GeneralConfigurationPanel
     }
 
     /**
-     * Initializes the sip port configuration panel.
-     * @return the created panel
+     * Creates the call configuration panel.
+     *
+     * @return the call configuration panel
      */
-    private Component createSipConfigPanel()
+    private Component createCallConfigPanel()
     {
         JPanel callConfigPanel = new TransparentPanel(new BorderLayout());
 
@@ -608,120 +609,51 @@ public class GeneralConfigurationPanel
                 Resources.getString("service.gui.CALL") + ":"),
             BorderLayout.WEST);
 
-        TransparentPanel sipClientPortConfigPanel = new TransparentPanel();
-        sipClientPortConfigPanel.setLayout(new BorderLayout(10, 10));
-        sipClientPortConfigPanel.setPreferredSize(new Dimension(250, 72));
-
-        callConfigPanel.add(sipClientPortConfigPanel);
-
-        TransparentPanel labelPanel
-            = new TransparentPanel(new GridLayout(0, 1, 2, 2));
-        TransparentPanel valuePanel
-            = new TransparentPanel(new GridLayout(0, 1, 2, 2));
-
-        sipClientPortConfigPanel.add(labelPanel,
-            BorderLayout.WEST);
-        sipClientPortConfigPanel.add(valuePanel,
-            BorderLayout.CENTER);
-
-        labelPanel.add(new JLabel(
-            Resources.getString(
-                "plugin.generalconfig.SIP_CLIENT_PORT")));
-        labelPanel.add(new JLabel(
-            Resources.getString(
-                "plugin.generalconfig.SIP_CLIENT_SECURE_PORT")));
-
-        TransparentPanel emptyPanel = new TransparentPanel();
-        emptyPanel.setMaximumSize(new Dimension(40, 35));
-        labelPanel.add(emptyPanel);
-
-        final JTextField clientPortField = new JTextField(6);
-        clientPortField.setText(
-            String.valueOf(ConfigurationManager.getClientPort()));
-        valuePanel.add(clientPortField);
-        clientPortField.addFocusListener(new FocusListener()
-        {
-            private String oldValue = null;
-
-            public void focusLost(FocusEvent e)
-            {
-                try
-                {
-                    int port =
-                        Integer.valueOf(clientPortField.getText());
-
-                    if(port <= 0 || port > 65535)
-                        throw new NumberFormatException(
-                            "Not a port number");
-
-                    ConfigurationManager.setClientPort(port);
-                }
-                catch (NumberFormatException ex)
-                {
-                    // not a number for port
-                    String error =
-                        Resources.getString(
-                            "plugin.generalconfig.ERROR_PORT_NUMBER");
-                    GeneralConfigPluginActivator.getUIService().
-                    getPopupDialog().showMessagePopupDialog(
-                        error,
-                        error,
-                        PopupDialog.ERROR_MESSAGE);
-                    clientPortField.setText(oldValue);
-                }
-            }
-
-            public void focusGained(FocusEvent e)
-            {
-                oldValue = clientPortField.getText();
-            }
-        });
-
-        final JTextField clientSecurePortField = new JTextField(6);
-        clientSecurePortField.setText(
-            String.valueOf(ConfigurationManager.getClientSecurePort()));
-        valuePanel.add(clientSecurePortField);
-        clientSecurePortField.addFocusListener(new FocusListener()
-        {
-            private String oldValue = null;
-
-            public void focusLost(FocusEvent e)
-            {
-                try
-                {
-                    int port =
-                        Integer.valueOf(clientSecurePortField.getText());
-
-                    if(port <= 0 || port > 65535)
-                        throw new NumberFormatException(
-                            "Not a port number");
-
-                    ConfigurationManager.setClientSecurePort(port);
-                }
-                catch (NumberFormatException ex)
-                {
-                    // not a number for port
-                    String error =
-                        Resources.getString(
-                            "plugin.generalconfig.ERROR_PORT_NUMBER");
-                    GeneralConfigPluginActivator.getUIService().
-                    getPopupDialog().showMessagePopupDialog(
-                        error,
-                        error,
-                        PopupDialog.ERROR_MESSAGE); 
-                    clientSecurePortField.setText(oldValue);
-                }
-            }
-
-            public void focusGained(FocusEvent e)
-            {
-                oldValue = clientSecurePortField.getText();
-            }
-        });
+        callConfigPanel.add(createNormalizeNumberCheckBox());
 
         return callConfigPanel;
     }
 
+    /**
+     * Creates the normalized phone number check box.
+     *
+     * @return the created component
+     */
+    private Component createNormalizeNumberCheckBox()
+    {
+        JPanel checkBoxPanel = new TransparentPanel(new BorderLayout());
+
+        JCheckBox formatPhoneNumber = new JCheckBox("",
+            ConfigurationManager.isNormalizePhoneNumber());
+
+        formatPhoneNumber.setAlignmentY(Component.TOP_ALIGNMENT);
+
+        formatPhoneNumber.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                ConfigurationManager.setNormalizePhoneNumber(
+                        ((JCheckBox)e.getSource()).isSelected());
+            }
+        });
+
+        StyledHTMLEditorPane checkBoxTextLabel = new StyledHTMLEditorPane();
+
+        checkBoxTextLabel.setContentType("text/html");
+        checkBoxTextLabel.appendToEnd(
+            "<html>" + GeneralConfigPluginActivator.getResources().getI18NString(
+                "plugin.generalconfig.REMOVE_SPECIAL_PHONE_SYMBOLS") + "</html>");
+
+        checkBoxTextLabel.setBorder(
+            BorderFactory.createEmptyBorder(3, 0, 0, 0));
+        checkBoxTextLabel.setOpaque(false);
+        checkBoxTextLabel.setEditable(false);
+
+        checkBoxPanel.add(formatPhoneNumber, BorderLayout.WEST);
+        checkBoxPanel.add(checkBoxTextLabel, BorderLayout.CENTER);
+
+        return checkBoxPanel;
+    }
     /**
      * Initializes the startup config panel.
      * @return the created component

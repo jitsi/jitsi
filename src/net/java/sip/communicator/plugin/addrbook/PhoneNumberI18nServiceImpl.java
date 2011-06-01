@@ -88,4 +88,40 @@ public class PhoneNumberI18nServiceImpl
             throw new IllegalArgumentException(npex);
         }
     }
+
+    public boolean isNumber(String possibleNumber)
+    {
+        PhoneNumberUtil numberUtil = PhoneNumberUtil.getInstance();
+        try
+        {
+            if (numberUtil.isPossibleNumber(possibleNumber, null))
+                return true;
+            else
+                return numberUtil.isPossibleNumber(
+                    numberUtil.parse(   possibleNumber,
+                                        Locale.getDefault().getCountry()));
+        }
+        catch (NumberParseException e)
+        {
+            return false;
+        }
+    }
+
+    public boolean isPhoneNumber(String possibleNumber)
+    {
+        PhoneNumberUtil numberUtil = PhoneNumberUtil.getInstance();
+        try
+        {
+            if (numberUtil.isPossibleNumber(possibleNumber, null))
+                return true;
+            else
+                return numberUtil.isPossibleNumber(
+                    numberUtil.parse(   possibleNumber,
+                                        Locale.getDefault().getCountry()));
+        }
+        catch (NumberParseException e)
+        {
+            return false;
+        }
+    }
 }

@@ -37,4 +37,12 @@ public interface PhoneNumberI18nService
      * numbers; otherwise, <tt>false</tt>
      */
     public boolean phoneNumbersMatch(String aPhoneNumber, String bPhoneNumber);
+
+    /**
+     * Indicates if the given string is possibly a phone number.
+     *
+     * @param possibleNumber the string to be verified
+     * @return 
+     */
+    public boolean isPhoneNumber(String possibleNumber);
 }
