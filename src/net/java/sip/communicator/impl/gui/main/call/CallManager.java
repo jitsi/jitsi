@@ -617,55 +617,52 @@ public class CallManager
     }
 
     /**
-     * Creates a call to the contact represented by the given string through the
-     * default (most connected) protocol provider. If none of the providers is
-     * registered or online does nothing.
+     * Creates a call to the given call string. The given component indicates
+     * where should be shown the "call via" menu if needed.
      *
-     * @param contact the contact to call to
+     * @param callString the string to call
+     * @param c the component, which indicates where should be shown the "call
+     * via" menu if needed
      */
-    public static void createCall(String contact)
+    public static void createCall(String callString, JComponent c)
     {
-        ProtocolProviderService telProvider = null;
-        int status = 0;
+        callString = callString.trim();
 
-        List<ProtocolProviderService> telProviders = getTelephonyProviders();
-
-        for (ProtocolProviderService provider : telProviders)
+        // Removes special characters from phone numbers.
+        if (ConfigurationManager.isNormalizePhoneNumber())
         {
-            if (!provider.isRegistered())
-                continue;
-
-            OperationSetPresence presence
-                = provider.getOperationSet(OperationSetPresence.class);
-
-            int presenceStatus
-                = (presence == null)
-                    ? PresenceStatus.AVAILABLE_THRESHOLD
-                    : presence.getPresenceStatus().getStatus();
-
-            if (status < presenceStatus)
+            if (!StringUtils.containsLetters(callString)
+                    && GuiActivator.getPhoneNumberService()
+                        .isPhoneNumber(callString))
             {
-                status = presenceStatus;
-                telProvider = provider;
+                callString = GuiActivator.getPhoneNumberService()
+                    .normalize(callString);
+            }
+            else
+            {
+                callString = StringUtils.concatenateWords(callString);
             }
         }
 
-        if (status >= PresenceStatus.ONLINE_THRESHOLD)
-            new CreateCallThread(telProvider, contact).start();
-        else
-        {
-            logger.error("There's no online telephony"
-                        + " provider to create this call.");
+        List<ProtocolProviderService> telephonyProviders
+            = CallManager.getTelephonyProviders();
 
-            new ErrorDialog(
-                    null,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.WARNING"),
-                    GuiActivator.getResources()
-                        .getI18NString(
-                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"),
-                    ErrorDialog.WARNING)
-                .showDialog();
+        if (telephonyProviders.size() == 1)
+        {
+            CallManager.createCall(
+                telephonyProviders.get(0), callString);
+        }
+        else if (telephonyProviders.size() > 1)
+        {
+            ChooseCallAccountPopupMenu chooseAccountDialog
+                = new ChooseCallAccountPopupMenu(
+                    c,
+                    callString,
+                    telephonyProviders);
+
+            chooseAccountDialog
+                .setLocation(c.getLocation());
+            chooseAccountDialog.showPopupMenu();
         }
     }
 

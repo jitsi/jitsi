@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -16,7 +15,6 @@ import javax.swing.text.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
@@ -112,24 +110,7 @@ public class UnknownContactPanel
                 if (searchText == null)
                     return;
 
-                List<ProtocolProviderService> telephonyProviders
-                    = CallManager.getTelephonyProviders();
-
-                if (telephonyProviders.size() == 1)
-                {
-                    CallManager.createCall(
-                        telephonyProviders.get(0), searchText);
-                }
-                else if (telephonyProviders.size() > 1)
-                {
-                    ChooseCallAccountPopupMenu chooseAccountDialog
-                        = new ChooseCallAccountPopupMenu(
-                            callContact,
-                            searchText,
-                            telephonyProviders);
-
-                    chooseAccountDialog.showPopupMenu();
-                }
+                CallManager.createCall(searchText, callContact);
             }
         });
 

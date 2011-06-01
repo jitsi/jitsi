@@ -277,25 +277,10 @@ public class SearchFieldUI
             if (searchText == null)
                 return;
 
-            if (ConfigurationManager.isNormalizePhoneNumber())
-            {
-                if (!StringUtils.containsLetters(searchText)
-                        && GuiActivator.getPhoneNumberService()
-                            .isPhoneNumber(searchText))
-                {
-                    searchText = GuiActivator.getPhoneNumberService()
-                        .normalize(searchText);
-                }
-                else
-                {
-                    searchText = StringUtils.concatenateWords(searchText);
-                }
-            }
-
             // Show a tool tip over the call button.
             getComponent().setToolTipText(callString + " " + searchText);
             ToolTipManager.sharedInstance().mouseEntered(
-                new MouseEvent(getComponent(), 0, x, y,
+                new MouseEvent(c, 0, x, y,
                         x, y, // X-Y of the mouse for the tool tip
                         0, false));
 
@@ -306,26 +291,7 @@ public class SearchFieldUI
             // Perform call action when the call button is clicked.
             if (evt.getID() == MouseEvent.MOUSE_CLICKED)
             {
-                List<ProtocolProviderService> telephonyProviders
-                    = CallManager.getTelephonyProviders();
-
-                if (telephonyProviders.size() == 1)
-                {
-                    CallManager.createCall(
-                        telephonyProviders.get(0), searchText);
-                }
-                else if (telephonyProviders.size() > 1)
-                {
-                    ChooseCallAccountPopupMenu chooseAccountDialog
-                        = new ChooseCallAccountPopupMenu(
-                            c,
-                            searchText,
-                            telephonyProviders);
-
-                    chooseAccountDialog
-                        .setLocation(getCallButtonRect().getLocation());
-                    chooseAccountDialog.showPopupMenu();
-                }
+                CallManager.createCall(searchText, c);
             }
         }
         else
