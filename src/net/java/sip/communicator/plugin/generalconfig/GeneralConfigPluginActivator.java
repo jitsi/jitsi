@@ -120,7 +120,7 @@ public class GeneralConfigPluginActivator
                 getClass().getClassLoader(),
                 null,
                 "plugin.generalconfig.SIP_CALL_CONFIG",
-                51, true),
+                52, true),
             properties);
 
         /*
