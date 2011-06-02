@@ -275,7 +275,18 @@ public class ProvisioningActivator
      */
     public static String getProvisioningUri()
     {
-        return getConfigurationService().getString(PROPERTY_PROVISIONING_URL);
+        String provUri
+            = getConfigurationService().getString(PROPERTY_PROVISIONING_URL);
+
+        if (provUri == null || provUri.length() <= 0)
+        {
+            provUri = getResourceService().getSettingsString(
+                "plugin.provisioning.DEFAULT_PROVISIONING_URI");
+
+            if (provUri != null && provUri.length() > 0)
+                setProvisioningUri(provUri);
+        }
+        return provUri;
     }
 
     /**
