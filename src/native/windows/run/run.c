@@ -318,7 +318,14 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
                     + 2);
     }
     mainClassLength = _tcslen(mainClass);
-    cmdLineLength = Run_cmdLine ? (1 /* ' ' */ + _tcslen(Run_cmdLine)) : 0;
+    if (Run_cmdLine)
+    {
+        cmdLineLength = _tcslen(Run_cmdLine);
+        if (cmdLineLength)
+            cmdLineLength++; /* ' ' */
+    }
+    else
+        cmdLineLength = 0;
 
     *commandLine
         = (LPTSTR)
@@ -412,10 +419,11 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
         }
         _tcsncpy(str, mainClass, mainClassLength);
         str += mainClassLength;
-        if (Run_cmdLine)
+        if (cmdLineLength)
         {
             *str = _T(' ');
             str++;
+            cmdLineLength--;
             _tcsncpy(str, Run_cmdLine, cmdLineLength);
             str += cmdLineLength;
         }
@@ -451,9 +459,9 @@ Run_getJavaLibraryPath()
     {
         LPTSTR str = javaLibraryPath;
 
-        *str = _T('"');
+        *str = _T('\"');
         str += (1 + javaLibraryPathLength);
-        *str = _T('"');
+        *str = _T('\"');
         str++;
         *str = 0;
 
