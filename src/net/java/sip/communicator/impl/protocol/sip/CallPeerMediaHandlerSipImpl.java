@@ -66,6 +66,17 @@ public class CallPeerMediaHandlerSipImpl
     private final TransportManagerSipImpl transportManager;
 
     /**
+     * Whether other party is able to change video quality settings.
+     * Normally its whether we have detected existence of imageattr in sdp.
+     */
+    boolean supportQualityControls;
+
+    /**
+     * The current quality controls for this peer media handler if any.
+     */
+    private QualityControlsWrapper qualityControls;
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -77,6 +88,7 @@ public class CallPeerMediaHandlerSipImpl
         super(peer, peer);
 
         transportManager = new TransportManagerSipImpl(peer);
+        qualityControls = new QualityControlsWrapper(peer);
     }
 
     /**
@@ -150,6 +162,19 @@ public class CallPeerMediaHandlerSipImpl
         //Audio Media Description
         Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
 
+        QualityPresets sendQualityPreset = null;
+        QualityPresets receiveQualityPreset = null;
+
+        if(qualityControls != null)
+        {
+            // the one we will send is the one the other part has announced
+            // as receive
+            sendQualityPreset = qualityControls.getRemoteReceivePreset();
+            // the one we want to receive is the setting that remote
+            // can send
+            receiveQualityPreset = qualityControls.getRemoteSendMaxPreset();
+        }
+
         for (MediaType mediaType : MediaType.values())
         {
             MediaDevice dev = getDefaultDevice(mediaType);
@@ -166,7 +191,9 @@ public class CallPeerMediaHandlerSipImpl
                 {
                     MediaDescription md =
                         createMediaDescription(
-                           dev.getSupportedFormats(videoQualityPreset),
+                           dev.getSupportedFormats(
+                                   sendQualityPreset,
+                                   receiveQualityPreset),
                            getTransportManager().getStreamConnector(mediaType),
                            direction,
                            dev.getSupportedExtensions());
@@ -175,10 +202,12 @@ public class CallPeerMediaHandlerSipImpl
                     {
                         // if we have setting for video preset lets
                         // send info for the desired framerate
-                        if(videoQualityPreset != null)
+                        if(receiveQualityPreset != null
+                           && receiveQualityPreset.getFameRate() > 0)
                             md.setAttribute("framerate",
+                                // doing only int frame rate for now
                                 String.valueOf(
-                                    videoQualityPreset.getFameRate()));
+                                    (int)receiveQualityPreset.getFameRate()));
                     }
                     catch(SdpException e)
                     {
@@ -450,6 +479,52 @@ public class CallPeerMediaHandlerSipImpl
             MediaFormat fmt = findMediaFormat(remoteFormats,
                     mutuallySupportedFormats.get(0));
             initStream(connector, dev, fmt, target, direction, rtpExtensions);
+
+            // check for options from remote party and set them locally
+            if(mediaType.equals(MediaType.VIDEO))
+            {
+                QualityPresets sendQualityPreset = null;
+                QualityPresets receiveQualityPreset = null;
+
+                if(qualityControls != null)
+                {
+                    // the one we will send is the other party receive
+                    sendQualityPreset =
+                            qualityControls.getRemoteReceivePreset();
+                    // the one we want to receive
+                    receiveQualityPreset =
+                            qualityControls.getRemoteSendMaxPreset();
+
+                    mutuallySupportedFormats
+                        = (dev == null)
+                            ? null
+                            : intersectFormats(
+                                mutuallySupportedFormats,
+                                dev.getSupportedFormats(
+                                    sendQualityPreset, receiveQualityPreset));
+                }
+
+                supportQualityControls =
+                    SdpUtils.containsAttribute(mediaDescription, "imageattr");
+
+                float frameRate = -1;
+                // check for frame rate setting
+                try
+                {
+                    String frStr = mediaDescription.getAttribute("framerate");
+                    if(frStr != null)
+                        frameRate = Integer.parseInt(frStr);
+                }
+                catch(SdpParseException e)
+                {
+                    // do nothing
+                }
+
+                if(frameRate > 0)
+                {
+                    qualityControls.setMaxFrameRate(frameRate);
+                }
+            }
 
             MediaDescription md = createMediaDescription(
                 mutuallySupportedFormats, connector, direction, rtpExtensions);
@@ -770,5 +845,33 @@ public class CallPeerMediaHandlerSipImpl
     protected TransportManagerSipImpl getTransportManager()
     {
         return transportManager;
+    }
+
+    /**
+     * Returns the quality control for video calls if any.
+     * @return the implemented quality control.
+     */
+    public QualityControls getQualityControls()
+    {
+        if(supportQualityControls)
+        {
+            return qualityControls;
+        }
+        else
+        {
+            // we have detected that its not supported and return null
+            // and control ui won't be visible
+            return null;
+        }
+    }
+
+    /**
+     * Sometimes as initing a call with custom preset can set and we force
+     * that quality controls is supported.
+     * @param value whether quality controls is supported..
+     */
+    public void setSupportQualityControls(boolean value)
+    {
+        this.supportQualityControls = value;
     }
 }

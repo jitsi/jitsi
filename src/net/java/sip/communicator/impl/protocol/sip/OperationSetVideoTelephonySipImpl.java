@@ -99,13 +99,7 @@ public class OperationSetVideoTelephonySipImpl
     public Call createVideoCall(String uri)
         throws OperationFailedException, ParseException
     {
-        Address toAddress = parentProvider.parseAddressString(uri);
-
-        CallSipImpl call = basicTelephony.createOutgoingCall();
-        call.setLocalVideoAllowed(true, getMediaUseCase());
-        call.invite(toAddress, null);
-
-        return call;
+        return createVideoCall(uri, null);
     }
 
     /**
@@ -121,7 +115,64 @@ public class OperationSetVideoTelephonySipImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
      */
-    public Call createVideoCall(Contact callee) throws OperationFailedException
+    public Call createVideoCall(Contact callee)
+        throws OperationFailedException
+    {
+        return createVideoCall(callee, null);
+    }
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param uri the address of the callee that we should invite to a new
+     * call.
+     * @param qualityPreferences the quality preset we will use establishing
+     * the video call, and we will expect from the other side. When establishing
+     * call we don't have any indications whether remote part supports quality
+     * presets, so this setting can be ignored.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     * @throws ParseException if <tt>callee</tt> is not a valid sip address
+     * string.
+     */
+    public Call createVideoCall(String uri, QualityPresets qualityPreferences)
+        throws OperationFailedException, ParseException
+    {
+        Address toAddress = parentProvider.parseAddressString(uri);
+
+        CallSipImpl call = basicTelephony.createOutgoingCall();
+        call.setLocalVideoAllowed(true, getMediaUseCase());
+        call.setInitialQualityPreferences(qualityPreferences);
+        call.invite(toAddress, null);
+
+        return call;
+    }
+
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param callee the address of the callee that we should invite to a new
+     * call.
+     * @param qualityPreferences the quality preset we will use establishing
+     * the video call, and we will expect from the other side. When establishing
+     * call we don't have any indications whether remote part supports quality
+     * presets, so this setting can be ignored.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     */
+    public Call createVideoCall(Contact callee,
+                                QualityPresets qualityPreferences)
+        throws OperationFailedException
     {
         Address toAddress;
 
@@ -138,6 +189,7 @@ public class OperationSetVideoTelephonySipImpl
 
         CallSipImpl call = basicTelephony.createOutgoingCall();
         call.setLocalVideoAllowed(true, getMediaUseCase());
+        call.setInitialQualityPreferences(qualityPreferences);
         call.invite(toAddress, null);
 
         return call;
@@ -162,19 +214,12 @@ public class OperationSetVideoTelephonySipImpl
     }
 
     /**
-     * Changes the current video settings for the peer with the desired
-     * quality settings and inform the peer to stream the video
-     * with those settings.
-     *
-     * @param peer the peer that is sending us the video
-     * @param preset the desired video settings
-     * @throws OperationFailedException
+     * Returns the quality control for video calls if any.
+     * @param peer the peer which this control operates on.
+     * @return the implemented quality control.
      */
-    public void setQualityPreset(CallPeer peer,
-                                 QualityPreset preset)
-        throws OperationFailedException
+    public QualityControls getQualityControls(CallPeer peer)
     {
-        CallPeerSipImpl sipPeer = (CallPeerSipImpl) peer;
-        sipPeer.setVideoQualityPreset(preset);
+        return ((CallPeerSipImpl) peer).getMediaHandler().getQualityControls();
     }
 }

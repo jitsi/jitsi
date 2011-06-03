@@ -36,11 +36,6 @@ public class VideoMediaFormatImpl
     private final double clockRate;
 
     /**
-     * The frame rate of this <tt>VideoMediaFormat</tt>.
-     */
-    private float frameRate;
-
-    /**
      * Initializes a new <tt>VideoMediaFormatImpl</tt> instance with a specific
      * encoding.
      *
@@ -117,10 +112,15 @@ public class VideoMediaFormatImpl
             Map<String, String> formatParameters,
             Map<String, String> advancedParameters)
     {
-        super(format, formatParameters, advancedParameters);
+        super(new VideoFormat(
+                format.getEncoding(),
+                format.getSize(),
+                format.getMaxDataLength(),
+                format.getDataType(),
+                frameRate
+        ), formatParameters, advancedParameters);
 
         this.clockRate = clockRate;
-        this.frameRate = frameRate;
     }
 
     /**
@@ -260,7 +260,7 @@ public class VideoMediaFormatImpl
      */
     public float getFrameRate()
     {
-        return frameRate;
+        return format.getFrameRate();
     }
 
     /**

@@ -893,21 +893,43 @@ public class CallManager
     }
 
     /**
+     * Checks whether the <tt>callPeer</tt> supports setting video
+     * quality presets. If quality controls is null, its not supported.
+     * @param callPeer the peer, which video quality we're checking
+     * @return whether call peer supports setting quality preset.
+     */
+    public static boolean isVideoQualityPresetSupported(CallPeer callPeer)
+    {
+        ProtocolProviderService provider = callPeer.getProtocolProvider();
+        OperationSetVideoTelephony videoOpSet
+            = provider.getOperationSet(OperationSetVideoTelephony.class);
+
+        if (videoOpSet == null)
+            return false;
+
+        return videoOpSet.getQualityControls(callPeer) != null;
+    }
+
+    /**
      * Sets the given quality preset for the video of the given call peer.
      *
      * @param callPeer the peer, which video quality we're setting
      * @param qualityPreset the new quality settings
      */
     public static void setVideoQualityPreset(final CallPeer callPeer,
-                                            final QualityPreset qualityPreset)
+                                            final QualityPresets qualityPreset)
     {
-
         ProtocolProviderService provider = callPeer.getProtocolProvider();
         final OperationSetVideoTelephony videoOpSet
-            = (OperationSetVideoTelephony) provider
-                .getOperationSet(OperationSetVideoTelephony.class);
+            = provider.getOperationSet(OperationSetVideoTelephony.class);
 
-        if (videoOpSet != null)
+        if (videoOpSet == null)
+            return;
+
+        final QualityControls qualityControl =
+                    videoOpSet.getQualityControls(callPeer);
+
+        if (qualityControl != null)
         {
             new Thread(new Runnable()
             {
@@ -915,8 +937,8 @@ public class CallManager
                 {
                     try
                     {
-                        videoOpSet.setQualityPreset(
-                            callPeer, qualityPreset);
+                        qualityControl.setPreferredRemoteSendMaxPreset(
+                                qualityPreset);
                     }
                     catch(OperationFailedException e)
                     {

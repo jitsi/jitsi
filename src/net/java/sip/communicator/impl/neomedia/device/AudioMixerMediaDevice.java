@@ -415,11 +415,12 @@ public class AudioMixerMediaDevice
     /**
      * Gets a list of <tt>MediaFormat</tt>s supported by this
      * <tt>MediaDevice</tt>. Currently does nothing.
-     * @param preset does nothing for audio.
+     * @param sendPreset does nothing for audio.
      * @return the list of <tt>MediaFormat</tt>s supported by this device
      * @see MediaDevice#getSupportedFormats()
      */
-    public List<MediaFormat> getSupportedFormats(QualityPreset preset)
+    public List<MediaFormat> getSupportedFormats(QualityPresets sendPreset,
+                                                 QualityPresets receivePreset)
     {
         return device.getSupportedFormats();
     }
@@ -432,7 +433,7 @@ public class AudioMixerMediaDevice
      */
     public List<MediaFormat> getSupportedFormats()
     {
-        return this.getSupportedFormats(null);
+        return this.getSupportedFormats(null, null);
     }
 
     /**

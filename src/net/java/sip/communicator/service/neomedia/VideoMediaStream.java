@@ -73,4 +73,10 @@ public interface VideoMediaStream
      * <tt>VideoMediaStream</tt>
      */
     public void removeVideoListener(VideoListener listener);
+
+    /**
+     * The quality control that can be used with this stream.
+     * @return the quality control.
+     */
+    public QualityControls getQualityControls();
 }

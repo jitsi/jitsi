@@ -22,6 +22,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -53,6 +54,11 @@ public class VideoMediaStreamImpl
      * Use or not RTCP feedback Picture Loss Indication messages.
      */
     private boolean usePLI = false;
+
+    /**
+     * This stream quality control.
+     */
+    private QualityControlsImpl qualityControls = new QualityControlsImpl();
 
     /**
      * Selects the <tt>VideoFormat</tt> from the list of supported formats of a
@@ -584,6 +590,9 @@ public class VideoMediaStreamImpl
                     if(res != null)
                     {
                         outputSize = res[1];
+
+                        qualityControls.setRemoteSendMaxPreset(new QualityPresets(res[0]));
+                        qualityControls.setRemoteReceiveResolution(outputSize);
                         ((VideoMediaDeviceSession)getDeviceSession()).
                             setOutputSize(outputSize);
                     }
@@ -806,5 +815,137 @@ public class VideoMediaStreamImpl
     protected int getPriority()
     {
         return 5;
+    }
+
+    /**
+     * Returns the quality control for this stream.
+     * @return
+     */
+    public QualityControls getQualityControls()
+    {
+        return qualityControls;
+    }
+
+    /**
+     * The quality control implementation used for
+     * this video stream quality control.
+     */
+    private class QualityControlsImpl
+        implements QualityControls
+    {
+        /**
+         * The current used preset.
+         */
+        private QualityPresets preset;
+
+        /**
+         * The minimum values for resolution, framerate ...
+         */
+        private QualityPresets minPreset;
+
+        /**
+         * The maximum values for resolution, framerate ...
+         */
+        private QualityPresets maxPreset;
+
+        /**
+         * This is the local settings from the config panel.
+         */
+        private QualityPresets localSettingsPreset;
+
+        /**
+         * Sets the preset.
+         * @param preset the desired video settings
+         * @throws OperationFailedException
+         */
+        private void setRemoteReceivePreset(QualityPresets preset)
+                throws
+                OperationFailedException
+        {
+            if(preset.compareTo(getPreferredSendPreset()) > 0)
+                this.preset = getPreferredSendPreset();
+            else
+                this.preset = preset;
+        }
+
+        /**
+         * The current preset.
+         * @return
+         */
+        public QualityPresets getRemoteReceivePreset()
+        {
+            return preset;
+        }
+
+        /**
+         * The minimum resolution values for remote part.
+         * @return
+         */
+        public QualityPresets getRemoteSendMinPreset()
+        {
+            return minPreset;
+        }
+
+        /**
+         * The max resolution values for remote part.
+         * @return
+         */
+        public QualityPresets getRemoteSendMaxPreset()
+        {
+            return maxPreset;
+        }
+
+        /**
+         * Does nothing specific locally.
+         *
+         * @param preset the max preset
+         * @throws OperationFailedException not thrown.
+         */
+        public void setPreferredRemoteSendMaxPreset(QualityPresets preset)
+            throws OperationFailedException
+        {
+            setRemoteSendMaxPreset(preset);
+        }
+
+        /**
+         * Changes remote send preset, the one we will receive.
+         * @param preset
+         */
+        public void setRemoteSendMaxPreset(QualityPresets preset)
+        {
+            this.maxPreset = preset;
+        }
+
+        /**
+         * The local setting of capture.
+         * @return
+         */
+        private QualityPresets getPreferredSendPreset()
+        {
+            if(localSettingsPreset == null)
+            {
+                DeviceConfiguration deviceConfiguration =
+                    NeomediaActivator.getMediaServiceImpl()
+                            .getDeviceConfiguration();
+
+                localSettingsPreset = new QualityPresets(
+                        deviceConfiguration.getVideoSize(),
+                        deviceConfiguration.getFrameRate());
+            }
+            return localSettingsPreset;
+        }
+
+        /**
+         * Sets maximum resolution.
+         * @param res
+         */
+        public void setRemoteReceiveResolution(Dimension res)
+        {
+            try
+            {
+                this.setRemoteReceivePreset(new QualityPresets(res));
+            }
+            catch(OperationFailedException e){}
+        }
     }
 }

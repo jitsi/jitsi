@@ -1356,29 +1356,4 @@ public class CallPeerSipImpl
         else
             setState(CallPeerState.DISCONNECTED, reason);
     }
-
-    /**
-     * Changes video quality preset.
-     * @param preset the preset to use.
-     */
-    public void setVideoQualityPreset(QualityPreset preset)
-        throws OperationFailedException
-    {
-        CallPeerMediaHandlerSipImpl mediaHandler = getMediaHandler();
-
-        // set the new preset
-        mediaHandler.setVideoQualityPreset(preset);
-
-        try
-        {
-            // re-invites the peer with the new settings
-            sendReInvite(mediaHandler.createOffer());
-        }
-        catch (Exception ex)
-        {
-            ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Failed to create SDP offer to hold.",
-                OperationFailedException.INTERNAL_ERROR, ex, logger);
-        }
-    }
 }

@@ -32,11 +32,15 @@ public interface MediaDevice
      * Returns a list of <tt>MediaFormat</tt> instances representing the media
      * formats supported by this <tt>MediaDevice</tt>.
      *
-     * @param preset the preset used to set some of the format parameters,
+     * @param localPreset the preset used to set the send format parameters,
      * used for video and settings.
+     * @param remotePreset the preset used to set the receive format parameters,
+     * used for video and settings.
+     *
      * @return the list of <tt>MediaFormat</tt>s supported by this device.
      */
-    public List<MediaFormat> getSupportedFormats(QualityPreset preset);
+    public List<MediaFormat> getSupportedFormats(QualityPresets localPreset,
+                                                 QualityPresets remotePreset);
 
     /**
      * Returns the <tt>List</tt> of <tt>RTPExtension</tt>s that this device

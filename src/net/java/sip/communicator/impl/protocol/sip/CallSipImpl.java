@@ -43,6 +43,12 @@ public class CallSipImpl
     private final SipMessageFactory messageFactory;
 
     /**
+     * When starting call we may have quality preferences we must use
+     * for the call.
+     */
+    private QualityPresets initialQualityPreferences;
+
+    /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
      * initiated by <tt>CallCreator</tt>.
      *
@@ -173,6 +179,16 @@ public class CallSipImpl
         /* enable video if it is a videocall */
         callPeer.getMediaHandler().setLocalVideoTransmissionEnabled(
                 localVideoAllowed);
+
+        if(initialQualityPreferences != null)
+        {
+            // we are in situation where we init the call and we cannot
+            // determine whether the other party supports changing quality
+            // so we force it
+            callPeer.getMediaHandler().setSupportQualityControls(true);
+            callPeer.getMediaHandler().getQualityControls()
+                    .setRemoteSendMaxPreset(initialQualityPreferences);
+        }
 
         try
         {
@@ -377,5 +393,14 @@ public class CallSipImpl
         }
 
         return peer;
+    }
+
+    /**
+     * Set a quality preferences we may use when we start the call.
+     * @param qualityPreferences the initial quality preferences.
+     */
+    public void setInitialQualityPreferences(QualityPresets qualityPreferences)
+    {
+        this.initialQualityPreferences = qualityPreferences;
     }
 }

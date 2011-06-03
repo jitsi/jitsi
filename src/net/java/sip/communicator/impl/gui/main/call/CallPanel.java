@@ -277,7 +277,6 @@ public class CallPanel
         recordButton = new RecordButton(call);
         videoButton = new LocalVideoButton(call);
         showHideVideoButton = new ShowHideVideoButton(call);
-        resizeVideoButton = new ResizeVideoButton(call);
 
         showHideVideoButton.setPeerRenderer(((CallRenderer) callPanel)
             .getCallPeerRenderer(call.getCallPeers().next()));
@@ -1044,20 +1043,30 @@ public class CallPanel
     /**
      * Adds remote video specific components.
      */
-    public void addRemoteVideoSpecificComponents()
+    public void addRemoteVideoSpecificComponents(CallPeer callPeer)
     {
-        settingsPanel.add(resizeVideoButton);
+        if(CallManager.isVideoQualityPresetSupported(callPeer))
+        {
+            if(resizeVideoButton == null)
+                resizeVideoButton = new ResizeVideoButton(call);
+
+            if(resizeVideoButton.countAvailableOptions() > 1)
+                settingsPanel.add(resizeVideoButton);
+        }
+
         settingsPanel.add(fullScreenButton);
         settingsPanel.revalidate();
         settingsPanel.repaint();
     }
 
     /**
-     * Adds remote video specific components.
+     * Remove remote video specific components.
      */
     public void removeRemoteVideoSpecificComponents()
     {
-        settingsPanel.remove(resizeVideoButton);
+        if(resizeVideoButton != null)
+            settingsPanel.remove(resizeVideoButton);
+
         settingsPanel.remove(fullScreenButton);
         settingsPanel.revalidate();
         settingsPanel.repaint();
@@ -1103,7 +1112,10 @@ public class CallPanel
 
         settingsPanel.remove(videoButton);
         settingsPanel.remove(showHideVideoButton);
-        settingsPanel.remove(resizeVideoButton);
+
+        if(resizeVideoButton != null)
+            settingsPanel.remove(resizeVideoButton);
+
         settingsPanel.remove(desktopSharingButton);
         settingsPanel.remove(transferCallButton);
         settingsPanel.remove(fullScreenButton);

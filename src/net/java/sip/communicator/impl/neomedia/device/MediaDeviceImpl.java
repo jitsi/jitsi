@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -323,17 +325,18 @@ public class MediaDeviceImpl
      */
     public List<MediaFormat> getSupportedFormats()
     {
-        return this.getSupportedFormats(null);
+        return this.getSupportedFormats(null, null);
     }
     /**
      * Gets a list of <tt>MediaFormat</tt>s supported by this
      * <tt>MediaDevice</tt>.
-     * @param preset the preset used to set some of the format parameters,
+     * @param sendPreset the preset used to set some of the format parameters,
      * used for video and settings.
      * @return the list of <tt>MediaFormat</tt>s supported by this device
      * @see MediaDevice#getSupportedFormats()
      */
-    public List<MediaFormat> getSupportedFormats(QualityPreset preset)
+    public List<MediaFormat> getSupportedFormats(QualityPresets sendPreset,
+                                                 QualityPresets receivePreset)
     {
         EncodingConfiguration encodingConfiguration
             = NeomediaActivator
@@ -348,7 +351,6 @@ public class MediaDeviceImpl
 
         // if there is preset check and set the format attributes
         // where needed
-        if(preset != null)
         {
             MediaFormat customFormat = null;
             MediaFormat toRemove = null;
@@ -361,9 +363,37 @@ public class MediaDeviceImpl
                     if(h264AdvancedAttributes == null)
                         h264AdvancedAttributes = new HashMap<String, String>();
 
+                    Dimension sendSize = null;
+                    Dimension receiveSize;
+
+                    // change send size only for video calls
+                    if(!captureDeviceInfo.getLocator().getProtocol().equals(
+                                    ImageStreamingAuto.LOCATOR_PROTOCOL))
+                    {
+                        if(sendPreset != null)
+                            sendSize = sendPreset.getResolution();
+                        else
+                            sendSize = NeomediaActivator.getMediaServiceImpl()
+                                .getDeviceConfiguration().getVideoSize();
+                    }
+
+                    // if there is specified preset, send its settings
+                    if(receivePreset != null)
+                        receiveSize = receivePreset.getResolution();
+                    else
+                    {
+                        // or just send the max video resolution of the PC
+                        // as we do by default
+                        ScreenDevice screen
+                            = NeomediaActivator.getMediaServiceImpl()
+                                .getDefaultScreenDevice();
+                        receiveSize = (screen == null) ?
+                                null : screen.getSize();
+                    }
+
                     h264AdvancedAttributes.put("imageattr",
-                        MediaUtils.createImageAttr(null,
-                                preset.getResolution()));
+                        MediaUtils.createImageAttr(sendSize,
+                                receiveSize));
 
                     customFormat = NeomediaActivator.getMediaServiceImpl()
                             .getFormatFactory().createMediaFormat(

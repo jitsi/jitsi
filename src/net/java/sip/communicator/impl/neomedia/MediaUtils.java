@@ -616,11 +616,17 @@ public class MediaUtils
         if(sendSize != null)
         {
             /* single value => send [x=width,y=height] */
-            img.append("send [x=");
+            /*img.append("send [x=");
             img.append((int)sendSize.getWidth());
             img.append(",y=");
             img.append((int)sendSize.getHeight());
-            img.append("]");
+            img.append("]");*/
+            /* send [x=[min-max],y=[min-max]] */
+            img.append("send [x=[0-");
+            img.append((int)sendSize.getWidth());
+            img.append("],y=[0-");
+            img.append((int)sendSize.getHeight());
+            img.append("]]");
             /*
             else
             {

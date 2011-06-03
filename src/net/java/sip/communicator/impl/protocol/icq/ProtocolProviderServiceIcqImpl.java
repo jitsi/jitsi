@@ -133,7 +133,7 @@ public class ProtocolProviderServiceIcqImpl
      */
     public RegistrationState getRegistrationState()
     {
-        if(getAimConnection() == null)
+        if(getAimConnection() == null || lastRegistrationState == null)
             return RegistrationState.UNREGISTERED;
 
         return lastRegistrationState;

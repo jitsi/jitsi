@@ -372,7 +372,7 @@ public class SdpUtils
         {
             String frStr = mediaDesc.getAttribute("framerate");
             if(frStr != null)
-                frameRate = Integer.parseInt(frStr);
+                frameRate = Float.parseFloat(frStr);
         }
         catch(SdpParseException e)
         {
@@ -1528,6 +1528,42 @@ public class SdpUtils
                 logger.debug("Invalid media type in m= line: " + description, exc);
             throw new IllegalArgumentException(
                          "Invalid media type in m= line: " + description, exc);
+        }
+    }
+
+    /**
+     * Returns the media type (e.g. audio or video) for the specified media
+     * whether it contains the specified <tt>attributeName</tt>.
+     *
+     * @param description the <tt>MediaDescription</tt> whose media type we'd
+     * like to extract.
+     *
+     * @return the media type (e.g. audio or video) for the specified media
+     * <tt>description</tt>.
+     *
+     * @throws IllegalArgumentException if <tt>description</tt> does not
+     * contain a known media type.
+     */
+    public static boolean containsAttribute(MediaDescription description,
+                                            String attributeName)
+        throws  IllegalArgumentException
+    {
+        try
+        {
+            Vector<Attribute> atts = description.getAttributes(false);
+            for(Attribute a : atts)
+                if(a.getName().equals(attributeName))
+                    return true;
+
+            return false;
+        }
+        catch (SdpException exc)
+        {
+            // impossible to happen for reasons mentioned many times here :)
+            if (logger.isDebugEnabled())
+                logger.debug("Invalid media type in a= line: " + description, exc);
+            throw new IllegalArgumentException(
+                         "Invalid media type in a= line: " + description, exc);
         }
     }
 
