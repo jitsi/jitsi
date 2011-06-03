@@ -516,6 +516,12 @@ public class OperationSetPresenceSipImpl
         {
             ssContactList.moveContactToGroup((ContactSipImpl) contactToMove,
                     (ContactGroupSipImpl) newParent);
+
+            if (this.presenceEnabled)
+            {
+                subscriber.subscribe(new PresenceSubscriberSubscription(
+                        (ContactSipImpl)contactToMove));
+            }
         }
         catch (OperationFailedException ex)
         {
