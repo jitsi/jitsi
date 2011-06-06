@@ -278,8 +278,9 @@ public class MetaContactImpl
     {
         for (Contact contact : protoContacts)
         {
-            if(   contact.getProtocolProvider() == ownerProvider
-               && contact.getAddress().equals(contactAddress))
+            if(contact.getProtocolProvider() == ownerProvider
+               && (contact.getAddress().equals(contactAddress)
+                    || contact.equals(contactAddress)))
                 return contact;
         }
 

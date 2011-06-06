@@ -608,7 +608,9 @@ public class ProtocolProviderServiceJabberImpl
                     }
                     catch(NumberFormatException ex)
                     {
-                        throw new OperationFailedException("Wrong port",
+                        throw new OperationFailedException("Wrong proxy port, "
+                                + globalProxyPortStr
+                                + " does not represent an integer",
                             OperationFailedException.INVALID_ACCOUNT_PROPERTIES,
                             ex);
                     }

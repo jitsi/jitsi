@@ -937,7 +937,8 @@ public class SipRegistrarConnection
         }
         else if ( response.getStatusCode() >= 400 )
         {
-            logger.error("Received an error response.");
+            logger.error("Received an error response ("
+                    + response.getStatusCode() + ")" );
 
             int registrationStateReason =
                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;

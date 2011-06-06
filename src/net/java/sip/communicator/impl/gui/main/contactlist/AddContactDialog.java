@@ -283,6 +283,11 @@ public class AddContactDialog
 
             accountCombo.addItem(provider);
         }
+
+        // if we have only select account option and only one account
+        // select the available account
+        if(accountCombo.getItemCount() == 2)
+            accountCombo.setSelectedIndex(1);
     }
 
     /**
