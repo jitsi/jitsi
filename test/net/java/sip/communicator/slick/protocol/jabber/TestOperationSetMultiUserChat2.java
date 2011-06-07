@@ -1280,7 +1280,8 @@ public class TestOperationSetMultiUserChat2
         assertEquals("Unexpected role for user1", 
             roomUser1.getUserRole(), ChatRoomMemberRole.MODERATOR);
         assertEquals("Unexpected role for user1", roomUser1.getUserRole(),
-            getRole(fixture.userID1, roomUser1.getMembers()));
+            getRole(fixture.userID1, roomUser1.getMembers(),
+                    roomUser1.getName(), true));
 
         // Both of our peers join the room:
         ChatRoom roomUser2 = opSetMUC2.findRoom(roomName);
@@ -1308,10 +1309,12 @@ public class TestOperationSetMultiUserChat2
         // (Note that the first element of the list refers to the owner)
         assertEquals("The current implementation requires that room's new " +
             "comers must have MEMBER role", 
-            ChatRoomMemberRole.MEMBER, getRole(fixture.userID2, members));
+            ChatRoomMemberRole.MEMBER, getRole(fixture.userID2, members,
+                                        roomName, true));
         assertEquals("The current implementation requires that room's new " +
             "comers must have the MEMBER role", 
-            ChatRoomMemberRole.MEMBER, getRole(fixture.userID3, members));
+            ChatRoomMemberRole.MEMBER, getRole(fixture.userID3, members,
+                                        roomName, true));
 
         logger.info("--- End testInitialParticipantsRoles room:" + roomName);
     }
@@ -1320,19 +1323,34 @@ public class TestOperationSetMultiUserChat2
      * Search the user in the list by address and return its role.
      * @param userID
      * @param members
+     * @param  roomName
+     * @param printDebugInfo
      * @return
      */
     private ChatRoomMemberRole getRole(String userID,
-                                       List<ChatRoomMember> members)
+                                       List<ChatRoomMember> members,
+                                       String roomName,
+                                       boolean printDebugInfo)
     {
-        for(ChatRoomMember mem : members)
+        if(printDebugInfo)
+            logger.info("Search in mems of " + roomName + " for " + userID);
+
+        ChatRoomMemberRole roleFound = null;
+        for(int i = 0; i < members.size(); i++)
         {
+            ChatRoomMember mem = members.get(i);
             if(mem.getContactAddress().equals(userID))
-                return mem.getRole();
+                roleFound = mem.getRole();
+
+            if(printDebugInfo)
+                logger.info("m[" + i + "] "
+                    + mem.getContactAddress() + " r:" + mem.getRole());
         }
 
-        // missing in list
-        return null;
+        if(printDebugInfo)
+            logger.info("found role: " + roleFound);
+
+        return roleFound;
     }
     
     /**
