@@ -179,7 +179,7 @@ public class ChatTransportSelectorBox
     public Image createTransportStatusImage(ChatTransport chatTransport)
     {
         return
-            ImageLoader.badgeImageWithProtocolIndex(
+            ImageLoader.getIndexedProtocolImage(
                 ImageUtils.getBytesInImage(
                     chatTransport.getStatus().getStatusIcon()),
                 chatTransport.getProtocolProvider());

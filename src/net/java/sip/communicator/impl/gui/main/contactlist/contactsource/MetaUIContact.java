@@ -342,8 +342,10 @@ public class MetaUIContact
             protocolContact = i.next();
 
             ImageIcon protocolStatusIcon
-                = new ImageIcon(
-                    protocolContact.getPresenceStatus().getStatusIcon());
+                = ImageLoader.getIndexedProtocolIcon(
+                        ImageUtils.getBytesInImage(
+                            protocolContact.getPresenceStatus().getStatusIcon()),
+                        protocolContact.getProtocolProvider());
 
             String contactAddress = protocolContact.getAddress();
             //String statusMessage = protocolContact.getStatusMessage();

@@ -1020,7 +1020,7 @@ public class MetaContactRightButtonMenu
     public Image createContactStatusImage(Contact protoContact)
     {
         return
-            ImageLoader.badgeImageWithProtocolIndex(
+            ImageLoader.getIndexedProtocolImage(
                 ImageUtils.getBytesInImage(
                     protoContact.getPresenceStatus().getStatusIcon()),
                 protoContact.getProtocolProvider());

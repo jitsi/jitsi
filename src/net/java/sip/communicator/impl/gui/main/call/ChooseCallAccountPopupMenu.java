@@ -526,7 +526,7 @@ public class ChooseCallAccountPopupMenu
             PresenceStatus status = chatTransport.getStatus();
             Image statusIcon = null;
 
-            statusIcon = ImageLoader.badgeImageWithProtocolIndex(
+            statusIcon = ImageLoader.getIndexedProtocolImage(
                     ImageUtils.getBytesInImage(
                             status.getStatusIcon()),
                             chatTransport.getProtocolProvider());

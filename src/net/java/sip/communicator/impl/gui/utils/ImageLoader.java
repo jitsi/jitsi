@@ -1483,13 +1483,29 @@ public class ImageLoader
         }
 
         statusIcon = new ImageIcon(
-            badgeImageWithProtocolIndex(statusImage, pps));
+            getIndexedProtocolImage(statusImage, pps));
 
         return statusIcon;
     }
 
     /**
-     * Badges the given protocol image with an index allowing to distinguish
+     * Returns an icon for the given protocol image with an index allowing to
+     * distinguish different accounts from the same protocol.
+     *
+     * @param image the initial image to badge with an index
+     * @param pps the protocol provider service corresponding to the account,
+     * containing the index.
+     * @return an icon for the given protocol image with an index allowing to
+     * distinguish different accounts from the same protocol.
+     */
+    public static ImageIcon getIndexedProtocolIcon( Image image,
+                                                    ProtocolProviderService pps)
+    {
+        return new ImageIcon(getIndexedProtocolImage(image, pps));
+    }
+
+    /**
+     * Returns the given protocol image with an index allowing to distinguish
      * different accounts from the same protocol.
      *
      * @param image the initial image to badge with an index
@@ -1498,7 +1514,7 @@ public class ImageLoader
      * @return the given protocol image with an index allowing to distinguish
      * different accounts from the same protocol.
      */
-    public static Image badgeImageWithProtocolIndex(
+    public static Image getIndexedProtocolImage(
             Image image, ProtocolProviderService pps)
     {
         int index
