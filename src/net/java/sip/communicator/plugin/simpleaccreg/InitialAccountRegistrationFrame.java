@@ -144,16 +144,23 @@ public class InitialAccountRegistrationFrame
     {
         JPanel provisioningPanel = new TransparentPanel();
 
+        String isInitialProv = SimpleAccountRegistrationActivator.getResources()
+            .getSettingsString(
+                "plugin.provisioning.IS_INITIAL_PROVISIONING_LINK");
+
+        if (!Boolean.parseBoolean(isInitialProv))
+            return;
+
+        String useProvisioningString = SimpleAccountRegistrationActivator
+            .getResources().getI18NString("service.gui.USE_PROVISIONING");
+
         final JLabel provisioningLabel =
             new JLabel("<html><a href=''>"
-                + SimpleAccountRegistrationActivator
-                    .getResources().getI18NString("service.gui.USE_PROVISIONING")
+                + useProvisioningString
                 + "</a></html>");
 
         provisioningLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        provisioningLabel.setToolTipText(
-            SimpleAccountRegistrationActivator
-                .getResources().getI18NString("service.gui.USE_PROVISIONING"));
+        provisioningLabel.setToolTipText(useProvisioningString);
 
         provisioningLabel.addMouseListener(new MouseAdapter()
         {
