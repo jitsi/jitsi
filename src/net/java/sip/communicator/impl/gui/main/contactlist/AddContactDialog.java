@@ -112,7 +112,6 @@ public class AddContactDialog
 
         this.metaContact = metaContact;
 
-        this.displayNameField.setText(metaContact.getDisplayName());
         this.setSelectedGroup(metaContact.getParentMetaContactGroup());
         this.groupCombo.setEnabled(false);
 
@@ -355,27 +354,10 @@ public class AddContactDialog
 
             if (displayName != null && displayName.length() > 0)
             {
-                GuiActivator.getContactListService().addMetaContactListListener(
-                    new MetaContactListAdapter()
-                    {
-                        public void metaContactAdded(MetaContactEvent evt)
-                        {
-                            if (evt.getSourceMetaContact().getContact(
-                                contactAddress, protocolProvider) != null)
-                            {
-                                new Thread()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        GuiActivator.getContactListService()
-                                            .renameMetaContact( metaContact,
-                                                                displayName);
-                                    }
-                                }.start();
-                            }
-                        }
-                    });
+                addRenameListener(  protocolProvider,
+                                    metaContact,
+                                    contactAddress,
+                                    displayName);
             }
 
             if (metaContact != null)
@@ -679,5 +661,65 @@ public class AddContactDialog
         }
 
         return false;
+    }
+
+    /**
+     * Adds a rename listener.
+     *
+     * @param protocolProvider the protocol provider to which the contact was
+     * added
+     * @param metaContact the <tt>MetaContact</tt> if the new contact was added
+     * to an existing meta contact
+     * @param contactAddress the address of the newly added contact
+     * @param displayName the new display name
+     */
+    private void addRenameListener(
+                                final ProtocolProviderService protocolProvider,
+                                final MetaContact metaContact,
+                                final String contactAddress,
+                                final String displayName)
+    {
+        GuiActivator.getContactListService().addMetaContactListListener(
+            new MetaContactListAdapter()
+            {
+                public void metaContactAdded(MetaContactEvent evt)
+                {
+                    if (evt.getSourceMetaContact().getContact(
+                            contactAddress, protocolProvider) != null)
+                    {
+                        renameContact(metaContact, displayName);
+                    }
+                }
+
+                public void protoContactAdded(ProtoContactEvent evt)
+                {
+                    if (metaContact != null
+                        && evt.getNewParent().equals(metaContact))
+                    {
+                        renameContact(metaContact, displayName);
+                    }
+                }
+            });
+    }
+
+    /**
+     * Renames the given meta contact.
+     *
+     * @param metaContact the <tt>MetaContact</tt> to rename
+     * @param displayName the new display name
+     */
+    private void renameContact( final MetaContact metaContact,
+                                final String displayName)
+    {
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                GuiActivator.getContactListService()
+                    .renameMetaContact( metaContact,
+                                        displayName);
+            }
+        }.start();
     }
 }

@@ -77,7 +77,7 @@ class OtrContactMenu
         this.contact = contact;
         this.inMacOSXScreenMenuBar = inMacOSXScreenMenuBar;
 
-        this.setText(contact.getDisplayName());
+        this.setText(contact.getAddress());
 
         /*
          * Setup populating this JMenu on demand because it's not always

@@ -341,19 +341,19 @@ public class MetaContactRightButtonMenu
             ProtocolProviderService protocolProvider
                 = contact.getProtocolProvider();
 
-            String contactDisplayName = contact.getDisplayName();
+            String contactAddress = contact.getAddress();
 
             Icon protocolIcon = new ImageIcon(
                     createContactStatusImage(contact));
 
             this.removeContactMenu.add(
-                createMenuItem( contactDisplayName,
+                createMenuItem( contactAddress,
                             removeContactPrefix + contact.getAddress()
                             + protocolProvider.getProtocolName(),
                             protocolIcon));
 
             this.moveSubcontactMenu.add(
-                createMenuItem( contactDisplayName,
+                createMenuItem( contactAddress,
                             moveSubcontactPrefix + contact.getAddress()
                             + protocolProvider.getProtocolName(),
                             protocolIcon));
@@ -367,7 +367,7 @@ public class MetaContactRightButtonMenu
                                 OperationSetBasicTelephony.class))
                 {
                     callContactMenu.add(
-                        createMenuItem( contactDisplayName,
+                        createMenuItem( contactAddress,
                                         callContactPrefix + contact.getAddress()
                                         + protocolProvider.getProtocolName(),
                                         protocolIcon));
@@ -379,7 +379,7 @@ public class MetaContactRightButtonMenu
                                 OperationSetVideoTelephony.class))
                 {
                     videoCallMenu.add(
-                        createMenuItem( contactDisplayName,
+                        createMenuItem( contactAddress,
                                         videoCallPrefix + contact.getAddress()
                                         + protocolProvider.getProtocolName(),
                                         protocolIcon));
@@ -391,14 +391,14 @@ public class MetaContactRightButtonMenu
                                 OperationSetDesktopSharingServer.class))
                 {
                     multiContactFullShareMenu.add(
-                        createMenuItem( contactDisplayName,
+                        createMenuItem( contactAddress,
                                         fullDesktopSharingPrefix
                                         + contact.getAddress()
                                         + protocolProvider.getProtocolName(),
                                         protocolIcon));
 
                     multiContactRegionShareMenu.add(
-                        createMenuItem( contactDisplayName,
+                        createMenuItem( contactAddress,
                                         regionDesktopSharingPrefix
                                         + contact.getAddress()
                                         + protocolProvider.getProtocolName(),
