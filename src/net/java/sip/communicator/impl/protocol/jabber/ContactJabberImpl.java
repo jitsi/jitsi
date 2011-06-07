@@ -200,12 +200,19 @@ public class ContactJabberImpl
     public boolean equals(Object obj)
     {
         if (obj == null
-            || !(obj instanceof ContactJabberImpl)
-            || !(((ContactJabberImpl)obj).getAddress()
+            || !(obj instanceof String || (obj instanceof ContactJabberImpl)))
+            return false;
+
+        if (obj != null && obj instanceof ContactJabberImpl
+            && !(((ContactJabberImpl)obj).getAddress()
                                             .equalsIgnoreCase(getAddress())
                 && ((ContactJabberImpl)obj).getProtocolProvider()
                         == getProtocolProvider()))
+            return false;
 
+        if (obj != null && obj instanceof String
+                && !(getAddress().substring(0, getAddress().indexOf("@"))
+                        .equals(obj)))
             return false;
 
         return true;

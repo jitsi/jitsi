@@ -519,7 +519,6 @@ public class ContactSipImpl
         return this.getAddress().equals(sipContact.getAddress());
     }
 
-
     /**
      * Returns the presence operation set that this contact belongs
      * to.

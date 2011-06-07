@@ -426,19 +426,21 @@ public class ServerStoredContactListJabberImpl
         if (logger.isTraceEnabled())
             logger.trace("Adding contact " + id + " to parent=" + parent);
 
+        String completeID = parseAddressString(id);
+
         //if the contact is already in the contact list and is not volatile,
         //then only broadcast an event
-        ContactJabberImpl existingContact = findContactById(id);
+        ContactJabberImpl existingContact = findContactById(completeID);
 
         if( existingContact != null
             && existingContact.isPersistent() )
         {
             if(logger.isDebugEnabled())
-                logger.debug("Contact " + id
+                logger.debug("Contact " + completeID
                                 + " already exists in group "
                                 + findContactGroup(existingContact));
             throw new OperationFailedException(
-                "Contact " + id + " already exists.",
+                "Contact " + completeID + " already exists.",
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
         }
 
@@ -449,7 +451,7 @@ public class ServerStoredContactListJabberImpl
             if(parent != null)
                 parentNames = new String[]{parent.getGroupName()};
 
-            this.roster.createEntry(id, id, parentNames);
+            this.roster.createEntry(completeID, completeID, parentNames);
         }
         catch (XMPPException ex)
         {
@@ -1437,5 +1439,21 @@ public class ServerStoredContactListJabberImpl
                 return new byte[0];
             }
         }
+    }
+
+    /**
+     * Completes the identifier with the server part if no server part was
+     * previously added.
+     *
+     * @param id the initial identifier as added by the user
+     */
+    private String parseAddressString(String id)
+    {
+        if (id.indexOf("@") < 0)
+        {
+            return id + "@" + jabberProvider.getAccountID().getService();
+        }
+
+        return id;
     }
 }
