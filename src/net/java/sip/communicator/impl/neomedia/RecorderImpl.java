@@ -66,6 +66,12 @@ public class RecorderImpl
     private DataSink sink;
 
     /**
+     * The indicator which determines whether this <tt>Recorder</tt>
+     * is set to skip media from mic.
+     */
+    private boolean mute = false;
+
+    /**
      * Constructs the <tt>RecorderImpl</tt> with the provided session.
      *
      * @param device device that can create a session that provides the output
@@ -209,6 +215,10 @@ public class RecorderImpl
             {
                 deviceSession.setContentDescriptor(getContentDescriptor(format));
 
+                // set initial mute state, if mute was set before starting
+                // the recorder
+                deviceSession.setMute(mute);
+
                 /*
                  * This RecorderImpl will use deviceSession to get a hold of the
                  * media being set to the remote peers associated with the same
@@ -311,6 +321,8 @@ public class RecorderImpl
      */
     public void setMute(boolean mute)
     {
+        this.mute = mute;
+
         if(deviceSession != null)
         {
             deviceSession.setMute(mute);

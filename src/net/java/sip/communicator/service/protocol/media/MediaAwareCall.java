@@ -720,7 +720,7 @@ public abstract class MediaAwareCall<
             if(!iter.next().isMute())
             {
                 // one peer is not muted so we unmute.
-                recorder.setMute(true);
+                recorder.setMute(false);
                 return;
             }
         }
