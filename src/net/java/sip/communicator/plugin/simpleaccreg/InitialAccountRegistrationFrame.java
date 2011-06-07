@@ -148,7 +148,8 @@ public class InitialAccountRegistrationFrame
             .getSettingsString(
                 "plugin.provisioning.IS_INITIAL_PROVISIONING_LINK");
 
-        if (!Boolean.parseBoolean(isInitialProv))
+        if (isInitialProv != null && isInitialProv.length() > 0
+            && !Boolean.parseBoolean(isInitialProv))
             return;
 
         String useProvisioningString = SimpleAccountRegistrationActivator
