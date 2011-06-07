@@ -32,7 +32,7 @@ import net.java.sip.communicator.util.*;
  * @author Shobhit Jindal
  */
 public class SSHAccountRegistrationWizard
-        implements AccountRegistrationWizard
+        extends AccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(SSHAccountRegistrationWizard.class);
@@ -41,20 +41,16 @@ public class SSHAccountRegistrationWizard
      * The first page of the ssh account registration wizard.
      */
     private FirstWizardPage firstWizardPage;
-    
+
     /**
      * The object that we use to store details on an account that we will be
      * creating.
      */
     private SSHAccountRegistration registration
             = new SSHAccountRegistration();
-    
-    private final WizardContainer wizardContainer;
-    
+
     private ProtocolProviderService protocolProvider;
-    
-    private boolean isModification;
-    
+
     /**
      * Creates an instance of <tt>SSHAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container, where this wizard
@@ -62,21 +58,22 @@ public class SSHAccountRegistrationWizard
      */
     public SSHAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        setWizardContainer(wizardContainer);
 
-        this.wizardContainer.setFinishButtonText(
+        wizardContainer.setFinishButtonText(
             Resources.getString("service.gui.SIGN_IN"));
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getIcon</code> method.
      * Returns the icon to be used for this wizard.
      * @return byte[]
      */
-    public byte[] getIcon() {
+    public byte[] getIcon()
+    {
         return Resources.getImage(Resources.SSH_LOGO);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getPageImage</code>
      *  method.
@@ -84,48 +81,54 @@ public class SSHAccountRegistrationWizard
      *
      * @return byte[] the image used to decorate the wizard page
      */
-    public byte[] getPageImage() {
+    public byte[] getPageImage()
+    {
         return Resources.getImage(Resources.PAGE_IMAGE);
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.
      * @return String
      */
-    public String getProtocolName() {
+    public String getProtocolName()
+    {
         return Resources.getString("plugin.sshaccregwizz.PROTOCOL_NAME");
     }
-    
+
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolDescription
      * </code> method. Returns the description of the protocol for this wizard.
      * @return String
      */
-    public String getProtocolDescription() {
+    public String getProtocolDescription()
+    {
         return Resources.getString("plugin.sshaccregwizz.PROTOCOL_DESCRIPTION");
     }
-    
+
     /**
      * Returns the set of pages contained in this wizard.
      * @return Iterator
      */
-    public Iterator<WizardPage> getPages() {
+    public Iterator<WizardPage> getPages()
+    {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
-        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
-        
+        firstWizardPage
+            = new FirstWizardPage(registration, getWizardContainer());
+
         pages.add(firstWizardPage);
-        
+
         return pages.iterator();
     }
-    
+
     /**
      * Returns the set of data that user has entered through this wizard.
      * @return Iterator
      */
     public Iterator<Map.Entry<String, String>> getSummary() {
-        Hashtable<String, String> summaryTable = new Hashtable<String, String>();
-        
+        Hashtable<String, String> summaryTable
+            = new Hashtable<String, String>();
+
         /*
          * Hashtable arranges the entries alphabetically so the order 
          * of appearance is
@@ -133,11 +136,10 @@ public class SSHAccountRegistrationWizard
          * - Port
          * - User ID
          */
-        
         summaryTable.put("Account ID", registration.getAccountID());
         summaryTable.put("Known Hosts", registration.getKnownHostsFile());
         summaryTable.put("Identity", registration.getIdentityFile());
-        
+
         return summaryTable.entrySet().iterator();
     }
 
@@ -244,13 +246,13 @@ public class SSHAccountRegistrationWizard
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.
      */
-    public void loadAccount(ProtocolProviderService protocolProvider) {
-        
+    public void loadAccount(ProtocolProviderService protocolProvider)
+    {
         this.protocolProvider = protocolProvider;
-        
+
         this.firstWizardPage.loadAccount(protocolProvider);
-        
-        isModification = true;
+
+        setModification(true);
     }
 
     /**
@@ -280,30 +282,6 @@ public class SSHAccountRegistrationWizard
     }
 
     /**
-     * Indicates if this wizard is modifying an existing account or is creating
-     * a new one.
-     * 
-     * @return <code>true</code> to indicate that this wizard is currently in
-     * modification mode, <code>false</code> - otherwise.
-     */
-    public boolean isModification()
-    {
-        return isModification;
-    }
-
-    /**
-     * Sets the modification property to indicate if this wizard is opened for
-     * a modification.
-     * 
-     * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account. 
-     */
-    public void setModification(boolean isModification)
-    {
-        this.isModification = isModification;
-    }
-
-    /**
      * Returns an example string, which should indicate to the user how the
      * user name should look like.
      * @return an example string, which should indicate to the user how the
@@ -329,26 +307,6 @@ public class SSHAccountRegistrationWizard
     }
 
     /**
-     * Nothing to do here in the case of SSH.
-     */
-    public void webSignup()
-    {
-        throw new UnsupportedOperationException(
-            "The web sign up is not supported by the SSH wizard.");
-    }
-
-    /**
-     * Returns <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise.
-     * @return <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise
-     */
-    public boolean isWebSignupSupported()
-    {
-        return false;
-    }
-
-    /**
      * Returns a simple account registration form that would be the first form
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
@@ -359,14 +317,7 @@ public class SSHAccountRegistrationWizard
      */
     public Object getSimpleForm(boolean isCreateAccount)
     {
-        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
+        firstWizardPage = new FirstWizardPage(registration, getWizardContainer());
         return firstWizardPage.getSimpleForm();
     }
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

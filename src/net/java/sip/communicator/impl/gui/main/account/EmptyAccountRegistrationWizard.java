@@ -27,7 +27,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov
  */
 class EmptyAccountRegistrationWizard
-    implements AccountRegistrationWizard
+    extends AccountRegistrationWizard
 {
     /**
      * The only page we need in this wizard, containing a prompt for the user
@@ -171,43 +171,7 @@ class EmptyAccountRegistrationWizard
      * Empty interface method implementation, unused in the case of the
      * {@link EmptyAccountRegistrationWizard}
      */
-    public boolean isModification()
-    {
-        return false;
-    }
-
-    /**
-     * Empty interface method implementation, unused in the case of the
-     * {@link EmptyAccountRegistrationWizard}
-     */
-    public boolean isSimpleFormEnabled()
-    {
-        return true;
-    }
-
-    /**
-     * Empty interface method implementation, unused in the case of the
-     * {@link EmptyAccountRegistrationWizard}
-     */
-    public boolean isWebSignupSupported()
-    {
-        return false;
-    }
-
-    /**
-     * Empty interface method implementation, unused in the case of the
-     * {@link EmptyAccountRegistrationWizard}
-     */
     public void loadAccount(ProtocolProviderService protocolProvider)
-    {
-
-    }
-
-    /**
-     * Empty interface method implementation, unused in the case of the
-     * {@link EmptyAccountRegistrationWizard}
-     */
-    public void setModification(boolean isModification)
     {
     }
 
@@ -229,17 +193,4 @@ class EmptyAccountRegistrationWizard
     {
         return null;
     }
-
-    /**
-     * Empty interface method implementation, unused in the case of the
-     * {@link EmptyAccountRegistrationWizard}
-     */
-    public void webSignup() throws UnsupportedOperationException {}
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

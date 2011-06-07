@@ -123,7 +123,6 @@ public class Sip2SipAccountRegistrationWizard
             .getImageInBytes(PAGE_IMAGE);
     }
 
-
     /**
      * Implements the <code>AccountRegistrationWizard.getProtocolName</code>
      * method. Returns the protocol name for this wizard.

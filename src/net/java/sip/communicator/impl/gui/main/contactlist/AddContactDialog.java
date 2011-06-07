@@ -19,8 +19,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.contactlist.event.MetaContactEvent;
-import net.java.sip.communicator.service.contactlist.event.MetaContactListAdapter;
+import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -282,6 +281,9 @@ public class AddContactDialog
                 continue;
 
             accountCombo.addItem(provider);
+
+            if (isPreferredProvider(provider.getAccountID()))
+                accountCombo.setSelectedItem(provider);
         }
 
         // if we have only select account option and only one account
@@ -654,5 +656,28 @@ public class AddContactDialog
                 "service.gui.icons.ADD_CONTACT_DIALOG_ICON"));
 
         imageLabel.setVerticalAlignment(JLabel.TOP);
+    }
+
+    /**
+     * Returns the first <tt>ProtocolProviderService</tt> implementation
+     * corresponding to the preferred protocol
+     *
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the
+     * preferred protocol
+     */
+    private boolean isPreferredProvider(AccountID accountID)
+    {
+        String preferredProtocolProp
+            = accountID.getAccountPropertyString(
+                ProtocolProviderFactory.IS_PREFERRED_PROTOCOL);
+
+        if (preferredProtocolProp != null
+            && preferredProtocolProp.length() > 0
+            && Boolean.parseBoolean(preferredProtocolProp))
+        {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -24,7 +24,7 @@ import org.osgi.framework.*;
  * @author Grigorii Balutsel
  */
 public class SIPAccountRegistrationWizard
-    implements ExtendedAccountRegistrationWizard
+    extends ExtendedAccountRegistrationWizard
 {
     /**
      * The first wizard page.
@@ -38,19 +38,9 @@ public class SIPAccountRegistrationWizard
         = new SIPAccountRegistration();
 
     /**
-     * The container.
-     */
-    private final WizardContainer wizardContainer;
-
-    /**
      * The protocol provider.
      */
     private ProtocolProviderService protocolProvider;
-
-    /**
-     * Is current wizard run as modification of an existing account.
-     */
-    private boolean isModification;
 
     /**
      * The logger.
@@ -65,9 +55,9 @@ public class SIPAccountRegistrationWizard
      */
     public SIPAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        setWizardContainer(wizardContainer);
 
-        this.wizardContainer.setFinishButtonText(
+        wizardContainer.setFinishButtonText(
             Resources.getString("service.gui.SIGN_IN"));
     }
 
@@ -522,13 +512,13 @@ public class SIPAccountRegistrationWizard
                     ProtocolProviderFactory.VOICEMAIL_URI,
                     registration.getVoicemailURI());
 
-        if(isModification)
+        if(isModification())
         {
             accountProperties.put(ProtocolProviderFactory.USER_ID, userName);
             providerFactory.modifyAccount(  protocolProvider,
                                             accountProperties);
 
-            this.isModification  = false;
+            setModification(false);
 
             return protocolProvider;
         }
@@ -573,35 +563,13 @@ public class SIPAccountRegistrationWizard
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-        this.isModification = true;
+        setModification(true);
 
         this.protocolProvider = protocolProvider;
 
         this.registration = new SIPAccountRegistration();
 
         this.firstWizardPage.loadAccount(protocolProvider);
-    }
-
-    /**
-     * Indicates if this wizard is opened for modification or for creating a
-     * new account.
-     *
-     * @return <code>true</code> if this wizard is opened for modification and
-     * <code>false</code> otherwise.
-     */
-    public boolean isModification()
-    {
-        return isModification;
-    }
-
-    /**
-     * Returns the wizard container, where all pages are added.
-     *
-     * @return the wizard container, where all pages are added
-     */
-    public WizardContainer getWizardContainer()
-    {
-        return wizardContainer;
     }
 
     /**
@@ -644,18 +612,6 @@ public class SIPAccountRegistrationWizard
     }
 
     /**
-     * Sets the modification property to indicate if this wizard is opened for
-     * a modification.
-     *
-     * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account.
-     */
-    public void setModification(boolean isModification)
-    {
-        this.isModification = isModification;
-    }
-
-    /**
      * Returns an example string, which should indicate to the user how the
      * user name should look like.
      * @return an example string, which should indicate to the user how the
@@ -667,37 +623,12 @@ public class SIPAccountRegistrationWizard
     }
 
     /**
-     * Enables the simple "Sign in" form.
-     * @return <tt>true</tt> to indicate that the simple form is enabled
-     */
-    public boolean isSimpleFormEnabled()
-    {
-        return true;
-    }
-
-    /**
-     * Sign ups through the web.
-     */
-    public void webSignup() {}
-
-    /**
      * Returns the name of the web sign up link.
      * @return the name of the web sign up link
      */
     public String getWebSignupLinkName()
     {
         return null;
-    }
-
-    /**
-     * Returns <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise.
-     * @return <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise
-     */
-    public boolean isWebSignupSupported()
-    {
-        return true;
     }
 
     /**
@@ -819,11 +750,4 @@ public class SIPAccountRegistrationWizard
     {
         return Resources.getString("plugin.sipaccregwizz.CREATE_ACCOUNT");
     }
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author Emil Ivov
  */
 public class GibberishAccountRegistrationWizard
-    implements AccountRegistrationWizard
+    extends AccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(GibberishAccountRegistrationWizard.class);
@@ -40,11 +40,7 @@ public class GibberishAccountRegistrationWizard
     private GibberishAccountRegistration registration
         = new GibberishAccountRegistration();
 
-    private final WizardContainer wizardContainer;
-
     private ProtocolProviderService protocolProvider;
-
-    private boolean isModification;
 
     /**
      * Creates an instance of <tt>GibberishAccountRegistrationWizard</tt>.
@@ -53,9 +49,10 @@ public class GibberishAccountRegistrationWizard
      */
     public GibberishAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        setWizardContainer(wizardContainer);
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
+        wizardContainer.setFinishButtonText(
+            Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -185,11 +182,11 @@ public class GibberishAccountRegistrationWizard
                                     registration.getPassword());
         }
 
-        if (isModification)
+        if (isModification())
         {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
-            this.isModification  = false;
+            setModification(false);
         }
 
         try
@@ -232,35 +229,13 @@ public class GibberishAccountRegistrationWizard
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-        this.isModification = true;
+        setModification(true);
 
         this.protocolProvider = protocolProvider;
 
         this.registration = new GibberishAccountRegistration();
 
         this.firstWizardPage.loadAccount(protocolProvider);
-    }
-
-    /**
-     * Indicates if this wizard is opened for modification or for creating a
-     * new account.
-     * 
-     * @return <code>true</code> if this wizard is opened for modification and
-     * <code>false</code> otherwise.
-     */
-    public boolean isModification()
-    {
-        return isModification;
-    }
-
-    /**
-     * Returns the wizard container, where all pages are added.
-     * 
-     * @return the wizard container, where all pages are added
-     */
-    public WizardContainer getWizardContainer()
-    {
-        return wizardContainer;
     }
 
     /**
@@ -303,18 +278,6 @@ public class GibberishAccountRegistrationWizard
     }
 
     /**
-     * Sets the modification property to indicate if this wizard is opened for
-     * a modification.
-     * 
-     * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account. 
-     */
-    public void setModification(boolean isModification)
-    {
-        this.isModification = isModification;
-    }
-
-    /**
      * Returns an example string, which should indicate to the user how the
      * user name should look like.
      * @return an example string, which should indicate to the user how the
@@ -324,7 +287,6 @@ public class GibberishAccountRegistrationWizard
     {
         return FirstWizardPage.USER_NAME_EXAMPLE;
     }
-    
 
     /**
      * Indicates whether this wizard enables the simple "sign in" form shown
@@ -336,26 +298,6 @@ public class GibberishAccountRegistrationWizard
      * <code>false</code> otherwise.
      */
     public boolean isSimpleFormEnabled()
-    {
-        return false;
-    }
-
-    /**
-     * Nothing to do here in the case of Gibberish.
-     */
-    public void webSignup()
-    {
-        throw new UnsupportedOperationException(
-            "The web sign up is not supproted by the gibberish wizard.");
-    }
-
-    /**
-     * Returns <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise.
-     * @return <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise
-     */
-    public boolean isWebSignupSupported()
     {
         return false;
     }
@@ -374,11 +316,4 @@ public class GibberishAccountRegistrationWizard
         firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();
     }
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

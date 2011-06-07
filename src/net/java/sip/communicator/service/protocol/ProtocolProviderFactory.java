@@ -264,6 +264,11 @@ public abstract class ProtocolProviderFactory
     public static final String IS_PROTOCOL_HIDDEN = "IS_PROTOCOL_HIDDEN";
 
     /**
+     * Indicates if the given account is the preferred account.
+     */
+    public static final String IS_PREFERRED_PROTOCOL = "IS_PREFERRED_PROTOCOL";
+
+    /**
      * The name of the property that would indicate if a given account is
      * currently enabled or disabled.
      */

@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
  * @author Maxime Catelin
  */
 public class ZeroconfAccountRegistrationWizard
-    implements AccountRegistrationWizard
+    extends AccountRegistrationWizard
 {
     private Logger logger
         = Logger.getLogger(ZeroconfAccountRegistrationWizard.class);
@@ -41,11 +41,7 @@ public class ZeroconfAccountRegistrationWizard
     private ZeroconfAccountRegistration registration
         = new ZeroconfAccountRegistration();
 
-    private final WizardContainer wizardContainer;
-
     private ProtocolProviderService protocolProvider;
-
-    private boolean isModification;
 
     /**
      * Creates an instance of <tt>ZeroconfAccountRegistrationWizard</tt>.
@@ -54,9 +50,9 @@ public class ZeroconfAccountRegistrationWizard
      */
     public ZeroconfAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        setWizardContainer(wizardContainer);
 
-        this.wizardContainer
+        wizardContainer
             .setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
@@ -206,11 +202,11 @@ public class ZeroconfAccountRegistrationWizard
         accountProperties.put("rememberContacts", 
             new Boolean(registration.isRememberContacts()).toString());
 
-        if (isModification)
+        if (isModification())
         {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
-            this.isModification = false;
+            setModification(false);
         }
 
         try
@@ -254,35 +250,13 @@ public class ZeroconfAccountRegistrationWizard
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-        this.isModification = true;
+        setModification(true);
 
         this.protocolProvider = protocolProvider;
 
         this.registration = new ZeroconfAccountRegistration();
 
         this.firstWizardPage.loadAccount(protocolProvider);
-    }
-
-    /**
-     * Indicates if this wizard is opened for modification or for creating a
-     * new account.
-     * 
-     * @return <code>true</code> if this wizard is opened for modification and
-     * <code>false</code> otherwise.
-     */
-    public boolean isModification()
-    {
-        return isModification;
-    }
-
-    /**
-     * Returns the wizard container, where all pages are added.
-     * 
-     * @return the wizard container, where all pages are added
-     */
-    public WizardContainer getWizardContainer()
-    {
-        return wizardContainer;
     }
 
     /**
@@ -324,18 +298,6 @@ public class ZeroconfAccountRegistrationWizard
         return firstWizardPage.getIdentifier();
     }
 
-    /**
-     * Sets the modification property to indicate if this wizard is opened for
-     * a modification.
-     * 
-     * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account. 
-     */
-    public void setModification(boolean isModification)
-    {
-        this.isModification = isModification;
-    }
-    
     /**
      * Returns the password label for the simplified account registration form.
      * @return the password label for the simplified account registration form.
@@ -383,26 +345,6 @@ public class ZeroconfAccountRegistrationWizard
     }
 
     /**
-     * Nothing to do here in the case of Bonjour.
-     */
-    public void webSignup()
-    {
-        throw new UnsupportedOperationException(
-            "The web sign up is not supported by the Zeroconf wizard.");
-    }
-
-    /**
-     * Returns <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise.
-     * @return <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise
-     */
-    public boolean isWebSignupSupported()
-    {
-        return false;
-    }
-
-    /**
      * Returns a simple account registration form that would be the first form
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
@@ -421,11 +363,4 @@ public class ZeroconfAccountRegistrationWizard
         firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();
     }
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

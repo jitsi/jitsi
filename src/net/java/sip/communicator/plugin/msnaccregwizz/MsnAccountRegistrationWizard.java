@@ -22,7 +22,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class MsnAccountRegistrationWizard
-    implements AccountRegistrationWizard
+    extends AccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(MsnAccountRegistrationWizard.class);
@@ -31,11 +31,7 @@ public class MsnAccountRegistrationWizard
 
     private MsnAccountRegistration registration = new MsnAccountRegistration();
 
-    private final WizardContainer wizardContainer;
-
     private ProtocolProviderService protocolProvider;
-
-    private boolean isModification;
 
     /**
      * Creates an instance of <tt>MsnAccountRegistrationWizard</tt>.
@@ -44,9 +40,9 @@ public class MsnAccountRegistrationWizard
      */
     public MsnAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        setWizardContainer(wizardContainer);
 
-        this.wizardContainer
+        wizardContainer
             .setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
@@ -189,12 +185,12 @@ public class MsnAccountRegistrationWizard
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
-        if (isModification)
+        if (isModification())
         {
             providerFactory.modifyAccount(  protocolProvider,
                 accountProperties);
 
-            this.isModification  = false;
+            setModification(false);
 
             return protocolProvider;
         }
@@ -240,35 +236,13 @@ public class MsnAccountRegistrationWizard
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-        this.isModification = true;
+        setModification(true);
 
         this.protocolProvider = protocolProvider;
 
         this.registration = new MsnAccountRegistration();
 
         this.firstWizardPage.loadAccount(protocolProvider);
-    }
-
-    /**
-     * Indicates if this wizard is opened for modification or for creating a
-     * new account.
-     * 
-     * @return <code>true</code> if this wizard is opened for modification and
-     * <code>false</code> otherwise.
-     */
-    public boolean isModification()
-    {
-        return isModification;
-    }
-
-    /**
-     * Returns the wizard container, where all pages are added.
-     * 
-     * @return the wizard container, where all pages are added
-     */
-    public WizardContainer getWizardContainer()
-    {
-        return wizardContainer;
     }
 
     /**
@@ -311,18 +285,6 @@ public class MsnAccountRegistrationWizard
     }
 
     /**
-     * Sets the modification property to indicate if this wizard is opened for
-     * a modification.
-     * 
-     * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account. 
-     */
-    public void setModification(boolean isModification)
-    {
-        this.isModification = isModification;
-    }
-
-    /**
      * Returns an example string, which should indicate to the user how the
      * user name should look like.
      * @return an example string, which should indicate to the user how the
@@ -331,20 +293,6 @@ public class MsnAccountRegistrationWizard
     public String getUserNameExample()
     {
         return FirstWizardPage.USER_NAME_EXAMPLE;
-    }
-
-    /**
-     * Indicates whether this wizard enables the simple "sign in" form shown
-     * when the user opens the application for the first time. The simple
-     * "sign in" form allows user to configure her account in one click, just
-     * specifying her username and password and leaving any other configuration
-     * as by default.
-     * @return <code>true</code> if the simple "Sign in" form is enabled or
-     * <code>false</code> otherwise.
-     */
-    public boolean isSimpleFormEnabled()
-    {
-        return true;
     }
 
     /**
@@ -381,11 +329,4 @@ public class MsnAccountRegistrationWizard
         firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();
     }
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

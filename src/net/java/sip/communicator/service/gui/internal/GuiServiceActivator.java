@@ -5,10 +5,14 @@
  */
 package net.java.sip.communicator.service.gui.internal;
 
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**
  * @author Lubomir Marinov
+ * @author Yana Stamcheva
  */
 public class GuiServiceActivator
     implements BundleActivator
@@ -17,6 +21,12 @@ public class GuiServiceActivator
      * The <tt>BundleContext</tt> of the service.
      */
     private static BundleContext bundleContext;
+
+    /**
+     * The <tt>ResourceManagementService</tt>, which gives access to application
+     * resources.
+     */
+    private static ResourceManagementService resourceService;
 
     /**
      * Returns the <tt>BundleContext</tt>.
@@ -47,5 +57,24 @@ public class GuiServiceActivator
     {
         if (GuiServiceActivator.bundleContext == bundleContext)
             GuiServiceActivator.bundleContext = null;
+    }
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     *
+     * @return the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            resourceService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ResourceManagementService.class);
+        }
+        return resourceService;
     }
 }

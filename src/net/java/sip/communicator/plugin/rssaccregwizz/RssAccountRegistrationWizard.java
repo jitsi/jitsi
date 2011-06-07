@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  */
 public class RssAccountRegistrationWizard
-    implements AccountRegistrationWizard
+    extends AccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(RssAccountRegistrationWizard.class);
@@ -40,11 +40,7 @@ public class RssAccountRegistrationWizard
     private RssAccountRegistration registration
         = new RssAccountRegistration();
 
-    private final WizardContainer wizardContainer;
-
     private ProtocolProviderService protocolProvider;
-
-    private boolean isModification;
 
     /**
      * Creates an instance of <tt>RssAccountRegistrationWizard</tt>.
@@ -53,9 +49,9 @@ public class RssAccountRegistrationWizard
      */
     public RssAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        setWizardContainer(wizardContainer);
 
-        this.wizardContainer
+        wizardContainer
             .setFinishButtonText(Resources.getString("service.gui.ACTIVATE"));
     }
 
@@ -107,7 +103,8 @@ public class RssAccountRegistrationWizard
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
-        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
+        firstWizardPage
+            = new FirstWizardPage(registration, getWizardContainer());
 
         pages.add(firstWizardPage);
 
@@ -226,10 +223,9 @@ public class RssAccountRegistrationWizard
 
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-
         this.protocolProvider = protocolProvider;
 
-        isModification = true;
+        setModification(true);
     }
 
     /**
@@ -261,30 +257,6 @@ public class RssAccountRegistrationWizard
     }
 
     /**
-     * Indicates if this wizard is modifying an existing account or is creating
-     * a new one.
-     * 
-     * @return <code>true</code> to indicate that this wizard is currently in
-     * modification mode, <code>false</code> - otherwise.
-     */
-    public boolean isModification()
-    {
-        return isModification;
-    }
-
-    /**
-     * Sets the modification property to indicate if this wizard is opened for
-     * a modification.
-     * 
-     * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account. 
-     */
-    public void setModification(boolean isModification)
-    {
-        this.isModification = isModification;
-    }
-
-    /**
      * Returns an example string, which should indicate to the user how the
      * user name should look like.
      * @return an example string, which should indicate to the user how the
@@ -310,26 +282,6 @@ public class RssAccountRegistrationWizard
     }
 
     /**
-     * Nothing to do for RSS here.
-     */
-    public void webSignup()
-    {
-        throw new UnsupportedOperationException(
-            "The web sign up is not supported by the RSS wizard.");
-    }
-
-    /**
-     * Returns <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise.
-     * @return <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise
-     */
-    public boolean isWebSignupSupported()
-    {
-        return false;
-    }
-
-    /**
      * Returns a simple account registration form that would be the first form
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
@@ -340,14 +292,8 @@ public class RssAccountRegistrationWizard
      */
     public Object getSimpleForm(boolean isCreateAccount)
     {
-        firstWizardPage = new FirstWizardPage(registration, wizardContainer);
+        firstWizardPage
+            = new FirstWizardPage(registration, getWizardContainer());
         return firstWizardPage.getSimpleForm();
     }
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

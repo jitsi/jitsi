@@ -11,7 +11,7 @@ package net.java.sip.communicator.service.gui;
  *
  * @author Yana Stamcheva
  */
-public interface ExtendedAccountRegistrationWizard
+public abstract class ExtendedAccountRegistrationWizard
     extends AccountRegistrationWizard
 {
     /**
@@ -20,10 +20,10 @@ public interface ExtendedAccountRegistrationWizard
      * @return <tt>true</tt> if a sign up form is supported by this wizard,
      * <tt>false</tt> - otherwise
      */
-    public boolean isSignupSupported();
+    public abstract boolean isSignupSupported();
 
     /**
      * Sets the create account view of this registration wizard.
      */
-    public void setCreateAccountView();
+    public abstract void setCreateAccountView();
 }

@@ -24,7 +24,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class JabberAccountRegistrationWizard
-    implements AccountRegistrationWizard
+    extends AccountRegistrationWizard
 {
     /**
      * The logger.
@@ -54,19 +54,9 @@ public class JabberAccountRegistrationWizard
     private JabberAccountRegistration registration;
 
     /**
-     * The parent wizard container.
-     */
-    private final WizardContainer wizardContainer;
-
-    /**
      * The <tt>ProtocolProviderService</tt> of this account.
      */
     private ProtocolProviderService protocolProvider;
-
-    /**
-     * If the account has been modified.
-     */
-    private boolean isModification;
 
     /**
      * Creates an instance of <tt>JabberAccountRegistrationWizard</tt>.
@@ -75,9 +65,9 @@ public class JabberAccountRegistrationWizard
      */
     public JabberAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        setWizardContainer(wizardContainer);
 
-        this.wizardContainer
+        wizardContainer
             .setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
     }
 
@@ -277,6 +267,8 @@ public class JabberAccountRegistrationWizard
         Hashtable<String, String> accountProperties
             = new Hashtable<String, String>();
 
+        accountProperties.put(ProtocolProviderFactory.IS_PREFERRED_PROTOCOL,
+            Boolean.toString(isPreferredProtocol()));
         accountProperties.put(ProtocolProviderFactory.PROTOCOL, getProtocol());
         String protocolIconPath = getProtocolIconPath();
         if (protocolIconPath != null)
@@ -385,12 +377,12 @@ public class JabberAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.IS_USE_UPNP,
                 String.valueOf(registration.isUseUPNP()));
 
-        if (isModification)
+        if (isModification())
         {
             providerFactory.modifyAccount(  protocolProvider,
                 accountProperties);
 
-            this.isModification  = false;
+            setModification(false);
 
             return protocolProvider;
         }
@@ -451,35 +443,13 @@ public class JabberAccountRegistrationWizard
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-        this.isModification = true;
+        setModification(true);
 
         this.protocolProvider = protocolProvider;
 
         this.registration = new JabberAccountRegistration();
 
         this.firstWizardPage.loadAccount(protocolProvider);
-    }
-
-    /**
-     * Indicates if this wizard is opened for modification or for creating a
-     * new account.
-     *
-     * @return <code>true</code> if this wizard is opened for modification and
-     * <code>false</code> otherwise.
-     */
-    public boolean isModification()
-    {
-        return isModification;
-    }
-
-    /**
-     * Returns the wizard container, where all pages are added.
-     *
-     * @return the wizard container, where all pages are added
-     */
-    public WizardContainer getWizardContainer()
-    {
-        return wizardContainer;
     }
 
     /**
@@ -525,18 +495,6 @@ public class JabberAccountRegistrationWizard
     }
 
     /**
-     * Sets the modification property to indicate if this wizard is opened for
-     * a modification.
-     *
-     * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account.
-     */
-    public void setModification(boolean isModification)
-    {
-        this.isModification = isModification;
-    }
-
-    /**
      * Returns an example string, which should indicate to the user how the
      * user name should look like.
      * @return an example string, which should indicate to the user how the
@@ -545,17 +503,6 @@ public class JabberAccountRegistrationWizard
     public String getUserNameExample()
     {
         return "Ex: johnsmith@jabber.org";
-    }
-
-    /**
-     * Enables the simple "Sign in" form.
-     *
-     * @return <tt>true</tt> if the simple form is enabled and <tt>false</tt>
-     * otherwise.
-     */
-    public boolean isSimpleFormEnabled()
-    {
-        return true;
     }
 
     /**
@@ -714,11 +661,4 @@ public class JabberAccountRegistrationWizard
     {
         return null;
     }
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

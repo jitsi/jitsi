@@ -23,7 +23,7 @@ import org.osgi.framework.*;
  * @author LITZELMANN Cedric
  */
 public class DictAccountRegistrationWizard
-    implements AccountRegistrationWizard
+    extends AccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(DictAccountRegistrationWizard.class);
@@ -39,19 +39,9 @@ public class DictAccountRegistrationWizard
     private DictAccountRegistration registration = new DictAccountRegistration();
 
     /**
-     * The container of the wizard.
-     */
-    private WizardContainer wizardContainer;
-
-    /**
      * The protocole provider.
      */
     private ProtocolProviderService protocolProvider;
-
-    /**
-     * Tells us if the is a modification wiazrd or not.
-     */
-    private boolean isModification;
 
     /**
      * Creates an instance of <tt>DictAccountRegistrationWizard</tt>.
@@ -60,7 +50,7 @@ public class DictAccountRegistrationWizard
      */
     public DictAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        setWizardContainer(wizardContainer);
     }
 
     /**
@@ -205,11 +195,11 @@ public class DictAccountRegistrationWizard
         // Save strategy
         accountProperties.put(ProtocolProviderFactory.STRATEGY, strategy);
 
-        if (isModification)
+        if (isModification())
         {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
-            this.isModification  = false;
+            setModification(false);
         }
 
         try
@@ -255,47 +245,13 @@ public class DictAccountRegistrationWizard
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-        this.isModification = true;
+        setModification(true);
 
         this.protocolProvider = protocolProvider;
 
         this.registration = new DictAccountRegistration();
 
         this.firstWizardPage.loadAccount(protocolProvider);
-    }
-
-    /**
-     * Indicates if this wizard is opened for modification or for creating a
-     * new account.
-     * 
-     * @return <code>true</code> if this wizard is opened for modification and
-     * <code>false</code> otherwise.
-     */
-    public boolean isModification()
-    {
-        return isModification;
-    }
-    
-    /**
-     * Sets if this wizard is opened for modification or for creating a
-     * new account.
-     * 
-     * @param b <code>True</code> if this wizard is opened for modification and
-     * <code>false</code> otherwise.
-     */
-    public void setModification(boolean b)
-    {
-        this.isModification = b;
-    }
-
-    /**
-     * Returns the wizard container, where all pages are added.
-     * 
-     * @return the wizard container, where all pages are added
-     */
-    public WizardContainer getWizardContainer()
-    {
-        return wizardContainer;
     }
 
     /**
@@ -347,9 +303,10 @@ public class DictAccountRegistrationWizard
         int nbAccounts = this.getNumberOfAccounts();
         String host = this.registration.getHost();
         int nbAccountsForHost = this.getNbAccountForHost(host);
-        
+
         if (nbAccounts == 0 || (this.isModification() && nbAccounts == 1) ||
-                nbAccountsForHost == 0 || (this.isModification() && nbAccountsForHost == 1))
+                nbAccountsForHost == 0
+                || (this.isModification() && nbAccountsForHost == 1))
         {
             // We create the first account or we edit the onlyone
             // Or we create the first account for this server or edit the onlyone
@@ -374,7 +331,7 @@ public class DictAccountRegistrationWizard
 
         return factory.getRegisteredAccounts().size();
     }
-    
+
     /**
      * Returns the number of account for a given host
      * @param hostName the host
@@ -428,26 +385,6 @@ public class DictAccountRegistrationWizard
     }
 
     /**
-     * Nothing to do here in the case of dictionary.
-     */
-    public void webSignup()
-    {
-        throw new UnsupportedOperationException(
-            "The web sign up is not supproted by the dictionary wizard.");
-    }
-
-    /**
-     * Returns <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise.
-     * @return <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise
-     */
-    public boolean isWebSignupSupported()
-    {
-        return false;
-    }
-
-    /**
      * Returns a simple account registration form that would be the first form
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
@@ -462,11 +399,4 @@ public class DictAccountRegistrationWizard
 
         return firstWizardPage.getSimpleForm();
     }
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }

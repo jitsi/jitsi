@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.*;
  * @author Lionel Ferreira & Michael Tarantino
  */
 public class IrcAccountRegistrationWizard
-    implements AccountRegistrationWizard
+    extends AccountRegistrationWizard
 {
     private final Logger logger
         = Logger.getLogger(IrcAccountRegistrationWizard.class);
@@ -40,11 +40,7 @@ public class IrcAccountRegistrationWizard
     private IrcAccountRegistration registration
         = new IrcAccountRegistration();
 
-    private WizardContainer wizardContainer;
-
     private ProtocolProviderService protocolProvider;
-
-    private boolean isModification;
 
     /**
      * Creates an instance of <tt>IrcAccountRegistrationWizard</tt>.
@@ -53,9 +49,10 @@ public class IrcAccountRegistrationWizard
      */
     public IrcAccountRegistrationWizard(WizardContainer wizardContainer)
     {
-        this.wizardContainer = wizardContainer;
+        setWizardContainer(wizardContainer);
 
-        this.wizardContainer.setFinishButtonText(Resources.getString("service.gui.SIGN_IN"));
+        wizardContainer.setFinishButtonText(
+            Resources.getString("service.gui.SIGN_IN"));
     }
 
     /**
@@ -223,11 +220,11 @@ public class IrcAccountRegistrationWizard
                 ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
                 new Boolean(!registration.isRequiredPassword()).toString());
 
-        if (isModification)
+        if (isModification())
         {
             providerFactory.uninstallAccount(protocolProvider.getAccountID());
             this.protocolProvider = null;
-            this.isModification  = false;
+            setModification(false);
         }
 
         try
@@ -270,35 +267,13 @@ public class IrcAccountRegistrationWizard
      */
     public void loadAccount(ProtocolProviderService protocolProvider)
     {
-        this.isModification = true;
+        setModification(true);
 
         this.protocolProvider = protocolProvider;
 
         this.registration = new IrcAccountRegistration();
 
         this.firstWizardPage.loadAccount(protocolProvider);
-    }
-
-    /**
-     * Indicates if this wizard is opened for modification or for creating a
-     * new account.
-     * 
-     * @return <code>true</code> if this wizard is opened for modification and
-     * <code>false</code> otherwise.
-     */
-    public boolean isModification()
-    {
-        return isModification;
-    }
-
-    /**
-     * Returns the wizard container, where all pages are added.
-     * 
-     * @return the wizard container, where all pages are added
-     */
-    public WizardContainer getWizardContainer()
-    {
-        return wizardContainer;
     }
 
     /**
@@ -321,7 +296,7 @@ public class IrcAccountRegistrationWizard
     {
         return new Dimension(600, 500);
     }
-    
+
     /**
      * Returns the identifier of the page to show first in the wizard.
      * @return the identifier of the page to show first in the wizard.
@@ -338,18 +313,6 @@ public class IrcAccountRegistrationWizard
     public Object getLastPageIdentifier()
     {
         return firstWizardPage.getIdentifier();
-    }
-
-    /**
-     * Sets the modification property to indicate if this wizard is opened for
-     * a modification.
-     * 
-     * @param isModification indicates if this wizard is opened for modification
-     * or for creating a new account. 
-     */
-    public void setModification(boolean isModification)
-    {
-        this.isModification = isModification;
     }
 
     /**
@@ -378,26 +341,6 @@ public class IrcAccountRegistrationWizard
     }
 
     /**
-     * Nothing to do here in the case of IRC.
-     */
-    public void webSignup()
-    {
-        throw new UnsupportedOperationException(
-            "The web sign up is not supproted by the IRC wizard.");
-    }
-
-    /**
-     * Returns <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise.
-     * @return <code>true</code> if the web sign up is supported by the current
-     * implementation, <code>false</code> - otherwise
-     */
-    public boolean isWebSignupSupported()
-    {
-        return false;
-    }
-
-    /**
      * Returns a simple account registration form that would be the first form
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
@@ -412,11 +355,4 @@ public class IrcAccountRegistrationWizard
 
         return firstWizardPage.getSimpleForm();
     }
-
-    /**
-     * Indicates that the account corresponding to the given
-     * <tt>protocolProvider</tt> has been removed.
-     * @param protocolProvider the protocol provider that has been removed
-     */
-    public void accountRemoved(ProtocolProviderService protocolProvider) {}
 }
