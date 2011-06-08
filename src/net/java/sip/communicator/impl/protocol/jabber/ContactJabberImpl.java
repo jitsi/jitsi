@@ -203,19 +203,33 @@ public class ContactJabberImpl
             || !(obj instanceof String || (obj instanceof ContactJabberImpl)))
             return false;
 
-        if (obj != null && obj instanceof ContactJabberImpl
-            && !(((ContactJabberImpl)obj).getAddress()
+        if (obj instanceof ContactJabberImpl
+            && ((ContactJabberImpl)obj).getAddress()
                                             .equalsIgnoreCase(getAddress())
-                && ((ContactJabberImpl)obj).getProtocolProvider()
-                        == getProtocolProvider()))
-            return false;
+            && ((ContactJabberImpl)obj).getProtocolProvider()
+                                            == getProtocolProvider())
+        {
+            return true;
+        }
 
-        if (obj != null && obj instanceof String
-                && !(getAddress().substring(0, getAddress().indexOf("@"))
-                        .equals(obj)))
-            return false;
+        if (obj instanceof String)
+        {
+            int atIndex = getAddress().indexOf("@");
 
-        return true;
+            if (atIndex > 0)
+            {
+                if (getAddress().equalsIgnoreCase((String) obj)
+                    || getAddress().substring(0, atIndex)
+                        .equalsIgnoreCase((String) obj))
+                    {
+                        return true;
+                    }
+            }
+            else if (getAddress().equalsIgnoreCase((String) obj))
+                return true;
+        }
+
+        return false;
     }
 
     /**
