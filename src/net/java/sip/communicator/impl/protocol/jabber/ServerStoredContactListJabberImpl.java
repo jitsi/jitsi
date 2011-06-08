@@ -1451,7 +1451,18 @@ public class ServerStoredContactListJabberImpl
     {
         if (id.indexOf("@") < 0)
         {
-            return id + "@" + jabberProvider.getAccountID().getService();
+            AccountID accountID
+                = jabberProvider.getAccountID();
+
+            String serverPart;
+            String userID = accountID.getUserID();
+            int atIndex = userID.indexOf('@');
+            if (atIndex > 0)
+                serverPart = userID.substring(atIndex + 1);
+            else
+                serverPart = accountID.getService();
+
+            return id + "@" + serverPart;
         }
 
         return id;
