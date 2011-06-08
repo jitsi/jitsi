@@ -426,7 +426,9 @@ public class ChooseCallAccountPopupMenu
                     .getIcon(ProtocolIcon.ICON_SIZE_16x16);
 
             if (protocolIcon != null)
-                this.setIcon(new ImageIcon(protocolIcon));
+                this.setIcon(ImageLoader.getIndexedProtocolIcon(
+                                ImageUtils.getBytesInImage(protocolIcon),
+                                protocolProvider));
         }
     }
 
@@ -456,7 +458,7 @@ public class ChooseCallAccountPopupMenu
                     itemName += "<b style=\"color: gray\">"
                                 + labels.next().toLowerCase() + "</b> ";
 
-            itemName += contact.getDisplayName() + "</html>";
+            itemName += contact.getAddress() + "</html>";
 
             this.setText(itemName);
             loadSkin();
@@ -488,11 +490,15 @@ public class ChooseCallAccountPopupMenu
                     statusIcon = Constants.getStatusIcon(status);
 
                 if (statusIcon != null)
-                    contactIcon = new ImageIcon(statusIcon);
+                    contactIcon = ImageLoader.getIndexedProtocolIcon(
+                        statusIcon,
+                        contact.getPreferredProtocolProvider(null));
             }
 
             if (contactIcon != null)
-                this.setIcon(contactIcon);
+                this.setIcon(ImageLoader.getIndexedProtocolIcon(
+                    contactIcon.getImage(),
+                    contact.getPreferredProtocolProvider(null)));
         }
     }
 
@@ -513,7 +519,7 @@ public class ChooseCallAccountPopupMenu
         public ChatTransportMenuItem(ChatTransport chatTransport)
         {
             this.chatTransport = chatTransport;
-            this.setText(chatTransport.getDisplayName());
+            this.setText(chatTransport.getName());
 
             loadSkin();
         }
@@ -524,15 +530,18 @@ public class ChooseCallAccountPopupMenu
         public void loadSkin()
         {
             PresenceStatus status = chatTransport.getStatus();
-            Image statusIcon = null;
+            byte[] statusIconBytes = status.getStatusIcon();
 
-            statusIcon = ImageLoader.getIndexedProtocolImage(
-                    ImageUtils.getBytesInImage(
-                            status.getStatusIcon()),
-                            chatTransport.getProtocolProvider());
+            Icon statusIcon = null;
+            if (statusIconBytes != null && statusIconBytes.length > 0)
+            {
+                statusIcon = ImageLoader.getIndexedProtocolIcon(
+                    ImageUtils.getBytesInImage(statusIconBytes),
+                    chatTransport.getProtocolProvider());
+            }
 
             if (statusIcon != null)
-                this.setIcon(new ImageIcon(statusIcon));
+                this.setIcon(statusIcon);
         }
     }
 

@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.gui.*;
@@ -495,7 +496,8 @@ public class AddContactDialog
                             .getIcon(ProtocolIcon.ICON_SIZE_16x16));
 
                     if (protocolImg != null)
-                        this.setIcon(new ImageIcon(protocolImg));
+                        this.setIcon(ImageLoader.getIndexedProtocolIcon(
+                                protocolImg, provider));
 
                     this.setText(provider.getAccountID().getDisplayName());
                 }
