@@ -28,7 +28,7 @@ public class ExtendedTooltip
 
     private final JPanel linesPanel = new JPanel();
 
-    private final JLabel bottomLabel = new JLabel();
+    private final JTextArea bottomText = new JTextArea();
 
     private int textWidth = 0;
 
@@ -54,6 +54,7 @@ public class ExtendedTooltip
         mainPanel.setOpaque(false);
         centerPanel.setOpaque(false);
         linesPanel.setOpaque(false);
+        bottomText.setOpaque(false);
 
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
@@ -75,8 +76,11 @@ public class ExtendedTooltip
             mainPanel.add(titleLabel, BorderLayout.NORTH);
         }
 
-        bottomLabel.setFont(bottomLabel.getFont().deriveFont(10f));
-        mainPanel.add(bottomLabel, BorderLayout.SOUTH);
+        bottomText.setEditable(false);
+        bottomText.setLineWrap(true);
+        bottomText.setWrapStyleWord(true);
+        bottomText.setFont(bottomText.getFont().deriveFont(10f));
+        mainPanel.add(bottomText, BorderLayout.SOUTH);
 
         this.add(mainPanel);
     }
@@ -101,12 +105,8 @@ public class ExtendedTooltip
     {
         titleLabel.setText(titleText);
 
-        int stringWidth = GuiUtils.getStringWidth(titleLabel, titleText);
-
-        if (textWidth < stringWidth)
-            textWidth = stringWidth;
-
-        textHeight += GuiUtils.getStringSize(titleLabel, titleText).height;
+        Dimension labelSize = GuiUtils.getStringSize(titleLabel,titleText);
+        recalculateTooltipSize(labelSize.width, labelSize.height);
     }
 
     /**
@@ -170,7 +170,7 @@ public class ExtendedTooltip
      */
     public void setBottomText(String text)
     {
-        this.bottomLabel.setText(text);
+        this.bottomText.setText(text);
     }
 
     /**
@@ -230,6 +230,21 @@ public class ExtendedTooltip
         {}
 
         /**
+         * Override ComponentUI update method to set visibility of bottomText.
+         * @param g <tt>Graphics</tt> object
+         * @param c the component used to render the tooltip
+         */
+        @Override
+        public void update(Graphics g, JComponent c)
+        {
+            if(bottomText.getText().isEmpty())
+                bottomText.setVisible(false);
+            else
+                bottomText.setVisible(true);
+            super.update(g, c);
+        }
+
+        /**
          * Returns the size of the given component.
          * @param c the component used to render the tooltip
          * @return the size of the given component.
@@ -259,11 +274,12 @@ public class ExtendedTooltip
             else
                 height = imageHeight + textHeight;
 
-            if (bottomLabel.getText() != null
-                && bottomLabel.getText().length() > 0)
+            if(!bottomText.getText().isEmpty())
             {
-                height += GuiUtils.getStringSize(
-                    bottomLabel, bottomLabel.getText()).height;
+                // Seems a little messy, but sets the proper size.
+                bottomText.setSize(width,1);
+                height += bottomText.getPreferredSize().height;
+                bottomText.setSize(bottomText.getPreferredSize());
             }
 
             return new Dimension(width, height);

@@ -7,8 +7,12 @@ package net.java.sip.communicator.plugin.contactinfo;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.text.DateFormat;
 import java.util.*;
+
+import java.text.*;
+
+import java.util.regex.*;
+import javax.swing.text.html.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -483,6 +487,28 @@ public class ContactInfoDetailsPanel
             }
         }
 
+        // Add users status message to extended details if it exists
+        if(!contact.getStatusMessage().isEmpty())
+        {
+            detailLabel = new JLabel();
+            HTMLTextPane detailValuePane = new HTMLTextPane();
+            detailPanel = new TransparentPanel(new BorderLayout(10, 10));
+
+            detailValuePane.setEditable(false);
+            detailValuePane.setOpaque(false);
+
+            detailPanel.add(detailLabel, BorderLayout.WEST);
+            detailPanel.add(detailValuePane, BorderLayout.CENTER);
+            detailPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            extendedPanel.add(detailPanel);
+
+            detailLabel.setText(Resources.getString(
+                "plugin.contactinfo.USER_STATUS_MESSAGE") + ": ");
+
+            detailValuePane.setText(contact.getStatusMessage());
+        }
+
         // If the contact's protocol supports web info, give them a button to
         // get it
         OperationSetWebContactInfo webContactInfo
@@ -532,5 +558,97 @@ public class ContactInfoDetailsPanel
         mainExtendedPanel.add(extendedPanel, BorderLayout.NORTH);
 
         return mainExtendedPanel;
+    }
+
+    /**
+     * The <tt>HTMLTextPane</tt> is a pane that handles displaying HTML and
+     * hyperlinking urls found in the text.
+     */
+    private class HTMLTextPane
+        extends JTextPane
+        implements HyperlinkListener
+    {
+        /**
+         * The regular expression (in the form of compiled <tt>Pattern</tt>)
+         * which matches URLs for the purposed of turning them into links.
+         */
+        private final Pattern URL_PATTERN = Pattern.compile("("
+            + "(\\bwww\\.[^\\s<>\"]+\\.[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // wwwURL
+            + "|" + "(\\b\\w+://[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // protocolURL
+            + ")");
+        
+        private SIPCommHTMLEditorKit editorKit;
+        private HTMLDocument document;
+        
+        /**
+         * Creates and instance of <tt>HTMLTextPane</tt>
+         */
+        public HTMLTextPane()
+        {
+            editorKit = new SIPCommHTMLEditorKit(this);
+
+            this.document = (HTMLDocument) editorKit.createDefaultDocument();
+            
+            this.addHyperlinkListener(this);
+
+            this.setContentType("text/html");
+            this.setEditorKitForContentType("text/html", editorKit);
+            this.setEditorKit(editorKit);
+            this.setDocument(document);
+            
+            putClientProperty(
+                JTextPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        }
+        
+        
+        /**
+         * Override of parent <tt>setText(String)</tt> to search for URLs and
+         * set as hyperlinks.
+         * @param string <tt>String</tt> to display.
+         */
+        @Override
+        public void setText(String string)
+        {
+            
+            Matcher m = URL_PATTERN.matcher(string);
+            StringBuffer msgBuffer = new StringBuffer();
+            int prevEnd = 0;
+
+            while (m.find())
+            {
+                String fromPrevEndToStart = string.substring(prevEnd, m.start());
+
+                msgBuffer.append(fromPrevEndToStart);
+                prevEnd = m.end();
+
+                String url = m.group().trim();
+
+                msgBuffer.append("<A href=\"");
+                if (url.startsWith("www"))
+                    msgBuffer.append("http://");
+                msgBuffer.append(url);
+                msgBuffer.append("\">");
+                msgBuffer.append(url);
+                msgBuffer.append("</A>");
+            }
+            
+            String fromPrevEndToEnd = string.substring(prevEnd);
+
+            msgBuffer.append(fromPrevEndToEnd);
+
+            super.setText(msgBuffer.toString());
+            
+        }
+        
+        /**
+         * Handles activations of hyperlinks
+         * @param e <tt>HyperlinkEvent</tt> to handle.
+         */
+        public void hyperlinkUpdate(HyperlinkEvent e)
+        {
+            if(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+                ContactInfoActivator.getBrowserLauncher()
+                    .openURL(e.getURL().toString());
+        }
     }
 }
