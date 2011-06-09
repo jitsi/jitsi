@@ -31,7 +31,7 @@ public class ParameterizedVideoFormat
             String encoding,
             Dimension size,
             int maxDataLength,
-            Class dataType,
+            Class<?> dataType,
             float frameRate,
             Map<String, String> fmtps)
     {
@@ -181,7 +181,7 @@ public class ParameterizedVideoFormat
         ((ParameterizedVideoFormat) intersection).fmtps
             = fmtps.isEmpty()
                 ? MediaFormatImpl.EMPTY_FORMAT_PARAMETERS
-                : getFormatParameters(); 
+                : getFormatParameters();
         return intersection;
     }
 
@@ -214,7 +214,7 @@ public class ParameterizedVideoFormat
     /**
      * Initializes a new <tt>Map</tt> from an array in which the key and the
      * value of an association are expressed as consecutive elements.
-     * 
+     *
      * @param <T> the very type of the keys and the values to be associated in
      * the new <tt>Map</tt>
      * @param entries the associations to be created in the new <tt>Map</tt>

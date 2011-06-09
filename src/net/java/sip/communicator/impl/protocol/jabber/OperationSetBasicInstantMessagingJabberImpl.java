@@ -645,7 +645,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                     // for some reason &apos; is not rendered correctly
                     // from our ui, lets use its equivalent. Other
-                    // similar chars(< > & ") seem ok. 
+                    // similar chars(< > & ") seem ok.
                     receivedMessage =
                             receivedMessage.replaceAll("&apos;", "&#39;");
 
@@ -1043,6 +1043,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
         return message.toString();
     }
+
     /**
      * Receives incoming MailNotification Packets
      */

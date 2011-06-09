@@ -55,6 +55,15 @@ public class OperationSetContactCapabilitiesJabberImpl
     private static final Map<Class<? extends OperationSet>, String[]>
         OPERATION_SETS_TO_FEATURES
             = new HashMap<Class<? extends OperationSet>, String[]>();
+    /**
+     * The <tt>Map</tt> which associates specific additionnal
+     * <tt>OperationSet</tt> class with the capabilities to be supported by a
+     * <tt>Contact</tt> in order to consider the <tt>Contact</tt> to possess the
+     * respective <tt>OperationSet</tt> capability.
+     */
+     private static final Map<Class<? extends OperationSet>, String[]>
+        CAPS_OPERATION_SETS_TO_FEATURES
+            = new HashMap<Class<? extends OperationSet>, String[]>();
 
     static
     {
@@ -86,6 +95,24 @@ public class OperationSetContactCapabilitiesJabberImpl
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP,
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP_VIDEO
                 });
+
+        CAPS_OPERATION_SETS_TO_FEATURES.put(
+                OperationSetBasicTelephony.class,
+                new String[]
+                {
+                    ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VOICE,
+                });
+
+        /* XXX video does not work yet so don't expose possibility to video call
+         * to users
+        CAPS_OPERATION_SETS_TO_FEATURES.put(
+                OperationSetVideoTelephony.class,
+                new String[]
+                {
+                    ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VOICE,
+                    ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VIDEO
+                });
+        */
     }
 
     /**
@@ -297,7 +324,9 @@ public class OperationSetContactCapabilitiesJabberImpl
             if (OFFLINE_OPERATION_SETS.contains(opsetClass))
                 return opset;
             else
+            {
                 return null;
+            }
         }
 
         /*
@@ -321,8 +350,33 @@ public class OperationSetContactCapabilitiesJabberImpl
                             && !parentProvider.isFeatureListSupported(
                                     jid,
                                     features)))
-                opset = null;
+            {
+                if(CAPS_OPERATION_SETS_TO_FEATURES.containsKey(opsetClass))
+                {
+                    String[] extFeatures =
+                        CAPS_OPERATION_SETS_TO_FEATURES.get(
+                            opsetClass);
+
+                    // test GTalk
+                    if(!Boolean.getBoolean("gtalktesting"))
+                    {
+                        opset = null;
+                    }
+                    else
+                    if((extFeatures == null) || ((extFeatures.length != 0) &&
+                            !parentProvider.isExtFeatureListSupported(jid,
+                                    extFeatures)))
+                    {
+                        opset = null;
+                    }
+                }
+                else
+                {
+                    opset = null;
+                }
+            }
         }
+
         return opset;
     }
 

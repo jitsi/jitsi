@@ -96,7 +96,8 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
         if ((streamConnector == null)
                 || streamConnector.getDataSocket().isClosed()
-                || streamConnector.getControlSocket().isClosed())
+                || (streamConnector.getControlSocket() != null &&
+                        streamConnector.getControlSocket().isClosed()))
         {
             streamConnectors[mediaType.ordinal()]
                 = streamConnector

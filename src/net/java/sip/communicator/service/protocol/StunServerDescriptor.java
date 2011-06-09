@@ -45,6 +45,12 @@ public class StunServerDescriptor
     private boolean isTurnSupported;
 
     /**
+     * If TURN version supported by this <tt>StunServerDescriptor</tt> is not
+     * the RFC 5766.
+     */
+    private boolean isOldTurn = false;
+
+    /**
      * The username that we need to use with the server or <tt>null</tt> if
      * this server does not require a user name.
      */
@@ -272,6 +278,27 @@ public class StunServerDescriptor
                                             stunPassword);
 
         return stunServer;
+    }
+
+    /**
+     * Returns true if the TURN protocol supported is not the RFC5766 ones.
+     *
+     * @return Returns true if the TURN protocol supported is not the RFC5766
+     * ones.
+     */
+    public boolean isOldTurn()
+    {
+        return isOldTurn;
+    }
+
+    /**
+     * Set the old TURN support.
+     *
+     * @param val value to set
+     */
+    public void setOldTurn(boolean val)
+    {
+        this.isOldTurn = val;
     }
 
     /**

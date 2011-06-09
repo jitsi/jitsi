@@ -14,7 +14,8 @@ import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
 
 /**
- * An implementation of a GTalk session IQ provider that parses incoming session IQs.
+ * An implementation of a GTalk session IQ provider that parses incoming session
+ * IQs.
  *
  * @author Sebastien Vincent
  */
@@ -97,9 +98,7 @@ public class SessionIQProvider
      * instance.
      *
      * @param parser an XML parser.
-     *
      * @return a new {@link SessionIQ} instance.
-     *
      * @throws Exception if an error occurs parsing the XML.
      */
     public IQ parseIQ(XmlPullParser parser) throws Exception

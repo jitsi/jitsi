@@ -414,7 +414,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * @throws OperationFailedException if inviting the specified callee to the
      * specified call fails
      */
-    protected CallPeerJabberImpl inviteCalleeToCall(
+    protected CallPeer inviteCalleeToCall(
             String calleeAddress,
             CallJabberImpl call,
             boolean wasConferenceFocus)
@@ -434,7 +434,8 @@ public class OperationSetTelephonyConferencingJabberImpl
         }
 
         CoinPacketExtension confInfo = new CoinPacketExtension(true);
-        return getBasicTelephony().createOutgoingCall(call, calleeAddress,
+        return getBasicTelephony().createOutgoingCall(
+                call, calleeAddress,
                 Arrays.asList(new PacketExtension[] { confInfo }));
     }
 

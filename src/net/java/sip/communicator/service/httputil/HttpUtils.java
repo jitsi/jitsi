@@ -67,7 +67,23 @@ public class HttpUtils
      */
     public static HTTPResponseResult openURLConnection(String address)
     {
-        return openURLConnection(address, null, null);
+        return openURLConnection(address, null, null, null, null);
+    }
+
+    /**
+     * Opens a connection to the <tt>address</tt>.
+     * @param address the address to contact.
+     * @param headerParamNames additional header name to include
+     * @param headerParamValues corresponding header value to include
+     * @return the result if any or null if connection was not possible
+     * or canceled by user.
+     */
+    public static HTTPResponseResult openURLConnection(String address,
+            String[] headerParamNames,
+            String[] headerParamValues)
+    {
+        return openURLConnection(address, null, null, headerParamNames,
+                headerParamValues);
     }
 
     /**
@@ -79,12 +95,16 @@ public class HttpUtils
      * @param passwordPropertyName the property to use to retrieve/store
      * password value if protected site is hit, for password
      * CredentialsStorageService service is used.
+     * @param headerParamNames additional header name to include
+     * @param headerParamValues corresponding header value to include
      * @return the result if any or null if connection was not possible
      * or canceled by user.
      */
     public static HTTPResponseResult openURLConnection(String address,
                                                 String usernamePropertyName,
-                                                String passwordPropertyName)
+                                                String passwordPropertyName,
+                                                String[] headerParamNames,
+                                                String[] headerParamValues)
     {
         try
         {
@@ -92,6 +112,16 @@ public class HttpUtils
             DefaultHttpClient httpClient = getHttpClient(
                 usernamePropertyName, passwordPropertyName,
                 httpGet.getURI().getHost());
+
+            /* add additional HTTP header */
+            if(headerParamNames != null && headerParamValues != null)
+            {
+                for(int i = 0 ; i < headerParamNames.length ; i++)
+                {
+                    httpGet.addHeader(new BasicHeader(headerParamNames[i],
+                            headerParamValues[i]));
+                }
+            }
 
             HttpEntity result = executeMethod(httpClient, httpGet);
 
@@ -282,6 +312,7 @@ public class HttpUtils
     /**
      * Posting form to <tt>address</tt>. For submission we use POST method
      * which is "application/x-www-form-urlencoded" encoded.
+     * @param address HTTP address.
      * @param usernamePropertyName the property to use to retrieve/store
      * username value if protected site is hit, for username
      * ConfigurationService service is used.

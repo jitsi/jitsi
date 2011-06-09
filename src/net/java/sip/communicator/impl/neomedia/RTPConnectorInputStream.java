@@ -86,9 +86,12 @@ public class RTPConnectorInputStream
     {
         this.socket = socket;
 
-        closed = false;
-        receiverThread = new Thread(this);
-        receiverThread.start();
+        if(socket != null)
+        {
+            closed = false;
+            receiverThread = new Thread(this);
+            receiverThread.start();
+        }
     }
 
     /**
@@ -97,7 +100,10 @@ public class RTPConnectorInputStream
     public synchronized void close()
     {
         closed = true;
-        socket.close();
+        if(socket != null)
+        {
+            socket.close();
+        }
     }
 
     /**

@@ -318,8 +318,8 @@ public class GTalkPacketFactory
 
         TransportAddress transportAddress = candidate.getTransportAddress();
 
-        // XXX different username/password for each candidate ?
-        packet.setUsername(stream.getParentAgent().getLocalUfrag());
+        // different username/password for each candidate ?
+        packet.setUsername(((LocalCandidate)candidate).getUfrag());
         packet.setPassword("");
         packet.setAddress(transportAddress.getHostAddress());
         packet.setPort(transportAddress.getPort());
@@ -340,7 +340,8 @@ public class GTalkPacketFactory
         }
 
         packet.setType(candType);
-        packet.setPreference(candidate.getPriority() / 1000);
+        double priority = candidate.getPriority();
+        packet.setPreference((priority / 1000));
 
         return packet;
     }

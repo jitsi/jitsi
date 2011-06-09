@@ -281,6 +281,8 @@ public class DeviceConfiguration
     public static final Dimension[] SUPPORTED_RESOLUTIONS =
         new Dimension[]
             {
+        // QVGA
+        new Dimension(160, 100),
                 //QCIF
                 new Dimension(176, 144),
                 // QVGA

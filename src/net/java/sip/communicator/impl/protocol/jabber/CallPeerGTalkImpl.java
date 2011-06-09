@@ -524,7 +524,6 @@ public class CallPeerGTalkImpl
     public synchronized void answer()
         throws OperationFailedException
     {
-        System.out.println("answer");
         RtpDescriptionPacketExtension answer = null;
 
         try
@@ -623,7 +622,6 @@ public class CallPeerGTalkImpl
         {
             candidatesIQ.addExtension(candidate);
         }
-        System.out.println("IQ: " + candidatesIQ.toXML());
 
         protocolProvider.getConnection().sendPacket(candidatesIQ);
     }

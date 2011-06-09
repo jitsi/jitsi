@@ -20,7 +20,10 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
 import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 import net.java.sip.communicator.service.certificate.*;
@@ -119,6 +122,23 @@ public class ProtocolProviderServiceJabberImpl
      */
     public static final String URN_XMPP_JINGLE_RTP_HDREXT =
         "urn:xmpp:jingle:apps:rtp:rtp-hdrext:0";
+
+    /**
+     * Capabilities name for audio call in Google Talk web version.
+     */
+    public static final String CAPS_GTALK_WEB_VOICE = "voice-v1";
+
+    /**
+     * Capabilities name for video call (receive side) in Google Talk web
+     * version.
+     */
+    public static final String CAPS_GTALK_WEB_VIDEO = "video-v1";
+
+    /**
+     * Capabilities name for video call (sender side) in Google Talk web
+     * version.
+     */
+    public static final String CAPS_GTALK_WEB_CAMERA = "camera-v1";
 
     /**
      * Used to connect to a XMPP server.
@@ -939,8 +959,19 @@ public class ProtocolProviderServiceJabberImpl
                     // Remove features supported by smack, but not supported in
                     // SIP Communicator.
                     new String[] { "http://jabber.org/protocol/commands" },
-                    // Add features SIP Communicator supports in addition to smack.
-                    supportedFeatures.toArray(new String[supportedFeatures.size()]));
+                    // Add features SIP Communicator supports in addition to
+                    // smack.
+                    supportedFeatures.toArray(
+                            new String[supportedFeatures.size()]));
+
+        if(Boolean.getBoolean("gtalktesting"))
+        {
+            // Add Google Talk "ext" capabilities
+            discoveryManager.addExtFeature(CAPS_GTALK_WEB_VOICE);
+            // XXX video does not work yet
+            //discoveryManager.addExtFeature(CAPS_GTALK_WEB_VIDEO);
+            //discoveryManager.addExtFeature(CAPS_GTALK_WEB_CAMERA);
+        }
 
         /*
          * Expose the discoveryManager as service-public through the
@@ -1218,6 +1249,16 @@ public class ProtocolProviderServiceJabberImpl
                                           CoinIQ.NAMESPACE,
                                           new CoinIQProvider());
             supportedFeatures.add(URN_XMPP_JINGLE_COIN);
+
+            //register our GTalk dialect provider
+            providerManager.addIQProvider( SessionIQ.ELEMENT_NAME,
+                                           SessionIQ.NAMESPACE,
+                                           new SessionIQProvider());
+
+            // register our JingleInfo provider
+            providerManager.addIQProvider(JingleInfoQueryIQ.ELEMENT_NAME,
+                                          JingleInfoQueryIQ.NAMESPACE,
+                                          new JingleInfoQueryIQProvider());
 
             //initialize the telephony operation set
             OperationSetBasicTelephonyJabberImpl basicTelephony
@@ -1607,6 +1648,50 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Determines if the given list of <tt>ext features</tt> is supported by the
+     * specified jabber id.
+     *
+     * @param jid the jabber id for which to check
+     * @param extFeatures the list of ext features to check for
+     *
+     * @return <tt>true</tt> if the list of ext features is supported;
+     * otherwise, <tt>false</tt>
+     */
+    public boolean isExtFeatureListSupported(String jid, String... extFeatures)
+    {
+        EntityCapsManager capsManager  = discoveryManager.getCapsManager();
+        EntityCapsManager.Caps caps = capsManager.getCapsByUser(jid);
+
+        if(caps != null && caps.ext != null)
+        {
+            String exts[] = caps.ext.split(" ");
+            boolean found = false;
+
+            for(String extFeature : extFeatures)
+            {
+                found = false;
+                for(String ext : exts)
+                {
+                    if(ext.equals(extFeature))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                {
+                    break;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Determines if the given list of <tt>features</tt> is supported by the
      * specified jabber id.
      *
@@ -1926,6 +2011,8 @@ public class ProtocolProviderServiceJabberImpl
                     if(logger.isInfoEnabled())
                     {
                         logger.info("Jingle Nodes discovery terminated!");
+                        logger.info("Found " + nodes.getRelayEntries().size() +
+                                " Jingle Nodes relay");
                     }
 
                     service.addEntries(nodes);

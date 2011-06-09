@@ -827,8 +827,10 @@ public class MediaStreamImpl
                         new SessionAddress(
                                 dataAddr.getAddress(),
                                 dataAddr.getPort(),
-                                controlAddr.getAddress(),
-                                controlAddr.getPort()));
+                                controlAddr != null ? controlAddr.getAddress()
+                                        : null,
+                                controlAddr != null ? controlAddr.getPort()
+                                        : 0));
                 targetIsSet = true;
             }
             catch (IOException ioe)

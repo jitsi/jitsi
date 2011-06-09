@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.media.*;
 
 /**
  * Implements all desktop streaming related functions for XMPP.
@@ -217,7 +218,8 @@ public class OperationSetDesktopStreamingJabberImpl
      */
     public boolean isLocalVideoAllowed(Call call)
     {
-        return ((CallJabberImpl)call).isLocalVideoAllowed(MediaUseCase.DESKTOP);
+        return ((MediaAwareCall<?, ?, ?>)call).
+            isLocalVideoAllowed(MediaUseCase.DESKTOP);
     }
 
     /**

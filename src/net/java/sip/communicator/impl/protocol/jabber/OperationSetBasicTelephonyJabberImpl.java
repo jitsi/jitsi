@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -28,6 +30,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Emil Ivov
  * @author Symphorien Wanko
  * @author Lyubomir Marinov
+ * @author Sebastien Vincent
  */
 public class OperationSetBasicTelephonyJabberImpl
    extends AbstractOperationSetBasicTelephony<ProtocolProviderServiceJabberImpl>
@@ -127,14 +130,22 @@ public class OperationSetBasicTelephonyJabberImpl
         throws OperationFailedException
     {
         CallJabberImpl call = new CallJabberImpl(this);
+        CallPeer callPeer = null;
 
-        if (createOutgoingCall(call, callee) == null)
+        callPeer = createOutgoingCall(call, callee);
+        if (callPeer == null)
         {
             throw new OperationFailedException(
                     "Failed to create outgoing call"
                         + " because no peer was created",
                     OperationFailedException.INTERNAL_ERROR);
         }
+        if(callPeer.getCall() != call)
+        {
+            // We may have a Google Talk call here
+            return callPeer.getCall();
+        }
+
         return call;
     }
 
@@ -172,7 +183,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    CallPeerJabberImpl createOutgoingCall(
+    AbstractCallPeer<?, ?> createOutgoingCall(
             CallJabberImpl call,
             String calleeAddress)
         throws OperationFailedException
@@ -199,7 +210,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    CallPeerJabberImpl createOutgoingCall(
+    AbstractCallPeer<?, ?> createOutgoingCall(
             CallJabberImpl call,
             String calleeAddress,
             Iterable<PacketExtension> sessionInitiateExtensions)
@@ -226,6 +237,9 @@ public class OperationSetBasicTelephonyJabberImpl
             getProtocolProvider().getConnection().getRoster().getPresences(
                 calleeAddress);
         String calleeURI = null;
+        boolean isGingle = false;
+        String gingleURI = null;
+        int bestPriorityGTalk = -1;
 
         // choose the resource that has the highest priority AND support Jingle
         while(it.hasNext())
@@ -252,6 +266,27 @@ public class OperationSetBasicTelephonyJabberImpl
                         fullCalleeURI = calleeURI;
                     }
                 }
+                else
+                {
+                    // test GTALK property
+                    if(!Boolean.getBoolean("gtalktesting"))
+                    {
+                        continue;
+                    }
+
+                    /* see if peer supports Google Talk voice */
+                    if(getProtocolProvider().isExtFeatureListSupported(
+                            calleeURI, ProtocolProviderServiceJabberImpl.
+                                CAPS_GTALK_WEB_VOICE))
+                    {
+                        if(priority > bestPriorityGTalk)
+                        {
+                            bestPriorityGTalk = priority;
+                            isGingle = true;
+                            gingleURI = calleeURI;
+                        }
+                    }
+                }
             }
             catch (XMPPException ex)
             {
@@ -271,7 +306,15 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         */
 
-        if(di != null)
+        if(isGingle)
+        {
+            if(logger.isInfoEnabled())
+            {
+                logger.info(gingleURI + ": Google Talk dialect supported");
+            }
+            fullCalleeURI = gingleURI;
+        }
+        else if(di != null)
         {
             if (logger.isInfoEnabled())
                 logger.info(fullCalleeURI + ": jingle supported ");
@@ -279,10 +322,12 @@ public class OperationSetBasicTelephonyJabberImpl
         else
         {
             if (logger.isInfoEnabled())
-                logger.info(calleeURI + ": jingle not supported ?");
+                logger.info(calleeURI +
+                        ": jingle and Google Talk not supported ?");
+
             throw new OperationFailedException(
                     "Failed to create OutgoingJingleSession.\n"
-                        + calleeURI + " does not support jingle",
+                        + calleeURI + " does not support jingle or Google Talk",
                     OperationFailedException.INTERNAL_ERROR);
         }
 
@@ -291,16 +336,30 @@ public class OperationSetBasicTelephonyJabberImpl
             logger.info("Choose one is: " + fullCalleeURI + " " + bestPriority);
         }
 
-        CallPeerJabberImpl peer = null;
+        AbstractCallPeer<?, ?> peer = null;
 
         // initiate call
         try
         {
-            peer
-                = call.initiateSession(
-                        fullCalleeURI,
-                        di,
-                        sessionInitiateExtensions);
+            if(isGingle)
+            {
+                logger.info("initiate Gingle call");
+                CallGTalkImpl callGTalk = new CallGTalkImpl(this);
+                MediaUseCase useCase = call.getMediaUseCase();
+                boolean isVideo = call.isLocalVideoAllowed(useCase);
+
+                callGTalk.setLocalVideoAllowed(isVideo, useCase);
+                peer = callGTalk.initiateGTalkSession(fullCalleeURI,
+                       sessionInitiateExtensions);
+            }
+            else if(di != null)
+            {
+                peer
+                    = call.initiateSession(
+                            fullCalleeURI,
+                            di,
+                            sessionInitiateExtensions);
+            }
         }
         catch(Throwable t)
         {
@@ -397,7 +456,8 @@ public class OperationSetBasicTelephonyJabberImpl
     private void putOnHold(CallPeer peer, boolean on)
         throws OperationFailedException
     {
-        ((CallPeerJabberImpl) peer).putOnHold(on);
+        if(peer instanceof CallPeerJabberImpl)
+            ((CallPeerJabberImpl) peer).putOnHold(on);
     }
 
     /**
@@ -410,7 +470,7 @@ public class OperationSetBasicTelephonyJabberImpl
     @Override
     public void setMute(Call call, boolean mute)
     {
-        ((CallJabberImpl) call).setMute(mute);
+        ((MediaAwareCall<?, ?, ?>) call).setMute(mute);
     }
 
     /**
@@ -426,7 +486,15 @@ public class OperationSetBasicTelephonyJabberImpl
         throws ClassCastException,
                OperationFailedException
     {
-        ((CallPeerJabberImpl) peer).hangup(null, null);
+        // XXX maybe add answer/hangup abstract method to MediaAwareCallPeer
+        if(peer instanceof CallPeerJabberImpl)
+        {
+            ((CallPeerJabberImpl) peer).hangup(null, null);
+        }
+        else if(peer instanceof CallPeerGTalkImpl)
+        {
+            ((CallPeerGTalkImpl) peer).hangup(null, null);
+        }
     }
 
     /**
@@ -439,7 +507,15 @@ public class OperationSetBasicTelephonyJabberImpl
     public void answerCallPeer(CallPeer peer)
         throws OperationFailedException
     {
-        ((CallPeerJabberImpl) peer).answer();
+        // XXX maybe add answer/hangup abstract method to MediaAwareCallPeer
+        if(peer instanceof CallPeerJabberImpl)
+        {
+            ((CallPeerJabberImpl) peer).answer();
+        }
+        else if(peer instanceof CallPeerGTalkImpl)
+        {
+            ((CallPeerGTalkImpl) peer).answer();
+        }
     }
 
     /**
@@ -451,6 +527,8 @@ public class OperationSetBasicTelephonyJabberImpl
             logger.trace("Ending all active calls. ");
         Iterator<CallJabberImpl> activeCalls
             = this.activeCallsRepository.getActiveCalls();
+        Iterator<CallGTalkImpl> activeGTalkCalls
+            = this.activeGTalkCallsRepository.getActiveCalls();
 
         // this is fast, but events aren't triggered ...
         //jingleManager.disconnectAllSessions();
@@ -460,6 +538,26 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             CallJabberImpl call = activeCalls.next();
             Iterator<CallPeerJabberImpl> callPeers = call.getCallPeers();
+
+            //go through all call peers and say bye to every one.
+            while (callPeers.hasNext())
+            {
+                CallPeer peer = callPeers.next();
+                try
+                {
+                    this.hangupCallPeer(peer);
+                }
+                catch (Exception ex)
+                {
+                    logger.warn("Failed to properly hangup peer " + peer, ex);
+                }
+            }
+        }
+
+        while(activeGTalkCalls.hasNext())
+        {
+            CallGTalkImpl call = activeGTalkCalls.next();
+            Iterator<CallPeerGTalkImpl> callPeers = call.getCallPeers();
 
             //go through all call peers and say bye to every one.
             while (callPeers.hasNext())
@@ -508,12 +606,20 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public boolean accept(Packet packet)
     {
+        String sid = null;
+
         //we only handle JingleIQ-s
-        if( ! (packet instanceof JingleIQ) )
+        if( ! (packet instanceof JingleIQ) && !(packet instanceof SessionIQ))
         {
-            CallPeerJabberImpl callPeer =
+            AbstractCallPeer<?, ?> callPeer =
                 activeCallsRepository.findCallPeerBySessInitPacketID(
                     packet.getPacketID());
+
+            if(callPeer == null)
+            {
+                callPeer = activeGTalkCallsRepository.
+                    findCallPeerBySessInitPacketID(packet.getPacketID());
+            }
 
             if(callPeer != null)
             {
@@ -546,19 +652,40 @@ public class OperationSetBasicTelephonyJabberImpl
             return false;
         }
 
-        JingleIQ jingleIQ = (JingleIQ)packet;
-
-        if( jingleIQ.getAction() == JingleAction.SESSION_INITIATE)
+        if(packet instanceof JingleIQ)
         {
-            //we only accept session-initiate-s dealing RTP
-            return
-                jingleIQ.containsContentChildOfType(
-                        RtpDescriptionPacketExtension.class);
-        }
+            JingleIQ jingleIQ = (JingleIQ)packet;
 
-        //if this is not a session-initiate we'll only take it if we've
-        //already seen its session ID.
-        return (activeCallsRepository.findJingleSID(jingleIQ.getSID()) != null);
+            if( jingleIQ.getAction() == JingleAction.SESSION_INITIATE)
+            {
+                //we only accept session-initiate-s dealing RTP
+                return
+                    jingleIQ.containsContentChildOfType(
+                            RtpDescriptionPacketExtension.class);
+            }
+
+            sid = jingleIQ.getSID();
+
+            //if this is not a session-initiate we'll only take it if we've
+            //already seen its session ID.
+            return (activeCallsRepository.findJingleSID(sid) != null);
+        }
+        else if(packet instanceof SessionIQ)
+        {
+            SessionIQ sessionIQ = (SessionIQ)packet;
+
+            if(sessionIQ.getGTalkType() == GTalkType.INITIATE)
+            {
+                return true;
+            }
+
+            sid = sessionIQ.getID();
+
+            //if this is not a session's initiate we'll only take it if we've
+            //already seen its session ID.
+            return (activeGTalkCallsRepository.findSessionID(sid) != null);
+        }
+        return false;
     }
 
     /**
@@ -570,38 +697,75 @@ public class OperationSetBasicTelephonyJabberImpl
     public void processPacket(Packet packet)
     {
         //this is not supposed to happen because of the filter ... but still
-        if (! (packet instanceof JingleIQ) )
+        if (! (packet instanceof JingleIQ) && !(packet instanceof SessionIQ))
             return;
 
-        JingleIQ jingleIQ = (JingleIQ)packet;
-
-        //to prevent hijacking sessions from other jingle based features
-        //like file transfer for example,  we should only send the
-        //ack if this is a session-initiate with rtp content or if we are
-        //the owners of this packet's sid
-
-        //first ack all "set" requests.
-        if(jingleIQ.getType() == IQ.Type.SET)
+        // test GTALK property
+        if(!Boolean.getBoolean("gtalktesting") && (packet instanceof SessionIQ))
         {
-            IQ ack = IQ.createResultIQ(jingleIQ);
-            protocolProvider.getConnection().sendPacket(ack);
+            return;
         }
 
-        try
+        if(packet instanceof JingleIQ)
         {
-            processJingleIQ(jingleIQ);
-        }
-        catch(Throwable t)
-        {
-            logger.info("Error while handling incoming Jingle packet: ", t);
+            JingleIQ jingleIQ = (JingleIQ)packet;
 
-            /*
-             * The Javadoc on ThreadDeath says: If ThreadDeath is caught by a
-             * method, it is important that it be rethrown so that the thread
-             * actually dies.
-             */
-            if (t instanceof ThreadDeath)
-                throw (ThreadDeath) t;
+            //to prevent hijacking sessions from other jingle based features
+            //like file transfer for example,  we should only send the
+            //ack if this is a session-initiate with rtp content or if we are
+            //the owners of this packet's sid
+
+            //first ack all "set" requests.
+            if(jingleIQ.getType() == IQ.Type.SET)
+            {
+                IQ ack = IQ.createResultIQ(jingleIQ);
+                protocolProvider.getConnection().sendPacket(ack);
+            }
+
+            try
+            {
+                processJingleIQ(jingleIQ);
+            }
+            catch(Throwable t)
+            {
+                logger.info("Error while handling incoming Jingle packet: ", t);
+
+                /*
+                 * The Javadoc on ThreadDeath says: If ThreadDeath is caught by
+                 * a method, it is important that it be rethrown so that the
+                 * thread actually dies.
+                 */
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+            }
+        }
+        else if(packet instanceof SessionIQ)
+        {
+            SessionIQ sessionIQ = (SessionIQ)packet;
+
+            //first ack all "set" requests.
+            if(sessionIQ.getType() == IQ.Type.SET)
+            {
+                IQ ack = IQ.createResultIQ(sessionIQ);
+                protocolProvider.getConnection().sendPacket(ack);
+            }
+
+            try
+            {
+                processSessionIQ(sessionIQ);
+            }
+            catch(Throwable t)
+            {
+                logger.info("Error while handling incoming GTalk packet: ", t);
+
+                /*
+                 * The Javadoc on ThreadDeath says: If ThreadDeath is caught by
+                 * a method, it is important that it be rethrown so that the
+                 * thread actually dies.
+                 */
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+            }
         }
     }
 
@@ -781,6 +945,85 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
+     * Analyzes the <tt>sessionIQ</tt>'s action and passes it to the
+     * corresponding handler.
+     *
+     * @param sessionIQ the {@link SessionIQ} packet we need to be analyzing.
+     */
+    private void processSessionIQ(SessionIQ sessionIQ)
+    {
+        //let's first see whether we have a peer that's concerned by this IQ
+        CallPeerGTalkImpl callPeer =
+            activeGTalkCallsRepository.findCallPeer(sessionIQ.getID());
+        IQ.Type type = sessionIQ.getType();
+
+        if(type == Type.RESULT)
+        {
+            return;
+        }
+
+        if (type == Type.ERROR)
+        {
+            logger.error("Received error");
+
+            XMPPError error = sessionIQ.getError();
+            String message = "Remote party returned an error!";
+
+            if(error != null)
+            {
+                logger.error(" code=" + error.getCode()
+                                + " message=" + error.getMessage());
+
+                if (error.getMessage() != null)
+                    message = error.getMessage();
+            }
+
+            if (callPeer != null)
+                callPeer.setState(CallPeerState.FAILED, message);
+
+            return;
+        }
+
+        GTalkType action = sessionIQ.getGTalkType();
+
+        if(action == GTalkType.INITIATE)
+        {
+            CallGTalkImpl call = null;
+
+            if(call == null)
+            {
+                call = new CallGTalkImpl(this);
+            }
+
+            call.processGTalkInitiate(sessionIQ);
+            return;
+        }
+        else if (callPeer == null)
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("Received a stray trying response.");
+            return;
+        }
+        //the rest of these cases deal with existing peers
+        else if(action == GTalkType.CANDIDATES)
+        {
+            callPeer.processCandidates(sessionIQ);
+        }
+        else if(action == GTalkType.REJECT)
+        {
+            callPeer.processSessionReject(sessionIQ);
+        }
+        else if(action == GTalkType.TERMINATE)
+        {
+            callPeer.processSessionTerminate(sessionIQ);
+        }
+        else if(action == GTalkType.ACCEPT)
+        {
+            callPeer.processSessionAccept(sessionIQ);
+        }
+    }
+
+    /**
      * Returns a reference to the {@link ActiveCallsRepositoryJabberImpl} that
      * we are currently using.
      *
@@ -824,7 +1067,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public boolean isSecure(CallPeer peer)
     {
-        return ((CallPeerJabberImpl) peer).getMediaHandler().isSecure();
+        return ((MediaAwareCallPeer<?, ?, ?>) peer).getMediaHandler().
+            isSecure();
     }
 
     /**
@@ -837,7 +1081,8 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void setSasVerified(CallPeer peer, boolean verified)
     {
-        ((CallPeerJabberImpl) peer).getMediaHandler().setSasVerified(verified);
+        ((MediaAwareCallPeer<?, ?, ?>) peer).getMediaHandler().setSasVerified(
+                verified);
     }
 
     /**

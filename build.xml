@@ -747,6 +747,9 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="${java.net.preferIPv6Addresses}"/>
 
+            <sysproperty key="gtalktesting"
+                value="${gtalktesting}"/>
+
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                 value="${user.home}"/>
             <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_NAME"

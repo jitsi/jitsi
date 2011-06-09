@@ -183,7 +183,6 @@ public class CallPeerMediaHandlerGTalkImpl
             atLeastOneValidDescription = true;
         }
 
-
         if (!atLeastOneValidDescription)
         {
             ProtocolProviderServiceJabberImpl.throwOperationFailedException(
@@ -258,8 +257,6 @@ public class CallPeerMediaHandlerGTalkImpl
             {
                 continue;
             }
-
-            System.out.println("session format " + format);
 
             // stream connector
             StreamConnector connector
@@ -337,8 +334,6 @@ public class CallPeerMediaHandlerGTalkImpl
                 continue;
             }
 
-            System.out.println("format: " + format);
-
             // stream connector
             StreamConnector connector
                 = transportManager.getStreamConnector(mediaType);
@@ -366,7 +361,7 @@ public class CallPeerMediaHandlerGTalkImpl
      * management
      * @see CallPeerMediaHandler#getTransportManager()
      */
-    protected TransportManagerGTalkImpl getTransportManager()
+    protected synchronized TransportManagerGTalkImpl getTransportManager()
     {
         if (transportManager == null)
         {
@@ -456,6 +451,9 @@ public class CallPeerMediaHandlerGTalkImpl
                             description.setNamespace(SessionIQProvider.
                                     GTALK_VIDEO_NAMESPACE);
 
+                            ext.setAttribute("width", 640);
+                            ext.setAttribute("height", 480);
+                            ext.setAttribute("framerate", 15);
                             isVideo = true;
                         }
                         description.addChildExtension(ext);

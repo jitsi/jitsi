@@ -7,16 +7,27 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.beans.*;
+import java.io.*;
 import java.net.*;
 import java.util.*;
 
 import org.ice4j.*;
 import org.ice4j.ice.*;
+import org.ice4j.ice.harvest.*;
+import org.ice4j.security.*;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.packet.IQ.*;
+import org.jivesoftware.smack.util.StringUtils;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
+import net.java.sip.communicator.service.httputil.*;
+import net.java.sip.communicator.service.httputil.HttpUtils.HTTPResponseResult;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
@@ -41,6 +52,16 @@ public class TransportManagerGTalkImpl
      */
     private static final Logger logger
         = Logger.getLogger(TransportManagerGTalkImpl.class);
+
+    /**
+     * Default STUN server address.
+     */
+    private static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
+
+    /**
+     * Default STUN server port.
+     */
+    private static final int DEFAULT_STUN_SERVER_PORT = 3478;
 
     /**
      * The generation of the candidates we are currently generating
@@ -69,6 +90,11 @@ public class TransportManagerGTalkImpl
     private final Agent iceAgent;
 
     /**
+     * Synchronization object.
+     */
+    private final Object wrapupSyncRoot = new Object();
+
+    /**
      * Creates a new instance of this transport manager, binding it to the
      * specified peer.
      *
@@ -78,7 +104,6 @@ public class TransportManagerGTalkImpl
     public TransportManagerGTalkImpl(CallPeerGTalkImpl callPeer)
     {
         super(callPeer);
-
         iceAgent = createIceAgent();
     }
 
@@ -133,6 +158,217 @@ public class TransportManagerGTalkImpl
     }
 
     /**
+     * Request Google's Jingle info.
+     *
+     * @return list of servers
+     */
+    public List<StunServerDescriptor> requestJingleInfo()
+    {
+        JingleInfoQueryIQ iq = new JingleInfoQueryIQ();
+        ProtocolProviderServiceJabberImpl provider =
+            getCallPeer().getProtocolProvider();
+        String accountIDService = provider.getAccountID().getService();
+        boolean jingleInfoIsSupported
+            = provider.isFeatureSupported(accountIDService,
+                    JingleInfoQueryIQ.NAMESPACE);
+        final List<StunServerDescriptor> servers =
+            new ArrayList<StunServerDescriptor>();
+        final Object syncRoot = new Object();
+
+        // check for google:jingleinfo support
+        if(!jingleInfoIsSupported)
+        {
+            return servers;
+        }
+
+        if(logger.isDebugEnabled())
+            logger.debug("google:jingleinfo supported for " +
+                    provider.getOurJID());
+
+        iq.setFrom(provider.getOurJID());
+        iq.setTo(StringUtils.parseBareAddress(
+                provider.getOurJID()));
+        iq.setType(Type.GET);
+
+        XMPPConnection connection = provider.getConnection();
+        PacketListener pl = new PacketListener()
+        {
+            public void processPacket(Packet p)
+            {
+                JingleInfoQueryIQ iq = (JingleInfoQueryIQ)p;
+                Iterator<PacketExtension> it = iq.getExtensions().iterator();
+
+                while(it.hasNext())
+                {
+                    AbstractPacketExtension ext =
+                        (AbstractPacketExtension)it.next();
+
+                    if(ext.getElementName().equals(
+                        StunPacketExtension.ELEMENT_NAME))
+                    {
+                        for(ServerPacketExtension e :
+                            ext.getChildExtensionsOfType(
+                                    ServerPacketExtension.class))
+                        {
+                            StunServerDescriptor dsc =
+                                new StunServerDescriptor(e.getHost(),
+                                        e.getUdp(), false, null, null);
+
+                            servers.add(dsc);
+                        }
+                    }
+                    else if(ext.getElementName().equals(
+                        RelayPacketExtension.ELEMENT_NAME))
+                    {
+                        String token = ((RelayPacketExtension)ext).getToken();
+                        for(ServerPacketExtension e :
+                            ext.getChildExtensionsOfType(
+                                    ServerPacketExtension.class))
+                        {
+                            String headerNames[] = new String[2];
+                            String headerValues[] = new String[2];
+                            String addr = "http://" + e.getHost() +
+                                "/create_session";
+
+                            headerNames[0] = "X-Talk-Google-Relay-Auth";
+                            headerNames[1] = "X-Google-Relay-Auth";
+                            headerValues[0] = token;
+                            headerValues[1] = token;
+
+                            HTTPResponseResult res =
+                                HttpUtils.openURLConnection(addr,
+                                    headerNames, headerValues);
+                            Hashtable<String, String> relayData = null;
+
+                            try
+                            {
+                                relayData =
+                                    parseGoogleRelay(res.getContentString());
+                            }
+                            catch (IOException excpt)
+                            {
+                                logger.info("HTTP query to " + e.getHost() +
+                                        "failed", excpt);
+                                break;
+                            }
+
+                            String user = relayData.get("username");
+                            String password = relayData.get("passsword");
+                            StunServerDescriptor dsc =
+                                new StunServerDescriptor(
+                                        relayData.get("relay"),
+                                        Integer.parseInt(
+                                                relayData.get("udpport")),
+                                        true,
+                                        user, password);
+                            // not the RFC5766 TURN support
+                            dsc.setOldTurn(true);
+                            servers.add(dsc);
+
+                            /* XXX wait TCP support for Ice4j
+                            dsc = new StunServerDescriptor(
+                                    relayData.get("relay"),
+                                    Integer.parseInt(relayData.get("tcpport")),
+                                    true,
+                                    user,
+                                    password);
+                            dsc.setOldTurn(true);
+                            servers.add(dsc);
+
+                            dsc = new StunServerDescriptor(
+                                    relayData.get("relay"),
+                                    Integer.parseInt(relayData.get("tcpport")),
+                                    true,
+                                    user,
+                                    password);
+                            dsc.setOldTurn(true);
+                            servers.add(dsc);
+                            */
+                        }
+                    }
+                }
+                synchronized(syncRoot)
+                {
+                    syncRoot.notify();
+                }
+            }
+        };
+
+        connection.addPacketListener(pl,
+            new PacketFilter()
+            {
+                public boolean accept(Packet p)
+                {
+                    if(p instanceof JingleInfoQueryIQ)
+                        return true;
+
+                    return false;
+                }
+            });
+
+        provider.getConnection().sendPacket(iq);
+
+        synchronized(syncRoot)
+        {
+            try
+            {
+                syncRoot.wait(2000);
+            }
+            catch(InterruptedException e)
+            {
+            }
+        }
+
+        connection.removePacketListener(pl);
+        return servers;
+    }
+
+    /**
+     * Parse HTTP response from Google relay.
+     *
+     * @param res content string
+     * @return String
+     */
+    public Hashtable<String, String> parseGoogleRelay(String res)
+    {
+        // Separate each line
+        StringTokenizer tokenizer = new StringTokenizer(res, "\n");
+        Hashtable<String, String> ret = new Hashtable<String, String>();
+
+        while(tokenizer.hasMoreTokens())
+        {
+            String token = tokenizer.nextToken();
+
+            if(token.startsWith("relay.ip="))
+            {
+                ret.put("relay", token.substring(token.indexOf("=") + 1));
+            }
+            else if(token.startsWith("relay.udp_port="))
+            {
+                ret.put("udpport", token.substring(token.indexOf("=") + 1));
+            }
+            else if(token.startsWith("relay.tcp_port="))
+            {
+                ret.put("tcpport", token.substring(token.indexOf("=") + 1));
+            }
+            else if(token.startsWith("relay.ssltcp_port="))
+            {
+                ret.put("ssltcpport", token.substring(token.indexOf("=") + 1));
+            }
+            else if(token.startsWith("username="))
+            {
+                ret.put("username", token.substring(token.indexOf("=") + 1));
+            }
+            else if(token.startsWith("password="))
+            {
+                ret.put("password", token.substring(token.indexOf("=") + 1));
+            }
+
+        }
+        return ret;
+    }
+
+    /**
      * Creates the ICE agent that we would be using in this transport manager
      * for all negotiation.
      *
@@ -142,44 +378,84 @@ public class TransportManagerGTalkImpl
     private Agent createIceAgent()
     {
         CallPeerGTalkImpl peer = getCallPeer();
-        Agent agent = null;
+        Agent agent = new Agent(CompatibilityMode.GTALK);
+        List<StunServerDescriptor> servers = null;
+        boolean atLeastOneStunServer = false;
+        ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
+        JabberAccountID accID = (JabberAccountID)provider.getAccountID();
 
-        /* XXX wait changes from ice4j
-        agent = new Agent(CompatibilityMode.GTALK);
         agent.setControlling(!peer.isInitiator());
-        */
 
-        /* XXX no configured STUN/TURN for the moment
-         * it should be discovered by a Google XMPP extension
-        for(StunServerDescriptor desc : accID.getStunServers())
+        servers = requestJingleInfo();
+
+        for(StunServerDescriptor desc : servers)
         {
             TransportAddress addr = new TransportAddress(
                             desc.getAddress(), desc.getPort(), Transport.UDP);
 
-            StunCandidateHarvester harvester;
-
+            StunCandidateHarvester harvester = null;
 
             if(desc.isTurnSupported())
             {
-                //Yay! a TURN server
-                harvester
-                    = new TurnCandidateHarvester(
-                            addr,
-                            new LongTermCredential(
-                                    desc.getUsername(),
-                                    desc.getPassword()));
+                logger.info("Google TURN descriptor");
+                /* Google relay server used a special way to allocate
+                 * address (token + HTTP request, ...) and they don't support
+                 * long-term authentication
+                 */
+                if(desc.isOldTurn())
+                {
+                    logger.info("new Google TURN harvester");
+                    harvester = new GoogleTurnCandidateHarvester(
+                            addr, new String(desc.getUsername()));
+                }
+                else
+                {
+                    harvester
+                        = new TurnCandidateHarvester(
+                                addr,
+                                new LongTermCredential(
+                                        desc.getUsername(),
+                                        desc.getPassword()));
+                    atLeastOneStunServer = true;
+                }
             }
             else
             {
+                // take only the first STUN server for now
+                if(atLeastOneStunServer)
+                    continue;
+
                 //this is a STUN only server
                 harvester = new StunCandidateHarvester(addr);
+                atLeastOneStunServer = true;
+                logger.info("Found Google STUN server " + harvester);
             }
 
-            if (logger.isInfoEnabled())
-                logger.info("Adding pre-configured harvester " + harvester);
+            if(harvester != null)
+            {
+                agent.addCandidateHarvester(harvester);
+            }
+        }
 
-            atLeastOneStunServer = true;
-            agent.addCandidateHarvester(harvester);
+        if(!atLeastOneStunServer)
+        {
+            /* we have no configured or discovered STUN server so takes the
+             * default provided by us if user allows it
+             */
+            if(accID.isUseDefaultStunServer())
+            {
+                TransportAddress addr = new TransportAddress(
+                        DEFAULT_STUN_SERVER_ADDRESS,
+                        DEFAULT_STUN_SERVER_PORT,
+                        Transport.UDP);
+                StunCandidateHarvester harvester =
+                    new StunCandidateHarvester(addr);
+
+                if(harvester != null)
+                {
+                    agent.addCandidateHarvester(harvester);
+                }
+            }
         }
 
         if(accID.isUPNPEnabled())
@@ -191,7 +467,6 @@ public class TransportManagerGTalkImpl
                 agent.addCandidateHarvester(harvester);
             }
         }
-        */
 
         return agent;
     }
@@ -265,9 +540,8 @@ public class TransportManagerGTalkImpl
             if ((streamConnectorSockets != null)
                     && ((streamConnector.getDataSocket()
                                     != streamConnectorSockets[0 /* RTP */])
-                                    ))
-                            //|| (streamConnector.getControlSocket()
-                           //        != streamConnectorSockets[1 /* RTCP */])))
+                            || (streamConnector.getControlSocket()
+                                   != streamConnectorSockets[1 /* RTCP */])))
             {
                 // Recreate the StreamConnector for the specified mediaType.
                 closeStreamConnector(mediaType);
@@ -340,18 +614,6 @@ public class TransportManagerGTalkImpl
             }
             if (streamConnectorSocketCount > 0)
             {
-                // XXX GTalk audio has not RTCP channel
-                if(mediaName.equals("rtp") && streamConnectorSocketCount == 1)
-                {
-                    try
-                    {
-                        streamConnectorSockets[1] = new DatagramSocket();
-                    }
-                    catch(Exception e)
-                    {
-                    }
-                }
-
                 return streamConnectorSockets;
             }
         }
@@ -423,18 +685,10 @@ public class TransportManagerGTalkImpl
             }
             if (streamTargetAddressCount > 0)
             {
-                int rtcpIndex = 1;
-
-                // XXX GTalk audio has not RTCP channel
-                if(mediaName.equals("rtp") && streamTargetAddressCount == 1)
-                {
-                    rtcpIndex = 0;
-                }
-
                 streamTarget
                     = new MediaStreamTarget(
                             streamTargetAddresses[0 /* RTP */],
-                            streamTargetAddresses[rtcpIndex /* RTCP */]);
+                            streamTargetAddresses[1 /* RTCP */]);
             }
         }
         return streamTarget;
@@ -446,12 +700,14 @@ public class TransportManagerGTalkImpl
      *
      * @param media the name of the stream we'd like to create.
      *
+     * @param rtcp if true allocate an RTCP port
+     *
      * @return the newly created {@link IceMediaStream}
      *
      * @throws OperationFailedException if binding on the specified media stream
      * fails for some reason.
      */
-    private IceMediaStream createIceStream(String media)
+    private IceMediaStream createIceStream(String media, boolean rtcp)
         throws OperationFailedException
     {
         IceMediaStream stream;
@@ -459,8 +715,16 @@ public class TransportManagerGTalkImpl
         try
         {
             //the following call involves STUN processing so it may take a while
-            stream = getNetAddrMgr().createIceStream(
-                        nextMediaPortToTry, media, iceAgent);
+            stream = iceAgent.createMediaStream(media);
+            int rtpPort = nextMediaPortToTry;
+
+            //rtp
+            iceAgent.createComponent(stream, Transport.UDP, rtpPort, rtpPort,
+                rtpPort + 100);
+
+            if(rtcp)
+                iceAgent.createComponent(stream, Transport.UDP,
+                                rtpPort + 1, rtpPort + 1, rtpPort + 101);
         }
         catch (Exception ex)
         {
@@ -476,7 +740,8 @@ public class TransportManagerGTalkImpl
         //would simply include one more bind retry.
         try
         {
-            nextMediaPortToTry = stream.getComponent(Component.RTCP)
+            nextMediaPortToTry = stream.getComponent(rtcp ? Component.RTCP :
+                    Component.RTP)
                 .getLocalCandidates().get(0)
                     .getTransportAddress().getPort() + 1;
         }
@@ -488,19 +753,6 @@ public class TransportManagerGTalkImpl
         }
 
         return stream;
-    }
-
-    /**
-     * Returns a reference to the {@link NetworkAddressManagerService}. The only
-     * reason this method exists is that {@link JabberActivator
-     * #getNetworkAddressManagerService()} is too long to write and makes code
-     * look clumsy.
-     *
-     * @return  a reference to the {@link NetworkAddressManagerService}.
-     */
-    private static NetworkAddressManagerService getNetAddrMgr()
-    {
-        return JabberActivator.getNetworkAddressManagerService();
     }
 
     /**
@@ -528,44 +780,36 @@ public class TransportManagerGTalkImpl
         List<GTalkCandidatePacketExtension> candidates
             = new LinkedList<GTalkCandidatePacketExtension>();
 
-        for(PayloadTypePacketExtension ext : ourAnswer)
+        synchronized(wrapupSyncRoot)
         {
-            if(ext.getNamespace().equals(
-                    SessionIQProvider.GTALK_AUDIO_NAMESPACE))
+            for(PayloadTypePacketExtension ext : ourAnswer)
             {
-                audio = true;
-            }
-            else if(ext.getNamespace().equals(
-                    SessionIQProvider.GTALK_VIDEO_NAMESPACE))
-            {
-                video = true;
-            }
-        }
-
-        if(audio)
-        {
-            IceMediaStream stream = createIceStream("rtp");
-
-            /* remove RTCP component for the audio as it is not used and
-             * remote gmail peer does not send them
-             */
-            for(Component cmp : stream.getComponents())
-            {
-                if(cmp.getComponentID() == 2)
+                if(ext.getNamespace().equals(
+                        SessionIQProvider.GTALK_AUDIO_NAMESPACE))
                 {
-                    stream.removeComponent(cmp);
+                    audio = true;
+                }
+                else if(ext.getNamespace().equals(
+                        SessionIQProvider.GTALK_VIDEO_NAMESPACE))
+                {
+                    video = true;
                 }
             }
 
-            candidates.addAll(GTalkPacketFactory.createCandidates("rtp",
-                    stream));
-        }
+            if(audio)
+            {
+                IceMediaStream stream = createIceStream("rtp", video);
 
-        if(video)
-        {
-            IceMediaStream stream = createIceStream("video_rtp");
-            candidates.addAll(GTalkPacketFactory.createCandidates("video_rtp",
-                    stream));
+                candidates.addAll(GTalkPacketFactory.createCandidates("rtp",
+                        stream));
+            }
+
+            if(video)
+            {
+                IceMediaStream stream = createIceStream("video_rtp", true);
+                candidates.addAll(
+                    GTalkPacketFactory.createCandidates("video_rtp", stream));
+            }
         }
 
         /* send candidates */
@@ -595,6 +839,12 @@ public class TransportManagerGTalkImpl
     public boolean startConnectivityEstablishment(
             Iterable<GTalkCandidatePacketExtension> remote)
     {
+        if (IceProcessingState.COMPLETED.equals(iceAgent.getState())/* ||
+                IceProcessingState.FAILED.equals(iceAgent.getState())*/)
+        {
+            return true;
+        }
+
         /* If ICE is already running, we try to update the checklists with
          * the candidates. Note that this is a best effort.
          */
@@ -618,21 +868,21 @@ public class TransportManagerGTalkImpl
                 // change name to retrieve properly the ICE media stream
                 if(name.equals("rtp"))
                 {
-                    numComponent = 1;
+                    numComponent = Component.RTP;
                 }
                 else if(name.equals("rtcp"))
                 {
                     name = "rtp";
-                    numComponent = 1;
+                    numComponent = Component.RTCP;
                 }
                 else if(name.equals("video_rtp"))
                 {
-                    numComponent = 1;
+                    numComponent = Component.RTP;
                 }
                 else if(name.equals("video_rtcp"))
                 {
                     name = "video_rtp";
-                    numComponent = 2;
+                    numComponent = Component.RTCP;
                 }
 
                 IceMediaStream stream = iceAgent.getStream(name);
@@ -661,7 +911,7 @@ public class TransportManagerGTalkImpl
 
                 Component component
                     = stream.getComponent(numComponent);
-                /* XXX wait changes from ice4j
+
                 RemoteCandidate remoteCandidate = new RemoteCandidate(
                         new TransportAddress(
                                 candidate.getAddress(),
@@ -675,7 +925,6 @@ public class TransportManagerGTalkImpl
                         (long)(candidate.getPreference() * 1000),
                         ufrag);
                 component.addUpdateRemoteCandidate(remoteCandidate);
-                */
             }
 
             /* update all components of all streams */
@@ -705,24 +954,29 @@ public class TransportManagerGTalkImpl
             // change name to retrieve properly the ICE media stream
             if(name.equals("rtp"))
             {
-                numComponent = 1;
+                numComponent = Component.RTP;
             }
             else if(name.equals("rtcp"))
             {
                 name = "rtp";
-                numComponent = 1;
+                numComponent = Component.RTCP;
             }
             else if(name.equals("video_rtp"))
             {
-                numComponent = 1;
+                numComponent = Component.RTP;
             }
             else if(name.equals("video_rtcp"))
             {
                 name = "video_rtp";
-                numComponent = 2;
+                numComponent = Component.RTCP;
             }
 
-            IceMediaStream stream = iceAgent.getStream(name);
+            IceMediaStream stream = null;
+
+            synchronized(wrapupSyncRoot)
+            {
+                stream = iceAgent.getStream(name);
+            }
 
             if(stream == null)
             {
@@ -747,7 +1001,6 @@ public class TransportManagerGTalkImpl
             Component component
                 = stream.getComponent(numComponent);
 
-            /* XXX wait changes from ice4j
             RemoteCandidate remoteCandidate = new RemoteCandidate(
                     new TransportAddress(
                             candidate.getAddress(),
@@ -761,7 +1014,6 @@ public class TransportManagerGTalkImpl
                     (long)(candidate.getPreference() * 1000),
                     ufrag);
             component.addRemoteCandidate(remoteCandidate);
-            */
             startConnectivityEstablishment = true;
         }
 
@@ -780,9 +1032,7 @@ public class TransportManagerGTalkImpl
             {
                 for (Component component : stream.getComponents())
                 {
-                    if(component.getName().equals("RTCP"))
-                        continue;
-                    if (component.getRemoteCandidateCount() < 2)
+                    if (component.getRemoteCandidateCount() < 1)
                     {
                         startConnectivityEstablishment = false;
                         break;

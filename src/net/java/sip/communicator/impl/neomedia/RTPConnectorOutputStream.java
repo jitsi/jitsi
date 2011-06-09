@@ -63,7 +63,7 @@ public class RTPConnectorOutputStream
 
     /**
      * Used for debugging. As we don't log every packet
-     * we must count them and decide which to log. 
+     * we must count them and decide which to log.
      */
     private long numberOfPackets = 0;
 
@@ -169,7 +169,7 @@ public class RTPConnectorOutputStream
      * We don't log every rtp traffic.
      * We log only first then 300,500 and 1000 packets and
      * then every 5000 packet.
-     * 
+     *
      * @param numOfPacket current packet number.
      * @return wether we should log the current packet.
      */
@@ -196,6 +196,11 @@ public class RTPConnectorOutputStream
      */
     private boolean send(RawPacket packet)
     {
+        if(socket == null)
+        {
+            return false;
+        }
+
         numberOfPackets++;
         for (InetSocketAddress target : targets)
         {
@@ -225,7 +230,7 @@ public class RTPConnectorOutputStream
                             packet.getBuffer(),
                             packet.getOffset(),
                             packet.getLength());
-                }                
+                }
             }
             catch (IOException ex)
             {

@@ -16,7 +16,6 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;

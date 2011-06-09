@@ -12,7 +12,6 @@ import java.security.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.*;
 
 /**
  * A straightforward extension of the IQ. A <tt>SessionIQ</tt> object is created

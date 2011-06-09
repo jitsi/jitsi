@@ -127,13 +127,16 @@ public class OperationSetVideoTelephonyJabberImpl
                     , OperationFailedException.INTERNAL_ERROR);
         }
 
-        CallJabberImpl call = new CallJabberImpl(basicTelephony);
+        MediaAwareCall<?, ?, ?> call = new CallJabberImpl(basicTelephony);
 
         /* enable video */
         call.setLocalVideoAllowed(true, getMediaUseCase());
+        CallPeer callPeer =
+            basicTelephony.createOutgoingCall((CallJabberImpl)call, calleeAddress);
 
-        basicTelephony.createOutgoingCall(call, calleeAddress);
-        return call;
+        // if call is a Google Talk ones, return the CallGTalkImpl
+
+        return callPeer.getCall() == call ? call : callPeer.getCall();
     }
 
     /**
