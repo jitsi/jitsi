@@ -107,6 +107,16 @@ public class JNIEncoder
     private long lastKeyframeRequestTime = System.currentTimeMillis();
 
     /**
+     * The packetization mode to be used for the H.264 RTP payload output by
+     * this <tt>JNIEncoder</tt> and the associated packetizer. RFC 3984 "RTP
+     * Payload Format for H.264 Video" says that "[w]hen the value of
+     * packetization-mode is equal to 0 or packetization-mode is not present,
+     * the single NAL mode, as defined in section 6.2 of RFC 3984, MUST be
+     * used."
+     */
+    private byte packetizationMode = 0;
+
+    /**
      * The raw frame buffer.
      */
     private long rawFrameBuffer;
@@ -220,7 +230,7 @@ public class JNIEncoder
                         videoIn.getFrameRate(),
                         ParameterizedVideoFormat.toMap(
                                 PACKETIZATION_MODE_FMTP,
-                                "1"))
+                                Integer.toString(packetizationMode)))
             };
     }
 
@@ -336,6 +346,11 @@ public class JNIEncoder
         //FFmpeg.avcodeccontext_set_trellis(avctx, 2);
 
         FFmpeg.avcodeccontext_set_keyint_min(avctx, 0);
+
+        if (packetizationMode == 0)
+            FFmpeg.avcodeccontext_set_rtp_payload_size(
+                    avctx,
+                    Packetizer.MAX_PAYLOAD_SIZE);
 
         if (FFmpeg.avcodec_open(avctx, avcodec) < 0)
         {
@@ -550,7 +565,7 @@ public class JNIEncoder
             fmtps = ((ParameterizedVideoFormat) out).getFormatParameters();
         if (fmtps == null)
             fmtps = new HashMap<String, String>();
-        fmtps.put(PACKETIZATION_MODE_FMTP, "1");
+        fmtps.put(PACKETIZATION_MODE_FMTP, Integer.toString(packetizationMode));
 
         outputFormat
             = new ParameterizedVideoFormat(
@@ -563,5 +578,29 @@ public class JNIEncoder
 
         // Return the selected outputFormat
         return outputFormat;
+    }
+
+    /**
+     * Sets the packetization mode to be used for the H.264 RTP payload output
+     * by this <tt>JNIEncoder</tt> and the associated packetizer.
+     *
+     * @param packetizationMode the packetization mode to be used for the H.264
+     * RTP payload output by this <tt>JNIEncoder</tt> and the associated
+     * packetizer
+     */
+    public void setPacketizationMode(String packetizationMode)
+    {
+        /*
+         * RFC 3984 "RTP Payload Format for H.264 Video" says that "[w]hen the
+         * value of packetization-mode is equal to 0 or packetization-mode is
+         * not present, the single NAL mode, as defined in section 6.2 of RFC
+         * 3984, MUST be used."
+         */
+        if ((packetizationMode == null) || "0".equals(packetizationMode))
+            this.packetizationMode = 0;
+        else if ("1".equals(packetizationMode))
+            this.packetizationMode = 1;
+        else
+            throw new IllegalArgumentException("packetizationMode");
     }
 }

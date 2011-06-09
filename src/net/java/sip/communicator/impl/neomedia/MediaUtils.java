@@ -200,6 +200,25 @@ public class MediaUtils
             Constants.H264_RTP,
             h264FormatParams,
             h264AdvancedAttributes);
+        // packetization-mode=0
+        /*
+         * XXX At the time of this writing,
+         * EncodingConfiguration#compareEncodingPreferences(MediaFormat,
+         * MediaFormat) is incomplete and considers two MediaFormats to be equal
+         * if they have an equal number of format parameters (given that the
+         * encodings and clock rates are equal, of course). Either fix the
+         * method in question or don't add a format parameter for packetization
+         * mode 0 (which is equivalent to having packetization-mode explicitly
+         * defined as 0 anyway, according to the respective RFC).
+         */
+        h264FormatParams.remove(packetizationMode);
+        addMediaFormats(
+            MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
+            "H264",
+            MediaType.VIDEO,
+            Constants.H264_RTP,
+            h264FormatParams,
+            h264AdvancedAttributes);
 
         /* H263+ */
         Map<String, String> h263FormatParams

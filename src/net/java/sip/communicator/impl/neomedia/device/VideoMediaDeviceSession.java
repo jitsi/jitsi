@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -1258,6 +1259,19 @@ public class VideoMediaDeviceSession
         if (usePLI && "h264/rtp".equalsIgnoreCase(format.getEncoding()))
         {
             encoder = new JNIEncoder();
+
+            // packetization-mode
+            {
+                Map<String, String> formatParameters
+                    = mediaFormat.getFormatParameters();
+                String packetizationMode
+                    = (formatParameters == null)
+                        ? null
+                        : formatParameters.get(
+                                JNIEncoder.PACKETIZATION_MODE_FMTP);
+
+                encoder.setPacketizationMode(packetizationMode);
+            }
 
             // The H.264 encoder needs to be notified of RTCP feedback message.
             try

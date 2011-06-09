@@ -161,6 +161,12 @@ public class VideoMediaFormatImpl
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Takes into account RFC 3984 "RTP Payload Format for H.264 Video" which
+     * says that &quot;[w]hen the value of packetization-mode [format parameter]
+     * is equal to 0 or packetization-mode is not present, the single NAL mode,
+     * as defined in section 6.2 of RFC 3984, MUST be used.&quot;
+     * </p>
      *
      * @see MediaFormatImpl#formatParametersAreEqual(Map, Map)
      */
@@ -200,6 +206,32 @@ public class VideoMediaFormatImpl
             String encoding,
             Map<String, String> fmtps1, Map<String, String> fmtps2)
     {
+        /*
+         * RFC 3984 "RTP Payload Format for H.264 Video" says that "[w]hen the
+         * value of packetization-mode is equal to 0 or packetization-mode is
+         * not present, the single NAL mode, as defined in section 6.2 of RFC
+         * 3984, MUST be used."
+         */
+        if ("H264".equalsIgnoreCase(encoding)
+                || "h264/rtp".equalsIgnoreCase(encoding))
+        {
+            String packetizationMode = "packetization-mode";
+            String pm1 = null;
+            String pm2 = null;
+
+            if (fmtps1 != null)
+                pm1 = fmtps1.remove(packetizationMode);
+            if (fmtps2 != null)
+                pm2 = fmtps2.remove(packetizationMode);
+
+            if (pm1 == null)
+                pm1 = "0";
+            if (pm2 == null)
+                pm2 = "0";
+            if (!pm1.equals(pm2))
+                return false;
+        }
+
         return
             MediaFormatImpl.formatParametersAreEqual(encoding, fmtps1, fmtps2);
     }
@@ -207,6 +239,11 @@ public class VideoMediaFormatImpl
     /**
      * Determines whether the format parameters of this <tt>MediaFormat</tt>
      * match a specific set of format parameters.
+     * <p>
+     * <tt>VideoMediaFormat</tt> reflects the fact that the
+     * <tt>packetization-mode</tt> format parameter distinguishes H.264 payload
+     * types.
+     * </p>
      *
      * @param fmtps the set of format parameters to match to the format
      * parameters of this <tt>MediaFormat</tt>
@@ -238,6 +275,29 @@ public class VideoMediaFormatImpl
             String encoding,
             Map<String, String> fmtps1 , Map<String, String> fmtps2)
     {
+        /*
+         * RFC 3984 "RTP Payload Format for H.264 Video" says that "[w]hen the
+         * value of packetization-mode is equal to 0 or packetization-mode is
+         * not present, the single NAL mode, as defined in section 6.2 of RFC
+         * 3984, MUST be used."
+         */
+        if ("H264".equalsIgnoreCase(encoding)
+                || "h264/rtp".equalsIgnoreCase(encoding))
+        {
+            String packetizationMode = "packetization-mode";
+            String pm1
+                = (fmtps1 == null) ? null : fmtps1.get(packetizationMode);
+            String pm2
+                = (fmtps2 == null) ? null : fmtps2.get(packetizationMode);
+
+            if (pm1 == null)
+                pm1 = "0";
+            if (pm2 == null)
+                pm2 = "0";
+            if (!pm1.equals(pm2))
+                return false;
+        }
+
         return true;
     }
 

@@ -1,0 +1,11 @@
+--- a/libavcodec/libx264.c	2011-04-30 17:06:44.304599700 +0300
++++ b/libavcodec/libx264.c	2011-04-16 05:01:34.391924200 +0300
+@@ -312,6 +312,8 @@
+     x4->params.b_sliced_threads = 1;
+     x4->params.b_vfr_input = 0;
+ 
++    x4->params.i_slice_max_size = avctx->rtp_payload_size;
++
+     x4->enc = x264_encoder_open(&x4->params);
+     if (!x4->enc)
+         return -1;
