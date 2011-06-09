@@ -269,7 +269,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 else
                 {
                     // test GTALK property
-                    if(!Boolean.getBoolean("gtalktesting"))
+                    if(!protocolProvider.isGTalkTesting())
                     {
                         continue;
                     }
@@ -701,7 +701,7 @@ public class OperationSetBasicTelephonyJabberImpl
             return;
 
         // test GTALK property
-        if(!Boolean.getBoolean("gtalktesting") && (packet instanceof SessionIQ))
+        if(!protocolProvider.isGTalkTesting() && (packet instanceof SessionIQ))
         {
             return;
         }

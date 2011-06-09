@@ -964,7 +964,7 @@ public class ProtocolProviderServiceJabberImpl
                     supportedFeatures.toArray(
                             new String[supportedFeatures.size()]));
 
-        if(Boolean.getBoolean("gtalktesting"))
+        if(isGTalkTesting())
         {
             // Add Google Talk "ext" capabilities
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VOICE);
@@ -2072,5 +2072,18 @@ public class ProtocolProviderServiceJabberImpl
     public SecurityAuthority getAuthority()
     {
         return authority;
+    }
+
+    /**
+     * Returns true if gtalktesting is enabled, false otherwise.
+     *
+     * @return true if gtalktesting is enabled, false otherwise.
+     */
+    public boolean isGTalkTesting()
+    {
+        return (Boolean.getBoolean("gtalktesting") ||
+            JabberActivator.getConfigurationService().getBoolean(
+                "net.java.sip.communicator.impl.protocol.jabber.gtalktesting"
+                , false));
     }
 }

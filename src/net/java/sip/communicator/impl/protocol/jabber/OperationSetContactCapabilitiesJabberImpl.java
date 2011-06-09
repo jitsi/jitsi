@@ -55,6 +55,7 @@ public class OperationSetContactCapabilitiesJabberImpl
     private static final Map<Class<? extends OperationSet>, String[]>
         OPERATION_SETS_TO_FEATURES
             = new HashMap<Class<? extends OperationSet>, String[]>();
+
     /**
      * The <tt>Map</tt> which associates specific additionnal
      * <tt>OperationSet</tt> class with the capabilities to be supported by a
@@ -358,7 +359,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                             opsetClass);
 
                     // test GTalk
-                    if(!Boolean.getBoolean("gtalktesting"))
+                    if(!parentProvider.isGTalkTesting())
                     {
                         opset = null;
                     }
