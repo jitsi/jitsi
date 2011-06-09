@@ -12,8 +12,7 @@ import java.io.*;
 import javax.media.*;
 import javax.media.MediaException; // disambiguation
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.EtchedBorder;
+import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 

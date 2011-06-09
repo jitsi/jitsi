@@ -242,7 +242,10 @@ public class EncodingConfigurationTableModel
         if (priorities.length != count)
             throw new IllegalArgumentException("priorities");
         for (int i = 0; i < count; i++)
+        {
             encodingConfiguration.setPriority(encodings[i], priorities[i]);
+            encodingConfiguration.setPriorityConfig(encodings[i], priorities[i]);
+        }
     }
 
     @Override
@@ -250,13 +253,17 @@ public class EncodingConfigurationTableModel
     {
         if ((columnIndex == 0) && (value instanceof Boolean))
         {
-            int[] priorities = getPriorities();
+            int priority
+                = ((Boolean) value) ? (getPriorities().length - rowIndex) : 0;
+            MediaFormat encoding = encodings[rowIndex];
 
-            priorities[rowIndex]
-                = ((Boolean) value) ? (priorities.length - rowIndex) : 0;
-            setPriorities(priorities);
+            encodingConfiguration.setPriority(encoding, priority);
 
+            // We fire the update event before setting the configuration
+            // property in order to have more reactive user interface.
             fireTableCellUpdated(rowIndex, columnIndex);
+
+            encodingConfiguration.setPriorityConfig(encoding, priority);
         }
     }
 }

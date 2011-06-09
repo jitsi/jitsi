@@ -357,6 +357,21 @@ public class EncodingConfiguration
                 encodingEncoding, encoding.getClockRate(),
                 priority);
 
+        updateSupportedEncodings();
+    }
+
+    /**
+     * Sets the priority of the given encoding in the configuration service.
+     *
+     * @param encoding the <tt>MediaFormat</tt> specifying the encoding to set
+     * the priority of
+     * @param priority a positive <tt>int</tt> indicating the priority of
+     * <tt>encoding</tt> to set
+     */
+    public void setPriorityConfig(MediaFormat encoding, int priority)
+    {
+        String encodingEncoding = encoding.getEncoding();
+
         // save the settings
         NeomediaActivator.getConfigurationService()
             .setProperty(
@@ -366,8 +381,6 @@ public class EncodingConfiguration
                         + "/"
                         + encoding.getClockRateString(),
                     priority);
-
-        updateSupportedEncodings();
     }
 
     /**
