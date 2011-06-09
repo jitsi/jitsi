@@ -28,7 +28,7 @@ public class ExtendedTooltip
 
     private final JPanel linesPanel = new JPanel();
 
-    private final JTextArea bottomText = new JTextArea();
+    private final JTextArea bottomTextArea = new JTextArea();
 
     private int textWidth = 0;
 
@@ -54,7 +54,7 @@ public class ExtendedTooltip
         mainPanel.setOpaque(false);
         centerPanel.setOpaque(false);
         linesPanel.setOpaque(false);
-        bottomText.setOpaque(false);
+        bottomTextArea.setOpaque(false);
 
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
@@ -76,11 +76,11 @@ public class ExtendedTooltip
             mainPanel.add(titleLabel, BorderLayout.NORTH);
         }
 
-        bottomText.setEditable(false);
-        bottomText.setLineWrap(true);
-        bottomText.setWrapStyleWord(true);
-        bottomText.setFont(bottomText.getFont().deriveFont(10f));
-        mainPanel.add(bottomText, BorderLayout.SOUTH);
+        bottomTextArea.setEditable(false);
+        bottomTextArea.setLineWrap(true);
+        bottomTextArea.setWrapStyleWord(true);
+        bottomTextArea.setFont(bottomTextArea.getFont().deriveFont(10f));
+        mainPanel.add(bottomTextArea, BorderLayout.SOUTH);
 
         this.add(mainPanel);
     }
@@ -170,7 +170,7 @@ public class ExtendedTooltip
      */
     public void setBottomText(String text)
     {
-        this.bottomText.setText(text);
+        this.bottomTextArea.setText(text);
     }
 
     /**
@@ -237,10 +237,11 @@ public class ExtendedTooltip
         @Override
         public void update(Graphics g, JComponent c)
         {
-            if(bottomText.getText().isEmpty())
-                bottomText.setVisible(false);
+            String bottomText = bottomTextArea.getText();
+            if(bottomText == null || bottomText.length() <= 0)
+                bottomTextArea.setVisible(false);
             else
-                bottomText.setVisible(true);
+                bottomTextArea.setVisible(true);
             super.update(g, c);
         }
 
@@ -274,12 +275,13 @@ public class ExtendedTooltip
             else
                 height = imageHeight + textHeight;
 
-            if(!bottomText.getText().isEmpty())
+            String bottomText = bottomTextArea.getText();
+            if(bottomText != null && bottomText.length() > 0)
             {
                 // Seems a little messy, but sets the proper size.
-                bottomText.setSize(width,1);
-                height += bottomText.getPreferredSize().height;
-                bottomText.setSize(bottomText.getPreferredSize());
+                bottomTextArea.setSize(width,1);
+                height += bottomTextArea.getPreferredSize().height;
+                bottomTextArea.setSize(bottomTextArea.getPreferredSize());
             }
 
             return new Dimension(width, height);

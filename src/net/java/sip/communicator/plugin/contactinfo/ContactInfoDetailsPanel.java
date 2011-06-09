@@ -488,7 +488,8 @@ public class ContactInfoDetailsPanel
         }
 
         // Add users status message to extended details if it exists
-        if(!contact.getStatusMessage().isEmpty())
+        String statusMessage = contact.getStatusMessage();
+        if(statusMessage != null && statusMessage.length() > 0)
         {
             detailLabel = new JLabel();
             HTMLTextPane detailValuePane = new HTMLTextPane();
@@ -506,7 +507,7 @@ public class ContactInfoDetailsPanel
             detailLabel.setText(Resources.getString(
                 "plugin.contactinfo.USER_STATUS_MESSAGE") + ": ");
 
-            detailValuePane.setText(contact.getStatusMessage());
+            detailValuePane.setText(statusMessage);
         }
 
         // If the contact's protocol supports web info, give them a button to
