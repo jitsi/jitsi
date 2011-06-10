@@ -30,8 +30,12 @@ public final class MacOSXQuitRegistration
                      * application. We've already initiated the quit and we'll
                      * eventually complete it i.e. we'll honor the request of
                      * Mac OS X to quit.
+                     *
+                     * (2011-06-10) Changed to true, we tell that quit is handled
+                     * as otherwise will stop OS from logout or shutdown and
+                     * a notification will be shown to user to inform about it.
                      */
-                    event.setHandled(false);
+                    event.setHandled(true);
                 }
             });
             return true;
