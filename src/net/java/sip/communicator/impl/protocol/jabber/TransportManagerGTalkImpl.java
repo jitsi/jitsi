@@ -810,10 +810,10 @@ public class TransportManagerGTalkImpl
                 candidates.addAll(
                     GTalkPacketFactory.createCandidates("video_rtp", stream));
             }
-        }
 
-        /* send candidates */
-        candidatesSender.sendCandidates(candidates);
+            /* send candidates */
+            candidatesSender.sendCandidates(candidates);
+        }
     }
 
     /**
