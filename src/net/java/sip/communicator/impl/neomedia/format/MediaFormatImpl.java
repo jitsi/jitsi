@@ -25,6 +25,10 @@ import net.java.sip.communicator.service.neomedia.format.*;
 public abstract class MediaFormatImpl<T extends Format>
     implements MediaFormat
 {
+    /**
+     * The name of the <tt>clockRate</tt> property of <tt>MediaFormatImpl</tt>.
+     */
+    public static final String CLOCK_RATE_PNAME = "clockRate";
 
     /**
      * The value of the <tt>formatParameters</tt> property of
@@ -34,6 +38,19 @@ public abstract class MediaFormatImpl<T extends Format>
      */
     static final Map<String, String> EMPTY_FORMAT_PARAMETERS
         = Collections.emptyMap();
+
+
+    /**
+     * The name of the <tt>encoding</tt> property of <tt>MediaFormatImpl</tt>.
+     */
+    public static final String ENCODING_PNAME = "encoding";
+
+
+    /**
+     * The name of the <tt>formatParameters</tt> property of
+     * <tt>MediaFormatImpl</tt>.
+     */
+    public static final String FORMAT_PARAMETERS_PNAME = "fmtps";
 
     /**
      * Creates a new <tt>MediaFormat</tt> instance for a specific JMF

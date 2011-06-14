@@ -4,14 +4,15 @@ Bundle-Description: A bundle that offers Media capture and presentation capabili
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: org.osgi.framework,
- org.xml.sax,
- org.bouncycastle.crypto,
+Import-Package: org.bouncycastle.crypto,
  org.bouncycastle.crypto.digests,
+ org.bouncycastle.crypto.engines,
  org.bouncycastle.crypto.macs,
  org.bouncycastle.crypto.params,
  org.bouncycastle.crypto.prng,
- org.bouncycastle.crypto.engines,
+ org.json,
+ org.osgi.framework,
+ org.xml.sax,
  javax.imageio,
  javax.sound.sampled,
  javax.swing,

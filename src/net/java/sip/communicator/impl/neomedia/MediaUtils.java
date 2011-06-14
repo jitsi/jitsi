@@ -446,8 +446,29 @@ public class MediaUtils
      */
     public static MediaFormat getMediaFormat(String encoding, double clockRate)
     {
+        return getMediaFormat(encoding, clockRate, null);
+    }
+
+    /**
+     * Gets the <tt>MediaFormat</tt> known to <tt>MediaUtils</tt> and having the
+     * specified well-known <tt>encoding</tt> (name), <tt>clockRate</tt> and
+     * matching format parameters.
+     *
+     * @param encoding the well-known encoding (name) of the
+     * <tt>MediaFormat</tt> to get
+     * @param clockRate the clock rate of the <tt>MediaFormat</tt> to get
+     * @param fmtps the format parameters of the <tt>MediaFormat</tt> to get
+     * @return the <tt>MediaFormat</tt> known to <tt>MediaUtils</tt> and having
+     * the specified <tt>encoding</tt> (name), <tt>clockRate</tt> and matching
+     * format parameters
+     */
+    public static MediaFormat getMediaFormat(
+            String encoding, double clockRate,
+            Map<String, String> fmtps)
+    {
         for (MediaFormat format : getMediaFormats(encoding))
-            if (format.getClockRate() == clockRate)
+            if ((format.getClockRate() == clockRate)
+                    && format.formatParametersMatch(fmtps))
                 return format;
         return null;
     }

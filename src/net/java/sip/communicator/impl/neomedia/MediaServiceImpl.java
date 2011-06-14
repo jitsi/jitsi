@@ -17,11 +17,14 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.swing.*;
 
+import org.json.*;
+
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -48,6 +51,13 @@ public class MediaServiceImpl
      */
     public static final String DISABLE_VIDEO_SUPPORT_PROPERTY_NAME
         = "net.java.sip.communicator.service.media.DISABLE_VIDEO_SUPPORT";
+
+    /**
+     * The prefix of the property names the values of which specify the dynamic
+     * payload type preferences.
+     */
+    private static final String DYNAMIC_PAYLOAD_TYPE_PREFERENCES_PNAME_PREFIX
+        = "net.java.sip.communicator.service.media.dynamicPayloadTypePreferences";
 
     /**
      * The value of the <tt>devices</tt> property of <tt>MediaServiceImpl</tt>
@@ -661,7 +671,7 @@ public class MediaServiceImpl
      * that get dynamically assigned to {@link MediaFormat}s with no static
      * payload type. The method is useful for formats such as "telephone-event"
      * for example that is statically assigned the 101 payload type by some
-     * legacy systems. Signalling protocol implementations such as SIP and XMPP
+     * legacy systems. Signaling protocol implementations such as SIP and XMPP
      * should make sure that, whenever this is possible, they assign to formats
      * the dynamic payload type returned in this {@link Map}.
      *
@@ -674,10 +684,117 @@ public class MediaServiceImpl
         {
             dynamicPayloadTypePreferences = new HashMap<MediaFormat, Byte>();
 
+            /*
+             * Set the dynamicPayloadTypePreferences to their default values. If
+             * the user chooses to override them through the
+             * ConfigurationService, they will be overwritten later on.
+             */
             MediaFormat telephoneEvent
                 = MediaUtils.getMediaFormat("telephone-event", 8000);
+            if (telephoneEvent != null)
+                dynamicPayloadTypePreferences.put(telephoneEvent, (byte) 101);
 
-            dynamicPayloadTypePreferences.put(telephoneEvent, (byte)101);
+            MediaFormat h264
+                = MediaUtils.getMediaFormat(
+                        "H264",
+                        VideoMediaFormatImpl.DEFAULT_CLOCK_RATE);
+            if (h264 != null)
+                dynamicPayloadTypePreferences.put(h264, (byte) 99);
+
+            /*
+             * Try to load dynamicPayloadTypePreferences from the
+             * ConfigurationService.
+             */
+            ConfigurationService config
+                = NeomediaActivator.getConfigurationService();
+            String prefix = DYNAMIC_PAYLOAD_TYPE_PREFERENCES_PNAME_PREFIX;
+            List<String> propertyNames
+                = config.getPropertyNamesByPrefix(prefix, true);
+
+            for (String propertyName : propertyNames)
+            {
+                /*
+                 * The dynamic payload type is the name of the property name and
+                 * the format which prefers it is the property value.
+                 */
+                byte dynamicPayloadTypePreference = 0;
+                Throwable exception = null;
+
+                try
+                {
+                    dynamicPayloadTypePreference
+                        = Byte.parseByte(
+                                propertyName.substring(prefix.length() + 1));
+                }
+                catch (IndexOutOfBoundsException ioobe)
+                {
+                    exception = ioobe;
+                }
+                catch (NumberFormatException nfe)
+                {
+                    exception = nfe;
+                }
+                if (exception != null)
+                {
+                    logger.warn(
+                            "Ignoring dynamic payload type preference"
+                                + " which could not be parsed: "
+                                + propertyName,
+                            exception);
+                    continue;
+                }
+
+                String source = config.getString(propertyName);
+
+                if ((source != null) && (source.length() != 0))
+                {
+                    try
+                    {
+                        JSONObject json = new JSONObject(source);
+                        String encoding
+                            = json.getString(MediaFormatImpl.ENCODING_PNAME);
+                        int clockRate
+                            = json.getInt(MediaFormatImpl.CLOCK_RATE_PNAME);
+                        Map<String, String> fmtps
+                            = new HashMap<String, String>();
+
+                        if (json.has(MediaFormatImpl.FORMAT_PARAMETERS_PNAME))
+                        {
+                            JSONObject jsonFmtps
+                                = json.getJSONObject(
+                                        MediaFormatImpl
+                                            .FORMAT_PARAMETERS_PNAME);
+                            Iterator<?> jsonFmtpsIter = jsonFmtps.keys();
+
+                            while (jsonFmtpsIter.hasNext())
+                            {
+                                String key = jsonFmtpsIter.next().toString();
+                                String value = jsonFmtps.getString(key);
+
+                                fmtps.put(key, value);
+                            }
+                        }
+
+                        MediaFormat mediaFormat
+                            = MediaUtils.getMediaFormat(
+                                    encoding, clockRate,
+                                    fmtps);
+
+                        if (mediaFormat != null)
+                            dynamicPayloadTypePreferences.put(
+                                    mediaFormat,
+                                    dynamicPayloadTypePreference);
+                    }
+                    catch (JSONException jsone)
+                    {
+                        logger.warn(
+                                "Ignoring dynamic payload type preference"
+                                    + " which could not be parsed: "
+                                    + source,
+                                jsone);
+                    }
+                }
+            }
         }
         return dynamicPayloadTypePreferences;
     }
@@ -754,7 +871,7 @@ public class MediaServiceImpl
         }
         catch(Exception e)
         {
-            e.printStackTrace();
+            logger.error("Failed to create video preview component", e);
         }
 
         return null;
@@ -898,9 +1015,7 @@ public class MediaServiceImpl
                         return;
                     }
                     else
-                    {
                         player.start();
-                    }
 
                     if (windowListener == null)
                     {
@@ -964,13 +1079,9 @@ public class MediaServiceImpl
         int display = -1;
 
         if(dev != null)
-        {
             display = dev.getIndex();
-        }
         else
-        {
             return null;
-        }
 
         /* on Mac OS X, width have to be a multiple of 16 */
         if(OSUtils.IS_MAC)
@@ -1021,7 +1132,6 @@ public class MediaServiceImpl
                 formats);
 
         device = new MediaDeviceImpl(devInfo, MediaType.VIDEO);
-
         return device;
     }
 
@@ -1038,11 +1148,9 @@ public class MediaServiceImpl
     {
         MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
 
-        if(!dev.getCaptureDeviceInfo().getLocator().getProtocol().
-                equals(ImageStreamingAuto.LOCATOR_PROTOCOL))
-        {
+        if(!dev.getCaptureDeviceInfo().getLocator().getProtocol().equals(
+                ImageStreamingAuto.LOCATOR_PROTOCOL))
             return;
-        }
 
         /* To move origin of the desktop capture, we need to access the
          * JMF DataSource of imgstreaming
@@ -1061,16 +1169,15 @@ public class MediaServiceImpl
         ScreenDevice currentScreen = screen;
 
         if(screen == null)
-        {
             return;
-        }
 
         Rectangle bounds = ((ScreenDeviceImpl)screen).getBounds();
+
         x -= bounds.x;
         y -= bounds.y;
-
         ((net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource)
-        ds).setOrigin(0, currentScreen.getIndex(), x,  y);
+                ds)
+            .setOrigin(0, currentScreen.getIndex(), x,  y);
     }
 
     /**
@@ -1086,12 +1193,7 @@ public class MediaServiceImpl
         MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
         CaptureDeviceInfo devInfo = dev.getCaptureDeviceInfo();
 
-        if(devInfo.getName().startsWith("Partial desktop streaming"))
-        {
-            return true;
-        }
-
-        return false;
+        return devInfo.getName().startsWith("Partial desktop streaming");
     }
 
     /**
@@ -1102,16 +1204,9 @@ public class MediaServiceImpl
       */
     public ScreenDevice getScreenForPoint(Point p)
     {
-        List<ScreenDevice> devs = this.getAvailableScreenDevices();
-
-        for(ScreenDevice dev : devs)
-        {
+        for(ScreenDevice dev : getAvailableScreenDevices())
             if(dev.containsPoint(p))
-            {
                 return dev;
-            }
-        }
-
         return null;
     }
 
