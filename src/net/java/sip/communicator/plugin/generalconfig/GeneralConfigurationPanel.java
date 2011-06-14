@@ -623,7 +623,7 @@ public class GeneralConfigurationPanel
     {
         JPanel checkBoxPanel = new TransparentPanel(new BorderLayout());
 
-        JCheckBox formatPhoneNumber = new JCheckBox("",
+        SIPCommCheckBox formatPhoneNumber = new SIPCommCheckBox("",
             ConfigurationManager.isNormalizePhoneNumber());
 
         formatPhoneNumber.setAlignmentY(Component.TOP_ALIGNMENT);
