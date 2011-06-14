@@ -407,7 +407,16 @@ public abstract class MediaFormatImpl<T extends Format>
     @Override
     public int hashCode()
     {
-        return (getFormat().hashCode() | getFormatParameters().hashCode());
+        /*
+         * XXX We've experienced a case of JMF's VideoFormat#hashCode()
+         * returning different values for instances which are reported equal by
+         * VideoFormat#equals(Object) which is inconsistent with the protocol
+         * covering the two methods in question and causes problems,
+         * for example, with Map. While jmfEncoding is more generic than format,
+         * it still provides a relatively good distribution given that we do not
+         * have a lot of instances with one and the same jmfEncoding.
+         */
+        return getJMFEncoding().hashCode() | getFormatParameters().hashCode();
     }
 
     /**
