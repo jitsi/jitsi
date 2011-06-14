@@ -400,7 +400,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
                         resourceId.toString());
                 throw new XCapException(errorMessage);
             }
-            if (!contentType.equals(PresContentClient.CONTENT_TYPE))
+            if (!contentType.startsWith(PresContentClient.CONTENT_TYPE))
             {
                 String errorMessage = String.format(
                         "XCAP server returns invalid PresContent content type: %1s",
@@ -628,7 +628,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
                 return null;
             }
 
-            if (!contentType.equals(response.getContentType()))
+            if (!response.getContentType().startsWith(contentType))
             {
                 String errorMessage = String.format(
                         "XCAP server returns invalid content type: %1s",

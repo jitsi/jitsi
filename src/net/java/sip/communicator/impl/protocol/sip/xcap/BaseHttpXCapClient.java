@@ -209,8 +209,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
                 // for debug purposes print only xmls
                 // skip the icon queries
                 if(contentBytes != null && result.getContentType() != null
-                        && !result.getContentType().equalsIgnoreCase
-                        (PresContentClient.CONTENT_TYPE))
+                        && !result.getContentType()
+                                .startsWith(PresContentClient.CONTENT_TYPE))
                     contenString = new String(contentBytes);
                 else
                     contenString = "";
