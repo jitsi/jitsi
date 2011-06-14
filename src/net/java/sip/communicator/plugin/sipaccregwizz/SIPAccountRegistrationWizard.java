@@ -646,6 +646,19 @@ public class SIPAccountRegistrationWizard
     }
 
     /**
+     * Returns <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise.
+     * @return <code>true</code> if the web sign up is supported by the current
+     * implementation, <code>false</code> - otherwise
+     */
+    public boolean isWebSignupSupported()
+    {
+        String webSignupLinkName = getWebSignupLinkName();
+
+        return webSignupLinkName != null && webSignupLinkName.length() > 0;
+    }
+
+    /**
      * Sets the create account view of this registration wizard.
      */
     public void setCreateAccountView()
