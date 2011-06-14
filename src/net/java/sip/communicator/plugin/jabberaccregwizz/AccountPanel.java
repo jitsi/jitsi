@@ -100,7 +100,7 @@ public class AccountPanel
 
         String homeLinkString = parentForm.getHomeLinkLabel();
 
-        if (homeLinkString != null)
+        if (homeLinkString != null && homeLinkString.length() > 0)
         {
             String homeLink = Resources.getSettingsString(
                     "service.gui.APPLICATION_WEB_SITE");
