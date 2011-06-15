@@ -140,7 +140,7 @@ public class OperationSetVideoTelephonySipImpl
      * @throws ParseException if <tt>callee</tt> is not a valid sip address
      * string.
      */
-    public Call createVideoCall(String uri, QualityPresets qualityPreferences)
+    public Call createVideoCall(String uri, QualityPreset qualityPreferences)
         throws OperationFailedException, ParseException
     {
         Address toAddress = parentProvider.parseAddressString(uri);
@@ -171,7 +171,7 @@ public class OperationSetVideoTelephonySipImpl
      * to create the video call.
      */
     public Call createVideoCall(Contact callee,
-                                QualityPresets qualityPreferences)
+                                QualityPreset qualityPreferences)
         throws OperationFailedException
     {
         Address toAddress;
@@ -218,8 +218,8 @@ public class OperationSetVideoTelephonySipImpl
      * @param peer the peer which this control operates on.
      * @return the implemented quality control.
      */
-    public QualityControls getQualityControls(CallPeer peer)
+    public QualityControl getQualityControl(CallPeer peer)
     {
-        return ((CallPeerSipImpl) peer).getMediaHandler().getQualityControls();
+        return ((CallPeerSipImpl) peer).getMediaHandler().getQualityControl();
     }
 }

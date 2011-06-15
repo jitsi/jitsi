@@ -13,6 +13,7 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.*;
 
@@ -77,6 +78,12 @@ public class DePacketizer
     private boolean fuaStartedAndNotEnded = false;
 
     /**
+     * The <tt>KeyFrameControl</tt> used by this <tt>DePacketizer</tt> to
+     * control its key frame-related logic.
+     */
+    private KeyFrameControl keyFrameControl;
+
+    /**
      * Keeps track of last (input) sequence number in order to avoid
      * inconsistent data.
      */
@@ -111,12 +118,6 @@ public class DePacketizer
     private long remoteSSRC = -1;
 
     /**
-     * The indicator which determines whether RTCP PLI is to be used when this
-     * <tt>DePacketizer</tt> detects that video data has been lost.
-     */
-    private boolean usePLI = false;
-
-    /**
      * The time stamp of the last keyframe request. Used to retransmit a
      * keyframe request in case a previous one gets lost and this
      * <tt>DePacketizer</tt> does not receive a keyframe.
@@ -144,6 +145,12 @@ public class DePacketizer
      * keyframes received and sends a PLI.
      */
     private PLISendThread pliSendThread = new PLISendThread();
+
+    /**
+     * The indicator which determines whether RTCP PLI is to be used when this
+     * <tt>DePacketizer</tt> detects that video data has been lost.
+     */
+    private boolean usePLI = false;
 
     /**
      * Initializes a new <tt>DePacketizer</tt> instance which is to depacketize
@@ -562,16 +569,17 @@ public class DePacketizer
     }
 
     /**
-     * Set local and remote SSRC. It will be used
-     * to send RTCP messages.
+     * Sets the <tt>KeyFrameControl</tt> to be used by this
+     * <tt>DePacketizer</tt> as a means of control over its key frame-related
+     * logic.
      *
-     * @param localSSRC local SSRC
-     * @param remoteSSRC remote SSRC
+     * @param keyFrameControl the <tt>KeyFrameControl</tt> to be used by this
+     * <tt>DePacketizer</tt> as a means of control over its key frame-related
+     * logic
      */
-    public void setSSRC(long localSSRC, long remoteSSRC)
+    public void setKeyFrameControl(KeyFrameControl keyFrameControl)
     {
-        this.localSSRC = localSSRC;
-        this.remoteSSRC = remoteSSRC;
+        this.keyFrameControl = keyFrameControl;
     }
 
     /**
@@ -582,6 +590,19 @@ public class DePacketizer
     public void setRtcpFeedbackPLI(boolean use)
     {
         usePLI = use;
+    }
+
+    /**
+     * Set local and remote SSRC. It will be used
+     * to send RTCP messages.
+     *
+     * @param localSSRC local SSRC
+     * @param remoteSSRC remote SSRC
+     */
+    public void setSSRC(long localSSRC, long remoteSSRC)
+    {
+        this.localSSRC = localSSRC;
+        this.remoteSSRC = remoteSSRC;
     }
 
     /**

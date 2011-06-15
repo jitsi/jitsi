@@ -12,25 +12,25 @@ import net.java.sip.communicator.service.protocol.*;
  * The quality controls we use to control other party video presets.
  * @author Damian Minkov
  */
-public interface QualityControls
+public interface QualityControl
 {
     /**
      * The currently used quality preset announced as receive by remote party.
      * @return the current quality preset.
      */
-    public QualityPresets getRemoteReceivePreset();
+    public QualityPreset getRemoteReceivePreset();
 
     /**
      * The minimum preset that the remote party is sending and we are receiving.
      * @return the minimum remote preset.
      */
-    public QualityPresets getRemoteSendMinPreset();
+    public QualityPreset getRemoteSendMinPreset();
 
     /**
      * The maximum preset that the remote party is sending and we are receiving.
      * @return the maximum preset announced from remote party as send.
      */
-    public QualityPresets getRemoteSendMaxPreset();
+    public QualityPreset getRemoteSendMaxPreset();
 
     /**
      * Changes remote send preset. This doesn't have impact of current stream.
@@ -39,7 +39,7 @@ public interface QualityControls
      * is sending.
      * @param preset the new preset value.
      */
-    public void setRemoteSendMaxPreset(QualityPresets preset);
+    public void setRemoteSendMaxPreset(QualityPreset preset);
 
     /**
      * Changes remote send preset and protocols who can handle the changes
@@ -48,6 +48,6 @@ public interface QualityControls
      * @param preset the new preset.
      * @throws OperationFailedException
      */
-    public void setPreferredRemoteSendMaxPreset(QualityPresets preset)
+    public void setPreferredRemoteSendMaxPreset(QualityPreset preset)
         throws OperationFailedException;
 }

@@ -78,22 +78,22 @@ public class ResizeVideoButton
             OperationSetVideoTelephony videoOpSet = peer.getProtocolProvider()
                     .getOperationSet(OperationSetVideoTelephony.class);
 
-            QualityControls qualityControls = videoOpSet.getQualityControls(peer);
-            QualityPresets maxRemotePreset =
+            QualityControl qualityControls = videoOpSet.getQualityControl(peer);
+            QualityPreset maxRemotePreset =
                     qualityControls.getRemoteSendMaxPreset();
 
             // if there is a setting for max preset lets look at it
             // and add only those presets that are remotely supported
             if( maxRemotePreset == null ||
-                maxRemotePreset.compareTo(QualityPresets.HD_QUALITY) >= 0)
+                maxRemotePreset.compareTo(QualityPreset.HD_QUALITY) >= 0)
                 hdOptionPresent = true;
 
             if( maxRemotePreset == null ||
-                maxRemotePreset.compareTo(QualityPresets.SD_QUALITY) >= 0)
+                maxRemotePreset.compareTo(QualityPreset.SD_QUALITY) >= 0)
                 sdOptionPresent = true;
 
             if( maxRemotePreset == null ||
-                maxRemotePreset.compareTo(QualityPresets.LO_QUALITY) >= 0)
+                maxRemotePreset.compareTo(QualityPreset.LO_QUALITY) >= 0)
                 loOptionPresent = true;
         }
         catch(Throwable t)
@@ -139,9 +139,9 @@ public class ResizeVideoButton
         popupMenu.setInvoker(this);
         popupMenu.setFocusable(true);
 
-        Dimension loDimension = QualityPresets.LO_QUALITY.getResolution();
-        Dimension sdDimension = QualityPresets.SD_QUALITY.getResolution();
-        Dimension hdDimension = QualityPresets.HD_QUALITY.getResolution();
+        Dimension loDimension = QualityPreset.LO_QUALITY.getResolution();
+        Dimension sdDimension = QualityPreset.SD_QUALITY.getResolution();
+        Dimension hdDimension = QualityPreset.HD_QUALITY.getResolution();
 
         JMenuItem lowQuality = new JMenuItem(
             GuiActivator.getResources()
@@ -190,7 +190,7 @@ public class ResizeVideoButton
 
                 CallManager.setVideoQualityPreset(
                         call.getCallPeers().next(),
-                        QualityPresets.LO_QUALITY);
+                        QualityPreset.LO_QUALITY);
             }
         });
 
@@ -203,7 +203,7 @@ public class ResizeVideoButton
                 setIconImageID(ImageLoader.SD_VIDEO_BUTTON);
 
                 CallManager.setVideoQualityPreset(
-                        call.getCallPeers().next(), QualityPresets.SD_QUALITY);
+                        call.getCallPeers().next(), QualityPreset.SD_QUALITY);
             }
         });
 
@@ -216,7 +216,7 @@ public class ResizeVideoButton
                 setIconImageID(ImageLoader.HD_VIDEO_BUTTON);
 
                 CallManager.setVideoQualityPreset(
-                        call.getCallPeers().next(), QualityPresets.HD_QUALITY);
+                        call.getCallPeers().next(), QualityPreset.HD_QUALITY);
             }
         });
 

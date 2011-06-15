@@ -74,7 +74,7 @@ public class CallPeerMediaHandlerSipImpl
     /**
      * The current quality controls for this peer media handler if any.
      */
-    private QualityControlsWrapper qualityControls;
+    private QualityControlWrapper qualityControls;
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -88,7 +88,7 @@ public class CallPeerMediaHandlerSipImpl
         super(peer, peer);
 
         transportManager = new TransportManagerSipImpl(peer);
-        qualityControls = new QualityControlsWrapper(peer);
+        qualityControls = new QualityControlWrapper(peer);
     }
 
     /**
@@ -162,8 +162,8 @@ public class CallPeerMediaHandlerSipImpl
         //Audio Media Description
         Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
 
-        QualityPresets sendQualityPreset = null;
-        QualityPresets receiveQualityPreset = null;
+        QualityPreset sendQualityPreset = null;
+        QualityPreset receiveQualityPreset = null;
 
         if(qualityControls != null)
         {
@@ -483,8 +483,8 @@ public class CallPeerMediaHandlerSipImpl
             // check for options from remote party and set them locally
             if(mediaType.equals(MediaType.VIDEO))
             {
-                QualityPresets sendQualityPreset = null;
-                QualityPresets receiveQualityPreset = null;
+                QualityPreset sendQualityPreset = null;
+                QualityPreset receiveQualityPreset = null;
 
                 if(qualityControls != null)
                 {
@@ -851,7 +851,7 @@ public class CallPeerMediaHandlerSipImpl
      * Returns the quality control for video calls if any.
      * @return the implemented quality control.
      */
-    public QualityControls getQualityControls()
+    public QualityControl getQualityControl()
     {
         if(supportQualityControls)
         {

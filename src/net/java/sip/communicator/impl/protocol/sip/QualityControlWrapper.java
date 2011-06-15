@@ -14,14 +14,14 @@ import net.java.sip.communicator.util.*;
  * A wrapper of media quality control.
  * @author Damian Minkov
  */
-public class QualityControlsWrapper
-    implements QualityControls
+public class QualityControlWrapper
+    implements QualityControl
 {
     /**
      * Our class logger.
      */
     private static final Logger logger
-        = Logger.getLogger(QualityControlsWrapper.class);
+        = Logger.getLogger(QualityControlWrapper.class);
 
     /**
      * The peer we are controlling.
@@ -31,12 +31,12 @@ public class QualityControlsWrapper
     /**
      * The media quality control.
      */
-    private QualityControls qualityControls;
+    private QualityControl qualityControl;
 
     /**
      * The currently used video quality preset.
      */
-    protected QualityPresets remoteSendMaxPreset = null;
+    protected QualityPreset remoteSendMaxPreset = null;
 
     /**
      * The frame rate.
@@ -47,7 +47,7 @@ public class QualityControlsWrapper
      * Creates quality control for peer.
      * @param peer
      */
-    QualityControlsWrapper(CallPeerSipImpl peer)
+    QualityControlWrapper(CallPeerSipImpl peer)
     {
         this.peer = peer;
     }
@@ -56,33 +56,28 @@ public class QualityControlsWrapper
      * Checks and obtains quality control from media stream.
      * @return
      */
-    private QualityControls getMediaQualityControls()
+    private QualityControl getMediaQualityControl()
     {
-        if(qualityControls != null)
-            return qualityControls;
+        if(qualityControl != null)
+            return qualityControl;
 
         MediaStream stream = peer.getMediaHandler().getStream(MediaType.VIDEO);
 
         if(stream != null && stream instanceof VideoMediaStream)
-            qualityControls = ((VideoMediaStream)stream).getQualityControls();
+            qualityControl = ((VideoMediaStream)stream).getQualityControl();
 
-        return qualityControls;
+        return qualityControl;
     }
 
     /**
      * The currently used quality preset announced as receive by remote party.
      * @return the current quality preset.
      */
-    public QualityPresets getRemoteReceivePreset()
+    public QualityPreset getRemoteReceivePreset()
     {
-        QualityControls qControls = getMediaQualityControls();
+        QualityControl qc = getMediaQualityControl();
 
-        if(qControls == null)
-        {
-            return null;
-        }
-
-        return qControls.getRemoteReceivePreset();
+        return (qc == null) ? null : qc.getRemoteReceivePreset();
     }
 
     /**
@@ -90,32 +85,29 @@ public class QualityControlsWrapper
      * Not Used.
      * @return the minimum remote preset.
      */
-    public QualityPresets getRemoteSendMinPreset()
+    public QualityPreset getRemoteSendMinPreset()
     {
-        QualityControls qControls = getMediaQualityControls();
+        QualityControl qc = getMediaQualityControl();
 
-        if(qControls == null)
-            return null;
-
-        return qControls.getRemoteSendMinPreset();
+        return (qc == null) ? null : qc.getRemoteSendMinPreset();
     }
 
     /**
      * The maximum preset that the remote party is sending and we are receiving.
      * @return the maximum preset announced from remote party as send.
      */
-    public QualityPresets getRemoteSendMaxPreset()
+    public QualityPreset getRemoteSendMaxPreset()
     {
-        QualityControls qControls = getMediaQualityControls();
+        QualityControl qControls = getMediaQualityControl();
 
         if(qControls == null)
             return remoteSendMaxPreset;
 
-        QualityPresets qp = qControls.getRemoteSendMaxPreset();
+        QualityPreset qp = qControls.getRemoteSendMaxPreset();
 
         // there is info about max frame rate
         if(qp != null && maxFrameRate > 0)
-            qp = new QualityPresets(qp.getResolution(), (int)maxFrameRate);
+            qp = new QualityPreset(qp.getResolution(), (int)maxFrameRate);
 
         return qp;
     }
@@ -137,9 +129,9 @@ public class QualityControlsWrapper
      * is sending.
      * @param preset the new preset value.
      */
-    public void setRemoteSendMaxPreset(QualityPresets preset)
+    public void setRemoteSendMaxPreset(QualityPreset preset)
     {
-        QualityControls qControls = getMediaQualityControls();
+        QualityControl qControls = getMediaQualityControl();
 
         if(qControls != null)
             qControls.setRemoteSendMaxPreset(preset);
@@ -155,10 +147,10 @@ public class QualityControlsWrapper
      * @param preset the desired video settings
      * @throws OperationFailedException
      */
-    public void setPreferredRemoteSendMaxPreset(QualityPresets preset)
+    public void setPreferredRemoteSendMaxPreset(QualityPreset preset)
         throws OperationFailedException
     {
-        QualityControls qControls = getMediaQualityControls();
+        QualityControl qControls = getMediaQualityControl();
 
         if(qControls != null)
         {

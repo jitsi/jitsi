@@ -46,7 +46,7 @@ public class CallSipImpl
      * When starting call we may have quality preferences we must use
      * for the call.
      */
-    private QualityPresets initialQualityPreferences;
+    private QualityPreset initialQualityPreferences;
 
     /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
@@ -186,7 +186,7 @@ public class CallSipImpl
             // determine whether the other party supports changing quality
             // so we force it
             callPeer.getMediaHandler().setSupportQualityControls(true);
-            callPeer.getMediaHandler().getQualityControls()
+            callPeer.getMediaHandler().getQualityControl()
                     .setRemoteSendMaxPreset(initialQualityPreferences);
         }
 
@@ -399,7 +399,7 @@ public class CallSipImpl
      * Set a quality preferences we may use when we start the call.
      * @param qualityPreferences the initial quality preferences.
      */
-    public void setInitialQualityPreferences(QualityPresets qualityPreferences)
+    public void setInitialQualityPreferences(QualityPreset qualityPreferences)
     {
         this.initialQualityPreferences = qualityPreferences;
     }

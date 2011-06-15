@@ -19,6 +19,8 @@ import javax.media.rtp.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.QualityControl; // disambiguation
+import net.java.sip.communicator.service.neomedia.control.KeyFrameControl; // disambiguation
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -56,9 +58,15 @@ public class VideoMediaStreamImpl
     private boolean usePLI = false;
 
     /**
-     * This stream quality control.
+     * The <tt>KeyFrameControl</tt> of this <tt>VideoMediaStream</tt>.
      */
-    private QualityControlsImpl qualityControls = new QualityControlsImpl();
+    private final KeyFrameControlImpl keyFrameControl
+        = new KeyFrameControlImpl();
+
+    /**
+     * The <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>.
+     */
+    private final QualityControlImpl qualityControl = new QualityControlImpl();
 
     /**
      * Selects the <tt>VideoFormat</tt> from the list of supported formats of a
@@ -359,11 +367,21 @@ public class VideoMediaStreamImpl
     {
         super.deviceSessionChanged(oldValue, newValue);
 
-        if ((oldValue instanceof VideoMediaDeviceSession)
-                && (deviceSessionVideoListener != null))
+        if (oldValue instanceof VideoMediaDeviceSession)
         {
-            ((VideoMediaDeviceSession) oldValue).removeVideoListener(
-                    deviceSessionVideoListener);
+            VideoMediaDeviceSession oldVideoMediaDeviceSession
+                = (VideoMediaDeviceSession) oldValue;
+
+            if (deviceSessionVideoListener != null)
+                oldVideoMediaDeviceSession.removeVideoListener(
+                        deviceSessionVideoListener);
+
+            /*
+             * The oldVideoMediaDeviceSession is being disconnected from this
+             * VideoMediaStreamImpl so do not let it continue using its
+             * keyFrameControl.
+             */
+            oldVideoMediaDeviceSession.setKeyFrameControl(null);
         }
         if (newValue instanceof VideoMediaDeviceSession)
         {
@@ -425,6 +443,13 @@ public class VideoMediaStreamImpl
             if (rtpConnector != null)
                 newVideoMediaDeviceSession.setConnector(rtpConnector);
             newVideoMediaDeviceSession.setRtcpFeedbackPLI(usePLI);
+
+            /*
+             * The newVideoMediaDeviceSession is being connected to this
+             * VideoMediaStreamImpl so the key frame-related logic will be
+             * controlled by the keyFrameControl of this VideoMediaStreamImpl.
+             */
+            newVideoMediaDeviceSession.setKeyFrameControl(keyFrameControl);
         }
     }
 
@@ -591,8 +616,8 @@ public class VideoMediaStreamImpl
                     {
                         outputSize = res[1];
 
-                        qualityControls.setRemoteSendMaxPreset(new QualityPresets(res[0]));
-                        qualityControls.setRemoteReceiveResolution(outputSize);
+                        qualityControl.setRemoteSendMaxPreset(new QualityPreset(res[0]));
+                        qualityControl.setRemoteReceiveResolution(outputSize);
                         ((VideoMediaDeviceSession)getDeviceSession()).
                             setOutputSize(outputSize);
                     }
@@ -818,49 +843,72 @@ public class VideoMediaStreamImpl
     }
 
     /**
-     * Returns the quality control for this stream.
-     * @return
+     * Implements {@link VideoMediaStream#getKeyFrameControl()}.
+     *
+     * {@inheritDoc}
+     * @see VideoMediaStream#getKeyFrameControl()
      */
-    public QualityControls getQualityControls()
+    public KeyFrameControl getKeyFrameControl()
     {
-        return qualityControls;
+        return keyFrameControl;
     }
 
     /**
-     * The quality control implementation used for
-     * this video stream quality control.
+     * Gets the <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>.
+     *
+     * @return the <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>
      */
-    private class QualityControlsImpl
-        implements QualityControls
+    public QualityControl getQualityControl()
+    {
+        return qualityControl;
+    }
+
+    /**
+     * Implements the <tt>KeyFrameControl</tt> of this
+     * <tt>VideoMediaStream</tt>.
+     *
+     * @author Lyubomir Marinov
+     */
+    private class KeyFrameControlImpl
+        implements KeyFrameControl
+    {
+    }
+
+    /**
+     * Implements the <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>.
+     *
+     * @author Damian Minkov
+     */
+    private class QualityControlImpl
+        implements QualityControl
     {
         /**
          * The current used preset.
          */
-        private QualityPresets preset;
+        private QualityPreset preset;
 
         /**
          * The minimum values for resolution, framerate ...
          */
-        private QualityPresets minPreset;
+        private QualityPreset minPreset;
 
         /**
          * The maximum values for resolution, framerate ...
          */
-        private QualityPresets maxPreset;
+        private QualityPreset maxPreset;
 
         /**
          * This is the local settings from the config panel.
          */
-        private QualityPresets localSettingsPreset;
+        private QualityPreset localSettingsPreset;
 
         /**
          * Sets the preset.
          * @param preset the desired video settings
          * @throws OperationFailedException
          */
-        private void setRemoteReceivePreset(QualityPresets preset)
-                throws
-                OperationFailedException
+        private void setRemoteReceivePreset(QualityPreset preset)
+            throws OperationFailedException
         {
             if(preset.compareTo(getPreferredSendPreset()) > 0)
                 this.preset = getPreferredSendPreset();
@@ -872,7 +920,7 @@ public class VideoMediaStreamImpl
          * The current preset.
          * @return
          */
-        public QualityPresets getRemoteReceivePreset()
+        public QualityPreset getRemoteReceivePreset()
         {
             return preset;
         }
@@ -881,7 +929,7 @@ public class VideoMediaStreamImpl
          * The minimum resolution values for remote part.
          * @return
          */
-        public QualityPresets getRemoteSendMinPreset()
+        public QualityPreset getRemoteSendMinPreset()
         {
             return minPreset;
         }
@@ -890,7 +938,7 @@ public class VideoMediaStreamImpl
          * The max resolution values for remote part.
          * @return
          */
-        public QualityPresets getRemoteSendMaxPreset()
+        public QualityPreset getRemoteSendMaxPreset()
         {
             return maxPreset;
         }
@@ -901,7 +949,7 @@ public class VideoMediaStreamImpl
          * @param preset the max preset
          * @throws OperationFailedException not thrown.
          */
-        public void setPreferredRemoteSendMaxPreset(QualityPresets preset)
+        public void setPreferredRemoteSendMaxPreset(QualityPreset preset)
             throws OperationFailedException
         {
             setRemoteSendMaxPreset(preset);
@@ -911,7 +959,7 @@ public class VideoMediaStreamImpl
          * Changes remote send preset, the one we will receive.
          * @param preset
          */
-        public void setRemoteSendMaxPreset(QualityPresets preset)
+        public void setRemoteSendMaxPreset(QualityPreset preset)
         {
             this.maxPreset = preset;
         }
@@ -920,7 +968,7 @@ public class VideoMediaStreamImpl
          * The local setting of capture.
          * @return
          */
-        private QualityPresets getPreferredSendPreset()
+        private QualityPreset getPreferredSendPreset()
         {
             if(localSettingsPreset == null)
             {
@@ -928,7 +976,7 @@ public class VideoMediaStreamImpl
                     NeomediaActivator.getMediaServiceImpl()
                             .getDeviceConfiguration();
 
-                localSettingsPreset = new QualityPresets(
+                localSettingsPreset = new QualityPreset(
                         deviceConfiguration.getVideoSize(),
                         deviceConfiguration.getFrameRate());
             }
@@ -943,9 +991,9 @@ public class VideoMediaStreamImpl
         {
             try
             {
-                this.setRemoteReceivePreset(new QualityPresets(res));
+                this.setRemoteReceivePreset(new QualityPreset(res));
             }
-            catch(OperationFailedException e){}
+            catch(OperationFailedException ofe){}
         }
     }
 }

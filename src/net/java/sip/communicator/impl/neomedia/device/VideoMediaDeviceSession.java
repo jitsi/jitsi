@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.control.KeyFrameControl; // disambiguation
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.resources.*;
@@ -51,6 +52,12 @@ public class VideoMediaDeviceSession
      */
     private static final String DESKTOP_STREAMING_ICON
         = "impl.media.DESKTOP_STREAMING_ICON";
+
+    /**
+     * The <tt>KeyFrameControl</tt> used by this<tt>VideoMediaDeviceSession</tt>
+     * as a means to control its key frame-related logic.
+     */
+    private KeyFrameControl keyFrameControl;
 
     /**
      * Local <tt>Player</tt> for the local video.
@@ -810,25 +817,29 @@ public class VideoMediaDeviceSession
                      * For H.264, we will use RTCP feedback. For example, to
                      * tell the sender that we've missed a frame.
                      */
-                    if (usePLI
-                            && "h264/rtp".equalsIgnoreCase(
-                                    getFormat().getJMFEncoding()))
+                    if ("h264/rtp".equalsIgnoreCase(
+                            getFormat().getJMFEncoding()))
                     {
                         DePacketizer depacketizer = new DePacketizer();
 
-                        depacketizer.setRtcpFeedbackPLI(usePLI);
-                        try
+                        if (usePLI)
                         {
-                            depacketizer.setConnector(
-                                    rtpConnector.getControlOutputStream());
+                            depacketizer.setRtcpFeedbackPLI(usePLI);
+                            try
+                            {
+                                depacketizer.setConnector(
+                                        rtpConnector.getControlOutputStream());
+                            }
+                            catch(Exception e)
+                            {
+                                logger.error(
+                                        "Error cannot get RTCP output stream",
+                                        e);
+                            }
+                            depacketizer.setSSRC(localSSRC, remoteSSRC);
                         }
-                        catch(Exception e)
-                        {
-                            logger.error(
-                                    "Error cannot get RTCP output stream",
-                                    e);
-                        }
-                        depacketizer.setSSRC(localSSRC, remoteSSRC);
+                        if (keyFrameControl != null)
+                            depacketizer.setKeyFrameControl(keyFrameControl);
 
                         trackControl.setCodecChain(
                                 new Codec[] { depacketizer, playerScaler });
@@ -843,7 +854,10 @@ public class VideoMediaDeviceSession
             }
             catch (UnsupportedPlugInException upiex)
             {
-                logger.error("Failed to add SwScaler to codec chain", upiex);
+                logger.error(
+                        "Failed to add SwScaler or H.264 DePacketizer to codec"
+                            + " chain",
+                        upiex);
                 playerScaler = null;
             }
         }
@@ -1129,6 +1143,20 @@ public class VideoMediaDeviceSession
     public void setConnector(RTPTransformConnector rtpConnector)
     {
         this.rtpConnector = rtpConnector;
+    }
+
+    /**
+     * Sets the <tt>KeyFrameControl</tt> to be used by this
+     * <tt>VideoMediaDeviceSession</tt> as a means of control over its
+     * key frame-related logic.
+     *
+     * @param keyFrameControl the <tt>KeyFrameControl</tt> to be used by this
+     * <tt>VideoMediaDeviceSession</tt> as a means of control over its
+     * key frame-related logic
+     */
+    public void setKeyFrameControl(KeyFrameControl keyFrameControl)
+    {
+        this.keyFrameControl = keyFrameControl;
     }
 
     /**

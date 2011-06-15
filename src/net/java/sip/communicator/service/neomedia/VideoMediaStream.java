@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.neomedia;
 
 import java.awt.*;
 
+import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
@@ -75,8 +76,16 @@ public interface VideoMediaStream
     public void removeVideoListener(VideoListener listener);
 
     /**
-     * The quality control that can be used with this stream.
-     * @return the quality control.
+     * Gets the <tt>KeyFrameControl</tt> of this <tt>VideoMediaStream</tt>.
+     *
+     * @return the <tt>KeyFrameControl</tt> of this <tt>VideoMediaStream</tt>
      */
-    public QualityControls getQualityControls();
+    public KeyFrameControl getKeyFrameControl();
+
+    /**
+     * Gets the <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>.
+     *
+     * @return the <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>
+     */
+    public QualityControl getQualityControl();
 }

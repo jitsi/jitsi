@@ -907,7 +907,7 @@ public class CallManager
         if (videoOpSet == null)
             return false;
 
-        return videoOpSet.getQualityControls(callPeer) != null;
+        return videoOpSet.getQualityControl(callPeer) != null;
     }
 
     /**
@@ -917,7 +917,7 @@ public class CallManager
      * @param qualityPreset the new quality settings
      */
     public static void setVideoQualityPreset(final CallPeer callPeer,
-                                            final QualityPresets qualityPreset)
+                                            final QualityPreset qualityPreset)
     {
         ProtocolProviderService provider = callPeer.getProtocolProvider();
         final OperationSetVideoTelephony videoOpSet
@@ -926,8 +926,8 @@ public class CallManager
         if (videoOpSet == null)
             return;
 
-        final QualityControls qualityControl =
-                    videoOpSet.getQualityControls(callPeer);
+        final QualityControl qualityControl =
+                    videoOpSet.getQualityControl(callPeer);
 
         if (qualityControl != null)
         {

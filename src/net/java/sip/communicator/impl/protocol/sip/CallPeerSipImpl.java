@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.header.*;
+
 import java.net.*;
 import java.text.*;
 import java.util.*;
@@ -17,6 +19,7 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
@@ -701,8 +704,99 @@ public class CallPeerSipImpl
         }
 
         fireResponseProcessed(ok, null);
+/*
+        new Thread()
+        {
+            public void run()
+            {
+                try
+                {
+                    Thread.sleep(5000);
+                }
+                catch (InterruptedException ie)
+                {
+                }
+                try
+                {
+                    pictureFastUpdate();
+                }
+                catch (OperationFailedException ofe)
+                {
+                    ofe.printStackTrace(System.err);
+                }
+            }
+        }.start();
+*/
     }
 
+    private void pictureFastUpdate()
+        throws OperationFailedException
+    {
+        Request info = getProtocolProvider().getMessageFactory().createRequest(
+                        getDialog(), Request.INFO);
+
+        //here we add the body
+        ContentType ct = new ContentType("application", "media_control+xml");
+        String content = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n<media_control>\r\n<vc_primitive>\r\n<to_encoder>\r\n<picture_fast_update/>\r\n</to_encoder>\r\n</vc_primitive>\r\n</media_control>";
+
+        ContentLength cl = new ContentLength(content.length());
+        info.setContentLength(cl);
+
+        try
+        {
+            info.setContent(content.getBytes(), ct);
+        }
+        catch (ParseException ex)
+        {
+            logger.error("Failed to construct the INFO request", ex);
+            throw new OperationFailedException(
+                "Failed to construct a client the INFO request"
+                , OperationFailedException.INTERNAL_ERROR
+                , ex);
+
+        }
+        //body ended
+        ClientTransaction clientTransaction = null;
+        try
+        {
+            clientTransaction = getJainSipProvider()
+                .getNewClientTransaction(info);
+        }
+        catch (TransactionUnavailableException ex)
+        {
+            logger.error(
+                "Failed to construct a client transaction from the INFO request"
+                , ex);
+            throw new OperationFailedException(
+                "Failed to construct a client transaction from the INFO request"
+                , OperationFailedException.INTERNAL_ERROR
+                , ex);
+        }
+
+        try
+        {
+            if (getDialog().getState()
+                == DialogState.TERMINATED)
+            {
+                //this is probably because the call has just ended, so don't
+                //throw an exception. simply log and get lost.
+                logger.warn("Trying to send a dtmf tone inside a "
+                            +"TERMINATED dialog.");
+                return;
+            }
+
+            getDialog().sendRequest(clientTransaction);
+            if (logger.isDebugEnabled())
+                logger.debug("sent request:\n" + info);
+        }
+        catch (SipException ex)
+        {
+            throw new OperationFailedException(
+                "Failed to send the INFO request"
+                , OperationFailedException.NETWORK_FAILURE
+                , ex);
+        }
+    }
     /**
      * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
      * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message

@@ -335,8 +335,8 @@ public class MediaDeviceImpl
      * @return the list of <tt>MediaFormat</tt>s supported by this device
      * @see MediaDevice#getSupportedFormats()
      */
-    public List<MediaFormat> getSupportedFormats(QualityPresets sendPreset,
-                                                 QualityPresets receivePreset)
+    public List<MediaFormat> getSupportedFormats(QualityPreset sendPreset,
+                                                 QualityPreset receivePreset)
     {
         EncodingConfiguration encodingConfiguration
             = NeomediaActivator

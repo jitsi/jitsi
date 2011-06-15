@@ -266,7 +266,7 @@ public abstract class AbstractOperationSetVideoTelephony<
      * @param peer the peer which this control operates on.
      * @return the implemented quality control.
      */
-    public QualityControls getQualityControls(CallPeer peer)
+    public QualityControl getQualityControl(CallPeer peer)
     {
         return null;
     }
@@ -291,7 +291,7 @@ public abstract class AbstractOperationSetVideoTelephony<
      * @throws java.text.ParseException if <tt>callee</tt> is not a valid sip address
      * string.
      */
-    public Call createVideoCall(String uri, QualityPresets qualityPreferences)
+    public Call createVideoCall(String uri, QualityPreset qualityPreferences)
         throws OperationFailedException,
             ParseException
     {
@@ -316,8 +316,8 @@ public abstract class AbstractOperationSetVideoTelephony<
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
      */
-    public Call createVideoCall(Contact callee,
-                                QualityPresets qualityPreferences)
+    public Call createVideoCall(
+            Contact callee, QualityPreset qualityPreferences)
         throws OperationFailedException
     {
         return createVideoCall(callee);

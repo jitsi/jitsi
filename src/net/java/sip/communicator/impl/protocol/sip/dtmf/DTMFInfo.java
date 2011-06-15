@@ -15,7 +15,6 @@ import javax.sip.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -23,9 +22,10 @@ import net.java.sip.communicator.util.*;
  * Sending DTMFs with SIP INFO.
  *
  * @author Damian Minkov
+ * @author Lyubomir Marinov
  */
 public class DTMFInfo
-    implements MethodProcessor
+    extends MethodProcessorAdapter
 {
     /**
      * logger for the class
@@ -42,7 +42,7 @@ public class DTMFInfo
     /**
      * Involved protocol provider service.
      */
-    private ProtocolProviderServiceSipImpl pps = null;
+    private final ProtocolProviderServiceSipImpl pps;
 
     /**
      * Constructor
@@ -52,7 +52,8 @@ public class DTMFInfo
     public DTMFInfo(ProtocolProviderServiceSipImpl pps)
     {
         this.pps = pps;
-        pps.registerMethodProcessor(Request.INFO, this);
+
+        this.pps.registerMethodProcessor(Request.INFO, this);
     }
 
     /**
@@ -181,26 +182,24 @@ public class DTMFInfo
                 , ex);
         }
     }
-
-    /**
-     * Does nothing
-     *
-     * @param requestEvent the event request
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
+/*
+    @Override
     public boolean processRequest(RequestEvent requestEvent)
     {
-        if (requestEvent == null)
+        try
         {
-            if (logger.isDebugEnabled())
-                logger.debug("requestEvent null");
+            requestEvent.getServerTransaction().sendResponse(
+                    pps.getMessageFactory().createResponse(
+                            Response.OK, requestEvent.getRequest()));
         }
-        logger.error("We don't cope with requests" + requestEvent);
-        return false;
+        catch (Exception e)
+        {
+            e.printStackTrace(System.err);
+            return false;
+        }
+        return true;
     }
-
+*/
     /**
      * Just look if the DTMF signal was well received, and log it
      *
@@ -209,6 +208,7 @@ public class DTMFInfo
      *         processor and shouldn't be offered to other processors registered
      *         for the same method; <tt>false</tt>, otherwise
      */
+    @Override
     public boolean processResponse(ResponseEvent responseEvent)
     {
         if (responseEvent == null)
@@ -237,75 +237,5 @@ public class DTMFInfo
                 logger.debug("DTMF succeeded");
         }
         return true;
-    }
-
-    /**
-     * In case of timeout, just terminate the transaction
-     *
-     * @param timeoutEvent the timeout event
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processTimeout(TimeoutEvent timeoutEvent)
-    {
-        //we do nothing
-        logger.error("ioexception :" + timeoutEvent);
-        return false;
-    }
-
-    /**
-     * Just log the exception
-     *
-     * @param exceptionEvent the event we have to handle
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processIOException(IOExceptionEvent exceptionEvent)
-    {
-        //we do nothing
-        if (exceptionEvent == null)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("ioexception null");
-            return false;
-        }
-        logger.error("ioexception :" + exceptionEvent);
-        return false;
-    }
-
-    /**
-     * Just log the end of the transaction
-     *
-     * @param transactionTerminatedEvent the event we have to handle
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processTransactionTerminated(
-        TransactionTerminatedEvent transactionTerminatedEvent)
-    {
-        //we do nothing
-        if (logger.isInfoEnabled())
-            logger.info("Transaction Terminated :" + transactionTerminatedEvent);
-        return false;
-    }
-
-    /**
-     * Just log the end of the dialog
-     *
-     * @param dialogTerminatedEvent the event we have to handle
-     * @return <tt>true</tt> if the specified event has been handled by this
-     *         processor and shouldn't be offered to other processors registered
-     *         for the same method; <tt>false</tt>, otherwise
-     */
-    public boolean processDialogTerminated(
-        DialogTerminatedEvent dialogTerminatedEvent)
-    {
-        //we do nothing
-        if (logger.isInfoEnabled())
-            logger.info("Dialog Terminated :" + dialogTerminatedEvent);
-        return false;
     }
 }
