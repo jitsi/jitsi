@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.QualityControl; // disambiguation
+import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.control.KeyFrameControl; // disambiguation
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -870,7 +871,7 @@ public class VideoMediaStreamImpl
      * @author Lyubomir Marinov
      */
     private class KeyFrameControlImpl
-        implements KeyFrameControl
+        extends KeyFrameControlAdapter
     {
     }
 

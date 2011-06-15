@@ -12,6 +12,7 @@ import java.text.*;
 import java.util.*;
 
 import javax.sip.*;
+import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
@@ -28,10 +29,23 @@ public class DTMFInfo
     extends MethodProcessorAdapter
 {
     /**
-     * logger for the class
+     * The <tt>Logger</tt> used by the <tt>DTMFInfo</tt> class and its instances
+     * for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(DTMFInfo.class);
+
+    /**
+     * The sub-type of the content of the <tt>Request</tt>s being sent by
+     * <tt>DTMFInfo</tt>.
+     */
+    private static final String CONTENT_SUB_TYPE = "dtmf-relay";
+
+    /**
+     * The type of the content of the <tt>Request</tt>s being sent by
+     * <tt>DTMFInfo</tt>.
+     */
+    private static final String CONTENT_TYPE = "application";
 
     /**
      * Maps call peers and tone and its start time, so we can compute duration.
@@ -120,9 +134,10 @@ public class DTMFInfo
                         callPeer.getDialog(), Request.INFO);
 
         //here we add the body
-        ContentType ct = new ContentType("application", "dtmf-relay");
-        String content = "Signal=" + dtmftone.getValue()
-            + "\r\nDuration=" + duration + "\r\n";
+        ContentType ct = new ContentType(CONTENT_TYPE, CONTENT_SUB_TYPE);
+        String content
+            = "Signal=" + dtmftone.getValue()
+                + "\r\nDuration=" + duration + "\r\n";
 
         ContentLength cl = new ContentLength(content.length());
         info.setContentLength(cl);
@@ -182,24 +197,7 @@ public class DTMFInfo
                 , ex);
         }
     }
-/*
-    @Override
-    public boolean processRequest(RequestEvent requestEvent)
-    {
-        try
-        {
-            requestEvent.getServerTransaction().sendResponse(
-                    pps.getMessageFactory().createResponse(
-                            Response.OK, requestEvent.getRequest()));
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace(System.err);
-            return false;
-        }
-        return true;
-    }
-*/
+
     /**
      * Just look if the DTMF signal was well received, and log it
      *
@@ -211,31 +209,72 @@ public class DTMFInfo
     @Override
     public boolean processResponse(ResponseEvent responseEvent)
     {
+        boolean processed = false;
+
         if (responseEvent == null)
         {
             if (logger.isDebugEnabled())
                 logger.debug("null responseEvent");
-            return false;
-        }
-        Response response = responseEvent.getResponse();
-        if (response == null)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("null response");
-            return false;
-        }
-        int code = response.getStatusCode();
-        if (logger.isDebugEnabled())
-            logger.debug("DTMF status code=" + code);
-        if (code != 200)
-        {
-            logger.error("DTMF Send failed :" + code);
         }
         else
         {
-            if (logger.isDebugEnabled())
-                logger.debug("DTMF succeeded");
+            Response response = responseEvent.getResponse();
+
+            if (response == null)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("null response");
+            }
+            else
+            {
+                // Is it even for us?
+                ClientTransaction clientTransaction
+                    = responseEvent.getClientTransaction();
+
+                if (clientTransaction == null)
+                {
+                    if (logger.isDebugEnabled())
+                        logger.debug("null clientTransaction");
+                }
+                else
+                {
+                    Request request = clientTransaction.getRequest();
+
+                    if (request == null)
+                    {
+                        if (logger.isDebugEnabled())
+                            logger.debug("null request");
+                    }
+                    else
+                    {
+                        ContentTypeHeader contentTypeHeader
+                            = (ContentTypeHeader)
+                                request.getHeader(ContentTypeHeader.NAME);
+
+                        if ((contentTypeHeader != null)
+                                && CONTENT_TYPE.equalsIgnoreCase(
+                                        contentTypeHeader.getContentType())
+                                && CONTENT_SUB_TYPE.equalsIgnoreCase(
+                                        contentTypeHeader.getContentSubType()))
+                        {
+                            processed = true;
+
+                            int statusCode = response.getStatusCode();
+
+                            if (statusCode == 200)
+                            {
+                                if (logger.isDebugEnabled())   
+                                    logger.debug(
+                                            "DTMF send succeeded: "
+                                                + statusCode);
+                            }
+                            else
+                                logger.error("DTMF send failed: " + statusCode);
+                        }
+                    }
+                }
+            }
         }
-        return true;
+        return processed;
     }
 }

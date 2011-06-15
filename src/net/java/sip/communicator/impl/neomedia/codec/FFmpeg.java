@@ -96,6 +96,10 @@ public class FFmpeg
      */
     public static final int FF_MIN_BUFFER_SIZE = 16384;
 
+    public static final int FF_PROFILE_H264_BASELINE = 66;
+
+    public static final int FF_PROFILE_H264_MAIN = 77;
+
     /**
      * ARGB format.
      */
@@ -465,6 +469,9 @@ public class FFmpeg
      */
     public static native void avcodeccontext_set_pix_fmt(long avctx,
             int pix_fmt);
+
+    public static native void avcodeccontext_set_profile(long avctx,
+            int profile);
 
     public static native void avcodeccontext_set_qcompress(long avctx,
         float qcompress);

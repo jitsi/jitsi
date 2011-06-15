@@ -15,6 +15,7 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.*;
 
 /**
@@ -28,6 +29,11 @@ public class JNIEncoder
     extends AbstractCodec
     implements RTCPFeedbackListener
 {
+    /**
+     * The logger used by the <tt>JNIEncoder</tt> class and its instances for
+     * logging output.
+     */
+    private static final Logger logger = Logger.getLogger(JNIEncoder.class);
 
     /**
      * The frame rate to be assumed by <tt>JNIEncoder</tt> instance in the
@@ -348,9 +354,25 @@ public class JNIEncoder
         FFmpeg.avcodeccontext_set_keyint_min(avctx, 0);
 
         if (packetizationMode == 0)
-            FFmpeg.avcodeccontext_set_rtp_payload_size(
-                    avctx,
+        {
+            FFmpeg.avcodeccontext_set_rtp_payload_size(avctx,
                     Packetizer.MAX_PAYLOAD_SIZE);
+        }
+
+        /*
+         * XXX We do not currently negotiate the profile so, regardless of the
+         * many AVCodecContext properties we have set above, force the baseline
+         * profile which is the default in the absence of negotiation.
+         */
+        try
+        {
+            FFmpeg.avcodeccontext_set_profile(avctx,
+                    FFmpeg.FF_PROFILE_H264_BASELINE);
+        }
+        catch (UnsatisfiedLinkError ule)
+        {
+            logger.warn("The FFmpeg JNI library is out-of-date.");
+        }
 
         if (FFmpeg.avcodec_open(avctx, avcodec) < 0)
         {

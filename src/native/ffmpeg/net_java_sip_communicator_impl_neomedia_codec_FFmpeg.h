@@ -313,6 +313,14 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
+ * Method:    avcodeccontext_set_profile
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_codec_FFmpeg_avcodeccontext_1set_1profile
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_codec_FFmpeg
  * Method:    avcodeccontext_set_qcompress
  * Signature: (JF)V
  */
