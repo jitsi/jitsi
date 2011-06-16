@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -194,6 +195,27 @@ public abstract class CallPeerMediaHandler<
      */
     private Map<MediaType, ZrtpControl> zrtpControls =
         new Hashtable<MediaType, ZrtpControl>();
+
+    /**
+     * The <tt>KeyFrameControl</tt> currently known to this
+     * <tt>CallPeerMediaHandlerSipImpl</tt> and made available by
+     * {@link #videoStream}. 
+     */
+    private KeyFrameControl keyFrameControl;
+
+    /**
+     * The <tt>KeyFrameRequester</tt> implemented by this
+     * <tt>CallPeerMediaHandlerSipImpl</tt> and provided to
+     * {@link #keyFrameControl}.
+     */
+    private final KeyFrameControl.KeyFrameRequester keyFrameRequester
+        = new KeyFrameControl.KeyFrameRequester()
+        {
+            public boolean requestKeyFrame()
+            {
+                return CallPeerMediaHandler.this.requestKeyFrame();
+            }
+        };
 
     /**
      * The <tt>List</tt> of <tt>VideoListener</tt>s interested in
@@ -551,6 +573,32 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
+     * Sets the <tt>KeyFrameControl</tt> currently known to this
+     * <tt>CallPeerMediaHandlerSipImpl</tt> made available by a specific
+     * <tt>VideoMediaStream</tt>.
+     *
+     * @param videoStream the <tt>VideoMediaStream</tt> the
+     * <tt>KeyFrameControl</tt> of which is to be set as the currently known to
+     * this <tt>CallPeerMediaHandlerSipImpl</tt>
+     */
+    private void setKeyFrameControlFromVideoStream(VideoMediaStream videoStream)
+    {
+        KeyFrameControl keyFrameControl
+            = (videoStream == null) ? null : videoStream.getKeyFrameControl();
+
+        if (this.keyFrameControl != keyFrameControl)
+        {
+            if (this.keyFrameControl != null)
+                this.keyFrameControl.removeKeyFrameRequester(keyFrameRequester);
+
+            this.keyFrameControl = keyFrameControl;
+
+            if (this.keyFrameControl != null)
+                this.keyFrameControl.addKeyFrameRequester(-1, keyFrameRequester);
+        }
+    }
+
+    /**
      * Specifies whether this media handler should be allowed to transmit
      * local audio.
      *
@@ -824,17 +872,29 @@ public abstract class CallPeerMediaHandler<
 
             if (this.videoStream != null)
             {
-                this.videoStream
-                        .removePropertyChangeListener(
-                            streamPropertyChangeListener);
+                this.videoStream.removePropertyChangeListener(
+                        streamPropertyChangeListener);
 
                 this.videoStream.removeVideoListener(videoStreamVideoListener);
                 oldVisualComponent = this.videoStream.getVisualComponent();
+
+                /*
+                 * The current videoStream is going away so this
+                 * CallPeerMediaHandlerSipImpl should no longer use its
+                 * KeyFrameControl.
+                 */
+                setKeyFrameControlFromVideoStream(null);
 
                 this.videoStream.close();
             }
 
             this.videoStream = videoStream;
+
+            /*
+             * The videoStream has just changed so this
+             * CallPeerMediaHandlerSipImpl should use its KeyFrameControl.
+             */
+            setKeyFrameControlFromVideoStream(this.videoStream);
 
             long videoLocalSSRC;
             long videoRemoteSSRC;
@@ -846,9 +906,8 @@ public abstract class CallPeerMediaHandler<
 
             if (this.videoStream != null)
             {
-                this.videoStream
-                        .addPropertyChangeListener(
-                            streamPropertyChangeListener);
+                this.videoStream.addPropertyChangeListener(
+                        streamPropertyChangeListener);
                 videoLocalSSRC = this.videoStream.getLocalSourceID();
                 videoRemoteSSRC = this.videoStream.getRemoteSourceID();
 
@@ -863,8 +922,7 @@ public abstract class CallPeerMediaHandler<
 
             /*
              * Notify the VideoListeners in case there was a change in the
-             * availability of the visual <tt>Component</tt>s displaying remote
-             * video.
+             * availability of the visual Components displaying remote video.
              */
             if (oldVisualComponent != null)
                 fireVideoEvent(
@@ -1224,6 +1282,22 @@ public abstract class CallPeerMediaHandler<
         }
 
         return stream;
+    }
+
+    /**
+     * Requests a key frame from the remote peer of the associated
+     * <tt>VideoMediaStream</tt> of this <tt>CallPeerMediaHandler</tt>. The
+     * default implementation provided by <tt>CallPeerMediaHandler</tt> always
+     * returns <tt>false</tt>.
+     *
+     * @return <tt>true</tt> if this <tt>CallPeerMediaHandler</tt> has indeed
+     * requested a key frame from the remote peer of its associated
+     * <tt>VideoMediaStream</tt> in response to the call; otherwise,
+     * <tt>false</tt>
+     */
+    protected boolean requestKeyFrame()
+    {
+        return false;
     }
 
     /**

@@ -8,7 +8,10 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.text.*;
 
+import javax.sip.*;
 import javax.sip.address.Address;
+import javax.sip.header.*;
+import javax.sip.message.*;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -28,7 +31,7 @@ import net.java.sip.communicator.util.*;
  * implementation may not provider their video through the
  * <tt>CallSession</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class OperationSetVideoTelephonySipImpl
     extends AbstractOperationSetVideoTelephony<
@@ -57,6 +60,10 @@ public class OperationSetVideoTelephonySipImpl
         OperationSetBasicTelephonySipImpl basicTelephony)
     {
         super(basicTelephony);
+
+        parentProvider.registerMethodProcessor(
+                Request.INFO,
+                new PictureFastUpdateMethodProcessor());
     }
 
     /**
@@ -221,5 +228,70 @@ public class OperationSetVideoTelephonySipImpl
     public QualityControl getQualityControl(CallPeer peer)
     {
         return ((CallPeerSipImpl) peer).getMediaHandler().getQualityControl();
+    }
+
+    /**
+     * Implements a <tt>MethodProcessor</tt> which processes
+     * <tt>picture_fast_update</tt> <tt>Response</tt>s.
+     *
+     * @author Lyubomir Marinov
+     */
+    private class PictureFastUpdateMethodProcessor
+        extends MethodProcessorAdapter
+    {
+        /**
+         * Delivers <tt>Response</tt>s to <tt>picture_fast_update</tt>
+         * <tt>Request</tt>s to the originating <tt>CallPeerSipImpl</tt>.
+         *
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean processResponse(ResponseEvent responseEvent)
+        {
+            if (responseEvent == null)
+                return false;
+
+            Response response = responseEvent.getResponse();
+
+            if (response == null)
+                return false;
+
+            ClientTransaction clientTransaction
+                = responseEvent.getClientTransaction();
+
+            if (clientTransaction == null)
+                return false;
+
+            Request request = clientTransaction.getRequest();
+
+            if (request == null)
+                return false;
+
+            ContentTypeHeader contentTypeHeader
+                = (ContentTypeHeader) request.getHeader(ContentTypeHeader.NAME);
+
+            if (contentTypeHeader == null)
+                return false;
+            if (!"application".equalsIgnoreCase(
+                    contentTypeHeader.getContentType()))
+                return false;
+            if (!CallPeerSipImpl.PICTURE_FAST_UPDATE_CONTENT_SUB_TYPE
+                    .equalsIgnoreCase(
+                            contentTypeHeader.getContentSubType()))
+                return false;
+
+            CallPeerSipImpl callPeer
+                = basicTelephony.getActiveCallsRepository().findCallPeer(
+                        clientTransaction.getDialog());
+
+            if (callPeer == null)
+                return false;
+            else
+            {
+                callPeer.processPictureFastUpdateResponseStatusCode(
+                        response.getStatusCode());
+                return true;
+            }
+        }
     }
 }

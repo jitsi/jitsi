@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.*;
 
 import javax.media.*;
@@ -58,6 +59,13 @@ public class VideoMediaDeviceSession
      * as a means to control its key frame-related logic.
      */
     private KeyFrameControl keyFrameControl;
+
+    /**
+     * The <tt>KeyFrameRequester</tt> implemented by this
+     * <tt>VideoMediaDeviceSession</tt> and provided to
+     * {@link #keyFrameControl}.
+     */
+    private KeyFrameControl.KeyFrameRequester keyFrameRequester;
 
     /**
      * Local <tt>Player</tt> for the local video.
@@ -822,22 +830,6 @@ public class VideoMediaDeviceSession
                     {
                         DePacketizer depacketizer = new DePacketizer();
 
-                        if (usePLI)
-                        {
-                            depacketizer.setRtcpFeedbackPLI(usePLI);
-                            try
-                            {
-                                depacketizer.setConnector(
-                                        rtpConnector.getControlOutputStream());
-                            }
-                            catch(Exception e)
-                            {
-                                logger.error(
-                                        "Error cannot get RTCP output stream",
-                                        e);
-                            }
-                            depacketizer.setSSRC(localSSRC, remoteSSRC);
-                        }
                         if (keyFrameControl != null)
                             depacketizer.setKeyFrameControl(keyFrameControl);
 
@@ -1112,11 +1104,61 @@ public class VideoMediaDeviceSession
     /**
      * Use or not RTCP feedback Picture Loss Indication.
      *
-     * @param use use or not PLI
+     * @param usePLI <tt>true</tt> to use PLI; otherwise, <tt>false</tt>
      */
-    public void setRtcpFeedbackPLI(boolean use)
+    public void setRtcpFeedbackPLI(boolean usePLI)
     {
-        usePLI = use;
+        if (this.usePLI != usePLI)
+        {
+            this.usePLI = usePLI;
+
+            if (this.usePLI)
+            {
+                if (keyFrameRequester == null)
+                {
+                    keyFrameRequester
+                        = new KeyFrameControl.KeyFrameRequester()
+                        {
+                            public boolean requestKeyFrame()
+                            {
+                                boolean requested = false;
+
+                                if (VideoMediaDeviceSession.this.usePLI)
+                                {
+                                    try
+                                    {
+                                        new RTCPFeedbackPacket(
+                                                    1,
+                                                    206,
+                                                    localSSRC,
+                                                    remoteSSRC)
+                                                .writeTo(
+                                                        rtpConnector
+                                                            .getControlOutputStream());
+                                        requested = true;
+                                    }
+                                    catch (IOException ioe)
+                                    {
+                                        /*
+                                         * Apart from logging the ioe, there are
+                                         * not a lot of ways to handle it.
+                                         */
+                                    }
+                                }
+                                return requested;
+                            }
+                        };
+                }
+                if (keyFrameControl != null)
+                    keyFrameControl.addKeyFrameRequester(-1, keyFrameRequester);
+            }
+            else if (keyFrameRequester != null)
+            {
+                if (keyFrameControl != null)
+                    keyFrameControl.removeKeyFrameRequester(keyFrameRequester);
+                keyFrameRequester = null;
+            }
+        }
     }
 
     /**
@@ -1156,7 +1198,16 @@ public class VideoMediaDeviceSession
      */
     public void setKeyFrameControl(KeyFrameControl keyFrameControl)
     {
-        this.keyFrameControl = keyFrameControl;
+        if (this.keyFrameControl != keyFrameControl)
+        {
+            if ((this.keyFrameControl != null) && (keyFrameRequester != null))
+                this.keyFrameControl.removeKeyFrameRequester(keyFrameRequester);
+
+            this.keyFrameControl = keyFrameControl;
+
+            if ((this.keyFrameControl != null) && (keyFrameRequester != null))
+                this.keyFrameControl.addKeyFrameRequester(-1, keyFrameRequester);
+        }
     }
 
     /**
@@ -1284,7 +1335,7 @@ public class VideoMediaDeviceSession
          * For H.264 we will monitor RTCP feedback. For example, if we receive a
          * PLI/FIR message, we will send a keyframe.
          */
-        if (usePLI && "h264/rtp".equalsIgnoreCase(format.getEncoding()))
+        if ("h264/rtp".equalsIgnoreCase(format.getEncoding()))
         {
             encoder = new JNIEncoder();
 
@@ -1301,16 +1352,22 @@ public class VideoMediaDeviceSession
                 encoder.setPacketizationMode(packetizationMode);
             }
 
-            // The H.264 encoder needs to be notified of RTCP feedback message.
-            try
+            if (usePLI)
             {
-                ((ControlTransformInputStream)
-                        rtpConnector.getControlInputStream())
-                    .addRTCPFeedbackListener(encoder);
-            }
-            catch (Exception e)
-            {
-                logger.error("Error cannot get RTCP input stream", e);
+                /*
+                 * The H.264 encoder needs to be notified of RTCP feedback
+                 * messages.
+                 */
+                try
+                {
+                    ((ControlTransformInputStream)
+                            rtpConnector.getControlInputStream())
+                        .addRTCPFeedbackListener(encoder);
+                }
+                catch (IOException ioe)
+                {
+                    logger.error("Error cannot get RTCP input stream", ioe);
+                }
             }
 
             codecCount++;

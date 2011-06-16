@@ -54,7 +54,8 @@ public class VideoMediaStreamImpl
     private Dimension outputSize;
 
     /**
-     * Use or not RTCP feedback Picture Loss Indication messages.
+     * The indicator which determines whether RTCP feedback Picture Loss
+     * Indication messages are to be used.
      */
     private boolean usePLI = false;
 

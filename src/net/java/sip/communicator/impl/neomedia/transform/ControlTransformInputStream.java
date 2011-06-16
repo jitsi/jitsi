@@ -17,16 +17,17 @@ import net.java.sip.communicator.service.neomedia.event.*;
  * which notify listeners when RTCP feedback messages are received.
  *
  * @author Bing SU (nova.su@gmail.com)
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
-public class ControlTransformInputStream extends TransformInputStream
+public class ControlTransformInputStream
+    extends TransformInputStream
 {
     /**
-     * List of feedback listeners;
+     * The list of <tt>RTCPFeedbackListener</tt>.
      */
-    private List<RTCPFeedbackListener> listeners =
-        new ArrayList<RTCPFeedbackListener>();
+    private final List<RTCPFeedbackListener> listeners
+        = new LinkedList<RTCPFeedbackListener>();
 
     /**
      * Initializes a new <tt>ControlTransformInputStream</tt> which is to
@@ -40,29 +41,26 @@ public class ControlTransformInputStream extends TransformInputStream
     }
 
     /**
-     * Add an <tt>RTCPFeedbackListener</tt>.
+     * Adds an <tt>RTCPFeedbackListener</tt>.
      *
-     * @param listener listener to add
+     * @param listener the <tt>RTCPFeedbackListener</tt> to add
      */
     public void addRTCPFeedbackListener(RTCPFeedbackListener listener)
     {
+        if (listener == null)
+            throw new NullPointerException("listener");
         if(!listeners.contains(listener))
-        {
             listeners.add(listener);
-        }
     }
 
     /**
-     * Remove an <tt>RTCPFeedbackListener</tt>.
+     * Removes an <tt>RTCPFeedbackListener</tt>.
      *
-     * @param listener listener to remove
+     * @param listener the <tt>RTCPFeedbackListener</tt> to remove
      */
     public void removeRTCPFeedbackListener(RTCPFeedbackListener listener)
     {
-        if(listeners.contains(listener))
-        {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
     /**
@@ -90,8 +88,8 @@ public class ControlTransformInputStream extends TransformInputStream
         int pktLength = pkt.getLength();
 
         if (length < pktLength)
-            throw
-                new IOException("Input buffer not big enough for " + pktLength);
+            throw new IOException(
+                    "Input buffer not big enough for " + pktLength);
 
         /* check if RTCP feedback message */
 
@@ -102,7 +100,7 @@ public class ControlTransformInputStream extends TransformInputStream
          * SSRC of packet sender: 4 bytes
          * SSRC of media source: 4 bytes
          */
-        if(pktLength >= 12)
+        if ((pktLength >= 12) && !listeners.isEmpty())
         {
             byte data[] = pkt.getBuffer();
             int fmt = 0;
@@ -116,13 +114,13 @@ public class ControlTransformInputStream extends TransformInputStream
 
             /* notify feedback listeners */
             for(RTCPFeedbackListener l : listeners)
-            {
                 l.feedbackReceived(evt);
-            }
         }
 
         System.arraycopy(
-                pkt.getBuffer(), pkt.getOffset(), inBuffer, offset, pktLength);
+                pkt.getBuffer(), pkt.getOffset(),
+                inBuffer, offset,
+                pktLength);
 
         return pktLength;
     }

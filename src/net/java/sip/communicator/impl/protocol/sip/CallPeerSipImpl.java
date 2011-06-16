@@ -42,6 +42,13 @@ public class CallPeerSipImpl
         = Logger.getLogger(CallPeerSipImpl.class);
 
     /**
+     * The sub-type of the content carried by SIP INFO <tt>Requests</tt> for the
+     * purposes of <tt>picture_fast_update</tt>.   
+     */
+    static final String PICTURE_FAST_UPDATE_CONTENT_SUB_TYPE
+        = "media_control+xml";
+
+    /**
      * The sip address of this peer
      */
     private Address peerAddress = null;
@@ -86,6 +93,13 @@ public class CallPeerSipImpl
         = new LinkedList<MethodProcessorListener>();
 
     /**
+     * The indicator which determines whether the local peer may send
+     * <tt>picture_fast_update</tt> to this remote peer (as part of the
+     * execution of {@link #requestKeyFrame()}).
+     */
+    private boolean sendPictureFastUpdate = false;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the JAIN SIP <tt>Address</tt> of the new call peer.
@@ -103,7 +117,15 @@ public class CallPeerSipImpl
         this.peerAddress = peerAddress;
         this.messageFactory = getProtocolProvider().getMessageFactory();
 
-        super.setMediaHandler(new CallPeerMediaHandlerSipImpl(this));
+        super.setMediaHandler(
+                new CallPeerMediaHandlerSipImpl(this)
+                {
+                    @Override
+                    protected boolean requestKeyFrame()
+                    {
+                        return CallPeerSipImpl.this.requestKeyFrame();
+                    }
+                });
 
         setDialog(containingTransaction.getDialog());
         setLatestInviteTransaction(containingTransaction);
@@ -312,6 +334,24 @@ public class CallPeerSipImpl
     }
 
     /**
+     * Processes the status code of a <tt>Response<tt> to a
+     * <tt>picture_fast_update</tt> SIP INFO <tt>Request</tt> sent by the local
+     * peer to this remote peer.
+     *
+     * @param statusCode the status code of the <tt>Response</tt> to be
+     * processed
+     */
+    void processPictureFastUpdateResponseStatusCode(int statusCode)
+    {
+        /*
+         * Disable the sending of picture_fast_update because it seems to be
+         * unsupported by this remote peer.
+         */
+        if ((statusCode != 200) && sendPictureFastUpdate)
+            sendPictureFastUpdate = false;
+    }
+
+    /**
      * Reinitializes the media session of the <tt>CallPeer</tt> that this
      * INVITE request is destined to.
      *
@@ -328,9 +368,7 @@ public class CallPeerSipImpl
         String sdpOffer = null;
         ContentLengthHeader cl = invite.getContentLength();
         if (cl != null && cl.getContentLength() > 0)
-        {
             sdpOffer = SdpUtils.getContentAsString(invite);
-        }
 
         Response response = null;
         try
@@ -704,40 +742,37 @@ public class CallPeerSipImpl
         }
 
         fireResponseProcessed(ok, null);
-/*
-        new Thread()
-        {
-            public void run()
-            {
-                try
-                {
-                    Thread.sleep(5000);
-                }
-                catch (InterruptedException ie)
-                {
-                }
-                try
-                {
-                    pictureFastUpdate();
-                }
-                catch (OperationFailedException ofe)
-                {
-                    ofe.printStackTrace(System.err);
-                }
-            }
-        }.start();
-*/
     }
 
+    /**
+     * Sends a <tt>picture_fast_update</tt> SIP INFO request to this remote
+     * peer.
+     *
+     * @throws OperationFailedException if anything goes wrong while sending the
+     * <tt>picture_fast_update</tt> SIP INFO request to this remote peer
+     */
     private void pictureFastUpdate()
         throws OperationFailedException
     {
-        Request info = getProtocolProvider().getMessageFactory().createRequest(
-                        getDialog(), Request.INFO);
+        Request info
+            = getProtocolProvider().getMessageFactory().createRequest(
+                    getDialog(),
+                    Request.INFO);
 
         //here we add the body
-        ContentType ct = new ContentType("application", "media_control+xml");
-        String content = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n<media_control>\r\n<vc_primitive>\r\n<to_encoder>\r\n<picture_fast_update/>\r\n</to_encoder>\r\n</vc_primitive>\r\n</media_control>";
+        ContentType ct
+            = new ContentType(
+                    "application",
+                    PICTURE_FAST_UPDATE_CONTENT_SUB_TYPE);
+        String content
+            = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n"
+                + "<media_control>\r\n"
+                + "<vc_primitive>\r\n"
+                + "<to_encoder>\r\n"
+                + "<picture_fast_update/>\r\n"
+                + "</to_encoder>\r\n"
+                + "</vc_primitive>\r\n"
+                + "</media_control>";
 
         ContentLength cl = new ContentLength(content.length());
         info.setContentLength(cl);
@@ -750,27 +785,27 @@ public class CallPeerSipImpl
         {
             logger.error("Failed to construct the INFO request", ex);
             throw new OperationFailedException(
-                "Failed to construct a client the INFO request"
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
+                    "Failed to construct a client the INFO request",
+                    OperationFailedException.INTERNAL_ERROR,
+                    ex);
 
         }
         //body ended
         ClientTransaction clientTransaction = null;
         try
         {
-            clientTransaction = getJainSipProvider()
-                .getNewClientTransaction(info);
+            clientTransaction
+                = getJainSipProvider().getNewClientTransaction(info);
         }
         catch (TransactionUnavailableException ex)
         {
             logger.error(
-                "Failed to construct a client transaction from the INFO request"
-                , ex);
+                    "Failed to construct a client transaction from the INFO request",
+                    ex);
             throw new OperationFailedException(
-                "Failed to construct a client transaction from the INFO request"
-                , OperationFailedException.INTERNAL_ERROR
-                , ex);
+                    "Failed to construct a client transaction from the INFO request",
+                    OperationFailedException.INTERNAL_ERROR,
+                    ex);
         }
 
         try
@@ -780,8 +815,9 @@ public class CallPeerSipImpl
             {
                 //this is probably because the call has just ended, so don't
                 //throw an exception. simply log and get lost.
-                logger.warn("Trying to send a dtmf tone inside a "
-                            +"TERMINATED dialog.");
+                logger.warn(
+                        "Trying to send a dtmf tone inside a "
+                            + "TERMINATED dialog.");
                 return;
             }
 
@@ -792,11 +828,12 @@ public class CallPeerSipImpl
         catch (SipException ex)
         {
             throw new OperationFailedException(
-                "Failed to send the INFO request"
-                , OperationFailedException.NETWORK_FAILURE
-                , ex);
+                    "Failed to send the INFO request",
+                    OperationFailedException.NETWORK_FAILURE,
+                    ex);
         }
     }
+
     /**
      * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
      * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
@@ -1415,6 +1452,34 @@ public class CallPeerSipImpl
             {
                 methodProcessorListeners.remove(listener);
             }
+    }
+
+    /**
+     * Requests a (video) key frame from this remote peer of the associated.
+     *
+     * @return <tt>true</tt> if a key frame has indeed been requested from this
+     * remote peer in response to the call; otherwise, <tt>false</tt>
+     */
+    private boolean requestKeyFrame()
+    {
+        boolean requested = false;
+
+        if (sendPictureFastUpdate)
+        {
+            try
+            {
+                pictureFastUpdate();
+                requested = true;
+            }
+            catch (OperationFailedException ofe)
+            {
+                /*
+                 * Apart from logging, it does not seem like there are a lot of
+                 * ways to handle it.
+                 */
+            }
+        }
+        return requested;
     }
 
     /**

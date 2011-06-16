@@ -403,9 +403,7 @@ public class OperationSetBasicTelephonySipImpl
         CSeqHeader cseq = ((CSeqHeader) response.getHeader(CSeqHeader.NAME));
 
         if (cseq == null)
-        {
             logger.error("An incoming response did not contain a CSeq header");
-        }
 
         String method = cseq.getMethod();
 
@@ -1905,14 +1903,10 @@ public class OperationSetBasicTelephonySipImpl
         byte raw[] = request.getRawContent();
         String content = new String(raw);
 
-        if(content.startsWith(
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-                "<remote-control>"))
-        {
-            return true;
-        }
-
-        return false;
+        return
+            content.startsWith(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+                        + "<remote-control>");
     }
 
     /**

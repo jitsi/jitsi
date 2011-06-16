@@ -50,6 +50,21 @@ public class KeyFrameControlAdapter
                             keyFrameRequesters.size() + 1);
 
                 newKeyFrameRequesters.addAll(keyFrameRequesters);
+                /*
+                 * If this KeyFrameControl is to determine the index at which
+                 * keyFrameRequester is to be added according to its own
+                 * internal logic, then it will prefer KeyFrameRequester
+                 * implementations from outside of neomedia rather than from its
+                 * inside.
+                 */
+                if (-1 == index)
+                {
+                    if (keyFrameRequester.getClass().getName().contains(
+                            ".neomedia."))
+                        index = newKeyFrameRequesters.size();
+                    else
+                        index = 0;
+                }
                 newKeyFrameRequesters.add(index, keyFrameRequester);
 
                 keyFrameRequesters = newKeyFrameRequesters;

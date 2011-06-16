@@ -39,12 +39,12 @@ public class JNIEncoder
      * The frame rate to be assumed by <tt>JNIEncoder</tt> instance in the
      * absence of any other frame rate indication.
      */
-    private static final int DEFAULT_FRAME_RATE = 15;
+    static final int DEFAULT_FRAME_RATE = 15;
 
     /**
      * Key frame every 150 frames.
      */
-    private static final int IFRAME_INTERVAL = 150;
+    static final int IFRAME_INTERVAL = 150;
 
     /**
      * The name of the format parameter which specifies the packetization mode

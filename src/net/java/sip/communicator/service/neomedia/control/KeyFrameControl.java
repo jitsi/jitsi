@@ -21,7 +21,9 @@ public interface KeyFrameControl
      * <tt>KeyFrameControl</tt>.
      *
      * @param index the zero-based index at which <tt>keyFrameRequester</tt> is
-     * to be added to the list of <tt>KeyFrameRequester</tt>s made available
+     * to be added to the list of <tt>KeyFrameRequester</tt>s made available or
+     * <tt>-1</tt> to have this <tt>KeyFrameControl</tt> choose at which index
+     * it is to be added in accord with its internal logic
      * through this <tt>KeyFrameControl</tt>
      * @param keyFrameRequester the <tt>KeyFrameRequester</tt> to be added to
      * this <tt>KeyFrameControl</tt> so that it is made available through it
@@ -59,5 +61,15 @@ public interface KeyFrameControl
      */
     public interface KeyFrameRequester
     {
+        /**
+         * Requests a key frame from the remote peer of the associated
+         * <tt>VideoMediaStream</tt>.
+         *
+         * @return <tt>true</tt> if this <tt>KeyFrameRequester</tt> has
+         * indeed requested a key frame from the remote peer of the associated
+         * <tt>VideoMediaStream</tt> in response to the call; otherwise,
+         * <tt>false</tt>
+         */
+        public boolean requestKeyFrame();
     }
 }
