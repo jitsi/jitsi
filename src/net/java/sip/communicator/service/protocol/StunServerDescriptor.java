@@ -29,6 +29,21 @@ public class StunServerDescriptor
     public static final int MAX_STUN_SERVER_COUNT = 100;
 
     /**
+     * UDP protocol.
+     */
+    public static final String PROTOCOL_UDP = "udp";
+
+    /**
+     * TCP protocol.
+     */
+    public static final String PROTOCOL_TCP = "tcp";
+
+    /**
+     * TCP with SSL protocol (only for Google Talk TURN server).
+     */
+    public static final String PROTOCOL_SSLTCP = "ssltcp";
+
+    /**
      * The address (IP or FQDN) of the server.
      */
     private String address;
@@ -61,6 +76,11 @@ public class StunServerDescriptor
      * or <tt>null</tt> if no password is necessary.
      */
     private byte[] password;
+
+    /**
+     * Transport protocol used.
+     */
+    private String protocol = PROTOCOL_UDP;
 
     /**
      * Creates an instance of <tt>StunServer</tt> by specifying all parameters.
@@ -299,6 +319,26 @@ public class StunServerDescriptor
     public void setOldTurn(boolean val)
     {
         this.isOldTurn = val;
+    }
+
+    /**
+     * Returns the protocol associated to this server.
+     *
+     * @return the protocol associated to this server
+     */
+    public String getProtocol()
+    {
+        return protocol;
+    }
+
+    /**
+     * Sets the protocol associated to this server.
+     *
+     * @param protocol protocol to set
+     */
+    public void setProtocol(String protocol)
+    {
+        this.protocol = protocol;
     }
 
     /**
