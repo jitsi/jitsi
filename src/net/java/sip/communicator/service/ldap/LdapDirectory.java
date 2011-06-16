@@ -82,4 +82,13 @@ public interface LdapDirectory
      * @param listener listener to be added
      */
     public void addLdapListener(LdapListener listener);
+
+    /**
+     * Overrides attributes name for searching for a specific type (i.e mail,
+     * homePhone, ...).
+     *
+     * @param attribute name
+     * @param names list of attributes name
+     */
+    public void overrideAttributesSearch(String attribute, List<String> names);
 }

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.ldap;
 
 import java.util.*;
+
 import javax.naming.*;
 import javax.naming.directory.*;
 
@@ -64,6 +65,19 @@ public class LdapDirectoryImpl
     private static final Set<String> searchableAttributes
         = new HashSet<String>();
 
+    /**
+     * Map that contains list of attributes that match a certain type of
+     * attributes (i.e. all attributes that match a mail, a home phone, a
+     * mobile phones, ...).
+     */
+    private Map<String, List<String> > attributesMap = new
+        HashMap<String, List<String> >();
+
+    /**
+     * List of searchables attributes.
+     */
+    private List<String> searchableAttrs = new ArrayList<String>();
+
     static
     {
         searchableAttributes.add("displayName");
@@ -73,7 +87,7 @@ public class LdapDirectoryImpl
         searchableAttributes.add("surname");
         searchableAttributes.add("gn");
         searchableAttributes.add("givenname");
-        searchableAttributes.add("mail");
+        //searchableAttributes.add("mail");
         searchableAttributes.add("uid");
     }
 
@@ -103,19 +117,6 @@ public class LdapDirectoryImpl
         retrievableAttributes.add("organizationalUnitName");
         retrievableAttributes.add("department");
         retrievableAttributes.add("departmentNumber");
-        retrievableAttributes.add("mail");
-        retrievableAttributes.add("telephoneNumber");
-        retrievableAttributes.add("primaryPhone");
-        retrievableAttributes.add("otherTelephone");
-        retrievableAttributes.add("companyPhone");
-        retrievableAttributes.add("tel");
-        retrievableAttributes.add("mobile");
-        retrievableAttributes.add("mobileTelephoneNumber");
-        retrievableAttributes.add("cellphone");
-        retrievableAttributes.add("otherMobile");
-        retrievableAttributes.add("carPhone");
-        retrievableAttributes.add("homePhone");
-        retrievableAttributes.add("otherHomePhone");
     }
 
     /**
@@ -194,6 +195,17 @@ public class LdapDirectoryImpl
                 this.env.put(Context.SECURITY_CREDENTIALS,
                         this.settings.getPassword());
                 break;
+        }
+
+        attributesMap.put("mail", settings.getMailSearchFields());
+        attributesMap.put("workPhone", settings.getWorkPhoneSearchFields());
+        attributesMap.put("mobilePhone", settings.getMobilePhoneSearchFields());
+        attributesMap.put("homePhone", settings.getHomePhoneSearchFields());
+
+        this.searchableAttrs.addAll(searchableAttributes);
+        for(String s : settings.getMailSearchFields())
+        {
+            searchableAttrs.add(s);
         }
     }
 
@@ -528,7 +540,7 @@ public class LdapDirectoryImpl
         while(ids.hasMore())
         {
             String id = ids.next();
-            if(retrievableAttributes.contains(id))
+            if(retrievableAttributes.contains(id) || containsAttribute(id))
             {
                 Set<String> valuesSet = new HashSet<String>();
                 retrievedAttributes.put(id, valuesSet);
@@ -647,7 +659,6 @@ public class LdapDirectoryImpl
                 person.setOrganization(organization);
             }
 
-
             /* department */
             if(retrievedAttributes.get("company") != null)
             {
@@ -688,103 +699,67 @@ public class LdapDirectoryImpl
                 person.setDepartment(department);
             }
 
-            /* mail */
-            if(retrievedAttributes.get("mail") != null)
+            // mail
+            List<String> attrs = attributesMap.get("mail");
+
+            for(String attr : attrs)
             {
-                for(String mail : retrievedAttributes.get("mail"))
+                if(retrievedAttributes.get(attr) != null)
                 {
-                    person.addMail(mail);
+                    for(String mail : retrievedAttributes.get(attr))
+                    {
+                        if(!mail.contains("@"))
+                        {
+                            if(settings.getMailSuffix() != null)
+                            {
+                                mail += settings.getMailSuffix();
+                            }
+                            else
+                                continue;
+                        }
+                        person.addMail(mail);
+                    }
                 }
             }
 
-            /* work phone */
-            if(retrievedAttributes.get("primaryPhone") != null)
+            // work phone
+            attrs = attributesMap.get("workPhone");
+
+            for(String attr : attrs)
             {
-                String phone =
-                    retrievedAttributes.get("primaryPhone").iterator().next();
-                person.addWorkPhone(phone);
-            }
-            if(retrievedAttributes.get("companyPhone") != null)
-            {
-                for(String phone : retrievedAttributes.get("companyPhone"))
+                if(retrievedAttributes.get(attr) != null)
                 {
-                    person.addWorkPhone(phone);
-                }
-            }
-            if(retrievedAttributes.get("telephoneNumber") != null)
-            {
-                for(String phone : retrievedAttributes.get("telephoneNumber"))
-                {
-                    person.addWorkPhone(phone);
-                }
-            }
-            if(retrievedAttributes.get("otherTelephone") != null)
-            {
-                for(String phone : retrievedAttributes.get("otherTelephone"))
-                {
-                    person.addWorkPhone(phone);
-                }
-            }
-            if(retrievedAttributes.get("tel") != null)
-            {
-                for(String phone : retrievedAttributes.get("tel"))
-                {
+                    String phone =
+                        retrievedAttributes.get(attr).iterator().next();
                     person.addWorkPhone(phone);
                 }
             }
 
-            /* mobile phone */
-            if(retrievedAttributes.get("mobile") != null)
+            // mobile phone
+            attrs = attributesMap.get("mobilePhone");
+
+            for(String attr : attrs)
             {
-                for(String phone : retrievedAttributes.get("mobile"))
+                if(retrievedAttributes.get(attr) != null)
                 {
-                    person.addMobilePhone(phone);
-                }
-            }
-            if(retrievedAttributes.get("mobileTelephoneNumber") != null)
-            {
-                for(String phone : retrievedAttributes.get(
-                        "mobileTelephoneNumber"))
-                {
-                    person.addMobilePhone(phone);
-                }
-            }
-            if(retrievedAttributes.get("cellPhone") != null)
-            {
-                for(String phone : retrievedAttributes.get(
-                        "cellPhone"))
-                {
-                    person.addMobilePhone(phone);
-                }
-            }
-            if(retrievedAttributes.get("otherMobile") != null)
-            {
-                for(String phone : retrievedAttributes.get("otherMobile"))
-                {
-                    person.addMobilePhone(phone);
-                }
-            }
-            if(retrievedAttributes.get("carPhone") != null)
-            {
-                for(String phone : retrievedAttributes.get("carPhone"))
-                {
-                    person.addMobilePhone(phone);
+                    for(String phone : retrievedAttributes.get(attr))
+                    {
+                        person.addMobilePhone(phone);
+                    }
                 }
             }
 
-            /* home phone */
-            if(retrievedAttributes.get("homePhone") != null)
+            // home phone
+            attrs = attributesMap.get("homePhone");
+
+            for(String attr : attrs)
             {
-                for(String phone : retrievedAttributes.get("homePhone"))
+                if(retrievedAttributes.get(attr) != null)
                 {
-                    person.addHomePhone(phone);
-                }
-            }
-            if(retrievedAttributes.get("otherHomePhone") != null)
-            {
-                for(String phone : retrievedAttributes.get("otherHomePhone"))
-                {
-                    person.addHomePhone(phone);
+                    for(String phone : retrievedAttributes.get(attr))
+                    {
+                        person.addHomePhone(phone);
+                    }
                 }
             }
 
@@ -876,7 +851,7 @@ public class LdapDirectoryImpl
         searchFilter.append("(|");
 
         /* cn=*query* OR sn=*query* OR ... */
-        for(String attribute : searchableAttributes)
+        for(String attribute : searchableAttrs)
         {
             searchFilter.append("(");
             searchFilter.append(attribute);
@@ -1062,7 +1037,19 @@ public class LdapDirectoryImpl
                     );
         }
 
-        searchControls.setReturningAttributes(retrievableAttributes.toArray(
+        List<String> retrievableAttrs = new ArrayList<String>();
+
+        retrievableAttrs.addAll(retrievableAttributes);
+        for(String key : attributesMap.keySet())
+        {
+            List<String> attrs = attributesMap.get(key);
+            for(String attr : attrs)
+            {
+                retrievableAttrs.add(attr);
+            }
+        }
+
+        searchControls.setReturningAttributes(retrievableAttrs.toArray(
                 new String[0]));
 
         return searchControls;
@@ -1120,6 +1107,38 @@ public class LdapDirectoryImpl
                 }
                 break;
         }
+    }
+
+    /**
+     * Returns true if Map contains <tt>attribute</tt>.
+     *
+     * @param attribute attribute to search
+     * @return true if Map contains <tt>attribute</tt>
+     */
+    private boolean containsAttribute(String attribute)
+    {
+        for(String key : attributesMap.keySet())
+        {
+            List<String> attrs = attributesMap.get(key);
+
+            if(attrs.contains(attribute))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Overrides attributes name for searching for a specific type (i.e mail,
+     * homePhone, ...).
+     *
+     * @param attribute name
+     * @param names list of attributes name
+     */
+    public void overrideAttributesSearch(String attribute, List<String> names)
+    {
+        attributesMap.put(attribute, names);
     }
 
     /**

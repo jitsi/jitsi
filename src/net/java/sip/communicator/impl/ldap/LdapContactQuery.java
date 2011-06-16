@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  * "impl.ldap" package in order to allow us to create LDAP contact sources
  * for ldap directories through the LdapService.
  * </p>
- * 
+ *
  * @author Sebastien Vincent
  * @author Yana Stamcheva
  */
@@ -277,6 +277,7 @@ public class LdapContactQuery
             detail.setSupportedOpSets(supportedOpSets);
             ret.add(detail);
         }
+
         return ret;
     }
 

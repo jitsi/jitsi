@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.ldap;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.ldap.*;
@@ -37,6 +39,35 @@ public class LdapDirectorySettingsImpl
         this.setPassword("");
         this.setBaseDN("");
         this.setScope(Scope.defaultValue());
+        // mail
+        List<String> lst = new ArrayList<String>();
+        lst.add("mail");
+        lst.add("uid");
+        mapAttributes.put("mail", lst);
+
+        //work phone
+        lst = new ArrayList<String>();
+        lst.add("telephoneNumber");
+        lst.add("primaryPhone");
+        lst.add("companyPhone");
+        lst.add("otherTelephone");
+        lst.add("tel");
+        mapAttributes.put("workPhone", lst);
+
+        //mobile phone
+        lst = new ArrayList<String>();
+        lst.add("mobilePhone");
+        lst.add("mobileTelephoneNumber");
+        lst.add("mobileTelephoneNumber");
+        lst.add("mobileTelephoneNumber");
+        lst.add("carPhone");
+        mapAttributes.put("mobilePhone", lst);
+
+        //home phone
+        lst = new ArrayList<String>();
+        lst.add("homePhone");
+        lst.add("otherHomePhone");
+        mapAttributes.put("homePhone", lst);
     }
 
     /**
@@ -57,6 +88,8 @@ public class LdapDirectorySettingsImpl
         this.setPassword(settings.getPassword());
         this.setBaseDN(settings.getBaseDN());
         this.setScope(settings.getScope());
+        this.mapAttributes = settings.mapAttributes;
+        this.mailSuffix = settings.mailSuffix;
     }
 
     /**
@@ -123,6 +156,17 @@ public class LdapDirectorySettingsImpl
      * or all the subtree.
      */
     private Scope scope;
+
+    /**
+     * Mail suffix.
+     */
+    private String mailSuffix = null;
+
+    /**
+     * Attributes map.
+     */
+    private Map<String, List<String> > mapAttributes =
+        new HashMap<String, List<String> >();
 
     /**
      * simple getter for name
@@ -425,6 +469,143 @@ public class LdapDirectorySettingsImpl
     }
 
     /**
+     * Returns mail fields that we will lookup.
+     *
+     * @return mail fields that we will lookup
+     */
+    public List<String> getMailSearchFields()
+    {
+        return mapAttributes.get("mail");
+    }
+
+    /**
+     * Set mail fields that we will lookup.
+     *
+     * @param list of mail fields that we will lookup
+     */
+    public void setMailSearchFields(List<String> list)
+    {
+        mapAttributes.put("mail", list);
+    }
+
+    /**
+     * Returns mail suffix.
+     *
+     * @return mail suffix
+     */
+    public String getMailSuffix()
+    {
+        return mailSuffix;
+    }
+
+    /**
+     * Set mail suffix.
+     *
+     * @param suffix mail suffix
+     */
+    public void setMailSuffix(String suffix)
+    {
+        this.mailSuffix = suffix;
+    }
+
+    /**
+     * Returns work phone fields that we will lookup.
+     *
+     * @return work phone fields that we will lookup
+     */
+    public List<String> getWorkPhoneSearchFields()
+    {
+        return mapAttributes.get("workPhone");
+    }
+
+    /**
+     * Set work phone fields that we will lookup.
+     *
+     * @param list of work phone fields that we will lookup
+     */
+    public void setWorkPhoneSearchFields(List<String> list)
+    {
+        mapAttributes.put("workPhone", list);
+    }
+
+    /**
+     * Returns mobile phone fields that we will lookup.
+     *
+     * @return mobile phone fields that we will lookup
+     */
+    public List<String> getMobilePhoneSearchFields()
+    {
+        return mapAttributes.get("mobilePhone");
+    }
+
+    /**
+     * Set mobile phone fields that we will lookup.
+     *
+     * @param list of mobile phone fields that we will lookup
+     */
+    public void setMobilePhoneSearchFields(List<String> list)
+    {
+        mapAttributes.put("mobilePhone", list);
+    }
+
+    /**
+     * Returns home phone fields that we will lookup.
+     *
+     * @return home phone fields that we will lookup
+     */
+    public List<String> getHomePhoneSearchFields()
+    {
+        return mapAttributes.get("homePhone");
+    }
+
+    /**
+     * Set home phone fields that we will lookup.
+     *
+     * @param list of home phone fields that we will lookup
+     */
+    public void setHomePhoneSearchFields(List<String> list)
+    {
+        mapAttributes.put("homePhone", list);
+    }
+
+    /**
+     * Merge String elements from a list to a single String separated by space.
+     *
+     * @param lst list of <tt>String</tt>s
+     * @return <tt>String</tt>
+     */
+    public static String mergeStrings(List<String> lst)
+    {
+        StringBuilder bld = new StringBuilder();
+
+        for(String s : lst)
+        {
+            bld.append(s).append(" ");
+        }
+
+        return bld.toString();
+    }
+
+    /**
+     * Merge String elements separated by space into a List.
+     *
+     * @param attrs <tt>String</tt>
+     * @return list of <tt>String</tt>
+     */
+    public static List<String> mergeString(String attrs)
+    {
+        StringTokenizer token = new StringTokenizer(attrs, " ");
+        List<String> lst = new ArrayList<String>();
+
+        while(token.hasMoreTokens())
+        {
+            lst.add(token.nextToken());
+        }
+
+        return lst;
+    }
+
+    /**
      * Saves these settings through the configuration service
      *
      * @see LdapDirectorySettings#persistentSave
@@ -465,6 +646,21 @@ public class LdapDirectorySettingsImpl
         configService.setProperty(
                 directoriesPath + "." + node + ".baseDN",
                 this.getBaseDN());
+        configService.setProperty(
+                directoriesPath + "." + node + ".overridemail",
+                mergeStrings(this.getMailSearchFields()));
+        configService.setProperty(
+            directoriesPath + "." + node + ".overridemailsuffix",
+            mailSuffix);
+        configService.setProperty(
+            directoriesPath + "." + node + ".overrideworkphone",
+            mergeStrings(this.getWorkPhoneSearchFields()));
+        configService.setProperty(
+            directoriesPath + "." + node + ".overridemobilephone",
+            mergeStrings(this.getMobilePhoneSearchFields()));
+        configService.setProperty(
+            directoriesPath + "." + node + ".overridehomephone",
+            mergeStrings(this.getHomePhoneSearchFields()));
     }
 
     /**
@@ -562,6 +758,51 @@ public class LdapDirectorySettingsImpl
             this.setBaseDN( (String)
                     configService.getProperty(
                             directoriesPath + "." + node + ".baseDN"));
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".overridemail") != null)
+        {
+            String ret = (String)configService.getProperty(
+                directoriesPath + "." + node + ".overridemail");
+
+            mapAttributes.put("mail", mergeString(ret));
+        }
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".overridemailsuffix") != null)
+        {
+            String ret = (String)configService.getProperty(
+                directoriesPath + "." + node + ".overridemailsuffix");
+
+            this.mailSuffix = ret;
+        }
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".overrideworkphone") != null)
+        {
+            String ret = (String)configService.getProperty(
+                directoriesPath + "." + node + ".overrideworkphone");
+
+            mapAttributes.put("workPhone", mergeString(ret));
+        }
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".overridemobilephone") != null)
+        {
+            String ret = (String)configService.getProperty(
+                directoriesPath + "." + node + ".overridemobilephone");
+
+            mapAttributes.put("mobilePhone", mergeString(ret));
+        }
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".overridehomephone") != null)
+        {
+            String ret = (String)configService.getProperty(
+                directoriesPath + "." + node + ".overridehomephone");
+
+            mapAttributes.put("homePhone", mergeString(ret));
+        }
     }
 
     /**
@@ -602,6 +843,21 @@ public class LdapDirectorySettingsImpl
         configService.setProperty(
                 directoriesPath + "." + node + ".scope",
                 null);
+        configService.setProperty(
+            directoriesPath + "." + node + ".overridemail",
+            null);
+        configService.setProperty(
+            directoriesPath + "." + node + ".overridemailsuffix",
+            null);
+        configService.setProperty(
+            directoriesPath + "." + node + ".overrideworkphone",
+            null);
+        configService.setProperty(
+            directoriesPath + "." + node + ".overridemobilephone",
+            null);
+        configService.setProperty(
+            directoriesPath + "." + node + ".overridehomephone",
+            null);
         configService.setProperty(
                 directoriesPath + "." + node,
                 null);

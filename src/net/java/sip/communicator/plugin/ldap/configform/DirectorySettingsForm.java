@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.ldap.configform;
 
+import java.util.*;
+import java.util.List; //disambiguation
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -34,6 +36,31 @@ public class DirectorySettingsForm
      * the temporary settings
      */
     private LdapDirectorySettings settings;
+
+    /**
+     * Component holding the mail field.
+     */
+    private JTextField mailField = new JTextField();
+
+    /**
+     * Component holding the mail field.
+     */
+    private JTextField mailSuffixField = new JTextField();
+
+    /**
+     * Component holding the work phone field.
+     */
+    private JTextField workPhoneField = new JTextField();
+
+    /**
+     * Component holding the mobile phone field.
+     */
+    private JTextField mobilePhoneField = new JTextField();
+
+    /**
+     * Component holding the home phone field.
+     */
+    private JTextField homePhoneField = new JTextField();
 
     /**
      * component holding the name
@@ -136,13 +163,212 @@ public class DirectorySettingsForm
     {
         this.settings =
             LdapActivator.getLdapService().getFactory().createServerSettings();
+        JTabbedPane pane = new JTabbedPane();
+        JPanel panel = new TransparentPanel(new BorderLayout());
+        JPanel btnPanel = new TransparentPanel(new FlowLayout(
+            FlowLayout.RIGHT));
 
         this.setTitle(Resources.getString("impl.ldap.CONFIG_FORM_TITLE"));
-        getContentPane().add(getContentPanel());
+
         setMinimumSize(new Dimension(400, getMinimumSize().height));
         setSize(new Dimension(400, getMinimumSize().height));
         setPreferredSize(new Dimension(400, getMinimumSize().height));
+
+        pane.addTab("General", getContentPanel());
+        pane.addTab("Fields", getFieldsPanel());
+
+        btnPanel.add(saveBtn);
+        btnPanel.add(cancelBtn);
+
+        panel.add(pane, BorderLayout.CENTER);
+        panel.add(btnPanel, BorderLayout.SOUTH);
+        getContentPane().add(panel);
+
         pack();
+    }
+
+    /**
+     * the field panel to display.
+     *
+     * @return this page's panel
+     */
+    public JPanel getFieldsPanel()
+    {
+        JPanel contentPanel = new TransparentPanel(new BorderLayout());
+        JPanel basePanel = new TransparentPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+
+        JLabel mailLabel = new JLabel("Mail field(s)");
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        c.insets = new Insets(2, 50, 0, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(mailLabel, c);
+        c.gridx = 1;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(2, 5, 0, 50);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_END;
+        basePanel.add(mailField, c);
+        JLabel mailExampleLabel = new JLabel(
+            Resources.getString("impl.ldap.MAIL_FIELD_EXAMPLE"));
+        mailExampleLabel.setForeground(Color.GRAY);
+        mailExampleLabel.setFont(mailExampleLabel.getFont().deriveFont(8));
+        c.gridx = 1;
+        c.gridy = 1;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(0, 13, 2, 0);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(mailExampleLabel, c);
+
+        JLabel mailSuffixLabel = new JLabel("Mail suffix");
+        c.gridx = 0;
+        c.gridy = 2;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        c.insets = new Insets(2, 50, 0, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(mailSuffixLabel, c);
+        c.gridx = 1;
+        c.gridy = 2;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(2, 5, 0, 50);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_END;
+        basePanel.add(mailSuffixField, c);
+        JLabel mailSuffixExampleLabel = new JLabel(
+            Resources.getString("impl.ldap.MAILSUFFIX_FIELD_EXAMPLE"));
+        mailSuffixExampleLabel.setForeground(Color.GRAY);
+        mailSuffixExampleLabel.setFont(
+            mailSuffixExampleLabel.getFont().deriveFont(8));
+        c.gridx = 1;
+        c.gridy = 3;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(0, 13, 2, 0);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(mailSuffixExampleLabel, c);
+
+        JLabel workPhoneLabel = new JLabel("Work phone field(s)");
+        c.gridx = 0;
+        c.gridy = 4;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        c.insets = new Insets(2, 50, 0, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(workPhoneLabel, c);
+        c.gridx = 1;
+        c.gridy = 4;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(2, 5, 0, 50);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_END;
+        basePanel.add(workPhoneField, c);
+        JLabel workPhoneExampleLabel = new JLabel(
+            Resources.getString("impl.ldap.WORKPHONE_FIELD_EXAMPLE"));
+        workPhoneExampleLabel.setForeground(Color.GRAY);
+        workPhoneExampleLabel.setFont(
+            workPhoneExampleLabel.getFont().deriveFont(8));
+        c.gridx = 1;
+        c.gridy = 5;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(0, 13, 2, 0);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(workPhoneExampleLabel, c);
+
+        JLabel mobilePhoneLabel = new JLabel("Mobile phone field(s)");
+        c.gridx = 0;
+        c.gridy = 6;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        c.insets = new Insets(2, 50, 0, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(mobilePhoneLabel, c);
+        c.gridx = 1;
+        c.gridy = 6;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(2, 5, 0, 50);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_END;
+        basePanel.add(mobilePhoneField, c);
+        JLabel mobilePhoneExampleLabel = new JLabel(
+            Resources.getString("impl.ldap.MOBILEPHONE_FIELD_EXAMPLE"));
+        mobilePhoneExampleLabel.setForeground(Color.GRAY);
+        mobilePhoneExampleLabel.setFont(
+            mobilePhoneExampleLabel.getFont().deriveFont(8));
+        c.gridx = 1;
+        c.gridy = 7;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(0, 13, 2, 0);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(mobilePhoneExampleLabel, c);
+
+        JLabel homePhoneLabel = new JLabel("Home phone field(s)");
+        c.gridx = 0;
+        c.gridy = 8;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        c.insets = new Insets(2, 50, 0, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(homePhoneLabel, c);
+        c.gridx = 1;
+        c.gridy = 8;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(2, 5, 0, 50);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_END;
+        basePanel.add(homePhoneField, c);
+        JLabel homePhoneExampleLabel = new JLabel(
+            Resources.getString("impl.ldap.HOMEPHONE_FIELD_EXAMPLE"));
+        homePhoneExampleLabel.setForeground(Color.GRAY);
+        homePhoneExampleLabel.setFont(
+            homePhoneExampleLabel.getFont().deriveFont(8));
+        c.gridx = 1;
+        c.gridy = 9;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(0, 13, 2, 0);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        basePanel.add(homePhoneExampleLabel, c);
+
+        contentPanel.add(basePanel, BorderLayout.CENTER);
+        return contentPanel;
     }
 
     /**
@@ -157,8 +383,8 @@ public class DirectorySettingsForm
         JPanel basePanel = new TransparentPanel(new GridBagLayout());
         JPanel authPanel = new TransparentPanel(new GridBagLayout());
         JPanel searchPanel = new TransparentPanel(new GridBagLayout());
-        JPanel btnPanel = new TransparentPanel(new FlowLayout(
-                FlowLayout.RIGHT));
+        //JPanel btnPanel = new TransparentPanel(new FlowLayout(
+        //        FlowLayout.RIGHT));
         BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
 
         GridBagConstraints c = new GridBagConstraints();
@@ -431,11 +657,8 @@ public class DirectorySettingsForm
         this.cancelBtn.addActionListener(this);
         this.authList.addActionListener(this);
 
-        btnPanel.add(saveBtn);
-        btnPanel.add(cancelBtn);
-
         contentPanel.add(mainPanel, BorderLayout.CENTER);
-        contentPanel.add(btnPanel, BorderLayout.SOUTH);
+        //contentPanel.add(btnPanel, BorderLayout.SOUTH);
 
         return contentPanel;
     }
@@ -479,6 +702,52 @@ public class DirectorySettingsForm
         this.authList.setSelectedIndex(settings.getAuth().ordinal());
         this.bindDNField.setEnabled(settings.getAuth() == Auth.SIMPLE);
         this.passwordField.setEnabled(settings.getAuth() == Auth.SIMPLE);
+
+        this.mailField.setText(mergeStrings(settings.getMailSearchFields()));
+        this.mailSuffixField.setText(settings.getMailSuffix());
+        this.workPhoneField.setText(
+            mergeStrings(settings.getWorkPhoneSearchFields()));
+        this.mobilePhoneField.setText(
+            mergeStrings(settings.getMobilePhoneSearchFields()));
+        this.homePhoneField.setText(
+            mergeStrings(settings.getHomePhoneSearchFields()));
+    }
+
+    /**
+     * Merge String elements from a list to a single String separated by space.
+     *
+     * @param lst list of <tt>String</tt>s
+     * @return <tt>String</tt>
+     */
+    public static String mergeStrings(List<String> lst)
+    {
+        StringBuilder bld = new StringBuilder();
+
+        for(String s : lst)
+        {
+            bld.append(s).append(" ");
+        }
+
+        return bld.toString();
+    }
+
+    /**
+     * Merge String elements separated by space into a List.
+     *
+     * @param attrs <tt>String</tt>
+     * @return list of <tt>String</tt>
+     */
+    public static List<String> mergeString(String attrs)
+    {
+        StringTokenizer token = new StringTokenizer(attrs, " ");
+        List<String> lst = new ArrayList<String>();
+
+        while(token.hasMoreTokens())
+        {
+            lst.add(token.nextToken());
+        }
+
+        return lst;
     }
 
     /**
@@ -531,6 +800,15 @@ public class DirectorySettingsForm
                 settings.setScope(Scope.ONE);
                 break;
         }
+
+        settings.setMailSearchFields(mergeString(mailField.getText()));
+        settings.setMailSuffix(mailSuffixField.getText());
+        settings.setWorkPhoneSearchFields(
+            mergeString(workPhoneField.getText()));
+        settings.setMobilePhoneSearchFields(
+            mergeString(mobilePhoneField.getText()));
+        settings.setHomePhoneSearchFields(
+            mergeString(homePhoneField.getText()));
     }
 
     /**

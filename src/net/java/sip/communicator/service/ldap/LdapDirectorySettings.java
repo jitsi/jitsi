@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.ldap;
 
+import java.util.*;
+
 /**
  * A wrapper around the settings needed to create an LdapDirectory
  * This object is mandatory to create an LdapServer. It's also the
@@ -172,6 +174,76 @@ public interface LdapDirectorySettings
      * @see LdapConstants.Scope
      */
     public void setScope(Scope scope);
+
+    /**
+     * Returns mail fields that we will lookup.
+     *
+     * @return mail fields that we will lookup
+     */
+    public List<String> getMailSearchFields();
+
+    /**
+     * Set mail fields that we will lookup.
+     *
+     * @param list of mail fields that we will lookup
+     */
+    public void setMailSearchFields(List<String> list);
+
+    /**
+     * Returns mail suffix.
+     *
+     * @return mail suffix
+     */
+    public String getMailSuffix();
+
+    /**
+     * Set mail suffix.
+     *
+     * @param suffix mail suffix
+     */
+    public void setMailSuffix(String suffix);
+
+    /**
+     * Returns work phone fields that we will lookup.
+     *
+     * @return work phone fields that we will lookup
+     */
+    public List<String> getWorkPhoneSearchFields();
+
+    /**
+     * Set work phone fields that we will lookup.
+     *
+     * @param list of work phone fields that we will lookup
+     */
+    public void setWorkPhoneSearchFields(List<String> list);
+
+    /**
+     * Returns mobile phone fields that we will lookup.
+     *
+     * @return mobile phone fields that we will lookup
+     */
+    public List<String> getMobilePhoneSearchFields();
+
+    /**
+     * Set mobile phone fields that we will lookup.
+     *
+     * @param list of mobile phone fields that we will lookup
+     */
+    public void setMobilePhoneSearchFields(List<String> list);
+
+    /**
+     * Returns home phone fields that we will lookup.
+     *
+     * @return home phone fields that we will lookup
+     */
+    public List<String> getHomePhoneSearchFields();
+
+    /**
+     * Set home phone fields that we will lookup.
+     *
+     * @param list of home phone fields that we will lookup
+     */
+    public void setHomePhoneSearchFields(List<String> list);
 
     /**
      * Saves these settings through the configuration service
