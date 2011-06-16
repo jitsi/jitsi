@@ -1346,8 +1346,8 @@ public class ProtocolProviderServiceSipImpl
 
             //if we are using tcp, make sure that we include the port of the
             //socket that we are actually using and not that of LP
-            if (ListeningPoint.TCP.equalsIgnoreCase(transport))
-                //|| ListeningPoint.TLS.equalsIgnoreCase(transport))
+            if (ListeningPoint.TCP.equalsIgnoreCase(transport)
+                || ListeningPoint.TLS.equalsIgnoreCase(transport))
             {
                 InetSocketAddress localSockAddr
                     = sipStackSharing.getLocalAddressForDestination(
