@@ -113,7 +113,7 @@ public class AccountPanel
 
         String createAccountString = parentForm.getCreateAccountButtonLabel();
 
-        if (createAccountString != null)
+        if (createAccountString != null && createAccountString.length() > 0)
         {
             JPanel buttonPanel
                 = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
@@ -124,7 +124,8 @@ public class AccountPanel
         }
 
         String createAccountInfoString = parentForm.getCreateAccountLabel();
-        if (createAccountInfoString != null)
+        if (createAccountInfoString != null
+            && createAccountInfoString.length() > 0)
         {
             registerPanel.add(createRegisterArea(createAccountInfoString));
         }
