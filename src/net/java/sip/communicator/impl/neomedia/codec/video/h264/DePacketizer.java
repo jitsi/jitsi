@@ -519,13 +519,17 @@ public class DePacketizer
      * Requests a key frame from the remote peer associated with this
      * <tt>DePacketizer</tt> using the logic of <tt>DePacketizer</tt>.
      *
+     * @param urgent <tt>true</tt> if the caller has determined that the need
+     * for a key frame is urgent and should not obey all constraints with
+     * respect to time between two subsequent requests for key frames
      * @return <tt>true</tt> if a key frame was indeed requested in response to
      * the call; otherwise, <tt>false</tt>
      * @deprecated The method and its callers are part of a quick workaround to
      * expose the logic of <tt>DePacketizer</tt> to <tt>JNIDecoder</tt>.
      */
-    public boolean requestKeyFrame()
+    public synchronized boolean requestKeyFrame(boolean urgent)
     {
+        lastKeyFrameTime = -1;
         setRequestKeyFrame(true);
         return true;
     }

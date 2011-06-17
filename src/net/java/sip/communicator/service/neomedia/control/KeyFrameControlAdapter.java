@@ -250,11 +250,11 @@ public class KeyFrameControlAdapter
     }
 
     /**
-     * Implements {@link KeyFrameControl#requestKeyFrame()}.
+     * Implements {@link KeyFrameControl#requestKeyFrame(boolean)}.
      *
      * {@inheritDoc}
      */
-    public boolean requestKeyFrame()
+    public boolean requestKeyFrame(boolean urgent)
     {
         for (KeyFrameRequester keyFrameRequester : getKeyFrameRequesters())
         {

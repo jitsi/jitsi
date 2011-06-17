@@ -104,11 +104,14 @@ public interface KeyFrameControl
      * Requests a key frame from the remote peer of the associated
      * <tt>VideoMediaStream</tt>.
      *
+     * @param urgent <tt>true</tt> if the caller has determined that the need
+     * for a key frame is urgent and should not obey all constraints with
+     * respect to time between two subsequent requests for key frames
      * @return <tt>true</tt> if a key frame was indeed requested from the remote
      * peer of the associated <tt>VideoMediaStream</tt> in response to the call;
      * otherwise, <tt>false</tt>
      */
-    public boolean requestKeyFrame();
+    public boolean requestKeyFrame(boolean urgent);
 
     /**
      * Represents a way for the remote peer of a <tt>VideoMediaStream</tt> to

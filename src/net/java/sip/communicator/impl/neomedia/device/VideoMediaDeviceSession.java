@@ -839,10 +839,12 @@ public class VideoMediaDeviceSession
                                     new KeyFrameControlAdapter()
                                     {
                                         @Override
-                                        public boolean requestKeyFrame()
+                                        public boolean requestKeyFrame(
+                                                boolean urgent)
                                         {
                                             return
-                                                depacketizer.requestKeyFrame();
+                                                depacketizer.requestKeyFrame(
+                                                        urgent);
                                         }
                                     });
                         }

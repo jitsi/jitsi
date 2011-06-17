@@ -53,6 +53,8 @@ public class JNIDecoder
      */
     private final boolean[] got_picture = new boolean[1];
 
+    private boolean gotPictureAtLeastOnce;
+
     /**
      * The last known height of {@link #avctx} i.e. the video output by this
      * <tt>JNIDecoder</tt>. Used to detect changes in the output size.
@@ -130,6 +132,8 @@ public class JNIDecoder
 
             FFmpeg.av_free(avframe);
             avframe = 0;
+
+            gotPictureAtLeastOnce = false;
         }
     }
 
@@ -249,6 +253,8 @@ public class JNIDecoder
 
         avframe = FFmpeg.avcodec_alloc_frame();
 
+        gotPictureAtLeastOnce = false;
+
         opened = true;
         super.open();
     }
@@ -291,12 +297,13 @@ public class JNIDecoder
             if ((inBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0)
             {
                 if (keyFrameControl != null)
-                    keyFrameControl.requestKeyFrame();
+                    keyFrameControl.requestKeyFrame(!gotPictureAtLeastOnce);
             }
 
             outBuffer.setDiscard(true);
             return BUFFER_PROCESSED_OK;
         }
+        gotPictureAtLeastOnce = true;
 
         // format
         int width = FFmpeg.avcodeccontext_get_width(avctx);
