@@ -355,7 +355,6 @@ public class CallPeerSipImpl
             Request request)
         throws OperationFailedException
     {
-        System.err.println("processPictureFastUpdate Request");
         CallPeerMediaHandlerSipImpl mediaHandler = getMediaHandler();
         boolean requested
             = (mediaHandler == null)

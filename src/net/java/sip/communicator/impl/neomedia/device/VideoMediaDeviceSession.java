@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.control.KeyFrameControl; // disambiguation
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
@@ -828,13 +829,31 @@ public class VideoMediaDeviceSession
                     if ("h264/rtp".equalsIgnoreCase(
                             getFormat().getJMFEncoding()))
                     {
-                        DePacketizer depacketizer = new DePacketizer();
+                        final DePacketizer depacketizer = new DePacketizer();
+                        JNIDecoder decoder = new JNIDecoder();
 
                         if (keyFrameControl != null)
+                        {
                             depacketizer.setKeyFrameControl(keyFrameControl);
+                            decoder.setKeyFrameControl(
+                                    new KeyFrameControlAdapter()
+                                    {
+                                        @Override
+                                        public boolean requestKeyFrame()
+                                        {
+                                            return
+                                                depacketizer.requestKeyFrame();
+                                        }
+                                    });
+                        }
 
                         trackControl.setCodecChain(
-                                new Codec[] { depacketizer, playerScaler });
+                                new Codec[]
+                                {
+                                    depacketizer,
+                                    decoder,
+                                    playerScaler
+                                });
                     }
                     else
                     {

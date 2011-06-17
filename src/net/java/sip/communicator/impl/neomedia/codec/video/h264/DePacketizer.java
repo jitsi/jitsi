@@ -516,6 +516,21 @@ public class DePacketizer
     }
 
     /**
+     * Requests a key frame from the remote peer associated with this
+     * <tt>DePacketizer</tt> using the logic of <tt>DePacketizer</tt>.
+     *
+     * @return <tt>true</tt> if a key frame was indeed requested in response to
+     * the call; otherwise, <tt>false</tt>
+     * @deprecated The method and its callers are part of a quick workaround to
+     * expose the logic of <tt>DePacketizer</tt> to <tt>JNIDecoder</tt>.
+     */
+    public boolean requestKeyFrame()
+    {
+        setRequestKeyFrame(true);
+        return true;
+    }
+
+    /**
      * Resets the states of this <tt>DePacketizer</tt> and a specific output
      * <tt>Buffer</tt> so that they are ready to have this <tt>DePacketizer</tt>
      * process input RTP payloads. If the specified output <tt>Buffer</tt>

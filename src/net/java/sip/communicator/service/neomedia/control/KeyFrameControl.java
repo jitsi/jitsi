@@ -101,6 +101,16 @@ public interface KeyFrameControl
     public boolean removeKeyFrameRequester(KeyFrameRequester keyFrameRequester);
 
     /**
+     * Requests a key frame from the remote peer of the associated
+     * <tt>VideoMediaStream</tt>.
+     *
+     * @return <tt>true</tt> if a key frame was indeed requested from the remote
+     * peer of the associated <tt>VideoMediaStream</tt> in response to the call;
+     * otherwise, <tt>false</tt>
+     */
+    public boolean requestKeyFrame();
+
+    /**
      * Represents a way for the remote peer of a <tt>VideoMediaStream</tt> to
      * request a key frame from its local peer.
      *

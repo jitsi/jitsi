@@ -248,4 +248,29 @@ public class KeyFrameControlAdapter
                 return false;
         }
     }
+
+    /**
+     * Implements {@link KeyFrameControl#requestKeyFrame()}.
+     *
+     * {@inheritDoc}
+     */
+    public boolean requestKeyFrame()
+    {
+        for (KeyFrameRequester keyFrameRequester : getKeyFrameRequesters())
+        {
+            try
+            {
+                if (keyFrameRequester.requestKeyFrame())
+                    return true;
+            }
+            catch (Exception e)
+            {
+                /*
+                 * A KeyFrameRequestee has malfunctioned, do not let it
+                 * interfere with the others.
+                 */
+            }
+        }
+        return false;
+    }
 }

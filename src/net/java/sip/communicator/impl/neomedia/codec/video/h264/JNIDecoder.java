@@ -13,6 +13,7 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
+import net.java.sip.communicator.service.neomedia.control.*;
 import net.sf.fmj.media.*;
 
 /**
@@ -57,6 +58,12 @@ public class JNIDecoder
      * <tt>JNIDecoder</tt>. Used to detect changes in the output size.
      */
     private int height;
+
+    /**
+     * The <tt>KeyFrameControl</tt> used by this <tt>JNIDecoder</tt> to
+     * control its key frame-related logic.
+     */
+    private KeyFrameControl keyFrameControl;
 
     /**
      * Array of output <tt>VideoFormat</tt>s.
@@ -281,6 +288,12 @@ public class JNIDecoder
 
         if (!got_picture[0])
         {
+            if ((inBuffer.getFlags() & Buffer.FLAG_RTP_MARKER) != 0)
+            {
+                if (keyFrameControl != null)
+                    keyFrameControl.requestKeyFrame();
+            }
+
             outBuffer.setDiscard(true);
             return BUFFER_PROCESSED_OK;
         }
@@ -353,5 +366,19 @@ public class JNIDecoder
         if (setFormat != null)
             reset();
         return setFormat;
+    }
+
+    /**
+     * Sets the <tt>KeyFrameControl</tt> to be used by this
+     * <tt>DePacketizer</tt> as a means of control over its key frame-related
+     * logic.
+     *
+     * @param keyFrameControl the <tt>KeyFrameControl</tt> to be used by this
+     * <tt>DePacketizer</tt> as a means of control over its key frame-related
+     * logic
+     */
+    public void setKeyFrameControl(KeyFrameControl keyFrameControl)
+    {
+        this.keyFrameControl = keyFrameControl;
     }
 }
