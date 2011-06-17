@@ -57,7 +57,7 @@ public class MediaServiceImpl
      * payload type preferences.
      */
     private static final String DYNAMIC_PAYLOAD_TYPE_PREFERENCES_PNAME_PREFIX
-        = "net.java.sip.communicator.service.media.dynamicPayloadTypePreferences";
+        = "net.java.sip.communicator.impl.neomedia.dynamicPayloadTypePreferences";
 
     /**
      * The value of the <tt>devices</tt> property of <tt>MediaServiceImpl</tt>

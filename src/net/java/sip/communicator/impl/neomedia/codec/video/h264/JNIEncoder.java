@@ -58,7 +58,7 @@ public class JNIEncoder
      * to change from the main to the base profile unless we really have to.
      */
     public static final String DEFAULT_PROFILE_PNAME
-        = "net.java.sip.communicator.service.media.codec.video.h264."
+        = "net.java.sip.communicator.impl.neomedia.codec.video.h264."
             + "defaultProfile";
 
     /**
