@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.io.*;
 import java.text.*;
 
 import javax.sip.*;
@@ -240,6 +241,106 @@ public class OperationSetVideoTelephonySipImpl
         extends MethodProcessorAdapter
     {
         /**
+         * Determines whether a specific <tt>Request</tt> is a
+         * <tt>picture_fast_update</tt> one.
+         *
+         * @param request the <tt>Request</tt> to check
+         * @return <tt>true</tt> if the specified <tt>request</tt> is a
+         * <tt>picture_fast_update</tt> one; otherwise, <tt>false</tt>
+         */
+        private boolean isPictureFastUpdate(Request request)
+        {
+            ContentTypeHeader contentTypeHeader
+                = (ContentTypeHeader) request.getHeader(ContentTypeHeader.NAME);
+            if (contentTypeHeader == null)
+                return false;
+            if (!"application".equalsIgnoreCase(
+                    contentTypeHeader.getContentType()))
+                return false;
+            if (!CallPeerSipImpl.PICTURE_FAST_UPDATE_CONTENT_SUB_TYPE
+                    .equalsIgnoreCase(
+                            contentTypeHeader.getContentSubType()))
+                return false;
+
+            Object content = request.getContent();
+            if (content == null)
+                return false;
+
+            String xml;
+            if (content instanceof String)
+                xml = content.toString();
+            else if (content instanceof byte[])
+            {
+                byte[] bytes = (byte[]) content;
+                try
+                {
+                    xml = new String(bytes, "UTF-8");
+                }
+                catch (UnsupportedEncodingException uee)
+                {
+                    xml = new String(bytes);
+                }
+            }
+            else
+                return false;
+            if (xml == null)
+                return false;
+            return xml.contains("picture_fast_update");
+        }
+
+        /**
+         * Delivers <tt>picture_fast_update</tt> <tt>Request</tt>s to the
+         * targeted <tt>CallPeerSipImpl</tt>.
+         *
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean processRequest(RequestEvent requestEvent)
+        {
+            if (requestEvent == null)
+                return false;
+
+            Request request = requestEvent.getRequest();
+            if (request == null)
+                return false;
+            if (!isPictureFastUpdate(request))
+                return false;
+
+            ServerTransaction serverTransaction;
+            try
+            {
+                serverTransaction
+                    = SipStackSharing.getOrCreateServerTransaction(
+                            requestEvent);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace(System.err);
+                return false;
+            }
+            if (serverTransaction == null)
+                return false;
+
+            CallPeerSipImpl callPeer
+                = basicTelephony.getActiveCallsRepository().findCallPeer(
+                    serverTransaction.getDialog());
+            if (callPeer == null)
+                return false;
+
+            try
+            {
+                return
+                    callPeer.processPictureFastUpdate(
+                            serverTransaction,
+                            request);
+            }
+            catch (OperationFailedException ofe)
+            {
+                return false;
+            }
+        }
+
+        /**
          * Delivers <tt>Response</tt>s to <tt>picture_fast_update</tt>
          * <tt>Request</tt>s to the originating <tt>CallPeerSipImpl</tt>.
          *
@@ -252,46 +353,28 @@ public class OperationSetVideoTelephonySipImpl
                 return false;
 
             Response response = responseEvent.getResponse();
-
             if (response == null)
                 return false;
 
             ClientTransaction clientTransaction
                 = responseEvent.getClientTransaction();
-
             if (clientTransaction == null)
                 return false;
 
             Request request = clientTransaction.getRequest();
-
             if (request == null)
                 return false;
-
-            ContentTypeHeader contentTypeHeader
-                = (ContentTypeHeader) request.getHeader(ContentTypeHeader.NAME);
-
-            if (contentTypeHeader == null)
-                return false;
-            if (!"application".equalsIgnoreCase(
-                    contentTypeHeader.getContentType()))
-                return false;
-            if (!CallPeerSipImpl.PICTURE_FAST_UPDATE_CONTENT_SUB_TYPE
-                    .equalsIgnoreCase(
-                            contentTypeHeader.getContentSubType()))
+            if (!isPictureFastUpdate(request))
                 return false;
 
             CallPeerSipImpl callPeer
                 = basicTelephony.getActiveCallsRepository().findCallPeer(
                         clientTransaction.getDialog());
-
             if (callPeer == null)
                 return false;
-            else
-            {
-                callPeer.processPictureFastUpdateResponseStatusCode(
-                        response.getStatusCode());
-                return true;
-            }
+
+            callPeer.processPictureFastUpdate(clientTransaction, response);
+            return true;
         }
     }
 }

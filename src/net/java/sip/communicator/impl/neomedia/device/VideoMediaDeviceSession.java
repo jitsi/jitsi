@@ -1369,6 +1369,8 @@ public class VideoMediaDeviceSession
                     logger.error("Error cannot get RTCP input stream", ioe);
                 }
             }
+            if (keyFrameControl != null)
+                encoder.setKeyFrameControl(keyFrameControl);
 
             codecCount++;
         }

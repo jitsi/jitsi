@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.*;
@@ -138,9 +139,18 @@ public class JNIEncoder
     private int framesSinceLastIFrame = IFRAME_INTERVAL + 1;
 
     /**
-     * Last keyframe request time.
+     * The <tt>KeyFrameControl</tt> used by this <tt>JNIEncoder</tt> to
+     * control its key frame-related logic.
      */
-    private long lastKeyframeRequestTime = System.currentTimeMillis();
+    private KeyFrameControl keyFrameControl;
+
+    private KeyFrameControl.KeyFrameRequestee keyFrameRequestee;
+
+    /**
+     * The time in milliseconds of the last request for a key frame from the
+     * remote peer to this local peer.
+     */
+    private long lastKeyFrameRequestTime = System.currentTimeMillis();
 
     /**
      * The packetization mode to be used for the H.264 RTP payload output by
@@ -210,6 +220,13 @@ public class JNIEncoder
             rawFrameBuffer = 0;
 
             encFrameBuffer = null;
+
+            if (keyFrameRequestee != null)
+            {
+                if (keyFrameControl != null)
+                    keyFrameControl.removeKeyFrameRequestee(keyFrameRequestee);
+                keyFrameRequestee = null;
+            }
         }
     }
 
@@ -231,13 +248,7 @@ public class JNIEncoder
             {
                 case RTCPFeedbackEvent.FMT_PLI:
                 case RTCPFeedbackEvent.FMT_FIR:
-                    if (System.currentTimeMillis()
-                            > (lastKeyframeRequestTime + PLI_INTERVAL))
-                    {
-                        lastKeyframeRequestTime = System.currentTimeMillis();
-                        // Disable PLI.
-                        //forceKeyFrame = true;
-                    }
+                    keyFrameRequest();
                     break;
                 default:
                     break;
@@ -300,6 +311,24 @@ public class JNIEncoder
             return new Format[0];
 
         return getMatchingOutputFormats(in);
+    }
+
+    /**
+     * Notifies this <tt>JNIEncoder</tt> that the remote peer has requested a
+     * key frame from this local peer.
+     *
+     * @return <tt>true</tt> if this <tt>JNIEncoder</tt> has honored the request
+     * for a key frame; otherwise, <tt>false</tt>
+     */
+    private boolean keyFrameRequest()
+    {
+        if (System.currentTimeMillis()
+                > (lastKeyFrameRequestTime + PLI_INTERVAL))
+        {
+            lastKeyFrameRequestTime = System.currentTimeMillis();
+            forceKeyFrame = true;
+        }
+        return true;
     }
 
     /**
@@ -438,6 +467,23 @@ public class JNIEncoder
         FFmpeg.avframe_set_linesize(avframe, width, width / 2, width / 2);
 
         encFrameBuffer = new byte[encFrameLen];
+
+        /*
+         * Implement the ability to have the remote peer request key frames from
+         * this local peer.
+         */
+        if (keyFrameRequestee == null)
+        {
+            keyFrameRequestee = new KeyFrameControl.KeyFrameRequestee()
+            {
+                public boolean keyFrameRequest()
+                {
+                    return JNIEncoder.this.keyFrameRequest();
+                }
+            };
+        }
+        if (keyFrameControl != null)
+            keyFrameControl.addKeyFrameRequestee(-1, keyFrameRequestee);
 
         opened = true;
         super.open();
@@ -583,6 +629,29 @@ public class JNIEncoder
 
         // Return the selected inputFormat
         return inputFormat;
+    }
+
+    /**
+     * Sets the <tt>KeyFrameControl</tt> to be used by this
+     * <tt>JNIEncoder</tt> as a means of control over its key frame-related
+     * logic.
+     *
+     * @param keyFrameControl the <tt>KeyFrameControl</tt> to be used by this
+     * <tt>JNIEncoder</tt> as a means of control over its key frame-related
+     * logic
+     */
+    public void setKeyFrameControl(KeyFrameControl keyFrameControl)
+    {
+        if (this.keyFrameControl != keyFrameControl)
+        {
+            if ((this.keyFrameControl != null) && (keyFrameRequestee != null))
+                this.keyFrameControl.removeKeyFrameRequestee(keyFrameRequestee);
+
+            this.keyFrameControl = keyFrameControl;
+
+            if ((this.keyFrameControl != null) && (keyFrameRequestee != null))
+                this.keyFrameControl.addKeyFrameRequestee(-1, keyFrameRequestee);
+        }
     }
 
     /**

@@ -1313,6 +1313,23 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
+     * Processes a request for a (video) key frame from the remote peer to the
+     * local peer.
+     *
+     * @return <tt>true</tt> if the request for a (video) key frame has been
+     * honored by the local peer; otherwise, <tt>false</tt>
+     */
+    public boolean processKeyFrameRequest()
+    {
+        KeyFrameControl keyFrameControl = this.keyFrameControl;
+
+        return
+            (keyFrameControl == null)
+                ? null
+                : keyFrameControl.keyFrameRequest();
+    }
+
+    /**
      * Registers all audio level listeners currently known to this media handler
      * with the specified <tt>audioStream</tt>.
      *

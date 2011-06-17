@@ -17,6 +17,22 @@ import java.util.*;
 public interface KeyFrameControl
 {
     /**
+     * Adds a <tt>KeyFrameRequestee</tt> to be made available through this
+     * <tt>KeyFrameControl</tt>.
+     *
+     * @param index the zero-based index at which <tt>keyFrameRequestee</tt> is
+     * to be added to the list of <tt>KeyFrameRequestee</tt>s made available or
+     * <tt>-1</tt> to have this <tt>KeyFrameControl</tt> choose at which index
+     * it is to be added in accord with its internal logic
+     * through this <tt>KeyFrameControl</tt>
+     * @param keyFrameRequestee the <tt>KeyFrameRequestee</tt> to be added to
+     * this <tt>KeyFrameControl</tt> so that it is made available through it
+     */
+    public void addKeyFrameRequestee(
+            int index,
+            KeyFrameRequestee keyFrameRequestee);
+
+    /**
      * Adds a <tt>KeyFrameRequester</tt> to be made available through this
      * <tt>KeyFrameControl</tt>.
      *
@@ -33,6 +49,15 @@ public interface KeyFrameControl
             KeyFrameRequester keyFrameRequester);
 
     /**
+     * Gets the <tt>KeyFrameRequestee</tt>s made available through this
+     * <tt>KeyFrameControl</tt>.
+     *
+     * @return an unmodifiable list of <tt>KeyFrameRequestee</tt>s made
+     * available through this <tt>KeyFrameControl</tt>
+     */
+    public List<KeyFrameRequestee> getKeyFrameRequestees();
+
+    /**
      * Gets the <tt>KeyFrameRequester</tt>s made available through this
      * <tt>KeyFrameControl</tt>.
      *
@@ -40,6 +65,28 @@ public interface KeyFrameControl
      * available through this <tt>KeyFrameControl</tt>
      */
     public List<KeyFrameRequester> getKeyFrameRequesters();
+
+    /**
+     * Notifies this <tt>KeyFrameControl</tt> that the remote peer of the
+     * associated <tt>VideoMediaStream</tt> has requested a key frame from the
+     * local peer.
+     *
+     * @return <tt>true</tt> if the local peer has honored the request from the
+     * remote peer for a key frame; otherwise, <tt>false</tt>
+     */
+    public boolean keyFrameRequest();
+
+    /**
+     * Removes a <tt>KeyFrameRequestee</tt> to no longer be made available
+     * through this <tt>KeyFrameControl</tt>.
+     *
+     * @param keyFrameRequestee the <tt>KeyFrameRequestee</tt> to be removed
+     * from this <tt>KeyFrameControl</tt> so that it is no longer made available
+     * through it
+     * @return <tt>true</tt> if <tt>keyFrameRequestee</tt> was found in this
+     * <tt>KeyFrameControl</tt>; otherwise, <tt>false</tt>
+     */
+    public boolean removeKeyFrameRequestee(KeyFrameRequestee keyFrameRequestee);
 
     /**
      * Removes a <tt>KeyFrameRequester</tt> to no longer be made available
@@ -52,6 +99,25 @@ public interface KeyFrameControl
      * <tt>KeyFrameControl</tt>; otherwise, <tt>false</tt>
      */
     public boolean removeKeyFrameRequester(KeyFrameRequester keyFrameRequester);
+
+    /**
+     * Represents a way for the remote peer of a <tt>VideoMediaStream</tt> to
+     * request a key frame from its local peer.
+     *
+     * @author Lyubomir Marinov
+     */
+    public interface KeyFrameRequestee
+    {
+        /**
+         * Notifies this <tt>KeyFrameRequestee</tt> that the remote peer of the
+         * associated <tt>VideoMediaStream</tt> requests a key frame from the
+         * local peer.
+         *
+         * @return <tt>true</tt> if this <tt>KeyFrameRequestee</tt> has honored
+         * the request for a key frame; otherwise, <tt>false</tt>
+         */
+        public boolean keyFrameRequest();
+    }
 
     /**
      * Represents a way for a <tt>VideoMediaStream</tt> to request a key frame

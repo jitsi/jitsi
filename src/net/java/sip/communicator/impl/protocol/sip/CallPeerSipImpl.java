@@ -338,22 +338,87 @@ public class CallPeerSipImpl
         return getMediaHandler().getCallInfoURL();
     }
 
-    /**
-     * Processes the status code of a <tt>Response<tt> to a
-     * <tt>picture_fast_update</tt> SIP INFO <tt>Request</tt> sent by the local
-     * peer to this remote peer.
-     *
-     * @param statusCode the status code of the <tt>Response</tt> to be
-     * processed
-     */
-    void processPictureFastUpdateResponseStatusCode(int statusCode)
+    void processPictureFastUpdate(
+            ClientTransaction clientTransaction,
+            Response response)
     {
         /*
          * Disable the sending of picture_fast_update because it seems to be
          * unsupported by this remote peer.
          */
-        if ((statusCode != 200) && sendPictureFastUpdate)
+        if ((response.getStatusCode() != 200) && sendPictureFastUpdate)
             sendPictureFastUpdate = false;
+    }
+
+    boolean processPictureFastUpdate(
+            ServerTransaction serverTransaction,
+            Request request)
+        throws OperationFailedException
+    {
+        System.err.println("processPictureFastUpdate Request");
+        CallPeerMediaHandlerSipImpl mediaHandler = getMediaHandler();
+        boolean requested
+            = (mediaHandler == null)
+                ? false
+                : mediaHandler.processKeyFrameRequest();
+
+        Response response;
+
+        try
+        {
+            response
+                = getProtocolProvider().getMessageFactory().createResponse(
+                        Response.OK,
+                        request);
+        }
+        catch (ParseException pe)
+        {
+            throw new OperationFailedException(
+                    "Failed to create OK Response.",
+                    OperationFailedException.INTERNAL_ERROR,
+                    pe);
+        }
+
+        if (!requested)
+        {
+            ContentType ct
+                = new ContentType(
+                        "application",
+                        PICTURE_FAST_UPDATE_CONTENT_SUB_TYPE);
+            String content
+                = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\r\n"
+                    + "<media_control>\r\n"
+                    + "<general_error>\r\n"
+                    + "Failed to process picture_fast_update request.\r\n"
+                    + "</general_error>\r\n"
+                    + "</media_control>";
+
+            try
+            {
+                response.setContent(content, ct);
+            }
+            catch (ParseException pe)
+            {
+                throw new OperationFailedException(
+                        "Failed to set content of OK Response.",
+                        OperationFailedException.INTERNAL_ERROR,
+                        pe);
+            }
+        }
+
+        try
+        {
+            serverTransaction.sendResponse(response);
+        }
+        catch (Exception e)
+        {
+            throw new OperationFailedException(
+                    "Failed to send OK Response.",
+                    OperationFailedException.INTERNAL_ERROR,
+                    e);
+        }
+
+        return true;
     }
 
     /**
