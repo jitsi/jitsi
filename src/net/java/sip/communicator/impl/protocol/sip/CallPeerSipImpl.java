@@ -18,6 +18,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
+import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -97,7 +98,11 @@ public class CallPeerSipImpl
      * <tt>picture_fast_update</tt> to this remote peer (as part of the
      * execution of {@link #requestKeyFrame()}).
      */
-    private boolean sendPictureFastUpdate = false;
+    private boolean sendPictureFastUpdate
+        = KeyFrameControl.KeyFrameRequester.SIGNALING.equals(
+                SipActivator.getConfigurationService().getString(
+                        KeyFrameControl.KeyFrameRequester.PREFERRED_PNAME,
+                        KeyFrameControl.KeyFrameRequester.DEFAULT_PREFERRED));
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.

@@ -12,8 +12,10 @@ import java.util.*;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.*;
@@ -36,15 +38,43 @@ public class JNIEncoder
     private static final Logger logger = Logger.getLogger(JNIEncoder.class);
 
     /**
+     * The name of the baseline H.264 (encoding) profile.
+     */
+    public static final String BASELINE_PROFILE = "baseline";
+
+    /**
      * The frame rate to be assumed by <tt>JNIEncoder</tt> instance in the
      * absence of any other frame rate indication.
      */
     static final int DEFAULT_FRAME_RATE = 15;
 
     /**
+     * The name of the <tt>ConfigurationService</tt> property which specifies
+     * the H.264 (encoding) profile to be used in the absence of negotiation.
+     * Though it seems that RFC 3984 "RTP Payload Format for H.264 Video"
+     * specifies the baseline profile as the default, we have till the time of
+     * this writing defaulted to the main profile and we do not currently want
+     * to change from the main to the base profile unless we really have to.
+     */
+    public static final String DEFAULT_PROFILE_PNAME
+        = "net.java.sip.communicator.service.media.codec.video.h264."
+            + "defaultProfile";
+
+    /**
      * Key frame every 150 frames.
      */
     static final int IFRAME_INTERVAL = 150;
+
+    /**
+     * The name of the main H.264 (encoding) profile.
+     */
+    public static final String MAIN_PROFILE = "main";
+
+    /**
+     * The default value of the {@link #DEFAULT_PROFILE_PNAME}
+     * <tt>ConfigurationService</tt> property.
+     */
+    public static final String DEFAULT_DEFAULT_PROFILE = MAIN_PROFILE;
 
     /**
      * The name of the format parameter which specifies the packetization mode
@@ -361,13 +391,23 @@ public class JNIEncoder
 
         /*
          * XXX We do not currently negotiate the profile so, regardless of the
-         * many AVCodecContext properties we have set above, force the baseline
-         * profile which is the default in the absence of negotiation.
+         * many AVCodecContext properties we have set above, force the default
+         * profile configuration.
          */
+        ConfigurationService configuration
+            = NeomediaActivator.getConfigurationService();
+        String profile
+            = (configuration == null)
+                ? null
+                : configuration.getString(
+                        DEFAULT_PROFILE_PNAME,
+                        DEFAULT_DEFAULT_PROFILE);
         try
         {
             FFmpeg.avcodeccontext_set_profile(avctx,
-                    FFmpeg.FF_PROFILE_H264_BASELINE);
+                    BASELINE_PROFILE.equalsIgnoreCase(profile)
+                        ? FFmpeg.FF_PROFILE_H264_BASELINE
+                        : FFmpeg.FF_PROFILE_H264_MAIN);
         }
         catch (UnsatisfiedLinkError ule)
         {

@@ -1,0 +1,21 @@
+--- a/libavcodec/libx264.c	2011-05-08 14:03:51.000000000 +0300
++++ b/libavcodec/libx264.c	2011-06-15 14:31:23.000000000 +0300
+@@ -340,6 +340,18 @@
+     if (x4->fastfirstpass)
+         x264_param_apply_fastfirstpass(&x4->params);
+ 
++    if (!x4->profile)
++        switch (avctx->profile)
++        {
++        case FF_PROFILE_H264_BASELINE:
++            x4->profile = "baseline";
++            break;
++        case FF_PROFILE_H264_MAIN:
++            x4->profile = "main";
++            break;
++        default:
++            break;
++        }
+     if (x4->profile)
+         if (x264_param_apply_profile(&x4->params, x4->profile) < 0)
+             return -1;

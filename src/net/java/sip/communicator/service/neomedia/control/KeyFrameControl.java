@@ -62,6 +62,34 @@ public interface KeyFrameControl
     public interface KeyFrameRequester
     {
         /**
+         * The name of the <tt>ConfigurationService</tt> property which
+         * specifies the preferred <tt>KeyFrameRequester</tt> to be used. 
+         */
+        public static final String PREFERRED_PNAME
+            = "net.java.sip.communicator.service.media.codec.video.h264."
+                + "preferredKeyFrameRequester";
+
+        /**
+         * The value of the {@link #PREFERRED_PNAME}
+         * <tt>ConfigurationService</tt> property which indicates that the
+         * RTCP <tt>KeyFrameRequester</tt> is preferred.
+         */
+        public static final String RTCP = "rtcp";
+
+        /**
+         * The value of the {@link #PREFERRED_PNAME}
+         * <tt>ConfigurationService</tt> property which indicates that the
+         * signaling/protocol <tt>KeyFrameRequester</tt> is preferred.
+         */
+        public static final String SIGNALING = "signaling";
+
+        /**
+         * The default value of the {@link #PREFERRED_PNAME}
+         * <tt>ConfigurationService</tt> property.
+         */
+        public static final String DEFAULT_PREFERRED = RTCP;
+
+        /**
          * Requests a key frame from the remote peer of the associated
          * <tt>VideoMediaStream</tt>.
          *

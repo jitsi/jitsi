@@ -129,9 +129,8 @@ public class NeomediaActivator
         mediaProps.put( ConfigurationForm.FORM_TYPE,
                         ConfigurationForm.GENERAL_TYPE);
 
-        // AudioConfigurationForm
-        bundleContext
-            .registerService(
+        // Audio
+        bundleContext.registerService(
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
                         "net.java.sip.communicator.impl.neomedia"
@@ -142,9 +141,8 @@ public class NeomediaActivator
                         3),
                 mediaProps);
 
-        // VideoConfigurationForm
-        bundleContext
-            .registerService(
+        // Video
+        bundleContext.registerService(
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
                         "net.java.sip.communicator.impl.neomedia"
@@ -154,14 +152,30 @@ public class NeomediaActivator
                         "impl.neomedia.configform.VIDEO",
                         4),
                 mediaProps);
+        // H.264
+        Dictionary<String, String> h264Props
+            = new Hashtable<String, String>();
+        h264Props.put(
+                ConfigurationForm.FORM_TYPE,
+                ConfigurationForm.ADVANCED_TYPE);
+        bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                        "net.java.sip.communicator.impl.neomedia"
+                            + ".codec.video.h264.ConfigurationPanel",
+                        getClass().getClassLoader(),
+                        "plugin.mediaconfig.VIDEO_ICON",
+                        "impl.neomedia.configform.H264",
+                        -1,
+                        true),
+                h264Props);
 
-        // ZRTPConfiguration panel
+        // ZRTP
         Dictionary<String, String> securityProps
             = new Hashtable<String, String>();
         securityProps.put( ConfigurationForm.FORM_TYPE,
                         ConfigurationForm.SECURITY_TYPE);
-        bundleContext
-        .registerService(
+        bundleContext.registerService(
             ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
                 "net.java.sip.communicator.impl.neomedia.ZrtpConfigurePanel",

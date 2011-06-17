@@ -57,13 +57,12 @@ public class VideoMediaStreamImpl
      * The indicator which determines whether RTCP feedback Picture Loss
      * Indication messages are to be used.
      */
-    private boolean usePLI = false;
+    private boolean usePLI = true;
 
     /**
      * The <tt>KeyFrameControl</tt> of this <tt>VideoMediaStream</tt>.
      */
-    private final KeyFrameControlImpl keyFrameControl
-        = new KeyFrameControlImpl();
+    private KeyFrameControlImpl keyFrameControl;
 
     /**
      * The <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>.
@@ -451,7 +450,7 @@ public class VideoMediaStreamImpl
              * VideoMediaStreamImpl so the key frame-related logic will be
              * controlled by the keyFrameControl of this VideoMediaStreamImpl.
              */
-            newVideoMediaDeviceSession.setKeyFrameControl(keyFrameControl);
+            newVideoMediaDeviceSession.setKeyFrameControl(getKeyFrameControl());
         }
     }
 
@@ -852,6 +851,8 @@ public class VideoMediaStreamImpl
      */
     public KeyFrameControl getKeyFrameControl()
     {
+        if (keyFrameControl == null)
+            keyFrameControl = new KeyFrameControlImpl();
         return keyFrameControl;
     }
 
