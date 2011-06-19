@@ -195,8 +195,7 @@ public class ProvisioningActivator
         if(url == null)
         {
             /* try to see if provisioning URL is stored in properties */
-            url = getConfigurationService().getString(
-                    PROPERTY_PROVISIONING_URL);
+            url = getProvisioningUri();
         }
 
         if(url != null)
