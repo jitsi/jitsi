@@ -161,8 +161,7 @@ public class ProvisioningActivator
                 2000, true),
             properties);
 
-        String method = getConfigurationService().getString(
-                PROVISIONING_METHOD_PROP);
+        String method = getProvisioningMethod();
 
         if(method == null || method.equals("NONE"))
         {
