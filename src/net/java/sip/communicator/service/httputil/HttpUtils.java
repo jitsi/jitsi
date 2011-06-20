@@ -139,7 +139,7 @@ public class HttpUtils
     }
 
     /**
-     * Executes the metod and return the result. Handle ask for password
+     * Executes the method and return the result. Handle ask for password
      * when hitting password protected site.
      * Keep asking for password till user clicks cancel or enters correct
      * password. When 'remember password' is checked password is saved, if this
@@ -162,7 +162,9 @@ public class HttpUtils
         {
             // if we were unauthorized, lets clear the method and recreate it
             // for new connection with new credentials.
-            if(response != null)
+            if(response != null
+               && response.getStatusLine().getStatusCode()
+                    == HttpStatus.SC_UNAUTHORIZED)
             {
                 if(logger.isDebugEnabled())
                     logger.debug("Will retry http connect and " +
@@ -174,7 +176,22 @@ public class HttpUtils
                 req.setURI(uri);
 
                 httpClient.getCredentialsProvider().clear();
-                response = httpClient.execute(req);
+
+                if(!((HTTPCredentialsProvider)httpClient
+                    .getCredentialsProvider()).isChallengedForCredentials())
+                {
+                    // we were not challenged for credentials
+                    // something other is happening and we are un-authorized
+                    // lets rise an exception and stop current execution.
+                    // and will clear any credentials if any
+                    throw new AuthenticationException("Unauthorized");
+                }
+                else
+                {
+                    // well we were challenged but user entered wrong pass
+                    // lets challenge again
+                    response = httpClient.execute(req);
+                }
             }
             else
                 response = httpClient.execute(req);
@@ -338,65 +355,43 @@ public class HttpUtils
                                    int usernameParamIx,
                                    int passwordParamIx)
     {
-        DefaultHttpClient httpClient = null;
+        DefaultHttpClient httpClient;
+        HttpPost postMethod;
+        HttpEntity resEntity = null;
         try
         {
-            HttpPost postMethod = new HttpPost(address);
-            httpClient = getHttpClient(
-                usernamePropertyName, passwordPropertyName,
-                postMethod.getURI().getHost());
-
-            // if we have username and password in the parameters, lets
-            // retrieve their values
-            Credentials creds = null;
-            if(usernameParamIx != -1
-                && usernameParamIx < formParamNames.length
-                && passwordParamIx != -1
-                && passwordParamIx < formParamNames.length)
+            // if any authentication exception rise while executing
+            // will retry
+            AuthenticationException authEx;
+            do
             {
-                URL url = new URL(address);
-                creds = new HTTPCredentialsProvider(
-                    usernamePropertyName, passwordPropertyName)
-                        .getCredentials(new AuthScope(
-                                                url.getHost(), url.getPort()));
-            }
+                postMethod = new HttpPost(address);
+                httpClient = getHttpClient(
+                    usernamePropertyName, passwordPropertyName,
+                    postMethod.getURI().getHost());
 
-            // construct the name value pairs we will be sending
-            List<NameValuePair> parameters = new ArrayList<NameValuePair>();
-            // there can be no params
-            if(formParamNames != null)
-            {
-                for(int i = 0; i < formParamNames.length; i++)
+                try
                 {
-                    // we are on the username index, insert retrieved username value
-                    if(i == usernameParamIx && creds != null)
-                    {
-                        parameters.add(new BasicNameValuePair(
-                            formParamNames[i], creds.getUserPrincipal().getName()));
-                    }// we are on the password index, insert retrieved password val
-                    else if(i == passwordParamIx && creds != null)
-                    {
-                        parameters.add(new BasicNameValuePair(
-                            formParamNames[i], creds.getPassword()));
-                    }
-                    else // common name value pair, all info is present
-                    {
-                        parameters.add(new BasicNameValuePair(
-                            formParamNames[i], formParamValues[i]));
-                    }
+                    // execute post
+                    resEntity = postForm(
+                            httpClient,
+                            postMethod,
+                            address,
+                            usernamePropertyName,
+                            passwordPropertyName,
+                            formParamNames,
+                            formParamValues,
+                            usernameParamIx,
+                            passwordParamIx);
+
+                    authEx = null;
+                }
+                catch(AuthenticationException ex)
+                {
+                    authEx = ex;
                 }
             }
-
-            String s = URLEncodedUtils.format(parameters, HTTP.UTF_8);
-            StringEntity entity = new StringEntity(s, HTTP.UTF_8);
-            // set content type to "application/x-www-form-urlencoded"
-            entity.setContentType(URLEncodedUtils.CONTENT_TYPE);
-
-            // insert post values encoded.
-            postMethod.setEntity(entity);
-
-            // execute post
-            HttpEntity resEntity = executeMethod(httpClient, postMethod);
+            while(authEx != null);
 
             // canceled or no result
             if(resEntity == null)
@@ -410,6 +405,101 @@ public class HttpUtils
         }
 
         return null;
+    }
+
+    /**
+     * Posting form to <tt>address</tt>. For submission we use POST method
+     * which is "application/x-www-form-urlencoded" encoded.
+     * @param httpClient the http client
+     * @param postMethod the post method
+     * @param address HTTP address.
+     * @param usernamePropertyName the property to use to retrieve/store
+     * username value if protected site is hit, for username
+     * ConfigurationService service is used.
+     * @param passwordPropertyName the property to use to retrieve/store
+     * password value if protected site is hit, for password
+     * CredentialsStorageService service is used.
+     * @param formParamNames the parameter names to include in post.
+     * @param formParamValues the corresponding parameter values to use.
+     * @param usernameParamIx the index of the username parameter in the
+     * <tt>formParamNames</tt> and <tt>formParamValues</tt>
+     * if any, otherwise -1.
+     * @param passwordParamIx the index of the password parameter in the
+     * <tt>formParamNames</tt> and <tt>formParamValues</tt>
+     * if any, otherwise -1.
+     * @return the result or null if send was not possible or
+     * credentials ask if any was canceled.
+     */
+    private static HttpEntity postForm(
+                                   DefaultHttpClient httpClient,
+                                   HttpPost postMethod,
+                                   String address,
+                                   String usernamePropertyName,
+                                   String passwordPropertyName,
+                                   String[] formParamNames,
+                                   String[] formParamValues,
+                                   int usernameParamIx,
+                                   int passwordParamIx)
+        throws Throwable
+    {
+        // if we have username and password in the parameters, lets
+        // retrieve their values
+        Credentials creds = null;
+        if(usernameParamIx != -1
+            && usernameParamIx < formParamNames.length
+            && passwordParamIx != -1
+            && passwordParamIx < formParamNames.length)
+        {
+            URL url = new URL(address);
+            HTTPCredentialsProvider prov = (HTTPCredentialsProvider)
+                    httpClient.getCredentialsProvider();
+
+            creds =  prov.getCredentials(
+                    new AuthScope(url.getHost(), url.getPort()));
+
+            // it was user canceled lets stop processing
+            if(creds == null && !prov.retry())
+            {
+                return null;
+            }
+        }
+
+        // construct the name value pairs we will be sending
+        List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+        // there can be no params
+        if(formParamNames != null)
+        {
+            for(int i = 0; i < formParamNames.length; i++)
+            {
+                // we are on the username index, insert retrieved username value
+                if(i == usernameParamIx && creds != null)
+                {
+                    parameters.add(new BasicNameValuePair(
+                        formParamNames[i], creds.getUserPrincipal().getName()));
+                }// we are on the password index, insert retrieved password val
+                else if(i == passwordParamIx && creds != null)
+                {
+                    parameters.add(new BasicNameValuePair(
+                        formParamNames[i], creds.getPassword()));
+                }
+                else // common name value pair, all info is present
+                {
+                    parameters.add(new BasicNameValuePair(
+                        formParamNames[i], formParamValues[i]));
+                }
+            }
+        }
+
+        String s = URLEncodedUtils.format(parameters, HTTP.UTF_8);
+        StringEntity entity = new StringEntity(s, HTTP.UTF_8);
+        // set content type to "application/x-www-form-urlencoded"
+        entity.setContentType(URLEncodedUtils.CONTENT_TYPE);
+
+        // insert post values encoded.
+        postMethod.setEntity(entity);
+
+        // execute post
+        return executeMethod(httpClient, postMethod);
     }
 
     /**
@@ -509,6 +599,12 @@ public class HttpUtils
         private String passwordPropertyName = null;
 
         /**
+         * Was this credentials provider challenged for credentials
+         * since its creation or since last call of clear method.
+         */
+        private boolean challengedForCredentials = false;
+
+        /**
          * Creates HTTPCredentialsProvider.
          * @param usernamePropertyName the property to use to retrieve/store
          * username value if protected site is hit, for username
@@ -543,6 +639,7 @@ public class HttpUtils
         public Credentials getCredentials(AuthScope authscope)
         {
             this.usedScope = authscope;
+            this.challengedForCredentials = true;
 
             // if we have specified password and username property will use them
             // if not create one from the scope/site we are connecting to.
@@ -620,6 +717,7 @@ public class HttpUtils
                 HttpUtilActivator.getCredentialsService().removePassword(
                     passwordPropertyName);
             }
+            this.challengedForCredentials = false;
         }
 
         /**
@@ -648,6 +746,16 @@ public class HttpUtils
         boolean retry()
         {
             return retry;
+        }
+
+        /**
+         * Was this provider challenged for credentials since creation or
+         * last clear.
+         * @return
+         */
+        boolean isChallengedForCredentials()
+        {
+            return this.challengedForCredentials;
         }
     }
 
