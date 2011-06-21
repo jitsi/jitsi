@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -16,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
@@ -66,10 +68,6 @@ public class UnknownContactPanel
 
         this.add(mainPanel, BorderLayout.NORTH);
 
-        initTextArea(parentWindow.getCurrentSearchText());
-
-        mainPanel.add(textArea, BorderLayout.CENTER);
-
         TransparentPanel buttonPanel
             = new TransparentPanel(new GridLayout(0, 1));
 
@@ -96,31 +94,56 @@ public class UnknownContactPanel
             });
         }
 
-        callContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
+        List<ProtocolProviderService> telephonyProviders
+            = CallManager.getTelephonyProviders();
 
-        callContact.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.CALL_CONTACT"));
-
-        buttonPanel.add(callContact);
-
-        TransparentPanel southPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-        southPanel.add(buttonPanel);
-
-        mainPanel.add(southPanel, BorderLayout.SOUTH);
-
-        callContact.addActionListener(new ActionListener()
+        if (telephonyProviders!= null && telephonyProviders.size() > 0)
         {
-            public void actionPerformed(ActionEvent e)
+            callContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
+
+            callContact.setMnemonic(GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.CALL_CONTACT"));
+
+            buttonPanel.add(callContact);
+
+            callContact.addActionListener(new ActionListener()
             {
-                String searchText = parentWindow.getCurrentSearchText();
+                public void actionPerformed(ActionEvent e)
+                {
+                    String searchText = parentWindow.getCurrentSearchText();
 
-                if (searchText == null)
-                    return;
+                    if (searchText == null)
+                        return;
 
-                CallManager.createCall(searchText, callContact);
-            }
-        });
+                    CallManager.createCall(searchText, callContact);
+                }
+            });
+        }
+
+        initTextArea();
+        mainPanel.add(textArea, BorderLayout.CENTER);
+
+        if (callContact.getParent() != null)
+        {
+            textArea.setText(GuiActivator.getResources()
+                .getI18NString( "service.gui.NO_CONTACTS_FOUND",
+                    new String[]{'"'
+                                + parentWindow.getCurrentSearchText() + '"'}));
+        }
+        else
+        {
+            textArea.setText(GuiActivator.getResources()
+                .getI18NString( "service.gui.NO_CONTACTS_FOUND_SHORT"));
+        }
+
+        if (buttonPanel.getComponentCount() > 0)
+        {
+            TransparentPanel southPanel
+                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+            southPanel.add(buttonPanel);
+
+            mainPanel.add(southPanel, BorderLayout.SOUTH);
+        }
 
         loadSkin();
     }
@@ -160,13 +183,9 @@ public class UnknownContactPanel
 
     /**
      * Creates the text area.
-     * @param searchText the searched text
      */
-    private void initTextArea(String searchText)
+    private void initTextArea()
     {
-        textArea.setText(GuiActivator.getResources()
-            .getI18NString( "service.gui.NO_CONTACTS_FOUND",
-                new String[]{'"' + searchText + '"'}));
         textArea.setOpaque(false);
         textArea.setEditable(false);
         StyledDocument doc = textArea.getStyledDocument();
@@ -186,11 +205,15 @@ public class UnknownContactPanel
      */
     private void updateTextArea(String searchText)
     {
-        textArea.setText(GuiActivator.getResources()
-            .getI18NString("service.gui.NO_CONTACTS_FOUND",
-                new String[]{'"' + searchText + '"'}));
-        this.revalidate();
-        this.repaint();
+        if (callContact.getParent() != null)
+        {
+            textArea.setText(GuiActivator.getResources()
+                .getI18NString("service.gui.NO_CONTACTS_FOUND",
+                    new String[]{'"' + searchText + '"'}));
+
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     /**
