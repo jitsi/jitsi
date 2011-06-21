@@ -40,6 +40,20 @@ public class NeomediaActivator
     private final Logger logger = Logger.getLogger(NeomediaActivator.class);
 
     /**
+     * Indicates if the audio configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String AUDIO_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.AUDIO_CONFIG_DISABLED";
+
+    /**
+     * Indicates if the video configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String VIDEO_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.VIDEO_CONFIG_DISABLED";
+
+    /**
      * The context in which the one and only <tt>NeomediaActivator</tt> instance
      * has started executing.
      */
@@ -129,29 +143,38 @@ public class NeomediaActivator
         mediaProps.put( ConfigurationForm.FORM_TYPE,
                         ConfigurationForm.GENERAL_TYPE);
 
-        // Audio
-        bundleContext.registerService(
-                ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                        "net.java.sip.communicator.impl.neomedia"
-                            + ".AudioConfigurationPanel",
-                        getClass().getClassLoader(),
-                        "plugin.mediaconfig.AUDIO_ICON",
-                        "impl.neomedia.configform.AUDIO",
-                        3),
-                mediaProps);
+        // If the audio configuration form is disabled don't register it.
+        if (!getConfigurationService().getBoolean(
+                AUDIO_CONFIG_DISABLED_PROP, false))
+        {
+            bundleContext.registerService(
+                    ConfigurationForm.class.getName(),
+                    new LazyConfigurationForm(
+                            "net.java.sip.communicator.impl.neomedia"
+                                + ".AudioConfigurationPanel",
+                            getClass().getClassLoader(),
+                            "plugin.mediaconfig.AUDIO_ICON",
+                            "impl.neomedia.configform.AUDIO",
+                            3),
+                    mediaProps);
+        }
 
-        // Video
-        bundleContext.registerService(
-                ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                        "net.java.sip.communicator.impl.neomedia"
-                            + ".VideoConfigurationPanel",
-                        getClass().getClassLoader(),
-                        "plugin.mediaconfig.VIDEO_ICON",
-                        "impl.neomedia.configform.VIDEO",
-                        4),
-                mediaProps);
+        // If the video configuration form is disabled don't register it.
+        if (!getConfigurationService().getBoolean(
+                VIDEO_CONFIG_DISABLED_PROP, false))
+        {
+            bundleContext.registerService(
+                    ConfigurationForm.class.getName(),
+                    new LazyConfigurationForm(
+                            "net.java.sip.communicator.impl.neomedia"
+                                + ".VideoConfigurationPanel",
+                            getClass().getClassLoader(),
+                            "plugin.mediaconfig.VIDEO_ICON",
+                            "impl.neomedia.configform.VIDEO",
+                            4),
+                    mediaProps);
+        }
+
         // H.264
         Dictionary<String, String> h264Props
             = new Hashtable<String, String>();

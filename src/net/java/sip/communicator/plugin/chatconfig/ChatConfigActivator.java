@@ -53,7 +53,14 @@ public class ChatConfigActivator
      */
     private static final Map<String, ReplacementService>
     replacementSourcesMap = new Hashtable<String, ReplacementService>();
-    
+
+    /**
+     * Indicates if the chat configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.chatconfig.DISABLED";
+
     /**
      * Starts this bundle.
      * 
@@ -64,6 +71,10 @@ public class ChatConfigActivator
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
+
+        // If the chat configuration form is disabled don't continue.
+        if (getConfigurationService().getBoolean(DISABLED_PROP, false))
+            return;
 
         Dictionary<String, String> properties = new Hashtable<String, String>();
         properties.put(ConfigurationForm.FORM_TYPE,

@@ -61,6 +61,13 @@ public class SecurityConfigActivator
     private static UIService uiService;
 
     /**
+     * Indicates if the security configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.securityconfig.DISABLED";
+
+    /**
      * Starts this plugin.
      * @param bc the BundleContext
      * @throws Exception if some of the operations executed in the start method
@@ -69,6 +76,10 @@ public class SecurityConfigActivator
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
+
+        // If the security configuration form is disabled don't continue.
+        if (getConfigurationService().getBoolean(DISABLED_PROP, false))
+            return;
 
         // Register the configuration form.
         Dictionary<String, String> properties;

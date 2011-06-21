@@ -2,6 +2,7 @@ package net.java.sip.communicator.plugin.advancedconfig;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -32,6 +33,20 @@ public class AdvancedConfigActivator
     private static ResourceManagementService resourceService;
 
     /**
+     * The <tt>ConfigurationService</tt> registered in {@link #bundleContext}
+     * and used by the <tt>SecurityConfigActivator</tt> instance to read and
+     * write configuration properties.
+     */
+    private static ConfigurationService configurationService;
+
+    /**
+     * Indicates if the advanced configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.advancedconfig.DISABLED";
+
+    /**
      * Starts this bundle.
      * @param bc the bundle context
      * @throws Exception if something goes wrong
@@ -40,6 +55,10 @@ public class AdvancedConfigActivator
         throws Exception
     {
         bundleContext = bc;
+
+        // If the notification configuration form is disabled don't continue.
+        if (getConfigurationService().getBoolean(DISABLED_PROP, false))
+            return;
 
         Dictionary<String, String> properties = new Hashtable<String, String>();
         properties.put( ConfigurationForm.FORM_TYPE,
@@ -73,5 +92,24 @@ public class AdvancedConfigActivator
             resourceService
                 = ResourceManagementServiceUtils.getService(bundleContext);
         return resourceService;
+    }
+
+    /**
+     * Returns a reference to the ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configurationService == null)
+        {
+            configurationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
+        }
+        return configurationService;
     }
 }

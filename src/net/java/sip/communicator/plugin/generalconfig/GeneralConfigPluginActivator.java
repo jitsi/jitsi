@@ -79,6 +79,13 @@ public class GeneralConfigPluginActivator
     private static ResourceManagementService resourceService;
 
     /**
+     * Indicates if the general configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.generalconfig.DISABLED";
+
+    /**
      * Starts this bundle.
      * @param bc the bundle context
      * @throws Exception if something goes wrong
@@ -93,22 +100,28 @@ public class GeneralConfigPluginActivator
 
         uiService = (UIService) bundleContext.getService(uiServiceRef);
 
-        ConfigurationManager.loadGuiConfigurations();
+        Dictionary<String, String> properties
+            = new Hashtable<String, String>();
 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.GENERAL_TYPE);
-        bundleContext
-            .registerService(
-                ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                    "net.java.sip.communicator.plugin." +
-                    "generalconfig.GeneralConfigurationPanel",
-                    getClass().getClassLoader(),
-                    "plugin.generalconfig.PLUGIN_ICON",
-                    "service.gui.GENERAL",
-                    0),
-                properties);
+        // If the general configuration form is disabled don't continue.
+        if (!getConfigurationService().getBoolean(DISABLED_PROP, false))
+        {
+            ConfigurationManager.loadGuiConfigurations();
+
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.GENERAL_TYPE);
+            bundleContext
+                .registerService(
+                    ConfigurationForm.class.getName(),
+                    new LazyConfigurationForm(
+                        "net.java.sip.communicator.plugin." +
+                        "generalconfig.GeneralConfigurationPanel",
+                        getClass().getClassLoader(),
+                        "plugin.generalconfig.PLUGIN_ICON",
+                        "service.gui.GENERAL",
+                        0),
+                    properties);
+        }
 
         // Registers the sip config panel as advanced configuration form.
         properties.put( ConfigurationForm.FORM_TYPE,
