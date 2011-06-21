@@ -141,6 +141,21 @@ public class ProtocolProviderServiceJabberImpl
     public static final String CAPS_GTALK_WEB_CAMERA = "camera-v1";
 
     /**
+     * The name of the property under which the user may specify if the desktop
+     * streaming or sharing should be disabled.
+     */
+    private static final String IS_DESKTOP_STREAMING_DISABLED
+        = "net.java.sip.communicator.impl.protocol.jabber." +
+            "DESKTOP_STREAMING_DISABLED";
+
+    /**
+     * The name of the property under which the user may specify if the video
+     * calls should be disabled.
+     */
+    private static final String IS_CALLING_DISABLED
+        = "net.java.sip.communicator.impl.protocol.jabber.CALLING_DISABLED";
+
+    /**
      * Used to connect to a XMPP server.
      */
     private XMPPConnection connection = null;
@@ -1261,41 +1276,69 @@ public class ProtocolProviderServiceJabberImpl
                                           new JingleInfoQueryIQProvider());
 
             //initialize the telephony operation set
-            OperationSetBasicTelephonyJabberImpl basicTelephony
+            boolean isCallingDisabled
+                = JabberActivator.getConfigurationService()
+                    .getBoolean(IS_CALLING_DISABLED, false);
+
+            boolean isCallingDisabledForAccount
+                = accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.IS_CALLING_DISABLED_FOR_ACCOUNT,
+                    false);
+
+            // Check if calling is enabled.
+            if (!isCallingDisabled && !isCallingDisabledForAccount)
+            {
+                OperationSetBasicTelephonyJabberImpl basicTelephony
                     = new OperationSetBasicTelephonyJabberImpl(this);
 
-            addSupportedOperationSet(
-                OperationSetAdvancedTelephony.class,
-                basicTelephony);
-            addSupportedOperationSet(
-                OperationSetBasicTelephony.class,
-                basicTelephony);
-            addSupportedOperationSet(
-                OperationSetSecureTelephony.class,
-                basicTelephony);
+                addSupportedOperationSet(
+                    OperationSetAdvancedTelephony.class,
+                    basicTelephony);
+                addSupportedOperationSet(
+                    OperationSetBasicTelephony.class,
+                    basicTelephony);
+                addSupportedOperationSet(
+                    OperationSetSecureTelephony.class,
+                    basicTelephony);
 
-            // initialize video telephony OperationSet
-            addSupportedOperationSet(
-                OperationSetVideoTelephony.class,
-                new OperationSetVideoTelephonyJabberImpl(basicTelephony));
+                // initialize video telephony OperationSet
+                addSupportedOperationSet(
+                    OperationSetVideoTelephony.class,
+                    new OperationSetVideoTelephonyJabberImpl(basicTelephony));
 
-            // initialize desktop streaming OperationSet
-            addSupportedOperationSet(
-                OperationSetDesktopStreaming.class,
-                new OperationSetDesktopStreamingJabberImpl(basicTelephony));
+                addSupportedOperationSet(
+                    OperationSetTelephonyConferencing.class,
+                    new OperationSetTelephonyConferencingJabberImpl(this));
 
-            // initialize desktop sharing OperationSets
-            addSupportedOperationSet(
-                OperationSetDesktopSharingServer.class,
-                new OperationSetDesktopSharingServerJabberImpl(
-                        basicTelephony));
-            addSupportedOperationSet(
-                    OperationSetDesktopSharingClient.class,
-                    new OperationSetDesktopSharingClientJabberImpl(this));
+                // Check if desktop streaming is enabled.
+                boolean isDesktopStreamingDisabled
+                    = JabberActivator.getConfigurationService()
+                        .getBoolean(IS_DESKTOP_STREAMING_DISABLED, false);
 
-            addSupportedOperationSet(
-                OperationSetTelephonyConferencing.class,
-                new OperationSetTelephonyConferencingJabberImpl(this));
+                boolean isAccountDesktopStreamingDisabled
+                    = accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.IS_DESKTOP_STREAMING_DISABLED,
+                        false);
+
+                if (!isDesktopStreamingDisabled
+                    && !isAccountDesktopStreamingDisabled)
+                {
+                    // initialize desktop streaming OperationSet
+                    addSupportedOperationSet(
+                        OperationSetDesktopStreaming.class,
+                        new OperationSetDesktopStreamingJabberImpl(
+                            basicTelephony));
+
+                    // initialize desktop sharing OperationSets
+                    addSupportedOperationSet(
+                        OperationSetDesktopSharingServer.class,
+                        new OperationSetDesktopSharingServerJabberImpl(
+                                basicTelephony));
+                    addSupportedOperationSet(
+                        OperationSetDesktopSharingClient.class,
+                        new OperationSetDesktopSharingClientJabberImpl(this));
+                }
+            }
 
             // Add Jingle features to supported features.
             supportedFeatures.add(URN_XMPP_JINGLE);

@@ -347,6 +347,18 @@ public abstract class ProtocolProviderFactory
     public static final String VOICEMAIL_URI = "VOICEMAIL_URI";
 
     /**
+     * Indicates if calling is disabled for a certain account.
+     */
+    public static final String IS_CALLING_DISABLED_FOR_ACCOUNT
+        = "CALLING_DISABLED";
+
+    /**
+     * Indicates if desktop streaming/sharing is disabled for a certain account.
+     */
+    public static final String IS_DESKTOP_STREAMING_DISABLED
+        = "DESKTOP_STREAMING_DISABLED";
+
+    /**
      * The <code>BundleContext</code> containing (or to contain) the service
      * registration of this factory.
      */

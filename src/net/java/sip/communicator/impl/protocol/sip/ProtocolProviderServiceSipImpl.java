@@ -123,6 +123,20 @@ public class ProtocolProviderServiceSipImpl
         = "net.java.sip.communicator.impl.protocol.sip.DEFAULT_TRANSPORT";
 
     /**
+     * The name of the property under which the user may specify if the desktop
+     * streaming or sharing should be disabled.
+     */
+    private static final String IS_DESKTOP_STREAMING_DISABLED
+        = "net.java.sip.communicator.impl.protocol.sip.DESKTOP_STREAMING_DISABLED";
+
+    /**
+     * The name of the property under which the user may specify if the video
+     * calls should be disabled.
+     */
+    private static final String IS_CALL_DISABLED
+        = "net.java.sip.communicator.impl.protocol.sip.CALL_DISABLED";
+
+    /**
      * Default number of times that our requests can be forwarded.
      */
     private static final int  MAX_FORWARDS = 70;
@@ -589,17 +603,76 @@ public class ProtocolProviderServiceSipImpl
             OperationSetBasicTelephonySipImpl opSetBasicTelephonySipImpl
                 = new OperationSetBasicTelephonySipImpl(this);
 
-            addSupportedOperationSet(
-                OperationSetBasicTelephony.class,
-                opSetBasicTelephonySipImpl);
-            addSupportedOperationSet(
-                OperationSetAdvancedTelephony.class,
-                opSetBasicTelephonySipImpl);
-            // init ZRTP (OperationSetBasicTelephonySipImpl implements
-            // OperationSetSecureTelephony)
-            addSupportedOperationSet(
-                OperationSetSecureTelephony.class,
-                opSetBasicTelephonySipImpl);
+            boolean isCallingDisabled
+                = SipActivator.getConfigurationService()
+                    .getBoolean(IS_CALL_DISABLED, false);
+
+            boolean isCallingDisabledForAccount
+                = accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.IS_CALLING_DISABLED_FOR_ACCOUNT,
+                    false);
+
+            if (!isCallingDisabled && !isCallingDisabledForAccount)
+            {
+                addSupportedOperationSet(
+                    OperationSetBasicTelephony.class,
+                    opSetBasicTelephonySipImpl);
+
+                addSupportedOperationSet(
+                    OperationSetAdvancedTelephony.class,
+                    opSetBasicTelephonySipImpl);
+
+                // init ZRTP (OperationSetBasicTelephonySipImpl implements
+                // OperationSetSecureTelephony)
+                addSupportedOperationSet(
+                    OperationSetSecureTelephony.class,
+                    opSetBasicTelephonySipImpl);
+
+                // OperationSetVideoTelephony
+                addSupportedOperationSet(
+                    OperationSetVideoTelephony.class,
+                    new OperationSetVideoTelephonySipImpl(
+                            opSetBasicTelephonySipImpl));
+
+                addSupportedOperationSet(
+                    OperationSetTelephonyConferencing.class,
+                    new OperationSetTelephonyConferencingSipImpl(this));
+
+                // init DTMF (from JM Heitz)
+                addSupportedOperationSet(
+                    OperationSetDTMF.class,
+                    new OperationSetDTMFSipImpl(this));
+
+                boolean isDesktopStreamingDisabled
+                    = SipActivator.getConfigurationService()
+                        .getBoolean(IS_DESKTOP_STREAMING_DISABLED, false);
+
+                boolean isAccountDesktopStreamingDisabled
+                    = accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.IS_DESKTOP_STREAMING_DISABLED,
+                        false);
+
+                if (!isDesktopStreamingDisabled
+                    && !isAccountDesktopStreamingDisabled)
+                {
+                    // OperationSetDesktopStreaming
+                    addSupportedOperationSet(
+                        OperationSetDesktopStreaming.class,
+                        new OperationSetDesktopStreamingSipImpl(
+                                opSetBasicTelephonySipImpl));
+
+                    // OperationSetDesktopSharingServer
+                    addSupportedOperationSet(
+                       OperationSetDesktopSharingServer.class,
+                       new OperationSetDesktopSharingServerSipImpl(
+                               opSetBasicTelephonySipImpl));
+
+                    // OperationSetDesktopSharingClient
+                    addSupportedOperationSet(
+                        OperationSetDesktopSharingClient.class,
+                        new OperationSetDesktopSharingClientSipImpl(this));
+                }
+            }
 
             //init presence op set.
             OperationSetPersistentPresence opSetPersPresence
@@ -641,38 +714,6 @@ public class ProtocolProviderServiceSipImpl
                     OperationSetAvatar.class,
                     new OperationSetAvatarSipImpl(this, opSetSSAccountInfo));
             }
-
-            // OperationSetVideoTelephony
-            addSupportedOperationSet(
-                OperationSetVideoTelephony.class,
-                new OperationSetVideoTelephonySipImpl(
-                        opSetBasicTelephonySipImpl));
-
-            // OperationSetDesktopStreaming
-            addSupportedOperationSet(
-                OperationSetDesktopStreaming.class,
-                new OperationSetDesktopStreamingSipImpl(
-                        opSetBasicTelephonySipImpl));
-
-            // OperationSetDesktopSharingServer
-            addSupportedOperationSet(
-               OperationSetDesktopSharingServer.class,
-               new OperationSetDesktopSharingServerSipImpl(
-                       opSetBasicTelephonySipImpl));
-
-            // OperationSetDesktopSharingClient
-            addSupportedOperationSet(
-                OperationSetDesktopSharingClient.class,
-                new OperationSetDesktopSharingClientSipImpl(this));
-
-            // init DTMF (from JM Heitz)
-            addSupportedOperationSet(
-                OperationSetDTMF.class,
-                new OperationSetDTMFSipImpl(this));
-
-            addSupportedOperationSet(
-                OperationSetTelephonyConferencing.class,
-                new OperationSetTelephonyConferencingSipImpl(this));
 
             addSupportedOperationSet(
                 OperationSetMessageWaiting.class,
