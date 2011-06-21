@@ -192,6 +192,7 @@ public class MediaUtils
 
         h264AdvancedAttributes.put("imageattr", createImageAttr(null, res));
 
+        /* XXX temporary disable packetization mode 1 due to some problems
         // packetization-mode=1
         addMediaFormats(
             MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
@@ -200,6 +201,7 @@ public class MediaUtils
             Constants.H264_RTP,
             h264FormatParams,
             h264AdvancedAttributes);
+        */
         // packetization-mode=0
         /*
          * XXX At the time of this writing,
