@@ -80,10 +80,6 @@ public class FileMenu
         super(GuiActivator.getResources().getI18NString("service.gui.FILE"));
 
         ResourceManagementService resources = GuiActivator.getResources();
-        newAccountMenuItem = new JMenuItem(
-            resources.getI18NString("service.gui.NEW_ACCOUNT"));
-        addContactItem = new JMenuItem(
-            resources.getI18NString("service.gui.ADD_CONTACT") + "...");
         createGroupItem = new JMenuItem(
             resources.getI18NString("service.gui.CREATE_GROUP"));
         myChatRoomsItem = new JMenuItem(
@@ -95,11 +91,37 @@ public class FileMenu
             .getBoolean(ConfigurationFrame.SHOW_ACCOUNT_CONFIG_PROPERTY, true);
 
         if (showAccountConfig.booleanValue())
+        {
+            newAccountMenuItem = new JMenuItem(
+                resources.getI18NString("service.gui.NEW_ACCOUNT"));
+
             this.add(newAccountMenuItem);
+
+            newAccountMenuItem.setName("newAccount");
+
+            newAccountMenuItem.addActionListener(this);
+
+            newAccountMenuItem.setMnemonic(resources
+                .getI18nMnemonic("service.gui.NEW_ACCOUNT"));
+        }
 
         this.addSeparator();
 
-        this.add(addContactItem);
+        if (!ConfigurationManager.isAddContactDisabled())
+        {
+            addContactItem = new JMenuItem(
+                resources.getI18NString("service.gui.ADD_CONTACT") + "...");
+
+            this.add(addContactItem);
+
+            addContactItem.setName("addContact");
+
+            addContactItem.addActionListener(this);
+
+            addContactItem.setMnemonic(resources
+                .getI18nMnemonic("service.gui.ADD_CONTACT"));
+        }
+
         this.add(createGroupItem);
 
         this.addSeparator();
@@ -114,22 +136,15 @@ public class FileMenu
         //this.addContactItem.setIcon(new ImageIcon(ImageLoader
         //        .getImage(ImageLoader.ADD_CONTACT_16x16_ICON)));
 
-        newAccountMenuItem.setName("newAccount");
-        addContactItem.setName("addContact");
         createGroupItem.setName("createGroup");
         myChatRoomsItem.setName("myChatRooms");
 
-        newAccountMenuItem.addActionListener(this);
-        addContactItem.addActionListener(this);
         createGroupItem.addActionListener(this);
         myChatRoomsItem.addActionListener(this);
 
         this.setMnemonic(resources
             .getI18nMnemonic("service.gui.FILE"));
-        newAccountMenuItem.setMnemonic(resources
-            .getI18nMnemonic("service.gui.NEW_ACCOUNT"));
-        addContactItem.setMnemonic(resources
-            .getI18nMnemonic("service.gui.ADD_CONTACT"));
+
         createGroupItem.setMnemonic(resources
             .getI18nMnemonic("service.gui.CREATE_GROUP"));
         myChatRoomsItem.setMnemonic(resources
@@ -141,12 +156,16 @@ public class FileMenu
      */
     public void loadSkin()
     {
-        newAccountMenuItem.setIcon(
-            new ImageIcon(ImageLoader.getImage(
-                ImageLoader.ADD_ACCOUNT_MENU_ICON)));
-        addContactItem.setIcon(
-            new ImageIcon(ImageLoader.getImage(
-                ImageLoader.ADD_CONTACT_16x16_ICON)));
+        if (newAccountMenuItem != null)
+            newAccountMenuItem.setIcon(
+                new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.ADD_ACCOUNT_MENU_ICON)));
+
+        if (addContactItem != null)
+            addContactItem.setIcon(
+                new ImageIcon(ImageLoader.getImage(
+                    ImageLoader.ADD_CONTACT_16x16_ICON)));
+
         createGroupItem.setIcon(
             new ImageIcon(ImageLoader.getImage(
                 ImageLoader.GROUPS_16x16_ICON)));

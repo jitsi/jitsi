@@ -15,6 +15,7 @@ import javax.swing.text.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
@@ -65,14 +66,6 @@ public class UnknownContactPanel
 
         this.add(mainPanel, BorderLayout.NORTH);
 
-        addContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
-        callContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
-
-        addContact.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.ADD_CONTACT"));
-        callContact.setMnemonic(GuiActivator.getResources()
-            .getI18nMnemonic("service.gui.CALL_CONTACT"));
-
         initTextArea(parentWindow.getCurrentSearchText());
 
         mainPanel.add(textArea, BorderLayout.CENTER);
@@ -80,7 +73,34 @@ public class UnknownContactPanel
         TransparentPanel buttonPanel
             = new TransparentPanel(new GridLayout(0, 1));
 
-        buttonPanel.add(addContact);
+        if (!ConfigurationManager.isAddContactDisabled())
+        {
+            addContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
+
+            addContact.setMnemonic(GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.ADD_CONTACT"));
+
+            buttonPanel.add(addContact);
+
+            addContact.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    AddContactDialog dialog
+                        = new AddContactDialog(parentWindow);
+
+                    dialog.setContactAddress(
+                        parentWindow.getCurrentSearchText());
+                    dialog.setVisible(true);
+                }
+            });
+        }
+
+        callContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
+
+        callContact.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.CALL_CONTACT"));
+
         buttonPanel.add(callContact);
 
         TransparentPanel southPanel
@@ -88,18 +108,6 @@ public class UnknownContactPanel
         southPanel.add(buttonPanel);
 
         mainPanel.add(southPanel, BorderLayout.SOUTH);
-
-        addContact.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                AddContactDialog dialog
-                    = new AddContactDialog(parentWindow);
-
-                dialog.setContactAddress(parentWindow.getCurrentSearchText());
-                dialog.setVisible(true);
-            }
-        });
 
         callContact.addActionListener(new ActionListener()
         {

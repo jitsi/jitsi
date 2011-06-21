@@ -79,8 +79,12 @@ public class SourceContactRightButtonMenu
         if (cDetail != null)
             add(initCallMenu());
 
-        addContactComponent
-            = TreeContactList.createAddContactMenu(sourceContact);
+        // Only create the menu if the add contact functionality is enabled.
+        if (!ConfigurationManager.isAddContactDisabled())
+        {
+            addContactComponent
+                = TreeContactList.createAddContactMenu(sourceContact);
+        }
 
         if (addContactComponent != null)
             add(addContactComponent);

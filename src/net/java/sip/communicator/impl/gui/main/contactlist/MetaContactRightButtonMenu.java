@@ -464,11 +464,14 @@ public class MetaContactRightButtonMenu
 
         addSeparator();
 
-        add(addContactItem);
+        if (!ConfigurationManager.isAddContactDisabled())
+            add(addContactItem);
 
         addSeparator();
 
-        add(removeContactMenu);
+        if (!ConfigurationManager.isRemoveContactDisabled())
+            add(removeContactMenu);
+
         add(renameContactItem);
 
         addSeparator();

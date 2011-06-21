@@ -126,6 +126,16 @@ public class ConfigurationManager
     private static boolean isShowSmileys;
 
     /**
+     * Indicates if the add contact functionality is disabled.
+     */
+    private static boolean isAddContactDisabled;
+
+    /**
+     * Indicates if the remove contact functionality is disabled.
+     */
+    private static boolean isRemoveContactDisabled;
+
+    /**
      * The last directory used in file transfer.
      */
     private static String sendFileLastDir;
@@ -431,7 +441,22 @@ public class ConfigurationManager
 
         // Load the "sendFileLastDir" property.
         sendFileLastDir = configService.getString(
-            "net.java.sip.communicator.impl.gui.chat.filetransfer.SEND_FILE_LAST_DIR");
+            "net.java.sip.communicator.impl.gui.chat.filetransfer." +
+            "SEND_FILE_LAST_DIR");
+
+        // Load the "ADD_CONTACT_DISABLED" property.
+        isAddContactDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.contactlist." +
+                "CONTACT_ADD_DISABLED",
+                false);
+
+        // Load the "REMOVE_CONTACT_DISABLED" property.
+        isRemoveContactDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.contactlist." +
+                "CONTACT_REMOVE_DISABLED",
+                false);
     }
 
     /**
@@ -614,6 +639,28 @@ public class ConfigurationManager
     }
 
     /**
+     * Returns <code>true</code> if the "ADD_CONTACT_DISABLED" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "ADD_CONTACT_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isAddContactDisabled()
+    {
+        return isAddContactDisabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "REMOVE_CONTACT_DISABLED" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "REMOVE_CONTACT_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isRemoveContactDisabled()
+    {
+        return isRemoveContactDisabled;
+    }
+
+    /**
      * Return the "sendMessageCommand" property that was saved previously
      * through the <tt>ConfigurationService</tt>. Indicates to the user
      * interface whether the default send message command is Enter or CTRL-Enter.
@@ -623,7 +670,7 @@ public class ConfigurationManager
     {
         return sendMessageCommand;
     }
-    
+
     /**
      * Return the "lastContactParent" property that was saved previously
      * through the <tt>ConfigurationService</tt>. Indicates 
