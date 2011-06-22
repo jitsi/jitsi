@@ -55,6 +55,12 @@ public class JabberStatusEnum
     public static final String FREE_FOR_CHAT = "Free For Chat";
 
     /**
+     * On The Phone Chat status.
+     * Indicates that the user is talking to the phone.
+     */
+    public static final String ON_THE_PHONE = "On The Phone";
+
+    /**
      * The Free For Chat status. Indicates that the user is eager to
      * communicate.
      */
@@ -99,6 +105,11 @@ public class JabberStatusEnum
      * Indicates an Offline status or status with 0 connectivity.
      */
     private final JabberPresenceStatus offlineStatus;
+
+    /**
+     * Indicates an On The Phone status.
+     */
+    private final JabberPresenceStatus onThePhoneStatus;
 
     /**
      * Indicates an Extended Away status or status.
@@ -161,6 +172,10 @@ public class JabberStatusEnum
             new JabberPresenceStatus(30, DO_NOT_DISTURB, loadIcon(iconPath
                 + "/status16x16-dnd.png"));
 
+        this.onThePhoneStatus =
+            new JabberPresenceStatus(31, ON_THE_PHONE, loadIcon(iconPath
+                + "/status16x16-phone.png"));
+
         this.extendedAwayStatus =
             new JabberPresenceStatus(35, EXTENDED_AWAY, loadIcon(iconPath
                 + "/status16x16-xa.png"));
@@ -185,6 +200,7 @@ public class JabberStatusEnum
         supportedStatusSet.add(freeForChatStatus);
         supportedStatusSet.add(availableStatus);
         supportedStatusSet.add(awayStatus);
+        supportedStatusSet.add(onThePhoneStatus);
         supportedStatusSet.add(extendedAwayStatus);
         supportedStatusSet.add(doNotDisturbStatus);
         supportedStatusSet.add(offlineStatus);
@@ -208,6 +224,8 @@ public class JabberStatusEnum
             return doNotDisturbStatus;
         else if (statusName.equals(AWAY))
             return awayStatus;
+        else if (statusName.equals(ON_THE_PHONE))
+            return onThePhoneStatus;
         else if (statusName.equals(EXTENDED_AWAY))
             return extendedAwayStatus;
         else

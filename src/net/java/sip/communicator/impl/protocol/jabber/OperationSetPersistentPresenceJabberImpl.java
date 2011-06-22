@@ -61,6 +61,10 @@ public class OperationSetPersistentPresenceJabberImpl
     {
         scToJabberModesMappings.put(JabberStatusEnum.AWAY,
                                   Presence.Mode.away);
+        scToJabberModesMappings.put(JabberStatusEnum.ON_THE_PHONE,
+                                  Presence.Mode.away);
+        scToJabberModesMappings.put(JabberStatusEnum.EXTENDED_AWAY,
+                                  Presence.Mode.xa);
         scToJabberModesMappings.put(JabberStatusEnum.DO_NOT_DISTURB,
                                   Presence.Mode.dnd);
         scToJabberModesMappings.put(JabberStatusEnum.FREE_FOR_CHAT,
@@ -376,7 +380,16 @@ public class OperationSetPersistentPresenceJabberImpl
             Presence presence = new Presence(Presence.Type.available);
             presence.setMode(presenceStatusToJabberMode(status));
             presence.setPriority(resourcePriority);
-            presence.setStatus(statusMessage);
+
+            // on the phone is a special status which is away
+            // with custom status message
+            if(status.equals(jabberStatusEnum.getStatus(
+                    JabberStatusEnum.ON_THE_PHONE)))
+            {
+                presence.setStatus(JabberStatusEnum.ON_THE_PHONE);
+            }
+            else
+                presence.setStatus(statusMessage);
             //presence.addExtension(new Version());
 
             parentProvider.getConnection().sendPacket(presence);
@@ -622,7 +635,14 @@ public class OperationSetPersistentPresenceJabberImpl
         if(mode.equals(Presence.Mode.available))
             return jabberStatusEnum.getStatus(JabberStatusEnum.AVAILABLE);
         else if(mode.equals(Presence.Mode.away))
-            return jabberStatusEnum.getStatus(JabberStatusEnum.AWAY);
+        {
+            // on the phone a special status
+            // which is away with custom status message
+            if(presence.getStatus().contains(JabberStatusEnum.ON_THE_PHONE))
+                return jabberStatusEnum.getStatus(JabberStatusEnum.ON_THE_PHONE);
+            else
+                return jabberStatusEnum.getStatus(JabberStatusEnum.AWAY);
+        }
         else if(mode.equals(Presence.Mode.chat))
             return jabberStatusEnum.getStatus(JabberStatusEnum.FREE_FOR_CHAT);
         else if(mode.equals(Presence.Mode.dnd))
