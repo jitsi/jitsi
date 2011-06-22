@@ -638,7 +638,8 @@ public class OperationSetPersistentPresenceJabberImpl
         {
             // on the phone a special status
             // which is away with custom status message
-            if(presence.getStatus().contains(JabberStatusEnum.ON_THE_PHONE))
+            if(presence.getStatus() != null
+                && presence.getStatus().contains(JabberStatusEnum.ON_THE_PHONE))
                 return jabberStatusEnum.getStatus(JabberStatusEnum.ON_THE_PHONE);
             else
                 return jabberStatusEnum.getStatus(JabberStatusEnum.AWAY);

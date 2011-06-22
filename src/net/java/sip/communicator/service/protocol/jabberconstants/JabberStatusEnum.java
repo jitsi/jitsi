@@ -58,7 +58,7 @@ public class JabberStatusEnum
      * On The Phone Chat status.
      * Indicates that the user is talking to the phone.
      */
-    public static final String ON_THE_PHONE = "On The Phone";
+    public static final String ON_THE_PHONE = "On the phone";
 
     /**
      * The Free For Chat status. Indicates that the user is eager to
