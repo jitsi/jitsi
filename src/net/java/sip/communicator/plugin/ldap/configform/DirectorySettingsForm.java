@@ -170,9 +170,9 @@ public class DirectorySettingsForm
 
         this.setTitle(Resources.getString("impl.ldap.CONFIG_FORM_TITLE"));
 
-        setMinimumSize(new Dimension(400, getMinimumSize().height));
-        setSize(new Dimension(400, getMinimumSize().height));
-        setPreferredSize(new Dimension(400, getMinimumSize().height));
+        setMinimumSize(new Dimension(400, 400));
+        setSize(new Dimension(400, 400));
+        setPreferredSize(new Dimension(400, 400));
 
         pane.addTab("General", getContentPanel());
         pane.addTab("Fields", getFieldsPanel());
@@ -198,7 +198,8 @@ public class DirectorySettingsForm
         JPanel basePanel = new TransparentPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
-        JLabel mailLabel = new JLabel("Mail field(s)");
+        JLabel mailLabel = new JLabel(
+            Resources.getString("impl.ldap.MAIL_FIELD_NAME"));
         c.gridx = 0;
         c.gridy = 0;
         c.weightx = 0;
@@ -231,7 +232,8 @@ public class DirectorySettingsForm
         c.anchor = GridBagConstraints.LINE_START;
         basePanel.add(mailExampleLabel, c);
 
-        JLabel mailSuffixLabel = new JLabel("Mail suffix");
+        JLabel mailSuffixLabel = new JLabel(
+            Resources.getString("impl.ldap.MAILSUFFIX_FIELD_NAME"));
         c.gridx = 0;
         c.gridy = 2;
         c.weightx = 0;
@@ -265,7 +267,8 @@ public class DirectorySettingsForm
         c.anchor = GridBagConstraints.LINE_START;
         basePanel.add(mailSuffixExampleLabel, c);
 
-        JLabel workPhoneLabel = new JLabel("Work phone field(s)");
+        JLabel workPhoneLabel = new JLabel(
+            Resources.getString("impl.ldap.WORKPHONE_FIELD_NAME"));
         c.gridx = 0;
         c.gridy = 4;
         c.weightx = 0;
@@ -299,7 +302,8 @@ public class DirectorySettingsForm
         c.anchor = GridBagConstraints.LINE_START;
         basePanel.add(workPhoneExampleLabel, c);
 
-        JLabel mobilePhoneLabel = new JLabel("Mobile phone field(s)");
+        JLabel mobilePhoneLabel = new JLabel(
+            Resources.getString("impl.ldap.MOBILEPHONE_FIELD_NAME"));
         c.gridx = 0;
         c.gridy = 6;
         c.weightx = 0;
@@ -333,7 +337,8 @@ public class DirectorySettingsForm
         c.anchor = GridBagConstraints.LINE_START;
         basePanel.add(mobilePhoneExampleLabel, c);
 
-        JLabel homePhoneLabel = new JLabel("Home phone field(s)");
+        JLabel homePhoneLabel = new JLabel(
+            Resources.getString("impl.ldap.HOMEPHONE_FIELD_NAME"));
         c.gridx = 0;
         c.gridy = 8;
         c.weightx = 0;
