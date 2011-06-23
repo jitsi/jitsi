@@ -476,8 +476,7 @@ public class SipRegistrarConnection
                     KEEP_ALIVE_METHOD);
 
             if((keepAliveMethod != null &&
-                keepAliveMethod.equalsIgnoreCase("register"))
-                || keepAliveMethod == null )
+                keepAliveMethod.equalsIgnoreCase("register")))
             {
                 int registrationInterval =
                     sipProvider.getAccountID().getAccountPropertyInt(

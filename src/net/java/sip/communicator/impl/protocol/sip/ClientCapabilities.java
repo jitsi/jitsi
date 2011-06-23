@@ -384,7 +384,9 @@ public class ClientCapabilities
 
                 if (logger.isTraceEnabled())
                     logger.trace("Keep alive method " + keepAliveMethod);
-                if(keepAliveMethod == null ||
+                // options is default keep-alive, if property is missing
+                // then options is used
+                if(keepAliveMethod != null &&
                     !keepAliveMethod.equalsIgnoreCase("options"))
                     return;
 

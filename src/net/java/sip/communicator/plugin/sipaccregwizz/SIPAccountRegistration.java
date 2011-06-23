@@ -22,7 +22,7 @@ public class SIPAccountRegistration
 
     public static String DEFAULT_SUBSCRIBE_EXPIRES = "3600";
 
-    private String defaultKeepAliveMethod = "REGISTER";
+    private String defaultKeepAliveMethod = "OPTIONS";
 
     public static String DEFAULT_KEEP_ALIVE_INTERVAL = "25";
 

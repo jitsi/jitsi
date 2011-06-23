@@ -689,7 +689,7 @@ public class AddContactDialog
                     if (evt.getSourceMetaContact().getContact(
                             contactAddress, protocolProvider) != null)
                     {
-                        renameContact(metaContact, displayName);
+                        renameContact(evt.getSourceMetaContact(), displayName);
                     }
                 }
 
