@@ -112,13 +112,16 @@ public class VideoMediaFormatImpl
             Map<String, String> formatParameters,
             Map<String, String> advancedParameters)
     {
-        super(new VideoFormat(
-                format.getEncoding(),
-                format.getSize(),
-                format.getMaxDataLength(),
-                format.getDataType(),
-                frameRate
-        ), formatParameters, advancedParameters);
+        super(
+                new ParameterizedVideoFormat(
+                        format.getEncoding(),
+                        format.getSize(),
+                        format.getMaxDataLength(),
+                        format.getDataType(),
+                        frameRate,
+                        formatParameters),
+                formatParameters,
+                advancedParameters);
 
         this.clockRate = clockRate;
     }

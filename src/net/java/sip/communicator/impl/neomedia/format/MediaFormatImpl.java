@@ -113,7 +113,7 @@ public abstract class MediaFormatImpl<T extends Format>
                         formatParameters,
                         advancedAttrs);
         }
-        if (format instanceof VideoFormat)
+        else if (format instanceof VideoFormat)
             return
                 new VideoMediaFormatImpl(
                         (VideoFormat) format,
@@ -121,7 +121,8 @@ public abstract class MediaFormatImpl<T extends Format>
                         -1,
                         formatParameters,
                         advancedAttrs);
-        return null;
+        else
+            return null;
     }
 
     /**

@@ -151,6 +151,19 @@ public class ParameterizedVideoFormat
                     getFormatParameters(), objFmtps);
     }
 
+    public boolean formatParametersMatch(Format format)
+    {
+        Map<String, String> formatFmtps = null;
+
+        if (format instanceof ParameterizedVideoFormat)
+            formatFmtps
+                = ((ParameterizedVideoFormat) format).getFormatParameters();
+        return
+            VideoMediaFormatImpl.formatParametersMatch(
+                    getEncoding(),
+                    getFormatParameters(), formatFmtps);
+    }
+
     public String getFormatParameter(String name)
     {
         return fmtps.get(name);
@@ -200,15 +213,7 @@ public class ParameterizedVideoFormat
         if (!super.matches(format))
             return false;
 
-        Map<String, String> formatFmtps = null;
-
-        if (format instanceof ParameterizedVideoFormat)
-            formatFmtps
-                = ((ParameterizedVideoFormat) format).getFormatParameters();
-        return
-            VideoMediaFormatImpl.formatParametersMatch(
-                    getEncoding(),
-                    getFormatParameters(), formatFmtps);
+        return formatParametersMatch(format);
     }
 
     /**
@@ -236,5 +241,33 @@ public class ParameterizedVideoFormat
                 map.put(entries[i++], entries[i]);
         }
         return map;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder s = new StringBuilder();
+
+        s.append(super.toString());
+
+        // fmtps
+        {
+            s.append(", fmtps={");
+            for (Map.Entry<String, String> fmtp : fmtps.entrySet())
+            {
+                s.append(fmtp.getKey());
+                s.append('=');
+                s.append(fmtp.getValue());
+                s.append(',');
+            }
+
+            int lastIndex = s.length() - 1;
+
+            if (s.charAt(lastIndex) == ',')
+                s.setCharAt(lastIndex, '}');
+            else
+                s.append('}');
+        }
+        return s.toString();
     }
 }

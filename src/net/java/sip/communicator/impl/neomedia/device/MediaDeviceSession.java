@@ -292,16 +292,18 @@ public class MediaDeviceSession
         }
         else
         {
-            // We don't know this particular format.  We'll just leave it alone
-            //then.
+            // We don't know this particular format. We'll just leave it alone
+            // then.
             return sourceFormat;
         }
 
-        VideoFormat result = new VideoFormat(null,
-                                             new Dimension(width, height),
-                                             Format.NOT_SPECIFIED,
-                                             null,
-                                             Format.NOT_SPECIFIED);
+        VideoFormat result
+            = new VideoFormat(
+                    null,
+                    new Dimension(width, height),
+                    Format.NOT_SPECIFIED,
+                    null,
+                    Format.NOT_SPECIFIED);
         return (VideoFormat) result.intersects(sourceFormat);
     }
 
@@ -637,14 +639,13 @@ public class MediaDeviceSession
             = (format instanceof AudioFormat)
                 ? ((AudioFormat) format).getSampleRate()
                 : Format.NOT_SPECIFIED;
+        ParameterizedVideoFormat parameterizedVideoFormat
+            = (format instanceof ParameterizedVideoFormat)
+                ? (ParameterizedVideoFormat) format
+                : null;
 
         for (Format match : formats)
         {
-            /*
-             * TODO Is the encoding enough? We've been explicitly told what
-             * format to use so it may be that its non-encoding attributes which
-             * have been specified are also necessary.
-             */
             if (match.isSameEncoding(format))
             {
                 /*
@@ -652,14 +653,27 @@ public class MediaDeviceSession
                  * AudioFormats may have different sample rates (i.e. clock
                  * rates as we call them in MediaFormat).
                  */
-                if ((formatSampleRate != Format.NOT_SPECIFIED)
-                        && (match instanceof AudioFormat))
+                if (match instanceof AudioFormat)
                 {
-                    double matchSampleRate
-                        = ((AudioFormat) match).getSampleRate();
+                    if (formatSampleRate != Format.NOT_SPECIFIED)
+                    {
+                        double matchSampleRate
+                            = ((AudioFormat) match).getSampleRate();
 
-                    if ((matchSampleRate != Format.NOT_SPECIFIED)
-                            && (matchSampleRate != formatSampleRate))
+                        if ((matchSampleRate != Format.NOT_SPECIFIED)
+                                && (matchSampleRate != formatSampleRate))
+                            continue;
+                    }
+                }
+                else if (match instanceof ParameterizedVideoFormat)
+                {
+                    if (!((ParameterizedVideoFormat) match)
+                            .formatParametersMatch(format))
+                        continue;
+                }
+                else if (parameterizedVideoFormat != null)
+                {
+                    if (!parameterizedVideoFormat.formatParametersMatch(match))
                         continue;
                 }
                 return match;
@@ -1393,8 +1407,8 @@ public class MediaDeviceSession
                 if (supportedFormats[0] instanceof AudioFormat)
                 {
                     if (FMJConditionals.FORCE_AUDIO_FORMAT != null)
-                        trackControl
-                            .setFormat(FMJConditionals.FORCE_AUDIO_FORMAT);
+                        trackControl.setFormat(
+                                FMJConditionals.FORCE_AUDIO_FORMAT);
                     else
                     {
                         supportedFormat
@@ -1423,7 +1437,6 @@ public class MediaDeviceSession
                      */
                     if (supportedFormat == null)
                         supportedFormat = format;
-
                     if (supportedFormat != null)
                         supportedFormat
                             = assertSize((VideoFormat) supportedFormat);
@@ -1441,8 +1454,7 @@ public class MediaDeviceSession
                             mediaFormat, supportedFormat);
 
                 if (setFormat == null)
-                    logger
-                        .error(
+                    logger.error(
                             "Failed to set format of track "
                                 + trackIndex
                                 + " to "
@@ -1450,8 +1462,7 @@ public class MediaDeviceSession
                                 + ". Processor is in state "
                                 + processor.getState());
                 else if (setFormat != supportedFormat)
-                    logger
-                        .warn(
+                    logger.warn(
                             "Failed to change format of track "
                                 + trackIndex
                                 + " from "
@@ -1461,8 +1472,7 @@ public class MediaDeviceSession
                                 + ". Processor is in state "
                                 + processor.getState());
                 else if (logger.isTraceEnabled())
-                    logger
-                        .trace(
+                    logger.trace(
                             "Set format of track "
                                 + trackIndex
                                 + " to "

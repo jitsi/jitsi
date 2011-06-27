@@ -160,7 +160,7 @@ public class JNIEncoder
      * the single NAL mode, as defined in section 6.2 of RFC 3984, MUST be
      * used."
      */
-    private byte packetizationMode = 0;
+    private String packetizationMode;
 
     /**
      * The raw frame buffer.
@@ -266,19 +266,28 @@ public class JNIEncoder
     {
         VideoFormat videoIn = (VideoFormat) in;
 
-        return
-            new Format[]
-            {
-                new ParameterizedVideoFormat(
+        String[] packetizationModes
+            = (this.packetizationMode == null)
+                ? new String[] { "0", "1" }
+                : new String[] { this.packetizationMode };
+        Format[] matchingOutputFormats = new Format[packetizationModes.length];
+        Dimension size = videoIn.getSize();
+        float frameRate = videoIn.getFrameRate();
+
+        for (int index = packetizationModes.length - 1; index >= 0; index--)
+        {
+            matchingOutputFormats[index]
+                = new ParameterizedVideoFormat(
                         Constants.H264,
-                        videoIn.getSize(),
+                        size,
                         Format.NOT_SPECIFIED,
                         Format.byteArray,
-                        videoIn.getFrameRate(),
+                        frameRate,
                         ParameterizedVideoFormat.toMap(
                                 PACKETIZATION_MODE_FMTP,
-                                Integer.toString(packetizationMode)))
-            };
+                                packetizationModes[index]));
+        }
+        return matchingOutputFormats;
     }
 
     /**
@@ -296,21 +305,23 @@ public class JNIEncoder
      * Returns the list of formats supported at the output.
      *
      * @param in input <tt>Format</tt> to determine corresponding output
-     * <tt>Format/tt>s
+     * <tt>Format</tt>s
      * @return array of formats supported at output
      */
     public Format[] getSupportedOutputFormats(Format in)
     {
+        Format[] supportedOutputFormats;
+
         // null input format
         if (in == null)
-            return SUPPORTED_OUTPUT_FORMATS;
-
+            supportedOutputFormats = SUPPORTED_OUTPUT_FORMATS;
         // mismatch input format
-        if (!(in instanceof VideoFormat)
+        else if (!(in instanceof VideoFormat)
                 || (null == AbstractCodecExt.matches(in, inputFormats)))
-            return new Format[0];
-
-        return getMatchingOutputFormats(in);
+            supportedOutputFormats = new Format[0];
+        else
+            supportedOutputFormats = getMatchingOutputFormats(in);
+        return supportedOutputFormats;
     }
 
     /**
@@ -412,7 +423,7 @@ public class JNIEncoder
 
         FFmpeg.avcodeccontext_set_keyint_min(avctx, 0);
 
-        if (packetizationMode == 0)
+        if ((null == packetizationMode) || "0".equals(packetizationMode))
         {
             FFmpeg.avcodeccontext_set_rtp_payload_size(avctx,
                     Packetizer.MAX_PAYLOAD_SIZE);
@@ -696,7 +707,8 @@ public class JNIEncoder
             fmtps = ((ParameterizedVideoFormat) out).getFormatParameters();
         if (fmtps == null)
             fmtps = new HashMap<String, String>();
-        fmtps.put(PACKETIZATION_MODE_FMTP, Integer.toString(packetizationMode));
+        if (packetizationMode != null)
+            fmtps.put(PACKETIZATION_MODE_FMTP, packetizationMode);
 
         outputFormat
             = new ParameterizedVideoFormat(
@@ -728,9 +740,9 @@ public class JNIEncoder
          * 3984, MUST be used."
          */
         if ((packetizationMode == null) || "0".equals(packetizationMode))
-            this.packetizationMode = 0;
+            this.packetizationMode = "0";
         else if ("1".equals(packetizationMode))
-            this.packetizationMode = 1;
+            this.packetizationMode = "1";
         else
             throw new IllegalArgumentException("packetizationMode");
     }
