@@ -1310,6 +1310,8 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetTelephonyConferencing.class,
                     new OperationSetTelephonyConferencingJabberImpl(this));
 
+                addJingleFeatures();
+
                 // Check if desktop streaming is enabled.
                 boolean isDesktopStreamingDisabled
                     = JabberActivator.getConfigurationService()
@@ -1337,45 +1339,11 @@ public class ProtocolProviderServiceJabberImpl
                     addSupportedOperationSet(
                         OperationSetDesktopSharingClient.class,
                         new OperationSetDesktopSharingClientJabberImpl(this));
+
+                    /* add extension to support remote control */
+                    supportedFeatures.add(InputEvtIQ.NAMESPACE);
                 }
             }
-
-            // Add Jingle features to supported features.
-            supportedFeatures.add(URN_XMPP_JINGLE);
-            supportedFeatures.add(URN_XMPP_JINGLE_RTP);
-            supportedFeatures.add(URN_XMPP_JINGLE_RAW_UDP_0);
-
-            /*
-             * Reflect the preference of the user with respect to the use of
-             * ICE.
-             */
-            if (accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.IS_USE_ICE,
-                    true))
-            {
-                supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
-            }
-
-            supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
-            supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
-            supportedFeatures.add(URN_XMPP_JINGLE_RTP_ZRTP);
-
-            /*
-             * Reflect the preference of the user with respect to the use of
-             * Jingle Nodes.
-             */
-            if (accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactoryJabberImpl.IS_USE_JINGLE_NODES,
-                    true))
-            {
-                supportedFeatures.add(URN_XMPP_JINGLE_NODES);
-            }
-
-            /* add extension to support remote control */
-            supportedFeatures.add(InputEvtIQ.NAMESPACE);
-
-            // XEP-0251: Jingle Session Transfer
-            supportedFeatures.add(URN_XMPP_JINGLE_TRANSFER_0);
 
             // OperationSetContactCapabilities
             opsetContactCapabilities
@@ -1392,6 +1360,46 @@ public class ProtocolProviderServiceJabberImpl
 
             isInitialized = true;
         }
+    }
+
+    /**
+     * Adds Jingle related features to the supported features.
+     */
+    private void addJingleFeatures()
+    {
+        // Add Jingle features to supported features.
+        supportedFeatures.add(URN_XMPP_JINGLE);
+        supportedFeatures.add(URN_XMPP_JINGLE_RTP);
+        supportedFeatures.add(URN_XMPP_JINGLE_RAW_UDP_0);
+
+        /*
+         * Reflect the preference of the user with respect to the use of
+         * ICE.
+         */
+        if (accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_USE_ICE,
+                true))
+        {
+            supportedFeatures.add(URN_XMPP_JINGLE_ICE_UDP_1);
+        }
+
+        supportedFeatures.add(URN_XMPP_JINGLE_RTP_AUDIO);
+        supportedFeatures.add(URN_XMPP_JINGLE_RTP_VIDEO);
+        supportedFeatures.add(URN_XMPP_JINGLE_RTP_ZRTP);
+
+        /*
+         * Reflect the preference of the user with respect to the use of
+         * Jingle Nodes.
+         */
+        if (accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactoryJabberImpl.IS_USE_JINGLE_NODES,
+                true))
+        {
+            supportedFeatures.add(URN_XMPP_JINGLE_NODES);
+        }
+
+        // XEP-0251: Jingle Session Transfer
+        supportedFeatures.add(URN_XMPP_JINGLE_TRANSFER_0);
     }
 
     /**

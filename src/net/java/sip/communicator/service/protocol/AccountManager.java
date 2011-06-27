@@ -127,6 +127,11 @@ public class AccountManager
         {
             String storedAccount = storedAccountIter.next();
 
+            // If the property is not related to an account we skip it.
+            int dotIndex = storedAccount.lastIndexOf(".");
+            if (!storedAccount.substring(dotIndex + 1).startsWith("acc"))
+                continue;
+
             if (logger.isDebugEnabled())
                 logger.debug("Loading account " + storedAccount);
 

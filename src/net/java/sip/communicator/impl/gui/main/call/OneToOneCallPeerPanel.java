@@ -533,26 +533,28 @@ public class OneToOneCallPeerPanel
                 {
                     Call call = callPeer.getCall();
 
-                    /*
-                     * If the local video or desktop sharing is turned on, we
-                     * ensure that the button is selected.
-                     */
-                    if (CallManager.isDesktopSharingEnabled(call))
+                    if (call != null)
                     {
-                        callContainer.setDesktopSharingButtonSelected(true);
-
-                        if (CallManager.isRegionDesktopSharingEnabled(call))
+                        /*
+                         * If the local video or desktop sharing is turned on,
+                         * we ensure that the button is selected.
+                         */
+                        if (CallManager.isDesktopSharingEnabled(call))
                         {
-                            TransparentFrame frame
-                                = DesktopSharingFrame.createTransparentFrame(
-                                    call, false);
+                            callContainer.setDesktopSharingButtonSelected(true);
 
-                            frame.setVisible(true);
+                            if (CallManager.isRegionDesktopSharingEnabled(call))
+                            {
+                                TransparentFrame frame = DesktopSharingFrame
+                                    .createTransparentFrame(call, false);
+
+                                frame.setVisible(true);
+                            }
                         }
-                    }
-                    else if (CallManager.isLocalVideoEnabled(call))
-                    {
-                        callContainer.setVideoButtonSelected(true);
+                        else if (CallManager.isLocalVideoEnabled(call))
+                        {
+                            callContainer.setVideoButtonSelected(true);
+                        }
                     }
                 }
 
