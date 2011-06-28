@@ -26,6 +26,7 @@ import java.util.*;
  * <tt>ConferenceMember</tt>s.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public interface SoundLevelListener
     extends EventListener
@@ -36,8 +37,18 @@ public interface SoundLevelListener
      * from a given <tt>CallPeer</tt>. In the case of conference focus the audio
      * stream level would be the total level including all
      * <tt>ConferenceMember</tt>s levels.
+     * <p>
+     * In contrast to the conventions of Java and Jitsi,
+     * <tt>SoundLevelListener</tt> does not fire an <tt>EventObject</tt> (i.e.
+     * <tt>SoundLevelChangeEvent</tt>) in order to try to reduce the number of
+     * allocations related to sound level changes since their number is expected
+     * to be very large.
+     * </p>
      *
-     * @param event the <tt>StreamSoundLevelEvent</tt> containing the new level
+     * @param source the <tt>Object</tt> which is the source of the sound level
+     * change event being fired to this <tt>SoundLevelListener</tt>
+     * @param level the sound level to notify this <tt>SoundLevelListener</tt>
+     * about
      */
-    public void soundLevelChanged(SoundLevelChangeEvent event);
+    public void soundLevelChanged(Object source, int level);
 }

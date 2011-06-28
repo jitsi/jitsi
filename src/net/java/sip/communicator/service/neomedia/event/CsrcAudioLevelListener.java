@@ -23,8 +23,8 @@ public interface CsrcAudioLevelListener
      * taking part in a conference call.
      *
      * @param audioLevels the new set of levels for the various contributing
-     * sources in the conference call.
+     * sources in the conference call
      */
-    public void audioLevelsReceived(final long[][] audioLevels);
+    public void audioLevelsReceived(final long[] audioLevels);
 
 }

@@ -761,18 +761,14 @@ public class ConferencePeerPanel
         implements SoundLevelListener
     {
         /**
-         * Delivers <tt>SoundLevelChangeEvent</tt>s on stream sound level change.
+         * Updates the sound level bar upon stream sound level changes.
          *
-         * @param evt the notification event containing the list of changes.
+         * {@inheritDoc}
          */
-        public void soundLevelChanged(SoundLevelChangeEvent evt)
+        public void soundLevelChanged(Object source, int level)
         {
-            Object evtSource = evt.getSource();
-
-            if (evtSource.equals(callPeer))
-            {
-                updateSoundBar(evt.getLevel());
-            }
+            if (source.equals(callPeer))
+                updateSoundBar(level);
         }
     }
 

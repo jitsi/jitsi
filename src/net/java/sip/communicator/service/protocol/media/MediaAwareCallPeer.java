@@ -73,11 +73,22 @@ public abstract class MediaAwareCallPeer
             = new LinkedList<PropertyChangeListener>();
 
     /**
-     * Holds listeners registered for level changes in the audio we are getting
-     * from the remote participant.
+     * The list of <tt>SoundLevelListener</tt>s interested in level changes in
+     * the audio we are getting from the remote peer.
+     * <p>
+     * It is implemented as a copy-on-write storage because the number of
+     * additions and removals of <tt>SoundLevelListener</tt>s is expected to be
+     * far smaller than the number of audio level changes. The access to it is
+     * to be synchronized using {@link #streamAudioLevelListenersSyncRoot}.
+     * </p>
      */
-    private final List<SoundLevelListener> streamAudioLevelListeners
-        = new ArrayList<SoundLevelListener>();
+    private List<SoundLevelListener> streamAudioLevelListeners;
+
+    /**
+     * The <tt>Object</tt> to synchronize the access to
+     * {@link #streamAudioLevelListeners}.
+     */
+    private final Object streamAudioLevelListenersSyncRoot = new Object();
 
     /**
      * Holds listeners registered for level changes in the audio of participants
@@ -522,9 +533,10 @@ public abstract class MediaAwareCallPeer
      */
     public void addStreamSoundLevelListener(SoundLevelListener listener)
     {
-        synchronized (streamAudioLevelListeners)
+        synchronized (streamAudioLevelListenersSyncRoot)
         {
-            if (streamAudioLevelListeners.size() == 0)
+            if ((streamAudioLevelListeners == null)
+                    || streamAudioLevelListeners.isEmpty())
             {
                 // if this is the first listener that's being registered with
                 // us, we also need to register ourselves as an audio level
@@ -534,6 +546,16 @@ public abstract class MediaAwareCallPeer
                 getMediaHandler().setStreamAudioLevelListener(this);
             }
 
+            /*
+             * Implement streamAudioLevelListeners as a copy-on-write storage so
+             * that iterators over it can iterate without
+             * ConcurrentModificationExceptions.
+             */
+            streamAudioLevelListeners
+                = (streamAudioLevelListeners == null)
+                    ? new ArrayList<SoundLevelListener>()
+                    : new ArrayList<SoundLevelListener>(
+                            streamAudioLevelListeners);
             streamAudioLevelListeners.add(listener);
         }
     }
@@ -547,11 +569,25 @@ public abstract class MediaAwareCallPeer
      */
     public void removeStreamSoundLevelListener(SoundLevelListener listener)
     {
-        synchronized (streamAudioLevelListeners)
+        synchronized (streamAudioLevelListenersSyncRoot)
         {
-            streamAudioLevelListeners.remove(listener);
+            /*
+             * Implement streamAudioLevelListeners as a copy-on-write storage so
+             * that iterators over it can iterate over it without
+             * ConcurrentModificationExceptions.
+             */
+            if (streamAudioLevelListeners != null)
+            {
+                streamAudioLevelListeners
+                    = new ArrayList<SoundLevelListener>(
+                            streamAudioLevelListeners);
+                if (streamAudioLevelListeners.remove(listener)
+                        && streamAudioLevelListeners.isEmpty())
+                    streamAudioLevelListeners = null;
+            }
 
-            if (streamAudioLevelListeners.size() == 0)
+            if ((streamAudioLevelListeners == null)
+                    || streamAudioLevelListeners.isEmpty())
             {
                 // if this was the last listener then we also need to remove
                 // ourselves as an audio level so that audio levels would only
@@ -621,7 +657,7 @@ public abstract class MediaAwareCallPeer
      * @param audioLevels the levels that we need to dispatch to all registered
      * <tt>ConferenceMemberSoundLevelListeners</tt>.
      */
-    public void audioLevelsReceived(long[][] audioLevels)
+    public void audioLevelsReceived(long[] audioLevels)
     {
         if (getConferenceMemberCount() == 0)
             return;
@@ -629,14 +665,14 @@ public abstract class MediaAwareCallPeer
         Map<ConferenceMember, Integer> levelsMap
             = new HashMap<ConferenceMember, Integer>();
 
-        for (int i = 0; i < audioLevels.length; i++)
+        for (int i = 0; i < audioLevels.length; i += 2)
         {
-            ConferenceMember mmbr = findConferenceMember(audioLevels[i][0]);
+            ConferenceMember mmbr = findConferenceMember(audioLevels[i]);
 
             if (mmbr == null)
                 continue;
             else
-                levelsMap.put(mmbr, (int)audioLevels[i][1]);
+                levelsMap.put(mmbr, (int)audioLevels[i + 1]);
         }
 
         ConferenceMembersSoundLevelEvent evt
@@ -804,32 +840,49 @@ public abstract class MediaAwareCallPeer
          * pass the sound levels measured on the stream so we can see
          * the stream activity of the call.
          */
-        if (isConferenceFocus() && (getConferenceMemberCount() > 0)
-            && (getConferenceMemberCount() < 3))
+        int conferenceMemberCount;
+
+        if (isConferenceFocus()
+                && ((conferenceMemberCount = getConferenceMemberCount()) > 0)
+                && (conferenceMemberCount < 3))
         {
             long audioRemoteSSRC = getMediaHandler().getAudioRemoteSSRC();
 
             if (audioRemoteSSRC != CallPeerMediaHandler.SSRC_UNKNOWN)
             {
-                long[][] audioLevels = new long[1][2];
-                audioLevels[0][0] = audioRemoteSSRC;
-                audioLevels[0][1] = newLevel;
-
-                audioLevelsReceived(audioLevels);
+                audioLevelsReceived(new long[] { audioRemoteSSRC, newLevel });
                 return;
             }
         }
 
-        synchronized( streamAudioLevelListeners )
-        {
-            if (streamAudioLevelListeners.size() > 0)
-            {
-                SoundLevelChangeEvent evt
-                    = new SoundLevelChangeEvent(this, newLevel);
+        List<SoundLevelListener> streamAudioLevelListeners;
 
-                for(SoundLevelListener listener : streamAudioLevelListeners)
-                    listener.soundLevelChanged(evt);
-            }
+        synchronized (streamAudioLevelListenersSyncRoot)
+        {
+            /*
+             * Since the streamAudioLevelListeners field of this
+             * MediaAwareCallPeer is implemented as a copy-on-write storage,
+             * just get a reference to it and it should be safe to iterate over it
+             * without ConcurrentModificationExceptions.
+             */
+            streamAudioLevelListeners = this.streamAudioLevelListeners;
+        }
+
+        if (streamAudioLevelListeners != null)
+        {
+            /*
+             * Iterate over streamAudioLevelListeners using an index rather than
+             * an Iterator in order to try to reduce the number of allocations
+             * (as the number of audio level changes is expected to be very
+             * large).
+             */
+            int streamAudioLevelListenerCount
+                = streamAudioLevelListeners.size();
+
+            for(int i = 0; i < streamAudioLevelListenerCount; i++)
+                streamAudioLevelListeners.get(i).soundLevelChanged(
+                        this,
+                        newLevel);
         }
     }
 

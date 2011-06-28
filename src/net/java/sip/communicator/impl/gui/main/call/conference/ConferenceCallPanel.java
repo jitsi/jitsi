@@ -138,9 +138,9 @@ public class ConferenceCallPanel
 
         call.addLocalUserSoundLevelListener(new SoundLevelListener()
         {
-            public void soundLevelChanged(SoundLevelChangeEvent evt)
+            public void soundLevelChanged(Object source, int level)
             {
-                localPeerPanel.fireLocalUserSoundLevelChanged(evt.getLevel());
+                localPeerPanel.fireLocalUserSoundLevelChanged(level);
             }
         });
 

@@ -696,31 +696,43 @@ public class RawPacket
     }
 
     /**
-     * Returns a bi-dimensional byte array containing a map binding CSRC IDs to
-     * audio levels as reported by the remote party that sent this packet.
+     * Returns a map binding CSRC IDs to audio levels as reported by the remote
+     * party that sent this packet.
      *
      * @param csrcExtID the ID of the extension that's transporting csrc audio
      * levels in the session that this <tt>RawPacket</tt> belongs to.
      *
-     * @return a bi-dimensional byte array containing a map binding CSRC IDs to
-     * audio levels as reported by the remote party that sent this packet.
+     * @return an array representing a map binding CSRC IDs to audio levels as
+     * reported by the remote party that sent this packet. The entries of the
+     * map are contained in consecutive elements of the returned array where
+     * elements at even indices stand for CSRC IDs and elements at odd indices
+     * stand for the associated audio levels
      */
-    public long[][] extractCsrcLevels(byte csrcExtID)
+    public long[] extractCsrcLevels(byte csrcExtID)
     {
-        if( !getExtensionBit() || getExtensionLength() == 0
-                        || getCsrcCount() == 0)
+        if (!getExtensionBit()
+                || (getExtensionLength() == 0)
+                || (getCsrcCount() == 0))
             return null;
 
         int csrcCount = getCsrcCount();
-        long[][] csrcLevels = new long[csrcCount][2];
+        /*
+         * XXX The guideline which is also supported by Google and recommended
+         * for Android is that single-dimensional arrays should be preferred to
+         * multi-dimensional arrays in Java because the former take less space
+         * than the latter and are thus more efficient in terms of memory and
+         * garbage collection.
+         */
+        long[] csrcLevels = new long[csrcCount * 2];
 
         //first extract the csrc IDs
         int csrcStartIndex = offset + FIXED_HEADER_SIZE;
         for (int i = 0; i < csrcCount; i++)
         {
-            csrcLevels[i][0] = readInt(csrcStartIndex);
+            int csrcLevelsIndex = 2 * i;
 
-            csrcLevels[i][1] = getCsrcLevel(i, csrcExtID);
+            csrcLevels[csrcLevelsIndex] = readInt(csrcStartIndex);
+            csrcLevels[csrcLevelsIndex + 1] = getCsrcLevel(i, csrcExtID);
 
             csrcStartIndex += 4;
         }

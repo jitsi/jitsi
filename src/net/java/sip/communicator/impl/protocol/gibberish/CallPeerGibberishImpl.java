@@ -87,13 +87,13 @@ public class CallPeerGibberishImpl
                 public void run()
                 {
                     fireConferenceMembersSoundLevelEvent(
-                        new HashMap<ConferenceMember, Integer>()
+                            new HashMap<ConferenceMember, Integer>()
                             {
                                 {
                                     put(member1, new Integer(random.nextInt(255)));
                                     put(member2, new Integer(random.nextInt(255)));
                                 }
-                        });
+                            });
                 }
             }, 500, 100);
         }
@@ -250,21 +250,17 @@ public class CallPeerGibberishImpl
      */
     void fireStreamSoundLevelEvent(int level)
     {
-        SoundLevelChangeEvent event
-            = new SoundLevelChangeEvent(this, level);
-
-        SoundLevelListener[] ls;
+        SoundLevelListener[] listeners;
 
         synchronized(soundLevelListeners)
         {
-            ls = soundLevelListeners.toArray(
-                new SoundLevelListener[soundLevelListeners.size()]);
+            listeners
+                = soundLevelListeners.toArray(
+                        new SoundLevelListener[soundLevelListeners.size()]);
         }
 
-        for (SoundLevelListener listener : ls)
-        {
-            listener.soundLevelChanged(event);
-        }
+        for (SoundLevelListener listener : listeners)
+            listener.soundLevelChanged(this, level);
     }
 
     /**

@@ -373,10 +373,10 @@ public class AudioMediaStreamImpl
      * method is meant for use primarily by the transform engine handling
      * incoming RTP packets (currently <tt>CsrcTransformEngine</tt>).
      *
-     * @param audioLevels a bi-dimensional array mapping CSRC IDs to audio
-     * levels.
+     * @param audioLevels a array mapping CSRC IDs to audio levels in
+     * consecutive elements.
      */
-    public void fireConferenceAudioLevelEvent(final long[][] audioLevels)
+    public void fireConferenceAudioLevelEvent(final long[] audioLevels)
     {
         CsrcAudioLevelListener csrcAudioLevelListener
             = this.csrcAudioLevelListener;

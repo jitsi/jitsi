@@ -67,10 +67,22 @@ public abstract class MediaAwareCall<
     protected final U parentOpSet;
 
     /**
-     * Holds listeners registered for level changes in local audio.
+     * The list of <tt>SoundLevelListener</tt>s interested in level changes of
+     * local audio.
+     * <p>
+     * It is implemented as a copy-on-write storage because the number of
+     * additions and removals of <tt>SoundLevelListener</tt>s is expected to be
+     * far smaller than the number of audio level changes. The access to it is
+     * to be synchronized using {@link #localUserAudioLevelListenersSyncRoot}.
+     * </p>
      */
-    private final List<SoundLevelListener> localUserAudioLevelListeners
-        = new ArrayList<SoundLevelListener>();
+    private List<SoundLevelListener> localUserAudioLevelListeners;
+
+    /**
+     * The <tt>Object</tt> to synchronize the access to
+     * {@link #localUserAudioLevelListeners}.
+     */
+    private final Object localUserAudioLevelListenersSyncRoot = new Object();
 
     /**
      * The indicator which determines whether this <tt>Call</tt> is set
@@ -137,7 +149,7 @@ public abstract class MediaAwareCall<
 
         callPeer.addCallPeerListener(this);
 
-        synchronized(localUserAudioLevelListeners)
+        synchronized(localUserAudioLevelListenersSyncRoot)
         {
             // if there's someone listening for audio level events then they'd
             // also like to know about the new peer.
@@ -172,7 +184,7 @@ public abstract class MediaAwareCall<
         getCallPeersVector().remove(callPeer);
         callPeer.removeCallPeerListener(this);
 
-        synchronized(localUserAudioLevelListeners)
+        synchronized (localUserAudioLevelListenersSyncRoot)
         {
             // remove sound level listeners from the peer
             callPeer.getMediaHandler().setLocalUserAudioLevelListener(null);
@@ -387,27 +399,37 @@ public abstract class MediaAwareCall<
      */
     public void addLocalUserSoundLevelListener(SoundLevelListener l)
     {
-        synchronized(localUserAudioLevelListeners)
+        synchronized (localUserAudioLevelListenersSyncRoot)
         {
-            if (localUserAudioLevelListeners.isEmpty())
+            if ((localUserAudioLevelListeners == null)
+                    || localUserAudioLevelListeners.isEmpty())
             {
                 //if this is the first listener that's being registered with
                 //us, we also need to register ourselves as an audio level
                 //listener with the media handler. we do this so that audio
                 //level would only be calculated if anyone is interested in
                 //receiving them.
-                Iterator<T> cps = getCallPeers();
+                Iterator<T> callPeerIter = getCallPeers();
 
-                while (cps.hasNext())
+                while (callPeerIter.hasNext())
                 {
-                    T callPeer = cps.next();
-
-                    callPeer.getMediaHandler()
+                    callPeerIter.next()
+                        .getMediaHandler()
                             .setLocalUserAudioLevelListener(
-                                                localAudioLevelDelegator);
+                                    localAudioLevelDelegator);
                 }
             }
 
+            /*
+             * Implement localUserAudioLevelListeners as a copy-on-write storage
+             * so that iterators over it can iterate without
+             * ConcurrentModificationExceptions.
+             */
+            localUserAudioLevelListeners
+                = (localUserAudioLevelListeners == null)
+                    ? new ArrayList<SoundLevelListener>()
+                    : new ArrayList<SoundLevelListener>(
+                            localUserAudioLevelListeners);
             localUserAudioLevelListeners.add(l);
         }
     }
@@ -423,23 +445,36 @@ public abstract class MediaAwareCall<
      */
     public void removeLocalUserSoundLevelListener(SoundLevelListener l)
     {
-        synchronized(localUserAudioLevelListeners)
+        synchronized (localUserAudioLevelListenersSyncRoot)
         {
-            localUserAudioLevelListeners.remove(l);
+            /*
+             * Implement localUserAudioLevelListeners as a copy-on-write storage
+             * so that iterators over it can iterate over it without
+             * ConcurrentModificationExceptions.
+             */
+            if (localUserAudioLevelListeners != null)
+            {
+                localUserAudioLevelListeners
+                    = new ArrayList<SoundLevelListener>(
+                            localUserAudioLevelListeners);
+                if (localUserAudioLevelListeners.remove(l)
+                        && localUserAudioLevelListeners.isEmpty())
+                    localUserAudioLevelListeners = null;
+            }
 
-            if (localUserAudioLevelListeners.isEmpty())
+            if ((localUserAudioLevelListeners == null)
+                    || localUserAudioLevelListeners.isEmpty())
             {
                 //if this was the last listener that was registered with us then
                 //no long need to have a delegator registered with the call
                 //peer media handlers. We therefore remove it so that audio
                 //level calculations would be ceased.
-                Iterator<T> cps = getCallPeers();
+                Iterator<T> callPeerIter = getCallPeers();
 
-                while (cps.hasNext())
+                while (callPeerIter.hasNext())
                 {
-                    T callPeer = cps.next();
-
-                    callPeer.getMediaHandler()
+                    callPeerIter.next()
+                        .getMediaHandler()
                             .setLocalUserAudioLevelListener(null);
                 }
             }
@@ -455,13 +490,34 @@ public abstract class MediaAwareCall<
      */
     private void fireLocalUserAudioLevelChangeEvent(int newLevel)
     {
-        SoundLevelChangeEvent evt
-            = new SoundLevelChangeEvent(this, newLevel);
+        List<SoundLevelListener> localUserAudioLevelListeners;
 
-        synchronized( localUserAudioLevelListeners )
+        synchronized (localUserAudioLevelListenersSyncRoot)
         {
-            for(SoundLevelListener listener : localUserAudioLevelListeners)
-                 listener.soundLevelChanged(evt);
+            /*
+             * Since the localUserAudioLevelListeners field of this
+             * MediaAwareCall is implemented as a copy-on-write storage, just
+             * get a reference to it and it should be safe to iterate over it
+             * without ConcurrentModificationExceptions.
+             */
+            localUserAudioLevelListeners = this.localUserAudioLevelListeners;
+        }
+
+        if (localUserAudioLevelListeners != null)
+        {
+            /*
+             * Iterate over localUserAudioLevelListeners using an index rather
+             * than an Iterator in order to try to reduce the number of
+             * allocations (as the number of audio level changes is expected to
+             * be very large).
+             */
+            int localUserAudioLevelListenerCount
+                = localUserAudioLevelListeners.size();
+
+            for(int i = 0; i < localUserAudioLevelListenerCount; i++)
+                localUserAudioLevelListeners.get(i).soundLevelChanged(
+                        this,
+                        newLevel);
         }
     }
 

@@ -108,7 +108,7 @@ public class CsrcTransformEngine
         if (csrcAudioLevelExtID > 0 && audioLevelDirection.allowsReceiving())
         {
             //extract the audio levels and send them to the dispatcher.
-            long[][] levels = pkt.extractCsrcLevels(csrcAudioLevelExtID);
+            long[] levels = pkt.extractCsrcLevels(csrcAudioLevelExtID);
 
             if(levels != null)
             {
@@ -269,7 +269,7 @@ public class CsrcTransformEngine
         private boolean isRunning = false;
 
         /** The levels that we last received from the reverseTransform thread*/
-        private long[][] lastReportedLevels = null;
+        private long[] lastReportedLevels = null;
 
         /**
          * Waits for new levels to be reported via the <tt>addLevels()</tt>
@@ -284,7 +284,7 @@ public class CsrcTransformEngine
             if(!(mediaStream instanceof AudioMediaStreamImpl))
                 return;
 
-            long[][] temp = null;
+            long[] temp = null;
 
             while(isRunning)
             {
@@ -323,7 +323,7 @@ public class CsrcTransformEngine
          *
          * @param levels the levels that we'd like to queue for processing.
          */
-        public void addLevels(long[][] levels)
+        public void addLevels(long[] levels)
         {
             synchronized(this)
             {
