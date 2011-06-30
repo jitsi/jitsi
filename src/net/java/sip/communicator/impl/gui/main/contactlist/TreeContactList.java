@@ -73,13 +73,13 @@ public class TreeContactList
      * these contacts with a special icon.
      */
     private final java.util.List<ContactNode> activeContacts
-        = new Vector<ContactNode>();
+        = new ArrayList<ContactNode>();
 
     /**
      * A list of all registered <tt>ContactListListener</tt>-s.
      */
     private final java.util.List<ContactListListener> contactListListeners
-        = new Vector<ContactListListener>();
+        = new ArrayList<ContactListListener>();
 
     /**
      * The presence filter.
@@ -171,16 +171,12 @@ public class TreeContactList
     public void childContactsReordered(MetaContactGroupEvent evt)
     {
         MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
+        UIGroup uiGroup;
 
-        UIGroup uiGroup = null;
-        if (!MetaContactListSource.isRootGroup(metaGroup))
-        {
-            uiGroup = MetaContactListSource.getUIGroup(metaGroup);
-        }
-        else
-        {
+        if (MetaContactListSource.isRootGroup(metaGroup))
             uiGroup = treeModel.getRoot().getGroupDescriptor();
-        }
+        else
+            uiGroup = MetaContactListSource.getUIGroup(metaGroup);
 
         if (uiGroup != null)
         {
@@ -328,15 +324,12 @@ public class TreeContactList
         if (uiContact == null)
             return;
 
-        UIGroup oldUIGroup = null;
-        if (!MetaContactListSource.isRootGroup(oldParent))
-        {
-            oldUIGroup = MetaContactListSource.getUIGroup(oldParent);
-        }
-        else
-        {
+        UIGroup oldUIGroup;
+
+        if (MetaContactListSource.isRootGroup(oldParent))
             oldUIGroup = treeModel.getRoot().getGroupDescriptor();
-        }
+        else
+            oldUIGroup = MetaContactListSource.getUIGroup(oldParent);
 
         if (oldUIGroup != null)
             removeContact(uiContact);
@@ -729,9 +722,7 @@ public class TreeContactList
     {
         ContactNode contactNode = contact.getContactNode();
 
-        if (contactNode != null)
-            return contactNode.isActive();
-        return false;
+        return (contactNode == null) ? false : contactNode.isActive();
     }
 
     /**
@@ -775,9 +766,7 @@ public class TreeContactList
                 if (isGroupSorted)
                     groupNode = parentNode.sortedAddContactGroup(group);
                 else
-                {
                     groupNode = parentNode.addContactGroup(group);
-                }
             }
         }
 
@@ -789,7 +778,7 @@ public class TreeContactList
             groupNode.addContact(contact);
 
         if ((!currentFilter.equals(presenceFilter)
-            || !groupNode.isCollapsed()))
+                || !groupNode.isCollapsed()))
             this.expandGroup(groupNode);
         else
             this.expandGroup(treeModel.getRoot());
@@ -854,7 +843,7 @@ public class TreeContactList
         // If in the meantime the filter has changed we don't
         // add the contact.
         if (query != null
-            && currentFilterQuery.containsQuery(query))
+                && currentFilterQuery.containsQuery(query))
         {
             addContact(contact, group, isSorted, true);
         }
@@ -1243,7 +1232,6 @@ public class TreeContactList
                 fireContactListEvent(
                     new Vector<ContactListListener>(contactListListeners),
                     evt);
-                return;
             }
         }
     }
@@ -1478,9 +1466,7 @@ public class TreeContactList
         SwingUtilities.convertPointToScreen(contactListPoint, this);
 
         rightButtonMenu.setInvoker(this);
-
         rightButtonMenu.setLocation(contactListPoint.x, contactListPoint.y);
-
         rightButtonMenu.setVisible(true);
     }
 
@@ -1500,7 +1486,7 @@ public class TreeContactList
         // For now we only save the group state only if we're in presence
         // filter mode.
         if (collapsedNode instanceof GroupNode
-            && currentFilter.equals(presenceFilter))
+                && currentFilter.equals(presenceFilter))
         {
             GroupNode groupNode = (GroupNode) collapsedNode;
             String id = groupNode.getGroupDescriptor().getId();
@@ -1522,7 +1508,7 @@ public class TreeContactList
         // For now we only save the group state only if we're in presence
         // filter mode.
         if (collapsedNode instanceof GroupNode
-            && currentFilter.equals(presenceFilter))
+                && currentFilter.equals(presenceFilter))
         {
             GroupNode groupNode = (GroupNode) collapsedNode;
             String id = groupNode.getGroupDescriptor().getId();
@@ -1794,7 +1780,6 @@ public class TreeContactList
     {
         if (notificationSource == null)
             notificationSource = new NotificationContactSource();
-
         return notificationSource;
     }
 
@@ -1954,7 +1939,7 @@ public class TreeContactList
         // If we find that the contact is actually a number, we get rid of the
         // @ if it exists.
         if (atIndex >= 0
-            && StringUtils.isNumber(contactString.substring(0, atIndex)))
+                && StringUtils.isNumber(contactString.substring(0, atIndex)))
         {
             setSourceContactImage(  contactString.substring(0, atIndex),
                                     label, imgWidth, imgHeight);
@@ -1972,9 +1957,7 @@ public class TreeContactList
         Iterator<ContactQuery> queriesIter = loadedQueries.iterator();
 
         while (queriesIter.hasNext())
-        {
             queriesIter.next().cancel();
-        }
     }
 
     /**
@@ -2071,8 +2054,8 @@ public class TreeContactList
         ProtocolProviderService preferredProvider = null;
         List<Class<? extends OperationSet>> opSetClasses
             = contactDetail.getSupportedOperationSets();
-        if (opSetClasses != null
-            && opSetClasses.size() > 0)
+
+        if (opSetClasses != null && opSetClasses.size() > 0)
         {
             preferredProvider
                 = contactDetail.getPreferredProtocolProvider(
@@ -2089,7 +2072,7 @@ public class TreeContactList
      * Listens for adding and removing of <tt>ContactSourceService</tt>
      * implementations.
      */
-    private class ContactSourceServiceListener
+    private static class ContactSourceServiceListener
         implements ServiceListener
     {
         public void serviceChanged(ServiceEvent event)
@@ -2134,13 +2117,15 @@ public class TreeContactList
     public void contactPresenceStatusChanged(
             final ContactPresenceStatusChangeEvent evt)
     {
+        if (evt.getOldStatus() == evt.getNewStatus())
+            return;
+
         final Contact sourceContact = evt.getSourceContact();
+        final MetaContact metaContact
+            = GuiActivator.getContactListService().findMetaContactByContact(
+                    sourceContact);
 
-        final MetaContact metaContact = GuiActivator.getContactListService()
-            .findMetaContactByContact(sourceContact);
-
-        if (metaContact == null
-            || (evt.getOldStatus() == evt.getNewStatus()))
+        if (metaContact == null)
             return;
 
         UIContact uiContact
@@ -2148,8 +2133,7 @@ public class TreeContactList
 
         if (uiContact == null)
         {
-            uiContact = MetaContactListSource
-                .createUIContact(metaContact);
+            uiContact = MetaContactListSource.createUIContact(metaContact);
 
             if (currentFilter != null && currentFilter.isMatching(uiContact))
             {
@@ -2159,12 +2143,11 @@ public class TreeContactList
                 UIGroup uiGroup = null;
                 if (!MetaContactListSource.isRootGroup(parentGroup))
                 {
-                    uiGroup = MetaContactListSource
-                        .getUIGroup(parentGroup);
+                    uiGroup = MetaContactListSource.getUIGroup(parentGroup);
 
                     if (uiGroup == null)
-                        uiGroup = MetaContactListSource
-                            .createUIGroup(parentGroup);
+                        uiGroup
+                            = MetaContactListSource.createUIGroup(parentGroup);
                 }
 
                 if (logger.isDebugEnabled())
@@ -2173,8 +2156,7 @@ public class TreeContactList
                 addContact(uiContact, uiGroup, true, true);
             }
             else
-                MetaContactListSource
-                    .removeUIContact(metaContact);
+                MetaContactListSource.removeUIContact(metaContact);
         }
         else
         {
@@ -2195,7 +2177,8 @@ public class TreeContactList
      * <tt>RenameAction</tt> is invoked when user presses the F2 key. Depending
      * on the selection opens the appropriate form for renaming.
      */
-    private class RenameAction extends AbstractAction
+    private class RenameAction
+        extends AbstractAction
     {
         private static final long serialVersionUID = 0L;
 
@@ -2216,13 +2199,12 @@ public class TreeContactList
                 RenameContactDialog dialog = new RenameContactDialog(
                         GuiActivator.getUIService().getMainFrame(),
                         (MetaContact) metaUIContact.getDescriptor());
+                Dimension screenSize
+                    = Toolkit.getDefaultToolkit().getScreenSize();
 
                 dialog.setLocation(
-                        Toolkit.getDefaultToolkit().getScreenSize().width/2
-                            - 200,
-                        Toolkit.getDefaultToolkit().getScreenSize().height/2
-                            - 50
-                        );
+                        screenSize.width/2 - 200,
+                        screenSize.height/2 - 50);
 
                 dialog.setVisible(true);
 

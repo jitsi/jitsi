@@ -58,12 +58,15 @@ public class HistoryWriterImpl
     public void addRecord(String[] propertyValues)
         throws IOException
     {
-        this.addRecord(structPropertyNames, propertyValues, new Date());
+        addRecord(
+                structPropertyNames,
+                propertyValues,
+                System.currentTimeMillis());
     }
 
     public void addRecord(String[] propertyValues, Date timestamp)
             throws IOException {
-        this.addRecord(structPropertyNames, propertyValues, timestamp);
+        this.addRecord(structPropertyNames, propertyValues, timestamp.getTime());
     }
 
     /**
@@ -79,10 +82,10 @@ public class HistoryWriterImpl
      */
     private void addRecord(String[] propertyNames,
                            String[] propertyValues,
-                           Date date)
+                           long date)
         throws InvalidParameterException, IOException
     {
-        // Synchronized to assure that two concurent threads can insert records
+        // Synchronized to assure that two concurrent threads can insert records
         // safely.
         synchronized (this.docCreateLock)
         {
@@ -99,7 +102,7 @@ public class HistoryWriterImpl
             synchronized (root)
             {
                 Element elem = this.currentDoc.createElement("record");
-                elem.setAttribute("timestamp", Long.toString(date.getTime()));
+                elem.setAttribute("timestamp", Long.toString(date));
 
                 for (int i = 0; i < propertyNames.length; i++)
                 {
@@ -159,7 +162,7 @@ public class HistoryWriterImpl
      * @param date Date
      * @param loadLastFile boolean
      */
-    private void createNewDoc(Date date, boolean loadLastFile)
+    private void createNewDoc(long date, boolean loadLastFile)
     {
         boolean loaded = false;
 
@@ -180,7 +183,7 @@ public class HistoryWriterImpl
                 loaded = true;
             }
 
-            // if something happend and file was not loaded
+            // if something happened and file was not loaded
             // then we must create new one
             if(this.currentDoc == null)
             {
@@ -190,7 +193,7 @@ public class HistoryWriterImpl
 
         if (!loaded)
         {
-            this.currentFile = Long.toString(date.getTime());
+            this.currentFile = Long.toString(date);
 //            while (this.currentFile.length() < 8)
 //            {
 //                this.currentFile = "0" + this.currentFile;

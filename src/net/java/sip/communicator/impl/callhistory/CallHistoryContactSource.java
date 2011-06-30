@@ -18,7 +18,8 @@ import net.java.sip.communicator.service.contactsource.*;
  *
  * @author Yana Stamcheva
  */
-public class CallHistoryContactSource implements ContactSourceService
+public class CallHistoryContactSource
+    implements ContactSourceService
 {
     /**
      * The display name of this contact source.
@@ -252,10 +253,10 @@ public class CallHistoryContactSource implements ContactSourceService
          */
         private void fireQueryStatusEvent(int newStatus)
         {
+            Collection<ContactQueryListener> listeners;
             ContactQueryStatusEvent event
                 = new ContactQueryStatusEvent(this, newStatus);
 
-            Collection<ContactQueryListener> listeners;
             synchronized (queryListeners)
             {
                 listeners

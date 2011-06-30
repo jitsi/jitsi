@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.plaf.*;
 import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
@@ -25,9 +26,10 @@ public class GroupNode
     implements  ContactListNode
 {
     /**
-     * The Group node logger.
+     * The <tt>Logger</tt> used by the <tt>GroupNode</tt> class and its
+     * instances for logging output.
      */
-    private final Logger logger = Logger.getLogger(GroupNode.class);
+    private static final Logger logger = Logger.getLogger(GroupNode.class);
 
     /**
      * The parent contact list model.
@@ -40,9 +42,15 @@ public class GroupNode
     private final UIGroup group;
 
     /**
-     * A node comparator used to sort the list of children.
+     * The <tt>ContactListNode</tt> <tt>Comparator</tt> used to sort the list of
+     * children.
+     * <p>
+     * Since the <tt>NodeComparator</tt> class is static, it makes sense to not
+     * have it instantiated per <tt>GroupNode</tt> instance but rather share one
+     * and the same between all of them.
+     * </p>
      */
-    private final NodeComparator nodeComparator = new NodeComparator();
+    private static final NodeComparator nodeComparator = new NodeComparator();
 
     /**
      * Indicates if this group node is collapsed or expanded.
@@ -296,7 +304,9 @@ public class GroupNode
      */
     public void clear()
     {
-        for (int i = 0; i < getChildCount(); i ++)
+        int childCount = getChildCount();
+
+        for (int i = 0; i < childCount; i ++)
         {
             TreeNode treeNode = getChildAt(i);
 
@@ -324,9 +334,7 @@ public class GroupNode
      */
     private void fireNodeInserted(int index)
     {
-        int[] newIndexs = new int[1];
-        newIndexs[0] = index;
-        treeModel.nodesWereInserted(this, newIndexs);
+        treeModel.nodesWereInserted(this, new int[]{index});
     }
 
     /**
@@ -337,29 +345,29 @@ public class GroupNode
      */
     private void fireNodeRemoved(ContactListNode node, int index)
     {
-        int[] removedIndexs = new int[1];
-        removedIndexs[0] = index;
-        treeModel.nodesWereRemoved(this, removedIndexs, new Object[]{node});
+        treeModel.nodesWereRemoved(this, new int[]{index}, new Object[]{node});
     }
 
     /**
-     * Notifies all interested listeners that all nodes has changed.
+     * Notifies all interested listeners that all nodes have changed.
      */
     private void fireNodesChanged()
     {
         int childCount = getChildCount();
-        int[] changedIndexs = new int[childCount];
-        for (int i = 0; i < childCount; i++)
-            changedIndexs[i] = i;
+        int[] changedIndexes = new int[childCount];
 
-        treeModel.nodesChanged(this, changedIndexs);
+        for (int i = 0; i < childCount; i++)
+            changedIndexes[i] = i;
+
+        treeModel.nodesChanged(this, changedIndexes);
     }
 
     /**
      * Note: this comparator imposes orderings that are inconsistent with
      * equals.
      */
-    private class NodeComparator implements Comparator<ContactListNode>
+    private static class NodeComparator
+        implements Comparator<ContactListNode>
     {
         /**
          * Compares its two arguments for order.  Returns a negative integer,
@@ -373,21 +381,25 @@ public class GroupNode
          */
         public int compare(ContactListNode node1, ContactListNode node2)
         {
+            // Child groups are shown after child contacts.
+            if (node1 instanceof GroupNode)
+            {
+                if (node2 instanceof ContactNode)
+                    return 1;
+            }
+            else if (node1 instanceof ContactNode)
+            {
+                if (node2 instanceof GroupNode)
+                    return -1;
+            }
+
             int index1 = node1.getSourceIndex();
             int index2 = node2.getSourceIndex();
 
-            // Child groups are shown after child contacts.
-            if (node1 instanceof GroupNode && node2 instanceof ContactNode) 
-                return 1;
-
-            if (node1 instanceof ContactNode && node2 instanceof GroupNode)
-                return -1;
-
-            // If the first index is unknown then we position it to the end.
+            // If the first index is unknown then we position it at the end.
             if (index1 < 0)
                 return 1;
-
-            // If the second index is unknown then we position it to the end.
+            // If the second index is unknown then we position it at the end.
             if (index2 < 0)
                 return -1;
 
@@ -405,14 +417,11 @@ public class GroupNode
     private int getLeadSelectionRow()
     {
         JTree tree = treeModel.getParentTree();
-
         int[] rows = tree.getSelectionRows();
-
         int selectedRow = -1;
-        if (rows != null && rows.length > 0)
-        {
+
+        if ((rows != null) && (rows.length != 0))
             selectedRow = rows[0];
-        }
 
         return selectedRow;
     }
@@ -436,15 +445,15 @@ public class GroupNode
     private void refreshSelection(int lastSelectedIndex, int newSelectedIndex)
     {
         JTree tree = treeModel.getParentTree();
+        TreeUI treeUI = tree.getUI();
 
-        TreePath oldSelectionPath = tree.getPathForRow(lastSelectedIndex);
-        TreePath newSelectionPath = tree.getPathForRow(newSelectedIndex);
-
-        if (tree.getUI() instanceof SIPCommTreeUI)
+        if (treeUI instanceof SIPCommTreeUI)
         {
-            SIPCommTreeUI treeUI = (SIPCommTreeUI) tree.getUI();
+            SIPCommTreeUI sipCommTreeUI = (SIPCommTreeUI) treeUI;
+            TreePath oldSelectionPath = tree.getPathForRow(lastSelectedIndex);
+            TreePath newSelectionPath = tree.getPathForRow(newSelectedIndex);
 
-            treeUI.selectionChanged(oldSelectionPath, newSelectionPath);
+            sipCommTreeUI.selectionChanged(oldSelectionPath, newSelectionPath);
         }
     }
 }

@@ -6,17 +6,14 @@
  */
 package net.java.sip.communicator.service.history.records;
 
-import java.util.*;
-
 /**
  * @author Alexander Pelov
  */
 public class HistoryRecord
 {
-
-    private Date timestamp;
-    private String[] propertyNames;
-    private String[] propertyValues;
+    private final long timestamp;
+    private final String[] propertyNames;
+    private final String[] propertyValues;
 
     /**
      * Constructs an entry containing multiple name-value pairs, where the names
@@ -29,7 +26,10 @@ public class HistoryRecord
     public HistoryRecord(HistoryRecordStructure entryStructure,
                          String[] propertyValues)
     {
-        this(entryStructure.getPropertyNames(), propertyValues, new Date());
+        this(
+                entryStructure.getPropertyNames(),
+                propertyValues,
+                System.currentTimeMillis());
     }
 
     /**
@@ -41,7 +41,7 @@ public class HistoryRecord
      */
     public HistoryRecord(String[] propertyNames, String[] propertyValues)
     {
-        this(propertyNames, propertyValues, new Date());
+        this(propertyNames, propertyValues, System.currentTimeMillis());
     }
 
     /**
@@ -53,7 +53,8 @@ public class HistoryRecord
      * @param timestamp
      */
     public HistoryRecord(HistoryRecordStructure entryStructure,
-                         String[] propertyValues, Date timestamp)
+                         String[] propertyValues,
+                         long timestamp)
     {
         this(entryStructure.getPropertyNames(), propertyValues, timestamp);
     }
@@ -66,8 +67,9 @@ public class HistoryRecord
      * @param propertyValues
      * @param timestamp
      */
-    public HistoryRecord(String[] propertyNames, String[] propertyValues,
-                         Date timestamp)
+    public HistoryRecord(String[] propertyNames,
+                         String[] propertyValues,
+                         long timestamp)
     {
         // TODO: Validate: Assert.assertNonNull(propertyNames, "The property names should be non-null.");
         // TODO: Validate: Assert.assertNonNull(propertyValues, "The property values should be non-null.");
@@ -91,14 +93,9 @@ public class HistoryRecord
         return this.propertyValues;
     }
 
-    public Date getTimestamp()
+    public long getTimestamp()
     {
         return this.timestamp;
-    }
-
-    public long getTimeInMillis()
-    {
-        return (timestamp == null) ? 0 : timestamp.getTime();
     }
 
     /**
@@ -108,12 +105,15 @@ public class HistoryRecord
      */
     public String toString()
     {
-        String s = "History Record: ";
+        StringBuilder s = new StringBuilder("History Record: ");
+
         for (int i = 0; i < propertyNames.length; i++)
         {
-            s += propertyNames[i] + "=" + propertyValues[i] + "\n";
+            s.append(propertyNames[i]);
+            s.append('=');
+            s.append(propertyValues[i]);
+            s.append('\n');
         }
-
-        return s;
+        return s.toString();
     }
 }

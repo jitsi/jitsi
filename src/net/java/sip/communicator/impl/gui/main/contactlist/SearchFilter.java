@@ -146,10 +146,13 @@ public class SearchFilter
     {
         Iterator<String> searchStrings = uiContact.getSearchStrings();
 
-        while (searchStrings != null && searchStrings.hasNext())
+        if (searchStrings != null)
         {
-            if (isMatching(searchStrings.next()))
-                return true;
+            while (searchStrings.hasNext())
+            {
+                if (isMatching(searchStrings.next()))
+                    return true;
+            }
         }
         return false;
     }
@@ -210,36 +213,29 @@ public class SearchFilter
      */
     private boolean isMatching(String text)
     {
-        Matcher matcher = filterPattern.matcher(text);
-
-        if(matcher.find())
-            return true;
-
-        return false;
+        return filterPattern.matcher(text).find();
     }
 
     /**
      * Adds the list of <tt>sourceContacts</tt> to the contact list.
      * @param sourceContacts the list of <tt>SourceContact</tt>s to add
      */
-    private void addMatching(   List<SourceContact> sourceContacts)
+    private void addMatching(List<SourceContact> sourceContacts)
     {
         Iterator<SourceContact> contactsIter = sourceContacts.iterator();
+
         while (contactsIter.hasNext())
-        {
             addSourceContact(contactsIter.next());
-        }
     }
 
     /**
      * Adds the given <tt>sourceContact</tt> to the contact list.
      * @param sourceContact the <tt>SourceContact</tt> to add
      */
-    private void addSourceContact(  SourceContact sourceContact)
+    private void addSourceContact(SourceContact sourceContact)
     {
         ContactSourceService contactSource
             = sourceContact.getContactSource();
-
         ExternalContactSource sourceUI
             = TreeContactList.getContactSource(contactSource);
 
@@ -272,12 +268,11 @@ public class SearchFilter
                 break;
             case HISTORY_SOURCE:
             {
+                Collection<ExternalContactSource> historySources
+                    = new LinkedList<ExternalContactSource>();
                 ExternalContactSource historySource
                     = TreeContactList.getContactSource(
                         ContactSourceService.CALL_HISTORY);
-
-                Collection<ExternalContactSource> historySources
-                    = new LinkedList<ExternalContactSource>();
 
                 historySources.add(historySource);
                 contactSources = historySources;
@@ -296,7 +291,6 @@ public class SearchFilter
     {
         if (contactSources == null)
             contactSources = TreeContactList.getContactSources();
-
         return contactSources;
     }
 

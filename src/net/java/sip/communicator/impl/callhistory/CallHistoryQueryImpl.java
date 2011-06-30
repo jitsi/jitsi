@@ -131,9 +131,7 @@ public class CallHistoryQueryImpl
         synchronized (queryListeners)
         {
             for (CallHistoryQueryListener l : queryListeners)
-            {
                 l.callRecordReceived(event);
-            }
         }
     }
 
@@ -150,9 +148,7 @@ public class CallHistoryQueryImpl
         synchronized (queryListeners)
         {
             for (CallHistoryQueryListener l : queryListeners)
-            {
                 l.queryStatusChanged(event);
-            }
         }
     }
 

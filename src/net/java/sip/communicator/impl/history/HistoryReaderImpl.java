@@ -204,7 +204,7 @@ public class HistoryReaderImpl
 
                 String ts = node.getAttributes().getNamedItem("timestamp")
                     .getNodeValue();
-                Date timestamp = new Date(Long.parseLong(ts));
+                long timestamp = Long.parseLong(ts);
 
                 ArrayList<String> nameVals = new ArrayList<String>();
 
@@ -352,7 +352,7 @@ public class HistoryReaderImpl
 
                 String ts = node.getAttributes().getNamedItem("timestamp")
                     .getNodeValue();
-                Date timestamp = new Date(Long.parseLong(ts));
+                long timestamp = Long.parseLong(ts);
 
                 if(!isInPeriod(timestamp, date, null))
                     continue;
@@ -446,7 +446,7 @@ public class HistoryReaderImpl
 
                 String ts = node.getAttributes().getNamedItem("timestamp")
                     .getNodeValue();
-                Date timestamp = new Date(Long.parseLong(ts));
+                long timestamp = Long.parseLong(ts);
 
                 if(!isInPeriod(timestamp, null, date))
                     continue;
@@ -547,8 +547,7 @@ public class HistoryReaderImpl
 
                 String ts = node.getAttributes().getNamedItem("timestamp")
                         .getNodeValue();
-
-                Date timestamp = new Date(Long.parseLong(ts));
+                long timestamp = Long.parseLong(ts);
 
                 if(isInPeriod(timestamp, startDate, endDate))
                 {
@@ -590,21 +589,23 @@ public class HistoryReaderImpl
      * @param endDate Date the end of the period
      * @return boolean
      */
-    static boolean isInPeriod(Date timestamp, Date startDate, Date endDate)
+    static boolean isInPeriod(long timestamp, Date startDate, Date endDate)
     {
         if(startDate == null)
         {
             if(endDate == null)
                 return true;
             else
-                return timestamp.before(endDate);
+                return timestamp < endDate.getTime();
         }
         else
         {
             if(endDate == null)
-                return timestamp.after(startDate);
+                return timestamp > startDate.getTime();
             else
-                return timestamp.after(startDate) && timestamp.before(endDate);
+                return
+                    timestamp > startDate.getTime()
+                        && timestamp < endDate.getTime();
         }
     }
 
@@ -621,7 +622,7 @@ public class HistoryReaderImpl
      * @return HistoryRecord
      */
     static HistoryRecord filterByKeyword(   NodeList propertyNodes,
-                                            Date timestamp,
+                                            long timestamp,
                                             String[] keywords,
                                             String field,
                                             boolean caseSensitive)
@@ -951,8 +952,14 @@ public class HistoryReaderImpl
     {
         public int compare(HistoryRecord h1, HistoryRecord h2)
         {
-                return h1.getTimestamp().
-                    compareTo(h2.getTimestamp());
+                long d = (h2.getTimestamp() - h1.getTimestamp());
+
+                if (d == 0)
+                    return 0;
+                else if (d < 0)
+                    return -1;
+                else
+                    return 1;
         }
     }
 }

@@ -638,7 +638,7 @@ public class MessageHistoryServiceImpl
         // the HistoryRecord timestamp is the timestamp when the record
         // was written
         long messageReceivedDate = msg.getMessageReceivedDate();
-        long hrTimestamp = hr.getTimeInMillis();
+        long hrTimestamp = hr.getTimestamp();
         if (messageReceivedDate != 0)
         {
             if(messageReceivedDate - hrTimestamp > 86400000) // 24*60*60*1000
@@ -684,7 +684,7 @@ public class MessageHistoryServiceImpl
         // the HistoryRecord timestamp is the timestamp when the record
         // was written
         long messageReceivedDate = msg.getMessageReceivedDate();
-        long hrTimestamp = hr.getTimeInMillis();
+        long hrTimestamp = hr.getTimestamp();
         if(messageReceivedDate != 0)
         {
             if(messageReceivedDate - hrTimestamp > 86400000) // 24*60*60*1000

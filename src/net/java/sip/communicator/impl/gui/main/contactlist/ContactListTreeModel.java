@@ -72,6 +72,7 @@ public class ContactListTreeModel
     public void clear()
     {
         if (!SwingUtilities.isEventDispatchThread())
+        {
             try
             {
                 SwingUtilities.invokeAndWait(new Runnable()
@@ -90,6 +91,8 @@ public class ContactListTreeModel
             {
                 e.printStackTrace();
             }
+            return;
+        }
 
         // The following code is always invoked in the swing thread.
         int childCount = rootGroupNode.getChildCount();
@@ -153,7 +156,7 @@ public class ContactListTreeModel
     /**
      * The <tt>RootUIGroup</tt> is the root group in this contact list model.
      */
-    private class RootUIGroup
+    private static class RootUIGroup
         implements UIGroup
     {
         /**

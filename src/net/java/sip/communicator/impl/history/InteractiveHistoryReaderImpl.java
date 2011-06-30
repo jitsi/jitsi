@@ -94,14 +94,19 @@ public class InteractiveHistoryReaderImpl
                                 final boolean caseSensitive,
                                 final int resultCount)
     {
-        String queryString = "";
+        StringBuilder queryString = new StringBuilder();
         for (String s : keywords)
-            queryString += " " + s;
+        {
+            queryString.append(' ');
+            queryString.append(s);
+        }
 
-        final HistoryQueryImpl query = new HistoryQueryImpl(queryString);
+        final HistoryQueryImpl query
+            = new HistoryQueryImpl(queryString.toString());
 
         new Thread()
         {
+            @Override
             public void run()
             {
                 find(startDate, endDate, keywords, field, caseSensitive,
@@ -133,12 +138,11 @@ public class InteractiveHistoryReaderImpl
         Vector<String> filelist
             = HistoryReaderImpl.filterFilesByDate(  history.getFileList(),
                                                     startDate, endDate, true);
-
         Iterator<String> fileIterator = filelist.iterator();
+
         while (fileIterator.hasNext() && resultCount > 0 && !query.isCanceled())
         {
             String filename = fileIterator.next();
-
             Document doc = history.getDocumentForFile(filename);
 
             if(doc == null)
@@ -146,17 +150,14 @@ public class InteractiveHistoryReaderImpl
 
             NodeList nodes = doc.getElementsByTagName("record");
 
-            Node node;
             for ( int i = nodes.getLength() - 1;
                   i >= 0 && !query.isCanceled();
                   i--)
             {
-                node = nodes.item(i);
-
+                Node node = nodes.item(i);
                 String ts = node.getAttributes().getNamedItem("timestamp")
                         .getNodeValue();
-
-                Date timestamp = new Date(Long.parseLong(ts));
+                long timestamp = Long.parseLong(ts);
 
                 if(HistoryReaderImpl.isInPeriod(timestamp, startDate, endDate))
                 {

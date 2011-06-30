@@ -80,14 +80,12 @@ public class CallHistoryFilter
         {
             SourceContact sourceContact = (SourceContact) descriptor;
 
-            if ((sourceContact.getContactSource().getIdentifier()
-                    .equals(ContactSourceService.CALL_HISTORY)))
+            if (sourceContact.getContactSource().getIdentifier()
+                    .equals(ContactSourceService.CALL_HISTORY))
                 return true;
         }
         else if (uiContact instanceof NotificationContact)
-        {
             return true;
-        }
 
         return false;
     }
@@ -100,12 +98,7 @@ public class CallHistoryFilter
      */
     public boolean isMatching(UIGroup uiGroup)
     {
-        if (uiGroup instanceof NotificationGroup)
-        {
-            return true;
-        }
-
-        return false;
+        return (uiGroup instanceof NotificationGroup);
     }
 
     /**
@@ -122,11 +115,11 @@ public class CallHistoryFilter
 
         while (contactsIter.hasNext())
         {
-            GuiActivator.getContactList()
-                .addContact(uiSource.createUIContact(contactsIter.next()),
-                            uiSource.getUIGroup(),
-                            false,
-                            true);
+            GuiActivator.getContactList().addContact(
+                    uiSource.createUIContact(contactsIter.next()),
+                    uiSource.getUIGroup(),
+                    false,
+                    true);
         }
     }
 

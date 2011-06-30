@@ -21,7 +21,7 @@ public class ContactNode
     /**
      * The <tt>UIContact</tt> corresponding to this contact node.
      */
-    private UIContact contact;
+    private final UIContact contact;
 
     /**
      * Indicates if this node is currently active. Has unread messages waiting.

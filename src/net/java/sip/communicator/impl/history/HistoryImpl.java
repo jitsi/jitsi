@@ -142,22 +142,16 @@ public class HistoryImpl
      */
     public InteractiveHistoryReader getInteractiveReader()
     {
-        if (this.interactiveReader == null)
-        {
-            this.interactiveReader = new InteractiveHistoryReaderImpl(this);
-        }
-
-        return this.interactiveReader;
+        if (interactiveReader == null)
+            interactiveReader = new InteractiveHistoryReaderImpl(this);
+        return interactiveReader;
     }
 
     public HistoryWriter getWriter()
     {
-        if (this.writer == null)
-        {
-            this.writer = new HistoryWriterImpl(this);
-        }
-
-        return this.writer;
+        if (writer == null)
+            writer = new HistoryWriterImpl(this);
+        return writer;
     }
 
     protected HistoryServiceImpl getHistoryServiceImpl()

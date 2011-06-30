@@ -303,7 +303,6 @@ public class CallHistoryServiceImpl
             History history = this.getHistory(null, null);
             InteractiveHistoryReader historyReader
                 = history.getInteractiveReader();
-
             HistoryQuery historyQuery
                 = historyReader.findByKeyword(
                     address, "callParticipantIDs", recordCount);

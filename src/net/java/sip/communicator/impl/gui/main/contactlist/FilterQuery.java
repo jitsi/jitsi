@@ -53,9 +53,9 @@ public class FilterQuery
     /**
      * The list of filter queries.
      */
-    private Map<Object, List<SourceContact>> filterQueries
-        = Collections.synchronizedMap(new Hashtable<Object,
-                                                    List<SourceContact>>());
+    private final Map<Object, List<SourceContact>> filterQueries
+        = Collections.synchronizedMap(
+                new Hashtable<Object, List<SourceContact>>());
 
     /**
      * Indicates the number of running queries.
@@ -94,9 +94,7 @@ public class FilterQuery
                 externalQuery.addContactQueryListener(this);
             }
             else if (contactQuery instanceof MetaContactQuery)
-            {
                 ((MetaContactQuery) contactQuery).addContactQueryListener(this);
-            }
 
             filterQueries.put(contactQuery, queryResults);
             runningQueries++;
@@ -139,16 +137,14 @@ public class FilterQuery
      */
     public void cancel()
     {
-        Iterator<Object> queriesIter;
         synchronized(filterQueries)
         {
             isCanceled = true;
 
-            queriesIter = filterQueries.keySet().iterator();
+            Iterator<Object> queriesIter = filterQueries.keySet().iterator();
+
             while (queriesIter.hasNext())
-            {
                 cancelQuery(queriesIter.next());
-            }
         }
     }
 
@@ -198,7 +194,7 @@ public class FilterQuery
 
         // Check if this query is in our filter queries list.
         if (!filterQueries.containsKey(query)
-            || event.getEventType() == ContactQuery.QUERY_IN_PROGRESS)
+                || event.getEventType() == ContactQuery.QUERY_IN_PROGRESS)
             return;
 
         removeQuery(query);
@@ -263,7 +259,7 @@ public class FilterQuery
     {
         if (query instanceof ContactQuery)
         {
-            ContactQuery contactQuery = ((ContactQuery) query);
+            ContactQuery contactQuery = (ContactQuery) query;
             contactQuery.cancel();
             contactQuery.removeContactQueryListener(
                 GuiActivator.getContactList());
@@ -272,7 +268,7 @@ public class FilterQuery
         }
         else if (query instanceof MetaContactQuery)
         {
-            MetaContactQuery metaContactQuery = ((MetaContactQuery) query);
+            MetaContactQuery metaContactQuery = (MetaContactQuery) query;
             metaContactQuery.cancel();
             metaContactQuery.removeContactQueryListener(
                 GuiActivator.getContactList());
