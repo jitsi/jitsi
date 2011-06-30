@@ -133,8 +133,8 @@ public class ProtocolProviderServiceSipImpl
      * The name of the property under which the user may specify if the video
      * calls should be disabled.
      */
-    private static final String IS_CALL_DISABLED
-        = "net.java.sip.communicator.impl.protocol.sip.CALL_DISABLED";
+    private static final String IS_CALLING_DISABLED
+        = "net.java.sip.communicator.impl.protocol.sip.CALLING_DISABLED";
 
     /**
      * Default number of times that our requests can be forwarded.
@@ -605,7 +605,7 @@ public class ProtocolProviderServiceSipImpl
 
             boolean isCallingDisabled
                 = SipActivator.getConfigurationService()
-                    .getBoolean(IS_CALL_DISABLED, false);
+                    .getBoolean(IS_CALLING_DISABLED, false);
 
             boolean isCallingDisabledForAccount
                 = accountID.getAccountPropertyBoolean(
