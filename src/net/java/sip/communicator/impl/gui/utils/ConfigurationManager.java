@@ -157,6 +157,12 @@ public class ConfigurationManager
     private static ProtocolProviderService lastCallConferenceProvider = null;
 
     /**
+     * Indicates if the "Advanced" configurations for an account should be
+     * disabled for the user.
+     */
+    private static boolean isAdvancedAccountConfigDisabled;
+
+    /**
      * Loads all user interface configurations.
      */
     public static void loadGuiConfigurations()
@@ -457,6 +463,24 @@ public class ConfigurationManager
                 "net.java.sip.communicator.impl.gui.main.contactlist." +
                 "CONTACT_REMOVE_DISABLED",
                 false);
+
+        // Load the "net.java.sip.communicator.impl.gui.main.account
+        // .ADVANCED_CONFIG_DISABLED" property.
+        String advancedConfigDisabledDefaultProp
+            = GuiActivator.getResources().getSettingsString(
+                "impl.gui.main.account.ADVANCED_CONFIG_DISABLED");
+
+        boolean isAdvancedConfigDisabled = false;
+
+        if (advancedConfigDisabledDefaultProp != null)
+            isAdvancedConfigDisabled
+                = Boolean.parseBoolean(advancedConfigDisabledDefaultProp);
+
+        isAdvancedAccountConfigDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.account." +
+                "ADVANCED_CONFIG_DISABLED",
+                isAdvancedConfigDisabled);
     }
 
     /**
@@ -651,13 +675,39 @@ public class ConfigurationManager
 
     /**
      * Returns <code>true</code> if the "REMOVE_CONTACT_DISABLED" property is
-     * true, otherwise - returns <code>false</code>..
+     * true, otherwise - returns <code>false</code>.
      * @return <code>true</code> if the "REMOVE_CONTACT_DISABLED" property is
      * true, otherwise - returns <code>false</code>.
      */
     public static boolean isRemoveContactDisabled()
     {
         return isRemoveContactDisabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "ADVANCED_CONFIG_DISABLED" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "ADVANCED_CONFIG_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isAdvancedAccountConfigDisabled()
+    {
+        return isAdvancedAccountConfigDisabled;
+    }
+
+    /**
+     * Sets the advanced account config disabled property.
+     * 
+     * @param disabled the new value to set
+     */
+    public static void setAdvancedAccountConfigDisabled(boolean disabled)
+    {
+        isAdvancedAccountConfigDisabled = disabled;
+
+        configService.setProperty(
+                "net.java.sip.communicator.impl.gui.main.account." +
+                "ADVANCED_CONFIG_DISABLED",
+                Boolean.toString(isAdvancedAccountConfigDisabled));
     }
 
     /**

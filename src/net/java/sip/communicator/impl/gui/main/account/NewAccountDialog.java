@@ -15,6 +15,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -116,10 +117,15 @@ public class NewAccountDialog
         statusPanel.add(statusLabel);
 
         this.mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-        this.buttonPanel.add(advancedButton, BorderLayout.WEST);
+
+        if (!ConfigurationManager.isAdvancedAccountConfigDisabled())
+        {
+            this.buttonPanel.add(advancedButton, BorderLayout.WEST);
+            this.advancedButton.addActionListener(this);
+        }
+
         this.buttonPanel.add(rightButtonPanel, BorderLayout.EAST);
         this.buttonPanel.add(statusPanel, BorderLayout.CENTER);
-        this.advancedButton.addActionListener(this);
 
         this.rightButtonPanel.add(addAccountButton);
         this.rightButtonPanel.add(cancelButton);

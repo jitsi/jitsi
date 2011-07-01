@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -74,20 +75,25 @@ public class AccountsConfigurationPanel
             new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
         newButton.addActionListener(this);
-        editButton.addActionListener(this);
         removeButton.addActionListener(this);
 
         this.newButton.setMnemonic(GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.ADD"));
-        this.editButton
-            .setMnemonic(GuiActivator.getResources().getI18nMnemonic(
-                "service.gui.EDIT"));
         this.removeButton
             .setMnemonic(GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.DELETE"));
 
         buttonsPanel.add(newButton);
-        buttonsPanel.add(editButton);
+
+        if (!ConfigurationManager.isAdvancedAccountConfigDisabled())
+        {
+            buttonsPanel.add(editButton);
+            this.editButton
+                .setMnemonic(GuiActivator.getResources().getI18nMnemonic(
+                    "service.gui.EDIT"));
+            editButton.addActionListener(this);
+        }
+
         buttonsPanel.add(removeButton);
 
         this.add(buttonsPanel, BorderLayout.SOUTH);
