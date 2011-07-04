@@ -360,6 +360,9 @@ public class SIPAccountRegistrationForm
         String keepAliveInterval =
         accountID.getAccountPropertyString("KEEP_ALIVE_INTERVAL");
 
+        String voicemailURI = accountID.getAccountPropertyString(
+                    ProtocolProviderFactory.VOICEMAIL_URI);
+
         boolean xCapEnable = accountID
                 .getAccountPropertyBoolean("XCAP_ENABLE", false);
         boolean xCapUseSipCredetials = accountID
@@ -427,6 +430,9 @@ public class SIPAccountRegistrationForm
 
         connectionPanel.setKeepAliveMethod(keepAliveMethod);
         connectionPanel.setKeepAliveInterval(keepAliveInterval);
+
+        if (voicemailURI != null && voicemailURI.length() > 0)
+            connectionPanel.setVoicemailURI(voicemailURI);
 
         presencePanel.setXCapEnable(xCapEnable);
         presencePanel.setXCapEnableEnabled(xCapEnable);

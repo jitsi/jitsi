@@ -518,6 +518,15 @@ public class ConnectionPanel
     }
 
     /**
+     * Sets the voicemail URI.
+     * @param voicemailURI the voicemail URI.
+     */
+    void setVoicemailURI(String voicemailURI)
+    {
+        voicemailField.setText(voicemailURI);
+    }
+
+    /**
      * Sets the keep alive interval
      * @param keepAliveInterval the keep alive interval
      */

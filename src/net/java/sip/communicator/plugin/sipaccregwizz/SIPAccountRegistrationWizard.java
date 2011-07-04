@@ -511,6 +511,8 @@ public class SIPAccountRegistrationWizard
             accountProperties.put(
                     ProtocolProviderFactory.VOICEMAIL_URI,
                     registration.getVoicemailURI());
+        else if(isModification())
+            accountProperties.put(ProtocolProviderFactory.VOICEMAIL_URI, "");
 
         if(isModification())
         {
