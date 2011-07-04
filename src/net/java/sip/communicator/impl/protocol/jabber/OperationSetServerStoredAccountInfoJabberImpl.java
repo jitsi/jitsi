@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.event.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smackx.packet.*;
 
@@ -15,11 +16,14 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 
 /**
+ * The Account Info Operation set is a means of accessing and modifying detailed
+ * information on the user/account that is currently logged in through this
+ * provider.
  *
  * @author Damian Minkov
  */
 public class OperationSetServerStoredAccountInfoJabberImpl
-    implements OperationSetServerStoredAccountInfo
+    extends AbstractOperationSetServerStoredAccountInfo
 {
     private InfoRetreiver infoRetreiver = null;
 
@@ -222,8 +226,16 @@ public class OperationSetServerStoredAccountInfoJabberImpl
             } catch (XMPPException xmppe)
             {
                 xmppe.printStackTrace();
+
+                // return to skip events when there is error
+                return;
             }
         }
+
+        fireServerStoredDetailsChangeEvent(jabberProvider,
+                        ServerStoredDetailsChangeEvent.DETAIL_ADDED,
+                        null,
+                        detail);
     }
 
     /**
@@ -306,6 +318,11 @@ public class OperationSetServerStoredAccountInfoJabberImpl
 
                 v1.setAvatar(((ImageDetail) newDetailValue).getBytes());
                 v1.save(jabberProvider.getConnection());
+
+                fireServerStoredDetailsChangeEvent(jabberProvider,
+                        ServerStoredDetailsChangeEvent.DETAIL_REPLACED,
+                        currentDetailValue,
+                        newDetailValue);
 
                 return true;
             } catch (XMPPException xmppe)

@@ -34,6 +34,7 @@ import net.java.sip.communicator.util.swing.*;
 public class AccountStatusPanel
     extends TransparentPanel
     implements  RegistrationStateChangeListener,
+                ServerStoredDetailsChangeListener,
                 PluginComponentListener,
                 AvatarListener,
                 Skinnable
@@ -401,6 +402,13 @@ public class AccountStatusPanel
                 = protocolProvider.getOperationSet(OperationSetAvatar.class);
             if (avatarOpSet != null)
                 avatarOpSet.addAvatarListener(this);
+
+            OperationSetServerStoredAccountInfo serverStoredAccountInfo
+                = protocolProvider.getOperationSet(
+                    OperationSetServerStoredAccountInfo.class);
+            if (serverStoredAccountInfo != null)
+                serverStoredAccountInfo.addServerStoredDetailsChangeListener(
+                        this);
         }
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERING)
                 || evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
@@ -409,6 +417,13 @@ public class AccountStatusPanel
                 = protocolProvider.getOperationSet(OperationSetAvatar.class);
             if (avatarOpSet != null)
                 avatarOpSet.removeAvatarListener(this);
+
+            OperationSetServerStoredAccountInfo serverStoredAccountInfo
+                = protocolProvider.getOperationSet(
+                    OperationSetServerStoredAccountInfo.class);
+            if (serverStoredAccountInfo != null)
+                serverStoredAccountInfo.removeServerStoredDetailsChangeListener(
+                        this);
         }
         else if (evt.getNewState().equals(RegistrationState.REGISTERING))
         {
@@ -539,5 +554,29 @@ public class AccountStatusPanel
         if(currentImage == null)
             accountImageLabel.setImageIcon(ImageLoader
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO));
+    }
+
+    /**
+     * Registers a ServerStoredDetailsChangeListener with the operation sets
+     * of the providers, if a provider change its name we use it in the UI.
+     *
+     * @param evt the <tt>ServerStoredDetailsChangeEvent</tt>
+     * the event for name change.
+     */
+    public void serverStoredDetailsChanged(ServerStoredDetailsChangeEvent evt)
+    {
+        if(evt.getNewValue() instanceof
+                ServerStoredDetails.DisplayNameDetail
+            && (evt.getEventID() == ServerStoredDetailsChangeEvent.DETAIL_ADDED
+                || evt.getEventID()
+                    == ServerStoredDetailsChangeEvent.DETAIL_REPLACED))
+        {
+            String accountName =
+                    ((ServerStoredDetails.DisplayNameDetail)evt.getNewValue())
+                        .getName();
+
+            if (accountName != null && accountName.length() > 0)
+                accountNameLabel.setText(accountName);
+        }
     }
 }

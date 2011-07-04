@@ -417,6 +417,15 @@ public class SipRegistrarConnection
                 requestedExpiration = expiresHeader.getExpires();
         }
 
+        FromHeader fromHeader = (FromHeader) register
+            .getHeader(FromHeader.NAME);
+
+        if(fromHeader != null && fromHeader.getAddress() != null)
+        {
+            if(sipProvider.setOurDisplayName(
+                fromHeader.getAddress().getDisplayName()))
+                    this.ourSipAddressOfRecord = null;
+        }
 
         //now check if the registrar has touched our expiration timeout in its
         //response. Again, check contact headers first.

@@ -24,8 +24,8 @@ import javax.imageio.*;
  * @author Damian Minkov
  */
 public class OperationSetServerStoredAccountInfoMsnImpl
-    implements OperationSetServerStoredAccountInfo,
-        RegistrationStateChangeListener
+    extends AbstractOperationSetServerStoredAccountInfo
+    implements RegistrationStateChangeListener
 {
     /**
      * Logger for this class.
@@ -367,8 +367,16 @@ public class OperationSetServerStoredAccountInfoMsnImpl
             } catch(Exception e)
             {
                 logger.error("Error setting own avatar.", e);
+
+                // on error return to skip details change
+                return;
             }
         }
+
+        fireServerStoredDetailsChangeEvent(msnProvider,
+                ServerStoredDetailsChangeEvent.DETAIL_ADDED,
+                null,
+                detail);
     }
 
     /**
@@ -487,6 +495,11 @@ public class OperationSetServerStoredAccountInfoMsnImpl
                 owner.setDisplayPicture(MsnObject.getInstance(
                     owner.getEmail().getEmailAddress(),
                     b));
+
+                fireServerStoredDetailsChangeEvent(msnProvider,
+                        ServerStoredDetailsChangeEvent.DETAIL_REPLACED,
+                        currentDetailValue,
+                        newDetailValue);
 
                 return true;
             } catch(Exception e)

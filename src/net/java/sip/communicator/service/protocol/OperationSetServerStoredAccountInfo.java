@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The Account Info Operation set is a means of accessing and modifying detailed
@@ -184,4 +185,24 @@ public interface OperationSetServerStoredAccountInfo
                     ServerStoredDetails.GenericDetail currentDetailValue,
                     ServerStoredDetails.GenericDetail newDetailValue)
         throws ClassCastException, OperationFailedException;
+
+    /**
+     * Registers a ServerStoredDetailsChangeListener with this operation set so
+     * that it gets notifications of details change.
+     *
+     * @param listener the <tt>ServerStoredDetailsChangeListener</tt>
+     * to register.
+     */
+    public void addServerStoredDetailsChangeListener(
+            ServerStoredDetailsChangeListener listener);
+
+    /**
+     * Unregisters <tt>listener</tt> so that it won't receive any further
+     * notifications upon details change.
+     *
+     * @param listener the <tt>ServerStoredDetailsChangeListener</tt>
+     * to unregister.
+     */
+    public void removeServerStoredDetailsChangeListener(
+            ServerStoredDetailsChangeListener listener);
 }

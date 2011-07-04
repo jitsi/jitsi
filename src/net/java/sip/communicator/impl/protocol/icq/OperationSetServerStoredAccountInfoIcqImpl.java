@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
 import net.kano.joscar.snac.*;
@@ -23,7 +24,7 @@ import net.kano.joustsim.oscar.oscar.service.icon.*;
  * @author Damian Minkov
  */
 public class OperationSetServerStoredAccountInfoIcqImpl
-    implements OperationSetServerStoredAccountInfo
+    extends AbstractOperationSetServerStoredAccountInfo
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetServerStoredAccountInfoIcqImpl.class);
@@ -290,6 +291,11 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                     ByteBlock.wrap(((ServerStoredDetails.ImageDetail) detail).getBytes()));
             infoRetreiver.detailsChanged(uin);
 
+            fireServerStoredDetailsChangeEvent(icqProvider,
+                ServerStoredDetailsChangeEvent.DETAIL_ADDED,
+                null,
+                detail);
+
             return;
         }
 
@@ -399,6 +405,11 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                             OperationFailedException.GENERAL_ERROR);
 
         infoRetreiver.detailsChanged(uin);
+
+        fireServerStoredDetailsChangeEvent(icqProvider,
+                ServerStoredDetailsChangeEvent.DETAIL_ADDED,
+                null,
+                detail);
     }
 
     private void setInterests(MetaFullInfoSetCmd cmd, List<InterestDetail> interests)
@@ -524,6 +535,12 @@ public class OperationSetServerStoredAccountInfoIcqImpl
        if (responseListener.success)
        {
            infoRetreiver.detailsChanged(uin);
+
+           fireServerStoredDetailsChangeEvent(icqProvider,
+                ServerStoredDetailsChangeEvent.DETAIL_REMOVED,
+                detail,
+                null);
+
            return true;
        }
        else
@@ -597,6 +614,12 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                             .getBytes()));
 
             infoRetreiver.detailsChanged(uin);
+
+            fireServerStoredDetailsChangeEvent(icqProvider,
+                        ServerStoredDetailsChangeEvent.DETAIL_REPLACED,
+                        currentDetailValue,
+                        newDetailValue);
+
             return true;
         }
 
@@ -749,6 +772,12 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         if(responseListener.success)
         {
             infoRetreiver.detailsChanged(uin);
+
+            fireServerStoredDetailsChangeEvent(icqProvider,
+                        ServerStoredDetailsChangeEvent.DETAIL_REPLACED,
+                        currentDetailValue,
+                        newDetailValue);
+
             return true;
         }
         else

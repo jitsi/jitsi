@@ -22,8 +22,8 @@ import java.util.*;
  * @author Grigorii Balutsel
  */
 public class OperationSetServerStoredAccountInfoSipImpl
-        implements OperationSetServerStoredAccountInfo,
-        RegistrationStateChangeListener
+        extends AbstractOperationSetServerStoredAccountInfo
+        implements RegistrationStateChangeListener
 {
     /**
      * Logger class.
@@ -40,6 +40,11 @@ public class OperationSetServerStoredAccountInfoSipImpl
      * Current image.
      */
     private ImageDetail accountImage;
+
+    /**
+     * Current display name if set.
+     */
+    private DisplayNameDetail displayNameDetail;
 
     /**
      * Flag whether account image is loaded.
@@ -79,6 +84,12 @@ public class OperationSetServerStoredAccountInfoSipImpl
                 result.add(getAccountImage());
             }
         }
+        else if(DisplayNameDetail.class.isAssignableFrom(detailClass)
+                && displayNameDetail != null)
+        {
+            result.add(displayNameDetail);
+        }
+
         return result.iterator();
     }
 
@@ -104,6 +115,12 @@ public class OperationSetServerStoredAccountInfoSipImpl
                 result.add(getAccountImage());
             }
         }
+        else if(DisplayNameDetail.class.isAssignableFrom(detailClass)
+                && displayNameDetail != null)
+        {
+            result.add(displayNameDetail);
+        }
+
         return result.iterator();
     }
 
@@ -123,6 +140,12 @@ public class OperationSetServerStoredAccountInfoSipImpl
                 details.add(getAccountImage());
             }
         }
+
+        if(displayNameDetail != null)
+        {
+            details.add(displayNameDetail);
+        }
+
         return details.iterator();
     }
 
@@ -141,6 +164,9 @@ public class OperationSetServerStoredAccountInfoSipImpl
         {
             result.add(ImageDetail.class);
         }
+
+        result.add(DisplayNameDetail.class);
+
         return result.iterator();
     }
 
@@ -156,8 +182,9 @@ public class OperationSetServerStoredAccountInfoSipImpl
     public boolean isDetailClassSupported(
             Class<? extends GenericDetail> detailClass)
     {
-        return ImageDetail.class.isAssignableFrom(detailClass) &&
-                isImageDetailSupported();
+        return (ImageDetail.class.isAssignableFrom(detailClass)
+                && isImageDetailSupported())
+                || DisplayNameDetail.class.isAssignableFrom(detailClass);
     }
 
     /**
@@ -174,6 +201,11 @@ public class OperationSetServerStoredAccountInfoSipImpl
         {
             return 1;
         }
+        else if(DisplayNameDetail.class.isAssignableFrom(detailClass))
+        {
+            return 1;
+        }
+
         return 0;
     }
 
@@ -198,6 +230,35 @@ public class OperationSetServerStoredAccountInfoSipImpl
      *                                        instances.
      */
     public void addDetail(GenericDetail detail)
+            throws IllegalArgumentException,
+                   OperationFailedException,
+                   ArrayIndexOutOfBoundsException
+    {
+        addDetail(detail, true);
+    }
+
+    /**
+     * Adds the specified detail to the list of details registered on-line
+     * for this account.
+     *
+     * @param detail the detail that we'd like registered on the server.
+     * @param fireChangeEvents whether to fire change events.
+     * @throws IllegalArgumentException       if such a detail already exists
+     *                                        and its max instances number has
+     *                                        been atteined or if the underlying
+     *                                        implementation does not support
+     *                                        setting details of the
+     *                                        corresponding class.
+     * @throws OperationFailedException       with code Network Failure if
+     *                                        putting the new value online has
+     *                                        failed.
+     * @throws ArrayIndexOutOfBoundsException if the number of instances
+     *                                        currently registered by the
+     *                                        application is already equal to
+     *                                        the maximum number of supported
+     *                                        instances.
+     */
+    public void addDetail(GenericDetail detail, boolean fireChangeEvents)
             throws IllegalArgumentException, OperationFailedException,
             ArrayIndexOutOfBoundsException
     {
@@ -227,6 +288,16 @@ public class OperationSetServerStoredAccountInfoSipImpl
             accountImage = imageDetail;
             isAccountImageLoaded = true;
         }
+        else if(DisplayNameDetail.class.isAssignableFrom(detail.getClass()))
+        {
+            displayNameDetail = (DisplayNameDetail)detail;
+        }
+
+        if(fireChangeEvents)
+            fireServerStoredDetailsChangeEvent(provider,
+                    ServerStoredDetailsChangeEvent.DETAIL_ADDED,
+                    null,
+                    detail);
     }
 
     /**
@@ -240,6 +311,23 @@ public class OperationSetServerStoredAccountInfoSipImpl
      *                                  the detail from the server has failed
      */
     public boolean removeDetail(GenericDetail detail)
+            throws OperationFailedException
+    {
+        return removeDetail(detail, true);
+    }
+
+    /**
+     * Removes the specified detail from the list of details stored online for
+     * this account.
+     *
+     * @param detail the detail to remove
+     * @param fireChangeEvents whether to fire change events.
+     * @return true if the specified detail existed and was successfully removed
+     *         and false otherwise.
+     * @throws OperationFailedException with code Network Failure if removing
+     *                                  the detail from the server has failed
+     */
+    private boolean removeDetail(GenericDetail detail, boolean fireChangeEvents)
             throws OperationFailedException
     {
         boolean isFound = false;
@@ -263,6 +351,13 @@ public class OperationSetServerStoredAccountInfoSipImpl
             deleteImageDetail();
             accountImage = null;
         }
+
+        if(fireChangeEvents)
+            fireServerStoredDetailsChangeEvent(provider,
+                    ServerStoredDetailsChangeEvent.DETAIL_REMOVED,
+                    detail,
+                    null);
+
         return true;
     }
 
@@ -298,8 +393,14 @@ public class OperationSetServerStoredAccountInfoSipImpl
         {
             return true;
         }
-        removeDetail(currentDetailValue);
-        addDetail(newDetailValue);
+        removeDetail(currentDetailValue, false);
+        addDetail(newDetailValue, false);
+
+        fireServerStoredDetailsChangeEvent(provider,
+                        ServerStoredDetailsChangeEvent.DETAIL_REPLACED,
+                        currentDetailValue,
+                        newDetailValue);
+
         return true;
     }
 
@@ -448,6 +549,36 @@ public class OperationSetServerStoredAccountInfoSipImpl
         {
             isAccountImageLoaded = false;
             accountImage = null;
+        }
+    }
+
+    /**
+     * Changes the display name string.
+     */
+    void setOurDisplayName(String newDisplayName)
+    {
+        DisplayNameDetail oldDisplayName = displayNameDetail;
+        DisplayNameDetail newDisplayNameDetail
+                = new DisplayNameDetail(newDisplayName);
+
+        List<GenericDetail> alreadySetDetails = new Vector<GenericDetail>();
+        Iterator<GenericDetail> iter
+                = getDetails(newDisplayNameDetail.getClass());
+        while (iter.hasNext())
+        {
+            alreadySetDetails.add(iter.next());
+        }
+
+        try
+        {
+            if(alreadySetDetails.size() > 0)
+                replaceDetail(oldDisplayName, newDisplayNameDetail);
+            else
+                addDetail(newDisplayNameDetail);
+        }
+        catch(OperationFailedException e)
+        {
+            logger.error("Filed to set display name", e);
         }
     }
 }

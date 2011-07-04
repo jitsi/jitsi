@@ -2386,6 +2386,36 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Changes the display name string.
+     *
+     * @return whether we have successfully changed the display name.
+     */
+    boolean setOurDisplayName(String newDisplayName)
+    {
+        // if we really want to change the display name
+        // and it is existing, change it.
+        if(newDisplayName != null && !ourDisplayName.equals(newDisplayName))
+        {
+            getAccountID().putAccountProperty(
+                    ProtocolProviderFactory.DISPLAY_NAME,
+                    newDisplayName);
+
+            ourDisplayName = newDisplayName;
+
+            OperationSetServerStoredAccountInfoSipImpl accountInfoOpSet
+                = (OperationSetServerStoredAccountInfoSipImpl)getOperationSet(
+                    OperationSetServerStoredAccountInfo.class);
+
+            if(accountInfoOpSet != null)
+                accountInfoOpSet.setOurDisplayName(newDisplayName);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns a User Agent header that could be used for signing our requests.
      *
      * @return a <tt>UserAgentHeader</tt> that could be used for signing our
