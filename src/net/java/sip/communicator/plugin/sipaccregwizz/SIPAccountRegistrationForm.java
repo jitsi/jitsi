@@ -66,22 +66,27 @@ public class SIPAccountRegistrationForm
         if (createService != null)
             createService.clear();
 
-        if (accountPanel.getParent() != tabbedPane)
-            tabbedPane.addTab(  Resources.getString("service.gui.ACCOUNT"),
-                                accountPanel);
+        if (!SIPAccRegWizzActivator.isAdvancedAccountConfigDisabled())
+        {
+            if (accountPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(  Resources.getString("service.gui.ACCOUNT"),
+                                    accountPanel);
 
-        if (connectionPanel.getParent() != tabbedPane)
-            tabbedPane.addTab(Resources.getString("service.gui.CONNECTION"),
-                                connectionPanel);
+            if (connectionPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(Resources.getString("service.gui.CONNECTION"),
+                                    connectionPanel);
 
-        if (presencePanel.getParent() != tabbedPane)
-            tabbedPane.addTab(Resources.getString("service.gui.PRESENCE"),
-                                presencePanel);
+            if (presencePanel.getParent() != tabbedPane)
+                tabbedPane.addTab(Resources.getString("service.gui.PRESENCE"),
+                                    presencePanel);
 
-        if (tabbedPane.getParent() != this)
-            this.add(tabbedPane, BorderLayout.NORTH);
+            if (tabbedPane.getParent() != this)
+                this.add(tabbedPane, BorderLayout.NORTH);
 
-        tabbedPane.setSelectedIndex(0);
+            tabbedPane.setSelectedIndex(0);
+        }
+        else
+            add(accountPanel, BorderLayout.NORTH);
     }
 
     /**

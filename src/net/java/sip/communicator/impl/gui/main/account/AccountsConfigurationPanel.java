@@ -75,24 +75,21 @@ public class AccountsConfigurationPanel
             new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
         newButton.addActionListener(this);
+        editButton.addActionListener(this);
         removeButton.addActionListener(this);
 
         this.newButton.setMnemonic(GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.ADD"));
+        this.editButton
+            .setMnemonic(GuiActivator.getResources().getI18nMnemonic(
+                "service.gui.EDIT"));
         this.removeButton
             .setMnemonic(GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.DELETE"));
 
         buttonsPanel.add(newButton);
 
-        if (!ConfigurationManager.isAdvancedAccountConfigDisabled())
-        {
-            buttonsPanel.add(editButton);
-            this.editButton
-                .setMnemonic(GuiActivator.getResources().getI18nMnemonic(
-                    "service.gui.EDIT"));
-            editButton.addActionListener(this);
-        }
+        buttonsPanel.add(editButton);
 
         buttonsPanel.add(removeButton);
 

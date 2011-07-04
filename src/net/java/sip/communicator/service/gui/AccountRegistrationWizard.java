@@ -36,6 +36,9 @@ public abstract class AccountRegistrationWizard
      */
     private boolean isModification;
 
+    /**
+     * The parent wizard container.
+     */
     private WizardContainer wizardContainer;
 
     /**

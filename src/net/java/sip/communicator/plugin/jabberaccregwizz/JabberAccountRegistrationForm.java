@@ -70,22 +70,27 @@ public class JabberAccountRegistrationForm
         if (createService != null)
             createService.clear();
 
-        if (accountPanel.getParent() != tabbedPane)
-            tabbedPane.addTab(  Resources.getString("service.gui.ACCOUNT"),
-                                accountPanel);
+        if (!JabberAccRegWizzActivator.isAdvancedAccountConfigDisabled())
+        {
+            if (accountPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(  Resources.getString("service.gui.ACCOUNT"),
+                                    accountPanel);
 
-        if (connectionPanel.getParent() != tabbedPane)
-            tabbedPane.addTab(Resources.getString("service.gui.CONNECTION"),
-                                connectionPanel);
+            if (connectionPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(Resources.getString("service.gui.CONNECTION"),
+                                    connectionPanel);
 
-        if (iceConfigPanel.getParent() != tabbedPane)
-            tabbedPane.addTab(Resources.getString("service.gui.ICE"),
-                                iceConfigPanel);
+            if (iceConfigPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(Resources.getString("service.gui.ICE"),
+                                    iceConfigPanel);
 
-        if (tabbedPane.getParent() != this)
-            this.add(tabbedPane, BorderLayout.NORTH);
+            if (tabbedPane.getParent() != this)
+                this.add(tabbedPane, BorderLayout.NORTH);
 
-        tabbedPane.setSelectedIndex(0);
+            tabbedPane.setSelectedIndex(0);
+        }
+        else
+            add(accountPanel, BorderLayout.NORTH);
     }
 
     /**

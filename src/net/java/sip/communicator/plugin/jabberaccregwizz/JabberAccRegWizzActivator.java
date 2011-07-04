@@ -10,7 +10,9 @@ import java.util.*;
 
 import org.osgi.framework.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -34,6 +36,11 @@ public class JabberAccRegWizzActivator
         Logger.getLogger(JabberAccRegWizzActivator.class);
 
     private static BrowserLauncherService browserLauncherService;
+
+    /**
+     * A reference to the configuration service.
+     */
+    private static ConfigurationService configService;
 
     private static CredentialsStorageService credentialsService = null;
 
@@ -155,5 +162,51 @@ public class JabberAccRegWizzActivator
         }
 
         return credentialsService;
+    }
+
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     * context
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(ConfigurationService.class.getName());
+
+            configService = (ConfigurationService)bundleContext
+                .getService(serviceReference);
+        }
+
+        return configService;
+    }
+
+    /**
+     * Indicates if the advanced account configuration is currently disabled.
+     *
+     * @return <tt>true</tt> if the advanced account configuration is disabled,
+     * otherwise returns false
+     */
+    public static boolean isAdvancedAccountConfigDisabled()
+    {
+        // Load the "net.java.sip.communicator.impl.gui.main.account
+        // .ADVANCED_CONFIG_DISABLED" property.
+        String advancedConfigDisabledDefaultProp
+            = Resources.getSettingsString(
+                "impl.gui.main.account.ADVANCED_CONFIG_DISABLED");
+
+        boolean isAdvancedConfigDisabled = false;
+
+        if (advancedConfigDisabledDefaultProp != null)
+            isAdvancedConfigDisabled
+                = Boolean.parseBoolean(advancedConfigDisabledDefaultProp);
+
+        return getConfigurationService().getBoolean(
+                "net.java.sip.communicator.impl.gui.main.account." +
+                "ADVANCED_CONFIG_DISABLED",
+                isAdvancedConfigDisabled);
     }
 }
