@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;

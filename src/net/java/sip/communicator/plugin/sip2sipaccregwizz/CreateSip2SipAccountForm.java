@@ -16,8 +16,7 @@ import javax.swing.text.*;
 
 import org.json.*;
 
-import net.java.sip.communicator.plugin.ippiaccregwizz.CreateIppiAccountForm;
-import net.java.sip.communicator.plugin.ippiaccregwizz.IppiAccRegWizzActivator;
+import net.java.sip.communicator.plugin.ippiaccregwizz.*;
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;

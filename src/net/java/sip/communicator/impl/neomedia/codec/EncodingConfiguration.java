@@ -652,21 +652,36 @@ public class EncodingConfiguration
                  */
                 if (res == 0)
                 {
-                    /*
-                     * The format with more parameters will be considered here
-                     * to be the format with higher priority.
-                     */
-                    Map<String, String> fmtps1 = enc1.getFormatParameters();
-                    Map<String, String> fmtps2 = enc2.getFormatParameters();
-                    int fmtpCount1 = (fmtps1 == null) ? 0 : fmtps1.size();
-                    int fmtpCount2 = (fmtps2 == null) ? 0 : fmtps2.size();
+                    // Try to preserve the order specified by MediaUtils.
+                    int index1;
+                    int index2;
 
-                    /*
-                     * TODO Even if the number of format parameters is equal,
-                     * the two formats may still be different. Consider ordering
-                     * by the values of the format parameters as well.
-                     */
-                    return fmtpCount2 - fmtpCount1;
+                    if (((index1 = MediaUtils.getMediaFormatIndex(enc1)) != -1)
+                            && ((index2 = MediaUtils.getMediaFormatIndex(enc2))
+                                    != -1))
+                    {
+                        res = (index1 - index2);
+                    }
+
+                    if (res == 0)
+                    {
+                        /*
+                         * The format with more parameters will be considered
+                         * here to be the format with higher priority.
+                         */
+                        Map<String, String> fmtps1 = enc1.getFormatParameters();
+                        Map<String, String> fmtps2 = enc2.getFormatParameters();
+                        int fmtpCount1 = (fmtps1 == null) ? 0 : fmtps1.size();
+                        int fmtpCount2 = (fmtps2 == null) ? 0 : fmtps2.size();
+
+                        /*
+                         * TODO Even if the number of format parameters is
+                         * equal, the two formats may still be different.
+                         * Consider ordering by the values of the format
+                         * parameters as well.
+                         */
+                        res = (fmtpCount2 - fmtpCount1);
+                    }
                 }
             }
         }

@@ -338,79 +338,77 @@ public class MediaDeviceImpl
     public List<MediaFormat> getSupportedFormats(QualityPreset sendPreset,
                                                  QualityPreset receivePreset)
     {
+        MediaServiceImpl mediaServiceImpl
+            = NeomediaActivator.getMediaServiceImpl();
         EncodingConfiguration encodingConfiguration
-            = NeomediaActivator
-                .getMediaServiceImpl().getEncodingConfiguration();
+            = mediaServiceImpl.getEncodingConfiguration();
         MediaFormat[] supportedEncodings
             = encodingConfiguration.getSupportedEncodings(getMediaType());
         List<MediaFormat> supportedFormats = new ArrayList<MediaFormat>();
 
+        // If there is preset, check and set the format attributes where needed.
         if (supportedEncodings != null)
-            for (MediaFormat supportedEncoding : supportedEncodings)
-                supportedFormats.add(supportedEncoding);
-
-        // if there is preset check and set the format attributes
-        // where needed
         {
-            MediaFormat customFormat = null;
-            MediaFormat toRemove = null;
-            for(MediaFormat f : supportedFormats)
+            for (MediaFormat f : supportedEncodings)
             {
                 if("h264".equalsIgnoreCase(f.getEncoding()))
                 {
-                    Map<String,String> h264AdvancedAttributes =
-                            f.getAdvancedAttributes();
-                    if(h264AdvancedAttributes == null)
+                    Map<String,String> h264AdvancedAttributes
+                        = f.getAdvancedAttributes();
+
+                    if (h264AdvancedAttributes == null)
                         h264AdvancedAttributes = new HashMap<String, String>();
 
+                    MediaLocator captureDeviceInfoLocator;
                     Dimension sendSize = null;
-                    Dimension receiveSize;
 
                     // change send size only for video calls
-                    if(captureDeviceInfo != null
-                        && captureDeviceInfo.getLocator() != null
-                        && !(ImageStreamingAuto.LOCATOR_PROTOCOL.equals(
-                                captureDeviceInfo.getLocator().getProtocol())))
+                    if ((captureDeviceInfo != null)
+                        && ((captureDeviceInfoLocator
+                                    = captureDeviceInfo.getLocator())
+                                != null)
+                        && !ImageStreamingAuto.LOCATOR_PROTOCOL.equals(
+                                captureDeviceInfoLocator.getProtocol()))
                     {
-                        if(sendPreset != null)
+                        if (sendPreset != null)
                             sendSize = sendPreset.getResolution();
                         else
-                            sendSize = NeomediaActivator.getMediaServiceImpl()
-                                .getDeviceConfiguration().getVideoSize();
+                            sendSize
+                                = mediaServiceImpl
+                                    .getDeviceConfiguration()
+                                        .getVideoSize();
                     }
 
+                    Dimension receiveSize;
+
                     // if there is specified preset, send its settings
-                    if(receivePreset != null)
+                    if (receivePreset != null)
                         receiveSize = receivePreset.getResolution();
                     else
                     {
                         // or just send the max video resolution of the PC
                         // as we do by default
                         ScreenDevice screen
-                            = NeomediaActivator.getMediaServiceImpl()
-                                .getDefaultScreenDevice();
-                        receiveSize = (screen == null) ?
-                                null : screen.getSize();
+                            = mediaServiceImpl.getDefaultScreenDevice();
+
+                        receiveSize
+                            = (screen == null) ? null : screen.getSize();
                     }
 
-                    h264AdvancedAttributes.put("imageattr",
-                        MediaUtils.createImageAttr(sendSize,
-                                receiveSize));
+                    h264AdvancedAttributes.put(
+                            "imageattr",
+                            MediaUtils.createImageAttr(sendSize, receiveSize));
 
-                    customFormat = NeomediaActivator.getMediaServiceImpl()
-                            .getFormatFactory().createMediaFormat(
+                    f
+                        = mediaServiceImpl.getFormatFactory().createMediaFormat(
                                 f.getEncoding(),
                                 f.getClockRate(),
                                 f.getFormatParameters(),
                                 h264AdvancedAttributes);
-                    toRemove = f;
                 }
-            }
 
-            if(toRemove != null && customFormat != null)
-            {
-                supportedFormats.remove(toRemove);
-                supportedFormats.add(customFormat);
+                if (f != null)
+                    supportedFormats.add(f);
             }
         }
 

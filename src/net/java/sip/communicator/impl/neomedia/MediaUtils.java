@@ -179,7 +179,6 @@ public class MediaUtils
         Map<String, String> h264AdvancedAttributes
             = new HashMap<String, String>();
 
-        h264FormatParams.put(packetizationMode, "1");
         /*
          * Disable PLI since we use the periodic intra-refresh feature of
          * FFmpeg/x264.
@@ -193,6 +192,7 @@ public class MediaUtils
         h264AdvancedAttributes.put("imageattr", createImageAttr(null, res));
 
         // packetization-mode=1
+        h264FormatParams.put(packetizationMode, "1");
         addMediaFormats(
             MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
             "H264",
@@ -471,6 +471,24 @@ public class MediaUtils
                     && format.formatParametersMatch(fmtps))
                 return format;
         return null;
+    }
+
+    /**
+     * Gets the index of a specific <tt>MediaFormat</tt> instance within the
+     * internal storage of <tt>MediaUtils</tt>. Since the index is in the
+     * internal storage which may or may not be one and the same for the various
+     * <tt>MediaFormat</tt> instances and which may or may not be searched for
+     * the purposes of determining the index, the index is not to be used as a
+     * way to determine whether <tt>MediaUtils</tt> knows the specified
+     * <tt>mediaFormat</tt>
+     *
+     * @param mediaFormat the <tt>MediaFormat</tt> to determine the index of
+     * @return the index of the specified <tt>mediaFormat</tt> in the internal
+     * storage of <tt>MediaUtils</tt>
+     */
+    public static int getMediaFormatIndex(MediaFormat mediaFormat)
+    {
+        return rtpPayloadTypelessMediaFormats.indexOf(mediaFormat);
     }
 
     /**
