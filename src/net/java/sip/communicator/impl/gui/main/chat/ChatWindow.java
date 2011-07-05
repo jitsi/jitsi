@@ -328,34 +328,36 @@ public class ChatWindow
 
             chatCount --;
         }
-
-        //in the case of a tabbed chat window
-        int index = chatTabbedPane.indexOfComponent(chatPanel);
-
-        if (index != -1)
+        else
         {
-            if (chatTabbedPane.getTabCount() > 1)
-                chatTabbedPane.removeTabAt(index);
+            //in the case of a tabbed chat window
+            int index = chatTabbedPane.indexOfComponent(chatPanel);
 
-            if (chatTabbedPane.getTabCount() == 1)
+            if (index != -1)
             {
-                ChatPanel currentChatPanel = getCurrentChat();
+                if (chatTabbedPane.getTabCount() > 1)
+                    chatTabbedPane.removeTabAt(index);
 
-                this.chatTabbedPane.removeAll();
+                if (chatTabbedPane.getTabCount() == 1)
+                {
+                    ChatPanel currentChatPanel = getCurrentChat();
 
-                this.mainPanel.remove(chatTabbedPane);
+                    this.chatTabbedPane.removeAll();
 
-                this.mainPanel.add(currentChatPanel, BorderLayout.CENTER);
+                    this.mainPanel.remove(chatTabbedPane);
 
-                this.setCurrentChat(currentChatPanel);
+                    this.mainPanel.add(currentChatPanel, BorderLayout.CENTER);
 
-                // The current chat is now the focused chat, so we remove the
-                // non read chat state.
-                GuiActivator.getUIService().getChatWindowManager()
-                        .removeNonReadChatState(currentChatPanel);
+                    this.setCurrentChat(currentChatPanel);
+
+                    // The current chat is now the focused chat, so we remove the
+                    // non read chat state.
+                    GuiActivator.getUIService().getChatWindowManager()
+                            .removeNonReadChatState(currentChatPanel);
+                }
+
+                chatCount --;
             }
-
-            chatCount --;
         }
 
         if (getChatCount() == 0)
