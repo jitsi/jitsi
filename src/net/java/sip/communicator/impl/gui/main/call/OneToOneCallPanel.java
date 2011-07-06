@@ -122,7 +122,7 @@ public class OneToOneCallPanel
             peerPanel = new OneToOneCallPeerPanel(this, peer);
 
             /* Create the main Components of the UI. */
-            nameLabel.setText(peer.getDisplayName());
+            nameLabel.setText(getPeerDisplayText(peer, peer.getDisplayName()));
 
             JComponent topBar = createTopComponent();
             topBar.add(nameLabel);
@@ -511,7 +511,7 @@ public class OneToOneCallPanel
      */
     public void setPeerName(String name)
     {
-        this.nameLabel.setText(name);
+        this.nameLabel.setText(getPeerDisplayText(callPeer, name));
     }
 
     /**
@@ -563,5 +563,23 @@ public class OneToOneCallPanel
         }
 
         return topComponent;
+    }
+
+    /**
+     * A informative text to show for the peer.
+     * @param peer the peer.
+     * @return the text contain address and display name.
+     */
+    private String getPeerDisplayText(CallPeer peer, String displayName)
+    {
+        String peerAddress = peer.getAddress();
+
+        if(StringUtils.isNullOrEmpty(displayName, true))
+            return peerAddress;
+
+        if(!displayName.equalsIgnoreCase(peerAddress))
+            return displayName + " (" + peerAddress + ")";
+
+        return displayName;
     }
 }

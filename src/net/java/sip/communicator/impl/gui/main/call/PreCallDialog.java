@@ -51,9 +51,19 @@ public abstract class PreCallDialog
     private SIPCommButton hangupButton;
 
     /**
-     * Call label.
+     * Call label for display name.
      */
-    private JLabel callLabel;
+    private JLabel callLabelDisplayName;
+
+    /**
+     * Call label for address.
+     */
+    private JLabel callLabelAddress;
+
+    /**
+     * The label that will contain the peer image.
+     */
+    private JLabel callLabelImage;
 
     /**
      * The combo box containing a list of accounts to choose from.
@@ -116,7 +126,9 @@ public abstract class PreCallDialog
 
             receivedCallWindow = window.getJDialog();
 
-            callLabel = HudWidgetFactory.createHudLabel("");
+            callLabelDisplayName = HudWidgetFactory.createHudLabel("");
+            callLabelAddress = HudWidgetFactory.createHudLabel("");
+            callLabelImage = HudWidgetFactory.createHudLabel("");
 
             if (accounts != null)
             {
@@ -132,7 +144,9 @@ public abstract class PreCallDialog
 
             receivedCallWindow = frame;
 
-            callLabel = new JLabel();
+            callLabelDisplayName = new JLabel();
+            callLabelAddress = new JLabel();
+            callLabelImage = new JLabel();
 
             if (accounts != null)
             {
@@ -141,7 +155,7 @@ public abstract class PreCallDialog
         }
 
         if (text != null)
-            callLabel.setText(text);
+            callLabelDisplayName.setText(text);
 
         receivedCallWindow.setAlwaysOnTop(true);
 
@@ -161,7 +175,9 @@ public abstract class PreCallDialog
         JPanel mainPanel = new JPanel(new GridBagLayout());
 
         // disable html rendering
-        callLabel.putClientProperty("html.disable", Boolean.TRUE);
+        callLabelDisplayName.putClientProperty("html.disable", Boolean.TRUE);
+        callLabelAddress.putClientProperty("html.disable", Boolean.TRUE);
+        callLabelImage.putClientProperty("html.disable", Boolean.TRUE);
 
         JPanel buttonsPanel = new TransparentPanel(new GridBagLayout());
 
@@ -187,30 +203,40 @@ public abstract class PreCallDialog
         constraints.anchor = GridBagConstraints.WEST;
         constraints.gridx = 0;
         constraints.gridy = 0;
+        constraints.gridheight = 2;
+        constraints.insets = new Insets(0, 0, 0, HGAP);
+        mainPanel.add(callLabelImage, constraints);
+
+        constraints.insets = new Insets(0, 0, 0, 0);
+        constraints.gridheight = 1;
+        constraints.gridx = 1;
         constraints.weightx = 1;
-        mainPanel.add(callLabel, constraints);
+        mainPanel.add(callLabelDisplayName, constraints);
+
+        constraints.gridy = 1;
+        mainPanel.add(callLabelAddress, constraints);
 
         if (accountsCombo != null)
         {
-            constraints.gridx = 0;
+            constraints.gridx = 1;
             constraints.weightx = 1;
             mainPanel.add(Box.createVerticalStrut(HGAP), constraints);
 
-            constraints.gridx = 0;
+            constraints.gridx = 1;
             constraints.gridy = 2;
             constraints.weightx = 1;
             mainPanel.add(accountsCombo, constraints);
         }
 
         constraints.anchor = GridBagConstraints.CENTER;
-        constraints.gridx = 1;
+        constraints.gridx = 2;
         constraints.gridy = 0;
         constraints.weightx = 0;
         constraints.gridheight = 2;
         mainPanel.add(Box.createHorizontalStrut(HGAP), constraints);
 
         constraints.anchor = GridBagConstraints.CENTER;
-        constraints.gridx = 2;
+        constraints.gridx = 3;
         constraints.weightx = 0;
         mainPanel.add(buttonsPanel, constraints);
 
@@ -268,13 +294,17 @@ public abstract class PreCallDialog
     }
 
     /**
-     * Returns the call label contained in this dialog.
+     * Returns the labels contained in this dialog.
+     * The first is the label that will contain the image.
+     * The second one is the one with the display name(s).
+     * The third is the one that will hold the peer address(s).
      *
      * @return the call label contained in this dialog
      */
-    public JLabel getCallLabel()
+    public JLabel[] getCallLabels()
     {
-        return callLabel;
+        return new JLabel[]{
+                callLabelImage, callLabelDisplayName, callLabelAddress};
     }
 
     /**

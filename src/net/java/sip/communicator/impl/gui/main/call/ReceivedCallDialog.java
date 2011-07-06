@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
@@ -58,7 +59,7 @@ public class ReceivedCallDialog
 
         telephonyOpSet.addCallListener(this);
 
-        initCallLabel(getCallLabel());
+        initCallLabel(getCallLabels());
     }
 
     /**
@@ -66,12 +67,13 @@ public class ReceivedCallDialog
      *
      * @param callLabel The label to initialize.
      */
-    private void initCallLabel(final JLabel callLabel)
+    private void initCallLabel(final JLabel callLabel[])
     {
         Iterator<? extends CallPeer> peersIter = incomingCall.getCallPeers();
 
         boolean hasMorePeers = false;
-        String text = "";
+        String textDisplayName = "";
+        String textAddress = "";
 
         ImageIcon imageIcon =
             ImageUtils.scaleIconWithinBounds(ImageLoader
@@ -84,19 +86,32 @@ public class ReceivedCallDialog
             // More peers.
             if (peersIter.hasNext())
             {
-                text = callLabel.getText()
-                    + peer.getDisplayName() + ", ";
+                textDisplayName = callLabel[1].getText()
+                    + getPeerDisplayName(peer) + ", ";
+
+                String peerAddress = getPeerDisplayAddress(peer);
+
+                if(!StringUtils.isNullOrEmpty(peerAddress))
+                    textAddress = callLabel[2].getText()
+                        + peerAddress + ", ";
 
                 hasMorePeers = true;
             }
             // Only one peer.
             else
             {
-                text = callLabel.getText()
-                    + peer.getDisplayName()
+
+                textDisplayName = callLabel[1].getText()
+                    + getPeerDisplayName(peer)
                     + " "
                     + GuiActivator.getResources()
                         .getI18NString("service.gui.IS_CALLING");
+
+                String peerAddress = getPeerDisplayAddress(peer);
+
+                if(!StringUtils.isNullOrEmpty(peerAddress))
+                    textAddress = callLabel[2].getText()
+                        + peerAddress ;
 
                 byte[] image = CallManager.getPeerImage(peer);
 
@@ -111,7 +126,7 @@ public class ReceivedCallDialog
                         {
                             TreeContactList
                                 .setSourceContactImage( peer.getAddress(),
-                                                        callLabel,
+                                                        callLabel[0],
                                                         50, 50);
                         }
                     }).start();
@@ -119,11 +134,15 @@ public class ReceivedCallDialog
         }
 
         if (hasMorePeers)
-            text += GuiActivator.getResources()
+            textDisplayName += GuiActivator.getResources()
                 .getI18NString("service.gui.ARE_CALLING");
 
-        callLabel.setIcon(imageIcon);
-        callLabel.setText(text);
+        callLabel[0].setIcon(imageIcon);
+
+        callLabel[1].setText(textDisplayName);
+
+        callLabel[2].setText(textAddress);
+        callLabel[2].setForeground(Color.GRAY);
     }
 
     /**
@@ -155,7 +174,7 @@ public class ReceivedCallDialog
      */
     public void loadSkin()
     {
-        this.initCallLabel(getCallLabel());
+        this.initCallLabel(getCallLabels());
     }
 
     /**
@@ -177,4 +196,42 @@ public class ReceivedCallDialog
 
         CallManager.hangupCall(incomingCall);
     }
+
+    /**
+     * A informative text to show for the peer. If display name is missing
+     * return the address.
+     * @param peer the peer.
+     * @return the text contain display name.
+     */
+    private String getPeerDisplayName(CallPeer peer)
+    {
+        String displayName = peer.getDisplayName();
+        String peerAddress = peer.getAddress();
+
+        if(StringUtils.isNullOrEmpty(displayName, true))
+            return peerAddress;
+
+        return displayName;
+    }
+
+    /**
+     * A informative text to show for the peer. If display name and
+     * address are the same return null.
+     * @param peer the peer.
+     * @return the text contain address.
+     */
+    private String getPeerDisplayAddress(CallPeer peer)
+    {
+        String displayName = peer.getDisplayName();
+        String peerAddress = peer.getAddress();
+
+        if(StringUtils.isNullOrEmpty(peerAddress, true))
+            return null;
+
+        if(peerAddress.equalsIgnoreCase(displayName))
+            return null;
+
+        return peerAddress;
+    }
+
 }
