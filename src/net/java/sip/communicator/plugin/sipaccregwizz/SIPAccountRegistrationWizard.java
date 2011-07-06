@@ -125,7 +125,7 @@ public class SIPAccountRegistrationWizard
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
 
-        this.registration = registration;
+        setRegistration(registration);
 
         // If the first wizard page was already created
         if (firstWizardPage == null)
@@ -569,7 +569,7 @@ public class SIPAccountRegistrationWizard
 
         this.protocolProvider = protocolProvider;
 
-        this.registration = new SIPAccountRegistration();
+        setRegistration(new SIPAccountRegistration());
 
         this.firstWizardPage.loadAccount(protocolProvider);
     }
@@ -584,6 +584,18 @@ public class SIPAccountRegistrationWizard
     public SIPAccountRegistration getRegistration()
     {
         return registration;
+    }
+
+    /**
+     * Sets the registration object, which will store all the data through
+     * the wizard.
+     *
+     * @param registration the registration object, which will store all the
+     * data through the wizard
+     */
+    protected void setRegistration(SIPAccountRegistration registration)
+    {
+        this.registration = registration;
     }
 
     /**
@@ -694,7 +706,7 @@ public class SIPAccountRegistrationWizard
     public Object getSimpleForm(SIPAccountRegistration registration,
                                 boolean isCreateAccount)
     {
-        this.registration = registration;
+        setRegistration(registration);
 
         firstWizardPage = new FirstWizardPage(this);
         return firstWizardPage.getSimpleForm();
