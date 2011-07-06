@@ -127,12 +127,12 @@ public class OperationSetVideoTelephonyJabberImpl
                     , OperationFailedException.INTERNAL_ERROR);
         }
 
-        MediaAwareCall<?, ?, ?> call = new CallJabberImpl(basicTelephony);
+        CallJabberImpl call = new CallJabberImpl(basicTelephony);
 
         /* enable video */
         call.setLocalVideoAllowed(true, getMediaUseCase());
         CallPeer callPeer =
-            basicTelephony.createOutgoingCall((CallJabberImpl)call, calleeAddress);
+            basicTelephony.createOutgoingCall(call, calleeAddress);
 
         // if call is a Google Talk ones, return the CallGTalkImpl
 

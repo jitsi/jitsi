@@ -9,8 +9,6 @@ import java.util.*;
 
 import org.osgi.framework.*;
 
-import sun.reflect.ReflectionFactory.*;
-
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
