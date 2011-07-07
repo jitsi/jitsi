@@ -1708,9 +1708,12 @@ public class OperationSetPresenceSipImpl
      *
      * @param contactAddress the address of the volatile contact we'd like to
      * create.
+     * @param displayName the Display Name of the volatile contact we'd like to
+     * create.
      * @return the newly created volatile contact.
      */
-    public ContactSipImpl createVolatileContact(String contactAddress)
+    public ContactSipImpl createVolatileContact(String contactAddress,
+                                                String displayName)
     {
         try
         {
@@ -1724,13 +1727,37 @@ public class OperationSetPresenceSipImpl
                 volatileGroup = ssContactList
                         .createGroup(rootGroup, "NotInContactList", false);
             }
-            return ssContactList.createContact(volatileGroup,
-                    contactAddress, false);
+
+            if (displayName != null)
+                return ssContactList.createContact( volatileGroup,
+                                                    contactAddress,
+                                                    displayName,
+                                                    false);
+            else
+                return ssContactList.createContact( volatileGroup,
+                                                    contactAddress,
+                                                    false);
         }
         catch (OperationFailedException ex)
         {
             return null;
         }
+    }
+
+    /**
+     * Creates a non persistent contact for the specified address. This would
+     * also create (if necessary) a group for volatile contacts that would not
+     * be added to the server stored contact list. This method would have no
+     * effect on the server stored contact list.
+     *
+     * @param contactAddress the address of the volatile contact we'd like to
+     * create.
+     * 
+     * @return the newly created volatile contact.
+     */
+    public ContactSipImpl createVolatileContact(String contactAddress)
+    {
+        return createVolatileContact(contactAddress, null);
     }
 
     /**

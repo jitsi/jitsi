@@ -256,7 +256,31 @@ public class ServerStoredContactListSipImpl
      *                                  communication.
      */
     synchronized public ContactSipImpl createContact(
-            ContactGroupSipImpl parentGroup, String contactId,
+        ContactGroupSipImpl parentGroup, String contactId,
+        boolean persistent)
+        throws OperationFailedException
+    {
+        return createContact(parentGroup, contactId, null, persistent);
+    }
+
+    /**
+     * Creates contact for the specified address and inside the
+     * specified group . If creation is successfull event will be fired.
+     *
+     * @param parentGroup the group where the unersolved contact is to be
+     *                    created.
+     * @param contactId   the sip id of the contact to create.
+     * @param displayName the display name of the contact to create
+     * @param persistent  specify whether created contact is persistent ot not.
+     * @return the newly created <tt>ContactSipImpl</tt>.
+     * @throws OperationFailedException with code NETWORK_FAILURE if the
+     *                                  operation if failed during network
+     *                                  communication.
+     */
+    synchronized public ContactSipImpl createContact(
+            ContactGroupSipImpl parentGroup,
+            String contactId,
+            String displayName,
             boolean persistent)
             throws OperationFailedException
     {
@@ -309,8 +333,13 @@ public class ServerStoredContactListSipImpl
         newContact = new ContactSipImpl(contactAddress,
                 sipProvider);
         newContact.setPersistent(persistent);
-        String name = ((SipURI) contactAddress.getURI()).getUser();
-        newContact.setDisplayName(name);
+
+        // Set the display name.
+        if (displayName == null || displayName.length() <= 0)
+            displayName = ((SipURI) contactAddress.getURI()).getUser();
+
+        newContact.setDisplayName(displayName);
+
         parentGroup.addContact(newContact);
         if (newContact.isPersistent())
         {

@@ -697,13 +697,24 @@ public class OperationSetBasicInstantMessagingSipImpl
 
             Message newMessage = createMessage(content, ctype, cencoding, null);
 
-            if (from == null) {
+            if (from == null)
+            {
                 if (logger.isDebugEnabled())
                     logger.debug("received a message from an unknown contact: "
                             + fromHeader.getAddress().getURI().toString());
+
                 //create the volatile contact
-                from = opSetPersPresence.createVolatileContact(
-                            fromHeader.getAddress().getURI().toString());
+                if (fromHeader.getAddress().getDisplayName() != null)
+                {
+                    from = opSetPersPresence.createVolatileContact(
+                        fromHeader.getAddress().getURI().toString(), 
+                        fromHeader.getAddress().getDisplayName().toString());
+                }
+                else
+                {
+                    from = opSetPersPresence.createVolatileContact(
+                        fromHeader.getAddress().getURI().toString());
+                }
             }
 
             // answer ok

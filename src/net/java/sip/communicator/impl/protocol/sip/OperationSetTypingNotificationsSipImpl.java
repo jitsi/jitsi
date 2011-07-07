@@ -202,11 +202,20 @@ public class OperationSetTypingNotificationsSipImpl
             fromHeader.getAddress().getURI().toString());
 
         // create fn not in contact list
-        if(from == null)
+        if (from == null)
         {
             //create the volatile contact
-            from = opSetPersPresence.createVolatileContact(
+            if (fromHeader.getAddress().getDisplayName() != null)
+            {
+                from = opSetPersPresence.createVolatileContact(
+                    fromHeader.getAddress().getURI().toString(), 
+                    fromHeader.getAddress().getDisplayName().toString());
+            }
+            else
+            {
+                from = opSetPersPresence.createVolatileContact(
                     fromHeader.getAddress().getURI().toString());
+            }
         }
 
         // parse content
