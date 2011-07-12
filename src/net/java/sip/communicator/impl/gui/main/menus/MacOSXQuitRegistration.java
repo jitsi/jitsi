@@ -34,7 +34,20 @@ public final class MacOSXQuitRegistration
                      * (2011-06-10) Changed to true, we tell that quit is handled
                      * as otherwise will stop OS from logout or shutdown and
                      * a notification will be shown to user to inform about it.
+                     *
+                     * (2011-07-12) Wait before answering to the OS or we will
+                     * end too quickly. 15sec is the time our shutdown timer
+                     * waits before force the shutdown.
                      */
+
+                    synchronized(this)
+                    {
+                        try
+                        {
+                            wait(15000);
+                        }catch (InterruptedException ex){}
+                    }
+
                     event.setHandled(true);
                 }
             });

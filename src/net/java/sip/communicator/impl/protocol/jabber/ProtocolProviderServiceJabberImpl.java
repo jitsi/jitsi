@@ -309,6 +309,12 @@ public class ProtocolProviderServiceJabberImpl
     private final Object jingleNodesSyncRoot = new Object();
 
     /**
+     * Stores user credentials for local use if user hasn't stored
+     * its password.
+     */
+    private UserCredentials userCredentials = null;
+
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -487,6 +493,8 @@ public class ProtocolProviderServiceJabberImpl
                     JabberActivator.getProtocolProviderFactory()
                         .storePassword(getAccountID(), password);
                 }
+                else
+                    userCredentials = credentials;
             }
 
             //init the necessary objects
@@ -2136,5 +2144,10 @@ public class ProtocolProviderServiceJabberImpl
             JabberActivator.getConfigurationService().getBoolean(
                 "net.java.sip.communicator.impl.protocol.jabber.gtalktesting"
                 , false));
+    }
+
+    UserCredentials getUserCredentials()
+    {
+        return userCredentials;
     }
 }

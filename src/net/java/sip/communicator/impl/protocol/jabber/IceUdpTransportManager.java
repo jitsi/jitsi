@@ -118,6 +118,9 @@ public class IceUdpTransportManager
                 = JabberActivator.getProtocolProviderFactory().loadPassword(
                         accID);
 
+            if(provider.getUserCredentials() != null)
+                password = provider.getUserCredentials().getPasswordAsString();
+
             // ask for password if not saved
             if (password == null)
             {
