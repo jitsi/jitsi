@@ -477,7 +477,8 @@ public class OperationSetContactCapabilitiesJabberImpl
         ContactPresenceStatusChangeEvent evt)
     {
         // If the user goes offline we ensure to remove the caps node.
-        if (evt.getNewStatus().getStatus() < PresenceStatus.ONLINE_THRESHOLD)
+        if (capsManager != null
+            && evt.getNewStatus().getStatus() < PresenceStatus.ONLINE_THRESHOLD)
             capsManager.removeUserCapsNode(evt.getSourceContact().getAddress());
     }
 }

@@ -750,7 +750,7 @@ public class NetworkUtils
             return "UDP";
         else if(service.equalsIgnoreCase("SIP+D2T"))
             return "TCP";
-        else if(service.equalsIgnoreCase("SIP+D2TS"))
+        else if(service.equalsIgnoreCase("SIPS+D2T"))
             return "TLS";
         else
             return null;

@@ -111,6 +111,14 @@ public class OperationSetMultiUserChatJabberImpl
             if (logger.isInfoEnabled())
                 logger.info("Find room returns null.");
 
+            // rooms using google servers needs a special name.
+            // in the form private-chat-UUID@groupchat.google.com
+            if(getXmppConnection().getHost().toLowerCase().contains("google"))
+            {
+                roomName = "private-chat-" +
+                        UUID.randomUUID().toString() + "@groupchat.google.com";
+            }
+
             MultiUserChat muc = null;
             try
             {
