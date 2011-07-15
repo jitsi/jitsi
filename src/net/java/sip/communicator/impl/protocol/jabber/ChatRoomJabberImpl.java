@@ -884,7 +884,7 @@ public class ChatRoomJabberImpl
             // We try to get the nickname of the participantName in case it's
             // in the form john@servicename.com, because the nickname we keep
             // in the nickname property is just the user name like "john".
-            if (nickname.equals(getNickName(participantName))
+            if (nickname.equals(participantName)
                 || members.containsKey(participantName))
                 return;
 
@@ -1543,10 +1543,8 @@ public class ChatRoomJabberImpl
 
             String fromUserName = StringUtils.parseResource(msgFrom);
 
-            // We try to get the nickname of the participantName in case it's
-            // in the form john@servicename.com, because the nickname we keep
-            // in the nickname property is just the user name, like "john".
-            if(nickname.equals(getNickName(fromUserName)))
+            // skip our own messages
+            if(getUserNickname().equals(fromUserName))
                 return;
 
             // when the message comes from the room itself its a system message

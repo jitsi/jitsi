@@ -64,6 +64,8 @@ public class ChatRoomTableUI
 
         this.chatRoomList.addMouseListener(this);
 
+        this.chatRoomList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
         this.chatRoomList.setDefaultRenderer(ProtocolProviderService.class,
             new ProtocolProviderTableCellRenderer());
         this.chatRoomList.setDefaultRenderer(ChatRoomWrapper.class,
@@ -88,6 +90,9 @@ public class ChatRoomTableUI
      */
     void removeSelectedRoom()
     {
+        if(chatRoomList.getSelectedRow() == -1)
+            return;
+
         ChatRoomWrapper chatRoomWrapper = 
             chatRoomsTableModel.getValueAt(chatRoomList.getSelectedRow());
 
