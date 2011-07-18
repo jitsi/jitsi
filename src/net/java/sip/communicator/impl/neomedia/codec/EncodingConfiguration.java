@@ -426,12 +426,20 @@ public class EncodingConfiguration
                 "com.sun.media.codec.video.colorspace.RGBScaler",
                 PlugInManager.CODEC);
 
-        /* remove JMF's H263 codec */
+        // Remove JMF's H263 codec.
         PlugInManager.removePlugIn(
                 "com.sun.media.codec.video.vh263.NativeDecoder",
                 PlugInManager.CODEC);
         PlugInManager.removePlugIn(
                 "com.ibm.media.codec.video.h263.NativeEncoder",
+                PlugInManager.CODEC);
+
+        /*
+         * Remove FMJ's JavaSoundCodec because it seems to slow down the
+         * building of the filter graph and we do not currently seem to need it.
+         */
+        PlugInManager.removePlugIn(
+                "net.sf.fmj.media.codec.JavaSoundCodec",
                 PlugInManager.CODEC);
 
         for (String className : CUSTOM_CODECS)

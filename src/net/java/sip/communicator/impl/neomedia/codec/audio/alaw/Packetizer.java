@@ -10,6 +10,7 @@ import javax.media.*;
 import javax.media.format.*;
 
 import com.ibm.media.codec.audio.*;
+
 import net.java.sip.communicator.impl.neomedia.codec.*;
 
 /**
@@ -134,21 +135,15 @@ class PacketSizeAdapter
 
     public int setPacketSize(int numBytes)
     {
-
         int numOfPackets = numBytes;
 
         if (numOfPackets < 10)
-        {
             numOfPackets = 10;
-        }
-
         if (numOfPackets > 8000)
-        {
             numOfPackets = 8000;
-        }
         packetSize = numOfPackets;
 
-        ( (Packetizer) owner).setPacketSize(packetSize);
+        ((Packetizer)owner).setPacketSize(packetSize);
 
         return packetSize;
     }
