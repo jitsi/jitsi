@@ -649,7 +649,7 @@ public abstract class MediaAwareCallPeer
     }
 
     /**
-     * Implements {@link CsrcAudioLevelListener#audioLevelsReceived(long[][])}
+     * Implements {@link CsrcAudioLevelListener#audioLevelsReceived(long[])}
      * so that we could deliver to {@link ConferenceMembersSoundLevelListener}s
      * the events corresponding to the audio level changes that are being
      * reported here.

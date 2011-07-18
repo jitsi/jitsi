@@ -370,7 +370,14 @@ public abstract class CallPeerMediaHandler<
         }
         else
         {
-            //off hold - make sure that we re-enable sending
+            //off hold - make sure that we re-enable sending, only
+            // if other party is not on hold
+            if (CallPeerState.ON_HOLD_MUTUALLY.equals(
+                    getPeer().getState()))
+            {
+                return;
+            }
+
             if(audioStream != null)
             {
                 audioStream.setDirection(audioStream.getDirection()

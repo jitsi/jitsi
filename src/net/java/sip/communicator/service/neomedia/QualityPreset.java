@@ -96,7 +96,11 @@ public class QualityPreset
      */
     public int compareTo(QualityPreset o)
     {
-        if(resolution.equals(o.resolution))
+        if(resolution == null)
+            return -1;
+        else if(o == null)
+            return 1;
+        else if(resolution.equals(o.resolution))
             return 0;
         else if((resolution.height < o.resolution.height)
                 && (resolution.width < o.resolution.width))
