@@ -201,7 +201,7 @@ public class NeomediaActivator
         bundleContext.registerService(
             ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
-                "net.java.sip.communicator.impl.neomedia.ZrtpConfigurePanel",
+                "net.java.sip.communicator.impl.neomedia.SecurityConfigForm",
                 getClass().getClassLoader(),
                 "impl.media.security.zrtp.CONF_ICON",
                 "impl.media.security.zrtp.TITLE",
