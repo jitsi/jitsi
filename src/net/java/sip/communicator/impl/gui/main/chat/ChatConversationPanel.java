@@ -815,9 +815,9 @@ public class ChatConversationPanel
             String keywordMatch = m.group().trim();
 
             msgBuffer.append(endPlainTextTag);
-            msgBuffer.append("<h7>");
+            msgBuffer.append("<b>");
             msgBuffer.append(keywordMatch);
-            msgBuffer.append("</h7>");
+            msgBuffer.append("</b>");
             msgBuffer.append(startPlainTextTag);
         }
 
@@ -1413,5 +1413,100 @@ public class ChatConversationPanel
                 new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
 
         getRightButtonMenu().loadSkin();
+    }
+
+    /**
+     * Highlights the string in multi user chat.
+     * 
+     * @param message the message to process
+     * @param contentType the content type of the message
+     * @param keyWord the keyword to highlight
+     * @return the message string with the keyword highlighted
+     */
+    public String processChatRoomHighlight(String message, String contentType,
+        String keyWord)
+    {
+        return processKeyword(message, contentType, keyWord);
+    }
+    
+    public String processMeCommand(ChatMessage chatMessage)
+    {
+        String contentType = chatMessage.getContentType();
+        String message = chatMessage.getMessage();
+
+        String msgID = "message";
+        String chatString = "";
+        String endHeaderTag = "";
+
+        String startDivTag = "<DIV identifier=\"" + msgID + "\">";
+        String endDivTag = "</DIV>";
+
+        String startPlainTextTag;
+        String endPlainTextTag;
+
+        if (HTML_CONTENT_TYPE.equals(contentType))
+        {
+            startPlainTextTag = "";
+            endPlainTextTag = "";
+        }
+        else
+        {
+            startPlainTextTag = START_PLAINTEXT_TAG;
+            endPlainTextTag = END_PLAINTEXT_TAG;
+        }
+
+        if (message.length() > 4 && message.substring(0, 4).equals("/me "))
+        {
+            chatString = startDivTag + "<B><I>";
+
+            endHeaderTag = "</I></B>" + endDivTag;
+
+            chatString +=
+
+                processHTMLChars("*** " + chatMessage.getContactName() + " "
+                    + message.substring(4))
+                    + endHeaderTag;
+
+            Map<String, ReplacementService> listSources =
+                GuiActivator.getReplacementSources();
+
+            Iterator<Entry<String, ReplacementService>> entrySetIter =
+                listSources.entrySet().iterator();
+            StringBuffer msgStore = new StringBuffer(chatString);
+
+            for (int i = 0; i < listSources.size(); i++)
+            {
+                Map.Entry<String, ReplacementService> entry =
+                    entrySetIter.next();
+
+                ReplacementService source = entry.getValue();
+
+                boolean isSmiley = source instanceof SmiliesReplacementService;
+                if (isSmiley)
+                {
+                    String sourcePattern = source.getPattern();
+                    Pattern p =
+                        Pattern.compile(sourcePattern, Pattern.CASE_INSENSITIVE
+                            | Pattern.DOTALL);
+                    Matcher m = p.matcher(msgStore);
+
+                    StringBuffer msgTemp = new StringBuffer(chatString);
+
+                    while (m.find())
+                    {
+                        msgTemp.insert(m.start(), startPlainTextTag);
+                        msgTemp.insert(m.end() + startPlainTextTag.length(),
+                            endPlainTextTag);
+
+                    }
+                    if (msgTemp.length() != msgStore.length())
+                        msgStore = msgTemp;
+                }
+            }
+
+            return msgStore.toString();
+        }
+        else
+            return "";
     }
 }

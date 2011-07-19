@@ -27,6 +27,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 
 /**
  * The <tt>ChatWritePanel</tt> is the panel, where user writes her messages.
@@ -539,6 +540,105 @@ public class ChatWritePanel
         {
             if (undo.canRedo())
                 redo();
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_TAB)
+        {
+            if(!(chatPanel.getChatSession() instanceof ConferenceChatSession))
+                return;
+
+            e.consume();
+            int index = ((JEditorPane)e.getSource()).getCaretPosition();
+
+            StringBuffer message = new StringBuffer(chatPanel.getMessage());
+
+            int position = index-1;
+
+            while (position > 0 && (message.charAt(position) != ' '))
+            {
+                position--;
+            }
+
+            if(position != 0)
+                position++;
+
+            String sequence = message.substring(position, index);
+
+            Iterator<ChatContact<?>> iter = chatPanel.getChatSession()
+                                             .getParticipants();
+            ArrayList<String> contacts = new ArrayList<String>();
+            while(iter.hasNext())
+            {
+                ChatContact c = iter.next();
+                if(c.getName().length() >= (index-position) && 
+                    c.getName().substring(0,index-position).equals(sequence))
+                {
+                    message.replace(position, index, c.getName()
+                        .substring(0,index-position));
+                    contacts.add(c.getName());
+                }
+            }
+
+            if(contacts.size() > 1)
+            {
+                char key = contacts.get(0).charAt(index-position-1);
+                int pos = index-position-1;
+                boolean flag = true;
+
+                while(flag)
+                {
+                    try
+                    {
+                        for(String name : contacts)
+                        {
+                            if(key != name.charAt(pos))
+                            {
+                                flag = false;
+                            }
+                        }
+
+                        if(flag)
+                        {
+                            pos++;
+                            key = contacts.get(0).charAt(pos);
+                        }
+                    }
+                    catch(IndexOutOfBoundsException exp)
+                    {
+                        flag = false;
+                    }
+                }
+
+                message.replace(position, index, contacts.get(0)
+                    .substring(0,pos));
+
+                Iterator<String> contactIter = contacts.iterator();
+                String contactList = "<DIV align='left'><h5>";
+                while(contactIter.hasNext()) 
+                {
+                    contactList += contactIter.next() + " ";
+                }
+                contactList += "</h5></DIV>";
+
+                chatPanel.getChatConversationPanel()
+                    .appendMessageToEnd(contactList);
+            }
+            else if(contacts.size() == 1)
+            {
+                String limiter = (position == 0) ? ": " : "";
+                message.replace(position, index, contacts.get(0) + limiter);
+            }
+
+            try
+            {
+                ((JEditorPane)e.getSource()).getDocument().remove(0, 
+                    ((JEditorPane)e.getSource()).getDocument().getLength());
+                ((JEditorPane)e.getSource()).getDocument().insertString(0, 
+                    message.toString(), null);
+            }
+            catch (BadLocationException ex)
+            {
+                ex.printStackTrace();
+            }
         }
     }
 

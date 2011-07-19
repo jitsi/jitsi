@@ -176,7 +176,7 @@ public class ConferenceChatManager
             Message msg = evt.getMessage();
 
             chatPanel.addMessage(
-                sourceChatRoom.getParentProvider().getAccountID().getUserID(),
+                sourceChatRoom.getUserNickname(),
                 evt.getTimestamp(),
                 messageType,
                 msg.getContent(),
@@ -247,8 +247,6 @@ public class ConferenceChatManager
             messageContent,
             message.getContentType());
 
-        chatWindowManager.openChat(chatPanel, false);
-
         // Fire notification
         boolean fireChatNotification;
 
@@ -287,6 +285,8 @@ public class ConferenceChatManager
                 title,
                 messageContent);
         }
+
+        chatWindowManager.openChat(chatPanel, false);
     }
 
     /**

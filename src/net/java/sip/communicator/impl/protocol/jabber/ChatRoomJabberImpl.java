@@ -463,7 +463,9 @@ public class ChatRoomJabberImpl
     {
         this.assertConnected();
 
-        this.nickname = StringUtils.parseName(nickname);
+        this.nickname = getNickName(StringUtils.parseName(nickname));
+        if(this.nickname.length() == 0)
+            this.nickname = nickname;
 
         try
         {
@@ -1254,6 +1256,11 @@ public class ChatRoomJabberImpl
         try
         {
             multiUserChat.changeNickname(nickname);
+            int atIndex = nickname.lastIndexOf("@");
+            if(atIndex <= 0)
+                this.nickname = nickname;
+            else
+                this.nickname = nickname.substring(0, atIndex);
         }
         catch (XMPPException e)
         {

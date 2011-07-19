@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -141,10 +142,55 @@ public class ChatRoomTableUI
         else
             return;
 
-        if(!chatRoomWrapper.getChatRoom().isJoined())
+        if(chatRoomWrapper.getChatRoom() == null)
         {
-            GuiActivator.getUIService().getConferenceChatManager()
-                .joinChatRoom(chatRoomWrapper);
+            chatRoomWrapper =
+                GuiActivator.getUIService().getConferenceChatManager()
+                    .createChatRoom(
+                        chatRoomWrapper.getChatRoomName(),
+                        chatRoomWrapper.getParentProvider()
+                            .getProtocolProvider(),
+                            new ArrayList<String>(),
+                            "",
+                            false,
+                            true);
+
+            this.chatRoomsTableModel.setValueAt(chatRoomWrapper,
+                this.chatRoomList.getSelectedRow(),
+                this.chatRoomList.getSelectedColumn());
+        }
+
+        String nickName = null;
+        ChatOperationReasonDialog reasonDialog =
+            new ChatOperationReasonDialog(GuiActivator
+                .getResources().getI18NString(
+                    "service.gui.CHANGE_NICKNAME"), GuiActivator
+                .getResources().getI18NString(
+                    "service.gui.CHANGE_NICKNAME_LABEL"));
+
+        // reasonDialog.setIconImage(ImageLoader.getImage(
+        // ImageLoader.CHANGE_NICKNAME_ICON_16x16));
+        reasonDialog.setReasonFieldText("");
+
+        int result = reasonDialog.showDialog();
+
+        if (result == MessageDialog.OK_RETURN_CODE)
+        {
+            nickName = reasonDialog.getReason().trim();
+
+            if (!chatRoomWrapper.getChatRoom().isJoined())
+            {
+                GuiActivator.getUIService().getConferenceChatManager()
+                    .joinChatRoom(chatRoomWrapper, nickName, null);
+            }
+        }
+        else
+        {
+            if(!chatRoomWrapper.getChatRoom().isJoined())
+            {
+                GuiActivator.getUIService().getConferenceChatManager()
+                    .joinChatRoom(chatRoomWrapper);
+            }
         }
 
         ChatWindowManager chatWindowManager

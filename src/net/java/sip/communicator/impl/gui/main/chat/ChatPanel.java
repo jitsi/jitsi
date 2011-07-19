@@ -55,6 +55,7 @@ public class ChatPanel
                 ChatConversationContainer,
                 ChatRoomMemberRoleListener,
                 ChatRoomLocalUserRoleListener,
+                ChatRoomMemberPropertyChangeListener,
                 FileTransferStatusListener,
                 Skinnable
 {
@@ -277,6 +278,9 @@ public class ChatPanel
 
             confSession.addLocalUserRoleListener(this);
             confSession.addMemberRoleListener(this);
+
+            ((ChatRoomWrapper) chatSession.getDescriptor())
+                .getChatRoom().addMemberPropertyChangeListener(this);
 
             subjectPanel
                 = new ChatRoomSubjectPanel((ConferenceChatSession) chatSession);
@@ -766,6 +770,29 @@ public class ChatPanel
         String processedMessage
             = this.conversationPanel.processMessage(chatMessage);
 
+        if (chatSession instanceof ConferenceChatSession)
+        {
+            if (chatMessage.getMessageType().equals(Chat.INCOMING_MESSAGE))
+            {
+                String keyWord =
+                    ((ChatRoomWrapper) chatSession.getDescriptor())
+                        .getChatRoom().getUserNickname();
+
+                processedMessage =
+                    this.conversationPanel
+                        .processChatRoomHighlight(processedMessage,
+                            chatMessage.getContentType(), keyWord);
+            }
+
+            String meCommandMsg
+                = this.conversationPanel.processMeCommand(chatMessage);
+
+            if (meCommandMsg.length() > 0)
+            {
+                processedMessage = meCommandMsg;
+            }
+        }
+
         this.conversationPanel.appendMessageToEnd(processedMessage);
     }
 
@@ -791,7 +818,19 @@ public class ChatPanel
         ChatMessage chatMessage = new ChatMessage(contactName, date,
             messageType, message, contentType);
 
-        return this.conversationPanel.processMessage(chatMessage);
+        String processedMessage =
+            this.conversationPanel.processMessage(chatMessage);
+        if (chatSession instanceof ConferenceChatSession)
+        {
+            String tempMessage =
+                conversationPanel.processMeCommand(chatMessage);
+            if (tempMessage.length() > 0)
+            {
+                processedMessage = tempMessage;
+            }
+        }
+
+        return processedMessage;
     }
 
     /**
@@ -983,7 +1022,17 @@ public class ChatPanel
      */
     public String getMessage()
     {
-        return writeMessagePanel.getEditorPane().getText();
+        Document writeEditorDoc
+            = writeMessagePanel.getEditorPane().getDocument();
+
+        try
+        {
+            return writeEditorDoc.getText(0, writeEditorDoc.getLength());
+        }
+        catch (BadLocationException e)
+        {
+            return writeMessagePanel.getEditorPane().getText();
+        }
     }
 
     /**
@@ -2418,5 +2467,19 @@ public class ChatPanel
             logger.error(ex);
         }
         loadHistory();
+    }
+
+    /**
+     *  Notifies the user if any member of the chatroom changes nickname
+     */
+    public void chatRoomPropertyChanged(ChatRoomMemberPropertyChangeEvent event)
+    {
+        this.conversationPanel
+            .appendMessageToEnd(
+                "<DIV identifier=\"message\" style=\"color:#707070;\">"
+                + event.getOldValue()
+                + " is now known as "
+                + event.getNewValue() + "</DIV>");
+        
     }
 }

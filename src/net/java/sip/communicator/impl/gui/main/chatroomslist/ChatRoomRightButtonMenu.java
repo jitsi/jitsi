@@ -12,6 +12,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
@@ -105,7 +106,11 @@ public class ChatRoomRightButtonMenu
         }
         else if (itemName.equals("joinChatRoom"))
         {
-            conferenceManager.joinChatRoom(chatRoomWrapper);
+            String nickName = getNickname();
+            if (nickName != null)
+                conferenceManager.joinChatRoom(chatRoomWrapper, nickName, null);
+            else
+                conferenceManager.joinChatRoom(chatRoomWrapper);
         }
         else if (itemName.equals("openChatRoom"))
         {
@@ -113,7 +118,12 @@ public class ChatRoomRightButtonMenu
             {
                 if(!chatRoomWrapper.getChatRoom().isJoined())
                 {
-                    conferenceManager.joinChatRoom(chatRoomWrapper);
+                    String nickName = getNickname();
+                    if (nickName != null)
+                        conferenceManager.joinChatRoom(chatRoomWrapper,
+                                                        nickName, null);
+                    else
+                        conferenceManager.joinChatRoom(chatRoomWrapper);
                 }
             }
             else
@@ -128,8 +138,16 @@ public class ChatRoomRightButtonMenu
                                 .getProtocolProvider(),
                             new ArrayList<String>(),
                             "",
-                            true,
+                            false,
                             true);
+
+                String nickName = getNickname();
+
+                if (nickName != null)
+                    conferenceManager.joinChatRoom(chatRoomWrapper, nickName,
+                                                null);
+                else
+                    conferenceManager.joinChatRoom(chatRoomWrapper);
             }
 
             ChatWindowManager chatWindowManager
@@ -179,5 +197,26 @@ public class ChatRoomRightButtonMenu
         add(menuItem);
 
         return menuItem;
+    }
+
+    private String getNickname()
+    {
+        String nickName = null;
+        ChatOperationReasonDialog reasonDialog =
+            new ChatOperationReasonDialog(GuiActivator.getResources()
+                .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
+                .getResources().getI18NString(
+                    "service.gui.CHANGE_NICKNAME_LABEL"));
+
+        reasonDialog.setReasonFieldText("");
+
+        int result = reasonDialog.showDialog();
+
+        if (result == MessageDialog.OK_RETURN_CODE)
+        {
+            nickName = reasonDialog.getReason().trim();
+        }
+
+        return nickName;
     }
 }
