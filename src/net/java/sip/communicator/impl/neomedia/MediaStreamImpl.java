@@ -1134,12 +1134,11 @@ public class MediaStreamImpl
         AbstractRTPConnector rtpConnector = getRTPConnector();
 
         zrtpControl.setConnector(rtpConnector);
-
         if(rtpConnector instanceof RTPTransformUDPConnector)
             ((RTPTransformUDPConnector)rtpConnector)
                 .setEngine(createTransformEngineChain());
-        else if(rtpConnector instanceof RTPTransformUDPConnector)
-            ((RTPTransformUDPConnector)rtpConnector)
+        else if(rtpConnector instanceof RTPTransformTCPConnector)
+            ((RTPTransformTCPConnector)rtpConnector)
                 .setEngine(createTransformEngineChain());
 
         zrtpRestarted = true;
