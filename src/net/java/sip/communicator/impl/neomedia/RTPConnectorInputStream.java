@@ -17,7 +17,7 @@ import javax.media.protocol.*;
  * @author Bing SU (nova.su@gmail.com)
  * @author Lubomir Marinov
  */
-public class RTPConnectorInputStream
+public abstract class RTPConnectorInputStream
     implements PushSourceStream,
                Runnable
 {
@@ -42,7 +42,7 @@ public class RTPConnectorInputStream
      * Whether this stream is closed. Used to control the termination of worker
      * thread.
      */
-    private boolean closed;
+    protected boolean closed;
 
     /**
      * Caught an IO exception during read from socket
@@ -56,11 +56,6 @@ public class RTPConnectorInputStream
     protected RawPacket pkt;
 
     /**
-     * UDP socket used to receive data.
-     */
-    private final DatagramSocket socket;
-
-    /**
      * SourceTransferHandler object which is used to read packets.
      */
     private SourceTransferHandler transferHandler;
@@ -68,7 +63,7 @@ public class RTPConnectorInputStream
     /**
      * The Thread receiving packets.
      */
-    private Thread receiverThread = null;
+    protected Thread receiverThread = null;
 
     /**
      * Used for debugging. As we don't log every packet
@@ -79,19 +74,9 @@ public class RTPConnectorInputStream
     /**
      * Initializes a new <tt>RTPConnectorInputStream</tt> which is to receive
      * packet data from a specific UDP socket.
-     *
-     * @param socket the UDP socket the new instance is to receive data from
      */
-    public RTPConnectorInputStream(DatagramSocket socket)
+    public RTPConnectorInputStream()
     {
-        this.socket = socket;
-
-        if(socket != null)
-        {
-            closed = false;
-            receiverThread = new Thread(this);
-            receiverThread.start();
-        }
     }
 
     /**
@@ -99,11 +84,6 @@ public class RTPConnectorInputStream
      */
     public synchronized void close()
     {
-        closed = true;
-        if(socket != null)
-        {
-            socket.close();
-        }
     }
 
     /**
@@ -133,7 +113,6 @@ public class RTPConnectorInputStream
         pkt.setLength(datagramPacket.getLength());
         pkt.setOffset(datagramPacket.getOffset());
         return pkt;
-
     }
 
     /**
@@ -245,20 +224,28 @@ public class RTPConnectorInputStream
     }
 
     /**
+     * Log the packet.
+     *
+     * @param packet packet to log
+     */
+    protected abstract void doLogPacket(DatagramPacket packet);
+
+    /**
+     * Receive packet.
+     *
+     * @param p packet for receiving
+     * @throws IOException if something goes wrong during receiving
+     */
+    protected abstract void receivePacket(DatagramPacket p)
+        throws IOException;
+
+    /**
      * Listens for incoming datagrams, stores them for reading by the
      * <tt>read</tt> method and notifies the local <tt>transferHandler</tt>
      * that there's data to be read.
      */
     public void run()
     {
-        try
-        {
-            socket.setReceiveBufferSize(65535);
-        }
-        catch(Throwable t)
-        {
-        }
-
         while (!closed)
         {
             DatagramPacket p = new DatagramPacket(
@@ -266,7 +253,7 @@ public class RTPConnectorInputStream
 
             try
             {
-                socket.receive(p);
+                receivePacket(p);
                 numberOfPackets++;
             }
             catch (IOException e)
@@ -277,21 +264,9 @@ public class RTPConnectorInputStream
 
             if(RTPConnectorOutputStream.logPacket(numberOfPackets)
                 && NeomediaActivator.getPacketLogging().isLoggingEnabled(
-                    PacketLoggingService.ProtocolName.RTP) &&
-                socket.getLocalAddress() != null)
+                    PacketLoggingService.ProtocolName.RTP))
             {
-                NeomediaActivator.getPacketLogging()
-                    .logPacket(
-                        PacketLoggingService.ProtocolName.RTP,
-                        p.getAddress().getAddress(),
-                        p.getPort(),
-                        socket.getLocalAddress().getAddress(),
-                        socket.getLocalPort(),
-                        PacketLoggingService.TransportName.UDP,
-                        false,
-                        p.getData(),
-                        p.getOffset(),
-                        p.getLength());
+                doLogPacket(p);
             }
 
             pkt = createRawPacket(p);

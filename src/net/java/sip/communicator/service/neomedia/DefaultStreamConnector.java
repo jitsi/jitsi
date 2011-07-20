@@ -231,6 +231,40 @@ public class DefaultStreamConnector
     }
 
     /**
+     * Returns a reference to the <tt>Socket</tt> that a stream should
+     * use for data (e.g. RTP) traffic.
+     *
+     * @return a reference to the <tt>Socket</tt> that a stream should
+     * use for data (e.g. RTP) traffic.
+     */
+    public Socket getDataTCPSocket()
+    {
+        return null;
+    }
+
+    /**
+     * Returns a reference to the <tt>Socket</tt> that a stream should
+     * use for control data (e.g. RTCP).
+     *
+     * @return a reference to the <tt>Socket</tt> that a stream should
+     * use for control data (e.g. RTCP).
+     */
+    public Socket getControlTCPSocket()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the protocol of this <tt>StreamConnector</tt>.
+     *
+     * @return the protocol of this <tt>StreamConnector</tt>
+     */
+    public Protocol getProtocol()
+    {
+        return Protocol.UDP;
+    }
+
+    /**
      * Notifies this instance that utilization of its <tt>DatagramSocket</tt>s
      * for data and/or control traffic has started.
      *

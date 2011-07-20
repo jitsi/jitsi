@@ -17,7 +17,8 @@ import net.java.sip.communicator.service.neomedia.event.*;
  * @author Lubomir Marinov
  * @author Sebastien Vincent
  */
-public class RTCPConnectorInputStream extends RTPConnectorInputStream
+public class RTCPConnectorInputStream
+    extends RTPConnectorUDPInputStream
 {
     /**
      * List of feedback listeners;

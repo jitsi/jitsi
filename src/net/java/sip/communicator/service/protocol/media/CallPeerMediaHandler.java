@@ -199,7 +199,7 @@ public abstract class CallPeerMediaHandler<
     /**
      * The <tt>KeyFrameControl</tt> currently known to this
      * <tt>CallPeerMediaHandlerSipImpl</tt> and made available by
-     * {@link #videoStream}. 
+     * {@link #videoStream}.
      */
     private KeyFrameControl keyFrameControl;
 

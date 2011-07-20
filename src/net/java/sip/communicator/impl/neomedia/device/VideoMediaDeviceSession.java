@@ -91,7 +91,7 @@ public class VideoMediaDeviceSession
     /**
      * The <tt>RTPConnector</tt>.
      */
-    private RTPTransformConnector rtpConnector = null;
+    private AbstractRTPConnector rtpConnector = null;
 
     /**
      * Local SSRC.
@@ -1203,7 +1203,7 @@ public class VideoMediaDeviceSession
      *
      * @param rtpConnector the RTP connector
      */
-    public void setConnector(RTPTransformConnector rtpConnector)
+    public void setConnector(AbstractRTPConnector rtpConnector)
     {
         this.rtpConnector = rtpConnector;
     }

@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.neomedia;
 
 import java.io.*;
-import java.net.*;
 
 import javax.media.rtp.*;
 
@@ -17,15 +16,14 @@ import net.java.sip.communicator.service.neomedia.*;
  * @author Bing SU (nova.su@gmail.com)
  * @author Lubomir Marinov
  */
-public class RTPConnectorImpl
+public abstract class AbstractRTPConnector
     implements RTPConnector
 {
-
     /**
      * The pair of datagram sockets for RTP and RTCP traffic that this instance
      * uses in the form of a <tt>StreamConnector</tt>.
      */
-    private final StreamConnector connector;
+    protected final StreamConnector connector;
 
     /**
      * RTCP packet input stream used by <tt>RTPManager</tt>.
@@ -38,11 +36,6 @@ public class RTPConnectorImpl
     private RTPConnectorOutputStream controlOutputStream;
 
     /**
-     * The UDP socket this instance uses to send and receive RTCP packets.
-     */
-    private DatagramSocket controlSocket;
-
-    /**
      * RTP packet input stream used by <tt>RTPManager</tt>.
      */
     private RTPConnectorInputStream dataInputStream;
@@ -53,19 +46,14 @@ public class RTPConnectorImpl
     private RTPConnectorOutputStream dataOutputStream;
 
     /**
-     * The UDP socket this instance uses to send and receive RTP packets.
-     */
-    private DatagramSocket dataSocket;
-
-    /**
-     * Initializes a new <tt>RTPConnectorImpl</tt> which is to use a given pair
-     * of datagram sockets for RTP and RTCP traffic specified in the form of a
-     * <tt>StreamConnector</tt>.
+     * Initializes a new <tt>AbstractRTPConnector</tt> which is to use a given
+     * pair of datagram sockets for RTP and RTCP traffic specified in the form
+     * of a <tt>StreamConnector</tt>.
      *
      * @param connector the pair of datagram sockets for RTP and RTCP traffic
      * the new instance is to use
      */
-    public RTPConnectorImpl(StreamConnector connector)
+    public AbstractRTPConnector(StreamConnector connector)
     {
         if (connector == null)
             throw new NullPointerException("connector");
@@ -135,11 +123,8 @@ public class RTPConnectorImpl
      * @throws IOException if an error occurs during the creation of the RTCP
      * packet input stream
      */
-    protected RTPConnectorInputStream createControlInputStream()
-        throws IOException
-    {
-        return new RTCPConnectorInputStream(getControlSocket());
-    }
+    protected abstract RTPConnectorInputStream createControlInputStream()
+        throws IOException;
 
     /**
      * Creates the RTCP packet output stream to be used by <tt>RTPManager</tt>.
@@ -148,11 +133,8 @@ public class RTPConnectorImpl
      * @throws IOException if an error occurs during the creation of the RTCP
      * packet output stream
      */
-    protected RTPConnectorOutputStream createControlOutputStream()
-        throws IOException
-    {
-        return new RTPConnectorOutputStream(getControlSocket());
-    }
+    protected abstract RTPConnectorOutputStream createControlOutputStream()
+        throws IOException;
 
     /**
      * Creates the RTP packet input stream to be used by <tt>RTPManager</tt>.
@@ -161,11 +143,8 @@ public class RTPConnectorImpl
      * @throws IOException if an error occurs during the creation of the RTP
      * packet input stream
      */
-    protected RTPConnectorInputStream createDataInputStream()
-        throws IOException
-    {
-        return new RTPConnectorInputStream(getDataSocket());
-    }
+    protected abstract RTPConnectorInputStream createDataInputStream()
+        throws IOException;
 
     /**
      * Creates the RTP packet output stream to be used by <tt>RTPManager</tt>.
@@ -174,11 +153,8 @@ public class RTPConnectorImpl
      * @throws IOException if an error occurs during the creation of the RTP
      * packet output stream
      */
-    protected RTPConnectorOutputStream createDataOutputStream()
-        throws IOException
-    {
-        return new RTPConnectorOutputStream(getDataSocket());
-    }
+    protected abstract RTPConnectorOutputStream createDataOutputStream()
+        throws IOException;
 
     /**
      * Gets the <tt>StreamConnector</tt> which represents the pair of datagram
@@ -263,19 +239,6 @@ public class RTPConnectorImpl
     }
 
     /**
-     * Gets the UDP Socket this instance uses to send and receive RTCP packets.
-     *
-     * @return the UDP Socket this instance uses to send and receive RTCP
-     * packets
-     */
-    public DatagramSocket getControlSocket()
-    {
-        if (controlSocket == null)
-            controlSocket = connector.getControlSocket();
-        return controlSocket;
-    }
-
-    /**
      * Returns the input stream that is handling incoming RTP packets.
      *
      * @return the input stream that is handling incoming RTP packets.
@@ -342,18 +305,6 @@ public class RTPConnectorImpl
         if ((dataOutputStream == null) && create)
             dataOutputStream = createDataOutputStream();
         return dataOutputStream;
-    }
-
-    /**
-     * Gets the UDP socket this instance uses to send and receive RTP packets.
-     *
-     * @return the UDP socket this instance uses to send and receive RTP packets
-     */
-    public DatagramSocket getDataSocket()
-    {
-        if (dataSocket == null)
-            dataSocket = connector.getDataSocket();
-        return dataSocket;
     }
 
     /**

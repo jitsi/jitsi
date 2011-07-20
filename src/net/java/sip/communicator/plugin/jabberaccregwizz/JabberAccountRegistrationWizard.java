@@ -336,6 +336,9 @@ public class JabberAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.IS_USE_ICE,
                             String.valueOf(registration.isUseIce()));
 
+        accountProperties.put(ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
+            String.valueOf(registration.isUseGoogleIce()));
+
         accountProperties.put(ProtocolProviderFactory.AUTO_DISCOVER_STUN,
                             String.valueOf(registration.isAutoDiscoverStun()));
 
@@ -557,7 +560,7 @@ public class JabberAccountRegistrationWizard
      * shown to the user. Only if the user needs more settings she'll choose
      * to open the advanced wizard, consisted by all pages.
      *
-     * @param isCreateAccount indicates if the simple form should be opened as 
+     * @param isCreateAccount indicates if the simple form should be opened as
      * a create account form or as a login form
      * @return a simple account registration form
      */

@@ -111,7 +111,7 @@ public class ProtocolProviderServiceJabberImpl
         = TransferPacketExtension.NAMESPACE;
 
     /**
-     * Jingle's Discover Info URN for "XEP-XXXX :Delivering Conference
+     * Jingle's Discover Info URN for "XEP-298 :Delivering Conference
      * Information to Jingle Participants (Coin)" support.
      */
     public static final String URN_XMPP_JINGLE_COIN = "urn:xmpp:coin";
@@ -992,8 +992,10 @@ public class ProtocolProviderServiceJabberImpl
             // Add Google Talk "ext" capabilities
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VOICE);
             // XXX video does not work yet
-            //discoveryManager.addExtFeature(CAPS_GTALK_WEB_VIDEO);
-            //discoveryManager.addExtFeature(CAPS_GTALK_WEB_CAMERA);
+            /*
+            discoveryManager.addExtFeature(CAPS_GTALK_WEB_VIDEO);
+            discoveryManager.addExtFeature(CAPS_GTALK_WEB_CAMERA);
+            */
         }
 
         /*
@@ -2143,7 +2145,10 @@ public class ProtocolProviderServiceJabberImpl
         return (Boolean.getBoolean("gtalktesting") ||
             JabberActivator.getConfigurationService().getBoolean(
                 "net.java.sip.communicator.impl.protocol.jabber.gtalktesting"
-                , false));
+                , false) ||
+                accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
+                    false));
     }
 
     UserCredentials getUserCredentials()

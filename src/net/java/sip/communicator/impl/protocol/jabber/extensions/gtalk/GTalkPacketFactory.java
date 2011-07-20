@@ -312,7 +312,6 @@ public class GTalkPacketFactory
         Component component = candidate.getParentComponent();
 
         packet.setName(name);
-        packet.setProtocol(candidate.getTransport().toString());
         packet.setGeneration(
                 component.getParentStream().getParentAgent().getGeneration());
 
@@ -323,6 +322,14 @@ public class GTalkPacketFactory
         packet.setPassword("");
         packet.setAddress(transportAddress.getHostAddress());
         packet.setPort(transportAddress.getPort());
+        if(transportAddress.getPort() != 443)
+        {
+            packet.setProtocol(candidate.getTransport().toString());
+        }
+        else
+        {
+            packet.setProtocol("ssltcp");
+        }
         packet.setNetwork(0);
         packet.setFoundation(0);
         packet.setComponent(component.getComponentID());

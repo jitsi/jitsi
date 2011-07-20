@@ -6,12 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.net.*;
 import java.util.*;
 
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
+import org.ice4j.socket.*;
 
 import org.jivesoftware.smack.*;
 import org.xmpp.jnodes.smack.*;
@@ -166,7 +166,7 @@ public class JingleNodesHarvester
             cand = new JingleNodesCandidate(transportAddress,
                         component,
                         localEndPoint);
-            DatagramSocket stunSocket = cand.getStunSocket(null);
+            IceSocketWrapper stunSocket = cand.getStunSocket(null);
             cand.getStunStack().addSocket(stunSocket);
         }
         catch(Throwable e)

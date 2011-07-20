@@ -178,6 +178,7 @@ public class Packetizer
                         JNIEncoder.PACKETIZATION_MODE_FMTP);
         if (packetizationMode == null)
             packetizationMode = "0";
+
         return packetizationMode;
     }
 

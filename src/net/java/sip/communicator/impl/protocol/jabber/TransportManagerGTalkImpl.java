@@ -213,7 +213,6 @@ public class TransportManagerGTalkImpl
                             StunServerDescriptor dsc =
                                 new StunServerDescriptor(e.getHost(),
                                         e.getUdp(), false, null, null);
-
                             servers.add(dsc);
                         }
                     }
@@ -265,7 +264,6 @@ public class TransportManagerGTalkImpl
                             dsc.setOldTurn(true);
                             servers.add(dsc);
 
-                            /* XXX wait TCP support for Ice4j
                             dsc = new StunServerDescriptor(
                                     relayData.get("relay"),
                                     Integer.parseInt(relayData.get("tcpport")),
@@ -273,17 +271,19 @@ public class TransportManagerGTalkImpl
                                     user,
                                     password);
                             dsc.setOldTurn(true);
+                            dsc.setProtocol("tcp");
                             servers.add(dsc);
 
                             dsc = new StunServerDescriptor(
                                     relayData.get("relay"),
-                                    Integer.parseInt(relayData.get("tcpport")),
+                                    Integer.parseInt(
+                                    relayData.get("ssltcpport")),
                                     true,
                                     user,
                                     password);
                             dsc.setOldTurn(true);
+                            dsc.setProtocol("ssltcp");
                             servers.add(dsc);
-                            */
                         }
                     }
                 }
@@ -390,8 +390,24 @@ public class TransportManagerGTalkImpl
 
         for(StunServerDescriptor desc : servers)
         {
+            Transport transport;
+
+            /* Google ssltcp mode is in fact pseudo-SSL (just the client/server
+             * hello)
+             */
+            if(desc.getProtocol().equals("ssltcp"))
+            {
+                transport = Transport.TCP;
+            }
+            else
+            {
+                transport = Transport.parse(desc.getProtocol());
+            }
+
             TransportAddress addr = new TransportAddress(
-                            desc.getAddress(), desc.getPort(), Transport.UDP);
+                            desc.getAddress(),
+                            desc.getPort(),
+                            transport);
 
             StunCandidateHarvester harvester = null;
 
@@ -405,7 +421,13 @@ public class TransportManagerGTalkImpl
                 if(desc.isOldTurn())
                 {
                     logger.info("new Google TURN harvester");
-                    harvester = new GoogleTurnCandidateHarvester(
+                    if(desc.getProtocol().equals("ssltcp"))
+                    {
+                        harvester = new GoogleTurnSSLCandidateHarvester(
+                            addr, new String(desc.getUsername()));
+                    }
+                    else
+                        harvester = new GoogleTurnCandidateHarvester(
                             addr, new String(desc.getUsername()));
                 }
                 else
@@ -491,17 +513,31 @@ public class TransportManagerGTalkImpl
     {
         DatagramSocket[] streamConnectorSockets
             = getStreamConnectorSockets(mediaType);
+        Socket[] tcpStreamConnectorSockets
+            = getStreamConnectorTCPSockets(mediaType);
 
         /*
          * XXX If the iceAgent has not completed (yet), go with a default
          * StreamConnector (until it completes).
          */
-        return
-            (streamConnectorSockets == null)
-                ? super.createStreamConnector(mediaType)
-                : new DefaultStreamConnector(
-                        streamConnectorSockets[0 /* RTP */],
-                        streamConnectorSockets[1 /* RTCP */]);
+        if(tcpStreamConnectorSockets == null)
+        {
+            return
+                (streamConnectorSockets == null)
+                    ? super.createStreamConnector(mediaType)
+                    : new DefaultStreamConnector(
+                            streamConnectorSockets[0 /* RTP */],
+                            streamConnectorSockets[1 /* RTCP */]);
+        }
+        else
+        {
+            return
+                (tcpStreamConnectorSockets == null)
+                    ? super.createStreamConnector(mediaType)
+                        : new DefaultTCPStreamConnector(
+                            tcpStreamConnectorSockets[0 /* RTP */],
+                            tcpStreamConnectorSockets[1 /* RTCP */]);
+        }
     }
 
     /**
@@ -528,7 +564,8 @@ public class TransportManagerGTalkImpl
          * Since the super caches the StreamConnectors, make sure that the
          * returned one is up-to-date with the iceAgent.
          */
-        if (streamConnector != null)
+        if (streamConnector != null && streamConnector.getProtocol() ==
+            StreamConnector.Protocol.UDP)
         {
             DatagramSocket[] streamConnectorSockets
                 = getStreamConnectorSockets(mediaType);
@@ -548,8 +585,96 @@ public class TransportManagerGTalkImpl
                 streamConnector = super.getStreamConnector(mediaType);
             }
         }
+        else if (streamConnector != null && streamConnector.getProtocol() ==
+            StreamConnector.Protocol.TCP)
+        {
+            Socket[] streamConnectorSockets
+                = getStreamConnectorTCPSockets(mediaType);
 
+            /*
+             * XXX If the iceAgent has not completed (yet), go with the default
+             * StreamConnector (until it completes).
+             */
+            if ((streamConnectorSockets != null)
+                    && ((streamConnector.getDataTCPSocket()
+                                    != streamConnectorSockets[0 /* RTP */])
+                            || (streamConnector.getControlTCPSocket()
+                                   != streamConnectorSockets[1 /* RTCP */])))
+            {
+                // Recreate the StreamConnector for the specified mediaType.
+                closeStreamConnector(mediaType);
+                streamConnector = super.getStreamConnector(mediaType);
+            }
+        }
         return streamConnector;
+    }
+
+    /**
+     * Gets an array of <tt>Socket</tt>s which represents the sockets to
+     * be used by the <tt>StreamConnector</tt> with the specified
+     * <tt>MediaType</tt> in the order of {@link #COMPONENT_IDS} if
+     * {@link #iceAgent} has completed.
+     *
+     * @param mediaType the <tt>MediaType</tt> of the <tt>StreamConnector</tt>
+     * for which the <tt>Socket</tt>s are to be returned
+     * @return an array of <tt>Socket</tt>s which represents the sockets
+     * to be used by the <tt>StreamConnector</tt> which the specified
+     * <tt>MediaType</tt> in the order of {@link #COMPONENT_IDS} if
+     * {@link #iceAgent} has completed; otherwise, <tt>null</tt>
+     */
+    private Socket[] getStreamConnectorTCPSockets(MediaType mediaType)
+    {
+        String mediaName = null;
+
+        if(mediaType == MediaType.AUDIO)
+        {
+            mediaName = "rtp";
+        }
+        else if(mediaType == MediaType.VIDEO)
+        {
+            mediaName = "video_rtp";
+        }
+        else
+        {
+            logger.error("Not an audio/rtp mediatype");
+            return null;
+        }
+
+        IceMediaStream stream = iceAgent.getStream(mediaName);
+
+        if (stream != null)
+        {
+            Socket[] streamConnectorSockets = new Socket[COMPONENT_IDS.length];
+            int streamConnectorSocketCount = 0;
+
+            for (int i = 0; i < COMPONENT_IDS.length; i++)
+            {
+                Component component = stream.getComponent(COMPONENT_IDS[i]);
+
+                if (component != null)
+                {
+                    CandidatePair selectedPair = component.getSelectedPair();
+
+                    if (selectedPair != null)
+                    {
+                        Socket streamConnectorSocket
+                            = selectedPair.getLocalCandidate().
+                                getSocket();
+
+                        if (streamConnectorSocket != null)
+                        {
+                            streamConnectorSockets[i] = streamConnectorSocket;
+                            streamConnectorSocketCount++;
+                        }
+                    }
+                }
+            }
+            if (streamConnectorSocketCount > 0)
+            {
+                return streamConnectorSockets;
+            }
+        }
+        return null;
     }
 
     /**
@@ -602,7 +727,8 @@ public class TransportManagerGTalkImpl
                     if (selectedPair != null)
                     {
                         DatagramSocket streamConnectorSocket
-                            = selectedPair.getLocalCandidate().getSocket();
+                            = selectedPair.getLocalCandidate().
+                                getDatagramSocket();
 
                         if (streamConnectorSocket != null)
                         {
@@ -905,8 +1031,8 @@ public class TransportManagerGTalkImpl
 
                 // XXX UDP only for the moment as ice4j.org does not support
                 // TCP yet
-                if(!candidate.getProtocol().equalsIgnoreCase(
-                        Transport.UDP.toString()))
+                if(candidate.getProtocol().equalsIgnoreCase(
+                    "ssltcp"))
                     continue;
 
                 Component component
@@ -994,8 +1120,7 @@ public class TransportManagerGTalkImpl
             if (candidate.getGeneration() != generation)
                 continue;
 
-            if(!candidate.getProtocol().equalsIgnoreCase(
-                    Transport.UDP.toString()))
+            if(candidate.getProtocol().equalsIgnoreCase("ssltcp"))
                 continue;
 
             Component component
@@ -1135,6 +1260,7 @@ public class TransportManagerGTalkImpl
     {
         if(iceAgent != null)
         {
+            logger.info("Close transport manager agent");
             iceAgent.free();
         }
     }

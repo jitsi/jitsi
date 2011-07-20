@@ -17,7 +17,6 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.QualityControl; // disambiguation
 import net.java.sip.communicator.service.neomedia.control.*;
@@ -439,7 +438,7 @@ public class VideoMediaStreamImpl
 
             newVideoMediaDeviceSession.setOutputSize(outputSize);
 
-            RTPTransformConnector rtpConnector = getRTPConnector();
+            AbstractRTPConnector rtpConnector = getRTPConnector();
 
             if (rtpConnector != null)
                 newVideoMediaDeviceSession.setConnector(rtpConnector);
@@ -566,8 +565,8 @@ public class VideoMediaStreamImpl
      */
     @Override
     protected void rtpConnectorChanged(
-            RTPTransformConnector oldValue,
-            RTPTransformConnector newValue)
+            AbstractRTPConnector oldValue,
+            AbstractRTPConnector newValue)
     {
         super.rtpConnectorChanged(oldValue, newValue);
 
@@ -921,7 +920,7 @@ public class VideoMediaStreamImpl
 
         /**
          * The current preset.
-         * @return
+         * @return the current preset
          */
         public QualityPreset getRemoteReceivePreset()
         {
@@ -930,7 +929,7 @@ public class VideoMediaStreamImpl
 
         /**
          * The minimum resolution values for remote part.
-         * @return
+         * @return minimum resolution values for remote part.
          */
         public QualityPreset getRemoteSendMinPreset()
         {
@@ -939,7 +938,7 @@ public class VideoMediaStreamImpl
 
         /**
          * The max resolution values for remote part.
-         * @return
+         * @return max resolution values for remote part.
          */
         public QualityPreset getRemoteSendMaxPreset()
         {

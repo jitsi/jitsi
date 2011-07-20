@@ -50,7 +50,7 @@ public class ZrtpControlImpl
      * This is the connector, required to send ZRTP packets
      * via the DatagramSocket.
      */
-    private RTPTransformConnector zrtpConnector = null;
+    private AbstractRTPConnector zrtpConnector = null;
 
     /**
      * Creates the control.
@@ -245,7 +245,7 @@ public class ZrtpControlImpl
      * @param connector the <tt>RTPConnector</tt> which is to use or uses this
      * ZRTP engine
      */
-    public void setConnector(RTPTransformConnector connector)
+    public void setConnector(AbstractRTPConnector connector)
     {
         zrtpConnector = connector;
     }

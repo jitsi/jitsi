@@ -161,7 +161,9 @@ public class JingleUtils
         if ((pt >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
                 && (pt <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
                 && (ptRegistry.findFormat(pt) == null))
+        {
             ptRegistry.addMapping(format, pt);
+        }
 
         return (unknown == false) ? format : null;
     }

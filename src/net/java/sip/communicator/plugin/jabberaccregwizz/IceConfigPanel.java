@@ -38,6 +38,12 @@ public class IceConfigPanel
         Resources.getString("plugin.jabberaccregwizz.USE_ICE"));
 
     /**
+     * The check box allowing the user to choose to use ICE.
+     */
+    private final JCheckBox googleIceBox = new SIPCommCheckBox(
+        Resources.getString("plugin.jabberaccregwizz.USE_GOOGLE_ICE"));
+
+    /**
      * The check box allowing the user to choose to automatically discover
      * STUN servers.
      */
@@ -102,6 +108,7 @@ public class IceConfigPanel
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         iceBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        googleIceBox.setAlignmentX(Component.LEFT_ALIGNMENT);
         autoDiscoverBox.setAlignmentX(Component.LEFT_ALIGNMENT);
         defaultStunBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -113,6 +120,8 @@ public class IceConfigPanel
         autoDiscoverBox.setSelected(true);
         defaultStunBox.setSelected(true);
 
+        googleIceBox.setSelected(false);
+
         jnBox.setSelected(true);
         jnAutoDiscoverBox.setSelected(true);
 
@@ -120,6 +129,7 @@ public class IceConfigPanel
 
         JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
         checkBoxPanel.add(iceBox);
+        checkBoxPanel.add(googleIceBox);
         checkBoxPanel.add(upnpBox);
         checkBoxPanel.add(autoDiscoverBox);
         checkBoxPanel.add(defaultStunBox);
@@ -736,6 +746,26 @@ public class IceConfigPanel
     protected void setUseIce(boolean isUseIce)
     {
         iceBox.setSelected(isUseIce);
+    }
+
+    /**
+     * Indicates if ice should be used for this account.
+     * @return <tt>true</tt> if Google ICE should be used for this account,
+     * otherwise returns <tt>false</tt>
+     */
+    protected boolean isUseGoogleIce()
+    {
+        return googleIceBox.isSelected();
+    }
+
+    /**
+     * Sets the <tt>useGoogleIce</tt> property.
+     * @param isUseIce <tt>true</tt> to indicate that Google ICE should be used
+     * for this account, <tt>false</tt> - otherwise.
+     */
+    protected void setUseGoogleIce(boolean isUseIce)
+    {
+        googleIceBox.setSelected(isUseIce);
     }
 
     /**

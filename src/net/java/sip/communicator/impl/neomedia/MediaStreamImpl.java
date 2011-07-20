@@ -116,7 +116,7 @@ public class MediaStreamImpl
      * RTP and RTCP traffic. The instance is a <tt>TransformConnector</tt> in
      * order to also enable packet transformations.
      */
-    private RTPTransformConnector rtpConnector;
+    private AbstractRTPConnector rtpConnector;
 
     /**
      * The one and only <tt>MediaStreamTarget</tt> this instance has added as a
@@ -989,11 +989,15 @@ public class MediaStreamImpl
      */
     public InetSocketAddress getRemoteControlAddress()
     {
+        // TODO
+        return null;
+        /*
         return
             (rtpConnector == null)
                 ? null
                 : (InetSocketAddress)
                     rtpConnector.getControlSocket().getRemoteSocketAddress();
+                    */
     }
 
     /**
@@ -1005,11 +1009,15 @@ public class MediaStreamImpl
      */
     public InetSocketAddress getRemoteDataAddress()
     {
+        // TODO
+        return null;
+        /*
         return
             (rtpConnector == null)
                 ? null
                 : (InetSocketAddress)
                     rtpConnector.getDataSocket().getRemoteSocketAddress();
+                    */
     }
 
     /**
@@ -1032,7 +1040,7 @@ public class MediaStreamImpl
      * @return the <tt>RTPConnector</tt> through which this instance sends and
      * receives RTP and RTCP traffic
      */
-    protected RTPTransformConnector getRTPConnector()
+    protected AbstractRTPConnector getRTPConnector()
     {
         return rtpConnector;
     }
@@ -1123,10 +1131,16 @@ public class MediaStreamImpl
         // unencrypted data).
         //zrtpControl.getZrtpEngine().setStartMuted(true);
 
-        RTPTransformConnector rtpConnector = getRTPConnector();
+        AbstractRTPConnector rtpConnector = getRTPConnector();
 
         zrtpControl.setConnector(rtpConnector);
-        rtpConnector.setEngine(createTransformEngineChain());
+
+        if(rtpConnector instanceof RTPTransformUDPConnector)
+            ((RTPTransformUDPConnector)rtpConnector)
+                .setEngine(createTransformEngineChain());
+        else if(rtpConnector instanceof RTPTransformUDPConnector)
+            ((RTPTransformUDPConnector)rtpConnector)
+                .setEngine(createTransformEngineChain());
 
         zrtpRestarted = true;
     }
@@ -1233,8 +1247,8 @@ public class MediaStreamImpl
      * <tt>MediaStream</tt> which replaced <tt>oldValue</tt>
      */
     protected void rtpConnectorChanged(
-            RTPTransformConnector oldValue,
-            RTPTransformConnector newValue)
+            AbstractRTPConnector oldValue,
+            AbstractRTPConnector newValue)
     {
         zrtpControl.setConnector(newValue);
 
@@ -1244,7 +1258,12 @@ public class MediaStreamImpl
              * Register the transform engines that we will be using in this
              * stream.
              */
-            newValue.setEngine(createTransformEngineChain());
+            if(newValue instanceof RTPTransformUDPConnector)
+                ((RTPTransformUDPConnector)newValue)
+                    .setEngine(createTransformEngineChain());
+            else if(newValue instanceof RTPTransformTCPConnector)
+                ((RTPTransformTCPConnector)newValue)
+                    .setEngine(createTransformEngineChain());
 
             if (rtpConnectorTarget != null)
                 doSetTarget(rtpConnectorTarget);
@@ -1270,16 +1289,52 @@ public class MediaStreamImpl
                 return;
         }
 
-        RTPTransformConnector oldValue = rtpConnector;
+        AbstractRTPConnector oldValue = rtpConnector;
 
-        rtpConnector
-            = new RTPTransformConnector(connector)
+        if(connector.getProtocol() == StreamConnector.Protocol.UDP)
+        {
+            rtpConnector
+                = new RTPTransformUDPConnector(connector)
             {
                 @Override
-                protected TransformOutputStream createDataOutputStream()
+                protected TransformUDPOutputStream createDataOutputStream()
                     throws IOException
                 {
-                    TransformOutputStream dataOutputStream
+                    TransformUDPOutputStream dataOutputStream
+                        = super.createDataOutputStream();
+
+                    if (dataOutputStream != null)
+                    {
+                        configureDataOutputStream(dataOutputStream);
+                    }
+                    return dataOutputStream;
+                }
+
+                @Override
+                protected TransformUDPInputStream createDataInputStream()
+                    throws IOException
+                {
+                    TransformUDPInputStream dataInputStream
+                        = super.createDataInputStream();
+
+                    if (dataInputStream != null)
+                    {
+                        configureDataInputStream(dataInputStream);
+                    }
+                    return dataInputStream;
+                }
+            };
+        }
+        else if(connector.getProtocol() == StreamConnector.Protocol.TCP)
+        {
+            rtpConnector
+                = new RTPTransformTCPConnector(connector)
+            {
+                @Override
+                protected TransformTCPOutputStream createDataOutputStream()
+                    throws IOException
+                {
+                    TransformTCPOutputStream dataOutputStream
                         = super.createDataOutputStream();
 
                     if (dataOutputStream != null)
@@ -1288,10 +1343,10 @@ public class MediaStreamImpl
                 }
 
                 @Override
-                protected TransformInputStream createDataInputStream()
+                protected TransformTCPInputStream createDataInputStream()
                     throws IOException
                 {
-                    TransformInputStream dataInputStream
+                    TransformTCPInputStream dataInputStream
                         = super.createDataInputStream();
 
                     if (dataInputStream != null)
@@ -1299,6 +1354,7 @@ public class MediaStreamImpl
                     return dataInputStream;
                 }
             };
+        }
 
         rtpConnectorChanged(oldValue, rtpConnector);
     }

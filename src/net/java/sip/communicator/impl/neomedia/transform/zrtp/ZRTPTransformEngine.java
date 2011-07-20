@@ -290,7 +290,7 @@ public class ZRTPTransformEngine
      * This is the connector, required to send ZRTP packets
      * via the DatagramSocket.
      */
-    private RTPTransformConnector zrtpConnector = null;
+    private AbstractRTPConnector zrtpConnector = null;
 
     /**
      * We need Out SRTPTransformer to transform RTP to SRTP.
@@ -1254,7 +1254,7 @@ public class ZRTPTransformEngine
      *
      * @param connector the connector to set
      */
-    public void setConnector(RTPTransformConnector connector)
+    public void setConnector(AbstractRTPConnector connector)
     {
         zrtpConnector = connector;
     }

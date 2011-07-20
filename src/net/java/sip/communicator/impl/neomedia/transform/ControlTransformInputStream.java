@@ -21,7 +21,7 @@ import net.java.sip.communicator.service.neomedia.event.*;
  * @author Sebastien Vincent
  */
 public class ControlTransformInputStream
-    extends TransformInputStream
+    extends TransformUDPInputStream
 {
     /**
      * The list of <tt>RTCPFeedbackListener</tt>.

@@ -24,7 +24,7 @@ public class JingleNodesCandidate
     /**
      * The socket used to communicate with relay.
      */
-    private DatagramSocket socket = null;
+    private IceSocketWrapper socket = null;
 
     /**
      * The <tt>RelayedCandidateDatagramSocket</tt> of this
@@ -98,15 +98,15 @@ public class JingleNodesCandidate
      * <tt>Candidate</tt>
      */
     @Override
-    public DatagramSocket getSocket()
+    public IceSocketWrapper getIceSocketWrapper()
     {
         if (socket == null)
         {
             try
             {
                 socket
-                    = new MultiplexingDatagramSocket(
-                            getRelayedCandidateDatagramSocket());
+                    = new IceUdpSocketWrapper(new MultiplexingDatagramSocket(
+                            getRelayedCandidateDatagramSocket()));
             }
             catch (SocketException sex)
             {

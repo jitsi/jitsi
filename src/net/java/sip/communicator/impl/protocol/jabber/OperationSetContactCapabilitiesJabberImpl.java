@@ -113,7 +113,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                     ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VOICE,
                     ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VIDEO
                 });
-        */
+         */
     }
 
     /**

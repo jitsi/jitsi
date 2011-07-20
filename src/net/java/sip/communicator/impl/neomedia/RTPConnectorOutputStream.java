@@ -21,7 +21,7 @@ import javax.media.rtp.*;
  * @author Bing SU (nova.su@gmail.com)
  * @author Lubomir Marinov
  */
-public class RTPConnectorOutputStream
+public abstract class RTPConnectorOutputStream
     implements OutputDataStream
 {
 
@@ -45,11 +45,6 @@ public class RTPConnectorOutputStream
     private MaxPacketsPerMillisPolicy maxPacketsPerMillisPolicy;
 
     /**
-     * UDP socket used to send packet data
-     */
-    private final DatagramSocket socket;
-
-    /**
      * Stream targets' ip addresses and ports.
      */
     protected final List<InetSocketAddress> targets
@@ -69,13 +64,10 @@ public class RTPConnectorOutputStream
 
     /**
      * Initializes a new <tt>RTPConnectorOutputStream</tt> which is to send
-     * packet data out through a specific UDP socket.
-     *
-     * @param socket the UDP socket used to send packet data out
+     * packet data out through a specific socket.
      */
-    public RTPConnectorOutputStream(DatagramSocket socket)
+    public RTPConnectorOutputStream()
     {
-        this.socket = socket;
     }
 
     /**
@@ -186,6 +178,33 @@ public class RTPConnectorOutputStream
     }
 
     /**
+     * Send the packet from this <tt>OutputStream</tt>.
+     *
+     * @param packet packet to sent
+     * @param target the target
+     * @throws IOException if something goes wrong during sending
+     */
+    protected abstract void sendToTarget(RawPacket packet,
+        InetSocketAddress target) throws IOException;
+
+    /**
+     * Log the packet.
+     *
+     * @param packet packet to log
+     */
+    protected abstract void doLogPacket(RawPacket packet,
+        InetSocketAddress target);
+
+    /**
+     * Returns whether or not this <tt>RTPConnectorOutputStream</tt> has a valid
+     * socket.
+     *
+     * @returns true if this <tt>RTPConnectorOutputStream</tt> has a valid
+     * socket, false otherwise
+     */
+    protected abstract boolean isSocketValid();
+
+    /**
      * Sends a specific RTP packet through the <tt>DatagramSocket</tt> of this
      * <tt>OutputDataSource</tt>.
      *
@@ -196,7 +215,7 @@ public class RTPConnectorOutputStream
      */
     private boolean send(RawPacket packet)
     {
-        if(socket == null)
+        if(!isSocketValid())
         {
             return false;
         }
@@ -206,30 +225,13 @@ public class RTPConnectorOutputStream
         {
             try
             {
-                socket.send(
-                        new DatagramPacket(
-                                packet.getBuffer(),
-                                packet.getOffset(),
-                                packet.getLength(),
-                                target.getAddress(),
-                                target.getPort()));
+                sendToTarget(packet, target);
 
                 if(logPacket(numberOfPackets)
                     && NeomediaActivator.getPacketLogging().isLoggingEnabled(
                             PacketLoggingService.ProtocolName.RTP))
                 {
-                    NeomediaActivator.getPacketLogging()
-                        .logPacket(
-                            PacketLoggingService.ProtocolName.RTP,
-                            socket.getLocalAddress().getAddress(),
-                            socket.getLocalPort(),
-                            target.getAddress().getAddress(),
-                            target.getPort(),
-                            PacketLoggingService.TransportName.UDP,
-                            true,
-                            packet.getBuffer(),
-                            packet.getOffset(),
-                            packet.getLength());
+                    doLogPacket(packet, target);
                 }
             }
             catch (IOException ex)
@@ -416,7 +418,7 @@ public class RTPConnectorOutputStream
             if (!sendRun)
                 return;
             sendRun = false;
-            // just offer a new packt to wakeup thread in case it waits for
+            // just offer a new packet to wakeup thread in case it waits for
             // a packet.
             packetQueue.offer(new RawPacket(null, 0, 0));
         }

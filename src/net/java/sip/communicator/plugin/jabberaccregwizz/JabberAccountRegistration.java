@@ -104,6 +104,11 @@ public class JabberAccountRegistration
     private boolean isUseIce = false;
 
     /**
+     * Indicates if Google ICE should be used.
+     */
+    private boolean isUseGoogleIce = false;
+
+    /**
      * Indicates if STUN server should be automatically discovered.
      */
     private boolean isAutoDiscoverStun = false;
@@ -409,6 +414,26 @@ public class JabberAccountRegistration
     public void setUseIce(boolean isUseIce)
     {
         this.isUseIce = isUseIce;
+    }
+
+    /**
+     * Indicates if ice should be used for this account.
+     * @return <tt>true</tt> if ICE should be used for this account, otherwise
+     * returns <tt>false</tt>
+     */
+    public boolean isUseGoogleIce()
+    {
+        return isUseGoogleIce;
+    }
+
+    /**
+     * Sets the <tt>useGoogleIce</tt> property.
+     * @param isUseIce <tt>true</tt> to indicate that ICE should be used for
+     * this account, <tt>false</tt> - otherwise.
+     */
+    public void setUseGoogleIce(boolean isUseIce)
+    {
+        this.isUseGoogleIce = isUseIce;
     }
 
     /**

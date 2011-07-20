@@ -374,7 +374,8 @@ public class IceUdpTransportManager
                     if (selectedPair != null)
                     {
                         DatagramSocket streamConnectorSocket
-                            = selectedPair.getLocalCandidate().getSocket();
+                            = selectedPair.getLocalCandidate().
+                                getDatagramSocket();
 
                         if (streamConnectorSocket != null)
                         {

@@ -26,7 +26,7 @@ public class EncodingConfigurationTableModel
     /**
      * Serial version UID.
      */
-    private final long serialVersionUID = 0L;
+    private static final long serialVersionUID = 0L;
 
     private final EncodingConfiguration encodingConfiguration;
 

@@ -242,6 +242,7 @@ public class JabberAccountRegistrationForm
             registration.setPriority(Integer.parseInt(priority));
 
         registration.setUseIce(iceConfigPanel.isUseIce());
+        registration.setUseGoogleIce(iceConfigPanel.isUseGoogleIce());
         registration.setAutoDiscoverStun(iceConfigPanel.isAutoDiscoverStun());
         registration.setUseDefaultStunServer(
                 iceConfigPanel.isUseDefaultStunServer());
@@ -353,6 +354,14 @@ public class JabberAccountRegistrationForm
                 (useIce != null && useIce.length() != 0) ? useIce : "true");
 
         iceConfigPanel.setUseIce(isUseIce);
+
+        String useGoogleIce =
+            accountProperties.get(ProtocolProviderFactory.IS_USE_GOOGLE_ICE);
+        boolean isUseGoogleIce = Boolean.parseBoolean(
+                (useGoogleIce != null && useGoogleIce.length() != 0) ?
+                    useGoogleIce : "false");
+
+        iceConfigPanel.setUseGoogleIce(isUseGoogleIce);
 
         String useAutoDiscoverStun
             = accountProperties.get(

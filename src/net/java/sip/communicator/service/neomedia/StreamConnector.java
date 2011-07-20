@@ -16,17 +16,34 @@ import java.net.*;
  * <tt>StreamConnector</tt> is so that they could be shared among media
  * and other libraries that may need to use them like an ICE implementation for
  * example.
- * 
+ *
  * @author Emil Ivov
  */
 public interface StreamConnector
 {
     /**
+     * Enumeration of supported protocols.
+     */
+    public enum Protocol
+    {
+        /**
+         * UDP protocol.
+         */
+        UDP,
+
+        /**
+         * TCP protocol.
+         */
+        TCP
+    }
+
+    /**
      * Returns a reference to the <tt>DatagramSocket</tt> that a stream should
      * use for data (e.g. RTP) traffic.
      *
      * @return a reference to the <tt>DatagramSocket</tt> that a stream should
-     * use for data (e.g. RTP) traffic.
+     * use for data (e.g. RTP) traffic or null if this <tt>StreamConnector</tt>
+     * does not handle UDP sockets.
      */
     public DatagramSocket getDataSocket();
 
@@ -35,9 +52,37 @@ public interface StreamConnector
      * use for control data (e.g. RTCP).
      *
      * @return a reference to the <tt>DatagramSocket</tt> that a stream should
-     * use for control data (e.g. RTCP).
+     * use for control data (e.g. RTCP) or null if this <tt>StreamConnector</tt>
+     * does not handle UDP sockets.
      */
     public DatagramSocket getControlSocket();
+
+    /**
+     * Returns a reference to the <tt>Socket</tt> that a stream should
+     * use for data (e.g. RTP) traffic.
+     *
+     * @return a reference to the <tt>Socket</tt> that a stream should
+     * use for data (e.g. RTP) traffic or null if this <tt>StreamConnector</tt>
+     * does not handle TCP sockets.
+     */
+    public Socket getDataTCPSocket();
+
+    /**
+     * Returns a reference to the <tt>Socket</tt> that a stream should
+     * use for control data (e.g. RTCP).
+     *
+     * @return a reference to the <tt>Socket</tt> that a stream should
+     * use for control data (e.g. RTCP) or null if this <tt>StreamConnector</tt>
+     * does not handle TCP sockets.
+     */
+    public Socket getControlTCPSocket();
+
+    /**
+     * Returns the protocol of this <tt>StreamConnector</tt>.
+     *
+     * @return the protocol of this <tt>StreamConnector</tt>
+     */
+    public Protocol getProtocol();
 
     /**
      * Releases the resources allocated by this instance in the course of its

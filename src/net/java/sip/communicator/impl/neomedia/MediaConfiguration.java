@@ -887,7 +887,7 @@ public class MediaConfiguration
          * @param index
          * @param isSelected
          * @param cellHasFocus
-         * @return
+         * @return Component
          */
         @Override
         public Component getListCellRendererComponent(

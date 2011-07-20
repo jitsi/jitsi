@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.media;
 
+import java.io.*;
 import java.net.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -94,16 +95,31 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     {
         StreamConnector streamConnector = streamConnectors[mediaType.ordinal()];
 
-        if ((streamConnector == null)
-                || streamConnector.getDataSocket().isClosed()
-                || (streamConnector.getControlSocket() != null &&
-                        streamConnector.getControlSocket().isClosed()))
+        if(streamConnector == null || streamConnector.getProtocol() ==
+            StreamConnector.Protocol.UDP)
         {
-            streamConnectors[mediaType.ordinal()]
-                = streamConnector
-                    = createStreamConnector(mediaType);
+                if(streamConnector == null ||
+                    streamConnector.getDataSocket().isClosed() ||
+                    (streamConnector.getControlSocket() != null &&
+                        streamConnector.getControlSocket().isClosed()))
+                {
+                    streamConnectors[mediaType.ordinal()]
+                                     = streamConnector
+                                     = createStreamConnector(mediaType);
+                }
         }
-
+        else if(streamConnector != null && streamConnector.getProtocol() ==
+            StreamConnector.Protocol.TCP)
+        {
+            if(streamConnector.getDataTCPSocket().isClosed()
+                || (streamConnector.getControlTCPSocket() != null &&
+                    streamConnector.getControlTCPSocket().isClosed()))
+            {
+                streamConnectors[mediaType.ordinal()]
+                                 = streamConnector
+                                 = createStreamConnector(mediaType);
+            }
+        }
         return streamConnector;
     }
 
@@ -131,6 +147,21 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
                 if (controlSocket != null)
                     controlSocket.close();
+
+                try
+                {
+                    Socket dataTcpSocket = connector.getDataTCPSocket();
+                    if(dataTcpSocket != null)
+                        dataTcpSocket.close();
+
+                    Socket controlTcpSocket = connector.getDataTCPSocket();
+                    if(controlTcpSocket != null)
+                        controlTcpSocket.close();
+                }
+                catch(IOException e)
+                {
+                    logger.info("Failed to close TCP socket", e);
+                }
 
                 streamConnectors[mediaType.ordinal()] = null;
             }
@@ -307,6 +338,11 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
             synchronized(connector)
             {
+                if(connector.getProtocol() == StreamConnector.Protocol.TCP)
+                {
+                    return;
+                }
+
                 /* data port (RTP) */
                 connector.getDataSocket().send(new DatagramPacket(
                         new byte[0], 0, target.getDataAddress().getAddress(),

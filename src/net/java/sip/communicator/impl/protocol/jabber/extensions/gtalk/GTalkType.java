@@ -34,6 +34,16 @@ public enum GTalkType
     REJECT("reject"),
 
     /**
+     * Transport-info type.
+     */
+    TRANSPORT_INFO("transport-info"),
+
+    /**
+     * Transport-accept type.
+     */
+    TRANSPORT_ACCEPT("transport-accept"),
+
+    /**
      * Terminate type.
      */
     TERMINATE("terminate");
