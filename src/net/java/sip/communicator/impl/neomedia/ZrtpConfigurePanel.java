@@ -212,7 +212,7 @@ public class ZrtpConfigurePanel
             String savedConf
                 = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
-                savedConf = "";
+                savedConf = "DH3K;MULT;";
 
             dataModel
                 = new ZrtpConfigureTableModel<ZrtpConstants.SupportedPubKeys>(
@@ -252,7 +252,7 @@ public class ZrtpConfigurePanel
                 = NeomediaActivator.getConfigurationService()
                     .getString(id);
             if (savedConf == null)
-                savedConf = "";
+                savedConf = "S256";
 
             dataModel
                 = new ZrtpConfigureTableModel<ZrtpConstants.SupportedHashes>(
@@ -289,7 +289,7 @@ public class ZrtpConfigurePanel
             String savedConf
                 = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
-                savedConf = "";
+                savedConf = "AES1";
 
             dataModel
                 = new ZrtpConfigureTableModel<ZrtpConstants.SupportedSymCiphers>(
@@ -327,7 +327,7 @@ public class ZrtpConfigurePanel
                 = NeomediaActivator.getConfigurationService()
                     .getString(id);
             if (savedConf == null)
-                savedConf = "";
+                savedConf = "B32";
 
             dataModel
                 = new ZrtpConfigureTableModel<ZrtpConstants.SupportedSASTypes>(
@@ -364,7 +364,7 @@ public class ZrtpConfigurePanel
             String savedConf
                 = NeomediaActivator.getConfigurationService().getString(id);
             if (savedConf == null)
-                savedConf = "";
+                savedConf = "HS32;HS80;";
 
             dataModel
                 = new ZrtpConfigureTableModel<ZrtpConstants.SupportedAuthLengths>(
