@@ -796,6 +796,29 @@ public class ResourceManagementServiceImpl
     }
 
     /**
+     * Returns a stream from a given identifier, obtained through the class
+     * loader of the given resourceClass.
+     *
+     * @param streamKey The identifier of the stream.
+     * @param resourceClass the resource class through which the resource would
+     * be obtained
+     * @return The stream for the given identifier.
+     */
+    public InputStream getSettingsInputStream(  String streamKey,
+                                                Class<?> resourceClass)
+    {
+        String path = settingsResources.get(streamKey);
+
+        if (path == null || path.length() == 0)
+        {
+            logger.warn("Missing resource for key: " + streamKey);
+            return null;
+        }
+
+        return resourceClass.getClassLoader().getResourceAsStream(path);
+    }
+
+    /**
      * Returns the <tt>URL</tt> of the sound corresponding to the given
      * property key.
      *

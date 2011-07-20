@@ -26,18 +26,26 @@ public class NewAccount
     private String serverAddress;
 
     /**
+     * The port to connect to.
+     */
+    private String serverPort;
+
+    /**
      * Creates a new account by specifying the account user name and password.
      * @param userName the account user name
      * @param password the account password
      * @param serverAddress the server address to set
+     * @param serverPort the port to connect to
      */
     public NewAccount(  String userName,
                         char[] password,
-                        String serverAddress)
+                        String serverAddress,
+                        String port)
     {
         this.userName = userName;
         this.password = password;
         this.serverAddress = serverAddress;
+        this.serverPort = port;
     }
 
     /**
@@ -92,5 +100,14 @@ public class NewAccount
     public String getServerAddress()
     {
         return serverAddress;
+    }
+
+    /**
+     * Returns the port of the server.
+     * @return the port of the server
+     */
+    public String getServerPort()
+    {
+        return serverPort;
     }
 }

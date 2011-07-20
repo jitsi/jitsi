@@ -226,4 +226,15 @@ public class GoogleTalkAccountRegistrationWizard
     {
         return true;
     }
+
+    /**
+     * Returns an instance of <tt>CreateAccountService</tt> through which the
+     * user could create an account. This method is meant to be implemented by
+     * specific protocol provider wizards.
+     * @return an instance of <tt>CreateAccountService</tt>
+     */
+    protected JabberAccountCreationFormService getCreateAccountService()
+    {
+        return null;
+    }
 }

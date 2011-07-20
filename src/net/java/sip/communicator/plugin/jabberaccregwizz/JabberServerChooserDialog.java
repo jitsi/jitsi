@@ -45,7 +45,7 @@ public class JabberServerChooserDialog
     private JTable serversTable;
 
     private JTextArea chooseArea = new JTextArea(Resources
-        .getString("chooseServerText"));
+        .getString("plugin.jabberaccregwizz.CHOOSE_SERVER_TEXT"));
 
     // Panel
     private JPanel mainPanel = new TransparentPanel(new BorderLayout());
@@ -63,17 +63,19 @@ public class JabberServerChooserDialog
 
     private JLabel westIconLabel = new JLabel();
 
-    private JButton okButton = new JButton(Resources.getString("okLabel"));
+    private JButton okButton
+        = new JButton(Resources.getString("service.gui.OK"));
 
     private JButton cancelButton = new JButton(Resources
-        .getString("cancelLabel"));
+        .getString("service.gui.CANCEL"));
 
     private Vector<String> servers = new Vector<String>();
 
     private FileAccessService faService = null;
 
     private String[] columnNames =
-    {Resources.getString("serverColumn"), Resources.getString("commentColumn")};
+    {   Resources.getString("plugin.jabberaccregwizz.SERVER_COLUMN"),
+        Resources.getString("plugin.jabberaccregwizz.COMMENT_COLUMN")};
 
     public boolean isOK = false;
 
@@ -86,7 +88,8 @@ public class JabberServerChooserDialog
     {
         this.setSize(new Dimension(550, 450));
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        this.setTitle(Resources.getString("chooseTitle"));
+        this.setTitle(Resources.getString(
+            "plugin.jabberaccregwizz.CHOOSE_SERVER_TITLE"));
         this.setModal(true);
 
         // Place the window in the center
@@ -145,13 +148,11 @@ public class JabberServerChooserDialog
         eastPanel.add(scrollPane, BorderLayout.CENTER);
 
         // Ok button
-        okButton.setText(Resources.getString("okLabel"));
-        okButton.setMnemonic(Resources.getMnemonic("okLabel"));
+        okButton.setMnemonic(Resources.getMnemonic("service.gui.OK"));
         okButton.setEnabled(false);
 
         // Cancel button
-        cancelButton.setText(Resources.getString("cancelLabel"));
-        cancelButton.setMnemonic(Resources.getMnemonic("cancelLabel"));
+        cancelButton.setMnemonic(Resources.getMnemonic("service.gui.CANCEL"));
 
         // Box with Ok and Cancel
         buttonBox.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));

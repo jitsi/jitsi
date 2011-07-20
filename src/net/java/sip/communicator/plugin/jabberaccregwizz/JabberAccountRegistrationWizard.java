@@ -12,7 +12,7 @@ import java.util.List;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -57,6 +57,11 @@ public class JabberAccountRegistrationWizard
      * The <tt>ProtocolProviderService</tt> of this account.
      */
     private ProtocolProviderService protocolProvider;
+
+    /**
+     * The create account form.
+     */
+    private JabberAccountCreationForm createAccountService;
 
     /**
      * Creates an instance of <tt>JabberAccountRegistrationWizard</tt>.
@@ -232,6 +237,10 @@ public class JabberAccountRegistrationWizard
 
         if(!firstWizardPage.isCommitted())
             firstWizardPage.commitPage();
+
+        if(!firstWizardPage.isCommitted())
+            throw new OperationFailedException("Could not confirm data.",
+                OperationFailedException.GENERAL_ERROR);
 
         ProtocolProviderFactory factory
             = JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
@@ -426,7 +435,7 @@ public class JabberAccountRegistrationWizard
                 "Account already exists.",
                 OperationFailedException.IDENTIFICATION_CONFLICT);
         }
-        catch (Exception exc)
+        catch (Throwable exc)
         {
             logger.warn(exc.getMessage());
 
@@ -540,8 +549,6 @@ public class JabberAccountRegistrationWizard
      */
     public void webSignup()
     {
-        JabberAccRegWizzActivator.getBrowserLauncher()
-            .openURL("https://register.jabber.org/");
     }
 
     /**
@@ -552,7 +559,7 @@ public class JabberAccountRegistrationWizard
      */
     public boolean isWebSignupSupported()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -624,7 +631,10 @@ public class JabberAccountRegistrationWizard
      */
     protected JabberAccountCreationFormService getCreateAccountService()
     {
-        return null;
+        if (createAccountService == null)
+            createAccountService = new JabberAccountCreationForm();
+
+        return createAccountService;
     }
 
     /**
@@ -654,6 +664,15 @@ public class JabberAccountRegistrationWizard
     {
         return Resources.getString(
             "plugin.jabberaccregwizz.REGISTER_NEW_ACCOUNT_TEXT");
+    }
+
+    /**
+     * Return the string for add existing account button.
+     * @return the string for add existing account button.
+     */
+    protected String getExistingAccountLabel()
+    {
+        return Resources.getString("plugin.jabberaccregwizz.EXISTING_ACCOUNT");
     }
 
     /**

@@ -72,6 +72,9 @@ public class JabberAccountRegistrationForm
 
         if (!JabberAccRegWizzActivator.isAdvancedAccountConfigDisabled())
         {
+            // Indicate that this panel is opened in a simple form.
+            accountPanel.setSimpleForm(false);
+
             if (accountPanel.getParent() != tabbedPane)
                 tabbedPane.addTab(  Resources.getString("service.gui.ACCOUNT"),
                                     accountPanel);
@@ -210,20 +213,53 @@ public class JabberAccountRegistrationForm
      */
     public boolean commitPage(JabberAccountRegistration registration)
     {
-        String userID = accountPanel.getUsername();
+        String userID = null;
+        char[] password = null;
+        String serverAddress = null;
+        String serverPort = null;
 
-        if(userID == null || userID.trim().length() == 0)
-            throw new IllegalStateException("No user ID provided.");
+        if (accountPanel.isCreateAccount())
+        {
+            NewAccount newAccount
+                = getCreateAccountService().createAccount();
 
-        if(userID.indexOf('@') < 0
-           && registration.getDefaultUserSufix() != null)
-            userID = userID + '@' + registration.getDefaultUserSufix();
+            if (newAccount != null)
+            {
+                userID = newAccount.getUserName();
+                password = newAccount.getPassword();
+                serverAddress = newAccount.getServerAddress();
+                serverPort = newAccount.getServerPort();
+
+                if (serverAddress == null)
+                    setServerFieldAccordingToUIN(userID);
+            }
+            else
+            {
+                // If we didn't succeed to create our new account, we have
+                // nothing more to do here.
+                return false;
+            }
+        }
+        else
+        {
+            userID = accountPanel.getUsername();
+
+            if(userID == null || userID.trim().length() == 0)
+                throw new IllegalStateException("No user ID provided.");
+
+            if(userID.indexOf('@') < 0
+               && registration.getDefaultUserSufix() != null)
+                userID = userID + '@' + registration.getDefaultUserSufix();
+
+            password = accountPanel.getPassword();
+            serverAddress = connectionPanel.getServerAddress();
+            serverPort = connectionPanel.getServerPort();
+        }
 
         registration.setUserID(userID);
-        registration.setPassword(new String(accountPanel.getPassword()));
+        registration.setPassword(new String(password));
         registration.setRememberPassword(accountPanel.isRememberPassword());
-
-        registration.setServerAddress(connectionPanel.getServerAddress());
+        registration.setServerAddress(serverAddress);
         registration.setSendKeepAlive(connectionPanel.isSendKeepAlive());
         registration.setGmailNotificationEnabled(
             connectionPanel.isGmailNotificationsEnabled());
@@ -233,7 +269,6 @@ public class JabberAccountRegistrationForm
             connectionPanel.isAutogenerateResourceEnabled());
         registration.setResource(connectionPanel.getResource());
 
-        String serverPort = connectionPanel.getServerPort();
         if (serverPort != null)
             registration.setPort(Integer.parseInt(serverPort));
 
@@ -465,6 +500,9 @@ public class JabberAccountRegistrationForm
         if (createAccountService != null)
             createAccountService.clear();
 
+        // Indicate that this panel is opened in a simple form.
+        accountPanel.setSimpleForm(true);
+
         return accountPanel;
     }
 
@@ -550,6 +588,15 @@ public class JabberAccountRegistrationForm
     protected String getCreateAccountLabel()
     {
         return wizard.getCreateAccountLabel();
+    }
+
+    /**
+     * Return the string for add existing account button.
+     * @return the string for add existing account button.
+     */
+    protected String getExistingAccountLabel()
+    {
+        return wizard.getExistingAccountLabel();
     }
 
     /**

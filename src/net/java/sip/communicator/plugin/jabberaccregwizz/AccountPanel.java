@@ -15,7 +15,6 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- *
  * @author Yana Stamcheva
  */
 public class AccountPanel
@@ -44,12 +43,18 @@ public class AccountPanel
     private final JCheckBox rememberPassBox = new SIPCommCheckBox(Resources
         .getString("service.gui.REMEMBER_PASSWORD"));
 
-    private final JPanel registerPanel
+    private final JabberAccountRegistrationForm parentForm;
+
+    private final JRadioButton existingAccountButton;
+
+    private final JRadioButton createAccountButton;
+
+    private final JPanel mainPanel
         = new TransparentPanel(new BorderLayout(5, 5));
 
-    private JabberNewAccountDialog jabberNewAccountDialog;
+    private Component registrationForm;
 
-    private final JabberAccountRegistrationForm parentForm;
+    private Component registerChoicePanel;
 
     /**
      * Creates an instance of <tt>AccountPanel</tt> by specifying the parent
@@ -74,6 +79,12 @@ public class AccountPanel
 
         userIDField.getDocument().addDocumentListener(this);
         rememberPassBox.setSelected(true);
+
+        existingAccountButton = new JRadioButton(
+            parentForm.getExistingAccountLabel());
+
+        createAccountButton = new JRadioButton(
+            parentForm.getCreateAccountLabel());
 
         userIDExampleLabel.setForeground(Color.GRAY);
         userIDExampleLabel.setFont(userIDExampleLabel.getFont().deriveFont(8));
@@ -111,118 +122,63 @@ public class AccountPanel
 
         userIDPassPanel.add(southPanel, BorderLayout.SOUTH);
 
-        String createAccountString = parentForm.getCreateAccountButtonLabel();
-
-        if (createAccountString != null && createAccountString.length() > 0)
-        {
-            JPanel buttonPanel
-                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-
-            buttonPanel.add(createRegisterButton(createAccountString));
-
-            registerPanel.add(buttonPanel, BorderLayout.SOUTH);
-        }
-
-        String createAccountInfoString = parentForm.getCreateAccountLabel();
-        if (createAccountInfoString != null
-            && createAccountInfoString.length() > 0)
-        {
-            registerPanel.add(createRegisterArea(createAccountInfoString));
-        }
-
-        JPanel mainPanel = new TransparentPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.add(userIDPassPanel);
-        mainPanel.add(Box.createVerticalStrut(10));
-
-        if (registerPanel.getComponentCount() > 0)
-        {
-            registerPanel.setBorder(BorderFactory.createTitledBorder(""));
-
-            mainPanel.add(registerPanel);
-        }
-
-        add(mainPanel, BorderLayout.NORTH);
+        this.add(mainPanel, BorderLayout.NORTH);
     }
 
     /**
-     * Creates the register area.
-     *
-     * @param text the text to show to the user
+     * Creates a register choice panel.
      * @return the created component
      */
-    private Component createRegisterArea(String text)
+    private Component createRegisterChoicePanel()
     {
-        JEditorPane registerArea = new JEditorPane();
+        JPanel registerChoicePanel = new TransparentPanel(new GridLayout(0, 1));
 
-        registerArea.setAlignmentX(JEditorPane.CENTER_ALIGNMENT);
-        registerArea.setOpaque(false);
-        registerArea.setContentType("text/html");
-        registerArea.setEditable(false);
-        registerArea.setText(text);
-        /* Display the description with the font we use elsewhere in the UI. */
-        registerArea.putClientProperty(
-                JEditorPane.HONOR_DISPLAY_PROPERTIES,
-                true);
-        registerArea.addHyperlinkListener(new HyperlinkListener()
-            {
-                public void hyperlinkUpdate(HyperlinkEvent e)
-                {
-                    if (e.getEventType()
-                            .equals(HyperlinkEvent.EventType.ACTIVATED))
-                    {
-                        JabberAccRegWizzActivator
-                            .getBrowserLauncher().openURL(e.getURL().toString());
-                    }
-                }
-            });
-
-        return registerArea;
-    }
-
-    /**
-     * Creates the register button.
-     *
-     * @param text the text of the button
-     * @return the created component
-     */
-    private Component createRegisterButton(String text)
-    {
-        JButton registerButton = new JButton(text);
-
-        registerButton.addActionListener(new ActionListener()
+        existingAccountButton.addChangeListener(new ChangeListener()
         {
-            public void actionPerformed(ActionEvent evt)
+            public void stateChanged(ChangeEvent e)
             {
-                if (logger.isDebugEnabled())
-                    logger.debug("Reg OK");
-
-                if (parentForm.isWebSignupSupported())
+                if (existingAccountButton.isSelected())
                 {
-                    parentForm.webSignup();
-                }
-                else
-                {
-                    // Open the new account dialog.
-                    jabberNewAccountDialog = new JabberNewAccountDialog();
+                    mainPanel.remove(registrationForm);
+                    mainPanel.add(userIDPassPanel, BorderLayout.CENTER);
 
-                    if (jabberNewAccountDialog.isOK == true)
-                    {
-                        // This userIDField contains the username "@" the server.
-                        userIDField.setText(jabberNewAccountDialog.userID + "@"
-                            + jabberNewAccountDialog.server);
+                    Window window
+                        = SwingUtilities.getWindowAncestor(AccountPanel.this);
 
-                        parentForm.setServerFieldAccordingToUIN(
-                            userIDField.getText());
-                        passField.setText(jabberNewAccountDialog.password);
-                    }
-                    if (logger.isDebugEnabled())
-                        logger.debug("Reg End");
+                    if (window != null)
+                        window.pack();
                 }
             }
         });
 
-        return registerButton;
+        createAccountButton.addChangeListener(new ChangeListener()
+        {
+            public void stateChanged(ChangeEvent e)
+            {
+                if (createAccountButton.isSelected())
+                {
+                    mainPanel.remove(userIDPassPanel);
+                    mainPanel.add(registrationForm, BorderLayout.CENTER);
+                    SwingUtilities.getWindowAncestor(AccountPanel.this).pack();
+                }
+            }
+        });
+
+        ButtonGroup buttonGroup = new ButtonGroup();
+
+        existingAccountButton.setOpaque(false);
+        createAccountButton.setOpaque(false);
+
+        buttonGroup.add(existingAccountButton);
+        buttonGroup.add(createAccountButton);
+
+        registerChoicePanel.add(existingAccountButton);
+        registerChoicePanel.add(createAccountButton);
+
+        // By default we select the existing account button.
+        existingAccountButton.setSelected(true);
+
+        return registerChoicePanel;
     }
 
     /**
@@ -365,5 +321,139 @@ public class AccountPanel
     {
         return userIDField.getText() != null
                 && userIDField.getText().length() > 0;
+    }
+
+    /**
+     * Sets to <tt>true</tt> if this panel is opened in a simple form and
+     * <tt>false</tt> if it's opened in an advanced form.
+     *
+     * @param isSimpleForm indicates if this panel is opened in a simple form or
+     * in an advanced form
+     */
+    void setSimpleForm(boolean isSimpleForm)
+    {
+        JabberAccountCreationFormService createAccountService
+            = parentForm.getCreateAccountService();
+
+        if (createAccountService != null && isSimpleForm)
+        {
+            registrationForm = createAccountService.getForm();
+            registerChoicePanel = createRegisterChoicePanel();
+
+            mainPanel.add(registerChoicePanel, BorderLayout.NORTH);
+        }
+        else
+        {
+            JPanel registerPanel = new TransparentPanel();
+
+            registerPanel.setLayout(
+                new BoxLayout(registerPanel, BoxLayout.Y_AXIS));
+
+            String createAccountInfoString = parentForm.getCreateAccountLabel();
+
+            if (createAccountInfoString != null
+                && createAccountInfoString.length() > 0)
+            {
+                registerPanel.add(createRegisterArea(createAccountInfoString));
+            }
+
+            String createAccountString
+                = parentForm.getCreateAccountButtonLabel();
+
+            if (createAccountString != null
+                    && createAccountString.length() > 0)
+            {
+                JPanel buttonPanel
+                    = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+
+                buttonPanel.add(createRegisterButton(createAccountString));
+
+                registerPanel.add(buttonPanel);
+            }
+
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            mainPanel.add(userIDPassPanel);
+            mainPanel.add(Box.createVerticalStrut(10));
+
+            if (registerPanel.getComponentCount() > 0)
+            {
+                registerPanel.setBorder(BorderFactory.createTitledBorder(""));
+
+                mainPanel.add(registerPanel);
+            }
+        }
+    }
+
+    /**
+     * Indicates if the account information provided by this form is for new
+     * account or an existing one.
+     * @return <tt>true</tt> if the account information provided by this form
+     * is for new account or <tt>false</tt> if it's for an existing one
+     */
+    boolean isCreateAccount()
+    {
+        return createAccountButton.isSelected();
+    }
+
+    /**
+     * Creates the register area.
+     *
+     * @param text the text to show to the user
+     * @return the created component
+     */
+    private Component createRegisterArea(String text)
+    {
+        JEditorPane registerArea = new JEditorPane();
+
+        registerArea.setAlignmentX(JEditorPane.CENTER_ALIGNMENT);
+        registerArea.setOpaque(false);
+        registerArea.setContentType("text/html");
+        registerArea.setEditable(false);
+        registerArea.setText(text);
+        /* Display the description with the font we use elsewhere in the UI. */
+        registerArea.putClientProperty(
+                JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                true);
+        registerArea.addHyperlinkListener(new HyperlinkListener()
+            {
+                public void hyperlinkUpdate(HyperlinkEvent e)
+                {
+                    if (e.getEventType()
+                            .equals(HyperlinkEvent.EventType.ACTIVATED))
+                    {
+                        JabberAccRegWizzActivator
+                            .getBrowserLauncher().openURL(e.getURL().toString());
+                    }
+                }
+            });
+
+        return registerArea;
+    }
+
+    /**
+     * Creates the register button.
+     *
+     * @param text the text of the button
+     * @return the created component
+     */
+    private Component createRegisterButton(String text)
+    {
+        JButton registerButton = new JButton(text);
+
+        registerButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("Reg OK");
+
+                if (parentForm.isWebSignupSupported())
+                {
+                    parentForm.webSignup();
+                }
+            }
+        });
+
+        return registerButton;
     }
 }

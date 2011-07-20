@@ -85,7 +85,8 @@ public class Resources
      */
     public static InputStream getPropertyInputStream(String key)
     {
-        return getResources().getSettingsInputStream(key);
+        return getResources().getSettingsInputStream(key,
+                                        JabberAccRegWizzActivator.class);
     }
 
     public static ResourceManagementService getResources()

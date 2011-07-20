@@ -178,6 +178,18 @@ public interface ResourceManagementService
     public InputStream getSettingsInputStream(String streamKey);
 
     /**
+     * Returns a stream from a given identifier, obtained through the class
+     * loader of the given resourceClass.
+     *
+     * @param streamKey The identifier of the stream.
+     * @param resourceClass the resource class through which the resource would
+     * be obtained
+     * @return The stream for the given identifier.
+     */
+    public InputStream getSettingsInputStream(  String streamKey,
+                                                Class<?> resourceClass);
+
+    /**
      * Returns the int value of the corresponding configuration key.
      *
      * @param key The identifier of the string in the resources properties file.
