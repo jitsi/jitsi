@@ -306,18 +306,18 @@ public class OperationSetBasicTelephonyJabberImpl
         }
         */
 
-        if(di != null)
-        {
-            if (logger.isInfoEnabled())
-                logger.info(fullCalleeURI + ": jingle supported ");
-        }
-        else if(isGingle)
+        if(isGingle)
         {
             if(logger.isInfoEnabled())
             {
                 logger.info(gingleURI + ": Google Talk dialect supported");
             }
             fullCalleeURI = gingleURI;
+        }
+        else if(di != null)
+        {
+            if (logger.isInfoEnabled())
+                logger.info(fullCalleeURI + ": jingle supported ");
         }
         else
         {
