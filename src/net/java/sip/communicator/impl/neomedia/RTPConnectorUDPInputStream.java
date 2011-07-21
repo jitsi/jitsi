@@ -25,6 +25,11 @@ public class RTPConnectorUDPInputStream
     private final DatagramSocket socket;
 
     /**
+     * Receive size configured flag.
+     */
+    private boolean receivedSizeFlag = false;
+
+    /**
      * Initializes a new <tt>RTPConnectorInputStream</tt> which is to receive
      * packet data from a specific UDP socket.
      *
@@ -36,14 +41,6 @@ public class RTPConnectorUDPInputStream
 
         if(socket != null)
         {
-            try
-            {
-                socket.setReceiveBufferSize(65535);
-            }
-            catch(Throwable t)
-            {
-            }
-
             closed = false;
             receiverThread = new Thread(this);
             receiverThread.start();
@@ -96,6 +93,18 @@ public class RTPConnectorUDPInputStream
     protected void receivePacket(DatagramPacket p)
         throws IOException
     {
+        if(!receivedSizeFlag)
+        {
+            receivedSizeFlag = true;
+
+            try
+            {
+                socket.setReceiveBufferSize(65535);
+            }
+            catch(Throwable t)
+            {
+            }
+        }
         socket.receive(p);
     }
 }
