@@ -248,7 +248,9 @@
     <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
       <![CDATA[NOT Installed AND SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
     </Custom>
-    <Custom Action="SetINSTALLDIR" After="SetIS_AUTOUPDATE" />
+    <Custom Action="SetINSTALLDIR" After="SetIS_AUTOUPDATE">
+      <![CDATA[IS_AUTOUPDATE = 1]]>
+    </Custom>
     <Custom Action="SetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">
       <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_DESKTOP_SHORTCUT]]>
     </Custom>
@@ -352,7 +354,9 @@
   <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
     <![CDATA[NOT Installed AND SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
   </Custom>
-  <Custom Action="SetINSTALLDIR" After="SetIS_AUTOUPDATE" />
+  <Custom Action="SetINSTALLDIR" After="SetIS_AUTOUPDATE">
+    <![CDATA[IS_AUTOUPDATE = 1]]>
+  </Custom>
   <Custom Action="SetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">
     <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_DESKTOP_SHORTCUT]]>
   </Custom>
