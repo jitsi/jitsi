@@ -335,52 +335,64 @@ public class AccountPanel
         JabberAccountCreationFormService createAccountService
             = parentForm.getCreateAccountService();
 
-        if (createAccountService != null && isSimpleForm)
-        {
-            registrationForm = createAccountService.getForm();
-            registerChoicePanel = createRegisterChoicePanel();
+        mainPanel.removeAll();
 
-            mainPanel.add(registerChoicePanel, BorderLayout.NORTH);
+        if (isSimpleForm)
+        {
+            if (createAccountService != null)
+            {
+                registrationForm = createAccountService.getForm();
+                registerChoicePanel = createRegisterChoicePanel();
+
+                mainPanel.add(registerChoicePanel, BorderLayout.NORTH);
+            }
+            else
+            {
+                JPanel registerPanel = new TransparentPanel();
+
+                registerPanel.setLayout(
+                    new BoxLayout(registerPanel, BoxLayout.Y_AXIS));
+
+                String createAccountInfoString
+                    = parentForm.getCreateAccountLabel();
+
+                if (createAccountInfoString != null
+                    && createAccountInfoString.length() > 0)
+                {
+                    registerPanel.add(
+                        createRegisterArea(createAccountInfoString));
+                }
+
+                String createAccountString
+                    = parentForm.getCreateAccountButtonLabel();
+
+                if (createAccountString != null
+                        && createAccountString.length() > 0)
+                {
+                    JPanel buttonPanel = new TransparentPanel(
+                            new FlowLayout(FlowLayout.CENTER));
+
+                    buttonPanel.add(createRegisterButton(createAccountString));
+
+                    registerPanel.add(buttonPanel);
+                }
+
+                mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+                mainPanel.add(userIDPassPanel);
+                mainPanel.add(Box.createVerticalStrut(10));
+
+                if (registerPanel.getComponentCount() > 0)
+                {
+                    registerPanel.setBorder(
+                        BorderFactory.createTitledBorder(""));
+
+                    mainPanel.add(registerPanel);
+                }
+            }
         }
         else
         {
-            JPanel registerPanel = new TransparentPanel();
-
-            registerPanel.setLayout(
-                new BoxLayout(registerPanel, BoxLayout.Y_AXIS));
-
-            String createAccountInfoString = parentForm.getCreateAccountLabel();
-
-            if (createAccountInfoString != null
-                && createAccountInfoString.length() > 0)
-            {
-                registerPanel.add(createRegisterArea(createAccountInfoString));
-            }
-
-            String createAccountString
-                = parentForm.getCreateAccountButtonLabel();
-
-            if (createAccountString != null
-                    && createAccountString.length() > 0)
-            {
-                JPanel buttonPanel
-                    = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-
-                buttonPanel.add(createRegisterButton(createAccountString));
-
-                registerPanel.add(buttonPanel);
-            }
-
-            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-            mainPanel.add(userIDPassPanel);
-            mainPanel.add(Box.createVerticalStrut(10));
-
-            if (registerPanel.getComponentCount() > 0)
-            {
-                registerPanel.setBorder(BorderFactory.createTitledBorder(""));
-
-                mainPanel.add(registerPanel);
-            }
+            mainPanel.add(userIDPassPanel, BorderLayout.NORTH);
         }
     }
 
