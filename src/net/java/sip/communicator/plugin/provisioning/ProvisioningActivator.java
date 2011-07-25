@@ -466,47 +466,27 @@ public class ProvisioningActivator
                 {
                     String s = args[i];
 
-                    if(s.startsWith("username="))
+                    String usernameParam = "${username}";
+                    String passwordParam = "${password}";
+
+                    // If we find the username or password parameter at this
+                    // stage we replace it with an empty string.
+                    if(s.indexOf(usernameParam) != -1)
                     {
-                        paramNames[i] = "username";
-                        paramValues[i] = "";
+                        s = s.replace(usernameParam, "");
                         usernameIx = i;
                     }
-                    else if(s.startsWith("password="))
+                    else if(s.indexOf(passwordParam) != -1)
                     {
-                        paramNames[i] = "password";
-                        paramValues[i] = "";
+                        s = s.replace(passwordParam, "");
                         passwordIx = i;
                     }
-                    else if(s.startsWith("uuid="))
+
+                    int equalsIndex = s.indexOf("=");
+                    if (equalsIndex > 0)
                     {
-                        paramNames[i] = "uuid";
-                        paramValues[i] = s.substring(s.indexOf("=") + 1);
-                    }
-                    else if(s.startsWith("osname="))
-                    {
-                        paramNames[i] = "osname";
-                        paramValues[i] = s.substring(s.indexOf("=") + 1);
-                    }
-                    else if(s.startsWith("build="))
-                    {
-                        paramNames[i] = "build";
-                        paramValues[i] = s.substring(s.indexOf("=") + 1);
-                    }
-                    else if(s.startsWith("ipaddr="))
-                    {
-                        paramNames[i] = "ipaddr";
-                        paramValues[i] = s.substring(s.indexOf("=") + 1);
-                    }
-                    else if(s.startsWith("hwaddr="))
-                    {
-                        paramNames[i] = "hwaddr";
-                        paramValues[i] = s.substring(s.indexOf("=") + 1);
-                    }
-                    else
-                    {
-                        paramNames[i] = "";
-                        paramValues[i] = "";
+                        paramNames[i] = s.substring(0, equalsIndex);
+                        paramValues[i] = s.substring(equalsIndex + 1);
                     }
                 }
             }
