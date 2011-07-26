@@ -236,9 +236,18 @@ public class VideoMediaStreamImpl
     /**
      * The facility which aids this instance in managing a list of
      * <tt>VideoListener</tt>s and firing <tt>VideoEvent</tt>s to them.
+     * <p>
+     * Since the <tt>videoNotifierSupport</tt> of this
+     * <tt>VideoMediaStreamImpl</tt> just forwards the <tt>VideoEvent</tt>s of
+     * the associated <tt>VideoMediaDeviceSession</tt> at the time of this
+     * writing, it does not make sense to have <tt>videoNotifierSupport</tt>
+     * executing asynchronously because it does not know whether it has to wait
+     * for the delivery of the <tt>VideoEvent</tt>s and thus it has to default
+     * to waiting anyway.
+     * </p>
      */
     private final VideoNotifierSupport videoNotifierSupport
-        = new VideoNotifierSupport(this);
+        = new VideoNotifierSupport(this, true);
 
     /**
      * Initializes a new <tt>VideoMediaStreamImpl</tt> instance which will use
@@ -408,7 +417,8 @@ public class VideoMediaStreamImpl
                         if (fireVideoEvent(
                                 e.getType(),
                                 e.getVisualComponent(),
-                                e.getOrigin()))
+                                e.getOrigin(),
+                                true))
                             e.consume();
                     }
 
@@ -429,7 +439,7 @@ public class VideoMediaStreamImpl
 
                     public void videoUpdate(VideoEvent e)
                     {
-                        fireVideoEvent(e);
+                        fireVideoEvent(e, true);
                     }
                 };
             }
@@ -480,6 +490,9 @@ public class VideoMediaStreamImpl
      * @param origin {@link VideoEvent#LOCAL} if the origin of the video is
      * local (e.g. it is being locally captured); {@link VideoEvent#REMOTE} if
      * the origin of the video is remote (e.g. a remote peer is streaming it)
+     * @param wait <tt>true</tt> if the call is to wait till the specified
+     * <tt>VideoEvent</tt> has been delivered to the <tt>VideoListener</tt>s;
+     * otherwise, <tt>false</tt>
      * @return <tt>true</tt> if this event and, more specifically, the visual
      * <tt>Component</tt> it describes have been consumed and should be
      * considered owned, referenced (which is important because
@@ -487,9 +500,8 @@ public class VideoMediaStreamImpl
      * otherwise, <tt>false</tt>
      */
     protected boolean fireVideoEvent(
-            int type,
-            Component visualComponent,
-            int origin)
+            int type, Component visualComponent, int origin,
+            boolean wait)
     {
         if (logger.isTraceEnabled())
             logger
@@ -500,7 +512,9 @@ public class VideoMediaStreamImpl
                         + VideoEvent.originToString(origin));
 
         return
-            videoNotifierSupport.fireVideoEvent(type, visualComponent, origin);
+            videoNotifierSupport.fireVideoEvent(
+                    type, visualComponent, origin,
+                    wait);
     }
 
     /**
@@ -509,10 +523,13 @@ public class VideoMediaStreamImpl
      *
      * @param event the <tt>VideoEvent</tt> to be fired to the
      * <tt>VideoListener</tt>s registered with this instance
+     * @param wait <tt>true</tt> if the call is to wait till the specified
+     * <tt>VideoEvent</tt> has been delivered to the <tt>VideoListener</tt>s;
+     * otherwise, <tt>false</tt>
      */
-    protected void fireVideoEvent(VideoEvent event)
+    protected void fireVideoEvent(VideoEvent event, boolean wait)
     {
-        videoNotifierSupport.fireVideoEvent(event);
+        videoNotifierSupport.fireVideoEvent(event, wait);
     }
 
     /**

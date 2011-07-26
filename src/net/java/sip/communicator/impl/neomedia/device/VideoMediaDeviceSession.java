@@ -115,7 +115,7 @@ public class VideoMediaDeviceSession
      * <tt>VideoListener</tt>s and firing <tt>VideoEvent</tt>s to them.
      */
     private final VideoNotifierSupport videoNotifierSupport
-        = new VideoNotifierSupport(this);
+        = new VideoNotifierSupport(this, false);
 
     /**
      * Initializes a new <tt>VideoMediaDeviceSession</tt> instance which is to
@@ -291,9 +291,8 @@ public class VideoMediaDeviceSession
         if (visualComponent != null)
         {
             fireVideoEvent(
-                VideoEvent.VIDEO_REMOVED,
-                visualComponent,
-                VideoEvent.REMOTE);
+                VideoEvent.VIDEO_REMOVED, visualComponent, VideoEvent.REMOTE,
+                false);
         }
     }
 
@@ -309,6 +308,9 @@ public class VideoMediaDeviceSession
      * @param origin {@link VideoEvent#LOCAL} if the origin of the video is
      * local (e.g. it is being locally captured); {@link VideoEvent#REMOTE} if
      * the origin of the video is remote (e.g. a remote peer is streaming it)
+     * @param wait <tt>true</tt> if the call is to wait till the specified
+     * <tt>VideoEvent</tt> has been delivered to the <tt>VideoListener</tt>s;
+     * otherwise, <tt>false</tt>
      * @return <tt>true</tt> if this event and, more specifically, the visual
      * <tt>Component</tt> it describes have been consumed and should be
      * considered owned, referenced (which is important because
@@ -316,9 +318,8 @@ public class VideoMediaDeviceSession
      * otherwise, <tt>false</tt>
      */
     protected boolean fireVideoEvent(
-            int type,
-            Component visualComponent,
-            int origin)
+            int type, Component visualComponent, int origin,
+            boolean wait)
     {
         if (logger.isTraceEnabled())
         {
@@ -330,7 +331,9 @@ public class VideoMediaDeviceSession
         }
 
         return
-            videoNotifierSupport.fireVideoEvent(type, visualComponent, origin);
+            videoNotifierSupport.fireVideoEvent(
+                    type, visualComponent, origin,
+                    wait);
     }
 
     /**
@@ -339,10 +342,13 @@ public class VideoMediaDeviceSession
      *
      * @param videoEvent the <tt>VideoEvent</tt> to be fired to the
      * <tt>VideoListener</tt>s registered with this instance
+     * @param wait <tt>true</tt> if the call is to wait till the specified
+     * <tt>VideoEvent</tt> has been delivered to the <tt>VideoListener</tt>s;
+     * otherwise, <tt>false</tt>
      */
-    protected void fireVideoEvent(VideoEvent videoEvent)
+    protected void fireVideoEvent(VideoEvent videoEvent, boolean wait)
     {
-        videoNotifierSupport.fireVideoEvent(videoEvent);
+        videoNotifierSupport.fireVideoEvent(videoEvent, wait);
     }
 
     /**
@@ -498,7 +504,8 @@ public class VideoMediaDeviceSession
                 if (fireVideoEvent(
                         VideoEvent.VIDEO_ADDED,
                         visualComponent,
-                        VideoEvent.LOCAL))
+                        VideoEvent.LOCAL,
+                        true))
                 {
                     localVisualComponentConsumed(visualComponent, player);
                 }
@@ -648,7 +655,9 @@ public class VideoMediaDeviceSession
              */
             canvas.setName(DESKTOP_STREAMING_ICON);
 
-            fireVideoEvent(VideoEvent.VIDEO_ADDED, canvas, VideoEvent.LOCAL);
+            fireVideoEvent(
+                    VideoEvent.VIDEO_ADDED, canvas, VideoEvent.LOCAL,
+                    false);
         }
         return canvas;
     }
@@ -669,9 +678,8 @@ public class VideoMediaDeviceSession
                 && DESKTOP_STREAMING_ICON.equals(component.getName()))
         {
             fireVideoEvent(
-                    VideoEvent.VIDEO_REMOVED,
-                    component,
-                    VideoEvent.LOCAL);
+                    VideoEvent.VIDEO_REMOVED, component, VideoEvent.LOCAL,
+                    false);
             return;
         }
 
@@ -709,9 +717,8 @@ public class VideoMediaDeviceSession
 
         if (visualComponent != null)
             fireVideoEvent(
-                VideoEvent.VIDEO_REMOVED,
-                visualComponent,
-                VideoEvent.LOCAL);
+                VideoEvent.VIDEO_REMOVED, visualComponent, VideoEvent.LOCAL,
+                false);
     }
 
     /**
@@ -942,9 +949,8 @@ public class VideoMediaDeviceSession
             });
 
             fireVideoEvent(
-                VideoEvent.VIDEO_ADDED,
-                visualComponent,
-                VideoEvent.REMOTE);
+                VideoEvent.VIDEO_ADDED, visualComponent, VideoEvent.REMOTE,
+                false);
         }
     }
 
@@ -991,7 +997,8 @@ public class VideoMediaDeviceSession
                         visualComponent,
                         SizeChangeVideoEvent.REMOTE,
                         width,
-                        height));
+                        height),
+                false);
         }
     }
 
@@ -1516,7 +1523,8 @@ public class VideoMediaDeviceSession
                     fireVideoEvent(
                         VideoEvent.VIDEO_ADDED,
                         visualComponent,
-                        VideoEvent.REMOTE);
+                        VideoEvent.REMOTE,
+                        false);
                 }
             }
         }
@@ -1531,7 +1539,8 @@ public class VideoMediaDeviceSession
                 fireVideoEvent(
                     VideoEvent.VIDEO_REMOVED,
                     visualComponent,
-                    VideoEvent.REMOTE);
+                    VideoEvent.REMOTE,
+                    false);
             }
         }
     }

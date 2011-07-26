@@ -375,12 +375,14 @@ public abstract class MediaAwareCallPeer
     public void setLocalVideoAllowed(boolean allowed)
         throws OperationFailedException
     {
-        if(getMediaHandler().isLocalVideoTransmissionEnabled() == allowed)
-            return;
+        CallPeerMediaHandler<?> mediaHandler = getMediaHandler();
 
-        // Modify the local media setup to reflect the requested setting for
-        // the streaming of the local video.
-        getMediaHandler().setLocalVideoTransmissionEnabled(allowed);
+        if(mediaHandler.isLocalVideoTransmissionEnabled() != allowed)
+        {
+            // Modify the local media setup to reflect the requested setting for
+            // the streaming of the local video.
+            mediaHandler.setLocalVideoTransmissionEnabled(allowed);
+        }
     }
 
     /**
@@ -509,14 +511,16 @@ public abstract class MediaAwareCallPeer
         // of CallPeerMediaHandler) we won't set and fire the current state
         // to Disconnected. Before closing the mediaHandler is setting the state
         // in order to deliver states as quick as possible.
-        synchronized(getMediaHandler())
+        CallPeerMediaHandler<?> mediaHandler = getMediaHandler();
+
+        synchronized(mediaHandler)
         {
             super.setState(newState, reason, reasonCode);
 
             if (CallPeerState.DISCONNECTED.equals(newState)
                     || CallPeerState.FAILED.equals(newState))
             {
-                getMediaHandler().close();
+                mediaHandler.close();
             }
         }
     }
@@ -788,8 +792,10 @@ public abstract class MediaAwareCallPeer
             // us audio for at least two separate participants. We therefore
             // need to remove the stream level listeners and switch to CSRC
             // level listening
-            getMediaHandler().setStreamAudioLevelListener(null);
-            getMediaHandler().setCsrcAudioLevelListener(this);
+            CallPeerMediaHandler<?> mediaHandler = getMediaHandler();
+
+            mediaHandler.setStreamAudioLevelListener(null);
+            mediaHandler.setCsrcAudioLevelListener(this);
         }
     }
 
@@ -811,8 +817,10 @@ public abstract class MediaAwareCallPeer
             // since there's only us and her in the call. Lets stop being a CSRC
             // listener and move back to listening the audio level of the
             // stream itself.
-            getMediaHandler().setStreamAudioLevelListener(this);
-            getMediaHandler().setCsrcAudioLevelListener(null);
+            CallPeerMediaHandler<?> mediaHandler = getMediaHandler();
+
+            mediaHandler.setStreamAudioLevelListener(this);
+            mediaHandler.setCsrcAudioLevelListener(null);
         }
     }
 

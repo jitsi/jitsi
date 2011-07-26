@@ -272,7 +272,7 @@ public class MediaServiceImpl
             break;
         case VIDEO:
             captureDeviceInfo
-                    = getDeviceConfiguration().getVideoCaptureDevice(useCase);
+                = getDeviceConfiguration().getVideoCaptureDevice(useCase);
             break;
         default:
             captureDeviceInfo = null;
@@ -314,10 +314,12 @@ public class MediaServiceImpl
             }
         }
 
-        //Don't use the device in case the user has disabled all codecs for that
-        //kind of media.
+        /*
+         * Don't use the device in case the user has disabled all codecs for
+         * that kind of media.
+         */
         if ((defaultDevice != null)
-                    && (defaultDevice.getSupportedFormats().isEmpty()))
+                && (defaultDevice.getSupportedFormats().isEmpty()))
         {
             defaultDevice = null;
         }

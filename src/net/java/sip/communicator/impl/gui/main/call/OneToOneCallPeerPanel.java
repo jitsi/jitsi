@@ -787,26 +787,27 @@ public class OneToOneCallPeerPanel
             logger.trace("UI video event received originated in: "
                     + event.getOrigin() + " and is of type: " + event.getType());
 
-        synchronized (videoContainers)
+        if ((event != null) && !event.isConsumed())
         {
-            if ((event != null) && !event.isConsumed())
-            {
-                Component video = event.getVisualComponent();
+            int origin = event.getOrigin();
+            Component video = event.getVisualComponent();
 
+            synchronized (videoContainers)
+            {
                 switch (event.getType())
                 {
                 case VideoEvent.VIDEO_ADDED:
-                    if(event.getOrigin() == VideoEvent.LOCAL)
+                    if (origin == VideoEvent.LOCAL)
                     {
                         this.localVideo = video;
                         this.closeButton = new CloseButton();
                     }
-                    else if(event.getOrigin() == VideoEvent.REMOTE)
+                    else if (origin == VideoEvent.REMOTE)
                     {
                         this.remoteVideo = video;
                     }
 
-                    addMouseListeners(event.getOrigin());
+                    addMouseListeners(origin);
 
                     /*
                      * Let the creator of the local visual Component know it
@@ -816,16 +817,18 @@ public class OneToOneCallPeerPanel
                     break;
 
                 case VideoEvent.VIDEO_REMOVED:
-                    if (event.getOrigin() == VideoEvent.LOCAL &&
-                            localVideo == video)
+                    if (origin == VideoEvent.LOCAL)
                     {
-                        this.localVideo = null;
-                        this.closeButton = null;
+                        if (localVideo == video)
+                        {
+                            this.localVideo = null;
+                            this.closeButton = null;
+                        }
                     }
-                    else if(event.getOrigin() == VideoEvent.REMOTE &&
-                            remoteVideo == video)
+                    else if (origin == VideoEvent.REMOTE)
                     {
-                        this.remoteVideo = null;
+                        if (remoteVideo == video)
+                            this.remoteVideo = null;
                     }
                     break;
                 }

@@ -474,9 +474,7 @@ public class OperationSetDesktopSharingServerSipImpl
                 byte[] rawContent)
         {
             if(requestEvent.getDialog() != callPeer.getDialog())
-            {
                 return;
-            }
 
             if (rawContent != null)
             {
@@ -514,19 +512,14 @@ public class OperationSetDesktopSharingServerSipImpl
                     List<ComponentEvent> events = null;
                     Point p = getOrigin();
 
-                    events = DesktopSharingProtocolSipImpl.parse(root, size,
-                            p);
+                    events = DesktopSharingProtocolSipImpl.parse(root, size, p);
 
                     for(ComponentEvent evt : events)
                     {
                         if(evt instanceof MouseEvent)
-                        {
                             processMouseEvent((MouseEvent)evt);
-                        }
                         else if(evt instanceof KeyEvent)
-                        {
                             processKeyboardEvent((KeyEvent)evt);
-                        }
                     }
                 }
             }

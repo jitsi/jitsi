@@ -76,37 +76,33 @@ public class ImageStreamingAuto
         for(ScreenDevice screen : screens)
         {
             Dimension size = screenSize != null ? screenSize : screen.getSize();
-
-            Format formats[]= new Format[]
-                    {
-                        new AVFrameFormat(
-                                size,
-                                Format.NOT_SPECIFIED,
-                                FFmpeg.PIX_FMT_ARGB,
-                                Format.NOT_SPECIFIED),
-                        new RGBFormat(
-                                size, // size
-                                Format.NOT_SPECIFIED, // maxDataLength
-                                Format.byteArray, // dataType
-                                Format.NOT_SPECIFIED, // frameRate
-                                32, // bitsPerPixel
-                                2 /* red */, 3 /* green */,  4 /* blue */)
-                    };
-
+            Format formats[]
+                = new Format[]
+                {
+                    new AVFrameFormat(
+                            size,
+                            Format.NOT_SPECIFIED,
+                            FFmpeg.PIX_FMT_ARGB,
+                            Format.NOT_SPECIFIED),
+                    new RGBFormat(
+                            size, // size
+                            Format.NOT_SPECIFIED, // maxDataLength
+                            Format.byteArray, // dataType
+                            Format.NOT_SPECIFIED, // frameRate
+                            32, // bitsPerPixel
+                            2 /* red */, 3 /* green */,  4 /* blue */)
+                };
             CaptureDeviceInfo devInfo
                 = new CaptureDeviceInfo(
                         name + " " + i,
                         new MediaLocator(LOCATOR_PROTOCOL + ":" + i),
                         formats);
 
-            /* add to JMF device manager */
             CaptureDeviceManager.addDevice(devInfo);
             i++;
 
             if(multipleMonitorOneScreen)
-            {
                 break;
-            }
         }
 
         CaptureDeviceManager.commit();

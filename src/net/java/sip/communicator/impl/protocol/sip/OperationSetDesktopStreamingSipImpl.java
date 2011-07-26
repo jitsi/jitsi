@@ -83,10 +83,12 @@ public class OperationSetDesktopStreamingSipImpl
         Address toAddress = parentProvider.parseAddressString(uri);
 
         CallSipImpl call = basicTelephony.createOutgoingCall();
+
         call.setVideoDevice(mediaDevice);
         call.setLocalVideoAllowed(true, getMediaUseCase());
         call.invite(toAddress, null);
         origin = getOriginForMediaDevice(mediaDevice);
+
         return call;
     }
 
@@ -119,6 +121,7 @@ public class OperationSetDesktopStreamingSipImpl
         }
 
         CallSipImpl call = basicTelephony.createOutgoingCall();
+
         call.setLocalVideoAllowed(true, getMediaUseCase());
         call.setVideoDevice(mediaDevice);
         call.invite(toAddress, null);
@@ -146,9 +149,9 @@ public class OperationSetDesktopStreamingSipImpl
     public Call createVideoCall(String uri)
         throws OperationFailedException, ParseException
     {
-        Call call = super.createVideoCall(uri);
-        MediaDevice device = ((CallSipImpl)call).getDefaultDevice(
-                MediaType.VIDEO);
+        CallSipImpl call = (CallSipImpl) super.createVideoCall(uri);
+        MediaDevice device = call.getDefaultDevice(MediaType.VIDEO);
+
         size = (((VideoMediaFormat)device.getFormat()).getSize());
         origin = getOriginForMediaDevice(device);
         return call;
@@ -170,9 +173,9 @@ public class OperationSetDesktopStreamingSipImpl
     @Override
     public Call createVideoCall(Contact callee) throws OperationFailedException
     {
-        Call call = super.createVideoCall(callee);
-        MediaDevice device = ((CallSipImpl)call).getDefaultDevice(
-                MediaType.VIDEO);
+        CallSipImpl call = (CallSipImpl) super.createVideoCall(callee);
+        MediaDevice device = call.getDefaultDevice(MediaType.VIDEO);
+
         size = (((VideoMediaFormat)device.getFormat()).getSize());
         origin = getOriginForMediaDevice(device);
         return call;
@@ -188,21 +191,24 @@ public class OperationSetDesktopStreamingSipImpl
      * @param allowed <tt>true</tt> if local video transmission is allowed and
      * <tt>false</tt> otherwise.
      *
-     *  @throws OperationFailedException if video initialization fails.
+     * @throws OperationFailedException if video initialization fails.
      */
     @Override
     public void setLocalVideoAllowed(Call call, boolean allowed)
         throws OperationFailedException
     {
-        ((CallSipImpl)call).setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
-        ((CallSipImpl)call).setVideoDevice(null);
-        MediaDevice device = ((CallSipImpl)call).getDefaultDevice(
-                MediaType.VIDEO);
-        size = (((VideoMediaFormat)device.getFormat()).getSize());
+        CallSipImpl callImpl = (CallSipImpl) call;
+
+        callImpl.setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
+        callImpl.setVideoDevice(null);
+
+        MediaDevice device = callImpl.getDefaultDevice(MediaType.VIDEO);
+
+        size = ((VideoMediaFormat)device.getFormat()).getSize();
         origin = getOriginForMediaDevice(device);
 
         /* reinvite all peers */
-        ((CallSipImpl)call).reInvite();
+        callImpl.reInvite();
     }
 
     /**
@@ -267,13 +273,10 @@ public class OperationSetDesktopStreamingSipImpl
         CallSipImpl callImpl = (CallSipImpl)call;
         MediaDevice device = callImpl.getDefaultDevice(MediaType.VIDEO);
 
-        if(device != null)
-        {
-            MediaService mediaService = SipActivator.getMediaService();
-            return mediaService.isPartialStreaming(device);
-        }
-
-        return false;
+        return
+            (device == null)
+                ? false
+                : SipActivator.getMediaService().isPartialStreaming(device);
     }
 
     /**
@@ -325,8 +328,8 @@ public class OperationSetDesktopStreamingSipImpl
      */
     protected static Point getOriginForMediaDevice(MediaDevice device)
     {
-        MediaService mediaService = SipActivator.getMediaService();
-
-        return mediaService.getOriginForDesktopStreamingDevice(device);
+        return
+            SipActivator.getMediaService().getOriginForDesktopStreamingDevice(
+                    device);
     }
 }

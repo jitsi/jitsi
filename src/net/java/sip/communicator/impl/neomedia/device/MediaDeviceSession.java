@@ -174,9 +174,9 @@ public class MediaDeviceSession
     private MediaDirection startedDirection = MediaDirection.INACTIVE;
 
     /**
-     * If the player have to be disposed when we #close() this instance.
+     * If the player have to be disposed when we {@link #close()} this instance.
      */
-    private boolean disposePlayerWhenClose = true;
+    private boolean disposePlayerOnClose = true;
 
     /**
      * Whether output size has changed after latest processor config.
@@ -204,9 +204,9 @@ public class MediaDeviceSession
      *
      * @param dispose value to set
      */
-    public void setDisposePlayerWhenClose(boolean dispose)
+    public void setDisposePlayerOnClose(boolean dispose)
     {
-        disposePlayerWhenClose = dispose;
+        disposePlayerOnClose = dispose;
     }
 
     /**
@@ -337,11 +337,9 @@ public class MediaDeviceSession
         disconnectCaptureDevice();
         closeProcessor();
 
-        if(disposePlayerWhenClose)
-        {
-            // playback
+        // playback
+        if (disposePlayerOnClose)
             disposePlayer();
-        }
     }
 
     /**
@@ -363,8 +361,16 @@ public class MediaDeviceSession
 
             if (processor.getState() == Processor.Realized)
             {
-                DataSource dataOutput = processor.getDataOutput();
+                DataSource dataOutput;
 
+                try
+                {
+                    dataOutput = processor.getDataOutput();
+                }
+                catch (NotRealizedError nre)
+                {
+                    dataOutput = null;
+                }
                 if (dataOutput != null)
                     dataOutput.disconnect();
             }
@@ -590,11 +596,23 @@ public class MediaDeviceSession
      */
     private void disposePlayer()
     {
+        Player player;
+
         synchronized (playbackSyncRoot)
         {
-            if (player != null)
-                disposePlayer(player);
+            /*
+             * If #disposePlayer(Player) is just executed inside the
+             * synchronized block protected by #playbackSyncRoot, it practically
+             * locks the rest of the state protected by the same synchronization
+             * root. But that is not necessary because #disposePlayer(Player)
+             * will protect #player when necessary. Anyway, the change from the
+             * described behavior to the current one has been made while solving
+             * a deadlock.
+             */
+            player = this.player;
         }
+        if (player != null)
+            disposePlayer(player);
     }
 
     /**
@@ -1815,7 +1833,7 @@ public class MediaDeviceSession
      */
     protected void transferRenderingSession(MediaDeviceSession session)
     {
-        if(session.disposePlayerWhenClose)
+        if (session.disposePlayerOnClose)
         {
             logger.error("Cannot tranfer rendering session if " +
                     "MediaDeviceSession has closed it");

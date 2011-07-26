@@ -1392,7 +1392,7 @@ public class MediaStreamImpl
                     deviceSessionPropertyChangeListener);
 
                 // keep player active
-                deviceSession.setDisposePlayerWhenClose(false);
+                deviceSession.setDisposePlayerOnClose(false);
                 deviceSession.close();
                 deviceSession = null;
             }
