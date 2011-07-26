@@ -36,19 +36,28 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
     /**
      * The minimum port number that we'd like our RTP sockets to bind upon.
+     * <p>
+     * Initialized by {@link #initializePortNumbers()}.
+     * </p>
      */
-    private static int minMediaPort = 5000;
+    private static int minMediaPort = -1;
 
     /**
      * The maximum port number that we'd like our RTP sockets to bind upon.
+     * <p>
+     * Initialized by {@link #initializePortNumbers()}.
+     * </p>
      */
-    private static int maxMediaPort = 6000;
+    private static int maxMediaPort = -1;
 
     /**
      * The port that we should try to bind our next media stream's RTP socket
      * to.
+     * <p>
+     * Initialized by {@link #initializePortNumbers()}.
+     * </p>
      */
-    protected static int nextMediaPortToTry = minMediaPort;
+    private static int nextMediaPortToTry = -1;
 
     /**
      * The {@link MediaAwareCallPeer} whose traffic we will be taking care of.
@@ -226,7 +235,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         //make sure that next time we don't try to bind on occupied ports
         nextMediaPortToTry = rtcpSocket.getLocalPort() + 1;
 
-        if (nextMediaPortToTry > maxMediaPort -1)// take RTCP into account.
+        if (nextMediaPortToTry > maxMediaPort - 1)// take RTCP into account.
             nextMediaPortToTry = minMediaPort;
 
         return new DefaultStreamConnector(rtpSocket, rtcpSocket);
@@ -236,7 +245,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * (Re)Sets the <tt>minPortNumber</tt> and <tt>maxPortNumber</tt> to their
      * defaults or to the values specified in the <tt>ConfigurationService</tt>.
      */
-    protected void initializePortNumbers()
+    protected static void initializePortNumbers()
     {
         //first reset to default values
         minMediaPort = 5000;
@@ -283,6 +292,17 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
                             ex);
             }
         }
+
+        /*
+         * Make sure that nextMediaPortToTry is within the range of minMediaPort
+         * and maxMediaPort as
+         * NetworkAddressManagerServiceImpl#createDatagramSocket(InetAddress,
+         * int, int, int) does.
+         */
+        if ((minMediaPort <= maxMediaPort)
+                && ((nextMediaPortToTry < minMediaPort)
+                        || (nextMediaPortToTry > maxMediaPort)))
+            nextMediaPortToTry = minMediaPort;
     }
 
     /**
@@ -387,5 +407,31 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     public U getCallPeer()
     {
         return callPeer;
+    }
+
+    /**
+     * Gets the port that we should try to bind our next media stream's RTP
+     * socket to.
+     *
+     * @return the port that we should try to bind our next media stream's RTP
+     * socket to
+     */
+    protected static int getNextMediaPortToTry()
+    {
+        if (nextMediaPortToTry == -1)
+            initializePortNumbers();
+        return nextMediaPortToTry;
+    }
+
+    /**
+     * Sets the port that we should try to bind our next media stream's RTP
+     * socket to
+     *
+     * @param nextMediaPortToTry the port that we should try to bind our next
+     * media stream's RTP socket to
+     */
+    protected static void setNextMediaPortToTry(int nextMediaPortToTry)
+    {
+        TransportManager.nextMediaPortToTry = nextMediaPortToTry;
     }
 }

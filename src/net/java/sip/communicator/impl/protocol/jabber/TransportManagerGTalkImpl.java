@@ -842,7 +842,7 @@ public class TransportManagerGTalkImpl
         {
             //the following call involves STUN processing so it may take a while
             stream = iceAgent.createMediaStream(media);
-            int rtpPort = nextMediaPortToTry;
+            int rtpPort = getNextMediaPortToTry();
 
             //rtp
             iceAgent.createComponent(stream, Transport.UDP, rtpPort, rtpPort,
@@ -866,10 +866,14 @@ public class TransportManagerGTalkImpl
         //would simply include one more bind retry.
         try
         {
-            nextMediaPortToTry = stream.getComponent(rtcp ? Component.RTCP :
-                    Component.RTP)
-                .getLocalCandidates().get(0)
-                    .getTransportAddress().getPort() + 1;
+            setNextMediaPortToTry(
+                    1
+                        + stream
+                            .getComponent(rtcp ? Component.RTCP : Component.RTP)
+                                .getLocalCandidates()
+                                    .get(0)
+                                        .getTransportAddress()
+                                            .getPort());
         }
         catch(Throwable t)
         {
