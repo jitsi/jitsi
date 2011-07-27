@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
 
@@ -13,33 +12,48 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.service.gui.Chat;
-import net.java.sip.communicator.service.gui.event.ChatMenuListener;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
 import org.dts.spell.dictionary.*;
 
 /**
  * Wrapper for handling the multiple listeners associated with chats for the
  * spell checker.
- *
+ * 
  * @author Damian Johnson
+ * @author Purvesh Sahoo
  */
 class ChatAttachments
 {
-    private static final Logger logger
-        = Logger.getLogger(ChatAttachments.class);
-    private static final ImageIcon ADD_WORD_ICON
-        = Resources.getImage(Resources.ADD_WORD_ICON);
+    private static final Logger logger = Logger
+        .getLogger(ChatAttachments.class);
+
+    private static final ImageIcon ADD_WORD_ICON = Resources
+        .getImage(Resources.ADD_WORD_ICON);
+
     private final Chat chat;
-    private final DocUnderliner docListener; //The red-squibble drawing code
+
+    private final DocUnderliner docListener; // The red-squibble drawing code
+
     private final CaretListener caretListener;
+
     private final ChatMenuListener menuListener;
+
     private boolean isEnabled = true;
+
     private SpellDictionary dict;
+
     private boolean isAttached = false;
 
-    ChatAttachments(Chat chat, SpellDictionary dict)
+    private final ResourceManagementService resources = Resources
+        .getResources();
+    
+    private SpellCheckerConfigDialog dialog;
+
+    ChatAttachments(Chat chat, final SpellDictionary dict)
     {
         this.chat = chat;
         this.dict = dict;
@@ -56,8 +70,7 @@ class ChatAttachments
                 {
                     // thrown by spell checker API if problem occurs
                     logger.error(
-                            "Spell checker dictionary failed to be accessed",
-                            exc);
+                        "Spell checker dictionary failed to be accessed", exc);
                     return false;
                 }
             }
@@ -77,21 +90,61 @@ class ChatAttachments
 
         this.menuListener = new ChatMenuListener()
         {
-            public List <JMenuItem> getMenuElements(Chat chat, MouseEvent event)    //Overridden Here
+
+            public List<JMenuItem> getMenuElements(final Chat chat,
+                MouseEvent event)
             {
+
                 if (isEnabled && event.getSource() instanceof JTextComponent)
                 {
                     JTextComponent comp = (JTextComponent) event.getSource();
                     int index = comp.viewToModel(event.getPoint());
-
-                    if (index != -1 && comp.getText().length() != 0)
+                    try
                     {
-                        return getCorrections(Word.getWord(comp.getText(),
-                                index, false));
+                        String compText =
+                            comp.getDocument().getText(0,
+                                comp.getDocument().getLength());
+
+                        if (index != -1 && compText.length() != 0)
+                        {
+
+                            return getCorrections(Word.getWord(
+                                comp.getDocument().getText(0,
+                                    comp.getDocument().getLength()), index,
+                                false));
+
+                        }
+
+                    }
+                    catch (BadLocationException e)
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
                 }
 
-                return new ArrayList <JMenuItem>();
+                JMenuItem spellCheck =
+                    new JMenuItem(
+                        resources.getI18NString("plugin.spellcheck.MENU"));
+
+                ArrayList<JMenuItem> spellCheckItem =
+                    new ArrayList<JMenuItem>();
+                spellCheckItem.add(spellCheck);
+                spellCheck.addActionListener(new ActionListener()
+                {
+
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        if(dialog != null) {
+                            dialog.dispose();
+                        }
+                        dialog =
+                            new SpellCheckerConfigDialog(chat, null, dict);
+                        dialog.setVisible(true);
+                    }
+                });
+
+                return spellCheckItem;
             }
         };
     }
@@ -106,6 +159,7 @@ class ChatAttachments
             this.chat.addChatEditorDocumentListener(this.docListener);
             this.chat.addChatEditorCaretListener(this.caretListener);
             this.chat.addChatEditorMenuListener(this.menuListener);
+
         }
     }
 
@@ -119,6 +173,7 @@ class ChatAttachments
             this.chat.removeChatEditorDocumentListener(this.docListener);
             this.chat.removeChatEditorCaretListener(this.caretListener);
             this.chat.removeChatEditorMenuListener(this.menuListener);
+
         }
     }
 
@@ -146,22 +201,23 @@ class ChatAttachments
     }
 
     // provides popup menu entries (mostly separated for readability)
-    private ArrayList <JMenuItem> getCorrections(final Word clickedWord)
+    private ArrayList<JMenuItem> getCorrections(final Word clickedWord)
     {
-        ArrayList <JMenuItem> correctionEntries = new ArrayList <JMenuItem>();
+        ArrayList<JMenuItem> correctionEntries = new ArrayList<JMenuItem>();
 
         synchronized (this.dict)
         {
             if (!this.dict.isCorrect(clickedWord.getText()))
             {
-                List <String> corrections =
-                        this.dict.getSuggestions(clickedWord.getText());
+                List<String> corrections =
+                    this.dict.getSuggestions(clickedWord.getText());
                 for (String correction : corrections)
                 {
                     JMenuItem newEntry = new JMenuItem(correction);
                     newEntry.addActionListener(new CorrectionListener(
-                            clickedWord, correction));
+                        clickedWord, correction));
                     correctionEntries.add(newEntry);
+
                 }
 
                 // entry to add word
@@ -181,16 +237,38 @@ class ChatAttachments
                         catch (SpellDictionaryException exc)
                         {
                             String msg =
-                                    "Unable to add word to personal dictionary";
+                                "Unable to add word to personal dictionary";
                             logger.error(msg, exc);
                         }
                     }
                 });
                 correctionEntries.add(addWord);
-            }
-        }
 
+            }
+            
+            JMenuItem spellCheck =
+                new JMenuItem(
+                    resources.getI18NString("plugin.spellcheck.MENU"));
+            correctionEntries.add(spellCheck);
+            spellCheck.addActionListener(new ActionListener()
+            {
+
+                public void actionPerformed(ActionEvent e)
+                {
+                    if(dialog != null) {
+                        dialog.dispose();
+                    }
+
+                    dialog =
+                        new SpellCheckerConfigDialog(chat, clickedWord,
+                            dict);
+                    dialog.setVisible(true);
+                }
+            });
+
+        }
         return correctionEntries;
+
     }
 
     // Applies corrections from popup menu to chat
@@ -198,6 +276,7 @@ class ChatAttachments
         implements ActionListener
     {
         private Word clickedWord;
+
         private String correction;
 
         CorrectionListener(Word clickedWord, String correction)
@@ -209,11 +288,12 @@ class ChatAttachments
         public void actionPerformed(ActionEvent event)
         {
             StringBuffer newMessage = new StringBuffer(chat.getMessage());
+
             int endIndex =
-                    this.clickedWord.getStart()
-                            + this.clickedWord.getText().length();
+                this.clickedWord.getStart()
+                    + this.clickedWord.getText().length();
             newMessage.replace(this.clickedWord.getStart(), endIndex,
-                    this.correction);
+                this.correction);
             chat.setMessage(newMessage.toString());
         }
     }

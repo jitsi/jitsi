@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.chat.menus;
 
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -149,5 +150,33 @@ public class WritePanelRightButtonMenu
 
         closeMenuItem.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.CLOSE_ICON)));
+    }
+    
+    /**
+     * Provides a popup menu with custom entries followed by default
+     * operation entries ( copy, paste ,close)
+     * 
+     * @param entries custom menu entries to be added
+     * @return right click menu
+     */
+    public JPopupMenu makeMenu(List <JMenuItem> entries) {
+        
+        JPopupMenu rightMenu = new JPopupMenu();
+        
+        for(JMenuItem entry : entries) {
+            rightMenu.add(entry);
+        }
+        
+        if(!entries.isEmpty()) rightMenu.addSeparator();
+        
+        rightMenu.add(copyMenuItem);
+        rightMenu.add(cutMenuItem);
+        rightMenu.add(pasteMenuItem);
+        
+        rightMenu.addSeparator();
+        
+        rightMenu.add(closeMenuItem);
+        
+        return rightMenu;
     }
 }

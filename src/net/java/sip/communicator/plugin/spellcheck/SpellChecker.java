@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
 
@@ -22,7 +21,7 @@ import org.osgi.framework.*;
  * Model for spell checking capabilities. This allows for the on-demand
  * retrieval of dictionaries in other languages which are cached with the user's
  * configurations.
- *
+ * 
  * @author Damian Johnson
  */
 class SpellChecker
@@ -30,12 +29,12 @@ class SpellChecker
 {
     private static final Logger logger = Logger.getLogger(SpellChecker.class);
 
-    private static final String LOCALE_CONFIG_PARAM
-        = "net.java.sip.communicator.plugin.spellchecker.LOCALE";
+    private static final String LOCALE_CONFIG_PARAM =
+        "net.java.sip.communicator.plugin.spellchecker.LOCALE";
 
     // default bundled dictionary
-    private static final String DEFAULT_DICT_PATH
-        = "/resources/config/spellcheck/en_US.zip";
+    private static final String DEFAULT_DICT_PATH =
+        "/resources/config/spellcheck/";
 
     // location where dictionaries are stored
     private static final String DICT_DIR = "spellingDictionaries/";
@@ -50,24 +49,29 @@ class SpellChecker
      * will cause an internal NullPointerException in the spell checker.
      */
     private File personalDictLocation;
+
     private File dictLocation;
+
     private SpellDictionary dict;
+
     private Parameters.Locale locale; // dictionary locale
 
     // chat instances the spell checker is currently attached to
-    private ArrayList <ChatAttachments> attachedChats =
-            new ArrayList <ChatAttachments>();
+    private ArrayList<ChatAttachments> attachedChats =
+        new ArrayList<ChatAttachments>();
+
     private boolean isEnabled = true;
 
     /**
      * Associates spell checking capabilities with all chats. This doesn't do
      * anything if this is already running.
+     * 
      * @param bc execution context of the bundle
      */
     synchronized void start(BundleContext bc) throws Exception
     {
-        FileAccessService faService
-            = SpellCheckActivator.getFileAccessService();
+        FileAccessService faService =
+            SpellCheckActivator.getFileAccessService();
 
         // checks if DICT_DIR exists to see if this is the first run
         File dictionaryDir = faService.getPrivatePersistentFile(DICT_DIR);
@@ -76,33 +80,44 @@ class SpellChecker
         {
             dictionaryDir.mkdir();
 
-            // copy default dictionary so it doesn't need to be downloaded
-            URL dictURL = SpellCheckActivator.bundleContext
-                .getBundle().getResource(DEFAULT_DICT_PATH);
+            // copy default dictionaries so they don't need to be downloaded
+            @SuppressWarnings ("unchecked")
+            Enumeration<URL> dictUrls
+                = SpellCheckActivator.bundleContext.getBundle()
+                    .findEntries(DEFAULT_DICT_PATH,
+                                "*.zip",
+                                false);
 
-            if (dictURL != null)
+            if (dictUrls != null)
             {
-                InputStream source = dictURL.openStream();
+                while (dictUrls.hasMoreElements())
+                {
+                    URL dictUrl = dictUrls.nextElement();
 
-                int filenameStart = DEFAULT_DICT_PATH.lastIndexOf('/') + 1;
-                String filename = DEFAULT_DICT_PATH.substring(filenameStart);
-                File dictLocation
-                    = faService.getPrivatePersistentFile(DICT_DIR + filename);
-                copyDictionary(source, dictLocation);
+                    InputStream source = dictUrl.openStream();
+
+                    int filenameStart = dictUrl.getPath().lastIndexOf('/') + 1;
+                    String filename = dictUrl.getPath().substring(filenameStart);
+
+                    File dictLocation =
+                        faService.getPrivatePersistentFile(DICT_DIR + filename);
+
+                    copyDictionary(source, dictLocation);
+                }
             }
         }
 
         // gets resource for personal dictionary
-        this.personalDictLocation
-            = faService.getPrivatePersistentFile(DICT_DIR + PERSONAL_DICT_NAME);
+        this.personalDictLocation =
+            faService.getPrivatePersistentFile(DICT_DIR + PERSONAL_DICT_NAME);
 
         if (!personalDictLocation.exists())
             personalDictLocation.createNewFile();
 
         // gets dictionary locale
-        String localeIso
-            = SpellCheckActivator.getConfigService()
-                .getString(LOCALE_CONFIG_PARAM);
+        String localeIso =
+            SpellCheckActivator.getConfigService().getString(
+                LOCALE_CONFIG_PARAM);
 
         if (localeIso == null)
         {
@@ -114,8 +129,9 @@ class SpellChecker
         }
 
         Parameters.Locale tmp = Parameters.getLocale(localeIso);
-        if (tmp == null) throw new Exception(
-                "No dictionary resources defined for locale: " + localeIso);
+        if (tmp == null)
+            throw new Exception("No dictionary resources defined for locale: "
+                + localeIso);
         this.locale = tmp; // needed for synchronization lock
         setLocale(tmp); // initializes dictionary and saves locale config
 
@@ -169,18 +185,19 @@ class SpellChecker
 
     /**
      * Provides the user's list of words to be ignored by the spell checker.
+     * 
      * @return user's word list
      */
-    ArrayList <String> getPersonalWords()
+    ArrayList<String> getPersonalWords()
     {
         synchronized (this.personalDictLocation)
         {
             try
             {
                 // Retrieves contents of the custom dictionary
-                ArrayList <String> customWords = new ArrayList <String>();
+                ArrayList<String> customWords = new ArrayList<String>();
                 Scanner customDictScanner =
-                        new Scanner(this.personalDictLocation);
+                    new Scanner(this.personalDictLocation);
                 while (customDictScanner.hasNextLine())
                 {
                     customWords.add(customDictScanner.nextLine());
@@ -191,7 +208,7 @@ class SpellChecker
             catch (FileNotFoundException exc)
             {
                 logger.error("Unable to read custom dictionary", exc);
-                return new ArrayList <String>();
+                return new ArrayList<String>();
             }
         }
     }
@@ -199,9 +216,10 @@ class SpellChecker
     /**
      * Writes custom dictionary and updates spell checker to utilize new
      * listing.
+     * 
      * @param words words to be ignored by the spell checker
      */
-    void setPersonalWords(List <String> words)
+    void setPersonalWords(List<String> words)
     {
         synchronized (this.personalDictLocation)
         {
@@ -209,8 +227,8 @@ class SpellChecker
             {
                 // writes new word list
                 BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(
-                                this.personalDictLocation));
+                    new BufferedWriter(
+                        new FileWriter(this.personalDictLocation));
 
                 for (String customWord : words)
                 {
@@ -224,10 +242,10 @@ class SpellChecker
                 synchronized (this.attachedChats)
                 {
                     InputStream dictInput =
-                            new FileInputStream(this.dictLocation);
+                        new FileInputStream(this.dictLocation);
                     this.dict =
-                            new OpenOfficeSpellDictionary(dictInput,
-                                    this.personalDictLocation);
+                        new OpenOfficeSpellDictionary(dictInput,
+                            this.personalDictLocation);
 
                     // updates chats
                     for (ChatAttachments chat : this.attachedChats)
@@ -239,7 +257,7 @@ class SpellChecker
             catch (IOException exc)
             {
                 logger.error("Unable to access personal spelling dictionary",
-                        exc);
+                    exc);
             }
         }
     }
@@ -247,6 +265,7 @@ class SpellChecker
     /**
      * Provides the locale of the dictionary currently being used by the spell
      * checker.
+     * 
      * @return locale of current dictionary
      */
     Parameters.Locale getLocale()
@@ -261,6 +280,7 @@ class SpellChecker
      * Resets spell checker to use a different locale's dictionary. This uses
      * the local copy of the dictionary if available, otherwise it's downloaded
      * and saved for future use.
+     * 
      * @param locale locale of dictionary to be used
      * @throws Exception problem occurring in utilizing locale's dictionary
      */
@@ -273,31 +293,30 @@ class SpellChecker
             int filenameStart = path.lastIndexOf('/') + 1;
             String filename = path.substring(filenameStart);
 
-            File dictLocation
-                = SpellCheckActivator.getFileAccessService()
+            File dictLocation =
+                SpellCheckActivator.getFileAccessService()
                     .getPrivatePersistentFile(DICT_DIR + filename);
 
             // downloads dictionary if unavailable (not cached)
             if (!dictLocation.exists())
-                copyDictionary(locale.getDictUrl()
-                    .openStream(), dictLocation);
+                copyDictionary(locale.getDictUrl().openStream(), dictLocation);
 
             // resets dictionary being used to include changes
             synchronized (this.attachedChats)
             {
                 InputStream dictInput = new FileInputStream(dictLocation);
 
-                SpellDictionary dict
-                    = new OpenOfficeSpellDictionary(dictInput,
-                                this.personalDictLocation);
+                SpellDictionary dict =
+                    new OpenOfficeSpellDictionary(dictInput,
+                        this.personalDictLocation);
 
                 this.dict = dict;
                 this.dictLocation = dictLocation;
                 this.locale = locale;
 
                 // saves locale choice to configuration properties
-                SpellCheckActivator.getConfigService()
-                    .setProperty(LOCALE_CONFIG_PARAM, locale.getIsoCode());
+                SpellCheckActivator.getConfigService().setProperty(
+                    LOCALE_CONFIG_PARAM, locale.getIsoCode());
 
                 // updates chats
                 for (ChatAttachments chat : this.attachedChats)
@@ -310,6 +329,7 @@ class SpellChecker
 
     /**
      * Determines if locale's dictionary is locally available or not.
+     * 
      * @param locale locale to be checked
      * @return true if local resources for dictionary are available and
      *         accessible, false otherwise
@@ -321,8 +341,8 @@ class SpellChecker
         String filename = path.substring(filenameStart);
         try
         {
-            File dictLocation
-                = SpellCheckActivator.getFileAccessService()
+            File dictLocation =
+                SpellCheckActivator.getFileAccessService()
                     .getPrivatePersistentFile(DICT_DIR + filename);
 
             return dictLocation.exists();
@@ -358,7 +378,8 @@ class SpellChecker
 
     // copies dictionary to appropriate location, closing the stream afterward
     private void copyDictionary(InputStream input, File dest)
-            throws IOException, FileNotFoundException
+        throws IOException,
+        FileNotFoundException
     {
         byte[] buf = new byte[1024];
         FileOutputStream output = new FileOutputStream(dest);
@@ -377,6 +398,7 @@ class SpellChecker
      * Determines if spell checker dictionary works. Backend API often fails
      * when used so this tests that the current dictionary is able to process
      * words.
+     * 
      * @return true if current dictionary can check words, false otherwise
      */
     private boolean isDictionaryValid(SpellDictionary dict)

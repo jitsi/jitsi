@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
 
@@ -20,7 +19,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
- *
+ * 
  * @author Damian Johnson
  * @author Yana Stamcheva
  */
@@ -34,40 +33,38 @@ public class Resources
      * Location of flag resources.
      */
     private static final String FLAG_PATH =
-            "resources/images/plugin/spellchecker/flags/";
+        "resources/images/plugin/spellcheck/flags/";
 
     /**
      * The spell check plugin icon, shown in the configuration form.
      */
-    public static final String PLUGIN_ICON
-        = "plugin.spellcheck.PLUGIN_ICON";
+    public static final String PLUGIN_ICON = "plugin.spellcheck.PLUGIN_ICON";
 
     /**
      * The add word icon.
      */
-    public static final String ADD_WORD_ICON
-        = "plugin.spellcheck.ADD_WORD_ICON";
+    public static final String ADD_WORD_ICON =
+        "plugin.spellcheck.ADD_WORD_ICON";
 
     /**
      * The personal dictionary icon.
      */
-    public static final String PERSONAL_DICTIONARY
-        = "plugin.spellcheck.PERSONAL_DIR";
+    public static final String PERSONAL_DICTIONARY =
+        "plugin.spellcheck.PERSONAL_DIR";
 
     /**
      * The word include icon.
      */
-    public static final String WORD_INCLUDE
-        = "plugin.spellcheck.WORD_INCLUDE";
+    public static final String WORD_INCLUDE = "plugin.spellcheck.WORD_INCLUDE";
 
     /**
      * The word exclude icon.
      */
-    public static final String WORD_EXCLUDE
-        = "plugin.spellcheck.WORD_EXCLUDE";
+    public static final String WORD_EXCLUDE = "plugin.spellcheck.WORD_EXCLUDE";
 
     /**
      * Returns an internationalized string corresponding to the given key.
+     * 
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -78,6 +75,7 @@ public class Resources
 
     /**
      * Loads an image from a given image identifier.
+     * 
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -88,7 +86,7 @@ public class Resources
 
     /**
      * Loads a flag image from a given image identifier.
-     *
+     * 
      * @param resource iso code for flag to be retrieved.
      * @return icon reflecting iso code
      * @throws IOException if no such resource is available
@@ -108,6 +106,7 @@ public class Resources
 
     /**
      * Loads an image from a given image identifier.
+     * 
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -119,21 +118,21 @@ public class Resources
     /**
      * Returns the <tt>ResourceManagementService</tt> through which we obtain
      * resources like images and localized texts.
-     *
+     * 
      * @return the <tt>ResourceManagementService</tt>
      */
-    private static ResourceManagementService getResources()
+    public static ResourceManagementService getResources()
     {
         if (resourceService != null)
             return resourceService;
 
-        ServiceReference configServiceRef
-            = SpellCheckActivator.bundleContext.getServiceReference(
-                ResourceManagementService.class.getName());
+        ServiceReference configServiceRef =
+            SpellCheckActivator.bundleContext
+                .getServiceReference(ResourceManagementService.class.getName());
 
-        resourceService
-            = (ResourceManagementService) SpellCheckActivator.bundleContext
-                                            .getService(configServiceRef);
+        resourceService =
+            (ResourceManagementService) SpellCheckActivator.bundleContext
+                .getService(configServiceRef);
 
         return resourceService;
     }

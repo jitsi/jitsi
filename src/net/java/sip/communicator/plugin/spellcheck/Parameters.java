@@ -1,8 +1,7 @@
 /*
  * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
 
@@ -20,27 +19,32 @@ import org.xml.sax.SAXException;
 
 /**
  * Information provided via the spellchecer's xml parameters.
- *
+ * 
  * @author Damian Johnson
  */
 class Parameters
 {
     private static final Logger logger = Logger.getLogger(Parameters.class);
 
-    private static final String RESOURCE_LOC
-        = "/resources/config/spellcheck/parameters.xml";
+    private static final String RESOURCE_LOC =
+        "resources/config/spellcheck/parameters.xml";
+
     private static final String NODE_DEFAULTS = "defaults";
+
     private static final String NODE_LOCALES = "locales";
-    private static final HashMap <Default, String> DEFAULTS
-        = new HashMap <Default, String>();
-    private static final ArrayList <Locale> LOCALES = new ArrayList <Locale>();
+
+    private static final HashMap<Default, String> DEFAULTS =
+        new HashMap<Default, String>();
+
+    private static final ArrayList<Locale> LOCALES = new ArrayList<Locale>();
 
     static
     {
         try
         {
-            URL url = SpellCheckActivator.bundleContext
-                .getBundle().getResource(RESOURCE_LOC);
+            URL url =
+                SpellCheckActivator.bundleContext.getBundle().getResource(
+                    RESOURCE_LOC);
 
             InputStream stream = url.openStream();
 
@@ -48,10 +52,10 @@ class Parameters
                 throw new IOException();
 
             // strict parsing options
-            DocumentBuilderFactory factory
-                = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory factory =
+                DocumentBuilderFactory.newInstance();
 
-            factory.setValidating(true);
+            factory.setValidating(false);
             factory.setIgnoringComments(true);
             factory.setIgnoringElementContentWhitespace(true);
 
@@ -103,7 +107,7 @@ class Parameters
 
     /**
      * Retrieves default values from xml.
-     *
+     * 
      * @param list the configuration list
      */
     private static void parseDefaults(NodeList list)
@@ -128,6 +132,7 @@ class Parameters
 
     /**
      * Populates LOCALES list with contents of xml.
+     * 
      * @param list the configuration list
      */
     private static void parseLocales(NodeList list)
@@ -138,10 +143,9 @@ class Parameters
             NamedNodeMap attributes = node.getAttributes();
             String label = ((Attr) attributes.getNamedItem("label")).getValue();
             String code =
-                    ((Attr) attributes.getNamedItem("isoCode")).getValue();
+                ((Attr) attributes.getNamedItem("isoCode")).getValue();
             String dictLocation =
-                    ((Attr) attributes.getNamedItem("dictionaryUrl"))
-                            .getValue();
+                ((Attr) attributes.getNamedItem("dictionaryUrl")).getValue();
             try
             {
                 LOCALES.add(new Locale(label, code, new URL(dictLocation)));
@@ -149,13 +153,14 @@ class Parameters
             catch (MalformedURLException exc)
             {
                 logger.warn("Unable to parse dictionary location of " + label
-                        + " (" + dictLocation + ")", exc);
+                    + " (" + dictLocation + ")", exc);
             }
         }
     }
 
     /**
      * Provides the value of a particular default field, null if undefined.
+     * 
      * @param field default field to retrieve
      * @return value corresponding to default field
      */
@@ -166,6 +171,7 @@ class Parameters
 
     /**
      * Provides locale with a given iso code. Null if undefined.
+     * 
      * @param isoCode iso code of locale to be retrieved
      * @return locale with corresponding iso code
      */
@@ -173,7 +179,8 @@ class Parameters
     {
         for (Locale locale : LOCALES)
         {
-            if (locale.getIsoCode().equals(isoCode)) return locale;
+            if (locale.getIsoCode().equals(isoCode))
+                return locale;
         }
 
         return null;
@@ -181,11 +188,12 @@ class Parameters
 
     /**
      * Provides locales in which dictionary resources are available.
+     * 
      * @return locations with dictionary resources
      */
-    public static ArrayList <Locale> getLocales()
+    public static ArrayList<Locale> getLocales()
     {
-        return new ArrayList <Locale>(LOCALES);
+        return new ArrayList<Locale>(LOCALES);
     }
 
     /**
@@ -194,8 +202,12 @@ class Parameters
     public static class Locale
     {
         private final String label;
+
         private final String isoCode;
+
         private final URL dictLocation;
+
+        private boolean isLoading = false;
 
         private Locale(String label, String isoCode, URL dictLocation)
         {
@@ -206,6 +218,7 @@ class Parameters
 
         /**
          * Provides user readable name of language.
+         * 
          * @return name of language presented to user
          */
         public String getLabel()
@@ -216,6 +229,7 @@ class Parameters
         /**
          * Provides ISO code as defined by:<br />
          * http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+         * 
          * @return iso code
          */
         public String getIsoCode()
@@ -226,11 +240,35 @@ class Parameters
         /**
          * Provides the url where the dictionary resource can be found for this
          * language.
+         * 
          * @return url of dictionary resource
          */
         public URL getDictUrl()
         {
             return this.dictLocation;
+        }
+
+        /**
+         * Sets the loading property. Indicates if this locale is currently
+         * loaded in the list.
+         *
+         * @param loading indicates if this locale is currently loading in the
+         * locales list
+         */
+        public void setLoading(boolean loading)
+        {
+            this.isLoading = loading;
+        }
+
+        /**
+         * Indicates if this locale is currenly loading in the list of locales.
+         *
+         * @return <tt>true</tt> if the locale is loading, <tt>false</tt> -
+         * otherwise
+         */
+        public boolean isLoading()
+        {
+            return isLoading;
         }
 
         @Override
@@ -256,6 +294,7 @@ class Parameters
 
         /**
          * Returns the enum representation of a string. This is case sensitive.
+         * 
          * @param str toString representation of a default field
          * @return default field associated with a string
          * @throws IllegalArgumentException if argument is not represented by a

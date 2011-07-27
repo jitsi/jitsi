@@ -720,9 +720,26 @@ public class ChatWritePanel
             Point p = e.getPoint();
             SwingUtilities.convertPointToScreen(p, e.getComponent());
 
-            rightButtonMenu.setInvoker(editorPane);
-            rightButtonMenu.setLocation(p.x, p.y);
-            rightButtonMenu.setVisible(true);
+            //SPELLCHECK
+            ArrayList <JMenuItem> contributedMenuEntries
+                = new ArrayList<JMenuItem>();
+
+            for(ChatMenuListener listener : this.menuListeners)
+            {
+                contributedMenuEntries.addAll(
+                    listener.getMenuElements(this.chatPanel, e));
+            }
+
+            for(JMenuItem item : contributedMenuEntries)
+            {
+                rightButtonMenu.add(item);
+            }
+
+            JPopupMenu rightMenu
+                = rightButtonMenu.makeMenu(contributedMenuEntries);
+            rightMenu.setInvoker(editorPane);
+            rightMenu.setLocation(p.x, p.y);
+            rightMenu.setVisible(true);
         }
     }
 
