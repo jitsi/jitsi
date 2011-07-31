@@ -326,6 +326,7 @@ public class InitialAccountRegistrationFrame
                                     .isSignupSupported())
                             {
                                 showCreateAccountWindow(wizard);
+                                dispose();
                             }
                             else if (wizard.isWebSignupSupported())
                             {
