@@ -241,6 +241,9 @@ public class InitialAccountRegistrationFrame
         }
     }
 
+    /**
+     * The account registration panel.
+     */
     private class AccountRegistrationPanel
         extends JPanel
     {
@@ -402,6 +405,7 @@ public class InitialAccountRegistrationFrame
                 descriptionArea.setLineWrap(true);
                 descriptionArea.setWrapStyleWord(true);
                 descriptionArea.setText(wizard.getProtocolDescription());
+                descriptionArea.setEditable(false);
                 descriptionArea.setOpaque(false);
 
                 this.iconDescriptionPanel.add(
