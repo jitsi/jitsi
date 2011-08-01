@@ -2623,6 +2623,11 @@ public class OperationSetPresenceSipImpl
                 {
                     logger.warn("We are not supposed to have this contact in our " +
                             "list or its just rerequest of authorization!");
+
+                    // if we have this contact in the list
+                    // means we have this request already and have shown
+                    // dialog to user so skip further processing
+                    return;
                 }
                 else
                 {
