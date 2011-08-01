@@ -103,10 +103,9 @@ public class AuthorizationResponseDialog
 
         if(response.getReason() != null && !response.getReason().equals(""))
         {
-            this.responseScrollPane.setBorder(
-                BorderFactory.createCompoundBorder(
-                    BorderFactory.createEmptyBorder(3, 3, 3, 3),
-                    SIPCommBorders.getBoldRoundBorder()));
+            this.responseScrollPane.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEtchedBorder(),
+                BorderFactory.createEmptyBorder(3, 3, 3, 3)));
 
             this.responseArea.setText(response.getReason());
             this.responseArea.setLineWrap(true);

@@ -54,7 +54,7 @@ public class AddContactDialog
         GuiActivator.getResources().getI18NString(
             "service.gui.SELECT_GROUP") + ": ");
 
-    private final JComboBox groupCombo = new JComboBox();
+    private JComboBox groupCombo;
 
     private final JLabel contactAddressLabel = new JLabel(
         GuiActivator.getResources().getI18NString(
@@ -98,6 +98,8 @@ public class AddContactDialog
         this.setTitle(GuiActivator.getResources()
             .getI18NString("service.gui.ADD_CONTACT"));
 
+        groupCombo = createGroupCombo(this);
+
         this.init();
     }
 
@@ -114,6 +116,9 @@ public class AddContactDialog
         this.metaContact = metaContact;
 
         this.setSelectedGroup(metaContact.getParentMetaContactGroup());
+
+        groupCombo = createGroupCombo(this);
+
         this.groupCombo.setEnabled(false);
 
         this.setTitle(GuiActivator.getResources()
@@ -168,8 +173,6 @@ public class AddContactDialog
 
         labelsPanel.add(groupLabel);
         fieldsPanel.add(groupCombo);
-        initGroupCombo();
-        groupCombo.setRenderer(new GroupComboRenderer());
 
         labelsPanel.add(contactAddressLabel);
         fieldsPanel.add(contactAddressField);
@@ -295,8 +298,12 @@ public class AddContactDialog
     /**
      * Initializes groups combo box.
      */
-    private void initGroupCombo()
+    public static JComboBox createGroupCombo(final Dialog parentDialog)
     {
+        final JComboBox groupCombo = new JComboBox();
+
+        groupCombo.setRenderer(new GroupComboRenderer());
+
         groupCombo.addItem(GuiActivator.getContactListService().getRoot());
 
         Iterator<MetaContactGroup> groupList
@@ -319,7 +326,7 @@ public class AddContactDialog
                 if (groupCombo.getSelectedItem().equals(newGroupString))
                 {
                     CreateGroupDialog dialog
-                        = new CreateGroupDialog(AddContactDialog.this, false);
+                        = new CreateGroupDialog(parentDialog, false);
                     dialog.setModal(true);
                     dialog.setVisible(true);
 
@@ -336,6 +343,8 @@ public class AddContactDialog
                 }
             }
         });
+
+        return groupCombo;
     }
 
     /**
@@ -378,67 +387,10 @@ public class AddContactDialog
             }
             else
             {
-                new Thread()
-                {
-                    @Override
-                    public void run()
-                    {
-                        try
-                        {
-                            metaContact
-                                = GuiActivator.getContactListService()
-                                    .createMetaContact(
-                                        protocolProvider,
-                                        (MetaContactGroup) groupCombo
-                                            .getSelectedItem(),
-                                        contactAddress);
-                        }
-                        catch (MetaContactListException ex)
-                        {
-                            logger.error(ex);
-                            ex.printStackTrace();
-                            int errorCode = ex.getErrorCode();
-
-                            if (errorCode
-                                    == MetaContactListException
-                                        .CODE_CONTACT_ALREADY_EXISTS_ERROR)
-                            {
-                                new ErrorDialog(mainFrame,
-                                    GuiActivator.getResources().getI18NString(
-                                    "service.gui.ADD_CONTACT_ERROR_TITLE"),
-                                    GuiActivator.getResources().getI18NString(
-                                            "service.gui.ADD_CONTACT_EXIST_ERROR",
-                                            new String[]{contactAddress}),
-                                    ex)
-                                .showDialog();
-                            }
-                            else if (errorCode
-                                    == MetaContactListException
-                                        .CODE_NETWORK_ERROR)
-                            {
-                                new ErrorDialog(mainFrame,
-                                    GuiActivator.getResources().getI18NString(
-                                    "service.gui.ADD_CONTACT_ERROR_TITLE"),
-                                    GuiActivator.getResources().getI18NString(
-                                        "service.gui.ADD_CONTACT_NETWORK_ERROR",
-                                        new String[]{contactAddress}),
-                                    ex)
-                                .showDialog();
-                            }
-                            else
-                            {
-                                new ErrorDialog(mainFrame,
-                                    GuiActivator.getResources().getI18NString(
-                                    "service.gui.ADD_CONTACT_ERROR_TITLE"),
-                                    GuiActivator.getResources().getI18NString(
-                                            "service.gui.ADD_CONTACT_ERROR",
-                                            new String[]{contactAddress}),
-                                    ex)
-                                .showDialog();
-                            }
-                        }
-                    }
-                }.start();
+                ContactListUtils.addContact( protocolProvider,
+                                            (MetaContactGroup) groupCombo
+                                                .getSelectedItem(),
+                                            contactAddress);
             }
         }
         dispose();

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.authorization;
 
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -39,24 +40,36 @@ public class AuthorizationHandlerImpl
     public AuthorizationResponse processAuthorisationRequest(
             AuthorizationRequest req, Contact sourceContact) {
         AuthorizationResponse response = null;
-        
+
         AuthorizationRequestedDialog dialog 
             = new AuthorizationRequestedDialog(mainFrame, sourceContact, req);
-        
+
         int result = dialog.showDialog();
-        
-        if(result == AuthorizationRequestedDialog.ACCEPT_CODE) {
-            response = new AuthorizationResponse(AuthorizationResponse.ACCEPT,
-                    null);
+
+        if(result == AuthorizationRequestedDialog.ACCEPT_CODE)
+        {
+            response
+                = new AuthorizationResponse(AuthorizationResponse.ACCEPT, null);
+
+            // If the add contact option has been selected then open the
+            // add contact window.
+            if (dialog.isAddContact())
+            {
+                ContactListUtils.addContact(sourceContact.getProtocolProvider(),
+                                            dialog.getSelectedMetaContactGroup(),
+                                            sourceContact.getAddress());
+            }
         }
-        else if(result == AuthorizationRequestedDialog.REJECT_CODE) {
+        else if(result == AuthorizationRequestedDialog.REJECT_CODE)
+        {
             response = new AuthorizationResponse(AuthorizationResponse.REJECT,
                     null);
         }
-        else if(result == AuthorizationRequestedDialog.IGNORE_CODE) {
+        else if(result == AuthorizationRequestedDialog.IGNORE_CODE)
+        {
             response = new AuthorizationResponse(AuthorizationResponse.IGNORE,
                     null);
-        }        
+        }
         return response;
     }
 

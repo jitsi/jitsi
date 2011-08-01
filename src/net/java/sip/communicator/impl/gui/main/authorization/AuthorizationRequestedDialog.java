@@ -13,10 +13,12 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -29,6 +31,9 @@ public class AuthorizationRequestedDialog
     implements  ActionListener,
                 Skinnable
 {
+    private final Logger logger
+        = Logger.getLogger(AuthorizationRequestedDialog.class);
+
     public static final int ACCEPT_CODE = 0;
 
     public static final int REJECT_CODE = 1;
@@ -39,7 +44,7 @@ public class AuthorizationRequestedDialog
 
     private JTextArea infoTextArea = new JTextArea();
 
-    private JEditorPane requestPane = new JEditorPane();
+    private JTextPane requestPane = new JTextPane();
 
     private JPanel buttonsPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -54,10 +59,10 @@ public class AuthorizationRequestedDialog
             ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));
 
     private JButton acceptButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.ACCEPT"));
+        GuiActivator.getResources().getI18NString("service.gui.AUTHORIZE"));
 
     private JButton rejectButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.REJECT"));
+        GuiActivator.getResources().getI18NString("service.gui.DENY"));
 
     private JButton ignoreButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.IGNORE"));
@@ -66,12 +71,15 @@ public class AuthorizationRequestedDialog
 
     private JPanel mainPanel = new TransparentPanel(new BorderLayout(10, 10));
 
-    private JPanel reasonsPanel =
-        new TransparentPanel(new GridLayout(0, 1, 5, 5));
+    private JPanel reasonsPanel = new TransparentPanel();
 
     private String title
         = GuiActivator.getResources()
             .getI18NString("service.gui.AUTHORIZATION_REQUESTED");
+
+    private SIPCommCheckBox addContactCheckBox;
+
+    private JComboBox groupComboBox;
 
     private Object lock = new Object();
 
@@ -84,10 +92,11 @@ public class AuthorizationRequestedDialog
      * @param contact The <tt>Contact</tt>, which requires authorisation.
      * @param request The <tt>AuthorizationRequest</tt> that will be sent.
      */
-    public AuthorizationRequestedDialog(MainFrame mainFrame, Contact contact,
-            AuthorizationRequest request)
+    public AuthorizationRequestedDialog(MainFrame mainFrame,
+                                        Contact contact,
+                                        AuthorizationRequest request)
     {
-        super(mainFrame);
+        super(mainFrame, false);
 
         this.setModal(false);
 
@@ -116,11 +125,17 @@ public class AuthorizationRequestedDialog
         this.northPanel.add(iconLabel, BorderLayout.WEST);
         this.northPanel.add(titlePanel, BorderLayout.CENTER);
 
+        reasonsPanel.setLayout(new BoxLayout(reasonsPanel, BoxLayout.Y_AXIS));
+        reasonsPanel.setBorder(BorderFactory.createEmptyBorder(
+            0, iconLabel.getIcon().getIconWidth() + 5, 0, 0));
+
         if(request.getReason() != null && !request.getReason().equals(""))
         {
             this.requestScrollPane.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(3, 3, 3, 3),
-                SIPCommBorders.getBoldRoundBorder()));
+                BorderFactory.createEtchedBorder(),
+                BorderFactory.createEmptyBorder(3, 3, 3, 3)));
+
+            requestScrollPane.getViewport().setOpaque(false);
 
             this.requestPane.setEditable(false);
             this.requestPane.setOpaque(false);
@@ -130,14 +145,42 @@ public class AuthorizationRequestedDialog
 
             this.reasonsPanel.add(requestScrollPane);
 
-            this.mainPanel.setPreferredSize(new Dimension(550, 300));
+            this.mainPanel.setPreferredSize(new Dimension(500, 250));
         }
-        else {
-            this.mainPanel.setPreferredSize(new Dimension(550, 200));
+        else
+        {
+            this.mainPanel.setPreferredSize(new Dimension(500, 200));
         }
 
-        this.acceptButton.setName("service.gui.ACCEPT");
-        this.rejectButton.setName("reject");
+        // If the authorization request comes from a non-persistent contact,
+        // we'll suggest to the user to add it to the contact list.
+        if (!contact.isPersistent())
+        {
+            addContactCheckBox
+                = new SIPCommCheckBox(GuiActivator.getResources()
+                    .getI18NString("service.gui.ADD_AUTHORIZED_CONTACT",
+                        new String[]{contact.getDisplayName()}), true);
+            addContactCheckBox.setBorder(null);
+
+            JPanel checkBoxPanel
+                = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
+            checkBoxPanel.add(addContactCheckBox);
+
+            JLabel groupLabel = new JLabel(GuiActivator.getResources()
+                .getI18NString("service.gui.SELECT_GROUP"));
+
+            groupComboBox = AddContactDialog.createGroupCombo(this);
+
+            JPanel groupPanel = new TransparentPanel(new BorderLayout(5, 5));
+            groupPanel.add(groupLabel, BorderLayout.WEST);
+            groupPanel.add(groupComboBox, BorderLayout.CENTER);
+
+            reasonsPanel.add(checkBoxPanel);
+            reasonsPanel.add(groupPanel);
+        }
+
+        this.acceptButton.setName("authorize");
+        this.rejectButton.setName("deny");
         this.ignoreButton.setName("ignore");
 
         this.acceptButton.addActionListener(this);
@@ -145,9 +188,9 @@ public class AuthorizationRequestedDialog
         this.ignoreButton.addActionListener(this);
 
         this.acceptButton.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.ACCEPT"));
+            GuiActivator.getResources().getI18nMnemonic("service.gui.AUTHORIZE"));
         this.rejectButton.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.REJECT"));
+            GuiActivator.getResources().getI18nMnemonic("service.gui.DENY"));
         this.ignoreButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.IGNORE"));
 
@@ -156,7 +199,7 @@ public class AuthorizationRequestedDialog
         this.buttonsPanel.add(ignoreButton);
 
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        this.mainPanel.add(northPanel, BorderLayout.NORTH);        
+        this.mainPanel.add(northPanel, BorderLayout.NORTH);
         this.mainPanel.add(reasonsPanel, BorderLayout.CENTER);
         this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
@@ -177,9 +220,9 @@ public class AuthorizationRequestedDialog
             {
                 lock.wait();
             }
-            catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            catch (InterruptedException e)
+            {
+                logger.error("Authorization request interrupted.", e);
             }
         }
 
@@ -197,11 +240,11 @@ public class AuthorizationRequestedDialog
         JButton button = (JButton)e.getSource();
         String name = button.getName();
 
-        if (name.equals("service.gui.ACCEPT"))
+        if (name.equals("authorize"))
         {
             this.result = ACCEPT_CODE;
         }
-        else if (name.equals("reject"))
+        else if (name.equals("deny"))
         {
             this.result = REJECT_CODE;
         }
@@ -240,5 +283,29 @@ public class AuthorizationRequestedDialog
     {
         iconLabel.setIcon(new ImageIcon(
             ImageLoader.getImage(ImageLoader.AUTHORIZATION_ICON)));
+    }
+
+    /**
+     * Indicates if the "Add contact" checkbox has been selected.
+     *
+     * @return <tt>true</tt> if the "Add contact" checkbox has been selected,
+     * otherwise returns <tt>false</tt>.
+     */
+    public boolean isAddContact()
+    {
+        if (addContactCheckBox != null)
+            return addContactCheckBox.isSelected();
+
+        return false;
+    }
+
+    /**
+     * Returns the currently selected group to add the contact to.
+     *
+     * @return the group to add the contact to
+     */
+    public MetaContactGroup getSelectedMetaContactGroup()
+    {
+        return (MetaContactGroup) groupComboBox.getSelectedItem();
     }
 }
