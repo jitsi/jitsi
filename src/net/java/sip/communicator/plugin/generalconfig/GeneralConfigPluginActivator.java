@@ -140,7 +140,29 @@ public class GeneralConfigPluginActivator
          * Wait for the first ProtocolProviderService to register in order to
          * start the auto-away functionality i.e. to call #startThread().
          */
-        bundleContext.addServiceListener(this);
+        ServiceReference[] protocolRefs = bundleContext.getServiceReferences(
+                ProtocolProviderService.class.getName(), null);
+        if(protocolRefs != null && protocolRefs.length > 0)
+        {
+            try
+            {
+                synchronized (GeneralConfigPluginActivator.class)
+                {
+                    if (!startThreadIsCalled)
+                    {
+                        startThread();
+                        startThreadIsCalled = true;
+                    }
+                }
+            }
+            catch(Throwable t)
+            {
+                // not supposed to happen
+                logger.error("Error starting auto away thread", t);
+            }
+        }
+        else
+            bundleContext.addServiceListener(this);
 
         if (logger.isInfoEnabled())
             logger.info("PREFERENCES PLUGIN... [REGISTERED]");
