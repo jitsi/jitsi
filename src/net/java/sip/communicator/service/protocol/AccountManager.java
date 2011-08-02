@@ -69,6 +69,11 @@ public class AccountManager
     private Vector<AccountID> storedAccounts = new Vector<AccountID>();
 
     /**
+     * The prefix of the account unique identifier.
+     */
+    private static final String ACCOUNT_UID_PREFIX = "acc";
+
+    /**
      * Initializes a new <tt>AccountManagerImpl</tt> instance loaded in a
      * specific <tt>BundleContext</tt> (in which the caller will usually
      * later register it).
@@ -129,7 +134,8 @@ public class AccountManager
 
             // If the property is not related to an account we skip it.
             int dotIndex = storedAccount.lastIndexOf(".");
-            if (!storedAccount.substring(dotIndex + 1).startsWith("acc"))
+            if (!storedAccount.substring(dotIndex + 1)
+                    .startsWith(ACCOUNT_UID_PREFIX))
                 continue;
 
             if (logger.isDebugEnabled())
@@ -548,6 +554,13 @@ public class AccountManager
              storedAccountIter.hasNext();)
         {
             String storedAccount = storedAccountIter.next();
+
+            // If the property is not related to an account we skip it.
+            int dotIndex = storedAccount.lastIndexOf(".");
+            if (!storedAccount.substring(dotIndex + 1)
+                    .startsWith(ACCOUNT_UID_PREFIX))
+                continue;
+
             String storedAccountUID =
                 configurationService.getString(storedAccount + "."
                     + ProtocolProviderFactory.ACCOUNT_UID);
@@ -563,7 +576,8 @@ public class AccountManager
         // this account's properties.
         if (accountNodeName == null)
         {
-            accountNodeName = "acc" + Long.toString(System.currentTimeMillis());
+            accountNodeName
+                = ACCOUNT_UID_PREFIX + Long.toString(System.currentTimeMillis());
 
             // set a value for the persistent node so that we could later
             // retrieve it as a property
