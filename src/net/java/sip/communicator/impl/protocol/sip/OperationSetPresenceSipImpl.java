@@ -3542,10 +3542,18 @@ public class OperationSetPresenceSipImpl
         {
             terminateSubscription(contact);
 
-            // if the reason is "de-activated", we immediately re-subscribe
-            // to the contact
+            // if the reason is "de-activated" we remove the contact
+            // as he unsubscribed, we won't bother him with subscribe requests
             if (SubscriptionStateHeader.DEACTIVATED.equals(reasonCode))
-                forcePollContact(contact);
+                try
+                {
+                    ssContactList.removeContact(contact);
+                }
+                catch(OperationFailedException e)
+                {
+                    logger.error(
+                            "Cannot remove contact that unsubscribed.", e);
+                }
 
             SubscriptionStateHeader stateHeader =
                 (SubscriptionStateHeader)requestEvent.getRequest()
