@@ -703,8 +703,14 @@ public class ProtocolProviderServiceSipImpl
                     new OperationSetTypingNotificationsSipImpl(
                             this,
                             opSetBasicIM));
-                OperationSetServerStoredAccountInfo opSetSSAccountInfo =
+
+                OperationSetServerStoredAccountInfoSipImpl opSetSSAccountInfo =
                     new OperationSetServerStoredAccountInfoSipImpl(this);
+
+                // Set the display name.
+                if(opSetSSAccountInfo != null)
+                    opSetSSAccountInfo.setOurDisplayName(ourDisplayName);
+
                 // init avatar
                 addSupportedOperationSet(
                     OperationSetServerStoredAccountInfo.class,
