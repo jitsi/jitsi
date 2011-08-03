@@ -1099,7 +1099,8 @@ public class ServerStoredContactListSipImpl
 
         for (RuleType rule : presRules.getRules())
         {
-            if (rule.getActions().getSubHandling().equals(type))
+            SubHandlingType currType = rule.getActions().getSubHandling();
+            if (currType != null && currType.equals(type))
             {
                 return rule;
             }
