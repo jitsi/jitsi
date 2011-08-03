@@ -106,11 +106,20 @@ public class ChatRoomRightButtonMenu
         }
         else if (itemName.equals("joinChatRoom"))
         {
-            String nickName = getNickname();
+            String nickName = null;
+
+            nickName =
+                ConfigurationManager.getChatRoomProperty(
+                    chatRoomWrapper.getParentProvider()
+                        .getProtocolProvider(), chatRoomWrapper
+                        .getChatRoomID(), "userNickName");
+            if(nickName == null)
+                nickName = getNickname();
+
             if (nickName != null)
                 conferenceManager.joinChatRoom(chatRoomWrapper, nickName, null);
             else
-                conferenceManager.joinChatRoom(chatRoomWrapper);
+                conferenceManager.joinChatRoom(chatRoomWrapper);    
         }
         else if (itemName.equals("openChatRoom"))
         {
@@ -118,10 +127,19 @@ public class ChatRoomRightButtonMenu
             {
                 if(!chatRoomWrapper.getChatRoom().isJoined())
                 {
-                    String nickName = getNickname();
+                    String nickName = null;
+
+                    nickName =
+                        ConfigurationManager.getChatRoomProperty(
+                            chatRoomWrapper.getParentProvider()
+                                .getProtocolProvider(), chatRoomWrapper
+                                .getChatRoomID(), "userNickName");
+                    if(nickName == null)
+                        nickName = getNickname();
+
                     if (nickName != null)
                         conferenceManager.joinChatRoom(chatRoomWrapper,
-                                                        nickName, null);
+                            nickName, null);
                     else
                         conferenceManager.joinChatRoom(chatRoomWrapper);
                 }
@@ -140,12 +158,21 @@ public class ChatRoomRightButtonMenu
                             "",
                             false,
                             true);
-
-                String nickName = getNickname();
+                
+                String nickName = null;
+                
+                nickName =
+                    ConfigurationManager.getChatRoomProperty(
+                        chatRoomWrapper.getParentProvider()
+                            .getProtocolProvider(), chatRoomWrapper
+                            .getChatRoomID(), "userNickName");
+                
+                if(nickName == null)
+                    nickName = getNickname();
 
                 if (nickName != null)
                     conferenceManager.joinChatRoom(chatRoomWrapper, nickName,
-                                                null);
+                        null);
                 else
                     conferenceManager.joinChatRoom(chatRoomWrapper);
             }
@@ -163,6 +190,38 @@ public class ChatRoomRightButtonMenu
                 = new ChatRoomAuthenticationWindow(chatRoomWrapper);
 
             authWindow.setVisible(true);
+        }
+        else if(itemName.equals("nickNameChatRoom"))
+        {
+            String nickName = null;
+            
+            nickName =
+                ConfigurationManager.getChatRoomProperty(
+                    chatRoomWrapper.getParentProvider()
+                        .getProtocolProvider(), chatRoomWrapper
+                        .getChatRoomID(), "userNickName");
+            
+            ChatOperationReasonDialog reasonDialog =
+                new ChatOperationReasonDialog(GuiActivator.getResources()
+                    .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
+                    .getResources().getI18NString(
+                        "service.gui.CHANGE_NICKNAME_LABEL"));
+
+            reasonDialog.setReasonFieldText(nickName == null ? chatRoomWrapper
+                .getParentProvider().getProtocolProvider().getAccountID()
+                .getUserID() : nickName);
+
+            int result = reasonDialog.showDialog();
+
+            if (result == MessageDialog.OK_RETURN_CODE)
+            {
+                nickName = reasonDialog.getReason().trim();
+            }
+            
+            ConfigurationManager.updateChatRoomProperty(chatRoomWrapper
+                .getParentProvider().getProtocolProvider(), chatRoomWrapper
+                .getChatRoomID(), "userNickName", nickName);
+            
         }
     }
 
@@ -198,7 +257,7 @@ public class ChatRoomRightButtonMenu
 
         return menuItem;
     }
-
+    
     private String getNickname()
     {
         String nickName = null;

@@ -205,7 +205,7 @@ public class ConferenceChatSession
             chatHistoryFilter,
             chatRoomWrapper.getChatRoom(),
             date,
-            ConfigurationManager.getChatHistorySize());
+            count);
     }
 
     /**

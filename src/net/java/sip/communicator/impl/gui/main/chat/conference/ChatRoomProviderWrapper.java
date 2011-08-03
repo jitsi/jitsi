@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.chat.conference;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -241,9 +242,24 @@ public class ChatRoomProviderWrapper
 
                         if(chatRoomWrapper.isAutojoin())
                         {
-                            GuiActivator.getUIService()
-                                .getConferenceChatManager()
+                            String nickName =
+                                ConfigurationManager.getChatRoomProperty(
+                                    chatRoomWrapper.getParentProvider()
+                                        .getProtocolProvider(), chatRoomWrapper
+                                        .getChatRoomID(), "userNickName");
+
+                            if (nickName != null)
+                            {
+                                GuiActivator.getUIService()
+                                    .getConferenceChatManager()
+                                    .joinChatRoom(chatRoom, nickName, null);
+                            }
+                            else
+                            {
+                                GuiActivator.getUIService()
+                                    .getConferenceChatManager()
                                     .joinChatRoom(chatRoom);
+                            }
                         }
                     }
                     else
@@ -252,15 +268,37 @@ public class ChatRoomProviderWrapper
                         {
                             // chat room is not existent we must create it and join
                             // it
-                            GuiActivator.getUIService()
-                                .getConferenceChatManager().createChatRoom(
-                                    chatRoomWrapper.getChatRoomName(),
+                            ChatRoomWrapper roomWrapper =
+                                GuiActivator
+                                    .getUIService()
+                                    .getConferenceChatManager()
+                                    .createChatRoom(
+                                        chatRoomWrapper.getChatRoomName(),
+                                        chatRoomWrapper.getParentProvider()
+                                            .getProtocolProvider(),
+                                        new ArrayList<String>(), "", false,
+                                        true);
+
+                            String nickName =
+                                ConfigurationManager.getChatRoomProperty(
                                     chatRoomWrapper.getParentProvider()
-                                        .getProtocolProvider(),
-                                    new ArrayList<String>(),
-                                    "",
-                                    true,
-                                    true);
+                                        .getProtocolProvider(), chatRoomWrapper
+                                        .getChatRoomID(), "userNickName");
+
+                            if (nickName != null)
+                            {
+                                GuiActivator
+                                    .getUIService()
+                                    .getConferenceChatManager()
+                                    .joinChatRoom(roomWrapper.getChatRoom(),
+                                        nickName, null);
+                            }
+                            else
+                            {
+                                GuiActivator.getUIService()
+                                    .getConferenceChatManager()
+                                    .joinChatRoom(roomWrapper);
+                            }
                         }
                     }
                 }

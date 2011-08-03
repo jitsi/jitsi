@@ -240,6 +240,45 @@ public class ConferenceChatManager
 
         String messageContent = message.getContent();
 
+        if (evt.isHistoryMessage())
+        {
+            long timeStamp = chatPanel.getChatConversationPanel()
+                .getLastIncomingMsgTimestamp();
+            Collection<Object> c =
+                chatPanel.getChatSession().getHistoryBeforeDate(
+                    new Date(timeStamp == 0 ? System.currentTimeMillis() - 10000 : timeStamp), 20);
+            if (c.size() > 0)
+            {
+                boolean isPresent = false;
+                for (Object o : c)
+                {
+                    if (o instanceof ChatRoomMessageDeliveredEvent)
+                    {
+                        ChatRoomMessageDeliveredEvent ev =
+                            (ChatRoomMessageDeliveredEvent) o;
+                        if (evt.getTimestamp() == ev.getTimestamp())
+                        {
+                            isPresent = true;
+                            break;
+                        }
+                    }
+                    else if(o instanceof ChatRoomMessageReceivedEvent)
+                    {
+                        ChatRoomMessageReceivedEvent ev = 
+                            (ChatRoomMessageReceivedEvent) o;
+                        if (evt.getTimestamp() == ev.getTimestamp())
+                        {
+                            isPresent = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isPresent)
+                    return;
+            }
+        }
+
         chatPanel.addMessage(
             sourceMember.getName(),
             evt.getTimestamp(),
@@ -287,6 +326,7 @@ public class ConferenceChatManager
         }
 
         chatWindowManager.openChat(chatPanel, false);
+        
     }
 
     /**

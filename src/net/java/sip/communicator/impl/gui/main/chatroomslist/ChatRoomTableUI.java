@@ -142,55 +142,69 @@ public class ChatRoomTableUI
         else
             return;
 
-        if(chatRoomWrapper.getChatRoom() == null)
+        if (chatRoomWrapper.getChatRoom() == null)
         {
             chatRoomWrapper =
-                GuiActivator.getUIService().getConferenceChatManager()
+                GuiActivator
+                    .getUIService()
+                    .getConferenceChatManager()
                     .createChatRoom(
                         chatRoomWrapper.getChatRoomName(),
                         chatRoomWrapper.getParentProvider()
-                            .getProtocolProvider(),
-                            new ArrayList<String>(),
-                            "",
-                            false,
-                            true);
+                            .getProtocolProvider(), new ArrayList<String>(),
+                        "", false, true);
+
+            // leave the chatroom because getChatRoom().isJoined() returns true
+            // otherwise
+            if (chatRoomWrapper.getChatRoom().isJoined())
+                chatRoomWrapper.getChatRoom().leave();
 
             this.chatRoomsTableModel.setValueAt(chatRoomWrapper,
                 this.chatRoomList.getSelectedRow(),
                 this.chatRoomList.getSelectedColumn());
         }
 
-        String nickName = null;
-        ChatOperationReasonDialog reasonDialog =
-            new ChatOperationReasonDialog(GuiActivator
-                .getResources().getI18NString(
-                    "service.gui.CHANGE_NICKNAME"), GuiActivator
-                .getResources().getI18NString(
-                    "service.gui.CHANGE_NICKNAME_LABEL"));
+        String savedNick =
+            ConfigurationManager.getChatRoomProperty(chatRoomWrapper
+                .getParentProvider().getProtocolProvider(), chatRoomWrapper
+                .getChatRoomID(), "userNickName");
 
-        // reasonDialog.setIconImage(ImageLoader.getImage(
-        // ImageLoader.CHANGE_NICKNAME_ICON_16x16));
-        reasonDialog.setReasonFieldText("");
-
-        int result = reasonDialog.showDialog();
-
-        if (result == MessageDialog.OK_RETURN_CODE)
+        if (savedNick == null)
         {
-            nickName = reasonDialog.getReason().trim();
+            String nickName = null;
+            ChatOperationReasonDialog reasonDialog =
+                new ChatOperationReasonDialog(GuiActivator.getResources()
+                    .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
+                    .getResources().getI18NString(
+                        "service.gui.CHANGE_NICKNAME_LABEL"));
+
+            reasonDialog.setReasonFieldText(chatRoomWrapper.getChatRoom()
+                .getUserNickname());
+
+            int result = reasonDialog.showDialog();
+
+            if (result == MessageDialog.OK_RETURN_CODE)
+            {
+                nickName = reasonDialog.getReason().trim();
+
+                ConfigurationManager.updateChatRoomProperty(chatRoomWrapper
+                    .getParentProvider().getProtocolProvider(), chatRoomWrapper
+                    .getChatRoomID(), "userNickName", nickName);
+
+            }
 
             if (!chatRoomWrapper.getChatRoom().isJoined())
             {
                 GuiActivator.getUIService().getConferenceChatManager()
                     .joinChatRoom(chatRoomWrapper, nickName, null);
             }
+
         }
         else
         {
-            if(!chatRoomWrapper.getChatRoom().isJoined())
-            {
+            if (!chatRoomWrapper.getChatRoom().isJoined())
                 GuiActivator.getUIService().getConferenceChatManager()
-                    .joinChatRoom(chatRoomWrapper);
-            }
+                    .joinChatRoom(chatRoomWrapper, savedNick, null);
         }
 
         ChatWindowManager chatWindowManager
