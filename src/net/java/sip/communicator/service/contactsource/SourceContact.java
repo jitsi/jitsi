@@ -66,8 +66,12 @@ public interface SourceContact
      * @param category the <tt>OperationSet</tt> class we're looking for
      * @return a list of all <tt>ContactDetail</tt>s corresponding to the given
      * category
+     * 
+     * @throws OperationNotSupportedException if categories aren't supported
+     * for call history records
      */
-    public List<ContactDetail> getContactDetails(String category);
+    public List<ContactDetail> getContactDetails(String category)
+        throws OperationNotSupportedException;
 
     /**
      * Returns the preferred <tt>ContactDetail</tt> for a given

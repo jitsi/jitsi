@@ -48,7 +48,7 @@ public class ExtendedTooltip
 
         this.setLayout(new BorderLayout());
 
-        JPanel mainPanel = new JPanel(new BorderLayout(5, 0));
+        JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
         JPanel centerPanel = new JPanel(new BorderLayout());
 
         mainPanel.setOpaque(false);

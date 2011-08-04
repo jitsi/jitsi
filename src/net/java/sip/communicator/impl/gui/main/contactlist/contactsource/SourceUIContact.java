@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
@@ -299,31 +300,47 @@ public class SourceUIContact
 
         tip.setTitle(sourceContact.getDisplayName());
 
-        List<ContactDetail> details = sourceContact.getContactDetails(
-                                        ContactDetail.CATEGORY_PHONE);
+        String displayDetails = getDisplayDetails();
 
-        if (details != null && details.size() > 0)
-            addDetailsToToolTip(details,
-                                ContactDetail.CATEGORY_PHONE,
-                                tip);
+        if (displayDetails != null)
+            tip.addLine(new JLabel[]{new JLabel(getDisplayDetails())});
 
-        details = sourceContact.getContactDetails(
-                    ContactDetail.CATEGORY_EMAIL);
+        try
+        {
+            List<ContactDetail> details = sourceContact.getContactDetails(
+                            ContactDetail.CATEGORY_PHONE);
 
-        if (details != null && details.size() > 0)
-            addDetailsToToolTip(details,
-                                ContactDetail.CATEGORY_EMAIL,
-                                tip);
+            if (details != null && details.size() > 0)
+                addDetailsToToolTip(details,
+                        ContactDetail.CATEGORY_PHONE + "s",
+                        tip);
 
-        details = sourceContact.getContactDetails(
-                    ContactDetail.CATEGORY_INSTANT_MESSAGING);
+            details = sourceContact.getContactDetails(
+                ContactDetail.CATEGORY_EMAIL);
 
-        if (details != null && details.size() > 0)
-            addDetailsToToolTip(details,
-                                ContactDetail.CATEGORY_INSTANT_MESSAGING,
-                                tip);
+            if (details != null && details.size() > 0)
+                addDetailsToToolTip(details,
+                        ContactDetail.CATEGORY_EMAIL + "s",
+                        tip);
 
-        tip.setBottomText(getDisplayDetails());
+            details = sourceContact.getContactDetails(
+                ContactDetail.CATEGORY_INSTANT_MESSAGING);
+
+            if (details != null && details.size() > 0)
+                addDetailsToToolTip(details,
+                        ContactDetail.CATEGORY_INSTANT_MESSAGING + "s",
+                        tip);
+        }
+        catch (OperationNotSupportedException e)
+        {
+            // Categories aren't supported. This is the case for history
+            // records.
+            List<ContactDetail> allDetails = sourceContact.getContactDetails();
+
+            addDetailsToToolTip(allDetails,
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.CALL_WITH"), tip);
+        }
 
         return tip;
     }
@@ -334,7 +351,7 @@ public class SourceUIContact
     {
         ContactDetail contactDetail;
 
-        JLabel categoryLabel = new JLabel(category + "s", null, JLabel.LEFT);
+        JLabel categoryLabel = new JLabel(category, null, JLabel.LEFT);
         categoryLabel.setFont(categoryLabel.getFont().deriveFont(Font.BOLD));
         categoryLabel.setForeground(Color.DARK_GRAY);
 
@@ -367,6 +384,5 @@ public class SourceUIContact
 
             toolTip.addLine(jLabels);
         }
-
     }
 }

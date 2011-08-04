@@ -106,11 +106,6 @@ public class CallHistorySourceContact implements SourceContact
         {
             String peerAddress = recordsIter.next().getPeerAddress();
 
-            if (displayName.length() > 0)
-                displayName += "," + peerAddress;
-            else
-                displayName += peerAddress;
-
             if (peerAddress != null)
             {
                 ContactDetail contactDetail = new ContactDetail(peerAddress);
@@ -129,17 +124,32 @@ public class CallHistorySourceContact implements SourceContact
                         = new Hashtable<Class<? extends OperationSet>,
                                         ProtocolProviderService>();
 
-                    OperationSetContactCapabilities opSetCaps =
-                        preferredProvider.getOperationSet(
-                                OperationSetContactCapabilities.class);
                     OperationSetPresence opSetPres =
                         preferredProvider.getOperationSet(
                                 OperationSetPresence.class);
 
+                    Contact contact = opSetPres.findContactByID(peerAddress);
+
+                    if (contact != null)
+                    {
+                        String contactDisplayName = contact.getDisplayName();
+
+                        if (displayName == null || displayName.length() <= 0)
+                        {
+                            if (callRecord.getPeerRecords().size() > 1)
+                                displayName
+                                    = "Conference " + contactDisplayName;
+                            else
+                                displayName = contactDisplayName;
+                        }
+                    }
+
+                    OperationSetContactCapabilities opSetCaps =
+                        preferredProvider.getOperationSet(
+                                OperationSetContactCapabilities.class);
+
                     if(opSetCaps != null && opSetPres != null)
                     {
-                        Contact contact = opSetPres.findContactByID(
-                                peerAddress);
                         if(contact != null && opSetCaps.getOperationSet(
                                 contact,
                                 OperationSetBasicTelephony.class) != null)
@@ -188,6 +198,13 @@ public class CallHistorySourceContact implements SourceContact
                 contactDetail.setSupportedOpSets(supportedOpSets);
 
                 contactDetails.add(contactDetail);
+
+                // If no display name was found, set the peer address.
+                if (displayName == null || displayName.length() <= 0)
+                    if (callRecord.getPeerRecords().size() > 1)
+                        displayName = "Conference " + peerAddress;
+                    else
+                        displayName = peerAddress;
             }
         }
     }
@@ -285,9 +302,11 @@ public class CallHistorySourceContact implements SourceContact
      * category
      */
     public List<ContactDetail> getContactDetails(String category)
+        throws OperationNotSupportedException
     {
         // We don't support category for call history details, so we return null.
-        return null;
+        throw new OperationNotSupportedException(
+            "Categories are not supported for call history records.");
     }
 
     /**
