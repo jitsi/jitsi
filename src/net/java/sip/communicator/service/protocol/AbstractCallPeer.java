@@ -245,22 +245,32 @@ public abstract class AbstractCallPeer<T extends Call,
         {
             CallPeerListener listener = listeners.next();
 
-            if(eventType.equals(CallPeerChangeEvent
-                                .CALL_PEER_ADDRESS_CHANGE))
+            // catch any possible errors, so we are sure we dispatch events
+            // to all listeners
+            try
             {
-                listener.peerAddressChanged(evt);
-            } else if(eventType.equals(CallPeerChangeEvent
-                                .CALL_PEER_DISPLAY_NAME_CHANGE))
+                if(eventType.equals(CallPeerChangeEvent
+                                    .CALL_PEER_ADDRESS_CHANGE))
+                {
+                    listener.peerAddressChanged(evt);
+                } else if(eventType.equals(CallPeerChangeEvent
+                                    .CALL_PEER_DISPLAY_NAME_CHANGE))
+                {
+                    listener.peerDisplayNameChanged(evt);
+                } else if(eventType.equals(CallPeerChangeEvent
+                                    .CALL_PEER_IMAGE_CHANGE))
+                {
+                    listener.peerImageChanged(evt);
+                } else if(eventType.equals(CallPeerChangeEvent
+                                    .CALL_PEER_STATE_CHANGE))
+                {
+                    listener.peerStateChanged(evt);
+                }
+            }
+            catch(Throwable t)
             {
-                listener.peerDisplayNameChanged(evt);
-            } else if(eventType.equals(CallPeerChangeEvent
-                                .CALL_PEER_IMAGE_CHANGE))
-            {
-                listener.peerImageChanged(evt);
-            } else if(eventType.equals(CallPeerChangeEvent
-                                .CALL_PEER_STATE_CHANGE))
-            {
-                listener.peerStateChanged(evt);
+                logger.error("Error dispatching event of type"
+                        + eventType + " in " + listener, t);
             }
         }
     }

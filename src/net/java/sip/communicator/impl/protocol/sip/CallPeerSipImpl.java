@@ -322,6 +322,12 @@ public class CallPeerSipImpl
      */
     public Contact getContact()
     {
+        // if this peer has no call, most probably it means
+        // its disconnected and no more in call
+        // and we cannot obtain the contact
+        if(getCall() == null)
+            return null;
+
         ProtocolProviderService pps = getCall().getProtocolProvider();
         OperationSetPresenceSipImpl opSetPresence
             = (OperationSetPresenceSipImpl) pps

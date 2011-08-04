@@ -515,12 +515,18 @@ public abstract class MediaAwareCallPeer
 
         synchronized(mediaHandler)
         {
-            super.setState(newState, reason, reasonCode);
-
-            if (CallPeerState.DISCONNECTED.equals(newState)
-                    || CallPeerState.FAILED.equals(newState))
+            try
             {
-                mediaHandler.close();
+                super.setState(newState, reason, reasonCode);
+            }
+            finally
+            {
+                // make sure whatever happens to close the media
+                if (CallPeerState.DISCONNECTED.equals(newState)
+                    || CallPeerState.FAILED.equals(newState))
+                {
+                    mediaHandler.close();
+                }
             }
         }
     }
