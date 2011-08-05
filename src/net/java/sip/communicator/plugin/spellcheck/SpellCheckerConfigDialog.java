@@ -221,7 +221,7 @@ public class SpellCheckerConfigDialog
 
                 if (presentWord.getEnd() == chat.getMessage().length())
                 {
-                    nextWord = Word.getWord(chat.getMessage(), 1, false);
+                    nextWord = Word.getWord(chat.getMessage(), 0, false);
 
                 }
                 else
@@ -241,7 +241,15 @@ public class SpellCheckerConfigDialog
             {
                 Word nextWord = getNextWord();
                 int breakIndex = nextWord.getStart();
-
+                if(breakIndex == 0)
+                    breakIndex = nextWord.getEnd() + 1;
+                
+                if(nextWord.getText().length() == 0)
+                {
+                    breakIndex++;
+                    nextWord = getNextWord();
+                }
+                
                 while (dict.isCorrect(nextWord.getText())
                     && nextWord.getEnd() + 1 != breakIndex)
                 {
