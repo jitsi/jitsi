@@ -2073,7 +2073,8 @@ public class ProtocolProviderServiceJabberImpl
                     {
                         logger.info("Jingle Nodes discovery terminated!");
                         logger.info("Found " + nodes.getRelayEntries().size() +
-                                " Jingle Nodes relay");
+                                " Jingle Nodes relay for account: " +
+                                accountID.getAccountAddress());
                     }
 
                     service.addEntries(nodes);
