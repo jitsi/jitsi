@@ -282,9 +282,30 @@ public class GTalkPacketFactory
                 }
             }
 
+            List<LocalCandidate> candToRemove = new ArrayList<LocalCandidate>();
+            List<LocalCandidate> candidates = component.getLocalCandidates();
+
             for(Candidate candidate : component.getLocalCandidates())
             {
-                exts.add(createCandidate(candidate, mediaName, stream));
+                if(candidate instanceof UPNPCandidate)
+                {
+                    LocalCandidate base = candidate.getBase();
+                    candToRemove.add(base);
+                }
+            }
+
+            for(Candidate candidate : candToRemove)
+            {
+                candidates.remove(candidate);
+            }
+
+            for(Candidate candidate : candidates)
+            {
+                GTalkCandidatePacketExtension e = createCandidate(candidate,
+                    mediaName, stream);
+
+                if(e != null)
+                    exts.add(e);
             }
         }
 
