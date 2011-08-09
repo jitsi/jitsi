@@ -231,6 +231,21 @@ public class ProtocolProviderServiceSipImpl
     private String outboundProxyTransport = null;
 
     /**
+     * Array of ordered addresses to try when connecting.
+     */
+    private InetSocketAddress[] connectionAddresses = null;
+
+    /**
+     * Array of ordered addresses transports to try when connecting.
+     */
+    private String[] connectionTransports = null;
+
+    /**
+    * The InetAddress we are connecting to, outbound proxy.
+    */
+    private InetSocketAddress currentConnectionAddress = null;
+
+    /**
      * The logo corresponding to the jabber protocol.
      */
     private ProtocolIconSipImpl protocolIcon;
@@ -591,13 +606,7 @@ public class ProtocolProviderServiceSipImpl
                 ourDisplayName = accountID.getUserID();
             }
 
-            boolean isServerValidated =
-                accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED, false);
-
-            //create a connection with the registrar
-            if(!isServerValidated)
-                initRegistrarConnection(accountID);
+            initRegistrarConnection(accountID);
 
             //init our call processor
             OperationSetBasicTelephonySipImpl opSetBasicTelephonySipImpl
@@ -1695,129 +1704,8 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        //from this point on we are certain to have a registrar.
-        InetSocketAddress[] registrarSocketAddresses = null;
-
-        //registrar transport
-        String registrarTransport = accountID.getAccountPropertyString(
-                ProtocolProviderFactory.PREFERRED_TRANSPORT);
-
-        if(registrarTransport != null && registrarTransport.length() > 0)
-        {
-            if( ! registrarTransport.equals(ListeningPoint.UDP)
-                && !registrarTransport.equals(ListeningPoint.TCP)
-                && !registrarTransport.equals(ListeningPoint.TLS))
-            {
-                throw new IllegalArgumentException(registrarTransport
-                    + " is not a valid transport protocol. Transport must be "
-                    +"left blanc or set to TCP, UDP or TLS.");
-            }
-        }
-        else
-        {
-            registrarTransport = getDefaultTransport();
-        }
-
         //init registrar port
         int registrarPort = ListeningPoint.PORT_5060;
-
-        try
-        {
-            // if port is set we must use the explicitly set settings and
-            // skip SRV queries
-            if(accountID.getAccountProperty(
-                    ProtocolProviderFactory.SERVER_PORT) != null)
-            {
-                ArrayList<InetSocketAddress> registrarSocketAddressesList =
-                        new ArrayList<InetSocketAddress>();
-
-                // get only AAAA and A records
-                resolveAddresses(
-                        registrarAddressStr,
-                        registrarSocketAddressesList,
-                        checkPreferIPv6Addresses(),
-                        registrarPort
-                );
-                registrarSocketAddresses = registrarSocketAddressesList
-                        .toArray(new InetSocketAddress[0]);
-            }
-            else
-            {
-                ArrayList<InetSocketAddress> registrarSocketAddressesList =
-                        new ArrayList<InetSocketAddress>();
-                ArrayList<String> registrarTransports =
-                        new ArrayList<String>();
-
-                resolveSipAddress(
-                    registrarAddressStr,
-                    registrarTransport,
-                    registrarSocketAddressesList,
-                    registrarTransports,
-                    accountID.getAccountPropertyBoolean(
-                        ProtocolProviderFactory.PROXY_AUTO_CONFIG, false));
-
-                registrarTransport = registrarTransports.get(0);
-                registrarSocketAddresses = registrarSocketAddressesList
-                        .toArray(new InetSocketAddress[0]);
-            }
-
-            // We should set here the property to indicate that the server
-            // address is validated. When we load stored accounts we check
-            // this property in order to prevent checking again the server
-            // address. And this is needed because in the case we don't have
-            // network while loading the application we still want to have our
-            // accounts loaded.
-            if(registrarSocketAddresses != null
-                    && registrarSocketAddresses.length > 0)
-                accountID.putAccountProperty(
-                    ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED,
-                    Boolean.toString(true));
-        }
-        catch (UnknownHostException ex)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug(registrarAddressStr
-                        + " appears to be an either invalid"
-                        + " or inaccessible address.",
-                        ex);
-
-            boolean isServerValidated =
-                accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.SERVER_ADDRESS_VALIDATED, false);
-
-            /*
-             * We should check here if the server address was already validated.
-             * When we load stored accounts we want to prevent checking again
-             * the server address. This is needed because in the case we don't
-             * have network while loading the application we still want to have
-             * our accounts loaded.
-             */
-            if (!isServerValidated)
-            {
-                throw new IllegalArgumentException(
-                    registrarAddressStr
-                    + " appears to be an either invalid"
-                    + " or inaccessible address.",
-                    ex);
-            }
-        }
-
-        // If the registrar address is null we don't need to continue.
-        // If we still have problems with initializing the registrar we are
-        // telling the user. We'll enter here only if the server has been
-        // already validated (this means that the account is already created
-        // and we're trying to login, but we have no internet connection).
-        if(registrarSocketAddresses == null
-            || registrarSocketAddresses.length == 0)
-        {
-            fireRegistrationStateChanged(
-                RegistrationState.UNREGISTERED,
-                RegistrationState.CONNECTION_FAILED,
-                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
-                "Invalid or inaccessible server address.");
-
-            return;
-        }
 
         // check if user has overridden the registrar port.
         registrarPort =
@@ -1839,9 +1727,12 @@ public class ProtocolProviderServiceSipImpl
         //Initialize our connection with the registrar
         try
         {
+            // we insert the default transport if none is specified
+            // use it for registrar connection
             this.sipRegistrarConnection = new SipRegistrarConnection(
-                registrarSocketAddresses
-                , registrarTransport
+                registrarAddressStr
+                , registrarPort
+                , getDefaultTransport()
                 , expires
                 , this);
         }
@@ -1849,11 +1740,11 @@ public class ProtocolProviderServiceSipImpl
         {
             //this really shouldn't happen as we're using InetAddress-es
             logger.error("Failed to create a registrar connection with "
-                +registrarSocketAddresses[0].getAddress().getHostAddress()
+                + registrarAddressStr
                 , ex);
             throw new IllegalArgumentException(
                 "Failed to create a registrar connection with "
-                + registrarSocketAddresses[0].getAddress().getHostAddress() + ": "
+                + registrarAddressStr + ": "
                 + ex.getMessage());
         }
     }
@@ -2026,14 +1917,26 @@ public class ProtocolProviderServiceSipImpl
 
         if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
         {
-            proxyAddressStr = accountID
-                .getAccountPropertyString(ProtocolProviderFactory.
-                        SERVER_ADDRESS);
+            String userID =  accountID.getAccountPropertyString(
+                    ProtocolProviderFactory.USER_ID);
 
-            if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
+            int domainIx = userID.indexOf("@");
+
+            if(domainIx > 0)
             {
-                /* registrarless account */
-                return;
+                proxyAddressStr = userID.substring(domainIx + 1);
+            }
+            else
+            {
+                proxyAddressStr = accountID
+                    .getAccountPropertyString(ProtocolProviderFactory.
+                            SERVER_ADDRESS);
+
+                if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
+                {
+                    /* registrarless account */
+                    return;
+                }
             }
         }
         else
@@ -2088,20 +1991,28 @@ public class ProtocolProviderServiceSipImpl
             if(accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.PROXY_AUTO_CONFIG, false))
             {
-                ArrayList<InetSocketAddress> proxySocketAddressesList
+                if(connectionAddresses == null)
+                {
+                    ArrayList<InetSocketAddress> proxySocketAddressesList
                         = new ArrayList<InetSocketAddress>();
-                ArrayList<String> proxyTransportsList
-                        = new ArrayList<String>();
+                    ArrayList<String> proxyTransportsList
+                            = new ArrayList<String>();
 
-                resolveSipAddress(
-                        proxyAddressStr,
-                        proxyTransport,
-                        proxySocketAddressesList,
-                        proxyTransportsList,
-                        true);
+                    resolveSipAddress(
+                            proxyAddressStr,
+                            proxyTransport,
+                            proxySocketAddressesList,
+                            proxyTransportsList,
+                            true);
 
-                proxyTransport = proxyTransportsList.get(ix);
-                proxySocketAddress = proxySocketAddressesList.get(ix);
+                    connectionTransports = proxyTransportsList.toArray(
+                            new String[proxyTransportsList.size()]);
+                    connectionAddresses = proxySocketAddressesList.toArray(
+                            new InetSocketAddress[proxySocketAddressesList.size()]);
+                }
+
+                proxyTransport = connectionTransports[ix];
+                proxySocketAddress = connectionAddresses[ix];
             }
             else
             {
@@ -2109,34 +2020,54 @@ public class ProtocolProviderServiceSipImpl
                 // explicitly entered don't make SRV queries
                 if(proxyAddressAndPortEntered)
                 {
-                    ArrayList<InetSocketAddress> addresses
-                        = new ArrayList<InetSocketAddress>();
+                    if(connectionAddresses == null)
+                    {
+                        ArrayList<InetSocketAddress> addresses
+                            = new ArrayList<InetSocketAddress>();
 
-                    resolveAddresses(
-                        proxyAddressStr,
-                        addresses,
-                        checkPreferIPv6Addresses(),
-                        proxyPort);
+                        resolveAddresses(
+                            proxyAddressStr,
+                            addresses,
+                            checkPreferIPv6Addresses(),
+                            proxyPort);
+
+                        connectionAddresses = addresses.toArray(
+                                new InetSocketAddress[addresses.size()]);
+
+                        // we have transport, use it for all addresses
+                        connectionTransports = new String[addresses.size()];
+                        Arrays.fill(connectionTransports, proxyTransport);
+                    }
                     // only set if enough results found
-                    if(addresses.size() > ix)
-                        proxySocketAddress = addresses.get(ix);
+                    if(connectionAddresses.length > ix)
+                        proxySocketAddress = connectionAddresses[ix];
                 }
                 else
                 {
-                    ArrayList<InetSocketAddress> proxySocketAddressesList
-                        = new ArrayList<InetSocketAddress>();
-                    ArrayList<String> proxyTransportsList
-                        = new ArrayList<String>();
+                    if(connectionAddresses == null)
+                    {
+                        ArrayList<InetSocketAddress> proxySocketAddressesList
+                            = new ArrayList<InetSocketAddress>();
+                        ArrayList<String> proxyTransportsList
+                            = new ArrayList<String>();
 
-                    resolveSipAddress(
-                        proxyAddressStr,
-                        proxyTransport,
-                        proxySocketAddressesList,
-                        proxyTransportsList,
-                        false);
+                        resolveSipAddress(
+                            proxyAddressStr,
+                            proxyTransport,
+                            proxySocketAddressesList,
+                            proxyTransportsList,
+                            false);
 
-                    proxyTransport = proxyTransportsList.get(ix);
-                    proxySocketAddress = proxySocketAddressesList.get(ix);
+                        connectionTransports = proxyTransportsList.toArray(
+                            new String[proxyTransportsList.size()]);
+                        connectionAddresses =
+                            proxySocketAddressesList.toArray(
+                                new InetSocketAddress[
+                                            proxySocketAddressesList.size()]);
+                    }
+
+                    proxyTransport = connectionTransports[ix];
+                    proxySocketAddress = connectionAddresses[ix];
                 }
             }
 
@@ -2185,10 +2116,48 @@ public class ProtocolProviderServiceSipImpl
             }
         }
 
+        if(connectionAddresses == null
+            || connectionAddresses.length == 0)
+        {
+            sipRegistrarConnection = null;
+            // no addresses, maybe network down, lets try
+            // resolving them later
+            connectionAddresses = null;
+            connectionTransports = null;
+
+            fireRegistrationStateChanged(
+                RegistrationState.UNREGISTERED,
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                "Invalid or inaccessible server address.");
+
+            return;
+        }
+
         // Return if no proxy is specified or if the proxyAddress is null.
         if(proxyAddress == null)
         {
             return;
+        }
+
+        // lets change registrar connections transport
+        // make sure it reflects the transport we choose from DNS records
+        // registrar connection can be null while creating accounts
+        try
+        {
+            if(this.getRegistrarConnection() != null)
+                this.getRegistrarConnection().setTransport(proxyTransport);
+        }
+        catch (ParseException ex    )
+        {
+            //this really shouldn't happen as we ve already did it
+            logger.error("Failed to change a registrar connection transport "
+                + currentConnectionAddress
+                , ex);
+            throw new IllegalArgumentException(
+                "Failed to change a registrar connection transport "
+                + currentConnectionAddress + ": "
+                + ex.getMessage());
         }
 
         StringBuilder proxyStringBuffer
@@ -2847,7 +2816,7 @@ public class ProtocolProviderServiceSipImpl
 
                     // NAPTR found use only it
                     if(logger.isInfoEnabled())
-                        logger.info("Found NAPRT record and using it:"
+                        logger.info("Found NAPTR record and using it:"
                             + resultAddresses);
 
                     // return only if found something
@@ -2865,13 +2834,39 @@ public class ProtocolProviderServiceSipImpl
         //try to obtain SRV mappings from the DNS
         try
         {
-            resolveSRV(
-                address,
-                transport,
-                resultAddresses,
-                resultTransports,
-                preferIPv6Addresses,
-                false);
+            if(resolveProtocol)
+            {
+                String[] transports = new String[]{
+                    ListeningPoint.TLS,
+                    ListeningPoint.TCP,
+                    ListeningPoint.UDP
+                };
+                for(String tp : transports)
+                {
+                    resolveSRV(
+                        address,
+                        tp,
+                        resultAddresses,
+                        resultTransports,
+                        preferIPv6Addresses,
+                        false);
+                    if(!resultAddresses.isEmpty())
+                    {
+                        transport = tp;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                resolveSRV(
+                    address,
+                    transport,
+                    resultAddresses,
+                    resultTransports,
+                    preferIPv6Addresses,
+                    false);
+            }
         }
         catch (ParseException e)
         {
@@ -3318,5 +3313,83 @@ public class ProtocolProviderServiceSipImpl
                 }
             }
         }
+    }
+
+    /**
+     * Finds the next address to retry registering. If doesn't process anything
+     * (we have already tried the last one) return false.
+     *
+     * @return <tt>true</tt> if we triggered new register with next address.
+     */
+    boolean registerUsingNextAddress()
+    {
+        // means no connection
+        if(connectionAddresses == null)
+            return false;
+
+        int i = 0;
+        for (; i < connectionAddresses.length; i++)
+        {
+            if(connectionAddresses[i].equals(currentConnectionAddress))
+                break;
+        }
+
+        if(i + 1 < connectionAddresses.length)
+        {
+            changeAddress(i + 1);
+
+            try
+            {
+                sipRegistrarConnection.register();
+            }
+            catch (Throwable e)
+            {
+                logger.error("Cannot send register!", e);
+                sipRegistrarConnection.setRegistrationState(
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                    "A timeout occurred while trying to connect to the server.");
+            }
+
+            return true;
+        }
+
+        // as we reached the last address lets change it to the first one
+        // so we don't get stuck to the last one forever, and the next time
+        // use again the first one
+        changeAddress(0);
+
+        return false;
+    }
+
+    /**
+     * Change the current address used to register to ix one.
+     * @param ix the index of the new address to assign.
+     */
+    private void changeAddress(int ix)
+    {
+        if(ix >= connectionAddresses.length)
+            return;
+
+        this.currentConnectionAddress = connectionAddresses[ix];
+
+        try
+        {
+            this.getRegistrarConnection().setTransport(
+                    connectionTransports[ix]);
+        }
+        catch (ParseException ex)
+        {
+            //this really shouldn't happen as we ve already did it
+            logger.error("Failed to change a registrar connection transport "
+                + currentConnectionAddress
+                , ex);
+            throw new IllegalArgumentException(
+                "Failed to change a registrar connection transport "
+                + currentConnectionAddress + ": "
+                + ex.getMessage());
+        }
+
+        initOutboundProxy((SipAccountID)getAccountID(), ix);
     }
 }

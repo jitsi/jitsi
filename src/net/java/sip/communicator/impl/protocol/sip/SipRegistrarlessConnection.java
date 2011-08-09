@@ -131,19 +131,6 @@ public class SipRegistrarlessConnection
     }
 
     /**
-     * Returns the listening point that should be used for communication with our
-     * current registrar.
-     *
-     * @return the listening point that should be used for communication with our
-     * current registrar.
-     */
-    @Override
-    public ListeningPoint getListeningPoint()
-    {
-        return sipProvider.getListeningPoint(getTransport());
-    }
-
-    /**
      * Returns the default jain-sip provider for our parent provider.
      *
      * @return the default jain-sip provider for our parent provider.

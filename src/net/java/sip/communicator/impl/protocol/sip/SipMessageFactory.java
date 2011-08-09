@@ -1035,18 +1035,9 @@ public class SipMessageFactory
         MaxForwardsHeader maxForwardsHeader = protocolProvider
             .getMaxForwardsHeader();
 
-        //create a host-only uri for the request uri header.
-        String domain = protocolProvider.getAccountID().
-            getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
-
-        // we used to take domain from toHeader, if there is no such
-        // account property back to previous behaviour
-        if(domain == null)
-            domain = ((SipURI) toHeader.getAddress().getURI()).getHost();
-
         //Request URI
-        SipURI requestURI = protocolProvider.getAddressFactory()
-                .createSipURI(null, domain);
+        SipURI requestURI = protocolProvider.getRegistrarConnection()
+            .getRegistrarURI();
 
         //Via
         ArrayList<ViaHeader> viaHeaders = protocolProvider
