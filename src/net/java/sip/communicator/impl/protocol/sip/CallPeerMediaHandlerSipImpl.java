@@ -706,6 +706,14 @@ public class CallPeerMediaHandlerSipImpl
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
                                 direction, rtpExtensions);
+
+            // check for options from remote party and set
+            // is quality controls supported
+            if(mediaType.equals(MediaType.VIDEO))
+            {
+                supportQualityControls =
+                    SdpUtils.containsAttribute(mediaDescription, "imageattr");
+            }
         }
     }
 
