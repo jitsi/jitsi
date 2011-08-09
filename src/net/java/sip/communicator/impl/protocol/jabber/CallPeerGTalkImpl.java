@@ -56,6 +56,12 @@ public class CallPeerGTalkImpl
     private String sid = null;
 
     /**
+     * Temporary variable for handling client like FreeSwitch that sends
+     * "accept" message before sending candidates.
+     */
+    private SessionIQ freeswitchSession = null;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Google Talk address of the new call peer.
@@ -338,6 +344,12 @@ public class CallPeerGTalkImpl
                 wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(answer);
         }
+        catch(IllegalArgumentException e)
+        {
+            // HACK for FreeSwitch that send accept message before sending
+            // candidates
+            freeswitchSession = sessionInitIQ;
+        }
         catch(Exception exc)
         {
             if (logger.isInfoEnabled())
@@ -371,8 +383,10 @@ public class CallPeerGTalkImpl
      *
      * @param sessionInitIQ The {@link SessionIQ} that created the session we
      * are handling here
+     * @throws OperationFailedException if something goes wrong
      */
     public void processCandidates(SessionIQ sessionInitIQ)
+        throws OperationFailedException
     {
         Collection<PacketExtension> extensions = sessionInitIQ.getExtensions();
         List<GTalkCandidatePacketExtension> candidates =
@@ -411,6 +425,17 @@ public class CallPeerGTalkImpl
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
+        }
+
+        // HACK for FreeSwitch that send accept message before sending
+        // candidates
+        if(freeswitchSession != null)
+        {
+            if(!isInitiator)
+                processSessionAccept(freeswitchSession);
+            else
+                answer();
+            freeswitchSession = null;
         }
     }
 
@@ -530,7 +555,24 @@ public class CallPeerGTalkImpl
         {
             getMediaHandler().getTransportManager().
                 wrapupConnectivityEstablishment();
-            answer = getMediaHandler().generateSessionAccept();
+            answer = getMediaHandler().generateSessionAccept(true);
+        }
+        catch(IllegalArgumentException e)
+        {
+            freeswitchSession = new SessionIQ();
+
+            // HACK apparently FreeSwitch need to have accept before
+            answer = getMediaHandler().generateSessionAccept(false);
+
+            SessionIQ response
+                = GTalkPacketFactory.createSessionAccept(
+                    sessionInitIQ.getTo(),
+                    sessionInitIQ.getFrom(),
+                    getSessionID(),
+                    answer);
+
+            getProtocolProvider().getConnection().sendPacket(response);
+            return;
         }
         catch(Exception exc)
         {
@@ -560,7 +602,8 @@ public class CallPeerGTalkImpl
 
         //send the packet first and start the stream later  in case the media
         //relay needs to see it before letting hole punching techniques through.
-        getProtocolProvider().getConnection().sendPacket(response);
+        if(freeswitchSession == null)
+            getProtocolProvider().getConnection().sendPacket(response);
 
         try
         {

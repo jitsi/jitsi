@@ -1255,6 +1255,10 @@ public class TransportManagerGTalkImpl
                     "Could not establish connection (ICE failed)",
                     OperationFailedException.GENERAL_ERROR);
         }
+        if(iceAgent.getState().equals(IceProcessingState.WAITING))
+        {
+            throw new IllegalArgumentException("ICE not started");
+        }
     }
 
     /**

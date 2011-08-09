@@ -214,13 +214,15 @@ public class CallPeerMediaHandlerGTalkImpl
      * last offer we've received, so that the peer could use it to send a
      * <tt>accept</tt>.
      *
+     * @param initStream true to initialize stream, false to do nothing else
      * @return  the last generated list of
      * {@link RtpDescriptionPacketExtension}s that the call peer could use to
      * send a <tt>accept</tt>.
      *
      * @throws OperationFailedException if we fail to configure the media stream
      */
-    public RtpDescriptionPacketExtension generateSessionAccept()
+    public RtpDescriptionPacketExtension generateSessionAccept(
+        boolean initStream)
         throws OperationFailedException
     {
         RtpDescriptionPacketExtension description =
@@ -257,6 +259,9 @@ public class CallPeerMediaHandlerGTalkImpl
             {
                 continue;
             }
+
+            if(!initStream)
+                continue;
 
             // stream connector
             StreamConnector connector
@@ -451,9 +456,9 @@ public class CallPeerMediaHandlerGTalkImpl
                             description.setNamespace(SessionIQProvider.
                                     GTALK_VIDEO_NAMESPACE);
 
-                            ext.setAttribute("width", 640);
-                            ext.setAttribute("height", 480);
-                            ext.setAttribute("framerate", 15);
+                            ext.setAttribute("width", 320);
+                            ext.setAttribute("height", 200);
+                            ext.setAttribute("framerate", 30);
                             isVideo = true;
                         }
                         description.addChildExtension(ext);
