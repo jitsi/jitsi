@@ -11,7 +11,9 @@ import java.util.*;
 import net.java.sip.communicator.service.packetlogging.*;
 import org.osgi.framework.*;
 
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.hid.*;
@@ -38,8 +40,10 @@ public class SipActivator
     private static MediaService         mediaService          = null;
     private static VersionService       versionService        = null;
     private static UIService            uiService             = null;
-    private static HIDService            hidService           = null;
+    private static HIDService           hidService            = null;
     private static PacketLoggingService packetLoggingService  = null;
+    private static CertificateService   certService           = null;
+    private static FileAccessService    fileService           = null;
 
     /**
      * The resource service. Used for checking for default values
@@ -68,7 +72,7 @@ public class SipActivator
 
         SipActivator.bundleContext = context;
 
-        sipProviderFactory = new ProtocolProviderFactorySipImpl();
+        sipProviderFactory = createProtocolProviderFactory();
 
         /*
          * Install the UriHandler prior to registering the factory service in
@@ -87,6 +91,34 @@ public class SipActivator
 
         if (logger.isDebugEnabled())
             logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
+    }
+    
+    /**
+     * Creates the ProtocolProviderFactory for this protocol.
+     * @return The created factory.
+     */
+    protected ProtocolProviderFactorySipImpl createProtocolProviderFactory()
+    {
+    	return new ProtocolProviderFactorySipImpl();
+    }
+
+    /**
+     * Return the certificate verification service impl.
+     * @return the CertificateVerification service.
+     */
+    public static CertificateService getCertificateVerificationService()
+    {
+        if(certService == null)
+        {
+            ServiceReference guiVerifyReference
+                = bundleContext.getServiceReference(
+                    CertificateService.class.getName());
+            if(guiVerifyReference != null)
+                certService = (CertificateService)
+                    bundleContext.getService(guiVerifyReference);
+        }
+
+        return certService;
     }
 
     /**
@@ -268,6 +300,21 @@ public class SipActivator
                         bundleContext, PacketLoggingService.class);
         }
         return packetLoggingService;
+    }
+    
+    /**
+     * Return the file access service impl.
+     * @return the FileAccess Service.
+     */
+    public static FileAccessService getFileAccessService()
+    {
+        if(fileService == null)
+        {
+        	fileService = ServiceUtils.getService(
+        		bundleContext, FileAccessService.class);
+        }
+
+        return fileService;
     }
 
     /**

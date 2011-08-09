@@ -68,7 +68,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * The AddressFactory used to create URLs ans Address objects.
      */
-    private AddressFactory addressFactory;
+    private AddressFactoryEx addressFactory;
 
     /**
      * The HeaderFactory used to create SIP message headers.
@@ -1258,8 +1258,8 @@ public class ProtocolProviderServiceSipImpl
 
             int localPort = srcListeningPoint.getPort();
             String transport = srcListeningPoint.getTransport();
-            if (ListeningPoint.TCP.equalsIgnoreCase(transport))
-                //|| ListeningPoint.TLS.equalsIgnoreCase(transport)
+            if (ListeningPoint.TCP.equalsIgnoreCase(transport)
+                || ListeningPoint.TLS.equalsIgnoreCase(transport))
             {
                 InetSocketAddress localSockAddr
                     = sipStackSharing.getLocalAddressForDestination(
@@ -1488,7 +1488,7 @@ public class ProtocolProviderServiceSipImpl
      *
      * @return the AddressFactory used to create URLs ans Address objects.
      */
-    public AddressFactory getAddressFactory()
+    public AddressFactoryEx getAddressFactory()
     {
         return addressFactory;
     }
@@ -1887,6 +1887,22 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Compares an InetAddress against the active outbound proxy. The comparison
+     * is by reference, not equals.
+     * 
+     * @param addressToTest The addres to test.
+     * @return True when the InetAddress is the same as the outbound proxy.
+     */
+    public boolean matchesInetAddress(InetAddress addressToTest)
+    {
+        // if the proxy is not yet initialized then this is not the provider that
+        // caused this comparison
+        if(outboundProxySocketAddress == null)
+            return false;
+        return addressToTest == outboundProxySocketAddress.getAddress();
+    }
+
+    /**
      * In case we are using an outbound proxy this method returns the transport
      * we are using to connect to it. The method returns <tt>null</tt>
      * otherwise.
@@ -1915,7 +1931,9 @@ public class ProtocolProviderServiceSipImpl
                         PROXY_ADDRESS);
         boolean proxyAddressAndPortEntered = false;
 
-        if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
+        if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0
+            || accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.PROXY_AUTO_CONFIG, false))
         {
             String userID =  accountID.getAccountPropertyString(
                     ProtocolProviderFactory.USER_ID);
@@ -2907,6 +2925,7 @@ public class ProtocolProviderServiceSipImpl
             // resulting InetSocketAddress because its constructor
             // suppresses UnknownHostException-s and we want to know if
             // something goes wrong.
+            @SuppressWarnings("unused")
             InetAddress addressObj = InetAddress.getByName(address);
         }
     }

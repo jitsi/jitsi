@@ -7,8 +7,9 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
+import java.util.logging.*;
+
+import net.java.sip.communicator.impl.protocol.sip.net.*;
 
 /**
  * The properties used at the creation of the JAIN-SIP stack.
@@ -291,6 +292,6 @@ public class SipStackProperties
         this.setProperty(NSPNAME_SERVER_LOGGER, NSPVALUE_SERVER_LOGGER);
 
         this.setProperty("gov.nist.javax.sip.NETWORK_LAYER", 
-            "net.java.sip.communicator.impl.protocol.sip.net.SslNetworkLayer");
+            SslNetworkLayer.class.getName());
     }
 }

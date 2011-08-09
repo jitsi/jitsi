@@ -19,7 +19,7 @@ public class HttpUtilActivator
     /**
      * The service we use to interact with user regarding certificates.
      */
-    private static CertificateVerificationService guiCertificateVerification;
+    private static CertificateService guiCertificateVerification;
 
     /**
      * Reference to the credentials service
@@ -46,16 +46,16 @@ public class HttpUtilActivator
      * Return the certificate verification service impl.
      * @return the CertificateVerification service.
      */
-    public static CertificateVerificationService
+    public static CertificateService
         getCertificateVerificationService()
     {
         if(guiCertificateVerification == null)
         {
             ServiceReference guiVerifyReference
                 = bundleContext.getServiceReference(
-                CertificateVerificationService.class.getName());
+                    CertificateService.class.getName());
             if(guiVerifyReference != null)
-                guiCertificateVerification = (CertificateVerificationService)
+                guiCertificateVerification = (CertificateService)
                     bundleContext.getService(guiVerifyReference);
         }
 

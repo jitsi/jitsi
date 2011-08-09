@@ -17,8 +17,9 @@ import org.apache.http.auth.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.conn.*;
 import org.apache.http.conn.scheme.*;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.entity.*;
+import org.apache.http.impl.client.*;
 import org.apache.http.params.*;
 import org.osgi.framework.*;
 
@@ -102,7 +103,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     /**
      * The service we use to interact with user regarding certificates.
      */
-    private CertificateVerificationService certificateVerification;
+    private CertificateService certificateVerification;
 
     /**
      * Creates an instance of this XCAP client.
@@ -113,11 +114,11 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
 
         ServiceReference guiVerifyReference
             = SipActivator.getBundleContext().getServiceReference(
-                CertificateVerificationService.class.getName());
+                CertificateService.class.getName());
 
         if(guiVerifyReference != null)
             certificateVerification
-                = (CertificateVerificationService)SipActivator.getBundleContext()
+                = (CertificateService)SipActivator.getBundleContext()
                     .getService(guiVerifyReference);
     }
 
@@ -413,6 +414,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
      */
     private DefaultHttpClient createHttpClient()
     {
+        //TODO: move to HttpUtil
         DefaultHttpClient httpClient = new DefaultHttpClient();
         try
         {
@@ -421,14 +423,13 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             // for approval
             ClientConnectionManager ccm = httpClient.getConnectionManager();
             SchemeRegistry sr = ccm.getSchemeRegistry();
-            SSLContext ctx = certificateVerification.getSSLContext(
-                uri.getHost(), uri.getPort() == -1 ? 443 : uri.getPort());
-            org.apache.http.conn.ssl.SSLSocketFactory ssf
-                = new org.apache.http.conn.ssl.SSLSocketFactory(
-                        ctx, new HostNameResolverImpl());
-            ssf.setHostnameVerifier(org.apache.http.conn.ssl.SSLSocketFactory
-                .ALLOW_ALL_HOSTNAME_VERIFIER);
-            sr.register(new Scheme("https", ssf, 443));
+            SSLContext ctx =
+                certificateVerification.getSSLContext(
+                    certificateVerification.getTrustManager(uri.getHost()));
+            org.apache.http.conn.ssl.SSLSocketFactory ssf =
+                new org.apache.http.conn.ssl.SSLSocketFactory(ctx,
+                    SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            sr.register(new Scheme("https", 443, ssf));
         }
         catch(Throwable e)
         {
@@ -442,7 +443,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
 
     /**
      * Creates XCAP response from HTTP response.
-     * If HTTP code is 200, 201 or 409 the HTTP content would be readed.
+     * If HTTP code is 200, 201 or 409 the HTTP content would be read.
      *
      * @param response the HTTP response.
      * @return the XCAP response.
@@ -538,44 +539,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
         {
             logger.error("XCapError cannot be parsed.");
             return null;
-        }
-    }
-
-    /**
-     * Using deprecated HostNameResolver as quick fix,
-     * Make apache http client lib to use our resolver when connecting to hosts.
-     */
-    private class HostNameResolverImpl
-        implements HostNameResolver
-    {
-        /**
-         * Resolves given hostname to its IP address
-         *
-         * @param hostname the hostname.
-         * @return IP address.
-         * @throws java.io.IOException
-         */
-        public InetAddress resolve(String hostname)
-            throws IOException
-        {
-            try
-            {
-                InetSocketAddress addr = null;
-                // use port 80 as we need only the address
-                if(ProtocolProviderServiceSipImpl.checkPreferIPv6Addresses())
-                    addr = NetworkUtils.getAAAARecord(hostname, 80);
-                else
-                    addr = NetworkUtils.getARecord(hostname, 80);
-
-                if(addr != null)
-                    return addr.getAddress();
-                else
-                    return null;
-            }
-            catch(java.text.ParseException e)
-            {
-                throw new IOException(e.getMessage());
-            }
         }
     }
 }

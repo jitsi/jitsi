@@ -8,9 +8,11 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.io.*;
 import java.net.*;
+import java.security.cert.*;
 import java.text.*;
 import java.util.*;
 
+import javax.net.ssl.*;
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -250,8 +252,16 @@ public class SipRegistrarConnection
         catch (Exception exc)
         {
             if(exc.getCause() instanceof SocketException
-               || exc.getCause() instanceof IOException)
+               || exc.getCause() instanceof IOException
+               || exc.getCause() instanceof SSLHandshakeException)
             {
+                if(exc.getCause().getCause() instanceof CertificateException)
+                {
+                    setRegistrationState(RegistrationState.UNREGISTERED
+                        , RegistrationStateChangeEvent.REASON_USER_REQUEST
+                        , exc.getMessage());
+                    return;
+                }
                 if(sipProvider.registerUsingNextAddress())
                     return;
             }

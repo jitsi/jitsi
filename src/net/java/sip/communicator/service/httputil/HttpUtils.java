@@ -30,6 +30,7 @@ import org.apache.http.util.*;
 import javax.net.ssl.*;
 import java.io.*;
 import java.net.*;
+import java.security.*;
 import java.util.*;
 
 /**
@@ -519,7 +520,7 @@ public class HttpUtils
     private static DefaultHttpClient getHttpClient(
         String usernamePropertyName,
         String passwordPropertyName,
-        String address)
+        final String address)
         throws IOException
     {
         HttpParams params = new BasicHttpParams();
@@ -534,23 +535,25 @@ public class HttpUtils
                 + "/"
                 + System.getProperty("sip-communicator.version"));
 
-        SSLContext sslCtx = HttpUtilActivator
-                .getCertificateVerificationService().getSSLContext(
-                    HttpUtilActivator.getResources().
-                        getI18NString(
-                            "service.gui.CERT_DIALOG_DESCRIPTION_TXT",
-                        new String[]{
-                            HttpUtilActivator.getResources().getSettingsString(
-                                "service.gui.APPLICATION_NAME"),
-                            address,
-                            Integer.toString(443)
-                        }
-                    ));
+        SSLContext sslCtx;
+        try
+        {
+            sslCtx = HttpUtilActivator.getCertificateVerificationService()
+                .getSSLContext(
+                    HttpUtilActivator.getCertificateVerificationService()
+                        .getTrustManager(address));
+        }
+        catch (GeneralSecurityException e)
+        {
+            throw new IOException(e.getMessage());
+        }
 
-        Scheme sch = new Scheme("https", 443,
-            new SSLSocketFactory(
-                    sslCtx, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER));
+        Scheme sch =
+            new Scheme("https", 443, new SSLSocketFactory(sslCtx,
+                SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER));
         httpClient.getConnectionManager().getSchemeRegistry().register(sch);
+        //TODO: wrap the SSLSocketFactory to use our own DNS resolution
+        //TODO: register socketfactory for http to use our own DNS resolution
 
         // set proxy from default jre settings
         ProxySelectorRoutePlanner routePlanner = new ProxySelectorRoutePlanner(

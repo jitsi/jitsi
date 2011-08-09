@@ -82,7 +82,7 @@ public class TestAccountInstallation
                 bc.getService(confReference);
 
         configurationService.setProperty(
-            CertificateVerificationService.ALWAYS_TRUST_MODE_ENABLED_PROP_NAME,
+            CertificateService.PNAME_ALWAYS_TRUST,
             Boolean.TRUE);
 
         //Keep the reference for later usage.

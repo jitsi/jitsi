@@ -231,7 +231,7 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * The service we use to interact with user.
      */
-    private CertificateVerificationService guiVerification;
+    private CertificateService guiVerification;
 
     /**
      * Used with tls connecting when certificates are not trusted
@@ -240,12 +240,6 @@ public class ProtocolProviderServiceJabberImpl
      * execution cause after user chooses we make further processing from there.
      */
     private boolean abortConnecting = false;
-
-    /**
-     * Shows whether we have already checked the certificate for current server.
-     * In case we use TLS.
-     */
-    private boolean certChecked = false;
 
     /**
      * Flag indicating are we currently executing connectAndLogin method.
@@ -333,15 +327,15 @@ public class ProtocolProviderServiceJabberImpl
      * Return the certificate verification service impl.
      * @return the CertificateVerification service.
      */
-    private CertificateVerificationService getCertificateVerificationService()
+    private CertificateService getCertificateVerificationService()
     {
         if(guiVerification == null)
         {
             ServiceReference guiVerifyReference
                 = JabberActivator.getBundleContext().getServiceReference(
-                    CertificateVerificationService.class.getName());
+                    CertificateService.class.getName());
             if(guiVerifyReference != null)
-                guiVerification = (CertificateVerificationService)
+                guiVerification = (CertificateService)
                     JabberActivator.getBundleContext().getService(
                         guiVerifyReference);
         }
@@ -844,22 +838,20 @@ public class ProtocolProviderServiceJabberImpl
 
         try
         {
-            CertificateVerificationService gvs =
+            CertificateService cvs =
                 getCertificateVerificationService();
-            if(gvs != null)
+            if(cvs != null)
             {
                 connection.setCustomTrustManager(
-                    new HostTrustManager(gvs.getTrustManager(
-                        JabberActivator.getResources().getI18NString(
-                            "service.gui.CERT_DIALOG_DESCRIPTION_TXT",
-                            new String[]{ JabberActivator.getResources().
-                                getSettingsString(
-                                        "service.gui.APPLICATION_NAME"),
-                                address, Integer.toString(serverPort)
-                            }
+                    new HostTrustManager(
+                        cvs.getTrustManager(
+                            Arrays.asList(new String[]{
+                                serviceName,
+                                "_xmpp-client._tcp." + serviceName
+                            })
                         )
                     )
-                ));
+                );
             }
         }
         catch(GeneralSecurityException e)
@@ -870,7 +862,7 @@ public class ProtocolProviderServiceJabberImpl
         if(debugger == null)
             debugger = new SmackPacketDebugger();
 
-        // setts the debugger
+        // sets the debugger
         debugger.setConnection(connection);
         connection.addPacketListener(debugger, null);
         connection.addPacketInterceptor(debugger, null);
@@ -1901,13 +1893,9 @@ public class ProtocolProviderServiceJabberImpl
         public void checkServerTrusted(X509Certificate[] chain, String authType)
             throws CertificateException
         {
-            if(certChecked)
-                return;
-
             abortConnecting = true;
             try
             {
-                certChecked = true;
                 tm.checkServerTrusted(chain, authType);
             }
             catch(CertificateException e)

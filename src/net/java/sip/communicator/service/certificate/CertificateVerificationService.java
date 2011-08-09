@@ -15,8 +15,11 @@ import javax.net.ssl.*;
  * A service which implementors will ask the user for permission for the
  * certificates which are for some reason not valid and not globally trusted.
  *
+ * @deprecated Use the new {@link CertificateService}
+ *
  * @author Damian Minkov
  */
+@Deprecated
 public interface CertificateVerificationService
 {
     /**

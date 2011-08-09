@@ -53,8 +53,8 @@ public class CertificateVerificationActivator
         bundleContext = bc;
 
         bundleContext.registerService(
-            CertificateVerificationService.class.getName(),
-            new CertificateVerificationServiceImpl(),
+            CertificateService.class.getName(),
+            new CertificateServiceImpl(),
             null);
     }
 

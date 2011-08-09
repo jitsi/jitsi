@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.sip.net;
 import java.io.*;
 import java.net.*;
 import java.security.*;
+import java.util.*;
 
 import javax.net.ssl.*;
 
@@ -16,58 +17,51 @@ import gov.nist.core.net.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.Logger;
+
 import org.osgi.framework.*;
 
 /**
- * Manages jain-sip socket creating. When dealing with ssl sockets we interact
+ * Manages jain-sip socket creation. When dealing with ssl sockets we interact
  * with the user when the certificate for some reason is not trusted.
- *
+ * 
  * @author Damian Minkov
+ * @author Ingo Bauersachs
  */
 public class SslNetworkLayer
-    implements NetworkLayer,
-               ServiceListener
+    implements NetworkLayer
 {
-    /**
+     /**
      * Our class logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(SslNetworkLayer.class);
+     private static final Logger logger =
+         Logger.getLogger(SslNetworkLayer.class);
 
     /**
      * The service we use to interact with user.
      */
-    private CertificateVerificationService certificateVerification;
+    private CertificateService certificateVerification;
 
     /**
      * Creates the network layer.
-     * 
-     * @throws GeneralSecurityException
-     * @throws FileNotFoundException
-     * @throws IOException
      */
     public SslNetworkLayer()
-        throws GeneralSecurityException, 
-        FileNotFoundException,
-        IOException
     {
-        SipActivator.getBundleContext().addServiceListener(this);
+        ServiceReference guiVerifyReference =
+            SipActivator.getBundleContext().getServiceReference(
+                CertificateService.class.getName());
 
-        ServiceReference guiVerifyReference
-            = SipActivator.getBundleContext().getServiceReference(
-                CertificateVerificationService.class.getName());
-
-        if(guiVerifyReference != null)
-            certificateVerification
-                = (CertificateVerificationService)SipActivator.getBundleContext()
-                    .getService(guiVerifyReference);
+        if (guiVerifyReference != null)
+            certificateVerification =
+                (CertificateService) SipActivator.getBundleContext().getService(
+                    guiVerifyReference);
     }
 
     /**
-     * Creates a server with the specified port, listen backlog,
-     * and local IP address to bind to.
-     * Comparable to "new java.net.ServerSocket(port,backlog,bindAddress);"
+     * Creates a server with the specified port, listen backlog, and local IP
+     * address to bind to. Comparable to
+     * "new java.net.ServerSocket(port,backlog,bindAddress);"
      * 
      * @param port the port
      * @param backlog backlog
@@ -83,12 +77,12 @@ public class SslNetworkLayer
     }
 
     /**
-     * Creates a stream socket and connects it to the specified
-     * port number at the specified IP address.
-     *
+     * Creates a stream socket and connects it to the specified port number at
+     * the specified IP address.
+     * 
      * @param address the address to connect.
      * @param port the port to connect.
-     * @return the socket 
+     * @return the socket
      * @throws IOException problem creating socket.
      */
     public Socket createSocket(InetAddress address, int port)
@@ -99,9 +93,8 @@ public class SslNetworkLayer
 
     /**
      * Constructs a datagram socket and binds it to any available port on the
-     * local host machine.
-     * Comparable to "new java.net.DatagramSocket();"
-     *
+     * local host machine. Comparable to "new java.net.DatagramSocket();"
+     * 
      * @return the datagram socket
      * @throws SocketException problem creating socket.
      */
@@ -112,12 +105,12 @@ public class SslNetworkLayer
     }
 
     /**
-     * Creates a datagram socket, bound to the specified local address. 
+     * Creates a datagram socket, bound to the specified local address.
      * Comparable to "new java.net.DatagramSocket(port,laddr);"
-     *
+     * 
      * @param port local port to use
      * @param laddr local address to bind
-     * @return the datagram socket 
+     * @return the datagram socket
      * @throws SocketException problem creating socket.
      */
     public DatagramSocket createDatagramSocket(int port, InetAddress laddr)
@@ -127,8 +120,8 @@ public class SslNetworkLayer
     }
 
     /**
-     * Creates an SSL server with the specified port, listen backlog, 
-     * and local IP address to bind to.
+     * Creates an SSL server with the specified port, listen backlog, and local
+     * IP address to bind to.
      * 
      * @param port the port to listen to
      * @param backlog backlog
@@ -140,111 +133,99 @@ public class SslNetworkLayer
             InetAddress bindAddress) 
         throws IOException
     {
-        return (SSLServerSocket) getSSLServerSocketFactory(
-            bindAddress.getHostName(), port).createServerSocket(
-                port, backlog, bindAddress);
+        return (SSLServerSocket) getSSLServerSocketFactory()
+            .createServerSocket(port, backlog, bindAddress);
     }
 
     /**
      * Creates a ssl server socket factory.
-     * @param address the address.
-     * @param port the port 
+     * 
      * @return the server socket factory.
      * @throws IOException problem creating factory.
      */
-    private SSLServerSocketFactory getSSLServerSocketFactory(
-        String address, int port)
+    private SSLServerSocketFactory getSSLServerSocketFactory()
         throws IOException
     {
-        return getSSLContext(SipActivator.getResources().
-                getI18NString(
-                    "service.gui.CERT_DIALOG_CLIENT_DESCRIPTION_TXT",
-                    new String[]
-                    {
-                        SipActivator.getResources()
-                            .getSettingsString("service.gui.APPLICATION_NAME")
-                    })
-                ).getServerSocketFactory();
-    }
-
-    /**
-     * Creates the ssl context used to create ssl socket factories. Used
-     * to install our custom trust manager which knows the address
-     * we are connecting to.
-     * @param address the address we are connecting to.
-     * @param port the port
-     * @return the ssl context.
-     * @throws IOException problem creating ssl context.
-     */
-    private SSLContext getSSLContext(String address, int port)
-        throws IOException
-    {
-        if(certificateVerification != null)
-            return certificateVerification.getSSLContext(address, port);
-        else
+        try
         {
-            try
-            {
-                SSLContext sslContext;
-                sslContext = SSLContext.getInstance("TLS");
-                String algorithm = KeyManagerFactory.getDefaultAlgorithm();
-                TrustManagerFactory tmFactory =
-                    TrustManagerFactory.getInstance(algorithm);
-                KeyManagerFactory kmFactory =
-                    KeyManagerFactory.getInstance(algorithm);
-                SecureRandom secureRandom   = new SecureRandom();
-                secureRandom.nextInt();
-                tmFactory.init((KeyStore)null);
-                kmFactory.init(null, null);
-                sslContext.init(kmFactory.getKeyManagers(),
-                    tmFactory.getTrustManagers(), secureRandom);
-
-                return sslContext;
-            }
-            catch (Throwable e)
-            {
-                throw new IOException("Cannot init SSLContext: " +
-                    e.getMessage());
-            }
+            return certificateVerification.getSSLContext()
+                .getServerSocketFactory();
         }
-    }
-    
-    /**
-     * Creates the ssl context used to create ssl socket factories. Used
-     * to install our custom trust manager which knows the address
-     * we are connecting to.
-     * @param message the message to show on the verification GUI
-     * @return the ssl context.
-     * @throws IOException problem creating ssl context.
-     */
-    private SSLContext getSSLContext(String message)
-        throws IOException
-    {
-        if(certificateVerification != null)
-            return certificateVerification.getSSLContext(message);
-        else
+        catch (GeneralSecurityException e)
         {
-            //goes to the non-service case which doesn't use the a message/port
-        	return getSSLContext(null, 0);
+            throw new IOException(e.getMessage());
         }
     }
 
     /**
      * Creates ssl socket factory.
-     * @param address the address we are connecting to.
-     * @param port the port we use.
+     * 
      * @return the socket factory.
      * @throws IOException problem creating ssl socket factory.
      */
-    private SSLSocketFactory getSSLSocketFactory(String address, int port)
+    private SSLSocketFactory getSSLSocketFactory(InetAddress address)
         throws IOException
     {
-        return getSSLContext(address, port).getSocketFactory();
+        ProtocolProviderServiceSipImpl provider = null;
+        for (ProtocolProviderServiceSipImpl pps : ProtocolProviderServiceSipImpl
+            .getAllInstances())
+        {
+            if (pps.matchesInetAddress(address))
+            {
+                provider = pps;
+                break;
+            }
+        }
+        if (provider == null)
+            throw new IOException(
+                "The provider that requested "
+                + "the SSL Socket could not be found");
+        try
+        {
+            ArrayList<String> identities = new ArrayList<String>(2);
+            SipAccountID id = (SipAccountID) provider.getAccountID();
+            // if the proxy is configured manually, the entered name is valid
+            // for the X.509 certificate
+            if(!id.getAccountPropertyBoolean(
+                ProtocolProviderFactory.PROXY_AUTO_CONFIG, false))
+            {
+                String proxy = id.getAccountPropertyString(
+                    ProtocolProviderFactory.PROXY_ADDRESS);
+                if(proxy != null)
+                    identities.add(proxy);
+                if (logger.isDebugEnabled())
+                    logger.debug("Added <" + proxy
+                        + "> to list of valid SIP TLS server identities.");
+            }
+            // the domain part of the user id is always valid
+            String userID =
+                id.getAccountPropertyString(ProtocolProviderFactory.USER_ID);
+            int index = userID.indexOf('@');
+            if (index > -1)
+            {
+                identities.add(userID.substring(index + 1));
+                if (logger.isDebugEnabled())
+                    logger.debug("Added <" + userID.substring(index + 1)
+                        + "> to list of valid SIP TLS server identities.");
+            }
+
+            return certificateVerification.getSSLContext(
+                certificateVerification.getTrustManager(
+                    identities,
+                    null,
+                    new RFC5922Matcher(provider)
+                )).getSocketFactory();
+        }
+        catch (GeneralSecurityException e)
+        {
+            throw new IOException(e.getMessage());
+        }
     }
 
     /**
-     * Creates a stream SSL socket and connects it to the specified
-     * port number at the specified IP address.
+     * Creates a stream SSL socket and connects it to the specified port number
+     * at the specified IP address.
+     * 
      * @param address the address we are connecting to.
      * @param port the port we use.
      * @return the socket.
@@ -253,13 +234,14 @@ public class SslNetworkLayer
     public SSLSocket createSSLSocket(InetAddress address, int port)
         throws IOException
     {
-        return (SSLSocket) getSSLSocketFactory(
-            address.getCanonicalHostName(), port).createSocket(address, port);
+        return (SSLSocket) getSSLSocketFactory(address).createSocket(address,
+            port);
     }
 
     /**
-     * Creates a stream SSL socket and connects it to the specified
-     * port number at the specified IP address.
+     * Creates a stream SSL socket and connects it to the specified port number
+     * at the specified IP address.
+     * 
      * @param address the address we are connecting to.
      * @param port the port we use.
      * @param myAddress the local address to use
@@ -270,15 +252,15 @@ public class SslNetworkLayer
             InetAddress myAddress) 
         throws IOException
     {
-        return (SSLSocket) getSSLSocketFactory(
-            address.getCanonicalHostName(), port).createSocket(address, port,
-                myAddress, 0);
+        return (SSLSocket) getSSLSocketFactory(address).createSocket(address,
+            port, myAddress, 0);
     }
 
     /**
      * Creates a stream socket and connects it to the specified port number at
-     * the specified IP address.
-     * Comparable to "new java.net.Socket(address, port,localaddress);"
+     * the specified IP address. Comparable to
+     * "new java.net.Socket(address, port,localaddress);"
+     * 
      * @param address the address to connect to.
      * @param port the port we use.
      * @param myAddress the local address to use.
@@ -298,18 +280,18 @@ public class SslNetworkLayer
     /**
      * Creates a new Socket, binds it to myAddress:myPort and connects it to
      * address:port.
-     *
+     * 
      * @param address the InetAddress that we'd like to connect to.
      * @param port the port that we'd like to connect to
-     * @param myAddress the address that we are supposed to bind on or null
-     *        for the "any" address.
+     * @param myAddress the address that we are supposed to bind on or null for
+     *            the "any" address.
      * @param myPort the port that we are supposed to bind on or 0 for a random
-     * one.
-     *
+     *            one.
+     * 
      * @return a new Socket, bound on myAddress:myPort and connected to
-     * address:port.
+     *         address:port.
      * @throws IOException if binding or connecting the socket fail for a reason
-     * (exception relayed from the corresponding Socket methods)
+     *             (exception relayed from the corresponding Socket methods)
      */
     public Socket createSocket(InetAddress address, int port,
                     InetAddress myAddress, int myPort)
@@ -319,7 +301,7 @@ public class SslNetworkLayer
             return new Socket(address, port, myAddress, myPort);
         else if (port != 0)
         {
-            //myAddress is null (i.e. any)  but we have a port number
+            // myAddress is null (i.e. any) but we have a port number
             Socket sock = new Socket();
             sock.bind(new InetSocketAddress(port));
             sock.connect(new InetSocketAddress(address, port));
@@ -327,28 +309,5 @@ public class SslNetworkLayer
         }
         else
             return new Socket(address, port);
-    }
-
-    /**
-     * Listens for newly registered services. Looking for
-     * CertificateVerificationService.
-     * 
-     * @param event the new event.
-     */
-    public void serviceChanged(ServiceEvent event)
-    {
-        Object sService = SipActivator.getBundleContext().getService(
-            event.getServiceReference());
-
-        // we don't care if the source service is not a plugin component
-        if (! (sService instanceof CertificateVerificationService))
-        {
-            return;
-        }
-
-        if(event.getType() == ServiceEvent.REGISTERED)
-            certificateVerification = (CertificateVerificationService)sService;
-        else if(event.getType() == ServiceEvent.UNREGISTERING)
-            certificateVerification = null;
     }
 }

@@ -11,8 +11,12 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.fileaccess,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.util.swing,
+ net.java.sip.communicator.service.httputil,
  javax.net.ssl,
  javax.security.auth.x500,
  javax.naming,
  javax.naming.ldap,
- javax.swing
+ javax.swing,
+ org.apache.http.conn.ssl,
+ org.bouncycastle.asn1,
+ org.bouncycastle.asn1.x509

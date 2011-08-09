@@ -2366,7 +2366,9 @@ javax.swing.event, javax.swing.border"/>
             <manifest>
                 <attribute name="Export-Package" value="org.bouncycastle.asn1,
                     org.bouncycastle.asn1.nist,
+                    org.bouncycastle.asn1.pkcs,
                     org.bouncycastle.asn1.sec,
+                    org.bouncycastle.asn1.x509,
                     org.bouncycastle.asn1.x9,
                     org.bouncycastle.crypto,
                     org.bouncycastle.crypto.agreement,

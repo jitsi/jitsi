@@ -32,9 +32,11 @@ import net.java.sip.communicator.util.swing.*;
  * Asks the user for permission for the
  * certificates which are for some reason not valid and not globally trusted.
  *
+ * @deprecated Use the new {@link CertificateService}
  * @author Damian Minkov
  * @author Yana Stamcheva
  */
+@Deprecated
 public class CertificateVerificationServiceImpl
     implements CertificateVerificationService
 {

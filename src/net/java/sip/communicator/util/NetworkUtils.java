@@ -1190,4 +1190,28 @@ public class NetworkUtils
             }
         }
     }
+
+    /**
+     * Compares two DNS names against each other. Helper method to avoid the
+     * export of DNSJava.
+     * @param dns1 The first DNS name
+     * @param dns2 The DNS name that is compared against dns1
+     * @return The value 0 if dns2 is a name equivalent to dns1;
+     * a value less than 0 if dns2 is less than dns1 in the canonical ordering,
+     * and a value greater than 0 if dns2 is greater than dns1 in the canonical
+     * ordering.
+     * @throws ParseException if the dns1 or dns2 is not a DNS Name
+     */
+    public static int compareDnsNames(String dns1, String dns2)
+        throws ParseException
+    {
+        try
+        {
+            return Name.fromString(dns1).compareTo(Name.fromString(dns2));
+        }
+        catch(TextParseException e)
+        {
+            throw new ParseException(e.getMessage(), 0);
+        }
+    }
 }
