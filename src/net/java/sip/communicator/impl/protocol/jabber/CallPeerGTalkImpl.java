@@ -383,10 +383,8 @@ public class CallPeerGTalkImpl
      *
      * @param sessionInitIQ The {@link SessionIQ} that created the session we
      * are handling here
-     * @throws OperationFailedException if something goes wrong
      */
     public void processCandidates(SessionIQ sessionInitIQ)
-        throws OperationFailedException
     {
         Collection<PacketExtension> extensions = sessionInitIQ.getExtensions();
         List<GTalkCandidatePacketExtension> candidates =
@@ -434,7 +432,16 @@ public class CallPeerGTalkImpl
             if(!isInitiator)
                 processSessionAccept(freeswitchSession);
             else
-                answer();
+            {
+                try
+                {
+                    answer();
+                }
+                catch(OperationFailedException e)
+                {
+                    logger.info("Failed to answer call (FreeSwitch hack)");
+                }
+            }
             freeswitchSession = null;
         }
     }
