@@ -21,6 +21,7 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.*;
 
 /**
@@ -224,6 +225,30 @@ public class OperationSetBasicTelephonyJabberImpl
                     "Failed to create OutgoingJingleSession."
                         + " We don't have a valid XMPPConnection.",
                     OperationFailedException.INTERNAL_ERROR);
+        }
+
+        // if address is not suffixed by @domain, add the default domain
+        // corresponding to account domain or via the OVERRIDE_PHONE_SUFFIX
+        // property if defined
+        if(calleeAddress.indexOf('@') == -1)
+        {
+            String serviceName = null;
+
+            String phoneSuffix =
+                (String)getProtocolProvider().getAccountID().getAccountProperty(
+                    "OVERRIDE_PHONE_SUFFIX");
+
+            if(phoneSuffix == null || phoneSuffix.length() == 0)
+            {
+                serviceName = "@" + StringUtils.parseServer(
+                    getProtocolProvider().getAccountID().getUserID());
+            }
+            else
+            {
+                serviceName = "@" + phoneSuffix;
+            }
+
+            calleeAddress += serviceName;
         }
 
         // we determine on which resource the remote user is connected if the

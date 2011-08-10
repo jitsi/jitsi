@@ -69,6 +69,15 @@ public class JabberAccountRegistration
     private String defaultUserSufix;
 
     /**
+     * The override domain for phone call.
+     *
+     * If Jabber account is able to call PSTN number and if domain name of the
+     * switch is different than the domain of the account (gw.domain.org vs
+     * domain.org), you can use this property to set the switch domain.
+     */
+    private String overridePhoneSuffix = null;
+
+    /**
      * The port.
      */
     private int port = new Integer(DEFAULT_PORT).intValue();
@@ -212,6 +221,16 @@ public class JabberAccountRegistration
     }
 
     /**
+     * Returns the override phone suffix.
+     *
+     * @return the phone suffix
+     */
+    public String getOverridePhoneSuffix()
+    {
+        return overridePhoneSuffix;
+    }
+
+    /**
      * The address of the server we will use for this account
      * @return String
      */
@@ -222,7 +241,7 @@ public class JabberAccountRegistration
 
     /**
      * The port on the specified server
-     * @return int
+     * @return the server port
      */
     public int getPort()
     {
@@ -282,6 +301,17 @@ public class JabberAccountRegistration
     public void setDefaultUserSufix(String userSufix)
     {
         this.defaultUserSufix = userSufix;
+    }
+
+    /**
+     * Sets the override value of the phone suffix.
+     *
+     * @param phoneSuffix the phone name suffix (the domain name after the @
+     * sign)
+     */
+    public void setOverridePhoneSufix(String phoneSuffix)
+    {
+        this.overridePhoneSuffix = phoneSuffix;
     }
 
     /**

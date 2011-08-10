@@ -20,6 +20,7 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ.*;
 import org.jivesoftware.smack.util.StringUtils;
+import org.xmpp.jnodes.smack.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
@@ -388,6 +389,8 @@ public class TransportManagerGTalkImpl
 
         servers = requestJingleInfo();
 
+        servers.addAll(accID.getStunServers());
+
         for(StunServerDescriptor desc : servers)
         {
             Transport transport;
@@ -472,6 +475,24 @@ public class TransportManagerGTalkImpl
                         Transport.UDP);
                 StunCandidateHarvester harvester =
                     new StunCandidateHarvester(addr);
+
+                if(harvester != null)
+                {
+                    agent.addCandidateHarvester(harvester);
+                }
+            }
+        }
+
+        /* Jingle nodes candidate */
+        if(accID.isJingleNodesRelayEnabled())
+        {
+            SmackServiceNode serviceNode =
+                peer.getProtocolProvider().getJingleNodesServiceNode();
+
+            if(serviceNode != null)
+            {
+                JingleNodesHarvester harvester = new JingleNodesHarvester(
+                        serviceNode);
 
                 if(harvester != null)
                 {

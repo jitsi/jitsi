@@ -327,6 +327,12 @@ public class JabberAccountRegistrationWizard
            && registration.getDefaultUserSufix() != null)
             userName = userName + '@' + registration.getDefaultUserSufix();
 
+        if(registration.getOverridePhoneSuffix() != null)
+        {
+            accountProperties.put("OVERRIDE_PHONE_SUFFIX",
+                registration.getOverridePhoneSuffix());
+        }
+
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             serverName);
 
