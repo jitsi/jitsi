@@ -42,7 +42,7 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_m
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer
  * Method:    paintLightweightComponent
- * Signature: (JLjavax/swing/JComponent;Ljava/awt/Graphics;)Z
+ * Signature: (JLjava/awt/Component;Ljava/awt/Graphics;)Z
  */
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRenderer_paintLightweightComponent
   (JNIEnv *, jclass, jlong, jobject, jobject);

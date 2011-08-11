@@ -149,5 +149,7 @@ Java_net_java_sip_communicator_impl_neomedia_jmfext_media_renderer_video_JAWTRen
 {
 #ifdef __APPLE__
     return JAWTRenderer_sysctlbyname(jniEnv, name);
+#else /* #ifdef __APPLE__ */
+    return NULL;
 #endif /* #ifdef __APPLE__ */
 }
