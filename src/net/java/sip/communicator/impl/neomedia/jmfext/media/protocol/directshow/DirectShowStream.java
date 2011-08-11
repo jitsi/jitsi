@@ -223,15 +223,68 @@ public class DirectShowStream extends AbstractPushBufferStream
     private void runInTransferDataThread()
     {
         boolean transferData = false;
+        FrameRateControl frameRateControl
+            = (FrameRateControl)
+                dataSource.getControl(FrameRateControl.class.getName());
+        long transferDataTimeStamp = -1;
 
-        while(Thread.currentThread().equals(transferDataThread))
+        while (Thread.currentThread().equals(transferDataThread))
         {
-            if(transferData)
+            if (transferData)
             {
                 BufferTransferHandler transferHandler = this.transferHandler;
 
-                if(transferHandler != null)
+                if (transferHandler != null)
+                {
+                    /*
+                     * Respect the frame rate specified through the
+                     * FrameRateControl of the associated DataSource.
+                     */
+                    if (frameRateControl != null)
+                    {
+                        float frameRate;
+                        long newTransferDataTimeStamp
+                            = System.currentTimeMillis();
+
+                        if ((transferDataTimeStamp != -1)
+                                && ((frameRate
+                                            = frameRateControl.getFrameRate())
+                                        > 0))
+                        {
+                            long minimumVideoFrameInterval
+                                = (long) (1000 / frameRate);
+
+                            if (minimumVideoFrameInterval > 0)
+                            {
+                                long t
+                                    = newTransferDataTimeStamp
+                                        - transferDataTimeStamp;
+
+                                if ((t > 0) && (t < minimumVideoFrameInterval))
+                                {
+                                    boolean interrupted = false;
+
+                                    try
+                                    {
+                                        Thread.sleep(
+                                                minimumVideoFrameInterval - t);
+                                    }
+                                    catch (InterruptedException ie)
+                                    {
+                                        interrupted = true;
+                                    }
+                                    if (interrupted)
+                                        Thread.currentThread().interrupt();
+                                    continue;
+                                }
+                            }
+                        }
+
+                        transferDataTimeStamp = newTransferDataTimeStamp;
+                    }
+
                     transferHandler.transferData(this);
+                }
 
                 synchronized (dataSyncRoot)
                 {
@@ -249,13 +302,13 @@ public class DirectShowStream extends AbstractPushBufferStream
 
             synchronized (dataSyncRoot)
             {
-                if(data == null)
+                if (data == null)
                 {
                     data = nextData;
                     dataTimeStamp = nextDataTimeStamp;
                     nextData = null;
                 }
-                if(data == null)
+                if (data == null)
                 {
                     boolean interrupted = false;
 
@@ -298,7 +351,6 @@ public class DirectShowStream extends AbstractPushBufferStream
                         runInTransferDataThread();
                     }
                 };
-
             transferDataThread.start();
         }
     }

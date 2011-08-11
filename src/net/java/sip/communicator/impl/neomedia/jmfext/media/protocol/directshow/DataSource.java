@@ -16,6 +16,7 @@ import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
+import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.directshow.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
@@ -172,6 +173,43 @@ public class DataSource
         {
             this.device = device;
         }
+    }
+
+    /**
+     * Creates a new <tt>FrameRateControl</tt> instance which is to allow the
+     * getting and setting of the frame rate of this
+     * <tt>AbstractVideoPushBufferCaptureDevice</tt>.
+     *
+     * @return a new <tt>FrameRateControl</tt> instance which is to allow the
+     * getting and setting of the frame rate of this
+     * <tt>AbstractVideoPushBufferCaptureDevice</tt>
+     * @see AbstractPushBufferCaptureDevice#createFrameRateControl()
+     */
+    @Override
+    protected FrameRateControl createFrameRateControl()
+    {
+        return
+            new FrameRateControlAdapter()
+            {
+                /**
+                 * The output frame rate of this
+                 * <tt>AbstractVideoPullBufferCaptureDevice</tt>.
+                 */
+                private float frameRate = -1;
+
+                @Override
+                public float getFrameRate()
+                {
+                    return frameRate;
+                }
+
+                @Override
+                public float setFrameRate(float frameRate)
+                {
+                    this.frameRate = frameRate;
+                    return this.frameRate;
+                }
+            };
     }
 
     /**
