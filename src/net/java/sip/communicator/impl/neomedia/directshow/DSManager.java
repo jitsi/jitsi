@@ -38,8 +38,8 @@ public class DSManager
     }
 
     /**
-     * Empty array of <tt>DSCaptureDevice</tt>s. Explicitely defined
-     * in order to avoid unnecessary allocations.
+     * Empty array of <tt>DSCaptureDevice</tt>s. Explicitly defined in order to
+     * avoid unnecessary allocations.
      */
     private static DSCaptureDevice[] EMPTY_DEVICES = new DSCaptureDevice[0];
 

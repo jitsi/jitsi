@@ -10,7 +10,6 @@ import gnu.java.zrtp.*;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.impl.neomedia.transform.zrtp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;

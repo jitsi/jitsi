@@ -175,19 +175,19 @@ public class CallSipImpl
         // create the call peer
         CallPeerSipImpl callPeer
             = createCallPeerFor(inviteTransaction, jainSipProvider);
+        CallPeerMediaHandlerSipImpl mediaHandler = callPeer.getMediaHandler();
 
         /* enable video if it is a videocall */
-        callPeer.getMediaHandler().setLocalVideoTransmissionEnabled(
-                localVideoAllowed);
+        mediaHandler.setLocalVideoTransmissionEnabled(localVideoAllowed);
 
         if(initialQualityPreferences != null)
         {
             // we are in situation where we init the call and we cannot
             // determine whether the other party supports changing quality
             // so we force it
-            callPeer.getMediaHandler().setSupportQualityControls(true);
-            callPeer.getMediaHandler().getQualityControl()
-                    .setRemoteSendMaxPreset(initialQualityPreferences);
+            mediaHandler.setSupportQualityControls(true);
+            mediaHandler.getQualityControl().setRemoteSendMaxPreset(
+                    initialQualityPreferences);
         }
 
         try

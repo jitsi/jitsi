@@ -36,9 +36,7 @@ public class DSCaptureDevice
     {
         /* do not allow 0 pointer value */
         if(ptr == 0)
-        {
             throw new IllegalArgumentException("invalid ptr value (0)");
-        }
 
         this.ptr = ptr;
     }
