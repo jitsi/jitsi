@@ -299,10 +299,15 @@ public class OperationSetBasicTelephonyJabberImpl
                         continue;
                     }
 
+                    boolean alwaysCallGtalk =
+                        getProtocolProvider().getAccountID().
+                            getAccountPropertyBoolean(
+                                "BYPASS_GTALK_CAPABILITIES", false);
+
                     /* see if peer supports Google Talk voice */
                     if(getProtocolProvider().isExtFeatureListSupported(
                             calleeURI, ProtocolProviderServiceJabberImpl.
-                                CAPS_GTALK_WEB_VOICE))
+                                CAPS_GTALK_WEB_VOICE) || alwaysCallGtalk)
                     {
                         if(priority > bestPriorityGTalk)
                         {

@@ -26,7 +26,7 @@ public class JabberAccountRegistration
     /**
      * The default value of the priority property.
      */
-    public static final String DEFAULT_PRIORITY = "10";
+    public static final String DEFAULT_PRIORITY = "30";
 
     /**
      * The default value of the resource property.
@@ -76,6 +76,14 @@ public class JabberAccountRegistration
      * domain.org), you can use this property to set the switch domain.
      */
     private String overridePhoneSuffix = null;
+
+    /**
+     * Always call with gtalk property.
+     *
+     * It is used to bypass capabilities checks: some softwares do not advertise
+     * GTalk support (but they support it).
+     */
+    private boolean bypassGtalkCaps = false;
 
     /**
      * The port.
@@ -231,6 +239,16 @@ public class JabberAccountRegistration
     }
 
     /**
+     * Returns the alwaysCallWithGtalk value.
+     *
+     * @return the alwaysCallWithGtalk value
+     */
+    public boolean getBypassGtalkCaps()
+    {
+        return bypassGtalkCaps;
+    }
+
+    /**
      * The address of the server we will use for this account
      * @return String
      */
@@ -312,6 +330,16 @@ public class JabberAccountRegistration
     public void setOverridePhoneSufix(String phoneSuffix)
     {
         this.overridePhoneSuffix = phoneSuffix;
+    }
+
+    /**
+     * Sets value for alwaysCallWithGtalk.
+     *
+     * @param bypassGtalkCaps true to enable, false otherwise
+     */
+    public void setBypassGtalkCaps(boolean bypassGtalkCaps)
+    {
+        this.bypassGtalkCaps = bypassGtalkCaps;
     }
 
     /**

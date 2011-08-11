@@ -2137,7 +2137,9 @@ public class ProtocolProviderServiceJabberImpl
                 , false) ||
                 accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
-                    false));
+                    false) ||
+                    accountID.getAccountPropertyBoolean(
+                        "BYPASS_GTALK_CAPABILITIES", false));
     }
 
     UserCredentials getUserCredentials()

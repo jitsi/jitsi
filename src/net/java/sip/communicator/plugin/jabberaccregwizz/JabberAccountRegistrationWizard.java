@@ -333,6 +333,9 @@ public class JabberAccountRegistrationWizard
                 registration.getOverridePhoneSuffix());
         }
 
+        accountProperties.put("BYPASS_GTALK_PROPERTIES",
+            String.valueOf(registration.getBypassGtalkCaps()));
+
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             serverName);
 
@@ -589,6 +592,8 @@ public class JabberAccountRegistrationWizard
      * Returns the first wizard page.
      *
      * @param registration the registration object
+     * @param isCreateAccount indicates if the simple form should be opened as
+     * a create account form or as a login form
      * @return the first wizard page.
      */
     public Object getSimpleForm(JabberAccountRegistration registration,
