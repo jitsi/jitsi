@@ -289,11 +289,15 @@ bool DSCaptureDevice::initDevice(IMoniker* moniker)
     }
 
     /* add source filter to the filter graph */
-    WCHAR* name = wcsdup(m_name);
+    ret = moniker->BindToObject(NULL, NULL, IID_IBaseFilter, (void**)&m_srcFilter);
+    if(ret != S_OK)
+    {
+        return false;
+    }
 
-    ret = m_filterGraph->AddSourceFilterForMoniker(moniker, NULL, name, &m_srcFilter);
+    WCHAR* name = wcsdup(m_name);
+    ret = m_filterGraph->AddFilter(m_srcFilter, name);
     free(name);
- 
     if(ret != S_OK)
     {
         return false;
