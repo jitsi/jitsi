@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -57,6 +58,12 @@ public class JabberActivator
      */
     private static NetworkAddressManagerService
                                         networkAddressManagerService = null;
+
+    /**
+     * A reference to the currently valid {@link CredentialsStorageService}.
+     */
+    private static CredentialsStorageService
+                                        credentialsService = null;
 
     /**
      * The Jabber protocol provider factory.
@@ -294,6 +301,27 @@ public class JabberActivator
                 bundleContext.getService(confReference);
         }
         return networkAddressManagerService;
+    }
+
+    /**
+     * Returns a reference to a CredentialsStorageService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * CredentialsStorageService
+     */
+    public static CredentialsStorageService getCredentialsStorageService()
+    {
+        if(credentialsService == null)
+        {
+            ServiceReference confReference
+                = bundleContext.getServiceReference(
+                    CredentialsStorageService.class.getName());
+            credentialsService = (CredentialsStorageService)
+                bundleContext.getService(confReference);
+        }
+        return credentialsService;
     }
 
     /**

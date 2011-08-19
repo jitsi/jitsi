@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.plugin.jabberaccregwizz.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -70,10 +72,49 @@ public class JabberAccountID
             if (stunServer == null)
                 break;
 
+            String password = this.loadStunPassword(
+                ProtocolProviderFactory.STUN_PREFIX + i);
+
+            if(password != null)
+                stunServer.setPassword(password);
+
             serList.add(stunServer);
         }
 
         return serList;
+    }
+
+    /**
+     * Load password for this STUN descriptor.
+     *
+     * @param namePrefix name prefix
+     * @return password or null if empty
+     */
+    private String loadStunPassword(String namePrefix)
+    {
+        String password = null;
+        String className = ProtocolProviderServiceJabberImpl.class.getName();
+        String packageSourceName = className.substring(0,
+                className.lastIndexOf('.'));
+
+        String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
+                JabberActivator.bundleContext,
+                this, packageSourceName);
+
+        CredentialsStorageService credentialsService =
+            JabberActivator.getCredentialsStorageService();
+
+        try
+        {
+            password = credentialsService.
+                loadPassword(accountPrefix + "." + namePrefix);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+
+        return password;
     }
 
     /**
