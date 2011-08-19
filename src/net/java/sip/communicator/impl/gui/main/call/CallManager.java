@@ -1616,11 +1616,11 @@ public class CallManager
 
             switch (result)
             {
-                case 0:
+                case MessageDialog.OK_RETURN_CODE:
                     return true;
-                case 1:
+                case MessageDialog.CANCEL_RETURN_CODE:
                     return false;
-                case 2:
+                case MessageDialog.OK_DONT_ASK_CODE:
                     GuiActivator.getConfigurationService()
                         .setProperty(desktopSharingWarningProperty, false);
                     return true;
