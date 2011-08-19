@@ -266,7 +266,15 @@ public class CertificateServiceImpl
             private void checkCertTrusted(X509Certificate[] chain,
                 String authType) throws CertificateException
             {
-                if(config.getBoolean(PNAME_ALWAYS_TRUST, false))
+                // check and default configurations for property
+                // if missing default is null - false
+                String defaultAlwaysTrustMode =
+                    CertificateVerificationActivator.getResources()
+                        .getSettingsString(
+                            CertificateService.PNAME_ALWAYS_TRUST);
+
+                if(config.getBoolean(PNAME_ALWAYS_TRUST,
+                            Boolean.parseBoolean(defaultAlwaysTrustMode)))
                     return;
 
                 try
