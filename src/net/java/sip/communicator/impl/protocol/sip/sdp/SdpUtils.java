@@ -77,6 +77,19 @@ public class SdpUtils
     }
 
     /**
+     * Creates an Attribute object with the specified values.
+     *
+     * @param name the name of the attribute
+     * @param value the value of the attribute 
+     *
+     * @return Attribute
+     */
+    public static Attribute createAttribute(String name, String value)
+    {
+        return sdpFactory.createAttribute(name, value);
+    }
+
+    /**
      * Creates an empty instance of a <tt>SessionDescription</tt> with
      * preinitialized  <tt>s</tt>, <tt>v</tt>, <tt>c</tt>, <tt>o</tt> and
      * <tt>t</tt> parameters.
@@ -1544,6 +1557,7 @@ public class SdpUtils
      * @throws IllegalArgumentException if <tt>description</tt> does not
      * contain a known media type.
      */
+    @SuppressWarnings("unchecked") // legacy jain-sdp code
     public static boolean containsAttribute(MediaDescription description,
                                             String attributeName)
         throws  IllegalArgumentException

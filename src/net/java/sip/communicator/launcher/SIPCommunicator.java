@@ -151,7 +151,7 @@ public class SIPCommunicator
      * @param osName the name of the OS according to which the SC_HOME_DIR_*
      *            properties are to be set
      */
-    private static void setScHomeDir(String osName)
+    static void setScHomeDir(String osName)
     {
         /*
          * Though we'll be setting the SC_HOME_DIR_* property values depending

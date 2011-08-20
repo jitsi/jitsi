@@ -104,14 +104,10 @@ public class ProtocolProviderFactorySipImpl
 
         accountProperties.put(USER_ID, userIDStr);
 
-        // serverAddress == null is OK because of registrarless support
-        String serverAddress = accountProperties.get(SERVER_ADDRESS);
-
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, ProtocolNames.SIP);
 
-        AccountID accountID =
-            new SipAccountID(userIDStr, accountProperties, serverAddress);
+        AccountID accountID = createAccountID(userIDStr, accountProperties);
 
         //make sure we haven't seen this account id before.
         if( registeredAccounts.containsKey(accountID) )
@@ -271,6 +267,7 @@ public class ProtocolProviderFactorySipImpl
     @Override
     protected AccountID createAccountID(String userID, Map<String, String> accountProperties)
     {
+        // serverAddress == null is OK because of registrarless support
         String serverAddress = accountProperties.get(SERVER_ADDRESS);
 
         return new SipAccountID(userID, accountProperties, serverAddress);
