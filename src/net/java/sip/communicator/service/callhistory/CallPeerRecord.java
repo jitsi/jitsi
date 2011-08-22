@@ -19,6 +19,11 @@ public class CallPeerRecord
     protected String peerAddress = null;
 
     /**
+     * The display name.
+     */
+    protected String displayName = null;
+
+    /**
      * The start time of the record.
      */
     protected Date startTime = null;
@@ -44,6 +49,7 @@ public class CallPeerRecord
                             Date endTime)
     {
         this.peerAddress = peerAddress;
+        this.displayName = displayName;
         this.startTime = startTime;
         this.endTime = endTime;
     }
@@ -65,6 +71,16 @@ public class CallPeerRecord
     public String getPeerAddress()
     {
         return peerAddress;
+    }
+
+    /**
+     * Returns the display name of the call peer in this record.
+     *
+     * @return the call peer display name
+     */
+    public String getDisplayName()
+    {
+        return displayName;
     }
 
     /**
