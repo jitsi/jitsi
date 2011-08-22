@@ -44,7 +44,8 @@ public class CallHistoryServiceImpl
     private static String[] STRUCTURE_NAMES =
         new String[] { "accountUID", "callStart", "callEnd", "dir",
             "callParticipantIDs", "callParticipantStart",
-            "callParticipantEnd", "callParticipantStates", "callEndReason" };
+            "callParticipantEnd", "callParticipantStates", "callEndReason",
+            "callParticipantNames"};
 
     private static HistoryRecordStructure recordStructure =
         new HistoryRecordStructure(STRUCTURE_NAMES);
@@ -366,6 +367,7 @@ public class CallHistoryServiceImpl
         CallRecordImpl result = new CallRecordImpl();
 
         List<String> callPeerIDs = null;
+        List<String> callPeerNames = null;
         List<String> callPeerStart = null;
         List<String> callPeerEnd = null;
         List<CallPeerState> callPeerStates = null;
@@ -401,6 +403,8 @@ public class CallHistoryServiceImpl
                 callPeerStates = getStates(value);
             else if(propName.equals(STRUCTURE_NAMES[8]))
                 result.setEndReason(Integer.parseInt(value));
+            else if(propName.equals(STRUCTURE_NAMES[9]))
+                callPeerNames = getCSVs(value);
         }
 
         final int callPeerCount = callPeerIDs == null ? 0 : callPeerIDs.size();
@@ -441,7 +445,8 @@ public class CallHistoryServiceImpl
             }
 
             CallPeerRecordImpl cpr =
-                new CallPeerRecordImpl(callPeerIDs.get(i),
+                new CallPeerRecordImpl(
+                    callPeerIDs.get(i),
                     callPeerStartValue,
                     callPeerEndValue);
 
@@ -454,6 +459,9 @@ public class CallHistoryServiceImpl
                         + hr.toString());
 
             result.getPeerRecords().add(cpr);
+
+            if (callPeerNames != null && i < callPeerNames.size())
+                cpr.setDisplayName(callPeerNames.get(i));
         }
 
         return result;
@@ -630,6 +638,7 @@ public class CallHistoryServiceImpl
             HistoryWriter historyWriter = history.getWriter();
 
             StringBuffer callPeerIDs = new StringBuffer();
+            StringBuffer callPeerNames = new StringBuffer();
             StringBuffer callPeerStartTime = new StringBuffer();
             StringBuffer callPeerEndTime = new StringBuffer();
             StringBuffer callPeerStates = new StringBuffer();
@@ -640,12 +649,14 @@ public class CallHistoryServiceImpl
                 if (callPeerIDs.length() > 0)
                 {
                     callPeerIDs.append(DELIM);
+                    callPeerNames.append(DELIM);
                     callPeerStartTime.append(DELIM);
                     callPeerEndTime.append(DELIM);
                     callPeerStates.append(DELIM);
                 }
 
                 callPeerIDs.append(item.getPeerAddress());
+                callPeerNames.append(item.getDisplayName());
                 callPeerStartTime.append(String.valueOf(item
                     .getStartTime().getTime()));
                 callPeerEndTime.append(String.valueOf(item.getEndTime()
@@ -663,7 +674,8 @@ public class CallHistoryServiceImpl
                     callPeerStartTime.toString(),
                     callPeerEndTime.toString(),
                     callPeerStates.toString(),
-                    String.valueOf(callRecord.getEndReason())},
+                    String.valueOf(callRecord.getEndReason()),
+                    callPeerNames.toString()},
                     new Date());    // this date is when the history
                                     // record is written
         }
@@ -933,6 +945,8 @@ public class CallHistoryServiceImpl
             callPeer.getAddress(),
             startDate,
             startDate);
+
+        newRec.setDisplayName(callPeer.getDisplayName());
 
         callRecord.getPeerRecords().add(newRec);
     }

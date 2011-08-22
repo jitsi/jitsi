@@ -51,6 +51,16 @@ public class CallPeerRecordImpl
     }
 
     /**
+     * Sets the display name of the call peer in this record.
+     *
+     * @param displayName the display name to set
+     */
+    public void setDisplayName(String displayName)
+    {
+        this.displayName = displayName;
+    }
+
+    /**
      * Sets the time peer leaves the call
      * @param endTime Date
      */

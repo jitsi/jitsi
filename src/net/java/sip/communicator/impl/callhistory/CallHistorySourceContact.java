@@ -104,7 +104,9 @@ public class CallHistorySourceContact implements SourceContact
 
         while (recordsIter.hasNext())
         {
-            String peerAddress = recordsIter.next().getPeerAddress();
+            CallPeerRecord peerRecord = recordsIter.next();
+
+            String peerAddress = peerRecord.getPeerAddress();
 
             if (peerAddress != null)
             {
@@ -129,20 +131,6 @@ public class CallHistorySourceContact implements SourceContact
                                 OperationSetPresence.class);
 
                     Contact contact = opSetPres.findContactByID(peerAddress);
-
-                    if (contact != null)
-                    {
-                        String contactDisplayName = contact.getDisplayName();
-
-                        if (displayName == null || displayName.length() <= 0)
-                        {
-                            if (callRecord.getPeerRecords().size() > 1)
-                                displayName
-                                    = "Conference " + contactDisplayName;
-                            else
-                                displayName = contactDisplayName;
-                        }
-                    }
 
                     OperationSetContactCapabilities opSetCaps =
                         preferredProvider.getOperationSet(
@@ -199,12 +187,19 @@ public class CallHistorySourceContact implements SourceContact
 
                 contactDetails.add(contactDetail);
 
-                // If no display name was found, set the peer address.
+                // Set the displayName.
+                String name = peerRecord.getDisplayName();
+
+                if (name == null || name.length() <= 0)
+                    name = peerAddress;
+
                 if (displayName == null || displayName.length() <= 0)
                     if (callRecord.getPeerRecords().size() > 1)
-                        displayName = "Conference " + peerAddress;
+                        displayName
+                            = "Conference " + name;
                     else
-                        displayName = peerAddress;
+                        displayName = name;
+
             }
         }
     }

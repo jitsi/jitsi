@@ -185,6 +185,17 @@ public class ContactSipImpl
         {
             return this.entry.getDisplayName().getValue();
         }
+
+        // If we didn't find a display name we return the user name. 
+        SipURI sipURI = (SipURI) sipAddress.getURI();
+        String sipUserName = sipURI.getUser();
+
+        if (sipUserName != null && sipUserName.length() > 0)
+            return sipUserName;
+
+        if(getAddress().startsWith("sip:"))
+            return getAddress().substring(4);
+
         return getAddress();
     }
 

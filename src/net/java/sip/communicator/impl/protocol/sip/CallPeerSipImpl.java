@@ -14,6 +14,7 @@ import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
+import javax.sip.address.URI;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
@@ -189,7 +190,21 @@ public class CallPeerSipImpl
             if (contact != null)
                 displayName = contact.getDisplayName();
             else
-                displayName = getPeerAddress().getURI().toString();
+            {
+                URI peerURI = getPeerAddress().getURI();
+
+                if (peerURI instanceof SipURI)
+                {
+                    String userName = ((SipURI) peerURI).getUser();
+
+                    if (userName != null && userName.length() > 0)
+                        displayName = userName;
+                }
+                else
+                {
+                    displayName = peerURI.toString();
+                }
+            }
         }
 
         if(displayName.startsWith("sip:"))
