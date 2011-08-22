@@ -88,10 +88,10 @@ public class JAWTRenderer
         {
             String hwModel = sysctlbyname("hw.model");
 
-            if ((hwModel != null) && hwModel.startsWith("MacBookPro8"))
-                USE_MACOSX_CALAYERS = false;
-            else
-                USE_MACOSX_CALAYERS = true;
+            USE_MACOSX_CALAYERS
+                = (hwModel == null)
+                    || !(hwModel.startsWith("MacBookPro8")
+                            || hwModel.startsWith("MacBookAir4"));
         }
         else
         {
