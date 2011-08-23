@@ -1715,6 +1715,11 @@ public class ProtocolProviderServiceJabberImpl
         EntityCapsManager capsManager  = discoveryManager.getCapsManager();
         EntityCapsManager.Caps caps = capsManager.getCapsByUser(jid);
 
+        String bypassDomain = accountID.getAccountPropertyString(
+            "TELEPHONY_BYPASS_GTALK_CAPS");
+        String domain = StringUtils.parseServer(jid);
+        boolean domainEquals = domain.equals(bypassDomain);
+
         if(caps != null && caps.ext != null)
         {
             String exts[] = caps.ext.split(" ");
@@ -1722,6 +1727,12 @@ public class ProtocolProviderServiceJabberImpl
 
             for(String extFeature : extFeatures)
             {
+                // in case we have a domain that have to bypass GTalk caps
+                if(extFeature.equals(CAPS_GTALK_WEB_VOICE) && domainEquals)
+                {
+                    return true;
+                }
+
                 found = false;
                 for(String ext : exts)
                 {
@@ -2137,9 +2148,7 @@ public class ProtocolProviderServiceJabberImpl
                 , false) ||
                 accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
-                    false) ||
-                    accountID.getAccountPropertyBoolean(
-                        "BYPASS_GTALK_CAPABILITIES", false));
+                    false));
     }
 
     UserCredentials getUserCredentials()

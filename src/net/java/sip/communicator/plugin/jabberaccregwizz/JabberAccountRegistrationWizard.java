@@ -333,8 +333,14 @@ public class JabberAccountRegistrationWizard
                 registration.getOverridePhoneSuffix());
         }
 
-        accountProperties.put("BYPASS_GTALK_PROPERTIES",
+        accountProperties.put("BYPASS_GTALK_CAPABILITIES",
             String.valueOf(registration.getBypassGtalkCaps()));
+
+        if(registration.getTelephonyDomainBypassCaps() != null)
+        {
+            accountProperties.put("TELEPHONY_BYPASS_GTALK_CAPS",
+                registration.getTelephonyDomainBypassCaps());
+        }
 
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             serverName);

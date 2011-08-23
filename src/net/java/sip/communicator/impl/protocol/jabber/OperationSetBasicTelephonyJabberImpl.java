@@ -281,7 +281,7 @@ public class OperationSetBasicTelephonyJabberImpl
                     protocolProvider.getDiscoveryManager().
                         discoverInfo(calleeURI);
 
-                if (discoverInfo.containsFeature(
+                if (discoverInfo != null && discoverInfo.containsFeature(
                         ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE))
                 {
                     if(priority > bestPriority)
@@ -293,16 +293,19 @@ public class OperationSetBasicTelephonyJabberImpl
                 }
                 else
                 {
+                    AccountID accountID = getProtocolProvider().getAccountID();
+                    String bypassDomain = accountID.getAccountPropertyString(
+                        "TELEPHONY_BYPASS_GTALK_CAPS");
+
+                    boolean alwaysCallGtalk = (bypassDomain != null) &&
+                            bypassDomain.equals(calleeAddress.substring(
+                                calleeAddress.indexOf('@') + 1));
+
                     // test GTALK property
-                    if(!protocolProvider.isGTalkTesting())
+                    if(!protocolProvider.isGTalkTesting() && !alwaysCallGtalk)
                     {
                         continue;
                     }
-
-                    boolean alwaysCallGtalk =
-                        getProtocolProvider().getAccountID().
-                            getAccountPropertyBoolean(
-                                "BYPASS_GTALK_CAPABILITIES", false);
 
                     /* see if peer supports Google Talk voice */
                     if(getProtocolProvider().isExtFeatureListSupported(
@@ -731,10 +734,12 @@ public class OperationSetBasicTelephonyJabberImpl
             return;
 
         // test GTALK property
+        /*
         if(!protocolProvider.isGTalkTesting() && (packet instanceof SessionIQ))
         {
             return;
         }
+        */
 
         if(packet instanceof JingleIQ)
         {

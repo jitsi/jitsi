@@ -29,6 +29,8 @@ public class JabberAccountRegistrationForm
 
     private final IceConfigPanel iceConfigPanel;
 
+    private final TelephonyConfigPanel telephonyConfigPanel;
+
     private boolean isModification;
 
     private final JabberAccountRegistrationWizard wizard;
@@ -56,6 +58,8 @@ public class JabberAccountRegistrationForm
         connectionPanel = new ConnectionPanel(this);
 
         iceConfigPanel = new IceConfigPanel();
+
+        telephonyConfigPanel = new TelephonyConfigPanel();
     }
 
     /**
@@ -86,6 +90,10 @@ public class JabberAccountRegistrationForm
             if (iceConfigPanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString("service.gui.ICE"),
                                     iceConfigPanel);
+
+            if (telephonyConfigPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(Resources.getString("service.gui.TELEPHONY"),
+                                    telephonyConfigPanel);
 
             if (tabbedPane.getParent() != this)
                 this.add(tabbedPane, BorderLayout.NORTH);
@@ -308,6 +316,10 @@ public class JabberAccountRegistrationForm
 
         registration.setUseUPNP(iceConfigPanel.isUseUPNP());
 
+        registration.setTelephonyDomainBypassCaps(
+            telephonyConfigPanel.getTelephonyDomainBypassCaps());
+        registration.setOverridePhoneSufix(
+            telephonyConfigPanel.getTelephonyDomain());
         return true;
     }
 
@@ -486,6 +498,13 @@ public class JabberAccountRegistrationForm
             accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
                     false));
+
+        String telephonyDomain = accountProperties.get("OVERRIDE_PHONE_SUFFIX");
+        telephonyConfigPanel.setTelephonyDomain(telephonyDomain);
+
+        String bypassCapsDomain = accountProperties.get(
+            "TELEPHONY_BYPASS_GTALK_CAPS");
+        telephonyConfigPanel.setTelephonyDomainBypassCaps(bypassCapsDomain);
     }
 
     /**

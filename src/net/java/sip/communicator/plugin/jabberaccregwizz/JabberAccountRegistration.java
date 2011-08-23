@@ -86,6 +86,11 @@ public class JabberAccountRegistration
     private boolean bypassGtalkCaps = false;
 
     /**
+     * Domain name that will bypass GTalk caps.
+     */
+    private String domainBypassCaps = null;
+
+    /**
      * The port.
      */
     private int port = new Integer(DEFAULT_PORT).intValue();
@@ -249,6 +254,16 @@ public class JabberAccountRegistration
     }
 
     /**
+     * Returns telephony domain that bypass GTalk caps.
+     *
+     * @return telephony domain
+     */
+    public String getTelephonyDomainBypassCaps()
+    {
+        return domainBypassCaps;
+    }
+
+    /**
      * The address of the server we will use for this account
      * @return String
      */
@@ -340,6 +355,16 @@ public class JabberAccountRegistration
     public void setBypassGtalkCaps(boolean bypassGtalkCaps)
     {
         this.bypassGtalkCaps = bypassGtalkCaps;
+    }
+
+    /**
+     * Sets telephony domain that bypass GTalk caps.
+     *
+     * @param text telephony domain to set
+     */
+    public void setTelephonyDomainBypassCaps(String text)
+    {
+        this.domainBypassCaps = text;
     }
 
     /**
