@@ -9,8 +9,12 @@ package net.java.sip.communicator.impl.netaddr;
 import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
+
 import net.java.sip.communicator.service.netaddr.event.*;
+import net.java.sip.communicator.service.sysactivity.*;
+import net.java.sip.communicator.service.sysactivity.event.*;
 import net.java.sip.communicator.util.*;
+import org.osgi.framework.*;
 
 /**
  * Periodically checks the current network interfaces to track changes
@@ -19,7 +23,8 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  */
 public class NetworkConfigurationWatcher
-    implements Runnable
+    implements SystemActivityChangeListener,
+               ServiceListener
 {
     /**
      * Our class logger.
@@ -28,20 +33,30 @@ public class NetworkConfigurationWatcher
         Logger.getLogger(NetworkConfigurationWatcher.class);
 
     /**
-     * Interval between check of network configuration.
-     */
-    private static final int CHECK_INTERVAL = 3000; // 3 sec.
-
-    /**
      * Listers for network configuration changes.
      */
     private final List<NetworkConfigurationChangeListener> listeners =
         new ArrayList<NetworkConfigurationChangeListener>();
 
     /**
-     * Whether current thread is running.
+     * The current active interfaces.
      */
-    private boolean isRunning = false;
+    private List<NetworkInterface> activeInterfaces
+            = new ArrayList<NetworkInterface>();
+
+    /**
+     * Service we use to listen for network changes.
+     */
+    private SystemActivityNotificationsService
+            systemActivityNotificationsService = null;
+
+    /**
+     * Inits configuration watcher.
+     */
+    NetworkConfigurationWatcher()
+    {
+        checkNetworkInterfaces(false);
+    }
 
     /**
      * Adds new <tt>NetworkConfigurationChangeListener</tt> which will
@@ -56,15 +71,14 @@ public class NetworkConfigurationWatcher
             listeners.add(listener);
         }
 
-        if(!isRunning)
-        {
-            isRunning = true;
-            Thread th = new Thread(this);
-            // set to max priority to prevent detecting sleep if the cpu is
-            // overloaded
-            th.setPriority(Thread.MAX_PRIORITY);
-            th.start();
-        }
+        NetaddrActivator.getBundleContext().addServiceListener(this);
+
+        this.systemActivityNotificationsService
+            = ServiceUtils.getService(
+                    NetaddrActivator.getBundleContext(),
+                    SystemActivityNotificationsService.class);
+        this.systemActivityNotificationsService
+            .addSystemActivityChangeListener(this);
     }
 
     /**
@@ -81,147 +95,44 @@ public class NetworkConfigurationWatcher
     }
 
     /**
-     * Main loop of this thread.
+     * When new protocol provider is registered we add needed listeners.
+     *
+     * @param serviceEvent ServiceEvent
      */
-    public void run()
+    public void serviceChanged(ServiceEvent serviceEvent)
     {
-        long last = 0;
-        boolean isAfterStandby = false;
+        ServiceReference serviceRef = serviceEvent.getServiceReference();
 
-        List<NetworkInterface> activeInterfaces =
-            new ArrayList<NetworkInterface>();
-
-        while(isRunning)
+        // if the event is caused by a bundle being stopped, we don't want to
+        // know we are shutting down
+        if (serviceRef.getBundle().getState() == Bundle.STOPPING)
         {
-            long curr = System.currentTimeMillis();
+            return;
+        }
 
-            // if time spent between checks is more than 4 times
-            // longer than the check interval we consider it as a
-            // new check after standby
-            if(!isAfterStandby && last != 0)
-                isAfterStandby = (last + 4*CHECK_INTERVAL - curr) < 0;
+        Object sService = NetaddrActivator.getBundleContext()
+                .getService(serviceRef);
 
-            if(isAfterStandby)
+        if(sService instanceof SystemActivityNotificationsService)
+        {
+            switch (serviceEvent.getType())
             {
-                // oo standby lets fire down to all interfaces
-                // so they can reconnect
-                Iterator<NetworkInterface> iter = activeInterfaces.iterator();
-                while (iter.hasNext())
-                {
-                    NetworkInterface niface = iter.next();
-                    fireChangeEvent(new ChangeEvent(niface,
-                            ChangeEvent.IFACE_DOWN, isAfterStandby));
-                }
-                activeInterfaces.clear();
+                case ServiceEvent.REGISTERED:
+                    if(this.systemActivityNotificationsService != null)
+                        break;
 
-                // we have fired events for standby, make it to false now
-                // so we can calculate it again next time
-                isAfterStandby = false;
-
-                last = curr;
-
-                // give time to interfaces
-                synchronized(this)
-                {
-                    try{
-                        wait(CHECK_INTERVAL);
-                    }
-                    catch (Exception e){}
-                }
-
-                continue;
+                    this.systemActivityNotificationsService =
+                        (SystemActivityNotificationsService)sService;
+                    systemActivityNotificationsService
+                        .addSystemActivityChangeListener(this);
+                    break;
+                case ServiceEvent.UNREGISTERING:
+                    ((SystemActivityNotificationsService)sService)
+                        .addSystemActivityChangeListener(this);
+                    break;
             }
 
-            try
-            {
-                Enumeration<NetworkInterface> e =
-                    NetworkInterface.getNetworkInterfaces();
-
-                boolean networkIsUP = activeInterfaces.size() > 0;
-
-                List<NetworkInterface> currentActiveInterfaces =
-                    new ArrayList<NetworkInterface>();
-
-                while (e.hasMoreElements())
-                {
-                    NetworkInterface networkInterface = e.nextElement();
-
-                    if(isInterfaceLoopback(networkInterface))
-                        continue;
-
-                    // if interface is up and has some valid(non-local) address
-                    if(isInterfaceUp(networkInterface) 
-                        && hasValidAddress(networkInterface))
-                    {
-                        currentActiveInterfaces.add(networkInterface);
-                    }
-                }
-
-                List<NetworkInterface> inactiveActiveInterfaces =
-                    new ArrayList<NetworkInterface>(activeInterfaces);
-                inactiveActiveInterfaces.removeAll(currentActiveInterfaces);
-
-                // fire that interface has gone down
-                for (int i = 0; i < inactiveActiveInterfaces.size(); i++)
-                {
-                    NetworkInterface iface = inactiveActiveInterfaces.get(i);
-
-                    if(!containsInterfaceWithName(
-                        currentActiveInterfaces, iface.getName()))
-                    {
-                        fireChangeEvent(new ChangeEvent(iface,
-                            ChangeEvent.IFACE_DOWN, isAfterStandby));
-                        
-                        activeInterfaces.remove(iface);
-                    }
-                }
-
-                // now we leave with only with the new and up interfaces
-                // in currentActiveInterfaces list
-                currentActiveInterfaces.removeAll(activeInterfaces);
-
-                // calm for a while, we sometimes receive those events and
-                // configuration has not yet finished (dns can be the old one)
-                if(currentActiveInterfaces.size() != 0)
-                {
-                    synchronized(this)
-                    {
-                        try{
-                            wait(1000);
-                        }catch(InterruptedException ex){}
-                    }
-                }
-
-                // fire that interface has gone up
-                for (int i = 0; i < currentActiveInterfaces.size(); i++)
-                {
-                    NetworkInterface iface = currentActiveInterfaces.get(i);
-
-                    fireChangeEvent(new ChangeEvent(iface,
-                        ChangeEvent.IFACE_UP, isAfterStandby));
-                    activeInterfaces.add(iface);
-                }
-
-                // fire that network has gone up
-                if(!networkIsUP && activeInterfaces.size() > 0)
-                {
-                    isAfterStandby = false;
-                }
-
-                // save the last time that we checked
-                last = System.currentTimeMillis();
-            } catch (SocketException e)
-            {
-                logger.error("Error checking network interfaces", e);
-            }
-
-            synchronized(this)
-            {
-                try{
-                    wait(CHECK_INTERVAL);
-                }
-                catch (Exception e){}
-            }
+            return;
         }
     }
 
@@ -251,15 +162,10 @@ public class NetworkConfigurationWatcher
 
 
     /**
-     * Stop current running thread.
+     * Stop.
      */
     void stop()
     {
-        synchronized(this)
-        {
-            isRunning = false;
-            notifyAll();
-        }
     }
 
     /**
@@ -360,5 +266,91 @@ public class NetworkConfigurationWatcher
         }
 
         return true;
+    }
+
+    public void activityChanged(SystemActivityEvent event)
+    {
+        if(event.getEventID() == SystemActivityEvent.EVENT_SLEEP)
+        {
+            // oo standby lets fire down to all interfaces
+            // so they can reconnect
+            Iterator<NetworkInterface> iter = activeInterfaces.iterator();
+            while (iter.hasNext())
+            {
+                NetworkInterface niface = iter.next();
+                fireChangeEvent(new ChangeEvent(niface,
+                        ChangeEvent.IFACE_DOWN, true));
+            }
+            activeInterfaces.clear();
+        }
+        else if(event.getEventID() == SystemActivityEvent.EVENT_NETWORK_CHANGE)
+        {
+            checkNetworkInterfaces(true);
+        }
+    }
+
+    private void checkNetworkInterfaces(boolean fireEvents)
+    {
+        try
+        {
+            Enumeration<NetworkInterface> e =
+                NetworkInterface.getNetworkInterfaces();
+
+            List<NetworkInterface> currentActiveInterfaces =
+                new ArrayList<NetworkInterface>();
+
+            while (e.hasMoreElements())
+            {
+                NetworkInterface networkInterface = e.nextElement();
+
+                if(isInterfaceLoopback(networkInterface))
+                    continue;
+
+                // if interface is up and has some valid(non-local) address
+                if(isInterfaceUp(networkInterface)
+                    && hasValidAddress(networkInterface))
+                {
+                    currentActiveInterfaces.add(networkInterface);
+                }
+            }
+
+            List<NetworkInterface> inactiveActiveInterfaces =
+                new ArrayList<NetworkInterface>(activeInterfaces);
+            inactiveActiveInterfaces.removeAll(currentActiveInterfaces);
+
+            // fire that interface has gone down
+            for (int i = 0; i < inactiveActiveInterfaces.size(); i++)
+            {
+                NetworkInterface iface = inactiveActiveInterfaces.get(i);
+
+                if(!containsInterfaceWithName(
+                    currentActiveInterfaces, iface.getName()))
+                {
+                    if(fireEvents)
+                        fireChangeEvent(new ChangeEvent(iface,
+                            ChangeEvent.IFACE_DOWN, false));
+
+                    activeInterfaces.remove(iface);
+                }
+            }
+
+            // now we leave with only with the new and up interfaces
+            // in currentActiveInterfaces list
+            currentActiveInterfaces.removeAll(activeInterfaces);
+
+            // fire that interface has gone up
+            for (int i = 0; i < currentActiveInterfaces.size(); i++)
+            {
+                NetworkInterface iface = currentActiveInterfaces.get(i);
+
+                if(fireEvents)
+                    fireChangeEvent(new ChangeEvent(iface,
+                        ChangeEvent.IFACE_UP, false));
+                activeInterfaces.add(iface);
+            }
+        } catch (SocketException e)
+        {
+            logger.error("Error checking network interfaces", e);
+        }
     }
 }

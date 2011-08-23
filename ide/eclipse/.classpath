@@ -75,5 +75,8 @@
     <classpathentry kind="lib" path="lib/installer-exclude/gdata-contacts-3.0.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/gdata-contacts-meta-3.0.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/gdata-core-1.0.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/libdbus-java-2.7.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/hexdump-0.2.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/unix-0.5.jar"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

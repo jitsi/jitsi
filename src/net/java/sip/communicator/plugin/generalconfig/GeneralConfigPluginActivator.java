@@ -50,7 +50,7 @@ public class GeneralConfigPluginActivator
     /**
      * The bundle context.
      */
-    protected static BundleContext bundleContext;
+    public static BundleContext bundleContext;
 
     /**
      * The user interface service.
@@ -58,14 +58,9 @@ public class GeneralConfigPluginActivator
     private static UIService uiService;
 
     /**
-     * The auto away thread.
-     */
-    private static Thread autoAwayThread = null;
-
-    /**
      * The status update thread.
      */
-    private static StatusUpdateThread runner = null;
+    private static AutoAwayWatcher runner = null;
 
     /**
      * The indicator which determines whether {@link #startThread()} has been
@@ -264,27 +259,8 @@ public class GeneralConfigPluginActivator
      */
     private static void startThread()
     {
-        /*
-         * FIXME Even if auto away is disabled at this point, it doesn't mean
-         * that it will not get enabled later on so this method likely has to
-         * also be called when the configuration property gets changed.
-         */
-        if (!getConfigurationService().getBoolean(Preferences.ENABLE, false))
-            return;
-
         if (runner == null)
-            runner = new StatusUpdateThread();
-        if ((autoAwayThread == null) || !runner.isRunning())
-        {
-            autoAwayThread = new Thread(runner);
-            autoAwayThread.setName(GeneralConfigPluginActivator.class.getName());
-            autoAwayThread.setPriority(Thread.MIN_PRIORITY);
-            autoAwayThread.setDaemon(true);
-            autoAwayThread.start();
-        } else
-        {
-            autoAwayThread.interrupt();
-        }
+            runner = new AutoAwayWatcher(getConfigurationService());
     }
 
     /**
@@ -296,11 +272,6 @@ public class GeneralConfigPluginActivator
         {
             runner.stop();
             runner = null;
-        }
-        if (autoAwayThread != null)
-        {
-            autoAwayThread.interrupt();
-            autoAwayThread = null;
         }
     }
 

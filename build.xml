@@ -908,6 +908,7 @@
         bundle-version,bundle-version-impl,bundle-shutdown-timeout,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
+        bundle-systemactivitynotifications,
         bundle-osdependent,bundle-browserlauncher,
         bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,
         bundle-pluginmanager,bundle-skinmanager,bundle-notification,
@@ -2687,4 +2688,17 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/dnsconfig" />
         </jar>
     </target>
+    <target name="bundle-systemactivitynotifications">
+        <jar compress="false" destfile="${bundles.dest}/sysactivitynotifications.jar"
+            manifest="${src}/net/java/sip/communicator/impl/sysactivity/sysactivity.impl.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/sysactivity"
+                prefix="net/java/sip/communicator/impl/sysactivity" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/sysactivity"
+                prefix="net/java/sip/communicator/service/sysactivity"/>
+            <zipfileset src="${lib.noinst}/libdbus-java-2.7.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/unix-0.5.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/hexdump-0.2.jar" prefix=""/>
+        </jar>
+    </target>
+
 </project>

@@ -140,7 +140,7 @@ public class StatusUpdateThread
      * @param presence
      * @return
      */
-    private PresenceStatus findAwayStatus(OperationSetPresence presence)
+    static PresenceStatus findAwayStatus(OperationSetPresence presence)
     {
         Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
         PresenceStatus status = null;
@@ -166,7 +166,7 @@ public class StatusUpdateThread
         return status;
     }
 
-    private int getTimer()
+    static int getTimer()
     {
         ConfigurationService configService
             = GeneralConfigPluginActivator.getConfigurationService();

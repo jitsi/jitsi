@@ -147,4 +147,15 @@ public class NetaddrActivator
         if (logger.isInfoEnabled())
             logger.info("Network Address Manager Service ...[STOPPED]");
     }
+
+    /**
+     * Returns a reference to the bundle context that we were started with.
+     *
+     * @return a reference to the BundleContext instance that we were started
+     * with.
+     */
+    static BundleContext getBundleContext()
+    {
+        return bundleContext;
+    }
 }

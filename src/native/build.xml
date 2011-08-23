@@ -801,6 +801,100 @@
     <delete file="${native_install_dir}/history.xml" failonerror="false" />
   </target>
 
+    <target name="sysactivity" description="Build sysactivity"
+            depends="init-native">
+
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/sysactivitynotifications"
+        objdir="${obj}">
+        <!-- common compiler flags -->
+        <compilerarg value="-Wall" />
+        <compilerarg value="-Wextra" />
+
+        <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+        <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+
+        <!-- Mac OS X specific flags -->
+        <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+        <compilerarg value="-O2" if="is.running.macos"/>
+        <compilerarg value="-arch" if="is.running.macos"/>
+        <compilerarg value="x86_64" if="is.running.macos"/>
+        <compilerarg value="-arch" if="is.running.macos"/>
+        <compilerarg value="i386" if="is.running.macos"/>
+        <compilerarg value="-arch" if="is.running.macos"/>
+        <compilerarg value="ppc" if="is.running.macos"/>
+        <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+                   if="is.running.macos"/>
+
+        <linkerarg value="-o" location="end" if="is.running.macos"/>
+        <linkerarg value="libsysactivitynotifications.jnilib" location="end"
+                   if="is.running.macos"/>
+        <linkerarg value="-arch" if="is.running.macos"/>
+        <linkerarg value="x86_64" if="is.running.macos"/>
+        <linkerarg value="-arch" if="is.running.macos"/>
+        <linkerarg value="i386" if="is.running.macos"/>
+        <linkerarg value="-arch" if="is.running.macos"/>
+        <linkerarg value="ppc" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos"/>
+        <linkerarg value="AppKit" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos"/>
+        <linkerarg value="Carbon" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos"/>
+        <linkerarg value="SystemConfiguration" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos" />
+        <linkerarg value="IOKit" if="is.running.macos" />
+
+        <fileset dir="${src}/native/sysactivity"
+                 includes="*.m" if="is.running.macos"/>
+
+        <!-- Linux specific flags -->
+        <fileset dir="${src}/native/sysactivity" includes="*.c" if="is.running.linux" />
+
+        <compilerarg value="-I/usr/include/gtk-2.0" if="is.running.linux" />
+        <compilerarg value="-I/usr/include/glib-2.0/" if="is.running.linux" />
+        <compilerarg value="-I/usr/include/cairo/" if="is.running.linux" />
+        <compilerarg value="-I/usr/include/pango-1.0/" if="is.running.linux" />
+        <compilerarg value="-I/usr/include/gdk-pixbuf-2.0/" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/glib-2.0/include/" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/gtk-2.0/include/" if="is.running.linux" />
+
+        <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+        <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+        <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+
+        <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+        <linkerarg value="-lgdk-x11-2.0" if="is.running.linux" />
+        <linkerarg value="-lXss" if="is.running.linux" />
+    </cc>
+  </target>
+    <!-- compile sysactivity library for Windows
+    "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /x86 /xp /Release
+    -->
+    <target name="sysactivity-windows"
+            description="Build sysactivity shared library for Windows"
+            if="is.running.windows"
+            depends="init-native">
+        <cc outtype="shared" name="msvc"
+            outfile="${native_install_dir}/sysactivitynotifications"
+            objdir="${obj}">
+            <compilerarg value="/O2" />
+            <compilerarg value="/GS" if="cross_64" />
+            <compilerarg value="/MT" location="end" />
+            <compilerarg value="-I${system.JAVA_HOME}/include" />
+            <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+
+            <linkerarg value="/LIBPATH:${system.JAVA_HOME}\\lib" />
+            <linkerarg value="iphlpapi.lib" location="end" />
+            <linkerarg value="user32.lib" location="end" />
+            <linkerarg value="jawt.lib" location="end" />
+
+            <fileset dir="${src}/native/sysactivity" includes="*.cpp" />
+        </cc>
+    </target>
+
   <!-- Cleanup object file and shared libraries -->
   <target name="clean-native" description="Clean all object file and libraries.">
     <delete failonerror="false" includeemptydirs="true">

@@ -118,7 +118,7 @@ public class ReconnectPluginActivator
     /**
      * The end of the interval for the initial reconnect.
      */
-    private static final int RECONNECT_DELAY_MAX = 30; // sec
+    private static final int RECONNECT_DELAY_MAX = 15; // sec
 
     /**
      * Max value for growing the reconnect delay, all subsequent reconnects
