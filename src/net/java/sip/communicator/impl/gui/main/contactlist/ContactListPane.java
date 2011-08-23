@@ -272,6 +272,7 @@ public class ContactListPane
             }
 
             chatPanel.addMessage(
+                protocolContact.getAddress(),
                 protocolContact.getDisplayName(),
                 evt.getTimestamp(),
                 messageType,
@@ -342,7 +343,8 @@ public class ContactListPane
                 + " MESSAGE: " + msg.getContent());
 
             chatPanel.addMessage(
-                this.mainFrame.getAccount(protocolProvider),
+                this.mainFrame.getAccountAddress(protocolProvider),
+                this.mainFrame.getAccountDisplayName(protocolProvider),
                 evt.getTimestamp(),
                 Chat.OUTGOING_MESSAGE,
                 msg.getContent(),
@@ -408,6 +410,7 @@ public class ContactListPane
             = chatWindowManager.getContactChat(metaContact, sourceContact);
 
         chatPanel.addMessage(
+                sourceContact.getAddress(),
                 metaContact.getDisplayName(),
                 System.currentTimeMillis(),
                 Chat.OUTGOING_MESSAGE,

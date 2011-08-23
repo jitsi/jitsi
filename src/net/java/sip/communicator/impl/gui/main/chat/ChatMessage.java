@@ -20,6 +20,11 @@ public class ChatMessage
     private final String contactName;
 
     /**
+     * The display name of the contact sending the message.
+     */
+    private String contactDisplayName;
+
+    /**
      * The date and time of the message.
      */
     private final long date;
@@ -60,17 +65,14 @@ public class ChatMessage
                         String message,
                         String contentType)
     {
-        this.contactName = contactName;
-        this.date = date;
-        this.messageType = messageType;
-        this.message = message;
-        this.contentType = contentType;
+        this(contactName, null, date, messageType, null, message, contentType);
     }
 
     /**
      * Creates a <tt>ChatMessage</tt> by specifying all parameters of the
      * message.
      * @param contactName the name of the contact
+     * @param contactDisplayName the contact display name
      * @param date the date and time
      * @param messageType the type (INCOMING or OUTGOING)
      * @param message the content
@@ -83,7 +85,51 @@ public class ChatMessage
                         String message,
                         String contentType)
     {
+        this(contactName, null, date, messageType,
+            messageTitle, message, contentType);
+    }
+
+    /**
+     * Creates a <tt>ChatMessage</tt> by specifying all parameters of the
+     * message.
+     * @param contactName the name of the contact
+     * @param contactDisplayName the contact display name
+     * @param date the date and time
+     * @param messageType the type (INCOMING or OUTGOING)
+     * @param message the content
+     * @param contentType the content type (e.g. "text", "text/html", etc.)
+     */
+    public ChatMessage( String contactName,
+                        String contactDisplayName,
+                        long date,
+                        String messageType,
+                        String message,
+                        String contentType)
+    {
+        this(contactName, contactDisplayName, date, messageType,
+            null, message, contentType);
+    }
+
+    /**
+     * Creates a <tt>ChatMessage</tt> by specifying all parameters of the
+     * message.
+     * @param contactName the name of the contact
+     * @param contactDisplayName the contact display name
+     * @param date the date and time
+     * @param messageType the type (INCOMING or OUTGOING)
+     * @param message the content
+     * @param contentType the content type (e.g. "text", "text/html", etc.)
+     */
+    public ChatMessage( String contactName,
+                        String contactDisplayName,
+                        long date,
+                        String messageType,
+                        String messageTitle,
+                        String message,
+                        String contentType)
+    {
         this.contactName = contactName;
+        this.contactDisplayName = contactDisplayName;
         this.date = date;
         this.messageType = messageType;
         this.messageTitle = messageTitle;
@@ -99,6 +145,16 @@ public class ChatMessage
     public String getContactName()
     {
         return contactName;
+    }
+
+    /**
+     * Returns the display name of the contact sending the message.
+     *
+     * @return the display name of the contact sending the message
+     */
+    public String getContactDisplayName()
+    {
+        return contactDisplayName;
     }
 
     /**

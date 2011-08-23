@@ -866,9 +866,27 @@ public class MainFrame
      * account to add
      * @return The account user id for the given protocol provider.
      */
-    public String getAccount(ProtocolProviderService protocolProvider)
+    public String getAccountAddress(ProtocolProviderService protocolProvider)
     {
-        return protocolProvider.getAccountID().getUserID();
+        return protocolProvider.getAccountID().getAccountAddress();
+    }
+
+    /**
+     * Returns the account user display name for the given protocol provider.
+     * @param protocolProvider the protocol provider corresponding to the
+     * account to add
+     * @return The account user display name for the given protocol provider.
+     */
+    public String getAccountDisplayName(ProtocolProviderService protocolProvider)
+    {
+        final OperationSetServerStoredAccountInfo accountInfoOpSet
+            = protocolProvider.getOperationSet(
+                    OperationSetServerStoredAccountInfo.class);
+
+        if (accountInfoOpSet != null)
+            return AccountInfoUtils.getDisplayName(accountInfoOpSet);
+
+        return protocolProvider.getAccountID().getDisplayName();
     }
 
     /**

@@ -574,7 +574,9 @@ public class ChatPanel
 
                 historyString = processHistoryMessage(
                             GuiActivator.getUIService().getMainFrame()
-                                .getAccount(protocolProvider),
+                                .getAccountAddress(protocolProvider),
+                            GuiActivator.getUIService().getMainFrame()
+                                .getAccountDisplayName(protocolProvider),
                             evt.getTimestamp(),
                             messageType,
                             evt.getSourceMessage().getContent(),
@@ -596,6 +598,7 @@ public class ChatPanel
                         messageType = Chat.HISTORY_INCOMING_MESSAGE;
 
                     historyString = processHistoryMessage(
+                                evt.getSourceContact().getAddress(),
                                 evt.getSourceContact().getDisplayName(),
                                 evt.getTimestamp(),
                                 messageType,
@@ -613,7 +616,9 @@ public class ChatPanel
 
                 historyString = processHistoryMessage(
                             GuiActivator.getUIService().getMainFrame()
-                                .getAccount(protocolProvider),
+                                .getAccountAddress(protocolProvider),
+                            GuiActivator.getUIService().getMainFrame()
+                                .getAccountDisplayName(protocolProvider),
                             evt.getTimestamp(),
                             Chat.HISTORY_OUTGOING_MESSAGE,
                             evt.getMessage().getContent(),
@@ -628,6 +633,7 @@ public class ChatPanel
                         .equals(escapedMessageID))
                 {
                     historyString = processHistoryMessage(
+                            evt.getSourceChatRoomMember().getContactAddress(),
                             evt.getSourceChatRoomMember().getName(),
                             evt.getTimestamp(),
                             Chat.HISTORY_INCOMING_MESSAGE,
@@ -667,8 +673,28 @@ public class ChatPanel
     public void addMessage(String contactName, long date,
             String messageType, String message, String contentType)
     {
-        ChatMessage chatMessage = new ChatMessage(contactName, date,
-            messageType, message, contentType);
+        addMessage(contactName, null, date, messageType, message, contentType);
+    }
+
+    /**
+     * Passes the message to the contained <code>ChatConversationPanel</code>
+     * for processing and appends it at the end of the conversationPanel
+     * document.
+     *
+     * @param contactName the name of the contact sending the message
+     * @param displayName the display name of the contact
+     * @param date the time at which the message is sent or received
+     * @param messageType the type of the message. One of OUTGOING_MESSAGE
+     * or INCOMING_MESSAGE
+     * @param message the message text
+     * @param contentType the content type
+     */
+    public void addMessage(String contactName, String displayName, long date,
+            String messageType, String message, String contentType)
+    {
+        ChatMessage chatMessage
+            = new ChatMessage(contactName, displayName, date,
+                messageType, message, contentType);
 
         this.addChatMessage(chatMessage);
 
@@ -810,13 +836,15 @@ public class ChatPanel
      * @return a string containing the processed message.
      */
     private String processHistoryMessage(String contactName,
+                                        String contactDisplayName,
                                         long date,
                                         String messageType,
                                         String message,
                                         String contentType)
     {
-        ChatMessage chatMessage = new ChatMessage(contactName, date,
-            messageType, message, contentType);
+        ChatMessage chatMessage = new ChatMessage(
+            contactName, contactDisplayName, date,
+                messageType, null, message, contentType);
 
         String processedMessage =
             this.conversationPanel.processMessage(chatMessage);
@@ -874,7 +902,8 @@ public class ChatPanel
     /**
      * Cuts the write area selected content to the clipboard.
      */
-    public void cut(){
+    public void cut()
+    {
         this.writeMessagePanel.getEditorPane().cut();
     }
 
@@ -882,7 +911,8 @@ public class ChatPanel
      * Copies either the selected write area content or the selected
      * conversation panel content to the clipboard.
      */
-    public void copy(){
+    public void copy()
+    {
         JTextComponent textPane = this.conversationPanel.getChatTextPane();
 
         if (textPane.getSelectedText() == null)

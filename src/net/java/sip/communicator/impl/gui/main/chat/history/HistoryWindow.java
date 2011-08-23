@@ -273,7 +273,9 @@ public class HistoryWindow
 
                     chatMessage = new ChatMessage(
                             GuiActivator.getUIService().getMainFrame()
-                            .getAccount(protocolProvider),
+                                .getAccountAddress(protocolProvider),
+                            GuiActivator.getUIService().getMainFrame()
+                                .getAccountDisplayName(protocolProvider),
                             evt.getTimestamp(),
                             Chat.OUTGOING_MESSAGE,
                             evt.getSourceMessage().getContent(),
@@ -284,6 +286,7 @@ public class HistoryWindow
                     MessageReceivedEvent evt = (MessageReceivedEvent) o;
 
                     chatMessage = new ChatMessage(
+                        evt.getSourceContact().getAddress(),
                         evt.getSourceContact().getDisplayName(),
                         evt.getTimestamp(),
                         Chat.INCOMING_MESSAGE,
