@@ -67,8 +67,13 @@ public class NetworkManagerListenerImpl
     /**
      * Starts
      */
+    @SuppressWarnings("unchecked")
     public void start()
     {
+        // on error connecting to dbus do nothing
+        if(dbusConn == null)
+            return;
+
         try
         {
             dbusConn.addSigHandler(DBus.NameOwnerChanged.class, this);
@@ -83,8 +88,13 @@ public class NetworkManagerListenerImpl
     /**
      * Stops.
      */
+    @SuppressWarnings("unchecked")
     public void stop()
     {
+        // on error connecting to dbus do nothing
+        if(dbusConn == null)
+            return;
+
         try
         {
             dbusConn.removeSigHandler(DBus.NameOwnerChanged.class, this);
@@ -98,7 +108,7 @@ public class NetworkManagerListenerImpl
 
     /**
      * Receives signals and dispatch them.
-     * @param dBusSignal
+     * @param dBusSignal signal to handle.
      */
     public void handle(DBusSignal dBusSignal)
     {
