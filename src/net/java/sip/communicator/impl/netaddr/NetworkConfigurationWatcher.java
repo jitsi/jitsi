@@ -293,17 +293,14 @@ public class NetworkConfigurationWatcher
     {
         try
         {
-            // when waking up and there are no interfaces
-            // give time for devices to come up fully
+            // when there is a net change
+            // give time for devices to come up/down fully
             // before checking with them
-            if(activeInterfaces.size() == 0)
+            synchronized(this)
             {
-                synchronized(this)
-                {
-                    try{
-                        wait(1000);
-                    }catch(InterruptedException ex){}
-                }
+                try{
+                    wait(1000);
+                }catch(InterruptedException ex){}
             }
 
             Enumeration<NetworkInterface> e =
