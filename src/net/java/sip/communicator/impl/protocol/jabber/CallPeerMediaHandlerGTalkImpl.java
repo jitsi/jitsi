@@ -250,6 +250,9 @@ public class CallPeerMediaHandlerGTalkImpl
                         description.setNamespace(SessionIQProvider.
                                 GTALK_VIDEO_NAMESPACE);
 
+                        getPeer().getCall().setLocalVideoAllowed(
+                            true, MediaUseCase.CALL);
+
                         ext.setAttribute("width", 320);
                         ext.setAttribute("height", 200);
                         ext.setAttribute("framerate", 30);

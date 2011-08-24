@@ -983,11 +983,8 @@ public class ProtocolProviderServiceJabberImpl
         {
             // Add Google Talk "ext" capabilities
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VOICE);
-            // XXX video does not work yet
-            /*
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VIDEO);
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_CAMERA);
-            */
         }
 
         /*

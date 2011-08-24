@@ -104,8 +104,6 @@ public class OperationSetContactCapabilitiesJabberImpl
                     ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VOICE,
                 });
 
-        /* XXX video does not work yet so don't expose possibility to video call
-         * to users
         CAPS_OPERATION_SETS_TO_FEATURES.put(
                 OperationSetVideoTelephony.class,
                 new String[]
@@ -113,7 +111,6 @@ public class OperationSetContactCapabilitiesJabberImpl
                     ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VOICE,
                     ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VIDEO
                 });
-         */
     }
 
     /**
