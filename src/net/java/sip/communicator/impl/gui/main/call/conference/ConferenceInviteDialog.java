@@ -234,24 +234,9 @@ public class ConferenceInviteDialog
 
             if (!containsContact(metaContact))
             {
-                boolean supportsTelephony = false;
-                Iterator<Contact> contacts = metaContact.getContacts();
-                while (contacts.hasNext())
-                {
-                    Contact contact = contacts.next();
-
-                    if (protocolProvider.getOperationSet(
-                                OperationSetBasicTelephony.class) != null
-                        && hasContactCapabilities(contact,
-                                OperationSetBasicTelephony.class))
-                    {
-                        supportsTelephony = true;
-                        break;
-                    }
-                }
-
-                if(supportsTelephony)
-                    this.addMetaContact(metaContact);
+                if (metaContact.getDefaultContact(
+                    OperationSetBasicTelephony.class) != null)
+                    addMetaContact(metaContact);
             }
         }
     }
