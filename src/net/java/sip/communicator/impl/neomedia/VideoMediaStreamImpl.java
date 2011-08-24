@@ -633,7 +633,8 @@ public class VideoMediaStreamImpl
                     {
                         outputSize = res[1];
 
-                        qualityControl.setRemoteSendMaxPreset(new QualityPreset(res[0]));
+                        qualityControl.setRemoteSendMaxPreset(
+                            new QualityPreset(res[0]));
                         qualityControl.setRemoteReceiveResolution(outputSize);
                         ((VideoMediaDeviceSession)getDeviceSession()).
                             setOutputSize(outputSize);

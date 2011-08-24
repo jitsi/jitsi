@@ -43,6 +43,25 @@ public class DynamicPayloadTypeRegistry
         = new HashMap<MediaFormat, Byte>();
 
     /**
+     * An override mappings of <tt>MediaFormat</tt> instances to the
+     * dynamic payload type numbers.
+     */
+    private Map<Byte, String> overridePayloadTypeMappings = null;
+
+    /**
+     * Payload types mapping from <tt>MediaService</tt>.
+     */
+    private Map<MediaFormat, Byte> mediaMappings = null;
+
+    /**
+     * Sets the override payload type numbers.
+     */
+    public void setOverridePayloadTypeMappings(Map<Byte, String> mappings)
+    {
+        overridePayloadTypeMappings = mappings;
+    }
+
+    /**
      * Returns the dynamic payload type that has been allocated for
      * <tt>format</tt>. A mapping for the specified <tt>format</tt> would be
      * created even if it did not previously exist. The method is meant for use
@@ -111,6 +130,74 @@ public class DynamicPayloadTypeRegistry
     }
 
     /**
+     * Returns the dynamic payload type preferences mappings.
+     *
+     * @return the dynamic payload type preferences mappings.
+     */
+    private Map<MediaFormat, Byte> getDynamicPayloadTypePreferences()
+    {
+        if(mediaMappings == null)
+        {
+            Map<MediaFormat, Byte> mappings = new HashMap<MediaFormat, Byte>(
+                ProtocolMediaActivator.getMediaService()
+                    .getDynamicPayloadTypePreferences());
+
+            if(overridePayloadTypeMappings == null)
+                return mappings;
+
+            // if we have specific payload type preferences from
+            // CallPeerMediaHandler, replace them here
+
+            for(Map.Entry<Byte, String> e :
+                this.overridePayloadTypeMappings.entrySet())
+            {
+                Byte key = e.getKey();
+                String fmt = e.getValue();
+                MediaFormat saveFmt = null;
+                Byte saveKey = null;
+                Byte replaceKey = null;
+                MediaFormat replaceFmt = null;
+
+                for(Map.Entry<MediaFormat, Byte> e2 : mappings.entrySet())
+                {
+                    if(e2.getKey().getEncoding().equals(fmt))
+                    {
+                        saveFmt = e2.getKey();
+                        saveKey = e2.getValue();
+
+                        if(replaceKey != null)
+                            break;
+                    }
+
+                    if(e2.getValue().byteValue() == key.byteValue())
+                    {
+                        replaceFmt = e2.getKey();
+                        replaceKey = key;
+
+                        if(saveKey != null)
+                            break;
+                    }
+                }
+
+                if(saveFmt != null)
+                {
+                    mappings.remove(saveFmt);
+
+                    if(replaceFmt != null)
+                        mappings.remove(replaceFmt);
+
+                    mappings.put(saveFmt, key);
+
+                    if(replaceFmt != null)
+                        mappings.put(replaceFmt, saveKey);
+                }
+            }
+            mediaMappings = mappings;
+        }
+        return mediaMappings;
+    }
+
+    /**
      * Returns the payload type number that <tt>format</tt> would like to use if
      * possible and <tt>null</tt> if there is no such preference.
      *
@@ -122,9 +209,8 @@ public class DynamicPayloadTypeRegistry
      */
     private Byte getPreferredDynamicPayloadType(MediaFormat format)
     {
-        return
-            ProtocolMediaActivator.getMediaService()
-                    .getDynamicPayloadTypePreferences().get(format);
+
+        return getDynamicPayloadTypePreferences().get(format);
     }
 
     /**
@@ -241,8 +327,7 @@ public class DynamicPayloadTypeRegistry
     private MediaFormat findFormatWithPreference(Byte payloadTypePreference)
     {
         for(Map.Entry<MediaFormat, Byte> entry
-                : ProtocolMediaActivator.getMediaService()
-                        .getDynamicPayloadTypePreferences().entrySet())
+                : getDynamicPayloadTypePreferences().entrySet())
         {
             if(entry.getValue() == payloadTypePreference)
                 return entry.getKey();

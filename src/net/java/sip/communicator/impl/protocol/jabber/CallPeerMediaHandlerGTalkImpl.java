@@ -244,6 +244,16 @@ public class CallPeerMediaHandlerGTalkImpl
                     format = JingleUtils.payloadTypeToMediaFormat(
                             ext,
                             getDynamicPayloadTypes());
+
+                    if(mediaType.equals(MediaType.VIDEO))
+                    {
+                        description.setNamespace(SessionIQProvider.
+                                GTALK_VIDEO_NAMESPACE);
+
+                        ext.setAttribute("width", 320);
+                        ext.setAttribute("height", 200);
+                        ext.setAttribute("framerate", 30);
+                    }
                     description.addPayloadType(ext);
 
                     if(format == null)
@@ -280,12 +290,6 @@ public class CallPeerMediaHandlerGTalkImpl
 
             initStream(mediaName, connector, dev, format, target,
                     direction, rtpExtensions);
-
-            if(mediaType == MediaType.VIDEO)
-            {
-                description.setNamespace(
-                        SessionIQProvider.GTALK_VIDEO_NAMESPACE);
-            }
         }
 
         return description;
@@ -671,6 +675,17 @@ public class CallPeerMediaHandlerGTalkImpl
                                      List<RTPExtension>   rtpExtensions)
         throws OperationFailedException
     {
+        if(format instanceof VideoMediaFormat)
+        {
+            Map<String, String> settings = new HashMap<String, String>();
+
+            // GTalk client has problem decoding H.264 stream with intra refresh
+            settings.put("h264.intrarefresh", "false");
+            // GTalk client cannot decode H.264 stream with "Main" profile
+            settings.put("h264.profile", "baseline");
+            format.setAdditionalCodecSettings(settings);
+        }
+
         MediaStream stream
             = super.initStream(
                     connector,
@@ -684,5 +699,27 @@ public class CallPeerMediaHandlerGTalkImpl
             stream.setName(streamName);
 
         return stream;
+    }
+
+    /**
+     * Returns the {@link DynamicPayloadTypeRegistry} instance we are currently
+     * using.
+     *
+     * @return the {@link DynamicPayloadTypeRegistry} instance we are currently
+     * using.
+     */
+    @Override
+    protected DynamicPayloadTypeRegistry getDynamicPayloadTypes()
+    {
+        DynamicPayloadTypeRegistry registry = super.getDynamicPayloadTypes();
+        Map<Byte, String> mappings = new HashMap<Byte, String>();
+
+        // GTalk will send its video content with PT 97 whenever it says
+        // something else in codec negociation
+        mappings.put(Byte.valueOf((byte)97), new String("H264"));
+
+        registry.setOverridePayloadTypeMappings(mappings);
+
+        return registry;
     }
 }

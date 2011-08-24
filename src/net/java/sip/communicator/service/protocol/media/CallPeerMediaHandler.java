@@ -1379,7 +1379,7 @@ public abstract class CallPeerMediaHandler<
     private void registerDynamicPTsWithStream(MediaStream stream)
     {
         for (Map.Entry<MediaFormat, Byte> mapEntry
-                : dynamicPayloadTypes.getMappings().entrySet())
+                : getDynamicPayloadTypes().getMappings().entrySet())
         {
             byte pt = mapEntry.getValue();
             MediaFormat fmt = mapEntry.getKey();

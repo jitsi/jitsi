@@ -1380,6 +1380,14 @@ public class VideoMediaDeviceSession
                 encoder.setPacketizationMode(packetizationMode);
             }
 
+            // additionnal codec settings
+            {
+                Map<String, String> settings =
+                    mediaFormat.getAdditionalCodecSettings();
+
+                encoder.setAdditionalCodecSettings(settings);
+            }
+
             if (usePLI)
             {
                 /*

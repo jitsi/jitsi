@@ -39,18 +39,29 @@ public abstract class MediaFormatImpl<T extends Format>
     static final Map<String, String> EMPTY_FORMAT_PARAMETERS
         = Collections.emptyMap();
 
+    /**
+     * The value of the <tt>codecSettings</tt> property of
+     * <tt>MediaFormatImpl</tt> when no codec-specific settings.
+     * Explicitly defined in order to reduce unnecessary allocations.
+     */
+    static final Map<String, String> EMPTY_CODEC_SETTINGS
+        = Collections.emptyMap();
 
     /**
      * The name of the <tt>encoding</tt> property of <tt>MediaFormatImpl</tt>.
      */
     public static final String ENCODING_PNAME = "encoding";
 
-
     /**
      * The name of the <tt>formatParameters</tt> property of
      * <tt>MediaFormatImpl</tt>.
      */
     public static final String FORMAT_PARAMETERS_PNAME = "fmtps";
+
+    /**
+     * The additional codec settings.
+     */
+    private Map<String, String> codecSettings = EMPTY_CODEC_SETTINGS;
 
     /**
      * Creates a new <tt>MediaFormat</tt> instance for a specific JMF
@@ -455,6 +466,26 @@ public abstract class MediaFormatImpl<T extends Format>
             return Long.toString(clockRateL);
         else
             return Double.toString(clockRate);
+    }
+
+    /**
+     * Sets additional codec settings.
+     *
+     * @param settings additional settings represented by a map.
+     */
+    public void setAdditionalCodecSettings(Map<String, String> settings)
+    {
+        codecSettings = settings;
+    }
+
+    /**
+     * Returns additional codec settings.
+     *
+     * @return additional settings represented by a map.
+     */
+    public Map<String, String> getAdditionalCodecSettings()
+    {
+        return codecSettings;
     }
 
     /**

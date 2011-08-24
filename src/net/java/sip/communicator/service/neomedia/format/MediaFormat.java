@@ -135,6 +135,20 @@ public interface MediaFormat
     public byte getRTPPayloadType();
 
     /**
+     * Sets additional codec settings.
+     *
+     * @param settings additional settings represented by a map.
+     */
+    public void setAdditionalCodecSettings(Map<String, String> settings);
+
+    /**
+     * Returns additional codec settings.
+     *
+     * @return additional settings represented by a map.
+     */
+    public Map<String, String> getAdditionalCodecSettings();
+
+    /**
      * Returns a <tt>String</tt> representation of this <tt>MediaFormat</tt>
      * containing important format attributes such as the encoding for example.
      *

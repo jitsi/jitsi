@@ -178,6 +178,11 @@ public class JNIEncoder
     private boolean secondKeyFrame = true;
 
     /**
+     * Additional codec settings.
+     */
+    private Map<String, String> additionalSettings = null;
+
+    /**
      * Initializes a new <tt>JNIEncoder</tt> instance.
      */
     public JNIEncoder()
@@ -361,6 +366,32 @@ public class JNIEncoder
         Dimension size = outputVideoFormat.getSize();
         int width = size.width;
         int height = size.height;
+        boolean useIntraRefresh = true;
+        boolean useCustomProfile = false;
+        String customProfile = null;
+
+        if(additionalSettings != null)
+        {
+            for(Map.Entry<String, String> entry : additionalSettings.entrySet())
+            {
+                String key = entry.getKey();
+                String value = entry.getValue();
+
+                if(key.equals("h264.intrarefresh") && value.equals("false"))
+                {
+                    useIntraRefresh = false;
+                }
+                else if(key.equals("h264.profile"))
+                {
+                    if(value.equals(MAIN_PROFILE) ||
+                        value.equals(BASELINE_PROFILE))
+                    {
+                        useCustomProfile = true;
+                        customProfile = value;
+                    }
+                }
+            }
+        }
 
         long avcodec = FFmpeg.avcodec_find_encoder(FFmpeg.CODEC_ID_H264);
 
@@ -405,7 +436,8 @@ public class JNIEncoder
 
         FFmpeg.avcodeccontext_add_flags(avctx,
                 FFmpeg.CODEC_FLAG_LOOP_FILTER);
-        FFmpeg.avcodeccontext_add_flags2(avctx,
+        if(useIntraRefresh)
+            FFmpeg.avcodeccontext_add_flags2(avctx,
                 FFmpeg.CODEC_FLAG2_INTRA_REFRESH);
         FFmpeg.avcodeccontext_set_me_method(avctx, 7);
         FFmpeg.avcodeccontext_set_me_subpel_quality(avctx, 2);
@@ -442,6 +474,12 @@ public class JNIEncoder
                 : configuration.getString(
                         DEFAULT_PROFILE_PNAME,
                         DEFAULT_DEFAULT_PROFILE);
+
+        if(useCustomProfile)
+        {
+            profile = customProfile;
+        }
+
         try
         {
             FFmpeg.avcodeccontext_set_profile(avctx,
@@ -745,5 +783,15 @@ public class JNIEncoder
             this.packetizationMode = "1";
         else
             throw new IllegalArgumentException("packetizationMode");
+    }
+
+    /**
+     * Sets additional settings for the codec.
+     *
+     * @param settings additional settings
+     */
+    public void setAdditionalCodecSettings(Map<String, String> settings)
+    {
+        additionalSettings = settings;
     }
 }
