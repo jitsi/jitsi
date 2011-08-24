@@ -37,10 +37,20 @@ public class PhoneNumberI18nServiceImpl
      */
     public String normalize(String phoneNumber)
     {
-        return
-            PhoneNumberUtil.normalizeDigitsOnly(
+        String plusSign = "+";
+        boolean plusSignFound = false;
+        if (phoneNumber.startsWith(plusSign))
+            plusSignFound = true;
+
+        String normalizedNumber
+            = PhoneNumberUtil.normalizeDigitsOnly(
                     PhoneNumberUtil.convertAlphaCharactersInNumber(
                             phoneNumber));
+
+        if (plusSignFound && !normalizedNumber.startsWith(plusSign))
+            return plusSign + normalizedNumber;
+
+        return normalizedNumber;
     }
 
     /**
@@ -86,24 +96,6 @@ public class PhoneNumberI18nServiceImpl
         catch (NumberParseException npex)
         {
             throw new IllegalArgumentException(npex);
-        }
-    }
-
-    public boolean isNumber(String possibleNumber)
-    {
-        PhoneNumberUtil numberUtil = PhoneNumberUtil.getInstance();
-        try
-        {
-            if (numberUtil.isPossibleNumber(possibleNumber, null))
-                return true;
-            else
-                return numberUtil.isPossibleNumber(
-                    numberUtil.parse(   possibleNumber,
-                                        Locale.getDefault().getCountry()));
-        }
-        catch (NumberParseException e)
-        {
-            return false;
         }
     }
 
