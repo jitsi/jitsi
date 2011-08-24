@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.addrbook.msoutlook;
 import java.util.*;
 import java.util.regex.*;
 
+import net.java.sip.communicator.plugin.addrbook.AddrBookActivator;
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -20,6 +21,9 @@ import net.java.sip.communicator.service.contactsource.*;
 public class MsOutlookAddrBookContactSourceService
     extends AsyncContactSourceService
 {
+    public static final String OUTLOOK_ADDR_BOOK_PREFIX
+        = "net.java.sip.communicator.plugin.addrbook.OUTLOOK_ADDR_BOOK_PREFIX";
+
     private static final long MAPI_INIT_VERSION = 0;
 
     private static final long MAPI_MULTITHREAD_NOTIFICATIONS = 0x00000001;
@@ -170,6 +174,18 @@ public class MsOutlookAddrBookContactSourceService
             Thread.currentThread().interrupt();
 
         MAPIUninitialize();
+    }
+
+    /**
+     * Returns the global phone number prefix to be used when calling contacts
+     * from this contact source.
+     *
+     * @return the global phone number prefix
+     */
+    public String getPhoneNumberPrefix()
+    {
+        return AddrBookActivator.getConfigService()
+                .getString(OUTLOOK_ADDR_BOOK_PREFIX);
     }
 
     /**

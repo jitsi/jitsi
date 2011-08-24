@@ -41,12 +41,18 @@ public class GoogleContactsTableModel
      * @param cnx account
      * @param enabled if the account should be enabled
      */
-    public void addAccount(GoogleContactsConnection cnx, boolean enabled)
+    public void addAccount( GoogleContactsConnection cnx,
+                            boolean enabled,
+                            String prefix)
     {
         if(cnx != null)
         {
-            ((GoogleContactsConnectionImpl)cnx).setEnabled(enabled);
-            googleService.getAccounts().add((GoogleContactsConnectionImpl)cnx);
+            GoogleContactsConnectionImpl cnxImpl
+                = (GoogleContactsConnectionImpl) cnx;
+            cnxImpl.setEnabled(enabled);
+            cnxImpl.setPrefix(prefix);
+
+            googleService.getAccounts().add(cnxImpl);
         }
     }
 
@@ -88,6 +94,8 @@ public class GoogleContactsTableModel
                 return Resources.getString("impl.googlecontacts.ENABLED");
             case 1:
                 return Resources.getString("impl.googlecontacts.ACCOUNT_NAME");
+            case 2:
+                return Resources.getString("impl.googlecontacts.PREFIX");
             default:
                 throw new IllegalArgumentException("column not found");
         }
@@ -113,8 +121,8 @@ public class GoogleContactsTableModel
      */
     public int getColumnCount()
     {
-        // 2 columns: "enable" and "account name"
-        return 2;
+        // 3 columns: "enable", "account name", "prefix"
+        return 3;
     }
 
     /**
@@ -133,6 +141,8 @@ public class GoogleContactsTableModel
                 return new Boolean(getAccountAt(row).isEnabled());
             case 1:
                 return getAccountAt(row).getLogin();
+            case 2:
+                return getAccountAt(row).getPrefix();
             default:
                 throw new IllegalArgumentException("column not found");
         }
@@ -168,10 +178,10 @@ public class GoogleContactsTableModel
      */
     public boolean isCellEditable(int row, int col)
     {
-        if(col == 0)
-            return true;
-        else
+        if(col == 1)
             return false;
+        else
+            return true;
     }
 
     /**
@@ -193,25 +203,32 @@ public class GoogleContactsTableModel
      */
     public void setValueAt(Object aValue, int rowIndex, int columnIndex)
     {
-        if(columnIndex != 0)
+        if(columnIndex != 0 || columnIndex != 2)
             throw new IllegalArgumentException("non editable column!");
 
         GoogleContactsConfigForm.RefreshContactSourceThread th = null;
         GoogleContactsConnectionImpl cnx = getAccountAt(rowIndex);
 
-        if(cnx.isEnabled())
+        if (columnIndex == 0)
         {
-            th = new GoogleContactsConfigForm.RefreshContactSourceThread(cnx,
-                    null);
+            if(cnx.isEnabled())
+            {
+                th = new GoogleContactsConfigForm.RefreshContactSourceThread(cnx,
+                        null);
+            }
+            else
+            {
+                th = new GoogleContactsConfigForm.RefreshContactSourceThread(null,
+                        cnx);
+            }
+
+            cnx.setEnabled(!cnx.isEnabled());
+
+            th.start();
         }
-        else
+        else if (columnIndex == 2)
         {
-            th = new GoogleContactsConfigForm.RefreshContactSourceThread(null,
-                    cnx);
+            cnx.setPrefix(aValue.toString());
         }
-
-        cnx.setEnabled(!cnx.isEnabled());
-
-        th.start();
     }
 }

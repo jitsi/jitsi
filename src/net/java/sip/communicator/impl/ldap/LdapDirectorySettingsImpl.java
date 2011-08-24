@@ -39,6 +39,7 @@ public class LdapDirectorySettingsImpl
         this.setPassword("");
         this.setBaseDN("");
         this.setScope(Scope.defaultValue());
+        this.setGlobalPhonePrefix("");
         // mail
         List<String> lst = new ArrayList<String>();
         lst.add("mail");
@@ -88,6 +89,7 @@ public class LdapDirectorySettingsImpl
         this.setPassword(settings.getPassword());
         this.setBaseDN(settings.getBaseDN());
         this.setScope(settings.getScope());
+        this.setGlobalPhonePrefix(settings.getGlobalPhonePrefix());
         this.mapAttributes = settings.mapAttributes;
         this.mailSuffix = settings.mailSuffix;
     }
@@ -156,6 +158,11 @@ public class LdapDirectorySettingsImpl
      * or all the subtree.
      */
     private Scope scope;
+
+    /**
+     * The global phone prefix.
+     */
+    private String globalPhonePrefix;
 
     /**
      * Mail suffix.
@@ -414,6 +421,30 @@ public class LdapDirectorySettingsImpl
     }
 
     /**
+     * Returns the global prefix to be used when calling phones from this ldap
+     * source.
+     *
+     * @return the global prefix to be used when calling phones from this ldap
+     * source
+     */
+    public String getGlobalPhonePrefix()
+    {
+        return globalPhonePrefix;
+    }
+
+    /**
+     * Sets the global prefix to be used when calling phones from this ldap
+     * source.
+     *
+     * @param the global prefix to be used when calling phones from this ldap
+     * source
+     */
+    public void setGlobalPhonePrefix(String prefix)
+    {
+        this.globalPhonePrefix = prefix;
+    }
+
+    /**
      * Checks if both LdapDirectorySettings instance have the same content
      *
      * @return whether both LdapDirectorySettings instance have the same content
@@ -432,7 +463,8 @@ public class LdapDirectorySettingsImpl
             this.getBindDN().equals(other.getBindDN()) &&
             this.getPassword().equals(other.getPassword()) &&
             this.getBaseDN().equals(other.getBaseDN()) &&
-            this.getScope().equals(other.getScope());
+            this.getScope().equals(other.getScope()) &&
+            this.getGlobalPhonePrefix().equals(other.getGlobalPhonePrefix());
     }
 
     /**
@@ -465,6 +497,8 @@ public class LdapDirectorySettingsImpl
             this.getScope().hashCode());
         hash = 31 * hash + (null == this.getBaseDN() ? 0 :
             this.getBaseDN().hashCode());
+        hash = 31 * hash + (null == this.getGlobalPhonePrefix() ? 0 :
+            this.getGlobalPhonePrefix().hashCode());
         return hash;
     }
 
@@ -661,6 +695,9 @@ public class LdapDirectorySettingsImpl
         configService.setProperty(
             directoriesPath + "." + node + ".overridehomephone",
             mergeStrings(this.getHomePhoneSearchFields()));
+        configService.setProperty(
+            directoriesPath + "." + node + ".globalPhonePrefix",
+                        this.getGlobalPhonePrefix());
     }
 
     /**
@@ -803,6 +840,16 @@ public class LdapDirectorySettingsImpl
 
             mapAttributes.put("homePhone", mergeString(ret));
         }
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".globalPhonePrefix") != null)
+        {
+            String ret = (String)configService.getProperty(
+                directoriesPath + "." + node + ".globalPhonePrefix");
+
+            if (ret != null)
+                setGlobalPhonePrefix(ret);
+        }
     }
 
     /**
@@ -859,6 +906,9 @@ public class LdapDirectorySettingsImpl
             directoriesPath + "." + node + ".overridehomephone",
             null);
         configService.setProperty(
+            directoriesPath + "." + node + ".globalPhonePrefix",
+            null);
+        configService.setProperty(
                 directoriesPath + "." + node,
                 null);
     }
@@ -878,7 +928,8 @@ public class LdapDirectorySettingsImpl
             this.getAuth() + ", \n" +
             this.getBindDN() + ", \n" +
             this.getPassword() + ", \n" +
-            this.getBaseDN() + " \n}";
+            this.getBaseDN() + ", \n" +
+            this.getGlobalPhonePrefix() + " \n}";
     }
 
     public LdapDirectorySettings clone()

@@ -107,6 +107,13 @@ public class PhoneNumberI18nServiceImpl
         }
     }
 
+    /**
+     * Indicates if the given string is possibly a phone number.
+     *
+     * @param possibleNumber the string to be verified
+     * @return <tt>true</tt> if the possibleNumber is a phone number,
+     * <tt>false</tt> - otherwise
+     */
     public boolean isPhoneNumber(String possibleNumber)
     {
         PhoneNumberUtil numberUtil = PhoneNumberUtil.getInstance();

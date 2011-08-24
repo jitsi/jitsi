@@ -196,7 +196,7 @@ public class GoogleContactsActivator implements BundleActivator
         Dictionary<String, String> properties =
             new Hashtable<String, String>();
         properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.ADVANCED_TYPE);
+                        ConfigurationForm.CONTACT_SOURCE_TYPE);
 
         bundleContext.registerService(
             ConfigurationForm.class.getName(),
@@ -205,7 +205,7 @@ public class GoogleContactsActivator implements BundleActivator
                 getClass().getClassLoader(),
                 "impl.googlecontacts.PLUGIN_ICON",
                 "impl.googlecontacts.CONFIG_FORM_TITLE",
-                2000, true),
+                2000, false),
             properties);
 
         bundleContext.addServiceListener(new ServiceListener()
@@ -344,7 +344,8 @@ public class GoogleContactsActivator implements BundleActivator
      * @param login login
      * @param password password
      */
-    public static void enableContactSource(String login, String password)
+    public static GoogleContactsSourceService enableContactSource(
+                                                String login, String password)
     {
         GoogleContactsSourceService css = new GoogleContactsSourceService(
                 login, password);
@@ -370,6 +371,8 @@ public class GoogleContactsActivator implements BundleActivator
                 cssList.put(css, cssServiceRegistration);
             }
         }
+
+        return css;
     }
 
     /**
@@ -378,10 +381,10 @@ public class GoogleContactsActivator implements BundleActivator
      *
      * @param cnx <tt>GoogleContactsConnection</tt>
      */
-    public static void enableContactSource(GoogleContactsConnection cnx)
+    public static GoogleContactsSourceService enableContactSource(
+                                                GoogleContactsConnection cnx)
     {
-        GoogleContactsSourceService css = new GoogleContactsSourceService(
-                cnx);
+        GoogleContactsSourceService css = new GoogleContactsSourceService(cnx);
         ServiceRegistration cssServiceRegistration = null;
 
         try
@@ -404,6 +407,8 @@ public class GoogleContactsActivator implements BundleActivator
                 cssList.put(css, cssServiceRegistration);
             }
         }
+
+        return css;
     }
 
     /**

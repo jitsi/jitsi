@@ -6,8 +6,13 @@
  */
 package net.java.sip.communicator.plugin.addrbook;
 
+import java.util.*;
+
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -54,6 +59,17 @@ public class AddrBookActivator
     private static PhoneNumberI18nService phoneNumberI18nService;
 
     /**
+     * The <tt>ResourceManagementService</tt> through which we access resources.
+     */
+    private static ResourceManagementService resourceService;
+
+    /**
+     * The <tt>ConfigurationService</tt> through which we access configuration
+     * properties.
+     */
+    private static ConfigurationService configService;
+
+    /**
      * Gets the <tt>PhoneNumberI18nService</tt> to be used by the functionality
      * of the addrbook plug-in.
      *
@@ -70,6 +86,44 @@ public class AddrBookActivator
                         PhoneNumberI18nService.class);
         }
         return phoneNumberI18nService;
+    }
+
+    /**
+     * Gets the <tt>ResourceManagementService</tt> to be used by the
+     * functionality of the addrbook plug-in.
+     *
+     * @return the <tt>ResourceManagementService</tt> to be used by the
+     * functionality of the addrbook plug-in
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            resourceService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ResourceManagementService.class);
+        }
+        return resourceService;
+    }
+
+    /**
+     * Gets the <tt>ConfigurationService</tt> to be used by the
+     * functionality of the addrbook plug-in.
+     *
+     * @return the <tt>ConfigurationService</tt> to be used by the
+     * functionality of the addrbook plug-in
+     */
+    public static ConfigurationService getConfigService()
+    {
+        if (configService == null)
+        {
+            configService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
+        }
+        return configService;
     }
 
     /**
@@ -90,6 +144,22 @@ public class AddrBookActivator
                 PhoneNumberI18nService.class.getName(),
                 new PhoneNumberI18nServiceImpl(),
                 null);
+
+        Dictionary<String, String> properties = new Hashtable<String, String>();
+
+        // Registers the sip config panel as advanced configuration form.
+        properties.put( ConfigurationForm.FORM_TYPE,
+                        ConfigurationForm.CONTACT_SOURCE_TYPE);
+
+        bundleContext.registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                AdvancedConfigForm.class.getName(),
+                getClass().getClassLoader(),
+                null,
+                "plugin.addrbook.ADDRESS_BOOKS",
+                101, false),
+                properties);
 
         /* Register the ContactSourceService implementation (if any). */
         String cssClassName;

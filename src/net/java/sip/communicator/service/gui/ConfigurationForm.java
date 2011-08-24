@@ -40,6 +40,11 @@ public interface ConfigurationForm
     public static final String ADVANCED_TYPE = "ADVANCED_TYPE";
 
     /**
+     * The advanced contact source form type.
+     */
+    public static final String CONTACT_SOURCE_TYPE = "CONTACT_SOURCE_TYPE";
+
+    /**
      * Returns the title of this configuration form.
      * @return the title of this configuration form
      */

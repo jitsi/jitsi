@@ -50,6 +50,8 @@ public class LdapTableModel
                 return Resources.getString("impl.ldap.SERVER_NAME");
             case 2:
                 return Resources.getString("impl.ldap.SERVER_HOSTNAME");
+            case 3:
+                return Resources.getString("impl.ldap.PHONE_PREFIX");
             default:
                 throw new IllegalArgumentException("column not found");
         }
@@ -75,8 +77,8 @@ public class LdapTableModel
      */
     public int getColumnCount()
     {
-        // 3 columns: "enable", "name" and "hostname"
-        return 3;
+        // 4 columns: "enable", "name", "hostname" and "prefix"
+        return 4;
     }
 
     /**
@@ -97,6 +99,9 @@ public class LdapTableModel
                 return this.getServerAt(row).getSettings().getName();
             case 2:
                 return this.getServerAt(row).getSettings().getHostname();
+            case 3:
+                return this.getServerAt(row).getSettings()
+                            .getGlobalPhonePrefix();
             default:
                 throw new IllegalArgumentException("column not found");
         }

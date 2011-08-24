@@ -140,6 +140,18 @@ public class DirectorySettingsForm
     private JComboBox scopeList = new JComboBox(scopeStrings);
 
     /**
+     * The prefix label.
+     */
+    private final JLabel prefixLabel = new JLabel(
+        Resources.getString("impl.ldap.PHONE_PREFIX"));
+
+    /**
+     * The prefix field.
+     */
+    private final SIPCommTextField prefixField = new SIPCommTextField(
+        Resources.getString("impl.ldap.PHONE_PREFIX_EXAMPLE"));
+
+    /**
      * Save button.
      */
     private JButton saveBtn = new JButton(
@@ -388,6 +400,8 @@ public class DirectorySettingsForm
         JPanel basePanel = new TransparentPanel(new GridBagLayout());
         JPanel authPanel = new TransparentPanel(new GridBagLayout());
         JPanel searchPanel = new TransparentPanel(new GridBagLayout());
+        JPanel prefixPanel = new TransparentPanel(new GridBagLayout());
+
         //JPanel btnPanel = new TransparentPanel(new FlowLayout(
         //        FlowLayout.RIGHT));
         BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
@@ -635,6 +649,7 @@ public class DirectorySettingsForm
         c.fill = GridBagConstraints.NONE;
         c.anchor = GridBagConstraints.LINE_START;
         searchPanel.add(scopeLabel, c);
+
         c.gridx = 1;
         c.gridy = 2;
         c.weightx = 0;
@@ -645,12 +660,34 @@ public class DirectorySettingsForm
         c.anchor = GridBagConstraints.LINE_START;
         searchPanel.add(scopeList, c);
 
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        c.insets = new Insets(2, 50, 0, 5);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_START;
+        prefixPanel.add(prefixLabel, c);
+
+        c.gridx = 1;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.gridwidth = GridBagConstraints.REMAINDER;
+        c.insets = new Insets(2, 5, 0, 50);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.LINE_END;
+        prefixPanel.add(prefixField, c);
+
         mainPanel.setLayout(boxLayout);
         mainPanel.add(basePanel);
         mainPanel.add(new JSeparator());
         mainPanel.add(searchPanel);
         mainPanel.add(new JSeparator());
         mainPanel.add(authPanel);
+        mainPanel.add(new JSeparator());
+        mainPanel.add(prefixPanel);
 
         /* listeners */
         this.encryptionBox.addActionListener(this);
@@ -716,6 +753,7 @@ public class DirectorySettingsForm
             mergeStrings(settings.getMobilePhoneSearchFields()));
         this.homePhoneField.setText(
             mergeStrings(settings.getHomePhoneSearchFields()));
+        this.prefixField.setText(settings.getGlobalPhonePrefix());
     }
 
     /**
@@ -814,6 +852,7 @@ public class DirectorySettingsForm
             mergeString(mobilePhoneField.getText()));
         settings.setHomePhoneSearchFields(
             mergeString(homePhoneField.getText()));
+        settings.setGlobalPhonePrefix(prefixField.getText());
     }
 
     /**
@@ -854,8 +893,7 @@ public class DirectorySettingsForm
                 for(LdapDirectory s :
                     LdapActivator.getLdapService().getServerSet())
                 {
-                    if(s.getSettings().getName().equals(
-                            this.nameField.getText()))
+                    if(s.getSettings().getName().equals(nameField.getText()))
                     {
                         JOptionPane.showMessageDialog(
                                 this,

@@ -262,6 +262,18 @@ public class SourceUIContact
                     null,
                     detail.getPreferredProtocolProvider(opSetClass),
                     detail.getPreferredProtocol(opSetClass));
+
+            ContactSourceService contactSource
+                = sourceContact.getContactSource();
+
+            if (contactSource instanceof ExtendedContactSourceService)
+            {
+                String prefix = ((ExtendedContactSourceService) contactSource)
+                    .getPhoneNumberPrefix();
+
+                if (prefix != null)
+                    setPrefix(prefix);
+            }
         }
 
         /**

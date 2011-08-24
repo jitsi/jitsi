@@ -45,6 +45,11 @@ public class GoogleContactsSourceService
     private final String password;
 
     /**
+     * The prefix for all google contact phone numbers.
+     */
+    private String phoneNumberprefix;
+
+    /**
      * Google Contacts connection.
      */
     private GoogleContactsConnection cnx = null;
@@ -78,6 +83,7 @@ public class GoogleContactsSourceService
         this.cnx = cnx;
         this.login = cnx.getLogin();
         this.password = cnx.getPassword();
+        this.phoneNumberprefix = cnx.getPrefix();
     }
 
     /**
@@ -350,5 +356,25 @@ public class GoogleContactsSourceService
             if (queries.remove(query))
                 queries.notify();
         }
+    }
+
+    /**
+     * Returns the phoneNumber prefix for all phone numbers.
+     *
+     * @return the phoneNumber prefix for all phone numbers
+     */
+    public String getPhoneNumberPrefix()
+    {
+        return phoneNumberprefix;
+    }
+
+    /**
+     * Sets the phone number prefix.
+     *
+     * @param phoneNumberprefix the phone number prefix to set
+     */
+    public void setPhoneNumberPrefix(String phoneNumberprefix)
+    {
+        this.phoneNumberprefix = phoneNumberprefix;
     }
 }

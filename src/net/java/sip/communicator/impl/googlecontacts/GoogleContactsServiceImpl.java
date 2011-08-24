@@ -114,11 +114,14 @@ public class GoogleContactsServiceImpl
             boolean enabled = Boolean.parseBoolean((String)oen);
             String login =
                 (String)configService.getProperty(path + ".account");
+            String prefix =
+                (String)configService.getProperty(path + ".prefix");
             String password = credentialsService.loadPassword(path);
 
             GoogleContactsConnectionImpl cnx = (GoogleContactsConnectionImpl)
                 getConnection(login, password);
             cnx.setEnabled(enabled);
+            cnx.setPrefix(prefix);
 
             if(cnx != null)
             {
@@ -138,6 +141,7 @@ public class GoogleContactsServiceImpl
                             settings.getConnection();
                         // set the enabled state as before
                         cnx.setEnabled(enabled);
+                        cnx.setPrefix(prefix);
                         saveConfig(cnx);
                     }
                 }
@@ -175,8 +179,10 @@ public class GoogleContactsServiceImpl
     {
         ConfigurationService configService =
             GoogleContactsActivator.getConfigService();
+
         CredentialsStorageService credentialsService =
             GoogleContactsActivator.getCredentialsService();
+
         String login = cnx.getLogin();
         String path = CONFIGURATION_PATH + ".acc" + Math.abs(login.hashCode());
 
@@ -189,6 +195,11 @@ public class GoogleContactsServiceImpl
         configService.setProperty(
                 path + ".enabled",
                 ((GoogleContactsConnectionImpl)cnx).isEnabled());
+
+        configService.setProperty(
+            path + ".prefix",
+            ((GoogleContactsConnectionImpl)cnx).getPrefix());
+
         credentialsService.storePassword(path, cnx.getPassword());
     }
 

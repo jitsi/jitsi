@@ -56,7 +56,7 @@ public class LdapActivator implements BundleActivator
         Dictionary<String, String> properties =
             new Hashtable<String, String>();
         properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.ADVANCED_TYPE);
+                        ConfigurationForm.CONTACT_SOURCE_TYPE);
 
         bundleContext.registerService(
             ConfigurationForm.class.getName(),
@@ -65,7 +65,7 @@ public class LdapActivator implements BundleActivator
                 getClass().getClassLoader(),
                 "impl.ldap.PLUGIN_ICON",
                 "impl.ldap.CONFIG_FORM_TITLE",
-                2000, true),
+                2000, false),
             properties);
     }
 

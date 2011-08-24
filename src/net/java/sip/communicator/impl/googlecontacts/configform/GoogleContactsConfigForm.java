@@ -225,8 +225,9 @@ public class GoogleContactsConfigForm
 
             if(ret == 1)
             {
-                GoogleContactsConnection cnx = settingsForm.getConnection();
-                tableModel.addAccount(cnx, true);
+                GoogleContactsConnectionImpl cnx
+                    = (GoogleContactsConnectionImpl) settingsForm.getConnection();
+                tableModel.addAccount(cnx, true, cnx.getPrefix());
                 new RefreshContactSourceThread(null, cnx).start();
                 GoogleContactsActivator.getGoogleContactsService().saveConfig(
                         cnx);

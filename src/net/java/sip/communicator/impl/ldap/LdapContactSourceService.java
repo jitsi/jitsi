@@ -182,6 +182,16 @@ public class LdapContactSourceService
     }
 
     /**
+     * Returns the phoneNumber prefix for all phone numbers.
+     *
+     * @return the phoneNumber prefix for all phone numbers
+     */
+    public String getPhoneNumberPrefix()
+    {
+        return ldapDirectory.getSettings().getGlobalPhonePrefix();
+    }
+
+    /**
      * Notifies this <tt>LdapContactSourceService</tt> that a specific
      * <tt>LdapContactQuery</tt> has stopped.
      *

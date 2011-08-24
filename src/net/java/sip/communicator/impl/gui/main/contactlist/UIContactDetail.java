@@ -22,6 +22,11 @@ import net.java.sip.communicator.service.protocol.*;
 public abstract class UIContactDetail
 {
     /**
+     * The prefix to be used when calling this contact detail.
+     */
+    private String prefix;
+
+    /**
      * The address of this detail.
      */
     private final String address;
@@ -102,6 +107,9 @@ public abstract class UIContactDetail
      */
     public String getAddress()
     {
+        if (prefix != null && prefix.trim().length() >= 0)
+            return prefix + address;
+
         return address;
     }
 
@@ -164,6 +172,26 @@ public abstract class UIContactDetail
     public String getPreferredProtocol(Class<? extends OperationSet> opSetClass)
     {
         return preferredProtocol;
+    }
+
+    /**
+     * Returns the prefix to be used when calling this contact detail.
+     *
+     * @return the prefix to be used when calling this contact detail
+     */
+    public String getPrefix()
+    {
+        return prefix;
+    }
+
+    /**
+     * Sets the prefix to be used when calling this contact detail.
+     *
+     * @param the prefix to be used when calling this contact detail
+     */
+    public void setPrefix(String prefix)
+    {
+        this.prefix = prefix;
     }
 
     /**

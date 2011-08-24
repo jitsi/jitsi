@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.addrbook.macosx;
 
 import java.util.regex.*;
 
+import net.java.sip.communicator.plugin.addrbook.AddrBookActivator;
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -18,6 +19,9 @@ import net.java.sip.communicator.service.contactsource.*;
 public class MacOSXAddrBookContactSourceService
     extends AsyncContactSourceService
 {
+    public static final String MACOSX_ADDR_BOOK_PREFIX
+        = "net.java.sip.communicator.plugin.addrbook.MACOSX_ADDR_BOOK_PREFIX";
+
     static
     {
         System.loadLibrary("jmacosxaddrbook");
@@ -107,6 +111,18 @@ public class MacOSXAddrBookContactSourceService
             stop(ptr);
             ptr = 0;
         }
+    }
+
+    /**
+     * Returns the global phone number prefix to be used when calling contacts
+     * from this contact source.
+     *
+     * @return the global phone number prefix
+     */
+    public String getPhoneNumberPrefix()
+    {
+        return AddrBookActivator.getConfigService()
+                .getString(MACOSX_ADDR_BOOK_PREFIX);
     }
 
     /**

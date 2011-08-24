@@ -43,6 +43,11 @@ public class GoogleContactsConnectionImpl
     private boolean enabled = false;
 
     /**
+     * The google contact prefix.
+     */
+    private String prefix = null;
+
+    /**
      * Google Contacts service.
      */
     private final ContactsService googleService =
@@ -156,5 +161,25 @@ public class GoogleContactsConnectionImpl
     public void setEnabled(boolean enabled)
     {
         this.enabled = enabled;
+    }
+
+    /**
+     * Sets the google contacts prefix.
+     *
+     * @param prefix the prefix to set
+     */
+    public void setPrefix(String prefix)
+    {
+        this.prefix = prefix;
+    }
+
+    /**
+     * Returns the google contacts prefix.
+     *
+     * @return the google contacts prefix
+     */
+    public String getPrefix()
+    {
+        return prefix;
     }
 }

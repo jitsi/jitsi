@@ -69,4 +69,11 @@ public interface GoogleContactsConnection
      * @return connection status
      */
     public ConnectionStatus connect();
+
+    /**
+     * Returns the google contacts prefix.
+     *
+     * @return the google contacts prefix
+     */
+    public String getPrefix();
 }

@@ -1,5 +1,5 @@
 /*
- * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ se* SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
@@ -244,6 +244,24 @@ public interface LdapDirectorySettings
      * @param list of home phone fields that we will lookup
      */
     public void setHomePhoneSearchFields(List<String> list);
+
+    /**
+     * Returns the global prefix to be used when calling phones from this ldap
+     * source.
+     *
+     * @return the global prefix to be used when calling phones from this ldap
+     * source
+     */
+    public String getGlobalPhonePrefix();
+
+    /**
+     * Sets the global prefix to be used when calling phones from this ldap
+     * source.
+     *
+     * @param the global prefix to be used when calling phones from this ldap
+     * source
+     */
+    public void setGlobalPhonePrefix(String prefix);
 
     /**
      * Saves these settings through the configuration service
