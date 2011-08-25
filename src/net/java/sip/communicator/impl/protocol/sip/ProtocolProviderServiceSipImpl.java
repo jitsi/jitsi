@@ -1200,6 +1200,10 @@ public class ProtocolProviderServiceSipImpl
             addressFactory = null;
             sipSecurityManager = null;
 
+            connectionAddresses = null;
+            connectionTransports = null;
+            currentConnectionAddress = null;
+
             methodProcessors.clear();
 
             isInitialized = false;

@@ -16,7 +16,9 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import com.sun.xml.internal.stream.*;
 import net.java.sip.communicator.plugin.securityconfig.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -105,7 +107,7 @@ public class SavedPasswordsDialog
         c.insets = new Insets(5, 5, 5, 5);
         c.anchor = GridBagConstraints.PAGE_START;
 
-        AccountPasswordsPanel accPassPanel = new AccountPasswordsPanel();
+        PasswordsPanel accPassPanel = new PasswordsPanel();
         this.add(accPassPanel, c);
 
         c.gridy = 1;
@@ -144,51 +146,33 @@ public class SavedPasswordsDialog
     /**
      * Panel containing the accounts table and buttons.
      */
-    private static class AccountPasswordsPanel
+    private static class PasswordsPanel
         extends TransparentPanel
     {
-
         /**
          * The table model for the accounts table.
          */
-        private class AccountsTableModel
+        private class PasswordsTableModel
             extends AbstractTableModel
         {
             /**
              * Index of the first column.
              */
-            public static final int ACCOUNT_TYPE_INDEX = 0;
+            public static final int TYPE_INDEX = 0;
             /**
              * Index of the second column.
              */
-            public static final int ACCOUNT_NAME_INDEX = 1;
+            public static final int USER_NAME_INDEX = 1;
             /**
              * Index of the third column.
              */
             public static final int PASSWORD_INDEX = 2;
 
             /**
-             * List of accounts with saved passwords.
+             * The row objects for this model.
              */
-            public final List<AccountID> savedPasswordAccounts =
-                new ArrayList<AccountID>();
-            /**
-             * Map that associates an {@link AccountID} with its prefix.
-             */
-            public final Map<AccountID, String> accountIdPrefixes =
-                new HashMap<AccountID, String>();
-
-            /**
-             * Loads accounts.
-             */
-            public AccountsTableModel()
-            {
-                accountIdPrefixes.putAll(
-                        SecurityConfigActivator
-                            .getAccountIDsWithSavedPasswords());
-                savedPasswordAccounts.addAll(new ArrayList<AccountID>(
-                    accountIdPrefixes.keySet()));
-            }
+            public final List<PasswordsTableRow> savedPasswords =
+                    new ArrayList<PasswordsTableRow>();
 
             /**
              * Returns the name for the given column.
@@ -202,10 +186,10 @@ public class SavedPasswordsDialog
 
                 switch (column)
                 {
-                case ACCOUNT_TYPE_INDEX:
+                case TYPE_INDEX:
                     key = "plugin.securityconfig.masterpassword.COL_TYPE";
                     break;
-                case ACCOUNT_NAME_INDEX:
+                case USER_NAME_INDEX:
                     key = "plugin.securityconfig.masterpassword.COL_NAME";
                     break;
                 case PASSWORD_INDEX:
@@ -229,26 +213,17 @@ public class SavedPasswordsDialog
                 if (row < 0)
                     return null;
 
-                AccountID accountID = savedPasswordAccounts.get(row);
+                PasswordsTableRow savedPass = savedPasswords.get(row);
                 switch (column)
                 {
-                case ACCOUNT_TYPE_INDEX:
-                    String protocol
-                        = accountID
-                            .getAccountPropertyString(
-                                ProtocolProviderFactory.PROTOCOL);
-                    return
-                        (protocol == null)
-                            ? resources
-                                .getI18NString(
-                                    "plugin.securityconfig.masterpassword.PROTOCOL_UNKNOWN")
-                            : protocol;
-                case ACCOUNT_NAME_INDEX:
-                    return accountID.getUserID();
+                case TYPE_INDEX:
+                    return savedPass.type;
+                case USER_NAME_INDEX:
+                    return savedPass.name;
                 case PASSWORD_INDEX:
                     String pass =
                         credentialsStorageService
-                            .loadPassword(accountIdPrefixes.get(accountID));
+                            .loadPassword(savedPass.property);
                     return
                         (pass == null)
                             ? resources
@@ -267,7 +242,7 @@ public class SavedPasswordsDialog
              */
             public int getRowCount()
             {
-                return savedPasswordAccounts.size();
+                return savedPasswords.size();
             }
 
             /**
@@ -310,24 +285,25 @@ public class SavedPasswordsDialog
         /**
          * Builds the panel.
          */
-        public AccountPasswordsPanel()
+        public PasswordsPanel()
         {
             this.initComponents();
+            this.initContent();
         }
 
         /**
          * Returns the {@link AccountID} object for the selected row.
          * @return the selected account
          */
-        private AccountID getSelectedAccountID()
+        private PasswordsTableRow getSelectedAccountID()
         {
-            AccountsTableModel model =
-                (AccountsTableModel) accountsTable.getModel();
+            PasswordsTableModel model =
+                (PasswordsTableModel) accountsTable.getModel();
             int index = accountsTable.getSelectedRow();
-            if (index < 0 || index > model.savedPasswordAccounts.size())
+            if (index < 0 || index > model.savedPasswords.size())
                 return null;
 
-            return model.savedPasswordAccounts.get(index);
+            return model.savedPasswords.get(index);
         }
 
         /**
@@ -335,22 +311,21 @@ public class SavedPasswordsDialog
          */
         private void initComponents()
         {
-            setBorder(
-                BorderFactory.createTitledBorder(
-                        BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
-                        resources.getI18NString(
-                                "plugin.securityconfig.masterpassword.STORED_ACCOUNT_PASSWORDS")));
+            setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
+                resources.getI18NString(
+                    "plugin.securityconfig.masterpassword.STORED_ACCOUNT_PASSWORDS")));
             this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
             accountsTable = new JTable();
-            accountsTable.setModel(new AccountsTableModel());
-            accountsTable
-                .setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+            accountsTable.setModel(new PasswordsTableModel());
+            accountsTable.setSelectionMode(
+                    javax.swing.ListSelectionModel.SINGLE_SELECTION);
             accountsTable.setCellSelectionEnabled(false);
             accountsTable.setColumnSelectionAllowed(false);
             accountsTable.setRowSelectionAllowed(true);
             accountsTable.getColumnModel().getColumn(
-                AccountsTableModel.ACCOUNT_NAME_INDEX).setPreferredWidth(270);
+                PasswordsTableModel.USER_NAME_INDEX).setPreferredWidth(270);
             accountsTable.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener()
                 {
@@ -383,19 +358,17 @@ public class SavedPasswordsDialog
             {
                 public void actionPerformed(ActionEvent arg0)
                 {
-                    AccountID selectedAccountID = getSelectedAccountID();
-                    if (selectedAccountID != null)
+                    PasswordsTableRow selectedRow = getSelectedAccountID();
+                    if (selectedRow != null)
                     {
-                        AccountsTableModel model =
-                            (AccountsTableModel) accountsTable.getModel();
-                        String accountPrefix = model.accountIdPrefixes.get(selectedAccountID);
+                        PasswordsTableModel model =
+                            (PasswordsTableModel) accountsTable.getModel();
 
-                        removeSavedPassword(accountPrefix, selectedAccountID);
-                        model.savedPasswordAccounts.remove(selectedAccountID);
-                        model.accountIdPrefixes.remove(accountPrefix);
+                        removeSavedPassword(selectedRow.property);
+                        model.savedPasswords.remove(selectedRow);
 
-                        int selectedRow = accountsTable.getSelectedRow();
-                        model.fireTableRowsDeleted(selectedRow, selectedRow);
+                        int selectedRowIx = accountsTable.getSelectedRow();
+                        model.fireTableRowsDeleted(selectedRowIx, selectedRowIx);
                     }
                 }
             });
@@ -409,9 +382,9 @@ public class SavedPasswordsDialog
             {
                 public void actionPerformed(ActionEvent arg0)
                 {
-                    AccountsTableModel model =
-                        (AccountsTableModel) accountsTable.getModel();
-                    if (model.savedPasswordAccounts.isEmpty())
+                    PasswordsTableModel model =
+                        (PasswordsTableModel) accountsTable.getModel();
+                    if (model.savedPasswords.isEmpty())
                     {
                         return;
                     }
@@ -429,14 +402,11 @@ public class SavedPasswordsDialog
 
                     if (answer == PopupDialog.YES_OPTION)
                     {
-                        for (AccountID accountID : model.savedPasswordAccounts)
+                        for (PasswordsTableRow row : model.savedPasswords)
                         {
-                            String accountPrefix =
-                                model.accountIdPrefixes.get(accountID);
-                            removeSavedPassword(accountPrefix, accountID);
+                            removeSavedPassword(row.property);
                         }
-                        model.savedPasswordAccounts.clear();
-                        model.accountIdPrefixes.clear();
+                        model.savedPasswords.clear();
                         model.fireTableDataChanged();
                     }
                 }
@@ -470,16 +440,80 @@ public class SavedPasswordsDialog
         }
 
         /**
+         * Loads data that support password saving.
+         */
+        private void initContent()
+        {
+            // init content with accounts passwords
+            PasswordsTableModel model =
+                (PasswordsTableModel) accountsTable.getModel();
+
+            for(Map.Entry<AccountID, String> entry :
+                SecurityConfigActivator.getAccountIDsWithSavedPasswords()
+                    .entrySet())
+            {
+                AccountID accID = entry.getKey();
+
+                String protocol = accID.getAccountPropertyString(
+                        ProtocolProviderFactory.PROTOCOL);
+
+                if(protocol == null)
+                    protocol = resources.getI18NString(
+                            "plugin.securityconfig.masterpassword.PROTOCOL_UNKNOWN");
+
+                model.savedPasswords.add(
+                    new PasswordsTableRow(
+                            entry.getValue(),
+                            protocol,
+                            accID.getUserID()));
+            }
+
+            // load provisioning passwords
+            String PROVISIONING_PROPERTIES_PREFIX =
+                "net.java.sip.communicator.plugin.provisioning.auth";
+            ConfigurationService configurationService =
+                    SecurityConfigActivator.getConfigurationService();
+            String uname = configurationService
+                .getString(PROVISIONING_PROPERTIES_PREFIX + ".USERNAME");
+            model.savedPasswords.add(
+                    new PasswordsTableRow(
+                            PROVISIONING_PROPERTIES_PREFIX,
+                            resources.getI18NString(
+                                "plugin.provisioning.PROVISIONING"),
+                            uname));
+
+            // load http passwords
+            String HTTP_PROPERTIES_PREFIX =
+                    "net.java.sip.communicator.util.http.credential";
+            // This will contain double entries for a password
+            // one for username and one for the password
+            List<String> httpPasses =
+                configurationService.getPropertyNamesByPrefix(
+                    HTTP_PROPERTIES_PREFIX, false);
+
+            for(String prop: httpPasses)
+            {
+                // we skip the entry containing the encoded password
+                if(prop.contains("PASSWORD"))
+                    continue;
+
+                model.savedPasswords.add(
+                    new PasswordsTableRow(
+                        prop,
+                        "http://" + prop.substring(
+                                HTTP_PROPERTIES_PREFIX.length() + 1),
+                        configurationService.getString(prop)));
+            }
+        }
+
+        /**
          * Removes the password from the storage.
          *
-         * @param accountPrefix account prefix
-         * @param accountID AccountID object
+         * @param property for the saved password
          */
-        private void removeSavedPassword(String accountPrefix, AccountID accountID)
+        private void removeSavedPassword(String property)
         {
-            credentialsStorageService.removePassword(accountPrefix);
-
-            logger.debug(accountID + " removed");
+            credentialsStorageService.removePassword(property);
         }
 
         /**
@@ -493,8 +527,8 @@ public class SavedPasswordsDialog
                             showPasswords
                                 ? "plugin.securityconfig.masterpassword.HIDE_PASSWORDS_BUTTON"
                                 : "plugin.securityconfig.masterpassword.SHOW_PASSWORDS_BUTTON"));
-            AccountsTableModel model =
-                (AccountsTableModel) accountsTable.getModel();
+            PasswordsTableModel model =
+                (PasswordsTableModel) accountsTable.getModel();
             model.fireTableStructureChanged();
         }
 
@@ -519,6 +553,41 @@ public class SavedPasswordsDialog
             }
             while (!correct);
             showOrHidePasswords();
+        }
+
+        /**
+         * Object representing passwords table row.
+         */
+        class PasswordsTableRow
+        {
+            /**
+             * The property we can use to extract password from
+             * credential service.
+             */
+            private String property;
+
+            /**
+             * String representing type that is displayed to user.
+             */
+            private String type;
+
+            /**
+             * String representing name that is displayed to user.
+             */
+            private String name;
+
+            /**
+             * Constructing.
+             * @param property the property
+             * @param type the type of the record.
+             * @param name the name of the record.
+             */
+            PasswordsTableRow(String property, String type, String name)
+            {
+                this.property = property;
+                this.type = type;
+                this.name = name;
+            }
         }
     }
 }
