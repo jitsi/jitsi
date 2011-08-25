@@ -1313,7 +1313,19 @@ public class VideoMediaDeviceSession
                             videoFormat.getFrameRate());
             }
             else
+            {
+                VideoFormat videoFormat = (VideoFormat) format;
+
+                format
+                    = new VideoFormat(
+                            videoFormat.getEncoding(),
+                            deviceSize,
+                            videoFormat.getMaxDataLength(),
+                            videoFormat.getDataType(),
+                            videoFormat.getFrameRate());
+
                 outputSize = null;
+            }
         }
         else
             outputSize = null;

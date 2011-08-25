@@ -615,6 +615,9 @@ public class VideoMediaStreamImpl
          */
         if(attrs != null)
         {
+            String width = null;
+            String height = null;
+
             for(Map.Entry<String, String> mapEntry : attrs.entrySet())
             {
                 String key = mapEntry.getKey();
@@ -629,7 +632,7 @@ public class VideoMediaStreamImpl
                 {
                     Dimension res[] = parseSendRecvResolution(value);
 
-                    if(res != null)
+                    if(res != null && outputSize == null)
                     {
                         outputSize = res[1];
 
@@ -701,6 +704,33 @@ public class VideoMediaStreamImpl
                     }
                     catch(Exception e)
                     {
+                    }
+                }
+                else if (key.equals("width"))
+                {
+                    width = value;
+
+                    if(height != null)
+                    {
+                        outputSize = new Dimension(
+                            Integer.parseInt(width),
+                            Integer.parseInt(height));
+
+                        ((VideoMediaDeviceSession)getDeviceSession()).
+                            setOutputSize(outputSize);
+                    }
+                }
+                else if (key.equals("height"))
+                {
+                    height = value;
+
+                    if(width != null)
+                    {
+                        outputSize = new Dimension(
+                            Integer.parseInt(width),
+                            Integer.parseInt(height));
+                        ((VideoMediaDeviceSession)getDeviceSession()).
+                            setOutputSize(outputSize);
                     }
                 }
             }

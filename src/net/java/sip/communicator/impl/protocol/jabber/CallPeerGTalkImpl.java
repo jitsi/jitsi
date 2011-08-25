@@ -644,6 +644,26 @@ public class CallPeerGTalkImpl
     }
 
     /**
+     * Returns whether or not the <tt>CallPeer</tt> is an Android phone.
+     * We base the detection of the JID's resource which in the case of Android
+     * is androidXXXXXXX (where XXXXXX is a suite of numbers/letters).
+     */
+    private static boolean isAndroid(String fullJID)
+    {
+        int idx = fullJID.indexOf('/');
+
+        if(idx != -1)
+        {
+            String res = fullJID.substring(idx + 1);
+            if(res.startsWith("android"))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Sends local candidate addresses from the local peer to the remote peer
      * using the <tt>candidates</tt> {@link SessionIQ}.
      *
@@ -654,7 +674,6 @@ public class CallPeerGTalkImpl
     protected void sendCandidates(
             Iterable<GTalkCandidatePacketExtension> candidates)
     {
-
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
 
@@ -670,6 +689,13 @@ public class CallPeerGTalkImpl
 
         for (GTalkCandidatePacketExtension candidate : candidates)
         {
+            // Android phone does not seems to like IPv6 candidates since it
+            // reject the IQ candidates with an error
+            // so do not send IPv6 candidates to Android phone
+            if(isAndroid(getAddress()) &&
+                NetworkUtils.isIPv6Address(candidate.getAddress()))
+                continue;
+
             candidatesIQ.addExtension(candidate);
         }
 

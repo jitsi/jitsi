@@ -241,10 +241,6 @@ public class CallPeerMediaHandlerGTalkImpl
             {
                 if(ext.getNamespace().equals(ns))
                 {
-                    format = JingleUtils.payloadTypeToMediaFormat(
-                            ext,
-                            getDynamicPayloadTypes());
-
                     if(mediaType.equals(MediaType.VIDEO))
                     {
                         description.setNamespace(SessionIQProvider.
@@ -257,6 +253,10 @@ public class CallPeerMediaHandlerGTalkImpl
                         ext.setAttribute("height", 200);
                         ext.setAttribute("framerate", 30);
                     }
+
+                    format = JingleUtils.payloadTypeToMediaFormat(
+                        ext,
+                        getDynamicPayloadTypes());
                     description.addPayloadType(ext);
 
                     if(format == null)

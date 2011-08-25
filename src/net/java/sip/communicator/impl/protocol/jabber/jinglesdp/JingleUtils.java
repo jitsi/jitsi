@@ -123,7 +123,19 @@ public class JingleUtils
         Map<String, String> paramsMap = new HashMap<String, String>();
 
         for(ParameterPacketExtension param : params)
+        {
             paramsMap.put(param.getName(), param.getValue());
+        }
+
+        // video related attribute in payload type element
+        for(String attr : payloadType.getAttributeNames())
+        {
+            if(attr.equals("width") || attr.equals("height"))
+            {
+                paramsMap.put(attr, payloadType.getAttributeAsString(
+                    attr));
+            }
+        }
 
         //now create the format.
         MediaFormat format
