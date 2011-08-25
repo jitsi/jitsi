@@ -15,7 +15,6 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -77,16 +76,16 @@ public class ProvisioningForm
         enableCheckBox = new SIPCommCheckBox(
             resources.getI18NString("plugin.provisioning.ENABLE_DISABLE"));
 
-        dhcpButton = createRadioButton(
+        dhcpButton = new SIPCommRadioButton(
             resources.getI18NString("plugin.provisioning.DHCP"));
 
-        dnsButton = createRadioButton(
+        dnsButton = new SIPCommRadioButton(
             resources.getI18NString("plugin.provisioning.DNS"));
 
-        bonjourButton = createRadioButton(
+        bonjourButton = new SIPCommRadioButton(
             resources.getI18NString("plugin.provisioning.BONJOUR"));
 
-        manualButton = createRadioButton(
+        manualButton = new SIPCommRadioButton(
             resources.getI18NString("plugin.provisioning.MANUAL"));
 
         uriField = new SIPCommTextField(
@@ -225,24 +224,6 @@ public class ProvisioningForm
 
         initButtonStates();
         initListeners();
-    }
-
-    /**
-     * Creates a new <tt>JRadioButton</tt> instance with the
-     * SIP Communicator-specific look and feel applied.
-     *
-     * @param text the text to be displayed in the <tt>JRadioButton</tt>
-     * @return a new <tt>JRadioButton</tt> instance with the
-     * SIP Communicator-specific look and feel applied
-     */
-    private JRadioButton createRadioButton(String text)
-    {
-        JRadioButton radioButton = new JRadioButton(text);
-
-        /* We want it transparent on Windows as well. */
-        if (OSUtils.IS_WINDOWS)
-            radioButton.setContentAreaFilled(false);
-        return radioButton;
     }
 
     /**
