@@ -18,6 +18,7 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.plugin.spellcheck.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -483,6 +484,55 @@ public class OperationSetBasicTelephonySipImpl
                 processed = true;
             }
             break;
+         // 301/302 FORWARD
+        case Response.MOVED_TEMPORARILY:
+        case Response.MOVED_PERMANENTLY:
+            {
+                CallPeerSipImpl callPeer = activeCallsRepository
+                        .findCallPeer(clientTransaction.getDialog());
+
+                if (callPeer == null)
+                {
+                    logger.error("Failed to find a forwarded call peer.");
+                    return true;
+                }
+
+                ContactHeader contactHeader = (ContactHeader)response
+                    .getHeader(ContactHeader.NAME);
+
+                if( contactHeader == null )
+                {
+                    logger.error("Received a forward with no Contact " +
+                        "destination: " + response.getStatusCode()
+                         + " " + response.getReasonPhrase());
+
+                    callPeer.setState(CallPeerState.FAILED,
+                                response.getReasonPhrase());
+
+                    return true;
+                }
+
+                //first start a call to the new address then end the old
+                //one.
+                CallSipImpl call = callPeer.getCall();
+                try
+                {
+                    call.invite(contactHeader.getAddress(), null);
+                }
+                catch (OperationFailedException exc)
+                {
+                    logger.error("Call forward failed for address " +
+                            contactHeader.getAddress(), exc);
+                    callPeer.setState(CallPeerState.DISCONNECTED,
+                            "Call forwarded failed. " + exc.getMessage());
+                }
+
+                callPeer.setState(CallPeerState.DISCONNECTED,
+                            "Call forwarded. " + response.getReasonPhrase());
+
+                processed = true;
+            }
+            break;
         // errors
         default:
             int responseStatusCodeRange = responseStatusCode / 100;
@@ -507,14 +557,14 @@ public class OperationSetBasicTelephonySipImpl
                 return true;
             }
 
+            CallPeerSipImpl callPeer
+                = activeCallsRepository.findCallPeer(clientTransaction
+                        .getDialog());
+
             if ((responseStatusCodeRange == 4)
                 || (responseStatusCodeRange == 5)
                 || (responseStatusCodeRange == 6))
             {
-                CallPeerSipImpl callPeer =
-                    activeCallsRepository.findCallPeer(clientTransaction
-                        .getDialog());
-
                 logger.error("Received error: " + response.getStatusCode()
                     + " " + response.getReasonPhrase());
 
@@ -524,6 +574,20 @@ public class OperationSetBasicTelephonySipImpl
 
                 processed = true;
             }
+            else if ((responseStatusCodeRange == 2)
+                  || (responseStatusCodeRange == 3))
+            {
+                logger.error("Received an non-supported final response: "
+                        + response.getStatusCode() + " "
+                        + response.getReasonPhrase());
+
+                if (callPeer != null)
+                    callPeer.setState(CallPeerState.FAILED,
+                                    response.getReasonPhrase());
+
+                processed = true;
+            }
+
             // ignore everything else.
             break;
         }
