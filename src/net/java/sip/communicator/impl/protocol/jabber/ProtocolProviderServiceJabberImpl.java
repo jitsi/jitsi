@@ -546,17 +546,25 @@ public class ProtocolProviderServiceJabberImpl
                     }
                 }
 
-                // check to see is there SRV records for this server domain
+                boolean isServerOverriden =
+                    getAccountID().getAccountPropertyBoolean(
+                        ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
+
                 try
                 {
-                    SRVRecord srvRecords[] = NetworkUtils
-                        .getSRVRecords("xmpp-client", "tcp", serviceName);
-
-                    if(srvRecords != null)
+                    if(!isServerOverriden)
                     {
-                        for(int i = 0 ; i < srvRecords.length ; i++)
+                        // check to see is there SRV records for
+                        // this server domain
+                        SRVRecord srvRecords[] = NetworkUtils
+                            .getSRVRecords("xmpp-client", "tcp", serviceName);
+
+                        if(srvRecords != null)
                         {
-                            serverAddresses.add(srvRecords[i].getTarget());
+                            for(int i = 0 ; i < srvRecords.length ; i++)
+                            {
+                                serverAddresses.add(srvRecords[i].getTarget());
+                            }
                         }
                     }
 

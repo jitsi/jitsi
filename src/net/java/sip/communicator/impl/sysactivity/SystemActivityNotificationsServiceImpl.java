@@ -49,9 +49,20 @@ public class SystemActivityNotificationsServiceImpl
             = new ArrayList<SystemActivityChangeListener>();
 
     /**
+     * The interval between checks when not idle.
+     */
+    private static final int CHECK_FOR_IDLE_DEFAULT = 30*1000;
+
+    /**
+     * The interval between checks when idle. The interval is shorter
+     * so we can react almost immediately when we are active again.
+     */
+    private static final int CHECK_FOR_IDLE_WHEN_IDLE = 1000;
+
+    /**
      * The time in milliseconds between two checks for system idle.
      */
-    private static final int idleStateCheckDelay = 10*1000;
+    private static int idleStateCheckDelay = CHECK_FOR_IDLE_DEFAULT;
 
     /**
      * Whether current service is started or stopped.
@@ -202,7 +213,7 @@ public class SystemActivityNotificationsServiceImpl
     /**
      * Callback method when receiving notifications.
      *
-     * @param type
+     * @param type type of the notification.
      */
     @Override
     public void notify(int type)
@@ -316,10 +327,11 @@ public class SystemActivityNotificationsServiceImpl
         {
             try
             {
+                long idleTime = 0;
                 if(idleChangeListeners.size() > 0)
                 {
                     // check
-                    long idleTime = SystemActivityNotifications.getLastInput();
+                    idleTime = SystemActivityNotifications.getLastInput();
 
                     if(idleTime < idleStateCheckDelay
                         && listenersInIdleState.size() > 0)
@@ -334,13 +346,36 @@ public class SystemActivityNotificationsServiceImpl
                     for(Map.Entry<SystemActivityChangeListener, Long> entry :
                         idleChangeListeners.entrySet())
                     {
-                        if(entry.getValue().longValue() <= idleTime)
+                        if(entry.getValue() <= idleTime)
                         {
                             fireSystemIdleEvent(entry.getKey());
 
                             listenersInIdleState.add(entry.getKey());
                         }
                     }
+                }
+
+                // if the minimum check for idle is X minutes
+                // we will wait before checking (X - Y + 1sec)
+                // where Y is the last idle time returned by OS
+                if(listenersInIdleState.size() > 0)
+                {
+                    idleStateCheckDelay = CHECK_FOR_IDLE_WHEN_IDLE;
+                }
+                else if(idleTime != 0)
+                {
+                    long minIdleSetting =
+                        Collections.min(idleChangeListeners.values());
+                    int newSetting = (int)(minIdleSetting - idleTime) + 1000;
+
+                    if(newSetting > 0)
+                        idleStateCheckDelay = newSetting;
+                    else
+                        idleStateCheckDelay = CHECK_FOR_IDLE_DEFAULT;
+                }
+                else
+                {
+                    idleStateCheckDelay = CHECK_FOR_IDLE_DEFAULT;
                 }
 
                 // wait for the specified time
@@ -369,43 +404,11 @@ public class SystemActivityNotificationsServiceImpl
      */
     protected void fireSystemActivityEvent(SystemActivityEvent evt)
     {
-        Collection<SystemActivityChangeListener> listeners = null;
+        Collection<SystemActivityChangeListener> listeners;
         synchronized (this.activityChangeListeners)
         {
             listeners = new ArrayList<SystemActivityChangeListener>(
                 this.activityChangeListeners);
-        }
-
-        if (logger.isDebugEnabled())
-            logger.debug("Dispatching SystemActivityEvent Listeners="
-                + listeners.size() + " evt=" + evt);
-
-        for (SystemActivityChangeListener listener : listeners)
-        {
-            try
-            {
-                listener.activityChanged(evt);
-            }
-            catch (Throwable e)
-            {
-                logger.error("Error delivering event", e);
-            }
-        }
-    }
-
-    /**
-     * Delivers the specified event to all registered listeners.
-     *
-     * @param evt the <tt>SystemActivityEvent</tt> that we'd like delivered to
-     * all registered message listeners.
-     */
-    protected void fireSystemIdleEvent(SystemActivityEvent evt)
-    {
-        Collection<SystemActivityChangeListener> listeners = null;
-        synchronized (this.idleChangeListeners)
-        {
-            listeners = new ArrayList<SystemActivityChangeListener>(
-                this.idleChangeListeners.keySet());
         }
 
         if (logger.isDebugEnabled())
