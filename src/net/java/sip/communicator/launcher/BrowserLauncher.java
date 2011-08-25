@@ -53,7 +53,6 @@ public class BrowserLauncher
          * FileProtocolHandler to do so, on Linux, loops through a list of
          * known browsers until we find one that seems to work.
          */
-        @SuppressWarnings ("deprecation")
         public void run()
         {
             try
