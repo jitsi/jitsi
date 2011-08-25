@@ -356,6 +356,7 @@ public class DePacketizer
      * @return <tt>BUFFER_PROCESSED_OK</tt> if buffer has been successfully
      * processed
      */
+    @SuppressWarnings("fallthrough")
     protected int doProcess(Buffer inBuffer, Buffer outBuffer)
     {
         /*
@@ -524,8 +525,6 @@ public class DePacketizer
      * respect to time between two subsequent requests for key frames
      * @return <tt>true</tt> if a key frame was indeed requested in response to
      * the call; otherwise, <tt>false</tt>
-     * @deprecated The method and its callers are part of a quick workaround to
-     * expose the logic of <tt>DePacketizer</tt> to <tt>JNIDecoder</tt>.
      */
     public synchronized boolean requestKeyFrame(boolean urgent)
     {
