@@ -7,16 +7,19 @@ System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.certificate
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,
- net.java.sip.communicator.service.resources,
- net.java.sip.communicator.service.fileaccess,
- net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.util.swing,
+ net.java.sip.communicator.service.configuration,
+ net.java.sip.communicator.service.credentialsstorage,
+ net.java.sip.communicator.service.fileaccess,
  net.java.sip.communicator.service.httputil,
+ net.java.sip.communicator.service.resources,
  javax.net.ssl,
+ javax.security.auth.callback,
  javax.security.auth.x500,
  javax.naming,
  javax.naming.ldap,
  javax.swing,
  org.apache.http.conn.ssl,
  org.bouncycastle.asn1,
- org.bouncycastle.asn1.x509
+ org.bouncycastle.asn1.x509,
+ sun.security.pkcs11

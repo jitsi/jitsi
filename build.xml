@@ -932,7 +932,7 @@
         bundle-plugin-loggingutils,bundle-plugin-dnsconfig,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
-        bundle-plugin-contactsourceconfig"/>
+        bundle-plugin-contactsourceconfig,bundle-plugin-certconfig"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2711,4 +2711,12 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+
+    <target name="bundle-plugin-certconfig">
+        <jar compress="false" destfile="${bundles.dest}/plugin-certconfig.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/certconfig/certconfig.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/certconfig"
+                prefix="net/java/sip/communicator/plugin/certconfig" />
+        </jar>
+    </target>
 </project>

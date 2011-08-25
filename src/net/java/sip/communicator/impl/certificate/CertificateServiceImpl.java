@@ -6,14 +6,17 @@
  */
 package net.java.sip.communicator.impl.certificate;
 
+import java.beans.*;
 import java.io.*;
 import java.net.*;
 import java.security.*;
+import java.security.KeyStore.*;
 import java.security.cert.*;
 import java.security.cert.Certificate;
 import java.util.*;
 
 import javax.net.ssl.*;
+import javax.security.auth.callback.*;
 import javax.swing.*;
 
 import org.bouncycastle.asn1.*;
@@ -22,9 +25,11 @@ import org.bouncycastle.asn1.x509.X509Extension;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Implementation of the CertificateService. It asks the user to trust a
@@ -33,9 +38,27 @@ import net.java.sip.communicator.util.*;
  * @author Ingo Bauersachs
  */
 public class CertificateServiceImpl
-    implements CertificateService
+    implements CertificateService, PropertyChangeListener
 {
+    // ------------------------------------------------------------------------
+    // static data
+    // ------------------------------------------------------------------------
+    private final List<KeyStoreType> supportedTypes =
+        new LinkedList<KeyStoreType>()
+        {
+            {
+                add(new KeyStoreType("PKCS11", new String[]
+                { ".dll", ".so" }, false));
+                add(new KeyStoreType("PKCS12", new String[]
+                { ".p12", ".pfx" }, true));
+                add(new KeyStoreType(KeyStore.getDefaultType(), new String[]
+                { ".ks", ".jks" }, true));
+            }
+        };
+
+    // ------------------------------------------------------------------------
     // services
+    // ------------------------------------------------------------------------
     private static final Logger logger =
         Logger.getLogger(CertificateServiceImpl.class);
 
@@ -45,7 +68,12 @@ public class CertificateServiceImpl
     private final ConfigurationService config =
         CertificateVerificationActivator.getConfigurationService();
 
+    private final CredentialsStorageService credService =
+        CertificateVerificationActivator.getCredService();
+
+    // ------------------------------------------------------------------------
     // properties
+    // ------------------------------------------------------------------------
     /**
      * Base property name for the storage of certificate user preferences.
      */
@@ -55,7 +83,9 @@ public class CertificateServiceImpl
     /** Hash algorithm for the cert thumbprint*/
     private final static String THUMBPRINT_HASH_ALGORITHM = "SHA1";
 
-    // variables
+    // ------------------------------------------------------------------------
+    // fields
+    // ------------------------------------------------------------------------
     /**
      * Stores the certificates that are trusted as long as this service lives.
      */
@@ -81,6 +111,142 @@ public class CertificateServiceImpl
         return entry;
     }
 
+    // ------------------------------------------------------------------------
+    // Truststore configuration
+    // ------------------------------------------------------------------------
+    public CertificateServiceImpl()
+    {
+        setTrustStore();
+        config.addPropertyChangeListener(PNAME_TRUSTSTORE, this);
+    }
+
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        setTrustStore();
+    }
+
+    private void setTrustStore()
+    {
+        String trustStore = (String)config.getProperty(PNAME_TRUSTSTORE);
+        if(trustStore != null)
+        {
+            System.setProperty("javax.net.ssl.trustStoreType",
+                trustStore);
+            String password =
+                (String) credService.loadPassword(PNAME_TRUSTSTORE_PASSWORD);
+            if(password != null)
+            {
+                System.setProperty("javax.net.ssl.trustStorePassword",
+                    password);
+            }
+        }
+        else
+        {
+            System.getProperties().remove("javax.net.ssl.trustStoreType");
+            System.getProperties().remove("javax.net.ssl.trustStorePassword");
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // Client authentication configuration
+    // ------------------------------------------------------------------------
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.certificate.CertificateService#
+     * getSupportedKeyStoreTypes()
+     */
+    public List<KeyStoreType> getSupportedKeyStoreTypes()
+    {
+        return supportedTypes;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.certificate.CertificateService#
+     * getClientAuthCertificateConfigs()
+     */
+    public List<CertificateConfigEntry> getClientAuthCertificateConfigs()
+    {
+        List<CertificateConfigEntry> map =
+            new LinkedList<CertificateConfigEntry>();
+        for (String propName : config.getPropertyNamesByPrefix(
+            PNAME_CLIENTAUTH_CERTCONFIG_BASE, false))
+        {
+            String propValue = config.getString(propName);
+            if(propValue == null || !propName.endsWith(propValue))
+                continue;
+
+            String pnBase = PNAME_CLIENTAUTH_CERTCONFIG_BASE
+                + "." + propValue;
+            CertificateConfigEntry e = new CertificateConfigEntry();
+            e.setId(propValue);
+            e.setAlias(config.getString(pnBase + ".alias"));
+            e.setDisplayName(config.getString(pnBase + ".displayName"));
+            e.setKeyStore(config.getString(pnBase + ".keyStore"));
+            e.setSavePassword(config.getBoolean(pnBase + ".savePassword", false));
+            if(e.isSavePassword())
+            {
+                e.setKeyStorePassword(credService.loadPassword(pnBase));
+            }
+            String type = config.getString(pnBase + ".keyStoreType");
+            for(KeyStoreType kt : getSupportedKeyStoreTypes())
+            {
+                if(kt.getName().equals(type))
+                {
+                    e.setKeyStoreType(kt);
+                    break;
+                }
+            }
+            map.add(e);
+        }
+        return map;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.certificate.CertificateService#
+     * setClientAuthCertificateConfig
+     * (net.java.sip.communicator.service.certificate.CertificateConfigEntry)
+     */
+    public void setClientAuthCertificateConfig(CertificateConfigEntry e)
+    {
+        if (e.getId() == null)
+            e.setId("conf" + Math.abs(new Random().nextInt()));
+        String pn = PNAME_CLIENTAUTH_CERTCONFIG_BASE + "." + e.getId();
+        config.setProperty(pn, e.getId());
+        config.setProperty(pn + ".alias", e.getAlias());
+        config.setProperty(pn + ".displayName", e.getDisplayName());
+        config.setProperty(pn + ".keyStore", e.getKeyStore());
+        config.setProperty(pn + ".savePassword", e.isSavePassword());
+        if (e.isSavePassword())
+            credService.storePassword(pn, e.getKeyStorePassword());
+        else
+            credService.removePassword(pn);
+        config.setProperty(pn + ".keyStoreType", e.getKeyStoreType());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.certificate.CertificateService#
+     * removeClientAuthCertificateConfig(java.lang.String)
+     */
+    public void removeClientAuthCertificateConfig(String id)
+    {
+        for (String p : config.getPropertyNamesByPrefix(
+            PNAME_CLIENTAUTH_CERTCONFIG_BASE + "." + id, true))
+        {
+            config.removeProperty(p);
+        }
+        config.removeProperty(PNAME_CLIENTAUTH_CERTCONFIG_BASE + "." + id);
+    }
+
+    // ------------------------------------------------------------------------
+    // Certificate trust handling
+    // ------------------------------------------------------------------------
     /*
      * (non-Javadoc)
      * 
@@ -157,18 +323,140 @@ public class CertificateServiceImpl
 
             kmFactory.init(ks, keyStorePassword == null ? null
                 : keyStorePassword.toCharArray());
+            return getSSLContext(kmFactory.getKeyManagers(), trustManager);
+        }
+        catch (Exception e)
+        {
+            throw new GeneralSecurityException("Cannot init SSLContext", e);
+        }
+    }
 
+    private Builder loadKeyStore(final CertificateConfigEntry entry)
+        throws KeyStoreException
+    {
+        final File f = new File(entry.getKeyStore());
+        final KeyStoreType kt = entry.getKeyStoreType();
+        if ("PKCS11".equals(kt.getName()))
+        {
+            String config =
+                "name=" + f.getName() + "\nlibrary=" + f.getAbsoluteFile();
+            Provider p =
+                new sun.security.pkcs11.SunPKCS11(new ByteArrayInputStream(
+                    config.getBytes()));
+            Security.insertProviderAt(p, 0);
+        }
+        KeyStore.Builder ksBuilder =
+            KeyStore.Builder.newInstance(kt.getName(), null, f,
+                new KeyStore.CallbackHandlerProtection(new CallbackHandler()
+                {
+                    public void handle(Callback[] callbacks)
+                        throws IOException,
+                        UnsupportedCallbackException
+                    {
+                        for (Callback cb : callbacks)
+                        {
+                            if (!(cb instanceof PasswordCallback))
+                                throw new UnsupportedCallbackException(cb);
+
+                            PasswordCallback pwcb = (PasswordCallback) cb;
+                            if (entry.isSavePassword())
+                            {
+                                pwcb.setPassword(entry.getKeyStorePassword()
+                                    .toCharArray());
+                                return;
+                            }
+                            else
+                            {
+                                AuthenticationWindow aw =
+                                    new AuthenticationWindow(
+                                        null,
+                                        f.getName(),
+                                        null,
+                                        kt.getName(),
+                                        false,
+                                        null
+                                    );
+                                aw.setAllowSavePassword(false);
+                                aw.setVisible(true);
+                                if (!aw.isCanceled())
+                                    pwcb.setPassword(aw.getPassword());
+                                else
+                                    throw new IOException("User cancel");
+                            }
+                        }
+                    }
+                }));
+        return ksBuilder;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.certificate.CertificateService#
+     * getSSLContext(java.lang.String, javax.net.ssl.X509TrustManager)
+     */
+    public SSLContext getSSLContext(String clientCertConfig,
+        X509TrustManager trustManager)
+        throws GeneralSecurityException
+    {
+        try
+        {
+            if(clientCertConfig == null)
+                return getSSLContext(trustManager);
+
+            CertificateConfigEntry entry = null;
+            for (CertificateConfigEntry e : getClientAuthCertificateConfigs())
+            {
+                if (e.getId().equals(clientCertConfig))
+                {
+                    entry = e;
+                    break;
+                }
+            }
+            if (entry == null)
+                throw new GeneralSecurityException(
+                    "Client certificate config with id <"
+                    + clientCertConfig
+                    + "> not found."
+                );
+
+            final KeyManagerFactory kmf =
+                KeyManagerFactory.getInstance("NewSunX509");
+            kmf.init(new KeyStoreBuilderParameters(loadKeyStore(entry)));
+
+            return getSSLContext(kmf.getKeyManagers(), trustManager);
+        }
+        catch (Exception e)
+        {
+            throw new GeneralSecurityException("Cannot init SSLContext", e);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.certificate.CertificateService#
+     * getSSLContext(javax.net.ssl.KeyManager[], javax.net.ssl.X509TrustManager)
+     */
+    public SSLContext getSSLContext(KeyManager[] keyManagers,
+        X509TrustManager trustManager)
+        throws GeneralSecurityException
+    {
+        try
+        {
             //TODO: inject our own socket factory to use our own DNS stuff
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(kmFactory.getKeyManagers(), new TrustManager[]
-            { trustManager }, null);
+            sslContext.init(
+                keyManagers,
+                new TrustManager[] { trustManager },
+                null
+            );
 
             return sslContext;
         }
         catch (Exception e)
         {
-            throw new GeneralSecurityException("Cannot init SSLContext: "
-                + e.getMessage());
+            throw new GeneralSecurityException("Cannot init SSLContext", e);
         }
     }
 
@@ -663,7 +951,7 @@ public class CertificateServiceImpl
      * @return The SHA-1 hash of the certificate.
      * @throws CertificateException
      */
-    static String getThumbprint(Certificate cert, String algorithm)
+    private static String getThumbprint(Certificate cert, String algorithm)
         throws CertificateException
     {
         MessageDigest digest;

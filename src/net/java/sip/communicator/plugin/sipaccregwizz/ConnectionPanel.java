@@ -11,6 +11,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -41,6 +42,8 @@ public class ConnectionPanel
     private final JTextField voicemailField = new JTextField(4);
 
     private final JCheckBox proxyAutoCheckBox;
+
+    private final JComboBox certificate = new JComboBox();
 
     private JComboBox transportCombo = new JComboBox(new Object[]
     { "UDP", "TCP", "TLS" });
@@ -101,7 +104,8 @@ public class ConnectionPanel
         JPanel mainPanel = new TransparentPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        JPanel registrarMainPanel = new TransparentPanel(new BorderLayout(10, 10));
+        JPanel registrarMainPanel =
+            new TransparentPanel(new BorderLayout(10, 10));
 
         JPanel labelsPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
@@ -118,8 +122,12 @@ public class ConnectionPanel
         JLabel serverPortLabel
             = new JLabel(Resources.getString("service.gui.PORT"));
 
+        JLabel certLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.CLIENT_CERTIFICATE"));
+
         labelsPanel.add(serverLabel);
         labelsPanel.add(authNameLabel);
+        labelsPanel.add(certLabel);
 
         JPanel serverPanel = new TransparentPanel(new BorderLayout(5, 5));
         serverPanel.add(serverField, BorderLayout.CENTER);
@@ -131,6 +139,8 @@ public class ConnectionPanel
 
         valuesPanel.add(serverPanel);
         valuesPanel.add(authNameField);
+        valuesPanel.add(certificate);
+        initCertificateAliases(null);
 
         registrarMainPanel.add(labelsPanel, BorderLayout.WEST);
         registrarMainPanel.add(valuesPanel, BorderLayout.CENTER);
@@ -213,6 +223,21 @@ public class ConnectionPanel
         mainPanel.add(voicemailPanel);
 
         this.add(mainPanel, BorderLayout.NORTH);
+    }
+
+    private void initCertificateAliases(String id)
+    {
+        certificate.removeAllItems();
+        certificate.insertItemAt(
+            Resources.getString("plugin.sipaccregwizz.NO_CERTIFICATE"), 0);
+        certificate.setSelectedIndex(0);
+        for(CertificateConfigEntry e : SIPAccRegWizzActivator
+            .getCertificateService().getClientAuthCertificateConfigs())
+        {
+            certificate.addItem(e);
+            if(e.getId().equals(id))
+                certificate.setSelectedItem(e);
+        }
     }
 
     /**
@@ -474,6 +499,31 @@ public class ConnectionPanel
     {
         enableSipZrtpAttribute.setSelected(isSipZrtpEnabled);
         enableSipZrtpAttribute.setEnabled(isDefaultEncryptionEnabled);
+    }
+
+    /**
+     * Gets the ID of the selected client TLS certificate or <tt>null</tt> if no
+     * certificate is selected.
+     * 
+     * @return the ID of the selected client TLS certificate or <tt>null</tt> if
+     *         no certificate is selected.
+     */
+    String getCertificateId()
+    {
+        if(certificate.getSelectedItem() != null
+            && certificate.getSelectedItem() instanceof CertificateConfigEntry)
+            return ((CertificateConfigEntry)certificate.getSelectedItem())
+                .getId();
+        return null;
+    }
+
+    /**
+     * Sets the selected client TLS certificate entry.
+     * @param id The ID of the entry to select.
+     */
+    void setCertificateId(String id)
+    {
+        initCertificateAliases(id);
     }
 
     /**

@@ -7,6 +7,7 @@ System-Bundle: yes
 Export-package: net.java.sip.communicator.plugin.sipaccregwizz
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.browserlauncher,
+ net.java.sip.communicator.service.certificate,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.contactlist.event,

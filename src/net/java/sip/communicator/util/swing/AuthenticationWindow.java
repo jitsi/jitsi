@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class AuthenticationWindow
-    extends SIPCommFrame
+    extends SIPCommDialog
     implements ActionListener
 {
     private static final long serialVersionUID = 1L;
@@ -105,7 +105,23 @@ public class AuthenticationWindow
                                 boolean isUserNameEditable,
                                 ImageIcon icon)
     {
-        super(false);
+        this(null, server, isUserNameEditable, icon);
+    }
+
+    /**
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     *
+     * @param owner the owner of this dialog
+     * @param server the server name
+     * @param isUserNameEditable indicates if the user name is editable
+     * @param icon the icon to display on the left of the authentication window
+     */
+    public AuthenticationWindow(Dialog owner,
+                                String server,
+                                boolean isUserNameEditable,
+                                ImageIcon icon)
+    {
+        super(owner, false);
 
         this.server = server;
 
@@ -164,7 +180,32 @@ public class AuthenticationWindow
                                 ImageIcon icon,
                                 String errorMessage)
     {
-        this(userName, password, server, isUserNameEditable, icon);
+        this(null, userName, password, server, isUserNameEditable,
+            icon, errorMessage);
+    }
+
+    /**
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     *
+     * @param owner the owner of this dialog
+     * @param userName the user name to set by default
+     * @param password the password to set by default
+     * @param server the server name this authentication window is about
+     * @param isUserNameEditable indicates if the user name should be editable
+     * by the user or not
+     * @param icon the icon displayed on the left of the authentication window
+     * @param errorMessage an error message explaining a reason for opening
+     * the authentication dialog (when a wrong password was provided, etc.)
+     */
+    public AuthenticationWindow(Dialog owner,
+                                String userName,
+                                char[] password,
+                                String server,
+                                boolean isUserNameEditable,
+                                ImageIcon icon,
+                                String errorMessage)
+    {
+        this(owner, userName, password, server, isUserNameEditable, icon);
 
         this.infoTextArea.setForeground(Color.RED);
         this.infoTextArea.setText(errorMessage);
@@ -191,7 +232,36 @@ public class AuthenticationWindow
                                 ImageIcon icon,
                                 String errorMessage)
     {
-        this(userName, password, server, isUserNameEditable, icon, errorMessage);
+        this(null, userName, password, server, isUserNameEditable,
+            isRememberPassword, icon, errorMessage);
+    }
+
+
+    /**
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     *
+     * @param owner the owner of this dialog
+     * @param userName the user name to set by default
+     * @param password the password to set by default
+     * @param server the server name this authentication window is about
+     * @param isUserNameEditable indicates if the user name should be editable
+     * by the user or not
+     * @param isRememberPassword indicates if the password should be rememberd
+     * @param icon the icon displayed on the left of the authentication window
+     * @param errorMessage an error message explaining a reason for opening
+     * the authentication dialog (when a wrong password was provided, etc.)
+     */
+    public AuthenticationWindow(Dialog owner,
+                                String userName,
+                                char[] password,
+                                String server,
+                                boolean isUserNameEditable,
+                                boolean isRememberPassword,
+                                ImageIcon icon,
+                                String errorMessage)
+    {
+        this(owner, userName, password, server, isUserNameEditable,
+            icon, errorMessage);
 
         this.isRememberPassword = isRememberPassword;
     }
@@ -213,7 +283,29 @@ public class AuthenticationWindow
                 boolean isUserNameEditable,
                 ImageIcon icon)
     {
-        this(server, isUserNameEditable, icon);
+        this(null, userName, password, server, isUserNameEditable, icon);
+    }
+
+    /**
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     *
+     * @param owner the owner of this dialog
+     * @param userName the user name to set by default
+     * @param password the password to set by default
+     * @param server the server name this authentication window is about
+     * @param isUserNameEditable indicates if the user name should be editable
+     * by the user or not
+     * @param icon the icon displayed on the left of the authentication window
+     */
+    public AuthenticationWindow(
+                Dialog owner,
+                String userName,
+                char[] password,
+                String server,
+                boolean isUserNameEditable,
+                ImageIcon icon)
+    {
+        this(owner, server, isUserNameEditable, icon);
 
         if (userName != null)
         {
@@ -225,6 +317,15 @@ public class AuthenticationWindow
 
         if (password != null)
             passwdField.setText(new String(password));
+    }
+
+    /**
+     * Shows or hides the "save password" checkbox.
+     * @param allow the checkbox is shown when allow is <tt>true</tt>
+     */
+    public void setAllowSavePassword(boolean allow)
+    {
+        rememberPassCheckBox.setVisible(allow);
     }
 
     /**
@@ -322,6 +423,11 @@ public class AuthenticationWindow
 
         this.loginButton.setName("ok");
         this.cancelButton.setName("cancel");
+        if(loginButton.getPreferredSize().width
+            > cancelButton.getPreferredSize().width)
+            cancelButton.setPreferredSize(loginButton.getPreferredSize());
+        else
+            loginButton.setPreferredSize(cancelButton.getPreferredSize());
 
         this.loginButton.setMnemonic(
             UtilActivator.getResources().getI18nMnemonic("service.gui.OK"));
@@ -416,6 +522,8 @@ public class AuthenticationWindow
     {
         this.setName("AUTHENTICATION");
 
+        if(getOwner() != null)
+            setModal(true);
         super.setVisible(isVisible);
 
         if(isVisible)
@@ -425,6 +533,9 @@ public class AuthenticationWindow
                 uinValue.requestFocus();
             else
                 passwdField.requestFocus();
+
+            if(getOwner() != null)
+                return;
 
             synchronized (lock)
             {

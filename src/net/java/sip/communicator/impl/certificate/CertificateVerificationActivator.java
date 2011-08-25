@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.certificate;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -41,6 +42,11 @@ public class CertificateVerificationActivator
      * The service giving access to all resources.
      */
     private static ResourceManagementService resourcesService;
+
+    /**
+     * The service to store and access passwords.
+     */
+    private static CredentialsStorageService credService;
 
     /**
      * Called when this bundle is started.
@@ -124,5 +130,24 @@ public class CertificateVerificationActivator
                         ResourceManagementService.class);
         }
         return resourcesService;
+    }
+
+    /**
+     * Returns the <tt>CredentialsStorageService</tt>, through which we will
+     * access all passwords.
+     *
+     * @return the <tt>CredentialsStorageService</tt>, through which we will
+     * access all passwords.
+     */
+    public static CredentialsStorageService getCredService()
+    {
+        if (credService == null)
+        {
+            credService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        CredentialsStorageService.class);
+        }
+        return credService;
     }
 }

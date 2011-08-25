@@ -197,6 +197,13 @@ public abstract class ProtocolProviderFactory
         "DEFAULT_SIPZRTP_ATTRIBUTE";
 
     /**
+     * The name of the property which defines the ID of the client TLS
+     * certificate configuration entry.
+     */
+    public static final String CLIENT_TLS_CERTIFICATE = 
+        "CLIENT_TLS_CERTIFICATE";
+
+    /**
      * The name of the property under which we store the boolean value
      * indicating if the user name should be automatically changed if the
      * specified name already exists. This property is meant to be used by IRC

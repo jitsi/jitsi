@@ -10,6 +10,7 @@ import java.util.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -41,6 +42,8 @@ public class SIPAccRegWizzActivator
     private static SIPAccountRegistrationWizard sipWizard;
 
     private static UIService uiService;
+
+    private static CertificateService certService;
 
     /**
      * Starts this bundle.
@@ -154,6 +157,26 @@ public class SIPAccRegWizzActivator
         }
 
         return configService;
+    }
+
+    /**
+     * Returns the <tt>CertificateService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>CertificateService</tt> obtained from the bundle
+     * context
+     */
+    public static CertificateService getCertificateService()
+    {
+        if (certService == null)
+        {
+            ServiceReference serviceReference = bundleContext
+                .getServiceReference(CertificateService.class.getName());
+
+            certService = (CertificateService)bundleContext
+                .getService(serviceReference);
+        }
+
+        return certService;
     }
 
     /**

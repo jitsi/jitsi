@@ -32,6 +32,8 @@ public class SIPAccountRegistration
 
     private boolean rememberPassword = true;
 
+    private String tlsClientCertificate;
+
     private String serverAddress;
 
     private String displayName;
@@ -145,6 +147,24 @@ public class SIPAccountRegistration
     public void setRememberPassword(boolean rememberPassword)
     {
         this.rememberPassword = rememberPassword;
+    }
+
+    /**
+     * Gets the ID of the client certificate configuration.
+     * @return the ID of the client certificate configuration.
+     */
+    public String getTlsClientCertificate()
+    {
+        return tlsClientCertificate;
+    }
+
+    /**
+     * Sets the ID of the client certificate configuration.
+     * @param id the client certificate configuration template ID.
+     */
+    public void setTlsClientCertificate(String id)
+    {
+        tlsClientCertificate = id;
     }
 
     /**

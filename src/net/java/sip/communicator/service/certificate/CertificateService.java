@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.certificate;
 
 import java.security.GeneralSecurityException;
 import java.security.cert.*;
+import java.util.*;
 
 import javax.net.ssl.*;
 
@@ -20,6 +21,9 @@ import javax.net.ssl.*;
  */
 public interface CertificateService
 {
+    // ------------------------------------------------------------------------
+    // Configuration property names
+    // ------------------------------------------------------------------------
     /**
      * Property for always trust mode. When enabled certificate check is
      * skipped.
@@ -36,6 +40,29 @@ public interface CertificateService
         "net.java.sip.communicator.service.tls.NO_USER_INTERACTION";
 
     /**
+     * The property name prefix of all client authentication configurations.
+     */
+    public static final String PNAME_CLIENTAUTH_CERTCONFIG_BASE =
+        "net.java.sip.communicator.service.cert.clientauth";
+
+    /**
+     * Property that is being applied to the system property
+     * <tt>javax.net.ssl.trustStoreType</tt>
+     */
+    public static final String PNAME_TRUSTSTORE =
+        "net.java.sip.communicator.service.cert.truststore.file";
+
+    /**
+     * Property that is being applied to the system property
+     * <tt>javax.net.ssl.trustStorePassword</tt>
+     */
+    public static final String PNAME_TRUSTSTORE_PASSWORD =
+        "net.java.sip.communicator.service.cert.truststore";
+
+    // ------------------------------------------------------------------------
+    // constants
+    // ------------------------------------------------------------------------
+    /**
      * Result of user interaction. User does not trust this certificate.
      */
     public final static int DO_NOT_TRUST = 0;
@@ -51,6 +78,43 @@ public interface CertificateService
      */
     public final static int TRUST_THIS_SESSION_ONLY = 2;
 
+    // ------------------------------------------------------------------------
+    // Client authentication configuration
+    // ------------------------------------------------------------------------
+    /**
+     * Returns all saved {@see CertificateConfigEntry}s.
+     * 
+     * @return List of the saved authentication configurations.
+     */
+    public List<CertificateConfigEntry> getClientAuthCertificateConfigs();
+
+    /**
+     * Deletes a saved {@see CertificateConfigEntry}.
+     * 
+     * @param id The ID ({@see CertificateConfigEntry#getId()}) of the entry to
+     *            delete.
+     */
+    public void removeClientAuthCertificateConfig(String id);
+
+    /**
+     * Saves or updates the passed @see CertificateConfigEntry to the config.
+     * If {@see CertificateConfigEntry#getId()} returns null, a new entry is
+     * created.
+     * 
+     * @param entry The @see CertificateConfigEntry to save or update.
+     */
+    public void setClientAuthCertificateConfig(CertificateConfigEntry entry);
+
+    /**
+     * Gets a list of all supported KeyStore types.
+     * 
+     * @return a list of all supported KeyStore types.
+     */
+    public List<KeyStoreType> getSupportedKeyStoreTypes();
+
+    // ------------------------------------------------------------------------
+    // Certificate trust handling
+    // ------------------------------------------------------------------------
     /**
      * Get an SSL Context that validates certificates based on the JRE default
      * check and asks the user when the JRE check fails.
@@ -72,6 +136,35 @@ public interface CertificateService
      * @throws GeneralSecurityException
      */
     public SSLContext getSSLContext(X509TrustManager trustManager)
+        throws GeneralSecurityException;
+
+    /**
+     * Get an SSL Context with the specified trustmanager.
+     * 
+     * @param clientCertConfig The ID of a client certificate configuration
+     *            entry that is to be used when the server asks for a client TLS
+     *            certificate
+     * @param trustManager The trustmanager that will be used by the created
+     *            SSLContext
+     * @return An SSL context based on the supplied trust manager.
+     * @throws GeneralSecurityException
+     */
+    public SSLContext getSSLContext(String clientCertConfig,
+        X509TrustManager trustManager)
+        throws GeneralSecurityException;
+
+    /**
+     * Get an SSL Context with the specified trustmanager.
+     * 
+     * @param keyManagers The key manager(s) to be used for client
+     *            authentication
+     * @param trustManager The trustmanager that will be used by the created
+     *            SSLContext
+     * @return An SSL context based on the supplied trust manager.
+     * @throws GeneralSecurityException
+     */
+    public SSLContext getSSLContext(KeyManager[] keyManagers,
+        X509TrustManager trustManager)
         throws GeneralSecurityException;
 
     /**

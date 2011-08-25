@@ -473,6 +473,9 @@ public class SIPAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION,
                 registration.getSubscriptionExpiration());
 
+        accountProperties.put(ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE,
+                registration.getTlsClientCertificate());
+
         if(registration.getKeepAliveMethod() != null)
             accountProperties.put("KEEP_ALIVE_METHOD",
                 registration.getKeepAliveMethod());

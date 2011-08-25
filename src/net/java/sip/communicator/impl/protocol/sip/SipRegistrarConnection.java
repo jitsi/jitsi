@@ -255,7 +255,9 @@ public class SipRegistrarConnection
                || exc.getCause() instanceof IOException
                || exc.getCause() instanceof SSLHandshakeException)
             {
-                if(exc.getCause().getCause() instanceof CertificateException)
+                if(exc.getCause().getCause() instanceof CertificateException
+                    || exc.getCause().getMessage()
+                        .startsWith("Received fatal alert"))
                 {
                     setRegistrationState(RegistrationState.UNREGISTERED
                         , RegistrationStateChangeEvent.REASON_USER_REQUEST
@@ -926,6 +928,23 @@ public class SipRegistrarConnection
             }
             else
             {
+                //if we're in certificate authentication mode, a 403 probably
+                //means that the certificate didn't match. stop connecting.
+                String certId = sipProvider.getAccountID()
+                    .getAccountPropertyString(
+                        ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
+                if(certId != null)
+                {
+                    //tell the others we couldn't register
+                    this.setRegistrationState(
+                        RegistrationState.AUTHENTICATION_FAILED,
+                        RegistrationStateChangeEvent
+                            .REASON_NON_EXISTING_USER_ID,
+                        "We failed to authenticate with the server."
+                    );
+                    return;
+                }
+
                 //we got a BAD PASSWD reply. send a new credential-less request
                 //in order to trigger a new challenge and rerequest a password.
                 retryTran = sipProvider.getSipSecurityManager()

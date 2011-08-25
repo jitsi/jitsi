@@ -265,6 +265,8 @@ public class SIPAccountRegistrationForm
             connectionPanel.isDefaultEncryptionEnabled());
         registration.setSipZrtpAttribute(
             connectionPanel.isSipZrtpEnabled());
+        registration.setTlsClientCertificate(
+            connectionPanel.getCertificateId());
         registration.setPollingPeriod(
             presencePanel.getPollPeriod());
         registration.setSubscriptionExpiration(
@@ -343,10 +345,13 @@ public class SIPAccountRegistrationForm
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
 
         boolean enabledSipZrtpAttribute = accountID.getAccountPropertyBoolean(
-        ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE, true);
+                    ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE, true);
+
+        String clientTlsCertificateId = accountID.getAccountPropertyString(
+                    ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
 
         boolean proxyAutoConfigureEnabled = accountID.getAccountPropertyBoolean(
-            ProtocolProviderFactory.PROXY_AUTO_CONFIG, false);
+                    ProtocolProviderFactory.PROXY_AUTO_CONFIG, false);
 
         String pollingPeriod = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.POLLING_PERIOD);
@@ -419,6 +424,8 @@ public class SIPAccountRegistrationForm
         connectionPanel.enablesDefaultEncryption(enabledDefaultEncryption);
         connectionPanel.setSipZrtpEnabled(  enabledSipZrtpAttribute,
                                             enabledDefaultEncryption);
+
+        connectionPanel.setCertificateId(clientTlsCertificateId);
 
         presencePanel.setPollPeriod(pollingPeriod);
         presencePanel.setSubscriptionExpiration(subscriptionPeriod);
