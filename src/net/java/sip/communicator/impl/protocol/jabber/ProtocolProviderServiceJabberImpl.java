@@ -847,7 +847,7 @@ public class ProtocolProviderServiceJabberImpl
                         cvs.getTrustManager(
                             Arrays.asList(new String[]{
                                 serviceName,
-                                "_xmpp-client._tcp." + serviceName
+                                "_xmpp-client." + serviceName
                             })
                         )
                     )

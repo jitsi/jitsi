@@ -59,8 +59,27 @@ public class CertificateServiceImpl
     /**
      * Stores the certificates that are trusted as long as this service lives.
      */
-    private Map<String, String> sessionAllowedCertificates =
-        new HashMap<String, String>();
+    private Map<String, List<String>> sessionAllowedCertificates =
+        new HashMap<String, List<String>>();
+
+    /**
+     * Helper method to avoid accessing null-lists in the session allowed
+     * certificate map
+     * 
+     * @param propName the key to access
+     * @return the list for the given list or a new, empty list put in place for
+     *         the key
+     */
+    private List<String> getSessionCertEntry(String propName)
+    {
+        List<String> entry = sessionAllowedCertificates.get(propName);
+        if (entry == null)
+        {
+            entry = new LinkedList<String>();
+            sessionAllowedCertificates.put(propName, entry);
+        }
+        return entry;
+    }
 
     /*
      * (non-Javadoc)
@@ -73,6 +92,8 @@ public class CertificateServiceImpl
         int trustMode)
         throws CertificateException
     {
+        String propName = PNAME_CERT_TRUST_PREFIX + ".param." + trustFor;
+        String thumbprint = getThumbprint(cert, THUMBPRINT_HASH_ALGORITHM);
         switch (trustMode)
         {
         case DO_NOT_TRUST:
@@ -80,12 +101,14 @@ public class CertificateServiceImpl
                 "Cannot add a certificate to trust when "
                 + "no trust is requested.");
         case TRUST_ALWAYS:
-            config.setProperty(PNAME_CERT_TRUST_PREFIX + ".param." + trustFor,
-                getThumbprint(cert, THUMBPRINT_HASH_ALGORITHM));
+            String current = config.getString(propName);
+            String newValue = thumbprint;
+            if(current != null)
+                newValue += "," + thumbprint;
+            config.setProperty(propName, newValue);
             break;
         case TRUST_THIS_SESSION_ONLY:
-            sessionAllowedCertificates.put(PNAME_CERT_TRUST_PREFIX + ".param."
-                + trustFor, getThumbprint(cert, THUMBPRINT_HASH_ALGORITHM));
+            getSessionCertEntry(propName).add(thumbprint);
             break;
         }
     }
@@ -306,17 +329,19 @@ public class CertificateServiceImpl
                 {
                     String thumbprint = getThumbprint(
                         chain[0], THUMBPRINT_HASH_ALGORITHM);
-                    String propName = null;
                     String message = null;
-                    String storedCert = null;
+                    List<String> propNames = new LinkedList<String>();
+                    List<String> storedCerts = new LinkedList<String>();
                     String appName =
                         R.getSettingsString("service.gui.APPLICATION_NAME");
 
                     if (identitiesToTest == null
                         || !identitiesToTest.iterator().hasNext())
                     {
-                        propName =
+                        String propName =
                             PNAME_CERT_TRUST_PREFIX + ".server." + thumbprint;
+                        propNames.add(propName);
+
                         message =
                             R.getI18NString("service.gui."
                                 + "CERT_DIALOG_DESCRIPTION_TXT_NOHOST",
@@ -325,63 +350,65 @@ public class CertificateServiceImpl
                                 }
                             );
 
-                        // get the thumbprint from the permanent allowances
-                        storedCert = config.getString(propName);
-                        // not found? check the session allowances
-                        if (storedCert == null)
-                            storedCert =
-                                sessionAllowedCertificates.get(propName);
+                        // get the thumbprints from the permanent allowances
+                        String hashes = config.getString(propName);
+                        if (hashes != null)
+                            for(String h : hashes.split(","))
+                                storedCerts.add(h);
+
+                        // get the thumbprints from the session allowances
+                        List<String> sessionCerts =
+                            sessionAllowedCertificates.get(propName);
+                        if (sessionCerts != null)
+                            storedCerts.addAll(sessionCerts);
                     }
                     else
                     {
+                        if (serverCheck)
+                        {
+                            message =
+                                R.getI18NString(
+                                    "service.gui."
+                                    + "CERT_DIALOG_DESCRIPTION_TXT",
+                                    new String[] {
+                                        appName,
+                                        identitiesToTest.toString()
+                                    }
+                                );
+                        }
+                        else
+                        {
+                            message =
+                                R.getI18NString(
+                                    "service.gui."
+                                    + "CERT_DIALOG_PEER_DESCRIPTION_TXT",
+                                    new String[] {
+                                        appName,
+                                        identitiesToTest.toString()
+                                    }
+                                );
+                        }
                         for (String identity : identitiesToTest)
                         {
-                            if (serverCheck)
-                            {
-                                message =
-                                    R.getI18NString(
-                                        "service.gui."
-                                        + "CERT_DIALOG_DESCRIPTION_TXT",
-                                        new String[] {
-                                            appName,
-                                            identitiesToTest.toString()
-                                        }
-                                    );
-                                propName =
-                                    PNAME_CERT_TRUST_PREFIX + ".param."
-                                        + identity;
-                            }
-                            else
-                            {
-                                message =
-                                    R.getI18NString(
-                                        "service.gui."
-                                        + "CERT_DIALOG_PEER_DESCRIPTION_TXT",
-                                        new String[] {
-                                            appName,
-                                            identitiesToTest.toString()
-                                        }
-                                    );
-                                propName =
-                                    PNAME_CERT_TRUST_PREFIX + ".param."
-                                        + identity;
-                            }
+                            String propName =
+                                PNAME_CERT_TRUST_PREFIX + ".param." + identity;
+                            propNames.add(propName);
 
-                            // get the thumbprint from the permanent allowances
-                            storedCert = config.getString(propName);
-                            // not found? check the session allowances
-                            if (storedCert == null)
-                                storedCert =
-                                    sessionAllowedCertificates.get(propName);
+                            // get the thumbprints from the permanent allowances
+                            String hashes = config.getString(propName);
+                            if (hashes != null)
+                                for(String h : hashes.split(","))
+                                    storedCerts.add(h);
 
-                            // stop search for further saved allowances if we
-                            // found a match
-                            if (storedCert != null)
-                                break;
+                            // get the thumbprints from the session allowances
+                            List<String> sessionCerts =
+                                sessionAllowedCertificates.get(propName);
+                            if (sessionCerts != null)
+                                storedCerts.addAll(sessionCerts);
                         }
                     }
 
-                    if (!thumbprint.equals(storedCert))
+                    if (!storedCerts.contains(thumbprint))
                     {
                         switch (verify(chain, message))
                         {
@@ -391,11 +418,18 @@ public class CertificateServiceImpl
                                     + chain[0].getSubjectDN()
                                     + "> is not trusted");
                         case TRUST_ALWAYS:
-                            config.setProperty(propName, thumbprint);
+                            for (String propName : propNames)
+                            {
+                                String current = config.getString(propName);
+                                String newValue = thumbprint;
+                                if (current != null)
+                                    newValue += "," + current;
+                                config.setProperty(propName, newValue);
+                            }
                             break;
                         case TRUST_THIS_SESSION_ONLY:
-                            sessionAllowedCertificates
-                                .put(propName, thumbprint);
+                            for(String propName : propNames)
+                                getSessionCertEntry(propName).add(thumbprint);
                             break;
                         }
                     }
