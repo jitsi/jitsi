@@ -108,7 +108,8 @@ public class NotificationContact
      */
     public String getDisplayName()
     {
-        return protocolProvider.getAccountID().getAccountAddress();
+        return GuiActivator.getUIService().getMainFrame()
+                .getAccountDisplayName(protocolProvider);
     }
 
     /**
@@ -228,9 +229,10 @@ public class NotificationContact
         if (avatarImage != null)
             tip.setImage(avatarImage);
 
-        tip.setTitle(getDisplayName());
+        tip.setTitle(protocolProvider.getAccountID().getDisplayName());
 
-        tip.addLine(null, getDisplayDetails());
+        tip.addLine(new JLabel[]{new JLabel(getDisplayDetails())});
+        tip.addLine(null, " ");
 
         tip.setBottomText(VOICEMAIL_TIP);
 
