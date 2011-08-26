@@ -133,7 +133,7 @@ public class CertificateServiceImpl
             System.setProperty("javax.net.ssl.trustStoreType",
                 trustStore);
             String password =
-                (String) credService.loadPassword(PNAME_TRUSTSTORE_PASSWORD);
+                credService.loadPassword(PNAME_TRUSTSTORE_PASSWORD);
             if(password != null)
             {
                 System.setProperty("javax.net.ssl.trustStorePassword",
