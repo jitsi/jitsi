@@ -346,11 +346,12 @@ public class CertificateServiceImpl
                 "name=" + f.getName() + "\nlibrary=" + f.getAbsoluteFile();
             try
             {
-                Class<?> pkcs11c = Class.forName("sun.security.pkcs11.SunPKCS11");
+                Class<?> pkcs11c =
+                    Class.forName("sun.security.pkcs11.SunPKCS11");
                 Constructor<?> c = pkcs11c.getConstructor(InputStream.class);
-                Provider p = (Provider)c.newInstance(
-                    new ByteArrayInputStream(config.getBytes())
-                );
+                Provider p =
+                    (Provider) c.newInstance(new ByteArrayInputStream(config
+                        .getBytes()));
                 Security.insertProviderAt(p, 0);
             }
             catch (Exception e)

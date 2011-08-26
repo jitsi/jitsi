@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.certconfig;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.lang.reflect.*;
 import java.security.*;
 import java.security.cert.X509Certificate;
 import java.util.*;
@@ -384,10 +385,21 @@ public class CertConfigEntryDialog
         {
             String config =
                 "name=" + f.getName() + "\nlibrary=" + f.getAbsoluteFile();
-            Provider p =
-                new sun.security.pkcs11.SunPKCS11(new ByteArrayInputStream(
-                    config.getBytes()));
-            Security.insertProviderAt(p, 0);
+            try
+            {
+                Class<?> pkcs11c =
+                    Class.forName("sun.security.pkcs11.SunPKCS11");
+                Constructor<?> c = pkcs11c.getConstructor(InputStream.class);
+                Provider p =
+                    (Provider) c.newInstance(new ByteArrayInputStream(config
+                        .getBytes()));
+                Security.insertProviderAt(p, 0);
+            }
+            catch (Exception e)
+            {
+                logger.error("Tried to access the PKCS11 provider on an "
+                    + "unsupported platform or the load failed", e);
+            }
         }
         KeyStore.Builder ksBuilder = KeyStore.Builder.newInstance(
             kt.getName(),
