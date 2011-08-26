@@ -338,6 +338,7 @@ public class ProvisioningForm
                 dhcpButton.setEnabled(isSelected);
                 bonjourButton.setEnabled(isSelected);
                 manualButton.setEnabled(isSelected);
+                forgetPasswordButton.setEnabled(isSelected);
 
                 String provisioningMethod = null;
 
