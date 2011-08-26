@@ -474,12 +474,13 @@ public class SavedPasswordsDialog
                     SecurityConfigActivator.getConfigurationService();
             String uname = configurationService
                 .getString(PROVISIONING_PROPERTIES_PREFIX + ".USERNAME");
-            model.savedPasswords.add(
-                    new PasswordsTableRow(
-                            PROVISIONING_PROPERTIES_PREFIX,
-                            resources.getI18NString(
-                                "plugin.provisioning.PROVISIONING"),
-                            uname));
+            if(uname != null && uname.length() > 0)
+                model.savedPasswords.add(
+                        new PasswordsTableRow(
+                                PROVISIONING_PROPERTIES_PREFIX,
+                                resources.getI18NString(
+                                    "plugin.provisioning.PROVISIONING"),
+                                uname));
 
             // load http passwords
             String HTTP_PROPERTIES_PREFIX =

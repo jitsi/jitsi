@@ -52,14 +52,14 @@ public class ProvisioningActivator
      * Name of the provisioning username in the configuration service
      * authentication).
      */
-    private static final String PROPERTY_PROVISIONING_USERNAME
+    static final String PROPERTY_PROVISIONING_USERNAME
         = "net.java.sip.communicator.plugin.provisioning.auth.USERNAME";
 
     /**
      * Name of the provisioning password in the configuration service (HTTP
      * authentication).
      */
-    private static final String PROPERTY_PROVISIONING_PASSWORD
+    static final String PROPERTY_PROVISIONING_PASSWORD
         = "net.java.sip.communicator.plugin.provisioning.auth";
 
     /**

@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -59,6 +60,21 @@ public class ProvisioningForm
      * The URI field to specify manually a provisioning server.
      */
     private final SIPCommTextField uriField;
+
+    /**
+     * The field used to show the username.
+     */
+    private final JTextField usernameField;
+
+    /**
+     * A field to show the password.
+     */
+    private final JPasswordField passwordField;
+
+    /**
+     * The button that will delete the password.
+     */
+    private final JButton forgetPasswordButton;
 
     /**
      * Creates an instance of the <tt>ProvisioningForm</tt>.
@@ -205,6 +221,40 @@ public class ProvisioningForm
         c.gridy = 5;
         mainPanel.add(clipboardBtn, c);
 
+        JPanel userPassPanel = new TransparentPanel(new BorderLayout());
+        userPassPanel.setBorder(BorderFactory.createTitledBorder(
+                ProvisioningActivator.getResourceService().getI18NString(
+                    "plugin.provisioning.CREDENTIALS")));
+        JPanel labelPanel = new TransparentPanel(new GridLayout(0, 1));
+        labelPanel.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 0));
+        JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1));
+        valuesPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 0));
+        labelPanel.add(new JLabel(
+            ProvisioningActivator.getResourceService().getI18NString(
+                "plugin.simpleaccregwizz.LOGIN_USERNAME")));
+        labelPanel.add(new JLabel(
+            ProvisioningActivator.getResourceService().getI18NString(
+                "service.gui.PASSWORD")));
+        usernameField = new JTextField();
+        usernameField.setEditable(false);
+        passwordField = new JPasswordField();
+        passwordField.setEditable(false);
+        valuesPanel.add(usernameField);
+        valuesPanel.add(passwordField);
+        userPassPanel.add(labelPanel, BorderLayout.WEST);
+        userPassPanel.add(valuesPanel, BorderLayout.CENTER);
+        JPanel buttonPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+        forgetPasswordButton = new JButton("Forget Password!");
+        buttonPanel.add(forgetPasswordButton);
+        userPassPanel.add(buttonPanel, BorderLayout.SOUTH);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        c.insets = new Insets(5, 10, 0, 0);
+        c.gridwidth = 0;
+        c.gridx = 0;
+        c.gridy = 6;
+        mainPanel.add(userPassPanel, c);
+
         JTextPane pane = new JTextPane();
         pane.setForeground(Color.RED);
         pane.setEditable(false);
@@ -214,12 +264,7 @@ public class ProvisioningForm
             new String[]{ProvisioningActivator.getResourceService()
                 .getSettingsString("service.gui.APPLICATION_NAME")}));
 
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        c.insets = new Insets(5, 10, 0, 0);
-        c.gridwidth = 0;
-        c.gridx = 0;
-        c.gridy = 6;
+        c.gridy = 7;
         mainPanel.add(pane, c);
 
         initButtonStates();
@@ -262,6 +307,21 @@ public class ProvisioningForm
         uriField.setEnabled(manualButton.isSelected());
         bonjourButton.setEnabled(isProvEnabled);
         dnsButton.setEnabled(false);
+
+        // creadentials
+        forgetPasswordButton.setEnabled(isProvEnabled);
+        usernameField.setText(ProvisioningActivator.getConfigurationService()
+                .getString(ProvisioningActivator.PROPERTY_PROVISIONING_USERNAME));
+
+        if(ProvisioningActivator.getCredentialsStorageService()
+            .isStoredEncrypted(
+                    ProvisioningActivator.PROPERTY_PROVISIONING_PASSWORD))
+        {
+            passwordField.setText(
+                ProvisioningActivator.getCredentialsStorageService()
+                .loadPassword(
+                        ProvisioningActivator.PROPERTY_PROVISIONING_PASSWORD));
+        }
     }
 
     /**
@@ -378,6 +438,40 @@ public class ProvisioningForm
             }
 
             public void focusGained(FocusEvent e) {}
+        });
+
+        forgetPasswordButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if(passwordField.getPassword() == null
+                    || passwordField.getPassword().length == 0)
+                {
+                    return;
+                }
+
+                int result = JOptionPane.showConfirmDialog(
+                    (Component)ProvisioningActivator.getUIService()
+                        .getExportedWindow(ExportedWindow.MAIN_WINDOW).getSource(),
+                    ProvisioningActivator.getResourceService().getI18NString(
+                            "plugin.provisioning.REMOVE_CREDENTIALS_MESSAGE"),
+                    ProvisioningActivator.getResourceService().getI18NString(
+                        "service.gui.REMOVE"),
+                    JOptionPane.YES_NO_OPTION);
+
+                if (result == JOptionPane.YES_OPTION)
+                {
+                    ProvisioningActivator.getCredentialsStorageService()
+                        .removePassword(
+                            ProvisioningActivator.PROPERTY_PROVISIONING_PASSWORD);
+                    ProvisioningActivator.getConfigurationService()
+                        .removeProperty(
+                            ProvisioningActivator.PROPERTY_PROVISIONING_USERNAME);
+
+                    usernameField.setText("");
+                    passwordField.setText("");
+                }
+            }
         });
     }
 }
