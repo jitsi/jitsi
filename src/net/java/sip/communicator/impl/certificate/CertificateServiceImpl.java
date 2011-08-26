@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.certificate;
 
 import java.beans.*;
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.*;
 import java.security.*;
 import java.security.KeyStore.*;
@@ -47,8 +48,11 @@ public class CertificateServiceImpl
         new LinkedList<KeyStoreType>()
         {
             {
-                add(new KeyStoreType("PKCS11", new String[]
-                { ".dll", ".so" }, false));
+                if(!OSUtils.IS_WINDOWS64)
+                {
+                    add(new KeyStoreType("PKCS11", new String[]
+                    { ".dll", ".so" }, false));
+                }
                 add(new KeyStoreType("PKCS12", new String[]
                 { ".p12", ".pfx" }, true));
                 add(new KeyStoreType(KeyStore.getDefaultType(), new String[]
@@ -340,10 +344,20 @@ public class CertificateServiceImpl
         {
             String config =
                 "name=" + f.getName() + "\nlibrary=" + f.getAbsoluteFile();
-            Provider p =
-                new sun.security.pkcs11.SunPKCS11(new ByteArrayInputStream(
-                    config.getBytes()));
-            Security.insertProviderAt(p, 0);
+            try
+            {
+                Class<?> pkcs11c = Class.forName("sun.security.pkcs11.SunPKCS11");
+                Constructor<?> c = pkcs11c.getConstructor(InputStream.class);
+                Provider p = (Provider)c.newInstance(
+                    new ByteArrayInputStream(config.getBytes())
+                );
+                Security.insertProviderAt(p, 0);
+            }
+            catch (Exception e)
+            {
+                logger.error("Tried to access the PKCS11 provider on an "
+                    + "unsupported platform or the load failed", e);
+            }
         }
         KeyStore.Builder ksBuilder =
             KeyStore.Builder.newInstance(kt.getName(), null, f,
