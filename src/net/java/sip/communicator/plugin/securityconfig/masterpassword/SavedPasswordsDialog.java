@@ -16,7 +16,6 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-import com.sun.xml.internal.stream.*;
 import net.java.sip.communicator.plugin.securityconfig.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
