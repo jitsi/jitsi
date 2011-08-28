@@ -70,6 +70,9 @@ class SpellChecker
      */
     synchronized void start(BundleContext bc) throws Exception
     {
+        isEnabled = SpellCheckActivator.getConfigService()
+        .getBoolean("plugin.spellcheck.ENABLE", true);
+        
         FileAccessService faService =
             SpellCheckActivator.getFileAccessService();
 
@@ -327,6 +330,34 @@ class SpellChecker
         }
     }
 
+    /**
+     * Removes the dictionary from the system, and sets the default locale
+     * dictionary as the current dictionary
+     * 
+     * @param locale locale to be removed
+     */
+    void removeLocale(Parameters.Locale locale) throws Exception
+    {
+        synchronized (this.locale)
+        {
+            String path = locale.getDictUrl().getFile();
+
+            int filenameStart = path.lastIndexOf('/') + 1;
+            String filename = path.substring(filenameStart);
+
+            File dictLocation =
+                SpellCheckActivator.getFileAccessService()
+                    .getPrivatePersistentFile(DICT_DIR + filename);
+
+            if (dictLocation.exists())
+                dictLocation.delete();
+
+            String localeIso = Parameters.getDefault(Parameters.Default.LOCALE);
+            Parameters.Locale loc = Parameters.getLocale(localeIso);
+            setLocale(loc);
+        }
+    }
+    
     /**
      * Determines if locale's dictionary is locally available or not.
      * 

@@ -7,6 +7,7 @@ package net.java.sip.communicator.plugin.spellcheck;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.awt.event.*;
 
 import java.io.*;
 import java.util.*;
@@ -15,6 +16,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.spellcheck.Parameters.Default;
+import net.java.sip.communicator.plugin.spellcheck.Parameters.Locale;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -64,6 +66,9 @@ public class LanguageSelectionField
 
     private final ArrayList<Parameters.Locale> localeList =
         new ArrayList<Parameters.Locale>();
+    
+    private final SIPCommTextButton removeItem = new SIPCommTextButton(
+        Resources.getString("plugin.spellcheck.UNINSTALL_DICTIONARY"));
 
     /**
      * Provides instance of this class associated with a spell checker. If ones
@@ -108,7 +113,7 @@ public class LanguageSelectionField
         this.menu.setOpaque(false);
         this.setOpaque(false);
 
-        DefaultListModel model = new DefaultListModel();
+        final DefaultListModel model = new DefaultListModel();
         final JList list = new JList(model);
 
         this.languageSelectionRenderer = new LanguageListRenderer();
@@ -122,10 +127,11 @@ public class LanguageSelectionField
                     spellChecker.isLocaleAvailable(locale));
             }
 
-            model.addElement(locale);
             localeList.add(locale);
         }
-
+        
+        setModelElements(model);
+        
         JScrollPane scroll = new JScrollPane(list);
         scroll.setBorder(null);
 
@@ -136,29 +142,10 @@ public class LanguageSelectionField
         list.setSelectedIndex(localeList.indexOf(loc) + 1);
 
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        removeItem.setPreferredSize(new Dimension(30, 28));
 
-        list.addListSelectionListener(new ListSelectionListener()
-        {
-
-            public void valueChanged(ListSelectionEvent e)
-            {
-
-                if (!e.getValueIsAdjusting())
-                {
-                    final JList source = (JList) e.getSource();
-                    final Parameters.Locale locale =
-                        (Parameters.Locale) source.getSelectedValue();
-
-                    source.setEnabled(false);
-
-                    // Indicate to the user that the language is currently
-                    // loading.
-                    locale.setLoading(true);
-
-                    new SetSpellChecker(locale, source).start();
-                }
-            }
-        });
+        list.addListSelectionListener(new LanguageListSelectionListener());
 
         menu.add(scroll);
 
@@ -168,6 +155,110 @@ public class LanguageSelectionField
         SelectedObject selectedObject =
             new SelectedObject(flagIcon, checker.getLocale());
         menu.setSelected(selectedObject);
+        
+        this.menu.addSeparator();
+        
+        menu.add(removeItem);
+
+        list.addKeyListener(new KeyListener()
+        {
+            long time = 0;
+
+            String key = "";
+
+            @Override
+            public void keyTyped(KeyEvent e)
+            {
+                char ch = e.getKeyChar();
+
+                if (!Character.isLetter(ch))
+                    return;
+                
+                if (time + 1000 < System.currentTimeMillis())
+                    key = "";
+
+                time = System.currentTimeMillis();
+
+                key += ch;
+
+                for (int i = 0; i < model.getSize(); i++)
+                {
+                    String label =
+                        ((Parameters.Locale) model.getElementAt(i)).getLabel()
+                            .toLowerCase();
+                    if (label.startsWith(key.toLowerCase()))
+                    {
+                        list.setSelectedIndex(i);
+                        list.ensureIndexIsVisible(i);
+                        break;
+                    }
+                }
+                
+                list.requestFocusInWindow();
+
+            }
+            
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+
+            }
+            
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+
+            }
+        });
+        
+        removeItem.setEnabled(!spellChecker.getLocale().getIsoCode()
+            .equals(Parameters.getDefault(Parameters.Default.LOCALE)));      
+        
+        removeItem.addActionListener(new ActionListener()
+        {
+
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                try
+                {
+                    list.setEnabled(false);
+                    Locale locale = (Locale) menu.getSelectedObject();
+
+                    localeAvailabilityCache.put(locale, false);
+
+                    spellChecker.removeLocale(locale);
+
+                    list.setEnabled(true);
+
+                    ImageIcon flagIcon =
+                        getLocaleIcon(spellChecker.getLocale(),
+                            localeAvailabilityCache.get(spellChecker
+                                .getLocale()));
+                    SelectedObject selectedObject =
+                        new SelectedObject(flagIcon, spellChecker.getLocale());
+                    menu.setSelected(selectedObject);
+
+                }
+                catch (Exception ex)
+                {
+                    PopupDialog dialog =
+                        SpellCheckActivator.getUIService().getPopupDialog();
+
+                    String message =
+                        Resources
+                            .getString("plugin.spellcheck.DICT_ERROR_DELETE")
+                            + ex.getMessage();
+
+                    dialog.showMessagePopupDialog(
+                        message,
+                        Resources
+                            .getString("plugin.spellcheck.DICT_ERROR_DELETE_TITLE"),
+                        PopupDialog.WARNING_MESSAGE);
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
 
     /**
@@ -354,10 +445,48 @@ public class LanguageSelectionField
             public void stateChanged(ChangeEvent evt)
             {
                 spellChecker.setEnabled(checkBox.isSelected());
+                SpellCheckActivator.getConfigService().setProperty(
+                    "plugin.spellcheck.ENABLE", checkBox.isSelected());
             }
         });
 
         return checkBox;
+    }
+    
+    /**
+     * Set the elements for list model
+     * 
+     * @param model the model whose elements are to be set
+     */
+    private void setModelElements(DefaultListModel model)
+    {
+        synchronized (model)
+        {
+            
+        
+        model.clear();
+        
+        Collections.sort(localeList, new Comparator<Parameters.Locale>()
+        {
+
+            @Override
+            public int compare(Locale o1, Locale o2)
+            {
+                boolean b1 = spellChecker.isLocaleAvailable(o1);
+                boolean b2 = spellChecker.isLocaleAvailable(o2);
+
+                if (b1 == b2)
+                    return 0;
+
+                return (b1 ? -1 : 1);
+            }
+
+        });
+
+        for (Parameters.Locale loc : localeList)
+            model.addElement(loc);
+
+        }
     }
 
     private class SetSpellChecker extends SwingWorker
@@ -418,6 +547,16 @@ public class LanguageSelectionField
             // Indicate to the user that the language is currently
             // loading.
             locale.setLoading(false);
+            
+            sourceList.removeListSelectionListener(sourceList
+                .getListSelectionListeners()[0]);
+            setModelElements((DefaultListModel) sourceList.getModel());
+            sourceList.setSelectedValue(locale, true);
+            removeItem.setEnabled(!spellChecker.getLocale().getIsoCode()
+                .equals(Parameters.getDefault(Parameters.Default.LOCALE)));
+            sourceList
+                .addListSelectionListener(new LanguageListSelectionListener());
+
         }
 
         /**
@@ -499,10 +638,35 @@ public class LanguageSelectionField
                     + " <font color='gray'><i>loading...</i></font><html>");
             else
                 setText(localeLabel);
-
+            
             setIcon(flagIcon);
-
+            
             return this;
+        }
+    }
+    
+    private class LanguageListSelectionListener
+        implements ListSelectionListener
+    {
+        public void valueChanged(ListSelectionEvent e)
+        {
+            if (!e.getValueIsAdjusting())
+            {
+                final JList source = (JList) e.getSource();
+                final Parameters.Locale locale =
+                    (Parameters.Locale) source.getSelectedValue();
+
+                source.setEnabled(false);
+
+                // Indicate to the user that the language is currently
+                // loading.
+                locale.setLoading(true);
+
+                new SetSpellChecker(locale, source).start();
+                source.requestFocusInWindow();
+                removeItem.setEnabled(false);
+
+            }
         }
     }
 }
