@@ -80,10 +80,8 @@ public class CheckerToggleButton
 
     }
 
-    @Override
     public void setCurrentContact(Contact contact)
     {
-        // TODO Auto-generated method stub
 
     }
 }

@@ -166,7 +166,6 @@ public class LanguageSelectionField
 
             String key = "";
 
-            @Override
             public void keyTyped(KeyEvent e)
             {
                 char ch = e.getKeyChar();
@@ -197,14 +196,12 @@ public class LanguageSelectionField
                 list.requestFocusInWindow();
 
             }
-            
-            @Override
+
             public void keyReleased(KeyEvent e)
             {
 
             }
-            
-            @Override
+
             public void keyPressed(KeyEvent e)
             {
 
@@ -212,12 +209,10 @@ public class LanguageSelectionField
         });
         
         removeItem.setEnabled(!spellChecker.getLocale().getIsoCode()
-            .equals(Parameters.getDefault(Parameters.Default.LOCALE)));      
+            .equals(Parameters.getDefault(Parameters.Default.LOCALE)));
         
         removeItem.addActionListener(new ActionListener()
         {
-
-            @Override
             public void actionPerformed(ActionEvent e)
             {
                 try
@@ -462,30 +457,25 @@ public class LanguageSelectionField
     {
         synchronized (model)
         {
-            
-        
-        model.clear();
-        
-        Collections.sort(localeList, new Comparator<Parameters.Locale>()
-        {
+            model.clear();
 
-            @Override
-            public int compare(Locale o1, Locale o2)
+            Collections.sort(localeList, new Comparator<Parameters.Locale>()
             {
-                boolean b1 = spellChecker.isLocaleAvailable(o1);
-                boolean b2 = spellChecker.isLocaleAvailable(o2);
+                public int compare(Locale o1, Locale o2)
+                {
+                    boolean b1 = spellChecker.isLocaleAvailable(o1);
+                    boolean b2 = spellChecker.isLocaleAvailable(o2);
 
-                if (b1 == b2)
-                    return 0;
+                    if (b1 == b2)
+                        return 0;
 
-                return (b1 ? -1 : 1);
-            }
+                    return (b1 ? -1 : 1);
+                }
 
-        });
+            });
 
-        for (Parameters.Locale loc : localeList)
-            model.addElement(loc);
-
+            for (Parameters.Locale loc : localeList)
+                model.addElement(loc);
         }
     }
 
