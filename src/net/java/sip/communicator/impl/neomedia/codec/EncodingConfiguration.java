@@ -88,6 +88,10 @@ public class EncodingConfiguration
                 : null,
             "net.java.sip.communicator.impl.neomedia.codec.audio.g722.JNIDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.g722.JNIEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.gsm.Decoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.gsm.Encoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.gsm.DePacketizer",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.gsm.Packetizer",
             "net.java.sip.communicator.impl.neomedia.codec.video.h263p.DePacketizer",
             "net.java.sip.communicator.impl.neomedia.codec.video.h263p.JNIDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h263p.JNIEncoder",
@@ -433,6 +437,21 @@ public class EncodingConfiguration
         PlugInManager.removePlugIn(
                 "com.ibm.media.codec.video.h263.NativeEncoder",
                 PlugInManager.CODEC);
+
+        // Remove JMF's GSM codec. As working only on some OS.
+        String gsmCodecPackage = "com.ibm.media.codec.audio.gsm.";
+        String[] classes = new String[]
+        {
+            "JavaEncoder", "JavaDecoder", "Packetizer",
+            "NativeDecoder", "NativeDecoder_ms", "JavaDecoder_ms",
+            "NativeEncoder", "NativeEncoder_ms", "JavaEncoder_ms"
+        };
+        for(String cl : classes)
+        {
+            PlugInManager.removePlugIn(
+                gsmCodecPackage + cl,
+                PlugInManager.CODEC);
+        }
 
         /*
          * Remove FMJ's JavaSoundCodec because it seems to slow down the

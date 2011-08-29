@@ -88,14 +88,14 @@ public class MediaUtils
                     g723FormatParams,
                     null,
                     8000);
+        }
 
-            addMediaFormats(
+        addMediaFormats(
                     (byte) SdpConstants.GSM,
                     "GSM",
                     MediaType.AUDIO,
                     AudioFormat.GSM_RTP,
                     8000);
-        }
 
         addMediaFormats(
             (byte) SdpConstants.DVI4_8000,
@@ -640,6 +640,10 @@ public class MediaUtils
             return SdpConstants.G722;
         else if (jmfEncoding.equals(Constants.G722_RTP))
             return SdpConstants.G722;
+        else if (jmfEncoding.equals(AudioFormat.GSM))
+            return SdpConstants.GSM;
+        else if (jmfEncoding.equals(AudioFormat.GSM_RTP))
+            return SdpConstants.GSM;
         else if (jmfEncoding.equals(AudioFormat.G728_RTP))
             return SdpConstants.G728;
         else if (jmfEncoding.equals(AudioFormat.G729_RTP))
