@@ -265,6 +265,7 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemAc
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_start
   (JNIEnv* jniEnv, jclass clazz, jlong ptr)
 {
+/*
     OSVERSIONINFOEX osVersionInfoEx;
     memset( &osVersionInfoEx, 0, sizeof(OSVERSIONINFOEX) );
     osVersionInfoEx.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
@@ -272,6 +273,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemAct
 
     if( osVersionInfoEx.dwMajorVersion == 5)
     {
+*/
         // XP
         while(true)
         {
@@ -299,6 +301,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemAct
 
             notify(net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_NETWORK_CHANGE);
         }
+/*
     }
     else if( osVersionInfoEx.dwMajorVersion > 5)
     {
@@ -321,6 +324,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemAct
                 &hNotification);
         }
     }
+*/
 }
 
 /*
