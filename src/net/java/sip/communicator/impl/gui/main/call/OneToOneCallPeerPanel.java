@@ -1037,6 +1037,9 @@ public class OneToOneCallPeerPanel
             if (videoTelephony == null)
                 return;
 
+            if (callPeer == null || callPeer.getCall() == null)
+                return;
+
             if (videoTelephony.isLocalVideoStreaming(callPeer.getCall()))
             {
                 try

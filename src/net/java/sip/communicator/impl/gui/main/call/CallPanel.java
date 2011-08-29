@@ -643,16 +643,16 @@ public class CallPanel
     /**
      * Enables or disable all setting buttons.
      */
-    public void enableButtons()
+    public void enableButtons(boolean enable)
     {
         // Buttons would be enabled once the call has entered in state
         // connected.
-        dialButton.setEnabled(true);
-        conferenceButton.setEnabled(true);
-        holdButton.setEnabled(true);
-        recordButton.setEnabled(true);
-        localLevel.setEnabled(true);
-        remoteLevel.setEnabled(true);
+        dialButton.setEnabled(enable);
+        conferenceButton.setEnabled(enable);
+        holdButton.setEnabled(enable);
+        recordButton.setEnabled(enable);
+        localLevel.setEnabled(enable);
+        remoteLevel.setEnabled(enable);
 
         if (!isLastConference)
         {
@@ -661,15 +661,27 @@ public class CallPanel
             ProtocolProviderService protocolProvider
                 = call.getProtocolProvider();
 
-            enableButtonsWhileOnHold(false);
+            if (call.getCallPeers().hasNext())
+            {
+                CallPeer callPeer = call.getCallPeers().next();
+                enableButtonsWhileOnHold(
+                    callPeer.getState() == CallPeerState.ON_HOLD_LOCALLY
+                    || callPeer.getState() == CallPeerState.ON_HOLD_MUTUALLY
+                    || callPeer.getState() == CallPeerState.ON_HOLD_REMOTELY);
+            }
 
             if (protocolProvider.getOperationSet(
                 OperationSetAdvancedTelephony.class) != null)
             {
-                transferCallButton.setEnabled(true);
+                transferCallButton.setEnabled(enable);
             }
 
-            fullScreenButton.setEnabled(true);
+            if (protocolProvider.getOperationSet(
+                OperationSetVideoTelephony.class) != null)
+            {
+                videoButton.setEnabled(enable);
+                fullScreenButton.setEnabled(enable);
+            }
         }
     }
 
@@ -953,6 +965,8 @@ public class CallPanel
                     {
                         if (call.getCallPeerCount() == 1)
                         {
+                            isLastConference = false;
+
                             remove(callPanel);
                             CallPeer singlePeer = call.getCallPeers().next();
 
@@ -969,8 +983,6 @@ public class CallPanel
                             }
 
                             add(callPanel, BorderLayout.CENTER);
-
-                            isLastConference = false;
                         }
                         else if (call.getCallPeerCount() > 1)
                         {
@@ -1129,6 +1141,20 @@ public class CallPanel
         settingsPanel.add(transferCallButton);
         settingsPanel.add(desktopSharingButton);
         settingsPanel.add(videoButton);
+
+        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
+
+        while (callPeers.hasNext())
+        {
+            CallPeer callPeer = callPeers.next();
+
+            if (callPeer.getState() == CallPeerState.CONNECTED)
+            {
+                enableButtons(true);
+                return;
+            }
+        }
+        enableButtons(false);
     }
 
     /**
@@ -1138,6 +1164,18 @@ public class CallPanel
     {
         settingsPanel.add(localLevel);
         settingsPanel.add(remoteLevel);
+
+        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
+
+        while (callPeers.hasNext())
+        {
+            if (callPeers.next().getState() == CallPeerState.CONNECTED)
+            {
+                enableButtons(true);
+                return;
+            }
+        }
+        enableButtons(false);
     }
 
     /**

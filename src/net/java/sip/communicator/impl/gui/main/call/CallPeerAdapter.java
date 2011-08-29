@@ -133,7 +133,7 @@ public class CallPeerAdapter
                     renderer.getCallPanel().startCallTimer();
 
                 // Enabling all buttons when the call is connected.
-                renderer.getCallPanel().enableButtons();
+                renderer.getCallPanel().enableButtons(true);
             }
             else
             {

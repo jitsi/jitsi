@@ -105,6 +105,7 @@ public class ConferenceCallPanel
         this.addLocalCallPeer();
 
         Iterator<? extends CallPeer> iterator = this.call.getCallPeers();
+
         while (iterator.hasNext())
         {
             this.addCallPeerPanel(iterator.next());
