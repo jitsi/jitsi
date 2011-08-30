@@ -511,12 +511,29 @@ public class OperationSetBasicTelephonySipImpl
                     return true;
                 }
 
+                Address redirectAddress = contactHeader.getAddress();
+
+                //try to detect an immediate loop.
+                if( callPeer.getPeerAddress().getURI().equals
+                    (redirectAddress.getURI()) )
+                {
+                    logger.error("Redirect loop detected for: "
+                                + callPeer.getPeerAddress().getURI());
+
+                    callPeer.setState(CallPeerState.FAILED,
+                                "Redirect loop detected for: "
+                                + callPeer.getPeerAddress().getURI());
+
+                    return true;
+                }
+
+
                 //first start a call to the new address then end the old
                 //one.
                 CallSipImpl call = callPeer.getCall();
                 try
                 {
-                    call.invite(contactHeader.getAddress(), null);
+                    call.invite(redirectAddress, null);
                 }
                 catch (OperationFailedException exc)
                 {
