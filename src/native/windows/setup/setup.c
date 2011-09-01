@@ -10,6 +10,7 @@
 #include "setup.h"
 
 #include <ctype.h> /* isspace */
+#include <stdint.h> /* intptr_t */
 #include <stdlib.h>
 #include <string.h>
 #include <tchar.h>
@@ -67,10 +68,11 @@ static LPWSTR Setup_getBoolArgW(LPCWSTR argName, LPWSTR commandLine, BOOL *boolV
 static LPCTSTR Setup_getFileName();
 static DWORD Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName);
 static LPCTSTR Setup_getProductName();
+static DWORD Setup_getWinMainCmdLine(LPTSTR *winMainCmdLine);
 static int Setup_isWow64Acceptable();
 LRESULT CALLBACK Setup_isWow64AcceptableMessageBoxCallWndRetProc(int code, WPARAM wParam, LPARAM lParam);
 static DWORD Setup_msiexec();
-static DWORD Setup_parseCommandLine(LPSTR cmdLine);
+static DWORD Setup_parseCommandLine(LPTSTR cmdLine);
 static LPSTR Setup_skipWhitespaceA(LPSTR str);
 static LPWSTR Setup_skipWhitespaceW(LPWSTR str);
 static LPWSTR Setup_str2wstr(LPCSTR str);
@@ -125,25 +127,25 @@ Setup_enumResNameProc(
                 else
                 {
                     error = GetLastError();
-                    LastError_setLastError(error, __FILE__, __LINE__);
+                    LastError_setLastError(error, _T(__FILE__), __LINE__);
                 }
             }
             else
             {
                 error = GetLastError();
-                LastError_setLastError(error, __FILE__, __LINE__);
+                LastError_setLastError(error, _T(__FILE__), __LINE__);
             }
         }
         else
         {
             error = GetLastError();
-            LastError_setLastError(error, __FILE__, __LINE__);
+            LastError_setLastError(error, _T(__FILE__), __LINE__);
         }
     }
     else
     {
         error = GetLastError();
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
     }
     if (param)
         *((DWORD *) param) = error;
@@ -240,7 +242,7 @@ Setup_executeBspatch(LPCTSTR path)
                     if (INVALID_HANDLE_VALUE == hLocalPackage)
                     {
                         error = GetLastError();
-                        LastError_setLastError(error, __FILE__, __LINE__);
+                        LastError_setLastError(error, _T(__FILE__), __LINE__);
                     }
                     else
                     {
@@ -253,13 +255,13 @@ Setup_executeBspatch(LPCTSTR path)
                                 error = ERROR_FILE_NOT_FOUND;
                                 LastError_setLastError(
                                         error,
-                                        __FILE__, __LINE__);
+                                        _T(__FILE__), __LINE__);
                             }
                         }
                         else
                         {
                             error = GetLastError();
-                            LastError_setLastError(error, __FILE__, __LINE__);
+                            LastError_setLastError(error, _T(__FILE__), __LINE__);
                         }
                         CloseHandle(hLocalPackage);
                     }
@@ -326,7 +328,7 @@ Setup_executeBspatch(LPCTSTR path)
                                 argv))
                         {
                             error = ERROR_GEN_FAILURE;
-                            LastError_setLastError(error, __FILE__, __LINE__);
+                            LastError_setLastError(error, _T(__FILE__), __LINE__);
                         }
                         if (((LPVOID) newPath) != ((LPVOID) wNewPath))
                             free(newPath);
@@ -334,7 +336,7 @@ Setup_executeBspatch(LPCTSTR path)
                     else
                     {
                         error = ERROR_NOT_ENOUGH_MEMORY;
-                        LastError_setLastError(error, __FILE__, __LINE__);
+                        LastError_setLastError(error, _T(__FILE__), __LINE__);
                     }
                     free(localPackage);
                 }
@@ -344,18 +346,18 @@ Setup_executeBspatch(LPCTSTR path)
         else
         {
             error = ERROR_INVALID_PARAMETER;
-            LastError_setLastError(error, __FILE__, __LINE__);
+            LastError_setLastError(error, _T(__FILE__), __LINE__);
         }
         free(packageCode);
     }
     else
     {
         error = ERROR_NOT_ENOUGH_MEMORY;
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
     }
 #else /* #ifdef PACKAGECODE */
     error = ERROR_CALL_NOT_IMPLEMENTED;
-    LastError_setLastError(error, __FILE__, __LINE__);
+    LastError_setLastError(error, _T(__FILE__), __LINE__);
 #endif /* #ifdef PACKAGECODE */
     return error;
 }
@@ -374,11 +376,12 @@ Setup_executeMsiA(LPCSTR path)
     else
     {
         error = ERROR_OUTOFMEMORY;
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
     }
     return error;
 }
-
+// C:\Users\Valérie\AppData\Local\Temp\webinage-1.0.1262-x64.exe --wait-parent "SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR="C:\Program Files (x86)\Webinage""
+// "C:\Windows\System32\msiexec.exe" /i "C:\Users\VALRIE~1\AppData\Local\Temp\webinage-1.0.1262-x64.msi" REINSTALLMODE=amus rie\AppData\Local\Temp\webinage-1.0.1262-x64.exe --wait-parent SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR="C:\Program Files (x86)\Webinage"
 static DWORD
 Setup_executeMsiW(LPCWSTR path)
 {
@@ -395,7 +398,7 @@ Setup_executeMsiW(LPCWSTR path)
     else
     {
         error = ERROR_INVALID_PARAMETER;
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
         return error;
     }
     p2 = L"\" REINSTALLMODE=amus ";
@@ -441,7 +444,7 @@ Setup_executeMsiW(LPCWSTR path)
          */
         CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
-        if (ShellExecuteExW(&sei) && (((int) (sei.hInstApp)) > 32))
+        if (ShellExecuteExW(&sei) && (((intptr_t) (sei.hInstApp)) > 32))
         {
             if (sei.hProcess)
             {
@@ -453,7 +456,7 @@ Setup_executeMsiW(LPCWSTR path)
                     if (WAIT_FAILED == event)
                     {
                         error = GetLastError();
-                        LastError_setLastError(error, __FILE__, __LINE__);
+                        LastError_setLastError(error, _T(__FILE__), __LINE__);
                         break;
                     }
                 }
@@ -464,7 +467,7 @@ Setup_executeMsiW(LPCWSTR path)
         else
         {
             error = GetLastError();
-            LastError_setLastError(error, __FILE__, __LINE__);
+            LastError_setLastError(error, _T(__FILE__), __LINE__);
         }
 
         free(parameters);
@@ -472,7 +475,7 @@ Setup_executeMsiW(LPCWSTR path)
     else
     {
         error = ERROR_OUTOFMEMORY;
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
     }
     return error;
 }
@@ -510,7 +513,7 @@ Setup_extractAndExecutePayload(LPVOID ptr, DWORD size)
         if (tempPathLength > pathSize)
         {
             error = ERROR_NOT_ENOUGH_MEMORY;
-            LastError_setLastError(error, __FILE__, __LINE__);
+            LastError_setLastError(error, _T(__FILE__), __LINE__);
         }
         else
         {
@@ -589,7 +592,7 @@ Setup_extractAndExecutePayload(LPVOID ptr, DWORD size)
                                         path))
                         {
                             error = GetLastError();
-                            LastError_setLastError(error, __FILE__, __LINE__);
+                            LastError_setLastError(error, _T(__FILE__), __LINE__);
                         }
                         else
                         {
@@ -607,7 +610,7 @@ Setup_extractAndExecutePayload(LPVOID ptr, DWORD size)
                                 error = GetLastError();
                                 LastError_setLastError(
                                         error,
-                                        __FILE__, __LINE__);
+                                        _T(__FILE__), __LINE__);
                             }
                         }
                         free(tempPath);
@@ -615,7 +618,7 @@ Setup_extractAndExecutePayload(LPVOID ptr, DWORD size)
                     else
                     {
                         error = ERROR_OUTOFMEMORY;
-                        LastError_setLastError(error, __FILE__, __LINE__);
+                        LastError_setLastError(error, _T(__FILE__), __LINE__);
                     }
                 }
 
@@ -634,7 +637,7 @@ Setup_extractAndExecutePayload(LPVOID ptr, DWORD size)
                                 NULL))
                         {
                             error = GetLastError();
-                            LastError_setLastError(error, __FILE__, __LINE__);
+                            LastError_setLastError(error, _T(__FILE__), __LINE__);
                         }
                     }
 
@@ -652,7 +655,7 @@ Setup_extractAndExecutePayload(LPVOID ptr, DWORD size)
                         else
                         {
                             error = ERROR_CALL_NOT_IMPLEMENTED;
-                            LastError_setLastError(error, __FILE__, __LINE__);
+                            LastError_setLastError(error, _T(__FILE__), __LINE__);
                         }
                     }
                     else
@@ -671,7 +674,7 @@ Setup_extractAndExecutePayload(LPVOID ptr, DWORD size)
     else
     {
         error = GetLastError();
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
     }
     return error;
 }
@@ -726,7 +729,7 @@ Setup_findLocalPackageByProductId(LPCTSTR productId, LPTSTR *localPackage)
                 continue;
             if (ERROR_SUCCESS != error)
             {
-                LastError_setLastError(error, __FILE__, __LINE__);
+                LastError_setLastError(error, _T(__FILE__), __LINE__);
                 break;
             }
 
@@ -770,11 +773,11 @@ Setup_findLocalPackageByProductId(LPCTSTR productId, LPTSTR *localPackage)
         if ((ERROR_SUCCESS == error) && !(*localPackage))
         {
             error = ERROR_FILE_NOT_FOUND;
-            LastError_setLastError(error, __FILE__, __LINE__);
+            LastError_setLastError(error, _T(__FILE__), __LINE__);
         }
     }
     else
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
     return error;
 }
 #endif /* #ifdef PACKAGECODE */
@@ -818,7 +821,7 @@ Setup_findProductIdByPackageCode(LPCTSTR packageCode, LPTSTR *productId)
                 continue;
             if (ERROR_SUCCESS != error)
             {
-                LastError_setLastError(error, __FILE__, __LINE__);
+                LastError_setLastError(error, _T(__FILE__), __LINE__);
                 break;
             }
             if (32 != subKeyNameLength)
@@ -832,7 +835,7 @@ Setup_findProductIdByPackageCode(LPCTSTR packageCode, LPTSTR *productId)
                         &subKey);
             if (ERROR_SUCCESS != error)
             {
-                LastError_setLastError(error, __FILE__, __LINE__);
+                LastError_setLastError(error, _T(__FILE__), __LINE__);
                 break;
             }
             error
@@ -851,13 +854,13 @@ Setup_findProductIdByPackageCode(LPCTSTR packageCode, LPTSTR *productId)
                     if (!(*productId))
                     {
                         error = ERROR_NOT_ENOUGH_MEMORY;
-                        LastError_setLastError(error, __FILE__, __LINE__);
+                        LastError_setLastError(error, _T(__FILE__), __LINE__);
                     }
                 }
                 free(packageCodeOfProductId);
             }
             else
-                LastError_setLastError(error, __FILE__, __LINE__);
+                LastError_setLastError(error, _T(__FILE__), __LINE__);
             RegCloseKey(subKey);
             if (ERROR_SUCCESS != error)
                 break;
@@ -867,11 +870,11 @@ Setup_findProductIdByPackageCode(LPCTSTR packageCode, LPTSTR *productId)
         if ((ERROR_SUCCESS == error) && !(*productId))
         {
             error = ERROR_FILE_NOT_FOUND;
-            LastError_setLastError(error, __FILE__, __LINE__);
+            LastError_setLastError(error, _T(__FILE__), __LINE__);
         }
     }
     else
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
     return error;
 }
 #endif /* #ifdef PACKAGECODE */
@@ -1132,7 +1135,7 @@ Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName)
     if (snapshot == INVALID_HANDLE_VALUE)
     {
         error = GetLastError();
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
     }
     else
     {
@@ -1159,7 +1162,7 @@ Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName)
                 if (!Process32Next(snapshot, &entry))
                 {
                     error = GetLastError();
-                    LastError_setLastError(error, __FILE__, __LINE__);
+                    LastError_setLastError(error, _T(__FILE__), __LINE__);
                     break;
                 }
             }
@@ -1168,7 +1171,7 @@ Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName)
         else
         {
             error = GetLastError();
-            LastError_setLastError(error, __FILE__, __LINE__);
+            LastError_setLastError(error, _T(__FILE__), __LINE__);
         }
         if ((ERROR_SUCCESS == error) && fileName && ppid && *ppid)
         {
@@ -1182,14 +1185,14 @@ Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName)
                         if (NULL == *fileName)
                         {
                             error = ERROR_OUTOFMEMORY;
-                            LastError_setLastError(error, __FILE__, __LINE__);
+                            LastError_setLastError(error, _T(__FILE__), __LINE__);
                         }
                         break;
                     }
                     if (!Process32Next(snapshot, &entry))
                     {
                         error = GetLastError();
-                        LastError_setLastError(error, __FILE__, __LINE__);
+                        LastError_setLastError(error, _T(__FILE__), __LINE__);
                         break;
                     }
                 }
@@ -1198,7 +1201,7 @@ Setup_getParentProcess(DWORD *ppid, LPTSTR *fileName)
             else
             {
                 error = GetLastError();
-                LastError_setLastError(error, __FILE__, __LINE__);
+                LastError_setLastError(error, _T(__FILE__), __LINE__);
             }
         }
         CloseHandle(snapshot);
@@ -1240,6 +1243,71 @@ Setup_getProductName()
     return Setup_productName;
 }
 
+static DWORD
+Setup_getWinMainCmdLine(LPTSTR *winMainCmdLine)
+{
+    LPWSTR cmdLineW = GetCommandLineW();
+    DWORD error;
+
+    if (cmdLineW && wcslen(cmdLineW))
+    {
+        int argc;
+        LPWSTR *argvW = CommandLineToArgvW(cmdLineW, &argc);
+
+        if (argvW)
+        {
+            if (argc)
+            {
+                LPWSTR argvW0 = argvW[0];
+                LPWSTR argvW0InCmdLineW = wcsstr(cmdLineW, argvW0);
+
+                if (argvW0InCmdLineW)
+                {
+                    wchar_t c;
+
+                    cmdLineW = argvW0InCmdLineW + wcslen(argvW0);
+                    /*
+                     * CommandLineToArgvW may not report quotes as part of
+                     * argvW0. As a workaround, skip non-whitespace characters.
+                     */
+                    while ((c = *cmdLineW) && !iswspace(c))
+                        cmdLineW++;
+                }
+#ifdef _UNICODE
+                *winMainCmdLine = cmdLineW;
+                error = ERROR_SUCCESS;
+#else /* #ifdef _UNICODE */
+                *winMainCmdLine = Setup_wstr2str(cmdLineW);
+                if (*winMainCmdLine)
+                    error = ERROR_SUCCESS;
+                else
+                {
+                    error = ERROR_GEN_FAILURE;
+                    LastError_setLastError(error, _T(__FILE__), __LINE__);
+                }
+#endif /* #ifdef _UNICODE */
+            }
+            else
+            {
+                *winMainCmdLine = NULL;
+                error = ERROR_SUCCESS;
+            }
+            LocalFree(argvW);
+        }
+        else
+        {
+            error = GetLastError();
+            LastError_setLastError(error, _T(__FILE__), __LINE__);
+        }
+    }
+    else
+    {
+        *winMainCmdLine = NULL;
+        error = ERROR_SUCCESS;
+    }
+    return error;
+}
+
 static int
 Setup_isWow64Acceptable()
 {
@@ -1251,7 +1319,7 @@ Setup_isWow64Acceptable()
         typedef BOOL (WINAPI *LPISWOW64PROCESS)(HANDLE, PBOOL);
 
         LPISWOW64PROCESS isWow64Process
-            = (LPISWOW64PROCESS) GetProcAddress(kernel32, _T("IsWow64Process"));
+            = (LPISWOW64PROCESS) GetProcAddress(kernel32, "IsWow64Process");
         BOOL wow64Process = FALSE;
 
         if (isWow64Process
@@ -1368,32 +1436,32 @@ Setup_msiexec()
     else
     {
         error = ERROR_BAD_ARGUMENTS;
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
     }
     return error;
 }
 
 static DWORD
-Setup_parseCommandLine(LPSTR cmdLine)
+Setup_parseCommandLine(LPTSTR cmdLine)
 {
     LPTSTR commandLine;
     DWORD error = ERROR_SUCCESS;
 
-#ifdef _UNICODE
-    if (cmdLine)
-    {
-        commandLine = Setup_str2wstr(cmdLine);
-        if (!commandLine)
-        {
-            error = ERROR_OUTOFMEMORY;
-            LastError_setLastError(error, __FILE__, __LINE__);
-        }
-    }
-    else
-        commandLine = NULL;
-#else
+//#ifdef _UNICODE
+//    if (cmdLine)
+//    {
+//        commandLine = Setup_str2wstr(cmdLine);
+//        if (!commandLine)
+//        {
+//            error = ERROR_OUTOFMEMORY;
+//            LastError_setLastError(error, _T(__FILE__), __LINE__);
+//        }
+//    }
+//    else
+//        commandLine = NULL;
+//#else
     commandLine = cmdLine;
-#endif /* #ifdef _UNICODE */
+//#endif /* #ifdef _UNICODE */
 
     if (commandLine)
     {
@@ -1439,7 +1507,7 @@ Setup_parseCommandLine(LPSTR cmdLine)
                 if (envVarValueLength > envVarValueSize)
                 {
                     error = ERROR_NOT_ENOUGH_MEMORY;
-                    LastError_setLastError(error, __FILE__, __LINE__);
+                    LastError_setLastError(error, _T(__FILE__), __LINE__);
                 }
                 else
                 {
@@ -1468,7 +1536,7 @@ Setup_parseCommandLine(LPSTR cmdLine)
                 if (ERROR_ENVVAR_NOT_FOUND != envVarError)
                 {
                     error = envVarError;
-                    LastError_setLastError(error, __FILE__, __LINE__);
+                    LastError_setLastError(error, _T(__FILE__), __LINE__);
                 }
             }
         }
@@ -1490,7 +1558,7 @@ Setup_parseCommandLine(LPSTR cmdLine)
             if (!commandLineW)
             {
                 error = ERROR_OUTOFMEMORY;
-                LastError_setLastError(error, __FILE__, __LINE__);
+                LastError_setLastError(error, _T(__FILE__), __LINE__);
             }
 #endif /* #ifdef _UNICODE */
 
@@ -1548,7 +1616,7 @@ Setup_parseCommandLine(LPSTR cmdLine)
                                 error = ERROR_OUTOFMEMORY;
                                 LastError_setLastError(
                                         error,
-                                        __FILE__, __LINE__);
+                                        _T(__FILE__), __LINE__);
                             }
                         }
                     }
@@ -1557,7 +1625,7 @@ Setup_parseCommandLine(LPSTR cmdLine)
                 else
                 {
                     error = GetLastError();
-                    LastError_setLastError(error, __FILE__, __LINE__);
+                    LastError_setLastError(error, _T(__FILE__), __LINE__);
                 }
 
                 if (((LPVOID) commandLineW)
@@ -1624,11 +1692,11 @@ Setup_parseCommandLine(LPSTR cmdLine)
             else
             {
                 error = ERROR_OUTOFMEMORY;
-                LastError_setLastError(error, __FILE__, __LINE__);
+                LastError_setLastError(error, _T(__FILE__), __LINE__);
             }
         }
 
-        if (commandLine != cmdLine)
+        if ((void *) commandLine != (void *) cmdLine)
             free(commandLine);
     }
     return error;
@@ -1714,14 +1782,14 @@ Setup_terminateUp2DateExe()
                 if (!TerminateProcess(parentProcess, 0))
                 {
                     error = GetLastError();
-                    LastError_setLastError(error, __FILE__, __LINE__);
+                    LastError_setLastError(error, _T(__FILE__), __LINE__);
                 }
                 CloseHandle(parentProcess);
             }
             else
             {
                 error = GetLastError();
-                LastError_setLastError(error, __FILE__, __LINE__);
+                LastError_setLastError(error, _T(__FILE__), __LINE__);
             }
         }
     }
@@ -1750,7 +1818,7 @@ Setup_waitForParentProcess()
                 if (WAIT_FAILED == event)
                 {
                     error = GetLastError();
-                    LastError_setLastError(error, __FILE__, __LINE__);
+                    LastError_setLastError(error, _T(__FILE__), __LINE__);
                     break;
                 }
             }
@@ -1760,7 +1828,7 @@ Setup_waitForParentProcess()
         else
         {
             error = GetLastError();
-            LastError_setLastError(error, __FILE__, __LINE__);
+            LastError_setLastError(error, _T(__FILE__), __LINE__);
         }
     }
     return error;
@@ -1855,12 +1923,12 @@ Setup_xzdec(LPVOID ptr, DWORD size, HANDLE file)
                                         NULL))
                         {
                             error = GetLastError();
-                            LastError_setLastError(error, __FILE__, __LINE__);
+                            LastError_setLastError(error, _T(__FILE__), __LINE__);
                         }
                         break;
                     default:
                         error = ERROR_WRITE_FAULT;
-                        LastError_setLastError(error, __FILE__, __LINE__);
+                        LastError_setLastError(error, _T(__FILE__), __LINE__);
                         break;
                     }
 
@@ -1881,16 +1949,16 @@ Setup_xzdec(LPVOID ptr, DWORD size, HANDLE file)
         break;
     case LZMA_MEM_ERROR:
         error = ERROR_NOT_ENOUGH_MEMORY;
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
         break;
     case LZMA_OPTIONS_ERROR:
         error = ERROR_INVALID_PARAMETER;
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
         break;
     case LZMA_PROG_ERROR:
     default:
         error = ERROR_OPEN_FAILED; /* For the lack of a better idea. */
-        LastError_setLastError(error, __FILE__, __LINE__);
+        LastError_setLastError(error, _T(__FILE__), __LINE__);
         break;
     }
     lzma_end(_strm);
@@ -1903,30 +1971,38 @@ WinMain(
         LPSTR cmdLine,
         int cmdShow)
 {
-    DWORD error;
-
-    Setup_parseCommandLine(cmdLine);
-
     /*
-     * If the --xzdec command line argument has been specified, the caller
-     * obviously knows what they are doing so do not ask whether Wow64 is
-     * acceptable.
+     * The value of WinMain's cmdLine argument may be incorrect, for example, in
+     * the case of a character with an accent in the path of the executable. As
+     * a workaround, try to reconstruct the correct value using GetCommandLineW
+     * and CommandLineToArgvW.
      */
-    if (Setup_quiet || Setup_xzdec_ || (IDYES == Setup_isWow64Acceptable()))
+    LPTSTR winMainCmdLine = NULL;
+    DWORD error = Setup_getWinMainCmdLine(&winMainCmdLine);
+
+    if (ERROR_SUCCESS == error)
     {
-        if (Setup_msiexec_)
-            error = Setup_msiexec();
-        else
+        Setup_parseCommandLine(winMainCmdLine);
+
+        /*
+         * If the --xzdec command line argument has been specified, the caller
+         * obviously knows what they are doing so do not ask whether Wow64 is
+         * acceptable.
+         */
+        if (Setup_quiet || Setup_xzdec_ || (IDYES == Setup_isWow64Acceptable()))
         {
-            Setup_enumResNameProc(
-                    NULL,
-                    RT_RCDATA,
-                    MAKEINTRESOURCE(IDRCDATA_PAYLOAD),
-                    (LONG_PTR) &error);
+            if (Setup_msiexec_)
+                error = Setup_msiexec();
+            else
+            {
+                Setup_enumResNameProc(
+                        NULL,
+                        RT_RCDATA,
+                        MAKEINTRESOURCE(IDRCDATA_PAYLOAD),
+                        (LONG_PTR) &error);
+            }
         }
     }
-    else
-        error = ERROR_SUCCESS;
 
     /*
      * If anything has gone wrong, report it to the user. In accord with the
