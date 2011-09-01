@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec.audio.silk;
 
-import java.util.*;
-
 /**
  * This file has been automatically generated
  * ROM usage:  0.29 + 2.66 kB
@@ -150,17 +148,17 @@ public class Silk_tables_NLSF_CB0_10
             65535
     };
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_10_CDF_0 
-            = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 0, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
+            = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 0, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_10_CDF_65 
-            = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 65, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
+            = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 65, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_10_CDF_82 
-            = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 82, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
+            = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 82, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_10_CDF_91 
-            = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 91, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
+            = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 91, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_10_CDF_100 
-            = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 100, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
+            = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 100, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_10_CDF_109 
-            = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 109, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
+            = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_10_CDF, 109, SKP_Silk_NLSF_MSVQ_CB0_10_CDF.length);
     
     static final int[][]  SKP_Silk_NLSF_MSVQ_CB0_10_CDF_start_ptr =
     {

@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec.audio.silk;
 
-import java.util.*;
-
 /**
  * This file has been automatically generated
  * ROM usage:  0.51 + 7.38 kB
@@ -251,25 +249,25 @@ public class Silk_tables_NLSF_CB0_16
     };
 
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_0 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 0, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 0, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_129 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 129, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 129, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_146 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 146, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 146, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_155 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 155, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 155, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_164
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 164, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 164, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_173 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 173, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 173, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_182 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 182, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 182, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_191 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 191, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 191, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_200 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 200, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 200, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_209 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 209, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB0_16_CDF, 209, SKP_Silk_NLSF_MSVQ_CB0_16_CDF.length);
     
     static final int[][] SKP_Silk_NLSF_MSVQ_CB0_16_CDF_start_ptr = 
     {

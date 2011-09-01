@@ -20,18 +20,6 @@ public class Silk_enc_API
     static int frame_cnt = 0;
     
     /**
-     * get the memory size of the encoder state struct, not necessary in Java.
-     * @deprecated
-     * @param encSizeBytes
-     * @return
-     */
-    static int SKP_Silk_SDK_Get_Encoder_Size( int[] encSizeBytes )
-    {
-        int ret = 0;        
-        return ret;
-    }
-    
-    /**
      * Read control structure from encoder.
      * @param encState State Vecotr.
      * @param encStatus Control Structure.

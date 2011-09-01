@@ -8,8 +8,6 @@ package net.java.sip.communicator.impl.neomedia.codec.audio.silk;
 
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * The Decoder API.
  *
@@ -18,25 +16,6 @@ import net.java.sip.communicator.util.*;
  */
 public class Silk_dec_API 
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>Silk_dec_API</tt> class and its
-     * instances for logging output.
-     */
-    private static final Logger logger = Logger.getLogger(Silk_dec_API.class);
-
-    /**
-     * Get the memory size for the decoder state struct. 
-     * It's not required in Java.
-     * 
-     * @deprecated
-     * @param decSizeBytes the decoder state size in bytes
-     * @return
-     */
-    static int SKP_Silk_SDK_Get_Decoder_Size( int[] decSizeBytes ) 
-    {
-        int ret = 0;
-        return ret;
-    }
 
     /**
      * Reset the decoder state.

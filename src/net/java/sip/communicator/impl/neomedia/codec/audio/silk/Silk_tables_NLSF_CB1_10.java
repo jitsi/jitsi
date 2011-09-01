@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec.audio.silk;
 
-import java.util.*;
-
 /**
  * This file has been automatically generated
  * ROM usage:  0.19 + 1.61 kB.
@@ -103,17 +101,17 @@ public class Silk_tables_NLSF_CB1_10
     };
 
     static private int [] SKP_Silk_NLSF_MSVQ_CB1_10_CDF_0
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 0, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 0, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB1_10_CDF_33 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 33, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 33, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB1_10_CDF_42
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 42, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 42, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB1_10_CDF_51
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 51, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 51, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB1_10_CDF_60 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 60, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 60, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
     static private int [] SKP_Silk_NLSF_MSVQ_CB1_10_CDF_69 
-        = Arrays.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 69, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
+        = Silk_tables.copyOfRange(SKP_Silk_NLSF_MSVQ_CB1_10_CDF, 69, SKP_Silk_NLSF_MSVQ_CB1_10_CDF.length);
 
     static final int[][] SKP_Silk_NLSF_MSVQ_CB1_10_CDF_start_ptr = 
     {
