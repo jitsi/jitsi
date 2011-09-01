@@ -134,6 +134,7 @@ public class SelectScreenDialog
         {
             public void actionPerformed(ActionEvent e)
             {
+                selectedDevice = null;
                 dispose();
             }
         });

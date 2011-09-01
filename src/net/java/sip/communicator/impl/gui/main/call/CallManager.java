@@ -311,9 +311,10 @@ public class CallManager
 
             selectDialog.setVisible(true);
 
-            createDesktopSharing(   protocolProvider,
-                                    contact,
-                                    selectDialog.getSelectedDevice());
+            if (selectDialog.getSelectedDevice() != null)
+                createDesktopSharing(   protocolProvider,
+                                        contact,
+                                        selectDialog.getSelectedDevice());
         }
     }
 
@@ -424,8 +425,9 @@ public class CallManager
 
                 selectDialog.setVisible(true);
 
-                enableDesktopSharing(
-                    call, selectDialog.getSelectedDevice(), enable);
+                if (selectDialog.getSelectedDevice() != null)
+                    enableDesktopSharing(
+                        call, selectDialog.getSelectedDevice(), enable);
             }
         }
 
