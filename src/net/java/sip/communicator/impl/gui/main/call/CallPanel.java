@@ -656,7 +656,7 @@ public class CallPanel
 
         if (!isLastConference)
         {
-            // Buttons would be enabled once the call has entered in state
+            // Buttsons would be enabled once the call has entered in state
             // connected.
             ProtocolProviderService protocolProvider
                 = call.getProtocolProvider();
@@ -681,6 +681,7 @@ public class CallPanel
             {
                 videoButton.setEnabled(enable);
                 fullScreenButton.setEnabled(enable);
+                desktopSharingButton.setEnabled(enable);
             }
         }
     }
