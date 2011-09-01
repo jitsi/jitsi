@@ -764,8 +764,7 @@ public abstract class AbstractBufferCaptureDevice
         if (!started)
         {
             if (!connected)
-                throw new IOException(
-                        getClass().getSimpleName() + " not connected");
+                throw new IOException(getClass().getName() + " not connected");
 
             doStart();
             started = true;

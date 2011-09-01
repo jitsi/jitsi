@@ -12,8 +12,8 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
-import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.util.*;
 
@@ -24,8 +24,7 @@ import net.java.sip.communicator.util.*;
  * @author Lyubomir Marinov
  */
 public class PortAudioRenderer
-    extends ControlsAdapter
-    implements Renderer
+    extends AbstractRenderer<AudioFormat>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>PortAudioRenderer</tt> class and its
@@ -117,12 +116,6 @@ public class PortAudioRenderer
     private int framesPerBuffer;
 
     /**
-     * The JMF <tt>Format</tt> in which this <tt>PortAudioRenderer</tt> is
-     * currently configured to read the audio data to be rendered.
-     */
-    private AudioFormat inputFormat;
-
-    /**
      * The <tt>MediaLocator</tt> which specifies the device index of the
      * PortAudio device used by this instance for rendering.
      */
@@ -167,13 +160,18 @@ public class PortAudioRenderer
 
     /**
      * Initializes a new <tt>PortAudioRenderer</tt> instance.
-     * @param enableVolumeControl whether we enable volume control or not.
+     *
+     * @param enableVolumeControl <tt>true</tt> to enable volume control;
+     * <tt>false</tt>, otherwise
      */
     public PortAudioRenderer(boolean enableVolumeControl)
     {
         if(enableVolumeControl)
-            this.gainControl = (GainControl)NeomediaActivator
-                    .getMediaServiceImpl().getOutputVolumeControl();
+            this.gainControl
+                = (GainControl)
+                    NeomediaActivator
+                        .getMediaServiceImpl()
+                            .getOutputVolumeControl();
     }
 
     /**
@@ -205,6 +203,19 @@ public class PortAudioRenderer
                 outputParameters = 0;
             }
         }
+    }
+
+    /**
+     * Implements {@link javax.media.Controls#getControls()}. Gets the controls
+     * available for the owner of this instance. The current implementation
+     * returns an empty array because it has no available controls.
+     *
+     * @return an array of <tt>Object</tt>s which represent the controls
+     * available for the owner of this instance
+     */
+    public Object[] getControls()
+    {
+        return new Object[] { gainControl };
     }
 
     /**
@@ -534,13 +545,6 @@ public class PortAudioRenderer
     }
 
     /**
-     * Resets this <tt>PlugIn</tt>.
-     */
-    public void reset()
-    {
-    }
-
-    /**
      * Sets the <tt>MediaLocator</tt> which specifies the device index of the
      * PortAudio device to be used by <tt>PortAudioRenderer</tt> instances which
      * are to be opened later on and which don't have a specified
@@ -562,35 +566,6 @@ public class PortAudioRenderer
             return;
 
         PortAudioRenderer.defaultLocator = defaultLocator;
-    }
-
-    /**
-     * Sets the JMF <tt>Format</tt> of the audio data to be rendered by this
-     * <tt>Renderer</tt>.
-     *
-     * @param format the JMF <tt>Format</tt> of the audio data to be redered by
-     * this instance
-     * @return <tt>null</tt> if the specified <tt>format</tt> is not compatible
-     * with this <tt>Renderer</tt>; otherwise, the JMF <tt>Format</tt> which has
-     * been successfully set
-     */
-    public Format setInputFormat(Format format)
-    {
-        Format matchingFormat = null;
-
-        for (Format supportedInputFormat : getSupportedInputFormats())
-        {
-            if (supportedInputFormat.matches(format))
-            {
-                matchingFormat = supportedInputFormat.intersects(format);
-                break;
-            }
-        }
-        if (matchingFormat == null)
-            return null;
-
-        inputFormat = (AudioFormat) matchingFormat;
-        return inputFormat;
     }
 
     /**
@@ -670,18 +645,5 @@ public class PortAudioRenderer
                 logger.error("Failed to close PortAudio stream.", paex);
             }
         }
-    }
-
-    /**
-     * Implements {@link javax.media.Controls#getControls()}. Gets the controls
-     * available for the owner of this instance. The current implementation
-     * returns an empty array because it has no available controls.
-     *
-     * @return an array of <tt>Object</tt>s which represent the controls
-     * available for the owner of this instance
-     */
-    public Object[] getControls()
-    {
-        return new Object[]{gainControl};
     }
 }

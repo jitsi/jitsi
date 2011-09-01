@@ -14,7 +14,7 @@ import javax.media.format.*;
 import javax.media.renderer.*;
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.neomedia.control.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
  * @author Lyubomir Marinov
  */
 public class JAWTRenderer
-    extends ControlsAdapter
+    extends AbstractRenderer<VideoFormat>
     implements VideoRenderer
 {
     /**
@@ -109,12 +109,6 @@ public class JAWTRenderer
      * The handle of the native counterpart of this <tt>JAWTRenderer</tt>.
      */
     private long handle = 0;
-
-    /**
-     * The <tt>VideoFormat</tt> of the input processed by this
-     * <tt>Renderer</tt>.
-     */
-    private VideoFormat inputFormat;
 
     /**
      * The last known height of the input processed by this
@@ -498,14 +492,6 @@ public class JAWTRenderer
             long handle, Component component);
 
     /**
-     * Resets the state of this <tt>PlugIn</tt>.
-     */
-    public void reset()
-    {
-        // TODO Auto-generated method stub
-    }
-
-    /**
      * Sets the region in the component of this <tt>VideoRenderer</tt> where the
      * video is to be rendered.
      *
@@ -547,22 +533,10 @@ public class JAWTRenderer
      * <tt>Renderer</tt>. Typically, it is the supported input <tt>Format</tt>
      * which most closely matches the specified <tt>Format</tt>.
      */
+    @Override
     public Format setInputFormat(Format format)
     {
-        Format matchingFormat = null;
-
-        for (Format supportedInputFormat : getSupportedInputFormats())
-        {
-            if (supportedInputFormat.matches(format))
-            {
-                matchingFormat = supportedInputFormat.intersects(format);
-                break;
-            }
-        }
-        if (matchingFormat == null)
-            return null;
-
-        inputFormat = (VideoFormat) format;
+        super.setInputFormat(format);
 
         /*
          * Know the width and height of the input because we'll be depicting it

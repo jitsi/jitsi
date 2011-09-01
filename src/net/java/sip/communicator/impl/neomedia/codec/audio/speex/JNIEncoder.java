@@ -370,10 +370,10 @@ public class JNIEncoder
     }
 
     /**
-     * Get the matching output formats for a specific format.
+     * Get the output formats matching a specific input format.
      *
-     * @param inputFormat input format
-     * @return array for formats matching input format
+     * @param inputFormat the input format to get the matching output formats of
+     * @return the output formats matching the specified input format
      * @see AbstractCodecExt#getMatchingOutputFormats(Format)
      */
     @Override
