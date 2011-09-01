@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.customavatar.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -16,6 +17,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
+import org.osgi.framework.*;
 
 /**
  * This class encapsulates the Roster class. Once created, it will
@@ -1413,6 +1415,7 @@ public class ServerStoredContactListJabberImpl
          */
         private byte[] getAvatar(ContactJabberImpl contact)
         {
+            byte[] result;
             try
             {
                 XMPPConnection connection = jabberProvider.getConnection();
@@ -1423,7 +1426,14 @@ public class ServerStoredContactListJabberImpl
                 VCard card = new VCard();
 
                 card.load(connection, contact.getAddress());
-                return card.getAvatar();
+                result = card.getAvatar();
+
+                if(result == null)
+                {
+                    result = searchForCustomAvatar(contact.getAddress());
+                }
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -1436,9 +1446,48 @@ public class ServerStoredContactListJabberImpl
                                 + ex.getMessage(),
                             ex);
                 }
-                return new byte[0];
+
+                result = searchForCustomAvatar(contact.getAddress());
+                if(result == null)
+                    result = new byte[0];
+            }
+
+            return result;
+        }
+    }
+
+    /**
+     * Query custom avatar services and returns the first found avtar.
+     * @return the found avatar if any.
+     */
+    private byte[] searchForCustomAvatar(String address)
+    {
+        try
+        {
+            ServiceReference[] refs =  JabberActivator.bundleContext
+                .getServiceReferences(CustomAvatarService.class.getName(), null);
+
+            if(refs == null)
+                return null;
+
+            for(ServiceReference r : refs)
+            {
+                CustomAvatarService avatarService =
+                    (CustomAvatarService)JabberActivator
+                        .bundleContext.getService(r);
+
+                byte[] res = avatarService.getAvatar(address);
+
+                if(res != null)
+                    return res;
             }
         }
+        catch(Throwable t)
+        {
+            // if something is wrong just return empty image
+        }
+
+        return null;
     }
 
     /**

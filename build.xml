@@ -925,6 +925,7 @@
         bundle-contactsource,bundle-plugin-reconnect,bundle-plugin-securityconfig,
         bundle-plugin-advancedconfig,
         bundle-credentialsstorage,bundle-credentialsstorage-slick,
+        bundle-plugin-nimbuzzavatar,
         bundle-replacement,bundle-youtube,bundle-dailymotion,bundle-smiley,
         bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
@@ -2455,6 +2456,17 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/advancedconfig/advancedconfig.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/advancedconfig"
                 prefix="net/java/sip/communicator/plugin/advancedconfig"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-NIMBUZZAVATAR -->
+    <target name="bundle-plugin-nimbuzzavatar">
+        <jar compress="false" destfile="${bundles.dest}/plugin-nimbuzzavatars.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/nimbuzzavatars/nimbuzzavatars.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/nimbuzzavatars"
+                prefix="net/java/sip/communicator/plugin/nimbuzzavatars" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/customavatar"
+                prefix="net/java/sip/communicator/service/customavatar" />
         </jar>
     </target>
 
