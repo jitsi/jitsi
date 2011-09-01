@@ -501,6 +501,8 @@ public class CallPeerGTalkImpl
         {
             responseIQ = GTalkPacketFactory.createBye(
                 getProtocolProvider().getOurJID(), peerJID, getSessionID());
+            responseIQ.setInitiator(isInitiator() ? getAddress() :
+                getProtocolProvider().getOurJID());
         }
         else if (CallPeerState.CONNECTING.equals(prevPeerState)
             || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(prevPeerState)
@@ -508,11 +510,15 @@ public class CallPeerGTalkImpl
         {
             responseIQ = GTalkPacketFactory.createCancel(
                 getProtocolProvider().getOurJID(), peerJID, getSessionID());
+            responseIQ.setInitiator(isInitiator() ? getAddress() :
+                getProtocolProvider().getOurJID());
         }
         else if (prevPeerState.equals(CallPeerState.INCOMING_CALL))
         {
             responseIQ = GTalkPacketFactory.createBusy(
                 getProtocolProvider().getOurJID(), peerJID, getSessionID());
+            responseIQ.setInitiator(isInitiator() ? getAddress() :
+                getProtocolProvider().getOurJID());
         }
         else if (prevPeerState.equals(CallPeerState.BUSY)
                  || prevPeerState.equals(CallPeerState.FAILED))
@@ -644,7 +650,9 @@ public class CallPeerGTalkImpl
     }
 
     /**
-     * Returns whether or not the <tt>CallPeer</tt> is an Android phone.
+     * Returns whether or not the <tt>CallPeer</tt> is an Android phone or
+     * a call pass throught Google Voice.
+     *
      * We base the detection of the JID's resource which in the case of Android
      * is androidXXXXXXX (where XXXXXX is a suite of numbers/letters).
      */
@@ -660,6 +668,10 @@ public class CallPeerGTalkImpl
                 return true;
             }
         }
+
+        if(fullJID.contains("@voice.google.com"))
+            return true;
+
         return false;
     }
 

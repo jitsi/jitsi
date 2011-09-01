@@ -91,6 +91,11 @@ public class SessionIQProvider
                 null,
                 new DefaultPacketExtensionProvider<UsagePacketExtension>(
                 UsagePacketExtension.class));
+
+        providerManager.addExtensionProvider(
+            RedirectPacketExtension.ELEMENT_NAME,
+            RedirectPacketExtension.NAMESPACE,
+            new RedirectProvider());
     }
 
     /**

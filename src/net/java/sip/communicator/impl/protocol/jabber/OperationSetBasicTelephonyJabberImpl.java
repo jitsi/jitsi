@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -68,6 +69,11 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     private ActiveCallsRepositoryGTalkImpl activeGTalkCallsRepository
         = new ActiveCallsRepositoryGTalkImpl(this);
+
+    /**
+     * Google Voice domain.
+     */
+    private static final String GOOGLE_VOICE_DOMAIN = "voice.google.com";
 
     /**
      * Creates a new instance.
@@ -227,6 +233,22 @@ public class OperationSetBasicTelephonyJabberImpl
                     OperationFailedException.INTERNAL_ERROR);
         }
 
+        boolean isGoogle = isGmailOrGoogleAppsAccount();
+        boolean isGoogleVoice = false;
+
+        if(isGoogle)
+        {
+            if(!calleeAddress.contains("@"))
+            {
+                calleeAddress += "@" + GOOGLE_VOICE_DOMAIN;
+                isGoogleVoice = true;
+            }
+            else if(calleeAddress.endsWith(GOOGLE_VOICE_DOMAIN))
+            {
+                isGoogleVoice = true;
+            }
+        }
+
         // if address is not suffixed by @domain, add the default domain
         // corresponding to account domain or via the OVERRIDE_PHONE_SUFFIX
         // property if defined
@@ -273,57 +295,60 @@ public class OperationSetBasicTelephonyJabberImpl
             int priority = (presence.getPriority() == Integer.MIN_VALUE) ? 0 :
                 presence.getPriority();
             calleeURI = presence.getFrom();
-
+            DiscoverInfo discoverInfo = null;
             try
             {
                 // check if the remote client supports telephony.
-                DiscoverInfo discoverInfo =
+                discoverInfo =
                     protocolProvider.getDiscoveryManager().
                         discoverInfo(calleeURI);
-
-                if (discoverInfo != null && discoverInfo.containsFeature(
-                        ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE))
-                {
-                    if(priority > bestPriority)
-                    {
-                        bestPriority = priority;
-                        di = discoverInfo;
-                        fullCalleeURI = calleeURI;
-                    }
-                }
-                else
-                {
-                    AccountID accountID = getProtocolProvider().getAccountID();
-                    String bypassDomain = accountID.getAccountPropertyString(
-                        "TELEPHONY_BYPASS_GTALK_CAPS");
-
-                    boolean alwaysCallGtalk = (bypassDomain != null) &&
-                            bypassDomain.equals(calleeAddress.substring(
-                                calleeAddress.indexOf('@') + 1));
-
-                    // test GTALK property
-                    if(!protocolProvider.isGTalkTesting() && !alwaysCallGtalk)
-                    {
-                        continue;
-                    }
-
-                    /* see if peer supports Google Talk voice */
-                    if(getProtocolProvider().isExtFeatureListSupported(
-                            calleeURI, ProtocolProviderServiceJabberImpl.
-                                CAPS_GTALK_WEB_VOICE) || alwaysCallGtalk)
-                    {
-                        if(priority > bestPriorityGTalk)
-                        {
-                            bestPriorityGTalk = priority;
-                            isGingle = true;
-                            gingleURI = calleeURI;
-                        }
-                    }
-                }
             }
             catch (XMPPException ex)
             {
                 logger.warn("could not retrieve info for " + fullCalleeURI, ex);
+            }
+
+            boolean hasGtalkCaps =
+                getProtocolProvider().isExtFeatureListSupported(
+                    calleeURI, ProtocolProviderServiceJabberImpl.
+                        CAPS_GTALK_WEB_VOICE);
+
+            if (discoverInfo != null && discoverInfo.containsFeature(
+                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE))
+            {
+                if(priority > bestPriority)
+                {
+                    bestPriority = priority;
+                    di = discoverInfo;
+                    fullCalleeURI = calleeURI;
+                }
+            }
+            else
+            {
+                AccountID accountID = getProtocolProvider().getAccountID();
+                String bypassDomain = accountID.getAccountPropertyString(
+                    "TELEPHONY_BYPASS_GTALK_CAPS");
+
+                boolean alwaysCallGtalk = ((bypassDomain != null) &&
+                        bypassDomain.equals(calleeAddress.substring(
+                            calleeAddress.indexOf('@') + 1))) || isGoogleVoice;
+
+                // test GTALK property
+                if(!protocolProvider.isGTalkTesting() && !alwaysCallGtalk)
+                {
+                    continue;
+                }
+
+                /* see if peer supports Google Talk voice */
+                if(hasGtalkCaps || alwaysCallGtalk)
+                {
+                    if(priority > bestPriorityGTalk)
+                    {
+                        bestPriorityGTalk = priority;
+                        isGingle = true;
+                        gingleURI = calleeURI;
+                    }
+                }
             }
         }
 
@@ -1002,6 +1027,40 @@ public class OperationSetBasicTelephonyJabberImpl
             logger.error("Received error");
 
             XMPPError error = sessionIQ.getError();
+            RedirectPacketExtension redirect = null;
+            if(error != null)
+            {
+                for(PacketExtension e : error.getExtensions())
+                {
+                    if(e.getElementName().equals(
+                        RedirectPacketExtension.ELEMENT_NAME))
+                    {
+                        redirect = (RedirectPacketExtension)e;
+                    }
+                }
+            }
+
+            if(redirect != null)
+            {
+                CallGTalkImpl call = callPeer.getCall();
+
+                try
+                {
+                    String redir = redirect.getRedir();
+                    if(redir.startsWith("xmpp:"))
+                        redir = redir.substring(5);
+
+                    call.initiateGTalkSession(redir, null);
+                }
+                catch(Exception e)
+                {
+                    logger.info("Failed to initiate GTalk session (redirect)");
+                }
+
+                callPeer.setState(CallPeerState.DISCONNECTED);
+                return;
+            }
+
             String message = "Remote party returned an error!";
 
             if(error != null)
@@ -1245,5 +1304,44 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void setTransferAuthority(TransferAuthority authority)
     {
+    }
+
+    /**
+     * Returns true if our account is a Gmail or a Google Apps ones.
+     *
+     * @return true if our account is a Gmail or a Google Apps ones.
+     */
+    public boolean isGmailOrGoogleAppsAccount()
+    {
+        String domain = StringUtils.parseServer(
+            protocolProvider.getAccountID().getUserID());
+        SRVRecord srvRecords[] = null;
+
+        try
+        {
+            srvRecords = NetworkUtils.getSRVRecords("xmpp-client", "tcp",
+                domain);
+        }
+        catch (ParseException e)
+        {
+            logger.info("Failed to get SRV records for XMPP domain");
+            return false;
+        }
+
+        if(srvRecords == null)
+        {
+            return false;
+        }
+
+        for(SRVRecord srv : srvRecords)
+        {
+            if(srv.getTarget().endsWith("google.com") ||
+                    srv.getTarget().endsWith("google.com."))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
