@@ -92,6 +92,8 @@ public class EncodingConfiguration
             "net.java.sip.communicator.impl.neomedia.codec.audio.gsm.Encoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.gsm.DePacketizer",
             "net.java.sip.communicator.impl.neomedia.codec.audio.gsm.Packetizer",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.silk.JavaDecoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.silk.JavaEncoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h263p.DePacketizer",
             "net.java.sip.communicator.impl.neomedia.codec.video.h263p.JNIDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.video.h263p.JNIEncoder",
@@ -191,6 +193,8 @@ public class EncodingConfiguration
 
         // audio
         setEncodingPreference("G722", 8000 /* actually, 16 kHz */, 705);
+        setEncodingPreference("SILK", 24000, 704);
+        setEncodingPreference("SILK", 16000, 703);
         setEncodingPreference("speex", 32000, 701);
         setEncodingPreference("speex", 16000, 700);
         setEncodingPreference("PCMU", 8000, 650);
@@ -203,6 +207,8 @@ public class EncodingConfiguration
         setEncodingPreference("G723", 8000, 150);
         setEncodingPreference("G728", 8000, 100);
 
+        setEncodingPreference("SILK", 12000, 0);
+        setEncodingPreference("SILK", 8000, 0);
         setEncodingPreference("G729", 8000, 0 /* proprietary */);
 
         // enables by default telephone event(DTMF rfc4733), with lowest

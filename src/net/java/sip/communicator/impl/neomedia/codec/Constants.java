@@ -23,6 +23,8 @@ public class Constants
     public static final String G722_RTP = "g722/rtp";
     public static final String ILBC = "ilbc";
     public static final String ILBC_RTP = "ilbc/rtp";
+    public static final String SILK = "SILK";
+    public static final String SILK_RTP = "SILK/rtp";
     public static final String SPEEX = "speex";
     public static final String SPEEX_RTP = "speex/rtp";
 

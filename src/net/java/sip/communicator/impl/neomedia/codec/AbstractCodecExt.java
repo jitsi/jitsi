@@ -91,6 +91,12 @@ public abstract class AbstractCodecExt
 
     protected abstract int doProcess(Buffer inputBuffer, Buffer outputBuffer);
 
+    /**
+     * Get the output formats matching a specific input format.
+     *
+     * @param inputFormat the input format to get the matching output formats of
+     * @return the output formats matching the specified input format
+     */
     protected Format[] getMatchingOutputFormats(Format inputFormat)
     {
         /*
@@ -255,5 +261,31 @@ public abstract class AbstractCodecExt
 
         buffer.setData(newBytes);
         return newBytes;
+    }
+
+    protected short[] validateShortArraySize(Buffer buffer, int newSize)
+    {
+        Object data = buffer.getData();
+        short[] newShorts;
+
+        if (data instanceof short[])
+        {
+            short[] shorts = (short[]) data;
+
+            if (shorts.length >= newSize)
+                return shorts;
+
+            newShorts = new short[newSize];
+            System.arraycopy(shorts, 0, newShorts, 0, shorts.length);
+        }
+        else
+        {
+            newShorts = new short[newSize];
+            buffer.setLength(0);
+            buffer.setOffset(0);
+        }
+
+        buffer.setData(newShorts);
+        return newShorts;
     }
 }

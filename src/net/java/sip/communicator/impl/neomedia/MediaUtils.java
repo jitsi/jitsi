@@ -126,9 +126,7 @@ public class MediaUtils
             "speex",
             MediaType.AUDIO,
             Constants.SPEEX_RTP,
-            8000,
-            16000,
-            32000);
+            8000, 16000, 32000);
         addMediaFormats(
             (byte) SdpConstants.G722,
             "G722",
@@ -148,6 +146,12 @@ public class MediaUtils
                 MediaType.AUDIO,
                 AudioFormat.G729_RTP,
                 8000);
+        addMediaFormats(
+            MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
+            "SILK",
+            MediaType.AUDIO,
+            Constants.SILK_RTP,
+            8000, 12000, 16000, 24000);
         addMediaFormats(
             MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
             "telephone-event",
