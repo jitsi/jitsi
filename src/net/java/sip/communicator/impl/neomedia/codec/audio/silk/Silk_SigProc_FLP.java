@@ -88,13 +88,13 @@ public class Silk_SigProc_FLP
         int k;
         for (k = length-1; k >= 0; k--)
         {
-            out[out_offset+k] = (float)in[in_offset+k];
+            out[out_offset+k] = in[in_offset+k];
         }
     }
 
 //TODO:    #define SKP_round(x)        (SKP_float)((x)>=0 ? (SKP_int64)((x)+0.5) : (SKP_int64)((x)-0.5))
     static float SKP_round(float x)
     {
-        return (float)((x)>=0 ? (long)(x+0.5) : (long)(x-0.5));
+        return ((x)>=0 ? (long)(x+0.5) : (long)(x-0.5));
     }
 }

@@ -38,7 +38,7 @@ public class Silk_interpolate
 
         for( i = 0; i < d; i++ ) 
         {
-            xi[ i ] = ( int )( ( int )x0[ i ] + ( ( ( int )x1[ i ] - ( int )x0[ i ] ) * ifact_Q2 >> 2 ) );
+            xi[ i ] = ( x0[ i ] + ( ( x1[ i ] - x0[ i ] ) * ifact_Q2 >> 2 ) );
         }
     }
 }

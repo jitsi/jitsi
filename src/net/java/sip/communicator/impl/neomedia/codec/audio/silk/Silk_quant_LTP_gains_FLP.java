@@ -116,7 +116,7 @@ public class Silk_quant_LTP_gains_FLP
             }
 
             /* Break early in low-complexity mode if rate distortion is below threshold */
-            if( lowComplexity != 0 && ( rate_dist * 16384.0f < (float)Silk_tables_LTP.SKP_Silk_LTP_gain_middle_avg_RD_Q14 ) ) {
+            if( lowComplexity != 0 && ( rate_dist * 16384.0f < Silk_tables_LTP.SKP_Silk_LTP_gain_middle_avg_RD_Q14 ) ) {
                 break;
             }
         }

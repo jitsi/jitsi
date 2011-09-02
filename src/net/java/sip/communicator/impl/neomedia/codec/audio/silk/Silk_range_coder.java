@@ -253,7 +253,7 @@ public class Silk_range_coder
                 /* Make sure not to read beyond buffer */
                 if( bufferIx < psRC.bufferLength ) {
                     /* Read one byte from buffer */
-                    base_Q32 |= ((int)buffer[buffer_offset + bufferIx++ ])&0xFF;
+                    base_Q32 |= (buffer[buffer_offset + bufferIx++ ])&0xFF;
                 }
             }
             /* Update base */
@@ -262,7 +262,7 @@ public class Silk_range_coder
             /* Make sure not to read beyond buffer */
             if( bufferIx < psRC.bufferLength ) {
                 /* Read one byte from buffer */
-                base_Q32 |= ((int)buffer[ buffer_offset + bufferIx++ ])&0xFF;
+                base_Q32 |= (buffer[ buffer_offset + bufferIx++ ])&0xFF;
             }
         }
 
@@ -345,10 +345,10 @@ public class Silk_range_coder
         psRC.bufferIx = 0;
         psRC.base_Q32 = 
             (
-                ( ((int)buffer[ buffer_offset + 0 ] & 0xFF) << 24 ) | 
-                ( ((int)buffer[ buffer_offset + 1 ] & 0xFF) << 16 ) | 
-                ( ((int)buffer[ buffer_offset + 2 ] & 0xFF) <<  8 ) | 
-                ((int)buffer[ buffer_offset + 3 ] & 0xFF)
+                ( (buffer[ buffer_offset + 0 ] & 0xFF) << 24 ) | 
+                ( (buffer[ buffer_offset + 1 ] & 0xFF) << 16 ) | 
+                ( (buffer[ buffer_offset + 2 ] & 0xFF) <<  8 ) | 
+                (buffer[ buffer_offset + 3 ] & 0xFF)
             )&0xFFFFFFFFL;
         psRC.range_Q16 = 0x0000FFFF;
         psRC.error     = 0;

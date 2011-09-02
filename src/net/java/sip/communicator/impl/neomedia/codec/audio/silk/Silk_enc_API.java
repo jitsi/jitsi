@@ -38,7 +38,7 @@ public class Silk_enc_API
 
         encStatus.API_sampleRate        = psEnc.sCmn.API_fs_Hz;
         encStatus.maxInternalSampleRate = Silk_macros.SKP_SMULBB( psEnc.sCmn.maxInternal_fs_kHz, 1000 );
-        encStatus.packetSize            = ( int )( psEnc.sCmn.API_fs_Hz * psEnc.sCmn.PacketSize_ms / 1000 );  /* convert samples -> ms */
+        encStatus.packetSize            = ( psEnc.sCmn.API_fs_Hz * psEnc.sCmn.PacketSize_ms / 1000 );  /* convert samples -> ms */
         encStatus.bitRate               = psEnc.sCmn.TargetRate_bps;
         encStatus.packetLossPercentage  = psEnc.sCmn.PacketLoss_perc;
         encStatus.complexity            = psEnc.sCmn.Complexity;
@@ -131,13 +131,13 @@ public class Silk_enc_API
 
         /* Set encoder parameters from control structure */
         API_fs_Hz           = encControl.API_sampleRate;
-        max_internal_fs_kHz = ( int )encControl.maxInternalSampleRate / 1000;   /* convert Hz -> kHz */
-        PacketSize_ms       = 1000 * ( int )encControl.packetSize / API_fs_Hz;
-        TargetRate_bps      = ( int )encControl.bitRate;
-        PacketLoss_perc     = ( int )encControl.packetLossPercentage;
-        UseInBandFEC        = ( int )encControl.useInBandFEC;
-        Complexity          = ( int )encControl.complexity;
-        UseDTX              = ( int )encControl.useDTX;
+        max_internal_fs_kHz = encControl.maxInternalSampleRate / 1000;   /* convert Hz -> kHz */
+        PacketSize_ms       = 1000 * encControl.packetSize / API_fs_Hz;
+        TargetRate_bps      = encControl.bitRate;
+        PacketLoss_perc     = encControl.packetLossPercentage;
+        UseInBandFEC        = encControl.useInBandFEC;
+        Complexity          = encControl.complexity;
+        UseDTX              = encControl.useDTX;
         /* Save values in state */
         psEnc.sCmn.API_fs_Hz          = API_fs_Hz;
         psEnc.sCmn.maxInternal_fs_kHz = max_internal_fs_kHz;
@@ -153,7 +153,7 @@ public class Silk_enc_API
         }
 
         /* Make sure no more than one packet can be produced */
-        if( nSamplesIn > (int)( psEnc.sCmn.PacketSize_ms * API_fs_Hz / 1000 ) ) 
+        if( nSamplesIn > ( psEnc.sCmn.PacketSize_ms * API_fs_Hz / 1000 ) ) 
         {
             ret = Silk_errors.SKP_SILK_ENC_INPUT_INVALID_NO_OF_SAMPLES;
             assert( false );
@@ -168,7 +168,7 @@ public class Silk_enc_API
         /* Detect energy above 8 kHz */
         if( Math.min( API_fs_Hz, 1000 * max_internal_fs_kHz ) == 24000 && psEnc.sCmn.sSWBdetect.SWB_detected == 0 && psEnc.sCmn.sSWBdetect.WB_detected == 0 )
         {
-            Silk_detect_SWB_input.SKP_Silk_detect_SWB_input( psEnc.sCmn.sSWBdetect, samplesIn,samplesIn_offset, ( int )nSamplesIn );
+            Silk_detect_SWB_input.SKP_Silk_detect_SWB_input( psEnc.sCmn.sSWBdetect, samplesIn,samplesIn_offset, nSamplesIn );
         }
 
         /* Input buffering/resampling and encoding */
@@ -185,8 +185,8 @@ public class Silk_enc_API
             } 
             else 
             {  
-                nSamplesToBuffer  = Math.min( nSamplesToBuffer, ( int )nSamplesIn * psEnc.sCmn.fs_kHz * 1000 / API_fs_Hz );
-                nSamplesFromInput = (int)( nSamplesToBuffer * API_fs_Hz / ( psEnc.sCmn.fs_kHz * 1000 ) );
+                nSamplesToBuffer  = Math.min( nSamplesToBuffer, nSamplesIn * psEnc.sCmn.fs_kHz * 1000 / API_fs_Hz );
+                nSamplesFromInput = ( nSamplesToBuffer * API_fs_Hz / ( psEnc.sCmn.fs_kHz * 1000 ) );
                 /* Resample and write to buffer */
                 ret += Silk_resampler.SKP_Silk_resampler(psEnc.sCmn.resampler_state, 
                         psEnc.sCmn.inputBuf, psEnc.sCmn.inputBufIx, samplesIn, samplesIn_offset, nSamplesFromInput);

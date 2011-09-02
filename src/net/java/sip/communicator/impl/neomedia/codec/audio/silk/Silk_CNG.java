@@ -48,7 +48,7 @@ public class Silk_CNG
         
         for( i = 0; i < length; i++ ) {
             seed = Silk_SigProc_FIX.SKP_RAND( seed );
-            idx = ( int )( ( seed >> 24 ) & exc_mask );
+            idx = ( ( seed >> 24 ) & exc_mask );
             Silk_typedef.SKP_assert( idx >= 0 );
             Silk_typedef.SKP_assert( idx <= Silk_define.CNG_BUF_MASK_MAX );
             residual[ residual_offset+i ] = ( short )Silk_SigProc_FIX.SKP_SAT16( Silk_SigProc_FIX.SKP_RSHIFT_ROUND( Silk_macros.SKP_SMULWW( exc_buf_Q10[ idx ], Gain_Q16 ), 10 ) );
@@ -146,7 +146,7 @@ public class Silk_CNG
             /* Convert CNG NLSF to filter representation */
             Silk_NLSF2A_stable.SKP_Silk_NLSF2A_stable( LPC_buf, psCNG.CNG_smth_NLSF_Q15, psDec.LPC_order );
 
-            Gain_Q26 = ( int )1 << 26; /* 1.0 */
+            Gain_Q26 = 1 << 26; /* 1.0 */
             
             /* Generate CNG signal, by synthesis filtering */
             if( psDec.LPC_order == 16 ) {

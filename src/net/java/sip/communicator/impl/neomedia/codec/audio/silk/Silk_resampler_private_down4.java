@@ -46,7 +46,7 @@ public class Silk_resampler_private_down4
         for( k = 0; k < len4; k++ ) 
         {
             /* Add two input samples and convert to Q10 */
-            in32 = ( (int)in[ in_offset + 4 * k ] + (int)in[ in_offset + 4 * k + 1 ] ) << 9 ;
+            in32 = ( in[ in_offset + 4 * k ] + in[ in_offset + 4 * k + 1 ] ) << 9 ;
 
             /* All-pass section for even input sample */
             Y      = in32 - S[ S_offset ];
@@ -55,7 +55,7 @@ public class Silk_resampler_private_down4
             S[ S_offset ] = in32 + X;
 
             /* Add two input samples and convert to Q10 */
-            in32 = ( (int)in[ in_offset + 4 * k + 2 ] + (int)in[ in_offset + 4 * k + 3 ] ) << 9;
+            in32 = ( in[ in_offset + 4 * k + 2 ] + in[ in_offset + 4 * k + 3 ] ) << 9;
 
             /* All-pass section for odd input sample */
             Y      = in32 - S[ S_offset+1 ];

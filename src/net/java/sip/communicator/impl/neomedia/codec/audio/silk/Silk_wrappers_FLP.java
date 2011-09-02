@@ -37,7 +37,7 @@ public class Silk_wrappers_FLP
 
         for( i = 0; i < LPC_order; i++ ) 
         {
-            pNLSF[ i ] = ( float )NLSF_fix[ i ] * ( 1.0f / 32768.0f );
+            pNLSF[ i ] = NLSF_fix[ i ] * ( 1.0f / 32768.0f );
         }
     }
 
@@ -54,14 +54,14 @@ public class Silk_wrappers_FLP
 
         for( i = 0; i < LPC_order; i++ ) 
         {
-            NLSF_fix[ i ] = ( int )Silk_SigProc_FLP.SKP_float2int( pNLSF[ i ] * 32768.0f );
+            NLSF_fix[ i ] = Silk_SigProc_FLP.SKP_float2int( pNLSF[ i ] * 32768.0f );
         }
 
         Silk_NLSF2A_stable.SKP_Silk_NLSF2A_stable( a_fix_Q12, NLSF_fix, LPC_order );
 
         for( i = 0; i < LPC_order; i++ ) 
         {
-            pAR[ i ] = ( float )a_fix_Q12[ i ] / 4096.0f;
+            pAR[ i ] = a_fix_Q12[ i ] / 4096.0f;
         }
     }
 
@@ -78,17 +78,17 @@ public class Silk_wrappers_FLP
 
         for( i = 0; i < LPC_order; i++ ) 
         {
-            NLSF_Q15[       i ] = ( int )Silk_SigProc_FLP.SKP_float2int( pNLSF[       i ] * 32768.0f );
-            ndelta_min_Q15[ i ] = ( int )Silk_SigProc_FLP.SKP_float2int( pNDelta_min[ i ] * 32768.0f );
+            NLSF_Q15[       i ] = Silk_SigProc_FLP.SKP_float2int( pNLSF[       i ] * 32768.0f );
+            ndelta_min_Q15[ i ] = Silk_SigProc_FLP.SKP_float2int( pNDelta_min[ i ] * 32768.0f );
         }
-        ndelta_min_Q15[ LPC_order ] = ( int )Silk_SigProc_FLP.SKP_float2int( pNDelta_min[ LPC_order ] * 32768.0f );
+        ndelta_min_Q15[ LPC_order ] = Silk_SigProc_FLP.SKP_float2int( pNDelta_min[ LPC_order ] * 32768.0f );
 
         /* NLSF stabilizer, for a single input data vector */
         Silk_NLSF_stabilize.SKP_Silk_NLSF_stabilize( NLSF_Q15,0, ndelta_min_Q15, LPC_order );
 
         for( i = 0; i < LPC_order; i++ )
         {
-            pNLSF[ i ] = ( float )NLSF_Q15[ i ] * ( 1.0f / 32768.0f );
+            pNLSF[ i ] = NLSF_Q15[ i ] * ( 1.0f / 32768.0f );
         }
     }
 
@@ -117,7 +117,7 @@ public class Silk_wrappers_FLP
         /* Convert output from fix to flp */
         for( i = 0; i < d; i++ ) 
         {
-            xi[ i ] = ( float )xi_int[ i ] * ( 1.0f / 32768.0f );
+            xi[ i ] = xi_int[ i ] * ( 1.0f / 32768.0f );
         }
     }
 
@@ -138,12 +138,12 @@ public class Silk_wrappers_FLP
         ret = Silk_VAD.SKP_Silk_VAD_GetSA_Q8( psEnc.sCmn.sVAD, SA_Q8, SNR_dB_Q7, Quality_Bands_Q15, Tilt_Q15,
             pIn,pIn_offset, psEnc.sCmn.frame_length );
 
-        psEnc.speech_activity = ( float )SA_Q8[0] / 256.0f;
+        psEnc.speech_activity = SA_Q8[0] / 256.0f;
         for( i = 0; i < Silk_define.VAD_N_BANDS; i++ ) 
         {
-            psEncCtrl.input_quality_bands[ i ] = ( float )Quality_Bands_Q15[ i ] / 32768.0f;
+            psEncCtrl.input_quality_bands[ i ] = Quality_Bands_Q15[ i ] / 32768.0f;
         }
-        psEncCtrl.input_tilt = ( float )Tilt_Q15[0] / 32768.0f;
+        psEncCtrl.input_tilt = Tilt_Q15[0] / 32768.0f;
 
         return ret;
     }
@@ -326,10 +326,10 @@ public class Silk_wrappers_FLP
         {
             LF_shp_Q14[ i ] =   ( Silk_SigProc_FLP.SKP_float2int( psEncCtrl.LF_AR_shp[ i ]     * 16384.0f ) << 16 ) |
                                   ( 0x0000FFFF & Silk_SigProc_FLP.SKP_float2int( psEncCtrl.LF_MA_shp[ i ]     * 16384.0f ) );
-            Tilt_Q14[ i ]   =        (int)Silk_SigProc_FLP.SKP_float2int( psEncCtrl.Tilt[ i ]          * 16384.0f );
-            HarmShapeGain_Q14[ i ] = (int)Silk_SigProc_FLP.SKP_float2int( psEncCtrl.HarmShapeGain[ i ] * 16384.0f );    
+            Tilt_Q14[ i ]   =        Silk_SigProc_FLP.SKP_float2int( psEncCtrl.Tilt[ i ]          * 16384.0f );
+            HarmShapeGain_Q14[ i ] = Silk_SigProc_FLP.SKP_float2int( psEncCtrl.HarmShapeGain[ i ] * 16384.0f );    
         }
-        Lambda_Q10 = ( int )Silk_SigProc_FLP.SKP_float2int( psEncCtrl.Lambda * 1024.0f );
+        Lambda_Q10 = Silk_SigProc_FLP.SKP_float2int( psEncCtrl.Lambda * 1024.0f );
 
         /* prediction and coding parameters */
         for( i = 0; i < Silk_define.NB_SUBFR * Silk_define.LTP_ORDER; i++ ) 

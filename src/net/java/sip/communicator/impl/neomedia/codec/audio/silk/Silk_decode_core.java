@@ -77,7 +77,7 @@ public class Silk_decode_core
             /* dither = rand_seed < 0 ? 0xFFFFFFFF : 0; */
             dither = rand_seed>>31;
         
-            psDec.exc_Q10[ i ] = (( int )q[ i ] << 10) + offset_Q10;
+            psDec.exc_Q10[ i ] = (q[ i ] << 10) + offset_Q10;
             psDec.exc_Q10[ i ] = ( psDec.exc_Q10[ i ] ^ dither ) - dither;
 
             rand_seed += q[ i ];
@@ -112,7 +112,7 @@ public class Silk_decode_core
             inv_gain_Q16  = Math.min(inv_gain_Q16, Silk_typedef.SKP_int16_MAX);
             
             /* Calculate Gain adjustment factor */
-            gain_adj_Q16 = ( int )1 << 16;
+            gain_adj_Q16 = 1 << 16;
             if( inv_gain_Q16 != psDec.prev_inv_gain_Q16 ) {
                 gain_adj_Q16 =  Silk_Inlines.SKP_DIV32_varQ( inv_gain_Q16, psDec.prev_inv_gain_Q16, 16 );
             }
@@ -127,7 +127,7 @@ public class Silk_decode_core
             
                 sigtype = Silk_define.SIG_TYPE_VOICED;
                 psDecCtrl.pitchL[ k ] = psDec.lagPrev;
-                LTP_scale_Q14 = ( int )1 << 14;
+                LTP_scale_Q14 = 1 << 14;
             }
 
             if( sigtype == Silk_define.SIG_TYPE_VOICED ) {
@@ -158,7 +158,7 @@ public class Silk_decode_core
                     }
                 } else {
                     /* Update LTP state when Gain changes */
-                    if( gain_adj_Q16 != ( int )1 << 16 ) {
+                    if( gain_adj_Q16 != 1 << 16 ) {
                         for( i = 0; i < ( lag + Silk_define.LTP_ORDER / 2 ); i++ ) {
                             psDec.sLTP_Q16[ psDec.sLTP_buf_idx - i - 1 ] = Silk_macros.SKP_SMULWW( gain_adj_Q16, psDec.sLTP_Q16[ psDec.sLTP_buf_idx - i - 1 ] );
                         }

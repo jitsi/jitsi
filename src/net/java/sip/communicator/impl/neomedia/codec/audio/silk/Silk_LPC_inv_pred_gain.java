@@ -42,7 +42,7 @@ public class Silk_LPC_inv_pred_gain
         Anew_QA = Atmp_QA[ order & 1 ];
         /* Increase Q domain of the AR coefficients */
         for( k = 0; k < order; k++ ) {
-            Anew_QA[ k ] = ( (int)A_Q12[ k ] << (QA - 12) );
+            Anew_QA[ k ] = ( A_Q12[ k ] << (QA - 12) );
         }
 
         invGain_Q30[0] = ( 1 << 30 );
@@ -127,7 +127,7 @@ public class Silk_LPC_inv_pred_gain
         Anew_QA = Atmp_QA[ order & 1 ];
         /* Increase Q domain of the AR coefficients */
         for( k = 0; k < order; k++ ) {
-            Anew_QA[ k ] = ( (int)A_Q13[ k ] <<( QA - 13 ));
+            Anew_QA[ k ] = ( A_Q13[ k ] <<( QA - 13 ));
         }
 
         invGain_Q30[0] = ( 1 << 30 );

@@ -99,7 +99,7 @@ public class Silk_NLSF_stabilize
                 max_center_Q15 -= ( NDeltaMin_Q15[I] - ( NDeltaMin_Q15[I] >> 1 ) );
 
                 /* Move apart, sorted by value, keeping the same center frequency */
-                center_freq_Q15 = Silk_SigProc_FIX.SKP_LIMIT_32( Silk_SigProc_FIX.SKP_RSHIFT_ROUND( (int)NLSF_Q15[ NLSF_Q15_offset + I-1] + (int)NLSF_Q15[ NLSF_Q15_offset + I], 1 ),
+                center_freq_Q15 = Silk_SigProc_FIX.SKP_LIMIT_32( Silk_SigProc_FIX.SKP_RSHIFT_ROUND( NLSF_Q15[ NLSF_Q15_offset + I-1] + NLSF_Q15[ NLSF_Q15_offset + I], 1 ),
                         min_center_Q15, max_center_Q15 );
                 NLSF_Q15[ NLSF_Q15_offset + I-1] = center_freq_Q15 - ( NDeltaMin_Q15[I] >> 1 );
                 NLSF_Q15[ NLSF_Q15_offset + I] = NLSF_Q15[ NLSF_Q15_offset + I-1] + NDeltaMin_Q15[I];

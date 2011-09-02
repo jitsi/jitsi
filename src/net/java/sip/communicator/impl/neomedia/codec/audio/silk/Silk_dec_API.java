@@ -142,16 +142,16 @@ public class Silk_dec_API
             ret += Silk_resampler.SKP_Silk_resampler( psDec.resampler_state, samplesOut, samplesOut_offset, samplesOut_tmp, 0, nSamplesOut[0]);
 
             /* Update the number of output samples */
-            nSamplesOut[0] = (short)((int)(nSamplesOut[0] * decControl.API_sampleRate) / (psDec.fs_kHz * 1000));
+            nSamplesOut[0] = (short)((nSamplesOut[0] * decControl.API_sampleRate) / (psDec.fs_kHz * 1000));
         }
 
         psDec.prev_API_sampleRate = decControl.API_sampleRate;
 
         /* Copy all parameters that are needed out of internal structure to the control stucture */
-        decControl.frameSize                 = ( int )psDec.frame_length;
-        decControl.framesPerPacket           = ( int )psDec.nFramesInPacket;
-        decControl.inBandFECOffset           = ( int )psDec.inband_FEC_offset;
-        decControl.moreInternalDecoderFrames = ( int )psDec.moreInternalDecoderFrames;
+        decControl.frameSize                 = psDec.frame_length;
+        decControl.framesPerPacket           = psDec.nFramesInPacket;
+        decControl.inBandFECOffset           = psDec.inband_FEC_offset;
+        decControl.moreInternalDecoderFrames = psDec.moreInternalDecoderFrames;
 
         return ret;
     }
@@ -194,7 +194,7 @@ public class Silk_dec_API
         for(int i=0; i<Silk_define.MAX_LPC_ORDER; i++)
             sDec.prevNLSF_Q15[i] = 0;
         
-        Silk_range_coder.SKP_Silk_range_dec_init( sDec.sRC, inData, inData_offset, ( int )nBytesIn );
+        Silk_range_coder.SKP_Silk_range_dec_init( sDec.sRC, inData, inData_offset, nBytesIn );
         
         while(true) {
             Silk_decode_parameters.SKP_Silk_decode_parameters(sDec, sDecCtrl, TempQ, 0);
@@ -239,7 +239,7 @@ public class Silk_dec_API
 
         sDec.nFramesDecoded = 0;
         sDec.fs_kHz         = 0; /* Force update parameters LPC_order etc */
-        Silk_range_coder.SKP_Silk_range_dec_init( sDec.sRC, inData, 0,  ( int )nBytesIn );
+        Silk_range_coder.SKP_Silk_range_dec_init( sDec.sRC, inData, 0,  nBytesIn );
 
         Silk_TOC.corrupt = 0;
         while( true ) {

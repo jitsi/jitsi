@@ -241,9 +241,9 @@ public class Silk_A2NLSF
                     ffrac += ylo / ( ( ylo - yhi ) >> ( 8 - BIN_DIV_STEPS_A2NLSF_FIX ) );
                 }
                 if(OVERSAMPLE_COSINE_TABLE!=0)
-                    NLSF[ root_ix ] = (int)Math.min( ( (int)k << 7 ) + ffrac, Silk_typedef.SKP_int16_MAX ); 
+                    NLSF[ root_ix ] = Math.min( ( k << 7 ) + ffrac, Silk_typedef.SKP_int16_MAX ); 
                 else
-                    NLSF[ root_ix ] = (int)Math.min( ( (int)k << 8 ) + ffrac, Silk_typedef.SKP_int16_MAX ); 
+                    NLSF[ root_ix ] = Math.min( ( k << 8 ) + ffrac, Silk_typedef.SKP_int16_MAX ); 
 
                 assert( NLSF[ root_ix ] >=     0 );
                 assert( NLSF[ root_ix ] <= 32767 );

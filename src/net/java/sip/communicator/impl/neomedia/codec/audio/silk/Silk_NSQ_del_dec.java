@@ -243,7 +243,7 @@ public class Silk_NSQ_del_dec
             /* Noise shape parameters */
             assert( HarmShapeGain_Q14[ k ] >= 0 );
             HarmShapeFIRPacked_Q14  =                        ( HarmShapeGain_Q14[ k ] >> 2 );
-            HarmShapeFIRPacked_Q14 |= ( ( int )( HarmShapeGain_Q14[ k ] >> 1 ) << 16 );
+            HarmShapeFIRPacked_Q14 |= ( ( HarmShapeGain_Q14[ k ] >> 1 ) << 16 );
 
             SKP_Silk_nsq_del_dec_scale_states( NSQ, psDelDec, x_tmp, x_tmp_offset, x_sc_Q10, 
                 subfr_length, sLTP, sLTP_Q16, k, psEncC.nStatesDelayedDecision, smpl_buf_idx,

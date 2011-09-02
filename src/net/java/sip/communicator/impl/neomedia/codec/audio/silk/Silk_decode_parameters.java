@@ -225,7 +225,7 @@ public class Silk_decode_parameters
         /***************/
         Silk_range_coder.SKP_Silk_range_decoder( Ix_ptr, 0, psRC, Silk_tables_other.SKP_Silk_Seed_CDF, 0, Silk_tables_other.SKP_Silk_Seed_offset );
         Ix = Ix_ptr[0];
-        psDecCtrl.Seed = ( int )Ix;
+        psDecCtrl.Seed = Ix;
         /*********************************************/
         /* Decode quantization indices of excitation */
         /*********************************************/

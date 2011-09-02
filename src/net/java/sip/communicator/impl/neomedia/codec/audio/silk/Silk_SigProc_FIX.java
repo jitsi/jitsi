@@ -130,7 +130,7 @@ public class Silk_SigProc_FIX
      */
     static long SKP_SMLALBB(long a64, short b16, short c16)
     {
-        return (a64) + (long)((int)(b16) * (int)(c16));
+        return (a64) + ((b16) * (c16));
     }
 
     /**
@@ -162,7 +162,7 @@ public class Silk_SigProc_FIX
      */
     static int SKP_SMLABB_ovflw(int a32, int b32, int c32)
     {
-        return ((a32) + ((int)((short)(b32))) * (int)((short)(c32)));
+        return ((a32) + (((short)(b32))) * ((short)(c32)));
     }
     /**
      * SKP_SMLABT(a32, b32, c32)
@@ -173,7 +173,7 @@ public class Silk_SigProc_FIX
      */
     static int SKP_SMLABT_ovflw(int a32, int b32, int c32)
     {
-        return ((a32) + ((int)((short)(b32))) * ((c32) >> 16));
+        return ((a32) + (((short)(b32))) * ((c32) >> 16));
     }
     /**
      * SKP_SMLATT(a32, b32, c32)
@@ -195,7 +195,7 @@ public class Silk_SigProc_FIX
      */
     static int SKP_SMLAWB_ovflw(int a32, int b32, int c32)
     {
-        return ((a32) + ((((b32) >> 16) * (int)((short)(c32))) + ((((b32) & 0x0000FFFF) * (int)((short)(c32))) >> 16)));
+        return ((a32) + ((((b32) >> 16) * ((short)(c32))) + ((((b32) & 0x0000FFFF) * ((short)(c32))) >> 16)));
     }
     /**
      * SKP_SMLAWT(a32, b32, c32)
@@ -226,7 +226,7 @@ public class Silk_SigProc_FIX
      */
     static int SKP_DIV32_16(int a32, short b16)
     {
-        return ((int)((a32) / (b16)));
+        return (((a32) / (b16)));
     }
     /**
      * ((SKP_int32)((a32) / (b32)))
@@ -236,7 +236,7 @@ public class Silk_SigProc_FIX
      */
     static int SKP_DIV32(int a32, int b32)
     {
-        return ((int)((a32) / (b32)));
+        return (((a32) / (b32)));
     }
 
     // These macros enables checking for overflow in SKP_Silk_API_Debug.h
@@ -344,7 +344,7 @@ public class Silk_SigProc_FIX
 
     static short SKP_ADD_SAT16(short a, short b)
     {
-        return (short)SKP_SAT16( (int)(a) + (b) );
+        return (short)SKP_SAT16( (a) + (b) );
     }
 
     static long SKP_ADD_SAT64(long a, long b)
@@ -357,7 +357,7 @@ public class Silk_SigProc_FIX
 
     static short SKP_SUB_SAT16(short a, short b)
     {
-        return (short)SKP_SAT16( (int)(a) - (b) );
+        return (short)SKP_SAT16( (a) - (b) );
     }
 
     static long SKP_SUB_SAT64(long a, long b)

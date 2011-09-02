@@ -103,7 +103,7 @@ public class Silk_NSQ
             /* Noise shape parameters */
             assert( HarmShapeGain_Q14[ k ] >= 0 );
             HarmShapeFIRPacked_Q14  = ( HarmShapeGain_Q14[ k ] >> 2 );
-            HarmShapeFIRPacked_Q14 |= ( (int)( HarmShapeGain_Q14[ k ] >> 1 ) << 16 );
+            HarmShapeFIRPacked_Q14 |= ( ( HarmShapeGain_Q14[ k ] >> 1 ) << 16 );
 
 
             if( psEncCtrlC.sigtype == Silk_define.SIG_TYPE_VOICED ) {

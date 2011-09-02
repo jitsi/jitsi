@@ -48,7 +48,7 @@ public class Silk_LTP_scale_ctrl_FLP
         psEncCtrl.sCmn.LTP_scaleIndex = 0;
 
         /* Round the loss measure to whole pct */
-        round_loss = ( int )( psEnc.sCmn.PacketLoss_perc );
+        round_loss = ( psEnc.sCmn.PacketLoss_perc );
         round_loss = ( 0 > round_loss ? 0 : round_loss);
 
 
@@ -72,7 +72,7 @@ public class Silk_LTP_scale_ctrl_FLP
                 psEncCtrl.sCmn.LTP_scaleIndex = 1;
             }
         }
-        psEncCtrl.LTP_scale = ( float)Silk_tables_other.SKP_Silk_LTPScales_table_Q14[ psEncCtrl.sCmn.LTP_scaleIndex ] / 16384.0f;
+        psEncCtrl.LTP_scale = Silk_tables_other.SKP_Silk_LTPScales_table_Q14[ psEncCtrl.sCmn.LTP_scaleIndex ] / 16384.0f;
 
     }
 }

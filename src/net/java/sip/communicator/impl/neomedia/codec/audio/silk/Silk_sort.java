@@ -227,7 +227,7 @@ public class Silk_sort
         Silk_typedef.SKP_assert( L >= K );
         
         /* Calculate initial step size */
-        inc_Q16_tmp = ( (int)L << 15 );
+        inc_Q16_tmp = ( L << 15 );
 //        inc = SKP_RSHIFT( inc_Q16_tmp, 16 );
         inc = ( inc_Q16_tmp >> 16 );
 
@@ -292,7 +292,7 @@ public class Silk_sort
      
         /* Calculate initial step size */
 //        inc_Q16_tmp = SKP_LSHIFT( (int)L, 15 );
-        inc_Q16_tmp = ( (int)L << 15 );
+        inc_Q16_tmp = ( L << 15 );
 //        inc = SKP_RSHIFT( inc_Q16_tmp, 16 );
         inc = ( inc_Q16_tmp >> 16 );
 

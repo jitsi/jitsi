@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.neomedia.codec.audio.silk;
 public class Silk_LPC_stabilize
 {
 
-    static final int LPC_STABILIZE_LPC_MAX_ABS_VALUE_Q16 =( ( (int)Short.MAX_VALUE ) << 4 );
+    static final int LPC_STABILIZE_LPC_MAX_ABS_VALUE_Q16 =( ( Short.MAX_VALUE ) << 4 );
 
     /**
      * LPC stabilizer, for a single input data vector.

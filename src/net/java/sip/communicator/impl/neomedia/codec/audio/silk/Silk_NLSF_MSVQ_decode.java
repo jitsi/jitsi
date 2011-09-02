@@ -42,7 +42,7 @@ public class Silk_NLSF_MSVQ_decode
         
         /* Initialize with the codebook vector from stage 0 */
         for( i = 0; i < LPC_order; i++ ) {
-            pNLSF_Q15[ i ] = ( int )pCB_element[ pCB_element_offset + i ];
+            pNLSF_Q15[ i ] = pCB_element[ pCB_element_offset + i ];
         }
               
         for( s = 1; s < psNLSF_CB.nStages; s++ ) {

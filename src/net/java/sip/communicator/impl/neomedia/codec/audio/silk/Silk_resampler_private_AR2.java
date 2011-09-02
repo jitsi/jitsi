@@ -43,7 +43,7 @@ public class Silk_resampler_private_AR2
 
         for( k = 0; k < len; k++ ) 
         {
-            out32       = S[ S_offset ] + ( (int)in[ in_offset+k ] << 8 );
+            out32       = S[ S_offset ] + ( in[ in_offset+k ] << 8 );
             out_Q8[ out_Q8_offset+k ] = out32;
             out32       = out32 << 2;
             S[ S_offset   ]      = Silk_macros.SKP_SMLAWB( S[ S_offset+1 ], out32, A_Q14[ A_Q14_offset ] );

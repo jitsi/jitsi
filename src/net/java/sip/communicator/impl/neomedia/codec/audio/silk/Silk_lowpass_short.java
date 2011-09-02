@@ -39,7 +39,7 @@ public class Silk_lowpass_short
         
         state = S[ S_offset + 0 ];
         for( k = 0; k < len; k++ ) {    
-            in_tmp   = ( 768 * (int)in[in_offset + k] );    /* multiply by 0.75, going from Q15 to Q25 */
+            in_tmp   = ( 768 * in[in_offset + k] );    /* multiply by 0.75, going from Q15 to Q25 */
             out_tmp  = state + in_tmp;                      /* zero at nyquist                         */
             state    = in_tmp - ( out_tmp >> 1 );   /* pole                                    */
             out[ out_offset + k ] = out_tmp;

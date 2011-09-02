@@ -380,7 +380,7 @@ public class Silk_pitch_analysis_core_FLP
             {
                 prevLag = prevLag / 3;
             }
-            prevLag_log2 = SKP_P_log2((float)prevLag);
+            prevLag_log2 = SKP_P_log2(prevLag);
         }
         else 
         {
@@ -423,7 +423,7 @@ public class Silk_pitch_analysis_core_FLP
             CCmax_new_b = CCmax_new;
 
             /* Bias towards shorter lags */
-            lag_log2 = SKP_P_log2((float)d);
+            lag_log2 = SKP_P_log2(d);
             CCmax_new_b -= Silk_pitch_est_defines_FLP.PITCH_EST_FLP_SHORTLAG_BIAS * Silk_common_pitch_est_defines.PITCH_EST_NB_SUBFR * lag_log2;
 
             /* Bias towards previous lag */
@@ -491,8 +491,8 @@ public class Silk_pitch_analysis_core_FLP
             contour_bias = Silk_pitch_est_defines_FLP.PITCH_EST_FLP_FLATCONTOUR_BIAS / lag;
 
             /* Setup cbk parameters acording to complexity setting */
-            cbk_size   = (int)Silk_pitch_est_tables.SKP_Silk_cbk_sizes_stage3[   complexity ];
-            cbk_offset = (int)Silk_pitch_est_tables.SKP_Silk_cbk_offsets_stage3[ complexity ];
+            cbk_size   = Silk_pitch_est_tables.SKP_Silk_cbk_sizes_stage3[   complexity ];
+            cbk_offset = Silk_pitch_est_tables.SKP_Silk_cbk_offsets_stage3[ complexity ];
 
             for( d = start_lag; d <= end_lag; d++ ) 
             {
@@ -529,7 +529,7 @@ public class Silk_pitch_analysis_core_FLP
 
             for( k = 0; k < Silk_common_pitch_est_defines.PITCH_EST_NB_SUBFR; k++ ) 
             {
-                pitch_out[k] = lag_new + (int)Silk_pitch_est_tables.SKP_Silk_CB_lags_stage3[ k ][ CBimax ];
+                pitch_out[k] = lag_new + Silk_pitch_est_tables.SKP_Silk_CB_lags_stage3[ k ][ CBimax ];
             }
             lagIndex[0] = lag_new - min_lag;
             contourIndex[0] = CBimax;

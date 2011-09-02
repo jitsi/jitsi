@@ -17,13 +17,13 @@ public class Silk_macros
     // (a32 * (SKP_int32)((SKP_int16)(b32))) >> 16 output have to be 32bit int
     static int SKP_SMULWB(int a32, int b32)
     {
-        return ((((a32) >> 16) * (int)((short)(b32))) + ((((a32) & 0x0000FFFF) * (int)((short)(b32))) >> 16));
+        return ((((a32) >> 16) * ((short)(b32))) + ((((a32) & 0x0000FFFF) * ((short)(b32))) >> 16));
     }
 
     // a32 + (b32 * (SKP_int32)((SKP_int16)(c32))) >> 16 output have to be 32bit int
     static int SKP_SMLAWB(int a32, int b32, int c32)
     {
-        return ((a32) + ((((b32) >> 16) * (int)((short)(c32))) + ((((b32) & 0x0000FFFF) * (int)((short)(c32))) >> 16)));
+        return ((a32) + ((((b32) >> 16) * ((short)(c32))) + ((((b32) & 0x0000FFFF) * ((short)(c32))) >> 16)));
     }
 
     // (a32 * (b32 >> 16)) >> 16
@@ -41,25 +41,25 @@ public class Silk_macros
     // (SKP_int32)((SKP_int16)(a3))) * (SKP_int32)((SKP_int16)(b32)) output have to be 32bit int
     static int SKP_SMULBB(int a32, int b32)
     {
-        return ((int)((short)(a32)) * (int)((short)(b32)));
+        return (((short)(a32)) * ((short)(b32)));
     }
 
     // a32 + (SKP_int32)((SKP_int16)(b32)) * (SKP_int32)((SKP_int16)(c32)) output have to be 32bit int
     static int SKP_SMLABB(int a32, int b32, int c32)
     {
-        return ((a32) + ((int)((short)(b32))) * (int)((short)(c32)));
+        return ((a32) + (((short)(b32))) * ((short)(c32)));
     }
 
     // (SKP_int32)((SKP_int16)(a32)) * (b32 >> 16)
     static int SKP_SMULBT(int a32, int b32)
     {
-        return ((int)((short)(a32)) * ((b32) >> 16));
+        return (((short)(a32)) * ((b32) >> 16));
     }
 
     // a32 + (SKP_int32)((SKP_int16)(b32)) * (c32 >> 16)
     static int SKP_SMLABT(int a32, int b32, int c32)
     {
-        return ((a32) + ((int)((short)(b32))) * ((c32) >> 16));
+        return ((a32) + (((short)(b32))) * ((c32) >> 16));
     }
 
     // a64 + (b32 * c32)
@@ -99,7 +99,7 @@ public class Silk_macros
         
     static int SKP_Silk_CLZ16(short in16)
     {
-        return Integer.numberOfLeadingZeros((int)in16 & 0x0000FFFF) - 16;
+        return Integer.numberOfLeadingZeros(in16 & 0x0000FFFF) - 16;
     }
 
     static int SKP_Silk_CLZ32(int in32)

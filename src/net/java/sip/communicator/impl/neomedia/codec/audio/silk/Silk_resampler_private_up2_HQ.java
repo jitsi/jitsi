@@ -48,7 +48,7 @@ public class Silk_resampler_private_up2_HQ
         for( k = 0; k < len; k++ ) 
         {
             /* Convert to Q10 */
-            in32 = (int)in[ in_offset+k ] << 10;
+            in32 = in[ in_offset+k ] << 10;
 
             /* First all-pass section for even output sample */
             Y       = in32 - S[ S_offset ];

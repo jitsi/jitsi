@@ -58,7 +58,7 @@ public class Silk_sum_sqr_shift
 //                nrg = (int)SKP_RSHIFT_uint( (SKP_uint32)nrg, 2 );
 //TODO:                
 //                nrg = (int)( ((long)nrg)&0xFFFFFFFFL >>> 2 );
-                nrg = (int)( (((long)nrg)&0xFFFFFFFFL) >>> 2 );
+                nrg = (int)( ((nrg)&0xFFFFFFFFL) >>> 2 );
                 shft = 2;
                 break;
             }
@@ -75,7 +75,7 @@ public class Silk_sum_sqr_shift
 
             if( nrg < 0 ) {
                 /* Scale down */
-                nrg = (int)( nrg >>> 2 );
+                nrg = ( nrg >>> 2 );
                 shft += 2;
             }
         }

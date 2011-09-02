@@ -51,7 +51,7 @@ public class Silk_resampler
         int tmp;
         while( b > 0 ) 
         {
-            tmp = a - b * (int)(a/b);
+            tmp = a - b * (a/b);
             a   = b;
             b   = tmp;
         }

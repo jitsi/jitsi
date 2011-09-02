@@ -185,7 +185,7 @@ public class Silk_MA
             out32_Q12 = Silk_macros.SKP_SMLABB( out32_Q12, SB, B[ Order - 1 ] );
 
             /* Subtract prediction */
-            out32_Q12 = Silk_macros.SKP_SUB_SAT32( ( (int)in[ in_offset + k ] << 12 ), out32_Q12 );
+            out32_Q12 = Silk_macros.SKP_SUB_SAT32( ( in[ in_offset + k ] << 12 ), out32_Q12 );
 
             /* Scale to Q0 */
             out32 = Silk_SigProc_FIX.SKP_RSHIFT_ROUND( out32_Q12, 12 );

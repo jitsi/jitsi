@@ -56,11 +56,11 @@ public class Silk_VQ_nearest_neighbor_FLP
         
         for( k = 0; k < L; k++ ) {
             /* Calc difference between in vector and cbk vector */
-            diff[ 0 ] = in[ in_offset + 0 ] - ( float )cb_row[ 0 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
-            diff[ 1 ] = in[ in_offset + 1 ] - ( float )cb_row[ 1 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
-            diff[ 2 ] = in[ in_offset + 2 ] - ( float )cb_row[ 2 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
-            diff[ 3 ] = in[ in_offset + 3 ] - ( float )cb_row[ 3 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
-            diff[ 4 ] = in[ in_offset + 4 ] - ( float )cb_row[ 4 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
+            diff[ 0 ] = in[ in_offset + 0 ] - cb_row[ 0 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
+            diff[ 1 ] = in[ in_offset + 1 ] - cb_row[ 1 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
+            diff[ 2 ] = in[ in_offset + 2 ] - cb_row[ 2 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
+            diff[ 3 ] = in[ in_offset + 3 ] - cb_row[ 3 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
+            diff[ 4 ] = in[ in_offset + 4 ] - cb_row[ 4 ] * Silk_define_FLP.Q14_CONVERSION_FAC;
 
             /* Weighted rate */
             sum1 = mu * cl_Q6[ k ] / 64.0f;

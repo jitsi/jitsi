@@ -103,7 +103,7 @@ public class Silk_noise_shape_analysis_FLP
             pitch_res_ptr_offset = pitch_res_offset;
             for( k = 0; k < Silk_define.FRAME_LENGTH_MS / 2; k++ ) 
             {
-                nrg = ( float )nSamples + ( float )Silk_energy_FLP.SKP_Silk_energy_FLP( pitch_res_ptr,pitch_res_ptr_offset, nSamples );
+                nrg = nSamples + ( float )Silk_energy_FLP.SKP_Silk_energy_FLP( pitch_res_ptr,pitch_res_ptr_offset, nSamples );
                 log_energy = Silk_main_FLP.SKP_Silk_log2( nrg );
                 if( k > 0 ) 
                 {
@@ -383,7 +383,7 @@ public class Silk_noise_shape_analysis_FLP
             assert( false );
             for( i = 0; i < L; i++ ) 
             {
-                a[ i ] = ( float )0.0f;
+                a[ i ] = 0.0f;
             }
         }
     }

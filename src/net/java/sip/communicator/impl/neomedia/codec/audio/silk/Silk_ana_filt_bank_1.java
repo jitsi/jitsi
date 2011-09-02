@@ -53,7 +53,7 @@ public class Silk_ana_filt_bank_1
         for( k = 0; k < N2; k++ ) 
         {
             /* Convert to Q10 */
-            in32 = (int)in[ in_offset + 2 * k ] << 10;
+            in32 = in[ in_offset + 2 * k ] << 10;
 
             /* All-pass section for even input sample */
             Y      = in32 - S[ S_offset + 0 ];
@@ -62,7 +62,7 @@ public class Silk_ana_filt_bank_1
             S[ S_offset + 0 ] = in32 + X;
 
             /* Convert to Q10 */
-            in32 = (int)in[ in_offset + 2 * k + 1 ] << 10;
+            in32 = in[ in_offset + 2 * k + 1 ] << 10;
 
             /* All-pass section for odd input sample, and add to output of previous section */
             Y      = in32 - S[ S_offset + 1 ];

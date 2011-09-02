@@ -43,7 +43,7 @@ public class Silk_resampler_down2
         /* Internal variables and state are in Q10 format */
         for( k = 0; k < len2; k++ ) {
             /* Convert to Q10 */
-            in32 = (int)in[ in_offset + 2 * k ] << 10;
+            in32 = in[ in_offset + 2 * k ] << 10;
 
             /* All-pass section for even input sample */
             Y      = in32 - S[ S_offset ];
@@ -52,7 +52,7 @@ public class Silk_resampler_down2
             S[ S_offset ] = in32 + X;
 
             /* Convert to Q10 */
-            in32 = (int)in[ in_offset + 2 * k + 1 ] << 10;
+            in32 = in[ in_offset + 2 * k + 1 ] << 10;
 
             /* All-pass section for odd input sample, and add to output of previous section */
             Y      = in32 - S[ S_offset+1 ];

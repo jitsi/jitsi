@@ -47,7 +47,7 @@ public class Silk_resampler_private_ARMA4
 
         for( k = 0; k < len; k++ )
         {
-            in_Q8  = (int)in[ in_offset+k ] << 8;
+            in_Q8  = in[ in_offset+k ] << 8;
 
             /* Outputs of first and second biquad */
             out1_Q8 = in_Q8 + ( S[ S_offset ] << 2 );
