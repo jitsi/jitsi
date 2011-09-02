@@ -289,7 +289,7 @@ public abstract class ProtocolProviderFactory
     /**
      * Indicates if Google ICE should be used.
      */
-    public static final String IS_USE_GOOGLE_ICE = "GOOGLE_ICE_ENABLED";
+    public static final String IS_USE_GOOGLE_ICE = "GTALK_ICE_ENABLED";
 
     /**
      * Indicates if STUN server should be automatically discovered.

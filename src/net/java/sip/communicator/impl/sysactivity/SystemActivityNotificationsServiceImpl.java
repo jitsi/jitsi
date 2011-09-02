@@ -474,4 +474,59 @@ public class SystemActivityNotificationsServiceImpl
             logger.error("Error delivering event", e);
         }
     }
+
+    /**
+     * Can check whether an event id is supported on
+     * current operation system.
+     * Simple return what is implemented in native, and checks
+     * are made when possible, for example linux cannot connect
+     * to NM through dbus.
+     * @param eventID the event to check.
+     * @return whether the supplied event id is supported.
+     */
+    public boolean isSupported(int eventID)
+    {
+        if(OSUtils.IS_WINDOWS)
+        {
+            if(!SystemActivityNotifications.isLoaded())
+                return false;
+
+            switch(eventID)
+            {
+                case SystemActivityEvent.EVENT_SLEEP:
+                case SystemActivityEvent.EVENT_WAKE:
+                case SystemActivityEvent.EVENT_NETWORK_CHANGE:
+                case SystemActivityEvent.EVENT_SYSTEM_IDLE:
+                case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        else if(OSUtils.IS_MAC)
+        {
+            return SystemActivityNotifications.isLoaded();
+        }
+        else if(OSUtils.IS_LINUX)
+        {
+            switch(eventID)
+            {
+                case SystemActivityEvent.EVENT_SLEEP:
+                case SystemActivityEvent.EVENT_NETWORK_CHANGE:
+                {
+                    return NetworkManagerListenerImpl.getInstance()
+                            .isConnected();
+                }
+                case SystemActivityEvent.EVENT_SYSTEM_IDLE:
+                case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
+                {
+                    return SystemActivityNotifications.isLoaded();
+                }
+                default:
+                    return false;
+            }
+        }
+        else
+            return false;
+    }
 }

@@ -265,7 +265,8 @@ public class ProtocolProviderServiceMsnImpl
             typingNotifications.setMessenger(null);
         }
 
-        if(fireEvent)
+        // if messenger is null we have already fired unregister
+        if(fireEvent && messenger != null)
             fireRegistrationStateChanged(
                 currRegState,
                 RegistrationState.UNREGISTERED,

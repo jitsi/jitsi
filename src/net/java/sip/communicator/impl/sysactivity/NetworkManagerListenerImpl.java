@@ -160,4 +160,13 @@ public class NetworkManagerListenerImpl
                         .fireSystemActivityEvent(evt);
         }
     }
+
+    /**
+     * Whether we are connected to the network manager through dbus.
+     * @return whether we are connected to the network manager.
+     */
+    public boolean isConnected()
+    {
+        return dbusConn != null;
+    }
 }

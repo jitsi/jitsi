@@ -249,4 +249,14 @@ public abstract class AbstractProtocolProviderService
             registrationListeners.clear();
         }
     }
+
+    /**
+     * A clear display for ProtocolProvider when its printed in logs.
+     * @return the class name and the currently handled account.
+     */
+    public String toString()
+    {
+        return getClass().getSimpleName() + "("
+                + getAccountID().getDisplayName() + ")";
+    }
 }

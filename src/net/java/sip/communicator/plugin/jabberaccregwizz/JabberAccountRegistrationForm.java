@@ -406,7 +406,7 @@ public class JabberAccountRegistrationForm
             accountProperties.get(ProtocolProviderFactory.IS_USE_GOOGLE_ICE);
         boolean isUseGoogleIce = Boolean.parseBoolean(
                 (useGoogleIce != null && useGoogleIce.length() != 0) ?
-                    useGoogleIce : "false");
+                    useGoogleIce : "true");
 
         iceConfigPanel.setUseGoogleIce(isUseGoogleIce);
 

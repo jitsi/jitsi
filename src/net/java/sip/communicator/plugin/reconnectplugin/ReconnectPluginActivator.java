@@ -113,12 +113,12 @@ public class ReconnectPluginActivator
     /**
      * Start of the delay interval when starting a reconnect.
      */
-    private static final int RECONNECT_DELAY_MIN = 2; // sec
+    private static final int RECONNECT_DELAY_MIN = 1; // sec
 
     /**
      * The end of the interval for the initial reconnect.
      */
-    private static final int RECONNECT_DELAY_MAX = 5; // sec
+    private static final int RECONNECT_DELAY_MAX = 4; // sec
 
     /**
      * Max value for growing the reconnect delay, all subsequent reconnects
@@ -413,10 +413,7 @@ public class ReconnectPluginActivator
      */
     public synchronized void configurationChanged(ChangeEvent event)
     {
-        if(!(event.getSource() instanceof NetworkInterface))
-            return;
-
-        NetworkInterface iface = (NetworkInterface)event.getSource();
+        String ifaceName = (String)event.getSource();
 
         if(event.getType() == ChangeEvent.IFACE_UP)
         {
@@ -441,11 +438,11 @@ public class ReconnectPluginActivator
                 needsReconnection.clear();
             }
 
-            connectedInterfaces.add(iface.getName());
+            connectedInterfaces.add(ifaceName);
         }
         else if(event.getType() == ChangeEvent.IFACE_DOWN)
         {
-            connectedInterfaces.remove(iface.getName());
+            connectedInterfaces.remove(ifaceName);
 
             // one is down and at least one more is connected
             if(connectedInterfaces.size() > 0)
@@ -459,7 +456,7 @@ public class ReconnectPluginActivator
                     Map.Entry<ProtocolProviderService, List<String>> entry
                         = iter.next();
 
-                    if(entry.getValue().contains(iface.getName()))
+                    if(entry.getValue().contains(ifaceName))
                     {
                         ProtocolProviderService pp = entry.getKey();
                         // hum someone is reconnecting, lets cancel and
@@ -679,6 +676,8 @@ public class ReconnectPluginActivator
                 if(currentlyReconnecting.containsKey(pp))
                     currentlyReconnecting.remove(pp).cancel();
 
+                unregisteredProviders.remove(pp);
+
                 if(logger.isTraceEnabled())
                 {
                     logger.trace("Got Registered for " + pp);
@@ -740,7 +739,7 @@ public class ReconnectPluginActivator
         ReconnectTask task = new ReconnectTask(pp);
         task.delay = delay;
         currentlyReconnecting.put(pp, task);
-        
+
         if (logger.isTraceEnabled())
             logger.trace("Reconnect " + pp + " after " + delay + " ms.");
         timer.schedule(task, delay);

@@ -74,6 +74,8 @@ public class SystemActivityNotifications
      */
     private static long notifierInstance = -1;
 
+    private static boolean loaded = false;
+
     /**
      * Init native library.
      */
@@ -84,6 +86,8 @@ public class SystemActivityNotifications
             System.loadLibrary("sysactivitynotifications");
 
             notifierInstance = allocAndInit();
+
+            loaded = true;
         }
         catch(Throwable t)
         {
@@ -190,5 +194,14 @@ public class SystemActivityNotifications
                 String name,
                 long type,
                 boolean connected);
+    }
+
+    /**
+     * Whether native library is loaded.
+     * @return whether native library is loaded.
+     */
+    public static boolean isLoaded()
+    {
+        return loaded;
     }
 }

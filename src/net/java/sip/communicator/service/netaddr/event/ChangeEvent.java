@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.netaddr.event;
 
+import java.net.*;
+
 /**
  * A ChangeEvent is fired on change of the network configuration of the computer.
  *
@@ -20,14 +22,24 @@ public class ChangeEvent
     private static final long serialVersionUID = 0L;
 
     /**
-     * Event type for interface going up.
+     * Event type for interface going down.
      */
     public static final int IFACE_DOWN = 0;
 
     /**
-     * Event type for interface going down.
+     * Event type for interface going up.
      */
     public static final int IFACE_UP = 1;
+
+    /**
+     * Event type for address going down.
+     */
+    public static final int ADDRESS_DOWN = 2;
+
+    /**
+     * Event type for interface going down.
+     */
+    public static final int ADDRESS_UP = 3;
 
     /**
      * The type of the current event.
@@ -40,15 +52,59 @@ public class ChangeEvent
     private boolean standby = false;
 
     /**
-     * Creates event.
-     * @param source the source of the event.
-     * @param type the type of the event.
+     * The address that changed.
      */
-    public ChangeEvent(Object source, int type)
+    private InetAddress address;
+
+    /**
+     * Is this event initial one. When starting, no actual
+     * change has occurred in the system.
+     */
+    private boolean initial;
+
+    /**
+     * Creates event.
+     * @param source the source of the event, the interface.
+     * @param type the type of the event.
+     * @param address the address that changed.
+     * @param standby is the event after a suspend of the computer.
+     * @param initial is this event initial one.
+     */
+    public ChangeEvent(Object source,
+                       int type,
+                       InetAddress address,
+                       boolean standby,
+                       boolean initial)
     {
         super(source);
 
         this.type = type;
+        this.address = address;
+        this.standby = standby;
+        this.initial = initial;
+    }
+
+    /**
+     * Creates event.
+     * @param source the source of the event, the interface.
+     * @param type the type of the event.
+     * @param address the address that changed.
+     */
+    public ChangeEvent(Object source,
+                       int type,
+                       InetAddress address)
+    {
+        this(source, type, address, false, false);
+    }
+
+    /**
+     * Creates event.
+     * @param source the source of the event, the interface.
+     * @param type the type of the event.
+     */
+    public ChangeEvent(Object source, int type)
+    {
+        this(source, type, null, false, false);
     }
 
     /**
@@ -59,9 +115,7 @@ public class ChangeEvent
      */
     public ChangeEvent(Object source, int type, boolean standby)
     {
-        this(source, type);
-
-        this.standby = standby;
+        this(source, type, null, standby, false);
     }
 
     /**
@@ -71,6 +125,15 @@ public class ChangeEvent
     public int getType()
     {
         return type;
+    }
+
+    /**
+     * The address that changed.
+     * @return the address
+     */
+    public InetAddress getAddress()
+    {
+        return address;
     }
 
     /**
@@ -96,10 +159,22 @@ public class ChangeEvent
         {
             case IFACE_DOWN: buff.append("Interface down"); break;
             case IFACE_UP: buff.append("Interface up"); break;
+            case ADDRESS_DOWN : buff.append("Address down"); break;
+            case ADDRESS_UP : buff.append("Address up"); break;
         }
 
         buff.append(", standby=" + standby);
 
         return buff.toString();
+    }
+
+    /**
+     * Is this event initial one. When starting, no actual
+     * change has occurred in the system.
+     * @return is this event initial one.
+     */
+    public boolean isInitial()
+    {
+        return initial;
     }
 }

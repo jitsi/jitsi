@@ -1139,7 +1139,7 @@ public class NetworkUtils
          */
         public void configurationChanged(ChangeEvent event)
         {
-            if(event.getType() == ChangeEvent.IFACE_UP)
+            if(event.getType() == ChangeEvent.IFACE_UP && !event.isInitial())
             {
                 reloadDnsResolverConfig();
             }

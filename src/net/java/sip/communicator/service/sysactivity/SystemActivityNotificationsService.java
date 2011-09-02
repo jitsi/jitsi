@@ -55,4 +55,12 @@ public interface SystemActivityNotificationsService
      */
     public void removeIdleSystemChangeListener(
         SystemActivityChangeListener listener);
+
+    /**
+     * Can check whether an event id is supported on
+     * current operation system.
+     * @param eventID the event to check.
+     * @return whether the supplied event id is supported.
+     */
+    public boolean isSupported(int eventID);
 }
