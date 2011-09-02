@@ -75,6 +75,8 @@ public class GeneralDialPadDialog
         dialPadDialog.setTitle(
             GuiActivator.getResources().getI18NString("service.gui.DIALPAD"));
 
+        initInputMap();
+
         JPanel mainPanel = new TransparentPanel(new BorderLayout());
 
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -117,6 +119,51 @@ public class GeneralDialPadDialog
     }
 
     /**
+     * Initializes the input map.
+     */
+    private void initInputMap()
+    {
+        InputMap imap = dialPadDialog.getRootPane().getInputMap(
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
+
+        ActionMap amap = dialPadDialog.getRootPane().getActionMap();
+        amap.put("escape", new AbstractAction()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                String text = callField.getText();
+
+                // If the text area is empty we close the dialpad.
+                if (text == null || text.length() <= 0)
+                    dialPadDialog.setVisible(false);
+                else
+                    callField.setText("");
+            }
+        });
+
+        // put the defaults for macosx
+        if(OSUtils.IS_MAC)
+        {
+            imap.put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.META_DOWN_MASK),
+                "close");
+            imap.put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK),
+                "close");
+
+            amap.put("close", new AbstractAction()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    dialPadDialog.setVisible(false);
+                }
+            });
+        }
+    }
+
+    /**
      * Creates the call panel.
      *
      * @return the created call panel.
@@ -143,14 +190,17 @@ public class GeneralDialPadDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                CallManager.createCall(callField.getText(), callButton,
-                    new CallInterfaceListener()
-                    {
-                        public void callInterfaceStarted()
+                String callNumber = callField.getText();
+
+                if (callNumber != null && callNumber.length() > 0)
+                    CallManager.createCall(callField.getText(), callButton,
+                        new CallInterfaceListener()
                         {
-                            dialPadDialog.setVisible(false);
-                        }
-                    });
+                            public void callInterfaceStarted()
+                            {
+                                dialPadDialog.setVisible(false);
+                            }
+                        });
             }
         });
 
@@ -168,7 +218,11 @@ public class GeneralDialPadDialog
      */
     public void dialButtonPressed(String s)
     {
-        callField.setText(callField.getText() + s);
+        String currentText = callField.getText();
+
+        if (currentText == null)
+            currentText = "";
+        callField.setText(currentText + s);
     }
 
     /**
@@ -280,18 +334,6 @@ public class GeneralDialPadDialog
             this.setOpaque(false);
 
             this.setDragEnabled(true);
-
-            InputMap imap
-                = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-            imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
-            ActionMap amap = getActionMap();
-            amap.put("escape", new AbstractAction()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    setText("");
-                }
-            });
 
             loadSkin();
         }
