@@ -2153,7 +2153,7 @@ public class ProtocolProviderServiceJabberImpl
                 , false) ||
                 accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
-                    false));
+                    true));
     }
 
     UserCredentials getUserCredentials()

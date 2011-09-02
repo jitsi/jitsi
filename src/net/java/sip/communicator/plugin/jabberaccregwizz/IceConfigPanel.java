@@ -120,7 +120,7 @@ public class IceConfigPanel
         autoDiscoverBox.setSelected(true);
         defaultStunBox.setSelected(true);
 
-        googleIceBox.setSelected(false);
+        googleIceBox.setSelected(true);
 
         jnBox.setSelected(true);
         jnAutoDiscoverBox.setSelected(true);
