@@ -47,6 +47,12 @@ public class ChooseCallAccountPopupMenu
     private final JComponent invoker;
 
     /**
+     * The call interface listener, which would be notified once the call
+     * interface is created.
+     */
+    private CallInterfaceListener callInterfaceListener;
+
+    /**
      * Creates this dialog.
      *
      * @param invoker the invoker of this pop up menu
@@ -60,6 +66,25 @@ public class ChooseCallAccountPopupMenu
     {
         this(invoker, contactToCall, telephonyProviders,
             OperationSetBasicTelephony.class);
+    }
+
+    /**
+     * Creates this dialog.
+     *
+     * @param invoker the invoker of this pop up menu
+     * @param contactToCall the contact to call
+     * @param telephonyProviders a list of all possible telephony providers
+     */
+    public ChooseCallAccountPopupMenu(
+        JComponent invoker,
+        final String contactToCall,
+        List<ProtocolProviderService> telephonyProviders,
+        CallInterfaceListener l)
+    {
+        this(invoker, contactToCall, telephonyProviders,
+            OperationSetBasicTelephony.class);
+
+        callInterfaceListener = l;
     }
 
     /**
@@ -179,6 +204,9 @@ public class ChooseCallAccountPopupMenu
                     CallManager.createDesktopSharing(
                         providerItem.getProtocolProvider(),
                         contactString);
+
+                if (callInterfaceListener != null)
+                    callInterfaceListener.callInterfaceStarted();
 
                 ChooseCallAccountPopupMenu.this.setVisible(false);
             }

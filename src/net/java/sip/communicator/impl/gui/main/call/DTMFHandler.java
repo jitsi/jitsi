@@ -51,66 +51,86 @@ public class DTMFHandler
      * All available tones and its properties like images for buttons, and
      * sounds to be played during send.
      */
-    static final DTMFToneInfo[] availableTones = new DTMFToneInfo[]
+    public static final DTMFToneInfo[] availableTones = new DTMFToneInfo[]
     {
         new DTMFToneInfo(
             DTMFTone.DTMF_1,
             KeyEvent.VK_1,
             '1',
             ImageLoader.ONE_DIAL_BUTTON,
+            ImageLoader.ONE_DIAL_BUTTON_MAC,
+            ImageLoader.ONE_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_ONE),
         new DTMFToneInfo(
             DTMFTone.DTMF_2,
             KeyEvent.VK_2,
             '2',
             ImageLoader.TWO_DIAL_BUTTON,
+            ImageLoader.TWO_DIAL_BUTTON_MAC,
+            ImageLoader.TWO_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_TWO),
         new DTMFToneInfo(
             DTMFTone.DTMF_3,
             KeyEvent.VK_3,
             '3',
             ImageLoader.THREE_DIAL_BUTTON,
+            ImageLoader.THREE_DIAL_BUTTON_MAC,
+            ImageLoader.THREE_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_THREE),
         new DTMFToneInfo(
             DTMFTone.DTMF_4,
             KeyEvent.VK_4,
             '4',
             ImageLoader.FOUR_DIAL_BUTTON,
+            ImageLoader.FOUR_DIAL_BUTTON_MAC,
+            ImageLoader.FOUR_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_FOUR),
         new DTMFToneInfo(
             DTMFTone.DTMF_5,
             KeyEvent.VK_5,
             '5',
             ImageLoader.FIVE_DIAL_BUTTON,
+            ImageLoader.FIVE_DIAL_BUTTON_MAC,
+            ImageLoader.FIVE_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_FIVE),
         new DTMFToneInfo(
             DTMFTone.DTMF_6,
             KeyEvent.VK_6,
             '6',
             ImageLoader.SIX_DIAL_BUTTON,
+            ImageLoader.SIX_DIAL_BUTTON_MAC,
+            ImageLoader.SIX_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_SIX),
         new DTMFToneInfo(
             DTMFTone.DTMF_7,
             KeyEvent.VK_7,
             '7',
             ImageLoader.SEVEN_DIAL_BUTTON,
+            ImageLoader.SEVEN_DIAL_BUTTON_MAC,
+            ImageLoader.SEVEN_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_SEVEN),
         new DTMFToneInfo(
             DTMFTone.DTMF_8,
             KeyEvent.VK_8,
             '8',
             ImageLoader.EIGHT_DIAL_BUTTON,
+            ImageLoader.EIGHT_DIAL_BUTTON_MAC,
+            ImageLoader.EIGHT_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_EIGHT),
         new DTMFToneInfo(
             DTMFTone.DTMF_9,
             KeyEvent.VK_9,
             '9',
             ImageLoader.NINE_DIAL_BUTTON,
+            ImageLoader.NINE_DIAL_BUTTON_MAC,
+            ImageLoader.NINE_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_NINE),
         new DTMFToneInfo(
             DTMFTone.DTMF_A,
             KeyEvent.VK_A,
             'a',
+            null,
+            null,
             null,
             null),
         new DTMFToneInfo(
@@ -118,11 +138,15 @@ public class DTMFHandler
             KeyEvent.VK_B,
             'b',
             null,
+            null,
+            null,
             null),
         new DTMFToneInfo(
             DTMFTone.DTMF_C,
             KeyEvent.VK_C,
             'c',
+            null,
+            null,
             null,
             null),
         new DTMFToneInfo(
@@ -130,24 +154,32 @@ public class DTMFHandler
             KeyEvent.VK_D,
             'd',
             null,
+            null,
+            null,
             null),
         new DTMFToneInfo(
             DTMFTone.DTMF_STAR,
             KeyEvent.VK_ASTERISK,
             '*',
             ImageLoader.STAR_DIAL_BUTTON,
+            ImageLoader.STAR_DIAL_BUTTON_MAC,
+            ImageLoader.STAR_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_STAR),
         new DTMFToneInfo(
             DTMFTone.DTMF_0,
             KeyEvent.VK_0,
             '0',
             ImageLoader.ZERO_DIAL_BUTTON,
+            ImageLoader.ZERO_DIAL_BUTTON_MAC,
+            ImageLoader.ZERO_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_ZERO),
         new DTMFToneInfo(
             DTMFTone.DTMF_SHARP,
             KeyEvent.VK_NUMBER_SIGN,
             '#',
             ImageLoader.DIEZ_DIAL_BUTTON,
+            ImageLoader.DIEZ_DIAL_BUTTON_MAC,
+            ImageLoader.DIEZ_DIAL_BUTTON_MAC_ROLLOVER,
             SoundProperties.DIAL_DIEZ)
     };
 
@@ -168,10 +200,22 @@ public class DTMFHandler
     }
 
     /**
+     * Creates DTMF handler for a call.
+     * @param callContainer the <tt>CallContainer</tt>, where this handler is
+     * registered
+     */
+    public DTMFHandler()
+    {
+        KeyboardFocusManager keyManager
+            = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        keyManager.addKeyEventDispatcher(this);
+    }
+
+    /**
      * Add parent on which we listen for key entering.
      * @param w
      */
-    void addParent(Window w)
+    public void addParent(Window w)
     {
         parents.add(w);
     }
@@ -233,7 +277,7 @@ public class DTMFHandler
      *
      * @param toneValue the value of the DTMF tone to send.
      */
-    void startSendingDtmfTone(String toneValue)
+    public void startSendingDtmfTone(String toneValue)
     {
         for (int i = 0; i < availableTones.length; i++)
         {
@@ -266,8 +310,35 @@ public class DTMFHandler
             currentlyPlayingAudio.playInLoop(10);
         }
 
-        Iterator<? extends CallPeer> callPeers
-            = callContainer.getCurrentCallRenderer().getCall().getCallPeers();
+        if (callContainer != null)
+            startSendingDtmfTone(
+                callContainer.getCurrentCallRenderer().getCall(),
+                info);
+        else
+        {
+            Collection<Call> activeCalls = CallManager.getActiveCalls();
+
+            if (activeCalls != null)
+            {
+                Iterator<Call> callsIter = activeCalls.iterator();
+
+                while (callsIter.hasNext())
+                {
+                    startSendingDtmfTone(callsIter.next(), info);
+                }
+            }
+        }
+    }
+
+    /**
+     * Sends a DTMF tone to the current DTMF operation set of the given call.
+     *
+     * @param call The call to which we send DTMF-s.
+     * @param info The DTMF tone to send.
+     */
+    private void startSendingDtmfTone(Call call, DTMFToneInfo info)
+    {
+        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
 
         try
         {
@@ -299,15 +370,40 @@ public class DTMFHandler
     /**
      * Stop sending DTMF tone.
      */
-    synchronized void stopSendingDtmfTone()
+    public synchronized void stopSendingDtmfTone()
     {
         if(currentlyPlayingAudio != null)
             currentlyPlayingAudio.stop();
 
         currentlyPlayingAudio = null;
 
-        Iterator<? extends CallPeer> callPeers
-            = callContainer.getCurrentCallRenderer().getCall().getCallPeers();
+        if (callContainer != null)
+            stopSendingDtmfTone(
+                callContainer.getCurrentCallRenderer().getCall());
+        else
+        {
+            Collection<Call> activeCalls = CallManager.getActiveCalls();
+
+            if (activeCalls != null)
+            {
+                Iterator<Call> callsIter = activeCalls.iterator();
+
+                while (callsIter.hasNext())
+                {
+                    stopSendingDtmfTone(callsIter.next());
+                }
+            }
+        }
+    }
+
+    /**
+     * Stops sending DTMF tone to the given call.
+     *
+     * @param call The call to which we send DTMF-s.
+     */
+    private void stopSendingDtmfTone(Call call)
+    {
+        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
 
         try
         {
@@ -332,32 +428,42 @@ public class DTMFHandler
     /**
      * DTMF extended information.
      */
-    static class DTMFToneInfo
+    public static class DTMFToneInfo
     {
         /**
          * The tone itself
          */
-        DTMFTone tone;
+        public DTMFTone tone;
 
         /**
          * The key code when entered from keyboard.
          */
-        int keyCode;
+        public int keyCode;
 
         /**
          * The char associated with this DTMF tone.
          */
-        char keyChar;
+        public char keyChar;
 
         /**
          * The image to display in buttons sending DTMFs.
          */
-        ImageID imageID;
+        public ImageID imageID;
+
+        /**
+         * The image to display on Mac buttons.
+         */
+        public ImageID macImageID;
+
+        /**
+         * The id of the image to display on Mac buttons on rollover.
+         */
+        public ImageID macImageRolloverID;
 
         /**
          * The sound to play during send of this tone.
          */
-        String sound;
+        public String sound;
 
         /**
          * Creates DTMF extended info.
@@ -365,16 +471,20 @@ public class DTMFHandler
          * @param keyCode its key code.
          * @param keyChar the char associated with the DTMF
          * @param imageID the image if any.
+         * @param macImageID the Mac image if any.
          * @param sound the sound if any.
          */
         public DTMFToneInfo(
             DTMFTone tone, int keyCode, char keyChar,
-            ImageID imageID, String sound)
+            ImageID imageID, ImageID macImageID,
+            ImageID macImageRolloverID, String sound)
         {
             this.tone = tone;
             this.keyCode = keyCode;
             this.keyChar = keyChar;
             this.imageID = imageID;
+            this.macImageID = macImageID;
+            this.macImageRolloverID = macImageRolloverID;
             this.sound = sound;
         }
     }

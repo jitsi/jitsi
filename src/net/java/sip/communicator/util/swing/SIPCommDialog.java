@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
-public abstract class SIPCommDialog
+public class SIPCommDialog
     extends JDialog
 {
     /**
@@ -416,5 +416,14 @@ public abstract class SIPCommDialog
      * @param escaped <tt>true</tt> if this dialog has been closed by pressing
      * the Esc key; otherwise, <tt>false</tt>
      */
-    protected abstract void close(boolean escaped);
+    /**
+     * All functions implemented in this method will be invoked when user
+     * presses the Escape key.
+     * @param isEscaped indicates if this frame has been closed by pressing the
+     * Esc key
+     */
+    protected void close(boolean isEscaped)
+    {
+        
+    }
 }

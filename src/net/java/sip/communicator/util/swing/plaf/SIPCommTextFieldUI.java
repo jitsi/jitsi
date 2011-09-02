@@ -64,28 +64,28 @@ public class SIPCommTextFieldUI
     /**
      * The start background gradient color.
      */
-    private final Color bgStartColor
+    private Color bgStartColor
         = new Color(UtilActivator.getResources().getColor(
             "service.gui.SEARCH_BACKGROUND"));
 
     /**
      * The end background gradient color.
      */
-    private final Color bgEndColor
+    private Color bgEndColor
         = new Color(UtilActivator.getResources().getColor(
             "service.gui.SEARCH_GRADIENT"));
 
     /**
      * The start background gradient color.
      */
-    private final Color bgBorderStartColor
+    private Color bgBorderStartColor
         = new Color(UtilActivator.getResources().getColor(
             "service.gui.SEARCH_BORDER"));
 
     /**
      * The end background gradient color.
      */
-    private final Color bgBorderEndColor
+    private Color bgBorderEndColor
         = new Color(UtilActivator.getResources().getColor(
             "service.gui.SEARCH_BORDER_GRADIENT"));
 
@@ -264,8 +264,8 @@ public class SIPCommTextFieldUI
 
         Rectangle rect = c.getBounds();
 
-        int dx = rect.x + rect.width - deleteButton.getWidth() - BUTTON_GAP - 5;
-        int dy = (rect.y + rect.height) / 2 - deleteButton.getHeight()/2;
+        int dx = rect.width - deleteButton.getWidth() - BUTTON_GAP - 5;
+        int dy = rect.height / 2 - deleteButton.getHeight()/2;
 
         return new Rectangle(   dx,
                                 dy,
@@ -297,12 +297,44 @@ public class SIPCommTextFieldUI
             alloc.x += insets.left;
             alloc.y += insets.top;
             alloc.width -= insets.left + insets.right
-                + deleteButton.getWidth();
+                + getDeleteButtonRect().getWidth();
             alloc.height -= insets.top + insets.bottom;
             return alloc;
         }
 
         return null;
+    }
+
+    /**
+     * @param bgStartColor the bgStartColor to set
+     */
+    public void setBgStartColor(Color bgStartColor)
+    {
+        this.bgStartColor = bgStartColor;
+    }
+
+    /**
+     * @param bgEndColor the bgEndColor to set
+     */
+    public void setBgEndColor(Color bgEndColor)
+    {
+        this.bgEndColor = bgEndColor;
+    }
+
+    /**
+     * @param bgBorderStartColor the bgBorderStartColor to set
+     */
+    public void setBgBorderStartColor(Color bgBorderStartColor)
+    {
+        this.bgBorderStartColor = bgBorderStartColor;
+    }
+
+    /**
+     * @param bgBorderEndColor the bgBorderEndColor to set
+     */
+    public void setBgBorderEndColor(Color bgBorderEndColor)
+    {
+        this.bgBorderEndColor = bgBorderEndColor;
     }
 
     /**

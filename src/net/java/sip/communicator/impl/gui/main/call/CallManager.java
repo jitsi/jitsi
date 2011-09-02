@@ -626,7 +626,23 @@ public class CallManager
      * @param c the component, which indicates where should be shown the "call
      * via" menu if needed
      */
-    public static void createCall(String callString, JComponent c)
+    public static void createCall(  String callString,
+                                    JComponent c)
+    {
+        createCall(callString, c, null);
+    }
+
+    /**
+     * Creates a call to the given call string. The given component indicates
+     * where should be shown the "call via" menu if needed.
+     *
+     * @param callString the string to call
+     * @param c the component, which indicates where should be shown the "call
+     * via" menu if needed
+     */
+    public static void createCall(  String callString,
+                                    JComponent c,
+                                    CallInterfaceListener l)
     {
         callString = callString.trim();
 
@@ -653,6 +669,9 @@ public class CallManager
         {
             CallManager.createCall(
                 telephonyProviders.get(0), callString);
+
+            if (l != null)
+                l.callInterfaceStarted();
         }
         else if (telephonyProviders.size() > 1)
         {
@@ -660,11 +679,21 @@ public class CallManager
                 = new ChooseCallAccountPopupMenu(
                     c,
                     callString,
-                    telephonyProviders);
+                    telephonyProviders,
+                    l);
 
             chooseAccountDialog
                 .setLocation(c.getLocation());
             chooseAccountDialog.showPopupMenu();
+        }
+        else
+        {
+            new ErrorDialog(
+                null,
+                GuiActivator.getResources().getI18NString("service.gui.WARNING"),
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
+            .showDialog();
         }
     }
 

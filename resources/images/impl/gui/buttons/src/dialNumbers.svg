@@ -1,24 +1,188 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="210mm"
    height="297mm"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.45"
-   sodipodi:docbase="/home/yana/workspace/DtmfGui4Sc/src/net/java/sip/communicator/impl/gui/resources/buttons/src"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="dialNumbers.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   sodipodi:modified="true">
+   sodipodi:modified="true"
+   version="1.1">
   <defs
-     id="defs4" />
+     id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective49" />
+    <inkscape:perspective
+       id="perspective3691"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3836"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3865"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3887"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3909"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective3965"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5950"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4002"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4024"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4046"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4046-0"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4046-2"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4046-4"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4046-3"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4046-8"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4046-38"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective5963"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5273"
+       id="linearGradient5267"
+       x1="1435.1556"
+       y1="511.75241"
+       x2="1493.1987"
+       y2="598.20984"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.84834205,0,0,0.88175319,-709.53195,187.94014)" />
+    <linearGradient
+       id="linearGradient5273">
+      <stop
+         id="stop5275"
+         offset="0"
+         style="stop-color:#002d51;stop-opacity:1;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="1"
+         id="stop5277" />
+    </linearGradient>
+    <inkscape:perspective
+       id="perspective4182"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective4280"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -26,15 +190,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="196.54711"
-     inkscape:cy="608.58133"
+     inkscape:zoom="3.959798"
+     inkscape:cx="448.96733"
+     inkscape:cy="714.20389"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     inkscape:window-width="1016"
-     inkscape:window-height="692"
+     inkscape:window-width="1260"
+     inkscape:window-height="726"
      inkscape:window-x="0"
-     inkscape:window-y="0" />
+     inkscape:window-y="0"
+     showgrid="false"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -43,6 +209,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -365,5 +532,896 @@
          x="140.14545"
          y="440.64554"
          style="font-size:10.000000px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125.00000%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1.0000000;font-family:Bitstream Vera Sans">+</tspan></text>
+    <rect
+       style="fill:#464646;fill-opacity:1;stroke:none"
+       id="rect2855"
+       width="311.12698"
+       height="327.2894"
+       x="303.04575"
+       y="239.18938"
+       ry="3.8138587" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="504.45502"
+       y="437.92743"
+       id="text2049-7"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/nineMac.png"
+       inkscape:export-xdpi="83.703163"
+       inkscape:export-ydpi="83.703163"><tspan
+         sodipodi:role="line"
+         id="tspan2051-9"
+         x="504.45502"
+         y="437.92743"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">9</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold"
+       x="520.48663"
+       y="437.45618"
+       id="text2053-3"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/nineMac.png"
+       inkscape:export-xdpi="83.703163"
+       inkscape:export-ydpi="83.703163"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2055-8"
+         x="520.48663"
+         y="437.45618"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold">xyz</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#fff9f9;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="371.50262"
+       y="314.12732"
+       id="text2783-0"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/yana/one.png"
+       inkscape:export-xdpi="90.000000"
+       inkscape:export-ydpi="90.000000"><tspan
+         sodipodi:role="line"
+         id="tspan2785-2"
+         x="371.50262"
+         y="314.12732"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#fff9f9;fill-opacity:1;font-family:Bitstream Vera Sans">1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="502.70084"
+       y="375.87946"
+       id="text2791-4"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/sixMac.png"
+       inkscape:export-xdpi="96.806725"
+       inkscape:export-ydpi="96.806725"><tspan
+         sodipodi:role="line"
+         id="tspan2793-8"
+         x="502.70084"
+         y="375.87946"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">6</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold"
+       x="518.73242"
+       y="375.4082"
+       id="text2795-3"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/sixMac.png"
+       inkscape:export-xdpi="96.806725"
+       inkscape:export-ydpi="96.806725"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2797-9"
+         x="518.73242"
+         y="375.4082"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold">mno</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="432.42331"
+       y="315.91077"
+       id="text2799-0"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/twoMac.png"
+       inkscape:export-xdpi="98.526314"
+       inkscape:export-ydpi="98.526314"><tspan
+         sodipodi:role="line"
+         id="tspan2801-5"
+         x="432.42331"
+         y="315.91077"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#757474;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+       x="448.45493"
+       y="315.43951"
+       id="text2803-2"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/twoMac.png"
+       inkscape:export-xdpi="98.526314"
+       inkscape:export-ydpi="98.526314"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4413">ABC</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="367.39435"
+       y="376.9664"
+       id="text2807-7"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/fourMac.png"
+       inkscape:export-xdpi="84.889687"
+       inkscape:export-ydpi="84.889687"><tspan
+         sodipodi:role="line"
+         id="tspan2809-3"
+         x="367.39435"
+         y="376.9664"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">4</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold"
+       x="383.42596"
+       y="376.49515"
+       id="text2811-7"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/fourMac.png"
+       inkscape:export-xdpi="84.889687"
+       inkscape:export-ydpi="84.889687"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2813-9"
+         x="383.42596"
+         y="376.49515"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold">ghi</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="364.12308"
+       y="439.09747"
+       id="text2815-0"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/sevenMac.png"
+       inkscape:export-xdpi="85.470688"
+       inkscape:export-ydpi="85.470688"><tspan
+         sodipodi:role="line"
+         id="tspan2817-2"
+         x="364.12308"
+         y="439.09747"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">7</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold"
+       x="378.15469"
+       y="438.62622"
+       id="text2819-3"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/sevenMac.png"
+       inkscape:export-xdpi="85.470688"
+       inkscape:export-ydpi="85.470688"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2821-9"
+         x="378.15469"
+         y="438.62622"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold">pqrs</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="503.91391"
+       y="314.35724"
+       id="text2823-9"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/threeMac.png"
+       inkscape:export-xdpi="96.681732"
+       inkscape:export-ydpi="96.681732"><tspan
+         sodipodi:role="line"
+         id="tspan2825-7"
+         x="503.91391"
+         y="314.35724"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">3</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr;text-anchor:start;fill:#757474;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"
+       x="519.9455"
+       y="313.88599"
+       id="text2827-0"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/threeMac.png"
+       inkscape:export-xdpi="96.681732"
+       inkscape:export-ydpi="96.681732"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan4415">DEF</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="433.44861"
+       y="376.40945"
+       id="text2831-9"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/fiveMac.png"
+       inkscape:export-xdpi="84.888939"
+       inkscape:export-ydpi="84.888939"><tspan
+         sodipodi:role="line"
+         id="tspan2833-8"
+         x="433.44861"
+         y="376.40945"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">5</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold"
+       x="449.48019"
+       y="375.9382"
+       id="text2835-6"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/fiveMac.png"
+       inkscape:export-xdpi="84.888939"
+       inkscape:export-ydpi="84.888939"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2837-5"
+         x="449.48019"
+         y="375.9382"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold">jkl</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="435.41373"
+       y="439.15146"
+       id="text2839-7"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/eightMac.png"
+       inkscape:export-xdpi="96.681732"
+       inkscape:export-ydpi="96.681732"><tspan
+         sodipodi:role="line"
+         id="tspan2841-6"
+         x="435.41373"
+         y="439.15146"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">8</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold"
+       x="451.44534"
+       y="438.68021"
+       id="text2843-2"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/eightMac.png"
+       inkscape:export-xdpi="96.681732"
+       inkscape:export-ydpi="96.681732"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan2845-7"
+         x="451.44534"
+         y="438.68021"
+         style="font-size:12px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold">tuv</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.41908264px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="348.70581"
+       y="613.59216"
+       id="text10107-0"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/starMac.png"
+       inkscape:export-xdpi="96.908516"
+       inkscape:export-ydpi="96.908516"><tspan
+         sodipodi:role="line"
+         id="tspan10109-3"
+         x="348.70581"
+         y="613.59216"
+         style="font-size:15.69847107px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">*</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="521.49225"
+       y="498.55743"
+       id="text10111-9"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/diezMac.png"
+       inkscape:export-xdpi="69.659866"
+       inkscape:export-ydpi="69.659866"><tspan
+         sodipodi:role="line"
+         id="tspan10113-9"
+         x="521.49225"
+         y="498.55743"
+         style="font-size:18px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">#</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="438.6272"
+       y="499.36523"
+       id="text10123-9"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/zeroMac.png"
+       inkscape:export-xdpi="96.681732"
+       inkscape:export-ydpi="96.681732"><tspan
+         sodipodi:role="line"
+         id="tspan10125-1"
+         x="438.6272"
+         y="499.36523"
+         style="font-size:16px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;font-family:Bitstream Vera Sans">0</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;fill:#757474;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="454.65878"
+       y="496.89398"
+       id="text10127-7"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/zeroMac.png"
+       inkscape:export-xdpi="96.681732"
+       inkscape:export-ydpi="96.681732"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan10129-2"
+         x="454.65878"
+         y="496.89398"
+         style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#757474;fill-opacity:1;font-family:Bitstream Vera Sans">+</tspan></text>
+    <path
+       sodipodi:type="arc"
+       style="fill:#ffffff;fill-opacity:0.67755103;stroke:#434343;stroke-width:2.19059706;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path5706-0-7-9"
+       sodipodi:cx="563.90814"
+       sodipodi:cy="467.78842"
+       sodipodi:rx="21.764875"
+       sodipodi:ry="21.764875"
+       d="m 585.67302,467.78842 a 21.764875,21.764875 0 1 1 -43.52975,0 21.764875,21.764875 0 1 1 43.52975,0 z"
+       transform="matrix(1.5977379,0,0,1.5977379,-471.91903,-65.452473)"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/buttons/callHistoryButton.png"
+       inkscape:export-xdpi="16.126987"
+       inkscape:export-ydpi="16.126987" />
+    <path
+       style="fill:#434343;fill-opacity:1;stroke:#434343;stroke-opacity:1"
+       d="m 429.04926,656.22605 c -1.515,0 -2.75,1.31927 -2.75,2.9375 l 0,22.40625 c 0.5242,2.35165 1.9951,4.31173 4.3125,4.96875 l 21.125,0 c 1.6293,0 2.9375,-1.22796 2.9375,-2.75 0,-1.52204 -1.3082,-2.75 -2.9375,-2.75 l -19.9687,0 0,-21.875 c 0,-1.61823 -1.2038,-2.9375 -2.7188,-2.9375 z"
+       id="rect5717-3-6-7"
+       sodipodi:nodetypes="cccccscccc"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/filter/resources/images/impl/gui/buttons/callHistoryButton.png"
+       inkscape:export-xdpi="16.126987"
+       inkscape:export-ydpi="16.126987" />
+    <rect
+       style="fill:#787878;fill-opacity:1;stroke:url(#linearGradient5267);stroke-width:2.5;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect5252"
+       width="91.121506"
+       height="68.124901"
+       x="492.49005"
+       y="646.2887"
+       rx="34.76133"
+       ry="36.130371"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:0.51239672;stroke:#434343;stroke-width:2.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect5252-0"
+       width="91.121506"
+       height="68.124901"
+       x="414.33728"
+       y="753.25458"
+       rx="34.76133"
+       ry="36.130371"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035435"
+       inkscape:export-ydpi="28.035435" />
+    <g
+       id="g4153"
+       transform="matrix(0.18409888,0,0,0.18409888,427.97088,652.73853)"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035435"
+       inkscape:export-ydpi="28.035435">
+      <rect
+         y="694.16766"
+         x="93.948341"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-0"
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
+      <rect
+         y="693.45337"
+         x="156.80548"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-0-4"
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
+      <rect
+         y="693.45343"
+         x="219.66263"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-0-4-6"
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
+      <rect
+         y="760.59619"
+         x="219.66263"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-0-4-3"
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
+      <rect
+         y="760.59619"
+         x="156.8055"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-0-4-69"
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
+      <rect
+         y="760.59625"
+         x="93.948349"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-0-4-1"
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
+      <rect
+         y="827.73914"
+         x="93.948349"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-0-4-7"
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
+      <rect
+         y="827.02478"
+         x="156.80548"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-0-4-8"
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
+      <rect
+         y="827.73914"
+         x="219.66263"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-0-4-15"
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
+      <rect
+         y="691.72644"
+         x="217.45509"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855"
+         style="fill:#040404;fill-opacity:1;stroke:none" />
+      <rect
+         y="691.72668"
+         x="154.66092"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5"
+         style="fill:#040404;fill-opacity:1;stroke:none" />
+      <rect
+         y="691.72668"
+         x="91.86705"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5"
+         style="fill:#040404;fill-opacity:1;stroke:none" />
+      <rect
+         y="758.52856"
+         x="217.45509"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-8"
+         style="fill:#040404;fill-opacity:1;stroke:none" />
+      <rect
+         y="758.52881"
+         x="154.66092"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-1"
+         style="fill:#040404;fill-opacity:1;stroke:none" />
+      <rect
+         y="758.52881"
+         x="91.86705"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-4"
+         style="fill:#040404;fill-opacity:1;stroke:none" />
+      <rect
+         y="825.21521"
+         x="217.45509"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-8-8"
+         style="fill:#040404;fill-opacity:1;stroke:none" />
+      <rect
+         y="825.21545"
+         x="154.66092"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-1-4"
+         style="fill:#040404;fill-opacity:1;stroke:none" />
+      <rect
+         y="825.21545"
+         x="91.86705"
+         height="39.246178"
+         width="39.246178"
+         id="rect3855-5-5-4-8"
+         style="fill:#040404;fill-opacity:1;stroke:none" />
+      <path
+         inkscape:export-ydpi="16.993685"
+         inkscape:export-xdpi="16.993685"
+         inkscape:export-filename="/Users/yanastamcheva/Desktop/phone1.png"
+         sodipodi:nodetypes="cssssssssc"
+         id="path3703-0-8"
+         d="m 298.74427,643.13966 c 4.14028,6.51255 16.2946,30.82853 6.49786,36.03232 -11.72166,6.22662 -71.57546,-4.57155 -77.14229,-16.61669 -5.71398,-12.36395 10.85139,-13.32343 11.7473,-24.57732 2.6157,-32.86409 -140.387742,-27.43108 -128.01028,-0.24898 5.69815,12.51338 17.52226,13.59489 11.80001,24.96467 -6.62935,13.16782 -63.374722,22.16672 -75.849929,16.50872 -10.425956,-4.72851 -5.430431,-21.82133 0.490152,-31.55929 48.1878,-79.25448 206.377117,-73.8566 250.467297,-4.50249 l -1.2e-4,-7.9e-4 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#161616;stroke-width:8.25658035;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-5"
+       width="7.2251773"
+       height="7.2251773"
+       x="522.40906"
+       y="672.255"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-4"
+       width="7.2251773"
+       height="7.2251773"
+       x="533.98096"
+       y="672.12347"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-6-3"
+       width="7.2251773"
+       height="7.2251773"
+       x="545.55292"
+       y="672.12347"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-3-6"
+       width="7.2251773"
+       height="7.2251773"
+       x="545.55292"
+       y="684.48438"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-69-5"
+       width="7.2251773"
+       height="7.2251773"
+       x="533.98096"
+       y="684.48438"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-1-9"
+       width="7.2251773"
+       height="7.2251773"
+       x="522.40906"
+       y="684.48444"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-7-5"
+       width="7.2251773"
+       height="7.2251773"
+       x="522.40906"
+       y="696.84534"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-8-4"
+       width="7.2251773"
+       height="7.2251773"
+       x="533.98096"
+       y="696.71381"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-15-9"
+       width="7.2251773"
+       height="7.2251773"
+       x="545.55292"
+       y="696.84534"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-1"
+       width="7.2251773"
+       height="7.2251773"
+       x="545.14648"
+       y="671.80554"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-7"
+       width="7.2251773"
+       height="7.2251773"
+       x="533.58618"
+       y="671.8056"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-5"
+       width="7.2251773"
+       height="7.2251773"
+       x="522.02588"
+       y="671.8056"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-8-5"
+       width="7.2251773"
+       height="7.2251773"
+       x="545.14648"
+       y="684.10376"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-1-41"
+       width="7.2251773"
+       height="7.2251773"
+       x="533.58618"
+       y="684.10382"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-4-88"
+       width="7.2251773"
+       height="7.2251773"
+       x="522.02588"
+       y="684.10382"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-8-8-3"
+       width="7.2251773"
+       height="7.2251773"
+       x="545.14648"
+       y="696.38068"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-1-4-5"
+       width="7.2251773"
+       height="7.2251773"
+       x="533.58618"
+       y="696.38074"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-4-8-2"
+       width="7.2251773"
+       height="7.2251773"
+       x="522.02588"
+       y="696.38074"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:1.52002716;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 560.11172,662.86075 c 0.76222,1.19895 2.99981,5.6755 1.19624,6.63351 -2.15794,1.14631 -13.17696,-0.84162 -14.2018,-3.05911 -1.05194,-2.27619 1.99772,-2.45283 2.16266,-4.52466 0.48155,-6.05024 -25.84523,-5.05003 -23.56655,-0.0458 1.04902,2.3037 3.22583,2.50281 2.17237,4.59597 -1.22046,2.42418 -11.66722,4.08087 -13.96389,3.03924 -1.9194,-0.87052 -0.99973,-4.01728 0.0902,-5.81003 8.87132,-14.59066 37.99379,-13.59692 46.11075,-0.82891 l -2e-5,-1.4e-4 z"
+       id="path3703-0-8-2"
+       sodipodi:nodetypes="cssssssssc"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButtonPressed.png"
+       inkscape:export-xdpi="27.878206"
+       inkscape:export-ydpi="27.878206" />
+    <rect
+       style="fill:#ffffff;fill-opacity:0.51239672;stroke:#434343;stroke-width:2.5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect5252-0-6"
+       width="91.121506"
+       height="68.124901"
+       x="495.62848"
+       y="886.22229"
+       rx="34.76133"
+       ry="36.130371"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-7"
+       width="6.7024851"
+       height="6.7024851"
+       x="527.57849"
+       y="915.14709"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-84"
+       width="6.7024851"
+       height="6.7024851"
+       x="538.2735"
+       y="915.21967"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-6-1"
+       width="6.7024851"
+       height="6.7024851"
+       x="549.0083"
+       y="915.21973"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-3-7"
+       width="6.7024851"
+       height="6.7024851"
+       x="549.04803"
+       y="926.60895"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-69-1"
+       width="6.7024851"
+       height="6.7024851"
+       x="538.31323"
+       y="926.60895"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-1-8"
+       width="6.7024851"
+       height="6.7024851"
+       x="527.57849"
+       y="926.60895"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-7-7"
+       width="6.7024851"
+       height="6.7024851"
+       x="527.53876"
+       y="937.89996"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-8-8"
+       width="6.7024851"
+       height="6.7024851"
+       x="538.2735"
+       y="937.77802"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-0-4-15-7"
+       width="6.7024851"
+       height="6.7024851"
+       x="549.0083"
+       y="937.89996"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#434343;fill-opacity:1;stroke:none"
+       id="rect3855-7"
+       width="6.7024851"
+       height="6.7024851"
+       x="548.16272"
+       y="914.16339"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#434343;fill-opacity:1;stroke:none"
+       id="rect3855-5-4"
+       width="6.7024851"
+       height="6.7024851"
+       x="537.43872"
+       y="914.16339"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#434343;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-49"
+       width="6.7024851"
+       height="6.7024851"
+       x="526.71472"
+       y="914.16339"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#434343;fill-opacity:1;stroke:none"
+       id="rect3855-8-1"
+       width="6.7024851"
+       height="6.7024851"
+       x="548.16272"
+       y="925.5719"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#434343;fill-opacity:1;stroke:none"
+       id="rect3855-5-1-5"
+       width="6.7024851"
+       height="6.7024851"
+       x="537.43872"
+       y="925.5719"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#434343;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-4-5"
+       width="6.7024851"
+       height="6.7024851"
+       x="526.71472"
+       y="925.5719"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#434343;fill-opacity:1;stroke:none"
+       id="rect3855-8-8-5"
+       width="6.7024851"
+       height="6.7024851"
+       x="548.16272"
+       y="936.96069"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#434343;fill-opacity:1;stroke:none"
+       id="rect3855-5-1-4-8"
+       width="6.7024851"
+       height="6.7024851"
+       x="537.43872"
+       y="936.96069"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <rect
+       style="fill:#434343;fill-opacity:1;stroke:none"
+       id="rect3855-5-5-4-8-29"
+       width="6.7024851"
+       height="6.7024851"
+       x="526.71472"
+       y="936.96069"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
+    <path
+       style="fill:#434343;fill-opacity:1;fill-rule:evenodd;stroke:#434343;stroke-width:1.41006362000000007;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 562.04539,905.86572 c 0.70708,1.11221 2.7828,5.26492 1.1097,6.15362 -2.00182,1.06338 -12.22369,-0.78073 -13.17439,-2.8378 -0.97584,-2.11153 1.8532,-2.27539 2.0062,-4.19734 0.44672,-5.61254 -23.9755,-4.68469 -21.86167,-0.0425 0.97313,2.13704 2.99247,2.32175 2.01522,4.26348 -1.13217,2.24881 -10.82318,3.78565 -12.9537,2.81937 -1.78055,-0.80754 -0.92741,-3.72666 0.0837,-5.38971 8.22954,-13.53513 35.2452,-12.61328 42.77496,-0.76895 l -2e-5,-1.3e-4 z"
+       id="path3703-0-8-8"
+       sodipodi:nodetypes="cssssssssc"
+       inkscape:export-filename="/Users/yanastamcheva/workspace/jitsi1/trunk/resources/images/impl/gui/buttons/contactListDialButton.png"
+       inkscape:export-xdpi="28.035439"
+       inkscape:export-ydpi="28.035439" />
   </g>
 </svg>

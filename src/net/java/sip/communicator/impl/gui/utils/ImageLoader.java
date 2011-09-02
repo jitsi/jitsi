@@ -400,6 +400,150 @@ public class ImageLoader
     /**
      * A dial button icon.
      */
+    public static final ImageID ONE_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.ONE_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID TWO_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.TWO_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID THREE_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.THREE_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID FOUR_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.FOUR_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID FIVE_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.FIVE_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID SIX_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.SIX_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID SEVEN_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.SEVEN_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID EIGHT_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.EIGHT_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID NINE_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.NINE_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID STAR_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.STAR_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID ZERO_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.ZERO_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID DIEZ_DIAL_BUTTON_MAC
+        = new ImageID("service.gui.buttons.DIEZ_DIAL_BUTTON_MAC");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID ONE_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.ONE_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID TWO_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.TWO_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID THREE_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.THREE_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID FOUR_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.FOUR_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID FIVE_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.FIVE_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID SIX_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.SIX_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID SEVEN_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.SEVEN_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID EIGHT_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.EIGHT_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID NINE_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.NINE_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID STAR_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.STAR_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID ZERO_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.ZERO_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID DIEZ_DIAL_BUTTON_MAC_ROLLOVER
+        = new ImageID("service.gui.buttons.DIEZ_DIAL_BUTTON_MAC_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
     public static final ImageID ONE_DIAL_BUTTON
         = new ImageID("service.gui.buttons.ONE_DIAL_BUTTON");
 
@@ -972,6 +1116,30 @@ public class ImageLoader
      */
     public static final ImageID TRANSPARENT_WINDOW_BUTTON
         = new ImageID("service.gui.buttons.TRANSPARENT_WINDOW_BUTTON");
+
+    /**
+     * The dial button shown in contact list.
+     */
+    public static final ImageID CONTACT_LIST_DIAL_BUTTON
+        = new ImageID("service.gui.buttons.CONTACT_LIST_DIAL_BUTTON");
+
+    /**
+     * The dial button shown in contact list.
+     */
+    public static final ImageID CONTACT_LIST_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.CONTACT_LIST_DIAL_BUTTON_PRESSED");
+
+    /**
+     * The dial pad call button background.
+     */
+    public static final ImageID DIAL_PAD_CALL_BUTTON_BG
+        = new ImageID("service.gui.buttons.DIAL_PAD_CALL_BUTTON_BG");
+
+    /**
+     * The dial pad call button rollover background.
+     */
+    public static final ImageID DIAL_PAD_CALL_BUTTON_ROLLOVER_BG
+        = new ImageID("service.gui.buttons.DIAL_PAD_CALL_BUTTON_ROLLOVER_BG");
 
     /*
      * =======================================================================

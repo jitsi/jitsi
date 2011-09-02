@@ -134,7 +134,7 @@ public class SearchFieldUI
             int dy = (c.getY() + c.getHeight()) / 2
                 - searchIcon.getIconHeight()/2;
 
-            g2.drawImage(searchIcon.getImage(), c.getX() + 5, dy + 1, null);
+            g2.drawImage(searchIcon.getImage(), 5, dy + 1, null);
 
             if (c.getText() != null
                 && c.getText().length() > 0
