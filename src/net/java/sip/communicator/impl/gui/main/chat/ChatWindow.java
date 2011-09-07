@@ -79,6 +79,16 @@ public class ChatWindow
     private final Component toolbarPanel;
 
     /**
+     * A keyboard manager, where we register our own key dispatcher.
+     */
+    private KeyboardFocusManager keyManager;
+
+    /**
+     * A key dispatcher that redirects all key events to call field.
+     */
+    private KeyEventDispatcher keyDispatcher;
+
+    /**
      * Creates an instance of <tt>ChatWindow</tt> by passing to it an instance
      * of the main application window.
      */
@@ -691,6 +701,30 @@ public class ChatWindow
                 setTitle(title.substring(1, title.length()));
             }
         }
+
+        public void windowOpened(WindowEvent e)
+        {
+            if (keyManager == null)
+            {
+                keyManager
+                    = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+
+                keyDispatcher = new MainKeyDispatcher(keyManager);
+            }
+
+            keyManager.addKeyEventDispatcher(
+                new MainKeyDispatcher(keyManager));
+        }
+
+        @Override
+        public void windowClosed(WindowEvent e)
+        {
+            if (keyManager != null)
+                keyManager.removeKeyEventDispatcher(keyDispatcher);
+
+            keyManager = null;
+            keyDispatcher = null;
+        }
     }
 
     /**
@@ -1180,5 +1214,64 @@ public class ChatWindow
     public boolean isFrameActive()
     {
         return isActive();
+    }
+
+    /**
+     * The <tt>MainKeyDispatcher</tt> is added to pre-listen KeyEvents before
+     * they're delivered to the current focus owner in order to introduce a
+     * specific behavior for the <tt>CallField</tt> on top of the dial pad.
+     */
+    private class MainKeyDispatcher implements KeyEventDispatcher
+    {
+        private KeyboardFocusManager keyManager;
+
+        /**
+         * Creates an instance of <tt>MainKeyDispatcher</tt>.
+         * @param keyManager the parent <tt>KeyboardFocusManager</tt>
+         */
+        public MainKeyDispatcher(KeyboardFocusManager keyManager)
+        {
+            this.keyManager = keyManager;
+        }
+
+        /**
+         * Dispatches the given <tt>KeyEvent</tt>.
+         * @param e the <tt>KeyEvent</tt> to dispatch
+         * @return <tt>true</tt> if the KeyboardFocusManager should take no
+         * further action with regard to the KeyEvent; <tt>false</tt>
+         * otherwise
+         */
+        public boolean dispatchKeyEvent(KeyEvent e)
+        {
+            // If this window is not the focus window  or if the event is not
+            // of type PRESSED we have nothing more to do here.
+            if (!isFocused()
+                || (e.getID() != KeyEvent.KEY_TYPED))
+                return false;
+
+            if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED
+                || e.getKeyCode() == KeyEvent.VK_ENTER)
+            {
+                return false;
+            }
+
+            JEditorPane chatWriteEditor
+                = getCurrentChat().getChatWritePanel().getEditorPane();
+
+            if (keyManager.getFocusOwner() != null
+                && !getCurrentChat().getChatWritePanel().isFocusOwner())
+            {
+                // Request the focus in the chat write panel if a letter is typed.
+                chatWriteEditor.requestFocusInWindow();
+
+                // We re-dispatch the event to the chat write panel.
+                keyManager.redispatchEvent(chatWriteEditor, e);
+
+                // We don't want to dispatch further this event.
+                return true;
+            }
+
+            return false;
+        }
     }
 }
