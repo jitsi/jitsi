@@ -98,16 +98,13 @@ public class CallDialog
      */
     protected void close(boolean isEscaped)
     {
-        if (!isEscaped)
-        {
-            callPanel.actionPerformedOnHangupButton();
-        }
+        callPanel.actionPerformedOnHangupButton(isEscaped);
     }
 
     /**
      * Indicates if the given <tt>callPanel</tt> is currently visible.
      *
-     * @param callPanel the <tt>CallPanel</tt>, for which we verity
+     * @param callPanel the <tt>CallPanel</tt>, for which we verify
      * @return <tt>true</tt> if the given call container is visible in this
      * call window, otherwise - <tt>false</tt>
      */

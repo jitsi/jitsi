@@ -79,11 +79,12 @@ public class SIPCommFrame
         JRootPane rootPane = getRootPane();
         amap = rootPane.getActionMap();
         amap.put("close", new CloseAction());
+        amap.put("closeEsc", new CloseEscAction());
 
         imap = rootPane.getInputMap(
             JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
+        imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "closeEsc");
 
         // put the defaults for macosx
         if(OSUtils.IS_MAC)
@@ -151,9 +152,23 @@ public class SIPCommFrame
     }
 
     /**
-     * The action invoked when user presses Escape key.
+     * The action invoked when user presses Ctrl-W and Cmd-W key combination.
      */
     private class CloseAction
+        extends UIAction
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            if (isSaveSizeAndLocation)
+                saveSizeAndLocation();
+            close(false);
+        }
+    }
+
+    /**
+     * The action invoked when user presses Escape key.
+     */
+    private class CloseEscAction
         extends UIAction
     {
         public void actionPerformed(ActionEvent e)

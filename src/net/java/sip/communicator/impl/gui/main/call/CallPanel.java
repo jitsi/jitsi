@@ -386,7 +386,7 @@ public class CallPanel
 
         if (buttonName.equals(HANGUP_BUTTON))
         {
-            actionPerformedOnHangupButton();
+            actionPerformedOnHangupButton(false);
         }
         else if (buttonName.equals(DIAL_BUTTON))
         {
@@ -430,7 +430,7 @@ public class CallPanel
      * Executes the action associated with the "Hang up" button which may be
      * invoked by clicking the button in question or closing this dialog.
      */
-    public void actionPerformedOnHangupButton()
+    public void actionPerformedOnHangupButton(boolean isCloseWait)
     {
         Call call = getCall();
 
@@ -440,7 +440,10 @@ public class CallPanel
         if (call != null)
             CallManager.hangupCall(call);
 
-        callWindow.close(this);
+        if (isCloseWait)
+            callWindow.closeWait(this);
+        else
+            callWindow.close(this);
     }
 
     /**
