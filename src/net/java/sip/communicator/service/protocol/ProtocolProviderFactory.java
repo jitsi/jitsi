@@ -161,6 +161,13 @@ public abstract class ProtocolProviderFactory
     public static final String PROXY_TRANSPORT = "PROXY_TRANSPORT";
 
     /**
+     * The name of the property that indicates whether loose routing should be
+     * forced for all traffic in an account, rather than routing through an
+     * outbound proxy which is the default for Jitsi.
+     */
+    public static final String FORCE_PROXY_BYPASS = "FORCE_PROXY_BYPASS";
+
+    /**
      * The name of the property under which we store the user preference for a
      * transport protocol to use (i.e. tcp or udp).
      */

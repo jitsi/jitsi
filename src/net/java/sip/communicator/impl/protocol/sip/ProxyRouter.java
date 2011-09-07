@@ -15,6 +15,7 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -122,11 +123,17 @@ public class ProxyRouter
                 SipApplicationData.KEY_SERVICE);
         if (service instanceof ProtocolProviderServiceSipImpl)
         {
-            String proxy = ((ProtocolProviderServiceSipImpl) service)
-                .getOutboundProxyString();
+            ProtocolProviderServiceSipImpl sipProvider
+                = ((ProtocolProviderServiceSipImpl) service);
+
+            String proxy = sipProvider.getOutboundProxyString();
+
+            boolean forceLooseRouting = Boolean.valueOf((String)
+                sipProvider.getAccountID().getAccountProperty(
+                    ProtocolProviderFactory.FORCE_PROXY_BYPASS));
 
             // P2P case
-            if (proxy == null)
+            if (proxy == null || forceLooseRouting )
                 return this.getDefaultRouter();
 
             // outbound proxy case
