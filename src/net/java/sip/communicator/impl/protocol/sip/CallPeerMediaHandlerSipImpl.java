@@ -202,7 +202,8 @@ public class CallPeerMediaHandlerSipImpl
                     {
                         // if we have setting for video preset lets
                         // send info for the desired framerate
-                        if(receiveQualityPreset != null
+                        if(mediaType.equals(MediaType.VIDEO)
+                           && receiveQualityPreset != null
                            && receiveQualityPreset.getFameRate() > 0)
                             md.setAttribute("framerate",
                                 // doing only int frame rate for now

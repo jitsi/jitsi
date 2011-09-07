@@ -632,8 +632,15 @@ public class VideoMediaStreamImpl
                 {
                     Dimension res[] = parseSendRecvResolution(value);
 
-                    if(res != null && outputSize == null)
+                    if(res != null)
                     {
+                        // if we have width or height attributes
+                        // don't override any previous output size
+                        if((attrs.containsKey("width")
+                                || attrs.containsKey("height"))
+                            && outputSize != null)
+                            continue;
+
                         outputSize = res[1];
 
                         qualityControl.setRemoteSendMaxPreset(
