@@ -141,6 +141,30 @@ public class ProtocolProviderServiceJabberImpl
     public static final String CAPS_GTALK_WEB_CAMERA = "camera-v1";
 
     /**
+     * Google P2P transport URN.
+     */
+    public static final String URN_GOOGLE_TRANSPORT_P2P
+        = "http://www.google.com/transport/p2p";
+
+    /**
+     * URN for Google voice.
+     */
+    public static final String URN_GOOGLE_VOICE =
+        "http://www.google.com/xmpp/protocol/voice/v1";
+
+    /**
+     * URN for Google camera.
+     */
+    public static final String URN_GOOGLE_CAMERA =
+        "http://www.google.com/xmpp/protocol/camera/v1";
+
+    /**
+     * URN for Google video.
+     */
+    public static final String URN_GOOGLE_VIDEO =
+        "http://www.google.com/xmpp/protocol/video/v1";
+
+    /**
      * The name of the property under which the user may specify if the desktop
      * streaming or sharing should be disabled.
      */
@@ -987,12 +1011,16 @@ public class ProtocolProviderServiceJabberImpl
                     supportedFeatures.toArray(
                             new String[supportedFeatures.size()]));
 
-        if(isGTalkTesting())
+        if(isGTalkTesting() && isGmailOrGoogleAppsAccount())
         {
             // Add Google Talk "ext" capabilities
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VOICE);
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VIDEO);
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_CAMERA);
+            discoveryManager.addFeature(URN_GOOGLE_VOICE);
+            discoveryManager.addFeature(URN_GOOGLE_VIDEO);
+            discoveryManager.addFeature(URN_GOOGLE_CAMERA);
+            discoveryManager.addFeature(URN_GOOGLE_TRANSPORT_P2P);
         }
 
         /*
@@ -2159,5 +2187,44 @@ public class ProtocolProviderServiceJabberImpl
     UserCredentials getUserCredentials()
     {
         return userCredentials;
+    }
+
+    /**
+     * Returns true if our account is a Gmail or a Google Apps ones.
+     *
+     * @return true if our account is a Gmail or a Google Apps ones.
+     */
+    public boolean isGmailOrGoogleAppsAccount()
+    {
+        String domain = StringUtils.parseServer(
+            getAccountID().getUserID());
+        SRVRecord srvRecords[] = null;
+
+        try
+        {
+            srvRecords = NetworkUtils.getSRVRecords("xmpp-client", "tcp",
+                domain);
+        }
+        catch (ParseException e)
+        {
+            logger.info("Failed to get SRV records for XMPP domain");
+            return false;
+        }
+
+        if(srvRecords == null)
+        {
+            return false;
+        }
+
+        for(SRVRecord srv : srvRecords)
+        {
+            if(srv.getTarget().endsWith("google.com") ||
+                    srv.getTarget().endsWith("google.com."))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

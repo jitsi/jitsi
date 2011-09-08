@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.XmlPullParser;
@@ -85,6 +86,13 @@ public class JingleIQProvider implements IQProvider
             new DefaultPacketExtensionProvider<RawUdpTransportPacketExtension>(
                             RawUdpTransportPacketExtension.class));
 
+        //Google P2P transport
+        providerManager.addExtensionProvider(
+            GTalkTransportPacketExtension.ELEMENT_NAME,
+            GTalkTransportPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<GTalkTransportPacketExtension>(
+                            GTalkTransportPacketExtension.class));
+
         //ice-udp <candidate/> provider
         providerManager.addExtensionProvider(
             CandidatePacketExtension.ELEMENT_NAME,
@@ -98,6 +106,13 @@ public class JingleIQProvider implements IQProvider
             RawUdpTransportPacketExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<CandidatePacketExtension>(
                             CandidatePacketExtension.class));
+
+        //Google P2P <candidate/> provider
+        providerManager.addExtensionProvider(
+            GTalkCandidatePacketExtension.ELEMENT_NAME,
+            GTalkTransportPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<GTalkCandidatePacketExtension>(
+                            GTalkCandidatePacketExtension.class));
 
         //ice-udp <remote-candidate/> provider
         providerManager.addExtensionProvider(

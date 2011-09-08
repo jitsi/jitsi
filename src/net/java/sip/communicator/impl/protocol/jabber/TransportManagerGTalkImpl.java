@@ -14,7 +14,6 @@ import java.util.*;
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
-import org.ice4j.security.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
@@ -161,13 +160,15 @@ public class TransportManagerGTalkImpl
     /**
      * Request Google's Jingle info.
      *
+     * @param provider <tt>ProtocolProviderService</tt> instance
      * @return list of servers
      */
-    public List<StunServerDescriptor> requestJingleInfo()
+    public static List<StunServerDescriptor> requestJingleInfo(
+        ProtocolProviderServiceJabberImpl provider)
     {
         JingleInfoQueryIQ iq = new JingleInfoQueryIQ();
-        ProtocolProviderServiceJabberImpl provider =
-            getCallPeer().getProtocolProvider();
+        //ProtocolProviderServiceJabberImpl provider =
+        //    getCallPeer().getProtocolProvider();
         String accountIDService = provider.getAccountID().getService();
         boolean jingleInfoIsSupported
             = provider.isFeatureSupported(accountIDService,
@@ -330,7 +331,7 @@ public class TransportManagerGTalkImpl
      * @param res content string
      * @return String
      */
-    public Hashtable<String, String> parseGoogleRelay(String res)
+    public static Hashtable<String, String> parseGoogleRelay(String res)
     {
         // Separate each line
         StringTokenizer tokenizer = new StringTokenizer(res, "\n");
@@ -373,23 +374,26 @@ public class TransportManagerGTalkImpl
      * Creates the ICE agent that we would be using in this transport manager
      * for all negotiation.
      *
+     * @param provider <tt>ProtocolProviderServiceJabberImpl</tt> instance
+     * @param controlling if the peer is controlling or not
      * @return the ICE agent to use for all the ICE negotiation that this
      * transport manager would be going through
      */
-    private Agent createIceAgent()
+    static Agent createAgent(ProtocolProviderServiceJabberImpl provider,
+        boolean controlling)
     {
-        CallPeerGTalkImpl peer = getCallPeer();
+
         Agent agent = new Agent(CompatibilityMode.GTALK);
         List<StunServerDescriptor> servers = null;
         boolean atLeastOneStunServer = false;
-        ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
+
         JabberAccountID accID = (JabberAccountID)provider.getAccountID();
 
-        agent.setControlling(!peer.isInitiator());
+        agent.setControlling(controlling);
 
-        servers = requestJingleInfo();
+        servers = requestJingleInfo(provider);
 
-        servers.addAll(accID.getStunServers());
+        //servers.addAll(accID.getStunServers());
 
         for(StunServerDescriptor desc : servers)
         {
@@ -432,16 +436,6 @@ public class TransportManagerGTalkImpl
                     else
                         harvester = new GoogleTurnCandidateHarvester(
                             addr, new String(desc.getUsername()));
-                }
-                else
-                {
-                    harvester
-                        = new TurnCandidateHarvester(
-                                addr,
-                                new LongTermCredential(
-                                        desc.getUsername(),
-                                        desc.getPassword()));
-                    atLeastOneStunServer = true;
                 }
             }
             else
@@ -487,7 +481,7 @@ public class TransportManagerGTalkImpl
         if(accID.isJingleNodesRelayEnabled())
         {
             SmackServiceNode serviceNode =
-                peer.getProtocolProvider().getJingleNodesServiceNode();
+                provider.getJingleNodesServiceNode();
 
             if(serviceNode != null)
             {
@@ -512,6 +506,21 @@ public class TransportManagerGTalkImpl
         }
 
         return agent;
+    }
+
+    /**
+     * Creates the ICE agent that we would be using in this transport manager
+     * for all negotiation.
+     *
+     * @return the ICE agent to use for all the ICE negotiation that this
+     * transport manager would be going through
+     */
+    private Agent createIceAgent()
+    {
+        CallPeerGTalkImpl peer = getCallPeer();
+        ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
+
+        return createAgent(provider, !peer.isInitiator());
     }
 
     /**
@@ -1052,12 +1061,6 @@ public class TransportManagerGTalkImpl
                  * the iceAgent?
                  */
                 if (candidate.getGeneration() != iceAgent.getGeneration())
-                    continue;
-
-                // XXX UDP only for the moment as ice4j.org does not support
-                // TCP yet
-                if(candidate.getProtocol().equalsIgnoreCase(
-                    "ssltcp"))
                     continue;
 
                 Component component

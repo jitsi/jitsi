@@ -9,12 +9,8 @@ package net.java.sip.communicator.impl.protocol.jabber.jinglesdp;
 import java.net.*;
 import java.util.*;
 
-import org.ice4j.*;
-import org.ice4j.ice.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.CandidateType;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -576,84 +572,5 @@ public class JingleUtils
         }
 
         return ptExt;
-    }
-
-    /**
-     * Converts the ICE media <tt>stream</tt> and its local candidates into a
-     * {@link IceUdpTransportPacketExtension}.
-     *
-     * @param stream the {@link IceMediaStream} that we'd like to describe in
-     * XML.
-     *
-     * @return the {@link IceUdpTransportPacketExtension} that we
-     */
-    public static IceUdpTransportPacketExtension createTransport(
-                                                        IceMediaStream stream)
-    {
-        IceUdpTransportPacketExtension trans
-            = new IceUdpTransportPacketExtension();
-        Agent iceAgent = stream.getParentAgent();
-
-        trans.setUfrag(iceAgent.getLocalUfrag());
-        trans.setPassword(iceAgent.getLocalPassword());
-
-        for(Component component : stream.getComponents())
-        {
-            for(Candidate candidate : component.getLocalCandidates())
-                trans.addCandidate(createCandidate(candidate));
-        }
-
-        return trans;
-    }
-
-    /**
-     * Creates a {@link CandidatePacketExtension} and initializes it so that it
-     * would describe the state of <tt>candidate</tt>
-     *
-     * @param candidate the ICE4J {@link Candidate} that we'd like to convert
-     * into an XMPP packet extension.
-     *
-     * @return a new {@link CandidatePacketExtension} corresponding to the state
-     * of the <tt>candidate</tt> candidate.
-     */
-    private static CandidatePacketExtension createCandidate(Candidate candidate)
-    {
-        CandidatePacketExtension packet = new CandidatePacketExtension();
-
-        //TODO: XMPP expects int values as foundations. Luckily that's exactly
-        //what ice4j is using under the hood at this time. still, we'd need to
-        //make sure that doesn't change ... possibly by setting a property there
-        packet.setFoundation(Integer.parseInt( candidate.getFoundation()));
-
-        Component component = candidate.getParentComponent();
-
-        packet.setComponent(component.getComponentID());
-        packet.setProtocol(candidate.getTransport().toString());
-        packet.setPriority(candidate.getPriority());
-        packet.setGeneration(
-                component.getParentStream().getParentAgent().getGeneration());
-
-        TransportAddress transportAddress = candidate.getTransportAddress();
-
-        packet.setIP(transportAddress.getHostAddress());
-        packet.setPort(transportAddress.getPort());
-
-        packet.setType(CandidateType.valueOf(candidate.getType().toString()));
-
-        TransportAddress relAddr = candidate.getRelatedAddress();
-
-        if(relAddr != null)
-        {
-            packet.setRelAddr(relAddr.getHostAddress());
-            packet.setRelPort(relAddr.getPort());
-        }
-
-        /*
-         * FIXME The XML schema of XEP-0176: Jingle ICE-UDP Transport Method
-         * specifies the network attribute as required.
-         */
-        packet.setNetwork(0);
-
-        return packet;
     }
 }

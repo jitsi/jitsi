@@ -200,10 +200,18 @@ public class RawUdpTransportManager
      *
      * @param ourOffer the content list that should tell us how many stream
      * connectors we actually need.
-     *
+     * @param transportInfoSender the <tt>TransportInfoSender</tt> to be used by
+     * this <tt>TransportManagerJabberImpl</tt> to send <tt>transport-info</tt>
+     * <tt>JingleIQ</tt>s from the local peer to the remote peer if this
+     * <tt>TransportManagerJabberImpl</tt> wishes to utilize
+     * <tt>transport-info</tt>. Local candidate addresses sent by this
+     * <tt>TransportManagerJabberImpl</tt> in <tt>transport-info</tt> are
+     * expected to not be included in the result of
+     * {@link #wrapupCandidateHarvest()}.
      * @throws OperationFailedException in case we fail allocating ports
      */
-    public void startCandidateHarvest(List<ContentPacketExtension> ourOffer)
+    public void startCandidateHarvest(List<ContentPacketExtension> ourOffer,
+        TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
         for(ContentPacketExtension content : ourOffer)

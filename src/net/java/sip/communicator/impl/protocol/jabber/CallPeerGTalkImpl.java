@@ -59,7 +59,7 @@ public class CallPeerGTalkImpl
      * Temporary variable for handling client like FreeSwitch that sends
      * "accept" message before sending candidates.
      */
-    private SessionIQ freeswitchSession = null;
+    private SessionIQ sessAcceptedWithNoCands = null;
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -348,7 +348,7 @@ public class CallPeerGTalkImpl
         {
             // HACK for FreeSwitch that send accept message before sending
             // candidates
-            freeswitchSession = sessionInitIQ;
+            sessAcceptedWithNoCands = sessionInitIQ;
         }
         catch(Exception exc)
         {
@@ -427,10 +427,10 @@ public class CallPeerGTalkImpl
 
         // HACK for FreeSwitch that send accept message before sending
         // candidates
-        if(freeswitchSession != null)
+        if(sessAcceptedWithNoCands != null)
         {
             if(!isInitiator)
-                processSessionAccept(freeswitchSession);
+                processSessionAccept(sessAcceptedWithNoCands);
             else
             {
                 try
@@ -442,7 +442,7 @@ public class CallPeerGTalkImpl
                     logger.info("Failed to answer call (FreeSwitch hack)");
                 }
             }
-            freeswitchSession = null;
+            sessAcceptedWithNoCands = null;
         }
     }
 
@@ -572,7 +572,7 @@ public class CallPeerGTalkImpl
         }
         catch(IllegalArgumentException e)
         {
-            freeswitchSession = new SessionIQ();
+            sessAcceptedWithNoCands = new SessionIQ();
 
             // HACK apparently FreeSwitch need to have accept before
             answer = getMediaHandler().generateSessionAccept(false);
@@ -615,7 +615,7 @@ public class CallPeerGTalkImpl
 
         //send the packet first and start the stream later  in case the media
         //relay needs to see it before letting hole punching techniques through.
-        if(freeswitchSession == null)
+        if(sessAcceptedWithNoCands == null)
             getProtocolProvider().getConnection().sendPacket(response);
 
         try

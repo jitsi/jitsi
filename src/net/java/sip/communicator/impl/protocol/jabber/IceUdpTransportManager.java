@@ -11,7 +11,7 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.CandidateType;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -21,6 +21,7 @@ import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
 import org.ice4j.security.*;
+import org.jivesoftware.smack.packet.*;
 
 import org.xmpp.jnodes.smack.*;
 
@@ -53,23 +54,23 @@ public class IceUdpTransportManager
      * This is where we keep our answer between the time we get the offer and
      * are ready with the answer.
      */
-    private List<ContentPacketExtension> cpeList;
+    protected List<ContentPacketExtension> cpeList;
 
     /**
      * The ICE agent that this transport manager would be using for ICE
      * negotiation.
      */
-    private final Agent iceAgent;
+    protected final Agent iceAgent;
 
     /**
      * Default STUN server address.
      */
-    private static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
+    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
 
     /**
      * Default STUN server port.
      */
-    private static final int DEFAULT_STUN_SERVER_PORT = 3478;
+    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -91,7 +92,7 @@ public class IceUdpTransportManager
      * @return the ICE agent to use for all the ICE negotiation that this
      * transport manager would be going through
      */
-    private Agent createIceAgent()
+    protected Agent createIceAgent()
     {
         CallPeerJabberImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
@@ -463,6 +464,16 @@ public class IceUdpTransportManager
     }
 
     /**
+     * Get the transport <tt>PacketExtension</tt> to add.
+     *
+     * @return <tt>PacketExtension</tt>
+     */
+    protected PacketExtension getTransportPacketExtension()
+    {
+        return new IceUdpTransportPacketExtension();
+    }
+
+    /**
      * Starts transport candidate harvest. This method should complete rapidly
      * and, in case of lengthy procedures like STUN/TURN/UPnP candidate harvests
      * are necessary, they should be executed in a separate thread. Candidate
@@ -488,6 +499,7 @@ public class IceUdpTransportManager
      * @see TransportManagerJabberImpl#startCandidateHarvest(List, List,
      * TransportInfoSender)
      */
+    @Override
     public void startCandidateHarvest(
             List<ContentPacketExtension> theirOffer,
             List<ContentPacketExtension> ourAnswer,
@@ -518,7 +530,7 @@ public class IceUdpTransportManager
             if (transportInfoSender == null)
             {
                 ourContent.addChildExtension(
-                        JingleUtils.createTransport(stream));
+                        createTransport(stream));
             }
             else
             {
@@ -528,7 +540,7 @@ public class IceUdpTransportManager
                  * populated with candidates.
                  */
                 ourContent.addChildExtension(
-                        new IceUdpTransportPacketExtension());
+                        getTransportPacketExtension());
 
                 /*
                  * Create the content to be sent in a transport-info. The
@@ -547,7 +559,7 @@ public class IceUdpTransportManager
                         transportInfoContent.setAttribute(name, value);
                 }
                 transportInfoContent.addChildExtension(
-                        JingleUtils.createTransport(stream));
+                        createTransport(stream));
 
                 /* We send each media content in separate transport-info.
                  * It is absolutely not mandatory (we can simply send all
@@ -587,11 +599,19 @@ public class IceUdpTransportManager
      *
      * @param ourOffer the content list that should tell us how many stream
      * connectors we actually need.
-     *
+     * @param transportInfoSender the <tt>TransportInfoSender</tt> to be used by
+     * this <tt>TransportManagerJabberImpl</tt> to send <tt>transport-info</tt>
+     * <tt>JingleIQ</tt>s from the local peer to the remote peer if this
+     * <tt>TransportManagerJabberImpl</tt> wishes to utilize
+     * <tt>transport-info</tt>. Local candidate addresses sent by this
+     * <tt>TransportManagerJabberImpl</tt> in <tt>transport-info</tt> are
+     * expected to not be included in the result of
+     * {@link #wrapupCandidateHarvest()}.
      * @throws OperationFailedException in case we fail allocating ports
      */
     public void startCandidateHarvest(
-                            List<ContentPacketExtension>   ourOffer)
+                            List<ContentPacketExtension>   ourOffer,
+                            TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
         for(ContentPacketExtension ourContent : ourOffer)
@@ -603,10 +623,88 @@ public class IceUdpTransportManager
             IceMediaStream stream = createIceStream(rtpDesc.getMedia());
 
             //we now generate the XMPP code containing the candidates.
-            ourContent.addChildExtension(JingleUtils.createTransport(stream));
+            ourContent.addChildExtension(createTransport(stream));
         }
 
         this.cpeList = ourOffer;
+    }
+
+    /**
+     * Converts the ICE media <tt>stream</tt> and its local candidates into a
+     * {@link IceUdpTransportPacketExtension}.
+     *
+     * @param stream the {@link IceMediaStream} that we'd like to describe in
+     * XML.
+     *
+     * @return the {@link IceUdpTransportPacketExtension} that we
+     */
+    public PacketExtension createTransport(IceMediaStream stream)
+    {
+        IceUdpTransportPacketExtension trans
+            = new IceUdpTransportPacketExtension();
+        Agent iceAgent = stream.getParentAgent();
+
+        trans.setUfrag(iceAgent.getLocalUfrag());
+        trans.setPassword(iceAgent.getLocalPassword());
+
+        for(Component component : stream.getComponents())
+        {
+            for(Candidate candidate : component.getLocalCandidates())
+                trans.addCandidate(createCandidate(candidate));
+        }
+
+        return trans;
+    }
+
+    /**
+     * Creates a {@link CandidatePacketExtension} and initializes it so that it
+     * would describe the state of <tt>candidate</tt>
+     *
+     * @param candidate the ICE4J {@link Candidate} that we'd like to convert
+     * into an XMPP packet extension.
+     *
+     * @return a new {@link CandidatePacketExtension} corresponding to the state
+     * of the <tt>candidate</tt> candidate.
+     */
+    private CandidatePacketExtension createCandidate(Candidate candidate)
+    {
+        CandidatePacketExtension packet = new CandidatePacketExtension();
+
+        //TODO: XMPP expects int values as foundations. Luckily that's exactly
+        //what ice4j is using under the hood at this time. still, we'd need to
+        //make sure that doesn't change ... possibly by setting a property there
+        packet.setFoundation(Integer.parseInt( candidate.getFoundation()));
+
+        Component component = candidate.getParentComponent();
+
+        packet.setComponent(component.getComponentID());
+        packet.setProtocol(candidate.getTransport().toString());
+        packet.setPriority(candidate.getPriority());
+        packet.setGeneration(
+                component.getParentStream().getParentAgent().getGeneration());
+
+        TransportAddress transportAddress = candidate.getTransportAddress();
+        packet.setID(getNextID());
+        packet.setIP(transportAddress.getHostAddress());
+        packet.setPort(transportAddress.getPort());
+
+        packet.setType(CandidateType.valueOf(candidate.getType().toString()));
+
+        TransportAddress relAddr = candidate.getRelatedAddress();
+
+        if(relAddr != null)
+        {
+            packet.setRelAddr(relAddr.getHostAddress());
+            packet.setRelPort(relAddr.getPort());
+        }
+
+        /*
+         * FIXME The XML schema of XEP-0176: Jingle ICE-UDP Transport Method
+         * specifies the network attribute as required.
+         */
+        packet.setNetwork(0);
+
+        return packet;
     }
 
     /**
@@ -620,7 +718,7 @@ public class IceUdpTransportManager
      * @throws OperationFailedException if binding on the specified media stream
      * fails for some reason.
      */
-    private IceMediaStream createIceStream(String media)
+    protected IceMediaStream createIceStream(String media)
         throws OperationFailedException
     {
         IceMediaStream stream;
@@ -703,7 +801,7 @@ public class IceUdpTransportManager
     public synchronized boolean startConnectivityEstablishment(
             Iterable<ContentPacketExtension> remote)
     {
-        /* If ICE is aready running, we try to update the checklists with
+        /* If ICE is already running, we try to update the checklists with
          * the candidates. Note that this is a best effort.
          */
         if (IceProcessingState.RUNNING.equals(iceAgent.getState()))
@@ -970,6 +1068,7 @@ public class IceUdpTransportManager
                 }
             }
         }
+
         if (interrupted)
             Thread.currentThread().interrupt();
 

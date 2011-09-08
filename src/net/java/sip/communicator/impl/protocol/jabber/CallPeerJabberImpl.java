@@ -14,6 +14,7 @@ import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.*;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -57,6 +58,11 @@ public class CallPeerJabberImpl
      * Indicates whether this peer was the one that initiated the session.
      */
     private boolean isInitiator = false;
+
+    /**
+     * Synchronization object for candidates available.
+     */
+    private final Object candSyncRoot = new Object();
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -835,24 +841,77 @@ public class CallPeerJabberImpl
         }
      }
 
+    private boolean contentAddWithNoCands = false;
+
     /**
      * Processes the content-add {@link JingleIQ}.
      *
      * @param content The {@link JingleIQ} that contains content that remote
      * peer wants to be added
      */
-    public void processContentAdd(JingleIQ content)
+    public void processContentAdd(final JingleIQ content)
     {
         CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
         List<ContentPacketExtension> contents = content.getContentList();
         Iterable<ContentPacketExtension> answerContents;
         JingleIQ contentIQ;
+        boolean noCands = false;
 
+        logger.info("nocand " + noCands);
+
+        logger.info("run code");
         try
         {
-            mediaHandler.processOffer(contents);
+            if(!contentAddWithNoCands)
+                mediaHandler.processOffer(contents);
+
+            /* Gingle transport will not put candidate in session-initiate and
+             * content-add
+             */
+            if(contentAddWithNoCands == false)
+            {
+                for(ContentPacketExtension c : contents)
+                {
+                    if(JingleUtils.getFirstCandidate(c, 1) == null)
+                    {
+                        contentAddWithNoCands = true;
+                        noCands = true;
+                    }
+                }
+            }
+
+            // if no candidates are present, launch a new Thread which will process
+            // and wait for the connectivity establishment (otherwise the existing
+            // thread will be blocked and thus cannot receive transport-info with
+            // candidates
+            if(noCands)
+            {
+                new Thread()
+                {
+                    public void run()
+                    {
+                        try
+                        {
+                            synchronized(candSyncRoot)
+                            {
+                                candSyncRoot.wait();
+                            }
+                        }
+                        catch(InterruptedException e)
+                        {
+                        }
+
+                        processContentAdd(content);
+                        contentAddWithNoCands = false;
+                    }
+                }.start();
+                logger.info("start thread");
+                return;
+            }
+
             mediaHandler.getTransportManager().
                 wrapupConnectivityEstablishment();
+            logger.info("wraping up");
             answerContents = mediaHandler.generateSessionAccept();
             contentIQ = null;
         }
@@ -1031,7 +1090,13 @@ public class CallPeerJabberImpl
             getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
+
             return;
+        }
+
+        synchronized(candSyncRoot)
+        {
+            candSyncRoot.notify();
         }
     }
 

@@ -290,8 +290,16 @@ public class CallPeerMediaHandlerJabberImpl
                         IceUdpTransportPacketExtension.class);
 
             // stream target
-            MediaStreamTarget target
-                = JingleUtils.extractDefaultTarget(content);
+            MediaStreamTarget target = null;
+
+            try
+            {
+                target = JingleUtils.extractDefaultTarget(content);
+            }
+            catch(IllegalArgumentException e)
+            {
+                logger.warn("Fail to extract default target", e);
+            }
 
             // according to XEP-176, transport element in session-initiate
             // "MAY instead be empty (with each candidate to be sent as the
@@ -613,8 +621,21 @@ public class CallPeerMediaHandlerJabberImpl
                     OperationFailedException.GENERAL_ERROR, null, logger);
         }
 
+        TransportInfoSender transportInfoSender =
+            getTransportManager().getXmlNamespace().equals(
+                ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P)
+                ? new TransportInfoSender()
+                  {
+                      public void sendTransportInfo(
+                          Iterable<ContentPacketExtension> contents)
+                      {
+                          getPeer().sendTransportInfo(contents);
+                      }
+                  }
+                : null;
+
         //now add the transport elements
-        return harvestCandidates(null, mediaDescs, null);
+        return harvestCandidates(null, mediaDescs, transportInfoSender);
     }
 
     /**
@@ -721,8 +742,22 @@ public class CallPeerMediaHandlerJabberImpl
                     logger);
         }
 
+        TransportInfoSender transportInfoSender =
+            getTransportManager().getXmlNamespace().equals(
+                ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P)
+                ? new TransportInfoSender()
+                  {
+                      public void sendTransportInfo(
+                          Iterable<ContentPacketExtension> contents)
+                      {
+                          getPeer().sendTransportInfo(contents);
+                      }
+                  }
+                : null;
+
         //now add the transport elements
-        return harvestCandidates(null, mediaDescs, null);
+        return harvestCandidates(null, mediaDescs, transportInfoSender);
+
     }
 
     /**
@@ -1005,7 +1040,20 @@ public class CallPeerMediaHandlerJabberImpl
                     = peer.getProtocolProvider().getDiscoveryManager();
                 DiscoverInfo peerDiscoverInfo = peer.getDiscoverInfo();
 
+                // Put Google P2P transport first. We will take it
+                // for a node that support both ICE-UDP and Google P2P to use
+                // Google relay.
                 if (discoveryManager.includesFeature(
+                    ProtocolProviderServiceJabberImpl
+                            .URN_GOOGLE_TRANSPORT_P2P)
+                        && ((peerDiscoverInfo == null)
+                                || peerDiscoverInfo.containsFeature(
+                                ProtocolProviderServiceJabberImpl
+                                    .URN_GOOGLE_TRANSPORT_P2P)))
+                {
+                    transportManager = new P2PTransportManager(peer);
+                }
+                else if (discoveryManager.includesFeature(
                             ProtocolProviderServiceJabberImpl
                                 .URN_XMPP_JINGLE_ICE_UDP_1)
                         && ((peerDiscoverInfo == null)
@@ -1081,6 +1129,11 @@ public class CallPeerMediaHandlerJabberImpl
                 ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0))
         {
             transportManager = new RawUdpTransportManager(peer);
+        }
+        else if (xmlns.equals(
+            ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P))
+        {
+            transportManager = new P2PTransportManager(peer);
         }
         else
         {
@@ -1210,10 +1263,12 @@ public class CallPeerMediaHandlerJabberImpl
              * We'll be harvesting candidates in order to make an offer so it
              * doesn't make sense to send them in transport-info.
              */
-            if (transportInfoSender != null)
+            if (!transportManager.getXmlNamespace().equals(
+                ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P) &&
+                transportInfoSender != null)
                 throw new IllegalArgumentException("transportInfoSender");
 
-            transportManager.startCandidateHarvest(local);
+            transportManager.startCandidateHarvest(local, transportInfoSender);
         }
         else
         {

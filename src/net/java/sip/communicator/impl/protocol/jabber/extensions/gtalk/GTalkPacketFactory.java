@@ -302,7 +302,7 @@ public class GTalkPacketFactory
             for(Candidate candidate : candidates)
             {
                 GTalkCandidatePacketExtension e = createCandidate(candidate,
-                    mediaName, stream);
+                    mediaName);
 
                 if(e != null)
                     exts.add(e);
@@ -319,13 +319,12 @@ public class GTalkPacketFactory
      * @param candidate the ICE4J {@link Candidate} that we'd like to convert
      * into an Google Talk packet extension.
      * @param name name of the candidate extension
-     * @param stream ICE stream
      *
      * @return a new {@link GTalkCandidatePacketExtension} corresponding to the
      * state of the <tt>candidate</tt> candidate.
      */
-    private static GTalkCandidatePacketExtension createCandidate(
-            Candidate candidate, String name, IceMediaStream stream)
+    public static GTalkCandidatePacketExtension createCandidate(
+            Candidate candidate, String name)
     {
         GTalkCandidatePacketExtension packet =
             new GTalkCandidatePacketExtension();

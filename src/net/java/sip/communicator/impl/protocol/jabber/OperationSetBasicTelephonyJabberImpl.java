@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -233,7 +232,7 @@ public class OperationSetBasicTelephonyJabberImpl
                     OperationFailedException.INTERNAL_ERROR);
         }
 
-        boolean isGoogle = isGmailOrGoogleAppsAccount();
+        boolean isGoogle = protocolProvider.isGmailOrGoogleAppsAccount();
         boolean isGoogleVoice = false;
 
         if(isGoogle)
@@ -286,7 +285,6 @@ public class OperationSetBasicTelephonyJabberImpl
         String calleeURI = null;
         boolean isGingle = false;
         String gingleURI = null;
-        int bestPriorityGTalk = -1;
 
         // choose the resource that has the highest priority AND support Jingle
         while(it.hasNext())
@@ -296,6 +294,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 presence.getPriority();
             calleeURI = presence.getFrom();
             DiscoverInfo discoverInfo = null;
+
             try
             {
                 // check if the remote client supports telephony.
@@ -321,6 +320,7 @@ public class OperationSetBasicTelephonyJabberImpl
                     bestPriority = priority;
                     di = discoverInfo;
                     fullCalleeURI = calleeURI;
+                    isGingle = false;
                 }
             }
             else
@@ -342,9 +342,9 @@ public class OperationSetBasicTelephonyJabberImpl
                 /* see if peer supports Google Talk voice */
                 if(hasGtalkCaps || alwaysCallGtalk)
                 {
-                    if(priority > bestPriorityGTalk)
+                    if(priority > bestPriority)
                     {
-                        bestPriorityGTalk = priority;
+                        bestPriority = priority;
                         isGingle = true;
                         gingleURI = calleeURI;
                     }
@@ -1047,6 +1047,8 @@ public class OperationSetBasicTelephonyJabberImpl
                 try
                 {
                     String redir = redirect.getRedir();
+                    callPeer.setState(CallPeerState.DISCONNECTED);
+
                     if(redir.startsWith("xmpp:"))
                         redir = redir.substring(5);
 
@@ -1056,8 +1058,6 @@ public class OperationSetBasicTelephonyJabberImpl
                 {
                     logger.info("Failed to initiate GTalk session (redirect)");
                 }
-
-                callPeer.setState(CallPeerState.DISCONNECTED);
                 return;
             }
 
@@ -1304,44 +1304,5 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void setTransferAuthority(TransferAuthority authority)
     {
-    }
-
-    /**
-     * Returns true if our account is a Gmail or a Google Apps ones.
-     *
-     * @return true if our account is a Gmail or a Google Apps ones.
-     */
-    public boolean isGmailOrGoogleAppsAccount()
-    {
-        String domain = StringUtils.parseServer(
-            protocolProvider.getAccountID().getUserID());
-        SRVRecord srvRecords[] = null;
-
-        try
-        {
-            srvRecords = NetworkUtils.getSRVRecords("xmpp-client", "tcp",
-                domain);
-        }
-        catch (ParseException e)
-        {
-            logger.info("Failed to get SRV records for XMPP domain");
-            return false;
-        }
-
-        if(srvRecords == null)
-        {
-            return false;
-        }
-
-        for(SRVRecord srv : srvRecords)
-        {
-            if(srv.getTarget().endsWith("google.com") ||
-                    srv.getTarget().endsWith("google.com."))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
