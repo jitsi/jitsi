@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec.audio.ilbc;
 
+import java.util.*;
+
 import javax.media.*;
 import javax.media.format.*;
 
@@ -27,9 +29,14 @@ public class JavaDecoder
     private ilbc_decoder dec;
 
     /**
-     * The input length in bytes with which {@link #dec} has been initialized. 
+     * The input length in bytes with which {@link #dec} has been initialized.
      */
     private int inputLength;
+
+    /**
+     * List of offsets for a "more than one" iLBC frame per RTP packet.
+     */
+    private List<Integer> offsets = new ArrayList<Integer>();
 
     /**
      * Initializes a new iLBC <tt>JavaDecoder</tt> instance.
@@ -91,25 +98,64 @@ public class JavaDecoder
     protected int doProcess(Buffer inputBuffer, Buffer outputBuffer)
     {
         byte[] input = (byte[]) inputBuffer.getData();
-
         int inputLength = inputBuffer.getLength();
 
-        if (this.inputLength != inputLength)
-            initDec(inputLength);
+        if(offsets.size() == 0 &&
+            ((inputLength > ilbc_constants.NO_OF_BYTES_20MS &&
+                inputLength != ilbc_constants.NO_OF_BYTES_30MS) ||
+            inputLength > ilbc_constants.NO_OF_BYTES_30MS))
+        {
+            int nb = 0;
+            int len = 0;
+
+            if((inputLength % ilbc_constants.NO_OF_BYTES_20MS) == 0)
+            {
+                nb = (inputLength % ilbc_constants.NO_OF_BYTES_20MS);
+                len = ilbc_constants.NO_OF_BYTES_20MS;
+            }
+            else if((inputLength % ilbc_constants.NO_OF_BYTES_30MS) == 0)
+            {
+                nb = (inputLength % ilbc_constants.NO_OF_BYTES_30MS);
+                len = ilbc_constants.NO_OF_BYTES_30MS;
+            }
+
+            if (this.inputLength != len)
+                initDec(len);
+
+            for(int i = 0 ; i < nb ; i++)
+            {
+                offsets.add(new Integer(inputLength + (i * len)));
+            }
+        }
+        else
+            if (this.inputLength != inputLength)
+                initDec(inputLength);
 
         int outputLength = dec.ULP_inst.blockl * 2;
         byte[] output = validateByteArraySize(outputBuffer, outputLength);
         int outputOffset = 0;
 
+        int offsetToAdd = 0;
+
+        if(offsets.size() > 0)
+            offsetToAdd = offsets.remove(0).intValue();
+
         dec.decode(
                 output, outputOffset,
-                input, inputBuffer.getOffset(),
+                input, inputBuffer.getOffset() + offsetToAdd,
                 (short) 1);
 
         updateOutput(
                 outputBuffer,
                 getOutputFormat(), outputLength, outputOffset);
-        return BUFFER_PROCESSED_OK;
+        int flags = BUFFER_PROCESSED_OK;
+
+        if(offsets.size() > 0)
+        {
+            flags |= INPUT_BUFFER_NOT_CONSUMED;
+        }
+
+        return flags;
     }
 
     @Override

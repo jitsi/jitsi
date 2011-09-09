@@ -20,7 +20,6 @@ import net.java.sip.communicator.impl.neomedia.codec.*;
 public class JavaEncoder
     extends AbstractCodecExt
 {
-
     /**
      * The <tt>ilbc_encoder</tt> adapted to <tt>Codec</tt> by this instance.
      */
@@ -47,6 +46,11 @@ public class JavaEncoder
      * yet.
      */
     private int prevInputLength;
+
+    /**
+     * The duration an output <tt>Buffer</tt> produced by this <tt>Codec</tt>.
+     */
+    private int duration = 0;
 
     /**
      * Initializes a new iLBC <tt>JavaEncoder</tt> instance.
@@ -98,6 +102,7 @@ public class JavaEncoder
         inputLength = 0;
         prevInput = null;
         prevInputLength = 0;
+        duration = 0;
     }
 
     /**
@@ -122,9 +127,51 @@ public class JavaEncoder
         default:
             throw new IllegalStateException("mode");
         }
+        /* mode is 20 or 30 ms, duration must be in nanoseconds */
+        duration = mode * 1000000;
         inputLength = enc.ULP_inst.blockl * 2;
         prevInput = new byte[inputLength];
         prevInputLength = 0;
+    }
+
+    /**
+     * Get the output format.
+     *
+     * @return output format
+     * @see net.sf.fmj.media.AbstractCodec#getOutputFormat()
+     */
+    @Override
+    public Format getOutputFormat()
+    {
+        Format outputFormat = super.getOutputFormat();
+
+        if ((outputFormat != null)
+                && (outputFormat.getClass() == AudioFormat.class))
+        {
+            AudioFormat outputAudioFormat = (AudioFormat) outputFormat;
+
+            outputFormat = setOutputFormat(
+                new AudioFormat(
+                            outputAudioFormat.getEncoding(),
+                            outputAudioFormat.getSampleRate(),
+                            outputAudioFormat.getSampleSizeInBits(),
+                            outputAudioFormat.getChannels(),
+                            outputAudioFormat.getEndian(),
+                            outputAudioFormat.getSigned(),
+                            outputAudioFormat.getFrameSizeInBits(),
+                            outputAudioFormat.getFrameRate(),
+                            outputAudioFormat.getDataType())
+                        {
+                            private static final long serialVersionUID = 0L;
+
+                            @Override
+                            public long computeDuration(long length)
+                            {
+                                return JavaEncoder.this.duration;
+                            }
+                        });
+        }
+        return outputFormat;
     }
 
     /**
@@ -188,7 +235,8 @@ public class JavaEncoder
 
             updateOutput(
                     outputBuffer,
-                    outputFormat, outputLength, outputOffset);
+                    getOutputFormat(), outputLength, outputOffset);
+            outputBuffer.setDuration(duration);
             ret = BUFFER_PROCESSED_OK;
         }
         else
