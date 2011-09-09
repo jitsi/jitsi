@@ -892,6 +892,18 @@ public class EventPackageSubscriber
     }
 
     /**
+     * If we got timeout we there is a problem with the connection, lets
+     * inform the provider.
+     * Implements MethodProcessor#processTimeout(TimeoutEvent).
+     */
+    public boolean processTimeout(TimeoutEvent timeoutEvent)
+    {
+        protocolProvider.notifyConnectionFailed();
+
+        return true;
+    }
+
+    /**
      * Creates and sends a SUBSCRIBE request to the subscription
      * <tt>Address</tt>/Request URI of a specific <tt>Subscription</tt>
      * in order to request receiving event notifications and adds the specified

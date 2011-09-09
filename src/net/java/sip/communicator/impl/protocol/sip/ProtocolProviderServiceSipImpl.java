@@ -3415,4 +3415,30 @@ public class ProtocolProviderServiceSipImpl
 
         initOutboundProxy((SipAccountID)getAccountID(), ix);
     }
+
+    /**
+     * If somewhere we got for example timeout of receiving answer to our
+     * requests we consider problem with network and notify the provider.
+     */
+    protected void notifyConnectionFailed()
+    {
+        if(getRegistrationState().equals(RegistrationState.REGISTERED)
+            && sipRegistrarConnection != null)
+            sipRegistrarConnection.setRegistrationState(
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                "A timeout occurred while trying to connect to the server.");
+
+        if(registerUsingNextAddress())
+            return;
+
+        // don't alert the user if we're already off
+        if (!getRegistrationState().equals(RegistrationState.UNREGISTERED))
+        {
+            sipRegistrarConnection.setRegistrationState(
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                "A timeout occurred while trying to connect to the server.");
+        }
+    }
 }
