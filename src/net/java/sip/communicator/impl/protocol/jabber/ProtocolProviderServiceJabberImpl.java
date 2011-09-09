@@ -1011,7 +1011,7 @@ public class ProtocolProviderServiceJabberImpl
                     supportedFeatures.toArray(
                             new String[supportedFeatures.size()]));
 
-        if(isGTalkTesting() && isGmailOrGoogleAppsAccount())
+        if(isGTalkTesting())
         {
             // Add Google Talk "ext" capabilities
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VOICE);
@@ -2198,6 +2198,17 @@ public class ProtocolProviderServiceJabberImpl
     {
         String domain = StringUtils.parseServer(
             getAccountID().getUserID());
+        return isGmailOrGoogleAppsAccount(domain);
+    }
+
+    /**
+     * Returns true if our account is a Gmail or a Google Apps ones.
+     *
+     * @param domain domain to check
+     * @return true if our account is a Gmail or a Google Apps ones.
+     */
+    public static boolean isGmailOrGoogleAppsAccount(String domain)
+    {
         SRVRecord srvRecords[] = null;
 
         try

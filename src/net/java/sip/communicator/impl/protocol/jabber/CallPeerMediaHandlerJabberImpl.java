@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.lang.reflect.*;
 import java.util.*;
 
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -1040,6 +1041,19 @@ public class CallPeerMediaHandlerJabberImpl
                     = peer.getProtocolProvider().getDiscoveryManager();
                 DiscoverInfo peerDiscoverInfo = peer.getDiscoverInfo();
 
+                String domain = StringUtils.parseServer(
+                    peer.getAddress());
+
+                // We use Google P2P transport if both conditions are satisfied:
+                // - both peers have Google P2P transport in their features;
+                // - at least one peer is a Gmail or Google Apps account.
+                //
+                // Otherwise we go for an ICE-UDP transport
+                boolean isGoogle =
+                    peer.getProtocolProvider().isGmailOrGoogleAppsAccount() ||
+                        ProtocolProviderServiceJabberImpl.
+                            isGmailOrGoogleAppsAccount(domain);
+
                 // Put Google P2P transport first. We will take it
                 // for a node that support both ICE-UDP and Google P2P to use
                 // Google relay.
@@ -1049,7 +1063,7 @@ public class CallPeerMediaHandlerJabberImpl
                         && ((peerDiscoverInfo == null)
                                 || peerDiscoverInfo.containsFeature(
                                 ProtocolProviderServiceJabberImpl
-                                    .URN_GOOGLE_TRANSPORT_P2P)))
+                                    .URN_GOOGLE_TRANSPORT_P2P)) && isGoogle)
                 {
                     transportManager = new P2PTransportManager(peer);
                 }
