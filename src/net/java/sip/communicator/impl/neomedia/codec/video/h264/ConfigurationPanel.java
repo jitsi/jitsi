@@ -26,6 +26,11 @@ public class ConfigurationPanel
     extends TransparentPanel
 {
     /**
+     * Serial version UID.
+     */
+    private final static long serialVersionUID = 0L;
+
+    /**
      * Initializer a new <tt>ConfigurationPanel</tt> instance.
      */
     public ConfigurationPanel()
@@ -37,7 +42,7 @@ public class ConfigurationPanel
             = new TransparentPanel(new GridBagLayout());
         add(contentPanel);
 
-        ResourceManagementService resources = NeomediaActivator.getResources(); 
+        ResourceManagementService resources = NeomediaActivator.getResources();
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
         JLabel defaultProfileLabel
@@ -195,7 +200,7 @@ public class ConfigurationPanel
         public final String name;
 
         /**
-         * The <tt>String</tt> value represented by this <tt>NameValuePair</tt>. 
+         * The <tt>String</tt> value represented by this <tt>NameValuePair</tt>.
          */
         public final String value;
 

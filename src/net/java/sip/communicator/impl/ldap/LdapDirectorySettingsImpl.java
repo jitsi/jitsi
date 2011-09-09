@@ -436,8 +436,8 @@ public class LdapDirectorySettingsImpl
      * Sets the global prefix to be used when calling phones from this ldap
      * source.
      *
-     * @param the global prefix to be used when calling phones from this ldap
-     * source
+     * @param prefix the global prefix to be used when calling phones from this
+     * ldap source
      */
     public void setGlobalPhonePrefix(String prefix)
     {
