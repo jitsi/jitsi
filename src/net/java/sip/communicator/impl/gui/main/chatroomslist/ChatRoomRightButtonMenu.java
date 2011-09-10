@@ -71,6 +71,11 @@ public class ChatRoomRightButtonMenu
             "service.gui.REMOVE",
             ImageLoader.DELETE_16x16_ICON,
             "removeChatRoom");
+        JMenuItem nickNameChatRoomItem
+        = createMenuItem(
+            "service.gui.CHANGE_NICK",
+            ImageLoader.LEAVE_ICON,
+            "nickNameChatRoom");
 
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
 
