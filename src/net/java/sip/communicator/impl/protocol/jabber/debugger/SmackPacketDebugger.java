@@ -136,7 +136,8 @@ public class SmackPacketDebugger
         try
         {
             if(packetLogging.isLoggingEnabled(
-                    PacketLoggingService.ProtocolName.JABBER))
+                    PacketLoggingService.ProtocolName.JABBER)
+                && packet != null && connection.getSocket() != null)
             {
                 packetLogging.logPacket(
                     PacketLoggingService.ProtocolName.JABBER,

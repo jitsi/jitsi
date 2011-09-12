@@ -185,6 +185,9 @@ public class ProtocolIconSipImpl
         {
             InputStream is = resources.getImageInputStreamForPath(imagePath);
 
+            if(is == null)
+                return null;
+
             try
             {
                 icon = new byte[is.available()];

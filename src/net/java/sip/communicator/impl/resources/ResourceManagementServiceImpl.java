@@ -502,7 +502,7 @@ public class ResourceManagementServiceImpl
             }
         }
 
-        if (path != null)
+        if (path != null && imagePack != null)
             return imagePack.getClass().getClassLoader()
                     .getResourceAsStream(path);
 

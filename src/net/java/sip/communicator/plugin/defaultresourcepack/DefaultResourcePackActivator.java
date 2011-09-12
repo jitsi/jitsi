@@ -71,7 +71,7 @@ public class DefaultResourcePackActivator
             new DefaultSettingsPackImpl();
 
         Hashtable<String, String> setProps = new Hashtable<String, String>();
-        langProps.put(ResourcePack.RESOURCE_NAME,
+        setProps.put(ResourcePack.RESOURCE_NAME,
                       SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         bundleContext.registerService(  SettingsPack.class.getName(),
@@ -82,7 +82,7 @@ public class DefaultResourcePackActivator
             new DefaultSoundPackImpl();
 
         Hashtable<String, String> sndProps = new Hashtable<String, String>();
-        langProps.put(ResourcePack.RESOURCE_NAME,
+        sndProps.put(ResourcePack.RESOURCE_NAME,
                       SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         bundleContext.registerService(  SoundPack.class.getName(),

@@ -18,7 +18,9 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -35,7 +37,8 @@ import net.java.sip.communicator.util.*;
  * @author Sebastien Mazy
  */
 public class SipStackSharing
-    implements SipListener
+    implements SipListener,
+               NetworkConfigurationChangeListener
 {
     /**
      * We set a custom parameter in the contact address for registrar accounts,
@@ -116,6 +119,9 @@ public class SipStackSharing
                 new AddressResolverImpl();
             ((SIPTransactionStack) this.stack)
                 .setAddressResolver(addressResolver);
+
+            SipActivator.getNetworkAddressManagerService()
+                .addNetworkConfigurationChangeListener(this);
         }
         catch(Exception ex)
         {
@@ -1186,5 +1192,150 @@ public class SipStackSharing
         }
 
         return false;
+    }
+
+    /**
+     * List of currently waiting timers that will monitor the protocol provider
+     *
+     */
+    Map<String, TimerTask> resetListeningPointsTimers
+            = new HashMap<String, TimerTask>();
+
+    /**
+     * Listens for network changes and if we have a down interface
+     * and we have a tcp/tls provider which is staying for 20 seconds in
+     * unregistering state, it cannot unregister cause its using the old
+     * address which is currently down, and we must recreate its listening
+     * points so it can further reconnect.
+     *
+     * @param event the change event.
+     */
+    public void configurationChanged(ChangeEvent event)
+    {
+        if(event.isInitial())
+            return;
+
+        if(event.getType() == ChangeEvent.ADDRESS_DOWN)
+        {
+            for(final ProtocolProviderServiceSipImpl pp : listeners)
+            {
+                if(pp.getRegistrarConnection().getTransport() != null
+                   && (pp.getRegistrarConnection().getTransport()
+                            .equals(ListeningPoint.TCP)
+                        || pp.getRegistrarConnection().getTransport()
+                            .equals(ListeningPoint.TLS)))
+                {
+                    ResetListeningPoint reseter;
+                    synchronized(resetListeningPointsTimers)
+                    {
+                        // we do this only once for transport
+                        if(resetListeningPointsTimers.containsKey(
+                                pp.getRegistrarConnection().getTransport()))
+                            continue;
+
+                        reseter = new ResetListeningPoint(pp);
+                        resetListeningPointsTimers.put(
+                            pp.getRegistrarConnection().getTransport(),
+                            reseter);
+                    }
+                    pp.addRegistrationStateChangeListener(reseter);
+                }
+            }
+        }
+    }
+
+    /**
+     * If a tcp(tls) provider stays unregistering for a long time after
+     * connection changed most probably it won't get registered after
+     * unregistering fails, cause underlying listening point are conncted
+     * to wrong interfaces. So we will replace them.
+     */
+    private class ResetListeningPoint
+            extends TimerTask
+            implements RegistrationStateChangeListener
+    {
+        /**
+         * The time we wait before checking is the provider still unregistering.
+         */
+        private static final int TIME_FOR_PP_TO_UNREGISTER = 20000;
+
+        /**
+         * The protocol provider we are checking.
+         */
+        private final ProtocolProviderServiceSipImpl protocolProvider;
+
+        /**
+         * Constructs this task.
+         * @param pp
+         */
+        ResetListeningPoint(ProtocolProviderServiceSipImpl pp)
+        {
+            this.protocolProvider = pp;
+        }
+
+        /**
+         * Notified when registration state changed for a provider.
+         * @param evt
+         */
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            if(evt.getNewState() == RegistrationState.UNREGISTERING)
+            {
+                new Timer().schedule(this, TIME_FOR_PP_TO_UNREGISTER);
+            }
+            else
+            {
+                protocolProvider.removeRegistrationStateChangeListener(this);
+                resetListeningPointsTimers.remove(
+                    protocolProvider.getRegistrarConnection().getTransport());
+            }
+        }
+
+        /**
+         * The real task work, replace listening point.
+         */
+        public void run()
+        {
+            // if the provider is still unregistering it most probably won't
+            // successes until we re-init the LP
+            if(protocolProvider.getRegistrationState()
+                == RegistrationState.UNREGISTERING)
+            {
+                String transport = protocolProvider.getRegistrarConnection()
+                    .getTransport();
+
+                ListeningPoint old = getLP(transport);
+
+                try
+                {
+                    stack.deleteListeningPoint(old);
+                }
+                catch(Throwable t)
+                {
+                    logger.warn("Error replacing ListeningPoint for "
+                            + transport, t);
+                }
+
+                try
+                {
+                    ListeningPoint tcpLP =
+                        stack.createListeningPoint(
+                            NetworkUtils.IN_ADDR_ANY
+                            , transport.equals(ListeningPoint.TCP)?
+                                getPreferredClearPort(): getPreferredSecurePort()
+                            , transport);
+                    clearJainSipProvider.addListeningPoint(tcpLP);
+                }
+                catch(Throwable t)
+                {
+                    logger.warn("Error replacing ListeningPoint for " +
+                        protocolProvider.getRegistrarConnection().getTransport(),
+                            t);
+                }
+            }
+
+            resetListeningPointsTimers.remove(
+                    protocolProvider.getRegistrarConnection().getTransport());
+        }
     }
 }

@@ -215,7 +215,7 @@ void scCallback(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info)
                                   &context);
 
             const CFStringRef keys[1] = {
-                CFSTR("State:/Network/Interface/.*/Link")
+                CFSTR("State:/Network/Interface/.*/IPv.")
             };
             CFArrayRef watchedKeys = CFArrayCreate(kCFAllocatorDefault,
                                          (const void **)keys,
@@ -226,7 +226,8 @@ void scCallback(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info)
                                          watchedKeys))
             {
                 CFRelease(watchedKeys);
-                fprintf(stderr, "SCDynamicStoreSetNotificationKeys() failed: %s", SCErrorString(SCError()));
+                fprintf(stderr, "SCDynamicStoreSetNotificationKeys() failed: %s",
+                    SCErrorString(SCError()));
                 CFRelease(dynStore);
                 dynStore = NULL;
 
@@ -235,8 +236,10 @@ void scCallback(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info)
             CFRelease(watchedKeys);
 
 
-            rlSrc = SCDynamicStoreCreateRunLoopSource(kCFAllocatorDefault, dynStore, 0);
-            CFRunLoopAddSource(CFRunLoopGetCurrent(), rlSrc, kCFRunLoopDefaultMode);
+            rlSrc = SCDynamicStoreCreateRunLoopSource(
+                kCFAllocatorDefault, dynStore, 0);
+            CFRunLoopAddSource(
+                CFRunLoopGetCurrent(), rlSrc, kCFRunLoopDefaultMode);
             CFRelease(rlSrc);
         }
     }

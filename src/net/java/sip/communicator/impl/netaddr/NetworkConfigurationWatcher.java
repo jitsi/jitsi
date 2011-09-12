@@ -173,6 +173,9 @@ public class NetworkConfigurationWatcher
     private void handleNewSystemActivityNotificationsService(
             SystemActivityNotificationsService newService)
     {
+        if(newService == null)
+            return;
+
         this.systemActivityNotificationsService = newService;
 
         if(this.systemActivityNotificationsService
@@ -397,16 +400,6 @@ public class NetworkConfigurationWatcher
         }
         else if(event.getEventID() == SystemActivityEvent.EVENT_NETWORK_CHANGE)
         {
-            // when there is a net change
-            // give time for devices to come up/down fully
-            // before checking with them
-            synchronized(this)
-            {
-                try{
-                    wait(3000);
-                }catch(InterruptedException ex){}
-            }
-
             try
             {
                 checkNetworkInterfaces(true, 0);
