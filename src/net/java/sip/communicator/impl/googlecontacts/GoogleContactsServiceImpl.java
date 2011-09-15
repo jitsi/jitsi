@@ -114,8 +114,14 @@ public class GoogleContactsServiceImpl
             boolean enabled = Boolean.parseBoolean((String)oen);
             String login =
                 (String)configService.getProperty(path + ".account");
+
             String prefix =
                 (String)configService.getProperty(path + ".prefix");
+            // If this property doesn't exist, like for old stored accounts, we
+            // just need to initialize it to the empty string.
+            if(prefix == null)
+                prefix = "";
+
             String password = credentialsService.loadPassword(path);
 
             GoogleContactsConnectionImpl cnx = (GoogleContactsConnectionImpl)
