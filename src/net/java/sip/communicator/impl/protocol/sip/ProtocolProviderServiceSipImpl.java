@@ -2097,6 +2097,10 @@ public class ProtocolProviderServiceSipImpl
                 throw new UnknownHostException();
 
             proxyAddress = proxySocketAddress.getAddress();
+
+            if(this.currentConnectionAddress == null)
+                this.currentConnectionAddress = proxySocketAddress;
+
             proxyPort = proxySocketAddress.getPort();
 
             if (logger.isTraceEnabled())
