@@ -93,11 +93,16 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     public static final int REASON_SERVER_NOT_FOUND = 8;
 
     /**
+     * Indicates that the specified server does not support TLS and the has
+     * required TLS use.
+     */
+    public static final int REASON_TLS_REQUIRED = 9;
+
+    /**
      * The reason code returned by the server in order to explain the state
      * transition.
      */
     private final int reasonCode;
-
 
     /**
      * A (non localized) String containing information further explaining the

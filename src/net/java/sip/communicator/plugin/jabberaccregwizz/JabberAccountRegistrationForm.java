@@ -316,6 +316,8 @@ public class JabberAccountRegistrationForm
 
         registration.setUseUPNP(iceConfigPanel.isUseUPNP());
 
+        registration.setAllowNonSecure(connectionPanel.isAllowNonSecure());
+
         registration.setTelephonyDomainBypassCaps(
             telephonyConfigPanel.getTelephonyDomainBypassCaps());
         registration.setOverridePhoneSufix(
@@ -493,6 +495,14 @@ public class JabberAccountRegistrationForm
                 (useUPNP != null && useUPNP.length() != 0) ? useUPNP : "true");
 
         iceConfigPanel.setUseUPNP(isUseUPNP);
+
+        String allowNonSecure =
+            accountProperties.get(ProtocolProviderFactory.IS_ALLOW_NON_SECURE);
+        boolean isAllowNonSecure = Boolean.parseBoolean(
+                (allowNonSecure != null && allowNonSecure.length() != 0)
+                ? allowNonSecure : "false");
+
+        connectionPanel.setAllowNonSecure(isAllowNonSecure);
 
         wizard.getRegistration().setServerOverridden(
             accountID.getAccountPropertyBoolean(

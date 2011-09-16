@@ -155,7 +155,7 @@ public class LoginManager
             OperationSetPresence presence
                 = MainFrame.getProtocolPresenceOpSet(protocolProvider);
 
-            OperationSetMultiUserChat multiUserChat = 
+            OperationSetMultiUserChat multiUserChat =
                 mainFrame.getMultiUserChatOpSet(protocolProvider);
 
             if (presence != null)
@@ -170,7 +170,6 @@ public class LoginManager
                     .getChatRoomList().synchronizeOpSetWithLocalContactList(
                         protocolProvider, multiUserChat);
             }
-          
         }
         else if (newState.equals(RegistrationState.AUTHENTICATION_FAILED))
         {
@@ -195,6 +194,20 @@ public class LoginManager
                     "service.gui.NON_EXISTING_USER_ID",
                     new String[]
                     { protocolProvider.getProtocolDisplayName() });
+
+                new ErrorDialog(
+                    null,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
+                    msgText).showDialog();
+            }
+            else if (evt.getReasonCode() == RegistrationStateChangeEvent
+                                                .REASON_TLS_REQUIRED)
+            {
+                String msgText = GuiActivator.getResources().getI18NString(
+                    "service.gui.NON_SECURE_CONNECTION",
+                    new String[]
+                    { accountID.getAccountAddress() });
 
                 new ErrorDialog(
                     null,
@@ -420,7 +433,7 @@ public class LoginManager
                     GuiActivator.getResources()
                         .getI18NString("service.gui.LOGIN_GENERAL_ERROR",
                     new String[]
-                    { accountID.getUserID(), 
+                    { accountID.getUserID(),
                       accountID.getProtocolName(),
                       accountID.getService() }))
                 .showDialog();

@@ -168,6 +168,11 @@ public class JabberAccountRegistration
     private boolean isUseUPNP = false;
 
     /**
+     * If non-TLS connection is allowed.
+     */
+    private boolean isAllowNonSecure = false;
+
+    /**
      * Indicates if the server is overriden.
      */
     private boolean isServerOverridden = false;
@@ -678,6 +683,26 @@ public class JabberAccountRegistration
     public void setUseUPNP(boolean isUseUPNP)
     {
         this.isUseUPNP = isUseUPNP;
+    }
+
+    /**
+     * Indicates if non-TLS is allowed for this account
+     * @return <tt>true</tt> if non-TLS is allowed for this account, otherwise
+     * returns <tt>false</tt>
+     */
+    public boolean isAllowNonSecure()
+    {
+        return isAllowNonSecure;
+    }
+
+    /**
+     * Sets the <tt>isAllowNonSecure</tt> property.
+     * @param isAllowNonSecure <tt>true</tt> to indicate that non-TLS is allowed
+     * for this account, <tt>false</tt> - otherwise.
+     */
+    public void setAllowNonSecure(boolean isAllowNonSecure)
+    {
+        this.isAllowNonSecure = isAllowNonSecure;
     }
 
     /**

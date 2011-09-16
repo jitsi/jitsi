@@ -76,6 +76,10 @@ public class ConnectionPanel
             Resources.getString("plugin.jabberaccregwizz.AUTORESOURCE"),
                 JabberAccountRegistration.DEFAULT_RESOURCE_AUTOGEN);
 
+    JCheckBox allowNonSecureBox = new JCheckBox(
+            Resources.getString("plugin.jabberaccregwizz.ALLOW_NON_SECURE"),
+            false);
+
     private final JabberAccountRegistrationForm parentForm;
 
     /**
@@ -137,6 +141,7 @@ public class ConnectionPanel
         checkBoxesPanel.add(sendKeepAliveBox);
         checkBoxesPanel.add(gmailNotificationsBox);
         checkBoxesPanel.add(googleContactsBox);
+        checkBoxesPanel.add(allowNonSecureBox);
 
         final JPanel resourcePanel
                 = new TransparentPanel(new BorderLayout(10, 10));
@@ -368,5 +373,23 @@ public class ConnectionPanel
     boolean isAutogenerateResourceEnabled()
     {
         return autoGenerateResource.isSelected();
+    }
+
+    /**
+     * Set allow non secure value.
+     * @param value the new value.
+     */
+    void setAllowNonSecure(boolean value)
+    {
+        this.allowNonSecureBox.setSelected(value);
+    }
+
+    /**
+     * Is non-TLS allowed.
+     * @return is non-TLS allowed
+     */
+    boolean isAllowNonSecure()
+    {
+        return allowNonSecureBox.isSelected();
     }
 }

@@ -207,7 +207,7 @@ public abstract class ProtocolProviderFactory
      * The name of the property which defines the ID of the client TLS
      * certificate configuration entry.
      */
-    public static final String CLIENT_TLS_CERTIFICATE = 
+    public static final String CLIENT_TLS_CERTIFICATE =
         "CLIENT_TLS_CERTIFICATE";
 
     /**
@@ -358,6 +358,11 @@ public abstract class ProtocolProviderFactory
      * Indicates if UPnP should be used with ICE.
      */
     public static final String IS_USE_UPNP = "UPNP_ENABLED";
+
+    /**
+     * Indicates if we allow non-TLS connection.
+     */
+    public static final String IS_ALLOW_NON_SECURE = "ALLOW_NON_SECURE";
 
     /**
      * Address used to reach voicemail box, by services able to

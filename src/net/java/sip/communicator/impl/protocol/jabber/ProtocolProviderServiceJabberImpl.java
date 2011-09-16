@@ -857,6 +857,16 @@ public class ProtocolProviderServiceJabberImpl
         */
 
         confConn.setReconnectionAllowed(false);
+        // requires TLS by default (i.e. it will not connect to a non-TLS server
+        // and will not fallback to cleartext)
+        boolean tlsRequired = !accountID.getAccountPropertyBoolean(
+            ProtocolProviderFactory.IS_ALLOW_NON_SECURE, false);
+
+        // user have the possibility to disable TLS but in this case, it will
+        // not be able to connect to a server which requires TLS
+        confConn.setSecurityMode(
+            tlsRequired ? ConnectionConfiguration.SecurityMode.required :
+                ConnectionConfiguration.SecurityMode.enabled);
 
         if(connection != null)
         {
@@ -906,6 +916,11 @@ public class ProtocolProviderServiceJabberImpl
         if(connectionListener == null)
         {
             connectionListener = new JabberConnectionListener();
+        }
+
+        if(!connection.isSecureConnection() && tlsRequired)
+        {
+            throw new XMPPException("TLS is required by client");
         }
 
         connection.addConnectionListener(connectionListener);
@@ -1530,6 +1545,7 @@ public class ProtocolProviderServiceJabberImpl
     {
         int reason = RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
         RegistrationState regState = RegistrationState.UNREGISTERED;
+        String reasonStr = null;
 
         Throwable wrappedEx = ex.getWrappedThrowable();
         if(wrappedEx != null
@@ -1571,6 +1587,11 @@ public class ProtocolProviderServiceJabberImpl
                 reason = RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
                 regState = RegistrationState.CONNECTION_FAILED;
             }
+            else if(exMsg.indexOf("tls is required") != -1)
+            {
+                regState = RegistrationState.AUTHENTICATION_FAILED;
+                reason = RegistrationStateChangeEvent.REASON_TLS_REQUIRED;
+            }
         }
 
         if(regState == RegistrationState.UNREGISTERED
@@ -1582,7 +1603,7 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         fireRegistrationStateChanged(
-            getRegistrationState(), regState, reason, null);
+            getRegistrationState(), regState, reason, reasonStr);
     }
 
     /**

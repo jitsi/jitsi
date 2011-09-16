@@ -404,6 +404,9 @@ public class JabberAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.IS_USE_UPNP,
                 String.valueOf(registration.isUseUPNP()));
 
+        accountProperties.put(ProtocolProviderFactory.IS_ALLOW_NON_SECURE,
+            String.valueOf(registration.isAllowNonSecure()));
+
         if (isModification())
         {
             providerFactory.modifyAccount(  protocolProvider,

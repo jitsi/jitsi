@@ -219,4 +219,17 @@ public class JabberAccountID
                 ProtocolProviderFactory.IS_USE_UPNP,
                 true);
     }
+
+    /**
+     * Determines whether this account's provider allow non-secure connection
+     *
+     * @return <tt>true</tt> if this provider would allow non-secure connection,
+     * <tt>false</tt> otherwise
+     */
+    public boolean allowNonSecureConnection()
+    {
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_ALLOW_NON_SECURE,
+                false);
+    }
 }
