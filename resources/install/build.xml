@@ -650,6 +650,10 @@
             autoselected when msi is started
             LCID info at:
             http://msdn.microsoft.com/en-us/library/0h88fahh(v=vs.85).aspx
+
+            Note(2011-09-16 damencho):
+            every language added must be listed and in installer-windows.wxs
+            in the language attribute in Package and UpgradeVersion.
             -->
         <exec
                 executable="cscript.exe"

@@ -31,7 +31,7 @@
   <UpgradeVersion
       IncludeMaximum="yes"
       IncludeMinimum="yes"
-      Language="1033"
+      Language="1033,1036"
       Maximum="1.0.0.0"
       Minimum="0.0.0.0"
       Property="UPGRADEFOUND" />
