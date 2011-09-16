@@ -283,8 +283,13 @@ public class GoogleContactsActivator implements BundleActivator
                         bundleContext, provider.getAccountID(), className);
                 String password = getCredentialsService().loadPassword(acc);
 
-                enableContactSource(provider.getAccountID().getAccountAddress(),
+                if(configService.getBoolean(acc + ".GOOGLE_CONTACTS_ENABLED",
+                    true))
+                {
+                    enableContactSource(
+                        provider.getAccountID().getAccountAddress(),
                         password);
+                }
             }
         }).start();
     }
