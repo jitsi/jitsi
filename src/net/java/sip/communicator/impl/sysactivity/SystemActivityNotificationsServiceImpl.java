@@ -346,11 +346,17 @@ public class SystemActivityNotificationsServiceImpl
                     for(Map.Entry<SystemActivityChangeListener, Long> entry :
                         idleChangeListeners.entrySet())
                     {
+                        SystemActivityChangeListener listener =
+                            entry.getKey();
+
+                        if(listenersInIdleState.contains(listener))
+                            continue;
+
                         if(entry.getValue() <= idleTime)
                         {
-                            fireSystemIdleEvent(entry.getKey());
+                            fireSystemIdleEvent(listener);
 
-                            listenersInIdleState.add(entry.getKey());
+                            listenersInIdleState.add(listener);
                         }
                     }
                 }

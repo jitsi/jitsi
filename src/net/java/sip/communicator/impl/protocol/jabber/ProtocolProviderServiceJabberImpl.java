@@ -874,6 +874,7 @@ public class ProtocolProviderServiceJabberImpl
                 + connection.isConnected(),
                 new Exception("Trace possible duplicate connections: " +
                     getAccountID().getAccountAddress()));
+            disconnectAndCleanConnection();
         }
 
         connection = new XMPPConnection(confConn);
