@@ -43,13 +43,20 @@ public class SecurityStatusLabel
     private String encryptionCipher;
 
     /**
+     * The default security status icon.
+     */
+    private final Icon defaultIcon;
+
+    /**
      * Creates an instance of <tt>SecurityStatusLabel</tt> by specifying the
      * <tt>GuiCallPeer</tt>, the icon and the alignment to use for the label.
      */
-    public SecurityStatusLabel()
+    public SecurityStatusLabel(Icon securityIcon)
     {
-        this.setIcon(new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
+        this.defaultIcon = securityIcon;
+
+        loadSkin();
+
         this.setHorizontalAlignment(JLabel.CENTER);
 
         this.setToolTipText("Security status");
@@ -148,7 +155,6 @@ public class SecurityStatusLabel
      */
     public void loadSkin()
     {
-        this.setIcon(new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
+        this.setIcon(defaultIcon);
     }
 }

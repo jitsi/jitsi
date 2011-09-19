@@ -582,4 +582,24 @@ public class OneToOneCallPanel
 
         return displayName;
     }
+
+    /**
+     * Indicates that the given conference member has been added to the given
+     * peer.
+     *
+     * @param callPeer the parent call peer
+     * @param conferenceMember the member that was added
+     */
+    public void conferenceMemberAdded(CallPeer callPeer,
+        ConferenceMember conferenceMember) {}
+
+    /**
+     * Indicates that the given conference member has been removed from the
+     * given peer.
+     *
+     * @param callPeer the parent call peer
+     * @param conferenceMember the member that was removed
+     */
+    public void conferenceMemberRemoved(CallPeer callPeer,
+        ConferenceMember conferenceMember) {}
 }

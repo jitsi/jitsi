@@ -51,8 +51,8 @@ public class ConferenceCallPanel
     /**
      * Maps a <tt>CallPeer</tt> to its renderer.
      */
-    private final Hashtable<CallPeer, ConferencePeerPanel> callPeerPanels
-        = new Hashtable<CallPeer, ConferencePeerPanel>();
+    private final Hashtable<CallPeer, ConferenceCallPeerRenderer> callPeerPanels
+        = new Hashtable<CallPeer, ConferenceCallPeerRenderer>();
 
     /**
      * The CallPanel which contains this panel.
@@ -112,8 +112,6 @@ public class ConferenceCallPanel
         }
 
         this.setBorder(null);
-        this.setViewportBorder(BorderFactory
-            .createEmptyBorder(5, 5, 5, 5));
 
         mainPanel.setTransferHandler(new CallTransferHandler(call));
     }
@@ -133,7 +131,7 @@ public class ConferenceCallPanel
         constraints.gridy = 0;
         constraints.weightx = 1;
         constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 10, 0);
+        constraints.insets = new Insets(0, 0, 3, 0);
 
         mainPanel.add(localPeerPanel, constraints);
 
@@ -158,18 +156,25 @@ public class ConferenceCallPanel
         if (callPeerPanels.containsKey(peer))
             return;
 
-        ConferencePeerPanel confPeerPanel
-            = new ConferencePeerPanel(this, callPanel, peer);
+        ConferenceCallPeerRenderer confPeerRenderer;
 
-        peer.addCallPeerConferenceListener(confPeerPanel);
+        if (peer.getConferenceMemberCount() > 0)
+        {
+            confPeerRenderer = new ConferenceFocusPanel(this, callPanel, peer);
+        }
+        else
+        {
+            confPeerRenderer
+                = new ConferencePeerPanel(this, callPanel, peer);
 
-        peer.addConferenceMembersSoundLevelListener(
-            confPeerPanel.getConferenceMembersSoundLevelListener());
-        peer.addStreamSoundLevelListener(
-            confPeerPanel.getStreamSoundLevelListener());
+            peer.addConferenceMembersSoundLevelListener(
+                confPeerRenderer.getConferenceMembersSoundLevelListener());
+            peer.addStreamSoundLevelListener(
+                confPeerRenderer.getStreamSoundLevelListener());
+        }
 
         // Map the call peer to its renderer.
-        callPeerPanels.put(peer, confPeerPanel);
+        callPeerPanels.put(peer, confPeerRenderer);
 
         // Add the renderer component to this container.
         constraints.fill = GridBagConstraints.BOTH;
@@ -177,19 +182,20 @@ public class ConferenceCallPanel
         constraints.gridy++;
         constraints.weightx = 1;
         constraints.weighty = 0;
-        constraints.insets = new Insets(0, 0, 10, 0);
+        constraints.insets = new Insets(0, 0, 3, 0);
 
-        mainPanel.add(confPeerPanel, constraints);
+        mainPanel.add((Component) confPeerRenderer, constraints);
 
         // Create an adapter which would manage all common call peer listeners.
         CallPeerAdapter callPeerAdapter
-            = new CallPeerAdapter(peer, confPeerPanel);
+            = new CallPeerAdapter(peer, confPeerRenderer);
 
-        confPeerPanel.setCallPeerAdapter(callPeerAdapter);
+        confPeerRenderer.setCallPeerAdapter(callPeerAdapter);
 
         peer.addCallPeerListener(callPeerAdapter);
         peer.addPropertyChangeListener(callPeerAdapter);
         peer.addCallPeerSecurityListener(callPeerAdapter);
+        peer.addCallPeerConferenceListener(callPeerAdapter);
 
         SwingUtilities.invokeLater(scrollToBottomRunnable);
     }
@@ -201,56 +207,38 @@ public class ConferenceCallPanel
      */
     public void removeCallPeerPanel(CallPeer peer)
     {
-        ConferencePeerPanel confPeerPanel = callPeerPanels.get(peer);
+        ConferenceCallPeerRenderer confPeerRenderer = callPeerPanels.get(peer);
 
-        if (confPeerPanel == null)
+        if (confPeerRenderer == null)
             return;
 
         // first remove the listeners as after removing the panel
         // we may still receive sound level indicators and there are
         // missing ui components leading to exception
-        peer.removeCallPeerConferenceListener(confPeerPanel);
-        peer.removeConferenceMembersSoundLevelListener(
-            confPeerPanel.getConferenceMembersSoundLevelListener());
-        peer.removeStreamSoundLevelListener(
-            confPeerPanel.getStreamSoundLevelListener());
+        ConferenceMembersSoundLevelListener membersSoundLevelListener
+            = confPeerRenderer.getConferenceMembersSoundLevelListener();
+        if (membersSoundLevelListener != null)
+            peer.removeConferenceMembersSoundLevelListener(
+                membersSoundLevelListener);
+
+        SoundLevelListener soundLevelListener
+            = confPeerRenderer.getStreamSoundLevelListener();
+        if (soundLevelListener != null)
+            peer.removeStreamSoundLevelListener(soundLevelListener);
 
         // Remove the corresponding renderer.
         callPeerPanels.remove(peer);
 
         // Remove the renderer component.
-        mainPanel.remove(confPeerPanel);
-
-        if (call.getCallPeerCount() < 2)
-            setSingleConferenceFocusUI(true);
+        mainPanel.remove(confPeerRenderer.getComponent());
 
         // Remove all common listeners.
-        CallPeerAdapter adapter = confPeerPanel.getCallPeerAdapter();
+        CallPeerAdapter adapter = confPeerRenderer.getCallPeerAdapter();
 
         peer.removeCallPeerListener(adapter);
         peer.removePropertyChangeListener(adapter);
         peer.removeCallPeerSecurityListener(adapter);
-    }
-
-    /**
-     * Sets the single conference focus interface.
-     * @param isSingleConferenceFocusUI indicates if the single conference
-     * focus interface should be enabled or disabled
-     */
-    private void setSingleConferenceFocusUI(boolean isSingleConferenceFocusUI)
-    {
-        Enumeration<CallPeer> callPeers = callPeerPanels.keys();
-
-        while (callPeers.hasMoreElements())
-        {
-            CallPeer callPeer = callPeers.nextElement();
-
-            if (callPeer.isConferenceFocus())
-            {
-                callPeerPanels.get(callPeer)
-                    .setSingleFocusUI(isSingleConferenceFocusUI);
-            }
-        }
+        peer.removeCallPeerConferenceListener(adapter);
     }
 
     private static class MyViewport
@@ -445,5 +433,53 @@ public class ConferenceCallPanel
     public Call getCall()
     {
         return call;
+    }
+
+    /**
+     * Indicates that the given conference member has been added to the given
+     * peer.
+     *
+     * @param callPeer the parent call peer
+     * @param conferenceMember the member that was added
+     */
+    public void conferenceMemberAdded(  CallPeer callPeer,
+                                        ConferenceMember conferenceMember)
+    {
+        CallPeerRenderer peerRenderer = callPeerPanels.get(callPeer);
+
+        if (peerRenderer instanceof ConferencePeerPanel)
+        {
+            removeCallPeerPanel(callPeer);
+            addCallPeerPanel(callPeer);
+        }
+        else if (peerRenderer instanceof ConferenceFocusPanel)
+        {
+            ((ConferenceFocusPanel) peerRenderer)
+                .addConferenceMemberPanel(conferenceMember);
+        }
+    }
+
+    /**
+     * Indicates that the given conference member has been removed from the
+     * given peer.
+     *
+     * @param callPeer the parent call peer
+     * @param conferenceMember the member that was removed
+     */
+    public void conferenceMemberRemoved(CallPeer callPeer,
+                                        ConferenceMember conferenceMember)
+    {
+        CallPeerRenderer peerRenderer = callPeerPanels.get(callPeer);
+
+        if (callPeer.getConferenceMemberCount() > 0)
+        {
+            ((ConferenceFocusPanel) peerRenderer)
+                .removeConferenceMemberPanel(conferenceMember);
+        }
+        else
+        {
+            removeCallPeerPanel(callPeer);
+            addCallPeerPanel(callPeer);
+        }
     }
 }

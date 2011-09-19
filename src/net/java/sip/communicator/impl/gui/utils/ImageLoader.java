@@ -738,6 +738,18 @@ public class ImageLoader
         new ImageID("service.gui.buttons.SECURE_BUTTON_OFF");
 
     /**
+     * The conference secure button on icon.
+     */
+    public static final ImageID SECURE_ON_CONF_CALL =
+        new ImageID("service.gui.buttons.SECURE_ON_CONF_CALL");
+
+    /**
+     * The conference secure button off icon.
+     */
+    public static final ImageID SECURE_OFF_CONF_CALL =
+        new ImageID("service.gui.buttons.SECURE_OFF_CONF_CALL");
+
+    /**
      * The secure button on icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID SECURE_AUDIO_ON =

@@ -40,7 +40,7 @@ public class ConferenceMemberPanel
     public ConferenceMemberPanel(   CallRenderer callRenderer,
                                     ConferenceMember member)
     {
-        super(callRenderer);
+        super(callRenderer, false);
 
         this.member = member;
 

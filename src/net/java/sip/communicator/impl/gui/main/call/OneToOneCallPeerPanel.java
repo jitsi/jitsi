@@ -69,7 +69,9 @@ public class OneToOneCallPeerPanel
     /**
      * The security status of the peer
      */
-    private SecurityStatusLabel securityStatusLabel = new SecurityStatusLabel();
+    private SecurityStatusLabel securityStatusLabel
+        = new SecurityStatusLabel(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
 
     /**
      * The label showing whether the voice has been set to mute.
@@ -1904,5 +1906,25 @@ public class OneToOneCallPeerPanel
     public boolean isLocalVideoVisible()
     {
         return localVideoVisible;
+    }
+
+    /**
+     * Returns the parent call renderer.
+     *
+     * @return the parent call renderer
+     */
+    public CallRenderer getCallRenderer()
+    {
+        return callRenderer;
+    }
+
+    /**
+     * Returns the component associated with this renderer.
+     *
+     * @return the component associated with this renderer
+     */
+    public Component getComponent()
+    {
+        return this;
     }
 }

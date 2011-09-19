@@ -14,6 +14,7 @@ import javax.swing.text.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -29,6 +30,9 @@ public class BasicConferenceParticipantPanel
     extends TransparentPanel
     implements Skinnable
 {
+    /**
+     * Background color.
+     */
     private static final Color bgColor = new Color(255, 255, 255);
 
     /**
@@ -66,20 +70,38 @@ public class BasicConferenceParticipantPanel
      */
     private JTextComponent errorMessageComponent;
 
+    /**
+     * The status bar of the participant panel.
+     */
     private final JPanel statusBar
         = new TransparentPanel(new GridBagLayout());
 
+    /**
+     * The status bar constraints.
+     */
     private final GridBagConstraints statusBarConstraints
         = new GridBagConstraints();
 
+    /**
+     * The name bar.
+     */
     private final JPanel nameBar
         = new TransparentPanel(new GridBagLayout());
 
+    /**
+     * The constraints used to layout the name bar.
+     */
     private final GridBagConstraints nameBarConstraints
         = new GridBagConstraints();
 
+    /**
+     * The panel containing all peer details.
+     */
     private final TransparentPanel peerDetailsPanel = new TransparentPanel();
 
+    /**
+     * The right details panel.
+     */
     private final TransparentPanel rightDetailsPanel
         = new TransparentPanel(new GridLayout(0, 1));
 
@@ -88,11 +110,10 @@ public class BasicConferenceParticipantPanel
      */
     private final SoundLevelIndicator soundIndicator;
 
+    /**
+     * Main panel constraints.
+     */
     private final GridBagConstraints constraints = new GridBagConstraints();
-
-    private boolean isFocusUI;
-
-    private boolean isSingleFocusUI;
 
     /**
      * True if the avatar icon was changed and is no more default.
@@ -100,18 +121,38 @@ public class BasicConferenceParticipantPanel
     private boolean iconChanged = false;
 
     /**
+     * Security imageID.
+     */
+    private ImageID securityImageID = ImageLoader.SECURE_OFF_CONF_CALL;
+
+    /**
+     * The security status of the peer
+     */
+    private SecurityStatusLabel securityStatusLabel
+        = new SecurityStatusLabel(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.SECURE_OFF_CONF_CALL)));
+
+    /**
+     * Indicates if this panel is mentioned for the local participant.
+     */
+    private boolean isLocalPeer;
+
+    /**
      * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
      *
      * @param renderer the renderer for the call
      */
-    public BasicConferenceParticipantPanel(CallRenderer renderer)
+    public BasicConferenceParticipantPanel( CallRenderer renderer,
+                                            boolean isLocalPeer)
     {
+        this.isLocalPeer = isLocalPeer;
+
         soundIndicator = new SoundLevelIndicator(  renderer,
                                         SoundLevelChangeEvent.MIN_LEVEL,
                                         SoundLevelChangeEvent.MAX_LEVEL);
 
         this.setLayout(new GridBagLayout());
-        this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+        this.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
 
         this.initTitleBar();
 
@@ -207,98 +248,6 @@ public class BasicConferenceParticipantPanel
     }
 
     /**
-     * Enables or disables the single conference focus user interface.
-     * @param isSingleFocusUI indicates if we should enable or disable the
-     * conference focus user interface.
-     */
-    public void setSingleFocusUI(boolean isSingleFocusUI)
-    {
-        this.isSingleFocusUI = isSingleFocusUI;
-
-        if (isSingleFocusUI)
-        {
-            this.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
-
-            this.remove(titleBar);
-            this.remove(peerDetailsPanel);
-        }
-        else
-        {
-            this.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            constraints.gridx = 0;
-            constraints.gridy = 0;
-            constraints.weightx = 1;
-            constraints.weighty = 0;
-            constraints.insets = new Insets(0, 0, 0, 0);
-
-            this.add(titleBar, constraints);
-
-            constraints.fill = GridBagConstraints.BOTH;
-            constraints.gridx = 0;
-            constraints.gridy = 1;
-            constraints.weightx = 1;
-            constraints.weighty = 0;
-            constraints.insets = new Insets(0, 0, 0, 0);
-
-            this.add(peerDetailsPanel, constraints);
-        }
-        this.revalidate();
-        this.repaint();
-    }
-
-    /**
-     * Enables or disables the conference focus user interface.
-     * @param isFocusUI indicates if we should enable or disable the
-     * conference focus user interface.
-     */
-    public void setFocusUI(boolean isFocusUI)
-    {
-        this.isFocusUI = isFocusUI;
-
-        if (isFocusUI)
-        {
-            this.remove(peerDetailsPanel);
-        }
-        else
-        {
-            constraints.fill = GridBagConstraints.BOTH;
-            constraints.gridx = 0;
-            constraints.gridy = 1;
-            constraints.weightx = 1;
-            constraints.weighty = 0;
-            constraints.insets = new Insets(0, 0, 0, 0);
-
-            this.add(peerDetailsPanel, constraints);
-        }
-        this.revalidate();
-        this.repaint();
-    }
-
-    /**
-     * Returns <tt>true</tt> if the current interface corresponds to a
-     * single conference focus interface, otherwise returns <tt>false</tt>.
-     * @return <tt>true</tt> if the current interface corresponds to a
-     * single conference focus interface, otherwise returns <tt>false</tt>.
-     */
-    public boolean isSingleFocusUI()
-    {
-        return isSingleFocusUI;
-    }
-
-    /**
-     * Returns <tt>true</tt> if the current interface corresponds to a
-     * conference focus interface, otherwise returns <tt>false</tt>.
-     * @return <tt>true</tt> if the current interface corresponds to a
-     * conference focus interface, otherwise returns <tt>false</tt>.
-     */
-    public boolean isFocusUI()
-    {
-        return isFocusUI;
-    }
-
-    /**
      * Adds the given <tt>component</tt> to the status bar.
      * @param component the component to add
      */
@@ -358,6 +307,9 @@ public class BasicConferenceParticipantPanel
         statusBarConstraints.weightx = 1f;
         statusBar.add(callStatusLabel, statusBarConstraints);
 
+        if (!isLocalPeer)
+            this.addToStatusBar(securityStatusLabel);
+
         GridBagConstraints constraints = new GridBagConstraints();
 
         constraints.gridx = 0;
@@ -384,22 +336,19 @@ public class BasicConferenceParticipantPanel
     {
         super.paintComponent(g);
 
-        if (!isSingleFocusUI)
+        g = g.create();
+
+        try
         {
-            g = g.create();
+            AntialiasingManager.activateAntialiasing(g);
 
-            try
-            {
-                AntialiasingManager.activateAntialiasing(g);
-
-                g.setColor(bgColor);
-                g.fillRoundRect(
-                    0, 0, this.getWidth(), this.getHeight(), 20, 20);
-            }
-            finally
-            {
-                g.dispose();
-            }
+            g.setColor(bgColor);
+            g.fillRoundRect(
+                5, 5, this.getWidth() - 10, this.getHeight() - 10, 20, 20);
+        }
+        finally
+        {
+            g.dispose();
         }
     }
 
@@ -460,5 +409,60 @@ public class BasicConferenceParticipantPanel
 
             imageLabel.setIcon(avatarIcon);
         }
+
+        securityStatusLabel.setIcon(new ImageIcon(
+                ImageLoader.getImage(securityImageID)));
+    }
+
+    /**
+     * Indicates that the security has gone off.
+     */
+    public void securityOff()
+    {
+        securityImageID = ImageLoader.SECURE_OFF_CONF_CALL;
+
+        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SECURE_OFF_CONF_CALL)));
+    }
+
+    public void setAudioSecurityOn(boolean isAudioSecurityOn)
+    {
+        securityStatusLabel.setAudioSecurityOn(isAudioSecurityOn);
+    }
+
+    /**
+     * Updates all related components to fit the new value.
+     * @param encryptionCipher the encryption cipher to show
+     */
+    public void setEncryptionCipher(String encryptionCipher)
+    {
+        securityStatusLabel.setEncryptionCipher(encryptionCipher);
+    }
+
+    /**
+     * Updates all related components to fit the new value.
+     * @param isVideoSecurityOn indicates if the video security is turned on
+     * or off.
+     */
+    public void setVideoSecurityOn(boolean isVideoSecurityOn)
+    {
+        securityStatusLabel.setVideoSecurityOn(isVideoSecurityOn);
+    }
+
+    /**
+     * Indicates that the security is turned on.
+     * <p>
+     * Sets the secured status icon to the status panel and initializes/updates
+     * the corresponding security details.
+     * @param securityString the security string
+     * @param isSecurityVerified indicates if the security string has been
+     * already verified by the underlying <tt>CallPeer</tt>
+     */
+    public void securityOn()
+    {
+        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SECURE_ON_CONF_CALL)));
+
+        securityImageID = ImageLoader.SECURE_ON_CONF_CALL;
     }
 }

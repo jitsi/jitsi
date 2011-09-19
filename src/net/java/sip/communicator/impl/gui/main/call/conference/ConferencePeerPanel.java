@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -32,8 +31,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class ConferencePeerPanel
     extends BasicConferenceParticipantPanel
-    implements  CallPeerRenderer,
-                CallPeerConferenceListener,
+    implements  ConferenceCallPeerRenderer,
                 Skinnable
 {
     /**
@@ -72,11 +70,6 @@ public class ConferencePeerPanel
     private final JLabel holdStatusLabel = new JLabel();
 
     /**
-     * The security status of the peer
-     */
-    private SecurityStatusLabel securityStatusLabel = new SecurityStatusLabel();
-
-    /**
      * The DTMF label.
      */
     private final JLabel dtmfLabel = new JLabel();
@@ -90,11 +83,6 @@ public class ConferencePeerPanel
      * The call peer adapter.
      */
     private CallPeerAdapter callPeerAdapter;
-
-    /**
-     * Security imageID.
-     */
-    private ImageID securityImageID = ImageLoader.SECURE_BUTTON_OFF;
 
     /**
      * Maps a <tt>ConferenceMember</tt> to its renderer panel.
@@ -129,7 +117,7 @@ public class ConferencePeerPanel
                                 CallPanel callPanel,
                                 ProtocolProviderService protocolProvider)
     {
-        super(callRenderer);
+        super(callRenderer, true);
 
         this.callRenderer = callRenderer;
         this.callPanel = callPanel;
@@ -165,7 +153,7 @@ public class ConferencePeerPanel
                                 CallPanel callContainer,
                                 CallPeer callPeer)
     {
-        super(callRenderer);
+        super(callRenderer, false);
 
         this.callRenderer = callRenderer;
         this.callPanel = callContainer;
@@ -190,10 +178,6 @@ public class ConferencePeerPanel
         this.setTitleBackground(
             new Color(GuiActivator.getResources().getColor(
                 "service.gui.CALL_PEER_NAME_BACKGROUND")));
-
-        // Add the UI for all contained conference members.
-        for (ConferenceMember member : callPeer.getConferenceMembers())
-            this.addConferenceMemberPanel(member);
 
         initSecuritySettings();
     }
@@ -241,10 +225,7 @@ public class ConferencePeerPanel
      */
     public void securityOff()
     {
-        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SECURE_BUTTON_OFF)));
-
-        securityImageID = ImageLoader.SECURE_BUTTON_OFF;
+        super.securityOff();
     }
 
     /**
@@ -259,10 +240,7 @@ public class ConferencePeerPanel
     public void securityOn( String securityString,
                             boolean isSecurityVerified)
     {
-        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SECURE_BUTTON_ON)));
-
-        securityImageID = ImageLoader.SECURE_BUTTON_ON;
+        super.securityOn();
 
         if ((securityPanel == null) && (callPeer != null))
         {
@@ -272,6 +250,7 @@ public class ConferencePeerPanel
 
             this.addToCenter(securityPanel);
         }
+
         if (securityPanel != null)
             securityPanel.refreshStates(securityString, isSecurityVerified);
 
@@ -344,35 +323,6 @@ public class ConferencePeerPanel
     }
 
     /**
-     * Updates all related components to fit the new value.
-     * @param isAudioSecurityOn indicates if the audio security is turned on
-     * or off.
-     */
-    public void setAudioSecurityOn(boolean isAudioSecurityOn)
-    {
-        securityStatusLabel.setAudioSecurityOn(isAudioSecurityOn);
-    }
-
-    /**
-     * Updates all related components to fit the new value.
-     * @param encryptionCipher the encryption cipher to show
-     */
-    public void setEncryptionCipher(String encryptionCipher)
-    {
-        securityStatusLabel.setEncryptionCipher(encryptionCipher);
-    }
-
-    /**
-     * Updates all related components to fit the new value.
-     * @param isVideoSecurityOn indicates if the video security is turned on
-     * or off.
-     */
-    public void setVideoSecurityOn(boolean isVideoSecurityOn)
-    {
-        securityStatusLabel.setVideoSecurityOn(isVideoSecurityOn);
-    }
-
-    /**
      * Sets the call peer adapter that manages all related listeners.
      * @param adapter the call peer adapter
      */
@@ -427,105 +377,9 @@ public class ConferencePeerPanel
     {
         this.setParticipantState(callPeer.getState().getLocalizedStateString());
 
-        this.addToStatusBar(securityStatusLabel);
         this.addToStatusBar(holdStatusLabel);
         this.addToStatusBar(muteStatusLabel);
         this.addToStatusBar(dtmfLabel);
-    }
-
-    /**
-     * Adds a <tt>ConferenceMemberPanel</tt> for a given
-     * <tt>ConferenceMember</tt>.
-     *
-     * @param member the <tt>ConferenceMember</tt> that will correspond to the
-     * panel to add.
-     */
-    private void addConferenceMemberPanel(ConferenceMember member)
-    {
-        String localUserAddress
-            = callPeer.getProtocolProvider().getAccountID().getAccountAddress();
-
-        boolean isLocalMember
-            = addressesAreEqual(member.getAddress(), localUserAddress);
-
-        // We don't want to add the local member to the list of members.
-        if (isLocalMember)
-            return;
-
-        // If we're not in a focus UI, when a new member is added we
-        // switch to it.
-        if (!isFocusUI())
-            setFocusUI(true);
-
-        // If this is the only call peer we switch to the single focus user
-        // interface.
-        if (callPeer.getCall().getCallPeerCount() > 1)
-            setSingleFocusUI(false);
-        else
-            setSingleFocusUI(true);
-
-        // It's already there.
-        if (conferenceMembersPanels.containsKey(member))
-            return;
-
-        ConferenceMemberPanel memberPanel
-            = new ConferenceMemberPanel(callRenderer, member);
-
-        // Map the conference member to the created member panel.
-        conferenceMembersPanels.put(member, memberPanel);
-
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        // Add the member panel to this container
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.gridx = 0;
-        constraints.gridy = getComponentCount();
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        constraints.insets = new Insets(10, 0, 0, 0);
-
-        this.add(memberPanel, constraints);
-
-        member.addPropertyChangeListener(memberPanel);
-    }
-
-    /**
-     * Removes the <tt>ConferenceMemberPanel</tt> corresponding to the given
-     * <tt>member</tt>.
-     *
-     * @param member the <tt>ConferenceMember</tt>, which panel to remove
-     */
-    private void removeConferenceMemberPanel(ConferenceMember member)
-    {
-        ConferenceMemberPanel memberPanel = conferenceMembersPanels.get(member);
-
-        if (memberPanel != null)
-        {
-            int i = 0;
-            this.remove(memberPanel);
-            conferenceMembersPanels.remove(member);
-            member.removePropertyChangeListener(memberPanel);
-
-            for(Map.Entry<ConferenceMember, ConferenceMemberPanel> m :
-                conferenceMembersPanels.entrySet())
-            {
-                GridBagConstraints constraints = new GridBagConstraints();
-                ConferenceMemberPanel mV = m.getValue();
-
-                this.remove(mV);
-
-                // Add again the member panel to this container
-                constraints.fill = GridBagConstraints.BOTH;
-                constraints.gridx = 0;
-                constraints.gridy = i;
-                constraints.weightx = 1;
-                constraints.weighty = 0;
-                constraints.insets = new Insets(10, 0, 0, 0);
-
-                this.add(mV, constraints);
-                i++;
-            }
-        }
     }
 
     /**
@@ -539,172 +393,11 @@ public class ConferencePeerPanel
     }
 
     /**
-     * Adds a <tt>ConferenceMemberPanel</tt> to this container when a
-     * <tt>ConferenceMember</tt> has been added to the corresponding conference.
-     * @param conferenceEvent the <tt>CallPeerConferenceEvent</tt> that has been
-     * triggered
-     */
-    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
-    {
-        addConferenceMemberPanel(conferenceEvent.getConferenceMember());
-
-        callPanel.refreshContainer();
-    }
-
-    /**
-     * Determines whether two specific addresses refer to one and the same
-     * peer/resource/contact.
-     * <p>
-     * <b>Warning</b>: Use the functionality sparingly because it assumes that
-     * an unspecified service is equal to any service.
-     * </p>
-     *
-     * @param a one of the addresses to be compared
-     * @param b the other address to be compared to <tt>a</tt>
-     * @return <tt>true</tt> if <tt>a</tt> and <tt>b</tt> name one and the same
-     * peer/resource/contact; <tt>false</tt>, otherwise
-     */
-    private static boolean addressesAreEqual(String a, String b)
-    {
-        if (a.equals(b))
-            return true;
-
-        int aServiceBegin = a.indexOf('@');
-        String aUserID;
-        String aService;
-
-        if (aServiceBegin > -1)
-        {
-            aUserID = a.substring(0, aServiceBegin);
-            aService = a.substring(aServiceBegin + 1);
-        }
-        else
-        {
-            aUserID = a;
-            aService = null;
-        }
-
-        int bServiceBegin = b.indexOf('@');
-        String bUserID;
-        String bService;
-
-        if (bServiceBegin > -1)
-        {
-            bUserID = b.substring(0, bServiceBegin);
-            bService = b.substring(bServiceBegin + 1);
-        }
-        else
-        {
-            bUserID = b;
-            bService = null;
-        }
-
-        boolean userIDsAreEqual;
-
-        if ((aUserID == null) || (aUserID.length() < 1))
-            userIDsAreEqual = ((bUserID == null) || (bUserID.length() < 1));
-        else
-            userIDsAreEqual = aUserID.equals(bUserID);
-        if (!userIDsAreEqual)
-            return false;
-
-        boolean servicesAreEqual;
-
-        /*
-         * It's probably a veeery long shot but it's assumed here that an
-         * unspecified service is equal to any service. Such a case is, for
-         * example, RegistrarLess SIP.
-         */
-        if (((aService == null) || (aService.length() < 1))
-                || ((bService == null) || (bService.length() < 1)))
-            servicesAreEqual = true;
-        else
-            servicesAreEqual = aService.equals(bService);
-        return servicesAreEqual;
-    }
-
-    /**
-     * Removes the corresponding <tt>ConferenceMemberPanel</tt> from this
-     * container when a <tt>ConferenceMember</tt> has been removed from the
-     * corresponding conference.
-     * @param conferenceEvent the <tt>CallPeerConferenceEvent</tt> that has been
-     * triggered
-     */
-    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
-    {
-        ConferenceMember member = conferenceEvent.getConferenceMember();
-
-        if (callPeer.getConferenceMemberCount() == 0 && isFocusUI())
-            setFocusUI(false);
-
-        // in situation we were in two conf calls but the other one
-        // is now with 2 peers (us and the his) we must show it
-        // like a normal conf call peer, we are back to single focus ui
-        if(isFocusUI() && !isSingleFocusUI() &&
-            callPeer.getConferenceMemberCount() == 2)
-        {
-            setSingleFocusUI(true);
-        }
-
-        this.removeConferenceMemberPanel(member);
-
-        callPanel.refreshContainer();
-    }
-
-    /**
-     * Enables or disables the conference focus UI depending on the change.
-     *
-     * When a peer changes its status from focus to not focus or the reverse.
-     * we must change its listeners.
-     * If the peer is focus we use conference member lister, cause we will
-     * receive its status and the statuses of its conference members.
-     * And if it is not a focus we must listen with stream
-     * sound level listener
-     *
-     * @param conferenceEvent the conference event
-     */
-    public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
-    {
-        // We disable the focus UI when a callPeer looses focus. However in the
-        // other direction we'll only enable it when we receive the first
-        // conference member.
-        if (conferenceEvent.getSourceCallPeer().equals(callPeer)
-            && !callPeer.isConferenceFocus() && isFocusUI())
-            setFocusUI(false);
-    }
-
-    /**
-     * Paints a special background for conference focus peers.
-     * @param g the <tt>Graphics</tt> object used for painting
-     */
-    @Override
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-        if (isFocusUI() && !isSingleFocusUI())
-        {
-            Graphics2D g2 = (Graphics2D) g.create();
-
-            try
-            {
-                AntialiasingManager.activateAntialiasing(g2);
-
-                g2.setColor(Color.LIGHT_GRAY);
-                g2.fillRoundRect(0, 0,
-                    this.getWidth(), this.getHeight(), 20, 20);
-            }
-            finally
-            {
-                g2.dispose();
-            }
-        }
-    }
-
-    /**
      * Returns the listener instance and created if needed.
      * @return the conferenceMembersSoundLevelListener
      */
-    ConferenceMembersSoundLevelListener getConferenceMembersSoundLevelListener()
+    public ConferenceMembersSoundLevelListener
+        getConferenceMembersSoundLevelListener()
     {
         if(conferenceMembersSoundLevelListener == null)
             conferenceMembersSoundLevelListener =
@@ -717,7 +410,7 @@ public class ConferencePeerPanel
      * Returns the listener instance and created if needed.
      * @return the streamSoundLevelListener
      */
-    StreamSoundLevelListener getStreamSoundLevelListener()
+    public StreamSoundLevelListener getStreamSoundLevelListener()
     {
         if(streamSoundLevelListener == null)
             streamSoundLevelListener = new StreamSoundLevelListener();
@@ -781,9 +474,6 @@ public class ConferencePeerPanel
             new Color(GuiActivator.getResources().getColor(
                 "service.gui.CALL_LOCAL_USER_BACKGROUND")));
 
-        securityStatusLabel.setIcon(new ImageIcon(
-                ImageLoader.getImage(securityImageID)));
-
         if(muteStatusLabel.getIcon() != null)
             muteStatusLabel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
@@ -813,4 +503,23 @@ public class ConferencePeerPanel
      */
     public boolean isLocalVideoVisible() { return false; }
 
+    /**
+     * Returns the parent call renderer.
+     * 
+     * @return the parent call renderer
+     */
+    public CallRenderer getCallRenderer()
+    {
+        return callRenderer;
+    }
+
+    /**
+     * Returns the component associated with this renderer.
+     *
+     * @return the component associated with this renderer
+     */
+    public Component getComponent()
+    {
+        return this;
+    }
 }

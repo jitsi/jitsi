@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.*;
+
 /**
  * The <tt>CallPeerRenderer</tt> interface is meant to be implemented by
  * different renderers of <tt>CallPeer</tt>s. Through this interface they would
@@ -17,12 +19,14 @@ public interface CallPeerRenderer
 {
     /**
      * Sets the name of the peer.
+     *
      * @param name the name of the peer
      */
     public void setPeerName(String name);
 
     /**
      * Sets the <tt>image</tt> of the peer.
+     *
      * @param image the image to set
      */
     public void setPeerImage(byte[] image);
@@ -38,6 +42,7 @@ public interface CallPeerRenderer
     /**
      * Sets the reason of a call failure if one occurs. The renderer should
      * display this reason to the user.
+     *
      * @param reason the reason of the error to set
      */
     public void setErrorReason(String reason);
@@ -52,6 +57,7 @@ public interface CallPeerRenderer
 
     /**
      * Sets the "on hold" property value.
+     *
      * @param isOnHold indicates if the call with this peer is put on hold
      */
     public void setOnHold(boolean isOnHold);
@@ -59,6 +65,7 @@ public interface CallPeerRenderer
     /**
      * Indicates that the security is turned on by specifying the
      * <tt>securityString</tt> and whether it has been already verified.
+     *
      * @param securityString the security string
      * @param isSecurityVerified indicates if the security string has been
      * already verified by the underlying <tt>CallPeer</tt>
@@ -97,27 +104,45 @@ public interface CallPeerRenderer
 
     /**
      * Sets the call peer adapter that manages all related listeners.
+     *
      * @param adapter the call peer adapter
      */
     public void setCallPeerAdapter(CallPeerAdapter adapter);
 
     /**
      * Returns the call peer adapter that manages all related listeners.
+     *
      * @return the call peer adapter
      */
     public CallPeerAdapter getCallPeerAdapter();
 
     /**
      * Prints the given DTMG character through this <tt>CallPeerRenderer</tt>.
+     *
      * @param dtmfChar the DTMF char to print
      */
     public void printDTMFTone(char dtmfChar);
 
     /**
      * Returns the parent <tt>CallPanel</tt> containing this renderer.
+     *
      * @return the parent <tt>CallPanel</tt> containing this renderer
      */
     public CallPanel getCallPanel();
+
+    /**
+     * Returns the parent call renderer.
+     *
+     * @return the parent call renderer
+     */
+    public CallRenderer getCallRenderer();
+
+    /**
+     * Returns the component associated with this renderer.
+     *
+     * @return the component associated with this renderer
+     */
+    public Component getComponent();
 
     /**
      * Shows/hides the local video component.

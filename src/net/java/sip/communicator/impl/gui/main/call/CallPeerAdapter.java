@@ -24,7 +24,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class CallPeerAdapter
     extends net.java.sip.communicator.service.protocol.event.CallPeerAdapter
     implements PropertyChangeListener,
-               CallPeerSecurityListener
+               CallPeerSecurityListener,
+               CallPeerConferenceListener
 {
     /**
      * The renderer of the underlying <tt>CallPeer</tt>.
@@ -313,4 +314,44 @@ public class CallPeerAdapter
             break;
         }
     }
+
+    /**
+     * Adds a <tt>ConferenceMemberPanel</tt> to this container when a
+     * <tt>ConferenceMember</tt> has been added to the corresponding conference.
+     * @param conferenceEvent the <tt>CallPeerConferenceEvent</tt> that has been
+     * triggered
+     */
+    public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
+    {
+        renderer.getCallRenderer().conferenceMemberAdded(
+            callPeer, conferenceEvent.getConferenceMember());
+    }
+
+    /**
+     * Removes the corresponding <tt>ConferenceMemberPanel</tt> from this
+     * container when a <tt>ConferenceMember</tt> has been removed from the
+     * corresponding conference.
+     * @param conferenceEvent the <tt>CallPeerConferenceEvent</tt> that has been
+     * triggered
+     */
+    public void conferenceMemberRemoved(CallPeerConferenceEvent conferenceEvent)
+    {
+        renderer.getCallRenderer().conferenceMemberRemoved(
+            callPeer, conferenceEvent.getConferenceMember());
+    }
+
+    /**
+     * Enables or disables the conference focus UI depending on the change.
+     *
+     * When a peer changes its status from focus to not focus or the reverse.
+     * we must change its listeners.
+     * If the peer is focus we use conference member lister, cause we will
+     * receive its status and the statuses of its conference members.
+     * And if it is not a focus we must listen with stream
+     * sound level listener
+     *
+     * @param conferenceEvent the conference event
+     */
+    public void conferenceFocusChanged(CallPeerConferenceEvent conferenceEvent)
+    {}
 }
