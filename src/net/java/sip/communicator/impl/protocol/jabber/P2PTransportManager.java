@@ -33,6 +33,11 @@ public class P2PTransportManager
         = Logger.getLogger(P2PTransportManager.class);
 
     /**
+     * Synchronization object.
+     */
+    private final Object wrapupSyncRoot = new Object();
+
+    /**
      * Creates a new instance of this transport manager, binding it to the
      * specified peer.
      *
@@ -200,7 +205,12 @@ public class P2PTransportManager
                     = ourContent.getFirstChildOfType(
                             RtpDescriptionPacketExtension.class);
 
-                IceMediaStream stream = createIceStream(rtpDesc.getMedia());
+                IceMediaStream stream = null;
+
+                synchronized(wrapupSyncRoot)
+                {
+                    stream = createIceStream(rtpDesc.getMedia());
+                }
 
                 //we now generate the XMPP code containing the candidates.
                 ourContent.addChildExtension(createTransport(stream));
@@ -235,7 +245,10 @@ public class P2PTransportManager
                     IceMediaStream stream = null;
                     try
                     {
-                        stream = createIceStream(rtpDesc.getMedia());
+                        synchronized(wrapupSyncRoot)
+                        {
+                            stream = createIceStream(rtpDesc.getMedia());
+                        }
                     }
                     catch (OperationFailedException e)
                     {
@@ -428,8 +441,12 @@ public class P2PTransportManager
                 if(candidate.getProtocol().equalsIgnoreCase("ssltcp"))
                     continue;
 
-                Component component
-                    = stream.getComponent(candidate.getComponent());
+                Component component = null;
+
+                synchronized(wrapupSyncRoot)
+                {
+                   component = stream.getComponent(candidate.getComponent());
+                }
 
                 RemoteCandidate remoteCandidate = new RemoteCandidate(
                         new TransportAddress(
