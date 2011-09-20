@@ -27,6 +27,19 @@ public class AddrBookActivator
     implements BundleActivator
 {
     /**
+     * Boolean property that defines whether the integration of the Outlook
+     * address book is enabled.
+     */
+    public static final String PNAME_ENABLE_MICROSOFT_OUTLOOK_SEARCH =
+        "plugin.addrbook.ENABLE_MICROSOFT_OUTLOOK_SEARCH";
+    /**
+     * Boolean property that defines whether the integration of the OS X
+     * address book is enabled.
+     */
+    public static final String PNAME_ENABLE_MACOSX_ADDRESS_BOOK_SEARCH =
+        "plugin.addrbook.ENABLE_MACOSX_ADDRESS_BOOK_SEARCH";
+
+    /**
      * The <tt>Logger</tt> used by the <tt>AddrBookActivator</tt> class and its
      * instances for logging output.
      */
@@ -42,14 +55,14 @@ public class AddrBookActivator
      * The <tt>ContactSourceService</tt> implementation for the OS-specific
      * Address Book.
      */
-    private ContactSourceService css;
+    private static ContactSourceService css;
 
     /**
      * The <tt>ServiceRegistration</tt> of {@link #css} in the
      * <tt>BundleContext</tt> in which this <tt>AddrBookActivator</tt> has been
      * started.
      */
-    private ServiceRegistration cssServiceRegistration;
+    private static ServiceRegistration cssServiceRegistration;
 
     /**
      * The cached reference to the <tt>PhoneNumberI18nService</tt> instance used
@@ -161,16 +174,44 @@ public class AddrBookActivator
                 101, false),
                 properties);
 
+        startService();
+    }
+
+    /**
+     * Stops the addrbook plug-in.
+     *
+     * @param bundleContext the <tt>BundleContext</tt> in which the addrbook
+     * plug-in is to be stopped
+     * @throws Exception if anything goes wrong while stopping the addrbook
+     * plug-in
+     * @see BundleActivator#stop(BundleContext)
+     */
+    public void stop(BundleContext bundleContext)
+        throws Exception
+    {
+        stopService();
+    }
+
+    /**
+     * Starts the address book service.
+     */
+    static void startService()
+    {
         /* Register the ContactSourceService implementation (if any). */
         String cssClassName;
 
-        if (OSUtils.IS_WINDOWS)
+        if (OSUtils.IS_WINDOWS
+            && getConfigService().getBoolean(
+                PNAME_ENABLE_MICROSOFT_OUTLOOK_SEARCH, true))
+
         {
             cssClassName
                 = "net.java.sip.communicator.plugin.addrbook"
                     + ".msoutlook.MsOutlookAddrBookContactSourceService";
         }
-        else if (OSUtils.IS_MAC)
+        else if (OSUtils.IS_MAC
+                    && getConfigService().getBoolean(
+                        PNAME_ENABLE_MACOSX_ADDRESS_BOOK_SEARCH, true))
         {
             cssClassName
                 = "net.java.sip.communicator.plugin.addrbook"
@@ -210,16 +251,9 @@ public class AddrBookActivator
     }
 
     /**
-     * Stops the addrbook plug-in.
-     *
-     * @param bundleContext the <tt>BundleContext</tt> in which the addrbook
-     * plug-in is to be stopped
-     * @throws Exception if anything goes wrong while stopping the addrbook
-     * plug-in
-     * @see BundleActivator#stop(BundleContext)
+     * Stop the previously registered service.
      */
-    public void stop(BundleContext bundleContext)
-        throws Exception
+    static void stopService()
     {
         try
         {

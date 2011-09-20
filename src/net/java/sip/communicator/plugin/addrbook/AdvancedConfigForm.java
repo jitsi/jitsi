@@ -47,12 +47,12 @@ public class AdvancedConfigForm
 
         if (OSUtils.IS_MAC)
             propertiesPanel.add(createEnableCheckBox(
-                "plugin.addrbook.ENABLE_MACOSX_ADDRESS_BOOK_SEARCH",
+                AddrBookActivator.PNAME_ENABLE_MACOSX_ADDRESS_BOOK_SEARCH,
                 "plugin.addrbook.ENABLE_MACOSX_ADDRESSBOOK"));
 
         if (OSUtils.IS_WINDOWS)
             propertiesPanel.add(createEnableCheckBox(
-                "plugin.addrbook.ENABLE_MICROSOFT_OUTLOOK_SEARCH",
+                AddrBookActivator.PNAME_ENABLE_MICROSOFT_OUTLOOK_SEARCH,
                 "plugin.addrbook.ENABLE_MICROSOFT_OUTLOOK"));
 
         propertiesPanel.add(Box.createVerticalStrut(15));
@@ -83,6 +83,11 @@ public class AdvancedConfigForm
                 AddrBookActivator.getConfigService().setProperty(
                     configPropName,
                     new Boolean(checkBox.isSelected()).toString());
+
+                if (checkBox.isSelected())
+                    AddrBookActivator.startService();
+                else
+                    AddrBookActivator.stopService();
             }
         });
         return checkBox;
