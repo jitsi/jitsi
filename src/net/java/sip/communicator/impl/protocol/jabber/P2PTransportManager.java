@@ -199,23 +199,22 @@ public class P2PTransportManager
 
         if(transportInfoSender == null)
         {
-            for(ContentPacketExtension ourContent : ourOffer)
+            synchronized(wrapupSyncRoot)
             {
-                RtpDescriptionPacketExtension rtpDesc
-                    = ourContent.getFirstChildOfType(
-                            RtpDescriptionPacketExtension.class);
-
-                IceMediaStream stream = null;
-
-                synchronized(wrapupSyncRoot)
+                for(ContentPacketExtension ourContent : ourOffer)
                 {
+                    RtpDescriptionPacketExtension rtpDesc
+                        = ourContent.getFirstChildOfType(
+                                RtpDescriptionPacketExtension.class);
+
+                    IceMediaStream stream = null;
+
                     stream = createIceStream(rtpDesc.getMedia());
+
+                    //we now generate the XMPP code containing the candidates.
+                    ourContent.addChildExtension(createTransport(stream));
                 }
-
-                //we now generate the XMPP code containing the candidates.
-                ourContent.addChildExtension(createTransport(stream));
             }
-
             return;
         }
 
@@ -234,48 +233,45 @@ public class P2PTransportManager
                         ? null
                         : new LinkedList<ContentPacketExtension>();
 
-                for(ContentPacketExtension ourContent : offer)
+                synchronized(wrapupSyncRoot)
                 {
-                    RtpDescriptionPacketExtension rtpDesc
-                        = ourContent.getFirstChildOfType(
-                                RtpDescriptionPacketExtension.class);
-
-                    ourContent.addChildExtension(getTransportPacketExtension());
-
-                    IceMediaStream stream = null;
-                    try
+                    for(ContentPacketExtension ourContent : offer)
                     {
-                        synchronized(wrapupSyncRoot)
+                        RtpDescriptionPacketExtension rtpDesc
+                            = ourContent.getFirstChildOfType(
+                                    RtpDescriptionPacketExtension.class);
+
+                        ourContent.addChildExtension(getTransportPacketExtension());
+
+                        IceMediaStream stream = null;
+                        try
                         {
                             stream = createIceStream(rtpDesc.getMedia());
                         }
+                        catch (OperationFailedException e)
+                        {
+                            logger.info("Failed to create ICE stream", e);
+                        }
+
+                        ContentPacketExtension transportInfoContent
+                            = new ContentPacketExtension();
+
+                        for (String name : ourContent.getAttributeNames())
+                        {
+                            Object value = ourContent.getAttribute(name);
+
+                            if (value != null)
+                                transportInfoContent.setAttribute(name, value);
+                        }
+                        transportInfoContent.addChildExtension(
+                                createTransport(stream));
+
+                        transportInfoContents.clear();
+                        transportInfoContents.add(transportInfoContent);
+
+                        transportInfoSender.sendTransportInfo(
+                            transportInfoContents);
                     }
-                    catch (OperationFailedException e)
-                    {
-                        logger.info("Failed to create ICE stream", e);
-                    }
-
-                    //ourContent.addChildExtension(
-                    //        getTransportPacketExtension());
-
-                    ContentPacketExtension transportInfoContent
-                        = new ContentPacketExtension();
-
-                    for (String name : ourContent.getAttributeNames())
-                    {
-                        Object value = ourContent.getAttribute(name);
-
-                        if (value != null)
-                            transportInfoContent.setAttribute(name, value);
-                    }
-                    transportInfoContent.addChildExtension(
-                            createTransport(stream));
-
-                    transportInfoContents.clear();
-                    transportInfoContents.add(transportInfoContent);
-
-                    transportInfoSender.sendTransportInfo(
-                        transportInfoContents);
                 }
             }
         }.start();
@@ -445,7 +441,7 @@ public class P2PTransportManager
 
                 synchronized(wrapupSyncRoot)
                 {
-                   component = stream.getComponent(candidate.getComponent());
+                    component = stream.getComponent(candidate.getComponent());
                 }
 
                 RemoteCandidate remoteCandidate = new RemoteCandidate(
