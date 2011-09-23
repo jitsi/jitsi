@@ -61,7 +61,7 @@ public class JingleIQProvider implements IQProvider
         //<encryption/> provider
         providerManager.addExtensionProvider(
             EncryptionPacketExtension.ELEMENT_NAME,
-            EncryptionPacketExtension.NAMESPACE,
+            RtpDescriptionPacketExtension.NAMESPACE,
             new DefaultPacketExtensionProvider
                 <EncryptionPacketExtension>(EncryptionPacketExtension.class));
 
