@@ -49,7 +49,14 @@ public interface CertificateService
      * Property that is being applied to the system property
      * <tt>javax.net.ssl.trustStoreType</tt>
      */
-    public static final String PNAME_TRUSTSTORE =
+    public static final String PNAME_TRUSTSTORE_TYPE =
+        "net.java.sip.communicator.service.cert.truststore.type";
+
+    /**
+     * Property that is being applied to the system property
+     * <tt>javax.net.ssl.trustStore</tt>
+     */
+    public static final String PNAME_TRUSTSTORE_FILE =
         "net.java.sip.communicator.service.cert.truststore.file";
 
     /**
@@ -57,7 +64,7 @@ public interface CertificateService
      * <tt>javax.net.ssl.trustStorePassword</tt>
      */
     public static final String PNAME_TRUSTSTORE_PASSWORD =
-        "net.java.sip.communicator.service.cert.truststore";
+        "net.java.sip.communicator.service.cert.truststore.password";
 
     // ------------------------------------------------------------------------
     // constants

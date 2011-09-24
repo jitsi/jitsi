@@ -64,7 +64,10 @@ public class CertConfigPanel
     {
         this.setLayout(new BorderLayout());
 
-        if (OSUtils.IS_WINDOWS)
+        //TODO change to OSUtils.IS_WINDOWS as soon as we ship with JRE 1.7
+        if (OSUtils.IS_WINDOWS32
+            || (OSUtils.IS_WINDOWS
+                && System.getProperty("java.version").startsWith("1.7")))
         {
             JPanel pnlCertConfig = new TransparentPanel(new GridLayout(2, 1));
             pnlCertConfig.setBorder(BorderFactory.createTitledBorder(
@@ -88,7 +91,7 @@ public class CertConfigPanel
             pnlCertConfig.add(rdoUseWindows);
 
             if ("Windows-ROOT".equals(CertConfigActivator.getConfigService()
-                .getProperty(CertificateService.PNAME_TRUSTSTORE)))
+                .getProperty(CertificateService.PNAME_TRUSTSTORE_TYPE)))
             {
                 rdoUseWindows.setSelected(true);
             }
@@ -173,14 +176,20 @@ public class CertConfigPanel
         if (e.getSource() == rdoUseJava)
         {
             CertConfigActivator.getConfigService().removeProperty(
-                CertificateService.PNAME_TRUSTSTORE);
+                CertificateService.PNAME_TRUSTSTORE_TYPE);
+            CertConfigActivator.getConfigService().removeProperty(
+                CertificateService.PNAME_TRUSTSTORE_FILE);
             CertConfigActivator.getCredService().removePassword(
                 CertificateService.PNAME_TRUSTSTORE_PASSWORD);
         }
         if (e.getSource() == rdoUseWindows)
         {
             CertConfigActivator.getConfigService().setProperty(
-                CertificateService.PNAME_TRUSTSTORE, "Windows-ROOT");
+                CertificateService.PNAME_TRUSTSTORE_TYPE, "Windows-ROOT");
+            CertConfigActivator.getConfigService().removeProperty(
+                CertificateService.PNAME_TRUSTSTORE_FILE);
+            CertConfigActivator.getCredService().removePassword(
+                CertificateService.PNAME_TRUSTSTORE_PASSWORD);
         }
     }
 

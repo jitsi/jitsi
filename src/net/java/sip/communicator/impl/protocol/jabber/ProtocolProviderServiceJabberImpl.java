@@ -900,6 +900,7 @@ public class ProtocolProviderServiceJabberImpl
         catch(GeneralSecurityException e)
         {
             logger.error("Error creating custom trust manager", e);
+            throw new XMPPException("Error creating custom trust manager", e);
         }
 
         if(debugger == null)

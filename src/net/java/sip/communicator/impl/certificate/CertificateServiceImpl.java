@@ -121,7 +121,7 @@ public class CertificateServiceImpl
     public CertificateServiceImpl()
     {
         setTrustStore();
-        config.addPropertyChangeListener(PNAME_TRUSTSTORE, this);
+        config.addPropertyChangeListener(PNAME_TRUSTSTORE_TYPE, this);
     }
 
     public void propertyChange(PropertyChangeEvent evt)
@@ -131,24 +131,43 @@ public class CertificateServiceImpl
 
     private void setTrustStore()
     {
-        String trustStore = (String)config.getProperty(PNAME_TRUSTSTORE);
-        if(trustStore != null)
+        String tsType = (String)config.getProperty(PNAME_TRUSTSTORE_TYPE);
+        String tsFile = (String)config.getProperty(PNAME_TRUSTSTORE_FILE);
+        String tsPassword = credService.loadPassword(PNAME_TRUSTSTORE_PASSWORD);
+
+        //TODO remove this after stable release 4 (rev3593 is r1, 3651 is r2)
+        //migrate the misnamed truststore property
+        if(tsFile != null && tsFile.equals("Windows-ROOT"))
         {
-            System.setProperty("javax.net.ssl.trustStoreType",
-                trustStore);
-            String password =
-                credService.loadPassword(PNAME_TRUSTSTORE_PASSWORD);
-            if(password != null)
-            {
-                System.setProperty("javax.net.ssl.trustStorePassword",
-                    password);
-            }
+            tsType = tsFile;
+            tsFile = null;
+            config.setProperty(PNAME_TRUSTSTORE_TYPE, tsType);
+            config.removeProperty(PNAME_TRUSTSTORE_FILE);
         }
+        //TODO remove this as soon as we ship with JRE 1.7
+        //remove windows root from x64 on Java < 1.7
+        if (!(OSUtils.IS_WINDOWS32
+                || (OSUtils.IS_WINDOWS
+                    && System.getProperty("java.version").startsWith("1.7"))))
+        {
+            tsType = null;
+            config.removeProperty(CertificateService.PNAME_TRUSTSTORE_TYPE);
+        }
+
+        if(tsType != null)
+            System.setProperty("javax.net.ssl.trustStoreType", tsType);
         else
-        {
             System.getProperties().remove("javax.net.ssl.trustStoreType");
+
+        if(tsFile != null)
+            System.setProperty("javax.net.ssl.trustStore", tsFile);
+        else
+            System.getProperties().remove("javax.net.ssl.trustStore");
+
+        if(tsPassword != null)
+            System.setProperty("javax.net.ssl.trustStorePassword", tsPassword);
+        else
             System.getProperties().remove("javax.net.ssl.trustStorePassword");
-        }
     }
 
     // ------------------------------------------------------------------------
