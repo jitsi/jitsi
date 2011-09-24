@@ -151,6 +151,9 @@ public class SystrayServiceJdicImpl
      */
     private void initSystray()
     {
+        if(OsDependentActivator.getUIService() == null)
+            return;
+
         menu = TrayMenuFactory.createTrayMenu(this, systray.isSwing());
 
         boolean isMac = OSUtils.IS_MAC;
