@@ -115,11 +115,9 @@ public class AddContactDialog
 
         this.metaContact = metaContact;
 
+        groupCombo.setEnabled(false);
+
         this.setSelectedGroup(metaContact.getParentMetaContactGroup());
-
-        groupCombo = createGroupCombo(this);
-
-        this.groupCombo.setEnabled(false);
 
         this.setTitle(GuiActivator.getResources()
                         .getI18NString("service.gui.ADD_CONTACT_TO")
