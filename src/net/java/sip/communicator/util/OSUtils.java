@@ -21,6 +21,9 @@ public class OSUtils
     /** <tt>true</tt> if architecture is 64 bit. */
     public static final boolean IS_64_BIT;
 
+    /** <tt>true</tt> if OS is Android */
+    public static final boolean IS_ANDROID;
+
     /** <tt>true</tt> if OS is Linux. */
     public static final boolean IS_LINUX;
 
@@ -64,6 +67,7 @@ public class OSUtils
 
         if (osName == null)
         {
+            IS_ANDROID = false;
             IS_LINUX = false;
             IS_MAC = false;
             IS_WINDOWS = false;
@@ -73,7 +77,18 @@ public class OSUtils
         }
         else if (osName.startsWith("Linux"))
         {
-            IS_LINUX = true;
+            String javaVmName = System.getProperty("java.vm.name");
+
+            if ((javaVmName != null) && javaVmName.equalsIgnoreCase("Dalvik"))
+            {
+                IS_ANDROID = true;
+                IS_LINUX = false;
+            }
+            else
+            {
+                IS_ANDROID = false;
+                IS_LINUX = true;
+            }
             IS_MAC = false;
             IS_WINDOWS = false;
             IS_WINDOWS_VISTA = false;
@@ -82,6 +97,7 @@ public class OSUtils
         }
         else if (osName.startsWith("Mac"))
         {
+            IS_ANDROID = false;
             IS_LINUX = false;
             IS_MAC = true;
             IS_WINDOWS = false;
@@ -91,6 +107,7 @@ public class OSUtils
         }
         else if (osName.startsWith("Windows"))
         {
+            IS_ANDROID = false;
             IS_LINUX = false;
             IS_MAC = false;
             IS_WINDOWS = true;
@@ -100,6 +117,7 @@ public class OSUtils
         }
         else if (osName.startsWith("FreeBSD"))
         {
+            IS_ANDROID = false;
             IS_LINUX = false;
             IS_MAC = false;
             IS_WINDOWS = false;
@@ -109,6 +127,7 @@ public class OSUtils
         }
         else
         {
+            IS_ANDROID = false;
             IS_LINUX = false;
             IS_MAC = false;
             IS_WINDOWS = false;

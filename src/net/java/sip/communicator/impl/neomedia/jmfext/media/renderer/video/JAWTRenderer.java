@@ -216,6 +216,8 @@ public class JAWTRenderer
             componentClassName.append(JAWTRenderer.class.getName());
             if (USE_MACOSX_CALAYERS && OSUtils.IS_MAC)
                 componentClassName.append("Swing");
+            else if (OSUtils.IS_ANDROID)
+                componentClassName.append("Android");
             componentClassName.append("VideoComponent");
 
             Class<?> componentClass;

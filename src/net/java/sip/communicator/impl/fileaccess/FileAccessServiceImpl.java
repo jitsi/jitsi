@@ -439,11 +439,6 @@ public class FileAccessServiceImpl implements FileAccessService
      */
     public FailSafeTransaction createFailSafeTransaction(File file)
     {
-        if (file == null)
-        {
-            return null;
-        }
-
-        return new FailSafeTransactionImpl(file);
+        return (file == null) ? null : new FailSafeTransactionImpl(file);
     }
 }

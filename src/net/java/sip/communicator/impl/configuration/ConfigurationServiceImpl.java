@@ -544,9 +544,7 @@ public class ConfigurationServiceImpl
         this.started = true;
 
         // retrieve a reference to the FileAccessService
-        ServiceReference faServiceReference = bc.getServiceReference(
-                FileAccessService.class.getName());
-        this.faService = (FileAccessService) bc.getService(faServiceReference);
+        this.faService = ServiceUtils.getService(bc, FileAccessService.class);
 
         try
         {
