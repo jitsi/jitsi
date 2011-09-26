@@ -148,7 +148,8 @@ public class PresenceStatusMenu
                         if (status.isOnline())
                         {
 
-                            new PublishPresenceStatusThread(status).start();
+                            new PublishPresenceStatusThread(protocolProvider,
+                                                            status).start();
                         }
                         else
                         {
@@ -209,7 +210,8 @@ public class PresenceStatusMenu
 
         if (protocolProvider.isRegistered()
                 && !presence.getPresenceStatus().equals(presenceStatus))
-            new PublishPresenceStatusThread(presenceStatus).start();
+            new PublishPresenceStatusThread(protocolProvider, presenceStatus)
+                .start();
     }
 
     /**
@@ -267,10 +269,14 @@ public class PresenceStatusMenu
     private class PublishPresenceStatusThread
         extends Thread
     {
+        ProtocolProviderService protocolProvider;
+
         PresenceStatus status;
 
-        public PublishPresenceStatusThread(PresenceStatus status)
+        public PublishPresenceStatusThread(
+            ProtocolProviderService protocolProvider, PresenceStatus status)
         {
+            this.protocolProvider = protocolProvider;
             this.status = status;
         }
 
@@ -298,7 +304,10 @@ public class PresenceStatusMenu
                 {
                     String msgText =
                         GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_GENERAL_ERROR");
+                            "service.gui.STATUS_CHANGE_GENERAL_ERROR",
+                            new String[]{
+                                protocolProvider.getAccountID().getUserID(),
+                                protocolProvider.getAccountID().getService()});
 
                     new ErrorDialog(null,
                         GuiActivator.getResources().getI18NString(
@@ -310,7 +319,10 @@ public class PresenceStatusMenu
                 {
                     String msgText =
                         GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE");
+                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
+                            new String[]{
+                                protocolProvider.getAccountID().getUserID(),
+                                protocolProvider.getAccountID().getService()});
 
                     new ErrorDialog(null,
                         GuiActivator.getResources().getI18NString(
@@ -322,7 +334,10 @@ public class PresenceStatusMenu
                 {
                     String msgText =
                         GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE");
+                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
+                            new String[]{
+                                protocolProvider.getAccountID().getUserID(),
+                                protocolProvider.getAccountID().getService()});
 
                     new ErrorDialog(null,
                         GuiActivator.getResources().getI18NString(

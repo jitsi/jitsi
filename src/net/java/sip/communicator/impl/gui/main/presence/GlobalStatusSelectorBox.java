@@ -397,7 +397,8 @@ public class GlobalStatusSelectorBox
                             && status.getStatus()
                                 >= PresenceStatus.AVAILABLE_THRESHOLD)
                         {
-                            new PublishPresenceStatusThread(presence, status)
+                            new PublishPresenceStatusThread(protocolProvider,
+                                                            presence, status)
                                 .start();
 
                             this.saveStatusInformation( protocolProvider,
@@ -542,7 +543,7 @@ public class GlobalStatusSelectorBox
 
         if (status != null)
         {
-            new PublishPresenceStatusThread(presence, status)
+            new PublishPresenceStatusThread(protocolProvider, presence, status)
                 .start();
 
             this.saveStatusInformation( protocolProvider,
@@ -705,6 +706,8 @@ public class GlobalStatusSelectorBox
     private class PublishPresenceStatusThread
         extends Thread
     {
+        private ProtocolProviderService protocolProvider;
+
         private PresenceStatus status;
 
         private OperationSetPresence presence;
@@ -715,9 +718,12 @@ public class GlobalStatusSelectorBox
          * @param presence the operation set through which we publish the status
          * @param status the status to publish
          */
-        public PublishPresenceStatusThread( OperationSetPresence presence,
-                                            PresenceStatus status)
+        public PublishPresenceStatusThread(
+                                    ProtocolProviderService protocolProvider,
+                                    OperationSetPresence presence,
+                                    PresenceStatus status)
         {
+            this.protocolProvider = protocolProvider;
             this.presence = presence;
             this.status = status;
         }
@@ -746,7 +752,10 @@ public class GlobalStatusSelectorBox
                 {
                     String msgText =
                         GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_GENERAL_ERROR");
+                            "service.gui.STATUS_CHANGE_GENERAL_ERROR",
+                            new String[]{
+                                protocolProvider.getAccountID().getUserID(),
+                                protocolProvider.getAccountID().getService()});
 
                     new ErrorDialog(null,
                         GuiActivator.getResources().getI18NString(
@@ -758,7 +767,10 @@ public class GlobalStatusSelectorBox
                 {
                     String msgText =
                         GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE");
+                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
+                            new String[]{
+                                protocolProvider.getAccountID().getUserID(),
+                                protocolProvider.getAccountID().getService()});
 
                     new ErrorDialog(null, msgText,
                         GuiActivator.getResources().getI18NString(
@@ -770,7 +782,10 @@ public class GlobalStatusSelectorBox
                 {
                     String msgText =
                         GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE");
+                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
+                            new String[]{
+                                protocolProvider.getAccountID().getUserID(),
+                                protocolProvider.getAccountID().getService()});
 
                     new ErrorDialog(null,
                         GuiActivator.getResources().getI18NString(
