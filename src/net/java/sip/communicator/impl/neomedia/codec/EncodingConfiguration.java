@@ -330,9 +330,19 @@ public class EncodingConfiguration
             String encoding, double clockRate,
             int pref)
     {
-        MediaFormat mediaFormat
-            = MediaUtils.getMediaFormat(encoding, clockRate);
+        MediaFormat mediaFormat = null;
 
+        /*
+         * The key in encodingPreferences associated with a MediaFormat is
+         * currently composed of the encoding and the clockRate only so it makes
+         * sense to ignore the format parameters.
+         */
+        for (MediaFormat mf : MediaUtils.getMediaFormats(encoding))
+            if (mf.getClockRate() == clockRate)
+            {
+                mediaFormat = mf;
+                break;
+            }
         if (mediaFormat != null)
         {
             encodingPreferences.put(
