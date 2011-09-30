@@ -377,6 +377,11 @@ public class ProvisioningActivator
                 url = url.replace("${osname}", System.getProperty("os.name"));
             }
 
+            if(url.indexOf("${arch}") != -1)
+            {
+                url = url.replace("${arch}", System.getProperty("os.arch"));
+            }
+
             if(url.indexOf("${build}") != -1)
             {
                 url = url.replace("${build}",
