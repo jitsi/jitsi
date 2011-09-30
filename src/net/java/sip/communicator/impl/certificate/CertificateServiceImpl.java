@@ -97,6 +97,15 @@ public class CertificateServiceImpl
         new HashMap<String, List<String>>();
 
     /**
+     * Caches retrievals of AIA information (downloaded certs or failures).
+     */
+    private Map<URI, AiaCacheEntry> aiaCache =
+        new HashMap<URI, AiaCacheEntry>();
+
+    // ------------------------------------------------------------------------
+    // Map access helpers
+    // ------------------------------------------------------------------------
+    /**
      * Helper method to avoid accessing null-lists in the session allowed
      * certificate map
      * 
@@ -113,6 +122,20 @@ public class CertificateServiceImpl
             sessionAllowedCertificates.put(propName, entry);
         }
         return entry;
+    }
+
+    /**
+     * AIA cache retrieval entry.
+     */
+    private static class AiaCacheEntry
+    {
+        Date cacheDate;
+        X509Certificate cert;
+        AiaCacheEntry(Date cacheDate, X509Certificate cert)
+        {
+            this.cacheDate = cacheDate;
+            this.cert = cert;
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -830,23 +853,45 @@ public class CertificateServiceImpl
                             .getScheme().equals("https")))
                             continue;
 
-                        if (logger.isDebugEnabled())
-                            logger
-                                .debug("Downloading parent certificate for <"
-                                    + current.getSubjectDN()
-                                    + "> from <"
-                                    + uri
-                                    + ">");
+                        X509Certificate cert = null;
 
-                        try
+                        // try to get cert from cache first to avoid consecutive
+                        // (slow) http lookups
+                        AiaCacheEntry cache = aiaCache.get(uri);
+                        if (cache != null && cache.cacheDate.after(new Date()))
                         {
-                            InputStream is =
-                                HttpUtils.openURLConnection(uri.toString())
-                                    .getContent();
-                            X509Certificate cert =
-                                (X509Certificate) certFactory
-                                    .generateCertificate(is);
-                            if(!cert.getIssuerDN().equals(cert.getSubjectDN()))
+                            cert = cache.cert;
+                        }
+                        else
+                        {
+                            // download if no cache entry or if it is expired
+                            if (logger.isDebugEnabled())
+                                logger
+                                    .debug("Downloading parent certificate for <"
+                                        + current.getSubjectDN()
+                                        + "> from <"
+                                        + uri + ">");
+                            try
+                            {
+                                InputStream is =
+                                    HttpUtils.openURLConnection(uri.toString())
+                                        .getContent();
+                                cert =
+                                    (X509Certificate) certFactory
+                                        .generateCertificate(is);
+                            }
+                            catch (Exception e)
+                            {
+                                logger.debug("Could not download from <" + uri
+                                    + ">");
+                            }
+                            // cache for 10mins
+                            aiaCache.put(uri, new AiaCacheEntry(new Date(
+                                new Date().getTime() + 10 * 60 * 1000), cert));
+                        }
+                        if (cert != null)
+                        {
+                            if (!cert.getIssuerDN().equals(cert.getSubjectDN()))
                             {
                                 newChain.add(cert);
                                 foundParent = true;
@@ -855,11 +900,6 @@ public class CertificateServiceImpl
                             }
                             else
                                 logger.debug("Parent is self-signed, ignoring");
-                        }
-                        catch (Exception e)
-                        {
-                            logger.debug("Could not download from <" + uri
-                                + ">");
                         }
                     }
                     chainLookupCount++;
