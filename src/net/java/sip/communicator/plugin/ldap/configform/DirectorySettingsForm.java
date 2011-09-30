@@ -75,7 +75,7 @@ public class DirectorySettingsForm
     /**
      * component holding the connection method
      */
-    private JCheckBox encryptionBox = new JCheckBox(
+    private JCheckBox encryptionBox = new SIPCommCheckBox(
             Resources.getString("impl.ldap.USE_SSL"));
 
     /**
