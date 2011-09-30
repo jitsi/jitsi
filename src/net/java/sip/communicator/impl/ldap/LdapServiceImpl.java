@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.ldap;
 import java.util.*;
 
 import org.osgi.framework.*;
+
+import net.java.sip.communicator.service.certificate.CertificateService;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactsource.ContactSourceService;
 import net.java.sip.communicator.service.credentialsstorage.*;
@@ -54,6 +56,11 @@ public class LdapServiceImpl
      * Reference to the credentials service
      */
     private static CredentialsStorageService credentialsService;
+
+    /**
+     * Reference to the Certificate Verification Service.
+     */
+    private static CertificateService certService = null;
 
     /**
      * Starts the service.
@@ -123,6 +130,25 @@ public class LdapServiceImpl
     }
 
     /**
+     * Gets the <tt>CertificateService</tt> to be used by the functionality of
+     * the addrbook plug-in.
+     * 
+     * @return the <tt>CertificateService</tt> to be used by the functionality
+     *         of the addrbook plug-in.
+     */
+    public static CertificateService getCertificateService()
+    {
+        if (certService == null)
+        {
+            certService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        CertificateService.class);
+        }
+        return certService;
+    }
+
+    /**
      * Returns all the LDAP directories
      *
      * @return the LdapDirectorySet containing all the LdapDirectory(s)
@@ -136,7 +162,7 @@ public class LdapServiceImpl
     }
 
     /**
-     * Required bu interface LdapService.
+     * Required by interface LdapService.
      * Returns the LdapFactory, used to
      * create LdapDirectory-s, LdapDirectorySettings, LdapQuery, ...
      *

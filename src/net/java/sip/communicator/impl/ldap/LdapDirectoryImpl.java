@@ -179,6 +179,8 @@ public class LdapDirectoryImpl
                 break;
             case SSL:
                 this.env.put(Context.SECURITY_PROTOCOL, "ssl");
+                this.env.put("java.naming.ldap.factory.socket",
+                    LdapSSLSocketFactoryDelegate.class.getName());
                 break;
         }
 
@@ -494,6 +496,10 @@ public class LdapDirectoryImpl
             }
         };
 
+        // setting the classloader is necessary so that the BundleContext can be
+        // accessed from classes instantiated from JNDI (specifically from our
+        // custom SocketFactory)
+        searchThread.setContextClassLoader(getClass().getClassLoader());
         searchThread.setDaemon(true);
         searchThread.start();
     }
