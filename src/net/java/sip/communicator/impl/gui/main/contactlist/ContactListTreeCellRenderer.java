@@ -705,8 +705,10 @@ public class ContactListTreeCellRenderer
             imContact = uiContact.getDefaultContactDetail(
                          OperationSetBasicInstantMessaging.class);
 
-        int x = statusIcon.getIconWidth() + statusLabel.getIconTextGap()
-                + LEFT_BORDER + STATUS_RIGHT_BORDER;
+        int x = (statusIcon == null ? 0 : statusIcon.getIconWidth())
+                + (statusLabel == null ? 0 : statusLabel.getIconTextGap())
+                + LEFT_BORDER
+                + STATUS_RIGHT_BORDER;
 
         if (imContact != null)
         {
