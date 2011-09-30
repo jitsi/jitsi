@@ -163,7 +163,9 @@ public class ChangeEvent
             case ADDRESS_UP : buff.append("Address up"); break;
         }
 
-        buff.append(", standby=" + standby);
+        buff.append(", standby=" + standby)
+            .append(", source=" + source)
+            .append(", address=" + address);
 
         return buff.toString();
     }

@@ -806,6 +806,12 @@ public class ProtocolProviderServiceJabberImpl
             // also needs this lock.
             if(eventDuringLogin != null)
             {
+                if(eventDuringLogin.getNewState().equals(
+                        RegistrationState.CONNECTION_FAILED) ||
+                    eventDuringLogin.getNewState().equals(
+                        RegistrationState.UNREGISTERED))
+                    disconnectAndCleanConnection();
+
                 fireRegistrationStateChanged(
                     eventDuringLogin.getOldState(),
                     eventDuringLogin.getNewState(),

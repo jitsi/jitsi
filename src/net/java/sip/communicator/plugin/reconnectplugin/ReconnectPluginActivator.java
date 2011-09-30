@@ -113,7 +113,7 @@ public class ReconnectPluginActivator
     /**
      * Start of the delay interval when starting a reconnect.
      */
-    private static final int RECONNECT_DELAY_MIN = 1; // sec
+    private static final int RECONNECT_DELAY_MIN = 2; // sec
 
     /**
      * The end of the interval for the initial reconnect.
@@ -783,6 +783,24 @@ public class ReconnectPluginActivator
 
                              if(timer == null)
                                  return;
+
+                             if(connectedInterfaces.size() == 0)
+                             {
+                                 // well there is no network we just need
+                                 // this provider in needs reconnection when
+                                 // there is one
+                                 // means we started unregistering while
+                                 // network was going down and meanwhile there
+                                 // were no connected interface, this happens
+                                 // when we have more than one connected
+                                 // interface and we got 2 events for down iface
+                                 needsReconnection.add(pp);
+
+                                 if(currentlyReconnecting.containsKey(pp))
+                                    currentlyReconnecting.remove(pp).cancel();
+
+                                 return;
+                             }
 
                              currentlyReconnecting.put(pp, task);
 

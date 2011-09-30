@@ -34,12 +34,6 @@ public class NetworkConfigurationWatcher
         Logger.getLogger(NetworkConfigurationWatcher.class);
 
     /**
-     * Listers for network configuration changes.
-     */
-    private final List<NetworkConfigurationChangeListener> listeners =
-        new ArrayList<NetworkConfigurationChangeListener>();
-
-    /**
      * The current active interfaces.
      */
     private Map<String, List<InetAddress>> activeInterfaces
@@ -60,6 +54,12 @@ public class NetworkConfigurationWatcher
      */
     private SystemActivityNotificationsService
             systemActivityNotificationsService = null;
+
+    /**
+     * The thread dispatcher of network change events.
+     */
+    private NetworkEventDispatcher eventDispatcher =
+            new NetworkEventDispatcher();
 
     /**
      * Inits configuration watcher.
@@ -83,15 +83,9 @@ public class NetworkConfigurationWatcher
     void addNetworkConfigurationChangeListener(
         NetworkConfigurationChangeListener listener)
     {
-        synchronized(listeners)
-        {
-            if(!listeners.contains(listener))
-            {
-                listeners.add(listener);
+        eventDispatcher.addNetworkConfigurationChangeListener(listener);
 
-                initialFireEvents(listener);
-            }
-        }
+        initialFireEvents(listener);
 
         NetaddrActivator.getBundleContext().addServiceListener(this);
 
@@ -139,7 +133,7 @@ public class NetworkConfigurationWatcher
                             continue;
 
                         hasAddress = true;
-                        fireChangeEvent(
+                        NetworkEventDispatcher.fireChangeEvent(
                             new ChangeEvent(
                                     networkInterface.getName(),
                                     ChangeEvent.ADDRESS_UP,
@@ -150,7 +144,7 @@ public class NetworkConfigurationWatcher
                     }
 
                     if(hasAddress)
-                        fireChangeEvent(
+                        NetworkEventDispatcher.fireChangeEvent(
                             new ChangeEvent(networkInterface.getName(),
                                 ChangeEvent.IFACE_UP, null, false, true),
                             listener);
@@ -205,10 +199,7 @@ public class NetworkConfigurationWatcher
     void removeNetworkConfigurationChangeListener(
         NetworkConfigurationChangeListener listener)
     {
-        synchronized(listeners)
-        {
-            listeners.remove(listener);
-        }
+        eventDispatcher.removeNetworkConfigurationChangeListener(listener);
     }
 
     /**
@@ -252,41 +243,6 @@ public class NetworkConfigurationWatcher
     }
 
     /**
-     * Fire ChangeEvent.
-     * @param evt the event to fire.
-     */
-    private void fireChangeEvent(ChangeEvent evt)
-    {
-        synchronized(listeners)
-        {
-            for (int i = 0; i < listeners.size(); i++)
-            {
-                NetworkConfigurationChangeListener nCChangeListener
-                        = listeners.get(i);
-                fireChangeEvent(evt, nCChangeListener);
-            }
-        }
-    }
-
-    /**
-     * Fire ChangeEvent.
-     * @param evt the event to fire.
-     */
-    private void fireChangeEvent(ChangeEvent evt,
-                                 NetworkConfigurationChangeListener listener)
-    {
-        try
-        {
-            listener.configurationChanged(evt);
-        } catch (Throwable e)
-        {
-            logger.warn("Error delivering event:" + evt + ", to:"
-                + listener);
-        }
-    }
-
-
-    /**
      * Stop.
      */
     void stop()
@@ -299,27 +255,9 @@ public class NetworkConfigurationWatcher
                 notifyAll();
             }
         }
-    }
 
-    /**
-     * Whether the supplied interface has a valid non-local address.
-     * @param iface interface.
-     * @return has a valid address.
-     */
-    private static boolean hasValidAddress(NetworkInterface iface)
-    {
-        Enumeration<InetAddress> as =
-            iface.getInetAddresses();
-        while (as.hasMoreElements())
-        {
-            InetAddress inetAddress = as.nextElement();
-            if(inetAddress.isLinkLocalAddress())
-                continue;
-
-            return true;
-        }
-
-        return false;
+        if(eventDispatcher != null)
+            eventDispatcher.stop();
     }
 
     /**
@@ -419,7 +357,7 @@ public class NetworkConfigurationWatcher
         while (iter.hasNext())
         {
             String niface = iter.next();
-            fireChangeEvent(new ChangeEvent(niface,
+            eventDispatcher.fireChangeEvent(new ChangeEvent(niface,
                     ChangeEvent.IFACE_DOWN, true));
         }
         activeInterfaces.clear();
@@ -492,7 +430,7 @@ public class NetworkConfigurationWatcher
             if(!currentActiveInterfacesSet.contains(iface))
             {
                 if(fireEvents)
-                    fireChangeEvent(new ChangeEvent(iface,
+                    eventDispatcher.fireChangeEvent(new ChangeEvent(iface,
                         ChangeEvent.IFACE_DOWN));
 
                 activeInterfaces.remove(iface);
@@ -520,7 +458,7 @@ public class NetworkConfigurationWatcher
                 if(addresses != null && !addresses.contains(addr))
                 {
                     if(fireEvents)
-                        fireChangeEvent(
+                        eventDispatcher.fireChangeEvent(
                             new ChangeEvent(entry.getKey(),
                                     ChangeEvent.ADDRESS_DOWN, addr));
 
@@ -537,7 +475,7 @@ public class NetworkConfigurationWatcher
             synchronized(this)
             {
                 try{
-                    wait(1000);
+                    wait(waitBeforeFiringUpEvents);
                 }catch(InterruptedException ex){}
             }
         }
@@ -558,8 +496,10 @@ public class NetworkConfigurationWatcher
                 if(addresses != null && !addresses.contains(addr))
                 {
                     if(fireEvents)
-                        fireChangeEvent(new ChangeEvent(entry.getKey(),
-                                                ChangeEvent.ADDRESS_UP, addr));
+                        eventDispatcher.fireChangeEvent(
+                                new ChangeEvent(entry.getKey(),
+                                                ChangeEvent.ADDRESS_UP,
+                                                addr));
 
                     addresses.add(addr);
                 }
@@ -579,18 +519,32 @@ public class NetworkConfigurationWatcher
         activeEntriesIter = currentActiveInterfaces.entrySet().iterator();
         while(activeEntriesIter.hasNext())
         {
-            Map.Entry<String, List<InetAddress>>
+            final Map.Entry<String, List<InetAddress>>
                 entry = activeEntriesIter.next();
             for(InetAddress addr : entry.getValue())
             {
                 if(fireEvents)
-                    fireChangeEvent(new ChangeEvent(entry.getKey(),
-                                            ChangeEvent.ADDRESS_UP, addr));
+                    eventDispatcher.fireChangeEvent(
+                            new ChangeEvent(entry.getKey(),
+                                            ChangeEvent.ADDRESS_UP,
+                                            addr));
             }
 
             if(fireEvents)
-                fireChangeEvent(new ChangeEvent(entry.getKey(),
-                                        ChangeEvent.IFACE_UP));
+            {
+                // if we haven't waited before, lets wait here
+                // and give time to underlying os to configure fully the
+                // network interface (receive and store dns config)
+                int wait = waitBeforeFiringUpEvents;
+                if(wait == 0)
+                {
+                    wait = 500;
+                }
+
+                eventDispatcher.fireChangeEvent(
+                        new ChangeEvent(entry.getKey(), ChangeEvent.IFACE_UP),
+                        wait);
+            }
 
             activeInterfaces.put(entry.getKey(), entry.getValue());
         }
