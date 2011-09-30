@@ -154,7 +154,10 @@ public class LdapTableModel
      */
     public Class<?> getColumnClass(int columnIndex)
     {
-        return getValueAt(0, columnIndex).getClass();
+        Object o = getValueAt(0, columnIndex);
+        if(o == null)
+            return String.class;
+        return o.getClass();
     }
 
     /**
