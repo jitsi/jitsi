@@ -919,6 +919,14 @@ public class ProtocolProviderServiceJabberImpl
 
         connection.connect();
 
+        if(abortConnecting)
+        {
+            abortConnecting = false;
+            disconnectAndCleanConnection();
+
+            return ConnectState.ABORT_CONNECTING;
+        }
+
         registerServiceDiscoveryManager();
 
         if(connectionListener == null)
