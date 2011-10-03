@@ -279,9 +279,11 @@ public class ExtendedTooltip
             if(bottomText != null && bottomText.length() > 0)
             {
                 // Seems a little messy, but sets the proper size.
-                bottomTextArea.setSize(width,1);
-                height += bottomTextArea.getPreferredSize().height;
+                bottomTextArea.setColumns(5);
+                bottomTextArea.setSize(0,0);
                 bottomTextArea.setSize(bottomTextArea.getPreferredSize());
+
+                height += bottomTextArea.getPreferredSize().height;
             }
 
             return new Dimension(width, height);
