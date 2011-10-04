@@ -1287,10 +1287,14 @@ public class CallPeerSipImpl
 
         fireRequestProcessed(invite, ok);
 
-        if(sdpOffer != null && sdpOffer.length() > 0)
-            setState(CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA);
-        else
-            setState(CallPeerState.CONNECTING_INCOMING_CALL);
+        // the ACK to our answer might already be processed before we get here
+        if(CallPeerState.INCOMING_CALL.equals(getState()))
+        {
+            if(sdpOffer != null && sdpOffer.length() > 0)
+                setState(CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA);
+            else
+                setState(CallPeerState.CONNECTING_INCOMING_CALL);
+        }
     }
 
     /**
