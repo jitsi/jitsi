@@ -631,10 +631,12 @@ public class ProtocolProviderServiceSipImpl
                     OperationSetAdvancedTelephony.class,
                     opSetBasicTelephonySipImpl);
 
-                // init ZRTP (OperationSetBasicTelephonySipImpl implements
-                // OperationSetSecureTelephony)
+                // init call security
                 addSupportedOperationSet(
-                    OperationSetSecureTelephony.class,
+                    OperationSetSecureZrtpTelephony.class,
+                    opSetBasicTelephonySipImpl);
+                addSupportedOperationSet(
+                    OperationSetSecureSDesTelephony.class,
                     opSetBasicTelephonySipImpl);
 
                 // OperationSetVideoTelephony

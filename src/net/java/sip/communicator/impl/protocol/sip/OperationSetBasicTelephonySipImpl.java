@@ -36,7 +36,8 @@ public class OperationSetBasicTelephonySipImpl
     extends AbstractOperationSetBasicTelephony<ProtocolProviderServiceSipImpl>
     implements MethodProcessor,
                OperationSetAdvancedTelephony<ProtocolProviderServiceSipImpl>,
-               OperationSetSecureTelephony
+               OperationSetSecureZrtpTelephony,
+               OperationSetSecureSDesTelephony
 {
     /**
      * Our class logger.

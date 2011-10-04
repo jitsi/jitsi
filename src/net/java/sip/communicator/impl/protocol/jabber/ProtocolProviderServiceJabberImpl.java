@@ -1364,7 +1364,7 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetBasicTelephony.class,
                     basicTelephony);
                 addSupportedOperationSet(
-                    OperationSetSecureTelephony.class,
+                    OperationSetSecureZrtpTelephony.class,
                     basicTelephony);
 
                 // initialize video telephony OperationSet

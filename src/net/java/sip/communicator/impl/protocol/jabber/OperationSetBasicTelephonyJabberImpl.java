@@ -38,7 +38,7 @@ public class OperationSetBasicTelephonyJabberImpl
    implements RegistrationStateChangeListener,
               PacketListener,
               PacketFilter,
-              OperationSetSecureTelephony,
+              OperationSetSecureZrtpTelephony,
               OperationSetAdvancedTelephony<ProtocolProviderServiceJabberImpl>
 {
 
