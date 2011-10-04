@@ -1232,6 +1232,11 @@ public class MetaContactListServiceImpl
         ContactGroup groupToRemove,
         ProtocolProviderService sourceProvider)
     {
+        // if we failed to find the metagroup corresponding to proto group
+        if(metaContainer == null)
+        {
+            return;
+        }
 
         /*
          * Go through all meta contacts and remove all contacts that belong to
@@ -1340,7 +1345,8 @@ public class MetaContactListServiceImpl
 
             //remove the group if there are no children left.
             if(subMetaGroup.countSubgroups() == 0
-               && subMetaGroup.countChildContacts() == 0)
+               && subMetaGroup.countChildContacts() == 0
+               && subMetaGroup.countContactGroups() == 0)
             {
                 parentMetaGroup.removeSubgroup(subMetaGroup);
                 fireMetaContactGroupEvent(
