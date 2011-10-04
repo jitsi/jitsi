@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
+import net.java.sip.communicator.impl.neomedia.AbstractRTPConnector;
+import net.java.sip.communicator.impl.neomedia.transform.TransformEngine;
 import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
@@ -68,19 +70,11 @@ public interface SrtpControl
     public void setMultistream(byte[] multiStreamData);
 
     /**
-     * Return the zrtp hello hash String.
-     *
-     * @return String the zrtp hello hash.
+     * Returns the transform engine currently used by this stream.
+     * 
+     * @return the transofmr engine
      */
-    public String getHelloHash();
+    public TransformEngine getTransformEngine();
 
-    /**
-     * Get the ZRTP Hello Hash data - separate strings.
-     *
-     * @return String array containing the version string at offset 0, the Hello
-     *         hash value as hex-digits at offset 1. Hello hash is available
-     *         immediately after class instantiation. Returns <code>null</code>
-     *         if ZRTP is not available.
-     */
-    public String[] getHelloHashSep();
+    public void setConnector(AbstractRTPConnector newValue);
 }

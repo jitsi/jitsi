@@ -78,5 +78,6 @@
     <classpathentry kind="lib" path="lib/installer-exclude/libdbus-java-2.7.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/hexdump-0.2.jar"/>
     <classpathentry kind="lib" path="lib/installer-exclude/unix-0.5.jar"/>
+    <classpathentry kind="lib" path="lib/installer-exclude/sdes4j.jar"/>
     <classpathentry kind="output" path="bin"/>
 </classpath>

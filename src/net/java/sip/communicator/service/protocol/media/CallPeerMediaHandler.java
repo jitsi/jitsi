@@ -193,7 +193,7 @@ public abstract class CallPeerMediaHandler<
     /**
      * Holds the ZRTP controls used for the current call.
      */
-    private Map<MediaType, SrtpControl> zrtpControls =
+    private Map<MediaType, SrtpControl> srtpControls =
         new Hashtable<MediaType, SrtpControl>();
 
     /**
@@ -423,12 +423,12 @@ public abstract class CallPeerMediaHandler<
         getTransportManager().closeStreamConnector(type);
 
         // Clear the ZRTP controls used for the associated Call.
-        SrtpControl zrtpCtrl = zrtpControls.get(type);
+        SrtpControl zrtpCtrl = srtpControls.get(type);
 
         if (zrtpCtrl != null)
         {
             zrtpCtrl.cleanup();
-            zrtpControls.remove(type);
+            srtpControls.remove(type);
         }
     }
 
@@ -1163,7 +1163,7 @@ public abstract class CallPeerMediaHandler<
      */
     protected Map<MediaType, SrtpControl> getZrtpControls()
     {
-        return this.zrtpControls;
+        return this.srtpControls;
     }
 
     /**
@@ -1206,7 +1206,7 @@ public abstract class CallPeerMediaHandler<
                 logger.trace("The media types of device and format differ.");
 
             // check whether a control already exists
-            SrtpControl control = zrtpControls.get(mediaType);
+            SrtpControl control = srtpControls.get(mediaType);
             MediaService mediaService
                 = ProtocolMediaActivator.getMediaService();
 

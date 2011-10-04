@@ -904,7 +904,7 @@
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
-        bundle-httputil,bundle-plugin-spellcheck,
+        bundle-commons-codec,bundle-httputil,bundle-plugin-spellcheck,
         bundle-version,bundle-version-impl,bundle-shutdown-timeout,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
@@ -918,7 +918,7 @@
         bundle-jfontchooserlib,bundle-update,bundle-plugin-update,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
-        bundle-argdelegation,bundle-zrtp4j,bundle-json,
+        bundle-argdelegation,bundle-zrtp4j,bundle-sdes4j,bundle-json,
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
         bundle-plugin-facebookaccregwizz,bundle-plugin-ippiaccregwizz,
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
@@ -2019,6 +2019,18 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!--BUNDLE-COMMONS-CODEC -->
+    <target name="bundle-commons-codec">
+        <jar compress="true" destfile="${bundles.dest}/commons-codec.jar"
+            filesetmanifest="merge">
+
+            <zipfileset src="${lib.noinst}/commons-codec-1.4.jar" prefix=""/>
+            <manifest>
+                <attribute name="System-Bundle" value="yes"/>
+            </manifest>
+        </jar>
+    </target>
+
     <!--BUNDLE-HTTPUTIL -->
     <target name="bundle-httputil">
         <!-- Create the httputil.jar-->
@@ -2029,7 +2041,6 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/httpclient-4.1.1.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/httpcore-4.1.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/httpmime-4.1.1.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/commons-codec-1.4.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2320,6 +2331,18 @@ javax.swing.event, javax.swing.border"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
                 <attribute name="Bundle-Version" value="1.4.5"/>
+                <attribute name="System-Bundle" value="yes"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!--BUNDLE-SDES4J -->
+    <target name="bundle-sdes4j">
+        <jar compress="true" destfile="${bundles.dest}/sdes4j.jar"
+            filesetmanifest="merge">
+
+            <zipfileset src="${lib.noinst}/sdes4j.jar" prefix=""/>
+            <manifest>
                 <attribute name="System-Bundle" value="yes"/>
             </manifest>
         </jar>

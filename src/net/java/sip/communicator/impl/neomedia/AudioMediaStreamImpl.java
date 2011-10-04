@@ -92,14 +92,14 @@ public class AudioMediaStreamImpl
      * @param device the <tt>MediaDevice</tt> the new instance is to use for
      * both capture and playback of audio exchanged via the specified
      * <tt>StreamConnector</tt>
-     * @param zrtpControl a control which is already created, used to control
-     * the zrtp operations.
+     * @param srtpControl a control which is already created, used to control
+     * the srtp operations.
      */
     public AudioMediaStreamImpl(StreamConnector connector,
                                 MediaDevice     device,
-                                ZrtpControlImpl zrtpControl)
+                                SrtpControl srtpControl)
     {
-        super(connector, device, zrtpControl);
+        super(connector, device, srtpControl);
 
         if(logger.isTraceEnabled())
             logger.trace("Created Audio Stream with hashCode " + hashCode());

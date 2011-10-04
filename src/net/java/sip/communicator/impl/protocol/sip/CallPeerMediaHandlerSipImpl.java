@@ -191,12 +191,13 @@ public class CallPeerMediaHandlerSipImpl
                 {
                     MediaDescription md =
                         createMediaDescription(
-                           dev.getSupportedFormats(
-                                   sendQualityPreset,
-                                   receiveQualityPreset),
-                           getTransportManager().getStreamConnector(mediaType),
-                           direction,
-                           dev.getSupportedExtensions());
+                            true, //TODO base on settings
+                            dev.getSupportedFormats(
+                                    sendQualityPreset,
+                                    receiveQualityPreset),
+                            getTransportManager().getStreamConnector(mediaType),
+                            direction,
+                            dev.getSupportedExtensions());
 
                     try
                     {
@@ -215,7 +216,8 @@ public class CallPeerMediaHandlerSipImpl
                         // do nothing in case of error.
                     }
 
-                    updateMediaDescriptionForZrtp(mediaType, md);
+                    //updateMediaDescriptionForZrtp(mediaType, md); //TODO: base on setting
+                    updateMediaDescriptionForSDes(mediaType, md, null);
 
                     mediaDescs.add(md);
                 }
@@ -476,11 +478,6 @@ public class CallPeerMediaHandlerSipImpl
             StreamConnector connector
                 = getTransportManager().getStreamConnector(mediaType);
 
-            // create the corresponding stream...
-            MediaFormat fmt = findMediaFormat(remoteFormats,
-                    mutuallySupportedFormats.get(0));
-            initStream(connector, dev, fmt, target, direction, rtpExtensions);
-
             // check for options from remote party and set them locally
             if(mediaType.equals(MediaType.VIDEO))
             {
@@ -527,10 +524,16 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
 
-            MediaDescription md = createMediaDescription(
+            MediaDescription md = createMediaDescription(true, //TODO base on settings
                 mutuallySupportedFormats, connector, direction, rtpExtensions);
 
-            updateMediaDescriptionForZrtp(mediaType, md);
+            //updateMediaDescriptionForZrtp(mediaType, md); //TODO base on setting
+            updateMediaDescriptionForSDes(mediaType, md, mediaDescription);
+
+            // create the corresponding stream...
+            MediaFormat fmt = findMediaFormat(remoteFormats,
+                    mutuallySupportedFormats.get(0));
+            initStream(connector, dev, fmt, target, direction, rtpExtensions);
 
             // create the answer description
             answerDescriptions.add(md);
@@ -559,22 +562,90 @@ public class CallPeerMediaHandlerSipImpl
         {
             try
             {
-                SrtpControl control
-                                = getZrtpControls().get(mediaType);
-                if(control == null)
+                SrtpControl scontrol = getZrtpControls().get(mediaType);
+                if(scontrol == null || !(scontrol instanceof ZrtpControl))
                 {
-                    control = SipActivator.getMediaService()
+                    scontrol = SipActivator.getMediaService()
                         .createZrtpControl();
-                    getZrtpControls().put(mediaType, control);
+                    getZrtpControls().put(mediaType, scontrol);
                 }
+                ZrtpControl zcontrol = (ZrtpControl) scontrol;
 
-                String helloHash = control.getHelloHash();
+                String helloHash = zcontrol.getHelloHash();
                 if(helloHash != null && helloHash.length() > 0)
                     md.setAttribute("zrtp-hash", helloHash);
 
-            } catch (SdpException ex)
+            }
+            catch (SdpException ex)
             {
                 logger.error("Cannot add zrtp-hash to sdp", ex);
+            }
+        }
+    }
+
+    /**
+     * Updates the supplied description with SDES attributes if necessary.
+     *
+     * @param mediaType the media type.
+     * @param localMd the description to be updated.
+     * @param peerMd 
+     * @throws OperationFailedException 
+     */
+    @SuppressWarnings("unchecked") //jain-sip legacy
+    private void updateMediaDescriptionForSDes(
+        MediaType mediaType, MediaDescription localMd, MediaDescription peerMd)
+        throws OperationFailedException
+    {
+        //if(getPeer().getCall().isSipZrtpAttribute()) //TODO: check SDES config
+        {
+            SrtpControl scontrol = getZrtpControls().get(mediaType);
+            if (scontrol == null || !(scontrol instanceof SDesControl))
+            {
+                scontrol = SipActivator.getMediaService().createSDesControl();
+                getZrtpControls().put(mediaType, scontrol);
+            }
+            SDesControl sdcontrol = (SDesControl) scontrol;
+            if (peerMd == null)
+            {
+                Vector<Attribute> atts = localMd.getAttributes(true);
+                for (String ca : sdcontrol.getInitiatorCryptoAttributes())
+                {
+                    Attribute a = SdpUtils.createAttribute("crypto", ca);
+                    atts.add(a);
+                }
+            }
+            else
+            {
+                Vector<Attribute> atts = peerMd.getAttributes(true);
+                List<String> peerAttributes = new LinkedList<String>();
+                for (Attribute a : atts)
+                {
+                    try
+                    {
+                        if (a.getName().equals("crypto"))
+                        {
+                            peerAttributes.add(a.getValue());
+                        }
+                    }
+                    catch (SdpParseException e)
+                    {
+                        logger.error("received an uparsable sdp attribute", e);
+                    }
+                }
+                if (peerAttributes.size() > 0)
+                {
+                    String localAttr =
+                        sdcontrol.responderSelectAttribute(peerAttributes
+                            .toArray(new String[peerAttributes.size()]));
+                    try
+                    {
+                        localMd.setAttribute("crypto", localAttr);
+                    }
+                    catch (SdpException e)
+                    {
+                        logger.error("unable to add crypto to answer", e);
+                    }
+                }
             }
         }
     }
@@ -715,6 +786,32 @@ public class CallPeerMediaHandlerSipImpl
                 supportQualityControls =
                     SdpUtils.containsAttribute(mediaDescription, "imageattr");
             }
+
+            // select the crypto key the peer has chosen from our proposal
+            SrtpControl scontrol = getZrtpControls().get(mediaType);
+            if(scontrol != null && scontrol instanceof SDesControl)
+            {
+                List<String> peerAttributes = new LinkedList<String>();
+                @SuppressWarnings("unchecked")
+                Vector<Attribute> attrs = mediaDescription.getAttributes(true);
+                for (Attribute a : attrs)
+                {
+                    try
+                    {
+                        if (a.getName().equals("crypto"))
+                        {
+                            peerAttributes.add(a.getValue());
+                        }
+                    }
+                    catch (SdpParseException e)
+                    {
+                        logger.error("received an uparsable sdp attribute", e);
+                    }
+                }
+                ((SDesControl) scontrol)
+                    .initiatorSelectAttribute(peerAttributes
+                        .toArray(new String[peerAttributes.size()]));
+            }
         }
     }
 
@@ -735,6 +832,7 @@ public class CallPeerMediaHandlerSipImpl
      * taking account the local streaming preference for the corresponding
      * media type.
      *
+     * @param secure when true, the profile is RTP/SAVP instead of RTP/AVP
      * @param formats the list of <tt>MediaFormats</tt> that we'd like to
      * advertise.
      * @param connector the <tt>StreamConnector</tt> that we will be using
@@ -751,13 +849,14 @@ public class CallPeerMediaHandlerSipImpl
      * <tt>MediaDescription</tt> fails for some reason.
      */
     private MediaDescription createMediaDescription(
+                                             boolean            secure,
                                              List<MediaFormat>  formats,
                                              StreamConnector    connector,
                                              MediaDirection     direction,
                                              List<RTPExtension> extensions )
         throws OperationFailedException
     {
-        return SdpUtils.createMediaDescription(formats, connector,
+        return SdpUtils.createMediaDescription(secure, formats, connector,
            direction, extensions,
            getDynamicPayloadTypes(), getRtpExtensionsRegistry());
     }

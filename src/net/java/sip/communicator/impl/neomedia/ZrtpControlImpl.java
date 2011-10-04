@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.neomedia.event.*;
  * @author Damian Minkov
  */
 public class ZrtpControlImpl
-    implements SrtpControl
+    implements ZrtpControl
 {
     /**
      * The listener interested in security events about zrtp.
@@ -112,7 +112,7 @@ public class ZrtpControlImpl
      */
     public void setSASVerification(boolean verified)
     {
-        ZRTPTransformEngine engine = getZrtpEngine();
+        ZRTPTransformEngine engine = getTransformEngine();
 
         if (verified)
             engine.SASVerified();
@@ -124,7 +124,7 @@ public class ZrtpControlImpl
      * Returns the zrtp engine currently used by this stream.
      * @return the zrtp engine
      */
-    public ZRTPTransformEngine getZrtpEngine()
+    public ZRTPTransformEngine getTransformEngine()
     {
         if(zrtpEngine == null)
         {
@@ -151,7 +151,7 @@ public class ZrtpControlImpl
         boolean zrtpAutoStart = false;
 
         // ZRTP engine initialization
-        ZRTPTransformEngine engine = getZrtpEngine();
+        ZRTPTransformEngine engine = getTransformEngine();
 
         // Decide if this will become the ZRTP Master session:
         // - Statement: audio media session will be started before video
@@ -209,7 +209,7 @@ public class ZrtpControlImpl
      */
     public void setMultistream(byte[] multiStreamData)
     {
-        ZRTPTransformEngine engine = getZrtpEngine();
+        ZRTPTransformEngine engine = getTransformEngine();
 
         engine.setMultiStrParams(multiStreamData);
         engine.setEnableZrtp(true);
@@ -222,7 +222,7 @@ public class ZrtpControlImpl
      */
     public String getHelloHash()
     {
-        return getZrtpEngine().getHelloHash();
+        return getTransformEngine().getHelloHash();
     }
 
     /**
@@ -235,7 +235,7 @@ public class ZrtpControlImpl
      */
     public String[] getHelloHashSep()
     {
-        return getZrtpEngine().getHelloHashSep();
+        return getTransformEngine().getHelloHashSep();
     }
 
     /**

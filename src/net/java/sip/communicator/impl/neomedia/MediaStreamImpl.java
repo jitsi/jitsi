@@ -198,7 +198,7 @@ public class MediaStreamImpl
     /**
      * The current <tt>ZrtpControl</tt>.
      */
-    private final ZrtpControlImpl zrtpControl;
+    private final SrtpControl zrtpControl;
 
     /**
      * Needed when restarting zrtp control.
@@ -236,12 +236,12 @@ public class MediaStreamImpl
      *
      * @param device the <tt>MediaDevice</tt> the new instance is to use for
      * both capture and playback of media
-     * @param zrtpControl an existing control instance to control the ZRTP
+     * @param srtpControl an existing control instance to control the SRTP
      * operations
      */
-    public MediaStreamImpl(MediaDevice device, ZrtpControlImpl zrtpControl)
+    public MediaStreamImpl(MediaDevice device, SrtpControl srtpControl)
     {
-        this(null, device, zrtpControl);
+        this(null, device, srtpControl);
     }
 
     /**
@@ -263,7 +263,7 @@ public class MediaStreamImpl
     public MediaStreamImpl(
             StreamConnector connector,
             MediaDevice device,
-            ZrtpControlImpl zrtpControl)
+            SrtpControl zrtpControl)
     {
         /*
          * XXX Set the device early in order to make sure that it is of the
@@ -352,7 +352,7 @@ public class MediaStreamImpl
             engineChain.add(dtmfEngine);
 
         // ZRTP
-        engineChain.add(zrtpControl.getZrtpEngine());
+        engineChain.add(zrtpControl.getTransformEngine());
 
         // RTCP Statistics
         if(statisticsEngine == null)
@@ -646,10 +646,11 @@ public class MediaStreamImpl
                 // If a ZRTP engine is available then set the SSRC of this
                 // stream
                 // currently ZRTP supports only one SSRC per engine
-                ZRTPTransformEngine engine = zrtpControl.getZrtpEngine();
+                TransformEngine engine = zrtpControl.getTransformEngine();
 
-                if (engine != null)
-                    engine.setOwnSSRC(sendStream.getSSRC());
+                if (engine != null && engine instanceof ZRTPTransformEngine)
+                    ((ZRTPTransformEngine)engine)
+                        .setOwnSSRC(sendStream.getSSRC());
             }
             catch (IOException ioe)
             {

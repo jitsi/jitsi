@@ -43,7 +43,9 @@ Import-Package: org.bouncycastle.crypto,
  gnu.java.zrtp.packets,
  gnu.java.zrtp.utils,
  gnu.java.zrtp.zidfile,
- apple.awt
+ apple.awt,
+ ch.imvs.sdes4j,
+ ch.imvs.sdes4j.srtp
 Export-Package: net.java.sip.communicator.service.audionotifier,
  net.java.sip.communicator.service.neomedia,
  net.java.sip.communicator.service.neomedia.control,

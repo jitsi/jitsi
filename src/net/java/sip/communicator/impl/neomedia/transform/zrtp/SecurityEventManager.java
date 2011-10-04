@@ -212,7 +212,7 @@ public class SecurityEventManager extends ZrtpUserCallback
                 {
                     securityListener.securityTurnedOn(
                         sessionType, cipher, sas, isSasVerified,
-                        zrtpControl.getZrtpEngine().getMultiStrParams());
+                        zrtpControl.getTransformEngine().getMultiStrParams());
                 }
                 else
                 {

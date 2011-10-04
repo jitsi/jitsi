@@ -193,8 +193,8 @@ public class MediaServiceImpl
      * @param device the <tt>MediaDevice</tt> that the new <tt>MediaStream</tt>
      * instance is to use for both capture and playback of media exchanged via
      * the specified <tt>connector</tt>
-     * @param zrtpControl a control which is already created, used to control
-     *        the zrtp operations.
+     * @param srtpControl a control which is already created, used to control
+     *        the srtp operations.
      *
      * @return a new <tt>MediaStream</tt> instance
      * @see MediaService#createMediaStream(StreamConnector, MediaDevice)
@@ -202,16 +202,14 @@ public class MediaServiceImpl
     public MediaStream createMediaStream(
             StreamConnector connector,
             MediaDevice device,
-            SrtpControl zrtpControl)
+            SrtpControl srtpControl)
     {
         switch (device.getMediaType())
         {
         case AUDIO:
-            return new AudioMediaStreamImpl(connector, device,
-                (ZrtpControlImpl)zrtpControl);
+            return new AudioMediaStreamImpl(connector, device, srtpControl);
         case VIDEO:
-            return new VideoMediaStreamImpl(connector, device,
-                (ZrtpControlImpl)zrtpControl);
+            return new VideoMediaStreamImpl(connector, device, srtpControl);
         default:
             return null;
         }
@@ -569,9 +567,19 @@ public class MediaServiceImpl
      *
      * @return ZrtpControl instance.
      */
-    public SrtpControl createZrtpControl()
+    public ZrtpControl createZrtpControl()
     {
         return new ZrtpControlImpl();
+    }
+
+    /**
+     * Creates <tt>SDesControl</tt> used to control all SDes options.
+     * 
+     * @return SDesControl instance.
+     */
+    public SDesControl createSDesControl()
+    {
+        return new SDesControlImpl();
     }
 
     /**

@@ -135,7 +135,14 @@ public interface MediaService
      *
      * @return ZrtpControl instance.
      */
-    public SrtpControl createZrtpControl();
+    public ZrtpControl createZrtpControl();
+
+    /**
+     * Creates <tt>SDesControl</tt> used to control all SDes options.
+     * 
+     * @return SDesControl instance.
+     */
+    public SDesControl createSDesControl();
 
     /**
      * Returns the control that handles current playback levels.
