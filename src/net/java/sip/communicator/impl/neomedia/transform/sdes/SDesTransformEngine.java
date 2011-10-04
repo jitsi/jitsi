@@ -22,12 +22,13 @@ public class SDesTransformEngine
 
     private long getKdr(SrtpCryptoAttribute attribute)
     {
-        if(attribute.getSessionParams() != null)
+        if (attribute.getSessionParams() != null)
         {
             for (SrtpSessionParam param : attribute.getSessionParams())
             {
                 if (param instanceof KdrSessionParam)
-                    return ((KdrSessionParam) param).getKeyDerivationRateExpanded();
+                    return ((KdrSessionParam) param)
+                        .getKeyDerivationRateExpanded();
             }
         }
         return 0;
@@ -35,19 +36,20 @@ public class SDesTransformEngine
 
     private byte[] getKey(SrtpCryptoAttribute attribute)
     {
-        int length = attribute.getCryptoSuite().getEncKeyLength()/8;
+        int length = attribute.getCryptoSuite().getEncKeyLength() / 8;
         byte[] key = new byte[length];
-        System.arraycopy(attribute.getKeyParams()[0].getKey(), 0, key, 0, length);
+        System.arraycopy(attribute.getKeyParams()[0].getKey(), 0, key, 0,
+            length);
         return key;
     }
 
     private byte[] getSalt(SrtpCryptoAttribute attribute)
     {
-        int keyLength = attribute.getCryptoSuite().getEncKeyLength()/8;
-        int saltLength = attribute.getCryptoSuite().getSaltKeyLength()/8;
+        int keyLength = attribute.getCryptoSuite().getEncKeyLength() / 8;
+        int saltLength = attribute.getCryptoSuite().getSaltKeyLength() / 8;
         byte[] salt = new byte[keyLength];
-        System.arraycopy(attribute.getKeyParams()[0].getKey(), keyLength, salt, 0,
-            saltLength);
+        System.arraycopy(attribute.getKeyParams()[0].getKey(), keyLength, salt,
+            0, saltLength);
         return salt;
     }
 
@@ -61,35 +63,38 @@ public class SDesTransformEngine
         return null;
     }
 
-    private SRTPCryptoContext createContext(long ssrc, SrtpCryptoAttribute attribute)
+    private SRTPCryptoContext createContext(long ssrc,
+        SrtpCryptoAttribute attribute)
     {
         int encType;
         SrtpCryptoSuite cs = attribute.getCryptoSuite();
-        switch(cs.getEncryptionAlgorithm())
+        switch (cs.getEncryptionAlgorithm())
         {
-            case SrtpCryptoSuite.ENCRYPTION_AES128_CM:
-                encType = SRTPPolicy.AESCM_ENCRYPTION;
-                break;
-            case SrtpCryptoSuite.ENCRYPTION_AES128_F8:
-                encType = SRTPPolicy.AESF8_ENCRYPTION;
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported cipher");
+        case SrtpCryptoSuite.ENCRYPTION_AES128_CM:
+            encType = SRTPPolicy.AESCM_ENCRYPTION;
+            break;
+        case SrtpCryptoSuite.ENCRYPTION_AES128_F8:
+            encType = SRTPPolicy.AESF8_ENCRYPTION;
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported cipher");
         }
         int authType;
-        switch(cs.getHashAlgorithm())
+        switch (cs.getHashAlgorithm())
         {
-            case SrtpCryptoSuite.HASH_HMAC_SHA1:
-                authType = SRTPPolicy.HMACSHA1_AUTHENTICATION;
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported hash");
+        case SrtpCryptoSuite.HASH_HMAC_SHA1:
+            authType = SRTPPolicy.HMACSHA1_AUTHENTICATION;
+            break;
+        default:
+            throw new IllegalArgumentException("Unsupported hash");
         }
-        SRTPPolicy policy = new SRTPPolicy(
-            encType, cs.getEncKeyLength()/8,
-            authType, cs.getSrtpAuthKeyLength()/8, cs.getSrtpAuthTagLength()/8,
-            cs.getSaltKeyLength()/8
-        );
+        SRTPPolicy policy =
+            new SRTPPolicy(
+                encType, cs.getEncKeyLength() / 8,
+                authType, cs.getSrtpAuthKeyLength() / 8,
+                cs.getSrtpAuthTagLength() / 8,
+                cs.getSaltKeyLength() / 8
+            );
         return new SRTPCryptoContext(
             ssrc, 0, getKdr(attribute),
             getKey(attribute),
@@ -112,7 +117,7 @@ public class SDesTransformEngine
 
     public RawPacket reverseTransform(RawPacket pkt)
     {
-        long ssrc  = pkt.getSSRC();
+        long ssrc = pkt.getSSRC();
         int seqNum = pkt.getSequenceNumber();
 
         boolean isNewContext = false;
@@ -122,14 +127,14 @@ public class SDesTransformEngine
             inContext.deriveSrtpKeys(seqNum);
             isNewContext = true;
         }
-        else if(ssrc != inContext.getSSRC())
+        else if (ssrc != inContext.getSSRC())
         {
             // invalid packet, don't even try to decode
             return null;
         }
 
         boolean validPacket = inContext.reverseTransformPacket(pkt);
-        if(!validPacket && isNewContext)
+        if (!validPacket && isNewContext)
             inContext = null;
 
         if (!validPacket)

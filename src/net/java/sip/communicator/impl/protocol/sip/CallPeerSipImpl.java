@@ -704,7 +704,7 @@ public class CallPeerSipImpl
             // corresponding call status
             // this would also unmute calls that were previously mute because
             // of early media.
-            if(isMute() != this.getCall().isMute())
+            if(this.getCall() != null && isMute() != this.getCall().isMute())
                 setMute(this.getCall().isMute());
         }
     }

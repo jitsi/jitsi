@@ -637,13 +637,16 @@ public class CallPeerMediaHandlerSipImpl
                     String localAttr =
                         sdcontrol.responderSelectAttribute(peerAttributes
                             .toArray(new String[peerAttributes.size()]));
-                    try
+                    if(localAttr != null)
                     {
-                        localMd.setAttribute("crypto", localAttr);
-                    }
-                    catch (SdpException e)
-                    {
-                        logger.error("unable to add crypto to answer", e);
+                        try
+                        {
+                            localMd.setAttribute("crypto", localAttr);
+                        }
+                        catch (SdpException e)
+                        {
+                            logger.error("unable to add crypto to answer", e);
+                        }
                     }
                 }
             }
@@ -775,10 +778,6 @@ public class CallPeerMediaHandlerSipImpl
             List<RTPExtension> rtpExtensions = intersectRTPExtensions(
                             remoteRTPExtensions, supportedExtensions);
 
-            // create the corresponding stream...
-            initStream(connector, dev, supportedFormats.get(0), target,
-                                direction, rtpExtensions);
-
             // check for options from remote party and set
             // is quality controls supported
             if(mediaType.equals(MediaType.VIDEO))
@@ -812,6 +811,10 @@ public class CallPeerMediaHandlerSipImpl
                     .initiatorSelectAttribute(peerAttributes
                         .toArray(new String[peerAttributes.size()]));
             }
+
+            // create the corresponding stream...
+            initStream(connector, dev, supportedFormats.get(0), target,
+                                direction, rtpExtensions);
         }
     }
 
