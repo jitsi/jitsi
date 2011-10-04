@@ -402,16 +402,30 @@ public class SecurityEventManager extends ZrtpUserCallback
         return NeomediaActivator.getResources().getI18NString(key, params);
     }
 
+    /**
+     * Sets a new receiver of the security callback events.
+     * @param securityListener An object that receives the security events.
+     */
     public void setSrtpListener(SrtpListener securityListener)
     {
         this.securityListener = securityListener;
     }
 
+    /**
+     * Gets the SAS for the current media stream.
+     * 
+     * @return the four character ZRTP SAS.
+     */
     public String getSecurityString()
     {
         return sas;
     }
 
+    /**
+     * Gets the status of the SAS verification.
+     * 
+     * @return true when the SAS has been verified.
+     */
     public boolean isSecurityVerified()
     {
         return isSasVerified;

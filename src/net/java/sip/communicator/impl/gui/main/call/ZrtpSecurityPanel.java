@@ -30,8 +30,10 @@ public class ZrtpSecurityPanel
     private Image iconEncr;
     private Image iconEncrVerified;
     private final JLabel securityStringLabel = new JLabel();
+    private boolean sasVerified = false;
 
     private final ZrtpControl zrtpControl;
+
 
     /**
      * Creates an instance of <tt>SecurityPanel</tt> by specifying the
@@ -69,13 +71,13 @@ public class ZrtpSecurityPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                zrtpControl.setSASVerification(!zrtpControl
-                    .isSecurityVerified());
+                sasVerified = !sasVerified;
+                zrtpControl.setSASVerification(sasVerified);
 
-                if (zrtpControl.isSecurityVerified())
-                    sasVerificationButton.setImage(iconEncr);
-                else
+                if (sasVerified)
                     sasVerificationButton.setImage(iconEncrVerified);
+                else
+                    sasVerificationButton.setImage(iconEncr);
             }
         });
     }
@@ -86,7 +88,6 @@ public class ZrtpSecurityPanel
     public void refreshStates()
     {
         String securityString = zrtpControl.getSecurityString();
-        boolean isSecurityVerified = zrtpControl.isSecurityVerified();
         if (securityString != null)
         {
             securityStringLabel.setText(
@@ -101,8 +102,9 @@ public class ZrtpSecurityPanel
             securityStringLabel.setText(null);
         }
 
+        sasVerified = zrtpControl.isSecurityVerified();
         sasVerificationButton
-            .setImage(isSecurityVerified ? iconEncrVerified : iconEncr);
+            .setImage(sasVerified ? iconEncrVerified : iconEncr);
 
         revalidate();
         repaint();

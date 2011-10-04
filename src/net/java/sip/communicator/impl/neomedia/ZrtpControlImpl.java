@@ -256,11 +256,25 @@ public class ZrtpControlImpl
         zrtpConnector = connector;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * net.java.sip.communicator.service.neomedia.ZrtpControl#getSecurityString
+     * ()
+     */
     public String getSecurityString()
     {
         return getTransformEngine().getUserCallback().getSecurityString();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * net.java.sip.communicator.service.neomedia.ZrtpControl#isSecurityVerified
+     * ()
+     */
     public boolean isSecurityVerified()
     {
         return getTransformEngine().getUserCallback().isSecurityVerified();
