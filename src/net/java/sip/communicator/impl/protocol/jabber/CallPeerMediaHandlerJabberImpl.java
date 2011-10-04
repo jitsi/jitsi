@@ -343,7 +343,7 @@ public class CallPeerMediaHandlerJabberImpl
             // ZRTP
             if(getPeer().getCall().isSipZrtpAttribute())
             {
-                ZrtpControl control = getZrtpControls().get(mediaType);
+                SrtpControl control = getZrtpControls().get(mediaType);
                 if(control == null)
                 {
                     control = JabberActivator.getMediaService()
@@ -550,7 +550,7 @@ public class CallPeerMediaHandlerJabberImpl
             //ZRTP
             if(getPeer().getCall().isSipZrtpAttribute())
             {
-                ZrtpControl control = getZrtpControls().get(dev.getMediaType());
+                SrtpControl control = getZrtpControls().get(dev.getMediaType());
 
                 if(control == null)
                 {
@@ -689,7 +689,7 @@ public class CallPeerMediaHandlerJabberImpl
                     //ZRTP
                     if(getPeer().getCall().isSipZrtpAttribute())
                     {
-                        ZrtpControl control = getZrtpControls().get(mediaType);
+                        SrtpControl control = getZrtpControls().get(mediaType);
                         if(control == null)
                         {
                             control = JabberActivator.getMediaService()

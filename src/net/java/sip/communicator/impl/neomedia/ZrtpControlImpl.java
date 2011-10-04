@@ -20,12 +20,12 @@ import net.java.sip.communicator.service.neomedia.event.*;
  * @author Damian Minkov
  */
 public class ZrtpControlImpl
-    implements ZrtpControl
+    implements SrtpControl
 {
     /**
      * The listener interested in security events about zrtp.
      */
-    private ZrtpListener zrtpListener = null;
+    private SrtpListener zrtpListener = null;
 
     /**
      * Additional info codes for and data to support ZRTP4J.
@@ -78,7 +78,7 @@ public class ZrtpControlImpl
      *
      * @param zrtpListener the <tt>ZrtpListener</tt> to set
      */
-    public void setZrtpListener(ZrtpListener zrtpListener)
+    public void setZrtpListener(SrtpListener zrtpListener)
     {
         this.zrtpListener = zrtpListener;
     }
@@ -88,7 +88,7 @@ public class ZrtpControlImpl
      *
      * @return the <tt>ZrtpListener</tt> which listens for  security events
      */
-    public ZrtpListener getZrtpListener()
+    public SrtpListener getSrtpListener()
     {
         return this.zrtpListener;
     }

@@ -99,7 +99,7 @@ public interface MediaService
      */
     public MediaStream createMediaStream(StreamConnector connector,
                                          MediaDevice     device,
-                                         ZrtpControl zrtpControl);
+                                         SrtpControl zrtpControl);
 
     /**
      * Creates a new <tt>MediaDevice</tt> which uses a specific
@@ -135,7 +135,7 @@ public interface MediaService
      *
      * @return ZrtpControl instance.
      */
-    public ZrtpControl createZrtpControl();
+    public SrtpControl createZrtpControl();
 
     /**
      * Returns the control that handles current playback levels.

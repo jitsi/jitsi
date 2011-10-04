@@ -202,7 +202,7 @@ public class MediaServiceImpl
     public MediaStream createMediaStream(
             StreamConnector connector,
             MediaDevice device,
-            ZrtpControl zrtpControl)
+            SrtpControl zrtpControl)
     {
         switch (device.getMediaType())
         {
@@ -569,7 +569,7 @@ public class MediaServiceImpl
      *
      * @return ZrtpControl instance.
      */
-    public ZrtpControl createZrtpControl()
+    public SrtpControl createZrtpControl()
     {
         return new ZrtpControlImpl();
     }

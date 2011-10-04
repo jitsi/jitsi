@@ -13,7 +13,7 @@ import net.java.sip.communicator.service.neomedia.event.*;
  *
  * @author Damian Minkov
  */
-public interface ZrtpControl
+public interface SrtpControl
 {
     /**
      * Cleans up the current zrtp control and its engine.
@@ -26,14 +26,14 @@ public interface ZrtpControl
      *
      * @param zrtpListener the <tt>ZrtpListener</tt> to set
      */
-    public void setZrtpListener(ZrtpListener zrtpListener);
+    public void setZrtpListener(SrtpListener zrtpListener);
 
     /**
      * Returns the <tt>ZrtpListener</tt> which listens for security events.
      *
      * @return the <tt>ZrtpListener</tt> which listens for  security events
      */
-    public ZrtpListener getZrtpListener();
+    public SrtpListener getSrtpListener();
 
     /**
      * Gets the default secure/unsecure communication status for the supported

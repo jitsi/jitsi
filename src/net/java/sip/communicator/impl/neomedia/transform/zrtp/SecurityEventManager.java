@@ -71,7 +71,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     /**
      * A callback to the instance that created us.
      */
-    private final ZrtpListener securityListener;
+    private final SrtpListener securityListener;
 
     /**
      * Is this a ZRTP DH (Master) session?
@@ -106,7 +106,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     public SecurityEventManager(ZrtpControlImpl zrtpControl)
     {
         this.zrtpControl = zrtpControl;
-        this.securityListener = zrtpControl.getZrtpListener();
+        this.securityListener = zrtpControl.getSrtpListener();
     }
 
     /**

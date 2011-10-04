@@ -18,10 +18,10 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Emil Ivov
  */
-public abstract class ZrtpAwareCallPeer<T extends Call,
+public abstract class SrtpAwareCallPeer<T extends Call,
                                         U extends ProtocolProviderService>
     extends AbstractCallPeer<T, U>
-    implements ZrtpControl
+    implements SrtpControl
 {
 
 }

@@ -559,7 +559,7 @@ public class CallPeerMediaHandlerSipImpl
         {
             try
             {
-                ZrtpControl control
+                SrtpControl control
                                 = getZrtpControls().get(mediaType);
                 if(control == null)
                 {

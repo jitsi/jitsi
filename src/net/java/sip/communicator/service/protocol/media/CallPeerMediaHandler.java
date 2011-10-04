@@ -97,7 +97,7 @@ public abstract class CallPeerMediaHandler<
      * A reference to the object that would be responsible for ZRTP control
      * and which most often would be the peer itself.
      */
-    public final ZrtpListener zrtpController;
+    public final SrtpListener zrtpController;
 
     /**
      * The RTP stream that this media handler uses to send audio.
@@ -193,8 +193,8 @@ public abstract class CallPeerMediaHandler<
     /**
      * Holds the ZRTP controls used for the current call.
      */
-    private Map<MediaType, ZrtpControl> zrtpControls =
-        new Hashtable<MediaType, ZrtpControl>();
+    private Map<MediaType, SrtpControl> zrtpControls =
+        new Hashtable<MediaType, SrtpControl>();
 
     /**
      * The <tt>KeyFrameControl</tt> currently known to this
@@ -334,7 +334,7 @@ public abstract class CallPeerMediaHandler<
      * controlling zrtp, and which most often would be the peer itself.
      */
     public CallPeerMediaHandler(T            peer,
-                                ZrtpListener zrtpController)
+                                SrtpListener zrtpController)
     {
         this.peer = peer;
         this.zrtpController = zrtpController;
@@ -423,7 +423,7 @@ public abstract class CallPeerMediaHandler<
         getTransportManager().closeStreamConnector(type);
 
         // Clear the ZRTP controls used for the associated Call.
-        ZrtpControl zrtpCtrl = zrtpControls.get(type);
+        SrtpControl zrtpCtrl = zrtpControls.get(type);
 
         if (zrtpCtrl != null)
         {
@@ -1161,7 +1161,7 @@ public abstract class CallPeerMediaHandler<
      *
      * @return the currently valid <tt>ZrtpControls</tt> map.
      */
-    protected Map<MediaType, ZrtpControl> getZrtpControls()
+    protected Map<MediaType, SrtpControl> getZrtpControls()
     {
         return this.zrtpControls;
     }
@@ -1206,7 +1206,7 @@ public abstract class CallPeerMediaHandler<
                 logger.trace("The media types of device and format differ.");
 
             // check whether a control already exists
-            ZrtpControl control = zrtpControls.get(mediaType);
+            SrtpControl control = zrtpControls.get(mediaType);
             MediaService mediaService
                 = ProtocolMediaActivator.getMediaService();
 
@@ -1282,7 +1282,7 @@ public abstract class CallPeerMediaHandler<
         {
             // we use the audio stream for master stream
             // when using ZRTP multistreams.
-            ZrtpControl zrtpControl = stream.getZrtpControl();
+            SrtpControl zrtpControl = stream.getZrtpControl();
 
             zrtpControl.setZrtpListener(zrtpController);
             zrtpControl.start(stream instanceof AudioMediaStream);

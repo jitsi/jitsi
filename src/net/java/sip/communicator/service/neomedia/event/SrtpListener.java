@@ -13,7 +13,7 @@ package net.java.sip.communicator.service.neomedia.event;
  * 
  * @author Yana Stamcheva
  */
-public interface ZrtpListener
+public interface SrtpListener
 {
     /**
      * Indicates that the security has been turned on. When we are in the case

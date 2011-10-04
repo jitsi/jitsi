@@ -36,7 +36,7 @@ public abstract class MediaAwareCallPeer
                            U extends CallPeerMediaHandler<?>,
                            V extends ProtocolProviderService>
     extends AbstractCallPeer<T, V>
-    implements ZrtpListener,
+    implements SrtpListener,
                CallPeerConferenceListener,
                CsrcAudioLevelListener,
                SimpleAudioLevelListener

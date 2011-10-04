@@ -1099,7 +1099,7 @@ public class MediaStreamImpl
      *
      * @return the <tt>ZrtpControl</tt> which controls the ZRTP of this stream
      */
-    public ZrtpControl getZrtpControl()
+    public SrtpControl getZrtpControl()
     {
         return zrtpControl;
     }
