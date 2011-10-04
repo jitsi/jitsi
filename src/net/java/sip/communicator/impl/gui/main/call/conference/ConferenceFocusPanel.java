@@ -131,8 +131,7 @@ public class ConferenceFocusPanel
         ConferenceMemberPanel memberPanel
             = new ConferenceMemberPanel(callRenderer, member);
 
-        member.addPropertyChangeListener(
-            (ConferenceMemberPanel) memberPanel);
+        member.addPropertyChangeListener(memberPanel);
 
         // Map the conference member to the created member panel.
         conferenceMembersPanels.put(member, memberPanel);
