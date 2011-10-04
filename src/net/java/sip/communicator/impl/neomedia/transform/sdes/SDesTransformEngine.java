@@ -40,11 +40,6 @@ public class SDesTransformEngine
      */
     public SDesTransformEngine(SDesControlImpl sDesControl)
     {
-        reset(sDesControl);
-    }
-
-    public void reset(SDesControlImpl sDesControl)
-    {
         inAttribute = sDesControl.getInAttribute();
         outAttribute = sDesControl.getOutAttribute();
         contexts = new Hashtable<Long, SRTPCryptoContext>();
@@ -158,7 +153,9 @@ public class SDesTransformEngine
         SRTPCryptoContext context = contexts.get(ssrc);
         if (context == null)
         {
-            logger.debug("OutContext created for SSRC=" + ssrc);
+            logger.debug("OutContext created for SSRC="
+                + Long.toHexString(ssrc) + " and key "
+                + outAttribute.getKeyParams()[0].encode());
             context = createContext(ssrc, outAttribute);
             context.deriveSrtpKeys(0);
             contexts.put(ssrc, context);
@@ -187,7 +184,8 @@ public class SDesTransformEngine
         SRTPCryptoContext context = contexts.get(ssrc);
         if (context == null)
         {
-            logger.debug("InContext created for SSRC=" + ssrc);
+            logger.debug("InContext created for SSRC=" + Long.toHexString(ssrc)
+                + " and key " + inAttribute.getKeyParams()[0].encode());
             context = createContext(ssrc, inAttribute);
             context.deriveSrtpKeys(seqNum);
             contexts.put(ssrc, context);

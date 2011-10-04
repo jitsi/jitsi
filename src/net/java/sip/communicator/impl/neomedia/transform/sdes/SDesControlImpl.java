@@ -4,17 +4,17 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.neomedia;
+package net.java.sip.communicator.impl.neomedia.transform.sdes;
 
 import java.util.*;
 
 import ch.imvs.sdes4j.srtp.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
-import net.java.sip.communicator.impl.neomedia.transform.sdes.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
-import net.java.sip.communicator.service.protocol.event.CallPeerSecurityStatusEvent;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Default implementation of {@link SDesControl}.
@@ -115,10 +115,6 @@ public class SDesControlImpl
         String[] result = new String[attributes.length];
         for(int i = 0; i < attributes.length; i++)
             result[i] = attributes[i].encode();
-
-        if(engine != null)
-            engine.reset(this);
-
         return result;
     }
 
@@ -134,8 +130,6 @@ public class SDesControlImpl
                     selectedInAttribute = peerCA;
                     selectedOutAttribute =
                         sdesFactory.createCryptoAttribute(1, suite);
-                    if(engine != null)
-                        engine.reset(this);
                     return selectedOutAttribute.encode();
                 }
             }
@@ -154,8 +148,6 @@ public class SDesControlImpl
                 {
                     selectedInAttribute = peerCA;
                     selectedOutAttribute = localCA;
-                    if(engine != null)
-                        engine.reset(this);
                     return true;
                 }
             }
