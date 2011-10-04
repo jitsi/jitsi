@@ -81,10 +81,10 @@ public class SRTPTransformer
         {
             context = this.engine.getDefaultContext().deriveContext(ssrc, 0, 0);
             if (context != null)
-                {
-                    context.deriveSrtpKeys(0);
-                    this.contexts.put(ssrc, context);
-                }
+            {
+                context.deriveSrtpKeys(0);
+                this.contexts.put(ssrc, context);
+            }
         }
 
         if (context != null)

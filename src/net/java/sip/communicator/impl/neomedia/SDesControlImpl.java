@@ -115,6 +115,10 @@ public class SDesControlImpl
         String[] result = new String[attributes.length];
         for(int i = 0; i < attributes.length; i++)
             result[i] = attributes[i].encode();
+
+        if(engine != null)
+            engine.reset(this);
+
         return result;
     }
 
@@ -130,6 +134,8 @@ public class SDesControlImpl
                     selectedInAttribute = peerCA;
                     selectedOutAttribute =
                         sdesFactory.createCryptoAttribute(1, suite);
+                    if(engine != null)
+                        engine.reset(this);
                     return selectedOutAttribute.encode();
                 }
             }
@@ -148,6 +154,8 @@ public class SDesControlImpl
                 {
                     selectedInAttribute = peerCA;
                     selectedOutAttribute = localCA;
+                    if(engine != null)
+                        engine.reset(this);
                     return true;
                 }
             }

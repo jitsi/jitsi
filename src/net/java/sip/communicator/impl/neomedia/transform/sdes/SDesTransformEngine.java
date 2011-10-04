@@ -6,11 +6,14 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.sdes;
 
+import java.util.*;
+
 import ch.imvs.sdes4j.srtp.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.impl.neomedia.transform.srtp.*;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * PacketTransformer for SDES based SRTP encryption.
@@ -20,10 +23,16 @@ import net.java.sip.communicator.impl.neomedia.transform.srtp.*;
 public class SDesTransformEngine
     implements TransformEngine, PacketTransformer
 {
-    private SRTPCryptoContext inContext;
-    private SRTPCryptoContext outContext;
+    private final static Logger logger = Logger
+        .getLogger(SDesTransformEngine.class);
+
     private SrtpCryptoAttribute inAttribute;
     private SrtpCryptoAttribute outAttribute;
+
+    /**
+     * All the known SSRC's corresponding SRTPCryptoContexts
+     */
+    private Hashtable<Long, SRTPCryptoContext> contexts;
 
     /**
      * Creates a new instance of this class.
@@ -31,8 +40,14 @@ public class SDesTransformEngine
      */
     public SDesTransformEngine(SDesControlImpl sDesControl)
     {
+        reset(sDesControl);
+    }
+
+    public void reset(SDesControlImpl sDesControl)
+    {
         inAttribute = sDesControl.getInAttribute();
         outAttribute = sDesControl.getOutAttribute();
+        contexts = new Hashtable<Long, SRTPCryptoContext>();
     }
 
     private long getKdr(SrtpCryptoAttribute attribute)
@@ -139,13 +154,17 @@ public class SDesTransformEngine
      */
     public RawPacket transform(RawPacket pkt)
     {
-        if (outContext == null)
+        long ssrc = pkt.getSSRC();
+        SRTPCryptoContext context = contexts.get(ssrc);
+        if (context == null)
         {
-            outContext = createContext(pkt.getSSRC(), outAttribute);
-            outContext.deriveSrtpKeys(0);
+            logger.debug("OutContext created for SSRC=" + ssrc);
+            context = createContext(ssrc, outAttribute);
+            context.deriveSrtpKeys(0);
+            contexts.put(ssrc, context);
         }
 
-        outContext.transformPacket(pkt);
+        context.transformPacket(pkt);
         return pkt;
     }
 
@@ -157,26 +176,24 @@ public class SDesTransformEngine
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
+        // only accept RTP version 2 (SNOM phones send weird packages when on
+        // hold, ignore them with this check)
+        if((pkt.readByte(0) & 0xC0) != 0x80)
+            return null;
+
         long ssrc = pkt.getSSRC();
         int seqNum = pkt.getSequenceNumber();
 
-        boolean isNewContext = false;
-        if (inContext == null)
+        SRTPCryptoContext context = contexts.get(ssrc);
+        if (context == null)
         {
-            inContext = createContext(ssrc, inAttribute);
-            inContext.deriveSrtpKeys(seqNum);
-            isNewContext = true;
-        }
-        else if (ssrc != inContext.getSSRC())
-        {
-            // invalid packet, don't even try to decode
-            return null;
+            logger.debug("InContext created for SSRC=" + ssrc);
+            context = createContext(ssrc, inAttribute);
+            context.deriveSrtpKeys(seqNum);
+            contexts.put(ssrc, context);
         }
 
-        boolean validPacket = inContext.reverseTransformPacket(pkt);
-        if (!validPacket && isNewContext)
-            inContext = null;
-
+        boolean validPacket = context.reverseTransformPacket(pkt);
         if (!validPacket)
         {
             return null;

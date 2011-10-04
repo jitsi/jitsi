@@ -718,6 +718,7 @@ public class CallPeerMediaHandlerSipImpl
                 {
                     // none of the offered suites match, destroy the sdes
                     // control
+                    sdcontrol.cleanup();
                     getSrtpControls().remove(key);
                     logger.warn("Received unsupported sdes crypto attribute "
                         + peerAttributes.toString());
@@ -727,6 +728,7 @@ public class CallPeerMediaHandlerSipImpl
             {
                 // peer doesn't offer any SDES attribute, destroy the sdes
                 // control
+                sdcontrol.cleanup();
                 getSrtpControls().remove(key);
             }
             return false;
@@ -920,6 +922,7 @@ public class CallPeerMediaHandlerSipImpl
                 if(!((SDesControl) scontrol)
                     .initiatorSelectAttribute(peerAttributes))
                 {
+                    scontrol.cleanup();
                     getSrtpControls().remove(key);
                     if(peerAttributes.size() > 0)
                         logger
@@ -936,7 +939,10 @@ public class CallPeerMediaHandlerSipImpl
                         MediaTypeSrtpControl mtc = it.next();
                         if (mtc.mediaType == mediaType
                             && mtc.srtpControlType != SrtpControlType.SDES)
+                        {
+                            getSrtpControls().get(mtc).cleanup();
                             it.remove();
+                        }
                     }
                 }
             }
