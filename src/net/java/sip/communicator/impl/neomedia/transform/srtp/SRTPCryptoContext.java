@@ -53,8 +53,8 @@ import org.bouncycastle.crypto.params.*;
  * Cryptographic related parameters, i.e. encryption mode / authentication mode,
  * master encryption key and master salt key are determined outside the scope
  * of SRTP implementation. They can be assigned manually, or can be assigned
- * automatically using some key management protocol, such as MIKEY (RFC3830) or
- * Phil Zimmermann's ZRTP protocol (draft-zimmermann-avt-zrtp-01).
+ * automatically using some key management protocol, such as MIKEY (RFC3830),
+ * SDES (RFC4568) or Phil Zimmermann's ZRTP protocol (RFC6189).
  *
  * @author Bing SU (nova.su@gmail.com)
  */

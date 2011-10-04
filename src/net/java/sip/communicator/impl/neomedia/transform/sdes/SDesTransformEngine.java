@@ -45,6 +45,11 @@ public class SDesTransformEngine
         contexts = new Hashtable<Long, SRTPCryptoContext>();
     }
 
+    /**
+     * Get the key derivation parameter or the default from the SDES attribute.
+     * @param attribute The negotiated SDES attribute for the stream.
+     * @return The KDR parameter or 0 if not present.
+     */
     private long getKdr(SrtpCryptoAttribute attribute)
     {
         if (attribute.getSessionParams() != null)

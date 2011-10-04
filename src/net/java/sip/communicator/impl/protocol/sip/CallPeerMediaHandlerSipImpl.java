@@ -916,7 +916,7 @@ public class CallPeerMediaHandlerSipImpl
                     }
                     catch (SdpParseException e)
                     {
-                        logger.error("received an uparsable sdp attribute", e);
+                        logger.error("received an unparsable sdp attribute", e);
                     }
                 }
                 if(!((SDesControl) scontrol)

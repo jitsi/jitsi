@@ -1263,10 +1263,10 @@ public class OneToOneCallPeerPanel
         switch (evt.getSessionType())
         {
             case CallPeerSecurityStatusEvent.AUDIO_SESSION:
-                securityStatusLabel.setAudioSecurityOn(true);
+                securityStatusLabel.setAudioSecurityOn(false);
                 break;
             case CallPeerSecurityStatusEvent.VIDEO_SESSION:
-                securityStatusLabel.setVideoSecurityOn(true);
+                securityStatusLabel.setVideoSecurityOn(false);
                 break;
         }
 

@@ -14,8 +14,8 @@ package net.java.sip.communicator.service.neomedia;
  */
 public class MediaTypeSrtpControl implements Comparable<MediaTypeSrtpControl>
 {
-    public MediaType mediaType;
-    public SrtpControlType srtpControlType;
+    public final MediaType mediaType;
+    public final SrtpControlType srtpControlType;
 
     /**
      * Creates a new instance of this class.

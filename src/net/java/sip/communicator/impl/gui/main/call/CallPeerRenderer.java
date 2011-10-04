@@ -8,8 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 
-import net.java.sip.communicator.service.protocol.event.CallPeerSecurityOffEvent;
-import net.java.sip.communicator.service.protocol.event.CallPeerSecurityOnEvent;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The <tt>CallPeerRenderer</tt> interface is meant to be implemented by

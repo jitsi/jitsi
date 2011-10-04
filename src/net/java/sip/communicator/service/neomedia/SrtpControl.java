@@ -38,7 +38,7 @@ public interface SrtpControl
     public SrtpListener getSrtpListener();
 
     /**
-     * Gets the default secure/unsecure communication status for the supported
+     * Gets the default secure/insecure communication status for the supported
      * call sessions.
      *
      * @return default secure communication status for the supported
@@ -57,15 +57,14 @@ public interface SrtpControl
      * Sets the multistream data, which means that the master stream
      * has successfully started and this will start all other streams
      * in this session.
-     * @param multiStreamData the multistream data comming from master stream
-     *        needed to start rest of the streams in the session.
+     * @param master The security control of the master stream.
      */
     public void setMultistream(SrtpControl master);
 
     /**
      * Returns the transform engine currently used by this stream.
      * 
-     * @return the transofmr engine
+     * @return the RTP stream transformation engine
      */
     public TransformEngine getTransformEngine();
 

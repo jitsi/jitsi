@@ -216,7 +216,7 @@ public class SecurityEventManager extends ZrtpUserCallback
                 else
                 {
                     securityListener.securityTurnedOn(sessionType, cipher,
-                                                null);
+                                                zrtpControl);
                 }
             }
         }
