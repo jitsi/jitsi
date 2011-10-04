@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.neomedia.event;
 
+import net.java.sip.communicator.service.neomedia.SrtpControl;
+
 /**
  * The <tt>ZrtpListener</tt> is meant to be used by the media stream
  * creator, as the name indicates in order to be notified when a security event
@@ -23,17 +25,12 @@ public interface SrtpListener
      * event on non master stream the multiStreamData is null.
      * 
      * @param sessionType the type of the call session - audio or video.
-     * @param cipher the cipher
-     * @param securityString the SAS
-     * @param isVerified indicates if the SAS has been verified
-     * @param multiStreamData the data for the multistream
-     *        used by non master streams.
+     * @param cipher the security cipher that encrypts the call
+     * @param sender the control that initiated the event.
      */
     public void securityTurnedOn( int sessionType,
                             String cipher,
-                            String securityString,
-                            boolean isVerified,
-                            byte[] multiStreamData);
+                            SrtpControl sender);
 
     /**
      * Indicates that the security has been turned off.

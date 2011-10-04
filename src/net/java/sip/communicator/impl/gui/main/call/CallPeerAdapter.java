@@ -256,39 +256,19 @@ public class CallPeerAdapter
 
     /**
      * Creates the security panel, when a <tt>securityOnEvent</tt> is received.
-     * @param securityOnEvent the event we received
+     * @param evt the event we received
      */
-    public void securityOn(CallPeerSecurityOnEvent securityOnEvent)
+    public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        CallPeer peer = (CallPeer) securityOnEvent.getSource();
+        CallPeer peer = (CallPeer) evt.getSource();
 
         if (!peer.equals(callPeer))
             return;
 
-        OperationSetSecureTelephony secure
-            = callPeer.getProtocolProvider().getOperationSet(
-                        OperationSetSecureTelephony.class);
+        renderer.securityOn(evt);
 
-        if (secure != null)
-        {
-            renderer.securityOn(securityOnEvent.getSecurityString(),
-                                securityOnEvent.isSecurityVerified());
-
-            renderer.setEncryptionCipher(securityOnEvent.getCipher());
-
-            switch (securityOnEvent.getSessionType())
-            {
-            case CallPeerSecurityOnEvent.AUDIO_SESSION:
-                renderer.setAudioSecurityOn(true);
-                break;
-            case CallPeerSecurityOnEvent.VIDEO_SESSION:
-                renderer.setVideoSecurityOn(true);
-                break;
-            }
-
-            NotificationManager.fireNotification(
-                NotificationManager.CALL_SECURITY_ON);
-        }
+        NotificationManager.fireNotification(
+            NotificationManager.CALL_SECURITY_ON);
     }
 
     /**
@@ -302,17 +282,7 @@ public class CallPeerAdapter
         if (!peer.equals(callPeer))
             return;
 
-        renderer.securityOff();
-
-        switch (securityOffEvent.getSessionType())
-        {
-        case CallPeerSecurityOnEvent.AUDIO_SESSION:
-            renderer.setAudioSecurityOn(false);
-            break;
-        case CallPeerSecurityOnEvent.VIDEO_SESSION:
-            renderer.setVideoSecurityOn(false);
-            break;
-        }
+        renderer.securityOff(securityOffEvent);
     }
 
     /**

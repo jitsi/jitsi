@@ -26,7 +26,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
-public class BasicConferenceParticipantPanel
+public abstract class BasicConferenceParticipantPanel
     extends TransparentPanel
     implements Skinnable
 {
@@ -415,54 +415,51 @@ public class BasicConferenceParticipantPanel
     }
 
     /**
-     * Indicates that the security has gone off.
-     */
-    public void securityOff()
-    {
-        securityImageID = ImageLoader.SECURE_OFF_CONF_CALL;
-
-        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SECURE_OFF_CONF_CALL)));
-    }
-
-    public void setAudioSecurityOn(boolean isAudioSecurityOn)
-    {
-        securityStatusLabel.setAudioSecurityOn(isAudioSecurityOn);
-    }
-
-    /**
-     * Updates all related components to fit the new value.
-     * @param encryptionCipher the encryption cipher to show
-     */
-    public void setEncryptionCipher(String encryptionCipher)
-    {
-        securityStatusLabel.setEncryptionCipher(encryptionCipher);
-    }
-
-    /**
-     * Updates all related components to fit the new value.
-     * @param isVideoSecurityOn indicates if the video security is turned on
-     * or off.
-     */
-    public void setVideoSecurityOn(boolean isVideoSecurityOn)
-    {
-        securityStatusLabel.setVideoSecurityOn(isVideoSecurityOn);
-    }
-
-    /**
      * Indicates that the security is turned on.
      * <p>
      * Sets the secured status icon to the status panel and initializes/updates
      * the corresponding security details.
-     * @param securityString the security string
-     * @param isSecurityVerified indicates if the security string has been
-     * already verified by the underlying <tt>CallPeer</tt>
+     * 
+     * @param evt Details about the event that caused this message.
      */
-    public void securityOn()
+    public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SECURE_ON_CONF_CALL)));
-
         securityImageID = ImageLoader.SECURE_ON_CONF_CALL;
+        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(securityImageID)));
+
+        securityStatusLabel.setEncryptionCipher(evt.getCipher());
+        switch (evt.getSessionType())
+        {
+            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
+                securityStatusLabel.setAudioSecurityOn(true);
+                break;
+            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
+                securityStatusLabel.setVideoSecurityOn(true);
+                break;
+        }
+    }
+
+    /**
+     * Indicates that the security has gone off.
+     * 
+     * @param evt Details about the event that caused this message.
+     */
+    public void securityOff(CallPeerSecurityOffEvent evt)
+    {
+        securityImageID = ImageLoader.SECURE_OFF_CONF_CALL;
+        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(securityImageID)));
+
+        securityStatusLabel.setEncryptionCipher(null);
+        switch (evt.getSessionType())
+        {
+            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
+                securityStatusLabel.setAudioSecurityOn(false);
+                break;
+            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
+                securityStatusLabel.setVideoSecurityOn(false);
+                break;
+        }
     }
 }

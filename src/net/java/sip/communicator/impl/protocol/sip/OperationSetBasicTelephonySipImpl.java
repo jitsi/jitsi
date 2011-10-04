@@ -1778,18 +1778,6 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
-     * Sets the SAS verification property value for the given call peer.
-     *
-     * @param peer the call peer, for which we set the
-     * @param isVerified indicates whether the SAS string is verified or not
-     * for the given peer.
-     */
-    public void setSasVerified(  CallPeer peer, boolean isVerified )
-    {
-        ((CallPeerSipImpl) peer).getMediaHandler().setSasVerified(isVerified);
-    }
-
-    /**
      * Transfers (in the sense of call transfer) a specific
      * <tt>CallPeer</tt> to a specific callee address.
      *

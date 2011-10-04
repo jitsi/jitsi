@@ -1166,20 +1166,6 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Sets the SAS verifications state of the call session in which a specific
-     * peer is involved
-     *
-     * @param peer the peer who toggled (or for whom is remotely
-     *        toggled) the SAS verified flag
-     * @param verified the new SAS verification status
-     */
-    public void setSasVerified(CallPeer peer, boolean verified)
-    {
-        ((MediaAwareCallPeer<?, ?, ?>) peer).getMediaHandler().setSasVerified(
-                verified);
-    }
-
-    /**
      * Transfers (in the sense of call transfer) a specific <tt>CallPeer</tt> to
      * a specific callee address which already participates in an active
      * <tt>Call</tt>.

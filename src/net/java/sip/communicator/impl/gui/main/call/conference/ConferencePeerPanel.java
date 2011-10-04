@@ -187,45 +187,17 @@ public class ConferencePeerPanel
      */
     private void initSecuritySettings()
     {
-        OperationSetSecureTelephony secure
-            = callPeer.getProtocolProvider().getOperationSet(
-                        OperationSetSecureTelephony.class);
+        CallPeerSecurityStatusEvent securityEvent
+            = callPeer.getCurrentSecuritySettings();
 
-        if (secure != null)
+        if (securityEvent != null
+            && securityEvent instanceof CallPeerSecurityOnEvent)
         {
-            CallPeerSecurityStatusEvent securityEvent
-                = callPeer.getCurrentSecuritySettings();
+            CallPeerSecurityOnEvent securityOnEvt
+                = (CallPeerSecurityOnEvent) securityEvent;
 
-            if (securityEvent != null
-                && securityEvent instanceof CallPeerSecurityOnEvent)
-            {
-                CallPeerSecurityOnEvent securityOnEvt
-                    = (CallPeerSecurityOnEvent) securityEvent;
-
-                securityOn( securityOnEvt.getSecurityString(),
-                            securityOnEvt.isSecurityVerified());
-
-                setEncryptionCipher(securityOnEvt.getCipher());
-
-                switch (securityOnEvt.getSessionType())
-                {
-                case CallPeerSecurityOnEvent.AUDIO_SESSION:
-                    setAudioSecurityOn(true);
-                    break;
-                case CallPeerSecurityOnEvent.VIDEO_SESSION:
-                    setVideoSecurityOn(true);
-                    break;
-                }
-            }
+            securityOn(securityOnEvt);
         }
-    }
-
-    /**
-     * Indicates that the security has gone off.
-     */
-    public void securityOff()
-    {
-        super.securityOff();
     }
 
     /**
@@ -233,28 +205,38 @@ public class ConferencePeerPanel
      * <p>
      * Sets the secured status icon to the status panel and initializes/updates
      * the corresponding security details.
-     * @param securityString the security string
-     * @param isSecurityVerified indicates if the security string has been
-     * already verified by the underlying <tt>CallPeer</tt>
+     * 
+     * @param evt Details about the event that caused this message.
      */
-    public void securityOn( String securityString,
-                            boolean isSecurityVerified)
+    @Override
+    public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        super.securityOn();
+        super.securityOn(evt);
 
-        if ((securityPanel == null) && (callPeer != null))
+        if (securityPanel == null)
         {
-            securityPanel = new SecurityPanel(callPeer);
-
+            securityPanel = SecurityPanel.create(evt.getSecurityController());
             securityPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-
             this.addToCenter(securityPanel);
         }
-
-        if (securityPanel != null)
-            securityPanel.refreshStates(securityString, isSecurityVerified);
+        securityPanel.refreshStates();
 
         callPanel.refreshContainer();
+    }
+
+    /**
+     * Indicates that the security has gone off.
+     * 
+     * @param evt Details about the event that caused this message.
+     */
+    @Override
+    public void securityOff(CallPeerSecurityOffEvent evt)
+    {
+        super.securityOff(evt);
+        if(securityPanel != null)
+        {
+            securityPanel.getParent().remove(securityPanel);
+        }
     }
 
     /**

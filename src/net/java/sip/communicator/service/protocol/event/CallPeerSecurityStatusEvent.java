@@ -32,8 +32,8 @@ public abstract class CallPeerSecurityStatusEvent
     public static final int VIDEO_SESSION = 2;
 
     /**
-     * Session type of the event <code>AUDIO_SESSION</code> or
-     * <code>VIDEO_SESSION</code>.
+     * Session type of the event {@link #AUDIO_SESSION} or
+     * {@link #VIDEO_SESSION}.
      */
     private final int sessionType;
 

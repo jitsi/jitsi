@@ -133,6 +133,7 @@ public class ZrtpControlImpl
                     "GNUZRTP4J.zid",
                     false,
                     ZrtpConfigureUtils.getZrtpConfiguration());
+            zrtpEngine.setUserCallback(new SecurityEventManager(this));
         }
         return zrtpEngine;
     }
@@ -144,14 +145,13 @@ public class ZrtpControlImpl
      */
     public void start(boolean masterSession)
     {
-        // Create security user callback for each peer.
-        SecurityEventManager securityEventManager
-            = new SecurityEventManager(this);
 
         boolean zrtpAutoStart = false;
 
         // ZRTP engine initialization
         ZRTPTransformEngine engine = getTransformEngine();
+        // Create security user callback for each peer.
+        SecurityEventManager securityEventManager = engine.getUserCallback();
 
         // Decide if this will become the ZRTP Master session:
         // - Statement: audio media session will be started before video
@@ -190,7 +190,7 @@ public class ZrtpControlImpl
 
         engine.setConnector(zrtpConnector);
 
-        engine.setUserCallback(securityEventManager);
+        securityEventManager.setSrtpListener(zrtpListener);
 
         engine.sendInfo(
             ZrtpCodes.MessageSeverity.Info,
@@ -207,11 +207,18 @@ public class ZrtpControlImpl
      * enable auto-start mode (auto-sensing) to the engine.
      * @param multiStreamData
      */
-    public void setMultistream(byte[] multiStreamData)
+    public void setMultistream(SrtpControl master)
     {
+        if(master == null)
+            return;
+
+        if(!(master instanceof ZrtpControlImpl))
+            throw new IllegalArgumentException("master is no ZRTP control");
+
         ZRTPTransformEngine engine = getTransformEngine();
 
-        engine.setMultiStrParams(multiStreamData);
+        engine.setMultiStrParams(((ZrtpControlImpl) master)
+            .getTransformEngine().getMultiStrParams());
         engine.setEnableZrtp(true);
     }
 
@@ -247,5 +254,15 @@ public class ZrtpControlImpl
     public void setConnector(AbstractRTPConnector connector)
     {
         zrtpConnector = connector;
+    }
+
+    public String getSecurityString()
+    {
+        return getTransformEngine().getUserCallback().getSecurityString();
+    }
+
+    public boolean isSecurityVerified()
+    {
+        return getTransformEngine().getUserCallback().isSecurityVerified();
     }
 }

@@ -282,17 +282,10 @@ public abstract class AbstractCallPeer<T extends Call,
      *
      * @param sessionType the type of the session - audio or video
      * @param cipher the cipher associated with the event.
-     * @param securityString the security string associated with this event.
-     * @param isVerified <tt>true</tt> if the session is verified and
-     * <tt>false</tt> otherwise.
+     * @param evt the event object with details to pass on to the consumers
      */
-    protected void fireCallPeerSecurityOnEvent(int sessionType, String cipher,
-                    String securityString, boolean isVerified)
+    protected void fireCallPeerSecurityOnEvent(CallPeerSecurityOnEvent evt)
     {
-        CallPeerSecurityOnEvent evt
-            = new CallPeerSecurityOnEvent(
-                this, sessionType, cipher, securityString, isVerified);
-
         lastSecurityEvent = evt;
 
         if (logger.isDebugEnabled())
@@ -300,17 +293,15 @@ public abstract class AbstractCallPeer<T extends Call,
                      + callPeerSecurityListeners.size()
                      +" listeners. event is: " + evt.toString());
 
-        Iterator<CallPeerSecurityListener> listeners = null;
+        List<CallPeerSecurityListener> listeners = null;
         synchronized (callPeerSecurityListeners)
         {
             listeners = new ArrayList<CallPeerSecurityListener>(
-                                callPeerSecurityListeners).iterator();
+                                callPeerSecurityListeners);
         }
 
-        while (listeners.hasNext())
+        for(CallPeerSecurityListener listener : listeners)
         {
-            CallPeerSecurityListener listener = listeners.next();
-
             listener.securityOn(evt);
         }
     }

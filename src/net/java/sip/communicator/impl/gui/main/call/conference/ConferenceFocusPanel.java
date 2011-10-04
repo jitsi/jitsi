@@ -149,7 +149,7 @@ public class ConferenceFocusPanel
 
         this.add(memberPanel, constraints);
 
-        initSecurity();
+        initSecuritySettings();
     }
 
     /**
@@ -292,106 +292,30 @@ public class ConferenceFocusPanel
     }
 
     /**
-     * Indicates that the security is turned on by specifying the
-     * <tt>securityString</tt> and whether it has been already verified.
+     * Indicates that the security is turned on.
      *
-     * @param securityString the security string
-     * @param isSecurityVerified indicates if the security string has been
-     * already verified by the underlying <tt>CallPeer</tt>
+     * @param evt Details about the event that caused this message.
      */
-    public void securityOn(String securityString, boolean isSecurityVerified)
+    public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        focusPeerPanel.securityOn(securityString, isSecurityVerified);
-
-        Iterator<ConferenceMemberPanel> memberPanelsIter
-            = conferenceMembersPanels.values().iterator();
-
-        while (memberPanelsIter.hasNext())
+        focusPeerPanel.securityOn(evt);
+        for (ConferenceMemberPanel member : conferenceMembersPanels.values())
         {
-            ConferenceMemberPanel memberPanel = memberPanelsIter.next();
-
-            memberPanel.securityOn();
+            member.securityOn(evt);
         }
     }
 
     /**
      * Indicates that the security is turned off.
+     * 
+     * @param evt Details about the event that caused this message.
      */
-    public void securityOff()
+    public void securityOff(CallPeerSecurityOffEvent evt)
     {
-        focusPeerPanel.securityOff();
-
-        Iterator<ConferenceMemberPanel> memberPanelsIter
-            = conferenceMembersPanels.values().iterator();
-
-        while (memberPanelsIter.hasNext())
+        focusPeerPanel.securityOff(evt);
+        for (ConferenceMemberPanel member : conferenceMembersPanels.values())
         {
-            ConferenceMemberPanel memberPanel = memberPanelsIter.next();
-
-            memberPanel.securityOff();
-        }
-    }
-
-    /**
-     * Sets the audio security on or off.
-     *
-     * @param isAudioSecurityOn indicates if the audio security is turned on or
-     * off.
-     */
-    public void setAudioSecurityOn(boolean isAudioSecurityOn)
-    {
-        focusPeerPanel.setAudioSecurityOn(isAudioSecurityOn);
-
-        Iterator<ConferenceMemberPanel> memberPanelsIter
-            = conferenceMembersPanels.values().iterator();
-
-        while (memberPanelsIter.hasNext())
-        {
-            ConferenceMemberPanel memberPanel = memberPanelsIter.next();
-
-            memberPanel.setAudioSecurityOn(isAudioSecurityOn);
-        }
-    }
-
-    /**
-     * Sets the video security on or off.
-     *
-     * @param isVideoSecurityOn indicates if the video security is turned on or
-     * off.
-     */
-    public void setVideoSecurityOn(boolean isVideoSecurityOn)
-    {
-        focusPeerPanel.setVideoSecurityOn(isVideoSecurityOn);
-
-        Iterator<ConferenceMemberPanel> memberPanelsIter
-            = conferenceMembersPanels.values().iterator();
-
-        while (memberPanelsIter.hasNext())
-        {
-            ConferenceMemberPanel memberPanel = memberPanelsIter.next();
-
-            memberPanel.setVideoSecurityOn(isVideoSecurityOn);
-        }
-    }
-
-    /**
-     * Sets the cipher used for the encryption of the current call.
-     *
-     * @param encryptionCipher the cipher used for the encryption of the
-     * current call.
-     */
-    public void setEncryptionCipher(String encryptionCipher)
-    {
-        focusPeerPanel.setEncryptionCipher(encryptionCipher);
-
-        Iterator<ConferenceMemberPanel> memberPanelsIter
-            = conferenceMembersPanels.values().iterator();
-
-        while (memberPanelsIter.hasNext())
-        {
-            ConferenceMemberPanel memberPanel = memberPanelsIter.next();
-
-            memberPanel.setEncryptionCipher(encryptionCipher);
+            member.securityOff(evt);
         }
     }
 
@@ -525,6 +449,17 @@ public class ConferenceFocusPanel
         if (a.equals(b))
             return true;
 
+        //TODO: this doesn't belong here
+        if(a.startsWith("sip:"))
+            a = a.substring(4);
+        if(a.startsWith("sips:"))
+            a = a.substring(5);
+
+        if(b.startsWith("sip:"))
+            b = b.substring(4);
+        if(b.startsWith("sips:"))
+            b = b.substring(5);
+
         int aServiceBegin = a.indexOf('@');
         String aUserID;
         String aService;
@@ -612,41 +547,17 @@ public class ConferenceFocusPanel
     /**
      * Initializes security.
      */
-    private void initSecurity()
+    private void initSecuritySettings()
     {
-        OperationSetSecureTelephony secure
-            = focusPeer.getProtocolProvider().getOperationSet(
-                        OperationSetSecureTelephony.class);
+        CallPeerSecurityStatusEvent securityEvent
+            = focusPeer.getCurrentSecuritySettings();
 
-        if (secure != null)
+        if (securityEvent instanceof CallPeerSecurityOnEvent)
         {
-            CallPeerSecurityStatusEvent securityEvent
-                = focusPeer.getCurrentSecuritySettings();
+            securityOn((CallPeerSecurityOnEvent) securityEvent);
 
-            CallPeerSecurityOnEvent securityOnEvent = null;
-            if (securityEvent instanceof CallPeerSecurityOnEvent)
-                securityOnEvent = (CallPeerSecurityOnEvent) securityEvent;
-
-            if (securityOnEvent != null)
-            {
-                securityOn( securityOnEvent.getSecurityString(),
-                            securityOnEvent.isSecurityVerified());
-
-                setEncryptionCipher(securityOnEvent.getCipher());
-
-                switch (securityOnEvent.getSessionType())
-                {
-                case CallPeerSecurityOnEvent.AUDIO_SESSION:
-                    setAudioSecurityOn(true);
-                    break;
-                case CallPeerSecurityOnEvent.VIDEO_SESSION:
-                    setVideoSecurityOn(true);
-                    break;
-                }
-
-                NotificationManager.fireNotification(
-                    NotificationManager.CALL_SECURITY_ON);
-            }
+            NotificationManager.fireNotification(
+                NotificationManager.CALL_SECURITY_ON);
         }
     }
 }

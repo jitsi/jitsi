@@ -23,10 +23,10 @@ public interface SrtpControl
     public void cleanup();
 
     /**
-     * Sets a <tt>SrtpListener</tt> that will listen for
-     * srtp security events.
-     *
-     * @param srtpListener the <tt>SrtpListener</tt> to set
+     * Sets a <tt>SrtpListener</tt> that will listen for security events.
+     * 
+     * @param srtpListener the <tt>SrtpListener</tt> that will receive the
+     *            events
      */
     public void setSrtpListener(SrtpListener srtpListener);
 
@@ -47,13 +47,6 @@ public interface SrtpControl
     public boolean getSecureCommunicationStatus();
 
     /**
-     * Sets the SAS verification
-     *
-     * @param verified the new SAS verification status
-     */
-    public void setSASVerification(boolean verified);
-
-    /**
      * Starts and enables zrtp in the stream holding this control.
      * @param masterSession whether this stream is master for the current
      *        media session.
@@ -67,7 +60,7 @@ public interface SrtpControl
      * @param multiStreamData the multistream data comming from master stream
      *        needed to start rest of the streams in the session.
      */
-    public void setMultistream(byte[] multiStreamData);
+    public void setMultistream(SrtpControl master);
 
     /**
      * Returns the transform engine currently used by this stream.

@@ -6,138 +6,46 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.*;
-import java.awt.event.*;
-
-import javax.swing.*;
-
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * The panel containing details about call security.
- *
- * @author Werner Dittman
- * @author Lubomir Marinov
- * @author Yana Stamcheva
+ * Base class for security panels that show encryption specific UI controls.
+ * 
+ * @author Ingo Bauersachs
  */
-public class SecurityPanel
+public abstract class SecurityPanel
     extends TransparentPanel
     implements Skinnable
 {
-    private final CallPeer peer;
-
-    private Image iconEncr;
-    private Image iconEncrVerified;
-
-    private boolean sasVerified = false;
-
-    private SIPCommButton sasVerificationButton;
-
-    private final JLabel securityStringLabel = new JLabel();
-
     /**
-     * Creates an instance of <tt>SecurityPanel</tt> by specifying the
-     * corresponding <tt>peer</tt>.
-     * @param peer the <tt>CallPeer</tt>, with which we established an
-     * encrypted call
+     * Creates the security panel depending on the concrete implementation of
+     * the passed security controller.
+     * 
+     * @param srtpControl the security controller that provides the information
+     *            to be shown on the UI
+     * @return An instance of a {@link SecurityPanel} for the security
+     *         controller or an {@link TransparentPanel} if the controller is
+     *         unknown or does not have any controls to show.
      */
-    public SecurityPanel(CallPeer peer)
+    public static SecurityPanel create(SrtpControl srtpControl)
     {
-        this.peer = peer;
+        if(srtpControl instanceof ZrtpControl)
+            return new ZrtpSecurityPanel((ZrtpControl)srtpControl);
 
-        this.setBorder(null);
-        this.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 0));
-
-        this.setToolTipText(GuiActivator.getResources().getI18NString(
-        "service.gui.COMPARE_WITH_PARTNER"));
-
-        loadSkin();
-    }
-
-    /**
-     * Adds security related components to this panel.
-     */
-    private void addComponentsToPane()
-    {
-        this.add(sasVerificationButton);
-        this.add(securityStringLabel);
-
-        securityStringLabel
-            .setFont(securityStringLabel.getFont().deriveFont(14f));
-
-        // Action to trigger SAS verification
-        sasVerificationButton.addActionListener(new ActionListener()
+        return new SecurityPanel()
         {
-            public void actionPerformed(ActionEvent e)
-            {
-                Call call = peer.getCall();
-
-                if (call != null)
-                {
-                    OperationSetSecureTelephony secure
-                        = call
-                            .getProtocolProvider()
-                                .getOperationSet(
-                                    OperationSetSecureTelephony.class);
-
-                    if (secure != null)
-                    {
-                        secure.setSasVerified( peer, !sasVerified);
-                    }
-
-                    if (sasVerified)
-                    {
-                        sasVerified = false;
-                        sasVerificationButton.setImage(iconEncr);
-                    }
-                    else
-                    {
-                        sasVerified = true;
-                        sasVerificationButton.setImage(iconEncrVerified);
-                    }
-                }
-            }
-        });
+            public void loadSkin()
+            {}
+            public void refreshStates()
+            {}
+        };
     }
 
     /**
-     * Refreshes the state of the <tt>securityString</tt> and the
-     * <tt>isSecurityVerified</tt> corresponding components.
-     *
-     * @param securityString the security string
-     * @param isSecurityVerified indicates if the security string has been
-     * already verified
+     * Forces the panel to update the security information presented to the
+     * user.
      */
-    public void refreshStates(String securityString, boolean isSecurityVerified)
-    {
-        if (securityString != null)
-        {
-            securityStringLabel.setText(GuiActivator.getResources().
-                    getI18NString("service.gui.COMPARE_WITH_PARTNER_SHORT", 
-                            new String[] {securityString}));
-        }
-
-        sasVerificationButton
-            .setImage(isSecurityVerified ? iconEncrVerified : iconEncr);
-
-        revalidate();
-        repaint();
-    }
-
-    /**
-     * Reloads icons and components.
-     */
-    public void loadSkin()
-    {
-        this.removeAll();
-        iconEncrVerified = ImageLoader.getImage(ImageLoader.ENCR_VERIFIED);
-        iconEncr = ImageLoader.getImage(ImageLoader.ENCR);
-        sasVerificationButton = new SIPCommButton(iconEncr);
-
-        this.addComponentsToPane();
-    }
+    public abstract void refreshStates();
 }

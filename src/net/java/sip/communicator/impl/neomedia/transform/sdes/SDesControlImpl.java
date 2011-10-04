@@ -17,7 +17,8 @@ import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
- * Default implementation of {@link SDesControl}.
+ * Default implementation of {@link SDesControl} that supports the crypto suites
+ * of the original RFC4568 and the KDR parameter, but nothing else.
  * 
  * @author Ingo Bauersachs
  */
@@ -76,20 +77,16 @@ public class SDesControlImpl
         return engine != null;
     }
 
-    public void setSASVerification(boolean verified)
-    {
-    }
-
     public void start(boolean masterSession)
     {
         srtpListener.securityTurnedOn(
             masterSession ? 
                 CallPeerSecurityStatusEvent.AUDIO_SESSION :
                 CallPeerSecurityStatusEvent.VIDEO_SESSION,
-            selectedInAttribute.getCryptoSuite().encode(), null, true, null);
+            selectedInAttribute.getCryptoSuite().encode(), this);
     }
 
-    public void setMultistream(byte[] multiStreamData)
+    public void setMultistream(SrtpControl master)
     {
     }
 

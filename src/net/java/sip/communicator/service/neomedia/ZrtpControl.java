@@ -30,4 +30,25 @@ public interface ZrtpControl
      *         if ZRTP is not available.
      */
     public String[] getHelloHashSep();
+
+    /**
+     * Gets the SAS for the current media stream.
+     * 
+     * @return the four character ZRTP SAS.
+     */
+    public String getSecurityString();
+
+    /**
+     * Gets the status of the SAS verification.
+     * 
+     * @return true when the SAS has been verified.
+     */
+    public boolean isSecurityVerified();
+
+    /**
+     * Sets the SAS verification
+     *
+     * @param verified the new SAS verification status
+     */
+    public void setSASVerification(boolean verified);
 }

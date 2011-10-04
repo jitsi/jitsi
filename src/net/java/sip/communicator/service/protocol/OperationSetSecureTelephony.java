@@ -24,14 +24,4 @@ public interface OperationSetSecureTelephony
      * @return the call state
      */
     public boolean isSecure(CallPeer peer);
-
-    /**
-     * Sets the SAS verifications state of the call session in which a specific
-     * peer is involved
-     *
-     * @param peer the peer who toggled (or for whom is remotely
-     *        toggled) the SAS verified flag
-     * @param verified the new SAS verification status
-     */
-    public void setSasVerified(CallPeer peer, boolean verified);
 }

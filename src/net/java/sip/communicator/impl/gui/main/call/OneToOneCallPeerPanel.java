@@ -461,36 +461,13 @@ public class OneToOneCallPeerPanel
      */
     private void initSecuritySettings()
     {
-        OperationSetSecureTelephony secure
-            = callPeer.getProtocolProvider().getOperationSet(
-                        OperationSetSecureTelephony.class);
+        CallPeerSecurityStatusEvent securityEvent
+            = callPeer.getCurrentSecuritySettings();
 
-        if (secure != null)
+        if (securityEvent != null
+            && securityEvent instanceof CallPeerSecurityOnEvent)
         {
-            CallPeerSecurityStatusEvent securityEvent
-                = callPeer.getCurrentSecuritySettings();
-
-            if (securityEvent != null
-                && securityEvent instanceof CallPeerSecurityOnEvent)
-            {
-                CallPeerSecurityOnEvent securityOnEvt
-                    = (CallPeerSecurityOnEvent) securityEvent;
-
-                securityOn( securityOnEvt.getSecurityString(),
-                            securityOnEvt.isSecurityVerified());
-
-                setEncryptionCipher(securityOnEvt.getCipher());
-
-                switch (securityOnEvt.getSessionType())
-                {
-                case CallPeerSecurityOnEvent.AUDIO_SESSION:
-                    setAudioSecurityOn(true);
-                    break;
-                case CallPeerSecurityOnEvent.VIDEO_SESSION:
-                    setVideoSecurityOn(true);
-                    break;
-                }
-            }
+            securityOn((CallPeerSecurityOnEvent) securityEvent);
         }
     }
 
@@ -1233,21 +1210,31 @@ public class OneToOneCallPeerPanel
      * <p>
      * Sets the secured status icon to the status panel and initializes/updates
      * the corresponding security details.
-     * @param securityString the security string
-     * @param isSecurityVerified indicates if the security string has been
-     * already verified by the underlying <tt>CallPeer</tt>
+     * @param evt Details about the event that caused this message.
      */
-    public void securityOn( String securityString,
-                            boolean isSecurityVerified)
+    public void securityOn(CallPeerSecurityOnEvent evt)
     {
         securityStatusLabel.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.SECURE_BUTTON_ON)));
 
         securityImageID = ImageLoader.SECURE_BUTTON_ON;
 
+        //set common encryption properties
+        securityStatusLabel.setEncryptionCipher(evt.getCipher());
+        switch (evt.getSessionType())
+        {
+            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
+                securityStatusLabel.setAudioSecurityOn(true);
+                break;
+            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
+                securityStatusLabel.setVideoSecurityOn(true);
+                break;
+        }
+
+        //set encryption specific options
         if (securityPanel == null)
         {
-            securityPanel = new SecurityPanel(callPeer);
+            securityPanel = SecurityPanel.create(evt.getSecurityController());
 
             GridBagConstraints constraints = new GridBagConstraints();
 
@@ -1259,10 +1246,34 @@ public class OneToOneCallPeerPanel
             constraints.insets = new Insets(5, 0, 0, 0);
             this.add(securityPanel, constraints);
         }
-
-        securityPanel.refreshStates(securityString, isSecurityVerified);
+        securityPanel.refreshStates();
 
         this.revalidate();
+    }
+
+    /**
+     * Indicates that the security has gone off.
+     */
+    public void securityOff(CallPeerSecurityOffEvent evt)
+    {
+        securityImageID = ImageLoader.SECURE_BUTTON_OFF;
+        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+            .getImage(securityImageID)));
+
+        switch (evt.getSessionType())
+        {
+            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
+                securityStatusLabel.setAudioSecurityOn(true);
+                break;
+            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
+                securityStatusLabel.setVideoSecurityOn(true);
+                break;
+        }
+
+        if (securityPanel != null)
+        {
+            securityPanel.getParent().remove(securityPanel);
+        }
     }
 
     /**
@@ -1290,46 +1301,6 @@ public class OneToOneCallPeerPanel
                 component = parent;
         }
         while (true);
-    }
-
-    /**
-     * Indicates that the security has gone off.
-     */
-    public void securityOff()
-    {
-        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SECURE_BUTTON_OFF)));
-
-        securityImageID = ImageLoader.SECURE_BUTTON_OFF;
-    }
-
-    /**
-     * Updates all related components to fit the new value.
-     * @param isAudioSecurityOn indicates if the audio security is turned on
-     * or off.
-     */
-    public void setAudioSecurityOn(boolean isAudioSecurityOn)
-    {
-        securityStatusLabel.setAudioSecurityOn(isAudioSecurityOn);
-    }
-
-    /**
-     * Updates all related components to fit the new value.
-     * @param encryptionCipher the encryption cipher to show
-     */
-    public void setEncryptionCipher(String encryptionCipher)
-    {
-        securityStatusLabel.setEncryptionCipher(encryptionCipher);
-    }
-
-    /**
-     * Updates all related components to fit the new value.
-     * @param isVideoSecurityOn indicates if the video security is turned on
-     * or off.
-     */
-    public void setVideoSecurityOn(boolean isVideoSecurityOn)
-    {
-        securityStatusLabel.setVideoSecurityOn(isVideoSecurityOn);
     }
 
     /**

@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol.media;
 import java.beans.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.neomedia.SrtpControl;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -674,23 +675,15 @@ public abstract class MediaAwareCallPeer
      *
      * @param sessionType the type of the call session - audio or video.
      * @param cipher the cipher
-     * @param securityString the SAS
-     * @param isVerified indicates if the SAS has been verified
-     * @param multiStreamData the data for the multistream
-     *        used by non master streams.
+     * @param sender the security controller that caused the event
      */
-    public void securityTurnedOn(
-        int sessionType,
-        String cipher, String securityString, boolean isVerified,
-        byte[] multiStreamData)
+    public void securityTurnedOn(int sessionType, String cipher,
+        SrtpControl sender)
     {
-        if(multiStreamData != null)
-        {
-            getMediaHandler().startSrtpMultistream(multiStreamData);
-        }
-
-        fireCallPeerSecurityOnEvent(
-                        sessionType, cipher, securityString, isVerified);
+        getMediaHandler().startSrtpMultistream(sender);
+        CallPeerSecurityOnEvent evt =
+            new CallPeerSecurityOnEvent(this, sessionType, cipher, sender);
+        fireCallPeerSecurityOnEvent(evt);
     }
 
     /**

@@ -97,7 +97,7 @@ public abstract class CallPeerMediaHandler<
      * A reference to the object that would be responsible for SRTP control
      * and which most often would be the peer itself.
      */
-    public final SrtpListener srtpListener;
+    private final SrtpListener srtpListener;
 
     /**
      * The RTP stream that this media handler uses to send audio.
@@ -670,20 +670,6 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Sets the SAS verifications state of the call.
-     *
-     * @param isVerified the new SAS verification status
-     */
-    public void setSasVerified(boolean isVerified )
-    {
-        if(audioStream != null)
-            audioStream.getSrtpControl().setSASVerification(isVerified);
-
-        if(videoStream != null)
-            videoStream.getSrtpControl().setSASVerification(isVerified);
-    }
-
-    /**
      * Returns the secure state of the call. If both audio and video is secured.
      *
      * @return the call secure state
@@ -719,10 +705,10 @@ public abstract class CallPeerMediaHandler<
      * @param multiStreamData the data that we are supposed to pass to our
      * video stream.
      */
-    public void startSrtpMultistream(byte[] multiStreamData)
+    public void startSrtpMultistream(SrtpControl master)
     {
         if(videoStream != null)
-            videoStream.getSrtpControl().setMultistream(multiStreamData);
+            videoStream.getSrtpControl().setMultistream(master);
     }
 
     /**

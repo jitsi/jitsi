@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.event;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -23,44 +24,28 @@ public class CallPeerSecurityOnEvent
      */
     private static final long serialVersionUID = 0L;
 
-    private final String securityString;
-
-    private final boolean isVerified;
-
     private final String cipher;
+
+    private final SrtpControl srtpControl;
 
     /**
      * The event constructor
-     *
+     * 
      * @param callPeer the call peer associated with this event
-     * @param sessionType the type of the session, either AUDIO_SESSION or
-     * VIDEO_SESSION
+     * @param sessionType the type of the session, either
+     *            {@link CallPeerSecurityStatusEvent#AUDIO_SESSION} or
+     *            {@link CallPeerSecurityStatusEvent#VIDEO_SESSION}
      * @param cipher the cipher used for the encryption
-     * @param securityString the security string (SAS)
-     * @param isVerified indicates if the security string has already been
-     * verified
+     * @param srtpControl the security controller that caused this event
      */
     public CallPeerSecurityOnEvent( CallPeer callPeer,
                                     int sessionType,
                                     String cipher,
-                                    String securityString,
-                                    boolean isVerified)
+                                    SrtpControl srtpControl)
     {
         super(callPeer, sessionType);
-
+        this.srtpControl = srtpControl;
         this.cipher = cipher;
-        this.securityString = securityString;
-        this.isVerified = isVerified;
-    }
-
-    /**
-     * Returns the <tt>CallPeer</tt> for which this event occurred.
-     *
-     * @return the <tt>CallPeer</tt> for which this event occurred.
-     */
-    public CallPeer getCallPeer()
-    {
-        return (CallPeer) getSource();
     }
 
     /**
@@ -74,24 +59,12 @@ public class CallPeerSecurityOnEvent
     }
 
     /**
-     * Returns the security string.
-     *
-     * @return the security string.
+     * Gets the security controller that caused this event.
+     * 
+     * @return the security controller that caused this event.
      */
-    public String getSecurityString()
+    public SrtpControl getSecurityController()
     {
-        return securityString;
-    }
-
-    /**
-     * Returns <code>true</code> if the security string was already verified
-     * and <code>false</code> - otherwise.
-     *
-     * @return <code>true</code> if the security string was already verified
-     * and <code>false</code> - otherwise.
-     */
-    public boolean isSecurityVerified()
-    {
-        return isVerified;
+        return srtpControl;
     }
 }

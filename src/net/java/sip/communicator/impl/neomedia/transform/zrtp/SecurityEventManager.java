@@ -23,9 +23,8 @@ import net.java.sip.communicator.util.*;
  * associated ZRTP multi-stream sessions.
  *
  * Coordinate this callback class with the associated GUI implementation class
- * net.java.sip.communicator.impl.gui.main.call.ZrtpPanel
  *
- * @see net.java.sip.communicator.impl.gui.main.call.SecurityPanel
+ * @see net.java.sip.communicator.impl.gui.main.call.ZrtpSecurityPanel
  *
  * @author Emanuel Onica
  * @author Werner Dittmann
@@ -71,7 +70,7 @@ public class SecurityEventManager extends ZrtpUserCallback
     /**
      * A callback to the instance that created us.
      */
-    private final SrtpListener securityListener;
+    private SrtpListener securityListener;
 
     /**
      * Is this a ZRTP DH (Master) session?
@@ -211,13 +210,13 @@ public class SecurityEventManager extends ZrtpUserCallback
                 if (isDHSession)
                 {
                     securityListener.securityTurnedOn(
-                        sessionType, cipher, sas, isSasVerified,
-                        zrtpControl.getTransformEngine().getMultiStrParams());
+                        sessionType, cipher,
+                        zrtpControl);
                 }
                 else
                 {
                     securityListener.securityTurnedOn(sessionType, cipher,
-                                                null, false, null);
+                                                null);
                 }
             }
         }
@@ -401,5 +400,20 @@ public class SecurityEventManager extends ZrtpUserCallback
             params = new String[]{param};
 
         return NeomediaActivator.getResources().getI18NString(key, params);
+    }
+
+    public void setSrtpListener(SrtpListener securityListener)
+    {
+        this.securityListener = securityListener;
+    }
+
+    public String getSecurityString()
+    {
+        return sas;
+    }
+
+    public boolean isSecurityVerified()
+    {
+        return isSasVerified;
     }
 }

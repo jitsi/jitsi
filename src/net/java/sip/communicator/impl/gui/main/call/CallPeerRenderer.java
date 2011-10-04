@@ -8,6 +8,9 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 
+import net.java.sip.communicator.service.protocol.event.CallPeerSecurityOffEvent;
+import net.java.sip.communicator.service.protocol.event.CallPeerSecurityOnEvent;
+
 /**
  * The <tt>CallPeerRenderer</tt> interface is meant to be implemented by
  * different renderers of <tt>CallPeer</tt>s. Through this interface they would
@@ -63,44 +66,17 @@ public interface CallPeerRenderer
     public void setOnHold(boolean isOnHold);
 
     /**
-     * Indicates that the security is turned on by specifying the
-     * <tt>securityString</tt> and whether it has been already verified.
+     * Indicates that the security is turned on.
      *
-     * @param securityString the security string
-     * @param isSecurityVerified indicates if the security string has been
-     * already verified by the underlying <tt>CallPeer</tt>
+     * @param evt Details about the event that caused this message.
      */
-    public void securityOn( String securityString,
-                            boolean isSecurityVerified);
+    public void securityOn(CallPeerSecurityOnEvent evt);
 
     /**
      * Indicates that the security is turned off.
+     * @param evt Details about the event that caused this message.
      */
-    public void securityOff();
-
-    /**
-     * Sets the audio security on or off.
-     *
-     * @param isAudioSecurityOn indicates if the audio security is turned on or
-     * off.
-     */
-    public void setAudioSecurityOn(boolean isAudioSecurityOn);
-
-    /**
-     * Sets the video security on or off.
-     *
-     * @param isVideoSecurityOn indicates if the video security is turned on or
-     * off.
-     */
-    public void setVideoSecurityOn(boolean isVideoSecurityOn);
-
-    /**
-     * Sets the cipher used for the encryption of the current call.
-     *
-     * @param encryptionCipher the cipher used for the encryption of the
-     * current call.
-     */
-    public void setEncryptionCipher(String encryptionCipher);
+    public void securityOff(CallPeerSecurityOffEvent evt);
 
     /**
      * Sets the call peer adapter that manages all related listeners.
