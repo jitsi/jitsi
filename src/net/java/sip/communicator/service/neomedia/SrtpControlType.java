@@ -1,3 +1,9 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.service.neomedia;
 
 /**
@@ -9,7 +15,8 @@ package net.java.sip.communicator.service.neomedia;
 public enum SrtpControlType
 {
     /**
-     * Session Description Protocol (SDP) Security Descriptions for Media Streams (RFC 4568)
+     * Session Description Protocol (SDP) Security Descriptions for Media
+     * Streams (RFC 4568)
      */
     SDES,
 

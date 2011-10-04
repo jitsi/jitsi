@@ -1,10 +1,27 @@
+/*
+ * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.service.neomedia;
 
+/**
+ * Utility class to combine <tt>MediaType</tt> and <tt>SrtpControlType</tt> as a
+ * map key.
+ * 
+ * @author Ingo Bauersachs
+ */
 public class MediaTypeSrtpControl implements Comparable<MediaTypeSrtpControl>
 {
     public MediaType mediaType;
     public SrtpControlType srtpControlType;
 
+    /**
+     * Creates a new instance of this class.
+     * @param mt The <tt>MediaType</tt> for this key.
+     * @param sct The <tt>SrtpControlType</tt> for this key.
+     */
     public MediaTypeSrtpControl(MediaType mt, SrtpControlType sct)
     {
         mediaType = mt;
@@ -18,7 +35,8 @@ public class MediaTypeSrtpControl implements Comparable<MediaTypeSrtpControl>
             return false;
 
         MediaTypeSrtpControl other = (MediaTypeSrtpControl)obj;
-        return mediaType == other.mediaType && srtpControlType == other.srtpControlType;
+        return mediaType == other.mediaType
+            && srtpControlType == other.srtpControlType;
     }
 
     @Override
@@ -34,7 +52,7 @@ public class MediaTypeSrtpControl implements Comparable<MediaTypeSrtpControl>
                 getWeight() < o.getWeight() ? 
                     -1 : 1;
     }
-    
+
     private int getWeight()
     {
         int mtWeight = 0;
