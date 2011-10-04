@@ -406,6 +406,30 @@ public class CallPeerMediaHandlerSipImpl
         List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
+            String transportProtocol;
+            try
+            {
+                transportProtocol = mediaDescription.getMedia().getProtocol();
+            }
+            catch (SdpParseException e)
+            {
+                throw new OperationFailedException(
+                    "unable to create the media description",
+                    OperationFailedException.ILLEGAL_ARGUMENT, e);
+            }
+
+            //ignore RTP/AVP stream when RTP/SAVP is mandatory
+            if (getPeer()
+                .getProtocolProvider()
+                .getAccountID()
+                .getAccountPropertyInt(ProtocolProviderFactory.SAVP_OPTION,
+                    ProtocolProviderFactory.SAVP_OFF)
+                    == ProtocolProviderFactory.SAVP_MANDATORY
+                && transportProtocol.equals(SdpConstants.RTP_AVP))
+            {
+                continue;
+            }
+
             MediaType mediaType = null;
             try
             {
@@ -529,20 +553,9 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
 
-            MediaDescription md;
-            try
-            {
-                md =
-                    createMediaDescription(mediaDescription.getMedia()
-                        .getProtocol(), mutuallySupportedFormats, connector,
+            MediaDescription md = createMediaDescription(transportProtocol,
+                        mutuallySupportedFormats, connector,
                         direction, rtpExtensions);
-            }
-            catch (SdpParseException e)
-            {
-                throw new OperationFailedException(
-                    "unable to create the media description",
-                    OperationFailedException.ILLEGAL_ARGUMENT, e);
-            }
 
             if(!updateMediaDescriptionForSDes(mediaType, md, mediaDescription))
                 updateMediaDescriptionForZrtp(mediaType, md);
@@ -618,7 +631,7 @@ public class CallPeerMediaHandlerSipImpl
             .getProtocolProvider()
             .getAccountID()
             .getAccountPropertyBoolean(
-                ProtocolProviderServiceSipImpl.SDES_ENABLED, true))
+                ProtocolProviderFactory.SDES_ENABLED, true))
         {
             return false;
         }
@@ -640,7 +653,7 @@ public class CallPeerMediaHandlerSipImpl
                 .getProtocolProvider()
                 .getAccountID()
                 .getAccountPropertyString(
-                    ProtocolProviderServiceSipImpl.SDES_CIPHER_SUITES);
+                    ProtocolProviderFactory.SDES_CIPHER_SUITES);
         if (ciphers == null)
         {
             ciphers =
@@ -722,13 +735,13 @@ public class CallPeerMediaHandlerSipImpl
                 .getProtocolProvider()
                 .getAccountID()
                 .getAccountPropertyInt(
-                    ProtocolProviderServiceSipImpl.SAVP_OPTION,
-                    ProtocolProviderServiceSipImpl.SAVP_OFF);
-        if(savpOption == ProtocolProviderServiceSipImpl.SAVP_MANDATORY)
+                    ProtocolProviderFactory.SAVP_OPTION,
+                    ProtocolProviderFactory.SAVP_OFF);
+        if(savpOption == ProtocolProviderFactory.SAVP_MANDATORY)
             result.add("RTP/SAVP");
-        else if(savpOption == ProtocolProviderServiceSipImpl.SAVP_OFF)
+        else if(savpOption == ProtocolProviderFactory.SAVP_OFF)
             result.add(SdpConstants.RTP_AVP);
-        else if(savpOption == ProtocolProviderServiceSipImpl.SAVP_OPTIONAL)
+        else if(savpOption == ProtocolProviderFactory.SAVP_OPTIONAL)
         {
             result.add("RTP/SAVP");
             result.add(SdpConstants.RTP_AVP);

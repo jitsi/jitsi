@@ -467,6 +467,15 @@ public class SIPAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
                 Boolean.toString(registration.isSipZrtpAttribute()));
 
+        accountProperties.put(ProtocolProviderFactory.SAVP_OPTION,
+            Integer.toString(registration.getSavpOption()));
+
+        accountProperties.put(ProtocolProviderFactory.SDES_ENABLED,
+            Boolean.toString(registration.isSDesEnabled()));
+
+        accountProperties.put(ProtocolProviderFactory.SDES_CIPHER_SUITES,
+            registration.getSDesCipherSuites());
+
         accountProperties.put(ProtocolProviderFactory.POLLING_PERIOD,
                 registration.getPollingPeriod());
 

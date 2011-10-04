@@ -25,10 +25,6 @@ public class ConnectionPanel
                DocumentListener,
                ValidatingPanel
 {
-    private final JCheckBox enableDefaultEncryption;
-
-    private final JCheckBox enableSipZrtpAttribute;
-
     private final JTextField serverField = new JTextField();
 
     private final JTextField proxyField = new JTextField();
@@ -72,13 +68,6 @@ public class ConnectionPanel
 
         this.regform = regform;
         this.regform.addValidatingPanel(this);
-
-        enableDefaultEncryption = new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
-            regform.getRegistration().isDefaultEncryption());
-        enableSipZrtpAttribute = new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
-            regform.getRegistration().isSipZrtpAttribute());
 
         proxyAutoCheckBox = new SIPCommCheckBox(
                 Resources.getString("plugin.sipaccregwizz.PROXY_AUTO"),
@@ -192,20 +181,6 @@ public class ConnectionPanel
 
         JPanel encryptionPanel
             = new TransparentPanel(new GridLayout(1, 2, 2, 2));
-
-        encryptionPanel.add(enableDefaultEncryption, BorderLayout.WEST);
-        encryptionPanel.add(enableSipZrtpAttribute, BorderLayout.EAST);
-
-        enableDefaultEncryption.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                // Perform action
-                JCheckBox cb = (JCheckBox) evt.getSource();
-
-                enableSipZrtpAttribute.setEnabled(cb.isSelected());
-            }
-        });
 
         mainPanel.add(Box.createVerticalStrut(5));
         mainPanel.add(encryptionPanel);
@@ -456,49 +431,6 @@ public class ConnectionPanel
     void setSelectedTransport(String preferredTransport)
     {
         transportCombo.setSelectedItem(preferredTransport);
-    }
-
-    /**
-     * Indicates if the default encryption is enabled.
-     * @return <tt>true</tt> if the default encryption is enabled,
-     * <tt>false</tt> - otherwise
-     */
-    boolean isDefaultEncryptionEnabled()
-    {
-        return enableDefaultEncryption.isSelected();
-    }
-
-    /**
-     * Enables/disables the default encryption.
-     * @param isEnable <tt>true</tt> to enable the default encryption,
-     * <tt>false</tt> - otherwise
-     */
-    void enablesDefaultEncryption(boolean isEnable)
-    {
-        enableDefaultEncryption.setSelected(isEnable);
-    }
-
-    /**
-     * Indicates if the ZRTP encryption is enabled.
-     * @return <tt>true</tt> if <tt>ZRTP</tt> is enabled, <tt>false</tt> -
-     * otherwise
-     */
-    boolean isSipZrtpEnabled()
-    {
-        return enableSipZrtpAttribute.isSelected();
-    }
-
-    /**
-     * Enables/disables and selects/deselects the sip zrtp checkbox.
-     * @param isSipZrtpEnabled indicates if the sip zrtp is enabled
-     * @param isDefaultEncryptionEnabled indicates if the default encryption is
-     * enabled
-     */
-    void setSipZrtpEnabled( boolean isSipZrtpEnabled,
-                            boolean isDefaultEncryptionEnabled)
-    {
-        enableSipZrtpAttribute.setSelected(isSipZrtpEnabled);
-        enableSipZrtpAttribute.setEnabled(isDefaultEncryptionEnabled);
     }
 
     /**

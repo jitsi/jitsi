@@ -60,6 +60,12 @@ public class SIPAccountRegistration
 
     private boolean sipZrtpAttribute = true;
 
+    private boolean sdesEnabled = false;
+
+    private int savpOption = 0;
+
+    private String sdesCipherSuites = null;
+
     private String pollingPeriod = DEFAULT_POLL_PERIOD;
 
     private String subscriptionExpiration = DEFAULT_SUBSCRIBE_EXPIRES;
@@ -443,22 +449,53 @@ public class SIPAccountRegistration
     }
 
     /**
-     * Sets SIP ZRTP attribute support
-     *
-     * @param sipZrtpAttribute include the ZRTP attribute to SIP/SDP
-     */
-    public void setSipZrtpAttribute(boolean sipZrtpAttribute) {
-        this.sipZrtpAttribute = sipZrtpAttribute;
-    }
-
-
-    /**
      * Check if to include the ZRTP attribute to SIP/SDP
      *
      * @return include the ZRTP attribute to SIP/SDP
      */
-    public boolean isSipZrtpAttribute() {
+    public boolean isSipZrtpAttribute()
+    {
         return sipZrtpAttribute;
+    }
+
+    /**
+     * Sets SIP ZRTP attribute support
+     *
+     * @param sipZrtpAttribute include the ZRTP attribute to SIP/SDP
+     */
+    public void setSipZrtpAttribute(boolean sipZrtpAttribute)
+    {
+        this.sipZrtpAttribute = sipZrtpAttribute;
+    }
+
+    public boolean isSDesEnabled()
+    {
+        return sdesEnabled;
+    }
+
+    public void setSDesEnabled(boolean sdesEnabled)
+    {
+        this.sdesEnabled = sdesEnabled;
+    }
+
+    public String getSDesCipherSuites()
+    {
+        return sdesCipherSuites;
+    }
+
+    public void setSDesCipherSuites(String cipherSuites)
+    {
+        this.sdesCipherSuites = cipherSuites;
+    }
+
+    public int getSavpOption()
+    {
+        return savpOption;
+    }
+
+    public void setSavpOption(int savpOption)
+    {
+        this.savpOption = savpOption;
     }
 
     /**

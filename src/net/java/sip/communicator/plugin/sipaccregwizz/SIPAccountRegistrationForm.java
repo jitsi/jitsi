@@ -19,9 +19,8 @@ public class SIPAccountRegistrationForm
     extends TransparentPanel
 {
     private final AccountPanel accountPanel;
-
     private final ConnectionPanel connectionPanel;
-
+    private final SecurityPanel securityPanel;
     private final PresencePanel presencePanel;
 
     private boolean isModification;
@@ -43,13 +42,11 @@ public class SIPAccountRegistrationForm
     public SIPAccountRegistrationForm(SIPAccountRegistrationWizard wizard)
     {
         super(new BorderLayout());
-
         this.wizard = wizard;
 
         accountPanel = new AccountPanel(this);
-
         connectionPanel = new ConnectionPanel(this);
-
+        securityPanel = new SecurityPanel(this);
         presencePanel = new PresencePanel(this);
     }
 
@@ -75,6 +72,10 @@ public class SIPAccountRegistrationForm
             if (connectionPanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString("service.gui.CONNECTION"),
                                     connectionPanel);
+
+            if (securityPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(Resources.getString("service.gui.SECURITY"),
+                    securityPanel);
 
             if (presencePanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString("service.gui.PRESENCE"),
@@ -261,10 +262,6 @@ public class SIPAccountRegistrationForm
             presencePanel.isPresenceEnabled());
         registration.setForceP2PMode(
             presencePanel.isForcePeerToPeerMode());
-        registration.setDefaultEncryption(
-            connectionPanel.isDefaultEncryptionEnabled());
-        registration.setSipZrtpAttribute(
-            connectionPanel.isSipZrtpEnabled());
         registration.setTlsClientCertificate(
             connectionPanel.getCertificateId());
         registration.setPollingPeriod(
@@ -283,6 +280,8 @@ public class SIPAccountRegistrationForm
 
         SIPAccRegWizzActivator.getUIService().getAccountRegWizardContainer()
             .setBackButtonEnabled(true);
+
+        securityPanel.commitPanel(registration);
 
         if(xcapRoot != null)
         {
@@ -340,12 +339,6 @@ public class SIPAccountRegistrationForm
 
         boolean forceP2P = accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.FORCE_P2P_MODE, false);
-
-        boolean enabledDefaultEncryption = accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
-
-        boolean enabledSipZrtpAttribute = accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE, true);
 
         String clientTlsCertificateId = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
@@ -407,9 +400,9 @@ public class SIPAccountRegistrationForm
 
         if(authName != null && authName.length() > 0)
             connectionPanel.setAuthenticationName(authName);
+        connectionPanel.setCertificateId(clientTlsCertificateId);
 
         connectionPanel.enablesProxyAutoConfigure(proxyAutoConfigureEnabled);
-
         connectionPanel.setServerPort(serverPort);
         connectionPanel.setProxy(proxyAddress);
 
@@ -418,15 +411,10 @@ public class SIPAccountRegistrationForm
         connectionPanel.setSelectedTransport(preferredTransport);
         connectionPanel.setProxyPort(proxyPort);
 
+        securityPanel.loadAccount(accountID);
+
         presencePanel.setPresenceEnabled(enablePresence);
         presencePanel.setForcePeerToPeerMode(forceP2P);
-
-        connectionPanel.enablesDefaultEncryption(enabledDefaultEncryption);
-        connectionPanel.setSipZrtpEnabled(  enabledSipZrtpAttribute,
-                                            enabledDefaultEncryption);
-
-        connectionPanel.setCertificateId(clientTlsCertificateId);
-
         presencePanel.setPollPeriod(pollingPeriod);
         presencePanel.setSubscriptionExpiration(subscriptionPeriod);
 

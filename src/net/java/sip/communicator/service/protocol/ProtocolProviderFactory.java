@@ -406,6 +406,43 @@ public abstract class ProtocolProviderFactory
         = new Hashtable<AccountID, ServiceRegistration>();
 
     /**
+     * The name of the property that indicates the AVP type.
+     * <ul>
+     * <li>{@link #SAVP_OPTION_AVP}</li>
+     * <li>{@link #SAVP_OPTION_SAVP}</li>
+     * <li>{@link #SAVP_OPTION_AVP_OR_SAVP}</li>
+     * </ul>
+     */
+    public static final String SAVP_OPTION = "SAVP_OPTION";
+
+    /**
+     * Always use RTP/AVP
+     */
+    public static final int SAVP_OFF = 0;
+
+    /**
+     * Always use RTP/SAVP
+     */
+    public static final int SAVP_MANDATORY = 1;
+
+    /**
+     * Sends two media description, with RTP/SAVP being first.
+     */
+    public static final int SAVP_OPTIONAL = 2;
+
+    /**
+     * The name of the property that defines the enabled SDES cipher suites.
+     * Enabled suites are listed as CSV by their RFC name.
+     */
+    public static final String SDES_CIPHER_SUITES = "SDES_CIPHER_SUITES";
+
+    /**
+     * The name of the property that indicates if SDES is enabled for this
+     * account.
+     */
+    public static final String SDES_ENABLED = "SDES_ENABLED";
+
+    /**
      * Creates a new <tt>ProtocolProviderFactory</tt>.
      *
      * @param bundleContext the bundle context reference of the service
