@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 import javax.swing.table.*;
 
 import ch.imvs.sdes4j.srtp.SrtpCryptoSuite;
@@ -15,18 +15,25 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
+/**
+ * Contains the security settings for SIP media encryption.
+ * 
+ * @author Ingo Bauersachs
+ */
 public class SecurityPanel
     extends TransparentPanel
     implements ActionListener
 {
     private SIPAccountRegistrationForm regform;
 
+    private JPanel pnlAdvancedSettings;
     private JCheckBox enableDefaultEncryption;
     private JCheckBox enableSipZrtpAttribute;
     private JCheckBox enableSDesAttribute;
     private JComboBox cboSavpOption;
     private JTable tabCiphers;
     private CipherTableModel cipherModel;
+    private JLabel cmdExpandAdvancedSettings;
 
     private static class SavpOption
     {
@@ -167,14 +174,16 @@ public class SecurityPanel
 
     private void initComponents()
     {
-        JPanel mainPanel = new TransparentPanel();
-        mainPanel.setLayout(new GridBagLayout());
+        setLayout(new BorderLayout());
+        final JPanel mainPanel = new TransparentPanel();
         add(mainPanel, BorderLayout.NORTH);
+
+        mainPanel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 0;
+        c.weightx = 1;
         c.anchor = GridBagConstraints.LINE_START;
-        c.gridwidth = 2;
         c.fill = GridBagConstraints.HORIZONTAL;
 
         //general encryption option
@@ -182,15 +191,67 @@ public class SecurityPanel
             .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
             regform.getRegistration().isDefaultEncryption());
         enableDefaultEncryption.addActionListener(this);
-        c.gridy++;
         mainPanel.add(enableDefaultEncryption, c);
+
+        //warning message and button to show advanced options
+        JLabel lblWarning = new JLabel();
+        lblWarning.setBorder(new EmptyBorder(10, 5, 10, 0));
+        lblWarning.setText(Resources.getResources().getI18NString(
+            "plugin.sipaccregwizz.SECURITY_WARNING",
+            new String[]{
+                Resources.getResources().getSettingsString(
+                    "service.gui.APPLICATION_NAME")
+            }
+        ));
+        c.gridy++;
+        mainPanel.add(lblWarning, c);
+
+        cmdExpandAdvancedSettings = new JLabel();
+        cmdExpandAdvancedSettings.setBorder(new EmptyBorder(0, 5, 0, 0));
+        cmdExpandAdvancedSettings.setIcon(Resources.getResources()
+            .getImage("service.gui.icons.RIGHT_ARROW_ICON"));
+        cmdExpandAdvancedSettings.setText(Resources
+            .getString("plugin.sipaccregwizz.SHOW_ADVANCED"));
+        cmdExpandAdvancedSettings.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                cmdExpandAdvancedSettings.setIcon(
+                        Resources.getResources().getImage(
+                            pnlAdvancedSettings.isVisible()
+                                    ? "service.gui.icons.RIGHT_ARROW_ICON"
+                                    : "service.gui.icons.DOWN_ARROW_ICON"));
+
+                pnlAdvancedSettings.setVisible(
+                    !pnlAdvancedSettings.isVisible());
+
+                pnlAdvancedSettings.revalidate();
+            }
+        });
+        c.gridy++;
+        mainPanel.add(cmdExpandAdvancedSettings, c);
+
+        pnlAdvancedSettings = new TransparentPanel();
+        pnlAdvancedSettings.setLayout(new GridBagLayout());
+        pnlAdvancedSettings.setVisible(false);
+        c.gridy++;
+        mainPanel.add(pnlAdvancedSettings, c);
+
+
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.anchor = GridBagConstraints.LINE_START;
+        c.gridwidth = 2;
+        c.fill = GridBagConstraints.HORIZONTAL;
 
         //ZRTP
         enableSipZrtpAttribute = new SIPCommCheckBox(Resources
             .getString("plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
             regform.getRegistration().isSipZrtpAttribute());
         c.gridy++;
-        mainPanel.add(enableSipZrtpAttribute, c);
+        pnlAdvancedSettings.add(enableSipZrtpAttribute, c);
 
         //SAVP selection
         JLabel lblSavpOption = new JLabel();
@@ -198,10 +259,10 @@ public class SecurityPanel
         lblSavpOption.setText(
             Resources.getString("plugin.sipaccregwizz.SAVP_OPTION"));
         c.gridy++;
-        mainPanel.add(lblSavpOption, c);
+        pnlAdvancedSettings.add(lblSavpOption, c);
         c.gridx = 2;
         c.weightx = 1;
-        mainPanel.add(new JSeparator(), c);
+        pnlAdvancedSettings.add(new JSeparator(), c);
         cboSavpOption = new JComboBox(new SavpOption[]{
             new SavpOption(0),
             new SavpOption(1),
@@ -211,7 +272,7 @@ public class SecurityPanel
         c.gridy++;
         c.insets = new Insets(0, 20, 0, 0);
         c.weightx = 0;
-        mainPanel.add(cboSavpOption, c);
+        pnlAdvancedSettings.add(cboSavpOption, c);
 
         //SDES
         enableSDesAttribute = new SIPCommCheckBox(Resources
@@ -221,10 +282,10 @@ public class SecurityPanel
         c.gridy++;
         c.gridwidth = 1;
         c.insets = new Insets(15, 0, 0, 0);
-        mainPanel.add(enableSDesAttribute, c);
+        pnlAdvancedSettings.add(enableSDesAttribute, c);
         c.gridx = 2;
         c.weightx = 1;
-        mainPanel.add(new JSeparator(), c);
+        pnlAdvancedSettings.add(new JSeparator(), c);
 
 
         c.gridy++;
@@ -234,18 +295,21 @@ public class SecurityPanel
         JLabel lblCipherInfo = new JLabel();
         lblCipherInfo.setText(Resources
             .getString("plugin.sipaccregwizz.CIPHER_SUITES"));
-        mainPanel.add(lblCipherInfo, c);
+        pnlAdvancedSettings.add(lblCipherInfo, c);
 
         cipherModel = new CipherTableModel(regform.getRegistration()
             .getSDesCipherSuites());
         tabCiphers = new JTable(cipherModel);
         tabCiphers.setShowGrid(false);
+        tabCiphers.setTableHeader(null);
         TableColumnModel tableColumnModel = tabCiphers.getColumnModel();
         TableColumn tableColumn = tableColumnModel.getColumn(0);
         tableColumn.setMaxWidth(tableColumn.getMinWidth());
         c.gridy++;
         c.insets = new Insets(0, 20, 0, 0);
-        mainPanel.add(tabCiphers, c);
+        JScrollPane scrollPane = new JScrollPane(tabCiphers);
+        scrollPane.setPreferredSize(new Dimension(tabCiphers.getWidth(), 100));
+        pnlAdvancedSettings.add(scrollPane, c);
     }
 
     /**
@@ -283,10 +347,24 @@ public class SecurityPanel
             ProtocolProviderFactory.SDES_ENABLED, false));
         cipherModel.loadData(accountID.getAccountPropertyString(
                     ProtocolProviderFactory.SDES_CIPHER_SUITES));
-        actionPerformed(null);
+        loadStates();
     }
 
     public void actionPerformed(ActionEvent e)
+    {
+        if(e.getSource() == enableDefaultEncryption
+            || e.getSource() == enableSDesAttribute)
+        {
+            loadStates();
+        }
+
+        if(e.getSource() == cmdExpandAdvancedSettings)
+        {
+            pnlAdvancedSettings.setVisible(!pnlAdvancedSettings.isVisible());
+        }
+    }
+
+    private void loadStates()
     {
         boolean b = enableDefaultEncryption.isSelected();
         enableSipZrtpAttribute.setEnabled(b);
