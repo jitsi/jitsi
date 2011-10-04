@@ -234,50 +234,6 @@ public abstract class MediaAwareCallPeer
     }
 
     /**
-     * Sets the security status to ON for this call peer.
-     *
-     * @param sessionType the type of the call session - audio or video.
-     * @param cipher the cipher
-     * @param securityString the SAS
-     * @param isVerified indicates if the SAS has been verified
-     */
-    public void securityOn(  int sessionType,
-                                String cipher,
-                                String securityString,
-                                boolean isVerified)
-    {
-        fireCallPeerSecurityOnEvent(
-                        sessionType, cipher, securityString, isVerified);
-    }
-
-    /**
-     * Sets the security status to OFF for this call peer.
-     *
-     * @param sessionType the type of the call session - audio or video.
-     */
-    public void securityOff(int sessionType)
-    {
-        fireCallPeerSecurityOffEvent(sessionType);
-    }
-
-    /**
-     * Sets the security message associated with a failure/warning or
-     * information coming from the encryption protocol.
-     *
-     * @param messageType the type of the message.
-     * @param i18nMessage the message
-     * @param severity severity level
-     */
-    public void securityMessage( String messageType,
-                                    String i18nMessage,
-                                    int severity)
-    {
-        fireCallPeerSecurityMessageEvent(messageType,
-                                         i18nMessage,
-                                         severity);
-    }
-
-    /**
      * Updates the state of this <tt>CallPeer</tt> to match the remotely-on-hold
      * status of our media handler.
      */
