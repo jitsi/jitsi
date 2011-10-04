@@ -448,16 +448,16 @@ public class ConferenceFocusPanel
         if (a.equals(b))
             return true;
 
-        //TODO: this doesn't belong here
-        if(a.startsWith("sip:"))
-            a = a.substring(4);
-        if(a.startsWith("sips:"))
-            a = a.substring(5);
+        int aProtocolIndex = a.indexOf(':');
+        if(aProtocolIndex > -1)
+            a = a.substring(aProtocolIndex + 1);
 
-        if(b.startsWith("sip:"))
-            b = b.substring(4);
-        if(b.startsWith("sips:"))
-            b = b.substring(5);
+        int bProtocolIndex = b.indexOf(':');
+        if(bProtocolIndex > -1)
+            b = b.substring(bProtocolIndex + 1);
+
+        if (a.equals(b))
+            return true;
 
         int aServiceBegin = a.indexOf('@');
         String aUserID;
@@ -489,9 +489,9 @@ public class ConferenceFocusPanel
             int slashIndex = b.indexOf("/");
 
             if (slashIndex > 0)
-                bService = b.substring(aServiceBegin + 1, slashIndex);
+                bService = b.substring(bServiceBegin + 1, slashIndex);
             else
-                bService = b.substring(aServiceBegin + 1);
+                bService = b.substring(bServiceBegin + 1);
         }
         else
         {
