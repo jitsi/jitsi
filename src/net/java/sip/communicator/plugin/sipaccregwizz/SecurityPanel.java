@@ -103,13 +103,11 @@ public class SecurityPanel
             return null;
         }
 
-        @Override
         public int getRowCount()
         {
             return data.size();
         }
 
-        @Override
         public int getColumnCount()
         {
             return 2;
@@ -121,7 +119,6 @@ public class SecurityPanel
             return (columnIndex == 0);
         }
 
-        @Override
         public Object getValueAt(int rowIndex, int columnIndex)
         {
             Entry e = data.get(rowIndex);
