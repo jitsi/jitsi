@@ -163,7 +163,6 @@ public class SecurityPanel
 
         this.regform = regform;
         initComponents();
-        actionPerformed(null);
     }
 
     private void initComponents()
@@ -227,15 +226,24 @@ public class SecurityPanel
         c.weightx = 1;
         mainPanel.add(new JSeparator(), c);
 
+
+        c.gridy++;
+        c.gridx = 1;
+        c.gridwidth = 2;
+        c.insets = new Insets(0, 20, 0, 0);
+        JLabel lblCipherInfo = new JLabel();
+        lblCipherInfo.setText(Resources
+            .getString("plugin.sipaccregwizz.CIPHER_SUITES"));
+        mainPanel.add(lblCipherInfo, c);
+
         cipherModel = new CipherTableModel(regform.getRegistration()
             .getSDesCipherSuites());
         tabCiphers = new JTable(cipherModel);
+        tabCiphers.setShowGrid(false);
         TableColumnModel tableColumnModel = tabCiphers.getColumnModel();
         TableColumn tableColumn = tableColumnModel.getColumn(0);
         tableColumn.setMaxWidth(tableColumn.getMinWidth());
         c.gridy++;
-        c.gridx = 1;
-        c.gridwidth = 2;
         c.insets = new Insets(0, 20, 0, 0);
         mainPanel.add(tabCiphers, c);
     }
@@ -275,6 +283,7 @@ public class SecurityPanel
             ProtocolProviderFactory.SDES_ENABLED, false));
         cipherModel.loadData(accountID.getAccountPropertyString(
                     ProtocolProviderFactory.SDES_CIPHER_SUITES));
+        actionPerformed(null);
     }
 
     public void actionPerformed(ActionEvent e)

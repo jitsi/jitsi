@@ -626,12 +626,18 @@ public class CallPeerMediaHandlerSipImpl
     private boolean updateMediaDescriptionForSDes(
         MediaType mediaType, MediaDescription localMd, MediaDescription peerMd)
     {
-        //check if SDES is enabled at all
+        // check if SDES and encryption is enabled at all
         if (!getPeer()
             .getProtocolProvider()
             .getAccountID()
             .getAccountPropertyBoolean(
-                ProtocolProviderFactory.SDES_ENABLED, true))
+                ProtocolProviderFactory.SDES_ENABLED, false)
+            ||
+            !getPeer()
+            .getProtocolProvider()
+            .getAccountID()
+            .getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true))
         {
             return false;
         }
