@@ -1464,21 +1464,27 @@ public class MediaStreamImpl
      */
     public void setFormat(MediaFormat format)
     {
-        if (getDeviceSession() != null &&
-            getDeviceSession().getFormat() != null &&
-            getDeviceSession().getFormat().equals(format))
-            return;
+        MediaDeviceSession deviceSession = getDeviceSession();
+        MediaFormat deviceSessionFormat = null;
+
+        if (deviceSession != null)
+        {
+            deviceSessionFormat = deviceSession.getFormat();
+            if ((deviceSessionFormat != null)
+                    && deviceSessionFormat.equals(format))
+                return;
+        }
 
         if (logger.isTraceEnabled())
             logger.trace(
                     "Changing format of stream " + hashCode()
-                        + " from: " + getDeviceSession().getFormat()
+                        + " from: " + deviceSessionFormat
                         + " to: " + format);
 
         setAdvancedAttributes(format.getAdvancedAttributes());
         handleAttributes(format, format.getAdvancedAttributes());
         handleAttributes(format, format.getFormatParameters());
-        getDeviceSession().setFormat(format);
+        deviceSession.setFormat(format);
     }
 
     /**
