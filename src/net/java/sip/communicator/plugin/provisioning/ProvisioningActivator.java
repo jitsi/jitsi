@@ -203,13 +203,13 @@ public class ProvisioningActivator
 
             if(file != null)
             {
-                updateConfiguration(file);
-
                 /* store the provisioning URL in local configuration in case
                  * the provisioning discovery failed (DHCP/DNS unavailable, ...)
                  */
                 getConfigurationService().setProperty(
                         PROPERTY_PROVISIONING_URL, url);
+
+                updateConfiguration(file);
             }
         }
 
