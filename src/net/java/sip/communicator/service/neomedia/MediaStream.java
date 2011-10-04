@@ -319,5 +319,5 @@ public interface MediaStream
      *
      * @return the <tt>ZrtpControl</tt> which controls the ZRTP for this stream
      */
-    public SrtpControl getZrtpControl();
+    public SrtpControl getSrtpControl();
 }

@@ -94,10 +94,10 @@ public abstract class CallPeerMediaHandler<
     private final T peer;
 
     /**
-     * A reference to the object that would be responsible for ZRTP control
+     * A reference to the object that would be responsible for SRTP control
      * and which most often would be the peer itself.
      */
-    public final SrtpListener zrtpController;
+    public final SrtpListener srtpListener;
 
     /**
      * The RTP stream that this media handler uses to send audio.
@@ -191,10 +191,10 @@ public abstract class CallPeerMediaHandler<
         = new DynamicRTPExtensionsRegistry();
 
     /**
-     * Holds the ZRTP controls used for the current call.
+     * Holds the SRTP controls used for the current call.
      */
-    private Map<MediaType, SrtpControl> srtpControls =
-        new Hashtable<MediaType, SrtpControl>();
+    private SortedMap<MediaTypeSrtpControl, SrtpControl> srtpControls =
+        new TreeMap<MediaTypeSrtpControl, SrtpControl>();
 
     /**
      * The <tt>KeyFrameControl</tt> currently known to this
@@ -330,14 +330,13 @@ public abstract class CallPeerMediaHandler<
      *
      * @param peer that <tt>CallPeer</tt> instance that we will be managing
      * media for.
-     * @param zrtpController the object that would be responsible for
-     * controlling zrtp, and which most often would be the peer itself.
+     * @param srtpListener the object that receives SRTP security events.
      */
     public CallPeerMediaHandler(T            peer,
-                                SrtpListener zrtpController)
+                                SrtpListener srtpListener)
     {
         this.peer = peer;
-        this.zrtpController = zrtpController;
+        this.srtpListener = srtpListener;
     }
 
     /**
@@ -415,20 +414,23 @@ public abstract class CallPeerMediaHandler<
      */
     protected void closeStream(MediaType type)
     {
-        if( type == MediaType.AUDIO)
+        if (type == MediaType.AUDIO)
             setAudioStream(null);
         else
             setVideoStream(null);
 
         getTransportManager().closeStreamConnector(type);
 
-        // Clear the ZRTP controls used for the associated Call.
-        SrtpControl zrtpCtrl = srtpControls.get(type);
-
-        if (zrtpCtrl != null)
+        // Clear the SRTP controls used for the associated Call.
+        Iterator<MediaTypeSrtpControl> it = srtpControls.keySet().iterator();
+        while (it.hasNext())
         {
-            zrtpCtrl.cleanup();
-            srtpControls.remove(type);
+            MediaTypeSrtpControl mct = it.next();
+            if (mct.mediaType == type)
+            {
+                srtpControls.get(mct).cleanup();
+                it.remove();
+            }
         }
     }
 
@@ -675,10 +677,10 @@ public abstract class CallPeerMediaHandler<
     public void setSasVerified(boolean isVerified )
     {
         if(audioStream != null)
-            audioStream.getZrtpControl().setSASVerification(isVerified);
+            audioStream.getSrtpControl().setSASVerification(isVerified);
 
         if(videoStream != null)
-            videoStream.getZrtpControl().setSASVerification(isVerified);
+            videoStream.getSrtpControl().setSASVerification(isVerified);
     }
 
     /**
@@ -694,14 +696,14 @@ public abstract class CallPeerMediaHandler<
          */
         boolean isAudioSecured
             = (audioStream == null)
-                || audioStream.getZrtpControl().getSecureCommunicationStatus();
+                || audioStream.getSrtpControl().getSecureCommunicationStatus();
 
         if (!isAudioSecured)
             return false;
 
         boolean isVideoSecured
             = (videoStream == null)
-                || videoStream.getZrtpControl().getSecureCommunicationStatus();
+                || videoStream.getSrtpControl().getSecureCommunicationStatus();
 
         if (!isVideoSecured)
             return false;
@@ -711,16 +713,16 @@ public abstract class CallPeerMediaHandler<
 
     /**
      * Passes <tt>multiStreamData</tt> to the video stream that we are using
-     * in this media handler (if any) so that the underlying ZRTP lib could
+     * in this media handler (if any) so that the underlying SRTP lib could
      * properly handle stream security.
      *
      * @param multiStreamData the data that we are supposed to pass to our
      * video stream.
      */
-    public void startZrtpMultistream(byte[] multiStreamData)
+    public void startSrtpMultistream(byte[] multiStreamData)
     {
         if(videoStream != null)
-            videoStream.getZrtpControl().setMultistream(multiStreamData);
+            videoStream.getSrtpControl().setMultistream(multiStreamData);
     }
 
     /**
@@ -1157,11 +1159,11 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Returns the currently valid <tt>ZrtpControls</tt> map.
+     * Returns the currently valid <tt>SrtpControls</tt> map.
      *
-     * @return the currently valid <tt>ZrtpControls</tt> map.
+     * @return the currently valid <tt>SrtpControls</tt> map.
      */
-    protected Map<MediaType, SrtpControl> getZrtpControls()
+    protected Map<MediaTypeSrtpControl, SrtpControl> getSrtpControls()
     {
         return this.srtpControls;
     }
@@ -1206,16 +1208,21 @@ public abstract class CallPeerMediaHandler<
                 logger.trace("The media types of device and format differ.");
 
             // check whether a control already exists
-            SrtpControl control = srtpControls.get(mediaType);
             MediaService mediaService
                 = ProtocolMediaActivator.getMediaService();
 
+            SrtpControl control = srtpControls.size() > 0 ?
+                srtpControls.get(new MediaTypeSrtpControl(mediaType,
+                    srtpControls.firstKey().srtpControlType)) : null;
             if(control == null)
+            {
+                // this creates the default control, currently ZRTP without
+                // the hello-hash
                 stream = mediaService.createMediaStream(connector, device);
+            }
             else
             {
-                stream
-                    = mediaService.createMediaStream(
+                stream = mediaService.createMediaStream(
                             connector, device, control);
             }
         }
@@ -1281,11 +1288,11 @@ public abstract class CallPeerMediaHandler<
         if(peer.getCall().isDefaultEncrypted())
         {
             // we use the audio stream for master stream
-            // when using ZRTP multistreams.
-            SrtpControl zrtpControl = stream.getZrtpControl();
+            // when using SRTP multistreams.
+            SrtpControl srtpControl = stream.getSrtpControl();
 
-            zrtpControl.setZrtpListener(zrtpController);
-            zrtpControl.start(stream instanceof AudioMediaStream);
+            srtpControl.setSrtpListener(srtpListener);
+            srtpControl.start(stream instanceof AudioMediaStream);
         }
 
         return stream;

@@ -6,6 +6,11 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.impl.neomedia.transform.srtp.*;
 
+/**
+ * PacketTransformer for SDES based SRTP encryption.
+ * 
+ * @author Ingo Bauersachs
+ */
 public class SDesTransformEngine
     implements TransformEngine, PacketTransformer
 {
@@ -14,6 +19,10 @@ public class SDesTransformEngine
     private SrtpCryptoAttribute inAttribute;
     private SrtpCryptoAttribute outAttribute;
 
+    /**
+     * Creates a new instance of this class.
+     * @param sDesControl The control that supplies the key material.
+     */
     public SDesTransformEngine(SDesControlImpl sDesControl)
     {
         inAttribute = sDesControl.getInAttribute();
@@ -53,11 +62,23 @@ public class SDesTransformEngine
         return salt;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.impl.neomedia.transform.TransformEngine#
+     * getRTPTransformer()
+     */
     public PacketTransformer getRTPTransformer()
     {
         return this;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.impl.neomedia.transform.TransformEngine#
+     * getRTCPTransformer()
+     */
     public PacketTransformer getRTCPTransformer()
     {
         return null;
@@ -70,23 +91,23 @@ public class SDesTransformEngine
         SrtpCryptoSuite cs = attribute.getCryptoSuite();
         switch (cs.getEncryptionAlgorithm())
         {
-        case SrtpCryptoSuite.ENCRYPTION_AES128_CM:
-            encType = SRTPPolicy.AESCM_ENCRYPTION;
-            break;
-        case SrtpCryptoSuite.ENCRYPTION_AES128_F8:
-            encType = SRTPPolicy.AESF8_ENCRYPTION;
-            break;
-        default:
-            throw new IllegalArgumentException("Unsupported cipher");
+            case SrtpCryptoSuite.ENCRYPTION_AES128_CM:
+                encType = SRTPPolicy.AESCM_ENCRYPTION;
+                break;
+            case SrtpCryptoSuite.ENCRYPTION_AES128_F8:
+                encType = SRTPPolicy.AESF8_ENCRYPTION;
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported cipher");
         }
         int authType;
         switch (cs.getHashAlgorithm())
         {
-        case SrtpCryptoSuite.HASH_HMAC_SHA1:
-            authType = SRTPPolicy.HMACSHA1_AUTHENTICATION;
-            break;
-        default:
-            throw new IllegalArgumentException("Unsupported hash");
+            case SrtpCryptoSuite.HASH_HMAC_SHA1:
+                authType = SRTPPolicy.HMACSHA1_AUTHENTICATION;
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported hash");
         }
         SRTPPolicy policy =
             new SRTPPolicy(
@@ -103,6 +124,13 @@ public class SDesTransformEngine
         );
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * net.java.sip.communicator.impl.neomedia.transform.PacketTransformer
+     * #transform(net.java.sip.communicator.impl.neomedia.RawPacket)
+     */
     public RawPacket transform(RawPacket pkt)
     {
         if (outContext == null)
@@ -115,6 +143,12 @@ public class SDesTransformEngine
         return pkt;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.impl.neomedia.transform.PacketTransformer#
+     * reverseTransform(net.java.sip.communicator.impl.neomedia.RawPacket)
+     */
     public RawPacket reverseTransform(RawPacket pkt)
     {
         long ssrc = pkt.getSSRC();

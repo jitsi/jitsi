@@ -1284,7 +1284,7 @@ public class SdpUtils
      * description is determined via from the type of the first
      * <tt>MediaFormat</tt> in the <tt>formats</tt> list.
      *
-     * @param secure when true, the profile is RTP/SAVP instead of RTP/AVP
+     * @param transport the profile name (RTP/SAVP or RTP/AVP)
      * @param formats the list of formats that should be advertised in the newly
      * created <tt>MediaDescription</tt>.
      * @param connector the socket couple that will be used for the media stream
@@ -1307,7 +1307,7 @@ public class SdpUtils
      * some other reason.
      */
     public static MediaDescription createMediaDescription(
-                    boolean                      secure,
+                    String                       transport,
                     List<MediaFormat>            formats,
                     StreamConnector              connector,
                     MediaDirection               direction,
@@ -1437,8 +1437,7 @@ public class SdpUtils
         {
             mediaDesc = sdpFactory.createMediaDescription(mediaType.toString(),
                             connector.getDataSocket().getLocalPort(), 1,
-                            secure ? "RTP/SAVP" : SdpConstants.RTP_AVP,
-                            payloadTypesArray);
+                            transport, payloadTypesArray);
 
             // add all the attributes we have created above
             mediaDesc.setAttributes(mediaAttributes);

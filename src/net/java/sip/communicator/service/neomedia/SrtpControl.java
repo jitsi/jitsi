@@ -11,29 +11,29 @@ import net.java.sip.communicator.impl.neomedia.transform.TransformEngine;
 import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
- * Controls zrtp in the MediaStream.
+ * Controls SRTP encryption in the MediaStream.
  *
  * @author Damian Minkov
  */
 public interface SrtpControl
 {
     /**
-     * Cleans up the current zrtp control and its engine.
+     * Cleans up the current SRTP control and its engine.
      */
     public void cleanup();
 
     /**
-     * Sets a <tt>ZrtpListener</tt> that will listen for
-     * zrtp security events.
+     * Sets a <tt>SrtpListener</tt> that will listen for
+     * srtp security events.
      *
-     * @param zrtpListener the <tt>ZrtpListener</tt> to set
+     * @param srtpListener the <tt>SrtpListener</tt> to set
      */
-    public void setZrtpListener(SrtpListener zrtpListener);
+    public void setSrtpListener(SrtpListener srtpListener);
 
     /**
-     * Returns the <tt>ZrtpListener</tt> which listens for security events.
+     * Returns the <tt>SrtpListener</tt> which listens for security events.
      *
-     * @return the <tt>ZrtpListener</tt> which listens for  security events
+     * @return the <tt>SrtpListener</tt> which listens for security events
      */
     public SrtpListener getSrtpListener();
 
@@ -76,5 +76,11 @@ public interface SrtpControl
      */
     public TransformEngine getTransformEngine();
 
+    /**
+     * Sets the <tt>RTPConnector</tt> which is to use or uses this SRTP engine.
+     *
+     * @param connector the <tt>RTPConnector</tt> which is to use or uses this
+     * SRTP engine
+     */
     public void setConnector(AbstractRTPConnector newValue);
 }

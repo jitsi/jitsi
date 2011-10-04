@@ -159,7 +159,7 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * The name of the property under which the user may specify whether to use
-     * original sip creadetials for the XCAP.
+     * original sip credentials for the XCAP.
      */
     public static final String XCAP_USE_SIP_CREDETIALS =
             "XCAP_USE_SIP_CREDETIALS";
@@ -180,6 +180,43 @@ public class ProtocolProviderServiceSipImpl
      * password.
      */
     public static final String XCAP_PASSWORD = "XCAP_PASSWORD";
+
+    /**
+     * The name of the property that indicates if SDES is enabled for this
+     * account.
+     */
+    public static final String SDES_ENABLED = "SDES_ENABLED";
+
+    /**
+     * The name of the property that defines the enabled SDES cipher suites.
+     * Enabled suites are listed as CSV by their RFC name.
+     */
+    public static final String SDES_CIPHER_SUITES = "SDES_CIPHER_SUITES";
+
+    /**
+     * The name of the property that indicates the AVP type.
+     * <ul>
+     * <li>{@link #SAVP_OPTION_AVP}</li>
+     * <li>{@link #SAVP_OPTION_SAVP}</li>
+     * <li>{@link #SAVP_OPTION_AVP_OR_SAVP}</li>
+     * </ul>
+     */
+    public static final String SAVP_OPTION = "SAVP_OPTION";
+
+    /**
+     * Always use RTP/AVP
+     */
+    public static final int SAVP_OFF = 0;
+
+    /**
+     * Always use RTP/SAVP
+     */
+    public static final int SAVP_MANDATORY = 1;
+
+    /**
+     * Sends two media description, with RTP/SAVP being first.
+     */
+    public static final int SAVP_OPTIONAL = 2;
 
     /**
      * Presence content for image.

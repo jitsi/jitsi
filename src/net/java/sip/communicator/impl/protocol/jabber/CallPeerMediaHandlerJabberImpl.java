@@ -343,12 +343,14 @@ public class CallPeerMediaHandlerJabberImpl
             // ZRTP
             if(getPeer().getCall().isSipZrtpAttribute())
             {
-                SrtpControl control = getZrtpControls().get(mediaType);
-                if(control == null || !(control instanceof ZrtpControl))
+                MediaTypeSrtpControl key =
+                    new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
+                SrtpControl control = getSrtpControls().get(key);
+                if(control == null)
                 {
                     control = JabberActivator.getMediaService()
                         .createZrtpControl();
-                    getZrtpControls().put(mediaType, control);
+                    getSrtpControls().put(key, control);
                 }
 
                 String helloHash[] = ((ZrtpControl)control).getHelloHashSep();
@@ -550,13 +552,15 @@ public class CallPeerMediaHandlerJabberImpl
             //ZRTP
             if(getPeer().getCall().isSipZrtpAttribute())
             {
-                SrtpControl control = getZrtpControls().get(dev.getMediaType());
-
-                if(control == null || !(control instanceof ZrtpControl))
+                MediaTypeSrtpControl key =
+                    new MediaTypeSrtpControl(dev.getMediaType(),
+                        SrtpControlType.ZRTP);
+                SrtpControl control = getSrtpControls().get(key);
+                if(control == null)
                 {
                     control
                         = JabberActivator.getMediaService().createZrtpControl();
-                    getZrtpControls().put(dev.getMediaType(), control);
+                    getSrtpControls().put(key, control);
                 }
 
                 String helloHash[] = ((ZrtpControl)control).getHelloHashSep();
@@ -689,12 +693,15 @@ public class CallPeerMediaHandlerJabberImpl
                     //ZRTP
                     if(getPeer().getCall().isSipZrtpAttribute())
                     {
-                        SrtpControl control = getZrtpControls().get(mediaType);
-                        if(control == null || !(control instanceof ZrtpControl))
+                        MediaTypeSrtpControl key =
+                            new MediaTypeSrtpControl(mediaType,
+                                SrtpControlType.ZRTP);
+                        SrtpControl control = getSrtpControls().get(key);
+                        if(control == null)
                         {
                             control = JabberActivator.getMediaService()
                                 .createZrtpControl();
-                            getZrtpControls().put(mediaType, control);
+                            getSrtpControls().put(key, control);
                         }
 
                         String helloHash[] =

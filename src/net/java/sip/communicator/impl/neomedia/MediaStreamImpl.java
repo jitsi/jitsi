@@ -196,9 +196,9 @@ public class MediaStreamImpl
         new Hashtable<String, String>();
 
     /**
-     * The current <tt>ZrtpControl</tt>.
+     * The current <tt>SrtpControl</tt>.
      */
-    private final SrtpControl zrtpControl;
+    private final SrtpControl srtpControl;
 
     /**
      * Needed when restarting zrtp control.
@@ -256,14 +256,14 @@ public class MediaStreamImpl
      * @param device the <tt>MediaDevice</tt> the new instance is to use for
      * both capture and playback of media exchanged via the specified
      * <tt>StreamConnector</tt>
-     * @param zrtpControl an existing control instance to control the ZRTP
+     * @param srtpControl an existing control instance to control the ZRTP
      * operations or <tt>null</tt> if a new control instance is to be created by
      * the new <tt>MediaStreamImpl</tt>
      */
     public MediaStreamImpl(
             StreamConnector connector,
             MediaDevice device,
-            SrtpControl zrtpControl)
+            SrtpControl srtpControl)
     {
         /*
          * XXX Set the device early in order to make sure that it is of the
@@ -271,8 +271,9 @@ public class MediaStreamImpl
          */
         setDevice(device);
 
-        this.zrtpControl
-                = (zrtpControl == null) ? new ZrtpControlImpl() : zrtpControl;
+        //TODO add option to disable ZRTP, e.g. by implementing a NullControl
+        this.srtpControl
+                = (srtpControl == null) ? new ZrtpControlImpl() : srtpControl;
 
         if (connector != null)
             setConnector(connector);
@@ -351,8 +352,8 @@ public class MediaStreamImpl
         if (dtmfEngine != null)
             engineChain.add(dtmfEngine);
 
-        // ZRTP
-        engineChain.add(zrtpControl.getTransformEngine());
+        // SRTP
+        engineChain.add(srtpControl.getTransformEngine());
 
         // RTCP Statistics
         if(statisticsEngine == null)
@@ -506,7 +507,7 @@ public class MediaStreamImpl
         stop();
         closeSendStreams();
 
-        zrtpControl.cleanup();
+        srtpControl.cleanup();
         zrtpRestarted = false;
 
         if(csrcEngine != null)
@@ -646,7 +647,7 @@ public class MediaStreamImpl
                 // If a ZRTP engine is available then set the SSRC of this
                 // stream
                 // currently ZRTP supports only one SSRC per engine
-                TransformEngine engine = zrtpControl.getTransformEngine();
+                TransformEngine engine = srtpControl.getTransformEngine();
 
                 if (engine != null && engine instanceof ZRTPTransformEngine)
                     ((ZRTPTransformEngine)engine)
@@ -1096,13 +1097,13 @@ public class MediaStreamImpl
     }
 
     /**
-     * Gets the <tt>ZrtpControl</tt> which controls the ZRTP of this stream.
+     * Gets the <tt>SrtpControl</tt> which controls the SRTP of this stream.
      *
-     * @return the <tt>ZrtpControl</tt> which controls the ZRTP of this stream
+     * @return the <tt>SrtpControl</tt> which controls the SRTP of this stream
      */
-    public SrtpControl getZrtpControl()
+    public SrtpControl getSrtpControl()
     {
-        return zrtpControl;
+        return srtpControl;
     }
 
     /**
@@ -1115,10 +1116,10 @@ public class MediaStreamImpl
          * If there is no current secure communication, we don't need to do
          * that.
          */
-        if(!zrtpControl.getSecureCommunicationStatus())
+        if(!srtpControl.getSecureCommunicationStatus())
             return;
 
-        zrtpControl.cleanup();
+        srtpControl.cleanup();
 
         /*
          * As we are recreating this stream and it was obviously secured, it may
@@ -1134,7 +1135,7 @@ public class MediaStreamImpl
 
         AbstractRTPConnector rtpConnector = getRTPConnector();
 
-        zrtpControl.setConnector(rtpConnector);
+        srtpControl.setConnector(rtpConnector);
         if(rtpConnector instanceof RTPTransformUDPConnector)
             ((RTPTransformUDPConnector)rtpConnector)
                 .setEngine(createTransformEngineChain());
@@ -1250,7 +1251,7 @@ public class MediaStreamImpl
             AbstractRTPConnector oldValue,
             AbstractRTPConnector newValue)
     {
-        zrtpControl.setConnector(newValue);
+        srtpControl.setConnector(newValue);
 
         if (newValue != null)
         {

@@ -78,7 +78,7 @@ public class ZrtpControlImpl
      *
      * @param zrtpListener the <tt>ZrtpListener</tt> to set
      */
-    public void setZrtpListener(SrtpListener zrtpListener)
+    public void setSrtpListener(SrtpListener zrtpListener)
     {
         this.zrtpListener = zrtpListener;
     }

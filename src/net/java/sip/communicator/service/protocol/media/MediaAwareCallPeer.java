@@ -730,7 +730,7 @@ public abstract class MediaAwareCallPeer
     {
         if(multiStreamData != null)
         {
-            getMediaHandler().startZrtpMultistream(multiStreamData);
+            getMediaHandler().startSrtpMultistream(multiStreamData);
         }
 
         fireCallPeerSecurityOnEvent(
