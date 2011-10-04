@@ -201,11 +201,6 @@ public class MediaStreamImpl
     private final SrtpControl srtpControl;
 
     /**
-     * Needed when restarting zrtp control.
-     */
-    private boolean zrtpRestarted = false;
-
-    /**
      * Number of received sender reports.
      * Used only for logging and debug purposes.
      */
@@ -508,7 +503,6 @@ public class MediaStreamImpl
         closeSendStreams();
 
         srtpControl.cleanup();
-        zrtpRestarted = false;
 
         if(csrcEngine != null)
         {
@@ -1107,46 +1101,6 @@ public class MediaStreamImpl
     }
 
     /**
-     * Resets the state of secure communication and restart the secure
-     * communication negotiation.
-     */
-    private void restartZrtpControl()
-    {
-        /*
-         * If there is no current secure communication, we don't need to do
-         * that.
-         */
-        if(!srtpControl.getSecureCommunicationStatus())
-            return;
-
-        srtpControl.cleanup();
-
-        /*
-         * As we are recreating this stream and it was obviously secured, it may
-         * happen so that we receive unencrypted data. Which will produce noise
-         * for us to hear. So we mute it till a secure connection is again
-         * established.
-         */
-        // disable it because it can cause problems when switching from camera
-        // to desktop sharing. Moreover if ZRTP see unencrypted packets, it will
-        // not try to decrypt them (maybe the noise come from the decryption of
-        // unencrypted data).
-        //zrtpControl.getZrtpEngine().setStartMuted(true);
-
-        AbstractRTPConnector rtpConnector = getRTPConnector();
-
-        srtpControl.setConnector(rtpConnector);
-        if(rtpConnector instanceof RTPTransformUDPConnector)
-            ((RTPTransformUDPConnector)rtpConnector)
-                .setEngine(createTransformEngineChain());
-        else if(rtpConnector instanceof RTPTransformTCPConnector)
-            ((RTPTransformTCPConnector)rtpConnector)
-                .setEngine(createTransformEngineChain());
-
-        zrtpRestarted = true;
-    }
-
-    /**
      * Determines whether this <tt>MediaStream</tt> is set to transmit "silence"
      * instead of the media being fed from its <tt>MediaDevice</tt>. "Silence"
      * for video is understood as video data which is not the captured video
@@ -1192,9 +1146,6 @@ public class MediaStreamImpl
         if (sendStreamsAreCreated)
         {
             closeSendStreams();
-
-            // this will restart and reinit zrtp control if needed.
-            //restartZrtpControl();
 
             if ((getDeviceSession() != null) && (rtpManager != null))
             {
@@ -1460,6 +1411,8 @@ public class MediaStreamImpl
     {
         if (direction == null)
             throw new NullPointerException("direction");
+        if(this.direction == direction)
+            return;
 
         if(logger.isTraceEnabled())
             logger.trace("Changing direction of stream " + hashCode()
@@ -1511,6 +1464,11 @@ public class MediaStreamImpl
      */
     public void setFormat(MediaFormat format)
     {
+        if (getDeviceSession() != null &&
+            getDeviceSession().getFormat() != null &&
+            getDeviceSession().getFormat().equals(format))
+            return;
+
         if (logger.isTraceEnabled())
             logger.trace(
                     "Changing format of stream " + hashCode()
@@ -2319,6 +2277,9 @@ public class MediaStreamImpl
     {
         try
         {
+            if(!logger.isInfoEnabled())
+                return;
+
             //print flow statistics.
             GlobalTransmissionStats s = rtpManager.getGlobalTransmissionStats();
 
