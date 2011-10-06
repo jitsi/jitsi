@@ -209,7 +209,7 @@ public class ZrtpControlImpl
      */
     public void setMultistream(SrtpControl master)
     {
-        if(master == null)
+        if(master == null || master == this)
             return;
 
         if(!(master instanceof ZrtpControlImpl))
