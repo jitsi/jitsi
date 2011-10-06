@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.sdes;
 
+import gnu.java.zrtp.utils.ZrtpFortuna;
+
 import java.util.*;
 
 import ch.imvs.sdes4j.srtp.*;
@@ -39,12 +41,26 @@ public class SDesControlImpl
             add(SrtpCryptoSuite.F8_128_HMAC_SHA1_80);
         }};
 
-    private SrtpSDesFactory sdesFactory = new SrtpSDesFactory();
+    private SrtpSDesFactory sdesFactory;
     private SrtpCryptoAttribute[] attributes;
     private SDesTransformEngine engine;
     private SrtpCryptoAttribute selectedInAttribute;
     private SrtpCryptoAttribute selectedOutAttribute;
     private SrtpListener srtpListener;
+
+    public SDesControlImpl()
+    {
+        sdesFactory = new SrtpSDesFactory();
+        Random r = new Random()
+        {
+            @Override
+            public void nextBytes(byte[] bytes)
+            {
+                ZrtpFortuna.getInstance().getFortuna().nextBytes(bytes);
+            }
+        };
+        sdesFactory.setRandomGenerator(r);
+    }
 
     public void setEnabledCiphers(Iterable<String> ciphers)
     {
