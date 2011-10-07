@@ -1922,6 +1922,17 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Indicates if the SIP transport channel is using a TLS secured socket.
+     * 
+     * @return True when TLS is used the SIP transport protocol, false
+     *         otherwise or when no proxy is being used.
+     */
+    public boolean isSignalingTransportSecure()
+    {
+        return ListeningPoint.TLS.equalsIgnoreCase(outboundProxyTransport);
+    }
+
+    /**
      * Extracts all properties concerning the usage of an outbound proxy for
      * this account.
      * @param accountID the account whose outbound proxy we are currently

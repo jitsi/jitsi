@@ -301,7 +301,15 @@ public class ProtocolProviderServiceDictImpl
                 RegistrationStateChangeEvent.REASON_USER_REQUEST,
                 null);
     }
-    
+
+    /**
+     * DICT has no support for secure transport.
+     */
+    public boolean isSignalingTransportSecure()
+    {
+        return false;
+    }
+
     /**
      * Close the connection to the server 
      */

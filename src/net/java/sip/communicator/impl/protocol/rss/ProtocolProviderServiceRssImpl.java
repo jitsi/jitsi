@@ -231,6 +231,17 @@ public class ProtocolProviderServiceRssImpl
             , null);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
+     * isSignallingTransportSecure()
+     */
+    public boolean isSignalingTransportSecure()
+    {
+        return false;
+    }
+
     /**
      * Returns the rss protocol icon.
      * @return the rss protocol icon

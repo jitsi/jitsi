@@ -279,4 +279,14 @@ public class ZrtpControlImpl
     {
         return getTransformEngine().getUserCallback().isSecurityVerified();
     }
+
+    /**
+     * Returns false, ZRTP exchanges is keys over the media path.
+     * 
+     * @return false
+     */
+    public boolean requiresSecureSignalingTransport()
+    {
+        return false;
+    }
 }

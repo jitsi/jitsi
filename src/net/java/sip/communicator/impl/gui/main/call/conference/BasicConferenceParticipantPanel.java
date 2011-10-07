@@ -138,6 +138,11 @@ public abstract class BasicConferenceParticipantPanel
     private boolean isLocalPeer;
 
     /**
+     * A reference to the container of this call member panel.
+     */
+    private CallRenderer renderer = null;
+
+    /**
      * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
      *
      * @param renderer the renderer for the call
@@ -145,6 +150,7 @@ public abstract class BasicConferenceParticipantPanel
     public BasicConferenceParticipantPanel( CallRenderer renderer,
                                             boolean isLocalPeer)
     {
+        this.renderer = renderer;
         this.isLocalPeer = isLocalPeer;
 
         soundIndicator = new SoundLevelIndicator(  renderer,
@@ -424,9 +430,15 @@ public abstract class BasicConferenceParticipantPanel
      */
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        securityImageID = ImageLoader.SECURE_ON_CONF_CALL;
-        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(securityImageID)));
+        if ((evt.getSecurityController().requiresSecureSignalingTransport()
+            && renderer.getCall().getProtocolProvider()
+                .isSignalingTransportSecure())
+            || !evt.getSecurityController().requiresSecureSignalingTransport())
+        {
+            securityImageID = ImageLoader.SECURE_ON_CONF_CALL;
+            securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+                .getImage(securityImageID)));
+        }
 
         securityStatusLabel.setEncryptionCipher(evt.getCipher());
         switch (evt.getSessionType())

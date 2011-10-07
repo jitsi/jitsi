@@ -1214,10 +1214,14 @@ public class OneToOneCallPeerPanel
      */
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(ImageLoader.SECURE_BUTTON_ON)));
-
-        securityImageID = ImageLoader.SECURE_BUTTON_ON;
+        if((evt.getSecurityController().requiresSecureSignalingTransport()
+            && callPeer.getProtocolProvider().isSignalingTransportSecure())
+            || !evt.getSecurityController().requiresSecureSignalingTransport())
+        {
+            securityImageID = ImageLoader.SECURE_BUTTON_ON;
+            securityStatusLabel.setIcon(new ImageIcon(ImageLoader
+                .getImage(securityImageID)));
+        }
 
         //set common encryption properties
         securityStatusLabel.setEncryptionCipher(evt.getCipher());

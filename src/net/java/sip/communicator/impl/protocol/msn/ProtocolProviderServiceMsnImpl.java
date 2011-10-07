@@ -240,6 +240,17 @@ public class ProtocolProviderServiceMsnImpl
         unregister(true);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
+     * isSignallingTransportSecure()
+     */
+    public boolean isSignalingTransportSecure()
+    {
+        return false;
+    }
+
     /**
      * Unregister and fire the event if requested
      * @param fireEvent boolean

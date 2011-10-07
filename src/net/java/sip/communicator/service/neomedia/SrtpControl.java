@@ -75,4 +75,13 @@ public interface SrtpControl
      * SRTP engine
      */
     public void setConnector(AbstractRTPConnector newValue);
+
+    /**
+     * Indicates if the key exchange method is dependent on secure transport of
+     * the signaling channel.
+     * 
+     * @return True when secure signaling is required to make the encryption
+     *         secure, false otherwise.
+     */
+    public boolean requiresSecureSignalingTransport();
 }

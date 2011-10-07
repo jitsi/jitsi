@@ -181,4 +181,14 @@ public class SDesControlImpl
     public void setConnector(AbstractRTPConnector newValue)
     {
     }
+
+    /**
+     * Returns true, SDES always requires the secure transport of its keys.
+     * 
+     * @return true
+     */
+    public boolean requiresSecureSignalingTransport()
+    {
+        return true;
+    }
 }

@@ -619,7 +619,18 @@ public class ProtocolProviderServiceSSHImpl
                 , RegistrationStateChangeEvent.REASON_USER_REQUEST
                 , null);
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
+     * isSignallingTransportSecure()
+     */
+    public boolean isSignalingTransportSecure()
+    {
+        return false;
+    }
+
     /**
      * Returns the ssh protocol icon.
      * @return the ssh protocol icon

@@ -267,8 +267,13 @@ public class CallPeerAdapter
 
         renderer.securityOn(evt);
 
-        NotificationManager.fireNotification(
-            NotificationManager.CALL_SECURITY_ON);
+        if((evt.getSecurityController().requiresSecureSignalingTransport()
+            && peer.getProtocolProvider().isSignalingTransportSecure())
+            || !evt.getSecurityController().requiresSecureSignalingTransport())
+        {
+            NotificationManager.fireNotification(
+                NotificationManager.CALL_SECURITY_ON);
+        }
     }
 
     /**

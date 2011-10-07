@@ -324,6 +324,17 @@ public class ProtocolProviderServiceYahooImpl
                 null);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
+     * isSignallingTransportSecure()
+     */
+    public boolean isSignalingTransportSecure()
+    {
+        return false;
+    }
+
     /**
      * Returns the short name of the protocol that the implementation of this
      * provider is based upon (like SIP, Msn, ICQ/AIM, or others for

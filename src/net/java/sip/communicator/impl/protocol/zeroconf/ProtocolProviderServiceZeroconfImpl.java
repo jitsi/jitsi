@@ -258,6 +258,17 @@ public class ProtocolProviderServiceZeroconfImpl
             , null);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
+     * isSignallingTransportSecure()
+     */
+    public boolean isSignalingTransportSecure()
+    {
+        return false;
+    }
+
     /**
      * Returns the zeroconf protocol icon.
      * @return the zeroconf protocol icon

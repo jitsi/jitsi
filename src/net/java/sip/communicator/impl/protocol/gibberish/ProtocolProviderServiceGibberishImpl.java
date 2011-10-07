@@ -292,6 +292,14 @@ public class ProtocolProviderServiceGibberishImpl
     }
 
     /**
+     * Gibberish has no support for secure transport.
+     */
+    public boolean isSignalingTransportSecure()
+    {
+        return false;
+    }
+
+    /**
      * Returns the gibberish protocol icon.
      * @return the gibberish protocol icon
      */

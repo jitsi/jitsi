@@ -446,6 +446,16 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Indicates if the XMPP transport channel is using a TLS secured socket.
+     * 
+     * @return True when TLS is used, false otherwise.
+     */
+    public boolean isSignalingTransportSecure()
+    {
+        return connection != null && connection.isUsingTLS();
+    }
+
+    /**
      * Connects and logins to the server
      * @param authority SecurityAuthority
      * @param reasonCode the authentication reason code. Indicates the reason of
