@@ -34,13 +34,13 @@ import net.java.sip.communicator.util.swing.SwingWorker;
  * @author Damian Johnson
  * @author Yana Stamcheva
  */
-public class LanguageSelectionField
+public class LanguageMenuBar
     extends SIPCommMenuBar
     implements PluginComponent
 {
-    private static final HashMap<SpellChecker, LanguageSelectionField>
+    private static final HashMap<SpellChecker, LanguageMenuBar>
         CLASS_INSTANCES =
-            new HashMap<SpellChecker, LanguageSelectionField>();
+            new HashMap<SpellChecker, LanguageMenuBar>();
 
     // parallel maps containing cached instances of country flags
     private static final HashMap<Parameters.Locale, ImageIcon>
@@ -50,7 +50,7 @@ public class LanguageSelectionField
         UNAVAILABLE_FLAGS = new HashMap<Parameters.Locale, ImageIcon>();
 
     private static final Logger logger = Logger
-        .getLogger(LanguageSelectionField.class);
+        .getLogger(LanguageMenuBar.class);
 
     private static final ImageIcon BLANK_FLAG_ICON = Resources
         .getImage("blankFlag");
@@ -77,7 +77,7 @@ public class LanguageSelectionField
      * @param checker spell checker field is to be associated with
      * @return spell checker locale selection field
      */
-    public synchronized static LanguageSelectionField makeSelectionField(
+    public synchronized static LanguageMenuBar makeSelectionField(
         SpellChecker checker)
     {
         // singleton constructor to ensure only one combo box is associated with
@@ -86,14 +86,14 @@ public class LanguageSelectionField
             return CLASS_INSTANCES.get(checker);
         else
         {
-            LanguageSelectionField instance =
-                new LanguageSelectionField(checker);
+            LanguageMenuBar instance =
+                new LanguageMenuBar(checker);
             CLASS_INSTANCES.put(checker, instance);
             return instance;
         }
     }
 
-    private LanguageSelectionField(SpellChecker checker)
+    private LanguageMenuBar(SpellChecker checker)
     {
         this.spellChecker = checker;
 
@@ -101,8 +101,10 @@ public class LanguageSelectionField
         setMaximumSize(new Dimension(30, 28));
         setMinimumSize(new Dimension(30, 28));
 
-        this.menu.setPreferredSize(new Dimension(30, 45));
-        this.menu.setMaximumSize(new Dimension(30, 45));
+        menu.setPreferredSize(new Dimension(30, 45));
+        menu.setMaximumSize(new Dimension(30, 45));
+        menu.setToolTipText(
+            Resources.getString("plugin.spellcheck.SPELLCHECK"));
 
         this.add(menu);
 

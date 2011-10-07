@@ -50,7 +50,7 @@ public class SpellCheckActivator
 
         // adds field to change language
         context.registerService(PluginComponent.class.getName(),
-            LanguageSelectionField.makeSelectionField(this.checker),
+            LanguageMenuBar.makeSelectionField(this.checker),
             containerFilter);
     }
 

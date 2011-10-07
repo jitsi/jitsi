@@ -106,6 +106,9 @@ public class OtrMetaContactButton
             button.setEnabled(false);
             button.setPreferredSize(new Dimension(25, 25));
 
+            button.setToolTipText(OtrActivator.resourceService.getI18NString(
+                "plugin.otr.menu.OTR_TOOLTIP"));
+
             button.addActionListener(new ActionListener()
             {
                 public void actionPerformed(ActionEvent e)
