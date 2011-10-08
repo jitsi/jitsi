@@ -11,8 +11,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * @author Alexandre Maillard
  * @author Yana Stamcheva
@@ -53,9 +51,8 @@ class StringTableRenderer
             setForeground(entry.getEnabled() ? Color.BLACK : Color.GRAY);
             setHorizontalAlignment(SwingConstants.LEFT);
             setIcon(null);
-            setText(
-                    StringUtils.convertCamelCaseToDisplayString(
-                            entry.getEvent()));
+            setText(Resources.getString("plugin.notificationconfig.event."
+                + entry.getEvent()));
         }
         else if (value instanceof String)
         {

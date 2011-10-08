@@ -6,12 +6,11 @@
  */
 package net.java.sip.communicator.plugin.notificationconfiguration;
 
-import net.java.sip.communicator.service.notification.*;
-
 /**
- * The <tt>NotificationsTableEntry</tt> is a class which defined the different 
- * entry in the utilitary "NotificationConfiguration" JTable. It 
- * regroups one entry's whole parameters.
+ * The <tt>NotificationEntry</tt> is a class which defines the different 
+ * entries in the <tt>NotificationConfiguration<tt> JTable. It stores the
+ * configuration parameters of an entry.
+ * 
  * @author Alexandre Maillard
  */
 public class NotificationEntry
@@ -19,40 +18,37 @@ public class NotificationEntry
     /**
      * Parameter which defines if the notification is enabled or disabled.
      */
-    private boolean enabled = false;
+    private boolean enabled;
 
     /**
      * Parameter which defines if the program's execution is activated.
      */
-    private boolean program = false;
+    private boolean program;
 
     /**
      * Program filenames which is executed.
      */
-    private String programFile = "";
+    private String programFile;
 
     /**
      *  Parameter which defines if the popup is activated.
      */
-    private boolean popup = false;
+    private boolean popup;
 
     /**
      * Parameter which defines if the sound is activated.
      */
-    private boolean sound = false;
+    private boolean sound;
 
     /**
      * Name of sound file which is play
      */
-    private String soundFile = "";
+    private String soundFile;
 
     /**
      * Parameter which describes, in a simple sentence, the notification.
      */
-    private String event = "";
-
-    private final NotificationService notificationService
-        = NotificationConfigurationActivator.getNotificationService();
+    private String event;
 
     /** 
      * Empty class constructor.
@@ -87,11 +83,11 @@ public class NotificationEntry
     {
         this.enabled = enabled;
         this.program = program;
-        setProgramFile(programFile);
+        this.programFile = programFile;
         this.popup = popup;
         this.sound = sound;
-        setSoundFile(soundFile);
-        setEvent(event);
+        this.soundFile = soundFile;
+        this.event = event;
     }
 
     /**

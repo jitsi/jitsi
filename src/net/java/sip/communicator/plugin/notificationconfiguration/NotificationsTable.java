@@ -374,7 +374,7 @@ public class NotificationsTable
                     int index = columnModel.getColumnIndexAtX(p.x);
                     int realIndex =
                             columnModel.getColumn(index).getModelIndex();
-                    return columnToolTips[realIndex];
+                    return Resources.getString(columnToolTips[realIndex]);
                 }
             };
         }

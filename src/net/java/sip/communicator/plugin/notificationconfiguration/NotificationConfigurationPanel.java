@@ -73,8 +73,10 @@ public class NotificationConfigurationPanel
 
         initNotificationsList();
 
-        JLabel soundFileLabel = new JLabel("Sound file:");
-        JLabel programFileLabel = new JLabel("Program file:");
+        JLabel soundFileLabel = new JLabel(
+                Resources.getString("plugin.notificationconfig.SOUND_FILE"));
+        JLabel programFileLabel = new JLabel(
+                Resources.getString("plugin.notificationconfig.PROGRAM_FILE"));
 
         labelsPanel.add(soundFileLabel);
         labelsPanel.add(programFileLabel);
@@ -133,10 +135,14 @@ public class NotificationConfigurationPanel
 
         add(southPanel, BorderLayout.SOUTH);
 
-        fileChooserSound = GenericFileDialog.create(null, "Choose a sound...",
-            SipCommFileChooser.LOAD_FILE_OPERATION);
-        fileChooserProgram = GenericFileDialog.create(null, 
-            "Choose a program...", SipCommFileChooser.LOAD_FILE_OPERATION);
+        fileChooserSound =
+            GenericFileDialog.create(null,
+                Resources.getString("plugin.notificationconfig.BROWSE_SOUND"),
+                SipCommFileChooser.LOAD_FILE_OPERATION);
+        fileChooserProgram =
+            GenericFileDialog.create(null,
+                Resources.getString("plugin.notificationconfig.BROWSE_PROGRAM"),
+                SipCommFileChooser.LOAD_FILE_OPERATION);
         fileChooserSound.addFilter(new SoundFilter());
     }
 
@@ -145,11 +151,13 @@ public class NotificationConfigurationPanel
      */
     private void initNotificationsList()
     {
-        String[] columnToolTips = { "Enable or disable this feature",
-                                    "Execute a program",
-                                    "Display a messagebox",
-                                    "Play a sound",
-                                    "Description of event" };
+        String[] columnToolTips = {
+            "plugin.notificationconfig.tableheader.ENABLE",
+            "plugin.notificationconfig.tableheader.EXECUTE",
+            "plugin.notificationconfig.tableheader.POPUP",
+            "plugin.notificationconfig.tableheader.SOUND",
+            "plugin.notificationconfig.tableheader.DESCRIPTION"
+        };
 
         JLabel icon1
             = new JLabel(new ImageIcon(Resources.getImageInBytes(
