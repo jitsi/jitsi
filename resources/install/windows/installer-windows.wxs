@@ -38,8 +38,32 @@
 </Upgrade>
 
 <Directory Id="TARGETDIR" Name="SourceDir">
-  <Directory Id="ProgramFilesFolder" Name="PFiles">
+
+  <!--
+    The 64-bit MSI should default to "Program Files" and not
+    "Program Files (x86)".
+  -->
+  <?ifndef ProgramFilesFolder ?>
+    <?if $(var.Platform) = x64 ?>
+      <?define ProgramFilesFolder = ProgramFiles64Folder ?>
+    <?else ?>
+      <?define ProgramFilesFolder = ProgramFilesFolder ?>
+    <?endif ?>
+  <?endif ?>
+
+  <Directory Id="$(var.ProgramFilesFolder)" Name="PFiles">
     <Directory Id="INSTALLDIR" Name="@APP_NAME@">
+
+      <!--
+        The variable Win64 which is of YesNoType may be used in
+        component-defines.wxi.
+      -->
+      <?if $(var.Platform) = x64 ?>
+        <?define Win64 = yes ?>
+      <?else ?>
+        <?define Win64 = no ?>
+      <?endif ?>
+
       <?include component-defines.wxi ?>
     </Directory>
   </Directory>

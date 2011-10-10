@@ -12,6 +12,13 @@
   </Include>
 </xsl:template>
 
+<xsl:template match="*[local-name()='Component']">
+  <xsl:copy>
+    <xsl:attribute name="Win64">$(var.Win64)</xsl:attribute>
+    <xsl:apply-templates select="@*|node()" />
+  </xsl:copy>
+</xsl:template>
+
 <xsl:template match="@*|node()">
   <xsl:copy>
     <xsl:apply-templates select="@*|node()" /> 
