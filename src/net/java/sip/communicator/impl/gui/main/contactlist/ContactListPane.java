@@ -374,7 +374,8 @@ public class ContactListPane
                 == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
         {
             errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_NOT_SUPPORTED");
+                    "service.gui.MSG_DELIVERY_NOT_SUPPORTED",
+                    new String[] {sourceContact.getDisplayName()});
         }
         else if (evt.getErrorCode()
                 == MessageDeliveryFailedEvent.NETWORK_FAILURE)
