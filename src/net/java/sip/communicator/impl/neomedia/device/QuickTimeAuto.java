@@ -63,6 +63,18 @@ public class QuickTimeAuto
                                     new RGBFormat()
                                 });
 
+            if(logger.isInfoEnabled())
+            {
+                QTFormatDescription[] fs = inputDevice.formatDescriptions();
+                for(QTFormatDescription f : fs)
+                {
+                    logger.info("Webcam available resolution for " +
+                        inputDevice.localizedDisplayName()
+                        + ":" + f.sizeForKey(
+                        QTFormatDescription.VideoEncodedPixelsSizeAttribute));
+                }
+            }
+
             CaptureDeviceManager.addDevice(device);
             captureDeviceInfoIsAdded = true;
             if (logger.isDebugEnabled())

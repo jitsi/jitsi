@@ -74,6 +74,18 @@ public class DirectShowAuto
                 continue;
             }
 
+            if(logger.isInfoEnabled())
+            {
+                DSFormat[] fs = devices[i].getSupportedFormats();
+                for(DSFormat f : fs)
+                {
+                    if(f.getWidth() != 0 && f.getHeight() != 0)
+                        logger.info("Webcam available resolution for " +
+                            devices[i].getName()
+                                + ":" + f.getWidth() + "x" + f.getHeight());
+                }
+            }
+
             CaptureDeviceInfo device
                 = new CaptureDeviceInfo(devices[i].getName(),
                         new MediaLocator(LOCATOR_PROTOCOL + ':' + devices[i].

@@ -12,6 +12,7 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.video4linux2.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Discovers and registers <tt>CaptureDevice</tt>s which implement the Video for
@@ -21,6 +22,11 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.video4linux
  */
 public class Video4Linux2Auto
 {
+    /**
+     * The <tt>Logger</tt>.
+     */
+    private static final Logger logger =
+            Logger.getLogger(Video4Linux2Auto.class);
 
     /**
      * The protocol of the <tt>MediaLocator</tt>s identifying
@@ -135,6 +141,7 @@ public class Video4Linux2Auto
             = Video4Linux2.v4l2_format_alloc(
                     Video4Linux2.V4L2_BUF_TYPE_VIDEO_CAPTURE);
         int pixelformat = 0;
+        String supportedRes = null;
 
         if (0 != v4l2_format)
         {
@@ -169,6 +176,14 @@ public class Video4Linux2Auto
                                         fmtPix);
                         }
                     }
+
+                    if(logger.isInfoEnabled())
+                    {
+                        supportedRes =
+                            Video4Linux2.v4l2_pix_format_getWidth(fmtPix)
+                            + "x"
+                            + Video4Linux2.v4l2_pix_format_getHeight(fmtPix);
+                    }
                 }
             }
             finally
@@ -197,6 +212,13 @@ public class Video4Linux2Auto
             name = deviceName;
         else
             name += " (" + deviceName + ")";
+
+        if(logger.isInfoEnabled() && supportedRes != null)
+        {
+            logger.info("Webcam available resolution for " + name
+                    + ":" + supportedRes);
+        }
+
         CaptureDeviceManager.addDevice(
                 new CaptureDeviceInfo(
                         name,
