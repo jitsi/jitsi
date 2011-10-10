@@ -2440,7 +2440,6 @@ public class ChatPanel
         this.getChatWritePanel().getEditorPane().repaint();
     }
 
-
     /**
      * Shows the font chooser dialog
      */
@@ -2449,33 +2448,34 @@ public class ChatPanel
         JEditorPane editorPane = writeMessagePanel.getEditorPane();
         FontChooser fontChooser = new FontChooser();
 
-        fontChooser.setFontFamily(
-            editorPane.getFont().getFontName());
-        fontChooser.setFontSize(
-            editorPane.getFont().getSize());
-
-        fontChooser.setBoldStyle(editorPane.getFont().isBold());
-        fontChooser.setItalicStyle(editorPane.getFont().isItalic());
-
         int result = fontChooser.showDialog(this);
 
-        if (result == FontChooser.OK_OPTION)
+        if (result != FontChooser.CANCEL_OPTION)
         {
+            String fontFamily = fontChooser.getFontFamily();
+            int fontSize = fontChooser.getFontSize();
+            boolean isBold = fontChooser.isBoldStyleSelected();
+            boolean isItalic = fontChooser.isItalicStyleSelected();
+            boolean isUnderline = fontChooser.isUnderlineStyleSelected();
+            Color fontColor = fontChooser.getFontColor();
+
             // Font family and size
-            writeMessagePanel.setFontFamilyAndSize(
-                                    fontChooser.getFontFamily(),
-                                    fontChooser.getFontSize());
+            writeMessagePanel.setFontFamilyAndSize(fontFamily, fontSize);
 
             // Font style
-            writeMessagePanel.setBoldStyleEnable(
-                fontChooser.isBoldStyleSelected());
-            writeMessagePanel.setItalicStyleEnable(
-                fontChooser.isItalicStyleSelected());
-            writeMessagePanel.setUnderlineStyleEnable(
-                fontChooser.isUnderlineStyleSelected());
+            writeMessagePanel.setBoldStyleEnable(isBold);
+            writeMessagePanel.setItalicStyleEnable(isItalic);
+            writeMessagePanel.setUnderlineStyleEnable(isUnderline);
 
             // Font color
-            writeMessagePanel.setFontColor(fontChooser.getFontColor());
+            writeMessagePanel.setFontColor(fontColor);
+
+            writeMessagePanel.saveDefaultFontConfiguration( fontFamily,
+                                                            fontSize,
+                                                            isBold,
+                                                            isItalic,
+                                                            isUnderline,
+                                                            fontColor);
         }
 
         editorPane.requestFocus();

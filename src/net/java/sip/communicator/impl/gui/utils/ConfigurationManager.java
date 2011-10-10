@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.gui.utils;
 
+import java.awt.*;
 import java.beans.*;
-import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -163,6 +164,36 @@ public class ConfigurationManager
     private static boolean isAdvancedAccountConfigDisabled;
 
     /**
+     * The default font family used in chat windows.
+     */
+    private static String defaultFontFamily;
+
+    /**
+     * The default font size used in chat windows.
+     */
+    private static String defaultFontSize;
+
+    /**
+     * Indicates if the font is bold in chat windows.
+     */
+    private static boolean isDefaultFontBold = false;
+
+    /**
+     * Indicates if the font is italic in chat windows.
+     */
+    private static boolean isDefaultFontItalic = false;
+
+    /**
+     * Indicates if the font is underline in chat windows.
+     */
+    private static boolean isDefaultFontUnderline = false;
+
+    /**
+     * The default font color used in chat windows.
+     */
+    private static int defaultFontColor;
+
+    /**
      * Loads all user interface configurations.
      */
     public static void loadGuiConfigurations()
@@ -286,12 +317,13 @@ public class ConfigurationManager
             = "service.gui.LEAVE_CHATROOM_ON_WINDOW_CLOSE";
 
         String isLeaveChatRoomOnWindowCloseEnabledString
-            = configService.getString(isLeaveChatRoomOnWindowCloseEnabledStringProperty);
+            = configService.getString(
+                isLeaveChatRoomOnWindowCloseEnabledStringProperty);
 
         if(isLeaveChatRoomOnWindowCloseEnabledString == null)
             isLeaveChatRoomOnWindowCloseEnabledString =
-                GuiActivator.getResources().
-                getSettingsString(isLeaveChatRoomOnWindowCloseEnabledStringProperty);
+                GuiActivator.getResources().getSettingsString(
+                    isLeaveChatRoomOnWindowCloseEnabledStringProperty);
 
         if(isLeaveChatRoomOnWindowCloseEnabledString != null
             && isLeaveChatRoomOnWindowCloseEnabledString.length() > 0)
@@ -476,11 +508,42 @@ public class ConfigurationManager
             isAdvancedConfigDisabled
                 = Boolean.parseBoolean(advancedConfigDisabledDefaultProp);
 
+        // Load the advanced account configuration disabled.
         isAdvancedAccountConfigDisabled
             = configService.getBoolean(
                 "net.java.sip.communicator.impl.gui.main.account." +
                 "ADVANCED_CONFIG_DISABLED",
                 isAdvancedConfigDisabled);
+
+        // Load default font family string.
+        defaultFontFamily = configService.getString(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_FAMILY");
+
+        // Load default font size.
+        defaultFontSize = configService.getString(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_SIZE");
+
+        // Load isBold chat property.
+        isDefaultFontBold
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_BOLD",
+                isDefaultFontBold);
+
+        // Load isItalic chat property.
+        isDefaultFontItalic
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_ITALIC",
+                isDefaultFontItalic);
+
+        // Load isUnderline chat property.
+        isDefaultFontUnderline
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_UNDERLINE",
+                isDefaultFontUnderline);
+
+        // Load default font color property.
+        defaultFontColor = configService.getInt(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_COLOR", 0);
     }
 
     /**
@@ -693,6 +756,69 @@ public class ConfigurationManager
     public static boolean isAdvancedAccountConfigDisabled()
     {
         return isAdvancedAccountConfigDisabled;
+    }
+
+    /**
+     * Returns the default chat font family.
+     *
+     * @return the default chat font family
+     */
+    public static String getChatDefaultFontFamily()
+    {
+        return defaultFontFamily;
+    }
+
+    /**
+     * Returns the default chat font size.
+     *
+     * @return the default chat font size
+     */
+    public static int getChatDefaultFontSize()
+    {
+        if (defaultFontSize != null && defaultFontSize.length() > 0)
+            return new Integer(defaultFontSize).intValue();
+
+        return -1;
+    }
+
+    /**
+     * Returns the default chat font color.
+     *
+     * @return the default chat font color
+     */
+    public static Color getChatDefaultFontColor()
+    {
+        return new Color(defaultFontColor);
+    }
+
+    /**
+     * Returns the default chat font bold.
+     *
+     * @return the default chat font bold
+     */
+    public static boolean isChatFontBold()
+    {
+        return isDefaultFontBold;
+    }
+
+    /**
+     * Returns the default chat font italic.
+     *
+     * @return the default chat font italic
+     */
+    public static boolean isChatFontItalic()
+    {
+        return isDefaultFontItalic;
+    }
+
+    /**
+     * Returns the default chat font underline.
+     *
+     * @return the default chat font underline
+     */
+    public static boolean isChatFontUnderline()
+    {
+        return isDefaultFontUnderline;
     }
 
     /**
@@ -1062,6 +1188,90 @@ public class ConfigurationManager
         configService.setProperty(
             "net.java.sip.communicator.impl.gui.call.lastCallConferenceProvider",
             protocolProvider.getAccountID().getAccountUniqueID());
+    }
+
+    /**
+     * Sets the default font family.
+     *
+     * @param fontFamily the default font family name
+     */
+    public static void setChatDefaultFontFamily(String fontFamily)
+    {
+        defaultFontFamily = fontFamily;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_FAMILY",
+            fontFamily);
+    }
+
+    /**
+     * Sets the default font size.
+     *
+     * @param fontSize the default font size
+     */
+    public static void setChatDefaultFontSize(int fontSize)
+    {
+        defaultFontSize = String.valueOf(fontSize);
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_SIZE",
+            fontSize);
+    }
+
+    /**
+     * Sets the default isBold property.
+     *
+     * @param isBold indicates if the default chat font is bold
+     */
+    public static void setChatFontIsBold(boolean isBold)
+    {
+        isDefaultFontBold = isBold;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_BOLD",
+            isBold);
+    }
+
+    /**
+     * Sets the default isItalic property.
+     *
+     * @param isBold indicates if the default chat font is italic
+     */
+    public static void setChatFontIsItalic(boolean isItalic)
+    {
+        isDefaultFontItalic = isItalic;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_ITALIC",
+            isItalic);
+    }
+
+    /**
+     * Sets the default isUnderline property.
+     *
+     * @param isBold indicates if the default chat font is underline
+     */
+    public static void setChatFontIsUnderline(boolean isUnderline)
+    {
+        isDefaultFontUnderline = isUnderline;
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_UNDERLINE",
+            isUnderline);
+    }
+
+    /**
+     * Sets the default font color.
+     *
+     * @param fontFamily the default font color
+     */
+    public static void setChatDefaultFontColor(Color fontColor)
+    {
+        defaultFontColor = fontColor.getRGB();
+
+        configService.setProperty(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_COLOR",
+            defaultFontColor);
     }
 
     /**

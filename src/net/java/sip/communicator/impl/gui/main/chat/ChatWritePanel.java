@@ -111,8 +111,8 @@ public class ChatWritePanel
 
         this.add(centerPanel, BorderLayout.CENTER);
 
-        this.rightButtonMenu =
-            new WritePanelRightButtonMenu(chatPanel.getChatContainer());
+        this.rightButtonMenu
+            = new WritePanelRightButtonMenu(chatPanel.getChatContainer());
 
         this.typingTimer.setRepeats(true);
 
@@ -131,6 +131,32 @@ public class ChatWritePanel
 
         this.changeSendCommand((messageCommand == null || messageCommand
             .equalsIgnoreCase("enter")));
+
+        initDefaultFontConfiguration();
+    }
+
+    /**
+     * Initializes the default font configuration for this chat write area.
+     */
+    private void initDefaultFontConfiguration()
+    {
+        String fontFamily = ConfigurationManager.getChatDefaultFontFamily();
+        int fontSize = ConfigurationManager.getChatDefaultFontSize();
+
+        // Font family and size
+        if (fontFamily != null && fontSize > 0)
+            setFontFamilyAndSize(fontFamily, fontSize);
+
+        // Font style
+        setBoldStyleEnable(ConfigurationManager.isChatFontBold());
+        setItalicStyleEnable(ConfigurationManager.isChatFontItalic());
+        setUnderlineStyleEnable(ConfigurationManager.isChatFontUnderline());
+
+        // Font color
+        Color fontColor = ConfigurationManager.getChatDefaultFontColor();
+
+        if (fontColor != null)
+            setFontColor(fontColor);
     }
 
     /**
@@ -1008,6 +1034,31 @@ public class ChatWritePanel
     }
 
     /**
+     * Saves the given font configuration as default, thus making it the default
+     * configuration for all chats.
+     *
+     * @param fontFamily the font family
+     * @param fontSize the font size
+     * @param isBold indicates if the font is bold
+     * @param isItalic indicates if the font is italic
+     * @param isUnderline indicates if the font is underline
+     */
+    public void saveDefaultFontConfiguration(   String fontFamily,
+                                                int fontSize,
+                                                boolean isBold,
+                                                boolean isItalic,
+                                                boolean isUnderline,
+                                                Color color)
+    {
+        ConfigurationManager.setChatDefaultFontFamily(fontFamily);
+        ConfigurationManager.setChatDefaultFontSize(fontSize);
+        ConfigurationManager.setChatFontIsBold(isBold);
+        ConfigurationManager.setChatFontIsItalic(isItalic);
+        ConfigurationManager.setChatFontIsUnderline(isUnderline);
+        ConfigurationManager.setChatDefaultFontColor(color);
+    }
+
+    /**
      * Sets the font family and size
      * @param family the family name
      * @param size the size
@@ -1019,13 +1070,15 @@ public class ChatWritePanel
             = new ActionEvent(  editorPane,
                                 ActionEvent.ACTION_PERFORMED,
                                 family);
+
         Action action = new StyledEditorKit.FontFamilyAction(family, family);
         action.actionPerformed(evt);
 
         // Size
         evt = new ActionEvent(editorPane,
             ActionEvent.ACTION_PERFORMED, Integer.toString(size));
-        action = new StyledEditorKit.FontSizeAction(Integer.toString(size), size);
+        action = new StyledEditorKit.FontSizeAction(
+                    Integer.toString(size), size);
         action.actionPerformed(evt);
     }
 
@@ -1035,7 +1088,10 @@ public class ChatWritePanel
      */
     public void setBoldStyleEnable(boolean b)
     {
-        if (b)
+        StyledEditorKit editorKit = (StyledEditorKit) editorPane.getEditorKit();
+        MutableAttributeSet attr = editorKit.getInputAttributes();
+
+        if (b && !StyleConstants.isBold(attr))
         {
             setStyleConstant(   new HTMLEditorKit.BoldAction(),
                                 StyleConstants.Bold);
@@ -1048,7 +1104,10 @@ public class ChatWritePanel
      */
     public void setItalicStyleEnable(boolean b)
     {
-        if (b)
+        StyledEditorKit editorKit = (StyledEditorKit) editorPane.getEditorKit();
+        MutableAttributeSet attr = editorKit.getInputAttributes();
+
+        if (b && !StyleConstants.isItalic(attr))
         {
             setStyleConstant(   new HTMLEditorKit.ItalicAction(),
                                 StyleConstants.Italic);
@@ -1061,7 +1120,10 @@ public class ChatWritePanel
      */
     public void setUnderlineStyleEnable(boolean b)
     {
-        if (b)
+        StyledEditorKit editorKit = (StyledEditorKit) editorPane.getEditorKit();
+        MutableAttributeSet attr = editorKit.getInputAttributes();
+
+        if (b && !StyleConstants.isUnderline(attr))
         {
             setStyleConstant(   new HTMLEditorKit.UnderlineAction(),
                                 StyleConstants.Underline);
@@ -1076,6 +1138,7 @@ public class ChatWritePanel
     {
         ActionEvent evt
             = new ActionEvent(editorPane, ActionEvent.ACTION_PERFORMED, "");
+
         Action action
             = new HTMLEditorKit.ForegroundAction(
                     Integer.toString(color.getRGB()),
@@ -1084,11 +1147,17 @@ public class ChatWritePanel
         action.actionPerformed(evt);
     }
 
+    /**
+     * Sets the given style constant.
+     *
+     * @param action the action
+     * @param styleConstant the style constant
+     */
     private void setStyleConstant(Action action, Object styleConstant)
     {
         ActionEvent event = new ActionEvent(editorPane,
-            ActionEvent.ACTION_PERFORMED,
-            styleConstant.toString());
+                                            ActionEvent.ACTION_PERFORMED,
+                                            styleConstant.toString());
 
         action.actionPerformed(event);
     }
@@ -1173,5 +1242,8 @@ public class ChatWritePanel
             smsCharCountLabel.setText(String.valueOf(smsCharCount));
             smsNumberLabel.setText(String.valueOf(smsNumberCount));
         }
+
+        if (getText() == null || getText().isEmpty())
+            initDefaultFontConfiguration();
     }
 }
