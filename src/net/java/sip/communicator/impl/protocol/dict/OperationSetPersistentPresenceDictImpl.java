@@ -953,7 +953,8 @@ public class OperationSetPersistentPresenceDictImpl
         if (theVolatileGroup == null)
         {
             theVolatileGroup = new ContactGroupDictImpl(
-                "NotInContactList"
+                DictActivator.getResources().getI18NString(
+                    "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME")
                 , parentProvider);
             theVolatileGroup.setResolved(false);
             theVolatileGroup.setPersistent(false);

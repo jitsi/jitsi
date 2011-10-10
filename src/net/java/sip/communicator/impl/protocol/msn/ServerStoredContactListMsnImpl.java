@@ -665,7 +665,9 @@ public class ServerStoredContactListMsnImpl
                 catch (OperationFailedException ex)
                 {
                     logger.error("Failed to add contact from " +
-                        "NotInContactList group to new group: " + newParent, ex);
+                        MsnActivator.getResources().getI18NString(
+                            "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME") +
+                        " group to new group: " + newParent, ex);
                 }
 
                 return;
@@ -682,7 +684,9 @@ public class ServerStoredContactListMsnImpl
                 catch (OperationFailedException ex)
                 {
                     logger.error("Failed to add contact from " +
-                        "NotInContactList group to new group: " + newParent, ex);
+                        MsnActivator.getResources().getI18NString(
+                            "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME") +
+                        " group to new group: " + newParent, ex);
                 }
             }
             else

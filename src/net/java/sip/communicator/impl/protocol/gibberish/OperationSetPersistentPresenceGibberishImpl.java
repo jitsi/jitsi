@@ -988,7 +988,8 @@ public class OperationSetPersistentPresenceGibberishImpl
         if (theVolatileGroup == null)
         {
             theVolatileGroup = new ContactGroupGibberishImpl(
-                "NotInContactList"
+                GibberishActivator.getResources().getI18NString(
+                    "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME")
                 , parentProvider);
             theVolatileGroup.setResolved(false);
             theVolatileGroup.setPersistent(false);

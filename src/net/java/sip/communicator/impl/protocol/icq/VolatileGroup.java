@@ -21,7 +21,8 @@ class VolatileGroup
 
     VolatileGroup()
     {
-        this("NotInContactList");
+        this(IcqActivator.getResources()
+            .getI18NString("service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME"));
     }
 
     VolatileGroup(String groupName)

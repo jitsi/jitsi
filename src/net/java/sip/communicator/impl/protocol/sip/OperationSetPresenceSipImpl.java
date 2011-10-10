@@ -1725,7 +1725,10 @@ public class OperationSetPresenceSipImpl
                 ContactGroupSipImpl rootGroup =
                         this.ssContactList.getRootGroup();
                 volatileGroup = ssContactList
-                        .createGroup(rootGroup, "NotInContactList", false);
+                        .createGroup(rootGroup,
+                            SipActivator.getResources().getI18NString(
+                                "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME"),
+                            false);
             }
 
             if (displayName != null)

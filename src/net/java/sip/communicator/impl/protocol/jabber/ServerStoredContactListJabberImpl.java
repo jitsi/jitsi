@@ -38,10 +38,6 @@ public class ServerStoredContactListJabberImpl
         Logger.getLogger(ServerStoredContactListJabberImpl.class);
 
     /**
-     * The name of the Volatile group
-     */
-    private static final String VOLATILE_GROUP_NAME = "NotInContactList";
-    /**
      * The jabber list that we encapsulate
      */
     private Roster roster = null;
@@ -498,7 +494,9 @@ public class ServerStoredContactListJabberImpl
         if (theVolatileGroup == null)
         {
             theVolatileGroup = new VolatileContactGroupJabberImpl(
-                VOLATILE_GROUP_NAME, this);
+                JabberActivator.getResources().getI18NString(
+                    "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME"),
+                this);
 
             theVolatileGroup.addContact(newVolatileContact);
 

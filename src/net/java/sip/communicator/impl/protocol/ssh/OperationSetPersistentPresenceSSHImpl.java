@@ -937,7 +937,8 @@ public class OperationSetPersistentPresenceSSHImpl
         if (theVolatileGroup == null)
         {
             theVolatileGroup = new ContactGroupSSHImpl(
-                    "NotInContactList"
+                    SSHActivator.getResources().getI18NString(
+                        "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME")
                     , parentProvider);
             theVolatileGroup.setResolved(false);
             theVolatileGroup.setPersistent(false);

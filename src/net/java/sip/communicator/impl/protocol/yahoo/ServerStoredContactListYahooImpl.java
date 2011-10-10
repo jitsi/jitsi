@@ -31,11 +31,6 @@ public class ServerStoredContactListYahooImpl
         Logger.getLogger(ServerStoredContactListYahooImpl.class);
 
     /**
-     * The name of the Volatile group
-     */
-    private static final String VOLATILE_GROUP_NAME = "NotInContactList";
-
-    /**
      * If there is no group and we add contact with no parent
      * a default group is created with name : DEFAULT_GROUP_NAME
      */
@@ -427,7 +422,9 @@ public class ServerStoredContactListYahooImpl
         if (theVolatileGroup == null)
         {
             theVolatileGroup = new VolatileContactGroupYahooImpl(
-                VOLATILE_GROUP_NAME, this);
+                YahooActivator.getResources().getI18NString(
+                    "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME"),
+                this);
 
             theVolatileGroup.addContact(newVolatileContact);
 

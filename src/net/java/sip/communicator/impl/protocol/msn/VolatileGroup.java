@@ -16,7 +16,8 @@ import net.sf.jml.*;
 public class VolatileGroup
     implements MsnGroup
 {
-    private String groupName = new String("NotInContactList");
+    private String groupName = MsnActivator.getResources().getI18NString(
+            "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME");
 
     VolatileGroup(){}
 
