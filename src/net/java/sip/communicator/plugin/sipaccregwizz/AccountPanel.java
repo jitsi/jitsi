@@ -116,10 +116,16 @@ public class AccountPanel
 
         southPanel.add(rememberPassBox);
 
-        String webSignup = regform.getWebSignupLinkName();
-        if (webSignup != null)
+        String webSignupLinkText = regform.getWebSignupLinkName();
+
+        if (webSignupLinkText != null && webSignupLinkText.length() > 0)
+            southPanel.add(createWebSignupLabel(webSignupLinkText));
+        else
         {
-            southPanel.add(createSubscribeLabel(webSignup));
+            String forgotPassLinkText = regform.getForgotPasswordLinkName();
+
+            if (forgotPassLinkText != null && forgotPassLinkText.length() > 0)
+            southPanel.add(createForgotPasswordLabel(forgotPassLinkText));
         }
 
         uinPassPanel.setBorder(BorderFactory.createTitledBorder(Resources
@@ -281,7 +287,7 @@ public class AccountPanel
      * @param linkName the link name
      * @return the newly created subscribe label
      */
-    private Component createSubscribeLabel(String linkName)
+    private Component createWebSignupLabel(String linkName)
     {
         JLabel subscribeLabel =
             new JLabel("<html><a href=''>"
@@ -299,6 +305,44 @@ public class AccountPanel
                 try
                 {
                     regform.webSignup();
+                }
+                catch (UnsupportedOperationException ex)
+                {
+                    // This should not happen, because we check if the
+                    // operation is supported, before adding the sign
+                    // up.
+                    logger.error("The web sign up is not supported.",
+                        ex);
+                }
+            }
+        });
+        return subscribeLabel;
+    }
+
+    /**
+     * Creates the subscribe label.
+     * @param linkName the link name
+     * @return the newly created subscribe label
+     */
+    private Component createForgotPasswordLabel(String linkName)
+    {
+        JLabel subscribeLabel =
+            new JLabel("<html><a href=''>"
+                + linkName
+                + "</a></html>",
+                JLabel.RIGHT);
+
+        subscribeLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        subscribeLabel.setToolTipText(
+            Resources.getString("plugin.simpleaccregwizz.FORGOT_PASSWORD"));
+        subscribeLabel.addMouseListener(new MouseAdapter()
+        {
+            public void mousePressed(MouseEvent e)
+            {
+                try
+                {
+                    SIPAccRegWizzActivator.getBrowserLauncher()
+                        .openURL(regform.getForgotPasswordLink());
                 }
                 catch (UnsupportedOperationException ex)
                 {

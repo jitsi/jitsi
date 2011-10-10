@@ -178,6 +178,26 @@ public abstract class AccountRegistrationWizard
     public void webSignup() throws UnsupportedOperationException {}
 
     /**
+     * Returns the forgot password link name.
+     *
+     * @return the forgot password link name
+     */
+    public String getForgotPasswordLinkName()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the forgot password link if one exists.
+     *
+     * @return the forgot password link
+     */
+    public String getForgotPasswordLink()
+    {
+        return null;
+    }
+
+    /**
      * Returns the preferred dimensions of this wizard.
      * 
      * @return the preferred dimensions of this wizard.

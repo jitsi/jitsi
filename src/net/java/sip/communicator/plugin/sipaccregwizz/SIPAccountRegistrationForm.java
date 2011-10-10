@@ -492,6 +492,26 @@ public class SIPAccountRegistrationForm
     }
 
     /**
+     * Returns the forgot password link name.
+     *
+     * @return the forgot password link name
+     */
+    public String getForgotPasswordLinkName()
+    {
+        return wizard.getForgotPasswordLinkName();
+    }
+
+    /**
+     * Returns the forgot password link.
+     *
+     * @return the forgot password link
+     */
+    public String getForgotPasswordLink()
+    {
+        return wizard.getForgotPasswordLink();
+    }
+
+    /**
      * Returns an instance of <tt>CreateAccountService</tt> through which the
      * user could create an account. This method is meant to be implemented by
      * specific protocol provider wizards.
