@@ -1243,7 +1243,7 @@ public class ChatWritePanel
             smsNumberLabel.setText(String.valueOf(smsNumberCount));
         }
 
-        if (getText() == null || getText().isEmpty())
+        if (getText() == null || getText().length() <= 0)
             initDefaultFontConfiguration();
     }
 }
