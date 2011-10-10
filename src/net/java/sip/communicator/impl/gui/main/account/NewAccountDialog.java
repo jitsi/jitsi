@@ -78,7 +78,7 @@ public class NewAccountDialog
 
     private static NewAccountDialog newAccountDialog;
 
-    private JEditorPane errorMessagePane;
+    private JTextArea errorMessagePane;
 
     /**
      * If account is signing-in ignore close.
@@ -374,7 +374,9 @@ public class NewAccountDialog
     {
         if (errorMessagePane == null)
         {
-            errorMessagePane = new JEditorPane();
+            errorMessagePane = new JTextArea();
+            errorMessagePane.setLineWrap(true);
+            errorMessagePane.setWrapStyleWord(true);
             errorMessagePane.setOpaque(false);
             errorMessagePane.setForeground(Color.RED);
 
