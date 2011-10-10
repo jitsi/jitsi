@@ -211,11 +211,16 @@ public class VideoMediaDeviceSession
                    && videoSize.width > outputSize.width)
                     videoSize = outputSize;
 
-                VideoMediaStreamImpl.selectVideoSize(
+                Dimension dim = VideoMediaStreamImpl.selectVideoSize(
                         captureDevice,
                         videoSize.width, videoSize.height);
 
                 frameRate = deviceConfig.getFrameRate();
+
+                // print initial video resolution, when starting video
+                if(logger.isInfoEnabled() && dim != null)
+                    logger.info("video send resolution: "
+                            + dim.width + "x" + dim.height);
             }
 
             FrameRateControl frameRateControl
@@ -232,6 +237,13 @@ public class VideoMediaDeviceSession
                     frameRate = maxSupportedFrameRate;
                 if(frameRate > 0)
                     frameRateControl.setFrameRate(frameRate);
+
+                // print initial video frame rate, when starting video
+                if(logger.isInfoEnabled())
+                {
+                    logger.info("video send FPS: " + (frameRate == -1 ?
+                            "default(no restriction)" : frameRate));
+                }
             }
 
             /*
@@ -1492,6 +1504,11 @@ public class VideoMediaDeviceSession
                 if(frameRate > 0)
                 {
                     frameRateControl.setFrameRate(frameRate);
+
+                    if(logger.isInfoEnabled())
+                    {
+                        logger.info("video send FPS: " + frameRate);
+                    }
                 }
             }
         }

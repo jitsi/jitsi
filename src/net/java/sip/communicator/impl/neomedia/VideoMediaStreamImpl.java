@@ -970,7 +970,17 @@ public class VideoMediaStreamImpl
             if(preset.compareTo(getPreferredSendPreset()) > 0)
                 this.preset = getPreferredSendPreset();
             else
+            {
                 this.preset = preset;
+
+                if(logger.isInfoEnabled()
+                    && preset != null && preset.getResolution() != null)
+                {
+                    logger.info("video send resolution: "
+                        + preset.getResolution().width + "x"
+                            + preset.getResolution().height);
+                }
+            }
         }
 
         /**

@@ -178,7 +178,9 @@ public class ProtocolProviderFactorySipImpl
             // unregister provider before removing it.
             try
             {
-                if(protocolProvider.isRegistered())
+                // shutdown even if its not registered, a port maybe wrong
+                // shutdown will clean everything and we will start clean
+                //if(protocolProvider.isRegistered())
                 {
                     protocolProvider.shutdown();
                 }

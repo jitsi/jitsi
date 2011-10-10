@@ -2151,12 +2151,14 @@ public class MediaStreamImpl
             SenderReport report =
                     ((SenderReportEvent)remoteEvent).getReport();
 
+            Feedback feedback = null;
+            long remoteJitter = -1;
+
             if(report.getFeedbackReports().size() > 0)
             {
-                Feedback feedback =
-                            (Feedback)report.getFeedbackReports().get(0);
+                feedback = (Feedback)report.getFeedbackReports().get(0);
 
-                long remoteJitter = feedback.getJitter();
+                remoteJitter = feedback.getJitter();
 
                 if(remoteJitter < minRemoteInterArrivalJitter
                     ||minRemoteInterArrivalJitter == -1)
@@ -2164,34 +2166,39 @@ public class MediaStreamImpl
 
                 if(maxRemoteInterArrivalJitter < remoteJitter)
                     maxRemoteInterArrivalJitter = remoteJitter;
+            }
 
-                // As sender reports are received on every 5 seconds
-                // print every 4th packet, on every 20 seconds
-                if(numberOfReceivedSenderReports%4 != 1)
-                    return;
+            // As sender reports are received on every 5 seconds
+            // print every 4th packet, on every 20 seconds
+            if(numberOfReceivedSenderReports%4 != 1)
+                return;
 
-                StringBuilder buff
-                    = new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
-                MediaFormat format = getFormat();
+            StringBuilder buff
+                = new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
+            MediaFormat format = getFormat();
 
-                buff.append("Received a report for ")
-                    .append(
-                            (format == null)
-                                ? ""
-                                : format.getMediaType().toString())
-                    .append(" stream SSRC:")
-                    .append(getLocalSourceID())
-                    .append(" [packet count:")
-                    .append(report.getSenderPacketCount())
-                    .append(", bytes:").append(report.getSenderByteCount())
-                    .append(", interarrival jitter:")
+            buff.append("Received a report for ")
+                .append(
+                        (format == null)
+                            ? ""
+                            : format.getMediaType().toString())
+                .append(" stream SSRC:")
+                .append(getLocalSourceID())
+                .append(" [packet count:")
+                .append(report.getSenderPacketCount())
+                .append(", bytes:").append(report.getSenderByteCount());
+
+                if(feedback != null)
+                {
+                    buff.append(", interarrival jitter:")
                             .append(remoteJitter)
                     .append(", lost packets:").append(feedback.getNumLost())
                     .append(", time since previous report:")
-                            .append((int)(feedback.getDLSR()/65.536))
-                            .append("ms ]");
-                logger.info(buff);
-            }
+                            .append((int) (feedback.getDLSR() / 65.536))
+                            .append("ms");
+                }
+            buff.append(" ]");
+            logger.info(buff);
         }
     }
 
