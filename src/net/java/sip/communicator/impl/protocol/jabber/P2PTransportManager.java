@@ -33,9 +33,14 @@ public class P2PTransportManager
         = Logger.getLogger(P2PTransportManager.class);
 
     /**
-     * Synchronization object.
+     * Synchronization object for harvesting wrapup.
      */
     private final Object wrapupSyncRoot = new Object();
+
+    /**
+     * Synchronization object for connectivity wrapup.
+     */
+    private final Object stateSyncRoot = new Object();
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -490,9 +495,43 @@ public class P2PTransportManager
             if (startConnectivityEstablishment)
             {
                 iceAgent.startConnectivityEstablishment();
+
+                synchronized(stateSyncRoot)
+                {
+                    stateSyncRoot.notify();
+                }
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Waits for the associated ICE <tt>Agent</tt> to finish any started
+     * connectivity checks.
+     *
+     * @see TransportManagerJabberImpl#wrapupConnectivityEstablishment()
+     * @throws OperationFailedException if ICE processing has failed
+     */
+    @Override
+    public void wrapupConnectivityEstablishment()
+        throws OperationFailedException
+    {
+        // wait iceAgent to be started before attempt to wrapup
+        while(iceAgent.getState() == IceProcessingState.WAITING)
+        {
+            synchronized(stateSyncRoot)
+            {
+                try
+                {
+                    stateSyncRoot.wait();
+                }
+                catch(InterruptedException e)
+                {
+                }
+            }
+        }
+
+        super.wrapupConnectivityEstablishment();
     }
 }
