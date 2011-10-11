@@ -70,7 +70,8 @@ public class DirectShowAuto
             else
             {
                 logger.warn("No support for this webcam: " +
-                        devices[i].getName() + "(no format supported)");
+                        devices[i].getName() + "(format " + pixelFormat +
+                        " not supported)");
                 continue;
             }
 

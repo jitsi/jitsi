@@ -55,7 +55,6 @@ public class DHCPProvisioningDiscover
      */
     private byte option = (byte)224;
 
-
     /**
      * List of <tt>ProvisioningListener</tt> that will be notified when
      * a provisioning URL is retrieved.
@@ -112,7 +111,7 @@ public class DHCPProvisioningDiscover
             inform.setYiaddr(InetAddress.getByAddress(zeroIPAddress));
             inform.setSiaddr(InetAddress.getByAddress(zeroIPAddress));
             inform.setGiaddr(InetAddress.getByAddress(zeroIPAddress));
-            inform.setChaddr(macAddress);
+            //inform.setChaddr(macAddress);
             inform.setDhcp(true);
             inform.setDHCPMessageType(DHCPConstants.DHCPINFORM);
 
@@ -149,7 +148,7 @@ public class DHCPProvisioningDiscover
                             p.setCiaddr(addr);
                             p.setChaddr(macAddress);
 
-                            byte msg[] = inform.serialize();
+                            byte msg[] = p.serialize();
                             DatagramPacket pkt = new DatagramPacket(msg,
                                     msg.length,
                                     InetAddress.getByAddress(broadcastIPAddr),
