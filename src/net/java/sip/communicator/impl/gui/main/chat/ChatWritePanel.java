@@ -1242,8 +1242,5 @@ public class ChatWritePanel
             smsCharCountLabel.setText(String.valueOf(smsCharCount));
             smsNumberLabel.setText(String.valueOf(smsNumberCount));
         }
-
-        if (getText() == null || getText().length() <= 0)
-            initDefaultFontConfiguration();
     }
 }
