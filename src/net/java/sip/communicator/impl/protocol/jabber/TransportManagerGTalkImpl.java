@@ -1025,6 +1025,8 @@ public class TransportManagerGTalkImpl
                 String name = candidate.getName();
                 int numComponent = 0;
 
+                logger.info("new cand " + name + " " + candidate.getProtocol() +
+                    " " + candidate.getPort());
                 // change name to retrieve properly the ICE media stream
                 if(name.equals("rtp"))
                 {
@@ -1062,6 +1064,9 @@ public class TransportManagerGTalkImpl
                  */
                 if (candidate.getGeneration() != iceAgent.getGeneration())
                     continue;
+
+                if(candidate.getProtocol().equalsIgnoreCase("ssltcp"))
+                    candidate.setProtocol("tcp");
 
                 Component component
                     = stream.getComponent(numComponent);
@@ -1149,7 +1154,7 @@ public class TransportManagerGTalkImpl
                 continue;
 
             if(candidate.getProtocol().equalsIgnoreCase("ssltcp"))
-                continue;
+                candidate.setProtocol("tcp");
 
             Component component
                 = stream.getComponent(numComponent);
