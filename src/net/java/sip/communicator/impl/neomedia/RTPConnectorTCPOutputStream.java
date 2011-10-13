@@ -35,11 +35,6 @@ public class RTPConnectorTCPOutputStream
     }
 
     /**
-     * Data bytes.
-     */
-    private byte data[] = new byte[3000];
-
-    /**
      * Send the packet from this <tt>OutputStream</tt>.
      *
      * @param packet packet to sent
@@ -51,17 +46,10 @@ public class RTPConnectorTCPOutputStream
         InetSocketAddress target)
         throws IOException
     {
-        /* add length header */
-        int len = packet.getLength();
-        int off = packet.getOffset();
-        data[0] = (byte)((len >> 8) & 0xff);
-        data[1] = (byte)(len & 0xff);
-        System.arraycopy(packet.getBuffer(), off, data, 2, len);
-
         socket.getOutputStream().write(
-            data,
-            0,
-            len + 2);
+            packet.getBuffer(),
+            packet.getOffset(),
+            packet.getLength());
     }
 
     /**

@@ -117,8 +117,6 @@ public class RTPConnectorTCPInputStream
         {
             data = p.getData();
             InputStream stream = socket.getInputStream();
-
-            //stream.skip(2);
             len = stream.read(data);
         }
         catch(Exception e)
