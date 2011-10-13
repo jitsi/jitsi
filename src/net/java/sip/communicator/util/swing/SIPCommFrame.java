@@ -9,8 +9,11 @@ package net.java.sip.communicator.util.swing;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -35,12 +38,6 @@ public class SIPCommFrame
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(SIPCommFrame.class);
-
-    /**
-     * The logo icon.
-     */
-    private static final String SIP_COMMUNICATOR_LOGO
-        = "service.gui.SIP_COMMUNICATOR_LOGO";
 
     /**
      * The action map of this dialog.
@@ -130,11 +127,37 @@ public class SIPCommFrame
      */
     private void init()
     {
-        Image scLogo = UtilActivator.getImage(SIP_COMMUNICATOR_LOGO);
-        this.setIconImage(scLogo);
+        try
+        {
+            Method m = Window.class.getMethod("setIconImages", List.class);
+            List<Image> logos = new ArrayList<Image>(6)
+            {{
+                add(UtilActivator
+                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO"));
+                add(UtilActivator
+                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_20x20"));
+                add(UtilActivator
+                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_32x32"));
+                add(UtilActivator
+                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_45x45"));
+                add(UtilActivator
+                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_64x64"));
+                add(UtilActivator
+                    .getImage("service.gui.SIP_COMMUNICATOR_LOGO_128x128"));
+            }};
+            m.invoke(this, logos);
+            // In order to have the same icon when using option panes
+            m.invoke(JOptionPane.getRootFrame(), logos);
+        }
+        catch (Exception e)
+        {
+            Image scLogo =
+                UtilActivator.getImage("service.gui.SIP_COMMUNICATOR_LOGO");
+            this.setIconImage(scLogo);
 
-        // In order to have the same icon when using option panes
-        JOptionPane.getRootFrame().setIconImage(scLogo);
+            // In order to have the same icon when using option panes
+            JOptionPane.getRootFrame().setIconImage(scLogo);
+        }
     }
 
     /**
