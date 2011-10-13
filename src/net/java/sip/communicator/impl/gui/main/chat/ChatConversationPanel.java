@@ -1003,7 +1003,7 @@ public class ChatConversationPanel
             message
                 .replaceAll(
                     "\n",
-                    END_PLAINTEXT_TAG + "<BR>&#10;" + START_PLAINTEXT_TAG);
+                    END_PLAINTEXT_TAG + "<BR/>&#10;" + START_PLAINTEXT_TAG);
     }
 
     /**

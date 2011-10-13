@@ -1317,8 +1317,11 @@ public class ChatPanel
      */
     protected void sendInstantMessage()
     {
+        // Trims the html message, as it sometimes contains a lot of empty
+        // lines, which causes some problems to some protocols.
         String htmlText = getTextFromWriteArea(
-            OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
+            OperationSetBasicInstantMessaging.HTML_MIME_TYPE).trim();
+
         String plainText = getTextFromWriteArea(
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
 

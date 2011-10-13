@@ -803,9 +803,9 @@ public class ChatWritePanel
 
         formattedString = extractFormattedText(formattedString);
 
-        if (formattedString.endsWith("<BR>"))
+        if (formattedString.endsWith("<BR/>"))
             formattedString = formattedString
-            .substring(0, formattedString.lastIndexOf("<BR>"));
+            .substring(0, formattedString.lastIndexOf("<BR/>"));
 
         return formattedString;
     }
@@ -888,7 +888,7 @@ public class ChatWritePanel
     {
         String resultString = msgText.replaceAll("<p\\b[^>]*>", "");
 
-        return resultString.replaceAll("<\\/p>", "<BR>");
+        return resultString.replaceAll("<\\/p>", "<BR/>");
     }
 
     /**
