@@ -84,33 +84,24 @@ public class OtrMetaContactMenu
         JMenu menu = getMenu();
 
         // Remove any existing OtrContactMenu items.
-        for (int itemIndex = 0, itemCount = menu.getItemCount();
-                itemIndex < itemCount;)
-        {
-            JMenuItem menuItem = menu.getItem(itemIndex);
-
-            if (menuItem instanceof OtrContactMenu)
-            {
-                menu.remove(itemIndex);
-                itemCount--;
-
-                ((OtrContactMenu) menuItem).dispose();
-            }
-            else
-                itemIndex++;
-        }
+        menu.removeAll();
 
         // Create the new OtrContactMenu items.
         if (metaContact != null)
         {
             Iterator<Contact> contacts = metaContact.getContacts();
-            int itemIndex = 0;
-            while (contacts.hasNext())
+
+            if (metaContact.getContactCount() == 1)
             {
-                menu.insert(new OtrContactMenu(contacts.next(),
-                    inMacOSXScreenMenuBar), itemIndex);
-                itemIndex++;
+                new OtrContactMenu(
+                    contacts.next(), inMacOSXScreenMenuBar, menu, false);
             }
+            else
+                while (contacts.hasNext())
+                {
+                    new OtrContactMenu(
+                        contacts.next(), inMacOSXScreenMenuBar, menu, true);
+                }
         }
     }
 
@@ -186,20 +177,17 @@ public class OtrMetaContactMenu
     {
         createOtrContactMenus(currentContact);
 
-        if (whatsThis == null)
-        {
-            JMenu menu = getMenu();
+        JMenu menu = getMenu();
 
-            menu.addSeparator();
+        menu.addSeparator();
 
-            whatsThis = new JMenuItem();
-            whatsThis.setIcon(OtrActivator.resourceService
-                .getImage("plugin.otr.HELP_ICON_15x15"));
-            whatsThis.setText(OtrActivator.resourceService
-                .getI18NString("plugin.otr.menu.WHATS_THIS"));
-            whatsThis.addActionListener(this);
-            menu.add(whatsThis);
-        }
+        whatsThis = new JMenuItem();
+        whatsThis.setIcon(OtrActivator.resourceService
+            .getImage("plugin.otr.HELP_ICON_15x15"));
+        whatsThis.setText(OtrActivator.resourceService
+            .getI18NString("plugin.otr.menu.WHATS_THIS"));
+        whatsThis.addActionListener(this);
+        menu.add(whatsThis);
     }
 
     /*

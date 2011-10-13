@@ -9,12 +9,10 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * A special {@link JMenu} that holds the menu items for controlling the
@@ -25,9 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 @SuppressWarnings("serial")
 class OtrContactMenu
-    extends SIPCommMenu
     implements ActionListener,
-               PopupMenuListener,
                ScOtrEngineListener,
                ScOtrKeyManagerListener
 {
@@ -65,32 +61,42 @@ class OtrContactMenu
 
     private SessionStatus sessionStatus;
 
+    private final JMenu parentMenu;
+
+    private final boolean isSeparateMenu;
+
+    private JMenu separateMenu;
+
     /**
      * The OtrContactMenu constructor.
      * 
      * @param contact the Contact this menu refers to.
      * @param inMacOSXScreenMenuBar <tt>true</tt> if the new menu is to be
      * displayed in the Mac OS X screen menu bar; <tt>false</tt>, otherwise
+     * @param menu the parent menu
      */
-    public OtrContactMenu(Contact contact, boolean inMacOSXScreenMenuBar)
+    public OtrContactMenu(  Contact contact,
+                            boolean inMacOSXScreenMenuBar,
+                            JMenu menu,
+                            boolean isSeparateMenu)
     {
         this.contact = contact;
         this.inMacOSXScreenMenuBar = inMacOSXScreenMenuBar;
+        this.parentMenu = menu;
+        this.isSeparateMenu = isSeparateMenu;
 
-        this.setText(contact.getAddress());
-
-        /*
-         * Setup populating this JMenu on demand because it's not always
-         * necessary.
-         */
-        if (!this.inMacOSXScreenMenuBar)
-            getPopupMenu().addPopupMenuListener(this);
+        if (isSeparateMenu)
+        {
+            separateMenu = new JMenu(contact.getDisplayName());
+        }
 
         OtrActivator.scOtrEngine.addListener(this);
         OtrActivator.scOtrKeyManager.addListener(this);
 
         setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
         setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+
+        buildMenu();
     }
 
     /*
@@ -199,38 +205,12 @@ class OtrContactMenu
             .getContactPolicy(OtrContactMenu.this.contact));
     }
 
-    /*
-     * Implements PopupMenuListener#popupMenuCanceled(PopupMenuEvent).
-     */
-    public void popupMenuCanceled(PopupMenuEvent e)
-    {
-    }
-
-    /*
-     * Implements PopupMenuListener#popupMenuWillBecomeInvisible(
-     * PopupMenuEvent).
-     */
-    public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-    {
-        popupMenuCanceled(e);
-    }
-
-    /*
-     * Implements PopupMenuListener#popupMenuWillBecomeVisible(PopupMenuEvent).
-     */
-    public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-    {
-        rebuildMenu();
-    }
-
     /**
      * Rebuilds own menuitems according to {@link OtrContactMenu#sessionStatus}
      * and the {@link OtrPolicy} for {@link OtrContactMenu#contact}.
      */
-    private void rebuildMenu()
+    private void buildMenu()
     {
-        this.removeAll();
-
         OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
 
         JMenuItem endOtr = new JMenuItem();
@@ -262,18 +242,40 @@ class OtrContactMenu
             authBuddy.setActionCommand(ACTION_COMMAND_AUTHENTICATE_BUDDY);
             authBuddy.addActionListener(this);
 
-            this.add(endOtr);
-            this.add(refreshOtr);
-            this.add(authBuddy);
+            if (isSeparateMenu)
+            {
+                separateMenu.add(endOtr);
+                separateMenu.add(refreshOtr);
+                separateMenu.add(authBuddy);
+            }
+            else
+            {
+                parentMenu.add(endOtr);
+                parentMenu.add(refreshOtr);
+                parentMenu.add(authBuddy);
+            }
+
             break;
 
         case FINISHED:
-            this.add(endOtr);
-            this.add(startOtr);
+            if (isSeparateMenu)
+            {
+                separateMenu.add(endOtr);
+                separateMenu.add(startOtr);
+            }
+            else
+            {
+                parentMenu.add(endOtr);
+                parentMenu.add(startOtr);
+            }
             break;
 
         case PLAINTEXT:
-            this.add(startOtr);
+            if (isSeparateMenu)
+                separateMenu.add(startOtr);
+            else
+                parentMenu.add(startOtr);
+
             break;
         }
 
@@ -306,12 +308,26 @@ class OtrContactMenu
         cbReset.setActionCommand(ACTION_COMMAND_CB_RESET);
         cbReset.addActionListener(this);
 
-        this.addSeparator();
-        this.add(cbEnable);
-        this.add(cbAlways);
-        this.add(cbRequire);
-        this.addSeparator();
-        this.add(cbReset);
+        if (isSeparateMenu)
+        {
+            separateMenu.addSeparator();
+            separateMenu.add(cbEnable);
+            separateMenu.add(cbAlways);
+            separateMenu.add(cbRequire);
+            separateMenu.addSeparator();
+            separateMenu.add(cbReset);
+
+            parentMenu.add(separateMenu);
+        }
+        else
+        {
+            parentMenu.addSeparator();
+            parentMenu.add(cbEnable);
+            parentMenu.add(cbAlways);
+            parentMenu.add(cbRequire);
+            parentMenu.addSeparator();
+            parentMenu.add(cbReset);
+        }
     }
 
     /*
@@ -336,9 +352,13 @@ class OtrContactMenu
         {
             this.sessionStatus = sessionStatus;
 
-            updateIcon();
-            if (isPopupMenuVisible() || inMacOSXScreenMenuBar)
-                rebuildMenu();
+            if (separateMenu != null)
+            {
+                updateIcon();
+
+                if (separateMenu.isPopupMenuVisible() || inMacOSXScreenMenuBar)
+                    buildMenu();
+            }
         }
     }
 
@@ -354,8 +374,9 @@ class OtrContactMenu
         {
             this.otrPolicy = otrPolicy;
 
-            if (isPopupMenuVisible() || inMacOSXScreenMenuBar)
-                rebuildMenu();
+            if (separateMenu != null
+                && (separateMenu.isPopupMenuVisible() || inMacOSXScreenMenuBar))
+                buildMenu();
         }
     }
 
@@ -365,6 +386,9 @@ class OtrContactMenu
      */
     private void updateIcon()
     {
+        if (!isSeparateMenu)
+            return;
+
         String imageID;
 
         switch (sessionStatus)
@@ -388,6 +412,6 @@ class OtrContactMenu
             return;
         }
 
-        setIcon(OtrActivator.resourceService.getImage(imageID));
+        separateMenu.setIcon(OtrActivator.resourceService.getImage(imageID));
     }
 }
