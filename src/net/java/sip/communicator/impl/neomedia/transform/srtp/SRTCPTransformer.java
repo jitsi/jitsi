@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.srtp;
 
+import java.util.Hashtable;
+
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 
@@ -21,6 +23,13 @@ public class SRTCPTransformer
     implements PacketTransformer
 {
     
+    private SRTPTransformEngine engine;
+
+    /**
+     * All the known SSRC's corresponding SRTCPCryptoContexts
+     */
+    private Hashtable<Long,SRTCPCryptoContext> contexts;
+
     /**
      * Constructs a SRTCPTransformer object
      *
@@ -28,6 +37,8 @@ public class SRTCPTransformer
      */
     public SRTCPTransformer(SRTPTransformEngine engine)
     {
+        this.engine = engine;
+        this.contexts = new Hashtable<Long,SRTCPCryptoContext>();
     }
 
     /**
@@ -41,6 +52,21 @@ public class SRTCPTransformer
      */
     public RawPacket transform(RawPacket pkt)
     {
+        long ssrc = pkt.GetRTCPSSRC();
+
+        SRTCPCryptoContext context = this.contexts
+                .get(new Long(ssrc));
+
+        if (context == null) {
+            context = this.engine.getDefaultContextControl().deriveContext(ssrc);
+            if (context != null) {
+                context.deriveSrtcpKeys();
+                contexts.put(new Long(ssrc), context);
+            }
+        }
+        if (context != null) {
+            context.transformPacket(pkt);
+        }
         return pkt;
     }
 
@@ -55,6 +81,23 @@ public class SRTCPTransformer
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
+        long ssrc = pkt.GetRTCPSSRC();
+        SRTCPCryptoContext context = this.contexts.get(new Long(ssrc));
+
+        if (context == null) {
+            context = this.engine.getDefaultContextControl().deriveContext(ssrc);
+            if (context != null) {
+                context.deriveSrtcpKeys();
+                this.contexts.put(new Long(ssrc), context);
+            }
+        }
+
+        if (context != null) {
+            boolean validPacket = context.reverseTransformPacket(pkt);
+            if (!validPacket) {
+                return null;
+            }
+        }
         return pkt;
     }
 }

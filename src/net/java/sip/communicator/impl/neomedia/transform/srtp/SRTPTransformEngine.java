@@ -47,6 +47,12 @@ public class SRTPTransformEngine
     private SRTPCryptoContext defaultContext;
 
     /**
+     * The default SRTPCryptoContext, which will be used to derive other
+     * contexts.
+     */
+    private SRTCPCryptoContext defaultContextControl;
+
+    /**
      * Construct a SRTPTransformEngine based on given master encryption key,
      * master salt key and SRTP/SRTCP policy.
      *
@@ -70,6 +76,10 @@ public class SRTPTransformEngine
         this.defaultContext = new SRTPCryptoContext(0, 0, 0,
                                                     this.masterKey,
                                                     this.masterSalt,
+                                                    this.srtpPolicy);
+        this.defaultContextControl = new SRTCPCryptoContext(0, 
+                                                    this.masterKey,
+                                                    this.masterSalt, 
                                                     this.srtpPolicy);
     }
 
@@ -141,5 +151,14 @@ public class SRTPTransformEngine
     public SRTPCryptoContext getDefaultContext()
     {
         return this.defaultContext;
+    }
+
+    /**
+     * Get the default SRTPCryptoContext
+     *
+     * @return the default SRTPCryptoContext
+     */
+    public SRTCPCryptoContext getDefaultContextControl() {
+        return this.defaultContextControl;
     }
 }

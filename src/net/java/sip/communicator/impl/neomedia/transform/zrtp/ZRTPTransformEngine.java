@@ -356,6 +356,10 @@ public class ZRTPTransformEngine
      */
     private boolean muted = false;
 
+    private boolean mitmMode = false;
+
+    private ZRTCPTransformer zrtcpTransformer = null;
+
     /**
      * Construct a ZRTPTransformEngine.
      *
@@ -372,7 +376,7 @@ public class ZRTPTransformEngine
      */
     public PacketTransformer getRTCPTransformer()
     {
-        return new ZRTPCTransformer(this);
+        return new ZRTCPTransformer(this);
     }
 
     /**
@@ -503,7 +507,7 @@ public class ZRTPTransformEngine
             config.setStandardConfig();
         }
 
-        zrtpEngine = new ZRtp(zf.getZid(), this, clientIdString, config);
+        zrtpEngine = new ZRtp(zf.getZid(), this, clientIdString, config, mitmMode);
 
         if (timeoutProvider == null)
         {
@@ -796,6 +800,7 @@ public class ZRTPTransformEngine
                         srtpPolicy, srtpPolicy);
 
                 srtpOutTransformer = engine.getRTPTransformer();
+                zrtcpTransformer.setSrtcpOut(engine.getRTCPTransformer());
             }
             else
             {
@@ -810,6 +815,7 @@ public class ZRTPTransformEngine
                         .getKeyResponder(), secrets.getSaltResponder(),
                         srtpPolicy, srtpPolicy);
                 srtpOutTransformer = engine.getRTPTransformer();
+                zrtcpTransformer.setSrtcpOut(engine.getRTCPTransformer());
             }
         }
 
@@ -831,6 +837,7 @@ public class ZRTPTransformEngine
                         .getKeyResponder(), secrets.getSaltResponder(),
                         srtpPolicy, srtpPolicy);
                 srtpInTransformer = engine.getRTPTransformer();
+                zrtcpTransformer.setSrtcpIn(engine.getRTCPTransformer());
                 this.muted = false;
             }
             else
@@ -846,6 +853,7 @@ public class ZRTPTransformEngine
                         .getKeyInitiator(), secrets.getSaltInitiator(),
                         srtpPolicy, srtpPolicy);
                 srtpInTransformer = engine.getRTPTransformer();
+                zrtcpTransformer.setSrtcpIn(engine.getRTCPTransformer());
                 this.muted = false;
             }
         }
@@ -979,7 +987,7 @@ public class ZRTPTransformEngine
      * Zrtp ask for Enrollment.
      * @param info supplied info.
      */
-    public void zrtpAskEnrollment(String info)
+    public void zrtpAskEnrollment(ZrtpCodes.InfoEnrollment info)
     {
         if (securityEventManager != null)
         {
@@ -992,7 +1000,7 @@ public class ZRTPTransformEngine
      * @param info
      * @see gnu.java.zrtp.ZrtpCallback#zrtpInformEnrollment(java.lang.String)
      */
-    public void zrtpInformEnrollment(String info)
+    public void zrtpInformEnrollment(ZrtpCodes.InfoEnrollment info)
     {
         if (securityEventManager != null)
         {
@@ -1096,17 +1104,6 @@ public class ZRTPTransformEngine
             zrtpEngine.setAuxSecret(data);
     }
 
-
-    /**
-     * Sets the PBX secret data
-     *
-     * @param data The PBX secret data
-     */
-    public void setPbxSecret(byte[] data) {
-        if (zrtpEngine != null)
-            zrtpEngine.setPbxSecret(data);
-    }
-
     /**
      * Sets the client ID
      *
@@ -1192,6 +1189,101 @@ public class ZRTPTransformEngine
     }
 
     /**
+     * Get the commited SAS rendering algorithm for this ZRTP session.
+     * 
+     * @return the commited SAS rendering algorithm
+     */
+    public ZrtpConstants.SupportedSASTypes getSasType() {
+        if (zrtpEngine != null)
+            return zrtpEngine.getSasType();
+        else
+            return null;
+    }
+
+    /**
+     * Get the computed SAS hash for this ZRTP session.
+     * 
+     * @return a refernce to the byte array that contains the full 
+     *         SAS hash.
+     */
+    public byte[] getSasHash() {
+        if (zrtpEngine != null)
+            return zrtpEngine.getSasHash();
+        else
+            return null;
+    }
+
+    /**
+     * Send the SAS relay packet.
+     * 
+     * The method creates and sends a SAS relay packet according to the ZRTP
+     * specifications. Usually only a MitM capable user agent (PBX) uses this
+     * function.
+     * 
+     * @param sh the full SAS hash value
+     * @param render the SAS rendering algorithm
+     */
+    public boolean sendSASRelayPacket(byte[] sh, ZrtpConstants.SupportedSASTypes render) {
+        if (zrtpEngine != null)
+            return zrtpEngine.sendSASRelayPacket(sh, render);
+        else
+            return false;
+    }
+    /**
+     * Check the state of the MitM mode flag.
+     * 
+     * If true then this ZRTP session acts as MitM, usually enabled by a PBX
+     * based client (user agent)
+     * 
+     * @return state of mitmMode 
+     */
+    public boolean isMitmMode() {
+        return mitmMode;
+    }
+
+    /**
+     * Set the state of the MitM mode flag.
+     * 
+     * If MitM mode is set to true this ZRTP session acts as MitM, usually 
+     * enabled by a PBX based client (user agent).
+     * 
+     * @param mitmMode defines the new state of the mitmMode flag
+     */
+    public void setMitmMode(boolean mitmMode) {
+        this.mitmMode = mitmMode;
+    }
+
+    /**
+     * Check the state of the enrollment mode.
+     * 
+     * If true then we will set the enrollment flag (E) in the confirm
+     * packets and performs the enrollment actions. A MitM (PBX) enrollment service sets this flagstarted this ZRTP 
+     * session. Can be set to true only if mitmMode is also true. 
+     * @return status of the enrollmentMode flag.
+     */
+    public boolean isEnrollmentMode() {
+        if (zrtpEngine != null)
+            return zrtpEngine.isEnrollmentMode();
+        else
+            return false;
+    }
+
+    /**
+     * Set the state of the enrollment mode.
+     * 
+     * If true then we will set the enrollment flag (E) in the confirm
+     * packets and perform the enrollment actions. A MitM (PBX) enrollment 
+     * service must sets this mode to true. 
+     * 
+     * Can be set to true only if mitmMode is also true. 
+     * 
+     * @param enrollmentMode defines the new state of the enrollmentMode flag
+     */
+    public void setEnrollmentMode(boolean enrollmentMode) {
+        if (zrtpEngine != null)
+            zrtpEngine.setEnrollmentMode(enrollmentMode);
+    }
+    /**
      * Sets signature data for the Confirm packets
      *
      * @param data the signature data
@@ -1226,16 +1318,6 @@ public class ZRTPTransformEngine
         return ((zrtpEngine != null) ? zrtpEngine.getSignatureLength() : 0);
     }
 
-    /**
-     * Sets the PBX enrollment flag (see chapter 8.3 of ZRTP standards)
-     * (The PBX part needs further development)
-     * @param yesNo The PBX enrollment flag
-     */
-    public void setPBXEnrollment(boolean yesNo)
-    {
-        if (zrtpEngine != null)
-            zrtpEngine.setPBXEnrollment(yesNo);
-    }
 
     /**
      * Method called by the Zrtp class as result of a GoClear request from the
@@ -1302,8 +1384,8 @@ public class ZRTPTransformEngine
      *
      * @return the ZID data as byte array.
      */
-    public byte[] getZid()
+    public byte[] getPeerZid()
     {
-         return ((zrtpEngine != null) ? zrtpEngine.getZid() : null);
+         return ((zrtpEngine != null) ? zrtpEngine.getPeerZid() : null);
     }
 }

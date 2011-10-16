@@ -310,26 +310,47 @@ public class RawPacket
     }
 
     /**
+     * Grow the internal packet buffer. 
+     * 
+     * This will change the data buffer of this packet but not the
+     * length of the valid data. Use this to grow the internal buffer
+     * to avoid buffer re-allocations when appending data.  
+     *
+     * @param howMuch number of bytes to grow
+     */
+    public void grow(int howMuch) {
+        if (howMuch == 0) {
+            return;
+        }
+        byte[] newBuffer = new byte[this.length + howMuch];
+        System.arraycopy(this.buffer, this.offset, newBuffer, 0, this.length);
+        offset = 0;
+        buffer = newBuffer;
+    }
+    
+    /**
      * Append a byte array to the end of the packet. This may change the data
      * buffer of this packet.
      *
      * @param data byte array to append
      * @param len the number of bytes to append
      */
-    public void append(byte[] data, int len)
-    {
-        if (data == null || len == 0)
+    public void append(byte[] data, int len) {
+        if (data == null || len == 0)  {
             return;
-
-        // check if old buffer can hold all data. If not allocate a new one.
-        if ((length + offset + len) > buffer.length)
-        {
-            byte[] newBuffer = new byte[length + offset + len];
-            System.arraycopy(this.buffer, 0, newBuffer, 0, length+offset);
+        }
+        
+        // re-allocate internal buffer if it is too small
+        if ((this.length + len) > (buffer.length - this.offset)) {
+            byte[] newBuffer = new byte[this.length + len];
+            System.arraycopy(this.buffer, this.offset, newBuffer, 0, this.length);
+            this.offset = 0;
             this.buffer = newBuffer;
         }
-        System.arraycopy(data, 0, buffer, length + offset, len);
-        this.length += len;
+        // append data
+        System.arraycopy(data, 0, this.buffer, this.length, len);
+        this.length = this.length + len;
+       
     }
 
     /**
@@ -490,6 +511,16 @@ public class RawPacket
     }
 
     /**
+     * Get RTCP SSRC from a RTCP packet
+     *
+     * @param pkt the source RTP packet
+     * @return RTP SSRC from source RTP packet
+     */
+    public long GetRTCPSSRC()
+    {
+        return (int)(readUnsignedIntAsLong(4) & 0xffffffff);
+    }
+    /**
      * Get RTP sequence number from a RTP packet
      *
      * @return RTP sequence num from source packet
@@ -499,6 +530,17 @@ public class RawPacket
         return readUnsignedShortAsInt(2);
     }
 
+    /**
+     * Get SRTCP sequence number from a SRTCP packet
+     *
+     * @param pkt the source SRTCP packet
+     * @return SRTCP sequence num from source packet
+     */
+    public int getSRTCPIndex(int authTagLen)
+    {
+        int offset = getLength() - (4 + authTagLen);
+        return readInt(offset);
+    }
     /**
      * Test whether if a RTP packet is padded
      *
