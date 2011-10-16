@@ -626,7 +626,7 @@ public class RawPacket
                         + FIXED_HEADER_SIZE
                         + getCsrcCount()*4 + 2;
 
-        return ((buffer[extLenIndex] << 4) | buffer[extLenIndex + 1]) * 4;
+        return ((buffer[extLenIndex] << 8) | buffer[extLenIndex + 1]) * 4;
     }
 
     /**
@@ -690,7 +690,7 @@ public class RawPacket
         }
         // length field counts the number of 32-bit words in the extension
         int lengthInWords = (totalExtensionLen + 3)/4;
-        newBuffer[newBufferOffset++] = (byte)(lengthInWords >>4);
+        newBuffer[newBufferOffset++] = (byte)(lengthInWords >> 8);
         newBuffer[newBufferOffset++] = (byte)lengthInWords;
 
         // Copy the existing extension content if any.
