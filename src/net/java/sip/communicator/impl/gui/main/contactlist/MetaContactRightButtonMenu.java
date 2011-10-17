@@ -649,6 +649,13 @@ public class MetaContactRightButtonMenu
             AddContactDialog dialog
                 = new AddContactDialog(mainFrame, metaContact);
 
+            // Try to select the preferred protocol provider.
+            ProtocolProviderService protocolProvider
+                = GuiActivator.getPreferredAccount();
+
+            if (protocolProvider != null)
+                dialog.setSelectedAccount(protocolProvider);
+
             dialog.setVisible(true);
         }
         else if (itemName.equalsIgnoreCase("sendMessage"))

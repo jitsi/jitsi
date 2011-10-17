@@ -913,4 +913,65 @@ public class GuiActivator implements BundleActivator
 
         return accounts.toArray();
     }
+
+    /**
+     * Returns the preferred account if there's one.
+     *
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the
+     * preferred account
+     */
+    public static ProtocolProviderService getPreferredAccount()
+    {
+        // check for preferred wizard
+        String prefWName = GuiActivator.getResources().
+            getSettingsString("impl.gui.PREFERRED_ACCOUNT_WIZARD");
+        if(prefWName == null || prefWName.length() <= 0)
+            return null;
+
+        ServiceReference[] accountWizardRefs = null;
+        try
+        {
+            accountWizardRefs = GuiActivator.bundleContext
+                .getServiceReferences(
+                    AccountRegistrationWizard.class.getName(),
+                    null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error(
+                "Error while retrieving service refs", ex);
+            return null;
+        }
+
+        // in case we found any, add them in this container.
+        if (accountWizardRefs != null)
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("Found "
+                         + accountWizardRefs.length
+                         + " already installed providers.");
+
+            for (int i = 0; i < accountWizardRefs.length; i++)
+            {
+                AccountRegistrationWizard wizard
+                    = (AccountRegistrationWizard) GuiActivator.bundleContext
+                        .getService(accountWizardRefs[i]);
+
+                // is it the preferred protocol ?
+                if(wizard.getClass().getName().equals(prefWName))
+                {
+                    ArrayList<AccountID> registeredAccounts 
+                        = getProtocolProviderFactory(wizard.getProtocolName())
+                            .getRegisteredAccounts();
+
+                    if (registeredAccounts.size() > 0)
+                        return getRegisteredProviderForAccount(
+                                registeredAccounts.get(0));
+                }
+            }
+        }
+        return null;
+    }
 }
