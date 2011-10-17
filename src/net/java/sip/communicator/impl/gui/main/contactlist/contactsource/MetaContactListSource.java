@@ -14,6 +14,8 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
+import javax.swing.*;
+
 /**
  * The <tt>MetaContactListSource</tt> is an abstraction of the
  * <tt>MetaContactListService</tt>, which makes the correspondence between a
@@ -77,11 +79,22 @@ public class MetaContactListSource
      * create an <tt>UIContact</tt>
      * @return an <tt>UIContact</tt> for the given <tt>metaContact</tt>
      */
-    public static UIContact createUIContact(MetaContact metaContact)
+    public static UIContact createUIContact(final MetaContact metaContact)
     {
-        MetaUIContact descriptor
+        final MetaUIContact descriptor
             = new MetaUIContact(metaContact);
-        metaContact.setData(UI_CONTACT_DATA_KEY, descriptor);
+
+        // fixes an issue with moving meta contacts where removeContact
+        // will set data to null in swing thread and it will be after we have
+        // set the data here, so we also move this set to the swing thread
+        // to order the calls of setData.
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                metaContact.setData(UI_CONTACT_DATA_KEY, descriptor);
+            }
+        });
 
         return descriptor;
     }
