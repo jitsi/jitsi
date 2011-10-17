@@ -10,7 +10,8 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 
 /**
- * This is currently not supported so packets are not changed.
+ * PacketTransformer that delegates the forward/reverse transformation of
+ * packets to different packet transformers.
  *
  * @author Werner Dittmann <Werner.Dittmann@t-online.de>
  */
@@ -24,17 +25,7 @@ public class ZRTCPTransformer
      * reverseTransform() uses srtcpIn to perform decryption
      */
     private PacketTransformer srtcpIn = null;
-    
     private PacketTransformer srtcpOut = null;
-
-    /**
-     * Constructs a ZRTCPTransformer object
-     *
-     * @param engine The associated ZRTPTransformEngine object
-     */
-    public ZRTCPTransformer(ZRTPTransformEngine engine) 
-    {
-    }
 
     /**
      * Encrypt a SRTCP packet
@@ -47,7 +38,8 @@ public class ZRTCPTransformer
      */
     public RawPacket transform(RawPacket pkt) 
     {
-        if (srtcpOut == null) {
+        if (srtcpOut == null)
+        {
             return pkt;
         }
         return srtcpOut.transform(pkt);
@@ -64,23 +56,26 @@ public class ZRTCPTransformer
      */
     public RawPacket reverseTransform(RawPacket pkt) 
     {
-        if (srtcpIn == null) {
+        if (srtcpIn == null)
+        {
             return pkt;
         }
         return srtcpIn.reverseTransform(pkt);
-
     }
+
     /**
      * @param srtcpIn the srtcpIn to set
      */
-    public void setSrtcpIn(PacketTransformer srtcpIn) {
+    public void setSrtcpIn(PacketTransformer srtcpIn)
+    {
         this.srtcpIn = srtcpIn;
     }
 
     /**
      * @param srtcpOut the srtcpOut to set
      */
-    public void setSrtcpOut(PacketTransformer srtcpOut) {
+    public void setSrtcpOut(PacketTransformer srtcpOut)
+    {
         this.srtcpOut = srtcpOut;
     }
 }

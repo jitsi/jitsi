@@ -15,15 +15,14 @@ import net.java.sip.communicator.impl.neomedia.transform.*;
  * SRTCPTransformer implements PacketTransformer.
  * It encapsulate the encryption / decryption logic for SRTCP packets
  * 
- * This class is currently not used.
- * 
  * @author Bing SU (nova.su@gmail.com)
+ * @author Werner Dittmann &lt;Werner.Dittmann@t-online.de>
  */
 public class SRTCPTransformer
     implements PacketTransformer
 {
-    
-    private SRTPTransformEngine engine;
+    private SRTPTransformEngine forwardEngine;
+    private SRTPTransformEngine reverseEngine;
 
     /**
      * All the known SSRC's corresponding SRTCPCryptoContexts
@@ -31,21 +30,34 @@ public class SRTCPTransformer
     private Hashtable<Long,SRTCPCryptoContext> contexts;
 
     /**
-     * Constructs a SRTCPTransformer object
-     *
-     * @param engine The associated SRTPTransformEngine object
+     * Constructs a SRTCPTransformer object.
+     * 
+     * @param engine The associated SRTPTransformEngine object for both
+     *            transform directions.
      */
     public SRTCPTransformer(SRTPTransformEngine engine)
     {
-        this.engine = engine;
+        this(engine, engine);
+    }
+
+    /**
+     * Constructs a SRTCPTransformer object.
+     * 
+     * @param forwardEngine The associated SRTPTransformEngine object for
+     *            forward transformations.
+     * @param reverseEngine The associated SRTPTransformEngine object for
+     *            reverse transformations.
+     */
+    public SRTCPTransformer(SRTPTransformEngine forwardEngine,
+        SRTPTransformEngine reverseEngine)
+    {
+        this.forwardEngine = forwardEngine;
+        this.reverseEngine = reverseEngine;
         this.contexts = new Hashtable<Long,SRTCPCryptoContext>();
     }
 
     /**
-     * Encrypt a SRTCP packet
-     * 
-     * Currently SRTCP packet encryption / decryption is not supported
-     * So this method does not change the packet content
+     * Encrypts a SRTCP packet
      * 
      * @param pkt plain SRTCP packet to be encrypted
      * @return encrypted SRTCP packet
@@ -53,28 +65,21 @@ public class SRTCPTransformer
     public RawPacket transform(RawPacket pkt)
     {
         long ssrc = pkt.GetRTCPSSRC();
+        SRTCPCryptoContext context = contexts.get(ssrc);
 
-        SRTCPCryptoContext context = this.contexts
-                .get(new Long(ssrc));
-
-        if (context == null) {
-            context = this.engine.getDefaultContextControl().deriveContext(ssrc);
-            if (context != null) {
-                context.deriveSrtcpKeys();
-                contexts.put(new Long(ssrc), context);
-            }
+        if (context == null)
+        {
+            context =
+                forwardEngine.getDefaultContextControl().deriveContext(ssrc);
+            context.deriveSrtcpKeys();
+            contexts.put(ssrc, context);
         }
-        if (context != null) {
-            context.transformPacket(pkt);
-        }
+        context.transformPacket(pkt);
         return pkt;
     }
 
     /**
-     * Decrypt a SRTCP packet
-     * 
-     * Currently SRTCP packet encryption / decryption is not supported
-     * So this method does not change the packet content
+     * Decrypts a SRTCP packet
      * 
      * @param pkt encrypted SRTCP packet to be decrypted
      * @return decrypted SRTCP packet
@@ -82,21 +87,20 @@ public class SRTCPTransformer
     public RawPacket reverseTransform(RawPacket pkt)
     {
         long ssrc = pkt.GetRTCPSSRC();
-        SRTCPCryptoContext context = this.contexts.get(new Long(ssrc));
+        SRTCPCryptoContext context = this.contexts.get(ssrc);
 
-        if (context == null) {
-            context = this.engine.getDefaultContextControl().deriveContext(ssrc);
-            if (context != null) {
-                context.deriveSrtcpKeys();
-                this.contexts.put(new Long(ssrc), context);
-            }
+        if (context == null)
+        {
+            context =
+                reverseEngine.getDefaultContextControl().deriveContext(ssrc);
+            context.deriveSrtcpKeys();
+            contexts.put(new Long(ssrc), context);
         }
 
-        if (context != null) {
-            boolean validPacket = context.reverseTransformPacket(pkt);
-            if (!validPacket) {
-                return null;
-            }
+        boolean validPacket = context.reverseTransformPacket(pkt);
+        if (!validPacket)
+        {
+            return null;
         }
         return pkt;
     }

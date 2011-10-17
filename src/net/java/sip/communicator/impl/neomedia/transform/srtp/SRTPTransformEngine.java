@@ -80,7 +80,7 @@ public class SRTPTransformEngine
         this.defaultContextControl = new SRTCPCryptoContext(0, 
                                                     this.masterKey,
                                                     this.masterSalt, 
-                                                    this.srtpPolicy);
+                                                    this.srtcpPolicy);
     }
 
     /**

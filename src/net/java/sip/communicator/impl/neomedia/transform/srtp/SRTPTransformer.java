@@ -44,10 +44,8 @@ import net.java.sip.communicator.impl.neomedia.transform.*;
 public class SRTPTransformer
     implements PacketTransformer
 {
-    /**
-     * The SRTPTransformEngine we are using
-     */
-    private SRTPTransformEngine engine;
+    private SRTPTransformEngine forwardEngine;
+    private SRTPTransformEngine reverseEngine;
 
     /**
      * All the known SSRC's corresponding SRTPCryptoContexts
@@ -55,14 +53,30 @@ public class SRTPTransformer
     private Hashtable<Long, SRTPCryptoContext> contexts;
 
     /**
-     * Construct a SRTPTransformer
-     *
-     * @param engine the SRTPTransformEngine we are using
+     * Constructs a SRTPTransformer object.
+     * 
+     * @param engine The associated SRTPTransformEngine object for both
+     *            transform directions.
      */
     public SRTPTransformer(SRTPTransformEngine engine)
     {
-        this.engine = engine;
-        this.contexts = new Hashtable<Long, SRTPCryptoContext>();
+        this(engine, engine);
+    }
+
+    /**
+     * Constructs a SRTPTransformer object.
+     * 
+     * @param forwardEngine The associated SRTPTransformEngine object for
+     *            forward transformations.
+     * @param reverseEngine The associated SRTPTransformEngine object for
+     *            reverse transformations.
+     */
+    public SRTPTransformer(SRTPTransformEngine forwardEngine,
+        SRTPTransformEngine reverseEngine)
+    {
+        this.forwardEngine = forwardEngine;
+        this.reverseEngine = reverseEngine;
+        this.contexts = new Hashtable<Long,SRTPCryptoContext>();
     }
 
     /**
@@ -74,24 +88,17 @@ public class SRTPTransformer
     public RawPacket transform(RawPacket pkt)
     {
         long ssrc = pkt.getSSRC();
-
-        SRTPCryptoContext context = this.contexts.get(ssrc);
+        SRTPCryptoContext context = contexts.get(ssrc);
 
         if (context == null)
         {
-            context = this.engine.getDefaultContext().deriveContext(ssrc, 0, 0);
-            if (context != null)
-            {
-                context.deriveSrtpKeys(0);
-                this.contexts.put(ssrc, context);
-            }
+            context =
+                forwardEngine.getDefaultContext().deriveContext(ssrc, 0, 0);
+            context.deriveSrtpKeys(0);
+            contexts.put(ssrc, context);
         }
 
-        if (context != null)
-        {
-            context.transformPacket(pkt);
-        }
-
+        context.transformPacket(pkt);
         return pkt;
     }
 
@@ -104,41 +111,28 @@ public class SRTPTransformer
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
-        long ssrc  = pkt.getSSRC();
+        // only accept RTP version 2 (SNOM phones send weird packages when on
+        // hold, ignore them with this check (RTP Version must be equal to 2)
+        if((pkt.readByte(0) & 0xC0) != 0x80)
+            return null;
+
+        long ssrc = pkt.getSSRC();
         int seqNum = pkt.getSequenceNumber();
-        SRTPCryptoContext context = this.contexts.get(ssrc);
+        SRTPCryptoContext context = contexts.get(ssrc);
 
         if (context == null)
         {
-            context = this.engine.getDefaultContext().deriveContext(ssrc, 0, 0);
-
-            if (context != null)
-            {
-                context.deriveSrtpKeys(seqNum);
-                this.contexts.put(ssrc, context);
-            }
+            context =
+                reverseEngine.getDefaultContext().deriveContext(ssrc, 0, 0);
+            context.deriveSrtpKeys(seqNum);
+            contexts.put(ssrc, context);
         }
 
-        if (context != null)
+        boolean validPacket = context.reverseTransformPacket(pkt);
+        if (!validPacket)
         {
-            boolean validPacket = context.reverseTransformPacket(pkt);
-
-            if (!validPacket)
-            {
-                return null;
-            }
+            return null;
         }
-
         return pkt;
-    }
-
-    /**
-     * Getter to use in derived classes.
-     *
-     * @return the engine
-     */
-    public SRTPTransformEngine getEngine()
-    {
-        return engine;
     }
 }

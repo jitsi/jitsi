@@ -374,9 +374,11 @@ public class ZRTPTransformEngine
      *
      * @see TransformEngine#getRTCPTransformer()
      */
-    public PacketTransformer getRTCPTransformer()
+    public ZRTCPTransformer getRTCPTransformer()
     {
-        return new ZRTCPTransformer(this);
+        if(zrtcpTransformer == null)
+            zrtcpTransformer = new ZRTCPTransformer();
+        return zrtcpTransformer;
     }
 
     /**
@@ -800,7 +802,7 @@ public class ZRTPTransformEngine
                         srtpPolicy, srtpPolicy);
 
                 srtpOutTransformer = engine.getRTPTransformer();
-                zrtcpTransformer.setSrtcpOut(engine.getRTCPTransformer());
+                getRTCPTransformer().setSrtcpOut(engine.getRTCPTransformer());
             }
             else
             {
@@ -815,7 +817,7 @@ public class ZRTPTransformEngine
                         .getKeyResponder(), secrets.getSaltResponder(),
                         srtpPolicy, srtpPolicy);
                 srtpOutTransformer = engine.getRTPTransformer();
-                zrtcpTransformer.setSrtcpOut(engine.getRTCPTransformer());
+                getRTCPTransformer().setSrtcpOut(engine.getRTCPTransformer());
             }
         }
 
@@ -837,7 +839,7 @@ public class ZRTPTransformEngine
                         .getKeyResponder(), secrets.getSaltResponder(),
                         srtpPolicy, srtpPolicy);
                 srtpInTransformer = engine.getRTPTransformer();
-                zrtcpTransformer.setSrtcpIn(engine.getRTCPTransformer());
+                getRTCPTransformer().setSrtcpIn(engine.getRTCPTransformer());
                 this.muted = false;
             }
             else
@@ -853,7 +855,7 @@ public class ZRTPTransformEngine
                         .getKeyInitiator(), secrets.getSaltInitiator(),
                         srtpPolicy, srtpPolicy);
                 srtpInTransformer = engine.getRTPTransformer();
-                zrtcpTransformer.setSrtcpIn(engine.getRTCPTransformer());
+                getRTCPTransformer().setSrtcpIn(engine.getRTCPTransformer());
                 this.muted = false;
             }
         }

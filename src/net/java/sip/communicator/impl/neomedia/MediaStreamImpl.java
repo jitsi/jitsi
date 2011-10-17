@@ -347,13 +347,13 @@ public class MediaStreamImpl
         if (dtmfEngine != null)
             engineChain.add(dtmfEngine);
 
-        // SRTP
-        engineChain.add(srtpControl.getTransformEngine());
-
         // RTCP Statistics
         if(statisticsEngine == null)
             statisticsEngine = new StatisticsEngine(this);
         engineChain.add(statisticsEngine);
+
+        // SRTP
+        engineChain.add(srtpControl.getTransformEngine());
 
         return
             new TransformEngineChain(
