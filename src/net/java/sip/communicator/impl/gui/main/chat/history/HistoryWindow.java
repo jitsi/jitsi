@@ -331,7 +331,8 @@ public class HistoryWindow
                     processedMessage = chatConvPanel.processMessage(
                             chatMessage, searchKeyword);
 
-                    chatConvPanel.appendMessageToEnd(processedMessage);
+                    chatConvPanel.appendMessageToEnd(processedMessage,
+                        ChatConversationPanel.TEXT_CONTENT_TYPE);
                 }
             }
         }

@@ -463,7 +463,8 @@ public class ChatPanel
             + GuiActivator.getResources().getI18NString("service.gui.IS_NOW",
                 new String[]{evt.getSourceMember().getName(),
                 getRoleDescription(evt.getNewRole())})
-                +"</DIV>");
+                +"</DIV>",
+            ChatConversationPanel.HTML_CONTENT_TYPE);
     }
 
     /**
@@ -477,7 +478,8 @@ public class ChatPanel
             "<DIV identifier=\"message\" style=\"color:#707070;\">"
             +GuiActivator.getResources().getI18NString("service.gui.ARE_NOW",
                 new String[]{
-                getRoleDescription(evt.getNewRole())}) +"</DIV>");
+                getRoleDescription(evt.getNewRole())}) +"</DIV>",
+            ChatConversationPanel.HTML_CONTENT_TYPE);
     }
 
     /**
@@ -652,7 +654,8 @@ public class ChatPanel
             }
 
             if (historyString != null)
-                conversationPanel.appendMessageToEnd(historyString);
+                conversationPanel.appendMessageToEnd(
+                    historyString, ChatConversationPanel.TEXT_CONTENT_TYPE);
         }
 
         fireChatHistoryChange();
@@ -819,7 +822,8 @@ public class ChatPanel
             }
         }
 
-        this.conversationPanel.appendMessageToEnd(processedMessage);
+        this.conversationPanel.appendMessageToEnd(
+            processedMessage, chatMessage.getContentType());
     }
 
     /**
@@ -2513,7 +2517,8 @@ public class ChatPanel
                 "<DIV identifier=\"message\" style=\"color:#707070;\">"
                 + event.getOldValue()
                 + " is now known as "
-                + event.getNewValue() + "</DIV>");
+                + event.getNewValue() + "</DIV>",
+                ChatConversationPanel.HTML_CONTENT_TYPE);
         
     }
 }

@@ -646,7 +646,8 @@ public class ChatWritePanel
                 contactList += "</h5></DIV>";
 
                 chatPanel.getChatConversationPanel()
-                    .appendMessageToEnd(contactList);
+                    .appendMessageToEnd(contactList,
+                        ChatConversationPanel.HTML_CONTENT_TYPE);
             }
             else if(contacts.size() == 1)
             {
@@ -929,7 +930,8 @@ public class ChatWritePanel
                         .appendMessageToEnd("<h5>" +
                             GuiActivator.getResources().
                                 getI18NString("service.gui.MSG_NOT_POSSIBLE") +
-                            "</h5>");
+                            "</h5>",
+                            ChatConversationPanel.HTML_CONTENT_TYPE);
                 }
                 else
                 {

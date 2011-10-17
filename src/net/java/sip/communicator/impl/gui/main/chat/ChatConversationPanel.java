@@ -554,7 +554,7 @@ public class ChatConversationPanel
      *
      * @param chatString the string to append
      */
-    public void appendMessageToEnd(String chatString)
+    public void appendMessageToEnd(String chatString, String contentType)
     {
         synchronized (scrollToBottomRunnable)
         {
@@ -602,7 +602,7 @@ public class ChatConversationPanel
                 || GuiActivator.getConfigurationService().getBoolean(
                     ReplacementProperty.getPropertyName("SMILEY"), true))
             {
-                processReplacement(elem, chatString);
+                processReplacement(elem, chatString, contentType);
             }
         }
     }
@@ -615,7 +615,9 @@ public class ChatConversationPanel
     * @param elem the element in the HTML Document.
     * @param chatString the message.
     */
-    private void processReplacement(final Element elem, final String chatString)
+    private void processReplacement(final Element elem,
+                                    final String chatString,
+                                    final String contentType)
     {
        final String chatFinal = chatString;
 
@@ -656,8 +658,14 @@ public class ChatConversationPanel
 
                    Matcher m = p.matcher(msgStore);
 
-                   String startPlainTextTag = START_PLAINTEXT_TAG;
-                   String endPlainTextTag = END_PLAINTEXT_TAG;
+                   String startPlainTextTag = "";
+                   String endPlainTextTag = "";
+
+                   if (!HTML_CONTENT_TYPE.equals(contentType))
+                   {
+                       startPlainTextTag = START_PLAINTEXT_TAG;
+                       endPlainTextTag = END_PLAINTEXT_TAG;
+                   }
 
                    int count = 0, startPos = 0;
                    StringBuffer msgBuff = new StringBuffer();
