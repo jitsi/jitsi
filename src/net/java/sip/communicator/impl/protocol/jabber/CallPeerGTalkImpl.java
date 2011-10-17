@@ -663,7 +663,7 @@ public class CallPeerGTalkImpl
         if(idx != -1)
         {
             String res = fullJID.substring(idx + 1);
-            if(res.startsWith("android"))
+            if(res.startsWith("android") || res.startsWith("Vtok"))
             {
                 return true;
             }
