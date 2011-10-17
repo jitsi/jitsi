@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * A special {@link JMenu} that holds the menu items for controlling the
@@ -65,7 +66,7 @@ class OtrContactMenu
 
     private final boolean isSeparateMenu;
 
-    private JMenu separateMenu;
+    private SIPCommMenu separateMenu;
 
     /**
      * The OtrContactMenu constructor.
@@ -87,7 +88,7 @@ class OtrContactMenu
 
         if (isSeparateMenu)
         {
-            separateMenu = new JMenu(contact.getDisplayName());
+            separateMenu = new SIPCommMenu(contact.getDisplayName());
         }
 
         OtrActivator.scOtrEngine.addListener(this);
