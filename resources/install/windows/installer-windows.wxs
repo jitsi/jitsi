@@ -373,7 +373,7 @@
     Return="ignore" />
 
 <InstallExecuteSequence>
-  <RemoveExistingProducts After="InstallFinalize" />
+  <RemoveExistingProducts Before="InstallInitialize" />
 
   <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
     <![CDATA[NOT Installed AND SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
