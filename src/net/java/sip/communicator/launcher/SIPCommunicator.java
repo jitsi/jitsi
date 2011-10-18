@@ -47,7 +47,6 @@ public class SIPCommunicator
     private static String[] legacyDirNames =
         {".sip-communicator", "SIP Communicator"};
 
-
     /**
      * Starts the SIP Communicator.
      *
@@ -61,6 +60,11 @@ public class SIPCommunicator
         String version = System.getProperty("java.version");
         String vmVendor = System.getProperty("java.vendor");
         String osName = System.getProperty("os.name");
+
+        // disable Direct 3D pipeline (used for fullscreen) before
+        // displaying anything (frame, ...)
+        if(osName.startsWith("Windows"))
+            System.setProperty("sun.java2d.d3d", "false");
 
         /*
          * SC_HOME_DIR_* are specific to the OS so make sure they're configured
