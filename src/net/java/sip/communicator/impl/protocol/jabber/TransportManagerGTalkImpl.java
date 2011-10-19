@@ -416,6 +416,15 @@ public class TransportManagerGTalkImpl
                             desc.getPort(),
                             transport);
 
+            // if we get STUN server from automatic discovery, it may just
+            // be server name (i.e. stun.domain.org) and it may be possible that
+            // it cannot be resolved
+            if(addr.getAddress() == null)
+            {
+                logger.info("Unresolved address for " + addr);
+                continue;
+            }
+
             StunCandidateHarvester harvester = null;
 
             if(desc.isTurnSupported())
