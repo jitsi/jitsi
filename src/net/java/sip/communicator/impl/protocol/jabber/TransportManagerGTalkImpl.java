@@ -215,7 +215,10 @@ public class TransportManagerGTalkImpl
                             StunServerDescriptor dsc =
                                 new StunServerDescriptor(e.getHost(),
                                         e.getUdp(), false, null, null);
-                            servers.add(dsc);
+                            synchronized(servers)
+                            {
+                                servers.add(dsc);
+                            }
                         }
                     }
                     else if(ext.getElementName().equals(
@@ -264,7 +267,10 @@ public class TransportManagerGTalkImpl
                                         user, password);
                             // not the RFC5766 TURN support
                             dsc.setOldTurn(true);
-                            servers.add(dsc);
+                            synchronized(servers)
+                            {
+                                servers.add(dsc);
+                            }
 
                             dsc = new StunServerDescriptor(
                                     relayData.get("relay"),
@@ -274,7 +280,10 @@ public class TransportManagerGTalkImpl
                                     password);
                             dsc.setOldTurn(true);
                             dsc.setProtocol("tcp");
-                            servers.add(dsc);
+                            synchronized(servers)
+                            {
+                                servers.add(dsc);
+                            }
 
                             dsc = new StunServerDescriptor(
                                     relayData.get("relay"),
@@ -285,7 +294,10 @@ public class TransportManagerGTalkImpl
                                     password);
                             dsc.setOldTurn(true);
                             dsc.setProtocol("ssltcp");
-                            servers.add(dsc);
+                            synchronized(servers)
+                            {
+                                servers.add(dsc);
+                            }
                         }
                     }
                 }
@@ -314,7 +326,7 @@ public class TransportManagerGTalkImpl
         {
             try
             {
-                syncRoot.wait(2000);
+                syncRoot.wait(3000);
             }
             catch(InterruptedException e)
             {
@@ -395,73 +407,76 @@ public class TransportManagerGTalkImpl
 
         //servers.addAll(accID.getStunServers());
 
-        for(StunServerDescriptor desc : servers)
+        synchronized(servers)
         {
-            Transport transport;
-
-            /* Google ssltcp mode is in fact pseudo-SSL (just the client/server
-             * hello)
-             */
-            if(desc.getProtocol().equals("ssltcp"))
+            for(StunServerDescriptor desc : servers)
             {
-                transport = Transport.TCP;
-            }
-            else
-            {
-                transport = Transport.parse(desc.getProtocol());
-            }
+                Transport transport;
 
-            TransportAddress addr = new TransportAddress(
-                            desc.getAddress(),
-                            desc.getPort(),
-                            transport);
-
-            // if we get STUN server from automatic discovery, it may just
-            // be server name (i.e. stun.domain.org) and it may be possible that
-            // it cannot be resolved
-            if(addr.getAddress() == null)
-            {
-                logger.info("Unresolved address for " + addr);
-                continue;
-            }
-
-            StunCandidateHarvester harvester = null;
-
-            if(desc.isTurnSupported())
-            {
-                logger.info("Google TURN descriptor");
-                /* Google relay server used a special way to allocate
-                 * address (token + HTTP request, ...) and they don't support
-                 * long-term authentication
+                /* Google ssltcp mode is in fact pseudo-SSL (just the
+                 * client/server hello)
                  */
-                if(desc.isOldTurn())
+                if(desc.getProtocol().equals("ssltcp"))
                 {
-                    logger.info("new Google TURN harvester");
-                    if(desc.getProtocol().equals("ssltcp"))
-                    {
-                        harvester = new GoogleTurnSSLCandidateHarvester(
-                            addr, new String(desc.getUsername()));
-                    }
-                    else
-                        harvester = new GoogleTurnCandidateHarvester(
-                            addr, new String(desc.getUsername()));
+                    transport = Transport.TCP;
                 }
-            }
-            else
-            {
-                // take only the first STUN server for now
-                if(atLeastOneStunServer)
+                else
+                {
+                    transport = Transport.parse(desc.getProtocol());
+                }
+
+                TransportAddress addr = new TransportAddress(
+                                desc.getAddress(),
+                                desc.getPort(),
+                                transport);
+
+                // if we get STUN server from automatic discovery, it may just
+                // be server name (i.e. stun.domain.org) and it may be possible
+                // that it cannot be resolved
+                if(addr.getAddress() == null)
+                {
+                    logger.info("Unresolved address for " + addr);
                     continue;
+                }
 
-                //this is a STUN only server
-                harvester = new StunCandidateHarvester(addr);
-                atLeastOneStunServer = true;
-                logger.info("Found Google STUN server " + harvester);
-            }
+                StunCandidateHarvester harvester = null;
 
-            if(harvester != null)
-            {
-                agent.addCandidateHarvester(harvester);
+                if(desc.isTurnSupported())
+                {
+                    logger.info("Google TURN descriptor");
+                    /* Google relay server used a special way to allocate
+                     * address (token + HTTP request, ...) and they don't
+                     * support long-term authentication
+                     */
+                    if(desc.isOldTurn())
+                    {
+                        logger.info("new Google TURN harvester");
+                        if(desc.getProtocol().equals("ssltcp"))
+                        {
+                            harvester = new GoogleTurnSSLCandidateHarvester(
+                                addr, new String(desc.getUsername()));
+                        }
+                        else
+                            harvester = new GoogleTurnCandidateHarvester(
+                                addr, new String(desc.getUsername()));
+                    }
+                }
+                else
+                {
+                    // take only the first STUN server for now
+                    if(atLeastOneStunServer)
+                        continue;
+
+                    //this is a STUN only server
+                    harvester = new StunCandidateHarvester(addr);
+                    atLeastOneStunServer = true;
+                    logger.info("Found Google STUN server " + harvester);
+                }
+
+                if(harvester != null)
+                {
+                    agent.addCandidateHarvester(harvester);
+                }
             }
         }
 
