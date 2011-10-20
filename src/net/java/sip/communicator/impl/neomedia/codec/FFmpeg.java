@@ -128,6 +128,16 @@ public class FFmpeg
     public static final int PIX_FMT_NV12 = 25;
 
     /**
+     * RGB24 format as of FFmpeg.
+     */
+    public static final int PIX_FMT_RGB24_1 = 2;
+
+    /**
+     * BGR24 format as of FFmpeg.
+     */
+    public static final int PIX_FMT_BGR24_1 = 3;
+
+    /**
      * RGB24 format handled in endian specific manner.
      * It is stored as RGB on big-endian and BGR on little-endian.
      */

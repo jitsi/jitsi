@@ -41,6 +41,9 @@ public class Video4Linux2
     public static final int V4L2_PIX_FMT_RGB24
         = v4l2_fourcc('R', 'G', 'B', '3');
 
+    public static final int V4L2_PIX_FMT_BGR24
+        = v4l2_fourcc('B', 'G', 'R', '3');
+
     public static final int V4L2_PIX_FMT_UYVY
         = v4l2_fourcc('U', 'Y', 'V', 'Y');
 

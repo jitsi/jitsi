@@ -41,6 +41,10 @@ public class DataSource
                     FFmpeg.PIX_FMT_YUVJ422P,
                     Video4Linux2.V4L2_PIX_FMT_JPEG,
                     FFmpeg.PIX_FMT_YUVJ422P,
+                    Video4Linux2.V4L2_PIX_FMT_RGB24,
+                    FFmpeg.PIX_FMT_RGB24_1,
+                    Video4Linux2.V4L2_PIX_FMT_BGR24,
+                    FFmpeg.PIX_FMT_BGR24_1,
                 };
 
     /**

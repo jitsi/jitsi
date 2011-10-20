@@ -158,9 +158,9 @@ public class Video4Linux2Auto
 
                     pixelformat
                         = Video4Linux2.v4l2_pix_format_getPixelformat(fmtPix);
-                    if ((Video4Linux2.V4L2_PIX_FMT_RGB24 != pixelformat)
-                            || (FFmpeg.PIX_FMT_NONE
-                                    == DataSource.getFFmpegPixFmt(pixelformat)))
+
+                    if (FFmpeg.PIX_FMT_NONE
+                            == DataSource.getFFmpegPixFmt(pixelformat))
                     {
                         Video4Linux2.v4l2_pix_format_setPixelformat(
                                 fmtPix,
@@ -193,18 +193,12 @@ public class Video4Linux2Auto
         }
 
         Format format;
+        int ffmpegPixFmt = DataSource.getFFmpegPixFmt(pixelformat);
 
-        if (Video4Linux2.V4L2_PIX_FMT_RGB24 == pixelformat)
-            format = new RGBFormat();
+        if (FFmpeg.PIX_FMT_NONE != ffmpegPixFmt)
+            format = new AVFrameFormat(ffmpegPixFmt, pixelformat);
         else
-        {
-            int ffmpegPixFmt = DataSource.getFFmpegPixFmt(pixelformat);
-
-            if (FFmpeg.PIX_FMT_NONE != ffmpegPixFmt)
-                format = new AVFrameFormat(ffmpegPixFmt, pixelformat);
-            else
-                return false;
-        }
+            return false;
 
         String name = Video4Linux2.v4l2_capability_getCard(v4l2_capability);
 
