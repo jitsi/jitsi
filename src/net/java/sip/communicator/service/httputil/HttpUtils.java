@@ -317,7 +317,7 @@ public class HttpUtils
             if(resEntity == null)
                 return null;
 
-            return new HTTPResponseResult(reqEntity, httpClient);
+            return new HTTPResponseResult(resEntity, httpClient);
         }
         catch(Throwable e)
         {
