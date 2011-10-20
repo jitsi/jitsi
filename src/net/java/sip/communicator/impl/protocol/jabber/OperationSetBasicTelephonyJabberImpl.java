@@ -272,6 +272,14 @@ public class OperationSetBasicTelephonyJabberImpl
             calleeAddress += serviceName;
         }
 
+        AccountID accountID = getProtocolProvider().getAccountID();
+        String bypassDomain = accountID.getAccountPropertyString(
+            "TELEPHONY_BYPASS_GTALK_CAPS");
+
+        boolean alwaysCallGtalk = ((bypassDomain != null) &&
+                bypassDomain.equals(calleeAddress.substring(
+                    calleeAddress.indexOf('@') + 1))) || isGoogleVoice;
+
         // we determine on which resource the remote user is connected if the
         // resource isn't already provided
         String fullCalleeURI = null;
@@ -279,9 +287,18 @@ public class OperationSetBasicTelephonyJabberImpl
         DiscoverInfo di = null;
         int bestPriority = -1;
 
+        if(!getProtocolProvider().getConnection().getRoster().contains(
+            calleeAddress) && !alwaysCallGtalk)
+        {
+            throw new OperationFailedException(
+                calleeAddress + " does not belong to our contact list",
+                OperationFailedException.NOT_FOUND);
+        }
+
         Iterator<Presence> it =
             getProtocolProvider().getConnection().getRoster().getPresences(
                 calleeAddress);
+
         String calleeURI = null;
         boolean isGingle = false;
         String gingleURI = null;
@@ -325,14 +342,6 @@ public class OperationSetBasicTelephonyJabberImpl
             }
             else
             {
-                AccountID accountID = getProtocolProvider().getAccountID();
-                String bypassDomain = accountID.getAccountPropertyString(
-                    "TELEPHONY_BYPASS_GTALK_CAPS");
-
-                boolean alwaysCallGtalk = ((bypassDomain != null) &&
-                        bypassDomain.equals(calleeAddress.substring(
-                            calleeAddress.indexOf('@') + 1))) || isGoogleVoice;
-
                 // test GTALK property
                 if(!protocolProvider.isGTalkTesting() && !alwaysCallGtalk)
                 {

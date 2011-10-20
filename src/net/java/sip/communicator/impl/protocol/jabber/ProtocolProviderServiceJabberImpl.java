@@ -447,7 +447,7 @@ public class ProtocolProviderServiceJabberImpl
 
     /**
      * Indicates if the XMPP transport channel is using a TLS secured socket.
-     * 
+     *
      * @return True when TLS is used, false otherwise.
      */
     public boolean isSignalingTransportSecure()
@@ -1829,7 +1829,7 @@ public class ProtocolProviderServiceJabberImpl
                 }
             }
 
-            return true;
+            return found;
         }
 
         return false;
