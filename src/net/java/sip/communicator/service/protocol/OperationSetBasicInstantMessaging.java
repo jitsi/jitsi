@@ -109,4 +109,15 @@ public interface OperationSetBasicInstantMessaging
      * <tt>false</tt> otherwise.
      */
     public boolean isContentTypeSupported(String contentType);
+
+    /**
+     * Determines whether the protocol supports the supplied content type
+     * for the given contact.
+     *
+     * @param contentType the type we want to check
+     * @param contact contact which is checked for supported contentType
+     * @return <tt>true</tt> if the contact supports it and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isContentTypeSupported(String contentType, Contact contact);
 }

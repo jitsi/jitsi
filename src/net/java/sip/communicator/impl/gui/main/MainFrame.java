@@ -884,8 +884,15 @@ public class MainFrame
             = protocolProvider.getOperationSet(
                     OperationSetServerStoredAccountInfo.class);
 
-        if (accountInfoOpSet != null)
-            return AccountInfoUtils.getDisplayName(accountInfoOpSet);
+        try
+        {
+            if (accountInfoOpSet != null)
+                return AccountInfoUtils.getDisplayName(accountInfoOpSet);
+        }
+        catch(Throwable e)
+        {
+            logger.error("Cannot obtain display name through OPSet");
+        }
 
         return protocolProvider.getAccountID().getDisplayName();
     }

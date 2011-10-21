@@ -11,6 +11,7 @@ import java.net.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -77,7 +78,40 @@ public class MetaContactChatTransport
 
         if (presenceOpSet != null)
             presenceOpSet.addContactPresenceStatusListener(this);
+
+        // checking this can be slow so make
+        // sure its out of our way
+        new Thread(new Runnable()
+            {
+                public void run()
+                {
+                    checkImCaps();
+                }
+            }).start();
     }
+
+    /**
+     * If sending im is supported check it for supporting html messages
+     * if a font is set.
+     * As it can be slow make sure its not on our way
+     */
+    private void checkImCaps()
+    {
+        if (ConfigurationManager.getChatDefaultFontFamily() != null
+            && ConfigurationManager.getChatDefaultFontSize() > 0)
+        {
+            OperationSetBasicInstantMessaging imOpSet
+                = contact.getProtocolProvider()
+                    .getOperationSet(OperationSetBasicInstantMessaging.class);
+
+            if(imOpSet != null)
+                imOpSet.isContentTypeSupported(
+                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE, contact);
+        }
+    }
+
+
+
 
     /**
      * Returns the contact associated with this transport.

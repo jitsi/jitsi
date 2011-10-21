@@ -149,6 +149,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private static final String CLOSE_BODY_TAG = "</body>";
 
     /**
+     * The html namespace used as feature
+     * XHTMLManager.namespace
+     */
+    private final static String HTML_NAMESPACE =
+        "http://jabber.org/protocol/xhtml-im";
+
+    /**
      * Creates an instance of this operation set.
      * @param provider a reference to the <tt>ProtocolProviderServiceImpl</tt>
      * that created us and that we'll use for retrieving the underlying aim
@@ -227,6 +234,36 @@ public class OperationSetBasicInstantMessagingJabberImpl
         return
             (contentType.equals(DEFAULT_MIME_TYPE)
                 || contentType.equals(HTML_MIME_TYPE));
+    }
+
+    /**
+     * Determines whether the protocol supports the supplied content type
+     * for the given contact.
+     *
+     * @param contentType the type we want to check
+     * @param contact contact which is checked for supported contentType
+     * @return <tt>true</tt> if the contact supports it and
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isContentTypeSupported(String contentType, Contact contact)
+    {
+        // by default we support default mime type, for other mimetypes
+        // method must be overriden
+        if(contentType.equals(DEFAULT_MIME_TYPE))
+            return true;
+        else if(contentType.equals(HTML_MIME_TYPE))
+        {
+            String toJID = getJidForAddress(contact.getAddress());
+
+            if (toJID == null)
+                toJID = contact.getAddress();
+
+            return jabberProvider.isFeatureListSupported(
+                        toJID,
+                        HTML_NAMESPACE);
+        }
+
+        return false;
     }
 
     /**
@@ -415,8 +452,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 msg.setBody(Html2Text.extractText(content));
 
                 // Check if the other user supports XHTML messages
-                if (XHTMLManager.isServiceEnabled(  jabberConnection,
-                                                    chat.getParticipant()))
+                // make sure we use our discovery manager as it caches calls
+                if(jabberProvider.isFeatureListSupported(
+                        chat.getParticipant(),
+                        HTML_NAMESPACE))
                 {
                     // Add the XHTML text to the message
                     XHTMLManager.addBody(msg,

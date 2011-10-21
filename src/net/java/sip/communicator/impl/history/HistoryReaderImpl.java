@@ -208,7 +208,6 @@ public class HistoryReaderImpl
 
                 ArrayList<String> nameVals = new ArrayList<String>();
 
-                boolean isRecordOK = true;
                 int len = propertyNodes.getLength();
                 for (int j = 0; j < len; j++)
                 {
@@ -218,19 +217,11 @@ public class HistoryReaderImpl
                         // Get nested TEXT node's value
                         Node nodeValue = propertyNode.getFirstChild();
 
-                        if(nodeValue != null)
-                        {
-                            nameVals.add(propertyNode.getNodeName());
-                            nameVals.add(nodeValue.getNodeValue());
-                        }
-                        else
-                            isRecordOK = false;
+                        nameVals.add(propertyNode.getNodeName());
+                        nameVals.add(nodeValue == null ?
+                                null : nodeValue.getNodeValue());
                     }
                 }
-
-                // if we found a broken record - just skip it
-                if(!isRecordOK)
-                    continue;
 
                 String[] propertyNames = new String[nameVals.size() / 2];
                 String[] propertyValues = new String[propertyNames.length];
