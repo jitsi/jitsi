@@ -912,6 +912,10 @@ public class ProtocolProviderServiceJabberImpl
                     )
                 );
             }
+            else if (tlsRequired)
+                throw new XMPPException(
+                    "Certificate verification service is "
+                    + "unavailable and TLS is required");
         }
         catch(GeneralSecurityException e)
         {
