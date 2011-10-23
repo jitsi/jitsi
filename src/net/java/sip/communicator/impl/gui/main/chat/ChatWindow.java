@@ -1038,8 +1038,8 @@ public class ChatWindow
         if (chatAvatar != null && chatAvatar.length > 0)
         {
             contactPhotoIcon = ImageUtils.getScaledRoundedIcon(chatAvatar,
-                                                                10,
-                                                                10);
+                                                                128,
+                                                                128);
 
             if (contactPhotoIcon != null)
                 this.setIconImage(contactPhotoIcon.getImage());
@@ -1050,7 +1050,6 @@ public class ChatWindow
                 .getImage(ImageLoader.SIP_COMMUNICATOR_LOGO));
         }
     }
-
 
     /**
      * Implementation of {@link ExportedWindow#setParams(Object[])}.
