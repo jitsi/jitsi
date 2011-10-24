@@ -191,7 +191,7 @@ public class ConfigurationManager
     /**
      * The default font color used in chat windows.
      */
-    private static int defaultFontColor;
+    private static int defaultFontColor = -1;
 
     /**
      * Loads all user interface configurations.
@@ -542,8 +542,11 @@ public class ConfigurationManager
                 isDefaultFontUnderline);
 
         // Load default font color property.
-        defaultFontColor = configService.getInt(
-            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_COLOR", 0);
+        int colorSetting = configService.getInt(
+            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_COLOR", -1);
+
+        if(colorSetting != -1)
+            defaultFontColor = colorSetting;
     }
 
     /**
@@ -788,7 +791,7 @@ public class ConfigurationManager
      */
     public static Color getChatDefaultFontColor()
     {
-        return new Color(defaultFontColor);
+        return defaultFontColor == -1 ? null : new Color(defaultFontColor);
     }
 
     /**
@@ -1235,7 +1238,7 @@ public class ConfigurationManager
     /**
      * Sets the default isItalic property.
      *
-     * @param isBold indicates if the default chat font is italic
+     * @param isItalic indicates if the default chat font is italic
      */
     public static void setChatFontIsItalic(boolean isItalic)
     {
@@ -1249,7 +1252,7 @@ public class ConfigurationManager
     /**
      * Sets the default isUnderline property.
      *
-     * @param isBold indicates if the default chat font is underline
+     * @param isUnderline indicates if the default chat font is underline
      */
     public static void setChatFontIsUnderline(boolean isUnderline)
     {
@@ -1263,7 +1266,7 @@ public class ConfigurationManager
     /**
      * Sets the default font color.
      *
-     * @param fontFamily the default font color
+     * @param fontColor the default font color
      */
     public static void setChatDefaultFontColor(Color fontColor)
     {
