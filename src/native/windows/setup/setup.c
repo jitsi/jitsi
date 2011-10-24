@@ -6,6 +6,7 @@
  */
 
 #include "lasterror.h"
+#include "nls.h"
 #include "registry.h"
 #include "setup.h"
 
@@ -75,10 +76,8 @@ static DWORD Setup_msiexec();
 static DWORD Setup_parseCommandLine(LPTSTR cmdLine);
 static LPSTR Setup_skipWhitespaceA(LPSTR str);
 static LPWSTR Setup_skipWhitespaceW(LPWSTR str);
-static LPWSTR Setup_str2wstr(LPCSTR str);
 static DWORD Setup_terminateUp2DateExe();
 static DWORD Setup_waitForParentProcess();
-static LPSTR Setup_wstr2str(LPCWSTR wstr);
 static DWORD Setup_xzdec(LPVOID ptr, DWORD size, HANDLE file);
 
 #ifdef _UNICODE
@@ -285,7 +284,7 @@ Setup_executeBspatch(LPCTSTR path)
 #ifdef _UNICODE
                         newPath = wNewPath;
 #else /* #ifdef _UNICODE */
-                        newPath = Setup_wstr2str(wNewPath);
+                        newPath = NLS_wstr2str(wNewPath);
 #endif /* #ifdef _UNICODE */
                     }
                     else
@@ -365,7 +364,7 @@ Setup_executeBspatch(LPCTSTR path)
 static DWORD
 Setup_executeMsiA(LPCSTR path)
 {
-    LPWSTR wpath = Setup_str2wstr(path);
+    LPWSTR wpath = NLS_str2wstr(path);
     DWORD error;
 
     if (wpath)
@@ -1277,7 +1276,7 @@ Setup_getWinMainCmdLine(LPTSTR *winMainCmdLine)
                 *winMainCmdLine = cmdLineW;
                 error = ERROR_SUCCESS;
 #else /* #ifdef _UNICODE */
-                *winMainCmdLine = Setup_wstr2str(cmdLineW);
+                *winMainCmdLine = NLS_wstr2str(cmdLineW);
                 if (*winMainCmdLine)
                     error = ERROR_SUCCESS;
                 else
@@ -1450,7 +1449,7 @@ Setup_parseCommandLine(LPTSTR cmdLine)
 //#ifdef _UNICODE
 //    if (cmdLine)
 //    {
-//        commandLine = Setup_str2wstr(cmdLine);
+//        commandLine = NLS_str2wstr(cmdLine);
 //        if (!commandLine)
 //        {
 //            error = ERROR_OUTOFMEMORY;
@@ -1554,7 +1553,7 @@ Setup_parseCommandLine(LPTSTR cmdLine)
 #ifdef _UNICODE
             commandLineW = noAllowElevationCommandLine;
 #else
-            commandLineW = Setup_str2wstr(noAllowElevationCommandLine);
+            commandLineW = NLS_str2wstr(noAllowElevationCommandLine);
             if (!commandLineW)
             {
                 error = ERROR_OUTOFMEMORY;
@@ -1651,7 +1650,7 @@ Setup_parseCommandLine(LPTSTR cmdLine)
 #ifdef _UNICODE
             Setup_commandLine = _wcsdup(noAllowElevationCommandLine);
 #else
-            Setup_commandLine = Setup_str2wstr(noAllowElevationCommandLine);
+            Setup_commandLine = NLS_str2wstr(noAllowElevationCommandLine);
 #endif /* #ifdef _UNICODE */
             if (Setup_commandLine)
             {
@@ -1723,35 +1722,6 @@ DEFINE_SETUP_SKIPWHITESPACE(A, char, STR, isspace)
 DEFINE_SETUP_SKIPWHITESPACE(W, wchar_t, WSTR, iswspace)
 #undef _UNICODE
 #endif /* #ifdef _UNICODE */
-
-static LPWSTR
-Setup_str2wstr(LPCSTR str)
-{
-    int wstrSize = MultiByteToWideChar(CP_THREAD_ACP, 0, str, -1, NULL, 0);
-    LPWSTR wstr;
-
-    if (wstrSize)
-    {
-        wstr = malloc(wstrSize * sizeof(WCHAR));
-        if (wstr)
-        {
-            wstrSize
-                = MultiByteToWideChar(
-                        CP_THREAD_ACP,
-                        0,
-                        str, -1,
-                        wstr, wstrSize);
-            if (!wstrSize)
-            {
-                free(wstr);
-                wstr = NULL;
-            }
-        }
-    }
-    else
-        wstr = NULL;
-    return wstr;
-}
 
 static DWORD
 Setup_terminateUp2DateExe()
@@ -1832,42 +1802,6 @@ Setup_waitForParentProcess()
         }
     }
     return error;
-}
-
-static LPSTR
-Setup_wstr2str(LPCWSTR wstr)
-{
-    int strSize
-        = WideCharToMultiByte(
-                CP_THREAD_ACP,
-                WC_NO_BEST_FIT_CHARS,
-                wstr, -1,
-                NULL, 0,
-                NULL, NULL);
-    LPSTR str;
-
-    if (strSize)
-    {
-        str = malloc(strSize);
-        if (str)
-        {
-            strSize
-                = WideCharToMultiByte(
-                        CP_THREAD_ACP,
-                        WC_NO_BEST_FIT_CHARS,
-                        wstr, -1,
-                        str, strSize,
-                        NULL, NULL);
-            if (!strSize)
-            {
-                free(str);
-                str = NULL;
-            }
-        }
-    }
-    else
-        str = NULL;
-    return str;
 }
 
 static DWORD

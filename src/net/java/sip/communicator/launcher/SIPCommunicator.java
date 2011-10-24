@@ -18,7 +18,7 @@ import org.apache.felix.main.*;
  * Starts the SIP Communicator.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Emil Ivov
  */
 public class SIPCommunicator
@@ -86,13 +86,11 @@ public class SIPCommunicator
                 os = ChangeJVMFrame.WINDOWS;
 
             ChangeJVMFrame changeJVMFrame = new ChangeJVMFrame(os);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
             changeJVMFrame.setLocation(
-                Toolkit.getDefaultToolkit().getScreenSize().width/2
-                    - changeJVMFrame.getWidth()/2,
-                Toolkit.getDefaultToolkit().getScreenSize().height/2
-                    - changeJVMFrame.getHeight()/2
-                );
+                screenSize.width/2 - changeJVMFrame.getWidth()/2,
+                screenSize.height/2 - changeJVMFrame.getHeight()/2);
             changeJVMFrame.setVisible(true);
 
             return;
@@ -113,20 +111,15 @@ public class SIPCommunicator
         //for handling sip: uris after starting the application)
         if ( argHandlerRes != LaunchArgHandler.ACTION_CONTINUE_LOCK_DISABLED )
         {
-            SipCommunicatorLock lock = new SipCommunicatorLock();
-
-            int lockResult = lock.tryLock(args);
-
-            if( lockResult == SipCommunicatorLock.LOCK_ERROR )
+            switch (new SipCommunicatorLock().tryLock(args))
             {
+            case SipCommunicatorLock.LOCK_ERROR:
                 System.err.println("Failed to lock SIP Communicator's "
                                 +"configuration directory.\n"
                                 +"Try launching with the --multiple param.");
                 System.exit(SipCommunicatorLock.LOCK_ERROR);
-
-            }
-            else if(lockResult == SipCommunicatorLock.ALREADY_STARTED)
-            {
+                break;
+            case SipCommunicatorLock.ALREADY_STARTED:
                 System.out.println(
                     "SIP Communicator is already running and will "
                     +"handle your parameters (if any).\n"
@@ -135,10 +128,10 @@ public class SIPCommunicator
 
                 //we exit with success because for the user that's what it is.
                 System.exit(SipCommunicatorLock.SUCCESS);
-            }
-            else if(lockResult == SipCommunicatorLock.SUCCESS)
-            {
+                break;
+            case SipCommunicatorLock.SUCCESS:
                 //Successfully locked, continue as normal.
+                break;
             }
         }
 

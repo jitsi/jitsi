@@ -146,7 +146,7 @@ public class PluginListCellRenderer
     {
         Bundle bundle = (Bundle) value;
 
-        Dictionary<Object, Object> headers = bundle.getHeaders();
+        Dictionary<?, ?> headers = bundle.getHeaders();
         Object bundleName = headers.get(Constants.BUNDLE_NAME);
         Object bundleVersion = headers.get(Constants.BUNDLE_VERSION);
         Object bundleDescription = headers.get(Constants.BUNDLE_DESCRIPTION);

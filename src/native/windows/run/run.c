@@ -8,7 +8,9 @@
 #include "run.h"
 
 #include <ctype.h> /* isspace */
+#include <jni.h>
 #include <psapi.h> /* GetModuleFileNameEx */
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +18,9 @@
 #include <tlhelp32.h> /* CreateToolhelp32Snapshot */
 
 #include "registry.h"
+#include "../setup/nls.h"
+
+#define JAVA_MAIN_CLASS _T("net.java.sip.communicator.launcher.SIPCommunicator")
 
 /**
  * The pipe through which the launcher is to communicate with the crash handler.
@@ -35,13 +40,14 @@ static LPSTR Run_cmdLine = NULL;
  */
 static BOOL Run_launch = TRUE;
 
-static DWORD Run_addPath(LPCTSTR path);
+static DWORD Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava);
 static int Run_displayMessageBoxFromString(DWORD textId, DWORD_PTR *textArgs, LPCTSTR caption, UINT type);
 static DWORD Run_equalsParentProcessExecutableFilePath(LPCTSTR executableFilePath, BOOL *equals);
 static DWORD Run_getExecutableFilePath(LPTSTR *executableFilePath);
 static DWORD Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine);
 static LPTSTR Run_getJavaLibraryPath();
 static LONG Run_getJavaPathsFromRegKey(HKEY key, LPTSTR *runtimeLib, LPTSTR *javaHome);
+static DWORD Run_getJavaVMOptionStrings(size_t head, TCHAR separator, size_t tail, LPTSTR *optionStrings, jint *optionStringCount);
 static LPTSTR Run_getLockFilePath();
 static DWORD Run_getParentProcessId(DWORD *ppid);
 static DWORD Run_handleLauncherExitCode(DWORD exitCode, LPCTSTR lockFilePath, LPCTSTR executableFilePath);
@@ -60,44 +66,133 @@ static DWORD Run_runJavaFromRuntimeLib(LPCTSTR runtimeLib, BOOL *searchForJava);
 static LPSTR Run_skipWhitespace(LPSTR str);
 
 static DWORD
-Run_addPath(LPCTSTR path)
+Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava)
 {
-    LPCTSTR envVarName = _T("PATH");
-    TCHAR envVar[4096];
-    DWORD envVarCapacity = sizeof(envVar) / sizeof(TCHAR);
-    DWORD envVarLength
-        = GetEnvironmentVariable(envVarName, envVar, envVarCapacity);
+    LPTSTR mainClassName;
+    jclass mainClass;
     DWORD error;
 
-    if (envVarLength)
+    mainClassName = _tcsdup(JAVA_MAIN_CLASS);
+    if (mainClassName)
     {
-        if (envVarLength >= envVarCapacity)
-            error = ERROR_NOT_ENOUGH_MEMORY;
-        else
-        {
-            DWORD pathLength = _tcslen(path);
+        LPTSTR ch;
 
-            if (envVarLength + 1 + pathLength + 1 > envVarCapacity)
-                error = ERROR_NOT_ENOUGH_MEMORY;
-            else
-            {
-                LPTSTR str = envVar + envVarLength;
-
-                *str = _T(';');
-                str++;
-                _tcsncpy(str, path, pathLength);
-                str += pathLength;
-                *str = 0;
-
-                if (SetEnvironmentVariable(envVarName, envVar))
-                    error = ERROR_SUCCESS;
-                else
-                    error = GetLastError();
-            }
-        }
+        for (ch = mainClassName; *ch; ch++)
+            if (_T('.') == *ch)
+                *ch = _T('/');
+        mainClass = (*jniEnv)->FindClass(jniEnv, mainClassName);
+        free(mainClassName);
     }
     else
-        error = GetLastError();
+        mainClass = NULL;
+    if (mainClass)
+    {
+        jmethodID mainMethodID
+            = (*jniEnv)->GetStaticMethodID(
+                jniEnv,
+                mainClass,
+                "main",
+                "([Ljava/lang/String;)V");
+
+        if (mainMethodID)
+        {
+            jclass stringClass
+                = (*jniEnv)->FindClass(jniEnv, "java/lang/String");
+
+            if (stringClass)
+            {
+                int argc = 0;
+                LPWSTR *argv = NULL;
+
+                if (Run_cmdLine && strlen(Run_cmdLine))
+                {
+                    LPWSTR cmdLineW = NLS_str2wstr(Run_cmdLine);
+
+                    if (cmdLineW)
+                    {
+                        argv = CommandLineToArgvW(cmdLineW, &argc);
+                        free(cmdLineW);
+                        error = argv ? ERROR_SUCCESS : GetLastError();
+                    }
+                    else
+                        error = ERROR_NOT_ENOUGH_MEMORY;
+                }
+                else
+                    error = ERROR_SUCCESS;
+                if (ERROR_SUCCESS == error)
+                {
+                    jobjectArray mainArgs
+                        = (*jniEnv)->NewObjectArray(
+                                jniEnv,
+                                argc, stringClass, NULL);
+
+                    if (mainArgs)
+                    {
+                        int i;
+
+                        for (i = 0; (ERROR_SUCCESS == error) && (i < argc); i++)
+                        {
+                            LPWSTR arg = *(argv + i);
+                            jstring mainArg
+                                = (*jniEnv)->NewString(
+                                        jniEnv,
+                                        arg, wcslen(arg));
+
+                            if (mainArg)
+                            {
+                                (*jniEnv)->SetObjectArrayElement(
+                                        jniEnv,
+                                        mainArgs, i, mainArg);
+                                if (JNI_TRUE
+                                        == (*jniEnv)->ExceptionCheck(jniEnv))
+                                    error = ERROR_FUNCTION_FAILED;
+                            }
+                            else
+                                error = ERROR_NOT_ENOUGH_MEMORY;
+                        }
+                        if (argv)
+                        {
+                            LocalFree(argv);
+                            argv = NULL;
+                        }
+
+                        if (ERROR_SUCCESS == error)
+                        {
+                            *searchForJava = FALSE;
+
+                            /*
+                             * The parent process will have to wait for and get
+                             * the exit code of its child, not java.exe so it
+                             * does not need telling who to wait for or get the
+                             * exit code of.
+                             */
+                            if (INVALID_HANDLE_VALUE != Run_channel)
+                            {
+                                CloseHandle(Run_channel);
+                                Run_channel = INVALID_HANDLE_VALUE;
+                            }
+
+                            (*jniEnv)->CallStaticVoidMethod(
+                                    jniEnv,
+                                    mainClass, mainMethodID, mainArgs);
+                        }
+                    }
+                    else
+                        error = ERROR_NOT_ENOUGH_MEMORY;
+
+                    if (argv)
+                        LocalFree(argv);
+                }
+            }
+            else
+                error = ERROR_CLASS_DOES_NOT_EXIST;
+        }
+        else
+            error = ERROR_INVALID_FUNCTION;
+    }
+    else
+        error = ERROR_CLASS_DOES_NOT_EXIST;
+
     return error;
 }
 
@@ -225,98 +320,14 @@ Run_getExecutableFilePath(LPTSTR *executableFilePath)
 static DWORD
 Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
 {
-    LPCTSTR classpath[]
-        = {
-            _T("lib\\felix.jar"),
-            _T("lib\\jdic-all.jar"),
-            _T("lib\\jdic_stub.jar"),
-            _T("lib\\bcprovider.jar"),
-            _T("sc-bundles\\sc-launcher.jar"),
-            _T("sc-bundles\\util.jar"),
-            NULL
-        };
-    LPTSTR javaLibraryPath = Run_getJavaLibraryPath();
-    LPCTSTR properties[]
-        = {
-            _T("felix.config.properties"),
-            _T("file:./lib/felix.client.run.properties"),
-            _T("java.util.logging.config.file"),
-            _T("lib/logging.properties"),
-            _T("java.library.path"),
-            javaLibraryPath,
-            _T("jna.library.path"),
-            javaLibraryPath,
-            NULL
-        };
-    LPCTSTR scHomeDirNameProperty
-        = _T("net.java.sip.communicator.SC_HOME_DIR_NAME");
-    LPCTSTR scHomeDirNameValue = PRODUCTNAME;
-    LPCTSTR mainClass
-        = _T("net.java.sip.communicator.launcher.SIPCommunicator");
+    LPCTSTR mainClass = JAVA_MAIN_CLASS;
 
     size_t javaExeLength;
-    size_t classpathLength;
-    size_t propertiesLength;
-    size_t scHomeDirNamePropertyLength;
-    size_t scHomeDirNameValueLength;
     size_t mainClassLength;
     size_t cmdLineLength;
     DWORD error;
 
     javaExeLength = _tcslen(javaExe);
-    classpathLength = 0;
-    {
-        size_t i = 0;
-
-        while (1)
-        {
-            LPCTSTR cp = classpath[i];
-
-            if (cp)
-            {
-                classpathLength += _tcslen(cp);
-                i++;
-            }
-            else
-                break;
-        }
-        if (i)
-        {
-            classpathLength += 5; /* "-cp  " */
-            classpathLength += (i - 1); /* ';' */
-        }
-    }
-    propertiesLength = 0;
-    {
-        size_t i = 0;
-
-        while (1)
-        {
-            LPCTSTR property = properties[i];
-
-            if (property)
-            {
-                i++;
-                propertiesLength
-                    += (2 /* "-D" */
-                            + _tcslen(property)
-                            + 1 /* '=' */
-                            + _tcslen(properties[i])
-                            + 1 /* ' ' */);
-                i++;
-            }
-            else
-                break;
-        }
-        scHomeDirNamePropertyLength = _tcslen(scHomeDirNameProperty);
-        scHomeDirNameValueLength = _tcslen(scHomeDirNameValue);
-        propertiesLength
-            += (2
-                    + scHomeDirNamePropertyLength
-                    + 2
-                    + scHomeDirNameValueLength
-                    + 2);
-    }
     mainClassLength = _tcslen(mainClass);
     if (Run_cmdLine)
     {
@@ -327,18 +338,14 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
     else
         cmdLineLength = 0;
 
-    *commandLine
-        = (LPTSTR)
-            malloc(
-                    sizeof(TCHAR)
-                        * (javaExeLength
-                            + 1 /* ' ' */
-                            + classpathLength
-                            + propertiesLength
-                            + mainClassLength
-                            + cmdLineLength
-                            + 1 /* 0 */));
-    if (*commandLine && javaLibraryPath)
+    error
+        = Run_getJavaVMOptionStrings(
+            javaExeLength + 1 /* ' ' */,
+            _T(' '),
+            mainClassLength + cmdLineLength,
+            commandLine,
+            NULL);
+    if (ERROR_SUCCESS == error)
     {
         LPTSTR str = *commandLine;
 
@@ -346,77 +353,9 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
         str += javaExeLength;
         *str = _T(' ');
         str++;
-        if (classpathLength)
-        {
-            size_t i;
 
-            _tcscpy(str, _T("-cp "));
-            str += 4;
-            i = 0;
-            while (1)
-            {
-                LPCTSTR cp = classpath[i];
+        str += _tcslen(str);
 
-                if (cp)
-                {
-                    size_t length = _tcslen(cp);
-
-                    _tcsncpy(str, cp, length);
-                    str += length;
-                    *str = _T(';');
-                    str++;
-                    i++;
-                }
-                else
-                    break;
-            }
-            str--; /* Drop the last ';'. */
-            *str = _T(' ');
-            str++;
-        }
-        if (propertiesLength)
-        {
-            size_t i = 0;
-
-            while (1)
-            {
-                LPCTSTR property = properties[i];
-
-                if (property)
-                {
-                    size_t length;
-                    LPCTSTR value;
-
-                    _tcscpy(str, _T("-D"));
-                    str += 2;
-                    length = _tcslen(property);
-                    _tcsncpy(str, property, length);
-                    str += length;
-                    i++;
-                    *str = _T('=');
-                    str++;
-                    value = properties[i];
-                    length = _tcslen(value);
-                    _tcsncpy(str, value, length);
-                    str += length;
-                    i++;
-                    *str = _T(' ');
-                    str++;
-                }
-                else
-                    break;
-            }
-            _tcscpy(str, _T("-D"));
-            str += 2;
-            _tcsncpy(str, scHomeDirNameProperty, scHomeDirNamePropertyLength);
-            str += scHomeDirNamePropertyLength;
-            _tcscpy(str, _T("=\""));
-            str += 2;
-            _tcsncpy(str, scHomeDirNameValue, scHomeDirNameValueLength);
-            str += scHomeDirNameValueLength;
-            _tcscpy(str, _T("\" "));
-            str += 2;
-        }
         _tcsncpy(str, mainClass, mainClassLength);
         str += mainClassLength;
         if (cmdLineLength)
@@ -428,14 +367,7 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
             str += cmdLineLength;
         }
         *str = 0;
-
-        error = ERROR_SUCCESS;
     }
-    else
-        error = ERROR_OUTOFMEMORY;
-
-    if (javaLibraryPath)
-        free(javaLibraryPath);
 
     return error;
 }
@@ -444,13 +376,13 @@ static LPTSTR
 Run_getJavaLibraryPath()
 {
     LPCTSTR relativeJavaLibraryPath = _T("native");
-    TCHAR javaLibraryPath[1 /* " */ + MAX_PATH + 1 /* " */ + 1];
+    TCHAR javaLibraryPath[MAX_PATH + 1];
     DWORD javaLibraryPathCapacity
-        = (sizeof(javaLibraryPath) - 2 /* "" */) / sizeof(TCHAR);
+        = sizeof(javaLibraryPath) / sizeof(TCHAR);
     DWORD javaLibraryPathLength
         = GetFullPathName(
                 relativeJavaLibraryPath,
-                javaLibraryPathCapacity, javaLibraryPath + 1,
+                javaLibraryPathCapacity, javaLibraryPath,
                 NULL);
     LPCTSTR dup;
 
@@ -459,10 +391,7 @@ Run_getJavaLibraryPath()
     {
         LPTSTR str = javaLibraryPath;
 
-        *str = _T('\"');
-        str += (1 + javaLibraryPathLength);
-        *str = _T('\"');
-        str++;
+        str += javaLibraryPathLength;
         *str = 0;
 
         dup = javaLibraryPath;
@@ -521,6 +450,156 @@ Run_getJavaPathsFromRegKey(HKEY key, LPTSTR *runtimeLib, LPTSTR *javaHome)
         }
         RegCloseKey(jreKey);
     }
+    return error;
+}
+
+static DWORD
+Run_getJavaVMOptionStrings
+    (size_t head, TCHAR separator, size_t tail,
+        LPTSTR *optionStrings, jint *optionStringCount)
+{
+    LPTSTR javaLibraryPath = Run_getJavaLibraryPath();
+    jint _optionStringCount = 0;
+    DWORD error;
+
+    if (javaLibraryPath)
+    {
+        LPCTSTR classpath[]
+            = {
+                _T("lib\\felix.jar"),
+                _T("lib\\jdic-all.jar"),
+                _T("lib\\jdic_stub.jar"),
+                _T("lib\\bcprovider.jar"),
+                _T("sc-bundles\\sc-launcher.jar"),
+                _T("sc-bundles\\util.jar"),
+                NULL
+            };
+        LPCTSTR properties[]
+            = {
+                _T("felix.config.properties"),
+                _T("file:./lib/felix.client.run.properties"),
+                _T("java.util.logging.config.file"),
+                _T("lib/logging.properties"),
+                _T("java.library.path"),
+                javaLibraryPath,
+                _T("jna.library.path"),
+                javaLibraryPath,
+                _T("net.java.sip.communicator.SC_HOME_DIR_NAME"),
+                PRODUCTNAME,
+                NULL
+            };
+
+        size_t classpathLength;
+        size_t propertiesLength;
+        BOOL quote = separator;
+
+        {
+            LPCTSTR cp;
+            size_t i = 0;
+
+            classpathLength = 0;
+            while ((cp = classpath[i++]))
+                classpathLength += (_tcslen(cp) + 1 /* ';' */);
+            if (classpathLength)
+                classpathLength += 18 /* "-Djava.class.path=" */;
+        }
+        {
+            LPCTSTR property;
+            size_t i = 0;
+
+            propertiesLength = 0;
+            while ((property = properties[i++]))
+            {
+                propertiesLength
+                    += (2 /* "\"-D" */
+                        + _tcslen(property)
+                        + 1 /* '=' */
+                        + _tcslen(properties[i++])
+                        + 1 /* ' ' */);
+                if (quote)
+                    propertiesLength += 2;
+            }
+        }
+
+        *optionStrings
+            = (LPTSTR)
+                malloc(
+                    sizeof(TCHAR)
+                        * (head
+                            + classpathLength
+                            + propertiesLength
+                            + 1 /* 0 */
+                            + tail));
+        if (*optionStrings)
+        {
+            LPTSTR str = (*optionStrings) + head;
+
+            if (classpathLength)
+            {
+                LPCTSTR cp;
+                size_t i = 0;
+
+                _tcscpy(str, _T("-Djava.class.path="));
+                str += 18;
+                while ((cp = classpath[i++]))
+                {
+                    size_t length = _tcslen(cp);
+
+                    _tcsncpy(str, cp, length);
+                    str += length;
+                    *str = _T(';');
+                    str++;
+                }
+                str--; /* Drop the last ';'. */
+                *str = separator;
+                str++;
+
+                _optionStringCount++;
+            }
+            if (propertiesLength)
+            {
+                LPCTSTR property;
+                size_t i = 0;
+
+                while ((property = properties[i++]))
+                {
+                    size_t length;
+                    LPCTSTR value;
+
+                    if (quote)
+                        *str++ = _T('"');
+                    _tcscpy(str, _T("-D"));
+                    str += 2;
+                    length = _tcslen(property);
+                    _tcsncpy(str, property, length);
+                    str += length;
+                    *str++ = _T('=');
+
+                    value = properties[i++];
+                    length = _tcslen(value);
+                    _tcsncpy(str, value, length);
+                    str += length;
+                    if (quote)
+                        *str++ = _T('"');
+                    *str++ = separator;
+
+                    _optionStringCount++;
+                }
+            }
+            *str = 0;
+
+            if (optionStringCount)
+                *optionStringCount = _optionStringCount;
+            error = ERROR_SUCCESS;
+        }
+        else
+            error = ERROR_OUTOFMEMORY;
+
+        free(javaLibraryPath);
+    }
+    else
+        error = ERROR_OUTOFMEMORY;
+
     return error;
 }
 
@@ -775,7 +854,7 @@ Run_runAsCrashHandlerWithPipe(
                     commandLine,
                     commandLineLength,
                     commandLineFormat,
-                    (int) (*writePipe),
+                    (int) (intptr_t) (*writePipe),
                     cmdLine);
         if (commandLineLength < 0)
         {
@@ -948,7 +1027,7 @@ Run_runAsLauncher(LPCTSTR executableFilePath, LPSTR cmdLine)
             commandLine += channelArgLength;
             if (!isspace(*commandLine))
             {
-                HANDLE channel = (HANDLE) atoi(commandLine);
+                HANDLE channel = (HANDLE) (intptr_t) atoi(commandLine);
                 DWORD flags;
                 char ch;
 
@@ -1311,11 +1390,82 @@ Run_runJavaFromRegKey(HKEY key, BOOL *searchForJava)
 static DWORD
 Run_runJavaFromRuntimeLib(LPCTSTR runtimeLib, BOOL *searchForJava)
 {
-    if (Run_isFile(runtimeLib))
+    HMODULE hRuntimeLib
+        = Run_isFile(runtimeLib) ? LoadLibrary(runtimeLib) : NULL;
+    DWORD error;
+
+    if (hRuntimeLib)
     {
-        /* TODO Auto-generated method stub */
+        typedef jint (*JNICreateJavaVMFunc)(JavaVM **, void **, void *);
+        JNICreateJavaVMFunc jniCreateJavaVM
+            = (JNICreateJavaVMFunc)
+                GetProcAddress(hRuntimeLib, "JNI_CreateJavaVM");
+
+        if (jniCreateJavaVM)
+        {
+            LPTSTR optionStrings = NULL;
+            jint optionStringCount = 0;
+
+            error
+                = Run_getJavaVMOptionStrings(
+                    0, 0, 0,
+                    &optionStrings, &optionStringCount);
+            if (ERROR_SUCCESS == error)
+            {
+                JavaVMOption *options
+                    = calloc(optionStringCount, sizeof(JavaVMOption));
+
+                if (options)
+                {
+                    jint i;
+                    LPTSTR optionString;
+                    JavaVMInitArgs javaVMInitArgs;
+                    JavaVM *javaVM;
+                    JNIEnv *jniEnv;
+
+                    for (i = 0, optionString = optionStrings;
+                            i < optionStringCount;
+                            i++, optionString += (_tcslen(optionString) + 1))
+                        (options + i)->optionString = optionString;
+
+                    javaVMInitArgs.ignoreUnrecognized = JNI_FALSE;
+                    javaVMInitArgs.nOptions = optionStringCount;
+                    javaVMInitArgs.options = options;
+                    javaVMInitArgs.version = JNI_VERSION_1_2;
+                    if (jniCreateJavaVM(
+                            &javaVM,
+                            (void **) &jniEnv,
+                            &javaVMInitArgs))
+                        error = ERROR_FUNCTION_FAILED;
+                    else
+                    {
+                        free(options);
+                        options = NULL;
+                        free(optionStrings);
+                        optionStrings = NULL;
+
+                        error = Run_callStaticVoidMain(jniEnv, searchForJava);
+                        if (JNI_TRUE == (*jniEnv)->ExceptionCheck(jniEnv))
+                            (*jniEnv)->ExceptionClear(jniEnv);
+
+                        (*javaVM)->DestroyJavaVM(javaVM);
+                    }
+                    if (options)
+                        free(options);
+                }
+                else
+                    error = ERROR_OUTOFMEMORY;
+                if (optionStrings)
+                    free(optionStrings);
+            }
+        }
+        else
+            error = GetLastError();
+        FreeLibrary(hRuntimeLib);
     }
-    return ERROR_CALL_NOT_IMPLEMENTED;
+    else
+        error = GetLastError();
+    return error;
 }
 
 static LPSTR
@@ -1332,8 +1482,11 @@ int CALLBACK
 WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow)
 {
     LPTSTR executableFilePath = NULL;
-    DWORD error = Run_getExecutableFilePath(&executableFilePath);
+    DWORD error;
 
+    AttachConsole(ATTACH_PARENT_PROCESS);
+
+    error = Run_getExecutableFilePath(&executableFilePath);
     if (ERROR_SUCCESS == error)
     {
         BOOL runAsLauncher = FALSE;
