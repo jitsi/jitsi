@@ -25,7 +25,7 @@ CPPFLAGS := $(CPPFLAGS) \
 	-DPSAPI_VERSION=1 \
 	-DWINVER=0x0502 -D_WIN32_WINNT=0x0502 \
 	-I$(target.dir) \
-	-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32
+	-I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/win32"
 LDFLAGS = -mwindows
 LIBS = -ladvapi32 -lpsapi
 
