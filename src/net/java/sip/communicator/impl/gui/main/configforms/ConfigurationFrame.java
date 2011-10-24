@@ -99,9 +99,8 @@ public class ConfigurationFrame
         centerPanel.setMinimumSize(new Dimension(600, 100));
         centerPanel.setMaximumSize(
             new Dimension(600, Integer.MAX_VALUE));
-        this.setResizable(false);
 
-        mainPanel.add(centerPanel, BorderLayout.SOUTH);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
 
         JComponent topComponent = createTopComponent();
         topComponent.add(configScrollList);

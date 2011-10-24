@@ -702,19 +702,36 @@ public class MediaConfiguration
             @Override
             public void mouseClicked(MouseEvent e)
             {
+                // Indicates if currently the panel is shown or hidden.
+                boolean isCurrentlyVisible = centerAdvancedPanel.isVisible();
+                // We save the current advanced panel height that we'd use
+                // in the case we're going to hide the panel.
+                int currentHeight = advancedPanel.getHeight();
+
                 advButton.setIcon(
                         NeomediaActivator.getResources().getImage(
-                                centerAdvancedPanel.isVisible()
+                                    isCurrentlyVisible
                                     ? "service.gui.icons.RIGHT_ARROW_ICON"
                                     : "service.gui.icons.DOWN_ARROW_ICON"));
 
-                centerAdvancedPanel.setVisible(
-                        !centerAdvancedPanel.isVisible());
+                centerAdvancedPanel.setVisible(!isCurrentlyVisible);
 
                 advancedPanel.revalidate();
 
                 NeomediaActivator.getUIService().getConfigurationContainer()
                    .validateCurrentForm();
+
+                Window window = SwingUtilities.getWindowAncestor(advancedPanel);
+
+                if (window != null)
+                {
+                    if (!isCurrentlyVisible)
+                        window.setSize(window.getWidth(),
+                            window.getHeight() + advancedPanel.getHeight());
+                    else
+                        window.setSize(window.getWidth(),
+                            window.getHeight() - currentHeight);
+                }
             }
         });
 
