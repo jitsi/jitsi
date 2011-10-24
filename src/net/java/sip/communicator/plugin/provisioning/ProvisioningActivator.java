@@ -6,9 +6,11 @@
  */
 package net.java.sip.communicator.plugin.provisioning;
 
+import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.List; //disambiguation
 
 import javax.swing.*;
 
@@ -20,6 +22,7 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.provdisc.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -380,6 +383,21 @@ public class ProvisioningActivator
             if(url.indexOf("${arch}") != -1)
             {
                 url = url.replace("${arch}", System.getProperty("os.arch"));
+            }
+
+            if(url.indexOf("${resx}") != -1 || url.indexOf("${resy}") != -1)
+            {
+                Rectangle screen = ScreenInformation.getScreenBounds();
+
+                if(url.indexOf("${resx}") != -1)
+                {
+                    url = url.replace("${resx}", String.valueOf(screen.width));
+                }
+
+                if(url.indexOf("${resy}") != -1)
+                {
+                    url = url.replace("${resy}", String.valueOf(screen.height));
+                }
             }
 
             if(url.indexOf("${build}") != -1)
