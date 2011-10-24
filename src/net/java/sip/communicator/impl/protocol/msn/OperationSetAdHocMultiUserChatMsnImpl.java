@@ -427,10 +427,16 @@ implements OperationSetAdHocMultiUserChat
         {
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                provider.getMessenger().addSwitchboardListener(
-                    new MsnSwitchboardListener());
-                provider.getMessenger().addMessageListener(
-                    new MsnMessageListener());
+                if(provider.getMessenger() != null)
+                {
+                    provider.getMessenger().addSwitchboardListener(
+                        new MsnSwitchboardListener());
+                    provider.getMessenger().addMessageListener(
+                        new MsnMessageListener());
+                }
+                else if(logger.isInfoEnabled())
+                    logger.info("Registered but msnMessenger is missing!",
+                                new Exception());
             }
         }
 

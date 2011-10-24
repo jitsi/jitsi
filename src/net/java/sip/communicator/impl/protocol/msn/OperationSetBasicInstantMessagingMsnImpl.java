@@ -193,12 +193,15 @@ public class OperationSetBasicInstantMessagingMsnImpl
 
                 MsnMessenger msnMessenger = msnProvider.getMessenger();
 
-                /*
-                 * FIXME What's the point of having two MsnMessageListener
-                 * instances?
-                 */
-                msnMessenger.addMessageListener(new MsnMessageListener());
-                msnMessenger.addEmailListener(new MsnMessageListener());
+                if(msnMessenger != null)
+                {
+                    MsnMessageListener listener = new MsnMessageListener();
+                    msnMessenger.addMessageListener(listener);
+                    msnMessenger.addEmailListener(listener);
+                }
+                else if(logger.isInfoEnabled())
+                    logger.info("Registered but msnMessenger is missing!",
+                                new Exception());
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED

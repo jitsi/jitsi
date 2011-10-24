@@ -694,8 +694,14 @@ public class OperationSetPersistentPresenceMsnImpl
 
             if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                parentProvider.getMessenger().
-                    addContactListListener(new StatusChangedListener());
+                if(parentProvider.getMessenger() != null)
+                {
+                    parentProvider.getMessenger().
+                        addContactListListener(new StatusChangedListener());
+                }
+                else if(logger.isInfoEnabled())
+                    logger.info("Registered but msnMessenger is missing!",
+                                new Exception());
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED

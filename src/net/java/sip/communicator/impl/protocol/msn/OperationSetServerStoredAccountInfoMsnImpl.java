@@ -561,11 +561,14 @@ public class OperationSetServerStoredAccountInfoMsnImpl
                     in.read(b);
                     in.close();
 
-                    MsnOwner owner = msnProvider.getMessenger().getOwner();
+                    if(msnProvider.getMessenger() != null)
+                    {
+                        MsnOwner owner = msnProvider.getMessenger().getOwner();
 
-                    owner.setInitDisplayPicture(MsnObject.getInstance(
-                        owner.getEmail().getEmailAddress(),
-                        b));
+                        owner.setInitDisplayPicture(MsnObject.getInstance(
+                            owner.getEmail().getEmailAddress(),
+                            b));
+                    }
                 }
             }
             catch(Exception ex)

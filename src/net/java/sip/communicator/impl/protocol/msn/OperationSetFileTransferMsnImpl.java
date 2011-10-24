@@ -320,8 +320,14 @@ public class OperationSetFileTransferMsnImpl
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                msnProvider.getMessenger().addFileTransferListener(
-                    new FileTransferProtocolListener());
+                if(msnProvider.getMessenger() != null)
+                {
+                    msnProvider.getMessenger().addFileTransferListener(
+                        new FileTransferProtocolListener());
+                }
+                else if(logger.isInfoEnabled())
+                    logger.info("Registered but msnMessenger is missing!",
+                                new Exception());
             }
         }
     }
