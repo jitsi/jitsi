@@ -13,7 +13,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -142,6 +144,8 @@ public class DefaultTreeContactList
             currentMouseLocation.x, currentMouseLocation.y);
         Object element = path.getLastPathComponent();
 
+        MainFrame mainWindow = GuiActivator.getUIService().getMainFrame();
+
         ExtendedTooltip tip = null;
         if (element instanceof ContactNode)
         {
@@ -151,7 +155,7 @@ public class DefaultTreeContactList
             tip = contact.getToolTip();
             if (tip == null)
             {
-                tip = new ExtendedTooltip(true);
+                tip = new ExtendedTooltip(mainWindow, true);
                 tip.setTitle(contact.getDisplayName());
             }
         }
@@ -160,7 +164,7 @@ public class DefaultTreeContactList
             UIGroup group
                 = ((GroupNode) element).getGroupDescriptor();
 
-            tip = new ExtendedTooltip(true);
+            tip = new ExtendedTooltip(mainWindow, true);
             tip.setTitle(group.getDisplayName());
         }
         else if (element instanceof ChatContact<?>)
@@ -169,7 +173,7 @@ public class DefaultTreeContactList
 
             ImageIcon avatarImage = chatContact.getAvatar();
 
-            tip = new ExtendedTooltip(true);
+            tip = new ExtendedTooltip(mainWindow, true);
             if (avatarImage != null)
                 tip.setImage(avatarImage);
 

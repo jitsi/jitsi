@@ -222,7 +222,8 @@ public class NotificationContact
      */
     public ExtendedTooltip getToolTip()
     {
-        ExtendedTooltip tip = new ExtendedTooltip(true);
+        ExtendedTooltip tip = new ExtendedTooltip(
+            GuiActivator.getUIService().getMainFrame(), true);
 
         ImageIcon avatarImage = getAvatar(true, 64, 64);
 

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.*;
@@ -40,7 +41,7 @@ public class ExtendedTooltip
      * Created a <tt>MetaContactTooltip</tt>.
      * @param isListViewEnabled indicates if the list view is enabled
      */
-    public ExtendedTooltip(boolean isListViewEnabled)
+    public ExtendedTooltip(final Window parentWindow, boolean isListViewEnabled)
     {
         this.isListViewEnabled = isListViewEnabled;
 
@@ -81,6 +82,20 @@ public class ExtendedTooltip
         bottomTextArea.setWrapStyleWord(true);
         bottomTextArea.setFont(bottomTextArea.getFont().deriveFont(10f));
         mainPanel.add(bottomTextArea, BorderLayout.SOUTH);
+
+        parentWindow.addWindowFocusListener(new WindowFocusListener()
+        {
+            public void windowLostFocus(WindowEvent e)
+            {
+                Window parentWindow
+                    = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
+
+                if (parentWindow != null && parentWindow.isVisible())
+                    parentWindow.setVisible(false);
+            }
+
+            public void windowGainedFocus(WindowEvent e) {}
+        });
 
         this.add(mainPanel);
     }

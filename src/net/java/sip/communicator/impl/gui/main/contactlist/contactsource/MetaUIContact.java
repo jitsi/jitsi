@@ -10,6 +10,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -257,7 +258,7 @@ public class MetaUIContact
     {
         byte[] avatarBytes = metaContact.getAvatar(true);
 
-        // If there'rs no avatar we have nothing more to do here.
+        // If there's no avatar we have nothing more to do here.
         if((avatarBytes == null) || (avatarBytes.length <= 0))
             return null;
 
@@ -324,7 +325,8 @@ public class MetaUIContact
      */
     public ExtendedTooltip getToolTip()
     {
-        ExtendedTooltip tip = new ExtendedTooltip(true);
+        ExtendedTooltip tip = new ExtendedTooltip(
+            GuiActivator.getUIService().getMainFrame(), true);
 
         byte[] avatarImage = metaContact.getAvatar();
 

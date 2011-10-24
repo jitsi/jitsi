@@ -53,7 +53,7 @@ public abstract class FileTransferConversationComponent
     /**
      * The image label.
      */
-    protected final FileImageLabel imageLabel = new FileImageLabel();
+    protected final FileImageLabel imageLabel;
 
     /**
      * The title label.
@@ -181,8 +181,10 @@ public abstract class FileTransferConversationComponent
     /**
      * Creates a file conversation component.
      */
-    public FileTransferConversationComponent()
+    public FileTransferConversationComponent(Window parentWindow)
     {
+        imageLabel = new FileImageLabel(parentWindow);
+
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridwidth = 1;

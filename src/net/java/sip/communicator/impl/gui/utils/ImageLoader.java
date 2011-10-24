@@ -1644,10 +1644,11 @@ public class ImageLoader
             = pps.getOperationSet(OperationSetPresence.class);
 
         Image statusImage;
-        if (presence != null)
+        byte[] protocolStatusIcon = presence.getPresenceStatus().getStatusIcon();
+
+        if (presence != null && protocolStatusIcon != null)
         {
-            statusImage = ImageUtils.getBytesInImage(
-                presence.getPresenceStatus().getStatusIcon());
+            statusImage = ImageUtils.getBytesInImage(protocolStatusIcon);
         }
         else
         {

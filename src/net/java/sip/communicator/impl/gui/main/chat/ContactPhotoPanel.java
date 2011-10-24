@@ -33,8 +33,18 @@ public class ContactPhotoPanel extends JLayeredPane
 
     private ChatSession chatSession;
 
-    public ContactPhotoPanel()
+    private final Window parentWindow;
+
+    /**
+     * Creates an instance of <tt>ContactPhotoPanel</tt> by specifying the
+     * parent window where the photo panel will be added.
+     *
+     * @param parentWindow the parent window
+     */
+    public ContactPhotoPanel(Window parentWindow)
     {
+        this.parentWindow = parentWindow;
+
         this.setLayout(null);
 
         this.setPreferredSize(
@@ -131,7 +141,7 @@ public class ContactPhotoPanel extends JLayeredPane
      */
     public JToolTip createToolTip()
     {
-        ExtendedTooltip tip = new ExtendedTooltip(true);
+        ExtendedTooltip tip = new ExtendedTooltip(parentWindow, true);
 
         if (tooltipIcon != null)
             tip.setImage(tooltipIcon);

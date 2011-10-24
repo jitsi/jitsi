@@ -70,7 +70,7 @@ public class ChatWindow
     private final JPanel pluginPanelWest = new JPanel();
     private final JPanel pluginPanelEast = new JPanel();
 
-    private final ContactPhotoPanel contactPhotoPanel = new ContactPhotoPanel();
+    private final ContactPhotoPanel contactPhotoPanel;
 
     private final MessageWindowMenuBar menuBar;
 
@@ -110,6 +110,8 @@ public class ChatWindow
         }
 
         menuBar = new MessageWindowMenuBar(this);
+
+        contactPhotoPanel = new ContactPhotoPanel(this);
 
         this.setJMenuBar(menuBar);
 

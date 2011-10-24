@@ -13,6 +13,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -127,7 +128,9 @@ public class DefaultContactList
 
         Object element = getModel().getElementAt(index);
 
-        ExtendedTooltip tip = new ExtendedTooltip(true);
+        ExtendedTooltip tip = new ExtendedTooltip(
+            GuiActivator.getUIService().getMainFrame(), true);
+
         if (element instanceof MetaContact)
         {
             MetaContact metaContact = (MetaContact) element;

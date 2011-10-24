@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -48,11 +50,17 @@ public class SecurityStatusLabel
     private final Icon defaultIcon;
 
     /**
+     * The parent window, where this component will be contained.
+     */
+    private final Window parentWindow;
+
+    /**
      * Creates an instance of <tt>SecurityStatusLabel</tt> by specifying the
      * <tt>GuiCallPeer</tt>, the icon and the alignment to use for the label.
      */
-    public SecurityStatusLabel(Icon securityIcon)
+    public SecurityStatusLabel(Window parentWindow, Icon securityIcon)
     {
+        this.parentWindow = parentWindow;
         this.defaultIcon = securityIcon;
 
         loadSkin();
@@ -68,7 +76,7 @@ public class SecurityStatusLabel
      */
     public JToolTip createToolTip()
     {
-        ExtendedTooltip tip = new ExtendedTooltip(true);
+        ExtendedTooltip tip = new ExtendedTooltip(parentWindow, true);
 
         tip.setTitle("Security status");
 

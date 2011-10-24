@@ -58,7 +58,7 @@ public class SingleWindowContainer
     /**
      * The contact photo panel.
      */
-    private final ContactPhotoPanel contactPhotoPanel = new ContactPhotoPanel();
+    private final ContactPhotoPanel contactPhotoPanel;
 
     /**
      * The main toolbar.
@@ -77,6 +77,8 @@ public class SingleWindowContainer
 
         tabbedPane = new ConversationTabbedPane();
         tabbedPane.addChangeListener(this);
+        contactPhotoPanel = new ContactPhotoPanel(
+            GuiActivator.getUIService().getMainFrame());
 
         add(tabbedPane);
     }

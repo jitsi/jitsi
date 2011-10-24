@@ -321,7 +321,8 @@ public class HistoryWindow
                     FileRecord fileRecord = (FileRecord) o;
 
                     FileHistoryConversationComponent component
-                        = new FileHistoryConversationComponent(fileRecord);
+                        = new FileHistoryConversationComponent(
+                            this, fileRecord);
 
                     chatConvPanel.addComponent(component);
                 }

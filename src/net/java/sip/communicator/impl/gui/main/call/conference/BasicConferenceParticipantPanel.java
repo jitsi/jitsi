@@ -128,9 +128,7 @@ public abstract class BasicConferenceParticipantPanel
     /**
      * The security status of the peer
      */
-    private SecurityStatusLabel securityStatusLabel
-        = new SecurityStatusLabel(new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SECURE_OFF_CONF_CALL)));
+    private SecurityStatusLabel securityStatusLabel;
 
     /**
      * Indicates if this panel is mentioned for the local participant.
@@ -156,6 +154,11 @@ public abstract class BasicConferenceParticipantPanel
         soundIndicator = new SoundLevelIndicator(  renderer,
                                         SoundLevelChangeEvent.MIN_LEVEL,
                                         SoundLevelChangeEvent.MAX_LEVEL);
+
+        securityStatusLabel = new SecurityStatusLabel(
+            renderer.getCallContainer().getCallWindow().getFrame(),
+            new ImageIcon(
+                ImageLoader.getImage(ImageLoader.SECURE_OFF_CONF_CALL)));
 
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));

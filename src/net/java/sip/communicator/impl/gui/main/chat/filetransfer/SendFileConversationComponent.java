@@ -49,6 +49,8 @@ public class SendFileConversationComponent
                                             String toContactName,
                                             final File file)
     {
+        super(chatPanel.getChatContainer().getFrame());
+
         this.parentChatPanel = chatPanel;
         this.toContactName = toContactName;
         this.file = file;

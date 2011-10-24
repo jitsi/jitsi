@@ -69,9 +69,7 @@ public class OneToOneCallPeerPanel
     /**
      * The security status of the peer
      */
-    private SecurityStatusLabel securityStatusLabel
-        = new SecurityStatusLabel(new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
+    private SecurityStatusLabel securityStatusLabel;
 
     /**
      * The label showing whether the voice has been set to mute.
@@ -224,6 +222,10 @@ public class OneToOneCallPeerPanel
         photoLabel = new JLabel(getPhotoLabelIcon());
         center = createCenter();
         statusBar = createStatusBar();
+        securityStatusLabel = new SecurityStatusLabel(
+            callRenderer.getCallContainer().getCallWindow().getFrame(),
+            new ImageIcon(
+                ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
 
         this.setPeerImage(CallManager.getPeerImage(callPeer));
 
