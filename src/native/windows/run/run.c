@@ -40,6 +40,7 @@ static LPSTR Run_cmdLine = NULL;
  */
 static BOOL Run_launch = TRUE;
 
+static DWORD Run_addPath(LPCTSTR path);
 static DWORD Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava);
 static int Run_displayMessageBoxFromString(DWORD textId, DWORD_PTR *textArgs, LPCTSTR caption, UINT type);
 static DWORD Run_equalsParentProcessExecutableFilePath(LPCTSTR executableFilePath, BOOL *equals);
@@ -62,8 +63,50 @@ static DWORD Run_runJavaExe(LPCTSTR javaExe, BOOL searchPath, BOOL *searchForJav
 static DWORD Run_runJavaFromEnvVar(LPCTSTR envVar, BOOL *searchForJava);
 static DWORD Run_runJavaFromJavaHome(LPCTSTR javaHome, BOOL searchForRuntimeLib, BOOL *searchForJava);
 static DWORD Run_runJavaFromRegKey(HKEY key, BOOL *searchForJava);
-static DWORD Run_runJavaFromRuntimeLib(LPCTSTR runtimeLib, BOOL *searchForJava);
+static DWORD Run_runJavaFromRuntimeLib(LPCTSTR runtimeLib, LPCTSTR javaHome, BOOL *searchForJava);
 static LPSTR Run_skipWhitespace(LPSTR str);
+
+static DWORD
+Run_addPath(LPCTSTR path)
+{
+    LPCTSTR envVarName = _T("PATH");
+    TCHAR envVar[4096];
+    DWORD envVarCapacity = sizeof(envVar) / sizeof(TCHAR);
+    DWORD envVarLength
+        = GetEnvironmentVariable(envVarName, envVar, envVarCapacity);
+    DWORD error;
+
+    if (envVarLength)
+    {
+        if (envVarLength >= envVarCapacity)
+            error = ERROR_NOT_ENOUGH_MEMORY;
+        else
+        {
+            DWORD pathLength = _tcslen(path);
+
+            if (envVarLength + 1 + pathLength + 1 > envVarCapacity)
+                error = ERROR_NOT_ENOUGH_MEMORY;
+            else
+            {
+                LPTSTR str = envVar + envVarLength;
+
+                *str = _T(';');
+                str++;
+                _tcsncpy(str, path, pathLength);
+                str += pathLength;
+                *str = 0;
+
+                if (SetEnvironmentVariable(envVarName, envVar))
+                    error = ERROR_SUCCESS;
+                else
+                    error = GetLastError();
+            }
+        }
+    }
+    else
+        error = GetLastError();
+    return error;
+}
 
 static DWORD
 Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava)
@@ -1306,14 +1349,19 @@ Run_runJavaFromJavaHome(
             if (searchForRuntimeLib)
             {
                 _tcscpy(path + javaHomeLength, _T("\\bin\\client\\jvm.dll"));
-                error = Run_runJavaFromRuntimeLib(path, searchForJava);
+                error
+                    = Run_runJavaFromRuntimeLib(path, javaHome, searchForJava);
 
                 if ((ERROR_SUCCESS != error) || *searchForJava)
                 {
                     _tcscpy(
                             path + javaHomeLength,
                             _T("\\bin\\server\\jvm.dll"));
-                    error = Run_runJavaFromRuntimeLib(path, searchForJava);
+                    error
+                        = Run_runJavaFromRuntimeLib(
+                            path,
+                            javaHome,
+                            searchForJava);
                 }
             }
 
@@ -1368,7 +1416,11 @@ Run_runJavaFromRegKey(HKEY key, BOOL *searchForJava)
     {
         if (runtimeLib)
         {
-            error = Run_runJavaFromRuntimeLib(runtimeLib, searchForJava);
+            error
+                = Run_runJavaFromRuntimeLib(
+                    runtimeLib,
+                    javaHome,
+                    searchForJava);
             free(runtimeLib);
         }
         if (javaHome)
@@ -1388,15 +1440,66 @@ Run_runJavaFromRegKey(HKEY key, BOOL *searchForJava)
 }
 
 static DWORD
-Run_runJavaFromRuntimeLib(LPCTSTR runtimeLib, BOOL *searchForJava)
+Run_runJavaFromRuntimeLib
+    (LPCTSTR runtimeLib, LPCTSTR javaHome, BOOL *searchForJava)
 {
-    HMODULE hRuntimeLib
-        = Run_isFile(runtimeLib) ? LoadLibrary(runtimeLib) : NULL;
+    HMODULE hRuntimeLib;
     DWORD error;
+
+    if (Run_isFile(runtimeLib))
+    {
+        /*
+         * It turns out that the bin directory in javaHome may contain
+         * dependencies of the runtimeLib so add it to the PATH. Well, it may
+         * not be standard but it happens to our private JRE.
+         */
+        if (javaHome && Run_isDirectory(javaHome))
+        {
+            size_t javaHomeLength = _tcslen(javaHome);
+            LPTSTR javaHomeBin;
+
+            /*
+             * Drop the last file name separator if any because we will be
+             * adding one later on.
+             */
+            while (javaHomeLength >= 1)
+            {
+                TCHAR ch = *(javaHome + (javaHomeLength - 1));
+
+                if ((_T('\\') == ch) || (_T('/') == ch))
+                    javaHomeLength--;
+                else
+                    break;
+            }
+
+            javaHomeBin
+                = malloc(
+                    sizeof(TCHAR) * (javaHomeLength + 4 /* "\\bin" */ + 1));
+            if (javaHomeBin)
+            {
+                LPTSTR str = javaHomeBin;
+
+                _tcsncpy(str, javaHome, javaHomeLength);
+                str += javaHomeLength;
+                _tcsncpy(str, _T("\\bin"), 4);
+                str += 4;
+                *str = 0;
+
+                if (Run_isDirectory(javaHomeBin))
+                    Run_addPath(javaHomeBin);
+
+                free(javaHomeBin);
+            }
+        }
+
+        hRuntimeLib = LoadLibrary(runtimeLib);
+    }
+    else
+        hRuntimeLib = NULL;
 
     if (hRuntimeLib)
     {
-        typedef jint (*JNICreateJavaVMFunc)(JavaVM **, void **, void *);
+        typedef jint (JNICALL *JNICreateJavaVMFunc)(JavaVM **, void **, void *);
         JNICreateJavaVMFunc jniCreateJavaVM
             = (JNICreateJavaVMFunc)
                 GetProcAddress(hRuntimeLib, "JNI_CreateJavaVM");
