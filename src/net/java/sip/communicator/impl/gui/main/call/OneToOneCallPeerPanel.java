@@ -218,14 +218,14 @@ public class OneToOneCallPeerPanel
         this.callRenderer = callRenderer;
         this.callPeer = callPeer;
         this.peerName = callPeer.getDisplayName();
-
-        photoLabel = new JLabel(getPhotoLabelIcon());
-        center = createCenter();
-        statusBar = createStatusBar();
         securityStatusLabel = new SecurityStatusLabel(
             callRenderer.getCallContainer().getCallWindow().getFrame(),
             new ImageIcon(
                 ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
+
+        photoLabel = new JLabel(getPhotoLabelIcon());
+        center = createCenter();
+        statusBar = createStatusBar();
 
         this.setPeerImage(CallManager.getPeerImage(callPeer));
 
