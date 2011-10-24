@@ -13,7 +13,7 @@ import net.java.sip.communicator.impl.neomedia.codec.*;
 
 /**
  * Implements the SILK encoder as an FMJ/JMF <tt>Codec</tt>.
- * 
+ *
  * @author Dingxin Xu
  */
 public class JavaEncoder
@@ -54,6 +54,12 @@ public class JavaEncoder
 
     private static final boolean USE_IN_BAND_FEC = false;
 
+    /**
+     * The duration an output <tt>Buffer</tt> produced by this <tt>Codec</tt>
+     * in nanosecond.
+     */
+    private int duration = JavaDecoder.FRAME_DURATION * 1000000;
+
     static
     {
         int supportedCount = SUPPORTED_SAMPLE_RATES.length;
@@ -88,7 +94,7 @@ public class JavaEncoder
                         Format.byteArray);
         }
     }
-    
+
     /**
      * The SILK encoder control (structure).
      */
@@ -111,7 +117,7 @@ public class JavaEncoder
     public JavaEncoder()
     {
         super("SILK Encoder", AudioFormat.class, SUPPORTED_OUTPUT_FORMATS);
-        
+
         inputFormats = SUPPORTED_INPUT_FORMATS;
     }
 
@@ -178,8 +184,18 @@ public class JavaEncoder
 
         inputBuffer.setLength(inputBuffer.getLength() - inputLength);
         inputBuffer.setOffset(inputBuffer.getOffset() + inputLength);
+
         if (processed != BUFFER_PROCESSED_FAILED)
         {
+            if(processed == BUFFER_PROCESSED_OK)
+            {
+                updateOutput(
+                    outputBuffer,
+                    getOutputFormat(), outputBuffer.getLength(),
+                    outputBuffer.getOffset());
+                outputBuffer.setDuration(duration);
+            }
+
             if (inputBuffer.getLength() > 0)
                 processed |= INPUT_BUFFER_NOT_CONSUMED;
         }
@@ -246,5 +262,45 @@ public class JavaEncoder
                         };
             }
         }
+    }
+
+    /**
+     * Get the output format.
+     *
+     * @return output format
+     * @see net.sf.fmj.media.AbstractCodec#getOutputFormat()
+     */
+    @Override
+    public Format getOutputFormat()
+    {
+        Format outputFormat = super.getOutputFormat();
+
+        if ((outputFormat != null)
+                && (outputFormat.getClass() == AudioFormat.class))
+        {
+            AudioFormat outputAudioFormat = (AudioFormat) outputFormat;
+
+            outputFormat = setOutputFormat(
+                new AudioFormat(
+                            outputAudioFormat.getEncoding(),
+                            outputAudioFormat.getSampleRate(),
+                            outputAudioFormat.getSampleSizeInBits(),
+                            outputAudioFormat.getChannels(),
+                            outputAudioFormat.getEndian(),
+                            outputAudioFormat.getSigned(),
+                            outputAudioFormat.getFrameSizeInBits(),
+                            outputAudioFormat.getFrameRate(),
+                            outputAudioFormat.getDataType())
+                        {
+                            private static final long serialVersionUID = 0L;
+
+                            @Override
+                            public long computeDuration(long length)
+                            {
+                                return JavaEncoder.this.duration;
+                            }
+                        });
+        }
+        return outputFormat;
     }
 }
