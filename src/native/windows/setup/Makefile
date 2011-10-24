@@ -56,8 +56,8 @@ else
     DEFINE_PACKAGESIZE = undef PACKAGESIZE
 endif
 
-$(cygwin.target.dir)/$(TARGET_BASENAME).exe: bspatch.c $(cygwin.target.dir)/config.h lasterror.c ../run/registry.c setup.c $(cygwin.target.dir)/setup.res
-	$(CC) $(CPPFLAGS) bspatch.c lasterror.c ../run/registry.c setup.c $(target.dir)/setup.res $(LDFLAGS) -o $(target.dir)/$(TARGET_BASENAME).exe $(LIBS)
+$(cygwin.target.dir)/$(TARGET_BASENAME).exe: bspatch.c $(cygwin.target.dir)/config.h lasterror.c nls.c ../run/registry.c setup.c $(cygwin.target.dir)/setup.res
+	$(CC) $(CPPFLAGS) bspatch.c lasterror.c nls.c ../run/registry.c setup.c $(target.dir)/setup.res $(LDFLAGS) -o $(target.dir)/$(TARGET_BASENAME).exe $(LIBS)
 	-$(MINGW_HOME)/$(MACHINE)/bin/strip.exe $(target.dir)/$(TARGET_BASENAME).exe
 
 .PHONY: $(cygwin.target.dir)/config.h
