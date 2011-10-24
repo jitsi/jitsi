@@ -61,10 +61,19 @@ public class SIPCommunicator
         String vmVendor = System.getProperty("java.vendor");
         String osName = System.getProperty("os.name");
 
-        // disable Direct 3D pipeline (used for fullscreen) before
-        // displaying anything (frame, ...)
+        // setup here all system properties that need to be initialized at
+        // the very beginning of an application
         if(osName.startsWith("Windows"))
+        {
+            // disable Direct 3D pipeline (used for fullscreen) before
+            // displaying anything (frame, ...)
             System.setProperty("sun.java2d.d3d", "false");
+        }
+        else if(osName.startsWith("Mac"))
+        {
+            System.setProperty("apple.awt.fullscreencapturealldisplays",
+                "false");
+        }
 
         /*
          * SC_HOME_DIR_* are specific to the OS so make sure they're configured
