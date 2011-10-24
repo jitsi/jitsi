@@ -54,6 +54,12 @@ public class JavaEncoder
     private short[] sp16;
 
     /**
+     * The duration an output <tt>Buffer</tt> produced by this <tt>Codec</tt>
+     * in nanosecond. We packetize 2 audio frames in one G729 packet.
+     */
+    private int duration = OUTPUT_FRAME_SIZE_IN_BYTES * 2 * 1000000;
+
+    /**
      * Initializes a new <code>JavaEncoder</code> instance.
      */
     public JavaEncoder()
@@ -81,6 +87,46 @@ public class JavaEncoder
                                 AudioFormat.LITTLE_ENDIAN,
                                 AudioFormat.SIGNED)
                     };
+    }
+
+    /**
+     * Get the output format.
+     *
+     * @return output format
+     * @see net.sf.fmj.media.AbstractCodec#getOutputFormat()
+     */
+    @Override
+    public Format getOutputFormat()
+    {
+        Format outputFormat = super.getOutputFormat();
+
+        if ((outputFormat != null)
+                && (outputFormat.getClass() == AudioFormat.class))
+        {
+            AudioFormat outputAudioFormat = (AudioFormat) outputFormat;
+
+            outputFormat = setOutputFormat(
+                new AudioFormat(
+                            outputAudioFormat.getEncoding(),
+                            outputAudioFormat.getSampleRate(),
+                            outputAudioFormat.getSampleSizeInBits(),
+                            outputAudioFormat.getChannels(),
+                            outputAudioFormat.getEndian(),
+                            outputAudioFormat.getSigned(),
+                            outputAudioFormat.getFrameSizeInBits(),
+                            outputAudioFormat.getFrameRate(),
+                            outputAudioFormat.getDataType())
+                        {
+                            private static final long serialVersionUID = 0L;
+
+                            @Override
+                            public long computeDuration(long length)
+                            {
+                                return JavaEncoder.this.duration;
+                            }
+                        });
+        }
+        return outputFormat;
     }
 
     protected void discardOutputBuffer(Buffer outputBuffer)
@@ -200,6 +246,15 @@ public class JavaEncoder
         }
         if (inputLength > 0)
             processResult |= INPUT_BUFFER_NOT_CONSUMED;
+
+        if(processResult == BUFFER_PROCESSED_OK)
+        {
+            updateOutput(
+                outputBuffer,
+                getOutputFormat(), outputBuffer.getLength(),
+                outputBuffer.getOffset());
+            outputBuffer.setDuration(duration);
+        }
         return processResult;
     }
 
