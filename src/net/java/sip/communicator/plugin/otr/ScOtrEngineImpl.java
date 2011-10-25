@@ -86,7 +86,7 @@ public class ScOtrEngineImpl
 
         public void showError(SessionID sessionID, String err)
         {
-            showError(sessionID, err);
+            ScOtrEngineImpl.this.showError(sessionID, err);
         }
 
         public void injectMessage(SessionID sessionID, String messageText)
