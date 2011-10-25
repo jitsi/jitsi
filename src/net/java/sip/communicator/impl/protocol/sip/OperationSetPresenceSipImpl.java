@@ -1852,19 +1852,6 @@ public class OperationSetPresenceSipImpl
      */
     Document createDocument()
     {
-//        try
-//        {
-//            if (this.docBuilderFactory == null)
-//                this.docBuilderFactory = DocumentBuilderFactory.newInstance();
-//            if (this.docBuilder == null)
-//                this.docBuilder = this.docBuilderFactory.newDocumentBuilder();
-//        }
-//        catch (Exception e)
-//        {
-//            logger.error("can't create the new xml document", e);
-//            return null;
-//        }
-//        return this.docBuilder.newDocument();
         try
         {
             return XMLUtils.createDocument();
@@ -1886,23 +1873,6 @@ public class OperationSetPresenceSipImpl
      */
     String convertDocument(Document document)
     {
-//        DOMSource source = new DOMSource(document);
-//        StringWriter stringWriter = new StringWriter();
-//        StreamResult result = new StreamResult(stringWriter);
-//        try
-//        {
-//            if (this.transFactory == null)
-//                this.transFactory = TransformerFactory.newInstance();
-//            if (this.transformer == null)
-//                this.transformer = this.transFactory.newTransformer();
-//            this.transformer.transform(source, result);
-//        }
-//        catch (Exception e)
-//        {
-//            logger.error("can't convert the xml document into a string", e);
-//            return null;
-//        }
-//        return stringWriter.toString();
         try
         {
             return XMLUtils.createXml(document);
@@ -1924,26 +1894,6 @@ public class OperationSetPresenceSipImpl
      */
     Document convertDocument(String document)
     {
-//        StringReader reader = new StringReader(document);
-//        StreamSource source = new StreamSource(reader);
-//        Document doc = createDocument();
-//        if (doc == null)
-//            return null;
-//        DOMResult result = new DOMResult(doc);
-//        try
-//        {
-//            if (this.transFactory == null)
-//                this.transFactory = TransformerFactory.newInstance();
-//            if (this.transformer == null)
-//                this.transformer = this.transFactory.newTransformer();
-//            this.transformer.transform(source, result);
-//        }
-//        catch (Exception e)
-//        {
-//            logger.error("can't convert the string into a xml document", e);
-//            return null;
-//        }
-//        return doc;
         try
         {
             return XMLUtils.createDocument(document);
@@ -2332,7 +2282,7 @@ public class OperationSetPresenceSipImpl
                      {
                          Object[] tmp = sipcontact.get(k);
 
-                         if (((Contact) tmp[0]).equals(tmpContact))
+                         if (tmp[0].equals(tmpContact))
                          {
                              contactAlreadyListed = true;
 
@@ -2359,16 +2309,6 @@ public class OperationSetPresenceSipImpl
              {
                  if (logger.isDebugEnabled())
                      logger.debug("no contact found for id: " + contactID);
-                 continue;
-             }
-
-             // if we use RPID, simply ignore the standard PIDF status
-             if (personStatus != null)
-             {
-                 newPresenceStates = setStatusForContacts(
-                         personStatus,
-                         sipcontact,
-                         newPresenceStates);
                  continue;
              }
 
@@ -2470,14 +2410,27 @@ public class OperationSetPresenceSipImpl
              {
                  if (getTextContent(basic).equalsIgnoreCase(ONLINE_STATUS))
                  {
-                     newPresenceStates = setStatusForContacts(
-                             sipStatusEnum.getStatus(SipStatusEnum.ONLINE),
-                             sipcontact,
-                             newPresenceStates);
+                     // if its online(open) we use the person status
+                     // if any, otherwise just mark as online
+                     if(personStatus != null)
+                     {
+                         newPresenceStates = setStatusForContacts(
+                                 personStatus,
+                                 sipcontact,
+                                 newPresenceStates);
+                     }
+                     else
+                     {
+                         newPresenceStates = setStatusForContacts(
+                                 sipStatusEnum.getStatus(SipStatusEnum.ONLINE),
+                                 sipcontact,
+                                 newPresenceStates);
+                     }
                  }
                  else if (getTextContent(basic).equalsIgnoreCase(
                          OFFLINE_STATUS))
                  {
+                     // if its offline we ignore person status
                      newPresenceStates = setStatusForContacts(
                              sipStatusEnum.getStatus(SipStatusEnum.OFFLINE),
                              sipcontact,
