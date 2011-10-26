@@ -513,6 +513,24 @@ public class CallPeerMediaHandlerSipImpl
                 QualityPreset sendQualityPreset = null;
                 QualityPreset receiveQualityPreset = null;
 
+                // update stream
+                MediaStream stream = getStream(MediaType.VIDEO);
+
+                if(stream != null && dev != null)
+                {
+                    List<MediaFormat> fmts = intersectFormats(
+                        dev.getSupportedFormats(),
+                        remoteFormats);
+
+                    if(fmts.size() > 0)
+                    {
+                        MediaFormat fmt = fmts.get(0);
+
+                        ((VideoMediaStream)stream).updateQualityControl(
+                            fmt.getAdvancedAttributes());
+                    }
+                }
+
                 if(qualityControls != null)
                 {
                     // the one we will send is the other party receive

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.neomedia;
 
 import java.awt.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -88,4 +89,13 @@ public interface VideoMediaStream
      * @return the <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>
      */
     public QualityControl getQualityControl();
+
+    /**
+     * Updates the <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>.
+     *
+     * @param advancedParams parameters of advanced attributes that may affect
+     * quality control
+     */
+    public void updateQualityControl(
+        Map<String, String> advancedParams);
 }

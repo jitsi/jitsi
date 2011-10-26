@@ -921,6 +921,32 @@ public class VideoMediaStreamImpl
     }
 
     /**
+     * Updates the <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>.
+     *
+     * @param advancedParams parameters of advanced attributes that may affect
+     * quality control
+     */
+    public void updateQualityControl(
+        Map<String, String> advancedParams)
+    {
+        for(Map.Entry<String, String> entry : advancedParams.entrySet())
+        {
+            if(entry.getKey().equals("imageattr"))
+            {
+                Dimension res[] = parseSendRecvResolution(entry.getValue());
+
+                if(res != null)
+                {
+                    qualityControl.setRemoteSendMaxPreset(
+                        new QualityPreset(res[0]));
+                    qualityControl.setRemoteReceiveResolution(
+                        res[1]);
+                }
+            }
+        }
+    }
+
+    /**
      * Implements the <tt>KeyFrameControl</tt> of this
      * <tt>VideoMediaStream</tt>.
      *
