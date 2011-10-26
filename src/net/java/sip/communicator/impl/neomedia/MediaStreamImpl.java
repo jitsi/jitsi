@@ -1465,13 +1465,16 @@ public class MediaStreamImpl
     public void setFormat(MediaFormat format)
     {
         MediaDeviceSession deviceSession = getDeviceSession();
-        MediaFormat deviceSessionFormat = null;
+        MediaFormatImpl<? extends Format> deviceSessionFormat = null;
 
         if (deviceSession != null)
         {
             deviceSessionFormat = deviceSession.getFormat();
             if ((deviceSessionFormat != null)
-                    && deviceSessionFormat.equals(format))
+                    && deviceSessionFormat.equals(format)
+                    && deviceSessionFormat.advancedAttributesAreEqual(
+                        deviceSessionFormat.getAdvancedAttributes(),
+                        format.getAdvancedAttributes()))
                 return;
         }
 

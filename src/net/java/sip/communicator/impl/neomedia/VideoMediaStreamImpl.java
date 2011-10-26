@@ -941,6 +941,9 @@ public class VideoMediaStreamImpl
                         new QualityPreset(res[0]));
                     qualityControl.setRemoteReceiveResolution(
                         res[1]);
+                    outputSize = res[1];    
+                    ((VideoMediaDeviceSession)getDeviceSession()).
+                        setOutputSize(outputSize);
                 }
             }
         }

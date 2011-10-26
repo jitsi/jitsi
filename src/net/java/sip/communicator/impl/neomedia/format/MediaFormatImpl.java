@@ -137,6 +137,45 @@ public abstract class MediaFormatImpl<T extends Format>
     }
 
     /**
+     * Determines whether a specific set of advanced attributes is equal to
+     * another set of advanced attributes in the sense that they define an equal
+     * number of parameters and assign them equal values. Since the values are
+     * <tt>String</tt>s, presumes that a value of <tt>null</tt> is equal to the
+     * empty <tt>String</tt>.
+     * <p>
+     *
+     * @param adv the first set of advanced attributes to be tested for
+     * equality
+     * @param adv2 the second set of advanced attributes to be tested for
+     * equality
+     * @return <tt>true</tt> if the specified sets of advanced attributes
+     * equal; <tt>false</tt>, otherwise
+     */
+    public boolean advancedAttributesAreEqual(Map<String, String> adv,
+            Map<String, String> adv2)
+    {
+        if(adv == null && adv2 != null || adv != null && adv2 == null)
+            return false;
+
+        if(adv == null && adv2 == null)
+            return true;
+
+        if(adv.size() != adv2.size())
+            return false;
+
+        for(Map.Entry<String, String> a : adv.entrySet())
+        {
+            String value = adv2.get(a.getKey());
+            if(value == null)
+                return false;
+            else
+                if(!value.equals(a.getValue()))
+                        return false;
+        }
+        return true;
+    }
+
+    /**
      * Determines whether a specific set of format parameters is equal to
      * another set of format parameters in the sense that they define an equal
      * number of parameters and assign them equal values. Since the values are
