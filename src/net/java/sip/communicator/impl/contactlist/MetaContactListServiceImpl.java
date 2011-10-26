@@ -1008,7 +1008,9 @@ public class MetaContactListServiceImpl
         //first remove the meta contact from its current parent:
         MetaContactGroupImpl currentParent
             = (MetaContactGroupImpl) findParentMetaContactGroup(metaContact);
-        currentParent.removeMetaContact( (MetaContactImpl) metaContact);
+
+        if (currentParent != null)
+            currentParent.removeMetaContact( (MetaContactImpl) metaContact);
 
         ( (MetaContactGroupImpl) newMetaGroup).addMetaContact(
             (MetaContactImpl) metaContact);
@@ -1173,15 +1175,16 @@ public class MetaContactListServiceImpl
     {
         if (! (groupToRemove instanceof MetaContactGroupImpl))
         {
-            throw new IllegalArgumentException(groupToRemove
-                                               +
-                                               " is not an instance of MetaContactGroupImpl");
+            throw new IllegalArgumentException(
+                groupToRemove
+                + " is not an instance of MetaContactGroupImpl");
         }
 
         try
         {
             //remove all proto groups and then remove the meta group as well.
-            Iterator<ContactGroup> protoGroups = groupToRemove.getContactGroups();
+            Iterator<ContactGroup> protoGroups
+                = groupToRemove.getContactGroups();
 
             while (protoGroups.hasNext())
             {
@@ -1201,12 +1204,12 @@ public class MetaContactListServiceImpl
 
                 opSetPersPresence.removeServerStoredContactGroup(protoGroup);
             }
-        }catch(Exception ex)
+        }
+        catch(Exception ex)
         {
             throw new MetaContactListException(ex.getMessage(),
                 MetaContactListException.CODE_REMOVE_GROUP_ERROR);
         }
-
 
         MetaContactGroupImpl parentMetaGroup = (MetaContactGroupImpl)
             findParentMetaContactGroup(groupToRemove);
@@ -1287,7 +1290,8 @@ public class MetaContactListServiceImpl
         //first go through all direct children.
         while (childrenContactsIter.hasNext())
         {
-            MetaContactImpl child = (MetaContactImpl) childrenContactsIter.next();
+            MetaContactImpl child
+                = (MetaContactImpl) childrenContactsIter.next();
 
             //Get references to all contacts that will be removed in case we
             //need to fire an event.
@@ -1751,8 +1755,8 @@ public class MetaContactListServiceImpl
         //ignore if persistent presence is not supported.
         if(persPresOpSet != null)
         {
-          //we don't gare about subscription and presence status events here any
-            //longer
+            //we don't care about subscription and presence status events here 
+            // any longer.
             persPresOpSet.removeContactPresenceStatusListener(this);
             persPresOpSet.removeSubscriptionListener(
                 clSubscriptionEventHandler);
