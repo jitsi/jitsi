@@ -290,6 +290,7 @@
         </condition>
         <property name="windows.download.link" value="${link.download.windows32}"/>
         <property name="windows.package.name.suffix" value="x86.exe"/>
+        <property name="windows.msi.package.name.suffix" value="x86.msi"/>
         <property name="windows.arch" value="32"/>
         <property name="mingw.home" value="C:/mingw/x86" />
         <antcall target="build-installation-wix-base" />
@@ -304,6 +305,7 @@
         </condition>
         <property name="windows.download.link" value="${link.download.windows64}"/>
         <property name="windows.package.name.suffix" value="x64.exe"/>
+        <property name="windows.msi.package.name.suffix" value="x64.msi"/>
         <property name="windows.arch" value="64"/>
         <property name="mingw.home" value="C:/mingw/x64" />
         <antcall target="build-installation-wix-base" />
@@ -365,7 +367,11 @@
 
     <target name="build-installation-wix-base"
             depends="clean-install-windows">
-        <property name="windows.package.name" value="${package.name}-${sip-communicator.version}-${windows.package.name.suffix}"/>
+        <property name="windows.package.name"
+            value="${package.name}-${sip-communicator.version}-${windows.package.name.suffix}"/>
+        <property name="windows.msi.package.name"
+            value="${package.name}-${sip-communicator.version}-${windows.msi.package.name.suffix}"/>
+
         <!--
             Provide access to the environment variables via the prefix "env."
             because we will modify at least the PATH.
@@ -530,28 +536,6 @@
             <equals arg1="${windows.arch}" arg2="64" />
         </condition>
 
-        <!-- Finish the preparation for the execution of candle.exe -->
-        <filter token="APP_EMAIL" value="${application.email}" />
-        <filter token="APP_NAME" value="${application.name}" />
-        <filter token="APP_WEB" value="${application.web}" />
-        <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
-        <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
-        <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
-        <filter token="WINDOWS_IS_64" value="${windows.is.64}" />
-        <filter token="WIX_PRODUCT_ID" value="${wix.product.id}" />
-        <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
-        <copy
-                todir="${windows.app.dir}/tmp"
-                overwrite="true"
-                filtering="yes">
-            <fileset dir="${inst.resrc}/windows">
-                <include name="*.wxl" />
-                <include name="installer-windows.wxs" />
-                <include name="SCRegistrySpec.wxi" />
-                <include name="windows_shortcut_specification.wxi" />
-            </fileset>
-        </copy>
-
         <!--
           Build cleansweep.exe because it is to be included in the setup by
           candle.exe
@@ -572,7 +556,7 @@
             </fileset>
         </delete>
 
-        <!-- Execute candle.exe -->
+        <!-- prepare properties for executing candle.exe -->
         <condition property="candle.var.Platform" value="x64" else="x86">
             <equals arg1="${windows.arch}" arg2="64" />
         </condition>
@@ -590,6 +574,79 @@
                 </not>
             </and>
         </condition>
+
+        <!-- should we create a separate msi target -->
+        <condition property="msi.var.store" value="true" else="false">
+            <equals arg1="${wix.store.msi}" arg2="true" />
+        </condition>
+        <antcall target="build-installation-wix-msi">
+            <param name="msi.var.compress" value="high"/>
+        </antcall>
+        <move
+                failonerror="false"
+                file="${windows.app.dir}/tmp/setup.msi"
+                preservelastmodified="true"
+                tofile="${windows.app.dir}\${windows.msi.package.name}" />
+
+        <!-- now build msi needed for the exe distribution without compression -->
+        <antcall target="build-installation-wix-msi">
+            <param name="msi.var.compress" value="none"/>
+            <param name="wix.store.msi" value="true"/>
+        </antcall>
+
+        <!-- Bootstrap the MSI into an EXE. -->
+        <exec
+                dir="${windows.app.dir}/tmp"
+                executable="${inst.resrc}/windows/xz.exe"
+                failonerror="true">
+            <arg value="-zk9ev" />
+            <arg value="setup.msi" />
+        </exec>
+        <exec
+                dir="${src}/native/windows/setup"
+                executable="make.exe"
+                failonerror="true">
+            <env key="PATH" path="${mingw.home}/bin;${env.PATH}" />
+            <arg value="MINGW_HOME=${mingw.home}" />
+            <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
+        </exec>
+        <move
+                file="${windows.app.dir}/tmp/setup.exe"
+                preservelastmodified="true"
+                tofile="${windows.app.dir}\${windows.package.name}" />
+
+        <!-- before deleting try building the deltas -->
+        <antcall target="build-wix-delta-updates"/>
+
+        <delete dir="${light.dir}" />
+        <delete dir="${windows.app.dir}/tmp" />
+    </target>
+
+    <target name="build-installation-wix-msi" if="wix.store.msi">
+        <!-- Finish the preparation for the execution of candle.exe -->
+        <filter token="APP_EMAIL" value="${application.email}" />
+        <filter token="APP_NAME" value="${application.name}" />
+        <filter token="APP_WEB" value="${application.web}" />
+        <filter token="WelcomeText1" value="${installer.welcome.wtext1}" />
+        <filter token="WelcomeText2" value="${installer.welcome.wtext2}" />
+        <filter token="WelcomeText3" value="${installer.welcome.wtext3}" />
+        <filter token="WINDOWS_IS_64" value="${windows.is.64}" />
+        <filter token="WIX_PRODUCT_ID" value="${wix.product.id}" />
+        <filter token="WIX_UPGRADE_CODE" value="${wix.upgrade.code}" />
+        <filter token="WIX_COMPRESS_LEVEL" value="${msi.var.compress}" />
+        <copy
+                todir="${windows.app.dir}/tmp"
+                overwrite="true"
+                filtering="yes">
+            <fileset dir="${inst.resrc}/windows">
+                <include name="*.wxl" />
+                <include name="installer-windows.wxs" />
+                <include name="SCRegistrySpec.wxi" />
+                <include name="windows_shortcut_specification.wxi" />
+            </fileset>
+        </copy>
+
+        <!-- Execute candle.exe -->
         <exec
                 executable="${wix.home}\candle.exe"
                 dir="${windows.app.dir}/tmp"
@@ -633,7 +690,7 @@
             <arg value="${windows.app.dir}\tmp\setup.msi" />
             <arg value="${windows.app.dir}\tmp\installer-windows.wixobj" />
         </exec>
-        
+
         <!-- create transform files for the supported setup locales -->
         <antcall target="build-installation-wix-locale">
             <param name="locale.name" value="fr-fr"/>
@@ -643,7 +700,7 @@
             <property name="locale.name" value="bg-bg"/>
             <property name="locale.codepage" value="1251"/>
         </antcall-->
-        
+
         <!-- After we have created all transform files for all locales,
             embed them into the setup msi one by one,
             the last param is the LCID in order language to be
@@ -674,32 +731,6 @@
             <arg value="1026" />
         </exec-->
 
-        <!-- Bootstrap the MSI into an EXE. -->
-        <exec
-                dir="${windows.app.dir}/tmp"
-                executable="${inst.resrc}/windows/xz.exe"
-                failonerror="true">
-            <arg value="-zk9ev" />
-            <arg value="setup.msi" />
-        </exec>
-        <exec
-                dir="${src}/native/windows/setup"
-                executable="make.exe"
-                failonerror="true">
-            <env key="PATH" path="${mingw.home}/bin;${env.PATH}" />
-            <arg value="MINGW_HOME=${mingw.home}" />
-            <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
-        </exec>
-        <move
-                file="${windows.app.dir}/tmp/setup.exe"
-                preservelastmodified="true"
-                tofile="${windows.app.dir}\${windows.package.name}" />
-
-        <!-- before deleting try building the deltas -->
-        <antcall target="build-wix-delta-updates"/>
-
-        <delete dir="${light.dir}" />
-        <delete dir="${windows.app.dir}/tmp" />
     </target>
 
     <!-- Creates localized msi installers and the resulting

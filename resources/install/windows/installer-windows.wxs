@@ -141,7 +141,7 @@
   latter problem, we will compress the resulting MSI upon embedding it into the
   setup bootstrapper.
 -->
-<Media Id="1" Cabinet="Data1.cab" CompressionLevel="none" EmbedCab="yes" />
+<Media Id="1" Cabinet="Data1.cab" CompressionLevel="@WIX_COMPRESS_LEVEL@" EmbedCab="yes" />
 
 <UI>
   <UIRef Id="WixUI_CInstallDir" />
