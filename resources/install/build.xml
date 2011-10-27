@@ -406,6 +406,9 @@
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
         </exec>
+        <antcall target="wix-sign-file">
+            <param name="file.to.sign" value="${light.dir}/run.exe"/>
+        </antcall>
         <delete>
             <fileset dir="${light.dir}">
                 <include name="config.h" />
@@ -549,6 +552,9 @@
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
         </exec>
+        <antcall target="wix-sign-file">
+            <param name="file.to.sign" value="${light.dir}/cleansweep.exe"/>
+        </antcall>
         <delete>
             <fileset dir="${light.dir}">
                 <include name="config.h" />
@@ -610,6 +616,9 @@
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${windows.app.dir}/tmp" />
         </exec>
+        <antcall target="wix-sign-file">
+            <param name="file.to.sign" value="${windows.app.dir}\tmp\setup.exe"/>
+        </antcall>
         <move
                 file="${windows.app.dir}/tmp/setup.exe"
                 preservelastmodified="true"
@@ -730,6 +739,10 @@
             <arg value="${windows.app.dir}\tmp\bg-bg.mst" />
             <arg value="1026" />
         </exec-->
+
+        <antcall target="wix-sign-file">
+            <param name="file.to.sign" value="${windows.app.dir}\tmp\setup.msi"/>
+        </antcall>
 
     </target>
 
@@ -860,10 +873,27 @@
             <arg value="PACKAGECODE=${old.packagecode}" />
             <arg value="PACKAGESIZE=${old.packagesize}" />
         </exec>
+        <antcall target="wix-sign-file">
+            <param name="file.to.sign" value="${windows.app.dir}\tmp\setup.exe"/>
+        </antcall>
         <move
                 file="${windows.app.dir}/tmp/setup.exe"
                 preservelastmodified="true"
                 tofile="${windows.app.dir}\${package.name}-${sip-communicator.version}-delta-${old.wix.build}-${windows.package.name.suffix}" />
+    </target>
+
+    <target name="wix-sign-file" if="sign.cert.file">
+        <exec executable="${inst.resrc}/windows/signtool.exe"
+              failonerror="true">
+            <arg value="sign" />
+            <arg value="/d" />
+            <arg value="${application.name}" />
+            <arg value="/f" />
+            <arg value="${sign.cert.file}" />
+            <arg value="/p" />
+            <arg value="${sign.cert.password}" />
+            <arg value="${file.to.sign}" />
+        </exec>
     </target>
 
     <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->
