@@ -65,6 +65,11 @@ public class CallPeerJabberImpl
     private final Object candSyncRoot = new Object();
 
     /**
+     * If the content-add does not contains candidates.
+     */
+    private boolean contentAddWithNoCands = false;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
@@ -758,6 +763,52 @@ public class CallPeerJabberImpl
 
     /**
      * Send a <tt>content</tt> message to reflect change in video setup (start
+     * or stop).
+     */
+    public void sendModifyVideoResolutionContent()
+    {
+        ContentPacketExtension remoteContent = getMediaHandler().
+            getRemoteContent(MediaType.VIDEO.toString());
+        ContentPacketExtension content;
+
+        logger.info("send modify-content to change resolution");
+
+        // send content-modify with RTP description
+        SendersEnum senders = remoteContent.getSenders();
+
+        // create content list with resolution
+        try
+        {
+            content = getMediaHandler().createContentForMedia(MediaType.VIDEO);
+        }
+        catch(Exception exc)
+        {
+            logger.warn("Failed to gather content for video type", exc);
+            return;
+        }
+
+        content.setSenders(senders);
+
+        JingleIQ contentIQ = JinglePacketFactory
+            .createContentModify(getProtocolProvider().getOurJID(),
+                            this.peerJID, getJingleSID(), content);
+
+        getProtocolProvider().getConnection().sendPacket(contentIQ);
+
+        try
+        {
+            getMediaHandler().reinitContent(remoteContent.getName(), content,
+                false);
+            getMediaHandler().start();
+        }
+        catch(Exception e)
+        {
+            logger.warn("Exception occurred when media reinitialization", e);
+        }
+    }
+
+    /**
+     * Send a <tt>content</tt> message to reflect change in video setup (start
      * or stop). Message can be content-modify if video content exists,
      * content-add if we start video but video is not enabled on the peer or
      * content-remove if we stop video and video is not enabled on the peer.
@@ -832,7 +883,8 @@ public class CallPeerJabberImpl
 
         try
         {
-            getMediaHandler().reinitContent(remoteContent.getName(), senders);
+            getMediaHandler().reinitContent(remoteContent.getName(), ext,
+                false);
             getMediaHandler().start();
         }
         catch(Exception e)
@@ -840,8 +892,6 @@ public class CallPeerJabberImpl
             logger.warn("Exception occurred when media reinitialization", e);
         }
      }
-
-    private boolean contentAddWithNoCands = false;
 
     /**
      * Processes the content-add {@link JingleIQ}.
@@ -986,11 +1036,16 @@ public class CallPeerJabberImpl
     public void processContentModify(JingleIQ content)
     {
         ContentPacketExtension ext = content.getContentList().get(0);
-        SendersEnum senders = ext.getSenders();
 
         try
         {
-            getMediaHandler().reinitContent(ext.getName(), senders);
+            boolean modify = false;
+            if(ext.getFirstChildOfType(RtpDescriptionPacketExtension.class) !=
+                null)
+            {
+                modify = true;
+            }
+            getMediaHandler().reinitContent(ext.getName(), ext, modify);
         }
         catch(Exception exc)
         {

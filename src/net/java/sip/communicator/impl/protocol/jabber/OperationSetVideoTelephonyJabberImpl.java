@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
@@ -155,5 +156,17 @@ public class OperationSetVideoTelephonyJabberImpl
         /* answer with video */
         callPeer.getCall().setLocalVideoAllowed(true, getMediaUseCase());
         callPeer.answer();
+    }
+
+    /**
+     * Returns the quality control for video calls if any.
+     * Return null so protocols who supports it to override it.
+     * @param peer the peer which this control operates on.
+     * @return the implemented quality control.
+     */
+    public QualityControl getQualityControl(CallPeer peer)
+    {
+        return ((CallPeerJabberImpl) peer).getMediaHandler().
+            getQualityControl();
     }
 }

@@ -72,6 +72,17 @@ public class CallPeerMediaHandlerJabberImpl
     private boolean localInputEvtAware = false;
 
     /**
+     * Whether other party is able to change video quality settings.
+     * Normally its whether we have detected existence of imageattr in sdp.
+     */
+    private boolean supportQualityControls = false;
+
+    /**
+     * The current quality controls for this peer media handler if any.
+     */
+    private QualityControlWrapper qualityControls = null;
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -81,6 +92,7 @@ public class CallPeerMediaHandlerJabberImpl
     public CallPeerMediaHandlerJabberImpl(CallPeerJabberImpl peer)
     {
         super(peer, peer);
+        qualityControls = new QualityControlWrapper(peer);
     }
 
     /**
@@ -501,6 +513,18 @@ public class CallPeerMediaHandlerJabberImpl
                     = JingleUtils.extractRTPExtensions(
                             description, this.getRtpExtensionsRegistry());
 
+            Map<String, String> adv = format.getAdvancedAttributes();
+            if(adv != null)
+            {
+                for(Map.Entry<String, String> f : adv.entrySet())
+                {
+                    if(f.getKey().equals("imageattr"))
+                    {
+                        supportQualityControls = true;
+                    }
+                }
+            }
+
             // create the corresponding stream...
             initStream(ourContent.getName(), connector, dev, format, target,
                             direction, rtpExtensions);
@@ -543,10 +567,23 @@ public class CallPeerMediaHandlerJabberImpl
         if(isLocallyOnHold())
             direction = direction.and(MediaDirection.SENDONLY);
 
+        QualityPreset sendQualityPreset = null;
+        QualityPreset receiveQualityPreset = null;
+
+        if(qualityControls != null)
+        {
+            // the one we will send is the one the other part has announced
+            // as receive
+            sendQualityPreset = qualityControls.getRemoteReceivePreset();
+            // the one we want to receive is the setting that remote
+            // can send
+            receiveQualityPreset = qualityControls.getRemoteSendMaxPreset();
+        }
         if(direction != MediaDirection.INACTIVE)
         {
             ContentPacketExtension content = createContentForOffer(
-                    dev.getSupportedFormats(), direction,
+                    dev.getSupportedFormats(sendQualityPreset,
+                        receiveQualityPreset), direction,
                     dev.getSupportedExtensions());
 
             //ZRTP
@@ -584,6 +621,31 @@ public class CallPeerMediaHandlerJabberImpl
 
             return content;
         }
+        return null;
+    }
+
+    /**
+     * Creates a {@link ContentPacketExtension} for a particular stream.
+     *
+     * @param mediaType <tt>MediaType</tt> of the content
+     * @return a {@link ContentPacketExtension}
+     * @throws OperationFailedException if we fail to create the descriptions
+     * for reasons like - problems with device interaction, allocating ports,
+     * etc.
+     */
+    public ContentPacketExtension createContentForMedia(
+        MediaType mediaType)
+        throws OperationFailedException
+    {
+        MediaDevice dev = getDefaultDevice(mediaType);
+
+        if (dev != null)
+        {
+            ContentPacketExtension content = createContent(dev);
+
+            return content;
+        }
+
         return null;
     }
 
@@ -766,7 +828,6 @@ public class CallPeerMediaHandlerJabberImpl
 
         //now add the transport elements
         return harvestCandidates(null, mediaDescs, transportInfoSender);
-
     }
 
     /**
@@ -824,7 +885,7 @@ public class CallPeerMediaHandlerJabberImpl
             ContentPacketExtension ext = remoteContentMap.get(key);
 
             if(ext != null)
-                processContent(ext);
+                processContent(ext, false);
         }
     }
 
@@ -832,7 +893,8 @@ public class CallPeerMediaHandlerJabberImpl
      * Reinitialize a media content such as video.
      *
      * @param name name of the Jingle content
-     * @param senders media direction
+     * @param content media content
+     * @param modify if it correspond to a content-modify for resolution change
      * @throws OperationFailedException if we fail to handle <tt>content</tt>
      * for reasons like failing to initialize media devices or streams.
      * @throws IllegalArgumentException if there's a problem with the syntax or
@@ -844,7 +906,8 @@ public class CallPeerMediaHandlerJabberImpl
      */
     public void reinitContent(
             String name,
-            ContentPacketExtension.SendersEnum senders)
+            ContentPacketExtension content,
+            boolean modify)
         throws OperationFailedException,
                IllegalArgumentException
     {
@@ -852,9 +915,17 @@ public class CallPeerMediaHandlerJabberImpl
 
         if(ext != null)
         {
-            ext.setSenders(senders);
-            processContent(ext);
-            remoteContentMap.put(name, ext);
+            if(modify)
+            {
+                processContent(content, modify);
+                remoteContentMap.put(name, content);
+            }
+            else
+            {
+                ext.setSenders(content.getSenders());
+                processContent(ext, modify);
+                remoteContentMap.put(name, ext);
+            }
         }
     }
 
@@ -903,7 +974,7 @@ public class CallPeerMediaHandlerJabberImpl
      * corresponding <tt>MediaStream</tt>.
      *
      * @param content a <tt>ContentPacketExtension</tt>
-     *
+     * @param modify if it correspond to a content-modify for resolution change
      * @throws OperationFailedException if we fail to handle <tt>content</tt>
      * for reasons like failing to initialize media devices or streams.
      * @throws IllegalArgumentException if there's a problem with the syntax or
@@ -913,7 +984,7 @@ public class CallPeerMediaHandlerJabberImpl
      * in this operation can synchronize to the mediaHandler instance to wait
      * processing to stop (method setState in CallPeer).
      */
-    private void processContent(ContentPacketExtension content)
+    private void processContent(ContentPacketExtension content, boolean modify)
         throws OperationFailedException,
                IllegalArgumentException
     {
@@ -985,6 +1056,55 @@ public class CallPeerMediaHandlerJabberImpl
         List<RTPExtension> rtpExtensions = intersectRTPExtensions(
                         remoteRTPExtensions, supportedExtensions);
 
+        Map<String, String> adv = supportedFormats.get(0).getAdvancedAttributes();
+        if(adv != null)
+        {
+            for(Map.Entry<String, String> f : adv.entrySet())
+            {
+                if(f.getKey().equals("imageattr"))
+                {
+                    supportQualityControls = true;
+                }
+            }
+        }
+
+        // check for options from remote party and set them locally
+        if(mediaType.equals(MediaType.VIDEO) && modify)
+        {
+            QualityPreset sendQualityPreset = null;
+            QualityPreset receiveQualityPreset = null;
+
+            // update stream
+            MediaStream stream = getStream(MediaType.VIDEO);
+
+            if(stream != null && dev != null)
+            {
+                List<MediaFormat> fmts = supportedFormats;
+
+                if(fmts.size() > 0)
+                {
+                    MediaFormat fmt = fmts.get(0);
+
+                    ((VideoMediaStream)stream).updateQualityControl(
+                        fmt.getAdvancedAttributes());
+                }
+            }
+
+            if(qualityControls != null)
+            {
+                receiveQualityPreset = qualityControls.getRemoteReceivePreset();
+                sendQualityPreset = qualityControls.getRemoteSendMaxPreset();
+
+                supportedFormats
+                    = (dev == null)
+                        ? null
+                        : intersectFormats(
+                            supportedFormats,
+                            dev.getSupportedFormats(
+                                sendQualityPreset, receiveQualityPreset));
+            }
+        }
+
         // create the corresponding stream...
         initStream(content.getName(), connector, dev,
                 supportedFormats.get(0), target, direction, rtpExtensions);
@@ -1019,7 +1139,7 @@ public class CallPeerMediaHandlerJabberImpl
         {
             remoteContentMap.put(content.getName(), content);
 
-            processContent(content);
+            processContent(content, false);
         }
     }
 
@@ -1378,5 +1498,33 @@ public class CallPeerMediaHandlerJabberImpl
                 stream.setTarget(transportManager.getStreamTarget(mediaType));
             }
         }
+    }
+
+    /**
+     * Returns the quality control for video calls if any.
+     * @return the implemented quality control.
+     */
+    public QualityControl getQualityControl()
+    {
+        if(supportQualityControls)
+        {
+            return qualityControls;
+        }
+        else
+        {
+            // we have detected that its not supported and return null
+            // and control ui won't be visible
+            return null;
+        }
+    }
+
+    /**
+     * Sometimes as initing a call with custom preset can set and we force
+     * that quality controls is supported.
+     * @param value whether quality controls is supported..
+     */
+    public void setSupportQualityControls(boolean value)
+    {
+        this.supportQualityControls = value;
     }
 }

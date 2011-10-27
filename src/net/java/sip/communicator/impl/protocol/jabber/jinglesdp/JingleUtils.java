@@ -117,10 +117,14 @@ public class JingleUtils
         //convert params to a name:value map
         List<ParameterPacketExtension> params = payloadType.getParameters();
         Map<String, String> paramsMap = new HashMap<String, String>();
+        Map<String, String> advancedMap = new HashMap<String, String>();
 
         for(ParameterPacketExtension param : params)
         {
-            paramsMap.put(param.getName(), param.getValue());
+            if(param.getName().equals("imageattr"))
+                advancedMap.put(param.getName(), param.getValue());
+            else
+                paramsMap.put(param.getName(), param.getValue());
         }
 
         // video related attribute in payload type element
@@ -143,7 +147,7 @@ public class JingleUtils
                             payloadType.getChannels(),
                             -1,
                             paramsMap,
-                            null);
+                            advancedMap);
 
         //we don't seem to know anything about this format
         if(format == null)
