@@ -105,7 +105,7 @@ public class AuthenticationWindow
                                 boolean isUserNameEditable,
                                 ImageIcon icon)
     {
-        this(null, server, isUserNameEditable, icon);
+        this(new JDialog(), server, isUserNameEditable, icon);
     }
 
     /**
