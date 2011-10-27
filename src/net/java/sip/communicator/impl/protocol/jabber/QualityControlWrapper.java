@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -17,7 +18,7 @@ import net.java.sip.communicator.util.*;
  * @author Sebastien Vincent
  */
 public class QualityControlWrapper
-    implements QualityControl
+    extends AbstractQualityControlWrapper<CallPeerJabberImpl>
 {
     /**
      * Our class logger.
@@ -26,119 +27,12 @@ public class QualityControlWrapper
         = Logger.getLogger(QualityControlWrapper.class);
 
     /**
-     * The peer we are controlling.
-     */
-    private CallPeerJabberImpl peer;
-
-    /**
-     * The media quality control.
-     */
-    private QualityControl qualityControl;
-
-    /**
-     * The currently used video quality preset.
-     */
-    protected QualityPreset remoteSendMaxPreset = null;
-
-    /**
-     * The frame rate.
-     */
-    private float maxFrameRate = -1;
-
-    /**
      * Creates quality control for peer.
-     * @param peer
+     * @param peer peer
      */
     QualityControlWrapper(CallPeerJabberImpl peer)
     {
-        this.peer = peer;
-    }
-
-    /**
-     * Checks and obtains quality control from media stream.
-     * @return
-     */
-    private QualityControl getMediaQualityControl()
-    {
-        if(qualityControl != null)
-            return qualityControl;
-
-        MediaStream stream = peer.getMediaHandler().getStream(MediaType.VIDEO);
-
-        if(stream != null && stream instanceof VideoMediaStream)
-            qualityControl = ((VideoMediaStream)stream).getQualityControl();
-
-        return qualityControl;
-    }
-
-    /**
-     * The currently used quality preset announced as receive by remote party.
-     * @return the current quality preset.
-     */
-    public QualityPreset getRemoteReceivePreset()
-    {
-        QualityControl qc = getMediaQualityControl();
-
-        return (qc == null) ? null : qc.getRemoteReceivePreset();
-    }
-
-    /**
-     * The minimum preset that the remote party is sending and we are receiving.
-     * Not Used.
-     * @return the minimum remote preset.
-     */
-    public QualityPreset getRemoteSendMinPreset()
-    {
-        QualityControl qc = getMediaQualityControl();
-
-        return (qc == null) ? null : qc.getRemoteSendMinPreset();
-    }
-
-    /**
-     * The maximum preset that the remote party is sending and we are receiving.
-     * @return the maximum preset announced from remote party as send.
-     */
-    public QualityPreset getRemoteSendMaxPreset()
-    {
-        QualityControl qControls = getMediaQualityControl();
-
-        if(qControls == null)
-            return remoteSendMaxPreset;
-
-        QualityPreset qp = qControls.getRemoteSendMaxPreset();
-
-        // there is info about max frame rate
-        if(qp != null && maxFrameRate > 0)
-            qp = new QualityPreset(qp.getResolution(), (int)maxFrameRate);
-
-        return qp;
-    }
-
-    /**
-     * Changes local value of frame rate, the one we have received from
-     * remote party.
-     * @param f new frame rate.
-     */
-    public void setMaxFrameRate(float f)
-    {
-        this.maxFrameRate = f;
-    }
-
-    /**
-     * Changes remote send preset. This doesn't have impact of current stream.
-     * But will have on next media changes.
-     * With this we can try to change the resolution that the remote part
-     * is sending.
-     * @param preset the new preset value.
-     */
-    public void setRemoteSendMaxPreset(QualityPreset preset)
-    {
-        QualityControl qControls = getMediaQualityControl();
-
-        if(qControls != null)
-            qControls.setRemoteSendMaxPreset(preset);
-        else
-            remoteSendMaxPreset = preset;
+        super(peer);
     }
 
     /**
