@@ -105,7 +105,9 @@ public class AuthenticationWindow
                                 boolean isUserNameEditable,
                                 ImageIcon icon)
     {
-        this(new JDialog(), server, isUserNameEditable, icon);
+        super(false);
+
+        init(server, isUserNameEditable, icon);
     }
 
     /**
@@ -123,6 +125,20 @@ public class AuthenticationWindow
     {
         super(owner, false);
 
+        init(server, isUserNameEditable, icon);
+    }
+
+    /**
+     * Initializes this authentication window.
+     *
+     * @param server the server
+     * @param isUserNameEditable indicates if the user name is editable
+     * @param icon the icon to show on the authentication window
+     */
+    private void init(  String server,
+                        boolean isUserNameEditable,
+                        ImageIcon icon)
+    {
         this.server = server;
 
         initIcon(icon);
