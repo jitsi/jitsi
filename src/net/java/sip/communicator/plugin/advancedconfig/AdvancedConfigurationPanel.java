@@ -392,7 +392,7 @@ public class AdvancedConfigurationPanel
      */
     public boolean isAdvanced()
     {
-        return true;
+        return false;
     }
 
     /**
