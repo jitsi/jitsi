@@ -476,6 +476,10 @@ public class CallHistoryServiceImpl
     private static List<String> getCSVs(String str)
     {
         List<String> result = new LinkedList<String>();
+
+        if(str == null)
+            return result;
+
         StringTokenizer toks = new StringTokenizer(str, DELIM);
         while(toks.hasMoreTokens())
         {

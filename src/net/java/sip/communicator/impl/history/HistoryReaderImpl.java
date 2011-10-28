@@ -217,9 +217,11 @@ public class HistoryReaderImpl
                         // Get nested TEXT node's value
                         Node nodeValue = propertyNode.getFirstChild();
 
+                        if(nodeValue == null)
+                            continue;
+
                         nameVals.add(propertyNode.getNodeName());
-                        nameVals.add(nodeValue == null ?
-                                null : nodeValue.getNodeValue());
+                        nameVals.add(nodeValue.getNodeValue());
                     }
                 }
 
