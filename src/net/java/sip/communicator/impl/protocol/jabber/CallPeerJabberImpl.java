@@ -70,6 +70,16 @@ public class CallPeerJabberImpl
     private boolean contentAddWithNoCands = false;
 
     /**
+     * Synchronization object for SID.
+     */
+    private final Object sidSyncRoot = new Object();
+
+    /**
+     * If the call is cancelled before session-initiate is sent.
+     */
+    private boolean cancelled = false;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
@@ -261,12 +271,24 @@ public class CallPeerJabberImpl
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
 
-        sessionInitIQ
-            = JinglePacketFactory.createSessionInitiate(
+        synchronized(sidSyncRoot)
+        {
+            sessionInitIQ
+                = JinglePacketFactory.createSessionInitiate(
                     protocolProvider.getOurJID(),
                     this.peerJID,
                     JingleIQ.generateSID(),
                     offer);
+
+            if(cancelled)
+            {
+                // we cancelled the call too early so no need to send the
+                // session-initiate to peer
+                getMediaHandler().getTransportManager().close();
+                return;
+            }
+        }
+
         if (sessionInitiateExtensions != null)
         {
             for (PacketExtension sessionInitiateExtension
@@ -399,6 +421,20 @@ public class CallPeerJabberImpl
             || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(prevPeerState)
             || CallPeerState.ALERTING_REMOTE_SIDE.equals(prevPeerState))
         {
+            String jingleSID = getJingleSID();
+
+            if(jingleSID == null)
+            {
+                synchronized(sidSyncRoot)
+                {
+                    // we cancelled the call too early because the jingleSID
+                    // is null (i.e. the session-initiate has not been created)
+                    // and no need to send the session-terminate
+                    cancelled = true;
+                    return;
+                }
+            }
+
             responseIQ = JinglePacketFactory.createCancel(
                 getProtocolProvider().getOurJID(), peerJID, getJingleSID());
         }
@@ -1165,6 +1201,11 @@ public class CallPeerJabberImpl
      */
     protected void sendTransportInfo(Iterable<ContentPacketExtension> contents)
     {
+        // if the call is cancelled, do not start sending candidates in
+        // transport-info
+        if(cancelled)
+            return;
+
         JingleIQ transportInfo = new JingleIQ();
 
         for (ContentPacketExtension content : contents)
