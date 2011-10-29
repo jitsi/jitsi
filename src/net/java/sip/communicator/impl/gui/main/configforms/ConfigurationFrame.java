@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.configforms;
 import java.awt.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
@@ -172,9 +173,9 @@ public class ConfigurationFrame
         }
         else
         {
-            JPanel panel = new TransparentPanel(new BorderLayout());
-
-            topComponent = panel;
+            topComponent = new TransparentPanel(new BorderLayout());
+            topComponent.setBorder(
+                new EmptyBorder(BORDER_SIZE / 2, BORDER_SIZE, 0, 0));
         }
 
         return topComponent;
