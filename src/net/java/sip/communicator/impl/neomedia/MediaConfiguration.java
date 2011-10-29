@@ -12,7 +12,6 @@ import java.io.*;
 import javax.media.*;
 import javax.media.MediaException; // disambiguation
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
@@ -179,11 +178,6 @@ public class MediaConfiguration
                     }
                 });
         portAudioPanel.add(denoiseCheckBox, constraints);
-
-        portAudioPanel.setBorder(
-                BorderFactory.createTitledBorder(
-                        NeomediaActivator.getResources().getI18NString(
-                        "impl.media.configform.DEVICES")));
     }
 
     /**
@@ -193,9 +187,10 @@ public class MediaConfiguration
      */
     private static Component createControls(int type)
     {
-        final JComboBox comboBox = new JComboBox();
-        comboBox.setEditable(false);
-        comboBox.setModel(  new DeviceConfigurationComboBoxModel(
+        SIPCommTabbedPane container = new SIPCommTabbedPane();
+        final JComboBox cboDevice = new JComboBox();
+        cboDevice.setEditable(false);
+        cboDevice.setModel(  new DeviceConfigurationComboBoxModel(
                                 mediaService.getDeviceConfiguration(),
                             type));
 
@@ -212,7 +207,7 @@ public class MediaConfiguration
             portAudioPanel.setPreferredSize(new Dimension(WIDTH, 200));
             portAudioPanel.setMaximumSize(new Dimension(WIDTH, 200));
 
-            comboBox.addItemListener(new ItemListener()
+            cboDevice.addItemListener(new ItemListener()
             {
                 public void itemStateChanged(ItemEvent e)
                 {
@@ -230,7 +225,7 @@ public class MediaConfiguration
                 }
             });
             if (DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO.equals(
-                    comboBox.getSelectedItem()))
+                    cboDevice.getSelectedItem()))
                 createPortAudioControls(portAudioPanel);
         }
         else
@@ -238,37 +233,41 @@ public class MediaConfiguration
 
         JLabel label = new JLabel(getLabelText(type));
         label.setDisplayedMnemonic(getDisplayedMnemonic(type));
-        label.setLabelFor(comboBox);
+        label.setLabelFor(cboDevice);
 
-        Container firstContainer
+        Container pnlDevice
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-        firstContainer.setMaximumSize(new Dimension(WIDTH, 25));
-        firstContainer.add(label);
-        firstContainer.add(comboBox);
+        pnlDevice.setMaximumSize(new Dimension(WIDTH, 25));
+        pnlDevice.add(label);
+        pnlDevice.add(cboDevice);
 
-        JPanel secondContainer = new TransparentPanel();
-
-        secondContainer.setLayout(
-            new BoxLayout(secondContainer, BoxLayout.Y_AXIS));
+        JPanel pnlDeviceAndDetails = new TransparentPanel(new BorderLayout());
+        pnlDeviceAndDetails.add(pnlDevice, BorderLayout.NORTH);
 
         // if creating controls for audio will add devices panel
         // otherwise it is video controls and will add preview panel
         if (portAudioPanel != null)
-            secondContainer.add(portAudioPanel);
+            pnlDeviceAndDetails.add(portAudioPanel, BorderLayout.CENTER);
         else
         {
-            comboBox.setLightWeightPopupEnabled(false);
-            secondContainer.add(createPreview(type, comboBox));
+            cboDevice.setLightWeightPopupEnabled(false);
+            pnlDeviceAndDetails.add(
+                createPreview(type, cboDevice),
+                BorderLayout.CENTER
+            );
         }
 
-        secondContainer.add(createEncodingControls(type));
-
+        ResourceManagementService R = NeomediaActivator.getResources();
+        container.insertTab(
+            R.getI18NString("impl.media.configform.DEVICES"),
+            null, pnlDeviceAndDetails, null, 0);
+        container.insertTab(
+            R.getI18NString("impl.media.configform.ENCODINGS"),
+            null, createEncodingControls(type), null, 1);
         if (portAudioPanel == null)
-            secondContainer.add(createVideoAdvancedSettings());
-
-        JPanel container = new TransparentPanel(new BorderLayout());
-        container.add(firstContainer, BorderLayout.NORTH);
-        container.add(secondContainer, BorderLayout.CENTER);
+            container.insertTab(
+                R.getI18NString("impl.media.configform.VIDEO_MORE_SETTINGS"),
+                null, createVideoAdvancedSettings(), null, 2);
 
         return container;
     }
@@ -286,11 +285,6 @@ public class MediaConfiguration
         final JTable table = new JTable();
         table.setShowGrid(false);
         table.setTableHeader(null);
-
-        key = "impl.media.configform.ENCODINGS";
-        JLabel label = new JLabel(resources.getI18NString(key));
-        label.setDisplayedMnemonic(resources.getI18nMnemonic(key));
-        label.setLabelFor(table);
 
         key = "impl.media.configform.UP";
         final JButton upButton = new JButton(resources.getI18NString(key));
@@ -313,7 +307,6 @@ public class MediaConfiguration
         container.setPreferredSize(new Dimension(WIDTH, 100));
         container.setMaximumSize(new Dimension(WIDTH, 100));
 
-        container.add(label, BorderLayout.NORTH);
         container.add(new JScrollPane(table), BorderLayout.CENTER);
         container.add(parentButtonBar, BorderLayout.EAST);
 
@@ -660,19 +653,6 @@ public class MediaConfiguration
     {
         ResourceManagementService resources = NeomediaActivator.getResources();
 
-        final TransparentPanel advancedPanel =
-            new TransparentPanel(new BorderLayout(5, 5));
-        advancedPanel.setMaximumSize(new Dimension(WIDTH, 150));
-        advancedPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
-        final JLabel advButton = new JLabel(NeomediaActivator.getResources()
-            .getI18NString("impl.media.configform.VIDEO_MORE_SETTINGS"));
-        advButton.setIcon(NeomediaActivator.getResources()
-            .getImage("service.gui.icons.RIGHT_ARROW_ICON"));
-        TransparentPanel buttonPanel = new TransparentPanel(
-            new BorderLayout());
-        buttonPanel.add(advButton, BorderLayout.WEST);
-        advancedPanel.add(buttonPanel, BorderLayout.NORTH);
-
         final DeviceConfiguration deviceConfig =
             mediaService.getDeviceConfiguration();
 
@@ -689,51 +669,8 @@ public class MediaConfiguration
 
         final JPanel centerAdvancedPanel
             = new TransparentPanel(new BorderLayout());
-        centerAdvancedPanel.add(centerPanel, BorderLayout.CENTER);
+        centerAdvancedPanel.add(centerPanel, BorderLayout.NORTH);
         centerAdvancedPanel.add(resetButtonPanel, BorderLayout.SOUTH);
-        centerAdvancedPanel.setBorder(
-            BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-        centerAdvancedPanel.setVisible(false);
-
-        advancedPanel.add(centerAdvancedPanel, BorderLayout.CENTER);
-
-        advButton.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-                // Indicates if currently the panel is shown or hidden.
-                boolean isCurrentlyVisible = centerAdvancedPanel.isVisible();
-                // We save the current advanced panel height that we'd use
-                // in the case we're going to hide the panel.
-                int currentHeight = advancedPanel.getHeight();
-
-                advButton.setIcon(
-                        NeomediaActivator.getResources().getImage(
-                                    isCurrentlyVisible
-                                    ? "service.gui.icons.RIGHT_ARROW_ICON"
-                                    : "service.gui.icons.DOWN_ARROW_ICON"));
-
-                centerAdvancedPanel.setVisible(!isCurrentlyVisible);
-
-                advancedPanel.revalidate();
-
-                NeomediaActivator.getUIService().getConfigurationContainer()
-                   .validateCurrentForm();
-
-                Window window = SwingUtilities.getWindowAncestor(advancedPanel);
-
-                if (window != null)
-                {
-                    if (!isCurrentlyVisible)
-                        window.setSize(window.getWidth(),
-                            window.getHeight() + advancedPanel.getHeight());
-                    else
-                        window.setSize(window.getWidth(),
-                            window.getHeight() - currentHeight);
-                }
-            }
-        });
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -878,7 +815,7 @@ public class MediaConfiguration
         if(frameRate.isEnabled())
             frameRate.setValue(deviceConfig.getFrameRate());
 
-        return advancedPanel;
+        return centerAdvancedPanel;
     }
 
     /**
