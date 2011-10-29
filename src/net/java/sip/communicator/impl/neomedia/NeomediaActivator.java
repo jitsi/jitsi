@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.video.h264.ConfigurationPanel;
 import net.java.sip.communicator.impl.neomedia.notify.*;
 
 import org.osgi.framework.*;
@@ -150,8 +151,7 @@ public class NeomediaActivator
             bundleContext.registerService(
                     ConfigurationForm.class.getName(),
                     new LazyConfigurationForm(
-                            "net.java.sip.communicator.impl.neomedia"
-                                + ".AudioConfigurationPanel",
+                            AudioConfigurationPanel.class.getName(),
                             getClass().getClassLoader(),
                             "plugin.mediaconfig.AUDIO_ICON",
                             "impl.neomedia.configform.AUDIO",
@@ -166,8 +166,7 @@ public class NeomediaActivator
             bundleContext.registerService(
                     ConfigurationForm.class.getName(),
                     new LazyConfigurationForm(
-                            "net.java.sip.communicator.impl.neomedia"
-                                + ".VideoConfigurationPanel",
+                            VideoConfigurationPanel.class.getName(),
                             getClass().getClassLoader(),
                             "plugin.mediaconfig.VIDEO_ICON",
                             "impl.neomedia.configform.VIDEO",
@@ -184,8 +183,7 @@ public class NeomediaActivator
         bundleContext.registerService(
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
-                        "net.java.sip.communicator.impl.neomedia"
-                            + ".codec.video.h264.ConfigurationPanel",
+                        ConfigurationPanel.class.getName(),
                         getClass().getClassLoader(),
                         "plugin.mediaconfig.VIDEO_ICON",
                         "impl.neomedia.configform.H264",
@@ -201,7 +199,7 @@ public class NeomediaActivator
         bundleContext.registerService(
             ConfigurationForm.class.getName(),
             new LazyConfigurationForm(
-                "net.java.sip.communicator.impl.neomedia.SecurityConfigForm",
+                SecurityConfigForm.class.getName(),
                 getClass().getClassLoader(),
                 "impl.media.security.zrtp.CONF_ICON",
                 "impl.media.security.zrtp.TITLE",
