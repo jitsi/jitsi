@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.gui.main;
 import java.awt.*;
 import java.awt.event.*;
 
+import javax.swing.BorderFactory;
+
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -33,6 +35,7 @@ public class DialPadButton
         super("");
 
         loadSkin();
+        setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         addActionListener(new ActionListener()
         {
