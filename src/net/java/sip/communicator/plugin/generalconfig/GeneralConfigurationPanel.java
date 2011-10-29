@@ -12,6 +12,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
@@ -44,42 +45,52 @@ public class GeneralConfigurationPanel
         super(new BorderLayout());
 
         TransparentPanel mainPanel = new TransparentPanel();
-
         BoxLayout boxLayout = new BoxLayout(mainPanel, BoxLayout.Y_AXIS);
         mainPanel.setLayout(boxLayout);
-        this.add(mainPanel, BorderLayout.NORTH);
+        mainPanel.setBorder(new EmptyBorder(0, 0, 0, 10));
+
+        final JScrollPane scroller = new JScrollPane(mainPanel);
+        scroller.setOpaque(false);
+        scroller.getViewport().setOpaque(false);
+        scroller.setPreferredSize(new Dimension(500, 420));
+        scroller.setBorder(new EmptyBorder(0, 0, 0, 0));
+        this.add(scroller, BorderLayout.NORTH);
 
         Component startupConfigPanel = createStartupConfigPanel();
         if (startupConfigPanel != null)
         {
             mainPanel.add(startupConfigPanel);
             mainPanel.add(Box.createVerticalStrut(10));
-            mainPanel.add(new JSeparator());
         }
 
         mainPanel.add(createMessageConfigPanel());
-        mainPanel.add(new JSeparator());
+        mainPanel.add(Box.createVerticalStrut(10));
 
         mainPanel.add(new AutoAwayConfigurationPanel());
-        mainPanel.add(new JSeparator());
         mainPanel.add(Box.createVerticalStrut(10));
 
         Component notifConfigPanel = createNotificationConfigPanel();
         if (notifConfigPanel != null)
         {
             mainPanel.add(notifConfigPanel);
-            mainPanel.add(Box.createVerticalStrut(4));
-            mainPanel.add(new JSeparator());
             mainPanel.add(Box.createVerticalStrut(10));
         }
 
         mainPanel.add(createLocaleConfigPanel());
-        mainPanel.add(Box.createVerticalStrut(4));
-        mainPanel.add(new JSeparator());
         mainPanel.add(Box.createVerticalStrut(10));
 
         mainPanel.add(createCallConfigPanel());
         mainPanel.add(Box.createVerticalStrut(10));
+
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            { 
+                scroller.getVerticalScrollBar().setValue(0);
+                scroller.revalidate();
+                scroller.repaint();
+            }
+        });
     }
 
     /**
@@ -98,8 +109,6 @@ public class GeneralConfigurationPanel
     private Component createAutoStartCheckBox()
     {
         final JCheckBox autoStartCheckBox = new SIPCommCheckBox();
-
-        autoStartCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
 
         String label = Resources.getString(
                 "plugin.generalconfig.AUTO_START",
@@ -123,10 +132,8 @@ public class GeneralConfigurationPanel
 
         try
         {
-            if(WindowsStartup.isStartupEnabled(getApplicationName()))
-                autoStartCheckBox.setSelected(true);
-            else
-                autoStartCheckBox.setSelected(false);
+            autoStartCheckBox.setSelected(
+                WindowsStartup.isStartupEnabled(getApplicationName()));
         }
         catch (Exception e)
         {
@@ -142,36 +149,18 @@ public class GeneralConfigurationPanel
      */
     private Component createMessageConfigPanel()
     {
-        JPanel messagePanel = new TransparentPanel(new BorderLayout());
-        Component messageLabel
+        JPanel configPanel
             = GeneralConfigPluginActivator.createConfigSectionComponent(
                 Resources.getString("service.gui.MESSAGE"));
 
-        JPanel configPanel = new TransparentPanel();
-        configPanel.setLayout(new BoxLayout(configPanel, BoxLayout.Y_AXIS));
-
         configPanel.add(createGroupMessagesCheckbox());
-        configPanel.add(Box.createVerticalStrut(10));
-
         configPanel.add(createHistoryPanel());
-        configPanel.add(Box.createVerticalStrut(10));
-
         configPanel.add(createSendMessagePanel());
-        configPanel.add(Box.createVerticalStrut(10));
-
         configPanel.add(createTypingNitificationsCheckBox());
-        configPanel.add(Box.createVerticalStrut(10));
-
         configPanel.add(createBringToFrontCheckBox());
-        configPanel.add(Box.createVerticalStrut(10));
-
         configPanel.add(createMultichatCheckbox());
-        configPanel.add(Box.createVerticalStrut(10));
 
-        messagePanel.add(messageLabel, BorderLayout.WEST);
-        messagePanel.add(configPanel);
-
-        return messagePanel;
+        return configPanel;
     }
 
     /**
@@ -456,13 +445,10 @@ public class GeneralConfigurationPanel
         if (handlerRefs == null)
             return null;
 
-        JPanel notifConfigPanel = new TransparentPanel(new BorderLayout());
-
-        notifConfigPanel.add(
-            GeneralConfigPluginActivator.createConfigSectionComponent(
+        JPanel notifConfigPanel = GeneralConfigPluginActivator.
+            createConfigSectionComponent(
                 Resources.getString(
-                    "plugin.notificationconfig.POPUP_NOTIF_HANDLER")),
-            BorderLayout.WEST);
+                    "plugin.notificationconfig.POPUP_NOTIF_HANDLER"));
 
         final JComboBox notifConfigComboBox = new JComboBox();
 
@@ -531,13 +517,9 @@ public class GeneralConfigurationPanel
      */
     private Component createLocaleConfigPanel()
     {
-        JPanel localeConfigPanel = new TransparentPanel(new BorderLayout());
-
-        localeConfigPanel.add(
-            GeneralConfigPluginActivator.createConfigSectionComponent(
-                Resources.getString(
-                "plugin.generalconfig.DEFAULT_LANGUAGE") + ":"),
-                BorderLayout.WEST);
+        JPanel localeConfigPanel = GeneralConfigPluginActivator.
+            createConfigSectionComponent(
+                Resources.getString("plugin.generalconfig.DEFAULT_LANGUAGE"));
 
         final JComboBox localesConfigComboBox = new JComboBox();
 
@@ -578,7 +560,7 @@ public class GeneralConfigurationPanel
                 }
             }
         });
-        localeConfigPanel.add(localesConfigComboBox, BorderLayout.CENTER);
+        localeConfigPanel.add(localesConfigComboBox);
 
         String label = "* " +
                 Resources.getString(
@@ -589,7 +571,7 @@ public class GeneralConfigurationPanel
         warnLabel.setFont(warnLabel.getFont().deriveFont(8));
         warnLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
         warnLabel.setHorizontalAlignment(JLabel.RIGHT);
-        localeConfigPanel.add(warnLabel, BorderLayout.SOUTH);
+        localeConfigPanel.add(warnLabel);
 
         return localeConfigPanel;
     }
@@ -601,12 +583,9 @@ public class GeneralConfigurationPanel
      */
     private Component createCallConfigPanel()
     {
-        JPanel callConfigPanel = new TransparentPanel(new BorderLayout());
-
-        callConfigPanel.add(
-            GeneralConfigPluginActivator.createConfigSectionComponent(
-                Resources.getString("service.gui.CALL") + ":"),
-            BorderLayout.WEST);
+        JPanel callConfigPanel = GeneralConfigPluginActivator.
+            createConfigSectionComponent(
+                Resources.getString("service.gui.CALL"));
 
         callConfigPanel.add(createNormalizeNumberCheckBox());
 
@@ -659,41 +638,15 @@ public class GeneralConfigurationPanel
      */
     public Component createStartupConfigPanel()
     {
-        Component updateCheckBox = null;
-        Component autoStartCheckBox = null;
+        if (!OSUtils.IS_WINDOWS)
+            return null;
 
-        if (OSUtils.IS_WINDOWS)
-        {
-            autoStartCheckBox = createAutoStartCheckBox();
-            updateCheckBox = createUpdateCheckBox();
-        }
+        JPanel updateConfigPanel = GeneralConfigPluginActivator.
+            createConfigSectionComponent(
+                Resources.getString("plugin.generalconfig.STARTUP_CONFIG"));
 
-        JPanel updateConfigPanel = null;
-
-        if ((updateCheckBox != null) || (autoStartCheckBox != null))
-        {
-            updateConfigPanel = new TransparentPanel(new BorderLayout());
-            updateConfigPanel.add(
-                    GeneralConfigPluginActivator.createConfigSectionComponent(
-                            Resources.getString(
-                                    "plugin.generalconfig.STARTUP_CONFIG")
-                                + ":"),
-                    BorderLayout.WEST);
-
-            if ((updateCheckBox != null) && (autoStartCheckBox != null))
-            {
-                JPanel checkBoxPanel
-                    = new TransparentPanel(new GridLayout(0, 1));
-
-                checkBoxPanel.add(autoStartCheckBox);
-                checkBoxPanel.add(updateCheckBox);
-                updateConfigPanel.add(checkBoxPanel);
-            }
-            else if (updateCheckBox != null)
-                updateConfigPanel.add(updateCheckBox);
-            else if (autoStartCheckBox != null)
-                updateConfigPanel.add(autoStartCheckBox);
-        }
+        updateConfigPanel.add(createAutoStartCheckBox());
+        updateConfigPanel.add(createUpdateCheckBox());
         return updateConfigPanel;
     }
 
@@ -719,7 +672,6 @@ public class GeneralConfigurationPanel
             }
         });
 
-        updateCheckBox.setAlignmentX(Component.LEFT_ALIGNMENT);
         updateCheckBox.setSelected(
             GeneralConfigPluginActivator.getConfigurationService().getBoolean((
                 "net.java.sip.communicator.plugin.updatechecker.ENABLED"), true));

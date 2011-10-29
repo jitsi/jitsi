@@ -39,12 +39,13 @@ public class AutoAwayConfigurationPanel
      */
     public AutoAwayConfigurationPanel()
     {
-        super(new BorderLayout());
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        add(GeneralConfigPluginActivator.createConfigSectionComponent(
-                Resources.getString("service.gui.STATUS")),
-            BorderLayout.WEST);
-        add(createMainPanel());
+        JPanel pnlSection = GeneralConfigPluginActivator.
+            createConfigSectionComponent(
+                Resources.getString("service.gui.STATUS"));
+        pnlSection.add(createMainPanel());
+        add(pnlSection);
 
         initValues();
     }

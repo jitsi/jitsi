@@ -10,6 +10,7 @@ import java.awt.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -336,16 +337,37 @@ public class GeneralConfigPluginActivator
      * @param labelText the text of the label.
      * @return the created label
      */
-    public static Component createConfigSectionComponent(String labelText)
+    public static JPanel createConfigSectionComponent(String labelText)
     {
         JLabel label = new JLabel(labelText);
+        label.setBorder(new EmptyBorder(0, 0, 0, 10));
         label.setFont(label.getFont().deriveFont(Font.BOLD));
-        label.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        JPanel parentPanel = new TransparentPanel(new BorderLayout());
-        parentPanel.add(label, BorderLayout.NORTH);
-        parentPanel.setPreferredSize(new Dimension(180, 25));
+        JPanel pnlSectionName = new TransparentPanel();
+        pnlSectionName.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = c.gridy = 0;
+        c.anchor = GridBagConstraints.LINE_START;
+        c.gridwidth = 2;
+        pnlSectionName.add(label, c);
+        c.gridx = 2;
+        c.weightx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        pnlSectionName.add(new JSeparator(), c);
 
-        return parentPanel;
+        JPanel pnlSection = new TransparentPanel()
+        {
+            @Override
+            public Component add(Component comp)
+            {
+                if(comp instanceof JComponent)
+                    ((JComponent)comp).setAlignmentX(LEFT_ALIGNMENT);
+                return super.add(comp);
+            }
+        };
+        pnlSection.setLayout(new BoxLayout(pnlSection, BoxLayout.Y_AXIS));
+        pnlSection.add(pnlSectionName);
+
+        return pnlSection;
     }
 }
