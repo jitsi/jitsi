@@ -54,7 +54,7 @@ public class GeneralConfigurationPanel
         scroller.getViewport().setOpaque(false);
         scroller.setPreferredSize(new Dimension(500, 420));
         scroller.setBorder(new EmptyBorder(0, 0, 0, 0));
-        this.add(scroller, BorderLayout.NORTH);
+        this.add(scroller, BorderLayout.CENTER);
 
         Component startupConfigPanel = createStartupConfigPanel();
         if (startupConfigPanel != null)
