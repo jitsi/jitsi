@@ -88,6 +88,7 @@ public class MediaConfiguration
     private static void createPortAudioControls(JPanel portAudioPanel)
     {
         GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = new Insets(3, 0, 3, 5);
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.gridx = 0;
@@ -686,7 +687,7 @@ public class MediaConfiguration
             constraints);
         constraints.gridy = 1;
         constraints.insets = new Insets(0, 0, 0, 0);
-        final JCheckBox frameRateCheck = new JCheckBox(
+        final JCheckBox frameRateCheck = new SIPCommCheckBox(
             resources.getI18NString("impl.media.configform.VIDEO_FRAME_RATE"));
         centerPanel.add(frameRateCheck, constraints);
         constraints.gridy = 2;
