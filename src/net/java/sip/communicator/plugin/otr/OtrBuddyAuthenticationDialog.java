@@ -11,13 +11,14 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * @author George Politis
  */
 @SuppressWarnings("serial")
 public class OtrBuddyAuthenticationDialog
-    extends JDialog
+    extends SIPCommDialog
 {
     private final Contact contact;
 
@@ -29,6 +30,7 @@ public class OtrBuddyAuthenticationDialog
      */
     public OtrBuddyAuthenticationDialog(Contact contact)
     {
+        super(false);
         this.contact = contact;
 
         initComponents();
@@ -86,7 +88,8 @@ public class OtrBuddyAuthenticationDialog
     {
         public CustomTextArea()
         {
-            this.setBackground(new java.awt.Color(212, 208, 200));
+            this.setBackground(new Color(0,0,0,0));
+            this.setOpaque(false);
             this.setColumns(20);
             this.setEditable(false);
             this.setLineWrap(true);
@@ -149,10 +152,10 @@ public class OtrBuddyAuthenticationDialog
         this.setTitle(OtrActivator.resourceService
             .getI18NString("plugin.otr.authbuddydialog.TITLE"));
 
-        JPanel mainPanel = new JPanel();
+        TransparentPanel mainPanel = new TransparentPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        mainPanel.setPreferredSize(new Dimension(400, 300));
+        mainPanel.setPreferredSize(new Dimension(350, 400));
 
         JTextArea generalInformation = new CustomTextArea();
         generalInformation.setText(OtrActivator.resourceService
@@ -193,7 +196,8 @@ public class OtrBuddyAuthenticationDialog
         pnlAction.add(txtAction, c);
 
         // Buttons panel.
-        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        JPanel buttonPanel = new TransparentPanel(new GridBagLayout());
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
 
         JButton helpButton =
             new JButton(OtrActivator.resourceService
@@ -251,9 +255,8 @@ public class OtrBuddyAuthenticationDialog
         });
         buttonPanel.add(authenticateButton, c);
 
-        mainPanel.add(buttonPanel);
-
-        this.getContentPane().add(mainPanel);
+        this.getContentPane().add(mainPanel, BorderLayout.NORTH);
+        this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
         this.pack();
     }
 }
