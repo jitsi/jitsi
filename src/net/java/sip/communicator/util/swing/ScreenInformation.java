@@ -9,82 +9,60 @@ package net.java.sip.communicator.util.swing;
 import java.awt.*;
 
 /**
- * A class which reads the screen bounds once and provides this information
+ * A class which reads the screen bounds and provides this information.
  * 
- * @author Thomas Hofer
- * 
+ * @author Ingo Bauersachs
  */
 public class ScreenInformation
 {
-    private static Rectangle screenBounds = null;
-
-    public static synchronized void init()
+    /**
+     * Calculates the bounding box of all available screens. This method is
+     * highly inaccurate when screens of different sizes are used or not evenly
+     * aligned. A correct implementation should generate a polygon.
+     * 
+     * @return A polygon of the usable screen area.
+     */
+    public static Rectangle getScreenBounds()
     {
-        if (screenBounds == null)
+        final GraphicsEnvironment ge = GraphicsEnvironment
+                .getLocalGraphicsEnvironment();
+
+        Rectangle bounds = new Rectangle();
+        for(GraphicsDevice gd : ge.getScreenDevices())
         {
-            final GraphicsEnvironment ge = GraphicsEnvironment
-                    .getLocalGraphicsEnvironment();
-            final GraphicsDevice[] gs = ge.getScreenDevices();
-
-            screenBounds = new Rectangle();
-
-            if (gs.length > 1)
-            {
-
-                // create a thread for each display, as the query is very slow
-                Thread thread[] = new Thread[gs.length];
-                for (int j = 0; j < gs.length; j++)
-                {
-                    final int j1 = j;
-                    thread[j] = new Thread(new Runnable()
-                    {
-                        public void run()
-                        {
-                            Rectangle screenDeviceBounds = new Rectangle();
-                            GraphicsDevice gd = gs[j1];
-                            GraphicsConfiguration[] gc = gd.getConfigurations();
-                            for (int i = 0; i < gc.length; i++)
-                            {
-                                screenDeviceBounds = screenDeviceBounds
-                                        .union(gc[i].getBounds());
-                            }
-                            screenBounds.setBounds(screenBounds
-                                    .union(screenDeviceBounds));
-
-                        }
-                    });
-                    thread[j].start();
-                }
-                for (int j = 0; j < gs.length; j++)
-                {
-                    // wait for all threads here
-                    try
-                    {
-                        thread[j].join();
-                    } catch (InterruptedException e)
-                    {
-                    }
-                }
-            } else
-            {
-                // only one display, get the screen size directy. this method
-                // is much faster, but can only handle the primary display
-                Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-                screenBounds.setBounds(0, 0, dim.width, dim.height);
-            }
-
+            GraphicsConfiguration gc = gd.getDefaultConfiguration();
+            bounds = bounds.union(gc.getBounds());
         }
+        return bounds;
     }
 
-    public static synchronized Rectangle getScreenBounds()
+    /**
+     * Checks whether the top edge of the rectangle is contained in any of the
+     * available screens.
+     * 
+     * @param window The bounding box of the window.
+     * @return True when the top edge is in a visible screen area; false
+     *         otherwise
+     */
+    public static boolean isTitleOnScreen(Rectangle window)
     {
-        // the initialization needs a moment
-        // prevent a concurrent initalization
-        if (screenBounds == null)
-        {
-            init();
-        }
+        final GraphicsEnvironment ge = GraphicsEnvironment
+            .getLocalGraphicsEnvironment();
 
-        return screenBounds;
+        boolean leftInside = false;
+        boolean rightInside = false;
+        Point left = new Point(window.x, window.y);
+        Point right = new Point(window.x, window.y + window.width);
+        for(GraphicsDevice gd : ge.getScreenDevices())
+        {
+            GraphicsConfiguration gc = gd.getDefaultConfiguration();
+            if(gc.getBounds().contains(left))
+                leftInside = true;
+            if(gc.getBounds().contains(right))
+                rightInside = true;
+            if(leftInside && rightInside)
+                return true;
+        }
+        return leftInside && rightInside;
     }
 }
