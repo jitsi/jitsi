@@ -402,6 +402,7 @@ public class CallPeerMediaHandlerSipImpl
         this.setCallInfoURL(SdpUtils.getCallInfoURL(offer));
 
         boolean atLeastOneValidDescription = false;
+        boolean rejectedAvpOfferDueToSavpRequired = false;
 
         List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
         for (MediaDescription mediaDescription : remoteDescriptions)
@@ -427,6 +428,7 @@ public class CallPeerMediaHandlerSipImpl
                     == ProtocolProviderFactory.SAVP_MANDATORY
                 && transportProtocol.equals(SdpConstants.RTP_AVP))
             {
+                rejectedAvpOfferDueToSavpRequired = true;
                 continue;
             }
 
@@ -588,6 +590,12 @@ public class CallPeerMediaHandlerSipImpl
 
             atLeastOneValidDescription = true;
         }
+
+        if (rejectedAvpOfferDueToSavpRequired && !atLeastOneValidDescription)
+            throw new OperationFailedException("Offer contained no valid "
+                + "media descriptions. Insecure media was rejected (only "
+                + "RTP/AVP instead of RTP/SAVP).",
+                OperationFailedException.ILLEGAL_ARGUMENT);
 
         if (!atLeastOneValidDescription)
             throw new OperationFailedException("Offer contained no valid "
