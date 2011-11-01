@@ -34,6 +34,16 @@ public class SIPCommFrame
     implements Observer
 {
     /**
+     * Property that disables the automatic resizing and positioning when a
+     * window's top edge is outside the visible area of the screen.
+     * <p>
+     * <tt>true</tt> use automatic repositioning (default)<br/>
+     * <tt>false</tt> rely on the window manager to place the window
+     */
+    static final String PNAME_CALCULATED_POSITIONING
+        = "net.sip.communicator.util.swing.USE_CALCULATED_POSITIONING";
+
+    /**
      * The <tt>Logger</tt> used by the <tt>SIPCommFrame</tt> class and its
      * instances for logging output.
      */
@@ -352,7 +362,13 @@ public class SIPCommFrame
             x = Integer.parseInt(xString);
             y = Integer.parseInt(yString);
 
-            this.setLocation(x, y);
+            if(ScreenInformation.
+                isTitleOnScreen(new Rectangle(x, y, width, height))
+                || configService.getBoolean(
+                    SIPCommFrame.PNAME_CALCULATED_POSITIONING, true))
+            {
+                this.setLocation(x, y);
+            }
         }
         else
         {
@@ -374,6 +390,10 @@ public class SIPCommFrame
      */
     private void ensureOnScreenLocationAndSize()
     {
+        ConfigurationService config = UtilActivator.getConfigurationService();
+        if(!config.getBoolean(SIPCommFrame.PNAME_CALCULATED_POSITIONING, true))
+            return;
+
         int x = this.getX();
         int y = this.getY();
 

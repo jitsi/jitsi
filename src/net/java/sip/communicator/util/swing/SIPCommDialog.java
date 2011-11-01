@@ -244,9 +244,17 @@ public class SIPCommDialog
             this.setSize(width, height);
 
         if(xString != null && yString != null)
-            this.setLocation(
-                    Integer.parseInt(xString),
-                    Integer.parseInt(yString));
+        {
+            int x = Integer.parseInt(xString);
+            int y = Integer.parseInt(yString);
+            if(ScreenInformation.
+                isTitleOnScreen(new Rectangle(x, y, width, height))
+                || config.getBoolean(
+                    SIPCommFrame.PNAME_CALCULATED_POSITIONING, true))
+            {
+                this.setLocation(x, y);
+            }
+        }
         else
             this.setCenterLocation();
     }
@@ -265,12 +273,16 @@ public class SIPCommDialog
      */
     private void ensureOnScreenLocationAndSize()
     {
+        ConfigurationService config = UtilActivator.getConfigurationService();
+        if(!config.getBoolean(SIPCommFrame.PNAME_CALCULATED_POSITIONING, true))
+            return;
+
         int x = this.getX();
         int y = this.getY();
 
         int width = this.getWidth();
         int height = this.getHeight();
-        
+
         Rectangle virtualBounds = ScreenInformation.getScreenBounds();
 
         // the default distance to the screen border
