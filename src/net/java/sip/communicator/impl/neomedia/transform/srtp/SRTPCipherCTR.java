@@ -62,35 +62,37 @@ public class SRTPCipherCTR
     private final byte[] cipherInBlock = new byte[BLKLEN];
     private final byte[] tmpCipherBlock = new byte[BLKLEN];
     private byte[] streamBuf = new byte[1024];
-    
-    public SRTPCipherCTR() {
-    }
-    
-    public void process(BlockCipher cipher, byte[] data, int off, int len,
-            byte[] iv) {
 
-        if (off + len > data.length) {
+    public SRTPCipherCTR()
+    {
+    }
+
+    public void process(BlockCipher cipher, byte[] data, int off, int len,
+        byte[] iv)
+    {
+        if (off + len > data.length)
             return;
-        }
+
         // if data fits in inter buffer - use it. Otherwise allocate bigger
         // buffer store it to use it for later processing - up to a defined
         // maximum size.
         byte[] cipherStream = null;
-        if (len > streamBuf.length) {
+        if (len > streamBuf.length)
+        {
             cipherStream = new byte[len];
-            if (cipherStream.length <= MAX_BUFFER_LENGTH) {
+            if (cipherStream.length <= MAX_BUFFER_LENGTH)
+            {
                 streamBuf = cipherStream;
             }
         }
-        else {
+        else
+        {
             cipherStream = streamBuf;
         }
 
         getCipherStream(cipher, cipherStream, len, iv);
-
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++)
             data[i + off] ^= cipherStream[i];
-        }
     }
 
     /**
@@ -104,12 +106,14 @@ public class SRTPCipherCTR
      * @param iv
      *            initialization vector used to generate this cipher stream
      */
-    public void getCipherStream(BlockCipher aesCipher, byte[] out, int length, byte[] iv)
+    public void getCipherStream(BlockCipher aesCipher, byte[] out, int length,
+        byte[] iv)
     {
         System.arraycopy(iv, 0, cipherInBlock, 0, 14);
 
         int ctr;
-        for (ctr = 0; ctr < length / BLKLEN; ctr++) {
+        for (ctr = 0; ctr < length / BLKLEN; ctr++)
+        {
             // compute the cipher stream
             cipherInBlock[14] = (byte) ((ctr & 0xFF00) >> 8);
             cipherInBlock[15] = (byte) ((ctr & 0x00FF));

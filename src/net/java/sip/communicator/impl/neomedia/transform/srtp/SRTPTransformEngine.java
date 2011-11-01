@@ -158,7 +158,8 @@ public class SRTPTransformEngine
      *
      * @return the default SRTPCryptoContext
      */
-    public SRTCPCryptoContext getDefaultContextControl() {
+    public SRTCPCryptoContext getDefaultContextControl()
+    {
         return this.defaultContextControl;
     }
 }

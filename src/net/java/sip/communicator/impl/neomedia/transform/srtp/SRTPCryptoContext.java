@@ -467,7 +467,8 @@ public class SRTPCryptoContext
 
         /* Decrypt the packet using Counter Mode encryption*/
         if (policy.getEncType() == SRTPPolicy.AESCM_ENCRYPTION ||
-                policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION) {
+                policy.getEncType() == SRTPPolicy.TWOFISH_ENCRYPTION)
+        {
             processPacketAESCM(pkt);
         }
 
@@ -502,12 +503,22 @@ public class SRTPCryptoContext
         int i;
         for (i = 4; i < 8; i++)
         {
-            ivStore[i] = (byte) ((0xFF & (ssrc >> ((7 - i) * 8))) ^ this.saltKey[i]);
+            ivStore[i] = (byte)
+                (
+                    (0xFF & (ssrc >> ((7 - i) * 8)))
+                    ^
+                    this.saltKey[i]
+                );
         }
 
         for (i = 8; i < 14; i++)
         {
-            ivStore[i] = (byte) ((0xFF & (byte) (index >> ((13 - i) * 8))) ^ this.saltKey[i]);
+            ivStore[i] = (byte)
+                (
+                    (0xFF & (byte) (index >> ((13 - i) * 8)))
+                    ^
+                    this.saltKey[i]
+                );
         }
 
         ivStore[14] = ivStore[15] = 0;
@@ -640,7 +651,12 @@ public class SRTPCryptoContext
         }
         for (int i = 7; i < 14; i++)
         {
-            ivStore[i] = (byte) ((byte) (0xFF & (key_id >> (8 * (13 - i)))) ^ masterSalt[i]);
+            ivStore[i] = (byte)
+                (
+                    (byte) (0xFF & (key_id >> (8 * (13 - i))))
+                    ^
+                    masterSalt[i]
+                );
         }
         ivStore[14] = ivStore[15] = 0;
     }
