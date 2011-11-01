@@ -80,6 +80,8 @@ public class KnownFingerprintsPanel
             {
                 OtrActivator.scOtrKeyManager
                     .verify(getSelectedContact());
+                openContact(getSelectedContact());
+                contactsTable.updateUI();
             }
         });
 
@@ -94,6 +96,8 @@ public class KnownFingerprintsPanel
             {
                 OtrActivator.scOtrKeyManager
                     .unverify(getSelectedContact());
+                openContact(getSelectedContact());
+                contactsTable.updateUI();
             }
         });
         pnlButtons.add(btnForgetFingerprint);
