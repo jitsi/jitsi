@@ -349,6 +349,7 @@ public class CallPeerGTalkImpl
             // HACK for FreeSwitch that send accept message before sending
             // candidates
             sessAcceptedWithNoCands = sessionInitIQ;
+            return;
         }
         catch(Exception exc)
         {
@@ -430,7 +431,20 @@ public class CallPeerGTalkImpl
         if(sessAcceptedWithNoCands != null)
         {
             if(!isInitiator)
-                processSessionAccept(sessAcceptedWithNoCands);
+            {
+                final SessionIQ sess = sessAcceptedWithNoCands;
+                sessAcceptedWithNoCands = null;
+
+                // run in another thread to not block smack receive thread and
+                // possibly delay others candidates messages.
+                new Thread()
+                {
+                    public void run()
+                    {
+                        processSessionAccept(sess);
+                    }
+                }.start();
+            }
             else
             {
                 try
