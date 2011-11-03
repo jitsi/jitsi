@@ -180,6 +180,16 @@ public abstract class AccountID
      */
     public String getDisplayName()
     {
+        // If the ACCOUNT_DISPLAY_NAME property has been set for this account
+        // we'll be using it as a display name.
+        String key = ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME;
+        String accountDisplayName = accountProperties.get(key);
+        if (accountDisplayName != null && accountDisplayName.length() > 0)
+        {
+            return accountDisplayName;
+        }
+
+        // Otherwise construct a display name.
         String returnValue = getUserID();
         String protocolName = getProtocolDisplayName();
 

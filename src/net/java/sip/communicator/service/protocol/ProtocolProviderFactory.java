@@ -73,6 +73,12 @@ public abstract class ProtocolProviderFactory
     public static final String DISPLAY_NAME = "DISPLAY_NAME";
 
     /**
+     * The name that should be displayed to the user on call via and chat via
+     * lists.
+     */
+    public static final String ACCOUNT_DISPLAY_NAME = "ACCOUNT_DISPLAY_NAME";
+
+    /**
      * The name of the property under which we store protocol AccountID-s.
      */
     public static final String ACCOUNT_UID = "ACCOUNT_UID";

@@ -434,7 +434,7 @@ public class ChooseCallAccountPopupMenu
         public ProviderMenuItem(ProtocolProviderService protocolProvider)
         {
             this.protocolProvider = protocolProvider;
-            this.setText(protocolProvider.getAccountID().getAccountAddress());
+            this.setText(protocolProvider.getAccountID().getDisplayName());
 
             loadSkin();
         }

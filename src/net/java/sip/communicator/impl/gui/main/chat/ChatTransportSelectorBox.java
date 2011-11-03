@@ -112,7 +112,7 @@ public class ChatTransportSelectorBox
 
             JMenuItem menuItem = new JMenuItem(
                         "From: " + chatTransport.getProtocolProvider()
-                            .getAccountID().getAccountAddress()
+                            .getAccountID().getDisplayName()
                         + " To: " + chatTransport.getName(),
                         new ImageIcon(img));
 
