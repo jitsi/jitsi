@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.xml.*;
  * converting the property values to the requested types and notifying the
  * <tt>PropertyChangeListener</tt>s.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public interface ConfigurationStore
 {

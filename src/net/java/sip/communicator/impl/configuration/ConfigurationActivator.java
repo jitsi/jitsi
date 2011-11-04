@@ -13,7 +13,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class ConfigurationActivator
     implements BundleActivator
@@ -26,11 +26,29 @@ public class ConfigurationActivator
         = Logger.getLogger(ConfigurationServiceImpl.class);
 
     /**
+     * The <tt>BundleContext</tt> in which the configuration bundle has been
+     * started and has not been stopped yet.
+     */
+    private static BundleContext bundleContext;
+
+    /**
      * The <tt>ConfigurationService</tt> implementation provided by the bundle
      * represented by this <tt>ConfigurationActivator</tt>.
      */
     private final ConfigurationServiceImpl impl
         = new ConfigurationServiceImpl();
+
+    /**
+     * Gets the <tt>BundleContext</tt> in which the configuration bundle has
+     * been started and has not been stopped yet.
+     *
+     * @return the <tt>BundleContext</tt> in which the configuration bundle has
+     * been started and has not been stopped yet
+     */
+    public static BundleContext getBundleContext()
+    {
+        return bundleContext;
+    }
 
     /**
      * Starts the configuration service
@@ -42,19 +60,41 @@ public class ConfigurationActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
-        if (logger.isDebugEnabled())
-            logger.debug("Service Impl: " + getClass().getName() +
-                    " [  STARTED ]");
+        boolean started = false;
 
-        impl.start(bundleContext);
+        ConfigurationActivator.bundleContext = bundleContext;
+        try
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug(
+                        "Service Impl: "
+                            + getClass().getName()
+                            + " [  STARTED ]");
+            }
 
-        bundleContext.registerService(ConfigurationService.class.getName(),
-                                      impl,
-                                      null);
+            impl.start(bundleContext);
+            bundleContext.registerService(
+                    ConfigurationService.class.getName(),
+                    impl,
+                    null);
 
-        if (logger.isDebugEnabled())
-            logger.debug("Service Impl: " + getClass().getName() +
-                    " [REGISTERED]");
+            if (logger.isDebugEnabled())
+            {
+                logger.debug(
+                        "Service Impl: "
+                            + getClass().getName()
+                            + " [REGISTERED]");
+            }
+
+            started = true;
+        }
+        finally
+        {
+            if (!started
+                    && (ConfigurationActivator.bundleContext == bundleContext))
+                ConfigurationActivator.bundleContext = null;
+        }
     }
 
     /**
@@ -69,10 +109,17 @@ public class ConfigurationActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
-        logger.logEntry();
-        impl.stop();
-        if (logger.isInfoEnabled())
-            logger.info(
-                    "The ConfigurationService stop method has been called.");
+        try
+        {
+            logger.logEntry();
+            impl.stop();
+            if (logger.isInfoEnabled())
+                logger.info("ConfigurationService#stop() has been called.");
+        }
+        finally
+        {
+            if (ConfigurationActivator.bundleContext == bundleContext)
+                ConfigurationActivator.bundleContext = null;
+        }
     }
 }

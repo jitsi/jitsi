@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.configuration;
 
+import java.beans.*;
 import java.io.*;
 import java.util.*;
-import java.beans.*;
 
 import net.java.sip.communicator.impl.configuration.xml.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -26,7 +26,7 @@ import org.osgi.framework.*;
  *
  * @author Emil Ivov
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Dmitri Melnikov
  */
 public class ConfigurationServiceImpl
@@ -38,6 +38,15 @@ public class ConfigurationServiceImpl
      */
     private final Logger logger
         = Logger.getLogger(ConfigurationServiceImpl.class);
+
+    /**
+     * The name of the <tt>ConfigurationStore</tt> class to be used as the
+     * default when no specific <tt>ConfigurationStore</tt> class is determined
+     * as necessary.
+     */
+    private static final String DEFAULT_CONFIGURATION_STORE_CLASS_NAME
+        = "net.java.sip.communicator.impl.configuration"
+            + ".SQLiteConfigurationStore";
 
     /**
      * Name of the system file name property.
@@ -83,11 +92,8 @@ public class ConfigurationServiceImpl
      * <p>
      * @param propertyName String
      * @param property Object
-     * @throws PropertyVetoException in case the changed has been refused by
-     * at least one propertychange listener.
      */
     public void setProperty(String propertyName, Object property)
-        // throws PropertyVetoException
     {
         setProperty(propertyName, property, false);
     }
@@ -108,12 +114,9 @@ public class ConfigurationServiceImpl
      *                 property set. If the property has previously been
      *                 specified as system then this value is internally forced
      *                 to true.
-     * @throws PropertyVetoException in case the changed has been refused by
-     * at least one propertychange listener.
      */
     public void setProperty(String propertyName, Object property,
                             boolean isSystem)
-        // throws PropertyVetoException
     {
         Object oldValue = getProperty(propertyName);
 
@@ -260,11 +263,8 @@ public class ConfigurationServiceImpl
      * All properties with prefix propertyName will also be removed.
      * <p>
      * @param propertyName the name of the property to change.
-     * @throws PropertyVetoException in case the changed has been refused by
-     * at least one propertychange listener.
      */
     public void removeProperty(String propertyName)
-        // throws PropertyVetoException
     {
         List<String> childPropertyNames =
             getPropertyNamesByPrefix(propertyName, false);
@@ -552,13 +552,13 @@ public class ConfigurationServiceImpl
             preloadSystemPropertyFiles();
             reloadConfiguration();
         }
-        catch (XMLException ex)
-        {
-            logger.error("Failed to parse the configuration file.", ex);
-        }
         catch (IOException ex)
         {
             logger.error("Failed to load the configuration file", ex);
+        }
+        catch (XMLException ex)
+        {
+            logger.error("Failed to parse the configuration file", ex);
         }
     }
 
@@ -566,20 +566,29 @@ public class ConfigurationServiceImpl
      * Implements ConfigurationService#reloadConfiguration().
      */
     public void reloadConfiguration()
-        throws IOException, XMLException
+        throws IOException,
+               XMLException
     {
         this.configurationFile = null;
 
         File file = getConfigurationFile();
 
-        // restore the file if needed
-        FailSafeTransaction trans = this.faService
-            .createFailSafeTransaction(file);
-        try {
-            trans.restoreFile();
-        } catch (Exception e) {
-            logger.error("can't restore the configuration file before loading" +
-                    " it", e);
+        if (file != null)
+        {
+            // Restore the file if necessary.
+            FailSafeTransaction trans
+                = this.faService.createFailSafeTransaction(file);
+
+            try
+            {
+                trans.restoreFile();
+            }
+            catch (Exception e)
+            {
+                logger.error(
+                        "Failed to restore configuration file " + file,
+                        e);
+            }
         }
 
         store.reloadConfiguration(file);
@@ -609,18 +618,32 @@ public class ConfigurationServiceImpl
                 "Service is stopped or has not been started");
 
         // write the file.
-        FailSafeTransaction trans =
-            this.faService.createFailSafeTransaction(file);
+        FailSafeTransaction trans
+            = (file == null)
+                ? null
+                : this.faService.createFailSafeTransaction(file);
         Throwable exception = null;
+
         try
         {
-            trans.beginTransaction();
-            OutputStream stream = new FileOutputStream(file);
+            if (trans != null)
+                trans.beginTransaction();
 
-            store.storeConfiguration(stream);
+            OutputStream stream
+                = (file == null) ? null : new FileOutputStream(file);
 
-            stream.close();
-            trans.commit();
+            try
+            {
+                store.storeConfiguration(stream);
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.close();
+            }
+
+            if (trans != null)
+                trans.commit();
         }
         catch (IllegalStateException isex)
         {
@@ -632,9 +655,11 @@ public class ConfigurationServiceImpl
         }
         if (exception != null)
         {
-            logger
-                .error("can't write data in the configuration file", exception);
-            trans.rollback();
+            logger.error(
+                    "can't write data in the configuration file",
+                    exception);
+            if (trans != null)
+                trans.rollback();
         }
     }
 
@@ -684,9 +709,7 @@ public class ConfigurationServiceImpl
              * It's strange that there's no configuration file name but let it
              * play out as it did when the configuration file was in XML format.
              */
-            this.configurationFile = getConfigurationFile("xml", true);
-            if (!(this.store instanceof XMLConfigurationStore))
-                this.store = new XMLConfigurationStore();
+            setConfigurationStore(XMLConfigurationStore.class);
         }
         else
         {
@@ -754,11 +777,14 @@ public class ConfigurationServiceImpl
                 else if (getSystemProperty(PNAME_CONFIGURATION_FILE_NAME)
                             == null)
                 {
+                    Class<? extends ConfigurationStore>
+                        defaultConfigurationStoreClass
+                            = getDefaultConfigurationStoreClass();
 
                     /*
                      * The .xml is not forced on us so we allow ourselves to not
                      * obey the default and use the properties format. If a
-                     * configuration file in the XML foramt exists already, we
+                     * configuration file in the XML format exists already, we
                      * have to migrate it to the properties format.
                      */
                     if (configurationFile.exists())
@@ -776,15 +802,9 @@ public class ConfigurationServiceImpl
                             throw ioex;
                         }
 
-                        ConfigurationStore propertyStore
-                            = (this.store instanceof PropertyConfigurationStore)
-                                ? this.store
-                                : new PropertyConfigurationStore();
-                        copy(xmlStore, propertyStore);
-
-                        this.configurationFile
-                                = getConfigurationFile("properties", true);
-                        this.store = propertyStore;
+                        setConfigurationStore(defaultConfigurationStoreClass);
+                        if (this.store != null)
+                            copy(xmlStore, this.store);
 
                         Throwable exception = null;
                         try
@@ -809,10 +829,7 @@ public class ConfigurationServiceImpl
                     }
                     else
                     {
-                        this.configurationFile
-                                = getConfigurationFile("properties", true);
-                        if (!(this.store instanceof PropertyConfigurationStore))
-                            this.store = new PropertyConfigurationStore();
+                        setConfigurationStore(defaultConfigurationStoreClass);
                     }
                 }
                 else
@@ -821,7 +838,7 @@ public class ConfigurationServiceImpl
                     /*
                      * The .xml extension is forced on us so we have to assume
                      * that whoever forced it knows what she wants to get so we
-                     * have to obey and use the XML foramt.
+                     * have to obey and use the XML format.
                      */
                     this.configurationFile =
                             configurationFile.exists()
@@ -956,8 +973,8 @@ public class ConfigurationServiceImpl
         {
             if (logger.isDebugEnabled())
                 logger.debug(
-                "Using config file in current dir: "
-                    + configFileInCurrentDir.getAbsolutePath());
+                        "Using config file in current dir: "
+                            + configFileInCurrentDir.getAbsolutePath());
             return configFileInCurrentDir;
         }
 
@@ -1024,6 +1041,41 @@ public class ConfigurationServiceImpl
             }
         }
         return configFileInUserHomeDir;
+    }
+
+    /**
+     * Gets the <tt>ConfigurationStore</tt> <tt>Class</tt> to be used as the
+     * default when no specific <tt>ConfigurationStore</tt> <tt>Class</tt> is
+     * determined as necessary.
+     *
+     * @return the <tt>ConfigurationStore</tt> <tt>Class</tt> to be used as the
+     * default when no specific <tt>ConfigurationStore</tt> <tt>Class</tt> is
+     * determined as necessary
+     */
+    private static Class<? extends ConfigurationStore>
+        getDefaultConfigurationStoreClass()
+    {
+        Class<? extends ConfigurationStore> defaultConfigurationStoreClass
+            = null;
+
+        if (DEFAULT_CONFIGURATION_STORE_CLASS_NAME != null)
+        {
+            Class<?> clazz = null;
+
+            try
+            {
+                clazz = Class.forName(DEFAULT_CONFIGURATION_STORE_CLASS_NAME);
+            }
+            catch (ClassNotFoundException cnfe)
+            {
+            }
+            if (ConfigurationStore.class.isAssignableFrom(clazz))
+                defaultConfigurationStoreClass
+                    = (Class<? extends ConfigurationStore>) clazz;
+        }
+        if (defaultConfigurationStoreClass == null)
+            defaultConfigurationStoreClass = PropertyConfigurationStore.class;
+        return defaultConfigurationStoreClass;
     }
 
     private static void copy(ConfigurationStore src, ConfigurationStore dest)
@@ -1315,10 +1367,45 @@ public class ConfigurationServiceImpl
                 //kind of silence all possible exceptions (which would most
                 //often be IOExceptions). We will however log them in case
                 //anyone would be interested.
-                logger.error("Failed to load property file: "
-                    + fileName
-                    , ex);
+                logger.error("Failed to load property file: " + fileName, ex);
             }
+        }
+    }
+
+    private void setConfigurationStore(
+            Class<? extends ConfigurationStore> clazz)
+        throws IOException
+    {
+        String extension = null;
+
+        if (PropertyConfigurationStore.class.isAssignableFrom(clazz))
+            extension = "properties";
+        else if (XMLConfigurationStore.class.isAssignableFrom(clazz))
+            extension = "xml";
+
+        this.configurationFile
+                = (extension == null)
+                    ? null
+                    : getConfigurationFile(extension, true);
+
+        if (!clazz.isInstance(this.store))
+        {
+            Throwable exception = null;
+
+            try
+            {
+                this.store = clazz.newInstance();
+            }
+            catch (IllegalAccessException iae)
+            {
+                exception = iae;
+            }
+            catch (InstantiationException ie)
+            {
+                exception = ie;
+            }
+            if (exception != null)
+                throw new RuntimeException(exception);
         }
     }
 }
