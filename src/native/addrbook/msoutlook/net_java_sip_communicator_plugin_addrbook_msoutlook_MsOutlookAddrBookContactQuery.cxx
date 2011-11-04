@@ -13,7 +13,7 @@
 
 #include <string.h>
 
-#define WIND32_MEAN_AND_LEAK
+#define WIN32_MEAN_AND_LEAN
 #include <windows.h>
 
 static jboolean MsOutlookAddrBookContactQuery_foreachMailUser
