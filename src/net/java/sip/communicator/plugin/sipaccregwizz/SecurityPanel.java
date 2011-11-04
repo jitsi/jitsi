@@ -78,6 +78,10 @@ public class SecurityPanel
         public void loadData(String ciphers)
         {
             data.clear();
+
+            if(defaultCiphers == null)
+                return;
+
             if(ciphers == null)
                 ciphers = defaultCiphers;
             //TODO the available ciphers should come from SDesControlImpl
@@ -157,7 +161,8 @@ public class SecurityPanel
             if(sb.length() == 0)
                 return null;
             String result = sb.substring(0, sb.length()-1);
-            return defaultCiphers.equals(result) ? null : result;
+            return (defaultCiphers == null
+                    || defaultCiphers.equals(result)) ? null : result;
         }
     }
 
