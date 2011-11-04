@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import java.awt.Dimension;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 
@@ -32,6 +33,7 @@ import net.java.sip.communicator.util.*;
 @SuppressWarnings("unchecked")
 public class DeviceConfiguration
     extends PropertyChangeNotifier
+    implements PropertyChangeListener
 {
 
     /**
@@ -306,6 +308,13 @@ public class DeviceConfiguration
         {
             JmfDeviceDetector.detectAndConfigureCaptureDevices();
             extractConfiguredCaptureDevices();
+
+            ConfigurationService cfg =
+                NeomediaActivator.getConfigurationService();
+            cfg.addPropertyChangeListener(PROP_VIDEO_HEIGHT, this);
+            cfg.addPropertyChangeListener(PROP_VIDEO_WIDTH, this);
+            cfg.addPropertyChangeListener(PROP_VIDEO_FRAMERATE, this);
+            cfg.addPropertyChangeListener(PROP_VIDEO_MAX_BANDWIDTH, this);
         }
         catch (Exception ex)
         {
@@ -1357,5 +1366,29 @@ public class DeviceConfiguration
         firePropertyChange(
                 VIDEO_CAPTURE_DEVICE,
                 videoCaptureDevice, videoCaptureDevice);
+    }
+
+    /**
+     * Listens for changes in the configuration and if such happen
+     * we reset local values so next time we will update from
+     * the configuration.
+     * @param evt the property change event
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if(evt.getPropertyName().equals(PROP_VIDEO_HEIGHT)
+            || evt.getPropertyName().equals(PROP_VIDEO_WIDTH))
+        {
+            videoSize = null;
+        }
+        else if(evt.getPropertyName().equals(PROP_VIDEO_FRAMERATE))
+        {
+            frameRate = -1;
+        }
+        else if(evt.getPropertyName().equals(PROP_VIDEO_MAX_BANDWIDTH))
+        {
+            videoMaxBandwidth = -1;
+        }
+
     }
 }
