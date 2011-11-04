@@ -78,13 +78,15 @@ public class SIPAccountRegistration
 
     private boolean xCapEnable = false;
 
-    private boolean xCapUseSipCredetials = true;
+    private boolean xivoEnable = false;
 
-    private String xCapServerUri;
+    private boolean clistOptionUseSipCredentials = true;
 
-    private String xCapUser;
+    private String clistOptionServerUri;
 
-    private String xCapPassword;
+    private String clistOptionUser;
+
+    private String clistOptionPassword;
 
     /**
      * The voicemail uri if any.
@@ -571,83 +573,104 @@ public class SIPAccountRegistration
     }
 
     /**
-     * Checks if XCAP has to use SIP account credetials.
+     * Checks if XiVO option is enabled.
      *
-     * @return true if XCAP has to use SIP account credetials otherwise false.
+     * @return true if XiVO is enabled otherwise false.
      */
-    public boolean isXCapUseSipCredetials()
+    public boolean isXiVOEnable()
     {
-        return xCapUseSipCredetials;
+        return xivoEnable;
+    }
+    /**
+     * Sets if XiVO option is enable.
+     *
+     * @param xivoEnable XiVO enable.
+     */
+    public void setXiVOEnable(boolean xivoEnable)
+    {
+        this.xivoEnable = xivoEnable;
     }
 
     /**
-     * Sets if XCAP has to use SIP account credetials.
+     * Checks if XCAP has to use SIP account credentials.
      *
-     * @param xCapUseSipCredetials if XCAP has to use SIP account credetials.
+     * @return true if XCAP has to use SIP account credentials otherwise false.
      */
-    public void setXCapUseSipCredetials(boolean xCapUseSipCredetials)
+    public boolean isClistOptionUseSipCredentials()
     {
-        this.xCapUseSipCredetials = xCapUseSipCredetials;
+        return clistOptionUseSipCredentials;
     }
 
     /**
-     * Gets the XCAP server uri.
+     * Sets if contact list has to use SIP account credentials.
      *
-     * @return the XCAP server uri.
+     * @param clistOptionUseSipCredentials if the clist has
+     * to use SIP account credentials.
      */
-    public String getXCapServerUri()
+    public void setClistOptionUseSipCredentials(
+        boolean clistOptionUseSipCredentials)
     {
-        return xCapServerUri;
+        this.clistOptionUseSipCredentials = clistOptionUseSipCredentials;
     }
 
     /**
-     * Sets the XCAP server uri.
+     * Gets the contact list server uri.
      *
-     * @param xCapServerUri the XCAP server uri.
+     * @return the contact list  server uri.
      */
-    public void setXCapServerUri(String xCapServerUri)
+    public String getClistOptionServerUri()
     {
-        this.xCapServerUri = xCapServerUri;
+        return clistOptionServerUri;
     }
 
     /**
-     * Gets the XCAP user.
+     * Sets the contact list server uri.
      *
-     * @return the XCAP user.
+     * @param clistOptionServerUri the contact list server uri.
      */
-    public String getXCapUser()
+    public void setClistOptionServerUri(String clistOptionServerUri)
     {
-        return xCapUser;
+        this.clistOptionServerUri = clistOptionServerUri;
     }
 
     /**
-     * Sets the XCAP user.
+     * Gets the contact list user.
      *
-     * @param xCapUser the XCAP user.
+     * @return the contact list user.
      */
-    public void setXCapUser(String xCapUser)
+    public String getClistOptionUser()
     {
-        this.xCapUser = xCapUser;
+        return clistOptionUser;
     }
 
     /**
-     * Gets the XCAP password.
+     * Sets the contact list user.
      *
-     * @return the XCAP password.
+     * @param clistOptionUser the contact list user.
      */
-    public String getXCapPassword()
+    public void setClistOptionUser(String clistOptionUser)
     {
-        return xCapPassword;
+        this.clistOptionUser = clistOptionUser;
     }
 
     /**
-     * Sets the XCAP password.
+     * Gets the contact list password.
      *
-     * @param xCapPassword the XCAP password.
+     * @return the contact list password.
      */
-    public void setXCapPassword(String xCapPassword)
+    public String getClistOptionPassword()
     {
-        this.xCapPassword = xCapPassword;
+        return clistOptionPassword;
+    }
+
+    /**
+     * Sets the contact list password.
+     *
+     * @param clistOptionPassword the contact list password.
+     */
+    public void setClistOptionPassword(String clistOptionPassword)
+    {
+        this.clistOptionPassword = clistOptionPassword;
     }
 
     /**

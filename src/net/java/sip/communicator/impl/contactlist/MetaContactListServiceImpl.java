@@ -418,6 +418,14 @@ public class MetaContactListServiceImpl
                 , ex
                 , MetaContactListException.CODE_CONTACT_ALREADY_EXISTS_ERROR);
             }
+            else if(ex.getErrorCode()
+               == OperationFailedException.NOT_SUPPORTED_OPERATION)
+            {
+                throw new MetaContactListException(
+                "failed to create contact " + contactID
+                , ex
+                , MetaContactListException.CODE_NOT_SUPPORTED_OPERATION);
+            }
 
             throw new MetaContactListException(
                 "failed to create contact " + contactID

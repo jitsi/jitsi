@@ -17,9 +17,11 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  * @author Grigorii Balutsel
+ * @author Damian Minkov
  */
 public class PresencePanel
         extends TransparentPanel
+        implements ActionListener
 {
     private JPanel presenceOpPanel
             = new TransparentPanel(new BorderLayout(10, 10));
@@ -50,36 +52,19 @@ public class PresencePanel
     private JTextField subscribeExpiresField =
             new JTextField(SIPAccountRegistration.DEFAULT_SUBSCRIBE_EXPIRES);
 
-    private JPanel xCapPanel
-            = new TransparentPanel(new BorderLayout(10, 10));
+    private JTextField clistOptionServerUriValue = new JTextField();
 
-    private JPanel xCapButtonsPanel
-            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private JTextField clistOptionUserValue = new JTextField();
 
-    private JPanel xCapCredetialsLabelsPanel
-            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private JPasswordField clistOptionPasswordValue = new JPasswordField();
 
-    private JPanel xCapCredetialsValuesPanel
-            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+    private final JCheckBox clistOptionUseSipCredentialsBox;
 
-    private JLabel xCapServerUriLabel = new JLabel(
-            Resources.getString("plugin.sipaccregwizz.XCAP_SERVER_URI"));
+    private String[] contactlistOptions = new String[]
+            { "Local", "XCAP", "XiVO" };
 
-    private JLabel xCapUserLabel = new JLabel(
-            Resources.getString("plugin.sipaccregwizz.XCAP_USER"));
-
-    private JLabel xCapPasswordLabel = new JLabel(
-            Resources.getString("plugin.sipaccregwizz.XCAP_PASSWORD"));
-
-    private JTextField xCapServerUriValue = new JTextField();
-
-    private JTextField xCapUserValue = new JTextField();
-
-    private JPasswordField xCapPasswordValue = new JPasswordField();
-
-    private final JCheckBox xCapEnableBox;
-
-    private final JCheckBox xCapUseSipCredetialsBox;
+    private JComboBox contactlistOptionsCombo = new JComboBox(
+            contactlistOptions);
 
     /**
      * Creates an instance of <tt>PresencePanel</tt>.
@@ -87,7 +72,10 @@ public class PresencePanel
      */
     public PresencePanel(SIPAccountRegistrationForm regform)
     {
-        super(new BorderLayout());
+        super(new BorderLayout(10, 10));
+
+        JPanel mainPanel = new TransparentPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
         this.enablePresOpButton = new SIPCommCheckBox(
             Resources.getString("plugin.sipaccregwizz.ENABLE_PRESENCE"),
@@ -95,16 +83,13 @@ public class PresencePanel
         this.forceP2PPresOpButton = new SIPCommCheckBox(
             Resources.getString("plugin.sipaccregwizz.FORCE_P2P_PRESENCE"),
             regform.getRegistration().isForceP2PMode());
-        this.xCapEnableBox = new SIPCommCheckBox(
-            Resources.getString("plugin.sipaccregwizz.XCAP_ENABLE"),
-            regform.getRegistration().isXCapEnable());
-        this.xCapUseSipCredetialsBox = new SIPCommCheckBox(
+        this.clistOptionUseSipCredentialsBox = new SIPCommCheckBox(
             Resources.getString("plugin.sipaccregwizz.XCAP_USE_SIP_CREDENTIALS"),
-            regform.getRegistration().isXCapUseSipCredetials());
+            regform.getRegistration().isClistOptionUseSipCredentials());
 
         if(regform.getRegistration().isXCapEnable())
-            this.xCapServerUriValue.setText(
-                    regform.getRegistration().getXCapServerUri());
+            this.clistOptionServerUriValue.setText(
+                    regform.getRegistration().getClistOptionServerUri());
 
         enablePresOpButton.addActionListener(new ActionListener()
         {
@@ -133,54 +118,89 @@ public class PresencePanel
         presenceOpPanel.setBorder(BorderFactory.createTitledBorder(
                 Resources.getString("plugin.sipaccregwizz.PRESENCE_OPTIONS")));
 
-        xCapEnableBox.setSelected(regform.getRegistration().isXCapEnable());
-        xCapEnableBox.addActionListener(new ActionListener()
+        clistOptionUseSipCredentialsBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
                 JCheckBox checkBox = (JCheckBox) evt.getSource();
-                setXCapEnableEnabled(checkBox.isSelected());
+                setClistOptionUseSipCredentialsEnabled(checkBox.isSelected());
             }
         });
-
-        xCapUseSipCredetialsBox.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                JCheckBox checkBox = (JCheckBox) evt.getSource();
-                setXCapUseSipCredetialsEnabled(checkBox.isSelected());
-            }
-        });
-
-        setXCapEnableEnabled(xCapEnableBox.isSelected());
 
         JPanel xCapServerUriPanel
-                = new TransparentPanel(new BorderLayout(10, 10));
-        xCapServerUriPanel.add(xCapServerUriLabel, BorderLayout.WEST);
-        xCapServerUriPanel.add(xCapServerUriValue, BorderLayout.CENTER);
-        String xcapUri = regform.getRegistration().getXCapServerUri();
+                = new TransparentPanel(new BorderLayout());
+        xCapServerUriPanel.add(
+            new JLabel(
+                Resources.getString("plugin.sipaccregwizz.XCAP_SERVER_URI")),
+            BorderLayout.WEST);
+
+        xCapServerUriPanel.add(clistOptionServerUriValue, BorderLayout.CENTER);
+        String xcapUri = regform.getRegistration().getClistOptionServerUri();
         if (xcapUri != null)
-            xCapServerUriValue.setText(xcapUri);
+            clistOptionServerUriValue.setText(xcapUri);
 
-        xCapButtonsPanel.add(xCapEnableBox);
+        JPanel xCapPanel
+                = new TransparentPanel(new BorderLayout(5, 5));
+        JPanel xCapButtonsPanel = new TransparentPanel();
+        xCapButtonsPanel.setLayout(
+            new BoxLayout(xCapButtonsPanel, BoxLayout.Y_AXIS));
+        JPanel xCapCredentialsLabelsPanel
+                = new TransparentPanel(new GridLayout(0, 1, 0, 0));
+        JPanel xCapCredentialsValuesPanel
+                = new TransparentPanel(new GridLayout(0, 1, 0, 0));
+
+        JPanel contactlistTypePanel
+                = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
+        contactlistTypePanel.add(new JLabel(
+                Resources.getString("plugin.sipaccregwizz.CLIST_TYPE")));
+        contactlistTypePanel.add(contactlistOptionsCombo);
+
+        contactlistOptionsCombo.addActionListener(this);
+
+        if(regform.getRegistration().isXCapEnable())
+        {
+            setXCapEnable(true);
+        }
+        else if(regform.getRegistration().isXiVOEnable())
+        {
+            setXiVOEnable(true);
+        }
+
+        updateContactListPanel();
+
+        xCapServerUriPanel.setBorder(
+                BorderFactory.createEmptyBorder(0, 16, 0, 0));
+
+        xCapButtonsPanel.add(contactlistTypePanel);
         xCapButtonsPanel.add(xCapServerUriPanel);
-        xCapButtonsPanel.add(xCapUseSipCredetialsBox);
+        JPanel credPanel = new TransparentPanel(new BorderLayout());
+        credPanel.add(clistOptionUseSipCredentialsBox, BorderLayout.WEST);
+        credPanel.setBorder(
+                BorderFactory.createEmptyBorder(0, 7, 0, 0));
+        xCapButtonsPanel.add(credPanel);
 
-        xCapCredetialsLabelsPanel.add(xCapUserLabel);
-        xCapCredetialsLabelsPanel.add(xCapPasswordLabel);
+        xCapCredentialsLabelsPanel.add(new JLabel(
+                Resources.getString("plugin.sipaccregwizz.XCAP_USER")));
+        xCapCredentialsLabelsPanel.add(new JLabel(
+                Resources.getString("plugin.sipaccregwizz.XCAP_PASSWORD")));
 
-        xCapCredetialsValuesPanel.add(xCapUserValue);
-        xCapCredetialsValuesPanel.add(xCapPasswordValue);
+        xCapCredentialsValuesPanel.add(clistOptionUserValue);
+        xCapCredentialsValuesPanel.add(clistOptionPasswordValue);
+
+        xCapCredentialsLabelsPanel.setBorder(
+                BorderFactory.createEmptyBorder(0, 16, 0, 0));
 
         xCapPanel.add(xCapButtonsPanel, BorderLayout.NORTH);
-        xCapPanel.add(xCapCredetialsLabelsPanel, BorderLayout.WEST);
-        xCapPanel.add(xCapCredetialsValuesPanel, BorderLayout.CENTER);
+        xCapPanel.add(xCapCredentialsLabelsPanel, BorderLayout.WEST);
+        xCapPanel.add(xCapCredentialsValuesPanel, BorderLayout.CENTER);
 
         xCapPanel.setBorder(BorderFactory.createTitledBorder(
                 Resources.getString("plugin.sipaccregwizz.XCAP_OPTIONS")));
 
-        this.add(presenceOpPanel, BorderLayout.NORTH);
-        this.add(xCapPanel, BorderLayout.SOUTH);
+        mainPanel.add(presenceOpPanel);
+        mainPanel.add(xCapPanel);
+
+        this.add(mainPanel, BorderLayout.NORTH);
     }
 
     /**
@@ -197,34 +217,35 @@ public class PresencePanel
     }
 
     /**
-     * Enables or disable XCAP credetials related options.
+     * Enables or disable contact list credentials related options.
      *
-     * @param isEnabled <code>true</code> to enable the credetials related
+     * @param isEnabled <code>true</code> to enable the credentials related
      *                  options, <code>false</code> - to disable them.
      */
-    void setXCapUseSipCredetialsEnabled(boolean isEnabled)
+    void setClistOptionUseSipCredentialsEnabled(boolean isEnabled)
     {
-        xCapUserValue.setEnabled(!isEnabled);
-        xCapPasswordValue.setEnabled(!isEnabled);
+        clistOptionUserValue.setEnabled(!isEnabled);
+        clistOptionPasswordValue.setEnabled(!isEnabled);
     }
 
     /**
-     * Enables or disable XCAP related options.
+     * Enables or disable contact list related options.
      *
-     * @param isEnabled <code>true</code> to enable the XCAP related
+     * @param isEnabled <code>true</code> to enable the clist options related
      *                  options, <code>false</code> - to disable them.
      */
-    void setXCapEnableEnabled(boolean isEnabled)
+    void setClistOptionEnableEnabled(boolean isEnabled)
     {
-        xCapUseSipCredetialsBox.setEnabled(isEnabled);
-        xCapServerUriValue.setEnabled(isEnabled);
+        clistOptionUseSipCredentialsBox.setEnabled(isEnabled);
+        clistOptionServerUriValue.setEnabled(isEnabled);
         if(isEnabled)
         {
-            setXCapUseSipCredetialsEnabled(xCapUseSipCredetialsBox.isSelected());
+            setClistOptionUseSipCredentialsEnabled(
+                clistOptionUseSipCredentialsBox.isSelected());
         }
         else
         {
-            setXCapUseSipCredetialsEnabled(true);
+            setClistOptionUseSipCredentialsEnabled(true);
         }
     }
 
@@ -320,7 +341,11 @@ public class PresencePanel
      */
     boolean isXCapEnable()
     {
-        return xCapEnableBox.isSelected();
+        Object o = contactlistOptionsCombo.getSelectedItem();
+        if(o != null && o.equals(contactlistOptions[1]))
+            return true;
+
+        return false;
     }
 
     /**
@@ -330,87 +355,150 @@ public class PresencePanel
      */
     void setXCapEnable(boolean xCapEnable)
     {
-        xCapEnableBox.setSelected(xCapEnable);
+        if(xCapEnable)
+        {
+            contactlistOptionsCombo.setSelectedItem(contactlistOptions[1]);
+            updateContactListPanel();
+        }
     }
 
     /**
-     * Indicates if XCAP has to use SIP account credetials.
+     * Indicates if XCAP has to use its capabilities.
      *
-     * @return <tt>true</tt> if XCAP has to use SIP account credetials,
+     * @return <tt>true</tt> if XCAP has to use its capabilities,
      *         <tt>false</tt> - otherwise.
      */
-    boolean isXCapUseSipCredetials()
+    boolean isXiVOEnable()
     {
-        return xCapUseSipCredetialsBox.isSelected();
+        Object o = contactlistOptionsCombo.getSelectedItem();
+        if(o != null && o.equals(contactlistOptions[2]))
+            return true;
+
+        return false;
     }
 
     /**
-     * Sets if XCAP has to use SIP account credetials.
+     * Sets if has to use its capabilities.
      *
-     * @param xCapUseSipCredetials if XCAP has to use SIP account credetials.
+     * @param xivoEnable if has to use its capabilities.
      */
-    void setXCapUseSipCredetials(boolean xCapUseSipCredetials)
+    void setXiVOEnable(boolean xivoEnable)
     {
-        xCapUseSipCredetialsBox.setSelected(xCapUseSipCredetials);
+        if(xivoEnable)
+        {
+            contactlistOptionsCombo.setSelectedItem(contactlistOptions[2]);
+            updateContactListPanel();
+        }
     }
 
     /**
-     * Gets the XCAP server uri.
+     * Indicates if contact list has to use SIP account credentials.
      *
-     * @return the XCAP server uri.
+     * @return <tt>true</tt> if contact list has to use SIP account credentials,
+     *         <tt>false</tt> - otherwise.
      */
-    String getXCapServerUri()
+    boolean isClistOptionUseSipCredentials()
     {
-        return xCapServerUriValue.getText();
+        return clistOptionUseSipCredentialsBox.isSelected();
     }
 
     /**
-     * Sets the XCAP server uri.
+     * Sets if contact list has to use SIP account credentials.
      *
-     * @param xCapServerUri the XCAP server uri.
+     * @param clistOptionUseSipCredentials if contact list
+     * has to use SIP account credentials.
      */
-    void setXCapServerUri(String xCapServerUri)
+    void setClistOptionUseSipCredentials(boolean clistOptionUseSipCredentials)
     {
-        xCapServerUriValue.setText(xCapServerUri);
+        clistOptionUseSipCredentialsBox.setSelected(
+                clistOptionUseSipCredentials);
     }
 
     /**
-     * Gets the XCAP user.
+     * Gets the contact list server uri.
      *
-     * @return the XCAP user.
+     * @return the contact list server uri.
      */
-    String getXCapUser()
+    String getClistOptionServerUri()
     {
-        return xCapUserValue.getText();
+        return clistOptionServerUriValue.getText();
     }
 
     /**
-     * Sets the XCAP user.
+     * Sets the contact list server uri.
      *
-     * @param xCapUser the XCAP user.
+     * @param xCapServerUri the contact list server uri.
      */
-    void setXCapUser(String xCapUser)
+    void setClistOptionServerUri(String xCapServerUri)
     {
-        xCapUserValue.setText(xCapUser);
+        clistOptionServerUriValue.setText(xCapServerUri);
     }
 
     /**
-     * Gets the XCAP password.
+     * Gets the contact list user.
      *
-     * @return the XCAP password.
+     * @return the contact list user.
      */
-    char[] getXCapPassword()
+    String getClistOptionUser()
     {
-        return xCapPasswordValue.getPassword();
+        return clistOptionUserValue.getText();
     }
 
     /**
-     * Sets the XCAP password.
+     * Sets the contact list user.
      *
-     * @param xCapPassword the XCAP password.
+     * @param clistOptionUser the contact list user.
      */
-    void setXCapPassword(String xCapPassword)
+    void setClistOptionUser(String clistOptionUser)
     {
-        xCapPasswordValue.setText(xCapPassword);
+        clistOptionUserValue.setText(clistOptionUser);
+    }
+
+    /**
+     * Gets the contact list password.
+     *
+     * @return the contact list password.
+     */
+    char[] getClistOptionPassword()
+    {
+        return clistOptionPasswordValue.getPassword();
+    }
+
+    /**
+     * Sets the contact list password.
+     *
+     * @param xCapPassword the contact list password.
+     */
+    void setClistOptionPassword(String xCapPassword)
+    {
+        clistOptionPasswordValue.setText(xCapPassword);
+    }
+
+    public void actionPerformed(ActionEvent actionEvent)
+    {
+        updateContactListPanel();
+    }
+
+    /**
+     * Updates panel states.
+     */
+    private void updateContactListPanel()
+    {
+        Object obj = contactlistOptionsCombo.getSelectedItem();
+
+        if(obj == null || obj.equals(contactlistOptions[0]))
+        {
+            clistOptionUseSipCredentialsBox.setEnabled(false);
+            clistOptionServerUriValue.setEnabled(false);
+            clistOptionUserValue.setEnabled(false);
+            clistOptionPasswordValue.setEnabled(false);
+        }
+        else
+        {
+            clistOptionUseSipCredentialsBox.setEnabled(true);
+            clistOptionServerUriValue.setEnabled(true);
+            setClistOptionUseSipCredentialsEnabled(
+                clistOptionUseSipCredentialsBox.isSelected());
+        }
     }
 }

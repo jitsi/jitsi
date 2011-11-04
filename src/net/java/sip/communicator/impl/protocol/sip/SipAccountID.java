@@ -136,7 +136,7 @@ public class SipAccountID
      */
     public String getAccountPropertyString(Object key)
     {
-        if(key.equals(ProtocolProviderServiceSipImpl.XCAP_PASSWORD))
+        if(key.equals(ServerStoredContactListSipImpl.XCAP_PASSWORD))
         {
             CredentialsStorageService credentialsStorage
                 = ServiceUtils.getService(SipActivator.getBundleContext(),

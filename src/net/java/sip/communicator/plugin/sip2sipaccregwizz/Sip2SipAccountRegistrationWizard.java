@@ -95,9 +95,9 @@ public class Sip2SipAccountRegistrationWizard
         reg.setDefaultKeepAliveMethod("NONE");
         reg.setDefaultDomain("sip2sip.info");
         reg.setXCapEnable(true);
-        reg.setXCapServerUri(
+        reg.setClistOptionServerUri(
                 "https://xcap.sipthor.net/xcap-root@sip2sip.info");
-        reg.setXCapUseSipCredetials(true);
+        reg.setClistOptionUseSipCredentials(true);
     }
 
     /**

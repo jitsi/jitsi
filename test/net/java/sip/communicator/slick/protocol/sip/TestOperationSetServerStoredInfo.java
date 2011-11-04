@@ -196,7 +196,7 @@ public class TestOperationSetServerStoredInfo extends TestCase
         }
         // Get pres-content from the server
         ContentType presContent = xCapClient.getPresContent(
-                ProtocolProviderServiceSipImpl.PRES_CONTENT_IMAGE_NAME);
+                ServerStoredContactListSipImpl.PRES_CONTENT_IMAGE_NAME);
         assertNotNull("Pres-content cannot be null", presContent);
         assertNotNull("Pres-content data cannot be null",
                 presContent.getData());
@@ -242,7 +242,7 @@ public class TestOperationSetServerStoredInfo extends TestCase
         opSetServerStoredAccountInfo.addDetail(imageDetail);
         // Get pres-content
         ContentType presContent = xCapClient.getPresContent(
-                ProtocolProviderServiceSipImpl.PRES_CONTENT_IMAGE_NAME);
+                ServerStoredContactListSipImpl.PRES_CONTENT_IMAGE_NAME);
         assertNotNull("Pres-content cannot be null", presContent);
         assertNotNull("Pres-content data cannot be null",
                 presContent.getData());
@@ -289,7 +289,7 @@ public class TestOperationSetServerStoredInfo extends TestCase
                 storedDetails.hasNext());
         // Get pres-content
         ContentType presContent = xCapClient.getPresContent(
-                ProtocolProviderServiceSipImpl.PRES_CONTENT_IMAGE_NAME);
+                ServerStoredContactListSipImpl.PRES_CONTENT_IMAGE_NAME);
         assertNull("Pres-content cannot be not null", presContent);
     }
 
@@ -339,7 +339,7 @@ public class TestOperationSetServerStoredInfo extends TestCase
         }
         // Get pres-content
         ContentType presContent = xCapClient.getPresContent(
-                ProtocolProviderServiceSipImpl.PRES_CONTENT_IMAGE_NAME);
+                ServerStoredContactListSipImpl.PRES_CONTENT_IMAGE_NAME);
         assertNotNull("Pres-content cannot be null", presContent);
         assertNotNull("Pres-content data cannot be null",
                 presContent.getData());

@@ -246,13 +246,13 @@ public class TestAccountInstallation
                 SipProtocolProviderServiceLick.XCAP_SERVER_PROPERTY_NAME, null);
         if (xCapServerUri != null)
         {
-            table.put(ProtocolProviderServiceSipImpl.XCAP_ENABLE,
+            table.put(ServerStoredContactListSipImpl.XCAP_ENABLE,
                     Boolean.TRUE.toString());
-            table.put(ProtocolProviderServiceSipImpl.XCAP_USE_SIP_CREDETIALS,
+            table.put(ServerStoredContactListSipImpl.XCAP_USE_SIP_CREDETIALS,
                     Boolean.TRUE.toString());
-            table.put(ProtocolProviderServiceSipImpl.XCAP_USE_SIP_CREDETIALS,
+            table.put(ServerStoredContactListSipImpl.XCAP_USE_SIP_CREDETIALS,
                     Boolean.TRUE.toString());
-            table.put(ProtocolProviderServiceSipImpl.XCAP_SERVER_URI,
+            table.put(ServerStoredContactListSipImpl.XCAP_SERVER_URI,
                     xCapServerUri);
         }
 

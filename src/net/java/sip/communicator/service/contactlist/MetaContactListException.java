@@ -71,6 +71,12 @@ public class MetaContactListException
     public static final int CODE_MOVE_CONTACT_ERROR  = 7;
 
     /**
+     * Indicates that the last operation is not supported
+     * from underling protocol.
+     */
+    public static final int CODE_NOT_SUPPORTED_OPERATION  = 8;
+
+    /**
      * Creates a MetaContactListException with the specified message cause and
      * code.
      * @param message a human readable message describing the exception.

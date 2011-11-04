@@ -140,6 +140,11 @@ public class OperationFailedException
     public static final int SERVER_NOT_SPECIFIED = 17;
 
     /**
+     * The operation that throws this exception is not supported.
+     */
+    public static final int NOT_SUPPORTED_OPERATION = 18;
+
+    /**
      * The error code of the exception
      */
     private final int errorCode;

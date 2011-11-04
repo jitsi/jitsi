@@ -262,17 +262,13 @@ public class SIPAccountRegistrationWizard
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"),
             registration.getKeepAliveInterval());
 
-        if (registration.isXCapEnable())
+        if (registration.isXCapEnable() || registration.isXiVOEnable())
         {
-            summaryTable.put(Resources.getString(
-                    "plugin.sipaccregwizz.XCAP_ENABLE"),
-                    Resources.getString("service.gui.YES"));
-
             summaryTable.put("XCAP " + Resources.getString(
                 "plugin.sipaccregwizz.XCAP_SERVER_URI"),
-                registration.getXCapServerUri());
+                registration.getClistOptionServerUri());
 
-            if (registration.isXCapUseSipCredetials())
+            if (registration.isClistOptionUseSipCredentials())
             {
                 summaryTable.put("XCAP " + Resources.getString(
                         "plugin.sipaccregwizz.XCAP_USE_SIP_CREDENTIALS"),
@@ -282,14 +278,8 @@ public class SIPAccountRegistrationWizard
             {
                 summaryTable.put("XCAP " + Resources.getString(
                         "plugin.sipaccregwizz.XCAP_USER"),
-                        registration.getXCapUser());
+                        registration.getClistOptionUser());
             }
-        }
-        else
-        {
-            summaryTable.put(Resources.getString(
-                    "plugin.sipaccregwizz.XCAP_ENABLE"),
-                    Resources.getString("service.gui.NO"));
         }
 
         if(!StringUtils.isNullOrEmpty(registration.getVoicemailURI(), true))
@@ -495,27 +485,51 @@ public class SIPAccountRegistrationWizard
         accountProperties.put("KEEP_ALIVE_INTERVAL",
             registration.getKeepAliveInterval());
 
+        accountProperties.put("XIVO_ENABLE",
+                Boolean.toString(registration.isXiVOEnable()));
         accountProperties.put("XCAP_ENABLE",
-                Boolean.toString(registration.isXCapEnable()));
+            Boolean.toString(registration.isXCapEnable()));
 
         if(registration.isXCapEnable())
         {
             accountProperties.put("XCAP_USE_SIP_CREDETIALS",
-                    Boolean.toString(registration.isXCapUseSipCredetials()));
-            if (registration.getXCapServerUri() != null)
+                Boolean.toString(registration.isClistOptionUseSipCredentials()));
+            if (registration.getClistOptionServerUri() != null)
             {
-                accountProperties
-                        .put("XCAP_SERVER_URI", registration.getXCapServerUri());
+                accountProperties.put(
+                    "XCAP_SERVER_URI",
+                    registration.getClistOptionServerUri());
             }
-            if (registration.getXCapUser() != null)
+            if (registration.getClistOptionUser() != null)
             {
                 accountProperties
-                        .put("XCAP_USER", registration.getXCapUser());
+                    .put("XCAP_USER", registration.getClistOptionUser());
             }
-            if (registration.getXCapPassword() != null)
+            if (registration.getClistOptionPassword() != null)
             {
                 accountProperties
-                        .put("XCAP_PASSWORD", registration.getXCapPassword());
+                    .put("XCAP_PASSWORD", registration.getClistOptionPassword());
+            }
+        }
+        else if(registration.isXiVOEnable())
+        {
+            accountProperties.put("XIVO_USE_SIP_CREDETIALS",
+                Boolean.toString(registration.isClistOptionUseSipCredentials()));
+            if (registration.getClistOptionServerUri() != null)
+            {
+                accountProperties.put(
+                    "XIVO_SERVER_URI",
+                    registration.getClistOptionServerUri());
+            }
+            if (registration.getClistOptionUser() != null)
+            {
+                accountProperties
+                    .put("XIVO_USER", registration.getClistOptionUser());
+            }
+            if (registration.getClistOptionPassword() != null)
+            {
+                accountProperties
+                    .put("XIVO_PASSWORD", registration.getClistOptionPassword());
             }
         }
 

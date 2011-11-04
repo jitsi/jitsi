@@ -286,19 +286,21 @@ public class SIPAccountRegistrationForm
         if(xcapRoot != null)
         {
             registration.setXCapEnable(true);
-            registration.setXCapServerUri(xcapRoot);
+            registration.setClistOptionServerUri(xcapRoot);
         }
         else
         {
             registration.setXCapEnable(presencePanel.isXCapEnable());
-            registration.setXCapServerUri(presencePanel.getXCapServerUri());
+            registration.setXiVOEnable(presencePanel.isXiVOEnable());
+            registration.setClistOptionServerUri(
+                    presencePanel.getClistOptionServerUri());
         }
         
-        registration.setXCapUseSipCredetials(
-                presencePanel.isXCapUseSipCredetials());
-        registration.setXCapUser(presencePanel.getXCapUser());
-        registration
-                .setXCapPassword(new String(presencePanel.getXCapPassword()));
+        registration.setClistOptionUseSipCredentials(
+                presencePanel.isClistOptionUseSipCredentials());
+        registration.setClistOptionUser(presencePanel.getClistOptionUser());
+        registration.setClistOptionPassword(
+                new String(presencePanel.getClistOptionPassword()));
         registration.setVoicemailURI(connectionPanel.getVoicemailURI());
 
         return true;
@@ -363,14 +365,8 @@ public class SIPAccountRegistrationForm
 
         boolean xCapEnable = accountID
                 .getAccountPropertyBoolean("XCAP_ENABLE", false);
-        boolean xCapUseSipCredetials = accountID
-                .getAccountPropertyBoolean("XCAP_USE_SIP_CREDETIALS", true);
-        String xCapServerUri =
-                accountID.getAccountPropertyString("XCAP_SERVER_URI");
-        String xCapUser =
-                accountID.getAccountPropertyString("XCAP_USER");
-        String xCapPassword =
-                accountID.getAccountPropertyString("XCAP_PASSWORD");
+        boolean xivoEnable = accountID
+                .getAccountPropertyBoolean("XIVO_ENABLE", false);
 
         boolean isServerOverridden = accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
@@ -429,13 +425,42 @@ public class SIPAccountRegistrationForm
         if (voicemailURI != null && voicemailURI.length() > 0)
             connectionPanel.setVoicemailURI(voicemailURI);
 
-        presencePanel.setXCapEnable(xCapEnable);
-        presencePanel.setXCapEnableEnabled(xCapEnable);
-        presencePanel.setXCapUseSipCredetials(xCapUseSipCredetials);
-        presencePanel.setXCapUseSipCredetialsEnabled(xCapUseSipCredetials);
-        presencePanel.setXCapServerUri(xCapServerUri);
-        presencePanel.setXCapUser(xCapUser);
-        presencePanel.setXCapPassword(xCapPassword);
+        if(xCapEnable)
+        {
+            boolean xCapUseSipCredentials = accountID
+                .getAccountPropertyBoolean("XCAP_USE_SIP_CREDETIALS", true);
+
+            presencePanel.setXCapEnable(xCapEnable);
+            presencePanel.setClistOptionEnableEnabled(xCapEnable);
+            presencePanel.setClistOptionUseSipCredentials(
+                    xCapUseSipCredentials);
+            presencePanel.setClistOptionUseSipCredentialsEnabled(
+                    xCapUseSipCredentials);
+            presencePanel.setClistOptionServerUri(
+                    accountID.getAccountPropertyString("XCAP_SERVER_URI"));
+            presencePanel.setClistOptionUser(
+                    accountID.getAccountPropertyString("XCAP_USER"));
+            presencePanel.setClistOptionPassword(
+                    accountID.getAccountPropertyString("XCAP_PASSWORD"));
+        }
+        else if(xivoEnable)
+        {
+            boolean xCapUseSipCredentials = accountID
+                .getAccountPropertyBoolean("XIVO_USE_SIP_CREDETIALS", true);
+
+            presencePanel.setXiVOEnable(xivoEnable);
+            presencePanel.setClistOptionEnableEnabled(xivoEnable);
+            presencePanel.setClistOptionUseSipCredentials(
+                    xCapUseSipCredentials);
+            presencePanel.setClistOptionUseSipCredentialsEnabled(
+                    xCapUseSipCredentials);
+            presencePanel.setClistOptionServerUri(
+                    accountID.getAccountPropertyString("XIVO_SERVER_URI"));
+            presencePanel.setClistOptionUser(
+                    accountID.getAccountPropertyString("XIVO_USER"));
+            presencePanel.setClistOptionPassword(
+                    accountID.getAccountPropertyString("XIVO_PASSWORD"));
+        }
     }
 
     /**

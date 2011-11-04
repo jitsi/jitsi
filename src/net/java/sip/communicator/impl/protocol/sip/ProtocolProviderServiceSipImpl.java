@@ -10,7 +10,6 @@ import gov.nist.javax.sip.address.*;
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.message.*;
 import net.java.sip.communicator.impl.protocol.sip.security.*;
-import net.java.sip.communicator.impl.protocol.sip.xcap.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.version.Version;
@@ -22,7 +21,6 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 import java.net.*;
-import java.net.URI;
 import java.text.*;
 import java.util.*;
 
@@ -152,41 +150,6 @@ public class ProtocolProviderServiceSipImpl
     public static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
 
     /**
-     * The name of the property under which the user may specify whether to use
-     * or not XCAP.
-     */
-    public static final String XCAP_ENABLE = "XCAP_ENABLE";
-
-    /**
-     * The name of the property under which the user may specify whether to use
-     * original sip credentials for the XCAP.
-     */
-    public static final String XCAP_USE_SIP_CREDETIALS =
-            "XCAP_USE_SIP_CREDETIALS";
-
-    /**
-     * The name of the property under which the user may specify the XCAP server
-     * uri.
-     */
-    public static final String XCAP_SERVER_URI = "XCAP_SERVER_URI";
-
-    /**
-     * The name of the property under which the user may specify the XCAP user.
-     */
-    public static final String XCAP_USER = "XCAP_USER";
-
-    /**
-     * The name of the property under which the user may specify the XCAP user
-     * password.
-     */
-    public static final String XCAP_PASSWORD = "XCAP_PASSWORD";
-
-    /**
-     * Presence content for image.
-     */
-    public static final String PRES_CONTENT_IMAGE_NAME = "sip_communicator";
-
-    /**
      * The default maxForwards header that we use in our requests.
      */
     private MaxForwardsHeader maxForwardsHeader = null;
@@ -256,11 +219,6 @@ public class ProtocolProviderServiceSipImpl
     private SipStatusEnum sipStatusEnum;
 
     /**
-     * The XCAP client.
-     */
-    private final XCapClient xCapClient = new XCapClientImpl();
-
-    /**
      * A list of early processors that can do early processing of received
      * messages (requests or responses).
      */
@@ -268,14 +226,9 @@ public class ProtocolProviderServiceSipImpl
         new ArrayList<SipMessageProcessor>();
 
     /**
-     * Gets the XCAP client.
-     *
-     * @return the XCAP client.
+     * Whether we has enabled FORCE_PROXY_BYPASS for current account.
      */
-    public XCapClient getXCapClient()
-    {
-        return xCapClient;
-    }
+    private boolean forceLooseRouting = false;
 
     /**
      * Returns the AccountID that uniquely identifies the account represented by
@@ -344,83 +297,6 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Overrides
-     * {@link AbstractProtocolProviderService#fireRegistrationStateChanged(
-     * RegistrationState, RegistrationState, int, String)} in order to add
-     * enabling/disabling XCAP functionality in accord with the current
-     * <tt>RegistrationState</tt> of this
-     * <tt>ProtocolProviderServiceSipImpl</tt>.
-     *
-     * @param oldState the state that the provider had before the change
-     * occurred
-     * @param newState the state that the provider is currently in
-     * @param reasonCode a value corresponding to one of the REASON_XXX fields
-     * of the <tt>RegistrationStateChangeEvent</tt> class, indicating the reason
-     * for this state transition
-     * @param reason a <tt>String</tt> further explaining the reason code or
-     * <tt>null</tt> if no such explanation is necessary
-     * @see AbstractProtocolProviderService#fireRegistrationStateChanged(
-     * RegistrationState, RegistrationState, int, String)
-     */
-    @Override
-    public void fireRegistrationStateChanged(RegistrationState oldState,
-                                             RegistrationState newState,
-                                             int reasonCode,
-                                             String reason)
-    {
-        if (newState.equals(RegistrationState.REGISTERED))
-        {
-            try
-            {
-                boolean enableXCap =
-                        accountID.getAccountPropertyBoolean(XCAP_ENABLE, true);
-                boolean useSipCredetials =
-                        accountID.getAccountPropertyBoolean(
-                                XCAP_USE_SIP_CREDETIALS, true);
-                String serverUri =
-                        accountID.getAccountPropertyString(XCAP_SERVER_URI);
-                String username = accountID.getAccountPropertyString(
-                                  ProtocolProviderFactory.USER_ID);
-                Address userAddress = parseAddressString(username);
-                String password;
-                if (useSipCredetials)
-                {
-                    username = ((SipUri)userAddress.getURI()).getUser();
-                    password = SipActivator.getProtocolProviderFactory().
-                            loadPassword(accountID);
-                }
-                else
-                {
-                    username = accountID.getAccountPropertyString(XCAP_USER);
-                    password = accountID.getAccountPropertyString(XCAP_PASSWORD);
-                }
-                // Connect to xcap server
-                if(enableXCap && serverUri != null)
-                {
-                    URI uri = new URI(serverUri.trim());
-                    if(uri.getHost() != null && uri.getPath() != null)
-                    {
-                        xCapClient.connect(uri, userAddress, username, password);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                logger.error("Error while connecting to XCAP server. " +
-                        "Contact list won't be saved", e);
-            }
-        }
-        else if (newState.equals(RegistrationState.UNREGISTERING) ||
-                newState.equals(RegistrationState.CONNECTION_FAILED))
-        {
-            xCapClient.disconnect();
-        }
-
-        super.fireRegistrationStateChanged(oldState, newState, reasonCode,
-                reason);
-    }
-
-    /**
      * Starts the registration process. Connection details such as
      * registration server, user name/number are provided through the
      * configuration service through implementation specific properties.
@@ -447,6 +323,14 @@ public class ProtocolProviderServiceSipImpl
         {
             return;
         }
+
+        /**
+         * Evaluate whether FORCE_PROXY_BYPASS is enabled for the account
+         * before registering.
+         */
+        forceLooseRouting = Boolean.valueOf((String)
+                getAccountID().getAccountProperty(
+                    ProtocolProviderFactory.FORCE_PROXY_BYPASS));
 
         sipStackSharing.addSipListener(this);
         // be warned when we will unregister, so that we can
@@ -976,7 +860,8 @@ public class ProtocolProviderServiceSipImpl
 
         if(getRegistrarConnection() != null
            && !getRegistrarConnection().isRegistrarless()
-           && !getRegistrarConnection().isRequestFromSameConnection(request))
+           && !getRegistrarConnection().isRequestFromSameConnection(request)
+           && !forceLooseRouting)
         {
             logger.warn("Received request not from our proxy, ignoring it! "
                 + "Request:" + request);
@@ -3431,6 +3316,11 @@ public class ProtocolProviderServiceSipImpl
         }
 
         initOutboundProxy((SipAccountID)getAccountID(), ix);
+    }
+
+    protected InetSocketAddress getCurrentConnectionAddress()
+    {
+        return currentConnectionAddress;
     }
 
     /**

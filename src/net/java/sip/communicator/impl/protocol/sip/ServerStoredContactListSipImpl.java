@@ -6,26 +6,31 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.address.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy.*;
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import javax.sip.address.*;
+import java.net.URI;
 import java.text.*;
 import java.util.*;
 
 /**
  * Encapsulates XCapClient, it's responsible for generate corresponding
- * sip-communicator events to all action that are made with XCAP contacts and
+ * events to all action that are made with XCAP contacts and
  * groups.
  *
  * @author Grigorii Balutsel
  */
 public class ServerStoredContactListSipImpl
+    extends ServerStoredContactList
 {
     /**
      * Logger class
@@ -34,9 +39,39 @@ public class ServerStoredContactListSipImpl
             Logger.getLogger(ServerStoredContactListSipImpl.class);
 
     /**
-     * Root group name.
+     * The name of the property under which the user may specify whether to use
+     * or not XCAP.
      */
-    private final static String ROOT_GROUP_NAME = "RootGroup";
+    public static final String XCAP_ENABLE = "XCAP_ENABLE";
+
+    /**
+     * The name of the property under which the user may specify whether to use
+     * original sip credentials for the XCAP.
+     */
+    public static final String XCAP_USE_SIP_CREDETIALS =
+            "XCAP_USE_SIP_CREDETIALS";
+
+    /**
+     * The name of the property under which the user may specify the XCAP server
+     * uri.
+     */
+    public static final String XCAP_SERVER_URI = "XCAP_SERVER_URI";
+
+    /**
+     * The name of the property under which the user may specify the XCAP user.
+     */
+    public static final String XCAP_USER = "XCAP_USER";
+
+    /**
+     * The name of the property under which the user may specify the XCAP user
+     * password.
+     */
+    public static final String XCAP_PASSWORD = "XCAP_PASSWORD";
+
+    /**
+     * Presence content for image.
+     */
+    public static final String PRES_CONTENT_IMAGE_NAME = "sip_communicator";
 
     /**
      * Default "White" rule identifier.
@@ -55,26 +90,10 @@ public class ServerStoredContactListSipImpl
             = "presence_polite_block";
 
     /**
-     * The provider that is on top of us.
+     * The XCAP client.
      */
-    private final ProtocolProviderServiceSipImpl sipProvider;
+    private final XCapClient xCapClient = new XCapClientImpl();
 
-    /**
-     * The operation set that created us and that we could use when dispatching
-     * subscription events.
-     */
-    private final OperationSetPresenceSipImpl parentOperationSet;
-
-    /**
-     * Listeners that would receive event notifications for changes in group
-     * names or other properties, removal or creation of groups.
-     */
-    private final Vector<ServerStoredGroupListener> serverStoredGroupListeners;
-
-    /**
-     * The root contact group. The container for all SIP contacts and groups.
-     */
-    private final ContactGroupSipImpl rootGroup;
 
     /**
      * Current presence rules.
@@ -92,175 +111,7 @@ public class ServerStoredContactListSipImpl
             ProtocolProviderServiceSipImpl sipProvider,
             OperationSetPresenceSipImpl parentOperationSet)
     {
-        this.sipProvider = sipProvider;
-        this.parentOperationSet = parentOperationSet;
-        this.serverStoredGroupListeners =
-                new Vector<ServerStoredGroupListener>();
-        this.rootGroup = new ContactGroupSipImpl(ROOT_GROUP_NAME, sipProvider);
-    }
-
-    /**
-     * Returns the root group of the contact list.
-     *
-     * @return the root ContactGroup for the ContactList.
-     */
-    public ContactGroupSipImpl getRootGroup()
-    {
-        return rootGroup;
-    }
-
-    /**
-     * Registers the specified group listener so that it would receive events
-     * on group modification/creation/destruction.
-     *
-     * @param listener the ServerStoredGroupListener to register for group
-     *                 events.
-     */
-    public void addGroupListener(ServerStoredGroupListener listener)
-    {
-        synchronized (serverStoredGroupListeners)
-        {
-            if (!serverStoredGroupListeners.contains(listener))
-            {
-                this.serverStoredGroupListeners.add(listener);
-            }
-        }
-    }
-
-    /**
-     * Removes the specified group listener so that it won't receive further
-     * events on group modification/creation/destruction.
-     *
-     * @param listener the ServerStoredGroupListener to unregister.
-     */
-    public void removeGroupListener(ServerStoredGroupListener listener)
-    {
-        synchronized (serverStoredGroupListeners)
-        {
-            this.serverStoredGroupListeners.remove(listener);
-        }
-    }
-
-    /**
-     * Creates the corresponding event and notifies all
-     * <tt>ServerStoredGroupListener</tt>s that the source group has been
-     * removed, changed, renamed or whatever happened to it.
-     *
-     * @param group   the ContactGroup that has been created/modified/removed.
-     * @param eventID the id of the event to generate.
-     */
-    void fireGroupEvent(ContactGroup group, int eventID)
-    {
-        ServerStoredGroupEvent event = new ServerStoredGroupEvent(
-                group,
-                eventID,
-                parentOperationSet.getServerStoredContactListRoot(),
-                sipProvider,
-                parentOperationSet);
-        if (logger.isTraceEnabled())
-        {
-            logger.trace("Will dispatch the following group event: " + event);
-        }
-        Iterable<ServerStoredGroupListener> listeners;
-        synchronized (serverStoredGroupListeners)
-        {
-            listeners =
-                    new ArrayList<ServerStoredGroupListener>(
-                            serverStoredGroupListeners);
-        }
-        for (ServerStoredGroupListener listener : listeners)
-        {
-            if (eventID == ServerStoredGroupEvent.GROUP_REMOVED_EVENT)
-            {
-                listener.groupRemoved(event);
-            }
-            else if (eventID == ServerStoredGroupEvent.GROUP_RENAMED_EVENT)
-            {
-                listener.groupNameChanged(event);
-            }
-            else if (eventID == ServerStoredGroupEvent.GROUP_CREATED_EVENT)
-            {
-                listener.groupCreated(event);
-            }
-            else if (eventID == ServerStoredGroupEvent.GROUP_RESOLVED_EVENT)
-            {
-                listener.groupResolved(event);
-            }
-        }
-    }
-
-    /**
-     * Creates a non resolved contact for the specified address and inside the
-     * specified group. The newly created contact would be added to the local
-     * contact list as a standard contact but when an event is received from the
-     * server concerning this contact, then it will be reused and only its
-     * isResolved field would be updated instead of creating the whole contact
-     * again. If creation is successfull event will be fired.
-     *
-     * @param parentGroup the group where the unersolved contact is to be
-     *                    created.
-     * @param contactId   the sip id of the contact to create.
-     * @param persistentData a String returned Contact's getPersistentData()
-     * method during a previous run and that has been persistently stored
-     * locally.
-     * @return the newly created unresolved <tt>ContactSipImpl</tt>.
-     */
-    public synchronized ContactSipImpl createUnresolvedContact(
-            ContactGroupSipImpl parentGroup, String contactId,
-            String persistentData)
-    {
-        if (parentGroup == null)
-        {
-            throw new IllegalArgumentException("Parent group cannot be null");
-        }
-        if (contactId == null || contactId.length() == 0)
-        {
-            throw new IllegalArgumentException(
-                    "Creating contact id name cannot be null or empty");
-        }
-        Address contactAddress;
-        try
-        {
-            contactAddress = sipProvider.parseAddressString(contactId);
-        }
-        catch (ParseException ex)
-        {
-            throw new IllegalArgumentException(
-                    String.format("%1s is no a valid SIP identifier",
-                            contactId),
-                    ex);
-        }
-
-        if(logger.isTraceEnabled())
-            logger.trace("createUnresolvedContact " + contactId);
-
-        ContactSipImpl newUnresolvedContact = new ContactSipImpl(contactAddress,
-                sipProvider);
-        parentGroup.addContact(newUnresolvedContact);
-        newUnresolvedContact.setPersistentData(persistentData);
-        fireContactAdded(parentGroup, newUnresolvedContact);
-        return newUnresolvedContact;
-    }
-
-    /**
-     * Creates contact for the specified address and inside the
-     * specified group . If creation is successfull event will be fired.
-     *
-     * @param parentGroup the group where the unersolved contact is to be
-     *                    created.
-     * @param contactId   the sip id of the contact to create.
-     * @param persistent  specify whether created contact is persistent ot not.
-     * @return the newly created <tt>ContactSipImpl</tt>.
-     * @throws OperationFailedException with code NETWORK_FAILURE if the
-     *                                  operation if failed during network
-     *                                  communication.
-     */
-    synchronized public ContactSipImpl createContact(
-        ContactGroupSipImpl parentGroup, String contactId,
-        boolean persistent)
-        throws OperationFailedException
-    {
-        return createContact(parentGroup, contactId, null, persistent);
+        super(sipProvider, parentOperationSet);
     }
 
     /**
@@ -356,7 +207,7 @@ public class ServerStoredContactListSipImpl
                         OperationFailedException.NETWORK_FAILURE, e);
             }
             newContact.setResolved(true);
-            XCapClient xCapClient = sipProvider.getXCapClient();
+
             if (xCapClient.isConnected() &&
                     xCapClient.isResourceListsSupported())
             {
@@ -506,7 +357,7 @@ public class ServerStoredContactListSipImpl
             if(!wasContactPersistent)
             {
                 contact.setResolved(true);
-                XCapClient xCapClient = sipProvider.getXCapClient();
+
                 if (xCapClient.isConnected() &&
                         xCapClient.isResourceListsSupported())
                 {
@@ -534,9 +385,9 @@ public class ServerStoredContactListSipImpl
     }
 
     /**
-     * Renames the specified contac.
+     * Renames the specified contact.
      *
-     * @param contact the contact to be renameed.
+     * @param contact the contact to be renamed.
      * @param newName the new contact name.
      * @throws OperationFailedException with code NETWORK_FAILURE if the
      *                                  operation if failed during network
@@ -577,43 +428,6 @@ public class ServerStoredContactListSipImpl
                 newName);
     }
 
-
-    /**
-     * Creates a non resolved contact group for the specified name. The newly
-     * created group would be added to the local contact list as any other group
-     * but when an event is received from the server concerning this group, then
-     * it will be reused and only its isResolved field would be updated instead
-     * of creating the whole group again.
-     * <p/>
-     *
-     * @param parentGroup the group under which the new group is to be created.
-     * @param groupName   the name of the group to create.
-     * @return the newly created unresolved <tt>ContactGroupSipImpl</tt>.
-     */
-    synchronized public ContactGroupSipImpl createUnresolvedContactGroup(
-            ContactGroupSipImpl parentGroup,
-            String groupName)
-    {
-        if (parentGroup == null)
-        {
-            throw new IllegalArgumentException("Parent group cannot be null");
-        }
-        if (groupName == null || groupName.length() == 0)
-        {
-            throw new IllegalArgumentException(
-                    "Creating group name cannot be null or empry");
-        }
-        if (logger.isTraceEnabled())
-        {
-            logger.trace("createUnresolvedContactGroup " + groupName);
-        }
-        ContactGroupSipImpl subGroup = new ContactGroupSipImpl(groupName,
-                sipProvider);
-        subGroup.setResolved(false);
-        parentGroup.addSubgroup(subGroup);
-        fireGroupEvent(subGroup, ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-        return subGroup;
-    }
 
     /**
      * Creates a group with the specified name and parent in the server stored
@@ -777,77 +591,6 @@ public class ServerStoredContactListSipImpl
     }
 
     /**
-     * Make the parent persistent presence operation set dispatch a contact
-     * added event.
-     *
-     * @param parentGroup the group where the new contact was added.
-     * @param contact     the contact that was added.
-     */
-    private void fireContactAdded(
-            ContactGroupSipImpl parentGroup,
-            ContactSipImpl contact)
-    {
-        parentOperationSet.fireSubscriptionEvent(
-                contact,
-                parentGroup,
-                SubscriptionEvent.SUBSCRIPTION_CREATED);
-    }
-
-    /**
-     * Make the parent persistent presence operation set dispatch a subscription
-     * moved event.
-     *
-     * @param oldParentGroup the group where the source contact was located
-     *                       before being moved.
-     * @param newParentGroup the group that the source contact is currently in.
-     * @param contact        the contact that was added.
-     */
-    private void fireContactMoved(
-            ContactGroupSipImpl oldParentGroup,
-            ContactGroupSipImpl newParentGroup,
-            ContactSipImpl contact)
-    {
-        parentOperationSet.fireSubscriptionMovedEvent(
-                contact,
-                oldParentGroup,
-                newParentGroup);
-    }
-
-    /**
-     * Make the parent persistent presence operation set dispatch a contact
-     * removed event.
-     *
-     * @param parentGroup the group where that the removed contact belonged to.
-     * @param contact     the contact that was removed.
-     */
-    private void fireContactRemoved(
-            ContactGroupSipImpl parentGroup,
-            ContactSipImpl contact)
-    {
-        parentOperationSet.fireSubscriptionEvent(
-                contact,
-                parentGroup,
-                SubscriptionEvent.SUBSCRIPTION_REMOVED);
-    }
-
-    /**
-     * Make the parent persistent presence operation set dispatch a contact
-     * resolved event.
-     *
-     * @param parentGroup the group that the resolved contact belongs to.
-     * @param contact     the contact that was resolved.
-     */
-    private void fireContactResolved(
-            ContactGroupSipImpl parentGroup,
-            ContactSipImpl contact)
-    {
-        parentOperationSet.fireSubscriptionEvent(
-                contact,
-                parentGroup,
-                SubscriptionEvent.SUBSCRIPTION_RESOLVED);
-    }
-
-    /**
      * Initializes the server stored list. Synchronize server stored groups and
      * contacts with the local groups and contacts.
      */
@@ -855,7 +598,47 @@ public class ServerStoredContactListSipImpl
     {
         try
         {
-            XCapClient xCapClient = sipProvider.getXCapClient();
+            AccountID accountID = sipProvider.getAccountID();
+            boolean enableXCap =
+                accountID.getAccountPropertyBoolean(XCAP_ENABLE, true);
+            boolean useSipCredentials =
+                accountID.getAccountPropertyBoolean(
+                                            XCAP_USE_SIP_CREDETIALS, true);
+            String serverUri =
+                accountID.getAccountPropertyString(XCAP_SERVER_URI);
+            String username = accountID.getAccountPropertyString(
+                              ProtocolProviderFactory.USER_ID);
+            Address userAddress = sipProvider.parseAddressString(username);
+            String password;
+            if (useSipCredentials)
+            {
+                username = ((SipUri)userAddress.getURI()).getUser();
+                password = SipActivator.getProtocolProviderFactory().
+                        loadPassword(accountID);
+            }
+            else
+            {
+                username = accountID.getAccountPropertyString(XCAP_USER);
+                password = accountID.getAccountPropertyString(XCAP_PASSWORD);
+            }
+            // Connect to xcap server
+            if(enableXCap && serverUri != null)
+            {
+                URI uri = new URI(serverUri.trim());
+                if(uri.getHost() != null && uri.getPath() != null)
+                {
+                    xCapClient.connect(uri, userAddress, username, password);
+                }
+            }
+        }
+        catch(Throwable ex)
+        {
+            logger.error("Error while connecting to XCAP server. " +
+                        "Contact list won't be saved", ex);
+        }
+
+        try
+        {
             if (!xCapClient.isConnected() ||
                     !xCapClient.isResourceListsSupported())
             {
@@ -976,8 +759,51 @@ public class ServerStoredContactListSipImpl
 
             // if for some reason we cannot init the contact list
             // disconnect xcap client
-            sipProvider.getXCapClient().disconnect();
+            xCapClient.disconnect();
         }
+    }
+
+    /**
+     * Gets the pres-content image uri.
+     *
+     * @return the pres-content image uri.
+     * @throws IllegalStateException if the user has not been connected.
+     */
+    public URI getImageUri()
+    {
+        if (xCapClient.isConnected() && xCapClient.isPresContentSupported())
+        {
+            return xCapClient.getPresContentImageUri(PRES_CONTENT_IMAGE_NAME);
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets image from the specified uri.
+     *
+     * @param imageUri the image uri.
+     * @return the image.
+     */
+    public byte[] getImage(URI imageUri)
+    {
+        if(xCapClient.isConnected())
+        {
+            try
+            {
+                return xCapClient.getImage(imageUri);
+            }
+            catch (XCapException e)
+            {
+                String errorMessage = String.format(
+                        "Error while getting icon %1s", imageUri);
+                logger.warn(errorMessage);
+                if(logger.isDebugEnabled())
+                    logger.debug(errorMessage, e);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -985,6 +811,8 @@ public class ServerStoredContactListSipImpl
      */
     synchronized public void destroy()
     {
+        xCapClient.disconnect();
+
         List<ContactSipImpl> contacts = getAllContacts(rootGroup);
         for (ContactSipImpl contact : contacts)
         {
@@ -1087,7 +915,6 @@ public class ServerStoredContactListSipImpl
     {
         if(presRules == null)
         {
-            XCapClient xCapClient = sipProvider.getXCapClient();
             if (!xCapClient.isConnected() ||
                     !xCapClient.isResourceListsSupported())
             {
@@ -1363,124 +1190,6 @@ public class ServerStoredContactListSipImpl
     }
 
     /**
-     * Returns all avaliable contacts from group and all subgroups.
-     *
-     * @param group the parent of the contacts.
-     * @return the list of availcable contacts.
-     */
-    public synchronized List<ContactSipImpl> getAllContacts(
-            ContactGroupSipImpl group)
-    {
-        List<ContactSipImpl> contacts = new ArrayList<ContactSipImpl>();
-        Iterator<ContactGroup> groupIterator = group.subgroups();
-        while (groupIterator.hasNext())
-        {
-            contacts.addAll(
-                    getAllContacts((ContactGroupSipImpl) groupIterator.next()));
-        }
-        Iterator<Contact> contactIterator = group.contacts();
-        while (contactIterator.hasNext())
-        {
-            ContactSipImpl contact = (ContactSipImpl) contactIterator.next();
-            contacts.add(contact);
-        }
-        return contacts;
-    }
-
-    /**
-     * Returns all avaliable groups from group and all subgroups.
-     *
-     * @param group the parent of the contacts.
-     * @return the list of availcable groups.
-     */
-    public synchronized List<ContactGroupSipImpl> getAllGroups(
-            ContactGroupSipImpl group)
-    {
-        List<ContactGroupSipImpl> groups = new ArrayList<ContactGroupSipImpl>();
-        Iterator<ContactGroup> groupIterator = group.subgroups();
-        while (groupIterator.hasNext())
-        {
-            groups.addAll(
-                    getAllGroups((ContactGroupSipImpl) groupIterator.next()));
-        }
-        return groups;
-    }
-
-    /**
-     * Gets all unique contacts from group and all subgroups.
-     *
-     * @param group the parent of the contacts.
-     * @return List of available contacts
-     */
-    public synchronized List<ContactSipImpl> getUniqueContacts(
-            ContactGroupSipImpl group)
-    {
-        Map<String, ContactSipImpl> uniqueContacts =
-                new HashMap<String, ContactSipImpl>();
-        List<ContactSipImpl> contacts = getAllContacts(group);
-        for (ContactSipImpl contact : contacts)
-        {
-            uniqueContacts.put(contact.getUri(), contact);
-        }
-        return new ArrayList<ContactSipImpl>(uniqueContacts.values());
-    }
-
-    /**
-     * Indicates whether or not contact is exists.
-     *
-     * @param contactUri the contact uri.
-     * @return true if contact is exists, false if not.
-     */
-    private boolean isContactExists(String contactUri)
-    {
-        for (ContactSipImpl uniqueContact : getUniqueContacts(rootGroup))
-        {
-            if (uniqueContact.getUri().equals(contactUri))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Gets all contacts with the specified uri.
-     *
-     * @param contactUri the contact uri.
-     * @return the list of the contacts.
-     */
-    private List<ContactSipImpl> getContacts(String contactUri)
-    {
-        List<ContactSipImpl> result = new ArrayList<ContactSipImpl>();
-        for (ContactSipImpl contact : getAllContacts(rootGroup))
-        {
-            if (contact.getUri().equals(contactUri))
-            {
-                result.add(contact);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Indicates whether or not contact is exists.
-     *
-     * @param contactUri contactUri the contact uri.
-     * @return true if at least one contact is persistent, false if not.
-     */
-    private boolean isContactPersistent(String contactUri)
-    {
-        for (ContactSipImpl contact : getContacts(contactUri))
-        {
-            if (contact.isPersistent())
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Resolves local group with server stored group.
      * <p/>
      * If local group exsists GROUP_CREATED_RESOLVED will be fired.
@@ -1639,8 +1348,8 @@ public class ServerStoredContactListSipImpl
     synchronized private void updateResourceLists()
             throws XCapException
     {
-        XCapClient xCapClient = sipProvider.getXCapClient();
-        if (!xCapClient.isConnected() || !xCapClient.isResourceListsSupported())
+        if (!xCapClient.isConnected()
+            || !xCapClient.isResourceListsSupported())
         {
             return;
         }
@@ -1674,11 +1383,157 @@ public class ServerStoredContactListSipImpl
     synchronized void updatePresRules()
             throws XCapException
     {
-        XCapClient xCapClient = sipProvider.getXCapClient();
         if (!xCapClient.isConnected() || !xCapClient.isPresRulesSupported())
         {
             return;
         }
         xCapClient.putPresRules(presRules);
+    }
+
+    /**
+     * The user accepted authorization request for <tt>contact</tt>
+     * @param contact the user has accepted.
+     */
+    public void authorizationAccepted(ContactSipImpl contact)
+    {
+        try
+        {
+            if(addContactToWhiteList(contact))
+                updatePresRules();
+        }
+        catch(XCapException ex)
+        {
+            logger.error("Cannot save presence rules!", ex);
+        }
+    }
+
+    /**
+     * The user rejected authorization request for <tt>contact</tt>
+     * @param contact the user has rejected.
+     */
+    public void authorizationRejected(ContactSipImpl contact)
+    {
+        try
+        {
+            if(addContactToBlockList(contact))
+                updatePresRules();
+        }
+        catch(XCapException ex)
+        {
+            logger.error("Cannot save presence rules!", ex);
+        }
+    }
+
+    /**
+     * The user ignored authorization request for <tt>contact</tt>
+     * @param contact the user has ignored.
+     */
+    public void authorizationIgnored(ContactSipImpl contact)
+    {
+        try
+        {
+            if(addContactToPoliteBlockList(contact))
+                updatePresRules();
+        }
+        catch(XCapException ex)
+        {
+            logger.error("Cannot save presence rules!", ex);
+        }
+    }
+
+    /**
+     * Get current account image from server if any.
+     * @return the account image content.
+     */
+    public ImageDetail getAccountImage()
+        throws OperationFailedException
+    {
+        ImageDetail imageDetail;
+
+        try
+        {
+            ContentType presContent = xCapClient.getPresContent(
+                    PRES_CONTENT_IMAGE_NAME);
+            if (presContent == null)
+            {
+                return null;
+            }
+            String description = null;
+            byte[] content = null;
+            if (presContent.getDescription().size() > 0)
+            {
+                description = presContent.getDescription().get(0).getValue();
+            }
+            if (presContent.getData() != null)
+            {
+                content = Base64.decode(presContent.getData().getValue());
+            }
+            imageDetail = new ServerStoredDetails.ImageDetail(description, content);
+        }
+        catch (XCapException e)
+        {
+            throw new OperationFailedException("Cannot get image detail",
+                    OperationFailedException.NETWORK_FAILURE);
+        }
+
+        return imageDetail;
+    }
+
+    /**
+     * Deletes current account image from server.
+     */
+    public void deleteAccountImage()
+        throws OperationFailedException
+    {
+        try
+        {
+            xCapClient.deletePresContent(PRES_CONTENT_IMAGE_NAME);
+        }
+        catch (XCapException e)
+        {
+            throw new OperationFailedException("Cannot delete image detail",
+                    OperationFailedException.NETWORK_FAILURE);
+        }
+    }
+
+    /**
+     * Whether current contact list supports account image.
+     * @return does current contact list supports account image.
+     */
+    public boolean isAccountImageSupported()
+    {
+        return xCapClient != null &&
+                xCapClient.isConnected() &&
+                xCapClient.isPresContentSupported();
+    }
+
+    /**
+     * Change the image of the account on server.
+     * @param newImageBytes the new image.
+     */
+    public void setAccountImage(byte[] newImageBytes)
+        throws OperationFailedException
+    {
+        ContentType presContent = new ContentType();
+        MimeType mimeType = new MimeType();
+        mimeType.setValue("image/png");
+        presContent.setMimeType(mimeType);
+        EncodingType encoding = new EncodingType();
+        encoding.setValue("base64");
+        presContent.setEncoding(encoding);
+        String encodedImageContent =
+                new String(Base64.encode(newImageBytes));
+        DataType data = new DataType();
+        data.setValue(encodedImageContent);
+        presContent.setData(data);
+        try
+        {
+            xCapClient.putPresContent(presContent, PRES_CONTENT_IMAGE_NAME);
+        }
+        catch (XCapException e)
+        {
+            throw new OperationFailedException("Cannot put image detail",
+                    OperationFailedException.NETWORK_FAILURE);
+        }
     }
 }

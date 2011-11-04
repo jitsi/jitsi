@@ -57,7 +57,7 @@ public class ProtocolProviderFactorySipImpl
         // if xcap password property exist, store it through credentialsStorage
         // service
         Object password = accountID.getAccountProperty(
-                ProtocolProviderServiceSipImpl.XCAP_PASSWORD);
+                ServerStoredContactListSipImpl.XCAP_PASSWORD);
         if (password != null)
         {
             CredentialsStorageService credentialsStorage
@@ -68,7 +68,7 @@ public class ProtocolProviderFactorySipImpl
             credentialsStorage.storePassword(accountPrefix, (String)password);
             // remove unsecured property
             accountID.removeAccountProperty(
-                    ProtocolProviderServiceSipImpl.XCAP_PASSWORD);
+                    ServerStoredContactListSipImpl.XCAP_PASSWORD);
         }
     }
 

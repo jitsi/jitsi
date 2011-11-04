@@ -411,10 +411,13 @@ public class OperationSetServerStoredAccountInfoSipImpl
      */
     private boolean isImageDetailSupported()
     {
-        XCapClient xCapClient = provider.getXCapClient();
-        return xCapClient != null &&
-                xCapClient.isConnected() &&
-                xCapClient.isPresContentSupported();
+        OperationSetPresenceSipImpl opSet = (OperationSetPresenceSipImpl)
+            provider.getOperationSet(OperationSetPersistentPresence.class);
+
+        if(opSet == null)
+            return false;
+
+        return opSet.getSsContactList().isAccountImageSupported();
     }
 
     /**
@@ -449,36 +452,16 @@ public class OperationSetServerStoredAccountInfoSipImpl
      * @return the image detail.
      * @throws OperationFailedException if there is some error during operation.
      */
-    private ImageDetail getImageDetail() throws OperationFailedException
+    private ImageDetail getImageDetail()
+        throws OperationFailedException
     {
-        ImageDetail imageDetail;
-        XCapClient xCapClient = provider.getXCapClient();
-        try
-        {
-            ContentType presContent = xCapClient.getPresContent(
-                    ProtocolProviderServiceSipImpl.PRES_CONTENT_IMAGE_NAME);
-            if (presContent == null)
-            {
-                return null;
-            }
-            String description = null;
-            byte[] content = null;
-            if (presContent.getDescription().size() > 0)
-            {
-                description = presContent.getDescription().get(0).getValue();
-            }
-            if (presContent.getData() != null)
-            {
-                content = Base64.decode(presContent.getData().getValue());
-            }
-            imageDetail = new ImageDetail(description, content);
-        }
-        catch (XCapException e)
-        {
-            throw new OperationFailedException("Cannot get image detail",
-                    OperationFailedException.NETWORK_FAILURE);
-        }
-        return imageDetail;
+        OperationSetPresenceSipImpl opSet = (OperationSetPresenceSipImpl)
+            provider.getOperationSet(OperationSetPersistentPresence.class);
+
+        if(opSet == null)
+            return null;
+
+        return opSet.getSsContactList().getAccountImage();
     }
 
     /**
@@ -490,29 +473,13 @@ public class OperationSetServerStoredAccountInfoSipImpl
     private void putImageDetail(ImageDetail imageDetail)
             throws OperationFailedException
     {
-        XCapClient xCapClient = provider.getXCapClient();
-        ContentType presContent = new ContentType();
-        MimeType mimeType = new MimeType();
-        mimeType.setValue("image/png");
-        presContent.setMimeType(mimeType);
-        EncodingType encoding = new EncodingType();
-        encoding.setValue("base64");
-        presContent.setEncoding(encoding);
-        String encodedImageContent =
-                new String(Base64.encode(imageDetail.getBytes()));
-        DataType data = new DataType();
-        data.setValue(encodedImageContent);
-        presContent.setData(data);
-        try
-        {
-            xCapClient.putPresContent(presContent,
-                    ProtocolProviderServiceSipImpl.PRES_CONTENT_IMAGE_NAME);
-        }
-        catch (XCapException e)
-        {
-            throw new OperationFailedException("Cannot put image detail",
-                    OperationFailedException.NETWORK_FAILURE);
-        }
+        OperationSetPresenceSipImpl opSet = (OperationSetPresenceSipImpl)
+            provider.getOperationSet(OperationSetPersistentPresence.class);
+
+        if(opSet == null)
+            return;
+
+        opSet.getSsContactList().setAccountImage(imageDetail.getBytes());
     }
 
     /**
@@ -523,17 +490,13 @@ public class OperationSetServerStoredAccountInfoSipImpl
     private void deleteImageDetail()
             throws OperationFailedException
     {
-        XCapClient xCapClient = provider.getXCapClient();
-        try
-        {
-            xCapClient.deletePresContent(
-                    ProtocolProviderServiceSipImpl.PRES_CONTENT_IMAGE_NAME);
-        }
-        catch (XCapException e)
-        {
-            throw new OperationFailedException("Cannot delete image detail",
-                    OperationFailedException.NETWORK_FAILURE);
-        }
+        OperationSetPresenceSipImpl opSet = (OperationSetPresenceSipImpl)
+            provider.getOperationSet(OperationSetPersistentPresence.class);
+
+        if(opSet == null)
+            return;
+
+        opSet.getSsContactList().deleteAccountImage();
     }
 
     /**

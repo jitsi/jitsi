@@ -15,7 +15,6 @@ import javax.sip.address.Address;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
-import net.java.sip.communicator.impl.protocol.sip.xcap.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -45,7 +44,7 @@ public class OperationSetPresenceSipImpl
         = Logger.getLogger(OperationSetPresenceSipImpl.class);
 
 
-    private ServerStoredContactListSipImpl ssContactList;
+    private ServerStoredContactList ssContactList;
 
     /**
      * The currently active status message.
@@ -270,7 +269,19 @@ public class OperationSetPresenceSipImpl
         super(provider);
 
         //this.contactListRoot = new ContactGroupSipImpl("RootGroup", provider);
-        this.ssContactList = new ServerStoredContactListSipImpl(provider, this);
+
+        // if xivo is enabled use it, otherwise keep old behaviour
+        // and enable xcap, it will check and see its not configure and will
+        // silently do nothing and leave local storage
+        if(provider.getAccountID().getAccountPropertyBoolean(
+                ServerStoredContactListXivoImpl.XIVO_ENABLE, false))
+        {
+            this.ssContactList = new ServerStoredContactListXivoImpl(
+                    provider, this);
+        }
+        else
+            this.ssContactList = new ServerStoredContactListSipImpl(
+                    provider, this);
 
         //this.ssContactList.addGroupListener();
 
@@ -1941,12 +1952,10 @@ public class OperationSetPresenceSipImpl
          person.appendChild(activities);
 
          // <status-icon>
-         XCapClient xCapClient = parentProvider.getXCapClient();
-         if (xCapClient.isConnected() && xCapClient.isPresContentSupported())
+         URI imageUri = ssContactList.getImageUri();
+         if(imageUri != null)
          {
              Element statusIcon = doc.createElement(NS_STATUS_ICON_ELT);
-             URI imageUri = xCapClient.getPresContentImageUri(
-                     ProtocolProviderServiceSipImpl.PRES_CONTENT_IMAGE_NAME);
              statusIcon.setTextContent(imageUri.toString());
              person.appendChild(statusIcon);
          }
@@ -2596,41 +2605,17 @@ public class OperationSetPresenceSipImpl
 
                 if(response.getResponseCode() == AuthorizationResponse.ACCEPT)
                 {
-                    try
-                    {
-                        if(ssContactList.addContactToWhiteList(contact))
-                            ssContactList.updatePresRules();
-                    }
-                    catch(XCapException ex)
-                    {
-                        logger.error("Cannot save presence rules!", ex);
-                    }
+                    ssContactList.authorizationAccepted(contact);
                 }
                 else if(response.getResponseCode()
                             == AuthorizationResponse.REJECT)
                 {
-                    try
-                    {
-                        if(ssContactList.addContactToBlockList(contact))
-                            ssContactList.updatePresRules();
-                    }
-                    catch(XCapException ex)
-                    {
-                        logger.error("Cannot save presence rules!", ex);
-                    }
+                    ssContactList.authorizationRejected(contact);
                 }
                 else if(response.getResponseCode()
                             == AuthorizationResponse.IGNORE)
                 {
-                    try
-                    {
-                        if(ssContactList.addContactToPoliteBlockList(contact))
-                            ssContactList.updatePresRules();
-                    }
-                    catch(XCapException ex)
-                    {
-                        logger.error("Cannot save presence rules!", ex);
-                    }
+                    ssContactList.authorizationIgnored(contact);
                 }
             }
         }
@@ -2654,36 +2639,16 @@ public class OperationSetPresenceSipImpl
      */
     private void updateContactIcon(ContactSipImpl contact, URI imageUri)
     {
-        if(isEquals(contact.getImageUri(), imageUri))
+        if(isEquals(contact.getImageUri(), imageUri) || imageUri == null)
         {
             return;
         }
         byte[] oldImage = contact.getImage();
-        byte[] newImage = new byte[0];
-        if(imageUri != null)
-        {
-            XCapClient xCapClient = parentProvider.getXCapClient();
-            if(xCapClient.isConnected())
-            {
-                try
-                {
-                    newImage = xCapClient.getImage(imageUri);
-                }
-                catch (XCapException e)
-                {
-                    String errorMessage = String.format(
-                            "Error while getting icon %1s for the contact %2s",
-                            imageUri, contact.getUri());
-                    logger.warn(errorMessage);
-                    if(logger.isDebugEnabled())
-                        logger.debug(errorMessage, e);
-                }
-            }
-            else
-            {
-                return;
-            }
-        }
+        byte[] newImage = ssContactList.getImage(imageUri);
+
+        if(oldImage == null && newImage == null)
+            return;
+
         contact.setImageUri(imageUri);
         contact.setImage(newImage);
         fireContactPropertyChangeEvent(
@@ -2897,6 +2862,15 @@ public class OperationSetPresenceSipImpl
         }
 
         ssContactList.renameContact((ContactSipImpl) contact, newName);
+    }
+
+    /**
+     * Return current server-stored contact list implementation.
+     * @return current server-stored contact list implementation.
+     */
+    protected ServerStoredContactList getSsContactList()
+    {
+        return ssContactList;
     }
 
      /**

@@ -68,6 +68,20 @@ public class ContactListUtils
                             ex)
                         .showDialog();
                     }
+                    else if (errorCode
+                            == MetaContactListException
+                                .CODE_NOT_SUPPORTED_OPERATION)
+                    {
+                        new ErrorDialog(
+                            GuiActivator.getUIService().getMainFrame(),
+                            GuiActivator.getResources().getI18NString(
+                            "service.gui.ADD_CONTACT_ERROR_TITLE"),
+                            GuiActivator.getResources().getI18NString(
+                                "service.gui.ADD_CONTACT_NOT_SUPPORTED",
+                                new String[]{contactAddress}),
+                            ex)
+                        .showDialog();
+                    }
                     else
                     {
                         new ErrorDialog(
