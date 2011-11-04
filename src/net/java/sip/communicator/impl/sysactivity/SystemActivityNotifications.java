@@ -91,7 +91,7 @@ public class SystemActivityNotifications
         }
         catch(Throwable t)
         {
-            logger.error("Error init native functions", t);
+            logger.warn("Error init native functions, " + t.getMessage());
         }
     }
 
