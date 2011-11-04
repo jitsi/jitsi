@@ -66,7 +66,7 @@ public class AccountManager
     /**
      * The list of <tt>AccountID</tt>s, corresponding to all stored accounts.
      */
-    private Vector<AccountID> storedAccounts = new Vector<AccountID>();
+    private final Vector<AccountID> storedAccounts = new Vector<AccountID>();
 
     /**
      * The prefix of the account unique identifier.
@@ -377,12 +377,13 @@ public class AccountManager
         synchronized (loadStoredAccountsQueue)
         {
             loadStoredAccountsQueue.add(factory);
-            loadStoredAccountsQueue.notify();
+            loadStoredAccountsQueue.notifyAll();
 
             if (loadStoredAccountsThread == null)
             {
                 loadStoredAccountsThread = new Thread()
                 {
+                    @Override
                     public void run()
                     {
                         runInLoadStoredAccountsThread();
@@ -452,6 +453,8 @@ public class AccountManager
                         }
                         factory = loadStoredAccountsQueue.poll();
                     }
+                    if (factory != null)
+                        loadStoredAccountsQueue.notifyAll();
                 }
 
                 if (factory != null)
@@ -482,6 +485,7 @@ public class AccountManager
                         if (loadStoredAccountsThread == Thread.currentThread())
                         {
                             loadStoredAccountsThread = null;
+                            loadStoredAccountsQueue.notifyAll();
                         }
                         break;
                     }
@@ -684,6 +688,17 @@ public class AccountManager
                 storedAccounts.remove(accountID);
         }
 
+        /*
+         * We're already doing it in #unloadAccount(AccountID) - we're figuring
+         * out the ProtocolProviderFactory by the AccountID.
+         */
+        if (factory == null)
+        {
+            factory
+                = ProtocolProviderActivator.getProtocolProviderFactory(
+                        accountID.getProtocolName());
+        }
+
         String factoryPackage = getFactoryImplPackageName(factory);
 
         // remove the stored password explicitly using credentials service
@@ -735,6 +750,53 @@ public class AccountManager
             }
         }
         return false;
+    }
+
+    /**
+     * Removes all accounts which have been persistently stored.
+     *
+     * @see #removeStoredAccount(ProtocolProviderFactory, AccountID)
+     */
+    public void removeStoredAccounts()
+    {
+        synchronized (loadStoredAccountsQueue)
+        {
+            /*
+             * Wait for the Thread which loads the stored account to complete so
+             * that we can be sure later on that it will not load a stored
+             * account while we are deleting it or another one for that matter.
+             */
+            boolean interrupted = false;
+
+            while (loadStoredAccountsThread != null)
+                try
+                {
+                    loadStoredAccountsQueue.wait(LOAD_STORED_ACCOUNTS_TIMEOUT);
+                }
+                catch (InterruptedException ie)
+                {
+                    interrupted = true;
+                }
+            if (interrupted)
+                Thread.currentThread().interrupt();
+
+            synchronized (this.storedAccounts)
+            {
+                AccountID[] storedAccounts
+                    = this.storedAccounts.toArray(
+                            new AccountID[this.storedAccounts.size()]);
+
+                for (AccountID storedAccount : storedAccounts)
+                {
+                    ProtocolProviderFactory ppf
+                        = ProtocolProviderActivator.getProtocolProviderFactory(
+                                storedAccount.getProtocolName());
+
+                    if (ppf != null)
+                        ppf.uninstallAccount(storedAccount);
+                }
+            }
+        }
     }
 
     /**
