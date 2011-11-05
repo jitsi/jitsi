@@ -316,6 +316,16 @@ public class SingleWindowContainer
     public void setChatIcon(ChatPanel chatPanel, Icon icon) {}
 
     /**
+     * Updates history buttons state.
+     *
+     * @param chatPanel the chat panel for which we should update button states
+     */
+    public void updateHistoryButtonState(ChatPanel chatPanel)
+    {
+        mainToolBar.changeHistoryButtonsState(chatPanel);
+    }
+
+    /**
      * Returns the frame to which this container belongs.
      *
      * @return the frame to which this container belongs

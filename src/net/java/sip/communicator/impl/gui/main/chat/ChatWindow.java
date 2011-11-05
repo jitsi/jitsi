@@ -1218,6 +1218,16 @@ public class ChatWindow
     }
 
     /**
+     * Updates history buttons state.
+     *
+     * @param chatPanel the chat panel for which we should update button states
+     */
+    public void updateHistoryButtonState(ChatPanel chatPanel)
+    {
+        mainToolBar.changeHistoryButtonsState(chatPanel);
+    }
+
+    /**
      * The <tt>MainKeyDispatcher</tt> is added to pre-listen KeyEvents before
      * they're delivered to the current focus owner in order to introduce a
      * specific behavior for the <tt>CallField</tt> on top of the dial pad.

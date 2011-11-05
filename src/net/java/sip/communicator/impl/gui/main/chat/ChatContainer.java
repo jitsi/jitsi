@@ -124,4 +124,9 @@ public interface ChatContainer
      * @param listener the listener to remove
      */
     public void removeChatChangeListener(ChatChangeListener listener);
+
+    /**
+     * Updates history buttons state.
+     */
+    public void updateHistoryButtonState(ChatPanel chatPanel);
 }

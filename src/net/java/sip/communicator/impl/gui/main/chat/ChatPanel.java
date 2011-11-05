@@ -1719,9 +1719,9 @@ public class ChatPanel
         if (chatHistory == null)
             return;
 
-        new Thread()
+        SwingWorker worker = new SwingWorker()
         {
-            public void run()
+            public Object construct() throws Exception
             {
                 ChatConversationPanel conversationPanel
                     = getChatConversationPanel();
@@ -1743,8 +1743,16 @@ public class ChatPanel
                     SwingUtilities.invokeLater(
                             new HistoryMessagesLoader(c));
                 }
+
+                return "";
             }
-        }.start();
+
+            public void finished()
+            {
+                getChatContainer().updateHistoryButtonState(ChatPanel.this);
+            }
+        };
+        worker.start();
     }
 
     /**
@@ -1762,9 +1770,9 @@ public class ChatPanel
         if (chatHistory == null)
             return;
 
-        new Thread()
+        SwingWorker worker = new SwingWorker()
         {
-            public void run()
+            public Object construct() throws Exception
             {
                 Date lastMsgDate
                     = getChatConversationPanel().getPageLastMsgTimestamp();
@@ -1780,8 +1788,16 @@ public class ChatPanel
                 if(c != null && c.size() > 0)
                     SwingUtilities.invokeLater(
                             new HistoryMessagesLoader(c));
+
+                return "";
             }
-        }.start();
+
+            public void finished()
+            {
+                getChatContainer().updateHistoryButtonState(ChatPanel.this);
+            }
+        };
+        worker.start();
     }
 
     /**

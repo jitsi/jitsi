@@ -394,14 +394,12 @@ public class ChatConversationPanel
         {
             this.lastIncomingMsgTimestamp = System.currentTimeMillis();
 
-            chatString      = "<h2><a style=\"color:#ef7b1e;"
+            chatString      = "<h2 identifier=\"" + msgHeaderID + "\""
+                                    + " date=\"" + date + "\">"
+                                    + "<a style=\"color:#ef7b1e;"
                                     + "font-weight:bold;"
                                     + "text-decoration:none;\" "
-                                    + "href=\"" + contactName + "\" "
-                            + "identifier=\""
-                            + msgHeaderID
-                            + "\" date=\""
-                            + date + "\">";
+                                    + "href=\"" + contactName + "\">";
 
             endHeaderTag = "</a></h2>";
 
@@ -430,14 +428,12 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.OUTGOING_MESSAGE))
         {
-            chatString      = "<h3><a style=\"color:#2e538b;"
+            chatString      = "<h3 identifier=\"" + msgHeaderID + "\""
+                                    + " date=\"" + date + "\">"
+                                    + "<a style=\"color:#2e538b;"
                                     + "font-weight:bold;"
                                     + "text-decoration:none;\" "
-                                    + "href=\"" + contactName + "\" "
-                            + "identifier=\""
-                            + msgHeaderID
-                            + "\" date=\""
-                            + date + "\">";
+                                    + "href=\"" + contactName + "\">";
 
             endHeaderTag = "</a></h3>";
 
@@ -495,13 +491,12 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.HISTORY_INCOMING_MESSAGE))
         {
-            chatString      = "<h2><a style=\"color:#ef7b1e;"
+            chatString      = "<h2 identifier=\"" + msgHeaderID + "\""
+                                    + " date=\"" + date + "\">"
+                                + "<a style=\"color:#ef7b1e;"
                                 + "font-weight:bold;"
                                 + "text-decoration:none;\" "
-                                + "href=\"" + contactName + "\" "
-                            + msgHeaderID
-                            + "' date=\""
-                            + date + "\">";
+                                + "href=\"" + contactName + "\">";
 
             endHeaderTag = "</a></h2>";
 
@@ -514,14 +509,12 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.HISTORY_OUTGOING_MESSAGE))
         {
-            chatString      = "<h3><a style=\"color:#2e538b;"
+            chatString      = "<h3 identifier=\"" + msgHeaderID + "\""
+                                    + " date=\"" + date + "\">"
+                                + "<a style=\"color:#2e538b;"
                                 + "font-weight:bold;"
                                 + "text-decoration:none;\" "
-                                + "href=\"" + contactName + "\" "
-                            + "identifier=\""
-                            + msgHeaderID
-                            + "\" date=\""
-                            + date + "\">";
+                                + "href=\"" + contactName + "\">";
 
             endHeaderTag = "</h3>";
 
