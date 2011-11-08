@@ -910,7 +910,6 @@
         bundle-sparkle, bundle-plugin-branding,
         bundle-systemactivitynotifications,
         bundle-osdependent,bundle-browserlauncher,
-        bundle-zeroconf,bundle-plugin-zeroconfaccregwizz,
         bundle-pluginmanager,bundle-skinmanager,bundle-notification,
         bundle-notification-config,bundle-contacteventhandler,
         bundle-plugin-contactinfo,bundle-plugin-chatalerter, bundle-keybindings,
