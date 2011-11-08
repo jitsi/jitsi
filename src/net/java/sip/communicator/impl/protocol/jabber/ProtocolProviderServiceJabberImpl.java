@@ -1438,6 +1438,9 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetGenericNotifications.class,
                 new OperationSetGenericNotificationsJabberImpl(this));
 
+            // let sufficient time for packet reply
+            SmackConfiguration.setPacketReplyTimeout(45000);
+
             isInitialized = true;
         }
     }

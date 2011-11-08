@@ -1162,6 +1162,12 @@ public class ServerStoredContactListJabberImpl
 
                 ContactJabberImpl contact = findContactById(contactID);
 
+                if(contact != null &&
+                    (contact instanceof VolatileContactJabberImpl))
+                {
+                    contact = null;
+                }
+
                 if(contact == null && isEntryDisplayable(entry))
                 {
                     // this can be an entry which has been update
