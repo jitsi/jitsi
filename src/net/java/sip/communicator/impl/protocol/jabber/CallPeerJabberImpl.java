@@ -1201,7 +1201,7 @@ public class CallPeerJabberImpl
      */
     protected void sendTransportInfo(Iterable<ContentPacketExtension> contents)
     {
-        // if the call is cancelled, do not start sending candidates in
+        // if the call is canceled, do not start sending candidates in
         // transport-info
         if(cancelled)
             return;

@@ -17,6 +17,11 @@ public class JAWTRendererVideoComponent
     extends Canvas
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>JAWTRenderer</tt> which paints in this
      * <tt>JAWTRendererVideoComponent</tt>.
      */

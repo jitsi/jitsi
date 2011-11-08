@@ -23,10 +23,25 @@ public class ParameterizedVideoFormat
     extends VideoFormat
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The format parameters of this <tt>ParameterizedVideoFormat</tt> instance.
      */
     private Map<String, String> fmtps;
 
+    /**
+     * Constructs a new <tt>ParametizedVideoFormat</tt>.
+     *
+     * @param encoding encoding
+     * @param size video size
+     * @param maxDataLength maximum data length
+     * @param dataType data type
+     * @param frameRate frame rate
+     * @param fmtps format parameters
+     */
     public ParameterizedVideoFormat(
             String encoding,
             Dimension size,
@@ -151,6 +166,12 @@ public class ParameterizedVideoFormat
                     getFormatParameters(), objFmtps);
     }
 
+    /**
+     * Returns whether or not the format parameters match.
+     *
+     * @param format format to test
+     * @return true if the format parameters match.
+     */
     public boolean formatParametersMatch(Format format)
     {
         Map<String, String> formatFmtps = null;
@@ -164,11 +185,22 @@ public class ParameterizedVideoFormat
                     getFormatParameters(), formatFmtps);
     }
 
+    /**
+     * Returns the format parameters value for the specified name.
+     *
+     * @param name format parameters name
+     * @return value for the specified format parameters name
+     */
     public String getFormatParameter(String name)
     {
         return fmtps.get(name);
     }
 
+    /**
+     * Returns the format parameters <tt>Map</tt>.
+     *
+     * @return the format parameters <tt>Map</tt>.
+     */
     public Map<String, String> getFormatParameters()
     {
         return new HashMap<String, String>(fmtps);

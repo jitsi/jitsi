@@ -80,7 +80,7 @@ public class SdpUtils
      * Creates an Attribute object with the specified values.
      *
      * @param name the name of the attribute
-     * @param value the value of the attribute 
+     * @param value the value of the attribute
      *
      * @return Attribute
      */

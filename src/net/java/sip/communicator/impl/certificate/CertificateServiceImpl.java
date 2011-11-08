@@ -35,7 +35,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * Implementation of the CertificateService. It asks the user to trust a
  * certificate when the automatic verification fails.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class CertificateServiceImpl
@@ -47,6 +47,11 @@ public class CertificateServiceImpl
     private final List<KeyStoreType> supportedTypes =
         new LinkedList<KeyStoreType>()
         {
+            /**
+             * Serial version UID.
+             */
+            private static final long serialVersionUID = 0L;
+
             {
                 if(!OSUtils.IS_WINDOWS64)
                 {
@@ -108,7 +113,7 @@ public class CertificateServiceImpl
     /**
      * Helper method to avoid accessing null-lists in the session allowed
      * certificate map
-     * 
+     *
      * @param propName the key to access
      * @return the list for the given list or a new, empty list put in place for
      *         the key
@@ -141,6 +146,9 @@ public class CertificateServiceImpl
     // ------------------------------------------------------------------------
     // Truststore configuration
     // ------------------------------------------------------------------------
+    /**
+     * Initializes a new <tt>CertificateServiceImpl</tt> instance.
+     */
     public CertificateServiceImpl()
     {
         setTrustStore();
@@ -198,7 +206,7 @@ public class CertificateServiceImpl
     // ------------------------------------------------------------------------
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.certificate.CertificateService#
      * getSupportedKeyStoreTypes()
      */
@@ -209,7 +217,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.certificate.CertificateService#
      * getClientAuthCertificateConfigs()
      */
@@ -252,7 +260,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.certificate.CertificateService#
      * setClientAuthCertificateConfig
      * (net.java.sip.communicator.service.certificate.CertificateConfigEntry)
@@ -276,7 +284,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.certificate.CertificateService#
      * removeClientAuthCertificateConfig(java.lang.String)
      */
@@ -295,7 +303,7 @@ public class CertificateServiceImpl
     // ------------------------------------------------------------------------
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.certificate.CertificateService#
      * addCertificateToTrust(java.security.cert.Certificate, java.lang.String,
      * int)
@@ -327,7 +335,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.certificate.CertificateService#
      * getSSLContext()
      */
@@ -338,7 +346,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.certificate.CertificateService#
      * getSSLContext(javax.net.ssl.X509TrustManager)
      */
@@ -448,7 +456,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.certificate.CertificateService#
      * getSSLContext(java.lang.String, javax.net.ssl.X509TrustManager)
      */
@@ -491,7 +499,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.certificate.CertificateService#
      * getSSLContext(javax.net.ssl.KeyManager[], javax.net.ssl.X509TrustManager)
      */
@@ -519,7 +527,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.certificate
      * .CertificateService#getTrustManager(java.lang.Iterable)
@@ -536,7 +544,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.certificate.CertificateService
      * #getTrustManager(java.lang.String)
@@ -553,7 +561,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.certificate.CertificateService
      * #getTrustManager(java.lang.String,
@@ -575,7 +583,7 @@ public class CertificateServiceImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.certificate.CertificateService
      * #getTrustManager(java.lang.Iterable,
@@ -975,7 +983,7 @@ public class CertificateServiceImpl
 
     /**
      * Asks the user whether he trusts the supplied chain of certificates.
-     * 
+     *
      * @param chain The chain of the certificates to check with user.
      * @param message A text that describes why the verification failed.
      * @return The result of the user interaction. One of
@@ -1019,7 +1027,7 @@ public class CertificateServiceImpl
     /**
      * Calculates the hash of the certificate known as the "thumbprint"
      * and returns it as a string representation.
-     * 
+     *
      * @param cert The certificate to hash.
      * @param algorithm The hash algorithm to use.
      * @return The SHA-1 hash of the certificate.
@@ -1049,11 +1057,11 @@ public class CertificateServiceImpl
 
     /**
      * Gets the SAN (Subject Alternative Name) of the specified type.
-     * 
+     *
      * @param cert the certificate to extract from
      * @param altNameType The type to be returned
      * @return SAN of the type
-     * 
+     *
      * <PRE>
      * GeneralName ::= CHOICE {
      *                 otherName                   [0]   OtherName,

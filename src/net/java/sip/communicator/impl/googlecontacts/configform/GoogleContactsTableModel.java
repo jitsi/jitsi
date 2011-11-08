@@ -40,6 +40,7 @@ public class GoogleContactsTableModel
      *
      * @param cnx account
      * @param enabled if the account should be enabled
+     * @param prefix phone number prefix
      */
     public void addAccount( GoogleContactsConnection cnx,
                             boolean enabled,

@@ -20,6 +20,7 @@ import org.apache.felix.main.*;
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  * @author Emil Ivov
+ * @author Sebastien Vincent
  */
 public class SIPCommunicator
 {
@@ -61,19 +62,7 @@ public class SIPCommunicator
         String vmVendor = System.getProperty("java.vendor");
         String osName = System.getProperty("os.name");
 
-        // setup here all system properties that need to be initialized at
-        // the very beginning of an application
-        if(osName.startsWith("Windows"))
-        {
-            // disable Direct 3D pipeline (used for fullscreen) before
-            // displaying anything (frame, ...)
-            System.setProperty("sun.java2d.d3d", "false");
-        }
-        else if(osName.startsWith("Mac"))
-        {
-            System.setProperty("apple.awt.fullscreencapturealldisplays",
-                "false");
-        }
+        setSystemProperties(osName);
 
         /*
          * SC_HOME_DIR_* are specific to the OS so make sure they're configured
@@ -157,7 +146,7 @@ public class SIPCommunicator
      * @param osName the name of the OS according to which the SC_HOME_DIR_*
      *            properties are to be set
      */
-    static void setScHomeDir(String osName)
+    private static void setScHomeDir(String osName)
     {
         /*
          * Though we'll be setting the SC_HOME_DIR_* property values depending
@@ -259,5 +248,34 @@ public class SIPCommunicator
 
         // when we end up with the home dirs, make sure we have log dir
         new File(location, name + File.separator + "log").mkdirs();
+    }
+
+    /**
+     * Sets some system properties specific to the OS that needs to be set at
+     * the very beginning of a program (typically for UI related properties,
+     * before AWT is launched).
+     *
+     * @param osName OS name
+     */
+    private static void setSystemProperties(String osName)
+    {
+        // setup here all system properties that need to be initialized at
+        // the very beginning of an application
+        if(osName.startsWith("Windows"))
+        {
+            // disable Direct 3D pipeline (used for fullscreen) before
+            // displaying anything (frame, ...)
+            System.setProperty("sun.java2d.d3d", "false");
+        }
+        else if(osName.startsWith("Mac"))
+        {
+            // On Mac OS X when switch in fullscreen, all the monitors goes
+            // fullscreen (turns black) and only one monitors has images
+            // displayed. So disable this behavior because somebody may want
+            // to use one monitor to do other stuff while having other ones with
+            // fullscreen stuff.
+            System.setProperty("apple.awt.fullscreencapturealldisplays",
+                "false");
+        }
     }
 }

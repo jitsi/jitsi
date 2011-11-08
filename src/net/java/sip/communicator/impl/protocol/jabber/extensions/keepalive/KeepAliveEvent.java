@@ -21,7 +21,14 @@ import org.jivesoftware.smack.util.*;
 public class KeepAliveEvent
     extends IQ
 {
+    /**
+     * Element name for source provider hash.
+     */
     public static final String SOURCE_PROVIDER_HASH = "src-provider-hash";
+
+    /**
+     * Element name for source opset hash.
+     */
     public static final String SOURCE_OPSET_HASH = "src-opset-hash";
 
     private int srcProviderHash = -1;

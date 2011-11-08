@@ -25,6 +25,11 @@ public class SecurityConfigForm
     extends TransparentPanel
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Creates an instance of <tt>SecurityConfigForm</tt>.
      */
     public SecurityConfigForm()
@@ -58,6 +63,11 @@ public class SecurityConfigForm
             {
                 SIPCommDialog zrtpDialog = new SIPCommDialog()
                 {
+                    /**
+                     * Serial version UID.
+                     */
+                    private static final long serialVersionUID = 0L;
+
                     @Override
                     protected void close(boolean escaped) {}
                 };

@@ -985,15 +985,24 @@ public class MediaStreamImpl
      */
     public InetSocketAddress getRemoteControlAddress()
     {
-        // TODO
+        StreamConnector connector =
+            (rtpConnector != null) ? rtpConnector.getConnector() : null;
+
+        if(connector != null)
+        {
+            if(connector.getDataSocket() != null)
+            {
+                return (InetSocketAddress)connector.getControlSocket().
+                    getRemoteSocketAddress();
+            }
+            else if(connector.getDataTCPSocket() != null)
+            {
+                return (InetSocketAddress)connector.getControlTCPSocket().
+                    getRemoteSocketAddress();
+            }
+        }
+
         return null;
-        /*
-        return
-            (rtpConnector == null)
-                ? null
-                : (InetSocketAddress)
-                    rtpConnector.getControlSocket().getRemoteSocketAddress();
-                    */
     }
 
     /**
@@ -1005,15 +1014,24 @@ public class MediaStreamImpl
      */
     public InetSocketAddress getRemoteDataAddress()
     {
-        // TODO
+        StreamConnector connector =
+            (rtpConnector != null) ? rtpConnector.getConnector() : null;
+
+        if(connector != null)
+        {
+            if(connector.getDataSocket() != null)
+            {
+                return (InetSocketAddress)connector.getDataSocket().
+                    getRemoteSocketAddress();
+            }
+            else if(connector.getDataTCPSocket() != null)
+            {
+                return (InetSocketAddress)connector.getDataTCPSocket().
+                    getRemoteSocketAddress();
+            }
+        }
+
         return null;
-        /*
-        return
-            (rtpConnector == null)
-                ? null
-                : (InetSocketAddress)
-                    rtpConnector.getDataSocket().getRemoteSocketAddress();
-                    */
     }
 
     /**

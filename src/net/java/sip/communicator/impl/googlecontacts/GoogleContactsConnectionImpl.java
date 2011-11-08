@@ -166,7 +166,7 @@ public class GoogleContactsConnectionImpl
     /**
      * Sets the google contacts prefix.
      *
-     * @param prefix the prefix to set
+     * @param prefix the phone number prefix to set
      */
     public void setPrefix(String prefix)
     {
@@ -174,9 +174,9 @@ public class GoogleContactsConnectionImpl
     }
 
     /**
-     * Returns the google contacts prefix.
+     * Returns the google contacts phone number prefix.
      *
-     * @return the google contacts prefix
+     * @return the google contacts phone number prefix
      */
     public String getPrefix()
     {

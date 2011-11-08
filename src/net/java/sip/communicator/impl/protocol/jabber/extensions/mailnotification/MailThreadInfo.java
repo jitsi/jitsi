@@ -253,12 +253,12 @@ public class MailThreadInfo
      * Returns the sender that initiated the thread or the first sender in the
      * list if for some reason we couldn't determine the originator.
      *
+     * @param firstNameOnly use only first name
      * @return the sender that initiated the thread or the first sender in the
      * list if for some reason we couldn't determine the originator.
      */
     public String findOriginator(boolean firstNameOnly)
     {
-
         return null;
     }
 

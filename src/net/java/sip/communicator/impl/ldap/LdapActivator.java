@@ -191,6 +191,7 @@ public class LdapActivator
      * Enable contact source service with specified LDAP directory.
      *
      * @param ldapDir LDAP directory
+     * @return an LDAP <tt>ContactSourceService</tt> instance
      */
     public static ContactSourceService registerContactSource(
                                                         LdapDirectory ldapDir)

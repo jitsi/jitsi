@@ -1763,7 +1763,7 @@ public class MetaContactListServiceImpl
         //ignore if persistent presence is not supported.
         if(persPresOpSet != null)
         {
-            //we don't care about subscription and presence status events here 
+            //we don't care about subscription and presence status events here
             // any longer.
             persPresOpSet.removeContactPresenceStatusListener(this);
             persPresOpSet.removeSubscriptionListener(

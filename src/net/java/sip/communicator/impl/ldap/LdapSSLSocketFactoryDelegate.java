@@ -25,14 +25,22 @@ import net.java.sip.communicator.util.*;
  * validate the hostname against the certificate, which leads to an insecure
  * communication. It only calls {@link #createSocket(String, int)} when
  * <tt>createSocket</tt> is not found
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class LdapSSLSocketFactoryDelegate
 {
+    /**
+     * Logger for this class.
+     */
     private final static Logger logger =
         Logger.getLogger(LdapSSLSocketFactoryDelegate.class);
 
+    /**
+     * Get default SSL socket factory delegate.
+     *
+     * @return default SSL socket factory delegate.
+     */
     public static Object getDefault()
     {
         return new LdapSSLSocketFactoryDelegate();
@@ -40,7 +48,7 @@ public class LdapSSLSocketFactoryDelegate
 
     /**
      * Creates a socket for the specified destination host and port.
-     * 
+     *
      * @param host The hostname that the socket connects to.
      * @param port The port that the socket connects to.
      * @return The created socket.

@@ -26,6 +26,11 @@ public class JAWTRendererSwingVideoComponent
     extends JPanel
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>Logger</tt> used by the <tt>JAWTRendererSwingVideoComponent</tt>
      * class and its instances for logging output.
      */
@@ -61,7 +66,7 @@ public class JAWTRendererSwingVideoComponent
                  * resized only if the native counterpart of this
                  * SwingVideoComponent expects bounds in a coordinate system
                  * which changes with respect to the bounds of this
-                 * SwingVideoComponent when the parent gets resized. 
+                 * SwingVideoComponent when the parent gets resized.
                  */
                 //processLightweightComponentEvent();
             }
@@ -82,6 +87,11 @@ public class JAWTRendererSwingVideoComponent
      */
     private boolean wantsPaint = true;
 
+    /**
+     * Constructor.
+     *
+     * @param renderer <tt>JAWTRenderer</tt> instance
+     */
     public JAWTRendererSwingVideoComponent(JAWTRenderer renderer)
     {
         this.renderer = renderer;
@@ -152,6 +162,8 @@ public class JAWTRendererSwingVideoComponent
     /**
      * Creates a new AWT <tt>Component</tt> in which
      * <tt>SwingVideoComponent</tt>s can be rendered.
+     * @return new AWT <tt>Component</tt> in which <tt>SwingVideoComponent</tt>s
+     * can be rendered
      */
     public Component createCanvas()
     {
@@ -502,6 +514,11 @@ public class JAWTRendererSwingVideoComponent
         extends JAWTRendererVideoComponent
     {
         /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
          * The handle to the native <tt>JAWTRenderer</tt> which does the actual
          * painting of this <tt>SwingVideoComponentCanvas</tt>.
          */
@@ -638,7 +655,7 @@ public class JAWTRendererSwingVideoComponent
                  * continue to receive, for example, MouseMotionEvents even
                  * when the point has moved out of it. Emulate the same behavior
                  * for the Components this SwingVideoComponentCanvas dispatches
-                 * events to since it is transparent in this respect. 
+                 * events to since it is transparent in this respect.
                  */
                 if (MouseEvent.MOUSE_PRESSED == id)
                     mousePressedComponent = null;

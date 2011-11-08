@@ -16,6 +16,9 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.w3c.dom.*;
 
+/**
+ * Whiteboard session packet extension.
+ */
 public class WhiteboardSessionPacketExtension
     implements PacketExtension
 {
@@ -160,7 +163,7 @@ public class WhiteboardSessionPacketExtension
 
     /**
      * Returns the white board session identifier.
-     * 
+     *
      * @return the white board session identifier
      */
     public String getWhiteboardSessionId()
@@ -170,7 +173,7 @@ public class WhiteboardSessionPacketExtension
 
     /**
      * Sets the white board session identifier.
-     * 
+     *
      * @param whiteboardSessionId the identifier of the session
      */
     public void setWhiteboardSessionId(String whiteboardSessionId)
@@ -180,7 +183,7 @@ public class WhiteboardSessionPacketExtension
 
     /**
      * Returns the action associated with this session packet extension.
-     * 
+     *
      * @return the action associated with this session packet extension.
      */
     public String getAction()
@@ -190,7 +193,7 @@ public class WhiteboardSessionPacketExtension
 
     /**
      * Sets the action associated with this session packet extension.
-     * 
+     *
      * @param action the action associated with this session packet extension.
      */
     public void setAction(String action)
@@ -200,7 +203,7 @@ public class WhiteboardSessionPacketExtension
 
     /**
      * Returns the address of the contact associated with this packet extension
-     * 
+     *
      * @return the address of the contact associated with this packet extension
      */
     public String getContactAddress()
@@ -210,7 +213,7 @@ public class WhiteboardSessionPacketExtension
 
     /**
      * Sets the address of the contact associated with this packet extension
-     * 
+     *
      * @param contactAddress the address of the contact associated with this
      * packet extension
      */

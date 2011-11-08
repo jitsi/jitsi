@@ -102,7 +102,7 @@ public class RawPacket
     {
         return this.offset;
     }
-    
+
     /**
      * @param buffer the buffer to set
      */
@@ -310,11 +310,11 @@ public class RawPacket
     }
 
     /**
-     * Grow the internal packet buffer. 
-     * 
+     * Grow the internal packet buffer.
+     *
      * This will change the data buffer of this packet but not the
      * length of the valid data. Use this to grow the internal buffer
-     * to avoid buffer re-allocations when appending data.  
+     * to avoid buffer re-allocations when appending data.
      *
      * @param howMuch number of bytes to grow
      */
@@ -327,7 +327,7 @@ public class RawPacket
         offset = 0;
         buffer = newBuffer;
     }
-    
+
     /**
      * Append a byte array to the end of the packet. This may change the data
      * buffer of this packet.
@@ -339,7 +339,7 @@ public class RawPacket
         if (data == null || len == 0)  {
             return;
         }
-        
+
         // re-allocate internal buffer if it is too small
         if ((this.length + len) > (buffer.length - this.offset)) {
             byte[] newBuffer = new byte[this.length + len];
@@ -350,7 +350,7 @@ public class RawPacket
         // append data
         System.arraycopy(data, 0, this.buffer, this.length, len);
         this.length = this.length + len;
-       
+
     }
 
     /**
@@ -513,7 +513,6 @@ public class RawPacket
     /**
      * Get RTCP SSRC from a RTCP packet
      *
-     * @param pkt the source RTP packet
      * @return RTP SSRC from source RTP packet
      */
     public long GetRTCPSSRC()
@@ -533,7 +532,7 @@ public class RawPacket
     /**
      * Get SRTCP sequence number from a SRTCP packet
      *
-     * @param pkt the source SRTCP packet
+     * @param authTagLen authentication tag length
      * @return SRTCP sequence num from source packet
      */
     public int getSRTCPIndex(int authTagLen)

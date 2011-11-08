@@ -19,7 +19,14 @@ import org.xmlpull.v1.*;
 public class KeepAliveEventProvider
     implements IQProvider
 {
+    /**
+     * Element name for keepalive.
+     */
     public static final String ELEMENT_NAME = "keepalive";
+
+    /**
+     * Namespace for keepalive.
+     */
     public static final String NAMESPACE = "jitsi:iq:keepalive";
 
     /**

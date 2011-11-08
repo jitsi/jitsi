@@ -163,7 +163,7 @@ public class SystemActivityNotifications
     /**
      * Returns the when was last input in milliseconds. The time when
      * there was any activity on the computer.
-     * @return
+     * @return the last input in milliseconds
      */
     public static native long getLastInput();
 

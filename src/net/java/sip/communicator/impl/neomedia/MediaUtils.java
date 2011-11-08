@@ -15,7 +15,7 @@ import javax.sdp.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.ScreenDevice;
+import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.util.*;
 

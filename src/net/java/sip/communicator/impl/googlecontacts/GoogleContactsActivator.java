@@ -348,6 +348,7 @@ public class GoogleContactsActivator implements BundleActivator
      *
      * @param login login
      * @param password password
+     * @return a <tt>GoogleContactsSourceService</tt> instance
      */
     public static GoogleContactsSourceService enableContactSource(
                                                 String login, String password)
@@ -385,6 +386,7 @@ public class GoogleContactsActivator implements BundleActivator
      * <tt>GoogleContactsConnection</tt>.
      *
      * @param cnx <tt>GoogleContactsConnection</tt>
+     * @return a <tt>GoogleContactsSourceService</tt> instance
      */
     public static GoogleContactsSourceService enableContactSource(
                                                 GoogleContactsConnection cnx)
