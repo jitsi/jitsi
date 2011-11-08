@@ -288,7 +288,7 @@ public class OperationSetBasicTelephonyJabberImpl
         int bestPriority = -1;
 
         if(!getProtocolProvider().getConnection().getRoster().contains(
-            calleeAddress) && !alwaysCallGtalk)
+            StringUtils.parseBareAddress(calleeAddress)) && !alwaysCallGtalk)
         {
             throw new OperationFailedException(
                 calleeAddress + " does not belong to our contact list",
