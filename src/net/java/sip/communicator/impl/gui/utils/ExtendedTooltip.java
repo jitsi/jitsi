@@ -83,18 +83,35 @@ public class ExtendedTooltip
         bottomTextArea.setFont(bottomTextArea.getFont().deriveFont(10f));
         mainPanel.add(bottomTextArea, BorderLayout.SOUTH);
 
+        // Hide the tooltip when the parent window hides.
         parentWindow.addWindowFocusListener(new WindowFocusListener()
         {
             public void windowLostFocus(WindowEvent e)
             {
-                Window parentWindow
+                Window popupWindow
                     = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
 
-                if (parentWindow != null && parentWindow.isVisible())
-                    parentWindow.setVisible(false);
+                if (popupWindow != null && popupWindow.isVisible())
+                    popupWindow.setVisible(false);
             }
 
             public void windowGainedFocus(WindowEvent e) {}
+        });
+
+        // Hide the tooltip if the parent window isn't active
+        addComponentListener(new ComponentAdapter()
+        {
+            public void componentResized(ComponentEvent evt)
+            {
+                if (!parentWindow.isActive())
+                {
+                    Window popupWindow
+                        = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
+
+                    if (popupWindow != null && popupWindow.isVisible())
+                        popupWindow.setVisible(false);
+                }
+            }
         });
 
         this.add(mainPanel);

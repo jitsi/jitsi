@@ -11,6 +11,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.utils.*;
+
 import org.jvnet.lafwidget.animation.*;
 
 /**
@@ -69,6 +71,33 @@ public class SIPCommMenu
 
         this.addMouseListener(mouseHandler);
         this.addMouseMotionListener(mouseHandler);
+
+        // Hides the popup menu when the parent window loses focus.
+        getPopupMenu().addComponentListener(new ComponentAdapter()
+        {
+            public void componentResized(ComponentEvent evt)
+            {
+                Window parentWindow
+                    = SwingUtilities.getWindowAncestor(SIPCommMenu.this);
+
+                if (!parentWindow.isActive())
+                {
+                    getPopupMenu().setVisible(false);
+                }
+
+                parentWindow.addWindowFocusListener(new WindowFocusListener()
+                {
+                    public void windowLostFocus(WindowEvent e)
+                    {
+                        JPopupMenu popupMenu = getPopupMenu();
+                        if (popupMenu != null && popupMenu.isVisible())
+                            popupMenu.setVisible(false);
+                    }
+
+                    public void windowGainedFocus(WindowEvent e) {}
+                });
+            }
+        });
     }
 
     /**
