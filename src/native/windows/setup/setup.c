@@ -29,6 +29,9 @@
 #include <bspatch.h>
 #include <lzma.h>
 
+#define SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR_PROPERTY_BEGIN \
+    L"SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR=\""
+
 static LPWSTR Setup_commandLine = NULL;
 static LPTSTR Setup_fileName = NULL;
 
@@ -379,8 +382,7 @@ Setup_executeMsiA(LPCSTR path)
     }
     return error;
 }
-// C:\Users\Valérie\AppData\Local\Temp\webinage-1.0.1262-x64.exe --wait-parent "SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR="C:\Program Files (x86)\Webinage""
-// "C:\Windows\System32\msiexec.exe" /i "C:\Users\VALRIE~1\AppData\Local\Temp\webinage-1.0.1262-x64.msi" REINSTALLMODE=amus rie\AppData\Local\Temp\webinage-1.0.1262-x64.exe --wait-parent SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR="C:\Program Files (x86)\Webinage"
+
 static DWORD
 Setup_executeMsiW(LPCWSTR path)
 {
@@ -1310,9 +1312,20 @@ Setup_getWinMainCmdLine(LPTSTR *winMainCmdLine)
 static int
 Setup_isWow64Acceptable()
 {
-    HMODULE kernel32 = GetModuleHandle(_T("kernel32"));
     int answer = IDYES;
+    HMODULE kernel32;
 
+    /*
+     * If this is an (automatic) update, do not ask because (1) the user has
+     * already answered during the initial install and (2) it is plain annoying.
+     */
+    if (Setup_commandLine
+            && wcsstr(
+                    Setup_commandLine,
+                    SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR_PROPERTY_BEGIN))
+        return answer;
+
+    kernel32 = GetModuleHandle(_T("kernel32"));
     if (kernel32)
     {
         typedef BOOL (WINAPI *LPISWOW64PROCESS)(HANDLE, PBOOL);
@@ -1583,7 +1596,7 @@ Setup_parseCommandLine(LPTSTR cmdLine)
                         if (argv1Length)
                         {
                             LPCWSTR propertyBegin
-                                = L"SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR=\"";
+                                = SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR_PROPERTY_BEGIN;
                             size_t propertyBeginLength = wcslen(propertyBegin);
                             LPCWSTR propertyEnd = L"\"";
                             size_t propertyEndLength = wcslen(propertyEnd);
