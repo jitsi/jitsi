@@ -13,6 +13,7 @@ import javax.media.format.*;
 import javax.sdp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -197,6 +198,22 @@ public class MediaUtils
 
         // packetization-mode=1
         h264FormatParams.put(packetizationMode, "1");
+
+        if(NeomediaActivator.getConfigurationService().getString(
+            "net.java.sip.communicator.impl.neomedia.codec.video.h264." +
+                    "defaultProfile",
+                JNIEncoder.MAIN_PROFILE).equals(JNIEncoder.MAIN_PROFILE))
+        {
+            // indicates main profile, common features and HD capable level 3.1
+            h264FormatParams.put("profile-level-id", "4DE01f");
+        }
+        else
+        {
+            // indicates baseline profile, common features
+            // and HD capable level 3.1
+            h264FormatParams.put("profile-level-id", "42E01f");
+        }
+
         addMediaFormats(
             MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
             "H264",

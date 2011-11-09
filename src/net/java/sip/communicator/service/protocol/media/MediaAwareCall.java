@@ -153,6 +153,8 @@ public abstract class MediaAwareCall<
         {
             // if there's someone listening for audio level events then they'd
             // also like to know about the new peer.
+            // make sure always the fisrt element is the one to listen
+            // for local audio events
             if(getCallPeersVector().isEmpty())
             {
                 callPeer.getMediaHandler().setLocalUserAudioLevelListener(
@@ -181,6 +183,8 @@ public abstract class MediaAwareCall<
         if (!getCallPeersVector().contains(callPeer))
             return;
 
+        int elementPeerIx = getCallPeersVector().indexOf(callPeer);
+
         getCallPeersVector().remove(callPeer);
         callPeer.removeCallPeerListener(this);
 
@@ -188,6 +192,15 @@ public abstract class MediaAwareCall<
         {
             // remove sound level listeners from the peer
             callPeer.getMediaHandler().setLocalUserAudioLevelListener(null);
+
+            // if there are more peers and the peer was the first, the one
+            // that listens for local levels, now lets make sure
+            // the new first will listen for local level events
+            if(!getCallPeersVector().isEmpty() && elementPeerIx == 0)
+            {
+                getCallPeersVector().firstElement().getMediaHandler()
+                    .setLocalUserAudioLevelListener(localAudioLevelDelegator);
+            }
         }
 
         try
