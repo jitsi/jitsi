@@ -11,12 +11,14 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.media.*;
-import javax.media.Controls; // disambiguation
+import javax.media.Controls;
 import javax.media.control.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.util.*;
+
+import com.sun.media.util.*;
 
 /**
  * Facilitates the implementations of the <tt>CaptureDevice</tt> and
@@ -70,6 +72,11 @@ public abstract class AbstractBufferCaptureDevice
      * <tt>AbstractBufferCaptureDevice</tt>.
      */
     private FrameRateControl[] frameRateControls;
+
+    /**
+     * The <tt>RTPInfo</tt>s of this <tt>AbstractBufferCaptureDevice</tt>.
+     */
+    private RTPInfo[] rtpInfos;
 
     /**
      * The indicator which determines whether the transfer of media data from
@@ -226,6 +233,26 @@ public abstract class AbstractBufferCaptureDevice
     }
 
     /**
+     * Creates a new <tt>RTPInfo</tt> instance of this
+     * <tt>AbstractBufferCaptureDevice</tt>.
+     *
+     * @return a new <tt>RTPInfo</tt> instance  of this
+     * <tt>AbstractBufferCaptureDevice</tt>
+     */
+    protected RTPInfo createRTPInfo()
+    {
+        return
+            new RTPInfo()
+                    {
+                        public String getCNAME()
+                        {
+                            // TODO Auto-generated method stub
+                            return null;
+                        }
+                    };
+    }
+
+    /**
      * Create a new <tt>AbstractBufferStream</tt> which is to be at a specific
      * zero-based index in the list of streams of this
      * <tt>AbstractBufferCaptureDevice</tt>. The <tt>Format</tt>-related
@@ -289,27 +316,48 @@ public abstract class AbstractBufferCaptureDevice
     final Object[] defaultGetControls()
     {
         FormatControl[] formatControls = internalGetFormatControls();
+        int formatControlCount
+            = (formatControls == null) ? 0 : formatControls.length;
         FrameRateControl[] frameRateControls = internalGetFrameRateControls();
+        int frameRateControlCount
+            = (frameRateControls == null) ? 0 : frameRateControls.length;
+        RTPInfo[] rtpInfos = internalGetRTPInfos();
+        int rtpInfoCount = (rtpInfos == null) ? 0 : rtpInfos.length;
 
-        if (((formatControls == null) || (formatControls.length == 0))
-                && ((frameRateControls == null)
-                        || (frameRateControls.length == 0)))
+        if ((formatControlCount == 0)
+                && (frameRateControlCount == 0)
+                && (rtpInfoCount == 0))
             return ControlsAdapter.EMPTY_CONTROLS;
         else
         {
             Object[] controls
-                = new Object[formatControls.length + frameRateControls.length];
+                = new Object[
+                             formatControlCount
+                                 + frameRateControlCount
+                                 + rtpInfoCount];
             int offset = 0;
 
-            System.arraycopy(
-                    formatControls, 0,
-                    controls, offset,
-                    formatControls.length);
-            offset += formatControls.length;
-            System.arraycopy(
-                    frameRateControls, 0,
-                    controls, offset,
-                    frameRateControls.length);
+            if (formatControlCount != 0)
+            {
+                System.arraycopy(
+                        formatControls, 0,
+                        controls, offset,
+                        formatControlCount);
+                offset += formatControlCount;
+            }
+            if (frameRateControlCount != 0)
+            {
+                System.arraycopy(
+                        frameRateControls, 0,
+                        controls, offset,
+                        frameRateControlCount);
+                offset += frameRateControlCount;
+            }
+            if (rtpInfoCount != 0)
+            {
+                System.arraycopy(rtpInfos, 0, controls, offset, rtpInfoCount);
+                offset += rtpInfoCount;
+            }
             return controls;
         }
     }
@@ -686,6 +734,28 @@ public abstract class AbstractBufferCaptureDevice
                     : new FrameRateControl[] { frameRateControl };
         }
         return frameRateControls;
+    }
+
+    /**
+     * Gets an array of <tt>RTPInfo</tt> instances of this
+     * <tt>AbstractBufferCaptureDevice</tt>.
+     *
+     * @return an array of <tt>RTPInfo</tt> instances of this
+     * <tt>AbstractBufferCaptureDevice</tt>.
+     */
+    private synchronized RTPInfo[] internalGetRTPInfos()
+    {
+        if (rtpInfos == null)
+        {
+            RTPInfo rtpInfo = createRTPInfo();
+
+            // Don't try to create the RTPInfo more than once.
+            rtpInfos
+                = (rtpInfo == null)
+                    ? new RTPInfo[0]
+                    : new RTPInfo[] { rtpInfo };
+        }
+        return rtpInfos;
     }
 
     /**
