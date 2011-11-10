@@ -369,6 +369,12 @@ public class JabberAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
                 String.valueOf(registration.isUseDefaultStunServer()));
 
+        String accountDisplayName = registration.getAccountDisplayName();
+
+        if (accountDisplayName != null && accountDisplayName.length() > 0)
+            accountProperties.put(  ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME,
+                                    accountDisplayName);
+
         List<StunServerDescriptor> stunServers
             = registration.getAdditionalStunServers();
 
