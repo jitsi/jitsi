@@ -11,8 +11,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.utils.*;
-
 import org.jvnet.lafwidget.animation.*;
 
 /**
@@ -77,8 +75,17 @@ public class SIPCommMenu
         {
             public void componentResized(ComponentEvent evt)
             {
-                Window parentWindow
-                    = SwingUtilities.getWindowAncestor(SIPCommMenu.this);
+                Window parentWindow;
+
+                Component parent = SIPCommMenu.this.getParent();
+
+                // If this is a submenu get the invoker first.
+                if (parent instanceof JPopupMenu)
+                    parentWindow = SwingUtilities.getWindowAncestor(
+                        ((JPopupMenu) parent).getInvoker());
+                else
+                    parentWindow
+                        = SwingUtilities.getWindowAncestor(SIPCommMenu.this);
 
                 if (!parentWindow.isActive())
                 {
