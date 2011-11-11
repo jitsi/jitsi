@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.skin.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The GroupRightButtonMenu is the menu, opened when user clicks with the
@@ -25,7 +26,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Adam Netocny
  */
 public class CommonRightButtonMenu
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements  ActionListener,
                 Skinnable
 {

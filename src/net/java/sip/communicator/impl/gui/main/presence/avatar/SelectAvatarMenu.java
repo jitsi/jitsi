@@ -24,7 +24,7 @@ import javax.swing.*;
  * @author Damian Minkov 
  */
 public class SelectAvatarMenu
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements ActionListener
 {
     /**

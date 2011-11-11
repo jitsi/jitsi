@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
@@ -29,7 +30,7 @@ import net.java.sip.communicator.service.resources.*;
  * @author Lubomir Marinov
  */
 public class ChatRoomRightButtonMenu
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements  ActionListener
 {
     /**

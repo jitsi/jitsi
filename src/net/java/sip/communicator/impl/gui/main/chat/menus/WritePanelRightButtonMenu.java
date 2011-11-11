@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.skin.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>WritePanelRightButtonMenu</tt> appears when the user makes a right
@@ -24,7 +25,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Adam Netocny
  */
 public class WritePanelRightButtonMenu
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements  ActionListener,
                 Skinnable
 {

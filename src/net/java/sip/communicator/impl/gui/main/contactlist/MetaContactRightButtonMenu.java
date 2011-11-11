@@ -40,7 +40,7 @@ import org.osgi.framework.*;
  * @author Adam Netocny
  */
 public class MetaContactRightButtonMenu
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements  ActionListener,
                 PluginComponentListener,
                 ContactListListener,

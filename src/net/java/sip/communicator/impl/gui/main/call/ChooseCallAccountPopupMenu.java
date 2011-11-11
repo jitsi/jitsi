@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ChooseCallAccountDialog</tt> is the dialog shown when calling a
@@ -33,7 +34,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Adam Netocny
  */
 public class ChooseCallAccountPopupMenu
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements Skinnable
 {
     /**

@@ -7,7 +7,8 @@
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
-import javax.swing.*;
+
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>BoxPopupMenu</tt> is a <tt>JPopupMenu</tt>, which orders its
@@ -16,8 +17,9 @@ import javax.swing.*;
  * 
  * @author Yana Stamcheva
  */
-public class BoxPopupMenu extends JPopupMenu {
-
+public class BoxPopupMenu
+    extends SIPCommPopupMenu
+{
     private static final long serialVersionUID = -8488327445916201464L;
 
     private int itemsCount;

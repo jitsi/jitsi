@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -31,7 +32,7 @@ import org.osgi.framework.*;
  * @author Adam Netocny
  */
 public class GroupRightButtonMenu
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements  ActionListener,
                 PluginComponentListener,
                 Skinnable

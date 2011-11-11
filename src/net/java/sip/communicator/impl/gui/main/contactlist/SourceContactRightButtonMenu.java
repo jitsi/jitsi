@@ -31,7 +31,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Adam Netocny
  */
 public class SourceContactRightButtonMenu
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements Skinnable
 {
     /**

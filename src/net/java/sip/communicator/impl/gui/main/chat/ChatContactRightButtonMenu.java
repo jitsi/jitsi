@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ChatContactRightButtonMenu</tt> is the menu, opened when user clicks
@@ -30,7 +31,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Ingo Bauersachs
  */
 public class ChatContactRightButtonMenu
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements  ActionListener,
                 Skinnable
 {
