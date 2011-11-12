@@ -29,11 +29,6 @@ public class PopupMessageHandlerSwingImpl
     private static final Logger logger
         = Logger.getLogger(PopupMessageHandlerSwingImpl.class);
 
-    /** An icon representing the contact from which the notification comes */
-    private ImageIcon defaultIcon =
-        SwingNotificationActivator.getResources().getImage(
-        "service.gui.SIP_COMMUNICATOR_LOGO_45x45");;
-
     /**
      * Implements <tt>PopupMessageHandler#showPopupMessage()</tt>
      *
@@ -56,12 +51,10 @@ public class PopupMessageHandlerSwingImpl
                     new Thread(new PopupDiscarder(notificationWindow)).start();
             }
         });
-
         popupTimer.setRepeats(false);
 
-        notificationWindow.addMouseListener(new MouseAdapter()
+        MouseAdapter adapter = new MouseAdapter()
         {
-
             @Override
             public void mouseEntered(MouseEvent e)
             {
@@ -84,25 +77,33 @@ public class PopupMessageHandlerSwingImpl
                     new SystrayPopupMessageEvent(e, notif.getTag()));
                 notificationWindow.dispose();
             }
-        });
+        };
 
-        if (popupMessage.getComponent() != null)
+        notificationWindow.addMouseListener(adapter);
+        JComponent content = popupMessage.getComponent();
+        if (content == null)
         {
-            notificationWindow.add(popupMessage.getComponent());
-        }
-        else
-        {
-            notificationWindow.add(createPopup(
+            content = createPopup(
                 popupMessage.getMessageTitle(),
                 popupMessage.getMessage(),
                 popupMessage.getIcon(),
-                popupMessage.getTag()));
+                popupMessage.getTag());
         }
+        registerMouseListener(content, adapter);
+        notificationWindow.add(content);
         notificationWindow.setAlwaysOnTop(true);
         notificationWindow.pack();
 
         new Thread(new PopupLauncher(notificationWindow, graphicsConf)).start();
         popupTimer.start();
+    }
+
+    private void registerMouseListener(Component content, MouseAdapter adapter)
+    {
+        content.addMouseListener(adapter);
+        if(content instanceof JComponent)
+            for(Component c : ((JComponent) content).getComponents())
+                registerMouseListener(c, adapter);
     }
 
     /**
@@ -121,8 +122,7 @@ public class PopupMessageHandlerSwingImpl
                                     byte[] imageBytes,
                                     Object tag)
     {
-        JLabel msgIcon = new JLabel(defaultIcon);
-
+        JLabel msgIcon = null;
         if (imageBytes != null)
         {
             ImageIcon imageIcon
@@ -130,13 +130,6 @@ public class PopupMessageHandlerSwingImpl
 
             msgIcon = new JLabel(imageIcon);
         }
-
-        JLabel msgTitle = new JLabel(titleString);
-
-        int msgTitleHeight
-            = msgTitle.getFontMetrics(msgTitle.getFont()).getHeight();
-        msgTitle.setPreferredSize(new Dimension(200, msgTitleHeight));
-        msgTitle.setFont(msgTitle.getFont().deriveFont(Font.BOLD));
 
         String plainMessage
             = Html2Text.extractText("<pre>" + message + "</pre>");
@@ -149,14 +142,13 @@ public class PopupMessageHandlerSwingImpl
 
         int msgContentHeight
             = getPopupMessageAreaHeight(msgContent, plainMessage);
-        msgContent.setPreferredSize(new Dimension(200, msgContentHeight));
+        msgContent.setPreferredSize(new Dimension(250, msgContentHeight));
 
         TransparentPanel notificationBody = new TransparentPanel();
         notificationBody.setLayout(
             new BoxLayout(notificationBody, BoxLayout.Y_AXIS));
         notificationBody.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
-        notificationBody.add(msgTitle);
         notificationBody.add(msgContent);
 
         TransparentPanel notificationContent
@@ -165,12 +157,13 @@ public class PopupMessageHandlerSwingImpl
         notificationContent.setLayout(new BorderLayout(5, 0));
 
         notificationContent.setBorder(
-                BorderFactory.createEmptyBorder(5, 5, 5, 5));
+                BorderFactory.createEmptyBorder(0, 5, 5, 5));
 
-        notificationContent.add(msgIcon, BorderLayout.WEST);
+        if(msgIcon != null)
+            notificationContent.add(msgIcon, BorderLayout.WEST);
         notificationContent.add(notificationBody, BorderLayout.CENTER);
 
-        return new PopupNotificationPanel(notificationContent, tag);
+        return new PopupNotificationPanel(titleString, notificationContent, tag);
     }
 
     /**
@@ -294,14 +287,14 @@ public class PopupMessageHandlerSwingImpl
         int stringWidth = GuiUtils.getStringWidth(c, message);
 
         int numberOfRows = 0;
-        if (stringWidth/200 > 3)
-            numberOfRows = 3;
+        if (stringWidth/230 > 5)
+            numberOfRows = 5;
         else
-            numberOfRows = stringWidth/200;
+            numberOfRows = stringWidth/230 + 1;
 
         FontMetrics fontMetrics = c.getFontMetrics(c.getFont());
 
-        return fontMetrics.getHeight()*numberOfRows;
+        return fontMetrics.getHeight()*Math.max(numberOfRows, 3)+5;
     }
 
     /**

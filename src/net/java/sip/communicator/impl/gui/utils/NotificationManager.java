@@ -10,6 +10,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 public class NotificationManager
 {
@@ -222,6 +223,11 @@ public class NotificationManager
             chatPanel = GuiActivator.getUIService().getChat(contact);
 
             contactIcon = contact.getImage();
+            if(contactIcon == null)
+            {
+                contactIcon = ImageUtils.toByteArray(
+                    ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
+            }
         }
         else if (chatContact instanceof ChatRoom)
         {

@@ -47,12 +47,14 @@ public class PopupNotificationPanel
     /**
      * Creates a new <tt>PopupNotificationPanel</tt> with a customized panel
      * title.
+     * @param titleString The title of the popup
      */
-    private PopupNotificationPanel()
+    private PopupNotificationPanel(String titleString)
     {
         notifTitle = new JLabel(
                 UtilActivator.getResources().getSettingsString(
-                "service.gui.APPLICATION_NAME"),
+                    "service.gui.APPLICATION_NAME")
+                    + (titleString == null ? "" : ": " + titleString),
                 SwingConstants.LEFT);
 
         notifClose = new SIPCommButton();
@@ -103,14 +105,16 @@ public class PopupNotificationPanel
     /**
      * Creates a new notification panel with <tt>notificationContent</tt> as
      * the component to put in that panel
-     *
+     * 
+     * @param titleString The title of the popup
      * @param notificationContent content to add in the new created
      * <tt>PopupNotificationPanel</tt>
      * @param tag an object to distinguish this <tt>PopupNotificationPanel</tt>
      */
-    public PopupNotificationPanel(JPanel notificationContent, Object tag)
+    public PopupNotificationPanel(String titleString,
+        JPanel notificationContent, Object tag)
     {
-        this();
+        this(titleString);
         add(notificationContent, BorderLayout.CENTER);
         this.tag = tag;
     }
