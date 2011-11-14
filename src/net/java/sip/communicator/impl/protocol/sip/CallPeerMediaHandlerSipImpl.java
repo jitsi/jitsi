@@ -404,6 +404,17 @@ public class CallPeerMediaHandlerSipImpl
         boolean atLeastOneValidDescription = false;
         boolean rejectedAvpOfferDueToSavpRequired = false;
 
+        boolean encryptionEnabled = getPeer()
+            .getProtocolProvider()
+            .getAccountID()
+            .getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
+        int savpOption = getPeer()
+            .getProtocolProvider()
+            .getAccountID()
+            .getAccountPropertyInt(ProtocolProviderFactory.SAVP_OPTION,
+                ProtocolProviderFactory.SAVP_OFF);
+
         List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
@@ -420,13 +431,9 @@ public class CallPeerMediaHandlerSipImpl
             }
 
             //ignore RTP/AVP stream when RTP/SAVP is mandatory
-            if (getPeer()
-                .getProtocolProvider()
-                .getAccountID()
-                .getAccountPropertyInt(ProtocolProviderFactory.SAVP_OPTION,
-                    ProtocolProviderFactory.SAVP_OFF)
-                    == ProtocolProviderFactory.SAVP_MANDATORY
-                && transportProtocol.equals(SdpConstants.RTP_AVP))
+            if (savpOption == ProtocolProviderFactory.SAVP_MANDATORY
+                && transportProtocol.equals(SdpConstants.RTP_AVP)
+                && encryptionEnabled)
             {
                 rejectedAvpOfferDueToSavpRequired = true;
                 continue;
@@ -614,7 +621,12 @@ public class CallPeerMediaHandlerSipImpl
     private void updateMediaDescriptionForZrtp(
         MediaType mediaType, MediaDescription md)
     {
-        if(getPeer().getCall().isSipZrtpAttribute())
+        if(getPeer()
+            .getProtocolProvider()
+            .getAccountID()
+            .getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true)
+            && getPeer().getCall().isSipZrtpAttribute())
         {
             try
             {
@@ -764,13 +776,20 @@ public class CallPeerMediaHandlerSipImpl
     private List<String> getRtpTransports() throws OperationFailedException
     {
         List<String> result = new ArrayList<String>(2);
-        int savpOption =
-            getPeer()
+        int savpOption = ProtocolProviderFactory.SAVP_OFF;
+        if(getPeer()
+            .getProtocolProvider()
+            .getAccountID()
+            .getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true))
+        {
+            savpOption = getPeer()
                 .getProtocolProvider()
                 .getAccountID()
                 .getAccountPropertyInt(
                     ProtocolProviderFactory.SAVP_OPTION,
                     ProtocolProviderFactory.SAVP_OFF);
+        }
         if(savpOption == ProtocolProviderFactory.SAVP_MANDATORY)
             result.add("RTP/SAVP");
         else if(savpOption == ProtocolProviderFactory.SAVP_OFF)
