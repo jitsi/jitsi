@@ -26,6 +26,11 @@ public class ConferenceMemberPanel
                 Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The underlying conference member.
      */
     private final ConferenceMember member;
@@ -54,7 +59,7 @@ public class ConferenceMemberPanel
 
     /**
      * Returns the underlying <tt>ConferenceMember</tt>.
-     * 
+     *
      * @return the underlying <tt>ConferenceMember</tt>.
      */
     public ConferenceMember getConferenceMember()

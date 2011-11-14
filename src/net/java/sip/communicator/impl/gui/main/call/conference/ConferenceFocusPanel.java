@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * 
+ *
  *
  * @author Yana Stamcheva
  */
@@ -29,6 +29,11 @@ public class ConferenceFocusPanel
     implements  ConferenceCallPeerRenderer,
                 Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The peer corresponding to the focus.
      */
@@ -306,7 +311,7 @@ public class ConferenceFocusPanel
 
     /**
      * Indicates that the security is turned off.
-     * 
+     *
      * @param evt Details about the event that caused this message.
      */
     public void securityOff(CallPeerSecurityOffEvent evt)

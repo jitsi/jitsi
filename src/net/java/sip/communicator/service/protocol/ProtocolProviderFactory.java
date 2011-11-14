@@ -414,9 +414,9 @@ public abstract class ProtocolProviderFactory
     /**
      * The name of the property that indicates the AVP type.
      * <ul>
-     * <li>{@link #SAVP_OPTION_AVP}</li>
-     * <li>{@link #SAVP_OPTION_SAVP}</li>
-     * <li>{@link #SAVP_OPTION_AVP_OR_SAVP}</li>
+     * <li>{@link #SAVP_OFF}</li>
+     * <li>{@link #SAVP_MANDATORY}</li>
+     * <li>{@link #SAVP_OPTIONAL}</li>
      * </ul>
      */
     public static final String SAVP_OPTION = "SAVP_OPTION";

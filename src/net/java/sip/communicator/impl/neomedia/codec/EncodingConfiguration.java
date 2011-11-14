@@ -205,7 +205,6 @@ public class EncodingConfiguration
         setEncodingPreference("DVI4", 8000, 300);
         setEncodingPreference("DVI4", 16000, 250);
         setEncodingPreference("G723", 8000, 150);
-        setEncodingPreference("G728", 8000, 100);
 
         setEncodingPreference("SILK", 12000, 0);
         setEncodingPreference("SILK", 8000, 0);
