@@ -37,9 +37,15 @@
     <property file="${inst.resrc}/installers.properties"/>
 
     <target name="load-properties" depends="version">
-    <!-- load properties on demand here so it can evaluate
+        <!-- load properties on demand here so it can evaluate
         and sip-communicator.version property from property file-->
         <property file="${inst.resrc}/ant-build-config.properties"/>
+
+        <!--
+            Provide access to the environment variables via the prefix "env."
+            because we will modify at least the PATH where is needed.
+        -->
+        <property environment="env" />
     </target>
 
     <!-- define the izpack task in a separate target so that we don't get an
@@ -371,12 +377,6 @@
             value="${package.name}-${sip-communicator.version}-${windows.package.name.suffix}"/>
         <property name="windows.msi.package.name"
             value="${package.name}-${sip-communicator.version}-${windows.msi.package.name.suffix}"/>
-
-        <!--
-            Provide access to the environment variables via the prefix "env."
-            because we will modify at least the PATH.
-        -->
-        <property environment="env" />
 
         <!--
             This versionupdate.properties file isn't of interest to the MSI but
