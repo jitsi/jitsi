@@ -576,7 +576,6 @@ public class ConferenceFocusPanel
         }
     }
 
-    @Override
     public UIVideoHandler getVideoHandler()
     {
         return videoHandler;
