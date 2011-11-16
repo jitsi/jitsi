@@ -7,6 +7,8 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -81,6 +83,12 @@ public class OneToOneCallPanel
     private JCheckBox enableDesktopRemoteControl;
 
     /**
+     * The list containing all video containers.
+     */
+    private final List<Container> videoContainers
+        = new LinkedList<Container>();
+
+    /**
      * The panel added on the south of this container.
      */
     private JPanel southPanel;
@@ -97,6 +105,22 @@ public class OneToOneCallPanel
                                 Call call,
                                 CallPeer callPeer)
     {
+        this(callContainer, call, callPeer, null);
+    }
+
+    /**
+     * Creates a call panel for the corresponding call, by specifying the
+     * call type (incoming or outgoing) and the parent dialog.
+     *
+     * @param callContainer the container containing this panel
+     * @param call          the call corresponding to this panel
+     * @param callPeer      the remote participant in the call
+     */
+    public OneToOneCallPanel(   CallPanel callContainer,
+                                Call call,
+                                CallPeer callPeer,
+                                UIVideoHandler videoHandler)
+    {
         super(new BorderLayout());
 
         this.callContainer = callContainer;
@@ -105,7 +129,7 @@ public class OneToOneCallPanel
 
         this.setTransferHandler(new CallTransferHandler(call));
 
-        this.addCallPeerPanel(callPeer);
+        this.addCallPeerPanel(callPeer, videoHandler);
 
         this.setPreferredSize(new Dimension(400, 400));
     }
@@ -115,11 +139,16 @@ public class OneToOneCallPanel
      *
      * @param peer the call peer
      */
-    public void addCallPeerPanel(CallPeer peer)
+    public void addCallPeerPanel(CallPeer peer, UIVideoHandler videoHandler)
     {
         if (peerPanel == null)
         {
-            peerPanel = new OneToOneCallPeerPanel(this, peer);
+            if (videoHandler != null)
+                peerPanel = new OneToOneCallPeerPanel(
+                    this, peer, videoContainers, videoHandler);
+            else
+                peerPanel = new OneToOneCallPeerPanel(
+                    this, peer, videoContainers);
 
             /* Create the main Components of the UI. */
             nameLabel.setText(getPeerDisplayText(peer, peer.getDisplayName()));
@@ -151,6 +180,16 @@ public class OneToOneCallPanel
     }
 
     /**
+     * Creates and adds a panel for a call peer.
+     *
+     * @param peer the call peer
+     */
+    public void addCallPeerPanel(CallPeer peer)
+    {
+        addCallPeerPanel(peer, null);
+    }
+
+    /**
      * Enters full screen mode. Initializes all components for the full screen
      * user interface.
      */
@@ -162,7 +201,7 @@ public class OneToOneCallPanel
         frame.setTitle(peerPanel.getPeerName());
         frame.setUndecorated(true);
 
-        Component center = peerPanel.createCenter();
+        Component center = peerPanel.createCenter(videoContainers);
         final Component buttonBar = createFullScreenButtonBar();
 
         // Lay out the main Components of the UI.

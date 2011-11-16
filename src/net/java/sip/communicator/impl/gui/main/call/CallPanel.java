@@ -657,13 +657,19 @@ public class CallPanel
         localLevel.setEnabled(enable);
         remoteLevel.setEnabled(enable);
 
+        // Buttons would be enabled once the call has entered in state
+        // connected.
+        ProtocolProviderService protocolProvider
+            = call.getProtocolProvider();
+
+        if (protocolProvider.getOperationSet(
+            OperationSetVideoTelephony.class) != null)
+        {
+            videoButton.setEnabled(enable);
+        }
+
         if (!isLastConference)
         {
-            // Buttsons would be enabled once the call has entered in state
-            // connected.
-            ProtocolProviderService protocolProvider
-                = call.getProtocolProvider();
-
             if (call.getCallPeers().hasNext())
             {
                 CallPeer callPeer = call.getCallPeers().next();
@@ -680,9 +686,8 @@ public class CallPanel
             }
 
             if (protocolProvider.getOperationSet(
-                OperationSetVideoTelephony.class) != null)
+                    OperationSetVideoTelephony.class) != null)
             {
-                videoButton.setEnabled(enable);
                 fullScreenButton.setEnabled(enable);
                 desktopSharingButton.setEnabled(enable);
             }
@@ -978,8 +983,37 @@ public class CallPanel
                             // his members
                             if (singlePeer != null
                                 && !singlePeer.isConferenceFocus())
-                                updateCurrentCallPanel(new OneToOneCallPanel(
-                                    CallPanel.this, call, singlePeer));
+                            {
+                                CallRenderer callRenderer
+                                    = (CallRenderer) callPanel;
+
+                                CallPeerRenderer currentPeerRenderer
+                                    = callRenderer
+                                        .getCallPeerRenderer(singlePeer);
+
+                                UIVideoHandler videoHandler
+                                    = currentPeerRenderer.getVideoHandler();
+
+                                // If we have already a video handler, try to
+                                // initiate the new UI with the current video
+                                // handler!
+                                JComponent newPanel = null;
+                                if (videoHandler != null)
+                                {
+                                    newPanel = new OneToOneCallPanel(
+                                        CallPanel.this,
+                                        call,
+                                        singlePeer,
+                                        videoHandler);
+                                }
+                                else
+                                    newPanel = new OneToOneCallPanel(
+                                        CallPanel.this,
+                                        call,
+                                        singlePeer);
+
+                                updateCurrentCallPanel(newPanel);
+                            }
                             else if(singlePeer.isConferenceFocus())
                             {
                                 ((ConferenceCallPanel) callPanel)
@@ -1114,7 +1148,8 @@ public class CallPanel
      */
     private void removeOneToOneSpecificComponents()
     {
-        // Disable video.
+        // If we want to enable video in conference calls we need to comment
+        // these lines.
         if (videoButton.isSelected())
             videoButton.doClick();
 
@@ -1168,6 +1203,7 @@ public class CallPanel
     {
         settingsPanel.add(localLevel);
         settingsPanel.add(remoteLevel);
+        settingsPanel.add(videoButton);
 
         Iterator<? extends CallPeer> callPeers = call.getCallPeers();
 

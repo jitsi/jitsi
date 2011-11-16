@@ -42,7 +42,7 @@ public class ConferenceFocusPanel
     /**
      * The renderer corresponding to the parent call call.
      */
-    private final CallRenderer callRenderer;
+    private final ConferenceCallPanel callRenderer;
 
     /**
      * The call panel.
@@ -56,7 +56,15 @@ public class ConferenceFocusPanel
         conferenceMembersPanels
             = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
 
+    /**
+     * The panel of the focus peer.
+     */
     private ConferencePeerPanel focusPeerPanel;
+
+    /**
+     * The video handler for this peer.
+     */
+    private UIVideoHandler videoHandler;
 
     /**
      * Creates an instance of <tt>ConferenceFocusPanel</tt> by specifying the
@@ -67,13 +75,15 @@ public class ConferenceFocusPanel
      * @param callPanel the call panel
      * @param callPeer the peer represented by this focus panel
      */
-    public ConferenceFocusPanel(CallRenderer callRenderer,
+    public ConferenceFocusPanel(ConferenceCallPanel callRenderer,
                                 CallPanel callPanel,
-                                CallPeer callPeer)
+                                CallPeer callPeer,
+                                UIVideoHandler videoHandler)
     {
         this.focusPeer = callPeer;
         this.callRenderer = callRenderer;
         this.callPanel = callPanel;
+        this.videoHandler = videoHandler;
 
         this.setLayout(new GridBagLayout());
 
@@ -92,7 +102,8 @@ public class ConferenceFocusPanel
     public void addFocusPeerPanel()
     {
         focusPeerPanel
-            = new ConferencePeerPanel(callRenderer, callPanel, focusPeer);
+            = new ConferencePeerPanel(
+                callRenderer, callPanel, focusPeer, videoHandler);
 
         GridBagConstraints constraints = new GridBagConstraints();
 
@@ -563,5 +574,11 @@ public class ConferenceFocusPanel
             NotificationManager.fireNotification(
                 NotificationManager.CALL_SECURITY_ON);
         }
+    }
+
+    @Override
+    public UIVideoHandler getVideoHandler()
+    {
+        return videoHandler;
     }
 }

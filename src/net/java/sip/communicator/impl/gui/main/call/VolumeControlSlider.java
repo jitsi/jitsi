@@ -13,6 +13,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The volume control slider component.
@@ -20,7 +21,7 @@ import net.java.sip.communicator.service.neomedia.event.*;
  * @author Yana Stamcheva
  */
 public class VolumeControlSlider
-    extends JPopupMenu
+    extends SIPCommPopupMenu
     implements VolumeChangeListener
 {
     private final JSlider volumeSlider;

@@ -47,7 +47,7 @@ public class ConferencePeerPanel
     /**
      * The parent call renderer.
      */
-    private final CallRenderer callRenderer;
+    private final ConferenceCallPanel callRenderer;
 
     /**
      * The call peer shown in this panel.
@@ -104,6 +104,11 @@ public class ConferencePeerPanel
     private StreamSoundLevelListener streamSoundLevelListener = null;
 
     /**
+     * The video handler associated with this peer.
+     */
+    private UIVideoHandler videoHandler;
+
+    /**
      * Creates a <tt>ConferencePeerPanel</tt> by specifying the parent
      * <tt>callDialog</tt>, containing it and the corresponding
      * <tt>protocolProvider</tt>.
@@ -113,7 +118,7 @@ public class ConferencePeerPanel
      * @param protocolProvider the <tt>ProtocolProviderService</tt> for the
      * call
      */
-    public ConferencePeerPanel( CallRenderer callRenderer,
+    public ConferencePeerPanel( ConferenceCallPanel callRenderer,
                                 CallPanel callPanel,
                                 ProtocolProviderService protocolProvider)
     {
@@ -149,15 +154,17 @@ public class ConferencePeerPanel
      * @param callContainer the container, in which this panel is shown
      * @param callPeer The peer who own this UI
      */
-    public ConferencePeerPanel( CallRenderer callRenderer,
+    public ConferencePeerPanel( ConferenceCallPanel callRenderer,
                                 CallPanel callContainer,
-                                CallPeer callPeer)
+                                CallPeer callPeer,
+                                UIVideoHandler videoHandler)
     {
         super(callRenderer, false);
 
         this.callRenderer = callRenderer;
         this.callPanel = callContainer;
         this.callPeer = callPeer;
+        this.videoHandler = videoHandler;
 
         this.setMute(callPeer.isMute());
 
@@ -503,5 +510,15 @@ public class ConferencePeerPanel
     public Component getComponent()
     {
         return this;
+    }
+
+    /**
+     * Returns the video handler associated with this call peer renderer.
+     *
+     * @return the video handler associated with this call peer renderer
+     */
+    public UIVideoHandler getVideoHandler()
+    {
+        return videoHandler;
     }
 }

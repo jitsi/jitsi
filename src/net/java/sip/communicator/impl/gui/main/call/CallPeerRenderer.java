@@ -134,4 +134,11 @@ public interface CallPeerRenderer
      * <tt>false</tt> - otherwise
      */
     public boolean isLocalVideoVisible();
+
+    /**
+     * Returns the video handler associated with this call peer renderer.
+     *
+     * @return the video handler associated with this call peer renderer
+     */
+    public UIVideoHandler getVideoHandler();
 }

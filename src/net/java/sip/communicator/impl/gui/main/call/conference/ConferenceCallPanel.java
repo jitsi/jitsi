@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -25,7 +26,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class ConferenceCallPanel
-    extends JScrollPane
+    extends TransparentPanel
     implements CallRenderer
 {
     /**
@@ -37,6 +38,8 @@ public class ConferenceCallPanel
      * The conference call.
      */
     private final Call call;
+
+    private final JScrollPane scrollPane = new JScrollPane();
 
     /**
      * The panel which contains ConferencePeerPanels.
@@ -60,6 +63,14 @@ public class ConferenceCallPanel
     private final CallPanel callPanel;
 
     /**
+     * The list containing all video containers.
+     */
+    private final List<Container> videoContainers
+        = new LinkedList<Container>();
+
+    private UIVideoHandler videoHandler;
+
+    /**
      * The implementation of the routine which scrolls this scroll pane to its
      * bottom.
      */
@@ -71,7 +82,7 @@ public class ConferenceCallPanel
          */
         public void run()
         {
-            JScrollBar verticalScrollBar = getVerticalScrollBar();
+            JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
 
             if (verticalScrollBar != null)
                 verticalScrollBar.setValue(verticalScrollBar.getMaximum());
@@ -86,6 +97,8 @@ public class ConferenceCallPanel
      */
     public ConferenceCallPanel(CallPanel callPanel, Call c)
     {
+        super(new BorderLayout());
+
         this.callPanel = callPanel;
         this.call = c;
 
@@ -93,14 +106,14 @@ public class ConferenceCallPanel
 
         mainPanel.setLayout(new GridBagLayout());
 
-        this.setHorizontalScrollBarPolicy(
+        scrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        this.setViewport(new MyViewport());
-        this.setViewportView(mainPanel);
+        scrollPane.setViewport(new MyViewport());
+        scrollPane.setViewportView(mainPanel);
 
-        this.setOpaque(false);
-        this.getViewport().setOpaque(false);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
 
         this.addLocalCallPeer();
 
@@ -111,9 +124,29 @@ public class ConferenceCallPanel
             this.addCallPeerPanel(iterator.next());
         }
 
-        this.setBorder(null);
+        scrollPane.setBorder(null);
 
         mainPanel.setTransferHandler(new CallTransferHandler(call));
+
+        add(scrollPane, BorderLayout.CENTER);
+
+        addVideoContainer();
+    }
+
+    private void addVideoContainer()
+    {
+        final VideoContainer videoContainer = new VideoContainer(new JLabel());
+
+        videoContainer.setPreferredSize(new Dimension(1, 1));
+
+        add(videoContainer, BorderLayout.WEST);
+
+        videoContainers.add(videoContainer);
+    }
+
+    public JScrollBar getVerticalScrollBar()
+    {
+        return scrollPane.getVerticalScrollBar();
     }
 
     /**
@@ -158,14 +191,21 @@ public class ConferenceCallPanel
 
         ConferenceCallPeerRenderer confPeerRenderer;
 
+        videoHandler
+            = new UIVideoHandler(peer, this, videoContainers);
+
+        videoHandler.addVideoListener();
+        videoHandler.addRemoteControlListener();
+
         if (peer.getConferenceMemberCount() > 0)
         {
-            confPeerRenderer = new ConferenceFocusPanel(this, callPanel, peer);
+            confPeerRenderer = new ConferenceFocusPanel(
+                this, callPanel, peer, videoHandler);
         }
         else
         {
             confPeerRenderer
-                = new ConferencePeerPanel(this, callPanel, peer);
+                = new ConferencePeerPanel(this, callPanel, peer, videoHandler);
 
             peer.addConferenceMembersSoundLevelListener(
                 confPeerRenderer.getConferenceMembersSoundLevelListener());
@@ -382,11 +422,126 @@ public class ConferenceCallPanel
 
     /**
      * Ensures the size of the window.
-     * @param component the component, which size should be considered
-     * @param width the desired width
-     * @param height the desired height
+     * Attempts to give a specific <tt>Component</tt> a visible rectangle with a
+     * specific width and a specific height if possible and sane.
+     *
+     * @param component the <tt>Component</tt> to be given a visible rectangle
+     * with the specified width and height
+     * @param width the width of the visible rectangle to be given to the
+     * specified <tt>Component</tt>
+     * @param height the height of the visible rectangle to be given to the
+     * specified <tt>Component</tt>
      */
-    public void ensureSize(Component component, int width, int height) {}
+    public void ensureSize(Component component, int width, int height)
+    {
+        Frame frame = CallPeerRendererUtils.getFrame(component);
+
+        if (frame == null)
+            return;
+        else if ((frame.getExtendedState() & Frame.MAXIMIZED_BOTH)
+                == Frame.MAXIMIZED_BOTH)
+        {
+            /*
+             * Forcing the size of a Component which is displayed in a maximized
+             * window does not sound like anything we want to do.
+             */
+            return;
+        }
+        else if (frame.equals(frame.getGraphicsConfiguration()
+                                .getDevice().getFullScreenWindow()))
+        {
+            /*
+             * Forcing the size of a Component which is displayed in a
+             * full-screen window does not sound like anything we want to do.
+             */
+            return;
+        }
+        else
+        {
+            Dimension frameSize = frame.getSize();
+
+            /*
+             * XXX This is a very wild guess and it is very easy to break
+             * because it wants to have the component with the specified width
+             * yet it forces the Frame to have nearly the same width without
+             * knowing anything about the layouts of the containers between the
+             * Frame and the component.
+             */
+            int newFrameWidth
+                = width + frameSize.width - component.getSize().width;
+
+            int newFrameHeight
+                = (frameSize.height > height) ? frameSize.height : height;
+
+            // Don't get bigger than the screen.
+            Rectangle screenBounds
+                = frame.getGraphicsConfiguration().getBounds();
+
+            if (newFrameWidth > screenBounds.width)
+                newFrameWidth = screenBounds.width;
+            if (newFrameHeight > screenBounds.height)
+                newFrameHeight = screenBounds.height;
+
+            // Don't go out of the screen.
+            Point frameLocation = frame.getLocation();
+            int newFrameX = frameLocation.x;
+            int newFrameY = frameLocation.y;
+            int xDelta
+                = (newFrameX + newFrameWidth)
+                    - (screenBounds.x + screenBounds.width);
+            int yDelta
+                = (newFrameY + newFrameHeight)
+                    - (screenBounds.y + screenBounds.height);
+
+            if (xDelta > 0)
+            {
+                newFrameX -= xDelta;
+                if (newFrameX < screenBounds.x)
+                    newFrameX = screenBounds.x;
+            }
+            if (yDelta > 0)
+            {
+                newFrameY -= yDelta;
+                if (newFrameY < screenBounds.y)
+                    newFrameY = screenBounds.y;
+            }
+
+            // Don't get smaller than the min size.
+            Dimension minSize = frame.getMinimumSize();
+
+            if (newFrameWidth < minSize.width)
+                newFrameWidth = minSize.width;
+            if (newFrameHeight < minSize.height)
+                newFrameHeight = minSize.height;
+
+            /*
+             * XXX Unreliable because VideoRenderer Components such as the
+             * Component of the AWTRenderer on Linux overrides its
+             * #getPreferredSize().
+             */
+            component.setPreferredSize(new Dimension(width, height));
+            component.setSize(new Dimension(width, height));
+
+            component.getParent().setPreferredSize(new Dimension(width, height));
+            component.getParent().setSize(new Dimension(width, height));
+            /*
+             * If we're going to make too small a change, don't even bother.
+             * Besides, we don't want some weird recursive resizing.
+             */
+            int frameWidthDelta = newFrameWidth - frameSize.width;
+            int frameHeightDelta = newFrameHeight - frameSize.height;
+
+            if ((frameWidthDelta < -1)
+                    || (frameWidthDelta > 1)
+                    || (frameHeightDelta < -1)
+                    || (frameHeightDelta > 1))
+            {
+                frame.setBounds(
+                        newFrameX, newFrameY,
+                        newFrameWidth, newFrameHeight);
+            }
+        }
+    }
 
     /**
      * Enters in full screen view mode.
