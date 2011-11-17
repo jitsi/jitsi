@@ -46,6 +46,67 @@ public interface NotificationService
      * when a notification is fired.
      */
     public static final String ACTION_COMMAND = "CommandAction";
+
+    /**
+     * Default event type for receiving messages.
+     */
+    public static final String INCOMING_MESSAGE = "IncomingMessage";
+
+    /**
+     * Default event type for receiving calls (incoming calls).
+     */
+    public static final String INCOMING_CALL = "IncomingCall";
+
+    /**
+     * Default event type for outgoing calls.
+     */
+    public static final String OUTGOING_CALL = "OutgoingCall";
+
+    /**
+     * Default event type for a busy call.
+     */
+    public static final String BUSY_CALL = "BusyCall";
+
+    /**
+     * Default event type for dialing.
+     */
+    public static final String DIALING = "Dialing";
+
+    /**
+     * Default event type for hanging up calls.
+     */
+    public static final String HANG_UP = "HangUp";
+
+    /**
+     * Default event type for
+     * proactive notifications (typing notifications when chatting).
+     */
+    public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
+
+    /**
+     * Default event type when a secure message received.
+     */
+    public static final String SECURITY_MESSAGE = "SecurityMessage";
+
+    /**
+     * Default event type for activated security on a call.
+     */
+    public static final String CALL_SECURITY_ON = "CallSecurityOn";
+
+    /**
+     * Default event type for security error on a call.
+     */
+    public static final String CALL_SECURITY_ERROR = "CallSecurityError";
+
+    /**
+     * Default event type for incoming file transfers.
+     */
+    public static final String INCOMING_FILE = "IncomingFile";
+
+    /**
+     * Default event type for call been saved using a recorder.
+     */
+    public static final String CALL_SAVED = "CallSaved";
     
     /**
      * Creates a <tt>SoundNotificationHandler</tt>, by specifying the

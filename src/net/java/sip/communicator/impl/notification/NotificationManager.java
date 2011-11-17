@@ -48,30 +48,6 @@ public class NotificationManager
     private static final Logger logger =
         Logger.getLogger(NotificationManager.class);
 
-    public static final String INCOMING_MESSAGE = "IncomingMessage";
-
-    public static final String INCOMING_CALL = "IncomingCall";
-
-    public static final String OUTGOING_CALL = "OutgoingCall";
-
-    public static final String BUSY_CALL = "BusyCall";
-
-    public static final String DIALING = "Dialing";
-
-    public static final String HANG_UP = "HangUp";
-
-    public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
-
-    public static final String SECURITY_MESSAGE = "SecurityMessage";
-
-    public static final String CALL_SECURITY_ON = "CallSecurityOn";
-
-    public static final String CALL_SECURITY_ERROR = "CallSecurityError";
-
-    public static final String INCOMING_FILE = "IncomingFile";
-
-    public static final String CALL_SAVED = "CallSaved";
-
     /**
      * The image used, when a contact has no photo specified.
      */
@@ -125,20 +101,20 @@ public class NotificationManager
 
         // Register incoming message notifications.
         notificationService.registerDefaultNotificationForEvent(
-                INCOMING_MESSAGE,
+                NotificationService.INCOMING_MESSAGE,
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
 
         notificationService.registerDefaultNotificationForEvent(
-                INCOMING_MESSAGE,
+                NotificationService.INCOMING_MESSAGE,
                 NotificationService.ACTION_SOUND,
                 SoundProperties.INCOMING_MESSAGE,
                 null);
 
         // Register incoming call notifications.
         notificationService.registerDefaultNotificationForEvent(
-                INCOMING_CALL,
+                NotificationService.INCOMING_CALL,
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
@@ -149,7 +125,7 @@ public class NotificationManager
                                                 2000);
 
         notificationService.registerDefaultNotificationForEvent(
-                INCOMING_CALL,
+                NotificationService.INCOMING_CALL,
                 NotificationService.ACTION_SOUND,
                 inCallSoundHandler);
 
@@ -160,7 +136,7 @@ public class NotificationManager
                                                 3000);
 
         notificationService.registerDefaultNotificationForEvent(
-                OUTGOING_CALL,
+                NotificationService.OUTGOING_CALL,
                 NotificationService.ACTION_SOUND,
                 outCallSoundHandler);
 
@@ -170,7 +146,7 @@ public class NotificationManager
                 .createSoundNotificationHandler(SoundProperties.BUSY, 1);
 
         notificationService.registerDefaultNotificationForEvent(
-                BUSY_CALL,
+                NotificationService.BUSY_CALL,
                 NotificationService.ACTION_SOUND,
                 busyCallSoundHandler);
 
@@ -180,7 +156,7 @@ public class NotificationManager
                 .createSoundNotificationHandler(SoundProperties.DIALING, 0);
 
         notificationService.registerDefaultNotificationForEvent(
-                DIALING,
+                NotificationService.DIALING,
                 NotificationService.ACTION_SOUND,
                 dialSoundHandler);
 
@@ -190,54 +166,54 @@ public class NotificationManager
                 .createSoundNotificationHandler(SoundProperties.HANG_UP, -1);
 
         notificationService.registerDefaultNotificationForEvent(
-                HANG_UP,
+                NotificationService.HANG_UP,
                 NotificationService.ACTION_SOUND,
                 hangupSoundHandler);
 
         // Register proactive notifications.
         notificationService.registerDefaultNotificationForEvent(
-                PROACTIVE_NOTIFICATION,
+                NotificationService.PROACTIVE_NOTIFICATION,
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
 
         // Register warning message notifications.
         notificationService.registerDefaultNotificationForEvent(
-                SECURITY_MESSAGE,
+                NotificationService.SECURITY_MESSAGE,
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
 
         // Register sound notification for security state on during a call.
         notificationService.registerDefaultNotificationForEvent(
-                CALL_SECURITY_ON,
+                NotificationService.CALL_SECURITY_ON,
                 NotificationService.ACTION_SOUND,
                 SoundProperties.CALL_SECURITY_ON,
                 null);
 
         // Register sound notification for security state off during a call.
         notificationService.registerDefaultNotificationForEvent(
-                CALL_SECURITY_ERROR,
+                NotificationService.CALL_SECURITY_ERROR,
                 NotificationService.ACTION_SOUND,
                 SoundProperties.CALL_SECURITY_ERROR,
                 null);
 
         // Register sound notification for incoming files.
         notificationService.registerDefaultNotificationForEvent(
-                INCOMING_FILE,
+                NotificationService.INCOMING_FILE,
                 NotificationService.ACTION_POPUP_MESSAGE,
                 null,
                 null);
 
         notificationService.registerDefaultNotificationForEvent(
-                INCOMING_FILE,
+                NotificationService.INCOMING_FILE,
                 NotificationService.ACTION_SOUND,
                 SoundProperties.INCOMING_FILE,
                 null);
 
         // Register notification for saved calls.
         notificationService.registerDefaultNotificationForEvent(
-            CALL_SAVED,
+            NotificationService.CALL_SAVED,
             NotificationService.ACTION_POPUP_MESSAGE,
             null,
             null);
@@ -562,6 +538,7 @@ public class NotificationManager
             return;
 
         NotificationActionHandler popupActionHandler = null;
+        UIService uiService = NotificationActivator.getUIService();
 
         Chat chatPanel = null;
         byte[] contactIcon = null;
@@ -569,7 +546,8 @@ public class NotificationManager
         {
             Contact contact = (Contact) chatContact;
 
-            chatPanel = NotificationActivator.getUIService().getChat(contact);
+            if(uiService != null)
+                chatPanel = uiService.getChat(contact);
 
             contactIcon = contact.getImage();
             if(contactIcon == null)
@@ -586,12 +564,14 @@ public class NotificationManager
             if (chatRoom.isSystem())
                 return;
 
-            chatPanel = NotificationActivator.getUIService().getChat(chatRoom);
+            if(uiService != null)
+                chatPanel = uiService.getChat(chatRoom);
         }
 
         if (chatPanel != null)
         {
-            if (eventType.equals(INCOMING_MESSAGE) && chatPanel.isChatFocused())
+            if (eventType.equals(NotificationService.INCOMING_MESSAGE)
+                    && chatPanel.isChatFocused())
             {
                 popupActionHandler = notificationService
                         .getEventNotificationActionHandler(eventType,
@@ -695,10 +675,10 @@ public class NotificationManager
      */
     private static void stopAllTelephonySounds()
     {
-        NotificationManager.stopSound(NotificationManager.DIALING);
-        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
-        NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
+        NotificationManager.stopSound(NotificationService.DIALING);
+        NotificationManager.stopSound(NotificationService.BUSY_CALL);
+        NotificationManager.stopSound(NotificationService.INCOMING_CALL);
+        NotificationManager.stopSound(NotificationService.OUTGOING_CALL);
     }
 
     /**
@@ -781,7 +761,7 @@ public class NotificationManager
 
         fireChatNotification(
                 evt.getSourceContact(),
-                NotificationManager.INCOMING_MESSAGE,
+                NotificationService.INCOMING_MESSAGE,
                 title,
                 evt.getSourceMessage().getContent());
 
@@ -822,7 +802,7 @@ public class NotificationManager
         NotificationManager
             .fireChatNotification(
                 sourceContact,
-                NotificationManager.INCOMING_FILE,
+                NotificationService.INCOMING_FILE,
                 title,
                 request.getFileName());
     }
@@ -867,16 +847,20 @@ public class NotificationManager
         // check whether the current chat window shows the
         // chat we received a typing info for and in such case don't show
         // notifications
-        Chat chat = NotificationActivator.getUIService().getCurrentChat();
-        if(chat != null)
-        {
-            MetaContact metaContact =
-                    NotificationActivator.getUIService().getChatContact(chat);
+        UIService uiService = NotificationActivator.getUIService();
 
-            if(metaContact != null && metaContact.containsContact(contact)
-                && chat.isChatFocused())
+        if(uiService != null)
+        {
+            Chat chat = uiService.getCurrentChat();
+            if(chat != null)
             {
-                return;
+                MetaContact metaContact = uiService.getChatContact(chat);
+
+                if(metaContact != null && metaContact.containsContact(contact)
+                    && chat.isChatFocused())
+                {
+                    return;
+                }
             }
         }
 
@@ -911,7 +895,7 @@ public class NotificationManager
 
         NotificationManager.fireChatNotification(
             contact,
-            NotificationManager.PROACTIVE_NOTIFICATION,
+            NotificationService.PROACTIVE_NOTIFICATION,
             contact.getDisplayName(),
             NotificationActivator.getResources()
                 .getI18NString("service.gui.PROACTIVE_NOTIFICATION"));
@@ -929,7 +913,7 @@ public class NotificationManager
             .getCallPeers().next().getDisplayName();
 
         NotificationManager.fireNotification(
-                NotificationManager.INCOMING_CALL,
+                NotificationService.INCOMING_CALL,
                 "",
                 NotificationActivator.getResources()
                         .getI18NString("service.gui.INCOMING_CALL",
@@ -975,7 +959,7 @@ public class NotificationManager
         stopAllTelephonySounds();
 
         // Play the hangup sound.
-        NotificationManager.fireNotification(NotificationManager.HANG_UP);
+        NotificationManager.fireNotification(NotificationService.HANG_UP);
     }
 
     /**
@@ -1027,11 +1011,11 @@ public class NotificationManager
             || newState == CallPeerState.CONNECTING)
         {
             NotificationManager
-                .fireNotification(NotificationManager.DIALING);
+                .fireNotification(NotificationService.DIALING);
         }
         else
         {
-            NotificationManager.stopSound(NotificationManager.DIALING);
+            NotificationManager.stopSound(NotificationService.DIALING);
         }
 
         if (newState == CallPeerState.ALERTING_REMOTE_SIDE
@@ -1041,17 +1025,17 @@ public class NotificationManager
             && oldState != CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
         {
             NotificationManager
-                .fireNotification(NotificationManager.OUTGOING_CALL);
+                .fireNotification(NotificationService.OUTGOING_CALL);
         }
         else if (newState == CallPeerState.BUSY)
         {
-            NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
+            NotificationManager.stopSound(NotificationService.OUTGOING_CALL);
 
             // We start the busy sound only if we're in a simple call.
             if (!isConference(sourcePeer.getCall()))
             {
                 NotificationManager.fireNotification(
-                    NotificationManager.BUSY_CALL);
+                    NotificationService.BUSY_CALL);
             }
         }
         else if (newState == CallPeerState.CONNECTING_INCOMING_CALL ||
@@ -1060,9 +1044,9 @@ public class NotificationManager
             if (!CallPeerState.isOnHold(oldState))
             {
                 NotificationManager
-                    .stopSound(NotificationManager.OUTGOING_CALL);
+                    .stopSound(NotificationService.OUTGOING_CALL);
                 NotificationManager
-                    .stopSound(NotificationManager.INCOMING_CALL);
+                    .stopSound(NotificationService.INCOMING_CALL);
             }
         }
         else if (newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
@@ -1070,16 +1054,16 @@ public class NotificationManager
             //this means a call with early media. make sure that we are not
             //playing local notifications any more.
             NotificationManager
-                .stopSound(NotificationManager.OUTGOING_CALL);
+                .stopSound(NotificationService.OUTGOING_CALL);
         }
         else if (newState == CallPeerState.CONNECTED)
         {
             if (!CallPeerState.isOnHold(oldState))
             {
                 NotificationManager
-                    .stopSound(NotificationManager.OUTGOING_CALL);
+                    .stopSound(NotificationService.OUTGOING_CALL);
                 NotificationManager
-                    .stopSound(NotificationManager.INCOMING_CALL);
+                    .stopSound(NotificationService.INCOMING_CALL);
             }
         }
         else if (newState == CallPeerState.DISCONNECTED
@@ -1087,7 +1071,7 @@ public class NotificationManager
         {
             stopAllTelephonySounds();
 
-            NotificationManager.fireNotification(NotificationManager.HANG_UP);
+            NotificationManager.fireNotification(NotificationService.HANG_UP);
         }
     }
 
@@ -1136,7 +1120,7 @@ public class NotificationManager
             || !evt.getSecurityController().requiresSecureSignalingTransport())
         {
             NotificationManager.fireNotification(
-                NotificationManager.CALL_SECURITY_ON);
+                NotificationService.CALL_SECURITY_ON);
         }
     }
 
@@ -1179,12 +1163,12 @@ public class NotificationManager
                 messageTitle = NotificationActivator.getResources()
                     .getI18NString("service.gui.SECURITY_ERROR");
                 NotificationManager.fireNotification(
-                    NotificationManager.CALL_SECURITY_ERROR);
+                    NotificationService.CALL_SECURITY_ERROR);
             }
         }
 
         NotificationManager.fireNotification(
-            NotificationManager.SECURITY_MESSAGE,
+            NotificationService.SECURITY_MESSAGE,
             messageTitle,
             event.getI18nMessage());
     }
@@ -1220,7 +1204,10 @@ public class NotificationManager
         {
             String nickname = sourceChatRoom.getUserNickname();
 
-            int atIx = nickname.indexOf("@");
+            int atIx = -1;
+
+            if(nickname != null)
+                atIx = nickname.indexOf("@");
 
             fireChatNotification =
                 (nickname == null)
@@ -1239,7 +1226,7 @@ public class NotificationManager
 
             NotificationManager.fireChatNotification(
                     sourceChatRoom,
-                    NotificationManager.INCOMING_MESSAGE,
+                    NotificationService.INCOMING_MESSAGE,
                     title,
                     messageContent);
         }
@@ -1353,7 +1340,7 @@ public class NotificationManager
 
             NotificationManager.fireChatNotification(
                 sourceChatRoom,
-                NotificationManager.INCOMING_MESSAGE,
+                NotificationService.INCOMING_MESSAGE,
                 title,
                 messageContent);
         }
@@ -1407,7 +1394,7 @@ public class NotificationManager
             if (securityEvent instanceof CallPeerSecurityOnEvent)
             {
                 NotificationManager.fireNotification(
-                    NotificationManager.CALL_SECURITY_ON);
+                    NotificationService.CALL_SECURITY_ON);
             }
         }
     }
@@ -1431,7 +1418,7 @@ public class NotificationManager
     public void recorderStopped(Recorder recorder)
     {
         NotificationManager.fireNotification(
-                NotificationManager.CALL_SAVED,
+                NotificationService.CALL_SAVED,
                 NotificationActivator.getResources().getI18NString(
                         "plugin.callrecordingconfig.CALL_SAVED"),
                 NotificationActivator.getResources().getI18NString(
