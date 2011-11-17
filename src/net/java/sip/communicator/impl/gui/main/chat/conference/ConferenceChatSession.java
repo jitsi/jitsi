@@ -494,9 +494,23 @@ public class ConferenceChatSession
      */
     public void loadChatRoom(ChatRoom chatRoom)
     {
-        for (ChatRoomMember member : chatRoom.getMembers())
-            sessionRenderer.addChatContact(new ConferenceChatContact(member));
+        // Re-init the chat transport, as we have a new chat room object.
+        currentChatTransport
+            = new ConferenceChatTransport(this, chatRoomWrapper.getChatRoom());
 
+        chatTransports.clear();
+        chatTransports.add(currentChatTransport);
+
+        // Remove all existing contacts.
+        sessionRenderer.removeAllChatContacts();
+
+        // Add the new list of members.
+        for (ChatRoomMember member : chatRoom.getMembers())
+        {
+            sessionRenderer.addChatContact(new ConferenceChatContact(member));
+        }
+
+        // Add all listeners to the new chat room.
         chatRoom.addPropertyChangeListener(this);
         chatRoom.addMemberPresenceListener(this);
 

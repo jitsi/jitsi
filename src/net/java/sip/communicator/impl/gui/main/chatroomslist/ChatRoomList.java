@@ -280,8 +280,10 @@ public class ChatRoomList
                 {
                     // stored chatrooms has no chatroom, but their
                     // id is the same as the chatroom we are searching wrapper
-                    // for
-                    if(chatRoomWrapper.getChatRoom() == null)
+                    // for. Also during reconnect we don't have the same chat
+                    // id for another chat room object.
+                    if(chatRoomWrapper.getChatRoom() == null
+                        || !chatRoomWrapper.getChatRoom().equals(chatRoom))
                     {
                         chatRoomWrapper.setChatRoom(chatRoom);
                     }

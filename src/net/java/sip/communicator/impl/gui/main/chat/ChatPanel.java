@@ -1845,6 +1845,15 @@ public class ChatPanel
     }
 
     /**
+     * Removes all chat contacts from the contact list of the chat.
+     */
+    public void removeAllChatContacts()
+    {
+        if (chatContactListPanel != null)
+            chatContactListPanel.removeAllChatContacts();
+    }
+
+    /**
      * Updates the contact status.
      * @param chatContact the chat contact to update
      * @param statusMessage the status message to show

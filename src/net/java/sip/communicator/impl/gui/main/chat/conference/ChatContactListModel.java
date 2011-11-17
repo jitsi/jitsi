@@ -191,4 +191,21 @@ public class ChatContactListModel
                 fireIntervalRemoved(this, index, index);
         }
     }
+
+    /**
+     * Removes all the elements from this model.
+     */
+    public void removeAllElements()
+    {
+        if (chatContacts == null || chatContacts.size() <= 0)
+            return;
+
+        synchronized(chatContacts)
+        {
+            int contactsSize = chatContacts.size();
+            chatContacts.clear();
+
+            fireIntervalRemoved(this, 0, contactsSize - 1);
+        }
+    }
 }

@@ -152,11 +152,12 @@ public class ChatRoomProviderWrapper
      */
     public ChatRoomWrapper findChatRoomWrapperForChatRoom(ChatRoom chatRoom)
     {
-        // compare ids, cause saved chatrooms don't have ChatRoom object
-        // but Id's are the same
+        // Compare ids, cause saved chatrooms don't have ChatRoom object
+        // but Id's are the same.
         for (ChatRoomWrapper chatRoomWrapper : chatRoomsOrderedCopy)
         {
-            if (chatRoomWrapper.getChatRoomID().equals(chatRoom.getIdentifier()))
+            if (chatRoomWrapper.getChatRoomID()
+                    .equals(chatRoom.getIdentifier()))
             {
                 return chatRoomWrapper;
             }

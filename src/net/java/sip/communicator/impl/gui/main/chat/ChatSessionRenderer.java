@@ -52,6 +52,11 @@ public interface ChatSessionRenderer
     public void removeChatContact(ChatContact<?> chatContact);
 
     /**
+     * Removes all chat contacts from the contact list of the chat.
+     */
+    public void removeAllChatContacts();
+
+    /**
      * Updates the status of the given chat transport.
      *
      * @param chatTransport the chat transport to update.

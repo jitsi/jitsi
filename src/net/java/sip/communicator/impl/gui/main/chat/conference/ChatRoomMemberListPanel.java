@@ -133,6 +133,14 @@ public class ChatRoomMemberListPanel
     }
 
     /**
+     * Removes all chat contacts from the contact list of the chat.
+     */
+    public void removeAllChatContacts()
+    {
+        memberListModel.removeAllElements();
+    }
+
+    /**
      * In the corresponding <tt>ChatContactPanel</tt> changes the name of the
      * given <tt>Contact</tt>.
      *
