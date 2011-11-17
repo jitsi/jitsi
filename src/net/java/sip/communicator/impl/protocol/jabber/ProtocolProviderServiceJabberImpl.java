@@ -475,17 +475,78 @@ public class ProtocolProviderServiceJabberImpl
 
         synchronized(initializationLock)
         {
+            // init the necessary objects
+            String serviceName
+                = StringUtils.parseServer(getAccountID().getUserID());
             String password = loadPassword(authority, reasonCode);
             if (password == null)
                 return;
+            loadResource();
+            loadProxy();
+            Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
 
-            //init the necessary objects
+            // try connecting with auto-detection if enabled
+            boolean isServerOverriden =
+                getAccountID().getAccountPropertyBoolean(
+                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
 
-            String serviceName
-                = StringUtils.parseServer(getAccountID().getUserID());
+            if(!isServerOverriden)
+            {
+                // check to see is there SRV records for this server domain
+                SRVRecord srvRecords[] = null;
+                try
+                {
+                    srvRecords = NetworkUtils
+                        .getSRVRecords("xmpp-client", "tcp", serviceName);
+                }
+                catch (ParseException e)
+                {
+                    logger.error("SRV record not resolved", e);
+                }
 
-            List<String> serverAddresses = new ArrayList<String>();
+                if(srvRecords != null)
+                {
+                    for(SRVRecord srv : srvRecords)
+                    {
+                        InetSocketAddress[] addrs = null;
+                        try
+                        {
+                            addrs =
+                                NetworkUtils.getAorAAAARecords(
+                                    srv.getTarget(),
+                                    srv.getPort()
+                                );
+                        }
+                        catch (ParseException e)
+                        {
+                            logger.error("Invalid SRV record target", e);
+                        }
+                        if (addrs == null)
+                            continue;
 
+                        for (InetSocketAddress isa : addrs)
+                        {
+                            try
+                            {
+                                ConnectState state
+                                    = connectAndLogin(isa,
+                                        password, serviceName);
+                                if(state == ConnectState.ABORT_CONNECTING
+                                    || state == ConnectState.STOP_TRYING)
+                                    return;
+                            }
+                            catch(XMPPException ex)
+                            {
+                                disconnectAndCleanConnection();
+                                if(isAuthenticationFailed(ex))
+                                    throw ex;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // connect with specified server name
             String serverAddressUserSetting
                 = getAccountID().getAccountPropertyString(
                     ProtocolProviderFactory.SERVER_ADDRESS);
@@ -493,109 +554,38 @@ public class ProtocolProviderServiceJabberImpl
             int serverPort = getAccountID().getAccountPropertyInt(
                     ProtocolProviderFactory.SERVER_PORT, 5222);
 
-            loadResource();
-
-            boolean isServerOverriden =
-                getAccountID().getAccountPropertyBoolean(
-                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
-
+            InetSocketAddress[] addrs = null;
             try
             {
-                if(!isServerOverriden)
-                {
-                    // check to see is there SRV records for
-                    // this server domain
-                    SRVRecord srvRecords[] = NetworkUtils
-                        .getSRVRecords("xmpp-client", "tcp", serviceName);
+                addrs = NetworkUtils.getAorAAAARecords(
+                    serverAddressUserSetting,
+                    serverPort
+                );
+            }
+            catch (ParseException e)
+            {
+                logger.error("Domain not resolved", e);
+            }
+            if (addrs == null)
+                throw new XMPPException("No server address found");
 
-                    if(srvRecords != null)
-                    {
-                        for(int i = 0 ; i < srvRecords.length ; i++)
-                        {
-                            serverAddresses.add(srvRecords[i].getTarget());
-                        }
-                    }
-                }
-
-                // after SRV records, check A/AAAA records
-                InetSocketAddress addressObj4 = null;
-                InetSocketAddress addressObj6 = null;
+            for (InetSocketAddress isa : addrs)
+            {
                 try
                 {
-                    addressObj4 = NetworkUtils.getARecord(
-                        serverAddressUserSetting, serverPort);
-                } catch (ParseException ex)
-                {
-                    logger.error("Cannot obtain A record for "
-                        + serverAddressUserSetting, ex);
+                    ConnectState state
+                        = connectAndLogin(isa,
+                            password, serviceName);
+                    if(state == ConnectState.ABORT_CONNECTING
+                        || state == ConnectState.STOP_TRYING)
+                        return;
                 }
-                try
+                catch(XMPPException ex)
                 {
-                    addressObj6 = NetworkUtils.getAAAARecord(
-                        serverAddressUserSetting, serverPort);
-                } catch (ParseException ex)
-                {
-                    logger.error("Cannot obtain AAAA record for "
-                        + serverAddressUserSetting, ex);
+                    disconnectAndCleanConnection();
+                    if(isAuthenticationFailed(ex))
+                        throw ex;
                 }
-
-                // add address according their priorities setting
-                if(Boolean.getBoolean("java.net.preferIPv6Addresses"))
-                {
-                    if(addressObj6 != null)
-                    {
-                        serverAddresses
-                            .add(addressObj6.getAddress().getHostAddress());
-                    }
-                    if(addressObj4 != null)
-                    {
-                        serverAddresses
-                            .add(addressObj4.getAddress().getHostAddress());
-                    }
-                }
-                else
-                {
-                    if(addressObj4 != null)
-                    {
-                        serverAddresses
-                            .add(addressObj4.getAddress().getHostAddress());
-                    }
-                    if(addressObj6 != null)
-                    {
-                        serverAddresses
-                            .add(addressObj6.getAddress().getHostAddress());
-                    }
-                }
-
-                serverAddresses.add(serverAddressUserSetting);
-            }
-            catch (ParseException ex1)
-            {
-                logger.error("Domain not resolved " + ex1.getMessage());
-            }
-
-            Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
-
-            loadProxy();
-
-            // try connecting to all serverAddresses
-            // as if connecting with username fails
-            // try with username@serviceName
-            for (int i = 0; i < serverAddresses.size(); i++)
-            {
-                String currentAddress = serverAddresses.get(i);
-
-                ConnectState state =
-                    connectAndLogin(currentAddress, password,
-                        serviceName, serverPort);
-
-                if(state == ConnectState.ABORT_CONNECTING)
-                    return;
-                else if(state == ConnectState.CONTINUE_TRYING)
-                    return;
-                else if(state == ConnectState.STOP_TRYING)
-                    break;
-
             }
         }
 
@@ -639,11 +629,10 @@ public class ProtocolProviderServiceJabberImpl
      * @param currentAddress the IP address to connect to
      * @param password the password of the user
      * @param serviceName the domain name of the user's login
-     * @param serverPort the port to connect to
      * @throws XMPPException when a failure occurs
      */
-    private ConnectState connectAndLogin(String currentAddress,
-        String password, String serviceName, int serverPort)
+    private ConnectState connectAndLogin(InetSocketAddress currentAddress,
+        String password, String serviceName)
         throws XMPPException
     {
         String userID = null;
@@ -667,7 +656,7 @@ public class ProtocolProviderServiceJabberImpl
         try
         {
             return connectAndLogin(
-                currentAddress, serverPort, serviceName,
+                currentAddress, serviceName,
                 userID, password, resource);
         }
         catch(XMPPException ex)
@@ -677,7 +666,8 @@ public class ProtocolProviderServiceJabberImpl
 
             //no need to check with a different username if the
             //socket could not be opened
-            if (ex.getWrappedThrowable() instanceof ConnectException)
+            if (ex.getWrappedThrowable() instanceof ConnectException
+                || ex.getWrappedThrowable() instanceof NoRouteToHostException)
                 throw ex;
 
             // don't attempt to append the service name if it's already there
@@ -687,7 +677,7 @@ public class ProtocolProviderServiceJabberImpl
                 {
                     // logging in might need the service name
                     return connectAndLogin(
-                        currentAddress, serverPort, serviceName,
+                        currentAddress, serviceName,
                         userID + "@" + serviceName,
                         password, resource);
                 }
@@ -868,7 +858,6 @@ public class ProtocolProviderServiceJabberImpl
      * final - Abort due to certificate cancel or keep trying cause only current
      * address has failed or stop trying cause we succeeded.
      * @param address the address to connect to
-     * @param serverPort the port to use
      * @param serviceName the service name to use
      * @param userName the username to use
      * @param password the password to use
@@ -877,26 +866,15 @@ public class ProtocolProviderServiceJabberImpl
      * @throws XMPPException if we cannot connect for some reason
      */
     private ConnectState connectAndLogin(
-            String address, int serverPort, String serviceName,
+            InetSocketAddress address, String serviceName,
             String userName, String password, String resource)
         throws XMPPException
     {
         ConnectionConfiguration confConn = new ConnectionConfiguration(
-                address, serverPort,
+                address.getAddress().getHostAddress(),
+                address.getPort(),
                 serviceName, proxy
         );
-
-        /*
-        // as we resolve all addresses to ipaddresses before connecting
-        // DirectSocketFactoryImpl use NetworkUtils to make sure
-        // we don't trigger any PTR queries
-        // not enabled for now
-        if(proxy.getProxyType()
-            == org.jivesoftware.smack.proxy.ProxyInfo.ProxyType.NONE)
-        {
-            confConn.setSocketFactory(new DirectSocketFactoryImpl());
-        }
-        */
 
         confConn.setReconnectionAllowed(false);
         // requires TLS by default (i.e. it will not connect to a non-TLS server
