@@ -140,27 +140,6 @@ public class RecordButton
                     }
                     setSelected(startedRecording);
                 }
-                /*
-                 * Notify the user the call has been successfully saved upon the
-                 * recorder stopping.
-                 */
-                if (startedRecording && (recorder != null))
-                {
-                    recorder.addListener(
-                            new Recorder.Listener()
-                            {
-                                public void recorderStopped(Recorder recorder)
-                                {
-                                    NotificationManager.fireNotification(
-                                            NotificationManager.CALL_SAVED,
-                                            resources.getI18NString(
-                                                    "plugin.callrecordingconfig.CALL_SAVED"),
-                                            resources.getI18NString(
-                                                    "plugin.callrecordingconfig.CALL_SAVED_TO",
-                                                    new String[] { callFilename }));
-                                }
-                            });
-                }
             }
             // stop recording
             else if (recorder != null)

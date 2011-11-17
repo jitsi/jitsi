@@ -286,47 +286,7 @@ public class ConferenceChatManager
             messageContent,
             message.getContentType());
 
-        // Fire notification
-        boolean fireChatNotification;
-
-        /*
-         * It is uncommon for IRC clients to display popup notifications for
-         * messages which are sent to public channels and which do not mention
-         * the nickname of the local user.
-         */
-        if (sourceChatRoom.isSystem()
-            || isPrivate(sourceChatRoom)
-            || (messageContent == null))
-            fireChatNotification = true;
-        else
-        {
-            String nickname = sourceChatRoom.getUserNickname();
-
-            int atIx = nickname.indexOf("@");
-            
-            fireChatNotification =
-                (nickname == null)
-                    || messageContent.toLowerCase().contains(
-                        nickname.toLowerCase())
-                    || ((atIx == -1)? false : messageContent.toLowerCase()
-                        .contains(nickname.substring(0, atIx).toLowerCase()));
-        }
-        if (fireChatNotification)
-        {
-            String title
-                = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_RECEIVED",
-                    new String[] { sourceMember.getName() });
-
-            NotificationManager.fireChatNotification(
-                sourceChatRoom,
-                NotificationManager.INCOMING_MESSAGE,
-                title,
-                messageContent);
-        }
-
         chatWindowManager.openChat(chatPanel, false);
-        
     }
 
     /**
@@ -2032,31 +1992,6 @@ public class ConferenceChatManager
             message.getContentType());
 
         chatWindowManager.openChat(chatPanel, false);
-
-        // Fire notification
-        boolean fireChatNotification;
-
-        String nickname = sourceChatRoom.getName();
-
-        fireChatNotification =
-            (nickname == null)
-                || messageContent.toLowerCase().contains(
-                        nickname.toLowerCase());
-
-        if (fireChatNotification)
-        {
-            String title
-                = GuiActivator.getResources().getI18NString(
-                        "service.gui.MSG_RECEIVED",
-                        new String[] { sourceParticipant.getDisplayName() });
-
-            NotificationManager.fireChatNotification(
-                sourceChatRoom,
-                NotificationManager.INCOMING_MESSAGE,
-                title,
-                messageContent);
-        }
-        
     }
 
     public void invitationRejected(AdHocChatRoomInvitationRejectedEvent evt) {}

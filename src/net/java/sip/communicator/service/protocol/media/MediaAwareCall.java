@@ -749,6 +749,13 @@ public abstract class MediaAwareCall<
 
             addCallChangeListener(callChangeListener);
 
+            Iterator<Recorder.Listener> iterListeners =
+                ProtocolMediaActivator.getMediaService().getRecorderListeners();
+            while(iterListeners.hasNext())
+            {
+                recorder.addListener(iterListeners.next());
+            }
+
             /*
              * If the recorder gets stopped earlier than this call ends, don't
              * wait for the end of the call because callChangeListener will keep
@@ -760,6 +767,14 @@ public abstract class MediaAwareCall<
                         public void recorderStopped(Recorder recorder)
                         {
                             removeCallChangeListener(callChangeListener);
+
+                            Iterator<Recorder.Listener> iter =
+                                ProtocolMediaActivator.getMediaService()
+                                    .getRecorderListeners();
+                            while(iter.hasNext())
+                            {
+                                recorder.removeListener(iter.next());
+                            }
                         }
                     });
 

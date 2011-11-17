@@ -192,8 +192,6 @@ public class ReceivedCallDialog
     @Override
     public void hangupButtonPressed()
     {
-        NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-
         CallManager.hangupCall(incomingCall);
     }
 

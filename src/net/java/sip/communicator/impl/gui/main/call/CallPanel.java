@@ -434,9 +434,6 @@ public class CallPanel
     {
         Call call = getCall();
 
-        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
-        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
-
         if (call != null)
             CallManager.hangupCall(call);
 

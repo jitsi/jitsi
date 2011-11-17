@@ -82,13 +82,6 @@ public class CallManager
                 = sourceCall.getCallPeers().next().getDisplayName();
             final Date callDate = new Date();
 
-            NotificationManager.fireNotification(
-                NotificationManager.INCOMING_CALL,
-                "",
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.INCOMING_CALL",
-                        new String[]{peerName}));
-
             sourceCall.addCallChangeListener(new CallChangeAdapter()
             {
                 @Override
@@ -142,12 +135,6 @@ public class CallManager
         {
             Call sourceCall = event.getSourceCall();
 
-            // Stop all telephony related sounds.
-            stopAllSounds();
-
-            // Play the hangup sound.
-            NotificationManager.fireNotification(NotificationManager.HANG_UP);
-
             if (activeCalls.get(sourceCall) != null)
             {
                 CallPanel callContainer = activeCalls.get(sourceCall);
@@ -200,10 +187,6 @@ public class CallManager
      */
     public static void hangupCallPeer(final CallPeer callPeer)
     {
-        stopAllSounds();
-
-        NotificationManager.fireNotification(NotificationManager.HANG_UP);
-
         new HangupCallPeerThread(callPeer).start();
     }
 
@@ -1609,17 +1592,6 @@ public class CallManager
                         + callPeerAddress + " off hold.", ex);
             }
         }
-    }
-
-    /**
-     * Stops all telephony related sounds.
-     */
-    private static void stopAllSounds()
-    {
-        NotificationManager.stopSound(NotificationManager.DIALING);
-        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
-        NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
     }
 
     /**

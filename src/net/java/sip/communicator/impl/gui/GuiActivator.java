@@ -23,7 +23,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
@@ -62,9 +61,6 @@ public class GuiActivator implements BundleActivator
     private static AudioNotifierService audioNotifierService;
 
     private static BrowserLauncherService browserLauncherService;
-
-    private static NotificationService notificationService;
-    private        NotificationServiceListener notificationServiceListener;
 
     private static SystrayService systrayService;
 
@@ -115,10 +111,6 @@ public class GuiActivator implements BundleActivator
     {
         isStarted = true;
         GuiActivator.bundleContext = bContext;
-
-        NotificationManager.registerGuiNotifications();
-        notificationServiceListener = new NotificationServiceListener();
-        bundleContext.addServiceListener(notificationServiceListener);
 
         ConfigurationManager.loadGuiConfigurations();
 
@@ -175,7 +167,6 @@ public class GuiActivator implements BundleActivator
             .removePropertyChangeListener(uiService);
 
         bContext.removeServiceListener(uiService);
-        bContext.removeServiceListener(notificationServiceListener);
     }
 
     /**
@@ -610,23 +601,6 @@ public class GuiActivator implements BundleActivator
     }
 
     /**
-     * Returns the <tt>NotificationService</tt> obtained from the bundle context.
-     *
-     * @return the <tt>NotificationService</tt> obtained from the bundle context
-     */
-    public static NotificationService getNotificationService()
-    {
-        if (notificationService == null)
-        {
-            notificationService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        NotificationService.class);
-        }
-        return notificationService;
-    }
-
-    /**
      * Returns the <tt>FileAccessService</tt> obtained from the bundle context.
      *
      * @return the <tt>FileAccessService</tt> obtained from the bundle context
@@ -672,46 +646,6 @@ public class GuiActivator implements BundleActivator
                 = ServiceUtils.getService(bundleContext, MediaService.class);
         }
         return mediaService;
-    }
-
-    /**
-     * Implements the <tt>ServiceListener</tt>. Verifies whether the
-     * passed event concerns a <tt>NotificationService</tt> and if so
-     * initiates the user interface NotificationManager.
-     */
-    private static class NotificationServiceListener implements ServiceListener
-    {
-        /**
-         * Implements the <tt>ServiceListener</tt> method. Verifies whether the
-         * passed event concerns a <tt>NotificationService</tt> and if so
-         * initiates the NotificationManager.
-         *
-         * @param event The <tt>ServiceEvent</tt> object.
-         */
-        public void serviceChanged(ServiceEvent event)
-        {
-            // if the event is caused by a bundle being stopped, we don't want
-            // to know
-            if (event.getServiceReference().getBundle().getState()
-                    == Bundle.STOPPING)
-            {
-                return;
-            }
-
-            Object service = GuiActivator.bundleContext.getService(event
-                .getServiceReference());
-
-            // we don't care if the source service is not a notification service
-            if (!(service instanceof NotificationService))
-            {
-                return;
-            }
-
-            if (event.getType() == ServiceEvent.REGISTERED)
-            {
-                NotificationManager.registerGuiNotifications();
-            }
-        }
     }
 
     /**

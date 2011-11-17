@@ -252,4 +252,30 @@ public interface MediaService
      */
     public java.awt.Point getOriginForDesktopStreamingDevice(
             MediaDevice mediaDevice);
+
+    /**
+     * Those interested in Recorder events add listener through MediaService.
+     * This way they don't need to have access to the Recorder instance.
+     * Adds a new <tt>Recorder.Listener</tt> to the list of listeners
+     * interested in notifications from a <tt>Recorder</tt>.
+     *
+     * @param listener the new <tt>Recorder.Listener</tt> to be added to the
+     * list of listeners interested in notifications from <tt>Recorder</tt>s.
+     */
+    public void addRecorderListener(Recorder.Listener listener);
+
+    /**
+     * Removes an existing <tt>Recorder.Listener</tt> from the list of listeners
+     * interested in notifications from <tt>Recorder</tt>s.
+     *
+     * @param listener the existing <tt>Listener</tt> to be removed from the
+     * list of listeners interested in notifications from <tt>Recorder</tt>s
+     */
+    public void removeRecorderListener(Recorder.Listener listener);
+
+    /**
+     * Gives access to currently registered <tt>Recorder.Listener</tt>s.
+     * @return currently registered <tt>Recorder.Listener</tt>s.
+     */
+    public Iterator<Recorder.Listener> getRecorderListeners();
 }

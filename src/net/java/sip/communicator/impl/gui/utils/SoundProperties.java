@@ -17,26 +17,6 @@ import net.java.sip.communicator.service.resources.*;
 public final class SoundProperties
 {
     /**
-     * The incoming message sound id.
-     */
-    public static final String INCOMING_MESSAGE;
-
-    /**
-     * The incoming file sound id.
-     */
-    public static final String INCOMING_FILE;
-
-    /**
-     * The outgoing call sound id.
-     */
-    public static final String OUTGOING_CALL;
-
-    /**
-     * The incoming call sound id.
-     */
-    public static final String INCOMING_CALL;
-
-    /**
      * The zero tone sound id.
      */
     public static final String DIAL_ZERO;
@@ -96,31 +76,6 @@ public final class SoundProperties
      */
     public static final String DIAL_STAR;
 
-    /**
-     * The busy sound id.
-     */
-    public static final String BUSY;
-
-    /**
-     * The dialing sound id.
-     */
-    public static final String DIALING;
-
-    /**
-     * The sound id of the sound played when call security is turned on.
-     */
-    public static final String CALL_SECURITY_ON;
-
-    /**
-     * The sound id of the sound played when a call security error occurs.
-     */
-    public static final String CALL_SECURITY_ERROR;
-
-    /**
-     * The hang up sound id.
-     */
-    public static final String HANG_UP;
-
     static
     {
 
@@ -134,10 +89,6 @@ public final class SoundProperties
          */
         ResourceManagementService resources = GuiActivator.getResources();
 
-        INCOMING_MESSAGE = resources.getSoundPath("INCOMING_MESSAGE");
-        INCOMING_FILE = resources.getSoundPath("INCOMING_FILE");
-        OUTGOING_CALL = resources.getSoundPath("OUTGOING_CALL");
-        INCOMING_CALL = resources.getSoundPath("INCOMING_CALL");
         DIAL_ZERO = resources.getSoundPath("DIAL_ZERO");
         DIAL_ONE = resources.getSoundPath("DIAL_ONE");
         DIAL_TWO = resources.getSoundPath("DIAL_TWO");
@@ -150,11 +101,6 @@ public final class SoundProperties
         DIAL_NINE = resources.getSoundPath("DIAL_NINE");
         DIAL_DIEZ = resources.getSoundPath("DIAL_DIEZ");
         DIAL_STAR = resources.getSoundPath("DIAL_STAR");
-        BUSY = resources.getSoundPath("BUSY");
-        DIALING = resources.getSoundPath("DIAL");
-        CALL_SECURITY_ON = resources.getSoundPath("CALL_SECURITY_ON");
-        CALL_SECURITY_ERROR = resources.getSoundPath("CALL_SECURITY_ERROR");
-        HANG_UP = resources.getSoundPath("HANG_UP");
     }
 
     private SoundProperties() {

@@ -58,14 +58,6 @@ public class ContactListPane
     private final ChatWindowManager chatWindowManager;
 
     /**
-     * Pseudo timer used to delay multiple typings notifications before
-     * receiving the message.
-     *
-     * Time to live : 1 minute
-     */
-    private Map<Contact,Long> proactiveTimer = new HashMap<Contact, Long>();
-
-    /**
      * Creates the contactlist scroll panel defining the parent frame.
      *
      * @param mainFrame The parent frame.
@@ -288,17 +280,6 @@ public class ContactListPane
                 }
             });
 
-            // Fire notification
-            String title = GuiActivator.getResources().getI18NString(
-                "service.gui.MSG_RECEIVED",
-                new String[]{evt.getSourceContact().getDisplayName()});
-
-            NotificationManager.fireChatNotification(
-                                            protocolContact,
-                                            NotificationManager.INCOMING_MESSAGE,
-                                            title,
-                                            message.getContent());
-
             ChatTransport chatTransport
                 = chatPanel.getChatSession()
                     .findChatTransportForDescriptor(protocolContact);
@@ -462,7 +443,6 @@ public class ContactListPane
             // Proactive typing notification
             if (!chatWindowManager.isChatOpenedFor(metaContact))
             {
-                this.fireProactiveNotification(evt.getSourceContact());
                 return;
             }
 
@@ -521,18 +501,6 @@ public class ContactListPane
 
         // Opens the chat panel with the new message in the UI thread.
         chatWindowManager.openChat(chatPanel, false);
-
-        // Fire notification
-        String title = GuiActivator.getResources().getI18NString(
-            "service.gui.FILE_RECEIVING_FROM",
-            new String[]{sourceContact.getDisplayName()});
-
-        NotificationManager
-            .fireChatNotification(
-                sourceContact,
-                NotificationManager.INCOMING_FILE,
-                title,
-                request.getFileName());
     }
 
     /**
@@ -563,52 +531,6 @@ public class ContactListPane
      */
     public void fileTransferRequestCanceled(FileTransferRequestEvent event)
     {
-    }
-
-    /**
-     * Send a proactive notification according to the proactive timer.
-     * The notification is fired only if another notification hasn't been
-     * recieved for more than 1 minute
-     *
-     * @param contact the contact the notification comes from
-     */
-    private void fireProactiveNotification(Contact contact)
-    {
-        long currentTime = System.currentTimeMillis();
-
-        if (this.proactiveTimer.size() > 0)
-        {
-            //first remove contacts that have been here longer than the timeout
-            //to avoid memory leaks
-            Iterator<Map.Entry<Contact, Long>> entries
-                                    = this.proactiveTimer.entrySet().iterator();
-            while (entries.hasNext())
-            {
-                Map.Entry<Contact, Long> entry = entries.next();
-                Long lastNotificationDate = entry.getValue();
-                if (lastNotificationDate.longValue() + 30000 <  currentTime)
-                {
-                    // The entry is outdated
-                    entries.remove();
-                }
-            }
-
-            // Now, check if the contact is still in the map
-            if (this.proactiveTimer.containsKey(contact))
-            {
-                // We already notified the others about this
-                return;
-            }
-        }
-
-        this.proactiveTimer.put(contact, currentTime);
-
-        NotificationManager.fireChatNotification(
-                contact,
-                NotificationManager.PROACTIVE_NOTIFICATION,
-                contact.getDisplayName(),
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.PROACTIVE_NOTIFICATION"));
     }
 
     /**

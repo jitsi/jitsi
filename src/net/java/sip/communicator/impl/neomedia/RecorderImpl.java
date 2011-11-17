@@ -72,6 +72,12 @@ public class RecorderImpl
     private boolean mute = false;
 
     /**
+     * The filename we will use to record data, supplied
+     * when Recorder is started.
+     */
+    private String filename = null;
+
+    /**
      * Constructs the <tt>RecorderImpl</tt> with the provided session.
      *
      * @param device device that can create a session that provides the output
@@ -196,6 +202,8 @@ public class RecorderImpl
                 throw new NullPointerException("format");
             if (filename == null)
                 throw new NullPointerException("filename");
+
+            this.filename = filename;
 
             /*
              * A file without an extension may not only turn out to be a touch
@@ -327,5 +335,16 @@ public class RecorderImpl
         {
             deviceSession.setMute(mute);
         }
+    }
+
+    /**
+     * Returns the filename we are last started or stopped recording to,
+     * null if not started.
+     * @return the filename we are last started or stopped recording to,
+     * null if not started.
+     */
+    public String getFilename()
+    {
+        return filename;
     }
 }

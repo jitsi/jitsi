@@ -69,67 +69,10 @@ public class CallPeerAdapter
 
         String newStateString = sourcePeer.getState().getLocalizedStateString();
 
-        // Play the dialing audio when in connecting and initiating call state.
-        // Stop the dialing audio when we enter any other state.
-        if (newState == CallPeerState.INITIATING_CALL
-            || newState == CallPeerState.CONNECTING)
-        {
-            NotificationManager
-                .fireNotification(NotificationManager.DIALING);
-        }
-        else
-        {
-            NotificationManager.stopSound(NotificationManager.DIALING);
-        }
-
-        if (newState == CallPeerState.ALERTING_REMOTE_SIDE
-            //if we were already in state CONNECTING_WITH_EARLY_MEDIA the server
-            //is already taking care of playing the notifications so we don't
-            //need to fire a notification here.
-            && oldState != CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
-        {
-            //
-            NotificationManager
-                .fireNotification(NotificationManager.OUTGOING_CALL);
-        }
-        else if (newState == CallPeerState.BUSY)
-        {
-            NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
-
-            // We start the busy sound only if we're in a simple call.
-            if (!renderer.getCallPanel().isConference())
-            {
-                NotificationManager.fireNotification(
-                    NotificationManager.BUSY_CALL);
-            }
-        }
-        else if (newState == CallPeerState.CONNECTING_INCOMING_CALL ||
-            newState == CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA)
+        if (newState == CallPeerState.CONNECTED)
         {
             if (!CallPeerState.isOnHold(oldState))
             {
-                NotificationManager
-                    .stopSound(NotificationManager.OUTGOING_CALL);
-                NotificationManager
-                    .stopSound(NotificationManager.INCOMING_CALL);
-            }
-        }
-        else if (newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
-        {
-            //this means a call with early media. make sure that we are not
-            //playing local notifications any more.
-            NotificationManager
-                .stopSound(NotificationManager.OUTGOING_CALL);
-        }
-        else if (newState == CallPeerState.CONNECTED)
-        {
-            if (!CallPeerState.isOnHold(oldState))
-            {
-                NotificationManager
-                    .stopSound(NotificationManager.OUTGOING_CALL);
-                NotificationManager
-                    .stopSound(NotificationManager.INCOMING_CALL);
-
                 if (!renderer.getCallPanel().isCallTimerStarted())
                     renderer.getCallPanel().startCallTimer();
 
@@ -212,46 +155,11 @@ public class CallPeerAdapter
     }
 
     /**
-     * Processes the received security message and passes it to the
-     * <tt>NotificationManager</tt> responsible for popup notifications.
+     * Does nothing.
      * @param event the event we received
      */
     public void securityMessageRecieved(CallPeerSecurityMessageEvent event)
     {
-        int severity = event.getEventSeverity();
-
-        String messageTitle = null;
-
-        switch (severity)
-        {
-            // Don't play alert sound for Info or warning.
-            case CallPeerSecurityMessageEvent.INFORMATION:
-            {
-                messageTitle = GuiActivator.getResources().getI18NString(
-                    "service.gui.SECURITY_INFO");
-                break;
-            }
-            case CallPeerSecurityMessageEvent.WARNING:
-            {
-                messageTitle = GuiActivator.getResources().getI18NString(
-                    "service.gui.SECURITY_WARNING");
-                break;
-            }
-            // Alert sound indicates: security cannot established
-            case CallPeerSecurityMessageEvent.SEVERE:
-            case CallPeerSecurityMessageEvent.ERROR:
-            {
-                messageTitle = GuiActivator.getResources().getI18NString(
-                    "service.gui.SECURITY_ERROR");
-                NotificationManager.fireNotification(
-                    NotificationManager.CALL_SECURITY_ERROR);
-            }
-        }
-
-        NotificationManager.fireNotification(
-            NotificationManager.SECURITY_MESSAGE,
-            messageTitle,
-            event.getI18nMessage());
     }
 
     /**
@@ -266,14 +174,6 @@ public class CallPeerAdapter
             return;
 
         renderer.securityOn(evt);
-
-        if((evt.getSecurityController().requiresSecureSignalingTransport()
-            && peer.getProtocolProvider().isSignalingTransportSecure())
-            || !evt.getSecurityController().requiresSecureSignalingTransport())
-        {
-            NotificationManager.fireNotification(
-                NotificationManager.CALL_SECURITY_ON);
-        }
     }
 
     /**

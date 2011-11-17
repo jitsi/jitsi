@@ -570,9 +570,6 @@ public class ConferenceFocusPanel
         if (securityEvent instanceof CallPeerSecurityOnEvent)
         {
             securityOn((CallPeerSecurityOnEvent) securityEvent);
-
-            NotificationManager.fireNotification(
-                NotificationManager.CALL_SECURITY_ON);
         }
     }
 

@@ -110,4 +110,12 @@ public interface Recorder
      * @param mute the new value of the mute property
      */
     public void setMute(boolean mute);
+
+    /**
+     * Returns the filename we are last started or stopped recording to,
+     * null if not started.
+     * @return the filename we are last started or stopped recording to,
+     * null if not started.
+     */
+    public String getFilename();
 }

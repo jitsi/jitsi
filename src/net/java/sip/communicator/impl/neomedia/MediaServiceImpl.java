@@ -147,6 +147,13 @@ public class MediaServiceImpl
     private final Object reinitVideoLock = new Object();
 
     /**
+     * Listeners interested in Recorder events without the need to
+     * have access to their instances.
+     */
+    private final List<Recorder.Listener> recorderListeners =
+            new ArrayList<Recorder.Listener>();
+
+    /**
      * Create a <tt>MediaStream</tt> which will use a specific
      * <tt>MediaDevice</tt> for capture and playback of media. The new instance
      * will not have a <tt>StreamConnector</tt> at the time of its construction
@@ -1254,5 +1261,47 @@ public class MediaServiceImpl
         }
 
         return null;
+    }
+
+    /**
+     * Those interested in Recorder events add listener through MediaService.
+     * This way they don't need to have access to the Recorder instance.
+     * Adds a new <tt>Recorder.Listener</tt> to the list of listeners
+     * interested in notifications from a <tt>Recorder</tt>.
+     *
+     * @param listener the new <tt>Recorder.Listener</tt> to be added to the
+     * list of listeners interested in notifications from <tt>Recorder</tt>s.
+     */
+    public void addRecorderListener(Recorder.Listener listener)
+    {
+        synchronized(recorderListeners)
+        {
+            if(!recorderListeners.contains(listener))
+                recorderListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes an existing <tt>Recorder.Listener</tt> from the list of listeners
+     * interested in notifications from <tt>Recorder</tt>s.
+     *
+     * @param listener the existing <tt>Listener</tt> to be removed from the
+     * list of listeners interested in notifications from <tt>Recorder</tt>s
+     */
+    public void removeRecorderListener(Recorder.Listener listener)
+    {
+        synchronized(recorderListeners)
+        {
+            recorderListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Gives access to currently registered <tt>Recorder.Listener</tt>s.
+     * @return currently registered <tt>Recorder.Listener</tt>s.
+     */
+    public Iterator<Recorder.Listener> getRecorderListeners()
+    {
+        return recorderListeners.iterator();
     }
 }
