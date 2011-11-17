@@ -475,57 +475,9 @@ public class ProtocolProviderServiceJabberImpl
 
         synchronized(initializationLock)
         {
-            //verify whether a password has already been stored for this account
-            String password = JabberActivator.
-                    getProtocolProviderFactory().loadPassword(getAccountID());
-
-            //decode
+            String password = loadPassword(authority, reasonCode);
             if (password == null)
-            {
-                //create a default credentials object
-                UserCredentials credentials = new UserCredentials();
-                credentials.setUserName(getAccountID().getUserID());
-
-                //request a password from the user
-                credentials = authority.obtainCredentials(
-                    ProtocolNames.JABBER,
-                    credentials,
-                    reasonCode);
-
-                // in case user has canceled the login window
-                if(credentials == null)
-                {
-                    fireRegistrationStateChanged(
-                        getRegistrationState(),
-                        RegistrationState.UNREGISTERED,
-                        RegistrationStateChangeEvent.REASON_USER_REQUEST,
-                        "No credentials provided");
-                    return;
-                }
-
-                //extract the password the user passed us.
-                char[] pass = credentials.getPassword();
-
-                // the user didn't provide us a password (canceled the operation)
-                if(pass == null)
-                {
-                    fireRegistrationStateChanged(
-                        getRegistrationState(),
-                        RegistrationState.UNREGISTERED,
-                        RegistrationStateChangeEvent.REASON_USER_REQUEST,
-                        "No password entered");
-                    return;
-                }
-                password = new String(pass);
-
-                if (credentials.isPasswordPersistent())
-                {
-                    JabberActivator.getProtocolProviderFactory()
-                        .storePassword(getAccountID(), password);
-                }
-                else
-                    userCredentials = credentials;
-            }
+                return;
 
             //init the necessary objects
             try
@@ -762,6 +714,71 @@ public class ProtocolProviderServiceJabberImpl
 
             inConnectAndLogin = false;
         }
+    }
+
+    /**
+     * Load the password from the account configuration or ask the user.
+     * 
+     * @param authority SecurityAuthority
+     * @param reasonCode the authentication reason code. Indicates the reason of
+     *            this authentication.
+     * @return The password for the account or null if no password could be
+     *         obtained
+     */
+    private String loadPassword(SecurityAuthority authority, int reasonCode)
+    {
+        //verify whether a password has already been stored for this account
+        String password = JabberActivator.
+                getProtocolProviderFactory().loadPassword(getAccountID());
+
+        //decode
+        if (password == null)
+        {
+            //create a default credentials object
+            UserCredentials credentials = new UserCredentials();
+            credentials.setUserName(getAccountID().getUserID());
+
+            //request a password from the user
+            credentials = authority.obtainCredentials(
+                ProtocolNames.JABBER,
+                credentials,
+                reasonCode);
+
+            // in case user has canceled the login window
+            if(credentials == null)
+            {
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                    "No credentials provided");
+                return null;
+            }
+
+            //extract the password the user passed us.
+            char[] pass = credentials.getPassword();
+
+            // the user didn't provide us a password (canceled the operation)
+            if(pass == null)
+            {
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                    "No password entered");
+                return null;
+            }
+            password = new String(pass);
+
+            if (credentials.isPasswordPersistent())
+            {
+                JabberActivator.getProtocolProviderFactory()
+                    .storePassword(getAccountID(), password);
+            }
+            else
+                userCredentials = credentials;
+        }
+        return password;
     }
 
     /**
