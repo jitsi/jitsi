@@ -480,186 +480,122 @@ public class ProtocolProviderServiceJabberImpl
                 return;
 
             //init the necessary objects
+
+            String serviceName
+                = StringUtils.parseServer(getAccountID().getUserID());
+
+            List<String> serverAddresses = new ArrayList<String>();
+
+            String serverAddressUserSetting
+                = getAccountID().getAccountPropertyString(
+                    ProtocolProviderFactory.SERVER_ADDRESS);
+
+            int serverPort = getAccountID().getAccountPropertyInt(
+                    ProtocolProviderFactory.SERVER_PORT, 5222);
+
+            loadResource();
+
+            boolean isServerOverriden =
+                getAccountID().getAccountPropertyBoolean(
+                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
+
             try
             {
-                String userID = null;
-
-                /* with a google account (either gmail or google apps
-                 * related ones), the userID MUST be the full e-mail address
-                 * not just the ID
-                 */
-                if(getAccountID().getProtocolDisplayName().
-                        equals("Google Talk"))
+                if(!isServerOverriden)
                 {
-                    userID = getAccountID().getUserID();
+                    // check to see is there SRV records for
+                    // this server domain
+                    SRVRecord srvRecords[] = NetworkUtils
+                        .getSRVRecords("xmpp-client", "tcp", serviceName);
+
+                    if(srvRecords != null)
+                    {
+                        for(int i = 0 ; i < srvRecords.length ; i++)
+                        {
+                            serverAddresses.add(srvRecords[i].getTarget());
+                        }
+                    }
+                }
+
+                // after SRV records, check A/AAAA records
+                InetSocketAddress addressObj4 = null;
+                InetSocketAddress addressObj6 = null;
+                try
+                {
+                    addressObj4 = NetworkUtils.getARecord(
+                        serverAddressUserSetting, serverPort);
+                } catch (ParseException ex)
+                {
+                    logger.error("Cannot obtain A record for "
+                        + serverAddressUserSetting, ex);
+                }
+                try
+                {
+                    addressObj6 = NetworkUtils.getAAAARecord(
+                        serverAddressUserSetting, serverPort);
+                } catch (ParseException ex)
+                {
+                    logger.error("Cannot obtain AAAA record for "
+                        + serverAddressUserSetting, ex);
+                }
+
+                // add address according their priorities setting
+                if(Boolean.getBoolean("java.net.preferIPv6Addresses"))
+                {
+                    if(addressObj6 != null)
+                    {
+                        serverAddresses
+                            .add(addressObj6.getAddress().getHostAddress());
+                    }
+                    if(addressObj4 != null)
+                    {
+                        serverAddresses
+                            .add(addressObj4.getAddress().getHostAddress());
+                    }
                 }
                 else
                 {
-                    userID = StringUtils.parseName(getAccountID().getUserID());
-                }
-
-                String serviceName
-                    = StringUtils.parseServer(getAccountID().getUserID());
-
-                List<String> serverAddresses = new ArrayList<String>();
-
-                String serverAddressUserSetting
-                    = getAccountID().getAccountPropertyString(
-                        ProtocolProviderFactory.SERVER_ADDRESS);
-
-                int serverPort = getAccountID().getAccountPropertyInt(
-                        ProtocolProviderFactory.SERVER_PORT, 5222);
-
-                loadResource();
-
-                boolean isServerOverriden =
-                    getAccountID().getAccountPropertyBoolean(
-                        ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
-
-                try
-                {
-                    if(!isServerOverriden)
+                    if(addressObj4 != null)
                     {
-                        // check to see is there SRV records for
-                        // this server domain
-                        SRVRecord srvRecords[] = NetworkUtils
-                            .getSRVRecords("xmpp-client", "tcp", serviceName);
-
-                        if(srvRecords != null)
-                        {
-                            for(int i = 0 ; i < srvRecords.length ; i++)
-                            {
-                                serverAddresses.add(srvRecords[i].getTarget());
-                            }
-                        }
+                        serverAddresses
+                            .add(addressObj4.getAddress().getHostAddress());
                     }
-
-                    // after SRV records, check A/AAAA records
-                    InetSocketAddress addressObj4 = null;
-                    InetSocketAddress addressObj6 = null;
-                    try
+                    if(addressObj6 != null)
                     {
-                        addressObj4 = NetworkUtils.getARecord(
-                            serverAddressUserSetting, serverPort);
-                    } catch (ParseException ex)
-                    {
-                        logger.error("Cannot obtain A record for "
-                            + serverAddressUserSetting, ex);
-                    }
-                    try
-                    {
-                        addressObj6 = NetworkUtils.getAAAARecord(
-                            serverAddressUserSetting, serverPort);
-                    } catch (ParseException ex)
-                    {
-                        logger.error("Cannot obtain AAAA record for "
-                            + serverAddressUserSetting, ex);
-                    }
-
-                    // add address according their priorities setting
-                    if(Boolean.getBoolean("java.net.preferIPv6Addresses"))
-                    {
-                        if(addressObj6 != null)
-                        {
-                            serverAddresses
-                                .add(addressObj6.getAddress().getHostAddress());
-                        }
-                        if(addressObj4 != null)
-                        {
-                            serverAddresses
-                                .add(addressObj4.getAddress().getHostAddress());
-                        }
-                    }
-                    else
-                    {
-                        if(addressObj4 != null)
-                        {
-                            serverAddresses
-                                .add(addressObj4.getAddress().getHostAddress());
-                        }
-                        if(addressObj6 != null)
-                        {
-                            serverAddresses
-                                .add(addressObj6.getAddress().getHostAddress());
-                        }
-                    }
-
-                    serverAddresses.add(serverAddressUserSetting);
-                }
-                catch (ParseException ex1)
-                {
-                    logger.error("Domain not resolved " + ex1.getMessage());
-                }
-
-                Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
-
-                loadProxy();
-
-                // try connecting to all serverAddresses
-                // as if connecting with username fails
-                // try with username@serviceName
-                for (int i = 0; i < serverAddresses.size(); i++)
-                {
-                    String currentAddress = serverAddresses.get(i);
-
-                    try
-                    {
-                        ConnectState state = connectAndLogin(
-                            currentAddress, serverPort, serviceName,
-                            userID, password, resource);
-
-                        if(state == ConnectState.ABORT_CONNECTING)
-                            return;
-                        else if(state == ConnectState.CONTINUE_TRYING)
-                            continue;
-                        else if(state == ConnectState.STOP_TRYING)
-                            break;
-
-                    }catch(XMPPException ex)
-                    {
-                        // server disconnect us after such an error
-                        // cleanup
-                        disconnectAndCleanConnection();
-
-                        try
-                        {
-                            // after updating to new smack lib
-                            // login mechanisum changed
-                            // this is a way to avoid the problem
-
-                            // logging in to google need and service name
-                            ConnectState state = connectAndLogin(
-                                currentAddress, serverPort, serviceName,
-                                userID + "@" + serviceName,
-                                password, resource);
-
-                            if(state == ConnectState.ABORT_CONNECTING)
-                                return;
-                            else if(state == ConnectState.CONTINUE_TRYING)
-                                continue;
-                            else if(state == ConnectState.STOP_TRYING)
-                                break;
-                        } catch (XMPPException e)
-                        {
-                            if(isAuthenticationFailed(ex))
-                                throw ex;
-
-                            disconnectAndCleanConnection();
-
-                            // if it happens once again throw
-                            // the original exception
-                            if(i == serverAddresses.size() - 1)
-                            {
-                                throw ex;
-                            }
-                        }
+                        serverAddresses
+                            .add(addressObj6.getAddress().getHostAddress());
                     }
                 }
+
+                serverAddresses.add(serverAddressUserSetting);
             }
-            catch (NumberFormatException ex)
+            catch (ParseException ex1)
             {
-                throw new OperationFailedException("Wrong port",
-                    OperationFailedException.INVALID_ACCOUNT_PROPERTIES, ex);
+                logger.error("Domain not resolved " + ex1.getMessage());
+            }
+
+            Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
+
+            loadProxy();
+
+            // try connecting to all serverAddresses
+            // as if connecting with username fails
+            // try with username@serviceName
+            for (int i = 0; i < serverAddresses.size(); i++)
+            {
+                String currentAddress = serverAddresses.get(i);
+
+                ConnectState state =
+                    connectAndLogin(currentAddress, password,
+                        serviceName, serverPort);
+
+                if(state == ConnectState.ABORT_CONNECTING)
+                    return;
+                else if(state == ConnectState.CONTINUE_TRYING)
+                    return;
+                else if(state == ConnectState.STOP_TRYING)
+                    break;
+
             }
         }
 
@@ -691,6 +627,78 @@ public class ProtocolProviderServiceJabberImpl
             }
 
             inConnectAndLogin = false;
+        }
+    }
+
+    /**
+     * Tries to login to the XMPP server with the supplied user ID. If the
+     * protocol is Google Talk, the user ID including the service name is used.
+     * For other protocols, if the login with the user ID without the service
+     * name fails, a second attempt including the service name is made.
+     * 
+     * @param currentAddress the IP address to connect to
+     * @param password the password of the user
+     * @param serviceName the domain name of the user's login
+     * @param serverPort the port to connect to
+     * @throws XMPPException when a failure occurs
+     */
+    private ConnectState connectAndLogin(String currentAddress,
+        String password, String serviceName, int serverPort)
+        throws XMPPException
+    {
+        String userID = null;
+        boolean qualifiedUserID;
+
+        /* with a google account (either gmail or google apps
+         * related ones), the userID MUST be the full e-mail address
+         * not just the ID
+         */
+        if(getAccountID().getProtocolDisplayName().equals("Google Talk"))
+        {
+            userID = getAccountID().getUserID();
+            qualifiedUserID = true;
+        }
+        else
+        {
+            userID = StringUtils.parseName(getAccountID().getUserID());
+            qualifiedUserID = false;
+        }
+
+        try
+        {
+            return connectAndLogin(
+                currentAddress, serverPort, serviceName,
+                userID, password, resource);
+        }
+        catch(XMPPException ex)
+        {
+            // server disconnect us after such an error, do cleanup
+            disconnectAndCleanConnection();
+
+            //no need to check with a different username if the
+            //socket could not be opened
+            if (ex.getWrappedThrowable() instanceof ConnectException)
+                throw ex;
+
+            // don't attempt to append the service name if it's already there
+            if (!qualifiedUserID)
+            {
+                try
+                {
+                    // logging in might need the service name
+                    return connectAndLogin(
+                        currentAddress, serverPort, serviceName,
+                        userID + "@" + serviceName,
+                        password, resource);
+                }
+                catch(XMPPException ex2)
+                {
+                    disconnectAndCleanConnection();
+                    throw ex; //throw the original exception
+                }
+            }
+            else
+                throw ex;
         }
     }
 
