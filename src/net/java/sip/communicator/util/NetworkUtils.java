@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.dns.*;
 
 import org.xbill.DNS.*;
+
 import java.text.*;
 
 /**
@@ -820,6 +821,65 @@ public class NetworkUtils
         {
             return InetAddress.getByName(hostAddress);
         }
+    }
+
+    /**
+     * Returns array of hosts from the A or AAAA record of the specified domain.
+     * The records are ordered against the IPv4/IPv6 protocol priority
+     * @param domain the name of the domain we'd like to resolve.
+     * @param port the port number of the returned <tt>InetSocketAddress</tt>
+     * @return an array of InetSocketAddress containing records returned by the
+     * DNS server - address and port .
+     * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     */
+    public static InetSocketAddress[] getAorAAAARecords(String domain, int port)
+        throws ParseException
+    {
+        List<InetSocketAddress> addresses = new LinkedList<InetSocketAddress>();
+        boolean v6lookup = Boolean.getBoolean("java.net.preferIPv6Addresses");
+
+        for(int i = 0; i < 2; i++)
+        {
+            Lookup lookup;
+            try
+            {
+                lookup = createLookup(domain, v6lookup ? Type.AAAA : Type.A);
+            }
+            catch (TextParseException tpe)
+            {
+                logger.error("Failed to parse domain <" + domain + ">", tpe);
+                throw new ParseException(tpe.getMessage(), 0);
+            }
+            Record[] records = lookup.run();
+            if(records != null)
+            {
+                for(Record r : records)
+                {
+                    try
+                    {
+                        addresses.add(
+                            new InetSocketAddress(
+                                // create a new InetAddress filled with the
+                                // domain name to avoid PTR queries
+                                InetAddress.getByAddress(
+                                    domain,
+                                    v6lookup
+                                      ? ((AAAARecord)r).getAddress().getAddress()
+                                      : ((ARecord)r).getAddress().getAddress()
+                                ),
+                                port
+                            )
+                        );
+                    }
+                    catch (UnknownHostException e)
+                    {
+                        logger.error("Invalid record returned from DNS", e);
+                    }
+                }
+            }
+            v6lookup = !v6lookup;
+        }
+        return (InetSocketAddress[])addresses.toArray(new InetSocketAddress[0]);
     }
 
     /**
