@@ -498,7 +498,8 @@ public class ProtocolProviderServiceJabberImpl
                     fireRegistrationStateChanged(
                         getRegistrationState(),
                         RegistrationState.UNREGISTERED,
-                        RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
+                        RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                        "No credentials provided");
                     return;
                 }
 
@@ -511,7 +512,8 @@ public class ProtocolProviderServiceJabberImpl
                     fireRegistrationStateChanged(
                         getRegistrationState(),
                         RegistrationState.UNREGISTERED,
-                        RegistrationStateChangeEvent.REASON_USER_REQUEST, "");
+                        RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                        "No password entered");
                     return;
                 }
                 password = new String(pass);
@@ -661,82 +663,7 @@ public class ProtocolProviderServiceJabberImpl
 
                 Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
 
-                //Getting global proxy information from configuration files
-                proxy = null;
-                String globalProxyType =
-                    JabberActivator.getConfigurationService()
-                    .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
-                if(globalProxyType == null ||
-                   globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
-                {
-                    proxy = org.jivesoftware.smack.proxy.ProxyInfo.forNoProxy();
-                }
-                else
-                {
-                    String globalProxyAddress =
-                        JabberActivator.getConfigurationService().getString(
-                        ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
-                    String globalProxyPortStr =
-                        JabberActivator.getConfigurationService().getString(
-                        ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
-                    int globalProxyPort;
-                    try
-                    {
-                        globalProxyPort = Integer.parseInt(
-                            globalProxyPortStr);
-                    }
-                    catch(NumberFormatException ex)
-                    {
-                        throw new OperationFailedException("Wrong proxy port, "
-                                + globalProxyPortStr
-                                + " does not represent an integer",
-                            OperationFailedException.INVALID_ACCOUNT_PROPERTIES,
-                            ex);
-                    }
-                    String globalProxyUsername =
-                        JabberActivator.getConfigurationService().getString(
-                        ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
-                    String globalProxyPassword =
-                        JabberActivator.getConfigurationService().getString(
-                        ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
-                    if(globalProxyAddress == null ||
-                        globalProxyAddress.length() <= 0)
-                    {
-                        throw new OperationFailedException(
-                            "Missing Proxy Address",
-                            OperationFailedException.INVALID_ACCOUNT_PROPERTIES);
-                    }
-                    if(globalProxyType.equals(
-                        ProxyInfo.ProxyType.HTTP.name()))
-                    {
-                        proxy = org.jivesoftware.smack.proxy.ProxyInfo
-                            .forHttpProxy(
-                                globalProxyAddress,
-                                globalProxyPort,
-                                globalProxyUsername,
-                                globalProxyPassword);
-                    }
-                    else if(globalProxyType.equals(
-                        ProxyInfo.ProxyType.SOCKS4.name()))
-                    {
-                         proxy = org.jivesoftware.smack.proxy.ProxyInfo
-                             .forSocks4Proxy(
-                                globalProxyAddress,
-                                globalProxyPort,
-                                globalProxyUsername,
-                                globalProxyPassword);
-                    }
-                    else if(globalProxyType.equals(
-                        ProxyInfo.ProxyType.SOCKS5.name()))
-                    {
-                         proxy = org.jivesoftware.smack.proxy.ProxyInfo
-                             .forSocks5Proxy(
-                                globalProxyAddress,
-                                globalProxyPort,
-                                globalProxyUsername,
-                                globalProxyPassword);
-                    }
-                }
+                loadProxy();
 
                 // try connecting to all serverAddresses
                 // as if connecting with username fails
@@ -834,6 +761,72 @@ public class ProtocolProviderServiceJabberImpl
             }
 
             inConnectAndLogin = false;
+        }
+    }
+
+    /**
+     * Sets the global proxy information based on the configuration
+     * 
+     * @throws OperationFailedException
+     */
+    private void loadProxy() throws OperationFailedException
+    {
+        String globalProxyType =
+            JabberActivator.getConfigurationService()
+            .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
+        if(globalProxyType == null ||
+           globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
+        {
+            proxy = org.jivesoftware.smack.proxy.ProxyInfo.forNoProxy();
+        }
+        else
+        {
+            String globalProxyAddress =
+                JabberActivator.getConfigurationService().getString(
+                ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
+            String globalProxyPortStr =
+                JabberActivator.getConfigurationService().getString(
+                ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
+            int globalProxyPort;
+            try
+            {
+                globalProxyPort = Integer.parseInt(
+                    globalProxyPortStr);
+            }
+            catch(NumberFormatException ex)
+            {
+                throw new OperationFailedException("Wrong proxy port, "
+                        + globalProxyPortStr
+                        + " does not represent an integer",
+                    OperationFailedException.INVALID_ACCOUNT_PROPERTIES,
+                    ex);
+            }
+            String globalProxyUsername =
+                JabberActivator.getConfigurationService().getString(
+                ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+            String globalProxyPassword =
+                JabberActivator.getConfigurationService().getString(
+                ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+            if(globalProxyAddress == null ||
+                globalProxyAddress.length() <= 0)
+            {
+                throw new OperationFailedException(
+                    "Missing Proxy Address",
+                    OperationFailedException.INVALID_ACCOUNT_PROPERTIES);
+            }
+            try
+            {
+                proxy = new org.jivesoftware.smack.proxy.ProxyInfo(
+                    Enum.valueOf(org.jivesoftware.smack.proxy.ProxyInfo.
+                        ProxyType.class, globalProxyType),
+                    globalProxyAddress, globalProxyPort,
+                    globalProxyUsername, globalProxyPassword);
+            }
+            catch(IllegalArgumentException e)
+            {
+                logger.error("Invalid value for smack proxy enum", e);
+                proxy = null;
+            }
         }
     }
 
