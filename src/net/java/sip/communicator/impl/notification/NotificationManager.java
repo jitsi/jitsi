@@ -754,17 +754,23 @@ public class NotificationManager
      */
     public void messageReceived(MessageReceivedEvent evt)
     {
-        // Fire notification
-        String title = NotificationActivator.getResources().getI18NString(
-            "service.gui.MSG_RECEIVED",
-            new String[]{evt.getSourceContact().getDisplayName()});
+        try
+        {
+            // Fire notification
+            String title = NotificationActivator.getResources().getI18NString(
+                "service.gui.MSG_RECEIVED",
+                new String[]{evt.getSourceContact().getDisplayName()});
 
-        fireChatNotification(
-                evt.getSourceContact(),
-                NotificationService.INCOMING_MESSAGE,
-                title,
-                evt.getSourceMessage().getContent());
-
+            fireChatNotification(
+                    evt.getSourceContact(),
+                    NotificationService.INCOMING_MESSAGE,
+                    title,
+                    evt.getSourceMessage().getContent());
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for message received", t);
+        }
     }
 
     /**
@@ -791,20 +797,27 @@ public class NotificationManager
      */
     public void fileTransferRequestReceived(FileTransferRequestEvent event)
     {
-        IncomingFileTransferRequest request = event.getRequest();
-        Contact sourceContact = request.getSender();
+        try
+        {
+            IncomingFileTransferRequest request = event.getRequest();
+            Contact sourceContact = request.getSender();
 
-        //Fire notification
-        String title = NotificationActivator.getResources().getI18NString(
-            "service.gui.FILE_RECEIVING_FROM",
-            new String[]{sourceContact.getDisplayName()});
+            //Fire notification
+            String title = NotificationActivator.getResources().getI18NString(
+                "service.gui.FILE_RECEIVING_FROM",
+                new String[]{sourceContact.getDisplayName()});
 
-        NotificationManager
-            .fireChatNotification(
-                sourceContact,
-                NotificationService.INCOMING_FILE,
-                title,
-                request.getFileName());
+            NotificationManager
+                .fireChatNotification(
+                    sourceContact,
+                    NotificationService.INCOMING_FILE,
+                    title,
+                    request.getFileName());
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for file transfer req received", t);
+        }
     }
 
     /**
@@ -842,63 +855,70 @@ public class NotificationManager
      */
     public void typingNotificationReceived(TypingNotificationEvent event)
     {
-        Contact contact = event.getSourceContact();
-
-        // check whether the current chat window shows the
-        // chat we received a typing info for and in such case don't show
-        // notifications
-        UIService uiService = NotificationActivator.getUIService();
-
-        if(uiService != null)
+        try
         {
-            Chat chat = uiService.getCurrentChat();
-            if(chat != null)
-            {
-                MetaContact metaContact = uiService.getChatContact(chat);
+            Contact contact = event.getSourceContact();
 
-                if(metaContact != null && metaContact.containsContact(contact)
-                    && chat.isChatFocused())
+            // check whether the current chat window shows the
+            // chat we received a typing info for and in such case don't show
+            // notifications
+            UIService uiService = NotificationActivator.getUIService();
+
+            if(uiService != null)
+            {
+                Chat chat = uiService.getCurrentChat();
+                if(chat != null)
                 {
+                    MetaContact metaContact = uiService.getChatContact(chat);
+
+                    if(metaContact != null && metaContact.containsContact(contact)
+                        && chat.isChatFocused())
+                    {
+                        return;
+                    }
+                }
+            }
+
+            long currentTime = System.currentTimeMillis();
+
+            if (this.proactiveTimer.size() > 0)
+            {
+                //first remove contacts that have been here longer than the timeout
+                //to avoid memory leaks
+                Iterator<Map.Entry<Contact, Long>> entries
+                                        = this.proactiveTimer.entrySet().iterator();
+                while (entries.hasNext())
+                {
+                    Map.Entry<Contact, Long> entry = entries.next();
+                    Long lastNotificationDate = entry.getValue();
+                    if (lastNotificationDate.longValue() + 30000 <  currentTime)
+                    {
+                        // The entry is outdated
+                        entries.remove();
+                    }
+                }
+
+                // Now, check if the contact is still in the map
+                if (this.proactiveTimer.containsKey(contact))
+                {
+                    // We already notified the others about this
                     return;
                 }
             }
+
+            this.proactiveTimer.put(contact, currentTime);
+
+            NotificationManager.fireChatNotification(
+                contact,
+                NotificationService.PROACTIVE_NOTIFICATION,
+                contact.getDisplayName(),
+                NotificationActivator.getResources()
+                    .getI18NString("service.gui.PROACTIVE_NOTIFICATION"));
         }
-
-        long currentTime = System.currentTimeMillis();
-
-        if (this.proactiveTimer.size() > 0)
+        catch(Throwable t)
         {
-            //first remove contacts that have been here longer than the timeout
-            //to avoid memory leaks
-            Iterator<Map.Entry<Contact, Long>> entries
-                                    = this.proactiveTimer.entrySet().iterator();
-            while (entries.hasNext())
-            {
-                Map.Entry<Contact, Long> entry = entries.next();
-                Long lastNotificationDate = entry.getValue();
-                if (lastNotificationDate.longValue() + 30000 <  currentTime)
-                {
-                    // The entry is outdated
-                    entries.remove();
-                }
-            }
-
-            // Now, check if the contact is still in the map
-            if (this.proactiveTimer.containsKey(contact))
-            {
-                // We already notified the others about this
-                return;
-            }
+            logger.error("Error notifying for typing evt received", t);
         }
-
-        this.proactiveTimer.put(contact, currentTime);
-
-        NotificationManager.fireChatNotification(
-            contact,
-            NotificationService.PROACTIVE_NOTIFICATION,
-            contact.getDisplayName(),
-            NotificationActivator.getResources()
-                .getI18NString("service.gui.PROACTIVE_NOTIFICATION"));
     }
 
     /**
@@ -908,25 +928,32 @@ public class NotificationManager
      */
     public void incomingCallReceived(CallEvent event)
     {
-        Call call = event.getSourceCall();
-        String peerName = event.getSourceCall()
-            .getCallPeers().next().getDisplayName();
-
-        NotificationManager.fireNotification(
-                NotificationService.INCOMING_CALL,
-                "",
-                NotificationActivator.getResources()
-                        .getI18NString("service.gui.INCOMING_CALL",
-                                new String[]{peerName}));
-
-        call.addCallChangeListener(this);
-
-        if(call.getCallPeers().hasNext())
+        try
         {
-            CallPeer peer = call.getCallPeers().next();
-            peer.addCallPeerListener(this);
-            peer.addCallPeerSecurityListener(this);
-            peer.addCallPeerConferenceListener(this);
+            Call call = event.getSourceCall();
+            String peerName = event.getSourceCall()
+                .getCallPeers().next().getDisplayName();
+
+            NotificationManager.fireNotification(
+                    NotificationService.INCOMING_CALL,
+                    "",
+                    NotificationActivator.getResources()
+                            .getI18NString("service.gui.INCOMING_CALL",
+                                    new String[]{peerName}));
+
+            call.addCallChangeListener(this);
+
+            if(call.getCallPeers().hasNext())
+            {
+                CallPeer peer = call.getCallPeers().next();
+                peer.addCallPeerListener(this);
+                peer.addCallPeerSecurityListener(this);
+                peer.addCallPeerConferenceListener(this);
+            }
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for incoming call received", t);
         }
     }
 
@@ -955,11 +982,18 @@ public class NotificationManager
      */
     public void callEnded(CallEvent event)
     {
-        // Stop all telephony related sounds.
-        stopAllTelephonySounds();
+        try
+        {
+            // Stop all telephony related sounds.
+            stopAllTelephonySounds();
 
-        // Play the hangup sound.
-        NotificationManager.fireNotification(NotificationService.HANG_UP);
+            // Play the hangup sound.
+            NotificationManager.fireNotification(NotificationService.HANG_UP);
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for call ended", t);
+        }
     }
 
     /**
@@ -969,6 +1003,10 @@ public class NotificationManager
     public void callPeerAdded(CallPeerEvent evt)
     {
         CallPeer peer = evt.getSourceCallPeer();
+
+        if(peer == null)
+            return;
+
         peer.addCallPeerListener(this);
         peer.addCallPeerSecurityListener(this);
         peer.addCallPeerConferenceListener(this);
@@ -981,6 +1019,10 @@ public class NotificationManager
     public void callPeerRemoved(CallPeerEvent evt)
     {
         CallPeer peer = evt.getSourceCallPeer();
+
+        if(peer == null)
+            return;
+
         peer.removeCallPeerListener(this);
         peer.removeCallPeerSecurityListener(this);
         peer.addCallPeerConferenceListener(this);
@@ -1001,77 +1043,84 @@ public class NotificationManager
      */
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
-        CallPeer sourcePeer = evt.getSourceCallPeer();
-        CallPeerState newState = (CallPeerState) evt.getNewValue();
-        CallPeerState oldState = (CallPeerState) evt.getOldValue();
+        try
+        {
+            CallPeer sourcePeer = evt.getSourceCallPeer();
+            CallPeerState newState = (CallPeerState) evt.getNewValue();
+            CallPeerState oldState = (CallPeerState) evt.getOldValue();
 
-        // Play the dialing audio when in connecting and initiating call state.
-        // Stop the dialing audio when we enter any other state.
-        if (newState == CallPeerState.INITIATING_CALL
-            || newState == CallPeerState.CONNECTING)
-        {
-            NotificationManager
-                .fireNotification(NotificationService.DIALING);
-        }
-        else
-        {
-            NotificationManager.stopSound(NotificationService.DIALING);
-        }
-
-        if (newState == CallPeerState.ALERTING_REMOTE_SIDE
-            //if we were already in state CONNECTING_WITH_EARLY_MEDIA the server
-            //is already taking care of playing the notifications so we don't
-            //need to fire a notification here.
-            && oldState != CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
-        {
-            NotificationManager
-                .fireNotification(NotificationService.OUTGOING_CALL);
-        }
-        else if (newState == CallPeerState.BUSY)
-        {
-            NotificationManager.stopSound(NotificationService.OUTGOING_CALL);
-
-            // We start the busy sound only if we're in a simple call.
-            if (!isConference(sourcePeer.getCall()))
+            // Play the dialing audio when in connecting and initiating call state.
+            // Stop the dialing audio when we enter any other state.
+            if (newState == CallPeerState.INITIATING_CALL
+                || newState == CallPeerState.CONNECTING)
             {
-                NotificationManager.fireNotification(
-                    NotificationService.BUSY_CALL);
+                NotificationManager
+                    .fireNotification(NotificationService.DIALING);
             }
-        }
-        else if (newState == CallPeerState.CONNECTING_INCOMING_CALL ||
-            newState == CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA)
-        {
-            if (!CallPeerState.isOnHold(oldState))
+            else
             {
+                NotificationManager.stopSound(NotificationService.DIALING);
+            }
+
+            if (newState == CallPeerState.ALERTING_REMOTE_SIDE
+                //if we were already in state CONNECTING_WITH_EARLY_MEDIA the server
+                //is already taking care of playing the notifications so we don't
+                //need to fire a notification here.
+                && oldState != CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
+            {
+                NotificationManager
+                    .fireNotification(NotificationService.OUTGOING_CALL);
+            }
+            else if (newState == CallPeerState.BUSY)
+            {
+                NotificationManager.stopSound(NotificationService.OUTGOING_CALL);
+
+                // We start the busy sound only if we're in a simple call.
+                if (!isConference(sourcePeer.getCall()))
+                {
+                    NotificationManager.fireNotification(
+                        NotificationService.BUSY_CALL);
+                }
+            }
+            else if (newState == CallPeerState.CONNECTING_INCOMING_CALL ||
+                newState == CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA)
+            {
+                if (!CallPeerState.isOnHold(oldState))
+                {
+                    NotificationManager
+                        .stopSound(NotificationService.OUTGOING_CALL);
+                    NotificationManager
+                        .stopSound(NotificationService.INCOMING_CALL);
+                }
+            }
+            else if (newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
+            {
+                //this means a call with early media. make sure that we are not
+                //playing local notifications any more.
                 NotificationManager
                     .stopSound(NotificationService.OUTGOING_CALL);
-                NotificationManager
-                    .stopSound(NotificationService.INCOMING_CALL);
             }
-        }
-        else if (newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
-        {
-            //this means a call with early media. make sure that we are not
-            //playing local notifications any more.
-            NotificationManager
-                .stopSound(NotificationService.OUTGOING_CALL);
-        }
-        else if (newState == CallPeerState.CONNECTED)
-        {
-            if (!CallPeerState.isOnHold(oldState))
+            else if (newState == CallPeerState.CONNECTED)
             {
-                NotificationManager
-                    .stopSound(NotificationService.OUTGOING_CALL);
-                NotificationManager
-                    .stopSound(NotificationService.INCOMING_CALL);
+                if (!CallPeerState.isOnHold(oldState))
+                {
+                    NotificationManager
+                        .stopSound(NotificationService.OUTGOING_CALL);
+                    NotificationManager
+                        .stopSound(NotificationService.INCOMING_CALL);
+                }
+            }
+            else if (newState == CallPeerState.DISCONNECTED
+                    || newState == CallPeerState.FAILED)
+            {
+                stopAllTelephonySounds();
+
+                NotificationManager.fireNotification(NotificationService.HANG_UP);
             }
         }
-        else if (newState == CallPeerState.DISCONNECTED
-                || newState == CallPeerState.FAILED)
+        catch(Throwable t)
         {
-            stopAllTelephonySounds();
-
-            NotificationManager.fireNotification(NotificationService.HANG_UP);
+            logger.error("Error notifying after peer state changed", t);
         }
     }
 
@@ -1113,14 +1162,21 @@ public class NotificationManager
      */
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        CallPeer peer = (CallPeer) evt.getSource();
-
-        if((evt.getSecurityController().requiresSecureSignalingTransport()
-            && peer.getProtocolProvider().isSignalingTransportSecure())
-            || !evt.getSecurityController().requiresSecureSignalingTransport())
+        try
         {
-            NotificationManager.fireNotification(
-                NotificationService.CALL_SECURITY_ON);
+            CallPeer peer = (CallPeer) evt.getSource();
+
+            if((evt.getSecurityController().requiresSecureSignalingTransport()
+                && peer.getProtocolProvider().isSignalingTransportSecure())
+                || !evt.getSecurityController().requiresSecureSignalingTransport())
+            {
+                NotificationManager.fireNotification(
+                    NotificationService.CALL_SECURITY_ON);
+            }
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error for notify for security event", t);
         }
     }
 
@@ -1137,40 +1193,47 @@ public class NotificationManager
      */
     public void securityMessageRecieved(CallPeerSecurityMessageEvent event)
     {
-        int severity = event.getEventSeverity();
-
-        String messageTitle = null;
-
-        switch (severity)
+        try
         {
-            // Don't play alert sound for Info or warning.
-            case CallPeerSecurityMessageEvent.INFORMATION:
-            {
-                messageTitle = NotificationActivator.getResources()
-                    .getI18NString("service.gui.SECURITY_INFO");
-                break;
-            }
-            case CallPeerSecurityMessageEvent.WARNING:
-            {
-                messageTitle = NotificationActivator.getResources()
-                    .getI18NString("service.gui.SECURITY_WARNING");
-                break;
-            }
-            // Alert sound indicates: security cannot established
-            case CallPeerSecurityMessageEvent.SEVERE:
-            case CallPeerSecurityMessageEvent.ERROR:
-            {
-                messageTitle = NotificationActivator.getResources()
-                    .getI18NString("service.gui.SECURITY_ERROR");
-                NotificationManager.fireNotification(
-                    NotificationService.CALL_SECURITY_ERROR);
-            }
-        }
+            int severity = event.getEventSeverity();
 
-        NotificationManager.fireNotification(
-            NotificationService.SECURITY_MESSAGE,
-            messageTitle,
-            event.getI18nMessage());
+            String messageTitle = null;
+
+            switch (severity)
+            {
+                // Don't play alert sound for Info or warning.
+                case CallPeerSecurityMessageEvent.INFORMATION:
+                {
+                    messageTitle = NotificationActivator.getResources()
+                        .getI18NString("service.gui.SECURITY_INFO");
+                    break;
+                }
+                case CallPeerSecurityMessageEvent.WARNING:
+                {
+                    messageTitle = NotificationActivator.getResources()
+                        .getI18NString("service.gui.SECURITY_WARNING");
+                    break;
+                }
+                // Alert sound indicates: security cannot established
+                case CallPeerSecurityMessageEvent.SEVERE:
+                case CallPeerSecurityMessageEvent.ERROR:
+                {
+                    messageTitle = NotificationActivator.getResources()
+                        .getI18NString("service.gui.SECURITY_ERROR");
+                    NotificationManager.fireNotification(
+                        NotificationService.CALL_SECURITY_ERROR);
+                }
+            }
+
+            NotificationManager.fireNotification(
+                NotificationService.SECURITY_MESSAGE,
+                messageTitle,
+                event.getI18nMessage());
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for security message received", t);
+        }
     }
 
     /**
@@ -1183,54 +1246,60 @@ public class NotificationManager
      */
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
-        ChatRoom sourceChatRoom = evt.getSourceChatRoom();
-        ChatRoomMember sourceMember = evt.getSourceChatRoomMember();
-
-        // Fire notification
-        boolean fireChatNotification;
-
-        String messageContent = evt.getMessage().getContent();
-
-        /*
-         * It is uncommon for IRC clients to display popup notifications for
-         * messages which are sent to public channels and which do not mention
-         * the nickname of the local user.
-         */
-        if (sourceChatRoom.isSystem()
-            || isPrivate(sourceChatRoom)
-            || (messageContent == null))
-            fireChatNotification = true;
-        else
+        try
         {
-            String nickname = sourceChatRoom.getUserNickname();
+            ChatRoom sourceChatRoom = evt.getSourceChatRoom();
+            ChatRoomMember sourceMember = evt.getSourceChatRoomMember();
 
-            int atIx = -1;
+            // Fire notification
+            boolean fireChatNotification;
 
-            if(nickname != null)
-                atIx = nickname.indexOf("@");
+            String messageContent = evt.getMessage().getContent();
 
-            fireChatNotification =
-                (nickname == null)
-                    || messageContent.toLowerCase().contains(
-                        nickname.toLowerCase())
-                    || ((atIx == -1)? false : messageContent.toLowerCase()
-                        .contains(nickname.substring(0, atIx).toLowerCase()));
+            /*
+             * It is uncommon for IRC clients to display popup notifications for
+             * messages which are sent to public channels and which do not mention
+             * the nickname of the local user.
+             */
+            if (sourceChatRoom.isSystem()
+                || isPrivate(sourceChatRoom)
+                || (messageContent == null))
+                fireChatNotification = true;
+            else
+            {
+                String nickname = sourceChatRoom.getUserNickname();
+
+                int atIx = -1;
+
+                if(nickname != null)
+                    atIx = nickname.indexOf("@");
+
+                fireChatNotification =
+                    (nickname == null)
+                        || messageContent.toLowerCase().contains(
+                            nickname.toLowerCase())
+                        || ((atIx == -1)? false : messageContent.toLowerCase()
+                            .contains(nickname.substring(0, atIx).toLowerCase()));
+            }
+
+            if (fireChatNotification)
+            {
+                String title
+                    = NotificationActivator.getResources().getI18NString(
+                        "service.gui.MSG_RECEIVED",
+                        new String[] { sourceMember.getName() });
+
+                NotificationManager.fireChatNotification(
+                        sourceChatRoom,
+                        NotificationService.INCOMING_MESSAGE,
+                        title,
+                        messageContent);
+            }
         }
-
-        if (fireChatNotification)
+        catch(Throwable t)
         {
-            String title
-                = NotificationActivator.getResources().getI18NString(
-                    "service.gui.MSG_RECEIVED",
-                    new String[] { sourceMember.getName() });
-
-            NotificationManager.fireChatNotification(
-                    sourceChatRoom,
-                    NotificationService.INCOMING_MESSAGE,
-                    title,
-                    messageContent);
+            logger.error("Error notifying for chat room message received", t);
         }
-
     }
 
     /**
@@ -1317,32 +1386,39 @@ public class NotificationManager
      */
     public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
     {
-        AdHocChatRoom sourceChatRoom = evt.getSourceChatRoom();
-        Contact sourceParticipant = evt.getSourceChatRoomParticipant();
-
-        // Fire notification
-        boolean fireChatNotification;
-
-        String nickname = sourceChatRoom.getName();
-        String messageContent = evt.getMessage().getContent();
-
-        fireChatNotification =
-            (nickname == null)
-                || messageContent.toLowerCase().contains(
-                        nickname.toLowerCase());
-
-        if (fireChatNotification)
+        try
         {
-            String title
-                = NotificationActivator.getResources().getI18NString(
-                        "service.gui.MSG_RECEIVED",
-                        new String[] { sourceParticipant.getDisplayName() });
+            AdHocChatRoom sourceChatRoom = evt.getSourceChatRoom();
+            Contact sourceParticipant = evt.getSourceChatRoomParticipant();
 
-            NotificationManager.fireChatNotification(
-                sourceChatRoom,
-                NotificationService.INCOMING_MESSAGE,
-                title,
-                messageContent);
+            // Fire notification
+            boolean fireChatNotification;
+
+            String nickname = sourceChatRoom.getName();
+            String messageContent = evt.getMessage().getContent();
+
+            fireChatNotification =
+                (nickname == null)
+                    || messageContent.toLowerCase().contains(
+                            nickname.toLowerCase());
+
+            if (fireChatNotification)
+            {
+                String title
+                    = NotificationActivator.getResources().getI18NString(
+                            "service.gui.MSG_RECEIVED",
+                            new String[] { sourceParticipant.getDisplayName() });
+
+                NotificationManager.fireChatNotification(
+                    sourceChatRoom,
+                    NotificationService.INCOMING_MESSAGE,
+                    title,
+                    messageContent);
+            }
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for adhoc message received", t);
         }
     }
 
@@ -1383,19 +1459,26 @@ public class NotificationManager
      */
     public void conferenceMemberAdded(CallPeerConferenceEvent conferenceEvent)
     {
-        CallPeer peer =
-            conferenceEvent.getConferenceMember().getConferenceFocusCallPeer();
-
-        if(peer.getConferenceMemberCount() > 0)
+        try
         {
-            CallPeerSecurityStatusEvent securityEvent
-                = peer.getCurrentSecuritySettings();
+            CallPeer peer =
+                conferenceEvent.getConferenceMember().getConferenceFocusCallPeer();
 
-            if (securityEvent instanceof CallPeerSecurityOnEvent)
+            if(peer.getConferenceMemberCount() > 0)
             {
-                NotificationManager.fireNotification(
-                    NotificationService.CALL_SECURITY_ON);
+                CallPeerSecurityStatusEvent securityEvent
+                    = peer.getCurrentSecuritySettings();
+
+                if (securityEvent instanceof CallPeerSecurityOnEvent)
+                {
+                    NotificationManager.fireNotification(
+                        NotificationService.CALL_SECURITY_ON);
+                }
             }
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for secured call member", t);
         }
     }
 
@@ -1417,12 +1500,19 @@ public class NotificationManager
      */
     public void recorderStopped(Recorder recorder)
     {
-        NotificationManager.fireNotification(
-                NotificationService.CALL_SAVED,
-                NotificationActivator.getResources().getI18NString(
-                        "plugin.callrecordingconfig.CALL_SAVED"),
-                NotificationActivator.getResources().getI18NString(
-                        "plugin.callrecordingconfig.CALL_SAVED_TO",
-                        new String[] { recorder.getFilename() }));
+        try
+        {
+            NotificationManager.fireNotification(
+                    NotificationService.CALL_SAVED,
+                    NotificationActivator.getResources().getI18NString(
+                            "plugin.callrecordingconfig.CALL_SAVED"),
+                    NotificationActivator.getResources().getI18NString(
+                            "plugin.callrecordingconfig.CALL_SAVED_TO",
+                            new String[] { recorder.getFilename() }));
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error notifying for recorder stopped", t);
+        }
     }
 }
