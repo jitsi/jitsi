@@ -510,29 +510,7 @@ public class ProtocolProviderServiceJabberImpl
                 int serverPort = getAccountID().getAccountPropertyInt(
                         ProtocolProviderFactory.SERVER_PORT, 5222);
 
-                if(resource == null)
-                {
-                    String defaultResource = "jitsi";
-                    String autoGenenerateResource =
-                        getAccountID().getAccountPropertyString(
-                            ProtocolProviderFactory.AUTO_GENERATE_RESOURCE);
-                    if(autoGenenerateResource == null ||
-                        Boolean.parseBoolean(autoGenenerateResource))
-                    {
-                        SecureRandom random = new SecureRandom();
-
-                        resource = defaultResource + "-" +
-                            new BigInteger(32, random).toString(32);
-                    }
-                    else
-                    {
-                        resource = getAccountID().getAccountPropertyString(
-                            ProtocolProviderFactory.RESOURCE);
-
-                        if(resource == null || resource.length() == 0)
-                            resource = defaultResource;
-                    }
-                }
+                loadResource();
 
                 boolean isServerOverriden =
                     getAccountID().getAccountPropertyBoolean(
@@ -713,6 +691,36 @@ public class ProtocolProviderServiceJabberImpl
             }
 
             inConnectAndLogin = false;
+        }
+    }
+
+    /**
+     * Initializes the Jabber Resource identifier.
+     */
+    private void loadResource()
+    {
+        if(resource == null)
+        {
+            String defaultResource = "jitsi";
+            String autoGenenerateResource =
+                getAccountID().getAccountPropertyString(
+                    ProtocolProviderFactory.AUTO_GENERATE_RESOURCE);
+            if(autoGenenerateResource == null ||
+                Boolean.parseBoolean(autoGenenerateResource))
+            {
+                SecureRandom random = new SecureRandom();
+
+                resource = defaultResource + "-" +
+                    new BigInteger(32, random).toString(32);
+            }
+            else
+            {
+                resource = getAccountID().getAccountPropertyString(
+                    ProtocolProviderFactory.RESOURCE);
+
+                if(resource == null || resource.length() == 0)
+                    resource = defaultResource;
+            }
         }
     }
 
