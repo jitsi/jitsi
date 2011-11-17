@@ -618,6 +618,12 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
                             httpCode,
                             resourceId.toString());
                 }
+                if (httpCode == HttpStatus.SC_UNAUTHORIZED
+                    || httpCode == HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED)
+                {
+                    showError(null, null,
+                        "Unauthorized. Wrong username or password");
+                }
                 throw new XCapException(errorMessage);
             }
 

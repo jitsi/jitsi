@@ -11,6 +11,7 @@ import net.java.sip.communicator.impl.protocol.sip.xcap.utils.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror.*;
 import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import org.apache.http.*;
 import org.apache.http.auth.*;
@@ -225,16 +226,53 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             }
             return result; 
         }
+        catch(UnknownHostException uhe)
+        {
+            showError(uhe, null, null);
+            disconnect();
+            throw new XCapException(uhe.getMessage(), uhe);
+        }
         catch (IOException e)
         {
             String errorMessage = String.format(
                     "%1s resource cannot be read",
                     uri.toString());
+            showError(e, null, errorMessage);
             throw new XCapException(errorMessage, e);
         }
         finally
         {
             httpClient.getConnectionManager().shutdown();
+        }
+    }
+
+    /**
+     * Shows an error and a short description.
+     * @param ex the exception
+     */
+    static void showError(Exception ex, String title, String message)
+    {
+        try
+        {
+            if(title == null)
+                title = "Error in SIP contactlist storage";
+
+            if(message == null)
+                message = title + "\n" +
+                    ex.getClass().getName() + ": " +
+                    ex.getLocalizedMessage();
+
+
+            if(SipActivator.getUIService() != null)
+                SipActivator.getUIService().getPopupDialog()
+                    .showMessagePopupDialog(
+                        message,
+                        title,
+                        PopupDialog.ERROR_MESSAGE);
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error for error dialog", t);
         }
     }
 

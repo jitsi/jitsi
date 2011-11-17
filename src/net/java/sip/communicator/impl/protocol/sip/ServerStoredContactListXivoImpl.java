@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.address.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -50,7 +51,7 @@ public class ServerStoredContactListXivoImpl
      * The name of the property under which the user may specify the xivo server
      * address.
      */
-    public static final String XIVO_SERVER_ADDRESS = "XIVO_SERVER_ADDRESS";
+    public static final String XIVO_SERVER_ADDRESS = "XIVO_SERVER_URI";
 
     /**
      * The name of the property under which the user may specify the xivo user.
@@ -136,6 +137,7 @@ public class ServerStoredContactListXivoImpl
             }
             catch(Throwable ex)
             {
+                showError(ex, null, null);
                 logger.error("Error connecting to server", ex);
                 return;
             }
@@ -146,6 +148,8 @@ public class ServerStoredContactListXivoImpl
 
             if(!login(username))
             {
+                showError(null, null,
+                        "Unauthorized. Cannot login.");
                 logger.error("Cannot login.");
                 return;
             }
@@ -469,6 +473,10 @@ public class ServerStoredContactListXivoImpl
 
             if (classField.equals("loginko"))
             {
+                showError(null, null,
+                        "Unauthorized. Cannot login: " +
+                        incomingObject.getString("errorstring"));
+
                 logger.error("Error login: " +
                     incomingObject.getString("errorstring"));
 
@@ -811,5 +819,34 @@ public class ServerStoredContactListXivoImpl
         }
 
         return null;
+    }
+
+    /**
+     * Shows an error and a short description.
+     * @param ex the exception
+     */
+    static void showError(Throwable ex, String title, String message)
+    {
+        try
+        {
+            if(title == null)
+                title = "Error in SIP contactlist storage";
+
+            if(message == null)
+                message = title + "\n" +
+                    ex.getClass().getName() + ": " +
+                    ex.getLocalizedMessage();
+
+            if(SipActivator.getUIService() != null)
+                SipActivator.getUIService().getPopupDialog()
+                    .showMessagePopupDialog(
+                        message,
+                        title,
+                        PopupDialog.ERROR_MESSAGE);
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error for error dialog", t);
+        }
     }
 }
