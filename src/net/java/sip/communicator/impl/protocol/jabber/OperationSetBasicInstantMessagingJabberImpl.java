@@ -106,8 +106,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * The timer executing tasks on specified intervals
      */
-    private final Timer keepAliveTimer =
-        new Timer("Jabber keepalive timer", true);
+    private Timer keepAliveTimer;
 
     /**
      * Indicates the time of the last Mailbox report that we received from
@@ -445,8 +444,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
             String content = msgDeliveryPendingEvt
                                     .getSourceMessage().getContent();
 
-            XMPPConnection jabberConnection = jabberProvider.getConnection();
-
             if(message.getContentType().equals(HTML_MIME_TYPE))
             {
                 msg.setBody(Html2Text.extractText(content));
@@ -572,7 +569,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
 
                 // run keep alive thread
-                if(keepAliveSendTask == null && keepAliveEnabled)
+                if((keepAliveSendTask == null || keepAliveTimer == null)
+                    && keepAliveEnabled)
                 {
                     jabberProvider.getConnection().addPacketListener(
                         new KeepalivePacketListener(),
@@ -581,6 +579,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                     keepAliveSendTask = new KeepAliveSendTask();
 
+                    keepAliveTimer = new Timer("Jabber keepalive timer for <"
+                        + evt.getProvider().getAccountID() + ">", true);
                     keepAliveTimer.scheduleAtFixedRate(
                         keepAliveSendTask,
                         KEEPALIVE_INTERVAL,
@@ -602,6 +602,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 {
                     keepAliveSendTask.cancel();
                     keepAliveSendTask = null;
+                }
+                if(keepAliveTimer != null)
+                {
+                    keepAliveTimer.cancel();
+                    keepAliveTimer = null;
                 }
 
                 smackMessageListener = null;
