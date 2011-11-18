@@ -836,6 +836,27 @@ public class NetworkUtils
     public static InetSocketAddress[] getAandAAAARecords(String domain, int port)
         throws ParseException
     {
+        byte[] address = null;
+        if((address = strToIPv4(domain)) != null
+            || (address = strToIPv6(domain)) != null)
+        {
+            try
+            {
+                return new InetSocketAddress[]
+                {
+                    new InetSocketAddress(
+                        InetAddress.getByAddress(domain, address), port)
+                };
+            }
+            catch (UnknownHostException e)
+            {
+                //should not happen
+                logger.error(
+                    "Unable to create InetAddress for <" + domain + ">", e);
+                return null;
+            }
+        }
+
         List<InetSocketAddress> addresses = new LinkedList<InetSocketAddress>();
         boolean v6lookup = Boolean.getBoolean("java.net.preferIPv6Addresses");
 
