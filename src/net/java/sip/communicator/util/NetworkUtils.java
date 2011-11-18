@@ -824,15 +824,16 @@ public class NetworkUtils
     }
 
     /**
-     * Returns array of hosts from the A or AAAA record of the specified domain.
-     * The records are ordered against the IPv4/IPv6 protocol priority
+     * Returns array of hosts from the A and AAAA records of the specified
+     * domain. The records are ordered against the IPv4/IPv6 protocol priority
+     * 
      * @param domain the name of the domain we'd like to resolve.
      * @param port the port number of the returned <tt>InetSocketAddress</tt>
      * @return an array of InetSocketAddress containing records returned by the
-     * DNS server - address and port .
+     *         DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
      */
-    public static InetSocketAddress[] getAorAAAARecords(String domain, int port)
+    public static InetSocketAddress[] getAandAAAARecords(String domain, int port)
         throws ParseException
     {
         List<InetSocketAddress> addresses = new LinkedList<InetSocketAddress>();
@@ -879,7 +880,7 @@ public class NetworkUtils
             }
             v6lookup = !v6lookup;
         }
-        return (InetSocketAddress[])addresses.toArray(new InetSocketAddress[0]);
+        return addresses.toArray(new InetSocketAddress[0]);
     }
 
     /**

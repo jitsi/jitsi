@@ -512,7 +512,7 @@ public class ProtocolProviderServiceJabberImpl
                         try
                         {
                             addrs =
-                                NetworkUtils.getAorAAAARecords(
+                                NetworkUtils.getAandAAAARecords(
                                     srv.getTarget(),
                                     srv.getPort()
                                 );
@@ -557,7 +557,7 @@ public class ProtocolProviderServiceJabberImpl
             InetSocketAddress[] addrs = null;
             try
             {
-                addrs = NetworkUtils.getAorAAAARecords(
+                addrs = NetworkUtils.getAandAAAARecords(
                     serverAddressUserSetting,
                     serverPort
                 );
