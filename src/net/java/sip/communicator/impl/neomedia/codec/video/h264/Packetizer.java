@@ -341,9 +341,48 @@ public class Packetizer
                 return (BUFFER_PROCESSED_OK | INPUT_BUFFER_NOT_CONSUMED);
             else
             {
-                // It's the last NAL of the current frame so mark it.
-                outBuffer.setFlags(
-                        outBuffer.getFlags() | Buffer.FLAG_RTP_MARKER);
+                int flags = outBuffer.getFlags() | Buffer.FLAG_RTP_MARKER;
+
+                /*
+                 * It's the last NAL of the current frame so mark it. In order
+                 * to (at least partially) support feeding this Packetizer one
+                 * NAL at a time, do NOT always mark it i.e. the NALs with
+                 * a value for nal_unit_type which signals that they cannot be
+                 * the last NALs in an access unit should probably NOT be
+                 * marked anyway.
+                 */
+                if (nal.length > 0)
+                {
+                    int nal_unit_type = nal[0] & 0x1F;
+
+                    if ((nal_unit_type == 28 /* FU-A */) && (nal.length > 1))
+                    {
+                        byte fuHeader = nal[1];
+
+                        if ((fuHeader & 0x40 /* End bit */) == 0)
+                        {
+                            /*
+                             * A FU-A without the End bit cannot possibly be the
+                             * last NAL unit of an access unit.
+                             */
+                            flags &= ~Buffer.FLAG_RTP_MARKER;
+                        }
+                        else
+                            nal_unit_type = fuHeader & 0x1F;
+                    }
+
+                    switch (nal_unit_type)
+                    {
+                    case 6 /* Supplemental enhancement information (SEI) */:
+                    case 7 /* Sequence parameter set */:
+                    case 8 /* Picture parameter set */:
+                    case 9 /* Access unit delimiter */:
+                        flags &= ~Buffer.FLAG_RTP_MARKER;
+                        break;
+                    }
+                }
+
+                outBuffer.setFlags(flags);
                 return BUFFER_PROCESSED_OK;
             }
         }
