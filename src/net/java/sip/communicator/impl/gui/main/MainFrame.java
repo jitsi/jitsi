@@ -511,7 +511,7 @@ public class MainFrame
             presence.addProviderPresenceStatusListener(
                 uiProviderPresenceListener);
             presence.addContactPresenceStatusListener(
-                GuiActivator.getContactList());
+                GuiActivator.getContactList().getMetaContactListSource());
         }
 
         // Obtain the basic instant messaging operation set.
@@ -644,7 +644,7 @@ public class MainFrame
                 presence.removeProviderPresenceStatusListener(
                     uiProviderPresenceListener);
             presence.removeContactPresenceStatusListener(
-                    GuiActivator.getContactList());
+                GuiActivator.getContactList().getMetaContactListSource());
         }
 
         // Obtain the basic instant messaging operation set.

@@ -193,34 +193,46 @@ public class PresenceFilter
 
             if(isMatching(metaContact))
             {
-                resultCount++;
-                if (resultCount <= INITIAL_CONTACT_COUNT)
+                synchronized (metaContact)
                 {
-                    UIGroup uiGroup = null;
-                    if (!MetaContactListSource.isRootGroup(metaGroup))
+                    resultCount++;
+                    if (resultCount <= INITIAL_CONTACT_COUNT)
                     {
-                        uiGroup = MetaContactListSource
-                            .getUIGroup(metaGroup);
-
-                        if (uiGroup == null)
+                        UIGroup uiGroup = null;
+                        if (!MetaContactListSource.isRootGroup(metaGroup))
+                        {
                             uiGroup = MetaContactListSource
-                                .createUIGroup(metaGroup);
+                                .getUIGroup(metaGroup);
+
+                            if (uiGroup == null)
+                                uiGroup = MetaContactListSource
+                                    .createUIGroup(metaGroup);
+                        }
+
+                        if (logger.isDebugEnabled())
+                            logger.debug("Presence filter contact added: "
+                                    + metaContact.getDisplayName());
+
+                        UIContact uiContact
+                            = MetaContactListSource.getUIContact(metaContact);
+
+                        if (uiContact != null)
+                            continue;
+
+                        uiContact = MetaContactListSource
+                                .createUIContact(metaContact);
+
+                        GuiActivator.getContactList().addContact(
+                                uiContact,
+                                uiGroup,
+                                true,
+                                true);
+
+                        query.setInitialResultCount(resultCount);
                     }
-
-                    if (logger.isDebugEnabled())
-                        logger.debug("Presence filter contact added: "
-                                + metaContact.getDisplayName());
-
-                    GuiActivator.getContactList().addContact(
-                            MetaContactListSource.createUIContact(metaContact),
-                            uiGroup,
-                            true,
-                            true);
-
-                    query.setInitialResultCount(resultCount);
+                    else
+                        query.fireQueryEvent(metaContact);
                 }
-                else
-                    query.fireQueryEvent(metaContact);
             }
         }
 
