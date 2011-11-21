@@ -95,17 +95,7 @@ public class MetaContactListSource
         final MetaUIContact descriptor
             = new MetaUIContact(metaContact);
 
-        // fixes an issue with moving meta contacts where removeContact
-        // will set data to null in swing thread and it will be after we have
-        // set the data here, so we also move this set to the swing thread
-        // to order the calls of setData.
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                metaContact.setData(UI_CONTACT_DATA_KEY, descriptor);
-            }
-        });
+        metaContact.setData(UI_CONTACT_DATA_KEY, descriptor);
 
         return descriptor;
     }
@@ -324,6 +314,7 @@ public class MetaContactListSource
         }
         return false;
     }
+
     public void contactPresenceStatusChanged(
         ContactPresenceStatusChangeEvent evt)
     {
@@ -568,6 +559,22 @@ public class MetaContactListSource
 
         if (uiContact == null)
             return;
+
+        // fixes an issue with moving meta contacts where removeContact
+        // will set data to null in swing thread and it will be after we have
+        // set the data here, so we also move this set to the swing thread
+        // to order the calls of setData.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    metaContactMoved(evt);
+                }
+            });
+            return;
+        }
 
         UIGroup oldUIGroup;
 
