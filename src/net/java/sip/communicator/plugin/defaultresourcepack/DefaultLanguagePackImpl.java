@@ -40,20 +40,23 @@ public class DefaultLanguagePackImpl
         Enumeration<?> fsEnum = DefaultResourcePackActivator.bundleContext.getBundle().
                 findEntries("/resources/languages", "*.properties", false);
 
-        while (fsEnum.hasMoreElements())
+        if(fsEnum != null)
         {
-            String fileName = ((URL)fsEnum.nextElement()).getFile();
-            int localeIndex = fileName.indexOf('_');
-
-            if(localeIndex != -1)
+            while (fsEnum.hasMoreElements())
             {
-                String localeId =
-                    fileName.substring(
-                        localeIndex + 1,
-                        fileName.indexOf('.', localeIndex));
+                String fileName = ((URL)fsEnum.nextElement()).getFile();
+                int localeIndex = fileName.indexOf('_');
 
-                availableLocales.add(
-                    ResourceManagementServiceUtils.getLocale(localeId));
+                if(localeIndex != -1)
+                {
+                    String localeId =
+                        fileName.substring(
+                            localeIndex + 1,
+                            fileName.indexOf('.', localeIndex));
+
+                    availableLocales.add(
+                        ResourceManagementServiceUtils.getLocale(localeId));
+                }
             }
         }
     }

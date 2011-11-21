@@ -485,6 +485,8 @@ public class ProtocolProviderServiceJabberImpl
             loadProxy();
             Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
 
+            ConnectState state;
+
             // try connecting with auto-detection if enabled
             boolean isServerOverriden =
                 getAccountID().getAccountPropertyBoolean(
@@ -492,58 +494,11 @@ public class ProtocolProviderServiceJabberImpl
 
             if(!isServerOverriden)
             {
-                // check to see is there SRV records for this server domain
-                SRVRecord srvRecords[] = null;
-                try
-                {
-                    srvRecords = NetworkUtils
-                        .getSRVRecords("xmpp-client", "tcp", serviceName);
-                }
-                catch (ParseException e)
-                {
-                    logger.error("SRV record not resolved", e);
-                }
-
-                if(srvRecords != null)
-                {
-                    for(SRVRecord srv : srvRecords)
-                    {
-                        InetSocketAddress[] addrs = null;
-                        try
-                        {
-                            addrs =
-                                NetworkUtils.getAandAAAARecords(
-                                    srv.getTarget(),
-                                    srv.getPort()
-                                );
-                        }
-                        catch (ParseException e)
-                        {
-                            logger.error("Invalid SRV record target", e);
-                        }
-                        if (addrs == null)
-                            continue;
-
-                        for (InetSocketAddress isa : addrs)
-                        {
-                            try
-                            {
-                                ConnectState state
-                                    = connectAndLogin(isa,
-                                        password, serviceName);
-                                if(state == ConnectState.ABORT_CONNECTING
-                                    || state == ConnectState.STOP_TRYING)
-                                    return;
-                            }
-                            catch(XMPPException ex)
-                            {
-                                disconnectAndCleanConnection();
-                                if(isAuthenticationFailed(ex))
-                                    throw ex;
-                            }
-                        }
-                    }
-                }
+                state = connectUsingSRVRecords(
+                        serviceName, password, serviceName);
+                if(state == ConnectState.ABORT_CONNECTING
+                    || state == ConnectState.STOP_TRYING)
+                    return;
             }
 
             // connect with specified server name
@@ -553,6 +508,20 @@ public class ProtocolProviderServiceJabberImpl
 
             int serverPort = getAccountID().getAccountPropertyInt(
                     ProtocolProviderFactory.SERVER_PORT, 5222);
+
+            // check for custom xmpp domain which we will check for
+            // SRV records for server addresses
+            String customXMPPDomain = getAccountID()
+                .getAccountPropertyString("CUSTOM_XMPP_DOMAIN");
+
+            if(customXMPPDomain != null)
+            {
+                state = connectUsingSRVRecords(
+                            customXMPPDomain, password, serviceName);
+                if(state == ConnectState.ABORT_CONNECTING
+                    || state == ConnectState.STOP_TRYING)
+                return;
+            }
 
             InetSocketAddress[] addrs = null;
             try
@@ -573,9 +542,7 @@ public class ProtocolProviderServiceJabberImpl
             {
                 try
                 {
-                    ConnectState state
-                        = connectAndLogin(isa,
-                            password, serviceName);
+                    state = connectAndLogin(isa, password, serviceName);
                     if(state == ConnectState.ABORT_CONNECTING
                         || state == ConnectState.STOP_TRYING)
                         return;
@@ -618,6 +585,70 @@ public class ProtocolProviderServiceJabberImpl
 
             inConnectAndLogin = false;
         }
+    }
+
+    /**
+     * Connects using the domain specified and its SRV records.
+     * @param domain the domain to use
+     * @param password the password of the user
+     * @param serviceName the domain name of the user's login
+     * @return whether to continue trying or stop.
+     */
+    private ConnectState connectUsingSRVRecords(
+        String domain,
+        String password,
+        String serviceName)
+        throws XMPPException
+    {
+        // check to see is there SRV records for this server domain
+        SRVRecord srvRecords[] = null;
+        try
+        {
+            srvRecords = NetworkUtils
+                .getSRVRecords("xmpp-client", "tcp", domain);
+        }
+        catch (ParseException e)
+        {
+            logger.error("SRV record not resolved", e);
+        }
+
+        if(srvRecords != null)
+        {
+            for(SRVRecord srv : srvRecords)
+            {
+                InetSocketAddress[] addrs = null;
+                try
+                {
+                    addrs =
+                        NetworkUtils.getAandAAAARecords(
+                            srv.getTarget(),
+                            srv.getPort()
+                        );
+                }
+                catch (ParseException e)
+                {
+                    logger.error("Invalid SRV record target", e);
+                }
+                if (addrs == null)
+                    continue;
+
+                for (InetSocketAddress isa : addrs)
+                {
+                    try
+                    {
+                        return connectAndLogin(isa, password, serviceName);
+                    }
+                    catch(XMPPException ex)
+                    {
+                        disconnectAndCleanConnection();
+                        if(isAuthenticationFailed(ex))
+                            throw ex;
+                    }
+                }
+            }
+        }
+
+        return ConnectState.CONTINUE_TRYING;
     }
 
     /**

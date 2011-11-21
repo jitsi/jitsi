@@ -437,6 +437,10 @@ public class ProvisioningActivator
                                 byte hw[] =
                                 getNetworkAddressManagerService().
                                     getHardwareAddress(iface);
+
+                                if(hw == null)
+                                    continue;
+
                                 StringBuffer buf =
                                     new StringBuffer();
 
