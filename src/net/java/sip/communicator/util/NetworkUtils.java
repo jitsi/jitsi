@@ -916,7 +916,24 @@ public class NetworkUtils
     public static InetSocketAddress getARecord(String domain, int port)
         throws ParseException
     {
-        Record[] records = null;
+        byte[] address;
+        if((address = strToIPv4(domain)) != null)
+        {
+            try
+            {
+                return new InetSocketAddress(
+                        InetAddress.getByAddress(domain, address), port);
+            }
+            catch (UnknownHostException e)
+            {
+                //should not happen
+                logger.error(
+                    "Unable to create InetAddress for <" + domain + ">", e);
+                return null;
+            }
+        }
+
+        Record[] records;
         try
         {
             //note that we intentionally do not use our parallel resolver here.
@@ -956,7 +973,24 @@ public class NetworkUtils
     public static InetSocketAddress getAAAARecord(String domain, int port)
         throws ParseException
     {
-        Record[] records = null;
+        byte[] address;
+        if((address = strToIPv6(domain)) != null)
+        {
+            try
+            {
+                return new InetSocketAddress(
+                        InetAddress.getByAddress(domain, address), port);
+            }
+            catch (UnknownHostException e)
+            {
+                //should not happen
+                logger.error(
+                    "Unable to create InetAddress for <" + domain + ">", e);
+                return null;
+            }
+        }
+
+        Record[] records;
         try
         {
             //note that we intentionally do not use our parallel resolver here.

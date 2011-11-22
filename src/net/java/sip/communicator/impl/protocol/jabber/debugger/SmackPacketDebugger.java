@@ -31,12 +31,12 @@ public class SmackPacketDebugger
     /**
      * Local address for the connection.
      */
-    private byte[] localAddress = new byte[4];
+    private byte[] localAddress;
 
     /**
      * Remote address for the connection.
      */
-    private byte[] remoteAddress = new byte[4];
+    private byte[] remoteAddress;
 
     /**
      * Instance for the packet logging service.
@@ -58,33 +58,6 @@ public class SmackPacketDebugger
     public void setConnection(XMPPConnection connection)
     {
         this.connection = connection;
-
-        try
-        {
-            InetSocketAddress inetAddress;
-
-            if(Boolean.getBoolean("java.net.preferIPv6Addresses"))
-            {
-                inetAddress = NetworkUtils.getAAAARecord(
-                        connection.getHost(), 0);
-            }
-            else
-            {
-                inetAddress = NetworkUtils.getARecord(
-                        connection.getHost(), 0);
-            }
-
-            if(inetAddress != null)
-                remoteAddress = inetAddress.getAddress().getAddress();
-
-            // to create empty ipv6 address default is ipv4
-            if(remoteAddress.length != localAddress.length)
-                localAddress = new byte[remoteAddress.length];
-        }
-        catch(Throwable t)
-        {
-            t.printStackTrace();
-        }
     }
 
     /**
@@ -105,6 +78,14 @@ public class SmackPacketDebugger
                     PacketLoggingService.ProtocolName.JABBER)
                 && packet != null && connection.getSocket() != null)
             {
+                if(remoteAddress == null)
+                {
+                    remoteAddress = connection.getSocket()
+                        .getInetAddress().getAddress();
+                    localAddress = connection.getSocket()
+                        .getLocalAddress().getAddress();
+                }
+
                 packetLogging.logPacket(
                         PacketLoggingService.ProtocolName.JABBER,
                         localAddress,
