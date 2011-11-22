@@ -180,6 +180,11 @@ public class ProtocolProviderServiceJabberImpl
         = "net.java.sip.communicator.impl.protocol.jabber.CALLING_DISABLED";
 
     /**
+     * Smack packet reply timeout.
+     */
+    public static final int SMACK_PACKET_REPLY_TIMEOUT = 45000;
+
+    /**
      * Used to connect to a XMPP server.
      */
     private XMPPConnection connection = null;
@@ -656,7 +661,7 @@ public class ProtocolProviderServiceJabberImpl
      * protocol is Google Talk, the user ID including the service name is used.
      * For other protocols, if the login with the user ID without the service
      * name fails, a second attempt including the service name is made.
-     * 
+     *
      * @param currentAddress the IP address to connect to
      * @param password the password of the user
      * @param serviceName the domain name of the user's login
@@ -755,7 +760,7 @@ public class ProtocolProviderServiceJabberImpl
 
     /**
      * Load the password from the account configuration or ask the user.
-     * 
+     *
      * @param authority SecurityAuthority
      * @param reasonCode the authentication reason code. Indicates the reason of
      *            this authentication.
@@ -820,7 +825,7 @@ public class ProtocolProviderServiceJabberImpl
 
     /**
      * Sets the global proxy information based on the configuration
-     * 
+     *
      * @throws OperationFailedException
      */
     private void loadProxy() throws OperationFailedException
@@ -1472,9 +1477,6 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(
                 OperationSetGenericNotifications.class,
                 new OperationSetGenericNotificationsJabberImpl(this));
-
-            // let sufficient time for packet reply
-            SmackConfiguration.setPacketReplyTimeout(45000);
 
             isInitialized = true;
         }

@@ -449,7 +449,12 @@ public class ServerStoredContactListJabberImpl
             if(parent != null)
                 parentNames = new String[]{parent.getGroupName()};
 
+            // modify our reply timeout because some XMPP may send "result" IQ
+            // late (> 5 secondes).
+            SmackConfiguration.setPacketReplyTimeout(
+                ProtocolProviderServiceJabberImpl.SMACK_PACKET_REPLY_TIMEOUT);
             this.roster.createEntry(completeID, completeID, parentNames);
+            SmackConfiguration.setPacketReplyTimeout(5000);
         }
         catch (XMPPException ex)
         {
@@ -720,9 +725,14 @@ public class ServerStoredContactListJabberImpl
         {
             // will create the entry with the new group so it can be removed
             // from other groups if any
+            // modify our reply timeout because some XMPP may send "result" IQ
+            // late (> 5 secondes).
+            SmackConfiguration.setPacketReplyTimeout(
+                ProtocolProviderServiceJabberImpl.SMACK_PACKET_REPLY_TIMEOUT);
             roster.createEntry(contact.getSourceEntry().getUser(),
                                contact.getDisplayName(),
                                new String[]{newParent.getGroupName()});
+            SmackConfiguration.setPacketReplyTimeout(5000);
         }
         catch (XMPPException ex)
         {
