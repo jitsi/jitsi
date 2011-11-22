@@ -9,6 +9,7 @@ package net.java.sip.communicator.util;
 import java.beans.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
 import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.dns.*;
@@ -131,6 +132,16 @@ public class NetworkUtils
      * Monitor object to set or reset the parallel resolver.
      */
     private final static Object parallelResolverLock = new Object();
+
+    /**
+     * Initialization flag for {@link #netListener}
+     */
+    private static final AtomicBoolean netListenerAdded = new AtomicBoolean();
+
+    /**
+     * Listener for network change events to reset the DNS resolvers.
+     */
+    private static final NetworkListener netListener = new NetworkListener();
 
     /**
      * Determines whether the address is the result of windows auto configuration.
@@ -1140,6 +1151,12 @@ public class NetworkUtils
     private static Lookup createLookup(String domain, int type)
         throws TextParseException
     {
+        // listens for network changes up/down so we can reset
+        // dns configuration
+        if(netListenerAdded.compareAndSet(false, true))
+            UtilActivator.getNetworkAddressManagerService()
+                .addNetworkConfigurationChangeListener(netListener);
+
         Lookup lookup = new Lookup(domain, type);
 
         if(!UtilActivator.getConfigurationService()
@@ -1196,12 +1213,6 @@ public class NetworkUtils
 
                     parallelResolver = new ParallelResolver(
                                     new InetSocketAddress[]{resolverSockAddr});
-
-                    // listens for network changes up/down so we can reset
-                    // dns configuration
-                    UtilActivator.getNetworkAddressManagerService()
-                        .addNetworkConfigurationChangeListener(
-                            new NetworkListener());
 
                     //listens for changes on the parallel DNS settings
                     UtilActivator.getConfigurationService()
