@@ -22,8 +22,10 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.notifsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -36,7 +38,9 @@ import org.osgi.framework.*;
  */
 public class TreeContactList
     extends DefaultTreeContactList
-    implements  ContactQueryListener,
+    implements  MetaContactListListener,
+                ContactPresenceStatusListener,
+                ContactQueryListener,
                 MetaContactQueryListener,
                 MouseListener,
                 MouseMotionListener,
@@ -82,13 +86,10 @@ public class TreeContactList
      */
     public static final PresenceFilter presenceFilter = new PresenceFilter();
 
-    public static final MetaContactListSource mclSource
-        = new MetaContactListSource();
-
     /**
      * The search filter.
      */
-    public static final SearchFilter searchFilter = new SearchFilter(mclSource);
+    public static final SearchFilter searchFilter = new SearchFilter();
 
     /**
      * The call history filter.
@@ -147,8 +148,7 @@ public class TreeContactList
         this.addMouseMotionListener(this);
         this.addTreeExpansionListener(this);
 
-        GuiActivator.getContactListService()
-            .addMetaContactListListener(mclSource);
+        GuiActivator.getContactListService().addMetaContactListListener(this);
 
         treeModel = new ContactListTreeModel(this);
 
@@ -161,6 +161,406 @@ public class TreeContactList
         this.initKeyActions();
 
         this.initContactSources();
+    }
+
+    /**
+     * Reorders contact list nodes, when <tt>MetaContact</tt>-s in a
+     * <tt>MetaContactGroup</tt> has been reordered.
+     * @param evt the <tt>MetaContactGroupEvent</tt> that notified us
+     */
+    public void childContactsReordered(MetaContactGroupEvent evt)
+    {
+        MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
+        UIGroup uiGroup;
+
+        if (MetaContactListSource.isRootGroup(metaGroup))
+            uiGroup = treeModel.getRoot().getGroupDescriptor();
+        else
+            uiGroup = MetaContactListSource.getUIGroup(metaGroup);
+
+        if (uiGroup != null)
+        {
+            GroupNode groupNode = uiGroup.getGroupNode();
+
+            if (groupNode != null)
+                groupNode.sort(treeModel);
+        }
+    }
+
+    /**
+     * Adds a node in the contact list, when a <tt>MetaContact</tt> has been
+     * added in the <tt>MetaContactListService</tt>.
+     * @param evt the <tt>MetaContactEvent</tt> that notified us
+     */
+    public void metaContactAdded(final MetaContactEvent evt)
+    {
+        final MetaContact metaContact = evt.getSourceMetaContact();
+        final MetaContactGroup parentGroup = evt.getParentGroup();
+
+        UIContact uiContact = MetaContactListSource.getUIContact(metaContact);
+
+        // If there's already an UIContact for this meta contact, we have
+        // nothing to do here.
+        if (uiContact != null)
+            return;
+
+        uiContact = MetaContactListSource.createUIContact(metaContact);
+
+        if (currentFilter.isMatching(uiContact))
+        {
+            UIGroup uiGroup = null;
+            if (!MetaContactListSource.isRootGroup(parentGroup))
+            {
+                uiGroup = MetaContactListSource
+                    .getUIGroup(parentGroup);
+
+                if (uiGroup == null)
+                    uiGroup = MetaContactListSource
+                        .createUIGroup(parentGroup);
+            }
+
+            addContact(uiContact, uiGroup, true, true);
+        }
+        else
+            MetaContactListSource.removeUIContact(metaContact);
+    }
+
+    /**
+     * Adds a group node in the contact list, when a <tt>MetaContactGroup</tt>
+     * has been added in the <tt>MetaContactListService</tt>.
+     * @param evt the <tt>MetaContactGroupEvent</tt> that notified us
+     */
+    public void metaContactGroupAdded(MetaContactGroupEvent evt)
+    {
+        final MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
+
+        UIGroup uiGroup = MetaContactListSource.getUIGroup(metaGroup);
+
+        // If there's already an UIGroup for this meta contact, we have
+        // nothing to do here.
+        if (uiGroup != null)
+            return;
+
+        uiGroup = MetaContactListSource.createUIGroup(metaGroup);
+
+        if (currentFilter.isMatching(uiGroup))
+            addGroup(uiGroup, true);
+        else
+            MetaContactListSource.removeUIGroup(metaGroup);
+    }
+
+    /**
+     * Notifies the tree model, when a <tt>MetaContactGroup</tt> has been
+     * modified in the <tt>MetaContactListService</tt>.
+     * @param evt the <tt>MetaContactGroupEvent</tt> that notified us
+     */
+    public void metaContactGroupModified(MetaContactGroupEvent evt)
+    {
+        final MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
+
+        UIGroup uiGroup
+            = MetaContactListSource.getUIGroup(metaGroup);
+
+        if (uiGroup != null)
+        {
+            GroupNode groupNode = uiGroup.getGroupNode();
+
+            if (groupNode != null)
+                treeModel.nodeChanged(groupNode);
+        }
+    }
+
+    /**
+     * Removes the corresponding group node in the contact list, when a
+     * <tt>MetaContactGroup</tt> has been removed from the
+     * <tt>MetaContactListService</tt>.
+     * @param evt the <tt>MetaContactGroupEvent</tt> that notified us
+     */
+    public void metaContactGroupRemoved(final MetaContactGroupEvent evt)
+    {
+        UIGroup uiGroup
+            = MetaContactListSource.getUIGroup(
+                    evt.getSourceMetaContactGroup());
+
+        if (uiGroup != null)
+            removeGroup(uiGroup);
+    }
+
+    /**
+     * Notifies the tree model, when a <tt>MetaContact</tt> has been
+     * modified in the <tt>MetaContactListService</tt>.
+     * @param evt the <tt>MetaContactEvent</tt> that notified us
+     */
+    public void metaContactModified(final MetaContactModifiedEvent evt)
+    {
+        UIContact uiContact
+            = MetaContactListSource.getUIContact(
+                evt.getSourceMetaContact());
+
+        if (uiContact != null)
+        {
+            ContactNode contactNode
+                = uiContact.getContactNode();
+
+            if (contactNode != null)
+                treeModel.nodeChanged(contactNode);
+        }
+    }
+
+    /**
+     * Performs needed operations, when a <tt>MetaContact</tt> has been
+     * moved in the <tt>MetaContactListService</tt> from one group to another.
+     * @param evt the <tt>MetaContactMovedEvent</tt> that notified us
+     */
+    public void metaContactMoved(final MetaContactMovedEvent evt)
+    {
+        final MetaContact metaContact = evt.getSourceMetaContact();
+        final MetaContactGroup oldParent = evt.getOldParent();
+        final MetaContactGroup newParent = evt.getNewParent();
+
+        UIContact uiContact
+            = MetaContactListSource.getUIContact(metaContact);
+
+        if (uiContact == null)
+            return;
+
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            // fixes an issue with moving meta contacts where removeContact
+            // will set data to null in swing thread and it will be after we have
+            // set the data here, so we also move this set to the swing thread
+            // to order the calls of setData.
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    metaContactMoved(evt);
+                }
+            });
+            return;
+        }
+
+        UIGroup oldUIGroup;
+
+        if (MetaContactListSource.isRootGroup(oldParent))
+            oldUIGroup = treeModel.getRoot().getGroupDescriptor();
+        else
+            oldUIGroup = MetaContactListSource.getUIGroup(oldParent);
+
+        if (oldUIGroup != null)
+            removeContact(uiContact);
+
+        // Add the contact to the new place.
+        uiContact = MetaContactListSource.createUIContact(
+            evt.getSourceMetaContact());
+
+        UIGroup newUIGroup = null;
+        if (!MetaContactListSource.isRootGroup(newParent))
+        {
+            newUIGroup = MetaContactListSource.getUIGroup(newParent);
+
+            if (newUIGroup == null)
+                newUIGroup
+                    = MetaContactListSource.createUIGroup(newParent);
+        }
+
+        if (currentFilter.isMatching(uiContact))
+            addContact(uiContact, newUIGroup, true, true);
+        else
+            MetaContactListSource.removeUIContact(metaContact);
+    }
+
+    /**
+     * Removes the corresponding contact node in the contact list, when a
+     * <tt>MetaContact</tt> has been removed from the
+     * <tt>MetaContactListService</tt>.
+     * @param evt the <tt>MetaContactEvent</tt> that notified us
+     */
+    public void metaContactRemoved(final MetaContactEvent evt)
+    {
+        UIContact uiContact = MetaContactListSource.getUIContact(
+                                evt.getSourceMetaContact());
+
+        if (uiContact != null)
+            removeContact(uiContact);
+    }
+
+    /**
+     * Refreshes the corresponding node, when a <tt>MetaContact</tt> has been
+     * renamed in the <tt>MetaContactListService</tt>.
+     * @param evt the <tt>MetaContactRenamedEvent</tt> that notified us
+     */
+    public void metaContactRenamed(final MetaContactRenamedEvent evt)
+    {
+        UIContact uiContact
+            = MetaContactListSource.getUIContact(
+                evt.getSourceMetaContact());
+
+        if (uiContact != null)
+        {
+            ContactNode contactNode = uiContact.getContactNode();
+
+            if (contactNode != null)
+                treeModel.nodeChanged(contactNode);
+        }
+    }
+
+    /**
+     * Notifies the tree model, when the <tt>MetaContact</tt> avatar has been
+     * modified in the <tt>MetaContactListService</tt>.
+     * @param evt the <tt>MetaContactEvent</tt> that notified us
+     */
+    public void metaContactAvatarUpdated(final MetaContactAvatarUpdateEvent evt)
+    {
+        UIContact uiContact
+            = MetaContactListSource.getUIContact(
+                evt.getSourceMetaContact());
+
+        if (uiContact != null)
+        {
+            ContactNode contactNode = uiContact.getContactNode();
+
+            if (contactNode != null)
+                treeModel.nodeChanged(contactNode);
+        }
+    }
+
+    /**
+     * Adds a contact node corresponding to the parent <tt>MetaContact</tt> if
+     * this last is matching the current filter and wasn't previously contained
+     * in the contact list.
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us
+     */
+    public void protoContactAdded(ProtoContactEvent evt)
+    {
+        final MetaContact metaContact = evt.getNewParent();
+
+        UIContact parentUIContact
+            = MetaContactListSource.getUIContact(metaContact);
+
+        if (parentUIContact == null)
+        {
+            UIContact uiContact
+                = MetaContactListSource.createUIContact(metaContact);
+
+            if (currentFilter.isMatching(uiContact))
+            {
+                MetaContactGroup parentGroup
+                    = metaContact.getParentMetaContactGroup();
+
+                UIGroup uiGroup = null;
+                if (!MetaContactListSource
+                        .isRootGroup(parentGroup))
+                {
+                    uiGroup = MetaContactListSource
+                        .getUIGroup(parentGroup);
+
+                    if (uiGroup == null)
+                        uiGroup = MetaContactListSource
+                            .createUIGroup(parentGroup);
+                }
+
+                addContact(uiContact, uiGroup, true, true);
+            }
+            else
+                MetaContactListSource.removeUIContact(metaContact);
+        }
+    }
+
+    /**
+     * Notifies the UI representation of the parent <tt>MetaContact</tt> that
+     * this contact has been modified.
+     *
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us
+     */
+    public void protoContactModified(ProtoContactEvent evt)
+    {
+        UIContact uiContact = MetaContactListSource
+            .getUIContact(evt.getNewParent());
+
+        if (uiContact != null)
+        {
+            ContactNode contactNode = uiContact.getContactNode();
+
+            if (contactNode != null)
+                treeModel.nodeChanged(contactNode);
+        }
+    }
+
+    /**
+     * Adds the new <tt>MetaContact</tt> parent and removes the old one if the
+     * first is matching the current filter and the last is no longer matching
+     * it.
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us
+     */
+    public void protoContactMoved(ProtoContactEvent evt)
+    {
+        final MetaContact oldParent = evt.getOldParent();
+        final MetaContact newParent = evt.getNewParent();
+
+        UIContact oldUIContact
+            = MetaContactListSource.getUIContact(oldParent);
+
+        // Remove old parent if not matching.
+        if (oldUIContact != null
+            && !currentFilter.isMatching(oldUIContact))
+        {
+            removeContact(oldUIContact);
+        }
+
+        // Add new parent if matching.
+        UIContact newUIContact
+            = MetaContactListSource.getUIContact(newParent);
+
+        if (newUIContact == null)
+        {
+            newUIContact
+                = MetaContactListSource.createUIContact(newParent);
+
+            if (currentFilter.isMatching(newUIContact))
+            {
+                MetaContactGroup parentGroup
+                    = newParent.getParentMetaContactGroup();
+
+                UIGroup uiGroup = null;
+                if (!MetaContactListSource
+                        .isRootGroup(parentGroup))
+                {
+                    uiGroup = MetaContactListSource
+                        .getUIGroup(parentGroup);
+
+                    if (uiGroup == null)
+                        uiGroup = MetaContactListSource
+                            .createUIGroup(parentGroup);
+                }
+
+                addContact(newUIContact, uiGroup, true, true);
+            }
+            else
+                MetaContactListSource.removeUIContact(newParent);
+        }
+    }
+
+    /**
+     * Removes the contact node corresponding to the parent
+     * <tt>MetaContact</tt> if the last is no longer matching the current filter
+     * and wasn't previously contained in the contact list.
+     * @param evt the <tt>ProtoContactEvent</tt> that notified us
+     */
+    public void protoContactRemoved(ProtoContactEvent evt)
+    {
+        final MetaContact oldParent = evt.getOldParent();
+
+        UIContact oldUIContact
+            = MetaContactListSource.getUIContact(oldParent);
+
+        if (oldUIContact != null)
+        {
+            ContactNode contactNode = oldUIContact.getContactNode();
+
+            if (contactNode != null)
+                treeModel.nodeChanged(contactNode);
+        }
     }
 
     /**
@@ -564,7 +964,7 @@ public class TreeContactList
      * Removes the given group and its children from the list.
      * @param group the <tt>UIGroup</tt> to remove
      */
-    public void removeGroup(final UIGroup group)
+    private void removeGroup(final UIGroup group)
     {
         if (!SwingUtilities.isEventDispatchThread())
         {
@@ -1725,6 +2125,71 @@ public class TreeContactList
     }
 
     /**
+     * Indicates that a contact has changed its status.
+     *
+     * @param evt the presence event containing information about the
+     * contact status change
+     */
+    public void contactPresenceStatusChanged(
+            final ContactPresenceStatusChangeEvent evt)
+    {
+        if (evt.getOldStatus() == evt.getNewStatus())
+            return;
+
+        final Contact sourceContact = evt.getSourceContact();
+        final MetaContact metaContact
+            = GuiActivator.getContactListService().findMetaContactByContact(
+                    sourceContact);
+
+        if (metaContact == null)
+            return;
+
+        UIContact uiContact
+            = MetaContactListSource.getUIContact(metaContact);
+
+        if (uiContact == null)
+        {
+            uiContact = MetaContactListSource.createUIContact(metaContact);
+
+            if (currentFilter != null && currentFilter.isMatching(uiContact))
+            {
+                MetaContactGroup parentGroup
+                    = metaContact.getParentMetaContactGroup();
+
+                UIGroup uiGroup = null;
+                if (!MetaContactListSource.isRootGroup(parentGroup))
+                {
+                    uiGroup = MetaContactListSource.getUIGroup(parentGroup);
+
+                    if (uiGroup == null)
+                        uiGroup
+                            = MetaContactListSource.createUIGroup(parentGroup);
+                }
+
+                if (logger.isDebugEnabled())
+                    logger.debug("Add matching contact due to status change: "
+                        + uiContact.getDisplayName());
+                addContact(uiContact, uiGroup, true, true);
+            }
+            else
+                MetaContactListSource.removeUIContact(metaContact);
+        }
+        else
+        {
+            if (currentFilter != null && !currentFilter.isMatching(uiContact))
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug(
+                        "Remove unmatching contact due to status change: "
+                        + uiContact.getDisplayName());
+                removeContact(uiContact);
+            }
+            else
+                treeModel.nodeChanged(uiContact.getContactNode());
+        }
+    }
+
+    /**
      * <tt>RenameAction</tt> is invoked when user presses the F2 key. Depending
      * on the selection opens the appropriate form for renaming.
      */
@@ -1785,15 +2250,5 @@ public class TreeContactList
                 dialog.requestFocusInFiled();
             }
         }
-    }
-
-    public ContactListTreeModel getTreeModel()
-    {
-        return treeModel;
-    }
-
-    public MetaContactListSource getMetaContactListSource()
-    {
-        return mclSource;
     }
 }

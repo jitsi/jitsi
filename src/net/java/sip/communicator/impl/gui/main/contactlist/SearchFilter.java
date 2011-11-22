@@ -61,9 +61,9 @@ public class SearchFilter
     /**
      * Creates an instance of <tt>SearchFilter</tt>.
      */
-    public SearchFilter(MetaContactListSource contactListSource)
+    public SearchFilter()
     {
-        this.mclSource = contactListSource;
+        this.mclSource = new MetaContactListSource();
     }
 
     /**
