@@ -506,14 +506,6 @@ public class ProtocolProviderServiceJabberImpl
                     return;
             }
 
-            // connect with specified server name
-            String serverAddressUserSetting
-                = getAccountID().getAccountPropertyString(
-                    ProtocolProviderFactory.SERVER_ADDRESS);
-
-            int serverPort = getAccountID().getAccountPropertyInt(
-                    ProtocolProviderFactory.SERVER_PORT, 5222);
-
             // check for custom xmpp domain which we will check for
             // SRV records for server addresses
             String customXMPPDomain = getAccountID()
@@ -528,6 +520,14 @@ public class ProtocolProviderServiceJabberImpl
                 return;
             }
 
+            // connect with specified server name
+            String serverAddressUserSetting
+                = getAccountID().getAccountPropertyString(
+                    ProtocolProviderFactory.SERVER_ADDRESS);
+
+            int serverPort = getAccountID().getAccountPropertyInt(
+                    ProtocolProviderFactory.SERVER_PORT, 5222);
+
             InetSocketAddress[] addrs = null;
             try
             {
@@ -540,8 +540,14 @@ public class ProtocolProviderServiceJabberImpl
             {
                 logger.error("Domain not resolved", e);
             }
-            if (addrs == null)
-                throw new XMPPException("No server address found");
+            if (addrs == null || addrs.length == 0)
+            {
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                    "No server addresses found");
+            }
 
             for (InetSocketAddress isa : addrs)
             {
