@@ -53,7 +53,6 @@ public class SRVRecord
      *
      * @return priority
      */
-
     public int getPriority()
     {
         return record.getPriority();
@@ -74,7 +73,6 @@ public class SRVRecord
      *
      * @return DNS TTL
      */
-
     public long getTTL()
     {
         return record.getTTL();
@@ -90,6 +88,13 @@ public class SRVRecord
         return record.getName().toString();
     }
 
+    /**
+     * Returns the toString of the org.xbill.DNS.SRVRecord that was passed to
+     * the constructor.
+     * 
+     * @return the toString of the org.xbill.DNS.SRVRecord that was passed to
+     *         the constructor.
+     */
     @Override
     public String toString()
     {
