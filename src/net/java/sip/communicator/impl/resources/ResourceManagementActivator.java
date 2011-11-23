@@ -46,6 +46,8 @@ public class ResourceManagementActivator
     public void stop(BundleContext bc) throws Exception
     {
         bc.removeServiceListener(resPackImpl);
+
+        configService = null;
     }
 
     /**

@@ -76,6 +76,10 @@ public class CertificateVerificationActivator
      */
     public void stop(BundleContext bc) throws Exception
     {
+        configService = null;
+        fileAccessService = null;
+        resourcesService = null;
+        credService = null;
     }
 
     /**

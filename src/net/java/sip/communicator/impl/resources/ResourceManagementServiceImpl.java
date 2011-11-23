@@ -644,10 +644,14 @@ public class ResourceManagementServiceImpl
         }
         else
         {
-            stringResources = languagePack.getResources(locale);
+            stringResources
+                = (languagePack == null)
+                    ? null
+                    : languagePack.getResources(locale);
         }
 
-        String resourceString = stringResources.get(key);
+        String resourceString
+            = (stringResources == null) ? null : stringResources.get(key);
 
         if (resourceString == null)
         {
@@ -735,7 +739,7 @@ public class ResourceManagementServiceImpl
      */
     public String getSettingsString(String key)
     {
-        return settingsResources.get(key);
+        return (settingsResources == null) ? null : settingsResources.get(key);
     }
 
     /**
@@ -746,7 +750,7 @@ public class ResourceManagementServiceImpl
      */
     public int getSettingsInt(String key)
     {
-        String resourceString = settingsResources.get(key);
+        String resourceString = getSettingsString(key);
 
         if (resourceString == null)
         {
@@ -765,7 +769,7 @@ public class ResourceManagementServiceImpl
      */
     public URL getSettingsURL(String urlKey)
     {
-        String path = settingsResources.get(urlKey);
+        String path = getSettingsString(urlKey);
 
         if (path == null || path.length() == 0)
         {
@@ -783,16 +787,7 @@ public class ResourceManagementServiceImpl
      */
     public InputStream getSettingsInputStream(String streamKey)
     {
-        String path = settingsResources.get(streamKey);
-
-        if (path == null || path.length() == 0)
-        {
-            logger.warn("Missing resource for key: " + streamKey);
-            return null;
-        }
-
-        return settingsPack.getClass()
-            .getClassLoader().getResourceAsStream(path);
+        return getSettingsInputStream(streamKey, settingsPack.getClass());
     }
 
     /**
@@ -807,7 +802,7 @@ public class ResourceManagementServiceImpl
     public InputStream getSettingsInputStream(  String streamKey,
                                                 Class<?> resourceClass)
     {
-        String path = settingsResources.get(streamKey);
+        String path = getSettingsString(streamKey);
 
         if (path == null || path.length() == 0)
         {

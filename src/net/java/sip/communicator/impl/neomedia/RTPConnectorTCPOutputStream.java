@@ -60,18 +60,21 @@ public class RTPConnectorTCPOutputStream
     @Override
     protected void doLogPacket(RawPacket packet, InetSocketAddress target)
     {
-        NeomediaActivator.getPacketLogging()
-            .logPacket(
-                PacketLoggingService.ProtocolName.RTP,
-                socket.getLocalAddress().getAddress(),
-                socket.getLocalPort(),
-                target.getAddress().getAddress(),
-                target.getPort(),
-                PacketLoggingService.TransportName.TCP,
-                true,
-                packet.getBuffer(),
-                packet.getOffset(),
-                packet.getLength());
+        PacketLoggingService packetLogging
+            = NeomediaActivator.getPacketLogging();
+
+        if (packetLogging != null)
+            packetLogging.logPacket(
+                    PacketLoggingService.ProtocolName.RTP,
+                    socket.getLocalAddress().getAddress(),
+                    socket.getLocalPort(),
+                    target.getAddress().getAddress(),
+                    target.getPort(),
+                    PacketLoggingService.TransportName.TCP,
+                    true,
+                    packet.getBuffer(),
+                    packet.getOffset(),
+                    packet.getLength());
     }
 
     /**

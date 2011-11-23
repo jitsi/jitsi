@@ -149,6 +149,9 @@ public class ProtocolIconJabberImpl
         if(is == null)
             is = getResources().getImageInputStreamForPath(imagePath);
 
+        if(is == null)
+                return new byte[0];
+
         byte[] icon = null;
         try {
             icon = new byte[is.available()];

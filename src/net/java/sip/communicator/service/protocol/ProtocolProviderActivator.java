@@ -187,5 +187,8 @@ public class ProtocolProviderActivator
 
         if (bundleContext.equals(ProtocolProviderActivator.bundleContext))
             ProtocolProviderActivator.bundleContext = null;
+
+        configurationService = null;
+        resourceService = null;
     }
 }

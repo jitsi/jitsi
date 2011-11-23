@@ -6,19 +6,21 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -432,7 +434,8 @@ public class DeviceConfiguration
                         {
                             new AVFrameFormat(),
                             new VideoFormat(VideoFormat.RGB),
-                            new VideoFormat(VideoFormat.YUV)
+                            new VideoFormat(VideoFormat.YUV),
+                            new VideoFormat(Constants.H264)
                         };
 
             for (Format format : formats)
@@ -591,7 +594,8 @@ public class DeviceConfiguration
                     {
                         new AVFrameFormat(),
                         new VideoFormat(VideoFormat.RGB),
-                        new VideoFormat(VideoFormat.YUV)
+                        new VideoFormat(VideoFormat.YUV),
+                        new VideoFormat(Constants.H264)
                     };
         Set<CaptureDeviceInfo> videoCaptureDevices =
             new HashSet<CaptureDeviceInfo>();

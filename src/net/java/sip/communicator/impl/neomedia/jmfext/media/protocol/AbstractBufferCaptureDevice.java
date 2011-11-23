@@ -11,7 +11,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.media.*;
-import javax.media.Controls;
+import javax.media.Controls; // disambiguation
 import javax.media.control.*;
 import javax.media.protocol.*;
 

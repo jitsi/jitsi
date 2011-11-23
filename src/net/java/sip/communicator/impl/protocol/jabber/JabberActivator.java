@@ -221,6 +221,11 @@ public class JabberActivator
             uriHandlerImpl.dispose();
             uriHandlerImpl = null;
         }
+
+        configurationService = null;
+        mediaService = null;
+        networkAddressManagerService = null;
+        credentialsService = null;
     }
 
     /**

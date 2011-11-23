@@ -1069,7 +1069,7 @@ public class ConfigurationServiceImpl
             catch (ClassNotFoundException cnfe)
             {
             }
-            if (clazz != null
+            if ((clazz != null)
                     && ConfigurationStore.class.isAssignableFrom(clazz))
                 defaultConfigurationStoreClass
                     = (Class<? extends ConfigurationStore>) clazz;

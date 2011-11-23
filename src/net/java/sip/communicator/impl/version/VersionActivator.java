@@ -126,5 +126,7 @@ public class VersionActivator
     public void stop(BundleContext context) throws Exception
     {
         versionServReg.unregister();
+
+        configurationService = null;
     }
 }

@@ -94,9 +94,7 @@ public class JmfDeviceDetector
             String author = (String)Registry.get(PROP_REGISTRY_AUTHOR);
 
             if(author != null)
-            {
                 return;
-            }
 
             Registry.set(PROP_ALLOW_CAPTURE_FROM_APPLETS, new Boolean(true));
             Registry.set(PROP_ALLOW_SAVE_FILE_FROM_APPLETS, new Boolean(true));
@@ -147,9 +145,7 @@ public class JmfDeviceDetector
 
         /* remove video devices */
         for(CaptureDeviceInfo dev : copyDevInfos)
-        {
             CaptureDeviceManager.removeDevice(dev);
-        }
 
         // XXX repopulates only the desktop streaming devices for the moment
         try

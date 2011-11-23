@@ -266,6 +266,12 @@ public class NeomediaActivator
     {
         mediaServiceImpl.stop();
         mediaServiceRegistration.unregister();
+
+        configurationService = null;
+        fileAccessService = null;
+        networkAddressManagerService = null;
+        resources = null;
+        uiService = null;
     }
 
     /**
@@ -389,12 +395,10 @@ public class NeomediaActivator
     {
         if (packetLoggingService == null)
         {
-            ServiceReference plReference
-                = bundleContext.getServiceReference(
-                        PacketLoggingService.class.getName());
-
             packetLoggingService
-                = (PacketLoggingService)bundleContext.getService(plReference);
+                = ServiceUtils.getService(
+                        bundleContext,
+                        PacketLoggingService.class);
         }
         return packetLoggingService;
     }

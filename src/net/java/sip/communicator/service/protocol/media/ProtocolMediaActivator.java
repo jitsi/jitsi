@@ -80,6 +80,9 @@ public class ProtocolMediaActivator
      */
     public void stop(BundleContext context) throws Exception
     {
+        configurationService = null;
+        mediaService = null;
+        networkAddressManagerService = null;
     }
 
     /**

@@ -386,9 +386,7 @@ public class FileAccessServiceImpl implements FileAccessService
         // would be the home directory (i.e. the Desktop folder).
         if (OSUtils.IS_WINDOWS && getMajorOSVersion() <= 5)
         {
-            FileSystemView fsv = FileSystemView.getFileSystemView();
-
-            downloadDir = fsv.getHomeDirectory();
+            downloadDir = FileSystemView.getFileSystemView().getHomeDirectory();
         }
         // For all other operating systems we return the Downloads folder.
         else

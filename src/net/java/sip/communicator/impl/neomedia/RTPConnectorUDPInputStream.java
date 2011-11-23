@@ -70,18 +70,21 @@ public class RTPConnectorUDPInputStream
         if(socket.getLocalAddress() == null)
             return;
 
-        NeomediaActivator.getPacketLogging()
-            .logPacket(
-                PacketLoggingService.ProtocolName.RTP,
-                p.getAddress().getAddress(),
-                p.getPort(),
-                socket.getLocalAddress().getAddress(),
-                socket.getLocalPort(),
-                PacketLoggingService.TransportName.UDP,
-                false,
-                p.getData(),
-                p.getOffset(),
-                p.getLength());
+        PacketLoggingService packetLogging
+            = NeomediaActivator.getPacketLogging();
+
+        if (packetLogging != null)
+            packetLogging.logPacket(
+                    PacketLoggingService.ProtocolName.RTP,
+                    p.getAddress().getAddress(),
+                    p.getPort(),
+                    socket.getLocalAddress().getAddress(),
+                    socket.getLocalPort(),
+                    PacketLoggingService.TransportName.UDP,
+                    false,
+                    p.getData(),
+                    p.getOffset(),
+                    p.getLength());
     }
 
     /**

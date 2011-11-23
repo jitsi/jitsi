@@ -227,11 +227,15 @@ public abstract class RTPConnectorOutputStream
             {
                 sendToTarget(packet, target);
 
-                if(logPacket(numberOfPackets)
-                    && NeomediaActivator.getPacketLogging().isLoggingEnabled(
-                            PacketLoggingService.ProtocolName.RTP))
+                if(logPacket(numberOfPackets))
                 {
-                    doLogPacket(packet, target);
+                    PacketLoggingService packetLogging
+                        = NeomediaActivator.getPacketLogging();
+
+                    if ((packetLogging != null)
+                            && packetLogging.isLoggingEnabled(
+                                    PacketLoggingService.ProtocolName.RTP))
+                        doLogPacket(packet, target);
                 }
             }
             catch (IOException ex)

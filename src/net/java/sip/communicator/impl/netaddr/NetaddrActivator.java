@@ -146,6 +146,9 @@ public class NetaddrActivator
             networkAMS.stop();
         if (logger.isInfoEnabled())
             logger.info("Network Address Manager Service ...[STOPPED]");
+
+        configurationService = null;
+        packetLoggingService = null;
     }
 
     /**

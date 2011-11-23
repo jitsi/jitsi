@@ -262,11 +262,15 @@ public abstract class RTPConnectorInputStream
                 break;
             }
 
-            if(RTPConnectorOutputStream.logPacket(numberOfPackets)
-                && NeomediaActivator.getPacketLogging().isLoggingEnabled(
-                    PacketLoggingService.ProtocolName.RTP))
+            if(RTPConnectorOutputStream.logPacket(numberOfPackets))
             {
-                doLogPacket(p);
+                PacketLoggingService packetLogging
+                    = NeomediaActivator.getPacketLogging();
+
+                if ((packetLogging != null)
+                        && packetLogging.isLoggingEnabled(
+                                PacketLoggingService.ProtocolName.RTP))
+                    doLogPacket(p);
             }
 
             pkt = createRawPacket(p);

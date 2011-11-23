@@ -139,7 +139,8 @@ public class VideoMediaDeviceSession
      * @param device the video <tt>MediaDevice</tt> the use of which by a
      * <tt>MediaStream</tt> is to be represented by the new instance
      */
-    public VideoMediaDeviceSession(AbstractMediaDevice device,
+    public VideoMediaDeviceSession(
+            AbstractMediaDevice device,
             MediaDeviceSession session)
     {
         this(device);
@@ -1209,8 +1210,8 @@ public class VideoMediaDeviceSession
     public void setOutputSize(Dimension size)
     {
         if((size != null && outputSize == null)
-            || (size == null && outputSize != null)
-            || (size != null && outputSize != null && !outputSize.equals(size)))
+                || (size == null && outputSize != null)
+                || (size != null && outputSize != null && !outputSize.equals(size)))
             outputsizeChanged = true;
 
         outputSize = size;
@@ -1404,7 +1405,7 @@ public class VideoMediaDeviceSession
                 encoder.setPacketizationMode(packetizationMode);
             }
 
-            // additionnal codec settings
+            // additional codec settings
             {
                 Map<String, String> settings =
                     mediaFormat.getAdditionalCodecSettings();

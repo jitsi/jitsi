@@ -86,19 +86,23 @@ public class RTPConnectorTCPInputStream
         if(socket.getLocalAddress() == null)
             return;
 
-        NeomediaActivator.getPacketLogging()
-            .logPacket(
-                PacketLoggingService.ProtocolName.RTP,
-                p.getAddress() != null ?
-                    p.getAddress().getAddress() : new byte[]{0,0,0,0},
-                p.getPort(),
-                socket.getLocalAddress().getAddress(),
-                socket.getLocalPort(),
-                PacketLoggingService.TransportName.TCP,
-                false,
-                p.getData(),
-                p.getOffset(),
-                p.getLength());
+        PacketLoggingService packetLogging
+            = NeomediaActivator.getPacketLogging();
+
+        if (packetLogging != null)
+            packetLogging.logPacket(
+                    PacketLoggingService.ProtocolName.RTP,
+                    (p.getAddress() != null)
+                            ? p.getAddress().getAddress()
+                            : new byte[] { 0,0,0,0 },
+                    p.getPort(),
+                    socket.getLocalAddress().getAddress(),
+                    socket.getLocalPort(),
+                    PacketLoggingService.TransportName.TCP,
+                    false,
+                    p.getData(),
+                    p.getOffset(),
+                    p.getLength());
     }
 
     /**

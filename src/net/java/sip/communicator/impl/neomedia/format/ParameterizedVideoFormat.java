@@ -242,10 +242,7 @@ public class ParameterizedVideoFormat
     @Override
     public boolean matches(Format format)
     {
-        if (!super.matches(format))
-            return false;
-
-        return formatParametersMatch(format);
+        return super.matches(format) && formatParametersMatch(format);
     }
 
     /**

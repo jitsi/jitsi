@@ -105,6 +105,10 @@ public class HttpUtilActivator
         throws
         Exception
     {
+        guiCertificateVerification = null;
+        credentialsService = null;
+        resourceService = null;
+        configurationService = null;
     }
 
     /**

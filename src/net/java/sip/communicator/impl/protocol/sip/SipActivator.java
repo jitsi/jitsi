@@ -337,5 +337,15 @@ public class SipActivator
             uriHandlerSipImpl.dispose();
             uriHandlerSipImpl = null;
         }
+
+        configurationService = null;
+        networkAddressManagerService = null;
+        mediaService = null;
+        versionService = null;
+        uiService = null;
+        hidService = null;
+        packetLoggingService = null;
+        certService = null;
+        fileService = null;
     }
 }
