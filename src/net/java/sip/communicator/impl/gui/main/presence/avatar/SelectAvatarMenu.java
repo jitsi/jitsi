@@ -178,7 +178,7 @@ public class SelectAvatarMenu
         panel.add(button, BorderLayout.WEST);
         buttonsPanel.add(panel);
     }
-    
+
     @Override
     public void setVisible(boolean b)
     {
@@ -323,7 +323,6 @@ public class SelectAvatarMenu
 
             // Set the new image
             setNewImage(image);
-            setVisible(false);
         }
         else if (src.getName().equals("chooseButton"))
         {
@@ -331,8 +330,6 @@ public class SelectAvatarMenu
             Image currentImage = this.avatarImage.getAvatar();
 
             ImagePickerDialog dialog = new ImagePickerDialog(96, 96);
-
-            setVisible(false);
 
             byte[] bimage = dialog.showDialog(currentImage);
 
@@ -363,5 +360,7 @@ public class SelectAvatarMenu
         {
             clearRecentImages();
         }
+
+        setVisible(false);
     }
 }

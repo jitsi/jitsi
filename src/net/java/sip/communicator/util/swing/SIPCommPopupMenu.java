@@ -26,7 +26,7 @@ public class SIPCommPopupMenu
         {
             public void componentResized(ComponentEvent evt)
             {
-                Window parentWindow;
+                final Window parentWindow;
 
                 Component parent = getParent();
 
@@ -43,16 +43,14 @@ public class SIPCommPopupMenu
                     setVisible(false);
                 }
 
-                parentWindow.addWindowFocusListener(new WindowFocusListener()
+                parentWindow.addWindowListener(new WindowAdapter()
                 {
-                    public void windowLostFocus(WindowEvent e)
+                    public void windowDeactivated(WindowEvent e) 
                     {
                         if (SIPCommPopupMenu.this != null
-                            && SIPCommPopupMenu.this.isVisible())
+                                && SIPCommPopupMenu.this.isVisible())
                             SIPCommPopupMenu.this.setVisible(false);
                     }
-
-                    public void windowGainedFocus(WindowEvent e) {}
                 });
             }
         });

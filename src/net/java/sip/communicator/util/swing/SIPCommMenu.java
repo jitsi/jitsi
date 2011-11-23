@@ -34,6 +34,7 @@ public class SIPCommMenu
     public SIPCommMenu()
     {
         super();
+
         init();
     }
 
@@ -92,16 +93,15 @@ public class SIPCommMenu
                     getPopupMenu().setVisible(false);
                 }
 
-                parentWindow.addWindowFocusListener(new WindowFocusListener()
+                parentWindow.addWindowListener(new WindowAdapter()
                 {
-                    public void windowLostFocus(WindowEvent e)
+                    public void windowDeactivated(WindowEvent e) 
                     {
                         JPopupMenu popupMenu = getPopupMenu();
+
                         if (popupMenu != null && popupMenu.isVisible())
                             popupMenu.setVisible(false);
                     }
-
-                    public void windowGainedFocus(WindowEvent e) {}
                 });
             }
         });
