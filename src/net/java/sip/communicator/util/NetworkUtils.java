@@ -1154,10 +1154,27 @@ public class NetworkUtils
         // listens for network changes up/down so we can reset
         // dns configuration
         if(netListenerAdded.compareAndSet(false, true))
+        {
+            if(logger.isDebugEnabled())
+                logger.debug("NetConfigChange listener added: "
+                    + netListener.hashCode());
             UtilActivator.getNetworkAddressManagerService()
                 .addNetworkConfigurationChangeListener(netListener);
+        }
 
         Lookup lookup = new Lookup(domain, type);
+
+        if(logger.isDebugEnabled())
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Active DNS servers in default resolver: ");
+            for(String s : ResolverConfig.getCurrentConfig().servers())
+            {
+                sb.append(s);
+                sb.append(", ");
+            }
+            logger.debug(sb.toString());
+        }
 
         if(!UtilActivator.getConfigurationService()
                 .getBoolean(PNAME_BACKUP_RESOLVER_ENABLED,
@@ -1314,6 +1331,21 @@ public class NetworkUtils
             synchronized(parallelResolverLock)
             {
                 ((ParallelResolver)parallelResolver).reset();
+            }
+        }
+
+        if(logger.isDebugEnabled())
+        {
+            if(logger.isDebugEnabled())
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Reloaded resolver config, active DNS servers are: ");
+                for(String s : ResolverConfig.getCurrentConfig().servers())
+                {
+                    sb.append(s);
+                    sb.append(", ");
+                }
+                logger.debug(sb.toString());
             }
         }
     }

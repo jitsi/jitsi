@@ -89,4 +89,10 @@ public class SRVRecord
     {
         return record.getName().toString();
     }
+
+    @Override
+    public String toString()
+    {
+        return record.toString();
+    }
 }
