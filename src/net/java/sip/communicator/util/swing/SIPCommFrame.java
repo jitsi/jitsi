@@ -98,10 +98,10 @@ public class SIPCommFrame
         {
             imap.put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.META_DOWN_MASK),
-                "close");
+                "closeEsc");
             imap.put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK),
-                "close");
+                "closeEsc");
         }
 
         GuiUtils.addWindow(this);
