@@ -820,6 +820,9 @@ public class ChatWindow
      */
     private void initPluginComponents()
     {
+        // Make sure that we don't miss any event.
+        GuiActivator.getUIService().addPluginComponentListener(this);
+
         pluginPanelEast.setLayout(
             new BoxLayout(pluginPanelEast, BoxLayout.Y_AXIS));
         pluginPanelSouth.setLayout(
@@ -860,16 +863,21 @@ public class ChatWindow
                     = (PluginComponent)
                         GuiActivator .bundleContext.getService(serRef);
 
+                Component comp = (Component) c.getComponent();
+
+                // If this component has been already added, we have nothing
+                // more to do here.
+                if (comp.getParent() != null)
+                    return;
+
                 Object borderLayoutConstraint = UIServiceImpl
                     .getBorderLayoutConstraintsFromContainer(c.getConstraints());
 
-                this.addPluginComponent((Component)c.getComponent(),
+                this.addPluginComponent(comp,
                                         c.getContainer(),
                                         borderLayoutConstraint);
             }
         }
-
-        GuiActivator.getUIService().addPluginComponentListener(this);
     }
 
     /**
@@ -880,6 +888,13 @@ public class ChatWindow
     public void pluginComponentAdded(PluginComponentEvent event)
     {
         PluginComponent c = event.getPluginComponent();
+
+        Component comp = (Component) c.getComponent();
+
+        // If this component has been already added, we have nothing more to do
+        // here.
+        if (comp.getParent() != null)
+            return;
 
         if (c.getContainer().equals(Container.CONTAINER_CHAT_WINDOW)
             || c.getContainer().equals(Container.CONTAINER_CHAT_STATUS_BAR))
