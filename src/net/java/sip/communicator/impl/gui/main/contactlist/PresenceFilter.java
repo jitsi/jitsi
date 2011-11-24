@@ -199,20 +199,30 @@ public class PresenceFilter
                     UIGroup uiGroup = null;
                     if (!MetaContactListSource.isRootGroup(metaGroup))
                     {
-                        uiGroup = MetaContactListSource
-                            .getUIGroup(metaGroup);
-
-                        if (uiGroup == null)
+                        synchronized (metaGroup)
+                        {
                             uiGroup = MetaContactListSource
-                                .createUIGroup(metaGroup);
+                                .getUIGroup(metaGroup);
+
+                            if (uiGroup == null)
+                                uiGroup = MetaContactListSource
+                                    .createUIGroup(metaGroup);
+                        }
                     }
 
                     if (logger.isDebugEnabled())
                         logger.debug("Presence filter contact added: "
                                 + metaContact.getDisplayName());
 
+                    UIContact newUIContact;
+                    synchronized (metaContact)
+                    {
+                        newUIContact = MetaContactListSource
+                            .createUIContact(metaContact);
+                    }
+
                     GuiActivator.getContactList().addContact(
-                            MetaContactListSource.createUIContact(metaContact),
+                            newUIContact,
                             uiGroup,
                             true,
                             true);

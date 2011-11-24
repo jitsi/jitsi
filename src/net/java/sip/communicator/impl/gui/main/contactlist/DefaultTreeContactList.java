@@ -123,7 +123,12 @@ public class DefaultTreeContactList
      */
     public boolean isContactActive(MetaContact metaContact)
     {
-        UIContact uiContact = MetaContactListSource.getUIContact(metaContact);
+        UIContact uiContact;
+        synchronized (metaContact)
+        {
+            uiContact = MetaContactListSource.getUIContact(metaContact);
+        }
+
         if (uiContact != null)
             return isContactActive(uiContact);
         return false;
