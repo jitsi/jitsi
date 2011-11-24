@@ -313,7 +313,6 @@ public class MetaContactListSource
         return false;
     }
 
-    @Override
     public void contactPresenceStatusChanged(
         ContactPresenceStatusChangeEvent evt)
     {
