@@ -399,6 +399,12 @@ public class ProtocolProviderServiceJabberImpl
             // reset states
             abortConnecting = false;
 
+            // indicate we started connectAndLogin process
+            synchronized(connectAndLoginLock)
+            {
+                inConnectAndLogin = true;
+            }
+
             connectAndLogin(authority,
                             SecurityAuthority.AUTHENTICATION_REQUIRED);
         }
@@ -406,7 +412,41 @@ public class ProtocolProviderServiceJabberImpl
         {
             logger.error("Error registering", ex);
 
+            eventDuringLogin = null;
+
             fireRegistrationStateChanged(ex);
+        }
+        finally
+        {
+            synchronized(connectAndLoginLock)
+            {
+                // Checks if an error has occurred during login, if so we fire
+                // it here in order to avoid a deadlock which occurs in
+                // reconnect plugin. The deadlock is cause we fired an event during
+                // login process and have locked initializationLock and we cannot
+                // unregister from reconnect, cause unregister method
+                // also needs this lock.
+                if(eventDuringLogin != null)
+                {
+                    if(eventDuringLogin.getNewState().equals(
+                            RegistrationState.CONNECTION_FAILED) ||
+                        eventDuringLogin.getNewState().equals(
+                            RegistrationState.UNREGISTERED))
+                        disconnectAndCleanConnection();
+
+                    fireRegistrationStateChanged(
+                        eventDuringLogin.getOldState(),
+                        eventDuringLogin.getNewState(),
+                        eventDuringLogin.getReasonCode(),
+                        eventDuringLogin.getReason());
+
+                    eventDuringLogin = null;
+                    inConnectAndLogin = false;
+                    return;
+                }
+
+                inConnectAndLogin = false;
+            }
         }
     }
 
@@ -429,12 +469,20 @@ public class ProtocolProviderServiceJabberImpl
             // reset states
             this.abortConnecting = false;
 
+            // indicate we started connectAndLogin process
+            synchronized(connectAndLoginLock)
+            {
+                inConnectAndLogin = true;
+            }
+
             connectAndLogin(authority,
                             authReasonCode);
         }
         catch(OperationFailedException ex)
         {
             logger.error("Error ReRegistering", ex);
+
+            eventDuringLogin = null;
 
             disconnectAndCleanConnection();
 
@@ -446,7 +494,41 @@ public class ProtocolProviderServiceJabberImpl
         {
             logger.error("Error ReRegistering", ex);
 
+            eventDuringLogin = null;
+
             fireRegistrationStateChanged(ex);
+        }
+        finally
+        {
+            synchronized(connectAndLoginLock)
+            {
+                // Checks if an error has occurred during login, if so we fire
+                // it here in order to avoid a deadlock which occurs in
+                // reconnect plugin. The deadlock is cause we fired an event during
+                // login process and have locked initializationLock and we cannot
+                // unregister from reconnect, cause unregister method
+                // also needs this lock.
+                if(eventDuringLogin != null)
+                {
+                    if(eventDuringLogin.getNewState().equals(
+                            RegistrationState.CONNECTION_FAILED) ||
+                        eventDuringLogin.getNewState().equals(
+                            RegistrationState.UNREGISTERED))
+                        disconnectAndCleanConnection();
+
+                    fireRegistrationStateChanged(
+                        eventDuringLogin.getOldState(),
+                        eventDuringLogin.getNewState(),
+                        eventDuringLogin.getReasonCode(),
+                        eventDuringLogin.getReason());
+
+                    eventDuringLogin = null;
+                    inConnectAndLogin = false;
+                    return;
+                }
+
+                inConnectAndLogin = false;
+            }
         }
     }
 
@@ -473,11 +555,6 @@ public class ProtocolProviderServiceJabberImpl
                                               int reasonCode)
         throws XMPPException, OperationFailedException
     {
-        synchronized(connectAndLoginLock)
-        {
-            inConnectAndLogin = true;
-        }
-
         synchronized(initializationLock)
         {
             // init the necessary objects
@@ -565,36 +642,6 @@ public class ProtocolProviderServiceJabberImpl
                         throw ex;
                 }
             }
-        }
-
-        synchronized(connectAndLoginLock)
-        {
-            // Checks if an error has occurred during login, if so we fire
-            // it here in order to avoid a deadlock which occurs in
-            // reconnect plugin. The deadlock is cause we fired an event during
-            // login process and have locked initializationLock and we cannot
-            // unregister from reconnect, cause unregister method
-            // also needs this lock.
-            if(eventDuringLogin != null)
-            {
-                if(eventDuringLogin.getNewState().equals(
-                        RegistrationState.CONNECTION_FAILED) ||
-                    eventDuringLogin.getNewState().equals(
-                        RegistrationState.UNREGISTERED))
-                    disconnectAndCleanConnection();
-
-                fireRegistrationStateChanged(
-                    eventDuringLogin.getOldState(),
-                    eventDuringLogin.getNewState(),
-                    eventDuringLogin.getReasonCode(),
-                    eventDuringLogin.getReason());
-
-                eventDuringLogin = null;
-                inConnectAndLogin = false;
-                return;
-            }
-
-            inConnectAndLogin = false;
         }
     }
 
