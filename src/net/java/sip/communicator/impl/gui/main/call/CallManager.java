@@ -92,6 +92,18 @@ public class CallManager
                     if (receivedCallDialog.isVisible())
                         receivedCallDialog.setVisible(false);
 
+                    // Ensure that the CallDialog is created, because for now
+                    // it is the one that listens for CallPeers.
+                    Call call = evt.getSourceCall();
+                    if ((evt.getNewValue()
+                            .equals(CallState.CALL_INITIALIZATION)
+                        || evt.getNewValue()
+                            .equals(CallState.CALL_IN_PROGRESS))
+                        && activeCalls.get(call) == null)
+                    {
+                        openCallContainer(call);
+                    }
+
                     if (evt.getNewValue().equals(CallState.CALL_ENDED))
                     {
                         if (evt.getOldValue()
@@ -622,6 +634,8 @@ public class CallManager
      * @param callString the string to call
      * @param c the component, which indicates where should be shown the "call
      * via" menu if needed
+     * @param l listener that is notified when the call interface has been
+     * started after call was created
      */
     public static void createCall(  String callString,
                                     JComponent c,
@@ -1494,7 +1508,7 @@ public class CallManager
         /**
          * Creates the enable local video call thread.
          *
-         * @param call the call, for which to enable/disable 
+         * @param call the call, for which to enable/disable
          * @param enable
          */
         public EnableLocalVideoThread(Call call, boolean enable)

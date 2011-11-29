@@ -15,13 +15,14 @@ import javax.swing.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.plugin.keybindingchooser.chooser.*;
+import net.java.sip.communicator.plugin.keybindingchooser.globalchooser.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added to the settings
  * configuration to configure the application keybindings.
- * 
+ *
  * @author Damian Johnson
  * @author Lubomir Marinov
  */
@@ -44,6 +45,9 @@ public class KeybindingsConfigPanel
     private final HashMap<KeybindingSet, SIPChooser> choosers =
         new HashMap<KeybindingSet, SIPChooser>();
 
+    /**
+     * Constructor.
+     */
     public KeybindingsConfigPanel()
     {
         super(new BorderLayout());
@@ -74,7 +78,7 @@ public class KeybindingsConfigPanel
                 continue; // defaults failed to load
 
             SIPChooser newChooser = new SIPChooser();
-            newChooser.putAllBindings(bindingSet.getBindings());
+            newChooser.putAllBindings(bindingSet);
 
             JPanel chooserWrapper = new TransparentPanel(new BorderLayout());
             chooserWrapper.add(newChooser, BorderLayout.NORTH);
@@ -88,25 +92,12 @@ public class KeybindingsConfigPanel
             this.choosers.put(bindingSet, newChooser);
         }
 
+        // global shortcut
+        GlobalShortcutConfigForm globalBindingPanel =
+            new GlobalShortcutConfigForm();
+        chooserPanes.addTab("Global shortcut", globalBindingPanel);
+
         add(chooserPanes);
-
-        JButton apply = new JButton(
-            KeybindingChooserActivator.getResources()
-                .getI18NString("service.gui.APPLY"));
-
-        apply.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                for (KeybindingSet set : choosers.keySet())
-                    set.setBindings(choosers.get(set).getBindingMap());
-            }
-        });
-
-        JPanel bottomWrapper =
-            new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottomWrapper.add(apply);
-        add(bottomWrapper, BorderLayout.SOUTH);
     }
 
     /**
@@ -114,7 +105,7 @@ public class KeybindingsConfigPanel
      * underscores and this changes the input to lowercase except the first
      * letter of each word. For instance, "RARE_CARDS" would become "Rare
      * Cards".
-     * 
+     *
      * @param input string to be converted
      * @return reader friendly variant of constant name
      */
@@ -188,7 +179,7 @@ public class KeybindingsConfigPanel
          * given in its plugin-specific format. The key is translated to the
          * global format of the ReouseceManagementService and the translated key
          * is used to retrieve the string from the resource files.
-         * 
+         *
          * @param key the key of the string to be retrieved given in its
          *            plugin-specific format
          * @return the internationalized string corresponding to a specific key

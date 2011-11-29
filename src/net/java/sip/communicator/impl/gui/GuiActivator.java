@@ -48,6 +48,9 @@ public class GuiActivator implements BundleActivator
 
     private static UIServiceImpl uiService = null;
 
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static ConfigurationService configService;
@@ -172,7 +175,7 @@ public class GuiActivator implements BundleActivator
     /**
      * Returns all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      * context.
-     * 
+     *
      * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      *         context
      */
@@ -193,9 +196,9 @@ public class GuiActivator implements BundleActivator
             logger.error("LoginManager : " + e);
         }
 
-        if (serRefs != null) 
+        if (serRefs != null)
         {
-            for (ServiceReference serRef : serRefs) 
+            for (ServiceReference serRef : serRefs)
             {
                 ProtocolProviderFactory providerFactory
                     = (ProtocolProviderFactory)
@@ -332,7 +335,7 @@ public class GuiActivator implements BundleActivator
      * given <tt>operationSetClass</tt>.
      *
      * @param opSetClass the operation set class for which we're looking
-     * for providers 
+     * for providers
      * @return a list of all currently registered providers, which support the
      * given <tt>operationSetClass</tt>
      */
@@ -672,7 +675,7 @@ public class GuiActivator implements BundleActivator
             logger.error("GuiActivator : " + e);
         }
 
-        if (serRefs != null) 
+        if (serRefs != null)
         {
             for (ServiceReference serRef : serRefs)
             {
@@ -688,7 +691,7 @@ public class GuiActivator implements BundleActivator
     /**
      * Returns all <tt>ReplacementService</tt>s obtained from the bundle
      * context.
-     * 
+     *
      * @return all <tt>ReplacementService</tt> implementation obtained from the
      *         bundle context
      */
@@ -726,7 +729,7 @@ public class GuiActivator implements BundleActivator
     /**
      * Returns the <tt>SmiliesReplacementService</tt> obtained from the bundle
      * context.
-     * 
+     *
      * @return the <tt>SmiliesReplacementService</tt> implementation obtained
      * from the bundle context
      */
@@ -744,7 +747,7 @@ public class GuiActivator implements BundleActivator
     /**
      * Returns the <tt>PhoneNumberI18nService</tt> obtained from the bundle
      * context.
-     * 
+     *
      * @return the <tt>PhoneNumberI18nService</tt> implementation obtained
      * from the bundle context
      */
@@ -781,6 +784,7 @@ public class GuiActivator implements BundleActivator
      * Returns the <tt>SecurityAuthority</tt> implementation registered to
      * handle security authority events.
      *
+     * @param protocolName protocol name
      * @return the <tt>SecurityAuthority</tt> implementation obtained
      * from the bundle context
      */
@@ -896,7 +900,7 @@ public class GuiActivator implements BundleActivator
                 // is it the preferred protocol ?
                 if(wizard.getClass().getName().equals(prefWName))
                 {
-                    ArrayList<AccountID> registeredAccounts 
+                    ArrayList<AccountID> registeredAccounts
                         = getProtocolProviderFactory(wizard.getProtocolName())
                             .getRegisteredAccounts();
 

@@ -37,6 +37,11 @@ public class ContactList
     implements  MetaContactListListener,
                 MouseListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private static final String ADD_OPERATION = "AddOperation";
 
     private static final String REMOVE_OPERATION = "RemoveOperation";
@@ -392,7 +397,7 @@ public class ContactList
      *
      * @param sourceContact the contact that this event is about
      * @param eventID the id indicating the exact type of the event to fire.
-     * @param clickCount 
+     * @param clickCount
      */
     public void fireContactListEvent(   MetaContact sourceContact,
                                         int eventID,
@@ -404,7 +409,7 @@ public class ContactList
     }
 
     /**
-     * 
+     *
      * @param contactListListeners
      * @param event
      */
@@ -1273,7 +1278,7 @@ public class ContactList
                 }
                 catch (MetaContactListException e)
                 {
-                    
+
                 }
 
                 return;

@@ -10,6 +10,7 @@ import java.util.*;
 
 /**
  *
+ * @param <T> the hashtable extension
  * @author Lyubomir Marinov
  */
 public abstract class HashtableConfigurationStore<T extends Hashtable>

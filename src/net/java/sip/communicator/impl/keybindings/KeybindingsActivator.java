@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.keybindings;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
 
@@ -33,6 +34,16 @@ public class KeybindingsActivator
     private KeybindingsServiceImpl keybindingsService = null;
 
     /**
+     * Reference to the configuration service
+     */
+    private static ConfigurationService configService;
+
+    /**
+     * OSGi bundle context.
+     */
+    private static BundleContext bundleContext = null;
+
+    /**
      * Called when this bundle is started.
      *
      * @param context The execution context of the bundle being started.
@@ -41,6 +52,8 @@ public class KeybindingsActivator
     {
         if (this.keybindingsService == null)
         {
+            bundleContext = context;
+
             if (logger.isDebugEnabled())
                 logger.debug("Service Impl: " + getClass().getName()
                 + " [  STARTED ]");
@@ -64,5 +77,26 @@ public class KeybindingsActivator
             this.keybindingsService.stop();
             this.keybindingsService = null;
         }
+    }
+
+    /**
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigService()
+    {
+        if(configService == null)
+        {
+            ServiceReference confReference
+                = bundleContext.getServiceReference(
+                        ConfigurationService.class.getName());
+            configService
+                = (ConfigurationService) bundleContext.getService(
+                        confReference);
+        }
+        return configService;
     }
 }

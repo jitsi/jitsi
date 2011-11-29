@@ -380,7 +380,7 @@ public class UIServiceImpl
      */
     public void bringToFront()
     {
-        if (mainFrame.getState() == Frame.ICONIFIED) 
+        if (mainFrame.getState() == Frame.ICONIFIED)
             mainFrame.setState(Frame.NORMAL);
         // Because toFront() method gives us no guarantee that our frame would
         // go on top we'll try to also first request the focus and set our

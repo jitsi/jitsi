@@ -6,14 +6,17 @@
  */
 package net.java.sip.communicator.impl.keybindings;
 
+import java.awt.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+import java.util.List; //disambiguation
 
 import javax.swing.*;
 
 import org.osgi.framework.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
@@ -55,6 +58,12 @@ class KeybindingsServiceImpl
     private static final String CUSTOM_KEYBINDING_DIR = "keybindings";
 
     /**
+     * Path where to store the global shortcuts.
+     */
+    private final static String CONFIGURATION_PATH =
+        "net.java.sip.communicator.impl.keybinding.global";
+
+    /**
      * Flag indicating if service is running.
      */
     private boolean isRunning = false;
@@ -64,6 +73,11 @@ class KeybindingsServiceImpl
      */
     private final HashMap<KeybindingSet.Category, KeybindingSetImpl> bindings =
         new HashMap<KeybindingSet.Category, KeybindingSetImpl>();
+
+    /**
+     * Loaded global keybinding mappings.
+     */
+    private GlobalKeybindingSet globalBindings = null;
 
     /**
      * Starts the KeybindingService, for each keybinding category retrieving the
@@ -216,6 +230,9 @@ class KeybindingsServiceImpl
                 new KeybindingSetImpl(merged, category, customFile);
             this.bindings.put(category, newSet);
             newSet.addObserver(this);
+
+            globalBindings = new GlobalKeybindingSetImpl();
+            globalBindings.setBindings(getGlobalShortcutFromConfiguration());
         }
 
         this.isRunning = true;
@@ -294,5 +311,131 @@ class KeybindingsServiceImpl
                 }
             }
         }
+    }
+
+    /**
+     * Returns list of global shortcuts from the configuration file.
+     *
+     * @return list of global shortcuts.
+     */
+    public Map<String, List<AWTKeyStroke>> getGlobalShortcutFromConfiguration()
+    {
+        Map<String, List<AWTKeyStroke>> gBindings = new
+            LinkedHashMap<String, List<AWTKeyStroke>>();
+        ConfigurationService configService =
+            KeybindingsActivator.getConfigService();
+        List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
+        String name = null;
+        String shortcut = null;
+        String shortcut2 = null;
+        String propName = null;
+        String propName2 = null;
+
+        name = "answer";
+        propName = CONFIGURATION_PATH + ".answer.1";
+        propName2 = CONFIGURATION_PATH + ".answer.2";
+
+        shortcut = propName != null ?
+            (String)configService.getProperty(propName) : null;
+        shortcut2 = propName2 != null ?
+            (String)configService.getProperty(propName2) : null;
+        if(shortcut != null)
+        {
+            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut));
+        }
+        if(shortcut2 != null)
+        {
+            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut2));
+        }
+        gBindings.put(name, kss);
+
+        name = "hangup";
+        propName = CONFIGURATION_PATH + ".hangup.1";
+        propName2 = CONFIGURATION_PATH + ".hangup.2";
+        shortcut = propName != null ?
+            (String)configService.getProperty(propName) : null;
+        shortcut2 = propName2 != null ?
+            (String)configService.getProperty(propName2) : null;
+        kss = new ArrayList<AWTKeyStroke>();
+
+        if(shortcut != null)
+        {
+            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut));
+        }
+        if(shortcut2 != null)
+        {
+            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut2));
+        }
+        gBindings.put(name, kss);
+
+        name = "contactlist";
+        propName = CONFIGURATION_PATH + ".contactlist.1";
+        propName2 = CONFIGURATION_PATH + ".contactlist.2";
+        shortcut = propName != null ?
+            (String)configService.getProperty(propName) : null;
+        shortcut2 = propName2 != null ?
+            (String)configService.getProperty(propName2) : null;
+        kss = new ArrayList<AWTKeyStroke>();
+
+        if(shortcut != null)
+        {
+            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut));
+        }
+        if(shortcut2 != null)
+        {
+            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut2));
+        }
+        gBindings.put(name, kss);
+
+        return gBindings;
+    }
+
+    /**
+     * Save the configuration file.
+     */
+    public void saveGlobalShortcutFromConfiguration()
+    {
+        ConfigurationService configService =
+            KeybindingsActivator.getConfigService();
+        String shortcut = null;
+        String shortcut2 = null;
+
+        for(Map.Entry<String, List<AWTKeyStroke>> entry :
+            globalBindings.getBindings().entrySet())
+        {
+            String key = entry.getKey();
+            List<AWTKeyStroke> kss = entry.getValue();
+            String path = CONFIGURATION_PATH;
+
+            if(key.equals("answer"))
+            {
+                path += ".answer";
+            }
+            else if(key.equals("hangup"))
+            {
+                path += ".hangup";
+            }
+            else if(key.equals("contactlist"))
+            {
+                path += ".contactlist";
+            }
+
+            shortcut = path + ".1";
+            shortcut2 = path + ".2";
+            configService.setProperty(shortcut, kss.size() > 0 ?
+                kss.get(0) : null);
+            configService.setProperty(shortcut2, kss.size() > 1 ?
+                kss.get(1) : null);
+        }
+    }
+
+    /**
+     * Provides the bindings associated with the global category.
+     *
+     * @return global keybinding set
+     */
+    public GlobalKeybindingSet getGlobalBindings()
+    {
+        return globalBindings;
     }
 }

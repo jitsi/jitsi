@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.keybindingchooser.chooser;
 
 import java.awt.event.*;
@@ -9,7 +15,7 @@ import javax.swing.KeyStroke;
  * BindingChooser. This can be added to focused components to provide editing
  * functionality for this chooser. This prevents duplicate entries and varies
  * how it captures input according to the type of key event its set to capture.
- * 
+ *
  * @author Damian Johnson (atagar1@gmail.com)
  * @version August 19, 2007
  */
@@ -36,7 +42,7 @@ public class BindingAdaptor
     /**
      * Provides if bindings are currently disableable via generated key adaptors
      * or not.
-     * 
+     *
      * @return true if input can disable bindings, false otherwise.
      */
     public boolean isBindingDisablingEnabled()
@@ -47,7 +53,7 @@ public class BindingAdaptor
     /**
      * Sets if bindings can be disabled via generated key adaptors with the
      * disabling key code. By default this is false.
-     * 
+     *
      * @param enable if true then input can disable bindings, otherwise bindings
      *            may not be disabled
      */
@@ -59,7 +65,7 @@ public class BindingAdaptor
     /**
      * Provides the keycode that can be input to generated key adaptors to
      * disable key bindings.
-     * 
+     *
      * @return keycode of disabling input
      */
     public int getDisablingKeyCode()
@@ -72,7 +78,7 @@ public class BindingAdaptor
      * from returned mappings) via generated key adaptors. This only works if
      * the set event type is KEY_PRESSED or KEY_RELEASED since KEY_TYPED events
      * fail to provide keycodes. By default this is VK_ESCAPE.
-     * 
+     *
      * @param keycode keycode that sets selected entry to a disabled state
      */
     public void setDisablingKeyCode(int keycode)
@@ -83,7 +89,7 @@ public class BindingAdaptor
     /**
      * Provides the type of keystroke registered by input via generated key
      * adaptors.
-     * 
+     *
      * @return type of input detected by generated key adaptors
      */
     public int getInputEventType()
@@ -95,7 +101,7 @@ public class BindingAdaptor
      * Sets the type of keystroke registered by input via generated key adaptors
      * (by default KeyEvent.KEY_PRESSED). This must be a valid type of key event
      * which includes: KEY_PRESSED, KEY_RELEASED, or KEY_TYPED.
-     * 
+     *
      * @param type type of keystroke registered by input
      * @throws IllegalArgumentException if type doesn't match a valid key event
      */

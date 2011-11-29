@@ -23,20 +23,20 @@ public abstract class KeybindingSet
      *         they perform
      */
     public abstract HashMap <KeyStroke, String> getBindings();
-    
+
     /**
      * Resets the bindings and notifies the observer's listeners if they've
      * changed.
      * @param newBindings new keybindings to be held
      */
     public abstract void setBindings(Map <KeyStroke, String> newBindings);
-    
+
     /**
      * Provides the portion of the UI to which the bindings belong.
      * @return binding category
      */
     public abstract Category getCategory();
-    
+
     /**
      * Keybinding sets available in the Sip Communicator.
      */
@@ -44,16 +44,16 @@ public abstract class KeybindingSet
     {
         CHAT("keybindings-chat", Persistence.SERIAL_HASH),
         MAIN("keybindings-main", Persistence.SERIAL_HASH);
-        
+
         private final String resource;
         private final Persistence persistenceFormat;
-        
+
         Category(String resource, Persistence format)
         {
             this.resource = resource;
             this.persistenceFormat = format;
         }
-        
+
         /**
          * Provides the name keybindings are saved and loaded with.
          * @return filename used for keybindings
@@ -62,7 +62,7 @@ public abstract class KeybindingSet
         {
             return this.resource;
         }
-        
+
         /**
          * Provides the format used to save and load keybinding resources.
          * @return style of persistence used by keybindings

@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.keybindingchooser.chooser;
 
 import java.awt.*;
@@ -6,6 +12,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -17,7 +24,7 @@ import net.java.sip.communicator.util.swing.*;
  * particularly recommended unless automated changes to the appearance (the
  * indentation style and color scheme) are disabled since they may be
  * unexpectedly reverted or clash any alterations made.
- * 
+ *
  * @author Damian Johnson (atagar1@gmail.com)
  * @version September 1, 2007
  */
@@ -36,12 +43,17 @@ public class BindingChooser
     private String selectedText = "Press shortcut...";
 
     /**
+     * Keybinding set.
+     */
+    private KeybindingSet set = null;
+
+    /**
      * Displays a dialog allowing the user to redefine the keystroke component
      * of key bindings. The top has light blue labels describing the fields and
      * the bottom provides an 'OK' and 'Cancel' option. This uses the default
      * color scheme and indent style. If no entries are selected then the enter
      * key is equivalent to pressing 'OK' and escape is the same as 'Cancel'.
-     * 
+     *
      * @param parent frame to which to apply modal property and center within
      *            (centers within screen if null)
      * @param bindings initial mapping of keystrokes to their actions
@@ -58,6 +70,20 @@ public class BindingChooser
     }
 
     /**
+     * Adds a collection of new key binding mappings to the end of the listing.
+     * If any shortcuts are already contained then the previous entries are
+     * replaced (not triggering the onUpdate method). Disabled shortcuts trigger
+     * replacement on duplicate actions instead.
+     *
+     * @param set mapping between keystrokes and actions to be added
+     */
+    public void putAllBindings(KeybindingSet set)
+    {
+        this.set = set;
+        putAllBindings(set.getBindings());
+    }
+
+    /**
      * Displays a dialog allowing the user to redefine the keystroke component
      * of key bindings. The bottom provides an 'OK' and 'Cancel' option. If no
      * entries are selected then the enter key is equivalent to pressing 'OK'
@@ -67,7 +93,7 @@ public class BindingChooser
      * setting the selected shortcut field. Also note that labels use the
      * default entry size and should be omitted if using content with custom
      * dimensions.
-     * 
+     *
      * @param parent frame to which to apply modal property and center within
      *            (centers within screen if null)
      * @param display body of the display, containing current bindings and
@@ -185,7 +211,7 @@ public class BindingChooser
     /**
      * Sets if the shortcut fields of entries can be selected to provide editing
      * functionality or not. If false, any selected entry is deselected.
-     * 
+     *
      * @param editable if true shortcut fields may be selected to have their
      *            values changed, otherwise user input and calls to the
      *            setSelected method are ignored
@@ -201,7 +227,7 @@ public class BindingChooser
 
     /**
      * Provides the indent style used by the chooser.
-     * 
+     *
      * @return type of content in the indent field
      */
     public IndentStyle getIndentStyle()
@@ -212,7 +238,7 @@ public class BindingChooser
     /**
      * Sets content display in the indent field of entries. This will prompt an
      * onUpdate on all entries unless setting the style to NONE.
-     * 
+     *
      * @param style type of content displayed in entry's indent field
      */
     public void setIndentStyle(IndentStyle style)
@@ -231,7 +257,7 @@ public class BindingChooser
     /**
      * Sets the message of the selected shortcut field when awaiting user input.
      * By default this is "Press shortcut...".
-     * 
+     *
      * @param message prompt for user input
      */
     public void setSelectedText(String message)
@@ -246,7 +272,7 @@ public class BindingChooser
 
     /**
      * Returns if a binding is currently awaiting input or not.
-     * 
+     *
      * @return true if a binding is awaiting input, false otherwise
      */
     public boolean isBindingSelected()
@@ -256,7 +282,7 @@ public class BindingChooser
 
     /**
      * Provides the currently selected entry if awaiting input.
-     * 
+     *
      * @return entry currently awaiting input, if one exists
      */
     public BindingEntry getSelected()
@@ -270,7 +296,7 @@ public class BindingChooser
      * currently selected entry is deselected. If null, then this simply reverts
      * any selections (leaving no entry selected). The onUpdate method is called
      * whenever an entry is either selected or deselected.
-     * 
+     *
      * @param entry binding entry awaiting input for its shortcut field
      * @throws IllegalArgumentException if entry is not contained in chooser
      */
@@ -311,7 +337,7 @@ public class BindingChooser
     /**
      * Provides a key adaptor that can provide editing functionality for the
      * selected entry.
-     * 
+     *
      * @return binding adaptor configured to this chooser
      */
     public BindingAdaptor makeAdaptor()
@@ -363,7 +389,7 @@ public class BindingChooser
     /**
      * Emulates keyboard input, setting the selected entry's shortcut if an
      * entry's currently awaiting input.
-     * 
+     *
      * @param input keystroke input for selected entry
      */
     void doInput(KeyStroke input)
@@ -371,6 +397,8 @@ public class BindingChooser
         if (isBindingSelected())
         {
             this.selectedEntry.setShortcut(input);
+            //apply configuration
+            set.setBindings(this.getBindingMap());
 
             // TYPE indent can change according to the shortcut
             // this.indentStyle.apply(this.selectedEntry,
@@ -408,7 +436,7 @@ public class BindingChooser
 
         /**
          * Returns the enum representation of a string. This is case sensitive.
-         * 
+         *
          * @param str toString representation of this enum
          * @return enum associated with a string
          * @throws IllegalArgumentException if argument is not represented by
@@ -480,7 +508,7 @@ public class BindingChooser
      * underscores and this changes the input to lowercase except the first
      * letter of each word. For instance, "RARE_CARDS" would become
      * "Rare Cards".
-     * 
+     *
      * @param input string to be converted
      * @return reader friendly variant of constant name
      */

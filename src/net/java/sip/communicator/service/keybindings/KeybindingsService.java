@@ -6,6 +6,10 @@
  */
 package net.java.sip.communicator.service.keybindings;
 
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+
 /**
  * The <tt>KeybindingService</tt> handles the distribution of configurable and
  * persistent keybinding sets.
@@ -21,4 +25,23 @@ public interface KeybindingsService
      *         actions
      */
     KeybindingSet getBindings(KeybindingSet.Category category);
+
+    /**
+     * Provides the bindings associated with the global category.
+     *
+     * @return global keybinding set
+     */
+    GlobalKeybindingSet getGlobalBindings();
+
+    /**
+     * Returns list of global shortcuts from the configuration file.
+     *
+     * @return list of global shortcuts.
+     */
+    public Map<String, List<AWTKeyStroke>> getGlobalShortcutFromConfiguration();
+
+    /**
+     * Save the configuration file.
+     */
+    public void saveGlobalShortcutFromConfiguration();
 }

@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -45,6 +44,11 @@ public class ContactListPane
                 ContactListListener,
                 PluginComponentListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final MainFrame mainFrame;
 
     private TreeContactList contactList;
@@ -549,6 +553,11 @@ public class ContactListPane
      */
     private class TypingTimer extends Timer
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private MetaContact metaContact;
 
         public TypingTimer()

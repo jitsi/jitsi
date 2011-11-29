@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.keybindingchooser.chooser;
 
 import java.awt.*;
@@ -22,7 +28,7 @@ import net.java.sip.communicator.util.swing.*;
  * shortcuts aren't supported. An exception is made in the case of disabled
  * shortcuts, but to keep mappings unique duplicate actions among disabled
  * entries are not permitted.
- * 
+ *
  * @author Damian Johnson (atagar1@gmail.com)
  * @version September 1, 2007
  */
@@ -35,7 +41,7 @@ public abstract class BindingPanel
      * Method called whenever an entry is either added or shifts in the display.
      * For instance, if the second entry is removed then this is called on the
      * third to last elements.
-     * 
+     *
      * @param index newly assigned index of entry
      * @param entry entry that has been added or shifted
      * @param isNew if true the entry is new to the display, false otherwise
@@ -45,7 +51,7 @@ public abstract class BindingPanel
 
     /**
      * Method called upon any mouse clicks within a BindingEntry in the display.
-     * 
+     *
      * @param event fired mouse event that triggered method call
      * @param entry entry on which the click landed
      * @param field field of entry on which the click landed, null if not a
@@ -66,13 +72,13 @@ public abstract class BindingPanel
      * triggering the onUpdate method). Disabled shortcuts trigger replacement
      * on duplicate actions instead. This uses the normal parameters used to
      * generate key stokes, such as:
-     * 
+     *
      * <pre>
      * bindingPanel.putBinding('Y', 0, &quot;Confirm Selection&quot;);
      * bindingPanel.putBinding(KeyEvent.VK_DELETE, KeyEvent.CTRL_MASK
      *     | KeyEvent.ALT_MASK, &quot;Kill Process&quot;);
      * </pre>
-     * 
+     *
      * @param keyCode key code of keystroke component of mapping
      * @param modifier modifiers of keystroke component of mapping
      * @param action string component of mapping
@@ -88,7 +94,7 @@ public abstract class BindingPanel
      * contains the shortcut then the previous entry is replaced instead (not
      * triggering the onUpdate method). Disabled shortcuts trigger replacement
      * on duplicate actions instead.
-     * 
+     *
      * @param shortcut keystroke component of mapping
      * @param action string component of mapping
      * @return true if contents did not already include shortcut
@@ -103,7 +109,7 @@ public abstract class BindingPanel
      * this already contains the shortcut then the previous entry is replaced
      * instead (not triggering the onUpdate method). Disabled shortcuts trigger
      * replacement on duplicate actions instead.
-     * 
+     *
      * @param shortcut keystroke component of mapping
      * @param action string component of mapping
      * @param index location in which to insert mapping
@@ -121,7 +127,7 @@ public abstract class BindingPanel
      * this already contains the shortcut then the previous entry is replaced
      * instead (not triggering the onUpdate method). Disabled shortcuts trigger
      * replacement on duplicate actions instead.
-     * 
+     *
      * @param newEntry entry to add to contents
      * @param index location in which to insert mapping
      * @return true if contents did not already include shortcut
@@ -198,7 +204,7 @@ public abstract class BindingPanel
      * If any shortcuts are already contained then the previous entries are
      * replaced (not triggering the onUpdate method). Disabled shortcuts trigger
      * replacement on duplicate actions instead.
-     * 
+     *
      * @param bindings mapping between keystrokes and actions to be added
      */
     public void putAllBindings(Map<KeyStroke, String> bindings)
@@ -211,7 +217,7 @@ public abstract class BindingPanel
 
     /**
      * Removes a particular binding from the contents.
-     * 
+     *
      * @param entry binding to be removed
      * @return true if binding was in the contents, false otherwise
      */
@@ -226,7 +232,7 @@ public abstract class BindingPanel
 
     /**
      * Removes the binding at a particular index of the listing.
-     * 
+     *
      * @param index from which to remove entry
      * @return the entry that was removed from the contents
      * @throws IndexOutOfBoundsException if index is out of range (index < 0 ||
@@ -269,7 +275,7 @@ public abstract class BindingPanel
      * Returns if a keystroke is in the panel's current contents. This provides
      * a preemptive means of checking if adding a non-disabled shortcut would
      * cause a replacement.
-     * 
+     *
      * @param shortcut keystroke to be checked against contents
      * @return true if contents includes the shortcut, false otherwise
      */
@@ -293,7 +299,7 @@ public abstract class BindingPanel
 
     /**
      * Provides number of key bindings currently present.
-     * 
+     *
      * @return number of key bindings in the display
      */
     public int getBindingCount()
@@ -303,7 +309,7 @@ public abstract class BindingPanel
 
     /**
      * Provides the index of a particular entry.
-     * 
+     *
      * @param entry entry for which the index should be returned
      * @return entry index, -1 if not found
      */
@@ -314,7 +320,7 @@ public abstract class BindingPanel
 
     /**
      * Provides a binding at a particular index.
-     * 
+     *
      * @param index index from which to retrieve binding.
      * @return the entry at the specified position in this list
      */
@@ -325,7 +331,7 @@ public abstract class BindingPanel
 
     /**
      * Provides listing of the current keybinding entries.
-     * 
+     *
      * @return list of current entry contents
      */
     public ArrayList<BindingEntry> getBindings()
@@ -336,7 +342,7 @@ public abstract class BindingPanel
     /**
      * Provides the mapping between keystrokes and actions represented by the
      * contents of the display. Disabled entries aren't included in the mapping.
-     * 
+     *
      * @return mapping between contained keystrokes and their associated actions
      */
     public LinkedHashMap<KeyStroke, String> getBindingMap()
@@ -356,7 +362,7 @@ public abstract class BindingPanel
     /**
      * Provides an input map associating keystrokes to actions according to the
      * contents of the display. Disabled entries aren't included in the mapping.
-     * 
+     *
      * @return input mapping between contained keystrokes and their associated
      *         actions
      */

@@ -932,7 +932,8 @@
         bundle-plugin-loggingutils,bundle-plugin-dnsconfig,
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
-        bundle-plugin-contactsourceconfig,bundle-plugin-certconfig"/>
+        bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
+        bundle-globalshortcut"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2751,6 +2752,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/certconfig/certconfig.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/certconfig"
                 prefix="net/java/sip/communicator/plugin/certconfig" />
+        </jar>
+    </target>
+
+    <target name="bundle-globalshortcut">
+        <jar compress="false" destfile="${bundles.dest}/globalshortcut.jar"
+            manifest="${src}/net/java/sip/communicator/impl/globalshortcut/globalshortcut.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/globalshortcut"
+                prefix="net/java/sip/communicator/impl/globalshortcut" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/globalshortcut"
+                prefix="net/java/sip/communicator/service/globalshortcut"/>
         </jar>
     </target>
 </project>

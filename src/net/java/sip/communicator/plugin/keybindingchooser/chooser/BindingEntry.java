@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.keybindingchooser.chooser;
 
 import java.awt.*;
@@ -9,7 +15,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * Display element for a single key binding.
- * 
+ *
  * @author Damian Johnson (atagar1@gmail.com)
  * @version August 7, 2007
  */
@@ -130,7 +136,7 @@ public class BindingEntry
 
     /**
      * Provides the label associated with a field.
-     * 
+     *
      * @param field element of display to be returned
      * @return label associated with field
      */
@@ -165,7 +171,7 @@ public class BindingEntry
      * the representation are unspecified and subject to change but the
      * following format can be considered to be typical:<br>
      * "BindingEntry (" + Shortcut + " \u2192 " + Action + ")"
-     * 
+     *
      * @return string representation of entry
      */
     @Override
@@ -188,7 +194,7 @@ public class BindingEntry
      * Checks if argument is an instance of this class with the same shortcut
      * and associated action. It does not compare aspects of the display
      * elements.
-     * 
+     *
      * @param obj element with which to be compared
      * @return true if argument is an instance of this class with matching
      *         shortcut and action, false otherwise

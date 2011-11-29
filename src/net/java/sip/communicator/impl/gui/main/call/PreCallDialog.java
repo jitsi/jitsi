@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.swing.*;
 import com.explodingpixels.macwidgets.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public abstract class PreCallDialog
@@ -160,7 +160,7 @@ public abstract class PreCallDialog
         receivedCallWindow.setAlwaysOnTop(true);
 
         // prevents dialog window to get unwanted key events and when going
-        // on top on linux, it steals focus and if we are accedently
+        // on top on linux, it steals focus and if we are accidently
         // writing something and pressing enter a call get answered
         receivedCallWindow.setFocusableWindowState(false);
 
