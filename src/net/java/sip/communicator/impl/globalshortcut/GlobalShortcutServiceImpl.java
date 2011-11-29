@@ -74,33 +74,33 @@ public class GlobalShortcutServiceImpl
     public void registerShortcut(GlobalShortcutListener listener,
         AWTKeyStroke keyStroke)
     {
-        List<AWTKeyStroke> keystrokes = mapActions.get(listener);
-
-        if(keyStroke == null)
-        {
-            return;
-        }
-
-        if(keystrokes != null)
-        {
-            if(keyboardHook.registerShortcut(keyStroke.getKeyCode(),
-                getModifiers(keyStroke)))
-            {
-                keystrokes.add(keyStroke);
-            }
-        }
-        else
-        {
-            keystrokes = new ArrayList<AWTKeyStroke>();
-            if(keyboardHook.registerShortcut(keyStroke.getKeyCode(),
-                getModifiers(keyStroke)))
-            {
-                keystrokes.add(keyStroke);
-            }
-        }
-
         synchronized(mapActions)
         {
+            List<AWTKeyStroke> keystrokes = mapActions.get(listener);
+
+            if(keyStroke == null)
+            {
+                return;
+            }
+
+            if(keystrokes != null)
+            {
+                if(keyboardHook.registerShortcut(keyStroke.getKeyCode(),
+                    getModifiers(keyStroke)))
+                {
+                    keystrokes.add(keyStroke);
+                }
+            }
+            else
+            {
+                keystrokes = new ArrayList<AWTKeyStroke>();
+                if(keyboardHook.registerShortcut(keyStroke.getKeyCode(),
+                    getModifiers(keyStroke)))
+                {
+                    keystrokes.add(keyStroke);
+                }
+            }
+
             mapActions.put(listener, keystrokes);
         }
     }
@@ -114,37 +114,54 @@ public class GlobalShortcutServiceImpl
     public void unregisterShortcut(GlobalShortcutListener listener,
         AWTKeyStroke keyStroke)
     {
-        List<AWTKeyStroke> keystrokes = mapActions.get(listener);
+        unregisterShortcut(listener, keyStroke, true);
+    }
 
-        if(keystrokes != null && keyStroke != null)
+    /**
+     * Unregisters an action to execute when the keystroke is typed.
+     *
+     * @param listener listener to remove
+     * @param keyStroke keystroke that will trigger the action
+     * @param remove remove or not entry in the map
+     */
+    public void unregisterShortcut(GlobalShortcutListener listener,
+        AWTKeyStroke keyStroke, boolean remove)
+    {
+        synchronized(mapActions)
         {
-            int keycode = keyStroke.getKeyCode();
-            int modifiers = keyStroke.getModifiers();
-            AWTKeyStroke ks = null;
+            List<AWTKeyStroke> keystrokes = mapActions.get(listener);
 
-            for(AWTKeyStroke l : keystrokes)
+            if(keystrokes != null && keyStroke != null)
             {
-                if(l.getKeyCode() == keycode && l.getModifiers() == modifiers)
-                    ks = l;
-            }
+                int keycode = keyStroke.getKeyCode();
+                int modifiers = keyStroke.getModifiers();
+                AWTKeyStroke ks = null;
 
-            if(ks != null)
-            {
-                keystrokes.remove(ks);
-            }
-
-            keyboardHook.unregisterShortcut(keyStroke.getKeyCode(),
-                getModifiers(keyStroke));
-
-            synchronized(mapActions)
-            {
-                if(keystrokes.size() == 0)
+                for(AWTKeyStroke l : keystrokes)
                 {
-                    mapActions.remove(listener);
+                    if(l.getKeyCode() == keycode &&
+                        l.getModifiers() == modifiers)
+                        ks = l;
                 }
-                else
+
+                keyboardHook.unregisterShortcut(keyStroke.getKeyCode(),
+                    getModifiers(keyStroke));
+
+                if(remove)
                 {
-                    mapActions.put(listener, keystrokes);
+                    if(ks != null)
+                    {
+                        keystrokes.remove(ks);
+                    }
+
+                    if(keystrokes.size() == 0)
+                    {
+                        mapActions.remove(listener);
+                    }
+                    else
+                    {
+                        mapActions.put(listener, keystrokes);
+                    }
                 }
             }
         }
@@ -265,9 +282,10 @@ public class GlobalShortcutServiceImpl
             GlobalShortcutListener l = entry.getKey();
             for(AWTKeyStroke e : entry.getValue())
             {
-                unregisterShortcut(l, e);
+                unregisterShortcut(l, e, false);
             }
         }
+        mapActions.clear();
 
         // add shortcuts from configuration
         for(Map.Entry<String, List<AWTKeyStroke>> entry :
