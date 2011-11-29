@@ -715,6 +715,9 @@ public class NetworkUtils
         }
         if (records == null)
         {
+
+            if(logger.isTraceEnabled())
+                logger.trace("No NAPTRs found for " + domain);
             return null;
         }
 
@@ -747,6 +750,9 @@ public class NetworkUtils
             }
         });
 
+        if(logger.isTraceEnabled())
+            logger.trace("NAPTRs for " + domain + "="
+                + Arrays.toString(recVals));
         return recVals;
     }
 
@@ -912,6 +918,8 @@ public class NetworkUtils
             }
             v6lookup = !v6lookup;
         }
+        if(logger.isTraceEnabled())
+            logger.trace("A or AAAA addresses: " + addresses);
         return addresses.toArray(new InetSocketAddress[0]);
     }
 
@@ -961,13 +969,17 @@ public class NetworkUtils
         }
         if (records != null && records.length > 0)
         {
+            if(logger.isTraceEnabled())
+                logger.trace("A record for " + domain + "="
+                    + ((ARecord)records[0]).getAddress());
             return new InetSocketAddress(
                 ((ARecord)records[0]).getAddress(),
                 port);
         }
         else
         {
-            //No A record found
+            if(logger.isTraceEnabled())
+                logger.trace("No A record found for " + domain);
             return null;
         }
     }
@@ -1018,13 +1030,17 @@ public class NetworkUtils
         }
         if (records != null && records.length > 0)
         {
+            if(logger.isTraceEnabled())
+                logger.trace("AAAA record for " + domain + "="
+                    + ((AAAARecord)records[0]).getAddress());
             return new InetSocketAddress(
                 ((AAAARecord)records[0]).getAddress(),
                 port);
         }
         else
         {
-            //"No AAAA record found
+            if(logger.isTraceEnabled())
+                logger.trace("No AAAA record found for " + domain);
             return null;
         }
     }
@@ -1164,7 +1180,7 @@ public class NetworkUtils
 
         Lookup lookup = new Lookup(domain, type);
 
-        if(logger.isDebugEnabled())
+        if(logger.isTraceEnabled())
         {
             StringBuilder sb = new StringBuilder();
             sb.append("Active DNS servers in default resolver: ");
@@ -1173,7 +1189,7 @@ public class NetworkUtils
                 sb.append(s);
                 sb.append(", ");
             }
-            logger.debug(sb.toString());
+            logger.trace(sb.toString());
         }
 
         if(!UtilActivator.getConfigurationService()
@@ -1324,6 +1340,7 @@ public class NetworkUtils
     {
         // reread system dns configuration
         ResolverConfig.refresh();
+        Lookup.refreshDefault();
         if(parallelResolver instanceof ParallelResolver)
         {
             //needs a separate lock object because the parallelResolver could
@@ -1334,19 +1351,16 @@ public class NetworkUtils
             }
         }
 
-        if(logger.isDebugEnabled())
+        if(logger.isTraceEnabled())
         {
-            if(logger.isDebugEnabled())
+            StringBuilder sb = new StringBuilder();
+            sb.append("Reloaded resolver config, active DNS servers are: ");
+            for(String s : ResolverConfig.getCurrentConfig().servers())
             {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Reloaded resolver config, active DNS servers are: ");
-                for(String s : ResolverConfig.getCurrentConfig().servers())
-                {
-                    sb.append(s);
-                    sb.append(", ");
-                }
-                logger.debug(sb.toString());
+                sb.append(s);
+                sb.append(", ");
             }
+            logger.trace(sb.toString());
         }
     }
 
