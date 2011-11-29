@@ -59,7 +59,7 @@ public class ChatWritePanel
 
     private final Timer typingTimer = new Timer(5 * 1000, this);
 
-    private int typingState = -1;
+    private int typingState = OperationSetTypingNotifications.STATE_STOPPED;
 
     private final WritePanelRightButtonMenu rightButtonMenu;
 
