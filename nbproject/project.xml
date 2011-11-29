@@ -4,15 +4,9 @@
     <configuration>
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
             <!-- Created by Brian Burch on September 27, 2006
-                 The master version is held in the sandbox, as 
-                 ./ide/nbproject/project.xml. You should copy it to 
-                 ./nbproject/project.xml (when NetBeans is not running!)
-                 to make it active on your own system.
               ** Updated by Brian Burch on October 22, 2008
                  Netbeans debug targets are now held in 
-                 ./ide/nbproject/ide-targets.xml and ./ide/nbproject/ide-file-targets.xml.
-                 You should copy these two files to ./nbproject/ (when NetBeans is not    
-                 running!) to make them active on your own system.
+                 ./nbproject/ide-targets.xml and ./nbproject/ide-file-targets.xml.
                  -->
             <name>jitsi</name>
             <properties/>

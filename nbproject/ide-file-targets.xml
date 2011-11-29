@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created by Brian Burch on October 8, 2008
-     Netbeans debug targets are now held in this file. You should copy it to 
-     ./nbproject/ide-file-targets.xml (when NetBeans is not running!)
-     to make it active on your own system.
+     Netbeans debug targets are now held in this file.
     -->
 <project basedir=".." name="SIP Communicator-IDE">
 
