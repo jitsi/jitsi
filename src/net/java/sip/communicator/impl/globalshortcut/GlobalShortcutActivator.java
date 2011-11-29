@@ -207,7 +207,8 @@ public class GlobalShortcutActivator
             OperationSetBasicTelephony<?> opSet =
                 service.getOperationSet(OperationSetBasicTelephony.class);
 
-            opSet.addCallListener(globalShortcutService.getCallShortcut());
+            if(opSet != null)
+                opSet.addCallListener(globalShortcutService.getCallShortcut());
         }
     }
 
@@ -222,7 +223,8 @@ public class GlobalShortcutActivator
     {
         OperationSetBasicTelephony<?> opSet =
             provider.getOperationSet(OperationSetBasicTelephony.class);
-        opSet.addCallListener(globalShortcutService.getCallShortcut());
+        if(opSet != null)
+            opSet.addCallListener(globalShortcutService.getCallShortcut());
     }
 
     /**
@@ -236,6 +238,7 @@ public class GlobalShortcutActivator
     {
         OperationSetBasicTelephony<?> opSet =
             provider.getOperationSet(OperationSetBasicTelephony.class);
-        opSet.removeCallListener(globalShortcutService.getCallShortcut());
+        if(opSet != null)
+            opSet.removeCallListener(globalShortcutService.getCallShortcut());
     }
 }
