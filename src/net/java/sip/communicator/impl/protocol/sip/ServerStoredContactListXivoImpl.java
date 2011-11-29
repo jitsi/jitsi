@@ -353,6 +353,7 @@ public class ServerStoredContactListXivoImpl
      * @param contactId   the sip id of the contact to create.
      * @param displayName the display name of the contact to create
      * @param persistent  specify whether created contact is persistent ot not.
+     * @param contactType the contact type to create, if missing null.
      * @return the newly created <tt>ContactSipImpl</tt>.
      * @throws OperationFailedException with code NETWORK_FAILURE if the
      *                                  operation if failed during network
@@ -362,7 +363,8 @@ public class ServerStoredContactListXivoImpl
             ContactGroupSipImpl parentGroup,
             String contactId,
             String displayName,
-            boolean persistent)
+            boolean persistent,
+            String contactType)
         throws OperationFailedException
     {
         throw new OperationFailedException("Modification not supported.",

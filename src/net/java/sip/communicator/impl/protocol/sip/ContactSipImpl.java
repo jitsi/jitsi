@@ -236,11 +236,21 @@ public class ContactSipImpl
     /**
      * Sets the entry custom elements.
      *
-     * @param any the custom elemets.
+     * @param any the custom elements.
      */
     void setAny(List<Element> any)
     {
         this.entry.setAny(any);
+    }
+
+    /**
+     * Gets the entry custom elements.
+     *
+     * @return the custom elements.
+     */
+    List<Element> getAny()
+    {
+        return this.entry.getAny();
     }
 
     /**

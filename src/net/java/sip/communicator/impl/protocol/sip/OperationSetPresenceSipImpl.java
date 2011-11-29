@@ -280,8 +280,14 @@ public class OperationSetPresenceSipImpl
                     provider, this);
         }
         else
+        {
             this.ssContactList = new ServerStoredContactListSipImpl(
                     provider, this);
+
+            provider.addSupportedOperationSet(
+                OperationSetContactTypeInfo.class,
+                new OperationSetContactTypeInfoImpl(this));
+        }
 
         //this.ssContactList.addGroupListener();
 
@@ -1006,6 +1012,35 @@ public class OperationSetPresenceSipImpl
                IllegalStateException,
                OperationFailedException
     {
+        this.subscribe(parentGroup, contactIdentifier);
+    }
+
+    /**
+     * Persistently adds a subscription for the presence status of the
+     * contact corresponding to the specified contactIdentifier and indicates
+     * that it should be added to the specified group of the server stored
+     * contact list.
+     *
+     * @param parentGroup the parent group of the server stored contact list
+     *   where the contact should be added. <p>
+     * @param contactIdentifier the contact whose status updates we are
+     *   subscribing for.
+     * @param contactType the contact type to create, if missing null.
+     * @throws IllegalArgumentException if <tt>contact</tt> or
+     *   <tt>parent</tt> are not a contact known to the underlying protocol
+     *   provider.
+     * @throws IllegalStateException if the underlying protocol provider is
+     *   not registered/signed on a public service.
+     * @throws OperationFailedException with code NETWORK_FAILURE if
+     *   subscribing fails due to errors experienced during network
+     *   communication
+     */
+    void subscribe(ContactGroup parentGroup, String contactIdentifier,
+                         String contactType)
+        throws IllegalArgumentException,
+               IllegalStateException,
+               OperationFailedException
+    {
         assertConnected();
 
         if (!(parentGroup instanceof ContactGroupSipImpl))
@@ -1036,7 +1071,7 @@ public class OperationSetPresenceSipImpl
             }
         }
         contact = ssContactList.createContact((ContactGroupSipImpl) parentGroup,
-                contactIdentifier, true);
+                contactIdentifier, true, contactType);
         if (this.presenceEnabled)
         {
             subscriber.subscribe(new PresenceSubscriberSubscription(contact));
@@ -1746,11 +1781,11 @@ public class OperationSetPresenceSipImpl
                 return ssContactList.createContact( volatileGroup,
                                                     contactAddress,
                                                     displayName,
-                                                    false);
+                                                    false, null);
             else
                 return ssContactList.createContact( volatileGroup,
                                                     contactAddress,
-                                                    false);
+                                                    false, null);
         }
         catch (OperationFailedException ex)
         {

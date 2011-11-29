@@ -532,6 +532,7 @@ public abstract class ServerStoredContactList
      *                    created.
      * @param contactId   the sip id of the contact to create.
      * @param persistent  specify whether created contact is persistent ot not.
+     * @param contactType the contact type to create, if missing null.
      * @return the newly created <tt>ContactSipImpl</tt>.
      * @throws OperationFailedException with code NETWORK_FAILURE if the
      *                                  operation if failed during network
@@ -539,10 +540,11 @@ public abstract class ServerStoredContactList
      */
     synchronized public ContactSipImpl createContact(
         ContactGroupSipImpl parentGroup, String contactId,
-        boolean persistent)
+        boolean persistent, String contactType)
         throws OperationFailedException
     {
-        return createContact(parentGroup, contactId, null, persistent);
+        return createContact(
+            parentGroup, contactId, null, persistent, contactType);
     }
 
     /**
@@ -554,6 +556,7 @@ public abstract class ServerStoredContactList
      * @param contactId   the sip id of the contact to create.
      * @param displayName the display name of the contact to create
      * @param persistent  specify whether created contact is persistent ot not.
+     * @param contactType the contact type to create, if missing null.
      * @return the newly created <tt>ContactSipImpl</tt>.
      * @throws OperationFailedException with code NETWORK_FAILURE if the
      *                                  operation if failed during network
@@ -563,7 +566,8 @@ public abstract class ServerStoredContactList
             ContactGroupSipImpl parentGroup,
             String contactId,
             String displayName,
-            boolean persistent)
+            boolean persistent,
+            String contactType)
         throws OperationFailedException;
 
     /**

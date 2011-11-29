@@ -16,6 +16,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.xml.*;
+import org.w3c.dom.*;
 
 import javax.sip.address.*;
 import java.net.URI;
@@ -90,6 +92,17 @@ public class ServerStoredContactListSipImpl
             = "presence_polite_block";
 
     /**
+     * The contact type element name used in xcap documents.
+     */
+    private static final String CONTACT_TYPE_ELEMENT_NAME = "contact-type";
+
+    /**
+     * The namespace used for contact type.
+     */
+    private static final String CONTACT_TYPE_NS =
+        "http://jitsi.org/contact-type";
+
+    /**
      * The XCAP client.
      */
     private final XCapClient xCapClient = new XCapClientImpl();
@@ -123,6 +136,7 @@ public class ServerStoredContactListSipImpl
      * @param contactId   the sip id of the contact to create.
      * @param displayName the display name of the contact to create
      * @param persistent  specify whether created contact is persistent ot not.
+     * @param contactType the contact type to create, if missing null.
      * @return the newly created <tt>ContactSipImpl</tt>.
      * @throws OperationFailedException with code NETWORK_FAILURE if the
      *                                  operation if failed during network
@@ -132,7 +146,8 @@ public class ServerStoredContactListSipImpl
             ContactGroupSipImpl parentGroup,
             String contactId,
             String displayName,
-            boolean persistent)
+            boolean persistent,
+            String contactType)
             throws OperationFailedException
     {
         if (parentGroup == null)
@@ -190,6 +205,11 @@ public class ServerStoredContactListSipImpl
             displayName = ((SipURI) contactAddress.getURI()).getUser();
 
         newContact.setDisplayName(displayName);
+
+        if(contactType != null)
+        {
+            setContactType(newContact, contactType);
+        }
 
         parentGroup.addContact(newContact);
         if (newContact.isPersistent())
@@ -1345,7 +1365,7 @@ public class ServerStoredContactListSipImpl
      *
      * @throws XCapException if there is some error during operation.
      */
-    synchronized private void updateResourceLists()
+    synchronized void updateResourceLists()
             throws XCapException
     {
         if (!xCapClient.isConnected()
@@ -1534,6 +1554,86 @@ public class ServerStoredContactListSipImpl
         {
             throw new OperationFailedException("Cannot put image detail",
                     OperationFailedException.NETWORK_FAILURE);
+        }
+    }
+
+    /**
+     * Access the contact type. If none specified null is returned.
+     * @param contact the contact to be queried for type.
+     * @return the contact type or null if missing.
+     */
+    public String getContactType(Contact contact)
+    {
+        if (!(contact instanceof ContactSipImpl))
+        {
+            String errorMessage = String.format(
+                "Contact %1s does not seem to belong to this protocol's " +
+                    "contact list", contact.getAddress());
+            throw new IllegalArgumentException(errorMessage);
+        }
+
+        ContactSipImpl contactSip = (ContactSipImpl)contact;
+
+        List<Element> anyElements = contactSip.getAny();
+        for(Element e : anyElements)
+        {
+            if(e.getNodeName().equals(CONTACT_TYPE_ELEMENT_NAME))
+                return XMLUtils.getText(e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Sets the contact type of the contact.
+     * @param contact the contact to be changed.
+     * @param contactType the type set to the contact.
+     */
+    public void setContactType(Contact contact, String contactType)
+    {
+        if (!(contact instanceof ContactSipImpl))
+        {
+            String errorMessage = String.format(
+                "Contact %1s does not seem to belong to this protocol's " +
+                    "contact list", contact.getAddress());
+            throw new IllegalArgumentException(errorMessage);
+        }
+
+        ContactSipImpl contactSip = (ContactSipImpl)contact;
+
+        List<Element> anyElements = contactSip.getAny();
+
+        try
+        {
+            Element typeElement = null;
+            
+            for(Element el : anyElements)
+            {
+                if(el.getNodeName().equals(CONTACT_TYPE_ELEMENT_NAME))
+                {
+                    typeElement = el;
+                    break;
+                }
+            }
+
+            // if its missing create it
+            if(typeElement == null)
+            {
+                Document document = XMLUtils.createDocument();
+                typeElement =
+                    document.createElementNS(
+                        CONTACT_TYPE_NS,
+                        CONTACT_TYPE_ELEMENT_NAME);
+                anyElements.add(typeElement);
+            }
+
+            typeElement.setTextContent(contactType);
+
+            contactSip.setAny(anyElements);
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error creating element", t);
         }
     }
 }

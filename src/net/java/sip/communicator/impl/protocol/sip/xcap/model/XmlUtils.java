@@ -51,9 +51,8 @@ public final class XmlUtils
     {
         for (Element anyElement : any)
         {
-            Element importedElement =
-                    (Element) importNode(element.getOwnerDocument(),
-                            anyElement);
+            Node importedElement =
+                element.getOwnerDocument().importNode(anyElement, true);
             element.appendChild(importedElement);
         }
     }
