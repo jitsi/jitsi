@@ -36,13 +36,16 @@ public class UnknownContactPanel
     implements  TextFieldChangeListener,
                 Skinnable
 {
-    private final JButton addContact = new JButton(
+    private final JButton addButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.ADD_CONTACT"));
 
-    private final JButton callContact = new JButton(
+    private final JButton callButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CALL_CONTACT"));
 
     private final JTextPane textArea = new JTextPane();
+
+    private final TransparentPanel buttonPanel
+        = new TransparentPanel(new GridLayout(0, 1));
 
     /**
      * The main application window.
@@ -68,62 +71,17 @@ public class UnknownContactPanel
 
         this.add(mainPanel, BorderLayout.NORTH);
 
-        TransparentPanel buttonPanel
-            = new TransparentPanel(new GridLayout(0, 1));
-
         if (!ConfigurationManager.isAddContactDisabled())
         {
-            addContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
-
-            addContact.setMnemonic(GuiActivator.getResources()
-                .getI18nMnemonic("service.gui.ADD_CONTACT"));
-
-            buttonPanel.add(addContact);
-
-            addContact.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    AddContactDialog dialog
-                        = new AddContactDialog(parentWindow);
-
-                    dialog.setContactAddress(
-                        parentWindow.getCurrentSearchText());
-                    dialog.setVisible(true);
-                }
-            });
+            initAddContactButton();
         }
 
-        List<ProtocolProviderService> telephonyProviders
-            = CallManager.getTelephonyProviders();
-
-        if (telephonyProviders!= null && telephonyProviders.size() > 0)
-        {
-            callContact.setAlignmentX(JButton.CENTER_ALIGNMENT);
-
-            callContact.setMnemonic(GuiActivator.getResources()
-                .getI18nMnemonic("service.gui.CALL_CONTACT"));
-
-            buttonPanel.add(callContact);
-
-            callContact.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    String searchText = parentWindow.getCurrentSearchText();
-
-                    if (searchText == null)
-                        return;
-
-                    CallManager.createCall(searchText, callContact);
-                }
-            });
-        }
+        initCallButton();
 
         initTextArea();
         mainPanel.add(textArea, BorderLayout.CENTER);
 
-        if (callContact.getParent() != null)
+        if (callButton.getParent() != null)
         {
             textArea.setText(GuiActivator.getResources()
                 .getI18NString( "service.gui.NO_CONTACTS_FOUND",
@@ -148,12 +106,74 @@ public class UnknownContactPanel
         loadSkin();
     }
 
+    private void initAddContactButton()
+    {
+        addButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
+
+        addButton.setMnemonic(GuiActivator.getResources()
+            .getI18nMnemonic("service.gui.ADD_CONTACT"));
+
+        buttonPanel.add(addButton);
+
+        addButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                AddContactDialog dialog
+                    = new AddContactDialog(parentWindow);
+
+                dialog.setContactAddress(
+                    parentWindow.getCurrentSearchText());
+                dialog.setVisible(true);
+            }
+        });
+    }
+
+    /**
+     * Initializes the call button.
+     */
+    private void initCallButton()
+    {
+        List<ProtocolProviderService> telephonyProviders
+            = CallManager.getTelephonyProviders();
+
+        if (telephonyProviders!= null && telephonyProviders.size() > 0)
+        {
+            if (callButton.getParent() != null)
+                return;
+
+            callButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
+
+            callButton.setMnemonic(GuiActivator.getResources()
+                .getI18nMnemonic("service.gui.CALL_CONTACT"));
+
+            buttonPanel.add(callButton);
+
+            callButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    String searchText = parentWindow.getCurrentSearchText();
+
+                    if (searchText == null)
+                        return;
+
+                    CallManager.createCall(searchText, callButton);
+                }
+            });
+        }
+        else
+        {
+            buttonPanel.remove(callButton);
+        }
+    }
+
     /**
      * Clicks the call contact button in order to call the unknown contact.
      */
     public void startCall()
     {
-        callContact.doClick();
+        callButton.doClick();
     }
 
     /**
@@ -162,7 +182,7 @@ public class UnknownContactPanel
      */
     public void addUnknownContact()
     {
-        addContact.doClick();
+        addButton.doClick();
     }
 
     /**
@@ -205,7 +225,7 @@ public class UnknownContactPanel
      */
     private void updateTextArea(String searchText)
     {
-        if (callContact.getParent() != null)
+        if (callButton.getParent() != null)
         {
             textArea.setText(GuiActivator.getResources()
                 .getI18NString("service.gui.NO_CONTACTS_FOUND",
@@ -221,9 +241,22 @@ public class UnknownContactPanel
      */
     public void loadSkin()
     {
-        addContact.setIcon(GuiActivator.getResources()
+        addButton.setIcon(GuiActivator.getResources()
             .getImage("service.gui.icons.ADD_CONTACT_16x16_ICON"));
-        callContact.setIcon(GuiActivator.getResources()
+        callButton.setIcon(GuiActivator.getResources()
             .getImage("service.gui.icons.CALL_16x16_ICON"));
+    }
+
+    /**
+     * Updates the call button appearance and shows/hides this panel.
+     *
+     * @param isVisible indicates if this panel should be shown or hidden
+     */
+    public void setVisible(boolean isVisible)
+    {
+        if (isVisible)
+            initCallButton();
+
+        super.setVisible(isVisible);
     }
 }
