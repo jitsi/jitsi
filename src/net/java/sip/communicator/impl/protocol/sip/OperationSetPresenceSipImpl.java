@@ -1012,7 +1012,7 @@ public class OperationSetPresenceSipImpl
                IllegalStateException,
                OperationFailedException
     {
-        this.subscribe(parentGroup, contactIdentifier);
+        this.subscribe(parentGroup, contactIdentifier, null);
     }
 
     /**
