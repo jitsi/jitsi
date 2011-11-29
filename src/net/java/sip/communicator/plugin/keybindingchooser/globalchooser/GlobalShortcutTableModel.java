@@ -95,10 +95,12 @@ public class GlobalShortcutTableModel
             case 0:
                 return getEntryAt(row).getAction();
             case 1:
-                return GlobalShortcutEntry.getShortcutText(
+                return getEntryAt(row).getEditShortcut1() ?
+                    "Press key" : GlobalShortcutEntry.getShortcutText(
                     getEntryAt(row).getShortcut());
             case 2:
-                return GlobalShortcutEntry.getShortcutText(
+                return getEntryAt(row).getEditShortcut2() ?
+                    "Press key" : GlobalShortcutEntry.getShortcutText(
                     getEntryAt(row).getShortcut2());
             default:
                 throw new IllegalArgumentException("column not found");
@@ -161,7 +163,7 @@ public class GlobalShortcutTableModel
      * @param rowIndex row index
      * @param columnIndex column index
      */
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+    public void ssetValueAt(Object aValue, int rowIndex, int columnIndex)
     {
         if(columnIndex != 0)
             throw new IllegalArgumentException("non editable column!");

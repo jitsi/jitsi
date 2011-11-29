@@ -168,16 +168,15 @@ public class GlobalShortcutServiceImpl
      */
     public void stop()
     {
-        Collection<List<AWTKeyStroke>> lst = mapActions.values();
-
         isRunning = false;
 
-        for(List<AWTKeyStroke> kss : lst)
+        for(Map.Entry<GlobalShortcutListener, List<AWTKeyStroke>> entry :
+            mapActions.entrySet())
         {
-            for(AWTKeyStroke e : kss)
+            GlobalShortcutListener l = entry.getKey();
+            for(AWTKeyStroke e : entry.getValue())
             {
-                unregisterShortcut(callShortcut, e);
-                unregisterShortcut(uiShortcut, e);
+                unregisterShortcut(l, e);
             }
         }
 
@@ -260,13 +259,13 @@ public class GlobalShortcutServiceImpl
         GlobalKeybindingSet set =
             GlobalShortcutActivator.getKeybindingsService().getGlobalBindings();
 
-        for(Map.Entry<String, List<AWTKeyStroke>> entry :
-            set.getBindings().entrySet())
+        for(Map.Entry<GlobalShortcutListener, List<AWTKeyStroke>> entry :
+            mapActions.entrySet())
         {
+            GlobalShortcutListener l = entry.getKey();
             for(AWTKeyStroke e : entry.getValue())
             {
-                unregisterShortcut(callShortcut, e);
-                unregisterShortcut(uiShortcut, e);
+                unregisterShortcut(l, e);
             }
         }
 

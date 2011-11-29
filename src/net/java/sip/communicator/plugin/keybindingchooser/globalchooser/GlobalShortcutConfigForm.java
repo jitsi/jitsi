@@ -14,6 +14,8 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.*;
+
 import net.java.sip.communicator.plugin.keybindingchooser.*;
 import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.keybindings.*;
@@ -91,7 +93,7 @@ public class GlobalShortcutConfigForm
         shortcutsTable.setShowHorizontalLines(false);
         shortcutsTable.setShowVerticalLines(false);
         shortcutsTable.setModel(tableModel);
-        shortcutsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        shortcutsTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         shortcutsTable.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -103,10 +105,24 @@ public class GlobalShortcutConfigForm
                         getSelectedRow();
                     int column = GlobalShortcutConfigForm.this.shortcutsTable.
                         getSelectedColumn();
+
+                    if(currentRow != -1  && currentColumn != -1)
+                        return;
+
                     if(row >= 0 && column >= 1)
                     {
                         currentRow = row;
                         currentColumn = column;
+
+                        if(column == 1)
+                            GlobalShortcutConfigForm.this.tableModel.getEntryAt(
+                                row).setEditShortcut1(true);
+                        else if(column == 2)
+                            GlobalShortcutConfigForm.this.tableModel.getEntryAt(
+                                row).setEditShortcut2(true);
+
+                        refresh();
+                        shortcutsTable.setRowSelectionInterval(row, row);
                     }
                 }
             }
@@ -119,8 +135,41 @@ public class GlobalShortcutConfigForm
             @Override
             public void keyPressed(KeyEvent event)
             {
-                // Reports KEY_PRESSED events on release to support modifiers
-                this.buffer = event;
+                if(currentRow == -1 || currentColumn == -1)
+                    return;
+
+                // delete shortcut
+                if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+                {
+                    GlobalShortcutEntry en =
+                        GlobalShortcutConfigForm.this.tableModel.getEntryAt(
+                            currentRow);
+                   List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
+                   if(currentColumn == 1)
+                   {
+                       kss.add(null);
+                       kss.add(en.getShortcut2());
+                   }
+                   else if(currentColumn == 2)
+                   {
+                       kss.add(en.getShortcut());
+                       kss.add(null);
+                   }
+
+                   currentRow = -1;
+                   currentColumn = -1;
+                   en.setShortcuts(kss);
+                   en.setEditShortcut1(false);
+                   en.setEditShortcut2(false);
+                   GlobalShortcutConfigForm.this.saveConfig();
+                   GlobalShortcutConfigForm.this.refresh();
+                }
+                else
+                {
+                    // Reports KEY_PRESSED events on release to support
+                    // modifiers
+                    this.buffer = event;
+                }
             }
 
             @Override
@@ -153,9 +202,13 @@ public class GlobalShortcutConfigForm
                             return;
                         }
 
+                        currentRow = -1;
+                        currentColumn = -1;
                         en.setShortcuts(kss);
-                        GlobalShortcutConfigForm.this.refresh();
+                        en.setEditShortcut1(false);
+                        en.setEditShortcut2(false);
                         GlobalShortcutConfigForm.this.saveConfig();
+                        GlobalShortcutConfigForm.this.refresh();
                     }
                 }
             }
@@ -268,8 +321,6 @@ public class GlobalShortcutConfigForm
     {
         if(shortcutsTable.getSelectedRow() == -1)
         {
-            currentRow = -1;
-            currentColumn = -1;
         }
     }
 

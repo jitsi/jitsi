@@ -54,12 +54,19 @@ public class UIShortcut
                     if(window == null)
                         return;
 
-                    window.bringToFront();
-                    window.setVisible(true);
-                    if(window instanceof Window)
+                    if(!window.isVisible())
                     {
-                        ((Window)window).setAlwaysOnTop(true);
-                        ((Window)window).setAlwaysOnTop(false);
+                        window.bringToFront();
+                        window.setVisible(true);
+                        if(window instanceof Window)
+                        {
+                            ((Window)window).setAlwaysOnTop(true);
+                            ((Window)window).setAlwaysOnTop(false);
+                        }
+                    }
+                    else
+                    {
+                        window.setVisible(false);
                     }
                 }
             }

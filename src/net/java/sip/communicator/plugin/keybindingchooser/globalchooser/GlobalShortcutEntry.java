@@ -43,6 +43,16 @@ public class GlobalShortcutEntry
     private AWTKeyStroke shortcut2 = null;
 
     /**
+     * If it is editable, display "key press".
+     */
+    private boolean editableShortcut1 = false;
+
+    /**
+     * If it is editable, display "key press".
+     */
+    private boolean editableShortcut2 = false;
+
+    /**
      * Constructor.
      *
      * @param action action
@@ -229,6 +239,46 @@ public class GlobalShortcutEntry
             equals &= shortcut.equals(entry.getShortcut2());
 
         return equals;
+    }
+
+    /**
+     * Set editable for primary shortcut.
+     *
+     * @param value value to set
+     */
+    public void setEditShortcut1(boolean value)
+    {
+        editableShortcut1 = value;
+    }
+
+    /**
+     * Set editable for secondary shortcut.
+     *
+     * @param value value to set
+     */
+    public void setEditShortcut2(boolean value)
+    {
+        editableShortcut2 = value;
+    }
+
+    /**
+     * Get editable for primary shortcut.
+     *
+     * @return value value to set
+     */
+    public boolean getEditShortcut1()
+    {
+        return editableShortcut1;
+    }
+
+    /**
+     * Get editable for secondary shortcut.
+     *
+     * @return value
+     */
+    public boolean getEditShortcut2()
+    {
+        return editableShortcut2;
     }
 
     /**
