@@ -13,6 +13,7 @@ import java.util.List; // disambiguation
 import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * UI shortcut.
@@ -22,6 +23,12 @@ import net.java.sip.communicator.service.keybindings.*;
 public class UIShortcut
     implements GlobalShortcutListener
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>UIShortcut</tt> class
+     * and its instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(UIShortcut.class);
+
     /**
      * Keybindings service.
      */
@@ -72,7 +79,7 @@ public class UIShortcut
             if (t instanceof ThreadDeath)
                 throw (ThreadDeath) t;
 
-            System.out.println("Error " + t);
+            logger.info("Failed to execute contactlist action", t);
         }
     }
 
