@@ -74,6 +74,19 @@ public class GlobalShortcutServiceImpl
     public void registerShortcut(GlobalShortcutListener listener,
         AWTKeyStroke keyStroke)
     {
+        registerShortcut(listener, keyStroke, true);
+    }
+
+    /**
+     * Registers an action to execute when the keystroke is typed.
+     *
+     * @param listener listener to notify when keystroke is typed
+     * @param keyStroke keystroke that will trigger the action
+     * @param add add the listener/keystrokes to map
+     */
+    public void registerShortcut(GlobalShortcutListener listener,
+        AWTKeyStroke keyStroke, boolean add)
+    {
         synchronized(mapActions)
         {
             List<AWTKeyStroke> keystrokes = mapActions.get(listener);
@@ -88,7 +101,8 @@ public class GlobalShortcutServiceImpl
                 if(keyboardHook.registerShortcut(keyStroke.getKeyCode(),
                     getModifiers(keyStroke)))
                 {
-                    keystrokes.add(keyStroke);
+                    if(add)
+                        keystrokes.add(keyStroke);
                 }
             }
             else
@@ -97,11 +111,13 @@ public class GlobalShortcutServiceImpl
                 if(keyboardHook.registerShortcut(keyStroke.getKeyCode(),
                     getModifiers(keyStroke)))
                 {
-                    keystrokes.add(keyStroke);
+                    if(add)
+                        keystrokes.add(keyStroke);
                 }
             }
 
-            mapActions.put(listener, keystrokes);
+            if(add)
+                mapActions.put(listener, keystrokes);
         }
     }
 
@@ -327,6 +343,42 @@ public class GlobalShortcutServiceImpl
     public UIShortcut getUIShortcut()
     {
         return uiShortcut;
+    }
+
+    /**
+     * Enable or not global shortcut.
+     *
+     * @param enable enable or not global shortcut
+     */
+    public void setEnable(boolean enable)
+    {
+        if(mapActions.size() > 0)
+        {
+            if(enable)
+            {
+                for(Map.Entry<GlobalShortcutListener, List<AWTKeyStroke>> entry
+                    : mapActions.entrySet())
+                {
+                    GlobalShortcutListener l = entry.getKey();
+                    for(AWTKeyStroke e : entry.getValue())
+                    {
+                        registerShortcut(l, e, false);
+                    }
+                }
+            }
+            else
+            {
+                for(Map.Entry<GlobalShortcutListener, List<AWTKeyStroke>> entry
+                    : mapActions.entrySet())
+                {
+                    GlobalShortcutListener l = entry.getKey();
+                    for(AWTKeyStroke e : entry.getValue())
+                    {
+                        unregisterShortcut(l, e, false);
+                    }
+                }
+            }
+        }
     }
 
     /**

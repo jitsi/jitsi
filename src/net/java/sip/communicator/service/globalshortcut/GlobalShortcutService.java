@@ -38,4 +38,11 @@ public interface GlobalShortcutService
      * Reload global shortcuts.
      */
     public void reloadGlobalShortcuts();
+
+    /**
+     * Enable or not global shortcut.
+     *
+     * @param enable enable or not global shortcut
+     */
+    public void setEnable(boolean enable);
 }

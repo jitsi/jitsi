@@ -14,8 +14,6 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.*;
-
 import net.java.sip.communicator.plugin.keybindingchooser.*;
 import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.keybindings.*;
@@ -120,7 +118,11 @@ public class GlobalShortcutConfigForm
                         else if(column == 2)
                             GlobalShortcutConfigForm.this.tableModel.getEntryAt(
                                 row).setEditShortcut2(true);
+                        else
+                            return;
 
+                        KeybindingChooserActivator.getGlobalShortcutService().
+                            setEnable(false);
                         refresh();
                         shortcutsTable.setRowSelectionInterval(row, row);
                     }
@@ -202,11 +204,43 @@ public class GlobalShortcutConfigForm
                             return;
                         }
 
-                        currentRow = -1;
-                        currentColumn = -1;
                         en.setShortcuts(kss);
                         en.setEditShortcut1(false);
                         en.setEditShortcut2(false);
+
+                        kss = new ArrayList<AWTKeyStroke>();
+                        List<GlobalShortcutEntry> lst = tableModel.getEntries();
+
+                        for(GlobalShortcutEntry e : lst)
+                        {
+                            boolean isEntry = (e == en);
+                            AWTKeyStroke s1 = isEntry &&
+                                currentColumn == 1 ? null : e.getShortcut();
+                            AWTKeyStroke s2 = isEntry &&
+                                currentColumn == 2 ? null : e.getShortcut2();
+
+                            if(s1 != null &&
+                                s1.getKeyCode() == input.getKeyCode() &&
+                                s1.getModifiers() == input.getModifiers())
+                            {
+                                kss.add(null);
+                                kss.add(e.getShortcut2());
+                                e.setShortcuts(kss);
+                                break;
+                            }
+                            else if(s2 != null &&
+                                s2.getKeyCode() == input.getKeyCode() &&
+                                s2.getModifiers() == input.getModifiers())
+                            {
+                                kss.add(e.getShortcut());
+                                kss.add(null);
+                                e.setShortcuts(kss);
+                                break;
+                            }
+                        }
+
+                        currentRow = -1;
+                        currentColumn = -1;
                         GlobalShortcutConfigForm.this.saveConfig();
                         GlobalShortcutConfigForm.this.refresh();
                     }
@@ -308,6 +342,7 @@ public class GlobalShortcutConfigForm
             gBindings.put(desc, kss);
         }
 
+        // save in configuration and reload the global shortcuts
         keybindingService.saveGlobalShortcutFromConfiguration();
         globalShortcutService.reloadGlobalShortcuts();
     }

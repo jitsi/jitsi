@@ -43,6 +43,9 @@ public class UIShortcut
         {
             for(AWTKeyStroke ks : entry.getValue())
             {
+                if(ks == null)
+                    continue;
+
                 if(entry.getKey().equals("contactlist") &&
                     keystroke.getKeyCode() == ks.getKeyCode() &&
                     keystroke.getModifiers() == ks.getModifiers())

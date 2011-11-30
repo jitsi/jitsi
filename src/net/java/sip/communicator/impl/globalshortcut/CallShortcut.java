@@ -43,6 +43,11 @@ public class CallShortcut
     private ArrayList<Call> incomingCalls = new ArrayList<Call>();
 
     /**
+     * List of outgoing calls.
+     */
+    private ArrayList<Call> outgoingCalls = new ArrayList<Call>();
+
+    /**
      * Constructor.
      */
     public CallShortcut()
@@ -58,7 +63,6 @@ public class CallShortcut
     {
         AWTKeyStroke keystroke = evt.getKeyStroke();
         GlobalKeybindingSet set = keybindingsService.getGlobalBindings();
-
         Call choosenCall = null;
 
         for(Map.Entry<String, List<AWTKeyStroke>> entry :
@@ -66,6 +70,9 @@ public class CallShortcut
         {
             for(AWTKeyStroke ks : entry.getValue())
             {
+                if(ks == null)
+                    continue;
+
                 if(entry.getKey().equals("answer") &&
                     keystroke.getKeyCode() == ks.getKeyCode() &&
                     keystroke.getModifiers() == ks.getModifiers())
@@ -101,11 +108,14 @@ public class CallShortcut
                         {
                             try
                             {
-                                opSet.answerCallPeer(cCall.getCallPeers().next());
+                                opSet.answerCallPeer(
+                                    cCall.getCallPeers().next());
                             }
                             catch(OperationFailedException e)
                             {
-                                logger.info("Failed to answer call via global shortcut", e);
+                                logger.info(
+                                    "Failed to answer call via global shortcut",
+                                    e);
                             }
                         }
                     }.start();
@@ -115,6 +125,7 @@ public class CallShortcut
                     keystroke.getModifiers() == ks.getModifiers())
                 {
                     Call incomingCall = null;
+                    Call outgoingCall = null;
 
                     synchronized(incomingCalls)
                     {
@@ -125,16 +136,45 @@ public class CallShortcut
                             Call c = incomingCalls.get(i);
 
                             if(c.getCallPeers().next().getState() ==
+                                CallPeerState.INCOMING_CALL &&
+                                incomingCall == null)
+                            {
+                                incomingCall = c;
+                                break;
+                            }
+                            else if(c.getCallPeers().next().getState() ==
                                 CallPeerState.CONNECTED)
                             {
                                 choosenCall = c;
                                 break;
                             }
-                            else if(c.getCallPeers().next().getState() ==
-                                CallPeerState.INCOMING_CALL && incomingCall == null)
+                        }
+                    }
+
+                    synchronized(outgoingCalls)
+                    {
+                        int size = outgoingCalls.size();
+
+                        for(int i = 0 ; i < size ; i++)
+                        {
+                            Call c = outgoingCalls.get(i);
+
+                            if((c.getCallPeers().next().getState() ==
+                                CallPeerState.CONNECTING ||
+                                c.getCallPeers().next().getState() ==
+                                    CallPeerState.ALERTING_REMOTE_SIDE) &&
+                                    outgoingCall == null)
                             {
-                                incomingCall = c;
+                                outgoingCall = c;
+                                break;
                             }
+                            else if(c.getCallPeers().next().getState() ==
+                                CallPeerState.CONNECTED)
+                            {
+                                choosenCall = c;
+                                break;
+                            }
+
                         }
                     }
 
@@ -142,6 +182,11 @@ public class CallShortcut
                     {
                         // maybe we just want to hangup (refuse) incoming call
                         choosenCall = incomingCall;
+                    }
+                    if(choosenCall == null && outgoingCall != null)
+                    {
+                        // maybe we just want to hangup (cancel) outgoing call
+                        choosenCall = outgoingCall;
                     }
 
                     if(choosenCall == null)
@@ -158,12 +203,14 @@ public class CallShortcut
                         {
                             try
                             {
-
-                                opSet.hangupCallPeer(cCall.getCallPeers().next());
+                                opSet.hangupCallPeer(
+                                    cCall.getCallPeers().next());
                             }
                             catch(OperationFailedException e)
                             {
-                                logger.info("Failed to answer call via global shortcut", e);
+                                logger.info(
+                                    "Failed to answer call via global shortcut",
+                                    e);
                             }
                         }
                     }.start();
@@ -184,12 +231,19 @@ public class CallShortcut
 
     public void outgoingCallCreated(CallEvent event)
     {
-        /* do nothing */
+        synchronized(outgoingCalls)
+        {
+            outgoingCalls.add(event.getSourceCall());
+        }
     }
 
     public void callEnded(CallEvent event)
     {
         Call sourceCall = event.getSourceCall();
-        incomingCalls.remove(sourceCall);
+
+        if(incomingCalls.contains(sourceCall))
+            incomingCalls.remove(sourceCall);
+        else if(outgoingCalls.contains(sourceCall))
+            outgoingCalls.remove(sourceCall);
     }
 }
