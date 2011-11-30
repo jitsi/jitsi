@@ -226,7 +226,7 @@ public class GlobalShortcutServiceImpl
      * @param keycode keycode received
      * @param modifiers modifiers received (ALT or CTRL + letter, ...)
      */
-    public void receiveKey(int keycode, int modifiers)
+    public synchronized void receiveKey(int keycode, int modifiers)
     {
         synchronized(mapActions)
         {
@@ -281,7 +281,6 @@ public class GlobalShortcutServiceImpl
 
         return ret;
     }
-
 
     /**
      * Reload global shortcuts.

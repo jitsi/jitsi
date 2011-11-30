@@ -33,46 +33,77 @@ public class UIShortcut
      *
      * @param evt <tt>GlobalShortcutEvent</tt>
      */
-    public void shortcutReceived(GlobalShortcutEvent evt)
+    public synchronized void shortcutReceived(GlobalShortcutEvent evt)
     {
         AWTKeyStroke keystroke = evt.getKeyStroke();
         GlobalKeybindingSet set = keybindingsService.getGlobalBindings();
 
-        for(Map.Entry<String, List<AWTKeyStroke>> entry :
-            set.getBindings().entrySet())
+        if(keystroke == null)
+            return;
+
+        try
         {
-            for(AWTKeyStroke ks : entry.getValue())
+            for(Map.Entry<String, List<AWTKeyStroke>> entry :
+                set.getBindings().entrySet())
             {
-                if(ks == null)
-                    continue;
-
-                if(entry.getKey().equals("contactlist") &&
-                    keystroke.getKeyCode() == ks.getKeyCode() &&
-                    keystroke.getModifiers() == ks.getModifiers())
+                for(AWTKeyStroke ks : entry.getValue())
                 {
-                    ExportedWindow window =
-                        GlobalShortcutActivator.getUIService().
-                            getExportedWindow(ExportedWindow.MAIN_WINDOW);
+                    if(ks == null)
+                        continue;
 
-                    if(window == null)
-                        return;
+                    if(entry.getKey().equals("contactlist") &&
+                        keystroke.getKeyCode() == ks.getKeyCode() &&
+                        keystroke.getModifiers() == ks.getModifiers())
+                    {
+                        ExportedWindow window =
+                            GlobalShortcutActivator.getUIService().
+                                getExportedWindow(ExportedWindow.MAIN_WINDOW);
 
-                    if(!window.isVisible())
-                    {
-                        window.bringToFront();
-                        window.setVisible(true);
-                        if(window instanceof Window)
-                        {
-                            ((Window)window).setAlwaysOnTop(true);
-                            ((Window)window).setAlwaysOnTop(false);
-                        }
-                    }
-                    else
-                    {
-                        window.setVisible(false);
+                        if(window == null)
+                            return;
+
+                        setVisible(window, window.isVisible());
                     }
                 }
             }
         }
+        catch(Throwable t)
+        {
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+
+            System.out.println("Error " + t);
+        }
+    }
+
+    /**
+     * Set the window visible or not
+     *
+     * @param window the <tt>ExportedWindow</tt> to set/unset visible.
+     * @param visible enable or not the window to be visible
+     */
+    private void setVisible(final ExportedWindow window, final boolean visible)
+    {
+        new Thread()
+        {
+            public void run()
+            {
+                if(!visible)
+                {
+                    window.bringToFront();
+                    window.setVisible(true);
+
+                    if(window instanceof Window)
+                    {
+                        ((Window)window).setAlwaysOnTop(true);
+                        ((Window)window).setAlwaysOnTop(false);
+                    }
+                }
+                else
+                {
+                    window.setVisible(false);
+                }
+            }
+        }.start();
     }
 }
