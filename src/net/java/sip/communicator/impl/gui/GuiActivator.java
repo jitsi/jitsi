@@ -900,13 +900,30 @@ public class GuiActivator implements BundleActivator
                 // is it the preferred protocol ?
                 if(wizard.getClass().getName().equals(prefWName))
                 {
-                    ArrayList<AccountID> registeredAccounts
-                        = getProtocolProviderFactory(wizard.getProtocolName())
-                            .getRegisteredAccounts();
+                    for (ProtocolProviderFactory providerFactory : GuiActivator
+                            .getProtocolProviderFactories().values())
+                    {
+                        ServiceReference serRef;
+                        ProtocolProviderService protocolProvider;
 
-                    if (registeredAccounts.size() > 0)
-                        return getRegisteredProviderForAccount(
-                                registeredAccounts.get(0));
+                        for (AccountID accountID
+                                : providerFactory.getRegisteredAccounts())
+                        {
+                            serRef = providerFactory.getProviderForAccount(
+                                        accountID);
+
+                            protocolProvider = (ProtocolProviderService)
+                                GuiActivator.bundleContext
+                                    .getService(serRef);
+
+                            if (protocolProvider.getAccountID()
+                                    .getProtocolDisplayName()
+                                        .equals(wizard.getProtocolName()))
+                            {
+                                return protocolProvider;
+                            }
+                        }
+                    }
                 }
             }
         }
