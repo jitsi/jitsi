@@ -173,13 +173,24 @@ public class MetaContactChatTransport
      */
     public boolean allowsInstantMessage()
     {
-        Object imOpSet = contact.getProtocolProvider()
-            .getOperationSet(OperationSetBasicInstantMessaging.class);
+        // First try to ask the capabilities operation set if such is
+        // available.
+        OperationSetContactCapabilities capOpSet = getProtocolProvider()
+            .getOperationSet(OperationSetContactCapabilities.class);
 
-        if (imOpSet != null)
+        if (capOpSet != null)
+        {
+            if (capOpSet.getOperationSet(
+                contact, OperationSetBasicInstantMessaging.class) != null)
+            {
+                return true;
+            }
+        }
+        else if (contact.getProtocolProvider()
+            .getOperationSet(OperationSetBasicInstantMessaging.class) != null)
             return true;
-        else
-            return false;
+
+        return false;
     }
 
     /**
@@ -191,14 +202,26 @@ public class MetaContactChatTransport
      */
     public boolean allowsSmsMessage()
     {
-        Object smsOpSet = contact.getProtocolProvider()
-            .getOperationSet(OperationSetSmsMessaging.class);
+     // First try to ask the capabilities operation set if such is
+        // available.
+        OperationSetContactCapabilities capOpSet = getProtocolProvider()
+            .getOperationSet(OperationSetContactCapabilities.class);
 
-        if (smsOpSet != null)
+        if (capOpSet != null)
+        {
+            if (capOpSet.getOperationSet(
+                contact, OperationSetSmsMessaging.class) != null)
+            {
+                return true;
+            }
+        }
+        else if (contact.getProtocolProvider()
+            .getOperationSet(OperationSetSmsMessaging.class) != null)
             return true;
-        else
-            return false;
+
+        return false;
     }
+
 
     /**
      * Returns <code>true</code> if this chat transport supports typing
@@ -318,6 +341,30 @@ public class MetaContactChatTransport
         Message smsMessage = smsOpSet.createMessage(messageText);
 
         smsOpSet.sendSmsMessage(phoneNumber, smsMessage);
+    }
+
+    /**
+     * Sends the given sms message trough this chat transport.
+     *
+     * @param contact the destination contact
+     * @param messageText the message to send
+     * @throws Exception if the send operation is interrupted
+     */
+    public void sendSmsMessage(Contact contact, String message)
+        throws Exception
+    {
+        // If this chat transport does not support sms messaging we do
+        // nothing here.
+        if (!allowsSmsMessage())
+            return;
+
+        OperationSetSmsMessaging smsOpSet
+            = contact.getProtocolProvider()
+                .getOperationSet(OperationSetSmsMessaging.class);
+
+        Message smsMessage = smsOpSet.createMessage(message);
+
+        smsOpSet.sendSmsMessage(contact, smsMessage);
     }
 
     /**
