@@ -307,7 +307,8 @@ public class GlobalShortcutServiceImpl
             set.getBindings().entrySet())
         {
             if(entry.getKey().equals("answer") ||
-                entry.getKey().equals("hangup"))
+                entry.getKey().equals("hangup") ||
+                entry.getKey().equals("mute"))
             {
                 for(AWTKeyStroke e : entry.getValue())
                 {

@@ -324,68 +324,34 @@ class KeybindingsServiceImpl
             LinkedHashMap<String, List<AWTKeyStroke>>();
         ConfigurationService configService =
             KeybindingsActivator.getConfigService();
-        List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
-        String name = null;
         String shortcut = null;
         String shortcut2 = null;
         String propName = null;
         String propName2 = null;
+        String names[] = new String[]{"answer", "hangup", "contactlist",
+            "mute"};
 
-        name = "answer";
-        propName = CONFIGURATION_PATH + ".answer.1";
-        propName2 = CONFIGURATION_PATH + ".answer.2";
+        for(String name : names)
+        {
+            List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
 
-        shortcut = propName != null ?
-            (String)configService.getProperty(propName) : null;
-        shortcut2 = propName2 != null ?
-            (String)configService.getProperty(propName2) : null;
-        if(shortcut != null)
-        {
-            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut));
-        }
-        if(shortcut2 != null)
-        {
-            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut2));
-        }
-        gBindings.put(name, kss);
+            propName = CONFIGURATION_PATH + "." + name + ".1";
+            propName2 = CONFIGURATION_PATH + "." + name + ".2";
 
-        name = "hangup";
-        propName = CONFIGURATION_PATH + ".hangup.1";
-        propName2 = CONFIGURATION_PATH + ".hangup.2";
-        shortcut = propName != null ?
-            (String)configService.getProperty(propName) : null;
-        shortcut2 = propName2 != null ?
-            (String)configService.getProperty(propName2) : null;
-        kss = new ArrayList<AWTKeyStroke>();
-
-        if(shortcut != null)
-        {
-            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut));
+            shortcut = propName != null ?
+                (String)configService.getProperty(propName) : null;
+            shortcut2 = propName2 != null ?
+                (String)configService.getProperty(propName2) : null;
+            if(shortcut != null)
+            {
+                kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut));
+            }
+            if(shortcut2 != null)
+            {
+                kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut2));
+            }
+            gBindings.put(name, kss);
         }
-        if(shortcut2 != null)
-        {
-            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut2));
-        }
-        gBindings.put(name, kss);
-
-        name = "contactlist";
-        propName = CONFIGURATION_PATH + ".contactlist.1";
-        propName2 = CONFIGURATION_PATH + ".contactlist.2";
-        shortcut = propName != null ?
-            (String)configService.getProperty(propName) : null;
-        shortcut2 = propName2 != null ?
-            (String)configService.getProperty(propName2) : null;
-        kss = new ArrayList<AWTKeyStroke>();
-
-        if(shortcut != null)
-        {
-            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut));
-        }
-        if(shortcut2 != null)
-        {
-            kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut2));
-        }
-        gBindings.put(name, kss);
 
         return gBindings;
     }
@@ -407,21 +373,11 @@ class KeybindingsServiceImpl
             List<AWTKeyStroke> kss = entry.getValue();
             String path = CONFIGURATION_PATH;
 
-            if(key.equals("answer"))
-            {
-                path += ".answer";
-            }
-            else if(key.equals("hangup"))
-            {
-                path += ".hangup";
-            }
-            else if(key.equals("contactlist"))
-            {
-                path += ".contactlist";
-            }
+            path += "." + key;
 
             shortcut = path + ".1";
             shortcut2 = path + ".2";
+
             configService.setProperty(shortcut, kss.size() > 0 ?
                 kss.get(0) : null);
             configService.setProperty(shortcut2, kss.size() > 1 ?

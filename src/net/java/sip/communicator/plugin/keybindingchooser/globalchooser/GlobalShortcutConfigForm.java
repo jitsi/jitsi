@@ -288,6 +288,11 @@ public class GlobalShortcutConfigForm
                 desc = Resources.getString(
                     "plugin.keybindings.globalchooser.SHOW_CONTACTLIST");
             }
+            else if(key.equals("mute"))
+            {
+                desc = Resources.getString(
+                    "plugin.keybindings.globalchooser.MUTE_CALLS");
+            }
             else
                 continue;
 
@@ -307,8 +312,10 @@ public class GlobalShortcutConfigForm
             KeybindingChooserActivator.getKeybindingsService();
         GlobalShortcutService globalShortcutService =
             KeybindingChooserActivator.getGlobalShortcutService();
+        GlobalKeybindingSet globalBindingSet =
+            keybindingService.getGlobalBindings();
         Map<String, List<AWTKeyStroke>> gBindings =
-            keybindingService.getGlobalBindings().getBindings();
+            globalBindingSet.getBindings();
         List<GlobalShortcutEntry> entries = tableModel.getEntries();
         List<AWTKeyStroke> kss = null;
 
@@ -330,7 +337,11 @@ public class GlobalShortcutConfigForm
                 "plugin.keybindings.globalchooser.SHOW_CONTACTLIST")))
             {
                 desc = "contactlist";
-
+            }
+            else if(entry.getAction().equals(Resources.getString(
+                "plugin.keybindings.globalchooser.MUTE_CALLS")))
+            {
+                desc = "mute";
             }
             else
                 continue;
@@ -354,9 +365,6 @@ public class GlobalShortcutConfigForm
      */
     public void valueChanged(ListSelectionEvent e)
     {
-        if(shortcutsTable.getSelectedRow() == -1)
-        {
-        }
     }
 
     /**
@@ -376,22 +384,5 @@ public class GlobalShortcutConfigForm
     {
         return true;
     }
-
-    /**
-     * Add bindings.
-     *
-     * @param bindings list of bindings
-     *
-    public void addBindings(Map<String, List<AWTKeyStroke>> bindings)
-    {
-        for(Map.Entry<String, List<AWTKeyStroke>> entry : bindings.entrySet())
-        {
-            GlobalShortcutEntry e = new GlobalShortcutEntry(
-                entry.getKey(), entry.getValue());
-            tableModel.addEntry(e);
-        }
-        refresh();
-    }
-    */
 }
 

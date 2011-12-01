@@ -44,7 +44,7 @@ public class GlobalKeybindingSetImpl
      */
     public void setBindings(Map<String, List<AWTKeyStroke>> bindings)
     {
-        if (!this.bindings.equals(bindings))
+        if(!this.bindings.equals(bindings))
         {
             this.bindings.clear();
             this.bindings.putAll(bindings);

@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -46,6 +47,11 @@ public class CallShortcut
      * List of outgoing calls.
      */
     private ArrayList<Call> outgoingCalls = new ArrayList<Call>();
+
+    /**
+     * Next mute state action.
+     */
+    private boolean mute = true;
 
     /**
      * Constructor.
@@ -215,6 +221,29 @@ public class CallShortcut
                         }
                     }.start();
                 }
+                else if(entry.getKey().equals("mute") &&
+                    keystroke.getKeyCode() == ks.getKeyCode() &&
+                    keystroke.getModifiers() == ks.getModifiers())
+                {
+                    synchronized(incomingCalls)
+                    {
+                        for(Call c : incomingCalls)
+                        {
+                            handleMute(c);
+                        }
+                    }
+
+                    synchronized(outgoingCalls)
+                    {
+                        for(Call c : outgoingCalls)
+                        {
+                            handleMute(c);
+                        }
+                    }
+
+                    // next action will revert change done here (mute or unmute)
+                    mute = !mute;
+                }
             }
         }
     }
@@ -245,5 +274,28 @@ public class CallShortcut
             incomingCalls.remove(sourceCall);
         else if(outgoingCalls.contains(sourceCall))
             outgoingCalls.remove(sourceCall);
+    }
+
+    /**
+     * Handle the mute for a <tt>Call</tt>.
+     *
+     * @param c the <tt>Call</tt>
+     */
+    private void handleMute(Call c)
+    {
+        // handle only established call
+        if(c.getCallState() != CallState.CALL_IN_PROGRESS)
+            return;
+
+        // handle only connected peer (no on hold peer)
+        if(c.getCallPeers().next().getState() !=
+            CallPeerState.CONNECTED)
+            return;
+
+        MediaAwareCall<?,?,?> cc = (MediaAwareCall<?,?,?>)c;
+        if(mute && !cc.isMute())
+            cc.setMute(true);
+        else if(!mute && cc.isMute())
+            cc.setMute(false);
     }
 }
