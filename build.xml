@@ -436,6 +436,11 @@
         <echo message="ver=${sip-communicator.version}"/>
     </target>
 
+    <!-- make and deploy target used in intellij idea -->
+    <target name="make-and-deploy"
+            depends="compile,package,deploy-os-specific-bundles"
+            description="make and deploy target used in intellij idea"/>
+
     <!-- Determines the Jitsi version if any-->
     <target name="-pre-version" if="build.label" >
         <!-- create a class that would contain our nightly build.id if any -->
