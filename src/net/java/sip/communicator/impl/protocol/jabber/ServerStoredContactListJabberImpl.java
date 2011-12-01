@@ -1060,46 +1060,18 @@ public class ServerStoredContactListJabberImpl
 
             for (String id : addresses)
             {
-                RosterEntry entry = roster.getEntry(id);
-
-                if(!isEntryDisplayable(entry))
-                    continue;
-
-                ContactJabberImpl contact =
-                    findContactById(entry.getUser());
-
-                if(contact != null)
-                {
-                    if(contact.isPersistent())
-                    {
-                        contact.setResolved(entry);
-                        continue;
-                    }
-                    else
-                    {
-                        ContactGroup oldParentGroup =
-                            contact.getParentContactGroup();
-                        // if contact is in not in contact list
-                        // we must remove it from there in order to correctlly
-                        // process adding contact
-                        // this happens if we accept subscribe request
-                        // not from sip-communicator
-                        if(oldParentGroup instanceof ContactGroupJabberImpl
-                            && !oldParentGroup.isPersistent())
-                        {
-                            ((ContactGroupJabberImpl)oldParentGroup)
-                                .removeContact(contact);
-                            fireContactRemoved(oldParentGroup, contact);
-                        }
-                    }
-                }
-
-                contact = addEntryToContactList(id);
+                addEntryToContactList(id);
             }
         }
 
         /**
          * Adds the entry to our local contactlist.
+         * If contact exists and is persistent but not resolved, we resolve it
+         * and return it without adding new contact.
+         * If the contact exists and is not persistent, we remove it, to
+         * avoid duplicate contacts and add the new one.
+         * All entries must be displayable before we done anything with them.
+         *
          * @param rosterEntryID the entry id.
          * @return the newly created contact.
          */
@@ -1107,7 +1079,39 @@ public class ServerStoredContactListJabberImpl
         {
             RosterEntry entry = roster.getEntry(rosterEntryID);
 
-            ContactJabberImpl contact = new ContactJabberImpl(
+            if(!isEntryDisplayable(entry))
+                return null;
+
+            ContactJabberImpl contact =
+                findContactById(entry.getUser());
+
+            if(contact != null)
+            {
+                if(contact.isPersistent())
+                {
+                    contact.setResolved(entry);
+                    return contact;
+                }
+                else
+                {
+                    ContactGroup oldParentGroup =
+                        contact.getParentContactGroup();
+                    // if contact is in 'not in contact list'
+                    // we must remove it from there in order to correctly
+                    // process adding contact
+                    // this happens if we accept subscribe request
+                    // not from sip-communicator
+                    if(oldParentGroup instanceof ContactGroupJabberImpl
+                        && !oldParentGroup.isPersistent())
+                    {
+                        ((ContactGroupJabberImpl)oldParentGroup)
+                            .removeContact(contact);
+                        fireContactRemoved(oldParentGroup, contact);
+                    }
+                }
+            }
+
+            contact = new ContactJabberImpl(
                     entry,
                     ServerStoredContactListJabberImpl.this,
                     true,
@@ -1170,21 +1174,7 @@ public class ServerStoredContactListJabberImpl
             {
                 RosterEntry entry = roster.getEntry(contactID);
 
-                ContactJabberImpl contact = findContactById(contactID);
-
-                if(contact != null &&
-                    (contact instanceof VolatileContactJabberImpl))
-                {
-                    contact = null;
-                }
-
-                if(contact == null && isEntryDisplayable(entry))
-                {
-                    // this can be an entry which has been update
-                    // was not displayable, but now it is, so lets
-                    // display it
-                    contact = addEntryToContactList(contactID);
-                }
+                ContactJabberImpl contact = addEntryToContactList(contactID);
 
                 for (RosterGroup gr : entry.getGroups())
                 {
@@ -1200,7 +1190,7 @@ public class ServerStoredContactListJabberImpl
                             group.setSourceGroup(gr);
 
                             fireGroupEvent(group,
-                                           ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
+                                   ServerStoredGroupEvent.GROUP_RENAMED_EVENT);
                         }
                         else
                         {
@@ -1209,8 +1199,8 @@ public class ServerStoredContactListJabberImpl
                     }
                     else
                     {
-                        // the group is found the contact may be moved from one group
-                        // to another
+                        // the group is found the contact may be moved from
+                        // one group to another
                         ContactGroup contactGroup =
                             contact.getParentContactGroup();
 

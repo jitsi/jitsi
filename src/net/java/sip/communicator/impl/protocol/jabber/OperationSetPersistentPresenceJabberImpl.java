@@ -554,8 +554,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 "Argument is not an jabber contact group (group="
                             + parent + ")");
 
-        ssContactList.addContact(
-                        (ContactGroupJabberImpl)parent, contactIdentifier);
+        ssContactList.addContact(parent, contactIdentifier);
     }
 
     /**
