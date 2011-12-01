@@ -188,6 +188,11 @@ public class JabberAccountRegistration
     private String accountDisplayName;
 
     /**
+     * The sms default server.
+     */
+    private String smsServerAddress;
+
+    /**
      * Returns the password of the jabber registration account.
      * @return the password of the jabber registration account.
      */
@@ -747,5 +752,25 @@ public class JabberAccountRegistration
     public void setAccountDisplayName(String accountDisplayName)
     {
         this.accountDisplayName = accountDisplayName;
+    }
+
+    /**
+     * Returns the default sms server.
+     *
+     * @return the account default sms server
+     */
+    public String getSmsServerAddress()
+    {
+        return smsServerAddress;
+    }
+
+    /**
+     * Sets the default sms server.
+     * 
+     * @param smsServerAddress the sms server to set as default
+     */
+    public void setSmsServerAddress(String serverAddress)
+    {
+        this.smsServerAddress = serverAddress;
     }
 }

@@ -345,6 +345,14 @@ public class JabberAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.SERVER_ADDRESS,
             serverName);
 
+        String smsServerAddress = registration.getSmsServerAddress();
+
+        if (smsServerAddress != null)
+        {
+            accountProperties.put(  ProtocolProviderFactory.SMS_SERVER_ADDRESS,
+                                    smsServerAddress);
+        }
+
         accountProperties.put(ProtocolProviderFactory.SERVER_PORT,
                             String.valueOf(registration.getPort()));
 

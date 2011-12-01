@@ -389,6 +389,11 @@ public abstract class ProtocolProviderFactory
         = "DESKTOP_STREAMING_DISABLED";
 
     /**
+     * The sms default server address.
+     */
+    public static final String SMS_SERVER_ADDRESS = "SMS_SERVER_ADDRESS";
+
+    /**
      * The <code>BundleContext</code> containing (or to contain) the service
      * registration of this factory.
      */
