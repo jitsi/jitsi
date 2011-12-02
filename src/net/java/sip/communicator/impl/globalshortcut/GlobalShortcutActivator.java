@@ -199,6 +199,9 @@ public class GlobalShortcutActivator
             e.printStackTrace();
         }
 
+        if(refs == null)
+            return;
+
         for(ServiceReference ref : refs)
         {
             ProtocolProviderService service =
