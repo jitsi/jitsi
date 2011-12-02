@@ -288,7 +288,9 @@ public class GoogleContactsActivator implements BundleActivator
                 {
                     enableContactSource(
                         provider.getAccountID().getAccountAddress(),
-                        password);
+                        password,
+                        provider.getProtocolDisplayName().equals(
+                            "Google Talk"));
                 }
             }
         }).start();
@@ -348,14 +350,18 @@ public class GoogleContactsActivator implements BundleActivator
      *
      * @param login login
      * @param password password
+     * @param googleTalk if the provider service is GoogleTalk
      * @return a <tt>GoogleContactsSourceService</tt> instance
      */
     public static GoogleContactsSourceService enableContactSource(
-                                                String login, String password)
+                                                String login, String password,
+                                                boolean googleTalk)
     {
         GoogleContactsSourceService css = new GoogleContactsSourceService(
                 login, password);
         ServiceRegistration cssServiceRegistration = null;
+
+        css.setGoogleTalk(googleTalk);
 
         try
         {
@@ -386,13 +392,18 @@ public class GoogleContactsActivator implements BundleActivator
      * <tt>GoogleContactsConnection</tt>.
      *
      * @param cnx <tt>GoogleContactsConnection</tt>
+     * @param googleTalk if the contact source has been created as GoogleTalk
+     * account or via external Google Contacts
      * @return a <tt>GoogleContactsSourceService</tt> instance
      */
     public static GoogleContactsSourceService enableContactSource(
-                                                GoogleContactsConnection cnx)
+                                                GoogleContactsConnection cnx,
+                                                boolean googleTalk)
     {
         GoogleContactsSourceService css = new GoogleContactsSourceService(cnx);
         ServiceRegistration cssServiceRegistration = null;
+
+        css.setGoogleTalk(googleTalk);
 
         try
         {

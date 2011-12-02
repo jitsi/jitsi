@@ -157,7 +157,7 @@ public class GoogleContactsServiceImpl
                 /* register contact source */
                 if(cnx.isEnabled())
                 {
-                    addContactSource(cnx);
+                    addContactSource(cnx, true);
                 }
             }
         }
@@ -430,14 +430,17 @@ public class GoogleContactsServiceImpl
     }
 
     /**
-     * Add a contact source service with the specified.
-     *
+     * Add a contact source service with the specified
      * <tt>GoogleContactsConnection</tt>.
+     *
      * @param cnx <tt>GoogleContactsConnection</tt>.
+     * @param googleTalk if the contact source has been created as GoogleTalk
+     * account or via external Google Contacts
      */
-    public void addContactSource(GoogleContactsConnection cnx)
+    public void addContactSource(GoogleContactsConnection cnx,
+        boolean googleTalk)
     {
-        GoogleContactsActivator.enableContactSource(cnx);
+        GoogleContactsActivator.enableContactSource(cnx, googleTalk);
     }
 
     /**
@@ -449,7 +452,7 @@ public class GoogleContactsServiceImpl
      */
     public void addContactSource(String login, String password)
     {
-        GoogleContactsActivator.enableContactSource(login, password);
+        GoogleContactsActivator.enableContactSource(login, password, false);
     }
 
     /**

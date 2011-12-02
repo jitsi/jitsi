@@ -225,8 +225,8 @@ public class GoogleContactsConfigForm
 
             if(ret == 1)
             {
-                GoogleContactsConnectionImpl cnx
-                    = (GoogleContactsConnectionImpl) settingsForm.getConnection();
+                GoogleContactsConnectionImpl cnx =
+                    (GoogleContactsConnectionImpl) settingsForm.getConnection();
                 tableModel.addAccount(cnx, true, cnx.getPrefix());
                 new RefreshContactSourceThread(null, cnx).start();
                 GoogleContactsActivator.getGoogleContactsService().saveConfig(
@@ -351,7 +351,7 @@ public class GoogleContactsConfigForm
             if(newCnx != null)
             {
                 GoogleContactsActivator.getGoogleContactsService().
-                    addContactSource(newCnx);
+                    addContactSource(newCnx, true);
             }
         }
     }

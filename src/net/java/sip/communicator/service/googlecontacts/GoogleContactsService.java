@@ -58,9 +58,12 @@ public interface GoogleContactsService
      * Add a contact source service with the specified
      * <tt>GoogleContactsConnection</tt>.
      *
-     * @param cnx <tt>GoogleContactsConnection</tt>.
+     * @param cnx <tt>GoogleContactsConnection</tt>
+     * @param googleTalk if the contact source has been created as GoogleTalk
+     * account or via external Google Contacts
      */
-    public void addContactSource(GoogleContactsConnection cnx);
+    public void addContactSource(GoogleContactsConnection cnx,
+        boolean googleTalk);
 
     /**
      * Remove a contact source service with the specified

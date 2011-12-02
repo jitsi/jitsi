@@ -204,7 +204,7 @@ public class GoogleContactsTableModel
      */
     public void setValueAt(Object aValue, int rowIndex, int columnIndex)
     {
-        if(columnIndex != 0 || columnIndex != 2)
+        if(columnIndex != 0 && columnIndex != 2)
             throw new IllegalArgumentException("non editable column!");
 
         GoogleContactsConfigForm.RefreshContactSourceThread th = null;

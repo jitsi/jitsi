@@ -60,6 +60,12 @@ public class GoogleContactsSourceService
     private AccountSettingsForm settings = null;
 
     /**
+     * If the account has been created using GoogleTalk wizard or via
+     * external Google Contacts.
+     */
+    private boolean googleTalk = false;
+
+    /**
      * Constructor.
      *
      * @param login login
@@ -94,6 +100,29 @@ public class GoogleContactsSourceService
     public String getLogin()
     {
         return login;
+    }
+
+    /**
+     * Set whether or not the account has been created via GoogleTalk wizard or
+     * external Google contacts.
+     *
+     * @param googleTalk value to set
+     */
+    public void setGoogleTalk(boolean googleTalk)
+    {
+        this.googleTalk = googleTalk;
+    }
+
+    /**
+     * Returns whether or not the account has been created via GoogleTalk
+     * wizard or via external Google Contacts.
+     *
+     * @return true if account has been created via GoogleTalk wizard or via
+     * external Google Contacts.
+     */
+    public boolean isGoogleTalk()
+    {
+        return googleTalk;
     }
 
     /**
@@ -174,6 +203,12 @@ public class GoogleContactsSourceService
                 return null;
             }
 
+            // To detect that account is a google ones, we try the following:
+            // - lookup in SRV and see if it is google.com;
+            // - if the account has been created with GoogleTalk form;
+            // - if it is an "external" google contact.
+
+            // SRV checks
             for(SRVRecord srv : srvRecords)
             {
                 if(srv.getTarget().endsWith("google.com") ||
@@ -182,6 +217,12 @@ public class GoogleContactsSourceService
                     isGoogleAppsOrGmail = true;
                     break;
                 }
+            }
+
+            // GoogleTalk based account or external Google Contacts ?
+            if(!isGoogleAppsOrGmail)
+            {
+                isGoogleAppsOrGmail = googleTalk;
             }
 
             if(isGoogleAppsOrGmail)
