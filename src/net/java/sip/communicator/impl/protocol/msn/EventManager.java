@@ -187,6 +187,7 @@ public class EventManager
             {
                 if(!connected && msnProvider.isRegistered())
                 {
+                    msnProvider.unregister(false);
                     msnProvider.fireRegistrationStateChanged(
                         msnProvider.getRegistrationState(),
                         RegistrationState.CONNECTION_FAILED,

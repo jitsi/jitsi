@@ -43,7 +43,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/pircbot.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/profiler4j-1.0-beta3-SC.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/rome-0.9.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack.jar" sourcepath="lib/installer-exclude/smack-src.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smackx.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/ice4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/swing-worker-1.2.jar"/>

@@ -870,14 +870,16 @@ public class ReconnectPluginActivator
             {
                 try
                 {
-                    if (logger.isTraceEnabled())
-                        logger.trace("Start reconnecting!");
+                    if (logger.isInfoEnabled())
+                        logger.info("Start reconnecting "
+                            + provider.getAccountID().getDisplayName());
 
                     provider.register(
                         getUIService().getDefaultSecurityAuthority(provider));
                 } catch (OperationFailedException ex)
                 {
-                    logger.error("cannot reregister provider will keep going", ex);
+                    logger.error("cannot re-register provider will keep going",
+                                ex);
                 }
             }
         }
