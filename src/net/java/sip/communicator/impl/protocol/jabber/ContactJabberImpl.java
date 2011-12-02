@@ -359,6 +359,7 @@ public class ContactJabberImpl
             return;
 
         this.isResolved = true;
+        this.isPersistent = true;
         this.jid = entry.getUser();
     }
 

@@ -1092,7 +1092,7 @@ public class ServerStoredContactListJabberImpl
                     contact.setResolved(entry);
                     return contact;
                 }
-                else
+                else if(contact instanceof VolatileContactJabberImpl)
                 {
                     ContactGroup oldParentGroup =
                         contact.getParentContactGroup();
@@ -1109,6 +1109,8 @@ public class ServerStoredContactListJabberImpl
                         fireContactRemoved(oldParentGroup, contact);
                     }
                 }
+                else
+                    return contact;
             }
 
             contact = new ContactJabberImpl(
