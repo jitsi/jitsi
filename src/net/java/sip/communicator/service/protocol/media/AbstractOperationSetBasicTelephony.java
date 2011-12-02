@@ -78,16 +78,16 @@ public abstract class AbstractOperationSetBasicTelephony
      *
      * @param eventID the ID of the event to dispatch
      * @param sourceCall the call on which the event has occurred.
-     * @param mediaTypes list of media types
+     * @param mediaDirections direction map for media types
      */
     public void fireCallEvent(int eventID, Call sourceCall,
-                  List<MediaType> mediaTypes)
+            Map<MediaType, MediaDirection> mediaDirections)
     {
         CallEvent cEvent = new CallEvent(sourceCall, eventID);
 
-        if(mediaTypes != null)
+        if(mediaDirections != null)
         {
-            cEvent.setMediaTypes(mediaTypes);
+            cEvent.setMediaDirections(mediaDirections);
         }
 
         List<CallListener> listeners;

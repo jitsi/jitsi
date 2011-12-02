@@ -264,6 +264,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CALL_BUTTON_BG");
 
     /**
+     * The video call button image.
+     */
+    public static final ImageID CALL_VIDEO_BUTTON_BG
+        = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_BG");
+
+    /**
      * The call button small image.
      */
     public static final ImageID CALL_BUTTON_SMALL
@@ -368,10 +374,16 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.HANGUP_ROLLOVER_BUTTON_BG");
 
     /**
-     * The hangup button pressed image.
+     * The call button pressed image.
      */
     public static final ImageID CALL_BUTTON_PRESSED_BG
         = new ImageID("service.gui.buttons.CALL_BUTTON_PRESSED_BG");
+
+    /**
+     * The video call button pressed image.
+     */
+    public static final ImageID CALL_VIDEO_BUTTON_PRESSED_BG
+        = new ImageID("service.gui.buttons.CALL_VIDEO_BUTTON_PRESSED_BG");
 
     /**
      * The hangup button pressed image.

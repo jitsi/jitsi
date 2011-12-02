@@ -43,7 +43,6 @@ public class CallEvent
      */
     public static final int CALL_ENDED  = 3;
 
-
     /**
      * Determines whether this event has been fired to indicate an incoming or
      * an outgoing call.
@@ -54,7 +53,8 @@ public class CallEvent
      * The media types supported by this call, if information is
      * available.
      */
-    private List<MediaType> mediaTypes = new ArrayList<MediaType>();
+    private Map<MediaType, MediaDirection> mediaDirections = new
+        HashMap<MediaType, MediaDirection>();
 
     /**
      * Creates an event instance indicating that an incoming/outgoing call
@@ -110,15 +110,43 @@ public class CallEvent
      */
     public List<MediaType> getMediaTypes()
     {
-        return mediaTypes;
+        return new ArrayList<MediaType>(mediaDirections.keySet());
+    }
+
+    /**
+     * Return the media directions map
+     * @return the supported media direction map of current call.
+     */
+    public Map<MediaType, MediaDirection> getMediaDirections()
+    {
+        return mediaDirections;
     }
 
     /**
      * Update media types for the event.
-     * @param mediaTypes the new media types.
+     * @param mediaDirections the new media types.
      */
-    public void setMediaTypes(List<MediaType> mediaTypes)
+    public void setMediaDirections(
+        Map<MediaType, MediaDirection> mediaDirections)
     {
-        this.mediaTypes = mediaTypes;
+        this.mediaDirections = mediaDirections;
+    }
+
+    /**
+     * Returns whether or not the call is a video call.
+     *
+     * @return true if the call is a video call, false otherwise
+     */
+    public boolean isVideoCall()
+    {
+        MediaDirection direction = mediaDirections.get(
+            MediaType.VIDEO);
+
+        if(direction != null)
+        {
+            return direction == MediaDirection.SENDRECV;
+        }
+
+        return false;
     }
 }

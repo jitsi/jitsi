@@ -6,10 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.util.*;
+
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -99,7 +103,7 @@ public class CallJabberImpl
             remoteParty = jingleIQ.getFrom();
 
         CallPeerJabberImpl callPeer = new CallPeerJabberImpl(remoteParty, this,
-		jingleIQ);
+            jingleIQ);
 
         addCallPeer(callPeer);
 
@@ -214,10 +218,37 @@ public class CallJabberImpl
             return callPeer;
         }
 
+        /* see if offer contains audio and video so that we can propose
+         * option to the user (i.e. answer with video if it is a video call...)
+         */
+        List<ContentPacketExtension> offer =
+            callPeer.getSessionIQ().getContentList();
+        Map<MediaType, MediaDirection> directions = new HashMap<MediaType,
+            MediaDirection>();
+
+        directions.put(MediaType.AUDIO, MediaDirection.INACTIVE);
+        directions.put(MediaType.VIDEO, MediaDirection.INACTIVE);
+
+        for(ContentPacketExtension c : offer)
+        {
+            MediaDirection remoteDirection = JingleUtils.getDirection(
+                c, callPeer.isInitiator());
+
+            if(c.getName().equals(MediaType.AUDIO.toString()))
+            {
+                directions.put(MediaType.AUDIO, remoteDirection);
+            }
+            else if(c.getName().equals(MediaType.VIDEO.toString()))
+            {
+                directions.put(MediaType.VIDEO, remoteDirection);
+            }
+        }
+
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
         if(this.getCallPeerCount() == 1)
-            parentOpSet.fireCallEvent( CallEvent.CALL_RECEIVED, this);
+            parentOpSet.fireCallEvent(CallEvent.CALL_RECEIVED, this,
+                directions);
 
         return callPeer;
     }

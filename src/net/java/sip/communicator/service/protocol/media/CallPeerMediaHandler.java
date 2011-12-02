@@ -702,7 +702,7 @@ public abstract class CallPeerMediaHandler<
      * in this media handler (if any) so that the underlying SRTP lib could
      * properly handle stream security.
      *
-     * @param multiStreamData the data that we are supposed to pass to our
+     * @param master the data that we are supposed to pass to our
      * video stream.
      */
     public void startSrtpMultistream(SrtpControl master)
@@ -1679,7 +1679,7 @@ public abstract class CallPeerMediaHandler<
                 // send empty packet to deblock some kind of RTP proxy to let
                 // just one user sends its video
                 if ((stream instanceof VideoMediaStream)
-                        && !isLocalVideoTransmissionEnabled())
+                        /* && !isLocalVideoTransmissionEnabled() */)
                 {
                     sendHolePunchPacket(stream.getTarget());
                 }

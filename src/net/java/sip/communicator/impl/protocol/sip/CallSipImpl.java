@@ -252,7 +252,11 @@ public class CallSipImpl
         // new and we also need to notify everyone of its creation.
         if(this.getCallPeerCount() == 1)
         {
-            ArrayList<MediaType> mediaTypes = null;
+            Map<MediaType, MediaDirection> mediaDirections = new
+                HashMap<MediaType, MediaDirection>();
+
+            mediaDirections.put(MediaType.AUDIO, MediaDirection.INACTIVE);
+            mediaDirections.put(MediaType.VIDEO, MediaDirection.INACTIVE);
 
             //this check is not mandatory catch all to skip if a problem exists
             try
@@ -263,14 +267,13 @@ public class CallSipImpl
 
                 if(inviteReq != null && inviteReq.getRawContent() != null)
                 {
-                    mediaTypes = new ArrayList<MediaType>();
-
                     String sdpStr = SdpUtils.getContentAsString(inviteReq);
 
                     SessionDescription sesDescr = SdpUtils.parseSdpString(sdpStr);
 
                     List<MediaDescription> remoteDescriptions = SdpUtils
                             .extractMediaDescriptions(sesDescr);
+
                     for (MediaDescription mediaDescription : remoteDescriptions)
                     {
                         MediaType mediaType =
@@ -280,15 +283,16 @@ public class CallSipImpl
                         {
                             MediaDirection videoDirection =
                                     SdpUtils.getDirection(mediaDescription);
-
-                            if(videoDirection.allowsSending())
-                            {
-                                mediaTypes.add(mediaType);
-                                continue;
-                            }
+                            mediaDirections.put(MediaType.VIDEO,
+                                videoDirection);
                         }
-                        else
-                            mediaTypes.add(mediaType);
+                        else if(mediaType.equals(MediaType.AUDIO))
+                        {
+                            MediaDirection audioDirection =
+                                SdpUtils.getDirection(mediaDescription);
+                            mediaDirections.put(MediaType.AUDIO,
+                                audioDirection);
+                        }
                     }
                 }
             }
@@ -301,7 +305,7 @@ public class CallSipImpl
                                         ? CallEvent.CALL_RECEIVED
                                         : CallEvent.CALL_INITIATED),
                                         this,
-                                        mediaTypes);
+                                        mediaDirections);
         }
 
         return callPeer;

@@ -41,15 +41,16 @@ public class ReceivedCallDialog
      * Creates a <tt>ReceivedCallDialog</tt> by specifying the associated call.
      *
      * @param call The associated with this dialog incoming call.
+     * @param video if the call is a video call
      */
-    public ReceivedCallDialog(Call call)
+    public ReceivedCallDialog(Call call, boolean video)
     {
         super(GuiActivator.getResources()
             .getSettingsString("service.gui.APPLICATION_NAME")
             + " "
             + GuiActivator.getResources()
                 .getI18NString("service.gui.INCOMING_CALL_STATUS")
-                    .toLowerCase());
+                    .toLowerCase(), video);
 
         this.incomingCall = call;
 
@@ -184,6 +185,15 @@ public class ReceivedCallDialog
     public void callButtonPressed()
     {
         CallManager.answerCall(incomingCall);
+    }
+
+    /**
+     * Answers the call when the call button has been pressed.
+     */
+    @Override
+    public void videoCallButtonPressed()
+    {
+        CallManager.answerVideoCall(incomingCall);
     }
 
     /**

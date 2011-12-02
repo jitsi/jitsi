@@ -72,9 +72,8 @@ public class CallManager
         public void incomingCallReceived(CallEvent event)
         {
             Call sourceCall = event.getSourceCall();
-
             final ReceivedCallDialog receivedCallDialog
-                = new ReceivedCallDialog(sourceCall);
+                = new ReceivedCallDialog(sourceCall, event.isVideoCall());
 
             receivedCallDialog.setVisible(true);
 
@@ -180,6 +179,18 @@ public class CallManager
         CallManager.openCallContainer(call);
 
         new AnswerCallThread(call).start();
+    }
+
+    /**
+     * Answers the given call with video.
+     *
+     * @param call the call to answer
+     */
+    public static void answerVideoCall(final Call call)
+    {
+        CallManager.openCallContainer(call);
+
+        new AnswerVideoCallThread(call).start();
     }
 
     /**
@@ -1281,6 +1292,49 @@ public class CallManager
                 catch (OperationFailedException e)
                 {
                     logger.error("Could not answer to : " + peer
+                        + " caused by the following exception: " + e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Answers all call peers in the given call with video.
+     */
+    private static class AnswerVideoCallThread
+        extends Thread
+    {
+        private final Call call;
+
+        /**
+         * Constructor.
+         *
+         * @param call source call
+         */
+        public AnswerVideoCallThread(Call call)
+        {
+            this.call = call;
+        }
+
+        @Override
+        public void run()
+        {
+            ProtocolProviderService pps = call.getProtocolProvider();
+            Iterator<? extends CallPeer> peers = call.getCallPeers();
+
+            while (peers.hasNext())
+            {
+                CallPeer peer = peers.next();
+                OperationSetVideoTelephony telephony =
+                    pps.getOperationSet(OperationSetVideoTelephony.class);
+
+                try
+                {
+                    telephony.answerVideoCallPeer(peer);
+                }
+                catch (OperationFailedException e)
+                {
+                    logger.error("Could not video answer to : " + peer
                         + " caused by the following exception: " + e);
                 }
             }

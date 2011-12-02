@@ -31,6 +31,11 @@ public abstract class PreCallDialog
     private static final String CALL_BUTTON = "CallButton";
 
     /**
+     * The call button name.
+     */
+    private static final String VIDEO_CALL_BUTTON = "VideoCallButton";
+
+    /**
      * The hangup button name.
      */
     private static final String HANGUP_BUTTON = "HangupButton";
@@ -44,6 +49,11 @@ public abstract class PreCallDialog
      * Call button.
      */
     private SIPCommButton callButton;
+
+    /**
+     * Video call button.
+     */
+    private SIPCommButton videoCallButton;
 
     /**
      * HandUp button.
@@ -76,14 +86,20 @@ public abstract class PreCallDialog
     private Window preCallWindow;
 
     /**
+     * If it is a video call.
+     */
+    private boolean video = false;
+
+    /**
      * Creates an instanceof <tt>PreCallDialog</tt> by specifying the dialog
      * title.
      *
      * @param title the title of the dialog
+     * @param video if it is a video call
      */
-    public PreCallDialog(String title)
+    public PreCallDialog(String title, boolean video)
     {
-        this(title, null, null);
+        this(title, null, null, video);
     }
 
     /**
@@ -93,11 +109,14 @@ public abstract class PreCallDialog
      * @param title the title of the dialog
      * @param text the text to show
      * @param accounts the list of accounts to choose from
+     * @param video if it is a video call
      */
-    public PreCallDialog(String title, String text, Object[] accounts)
+    public PreCallDialog(String title, String text, Object[] accounts,
+        boolean video)
     {
         preCallWindow = createPreCallWindow(title, text, accounts);
 
+        this.video = video;
         this.initComponents();
     }
 
@@ -184,6 +203,12 @@ public abstract class PreCallDialog
         callButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG));
 
+        if(video)
+        {
+            videoCallButton = new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_BG));
+        }
+
         hangupButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
@@ -196,6 +221,12 @@ public abstract class PreCallDialog
 
         callButton.addActionListener(this);
         hangupButton.addActionListener(this);
+
+        if(video)
+        {
+            videoCallButton.setName(VIDEO_CALL_BUTTON);
+            videoCallButton.addActionListener(this);
+        }
 
         preCallWindow.add(mainPanel);
 
@@ -244,9 +275,17 @@ public abstract class PreCallDialog
         constraints.gridy = 0;
         constraints.gridheight = 0;
         buttonsPanel.add(callButton, constraints);
-        constraints.gridx = 1;
+
+        if(video)
+        {
+            constraints.gridx++;
+            buttonsPanel.add(Box.createHorizontalStrut(HGAP));
+            constraints.gridx++;
+            buttonsPanel.add(videoCallButton, constraints);
+        }
+        constraints.gridx++;
         buttonsPanel.add(Box.createHorizontalStrut(HGAP));
-        constraints.gridx = 2;
+        constraints.gridx++;
         buttonsPanel.add(hangupButton, constraints);
     }
 
@@ -325,6 +364,9 @@ public abstract class PreCallDialog
         callButton.setBackgroundImage(
             ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG));
 
+        videoCallButton.setBackgroundImage(
+            ImageLoader.getImage(ImageLoader.CALL_VIDEO_BUTTON_BG));
+
         hangupButton.setBackgroundImage(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
     }
@@ -343,6 +385,10 @@ public abstract class PreCallDialog
         {
             callButtonPressed();
         }
+        else if (buttonName.equals(VIDEO_CALL_BUTTON))
+        {
+            videoCallButtonPressed();
+        }
         else if (buttonName.equals(HANGUP_BUTTON))
         {
             hangupButtonPressed();
@@ -360,4 +406,9 @@ public abstract class PreCallDialog
      * Indicates that the hangup button has been pressed.
      */
     public abstract void hangupButtonPressed();
+
+    /**
+     * Indicates that the video call button has been pressed.
+     */
+    public abstract void videoCallButtonPressed();
 }

@@ -51,7 +51,7 @@ public class ChooseCallAccountDialog
                     .getI18NString("service.gui.CALL_VIA"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CHOOSE_ACCOUNT"),
-                GuiActivator.getAccounts(providers));
+                GuiActivator.getAccounts(providers), false);
 
         this.contactAddress = contactAddress;
         this.opSetClass = opSetClass;
@@ -120,5 +120,30 @@ public class ChooseCallAccountDialog
     public void hangupButtonPressed()
     {
         dispose();
+    }
+
+    /**
+     * Not used.
+     */
+    @Override
+    public void videoCallButtonPressed()
+    {
+        ProtocolProviderService selectedProvider
+            = ((Account) getAccountsCombo().getSelectedItem())
+                .getProtocolProvider();
+
+        if (opSetClass.equals(OperationSetVideoTelephony.class))
+        {
+            CallManager.createVideoCall(
+                selectedProvider,
+                contactAddress);
+        }
+        else if (opSetClass.equals(
+            OperationSetDesktopSharingServer.class))
+        {
+            CallManager.createDesktopSharing(
+                selectedProvider,
+                contactAddress);
+        }
     }
 }
