@@ -104,13 +104,7 @@ public class AdHocConferenceChatTransport
      */
     public boolean allowsSmsMessage()
     {
-        Object smsOpSet = adHocChatRoom.getParentProvider()
-            .getOperationSet(OperationSetSmsMessaging.class);
-
-        if (smsOpSet != null)
-            return true;
-        else
-            return false;
+        return false;
     }
 
     /**

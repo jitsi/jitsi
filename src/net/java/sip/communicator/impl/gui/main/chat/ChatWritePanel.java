@@ -248,7 +248,9 @@ public class ChatWritePanel
             .getImage("service.gui.icons.SEND_SMS_SELECTED");
 
         smsLabel = new JLabel(smsIcon);
-        smsLabel.setVisible(true);
+
+        // We hide the sms label until we know if the chat supports sms.
+        smsLabel.setVisible(false);
 
         smsMenuItem = new JCheckBoxMenuItem(GuiActivator.getResources()
             .getI18NString("service.gui.VIA_SMS"));

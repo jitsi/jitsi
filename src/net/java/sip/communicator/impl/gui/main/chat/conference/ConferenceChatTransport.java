@@ -103,13 +103,7 @@ public class ConferenceChatTransport
      */
     public boolean allowsSmsMessage()
     {
-        Object smsOpSet = chatRoom.getParentProvider()
-            .getOperationSet(OperationSetSmsMessaging.class);
-
-        if (smsOpSet != null)
-            return true;
-        else
-            return false;
+        return false;
     }
 
     /**
