@@ -1174,10 +1174,6 @@ public class CallPanel
      */
     private void addOneToOneSpecificComponents()
     {
-        settingsPanel.add(transferCallButton);
-        settingsPanel.add(desktopSharingButton);
-        settingsPanel.add(videoButton);
-
         Iterator<? extends CallPeer> callPeers = call.getCallPeers();
 
         while (callPeers.hasNext())
@@ -1188,6 +1184,39 @@ public class CallPanel
             {
                 enableButtons(true);
                 return;
+            }
+
+            settingsPanel.add(transferCallButton);
+
+            Contact peerContact = callPeer.getContact();
+
+            ProtocolProviderService callProvider
+                = call.getProtocolProvider();
+
+            OperationSetContactCapabilities capOpSet
+                = callProvider.getOperationSet(
+                    OperationSetContactCapabilities.class);
+
+            if (peerContact != null
+                && capOpSet != null)
+            {
+                if (capOpSet.getOperationSet(peerContact,
+                    OperationSetDesktopSharingServer.class) != null)
+                    settingsPanel.add(desktopSharingButton);
+
+                if (capOpSet.getOperationSet(peerContact,
+                    OperationSetVideoTelephony.class) != null)
+                    settingsPanel.add(videoButton);
+            }
+            else
+            {
+                if (callProvider.getOperationSet(
+                    OperationSetDesktopSharingServer.class) != null)
+                    settingsPanel.add(desktopSharingButton);
+
+                if (callProvider.getOperationSet(
+                    OperationSetVideoTelephony.class) != null)
+                    settingsPanel.add(videoButton);
             }
         }
         enableButtons(false);
