@@ -128,7 +128,8 @@ public class KnownFingerprintsPanel
      */
     private void openContact(Contact contact)
     {
-        if (contact == null)
+        if (contact == null
+          || OtrActivator.scOtrKeyManager.getRemoteFingerprint(contact) == null)
         {
             btnForgetFingerprint.setEnabled(false);
             btnVerifyFingerprint.setEnabled(false);
