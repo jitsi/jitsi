@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.keybindings;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.keybindings.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -36,7 +37,12 @@ public class KeybindingsActivator
     /**
      * Reference to the configuration service
      */
-    private static ConfigurationService configService;
+    private static ConfigurationService configService = null;
+
+    /**
+     * The resource service.
+     */
+    private static ResourceManagementService resourceService = null;
 
     /**
      * OSGi bundle context.
@@ -98,5 +104,28 @@ public class KeybindingsActivator
                         confReference);
         }
         return configService;
+    }
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt> obtained from the
+     * bundle context.
+     *
+     * @return the <tt>ResourceManagementService</tt> obtained from the
+     * bundle context
+     */
+    public static ResourceManagementService getResourceService()
+    {
+        if (resourceService == null)
+        {
+            ServiceReference resourceReference
+                = bundleContext.getServiceReference(
+                    ResourceManagementService.class.getName());
+
+            resourceService =
+                (ResourceManagementService) bundleContext
+                    .getService(resourceReference);
+        }
+
+        return resourceService;
     }
 }

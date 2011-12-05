@@ -64,6 +64,12 @@ class KeybindingsServiceImpl
         "net.java.sip.communicator.impl.keybinding.global";
 
     /**
+     * Path where to store the global shortcuts defaults values.
+     */
+    private final static String DEFAULTS_VALUES_PATH =
+        "impl.keybinding.global";
+
+    /**
      * Flag indicating if service is running.
      */
     private boolean isRunning = false;
@@ -251,6 +257,7 @@ class KeybindingsServiceImpl
             bindingSet.invalidate();
         }
         this.bindings.clear();
+        this.saveGlobalShortcutFromConfiguration();
         this.isRunning = false;
     }
 
@@ -340,29 +347,16 @@ class KeybindingsServiceImpl
             for(String name : names)
             {
                 List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
+                propName = DEFAULTS_VALUES_PATH + "." + name + ".1";
 
-                if(name.equals("answer"))
+                shortcut = propName != null ?
+                    KeybindingsActivator.getResourceService().getSettingsString(
+                        propName) : null;
+
+                if(shortcut != null)
                 {
-                    kss.add(AWTKeyStroke.getAWTKeyStroke(
-                        "shift ctrl pressed A"));
+                    kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut));
                 }
-                else if(name.equals("hangup"))
-                {
-                    kss.add(AWTKeyStroke.getAWTKeyStroke(
-                    "shift ctrl pressed H"));
-                }
-                else if(name.equals("contactlist"))
-                {
-                    kss.add(AWTKeyStroke.getAWTKeyStroke(
-                    "shift ctrl pressed L"));
-                }
-                else if(name.equals("mute"))
-                {
-                    kss.add(AWTKeyStroke.getAWTKeyStroke(
-                    "shift ctrl pressed M"));
-                }
-                else
-                    continue;
 
                 gBindings.put(name, kss);
             }
