@@ -27,6 +27,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
 import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.configuration.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
@@ -183,6 +184,12 @@ public class ProtocolProviderServiceJabberImpl
      * Smack packet reply timeout.
      */
     public static final int SMACK_PACKET_REPLY_TIMEOUT = 45000;
+
+    /**
+     * XMPP signaling DSCP configuration property name.
+     */
+    private static final String XMPP_DSCP_PROPERTY =
+        "net.java.sip.communicator.impl.protocol.XMPP_DSCP";
 
     /**
      * Used to connect to a XMPP server.
@@ -1025,6 +1032,8 @@ public class ProtocolProviderServiceJabberImpl
         connection.addPacketInterceptor(debugger, null);
 
         connection.connect();
+
+        setTrafficClass();
 
         if(abortConnecting)
         {
@@ -2387,5 +2396,35 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         return false;
+    }
+
+    /**
+     * Sets the traffic class for the XMPP signalling socket.
+     */
+    private void setTrafficClass()
+    {
+        Socket s = connection.getSocket();
+
+        if(s != null)
+        {
+            ConfigurationService configService =
+                JabberActivator.getConfigurationService();
+            String dscp = configService.getString(XMPP_DSCP_PROPERTY);
+
+            if(dscp != null)
+            {
+                try
+                {
+                    int trafficClass = Integer.parseInt(dscp);
+
+                    if(trafficClass > 0)
+                        s.setTrafficClass(trafficClass);
+                }
+                catch (Exception e)
+                {
+                    logger.info("Failed to set trafficClass", e);
+                }
+            }
+        }
     }
 }

@@ -45,7 +45,7 @@ public class CallPeerSipImpl
 
     /**
      * The sub-type of the content carried by SIP INFO <tt>Requests</tt> for the
-     * purposes of <tt>picture_fast_update</tt>.   
+     * purposes of <tt>picture_fast_update</tt>.
      */
     static final String PICTURE_FAST_UPDATE_CONTENT_SUB_TYPE
         = "media_control+xml";

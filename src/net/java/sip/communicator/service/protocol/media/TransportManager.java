@@ -24,6 +24,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
+ * @author Sebastien Vincent
  */
 public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 {
@@ -58,6 +59,18 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * </p>
      */
     private static int nextMediaPortToTry = -1;
+
+    /**
+     * RTP audio DSCP configuration property name.
+     */
+    private static final String RTP_AUDIO_DSCP_PROPERTY =
+        "net.java.sip.communicator.impl.protocol.RTP_AUDIO_DSCP";
+
+    /**
+     * RTP video DSCP configuration property name.
+     */
+    private static final String RTP_VIDEO_DSCP_PROPERTY =
+        "net.java.sip.communicator.impl.protocol.RTP_VIDEO_DSCP";
 
     /**
      * The {@link MediaAwareCallPeer} whose traffic we will be taking care of.
@@ -364,12 +377,14 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
                 }
 
                 /* data port (RTP) */
-                connector.getDataSocket().send(new DatagramPacket(
+                if(connector.getDataSocket() != null)
+                    connector.getDataSocket().send(new DatagramPacket(
                         new byte[0], 0, target.getDataAddress().getAddress(),
                         target.getDataAddress().getPort()));
 
                 /* control port (RTCP) */
-                connector.getControlSocket().send(new DatagramPacket(
+                if(connector.getControlSocket() != null)
+                    connector.getControlSocket().send(new DatagramPacket(
                         new byte[0], 0, target.getControlAddress().getAddress(),
                         target.getControlAddress().getPort()));
             }
@@ -378,6 +393,89 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         {
             logger.error("Error cannot send to remote peer", e);
         }
+    }
+
+    /**
+     * Set traffic class (QoS) for the RTP socket.
+     *
+     * @param target <tt>MediaStreamTarget</tt>
+     * @param type the {@link MediaType} of the connector we'd like to set
+     * traffic class
+     */
+    protected void setTrafficClass(MediaStreamTarget target, MediaType type)
+    {
+        int trafficClass = 0;
+
+        // get traffic class value for RTP audio/video
+        trafficClass = getTrafficClass(type);
+
+        if(trafficClass <= 0)
+            return;
+
+        if (logger.isInfoEnabled())
+            logger.info("Set traffic class for " + type + " " + trafficClass);
+        try
+        {
+            StreamConnector connector = getStreamConnector(type);
+
+            synchronized(connector)
+            {
+                if(connector.getProtocol() == StreamConnector.Protocol.TCP)
+                {
+                    connector.getDataTCPSocket().setTrafficClass(trafficClass);
+
+                    if(connector.getControlTCPSocket() != null)
+                        connector.getControlTCPSocket().
+                            setTrafficClass(trafficClass);
+                }
+                else
+                {
+                    /* data port (RTP) */
+                    connector.getDataSocket().setTrafficClass(trafficClass);
+
+                    /* control port (RTCP) */
+                    if(connector.getControlSocket() != null)
+                        connector.getControlSocket().setTrafficClass(
+                            trafficClass);
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            logger.error("Error cannot send to remote peer", e);
+        }
+    }
+
+
+    /**
+     * Get the SIP traffic class from configuration.
+     *
+     * @return SIP traffic class or 0 if not configured
+     */
+    private int getTrafficClass(MediaType type)
+    {
+        ConfigurationService configService =
+            ProtocolMediaActivator.getConfigurationService();
+
+        String trafficClass = null;
+
+        if(type == MediaType.AUDIO)
+            trafficClass =
+                (String)configService.getProperty(
+                    RTP_AUDIO_DSCP_PROPERTY);
+        else if(type == MediaType.VIDEO)
+            trafficClass =
+                (String)configService.getProperty(
+                    RTP_VIDEO_DSCP_PROPERTY);
+        else
+            return 0;
+
+        if(trafficClass != null)
+        {
+            return Integer.parseInt(trafficClass);
+        }
+
+        return 0;
     }
 
     /**

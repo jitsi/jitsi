@@ -1658,6 +1658,8 @@ public abstract class CallPeerMediaHandler<
                 && !stream.isStarted()
                 && isLocalAudioTransmissionEnabled())
         {
+            getTransportManager().setTrafficClass(stream.getTarget(),
+                MediaType.AUDIO);
             stream.start();
         }
 
@@ -1674,6 +1676,8 @@ public abstract class CallPeerMediaHandler<
 
             if(!stream.isStarted())
             {
+                getTransportManager().setTrafficClass(stream.getTarget(),
+                    MediaType.VIDEO);
                 stream.start();
 
                 // send empty packet to deblock some kind of RTP proxy to let

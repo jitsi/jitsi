@@ -17,6 +17,7 @@ import gov.nist.core.net.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
 
@@ -25,9 +26,10 @@ import org.osgi.framework.*;
 /**
  * Manages jain-sip socket creation. When dealing with ssl sockets we interact
  * with the user when the certificate for some reason is not trusted.
- * 
+ *
  * @author Damian Minkov
  * @author Ingo Bauersachs
+ * @author Sebastien Vincent
  */
 public class SslNetworkLayer
     implements NetworkLayer
@@ -38,10 +40,16 @@ public class SslNetworkLayer
      private static final Logger logger =
          Logger.getLogger(SslNetworkLayer.class);
 
+     /**
+      * SIP DSCP configuration property name.
+      */
+     private static final String SIP_DSCP_PROPERTY =
+         "net.java.sip.communicator.impl.protocol.SIP_DSCP";
+
     /**
      * The service we use to interact with user.
      */
-    private CertificateService certificateVerification;
+    private CertificateService certificateVerification = null;
 
     /**
      * Creates the network layer.
@@ -62,7 +70,7 @@ public class SslNetworkLayer
      * Creates a server with the specified port, listen backlog, and local IP
      * address to bind to. Comparable to
      * "new java.net.ServerSocket(port,backlog,bindAddress);"
-     * 
+     *
      * @param port the port
      * @param backlog backlog
      * @param bindAddress local address to use
@@ -70,16 +78,19 @@ public class SslNetworkLayer
      * @throws IOException problem creating socket.
      */
     public ServerSocket createServerSocket(int port, int backlog,
-            InetAddress bindAddress) 
+            InetAddress bindAddress)
             throws IOException
     {
-        return new ServerSocket(port, backlog, bindAddress);
+        ServerSocket sock = new ServerSocket(port, backlog, bindAddress);
+        // XXX apparently traffic class cannot be set on ServerSocket
+        //setTrafficClass(sock);
+        return sock;
     }
 
     /**
      * Creates a stream socket and connects it to the specified port number at
      * the specified IP address.
-     * 
+     *
      * @param address the address to connect.
      * @param port the port to connect.
      * @return the socket
@@ -88,26 +99,30 @@ public class SslNetworkLayer
     public Socket createSocket(InetAddress address, int port)
         throws IOException
     {
-        return new Socket(address, port);
+        Socket sock = new Socket(address, port);
+        setTrafficClass(sock);
+        return sock;
     }
 
     /**
      * Constructs a datagram socket and binds it to any available port on the
      * local host machine. Comparable to "new java.net.DatagramSocket();"
-     * 
+     *
      * @return the datagram socket
      * @throws SocketException problem creating socket.
      */
     public DatagramSocket createDatagramSocket()
         throws SocketException
     {
-        return new DatagramSocket();
+        DatagramSocket sock = new DatagramSocket();
+        setTrafficClass(sock);
+        return sock;
     }
 
     /**
      * Creates a datagram socket, bound to the specified local address.
      * Comparable to "new java.net.DatagramSocket(port,laddr);"
-     * 
+     *
      * @param port local port to use
      * @param laddr local address to bind
      * @return the datagram socket
@@ -116,13 +131,15 @@ public class SslNetworkLayer
     public DatagramSocket createDatagramSocket(int port, InetAddress laddr)
         throws SocketException
     {
-        return new DatagramSocket(port, laddr);
+        DatagramSocket sock = new DatagramSocket(port, laddr);
+        setTrafficClass(sock);
+        return sock;
     }
 
     /**
      * Creates an SSL server with the specified port, listen backlog, and local
      * IP address to bind to.
-     * 
+     *
      * @param port the port to listen to
      * @param backlog backlog
      * @param bindAddress the address to listen to
@@ -130,16 +147,19 @@ public class SslNetworkLayer
      * @throws IOException problem creating socket.
      */
     public SSLServerSocket createSSLServerSocket(int port, int backlog,
-            InetAddress bindAddress) 
+            InetAddress bindAddress)
         throws IOException
     {
-        return (SSLServerSocket) getSSLServerSocketFactory()
+        SSLServerSocket sock = (SSLServerSocket) getSSLServerSocketFactory()
             .createServerSocket(port, backlog, bindAddress);
+        // XXX apparently traffic class cannot be set on ServerSocket
+        // setTrafficClass(sock);
+        return sock;
     }
 
     /**
      * Creates a ssl server socket factory.
-     * 
+     *
      * @return the server socket factory.
      * @throws IOException problem creating factory.
      */
@@ -159,7 +179,7 @@ public class SslNetworkLayer
 
     /**
      * Creates ssl socket factory.
-     * 
+     *
      * @return the socket factory.
      * @throws IOException problem creating ssl socket factory.
      */
@@ -227,7 +247,7 @@ public class SslNetworkLayer
     /**
      * Creates a stream SSL socket and connects it to the specified port number
      * at the specified IP address.
-     * 
+     *
      * @param address the address we are connecting to.
      * @param port the port we use.
      * @return the socket.
@@ -236,14 +256,16 @@ public class SslNetworkLayer
     public SSLSocket createSSLSocket(InetAddress address, int port)
         throws IOException
     {
-        return (SSLSocket) getSSLSocketFactory(address).createSocket(address,
-            port);
+        SSLSocket sock = (SSLSocket) getSSLSocketFactory(address).createSocket(
+            address, port);
+        setTrafficClass(sock);
+        return sock;
     }
 
     /**
      * Creates a stream SSL socket and connects it to the specified port number
      * at the specified IP address.
-     * 
+     *
      * @param address the address we are connecting to.
      * @param port the port we use.
      * @param myAddress the local address to use
@@ -251,18 +273,20 @@ public class SslNetworkLayer
      * @throws IOException problem creating socket.
      */
     public SSLSocket createSSLSocket(InetAddress address, int port,
-            InetAddress myAddress) 
+            InetAddress myAddress)
         throws IOException
     {
-        return (SSLSocket) getSSLSocketFactory(address).createSocket(address,
-            port, myAddress, 0);
+        SSLSocket sock = (SSLSocket) getSSLSocketFactory(address).createSocket(
+            address, port, myAddress, 0);
+        setTrafficClass(sock);
+        return sock;
     }
 
     /**
      * Creates a stream socket and connects it to the specified port number at
      * the specified IP address. Comparable to
      * "new java.net.Socket(address, port,localaddress);"
-     * 
+     *
      * @param address the address to connect to.
      * @param port the port we use.
      * @param myAddress the local address to use.
@@ -273,23 +297,29 @@ public class SslNetworkLayer
             InetAddress myAddress)
         throws IOException
     {
+        Socket sock = null;
+
         if (myAddress != null)
-            return new Socket(address, port, myAddress, 0);
+            sock = new Socket(address, port, myAddress, 0);
         else
-            return new Socket(address, port);
+            sock = new Socket(address, port);
+
+        setTrafficClass(sock);
+
+        return sock;
     }
 
     /**
      * Creates a new Socket, binds it to myAddress:myPort and connects it to
      * address:port.
-     * 
+     *
      * @param address the InetAddress that we'd like to connect to.
      * @param port the port that we'd like to connect to
      * @param myAddress the address that we are supposed to bind on or null for
      *            the "any" address.
      * @param myPort the port that we are supposed to bind on or 0 for a random
      *            one.
-     * 
+     *
      * @return a new Socket, bound on myAddress:myPort and connected to
      *         address:port.
      * @throws IOException if binding or connecting the socket fail for a reason
@@ -299,17 +329,83 @@ public class SslNetworkLayer
                     InetAddress myAddress, int myPort)
         throws IOException
     {
+        Socket sock = null;
+
         if (myAddress != null)
-            return new Socket(address, port, myAddress, myPort);
+        {
+            sock = new Socket(address, port, myAddress, myPort);
+        }
         else if (port != 0)
         {
             // myAddress is null (i.e. any) but we have a port number
-            Socket sock = new Socket();
+            sock = new Socket();
             sock.bind(new InetSocketAddress(port));
             sock.connect(new InetSocketAddress(address, port));
-            return sock;
         }
         else
-            return new Socket(address, port);
+        {
+            sock = new Socket(address, port);
+        }
+        setTrafficClass(sock);
+        return sock;
+    }
+
+    /**
+     * Sets the traffic class for the <tt>Socket</tt>.
+     *
+     * @param s <tt>Socket</tt>
+     */
+    private void setTrafficClass(Socket s)
+    {
+        int tc = getTrafficClass();
+
+        try
+        {
+            s.setTrafficClass(tc);
+        }
+        catch (SocketException e)
+        {
+            logger.warn("Failed to set traffic class on Socket", e);
+        }
+    }
+
+    /**
+     * Sets the traffic class for the <tt>DatagramSocket</tt>.
+     *
+     * @param s <tt>DatagramSocket</tt>
+     */
+    private void setTrafficClass(DatagramSocket s)
+    {
+        int tc = getTrafficClass();
+
+        try
+        {
+            s.setTrafficClass(tc);
+        }
+        catch (SocketException e)
+        {
+            logger.warn("Failed to set traffic class on DatagramSocket", e);
+        }
+    }
+
+    /**
+     * Get the SIP traffic class from configuration.
+     *
+     * @return SIP traffic class or 0 if not configured
+     */
+    private int getTrafficClass()
+    {
+        ConfigurationService configService =
+            SipActivator.getConfigurationService();
+
+        String trafficClass =
+            (String)configService.getProperty(SIP_DSCP_PROPERTY);
+
+        if(trafficClass != null)
+        {
+            return Integer.parseInt(trafficClass);
+        }
+
+        return 0;
     }
 }
