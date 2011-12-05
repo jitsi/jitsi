@@ -18,16 +18,22 @@ public interface OperationSetExtendedAuthorizations
 {
     /**
      * The available subscription of the contact.
-     * NotSubscribed - when we are not subscribed for
-     *      the contacts presence statuses.
-     * Subscribed - we are subscribed for the contact statuses.
-     * SubscriptionPending - we have subscribed for
-     *      contact statuses, but haven't received authorization yet.
      */
     public enum SubscriptionStatus
     {
+        /**
+         * Subscription state when we are not subscribed
+         * for the contacts presence statuses.
+         */
         NotSubscribed,
+        /**
+         * Subscription state when we are subscribed for the contact statuses.
+         */
         Subscribed,
+        /**
+         * When we have subscribed for contact statuses, but haven't
+         * received authorization yet.
+         */
         SubscriptionPending
     }
 
