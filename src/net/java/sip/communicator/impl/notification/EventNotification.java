@@ -18,23 +18,18 @@ import net.java.sip.communicator.service.notification.*;
 public class EventNotification
 {
     /**
-     * The event type as declared by the bundle registering it.
-     */
-    private final String eventType;
- 
-    /**
      * Indicates if this event notification is currently active. By default all
      * notifications are active.
      */
     private boolean isActive = true;
-    
+
     /**
      * Contains all actions which will be executed when this event notification
      * is fired.
      */
     private final Hashtable<String, Action> actionsTable
         = new Hashtable<String, Action>();
-    
+
     /**
      * Creates an instance of <tt>EventNotification</tt> by specifying the
      * event type as declared by the bundle registering it.
@@ -43,9 +38,8 @@ public class EventNotification
      */
     public EventNotification(String eventType)
     {
-        this.eventType = eventType;
     }
-    
+
     /**
      * Adds the given <tt>actionType</tt> to the list of actions for this event
      * notifications.
@@ -63,7 +57,7 @@ public class EventNotification
         
         return actionsTable.put(actionType, action);
     }
-    
+
     /**
      * Removes the action corresponding to the given <tt>actionType</tt>.
      * 
@@ -73,7 +67,7 @@ public class EventNotification
     {
         actionsTable.remove(actionType);
     }
-    
+
     /**
      * Returns the set of actions registered for this event notification.
      * 
@@ -83,7 +77,7 @@ public class EventNotification
     {   
         return actionsTable;
     }
-    
+
     /**
      * Returns the <tt>Action</tt> corresponding to the given
      * <tt>actionType</tt>.
@@ -97,7 +91,7 @@ public class EventNotification
     {
         return actionsTable.get(actionType);
     }
-    
+
     /**
      * The representation of an action, containing the corresponding
      * action type, action descriptor and the default message associated with
@@ -106,9 +100,8 @@ public class EventNotification
     public static class Action
     {
         private final String actionType;
-        
         private final NotificationActionHandler actionHandler;
-                
+
         /**
          * Creates an instance of <tt>Action</tt> by specifying the type of the
          * action, the descriptor and the default message.
@@ -134,7 +127,7 @@ public class EventNotification
         {
             return actionHandler;
         }
-        
+
         /**
          * Return the action type name.
          * @return the action type name.

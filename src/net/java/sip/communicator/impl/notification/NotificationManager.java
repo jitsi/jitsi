@@ -369,7 +369,7 @@ public class NotificationManager
             multiAdHocChatOpSet.addPresenceListener(this);
         }
 
-        OperationSetBasicTelephony basicTelephonyOpSet
+        OperationSetBasicTelephony<?> basicTelephonyOpSet
             = protocolProvider.getOperationSet(OperationSetBasicTelephony.class);
 
         if (basicTelephonyOpSet != null)
@@ -444,7 +444,7 @@ public class NotificationManager
             multiAdHocChatOpSet.removePresenceListener(this);
         }
 
-        OperationSetBasicTelephony basicTelephonyOpSet
+        OperationSetBasicTelephony<?> basicTelephonyOpSet
             = protocolProvider.getOperationSet(OperationSetBasicTelephony.class);
 
         if (basicTelephonyOpSet != null)
