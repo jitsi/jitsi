@@ -1345,6 +1345,12 @@ public class ProtocolProviderServiceJabberImpl
             // The http://jabber.org/protocol/xhtml-im feature is included
             // already in smack.
 
+            addSupportedOperationSet(
+                OperationSetExtendedAuthorizations.class,
+                new OperationSetExtendedAuthorizationsJabberImpl(
+                    this,
+                    persistentPresence));
+
             //initialize the Whiteboard operation set
             addSupportedOperationSet(
                 OperationSetWhiteboarding.class,
