@@ -48,8 +48,9 @@ public class HIDServiceImpl implements HIDService
         }
         catch(Throwable e)
         {
-            logger.error("Error when creating Robot/NativeKeyboard instance",
-                    e);
+            if(!GraphicsEnvironment.isHeadless())
+                logger.error(
+                    "Error when creating Robot/NativeKeyboard instance", e);
         }
     }
 

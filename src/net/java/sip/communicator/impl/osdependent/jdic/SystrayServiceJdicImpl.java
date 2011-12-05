@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.osdependent.jdic;
 
 import com.apple.eawt.*;
 
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.*;
@@ -133,7 +134,8 @@ public class SystrayServiceJdicImpl
             systray = SystemTray.getDefaultSystemTray();
         } catch (Throwable e)
         {
-            logger.error("Failed to create a systray!", e);
+            if(!GraphicsEnvironment.isHeadless())
+                logger.error("Failed to create a systray!", e);
         }
 
         if (systray != null)

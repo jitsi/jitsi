@@ -52,9 +52,9 @@ public class SystemTray
             }
             catch (Exception ex)
             {
-                logger.error(
-                "Failed to initialize the java.awt.SystemTray implementation.",
-                ex);
+                if(!GraphicsEnvironment.isHeadless())
+                    logger.error("Failed to initialize java.awt.SystemTray",
+                        ex);
 
                 // We'll try org.jdesktop.jdic.tray then.
             }

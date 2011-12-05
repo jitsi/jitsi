@@ -1052,6 +1052,7 @@ public class ConfigurationServiceImpl
      * default when no specific <tt>ConfigurationStore</tt> <tt>Class</tt> is
      * determined as necessary
      */
+    @SuppressWarnings("unchecked")
     private static Class<? extends ConfigurationStore>
         getDefaultConfigurationStoreClass()
     {

@@ -15,6 +15,7 @@ import net.java.sip.communicator.util.xml.*;
  *
  * @author Lyubomir Marinov
  */
+@SuppressWarnings("rawtypes")
 public abstract class DatabaseConfigurationStore
     extends HashtableConfigurationStore<Hashtable>
 {

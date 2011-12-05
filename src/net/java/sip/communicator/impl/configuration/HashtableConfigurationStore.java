@@ -13,6 +13,7 @@ import java.util.*;
  * @param <T> the hashtable extension
  * @author Lyubomir Marinov
  */
+@SuppressWarnings("rawtypes")
 public abstract class HashtableConfigurationStore<T extends Hashtable>
     implements ConfigurationStore
 {
@@ -112,6 +113,7 @@ public abstract class HashtableConfigurationStore<T extends Hashtable>
      * specified name in this <tt>ConfigurationStore</tt>
      * @see ConfigurationStore#setNonSystemProperty(String, Object)
      */
+    @SuppressWarnings("unchecked")
     public void setNonSystemProperty(String name, Object value)
     {
         properties.put(name, value);
