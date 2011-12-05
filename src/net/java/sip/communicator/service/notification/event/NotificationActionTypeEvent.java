@@ -40,11 +40,6 @@ public class NotificationActionTypeEvent
     public static final String ACTION_CHANGED = "ActionChanged";
 
     /**
-     * The type of the notification action that is being added.
-     */
-    private String sourceActionType = null;
-
-    /**
      * The type of the event that a new action is being added for.
      */
     private String sourceEventType = null;
@@ -54,7 +49,7 @@ public class NotificationActionTypeEvent
      * string) that will be performed when notifications are being fired for
      * the corresponding event type.
      */
-    private NotificationActionHandler actionHandler = null;
+    private NotificationAction actionHandler = null;
 
     /**
      * The type of this event. One of the static field constants declared in
@@ -69,32 +64,19 @@ public class NotificationActionTypeEvent
      * @param eventType the type of this event. One of the static fields
      * declared in this class
      * @param sourceEventType the event type for which this event occured
-     * @param sourceActionType the action type corresponding to this event
      * @param actionHandler the <tt>NotificationActionHandler</tt> that handles
      * the given action
      */
     public NotificationActionTypeEvent( NotificationService source,
                                         String eventType,
                                         String sourceEventType,
-                                        String sourceActionType,
-                                        NotificationActionHandler actionHandler)
+                                        NotificationAction actionHandler)
     {
         super(source);
 
         this.eventType = eventType;
         this.sourceEventType = sourceEventType;
-        this.sourceActionType = sourceActionType;
         this.actionHandler = actionHandler;
-    }
-
-    /**
-     * Returns the action type, for which this event is about.
-     *
-     * @return the action type, for which this event is about.
-     */
-    public String getSourceActionType()
-    {
-        return sourceActionType;
     }
 
     /**
@@ -114,7 +96,7 @@ public class NotificationActionTypeEvent
      * @return the <tt>NotificationActionHandler</tt> that handles the action,
      * for which this event is about.
      */
-    public NotificationActionHandler getActionHandler()
+    public NotificationAction getActionHandler()
     {
         return actionHandler;
     }

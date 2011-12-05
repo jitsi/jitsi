@@ -8,7 +8,6 @@ package net.java.sip.communicator.plugin.notificationconfiguration;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -132,30 +131,24 @@ public class NotificationsTable
      */
     private void initTableData()
     {
-        Iterator<String> registeredEvents
-            = notificationService.getRegisteredEvents();
-
-        NotificationEntry entry;
-        while (registeredEvents.hasNext())
+        for(String eventType : notificationService.getRegisteredEvents())
         {
-            String eventType = registeredEvents.next();
+            PopupMessageNotificationAction popupHandler
+                = (PopupMessageNotificationAction) notificationService
+                    .getEventNotificationAction(
+                        eventType, NotificationAction.ACTION_POPUP_MESSAGE);
 
-            PopupMessageNotificationHandler popupHandler
-                = (PopupMessageNotificationHandler) notificationService
-                    .getEventNotificationActionHandler(
-                        eventType, NotificationService.ACTION_POPUP_MESSAGE);
+            CommandNotificationAction programHandler
+                = (CommandNotificationAction) notificationService
+                    .getEventNotificationAction(
+                        eventType, NotificationAction.ACTION_COMMAND);
 
-            CommandNotificationHandler programHandler
-                = (CommandNotificationHandler) notificationService
-                    .getEventNotificationActionHandler(
-                        eventType, NotificationService.ACTION_COMMAND);
+            SoundNotificationAction soundHandler
+                = (SoundNotificationAction) notificationService
+                    .getEventNotificationAction(
+                        eventType, NotificationAction.ACTION_SOUND);
 
-            SoundNotificationHandler soundHandler
-                = (SoundNotificationHandler) notificationService
-                    .getEventNotificationActionHandler(
-                        eventType, NotificationService.ACTION_SOUND);
-
-            entry = new NotificationEntry(
+            NotificationEntry entry = new NotificationEntry(
                 notificationService.isActive(eventType),
                 programHandler != null && programHandler.isEnabled(),
                 (programHandler != null) ? programHandler.getDescriptor() : null,
@@ -460,7 +453,7 @@ public class NotificationsTable
                 {
                     notificationService.registerNotificationForEvent(
                             entry.getEvent(),
-                            NotificationService.ACTION_COMMAND,
+                            NotificationAction.ACTION_COMMAND,
                             entry.getProgramFile(),
                             "");
                 }
@@ -468,7 +461,7 @@ public class NotificationsTable
                 {
                     notificationService.removeEventNotificationAction(
                             entry.getEvent(),
-                            NotificationService.ACTION_COMMAND);
+                            NotificationAction.ACTION_COMMAND);
                 }
                 break;
             case 2:
@@ -479,7 +472,7 @@ public class NotificationsTable
                 {
                     notificationService.registerNotificationForEvent(
                             entry.getEvent(),
-                            NotificationService.ACTION_POPUP_MESSAGE,
+                            NotificationAction.ACTION_POPUP_MESSAGE,
                             "",
                             "");
                 }
@@ -487,7 +480,7 @@ public class NotificationsTable
                 {
                     notificationService.removeEventNotificationAction(
                             entry.getEvent(),
-                            NotificationService.ACTION_POPUP_MESSAGE);
+                            NotificationAction.ACTION_POPUP_MESSAGE);
                 }
                 break;
             case 3:
@@ -498,7 +491,7 @@ public class NotificationsTable
                 {
                     notificationService.registerNotificationForEvent(
                         entry.getEvent(),
-                        NotificationService.ACTION_SOUND,
+                        NotificationAction.ACTION_SOUND,
                         entry.getSoundFile(),
                         "");
                 }
@@ -506,7 +499,7 @@ public class NotificationsTable
                 {
                     notificationService.removeEventNotificationAction(
                         entry.getEvent(),
-                        NotificationService.ACTION_SOUND);
+                        NotificationAction.ACTION_SOUND);
                 }
                 break;
             };
@@ -524,7 +517,7 @@ public class NotificationsTable
         String eventName = event.getSourceEventType();
         NotificationEntry entry = getNotificationEntry(eventName);
 
-        NotificationActionHandler handler = event.getActionHandler();
+        NotificationAction handler = event.getActionHandler();
         boolean isActionEnabled = (handler != null && handler.isEnabled());
 
         if(entry == null)
@@ -535,25 +528,25 @@ public class NotificationsTable
 
         entry.setEvent(eventName);
 
-        if(event.getSourceActionType()
-                .equals(NotificationService.ACTION_POPUP_MESSAGE))
+        if(event.getActionHandler().getActionType()
+                .equals(NotificationAction.ACTION_POPUP_MESSAGE))
         {
             entry.setPopup(isActionEnabled);
         }
-        else if(event.getSourceActionType()
-                .equals(NotificationService.ACTION_COMMAND))
+        else if(event.getActionHandler().getActionType()
+                .equals(NotificationAction.ACTION_COMMAND))
         {
             entry.setProgram(isActionEnabled);
 
-            entry.setProgramFile(((CommandNotificationHandler)event
+            entry.setProgramFile(((CommandNotificationAction)event
                     .getActionHandler()).getDescriptor());
         }
-        else if(event.getSourceActionType()
-                .equals(NotificationService.ACTION_SOUND))
+        else if(event.getActionHandler().getActionType()
+                .equals(NotificationAction.ACTION_SOUND))
         {
             entry.setSound(isActionEnabled);
 
-            entry.setSoundFile(((SoundNotificationHandler)event
+            entry.setSoundFile(((SoundNotificationAction)event
                     .getActionHandler()).getDescriptor());
         }
         entry.setEnabled(notificationService.isActive(eventName));
@@ -574,19 +567,19 @@ public class NotificationsTable
         if(entry == null)
             return;
 
-        if(event.getSourceActionType()
-                .equals(NotificationService.ACTION_POPUP_MESSAGE))
+        if(event.getActionHandler().getActionType()
+                .equals(NotificationAction.ACTION_POPUP_MESSAGE))
         {
             entry.setPopup(false);
         }
-        else if(event.getSourceActionType()
-                .equals(NotificationService.ACTION_COMMAND))
+        else if(event.getActionHandler().getActionType()
+                .equals(NotificationAction.ACTION_COMMAND))
         {
             entry.setProgram(false);
             entry.setProgramFile("");
         }
-        else if(event.getSourceActionType()
-                .equals(NotificationService.ACTION_SOUND))
+        else if(event.getActionHandler().getActionType()
+                .equals(NotificationAction.ACTION_SOUND))
         {
             entry.setSound(false);
             entry.setSoundFile("");
@@ -608,16 +601,16 @@ public class NotificationsTable
         if(entry == null)
             return;
 
-        if(event.getSourceActionType()
-                .equals(NotificationService.ACTION_COMMAND))
+        if(event.getActionHandler().getActionType()
+                .equals(NotificationAction.ACTION_COMMAND))
         {
-            entry.setProgramFile(((CommandNotificationHandler)event
+            entry.setProgramFile(((CommandNotificationAction)event
                     .getActionHandler()).getDescriptor());
         }
-        else if(event.getSourceActionType()
-                        .equals(NotificationService.ACTION_SOUND))
+        else if(event.getActionHandler().getActionType()
+                        .equals(NotificationAction.ACTION_SOUND))
         {
-            entry.setSoundFile(((SoundNotificationHandler)event
+            entry.setSoundFile(((SoundNotificationAction)event
                     .getActionHandler()).getDescriptor());
         }
 
@@ -638,20 +631,20 @@ public class NotificationsTable
 
         if(entry == null)
         {
-            PopupMessageNotificationHandler popupHandler
-                = (PopupMessageNotificationHandler) notificationService
-                    .getEventNotificationActionHandler(
-                        eventName, NotificationService.ACTION_POPUP_MESSAGE);
+            PopupMessageNotificationAction popupHandler
+                = (PopupMessageNotificationAction) notificationService
+                    .getEventNotificationAction(
+                        eventName, NotificationAction.ACTION_POPUP_MESSAGE);
 
-            CommandNotificationHandler programHandler
-                = (CommandNotificationHandler) notificationService
-                    .getEventNotificationActionHandler(
-                        eventName, NotificationService.ACTION_COMMAND);
+            CommandNotificationAction programHandler
+                = (CommandNotificationAction) notificationService
+                    .getEventNotificationAction(
+                        eventName, NotificationAction.ACTION_COMMAND);
 
-            SoundNotificationHandler soundHandler
-                = (SoundNotificationHandler) notificationService
-                    .getEventNotificationActionHandler(
-                        eventName, NotificationService.ACTION_SOUND);
+            SoundNotificationAction soundHandler
+                = (SoundNotificationAction) notificationService
+                    .getEventNotificationAction(
+                        eventName, NotificationAction.ACTION_SOUND);
 
             entry = new NotificationEntry(
                 notificationService.isActive(event.getSourceEventType()),

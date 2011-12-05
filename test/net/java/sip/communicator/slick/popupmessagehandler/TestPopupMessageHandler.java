@@ -127,7 +127,7 @@ public class TestPopupMessageHandler
             = (NotificationService) bc.getService(serviceReference);
 
         notificationService.fireNotification(
-                NotificationService.ACTION_POPUP_MESSAGE,
+                NotificationAction.ACTION_POPUP_MESSAGE,
                 messageStart,
                 messageStart,
                 null,

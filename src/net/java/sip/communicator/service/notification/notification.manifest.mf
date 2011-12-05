@@ -1,0 +1,11 @@
+Bundle-Activator: net.java.sip.communicator.service.notification.NotificationServiceActivator
+Bundle-Name: Notifications
+Bundle-Description: An implementation of the Notification service.
+Bundle-Vendor: sip-communicator.org
+Bundle-Version: 0.0.1
+System-Bundle: yes
+Export-Package: net.java.sip.communicator.service.notification,
+ net.java.sip.communicator.service.notification.event
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.configuration

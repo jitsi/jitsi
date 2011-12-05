@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.service.notification;
 
-import java.util.*;
-
 /**
  * This service is previewed for use by bundles that implement some kind of
  * user notification (e.g. playing sounds, poping systray tooltips, or
@@ -23,237 +21,78 @@ import java.util.*;
 public interface NotificationService
 {
     /**
-     * The log message action type indicates that a message would be logged,
-     * when a notification is fired.
-     */
-    public static final String ACTION_LOG_MESSAGE = "LogMessageAction";
-    
-    /**
-     * The popup message action type indicates that a window (or a systray
-     * popup), containing the corresponding notification message would be poped
-     * up, when a notification is fired.
-     */
-    public static final String ACTION_POPUP_MESSAGE = "PopupMessageAction";
-    
-    /**
-     * The sound action type indicates that a sound would be played, when a
-     * notification is fired.
-     */
-    public static final String ACTION_SOUND = "SoundAction";
-    
-    /**
-     * The command action type indicates that a command would be executed,
-     * when a notification is fired.
-     */
-    public static final String ACTION_COMMAND = "CommandAction";
-
-    /**
-     * Default event type for receiving messages.
-     */
-    public static final String INCOMING_MESSAGE = "IncomingMessage";
-
-    /**
-     * Default event type for receiving calls (incoming calls).
-     */
-    public static final String INCOMING_CALL = "IncomingCall";
-
-    /**
-     * Default event type for outgoing calls.
-     */
-    public static final String OUTGOING_CALL = "OutgoingCall";
-
-    /**
-     * Default event type for a busy call.
-     */
-    public static final String BUSY_CALL = "BusyCall";
-
-    /**
-     * Default event type for dialing.
-     */
-    public static final String DIALING = "Dialing";
-
-    /**
-     * Default event type for hanging up calls.
-     */
-    public static final String HANG_UP = "HangUp";
-
-    /**
-     * Default event type for
-     * proactive notifications (typing notifications when chatting).
-     */
-    public static final String PROACTIVE_NOTIFICATION = "ProactiveNotification";
-
-    /**
-     * Default event type when a secure message received.
-     */
-    public static final String SECURITY_MESSAGE = "SecurityMessage";
-
-    /**
-     * Default event type for activated security on a call.
-     */
-    public static final String CALL_SECURITY_ON = "CallSecurityOn";
-
-    /**
-     * Default event type for security error on a call.
-     */
-    public static final String CALL_SECURITY_ERROR = "CallSecurityError";
-
-    /**
-     * Default event type for incoming file transfers.
-     */
-    public static final String INCOMING_FILE = "IncomingFile";
-
-    /**
-     * Default event type for call been saved using a recorder.
-     */
-    public static final String CALL_SAVED = "CallSaved";
-    
-    /**
-     * Creates a <tt>SoundNotificationHandler</tt>, by specifying the
-     * path pointing to the sound file and the loop interval if the sound should
-     * be played in loop. If the sound should be played just once the loop
-     * interval should be set to -1. The <tt>SoundNotificationHandler</tt> is
-     * the one that would take care of playing the sound, when a notification
-     * is fired.
+     * Registers a notification for the given <tt>eventType</tt> by specifying
+     * the action to be performed when a notification is fired for this event.
      * 
-     * @param soundFileDescriptor the path pointing to the sound file
-     * @param loopInterval the interval of milliseconds to repeat the sound in
-     * loop  
-     * @return the <tt>SoundNotificationHandler</tt> is the one, that would take
-     * care of playing the given sound, when a notification is fired
-     */
-    public SoundNotificationHandler createSoundNotificationHandler(
-                                                    String soundFileDescriptor,
-                                                    int loopInterval);
-    
-    /**
-     * Creates a <tt>PopupMessageNotificationHandler</tt>, by specifying the
-     * default message to show, when no message is provided to the
-     * <tt>fireNotification</tt> method. The
-     * <tt>PopupMessageNotificationHandler</tt> is the one that would take care
-     * of showing a popup message (through the systray service for example),
-     * when a notification is fired.
+     * Unlike the other <tt>registerNotificationForEvent</tt>
+     * method, this one allows the user to specify its own
+     * <tt>NotificationAction</tt>, which would be used to handle notifications
+     * for the specified <tt>actionType</tt>.
      * 
-     * @param defaultMessage the message to show if not message is provided to
-     * the <tt>fireNotification</tt> method
-     * @return the <tt>PopupMessageNotificationHandler</tt> is the one, that
-     * would take care of showing a popup message (through the systray service
-     * for example), when a notification is fired.
+     * @param eventType the name of the event (as defined by the plug-in that's
+     * registering it) that we are setting an action for.
+     * @param action the <tt>NotificationAction</tt>, which would be
+     * used to perform the notification action.
      */
-    public PopupMessageNotificationHandler createPopupMessageNotificationHandler(
+    public void registerNotificationForEvent(String eventType,
+                                             NotificationAction action);
+
+    /**
+     * Registers a default notification for the given <tt>eventType</tt> by
+     * specifying the action to be performed when a notification is fired for
+     * this event.
+     * 
+     * Unlike the other <tt>registerDefaultNotificationForEvent</tt> method,
+     * this one allows the user to specify its own <tt>NotificationAction</tt>,
+     * which would be used to handle notifications.
+     * 
+     * Default events are stored or executed at first run or when they are
+     * missing in the configuration. Also the registered default events are used
+     * when restoreDefaults is called.
+     * 
+     * @param eventType the name of the event (as defined by the plug-in that's
+     *            registering it) that we are setting an action for.
+     * @param handler the <tt>NotificationActionHandler</tt>, which would be
+     *            used to perform the notification action.
+     */
+    public void registerDefaultNotificationForEvent(String eventType,
+                                                    NotificationAction handler);
+
+    /**
+     * Registers a default notification for the given <tt>eventType</tt> by
+     * specifying the type of the action to be performed when a notification is
+     * fired for this event, the <tt>actionDescriptor</tt> for sound and command
+     * actions and the <tt>defaultMessage</tt> for popup and log actions.
+     * 
+     * Actions registered by this method would be handled by some default
+     * <tt>NotificationHandler</tt>s, declared by the implementation.
+     * <p>
+     * The method allows registering more than one actionType for a specific
+     * event. Setting the same <tt>actionType</tt> for the same
+     * <tt>eventType</tt> twice however would cause the first setting to be
+     * overridden.
+     * 
+     * Default events are stored or executed at first run or when
+     * they are missing in the configuration. Also the registered default events
+     * are used when restoreDefaults is called.
+     * 
+     * @param eventType the name of the event (as defined by the plug-in that's
+     *            registering it) that we are setting an action for.
+     * @param actionType the type of the action that is to be executed when the
+     *            specified event occurs (could be one of the ACTION_XXX
+     *            fields).
+     * @param actionDescriptor a String containing a description of the action
+     *            (a URI to the sound file for audio notifications or a command
+     *            line for exec action types) that should be executed when the
+     *            action occurs.
+     * @param defaultMessage the default message to use if no specific message
+     *            has been provided when firing the notification.
+     */
+    public void registerDefaultNotificationForEvent(String eventType,
+                                                    String actionType,
+                                                    String actionDescriptor,
                                                     String defaultMessage);
-    
-    /**
-     * Creates a <tt>LogMessageNotificationHandler</tt>, by specifying the
-     * type of the log (error, trace, info, etc.). The
-     * <tt>LogMessageNotificationHandler</tt> is the one that would take care
-     * of logging a message (through the application log system), when a
-     * notification is fired.
-     * 
-     * @param logType the type of the log (error, trace, etc.). One of the types
-     * defined in the <tt>LogMessageNotificationHandler</tt> interface
-     * @return the <tt>LogMessageNotificationHandler</tt> is the one, that would
-     * take care of logging a message (through the application log system), when
-     * a notification is fired.
-     */
-    public LogMessageNotificationHandler createLogMessageNotificationHandler(
-                                                    String logType);
-    
-    /**
-     * Creates a <tt>CommandNotificationHandler</tt>, by specifying the path to
-     * the command file to execute, when a notification is fired. The
-     * <tt>CommandNotificationHandler</tt> is the one that would take care
-     * of executing the given program, when a notification is fired.
-     * 
-     * @param commandFileDescriptor the path to the file containing the program
-     * to execute
-     * @return the <tt>CommandNotificationHandler</tt> is the one, that would
-     * take care of executing a program, when a notification is fired.
-     */
-    public CommandNotificationHandler createCommandNotificationHandler(
-                                        String commandFileDescriptor);
-    
-    /**
-     * Registers a notification for the given <tt>eventType</tt> by specifying
-     * the type of the action to be performed when a notification is fired for
-     * this event and the corresponding <tt>handler</tt> that should be used to
-     * handle the action. Unlike the other <tt>registerNotificationForEvent</tt>
-     * method, this one allows the user to specify its own
-     * <tt>NotificationHandler</tt>, which would be used to handle notifications
-     * for the specified <tt>actionType</tt>.
-     * 
-     * @param eventType the name of the event (as defined by the plug-in that's
-     * registering it) that we are setting an action for.
-     * @param actionType the type of the action that is to be executed when the
-     * specified event occurs (could be one of the ACTION_XXX fields).
-     * @param handler the <tt>NotificationActionHandler</tt>, which would be
-     * used to perform the notification action.
-     * @throws IllegalArgumentException if the specified <tt>handler</tt> do not
-     * correspond to the given <tt>actionType</tt>.
-     */
-    public void registerNotificationForEvent(   String eventType,
-                                                String actionType,
-                                                NotificationActionHandler handler)
-        throws IllegalArgumentException;
-    
-    /**
-     * Registers a Default notification for the given <tt>eventType</tt> by specifying
-     * the type of the action to be performed when a notification is fired for
-     * this event and the corresponding <tt>handler</tt> that should be used to
-     * handle the action. Unlike the other 
-     * <tt>registerDefaultNotificationForEvent</tt>
-     * method, this one allows the user to specify its own
-     * <tt>NotificationHandler</tt>, which would be used to handle notifications
-     * for the specified <tt>actionType</tt>.
-     * Default events are stored or executed at first run or when they are 
-     * missing in the configuration. Also the registered default events 
-     * are used when restoreDefaults is called.
-     * 
-     * @param eventType the name of the event (as defined by the plug-in that's
-     * registering it) that we are setting an action for.
-     * @param actionType the type of the action that is to be executed when the
-     * specified event occurs (could be one of the ACTION_XXX fields).
-     * @param handler the <tt>NotificationActionHandler</tt>, which would be
-     * used to perform the notification action.
-     * @throws IllegalArgumentException if the specified <tt>handler</tt> do not
-     * correspond to the given <tt>actionType</tt>.
-     */
-    public void registerDefaultNotificationForEvent(   String eventType,
-                                                String actionType,
-                                                NotificationActionHandler handler)
-        throws IllegalArgumentException;
-    
-    /**
-     * Registers a default notification for the given <tt>eventType</tt> by specifying
-     * the type of the action to be performed when a notification is fired for
-     * this event, the <tt>actionDescriptor</tt> for sound and command actions
-     * and the <tt>defaultMessage</tt> for popup and log actions. Actions
-     * registered by this method would be handled by some default
-     * <tt>NotificationHandler</tt>s, declared by the implementation.
-     * <p>
-     * The method allows registering more than one actionType for a specific
-     * event. Setting twice the same <tt>actionType</tt> for the same
-     * <tt>eventType</tt>  however would cause the first setting to be
-     * overridden.
-     * Default events are stored or executed at first run or when they are 
-     * missing in the configuration. Also the registered default events 
-     * are used when restoreDefaults is called.
-     *
-     * @param eventType the name of the event (as defined by the plug-in that's
-     * registering it) that we are setting an action for.
-     * @param actionType the type of the action that is to be executed when the
-     * specified event occurs (could be one of the ACTION_XXX fields).
-     * @param actionDescriptor a String containing a description of the action
-     * (a URI to the sound file for audio notifications or a command line for
-     * exec action types) that should be executed when the action occurs.
-     * @param defaultMessage the default message to use if no specific message
-     * has been provided when firing the notification.
-     */
-    public void registerDefaultNotificationForEvent(   String eventType,
-                                                String actionType,
-                                                String actionDescriptor,
-                                                String defaultMessage);
-    
+
     /**
      * Registers a notification for the given <tt>eventType</tt> by specifying
      * the type of the action to be performed when a notification is fired for
@@ -263,44 +102,46 @@ public interface NotificationService
      * <tt>NotificationHandler</tt>s, declared by the implementation.
      * <p>
      * The method allows registering more than one actionType for a specific
-     * event. Setting twice the same <tt>actionType</tt> for the same
-     * <tt>eventType</tt>  however would cause the first setting to be
+     * event. Setting the same <tt>actionType</tt> for the same
+     * <tt>eventType</tt> twice however would cause the first setting to be
      * overridden.
-     *
+     * 
      * @param eventType the name of the event (as defined by the plug-in that's
-     * registering it) that we are setting an action for.
+     *            registering it) that we are setting an action for.
      * @param actionType the type of the action that is to be executed when the
-     * specified event occurs (could be one of the ACTION_XXX fields).
+     *            specified event occurs (could be one of the ACTION_XXX
+     *            fields).
      * @param actionDescriptor a String containing a description of the action
-     * (a URI to the sound file for audio notifications or a command line for
-     * exec action types) that should be executed when the action occurs.
+     *            (a URI to the sound file for audio notifications or a command
+     *            line for exec action types) that should be executed when the
+     *            action occurs.
      * @param defaultMessage the default message to use if no specific message
-     * has been provided when firing the notification.
+     *            has been provided when firing the notification.
      */
     public void registerNotificationForEvent(   String eventType,
                                                 String actionType,
                                                 String actionDescriptor,
                                                 String defaultMessage);
-    
+
     /**
      * Deletes all registered events and actions 
      * and registers and saves the default events as current.
      */
     public void restoreDefaults();
-    
+
     /**
-     * Removes the given <tt>eventType</tt> from the list of event notifications.
-     * This means that we delete here all registered notifications for the given
-     * <tt>eventType</tt>.
+     * Removes the given <tt>eventType</tt> from the list of event
+     * notifications. This means that we delete here all registered
+     * notifications for the given <tt>eventType</tt>.
      * <p>
      * This method does nothing if the given <tt>eventType</tt> is not contained
      * in the list of registered event types.
-     *  
+     * 
      * @param eventType the name of the event (as defined by the plugin that's
-     * registering it) to be removed.
+     *            registering it) to be removed.
      */
     public void removeEventNotification(String eventType);
-    
+
     /**
      * Removes the event notification corresponding to the specified
      * <tt>actionType</tt> and <tt>eventType</tt>.
@@ -309,57 +150,40 @@ public interface NotificationService
      * <tt>actionType</tt> are not contained in the list of registered types.
      * 
      * @param eventType the name of the event (as defined by the plugin that's
-     * registering it) for which we'll remove the notification.
+     *            registering it) for which we'll remove the notification.
      * @param actionType the type of the action that is to be executed when the
-     * specified event occurs (could be one of the ACTION_XXX fields).
+     *            specified event occurs (could be one of the ACTION_XXX
+     *            fields).
      */
     public void removeEventNotificationAction(  String eventType,
                                                 String actionType);
 
     /**
      * Returns an iterator over a list of all events registered in this
-     * notification service. Each line in the returned list consists of
-     * a String, representing the name of the event (as defined by the plugin
-     * that registered it).
-     *   
-     * @return an iterator over a list of all events registered in this
-     * notifications service
-     */
-    public Iterator<String> getRegisteredEvents();
-    
-    /**
-     * Returns a Map containing all action types (as keys) and actionDescriptors
-     * (as values) that have been registered for <tt>eventType</tt>.
-     * <p>
-     * This method returns <b>null</b> if the given <tt>eventType</tt> is not
-     * contained in the list of registered event types.
+     * notification service. Each line in the returned list consists of a
+     * String, representing the name of the event (as defined by the plugin that
+     * registered it).
      * 
-     * @param eventType the name of the event that we'd like to retrieve actions
-     * for.
-     * @return a <tt>Map</tt> containing the <tt>actionType</tt>s (as keys) and
-     * <tt>actionHandler</tt>s (as values) that should be executed when
-     * an event with the specified name has occurred, or null if no actions
-     * have been defined for <tt>eventType</tt>.
+     * @return an iterator over a list of all events registered in this
+     *         notifications service
      */
-    public Map<String, NotificationActionHandler> getEventNotifications(
-        String eventType);
+    public Iterable<String> getRegisteredEvents();
 
     /**
-     * Returns the <tt>NotificationActionHandler</tt> corresponding to the given
-     * event and action types.
+     * Returns the <tt>NotificationAction</tt> corresponding to the given event
+     * and action type.
      * <p>
      * This method returns <b>null</b> if the given <tt>eventType</tt> or
      * <tt>actionType</tt> are not contained in the list of registered types.
-     *
+     * 
      * @param eventType the type of the event that we'd like to retrieve.
      * @param actionType the type of the action that we'd like to retrieve a
-     * descriptor for.
-     * @return the <tt>NotificationActionHandler</tt> corresponding to the given
-     * event and action types
+     *            descriptor for.
+     * @return the <tt>NotificationAction</tt> corresponding to the given event
+     *         and action type
      */
-    public NotificationActionHandler getEventNotificationActionHandler(
-                                                        String eventType,
-                                                        String actionType);
+    public NotificationAction getEventNotificationAction(String eventType,
+                                                         String actionType);
 
     /**
      * Registers a listener that would be notified of changes that have occurred
@@ -380,6 +204,26 @@ public interface NotificationService
      */
     public void removeNotificationChangeListener(
         NotificationChangeListener listener);
+
+    /**
+     * Adds an object that executes the actual action of a notification action.
+     * @param handler The handler that executes the action.
+     */
+    public void addActionHandler(NotificationHandler handler);
+
+    /**
+     * Removes an object that executes the actual action of notification action.
+     * @param actionType The handler type to remove.
+     */
+    public void removeActionHandler(String actionType);
+
+    /**
+     * Gets at list of handler for the specified action type.
+     * 
+     * @param actionType the type for which the list of handlers should be
+     *            retrieved or <tt>null</tt> if all handlers shall be returned.
+     */
+    public Iterable<NotificationHandler> getActionHandlers(String actionType);
 
     /**
      * Fires all notifications registered for the specified <tt>eventType</tt>

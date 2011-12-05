@@ -915,8 +915,9 @@
         bundle-sparkle, bundle-plugin-branding,
         bundle-systemactivitynotifications,
         bundle-osdependent,bundle-browserlauncher,
-        bundle-pluginmanager,bundle-skinmanager,bundle-notification,
-        bundle-notification-config,bundle-contacteventhandler,
+        bundle-pluginmanager,bundle-skinmanager,
+        bundle-notification-service,bundle-notification-handlers,bundle-notification-config,
+        bundle-contacteventhandler,
         bundle-plugin-contactinfo,bundle-plugin-chatalerter, bundle-keybindings,
         bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
         bundle-jfontchooserlib,bundle-update,bundle-plugin-update,
@@ -2050,12 +2051,19 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-NOTIFICATION -->
-    <target name="bundle-notification">
+    <target name="bundle-notification-service">
         <!-- Creates a bundle for the notifications.-->
-        <jar compress="false" destfile="${bundles.dest}/notification.jar"
-            manifest="${src}/net/java/sip/communicator/impl/notification/notification.manifest.mf">
+        <jar compress="false" destfile="${bundles.dest}/notification-service.jar"
+            manifest="${src}/net/java/sip/communicator/service/notification/notification.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/notification"
                 prefix="net/java/sip/communicator/service/notification"/>
+        </jar>
+    </target>
+
+    <target name="bundle-notification-handlers">
+        <!-- Creates a bundle for the notifications.-->
+        <jar compress="false" destfile="${bundles.dest}/notification-handlers.jar"
+            manifest="${src}/net/java/sip/communicator/impl/notification/notification.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/notification"
                 prefix="net/java/sip/communicator/impl/notification"/>
         </jar>

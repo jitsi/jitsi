@@ -115,7 +115,7 @@ public class LoggingConfigForm
             LoggingUtilsActivator.getNotificationService()
                 .registerDefaultNotificationForEvent(
                     LOGFILES_ARCHIVED,
-                    NotificationService.ACTION_POPUP_MESSAGE,
+                    NotificationAction.ACTION_POPUP_MESSAGE,
                     null,
                     null);
     }

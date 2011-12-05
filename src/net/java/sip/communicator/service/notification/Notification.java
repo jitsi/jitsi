@@ -4,18 +4,16 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.notification;
+package net.java.sip.communicator.service.notification;
 
 import java.util.*;
-
-import net.java.sip.communicator.service.notification.*;
 
 /**
  * Represents an event notification.
  * 
  * @author Yana Stamcheva
  */
-public class EventNotification
+public class Notification
 {
     /**
      * Indicates if this event notification is currently active. By default all
@@ -27,8 +25,8 @@ public class EventNotification
      * Contains all actions which will be executed when this event notification
      * is fired.
      */
-    private final Hashtable<String, Action> actionsTable
-        = new Hashtable<String, Action>();
+    private final Hashtable<String, NotificationAction> actionsTable
+        = new Hashtable<String, NotificationAction>();
 
     /**
      * Creates an instance of <tt>EventNotification</tt> by specifying the
@@ -36,26 +34,22 @@ public class EventNotification
      * 
      * @param eventType the name of the event
      */
-    public EventNotification(String eventType)
+    public Notification(String eventType)
     {
     }
 
     /**
      * Adds the given <tt>actionType</tt> to the list of actions for this event
      * notifications.
-     *  
-     * @param actionType one of NotificationService.ACTION_XXX constants
-     * @param actionHandler the the handler that will process the given action
+     * @param action the the handler that will process the given action
      * type.
+     *  
      * @return the previous value of the actionHandler for the given actionType,
      * if one existed, NULL if the actionType is a new one  
      */
-    public Object addAction(String actionType,
-                            NotificationActionHandler actionHandler)
+    public Object addAction(NotificationAction action)
     {
-        Action action = new Action(actionType, actionHandler);
-        
-        return actionsTable.put(actionType, action);
+        return actionsTable.put(action.getActionType(), action);
     }
 
     /**
@@ -73,7 +67,7 @@ public class EventNotification
      * 
      * @return the set of actions registered for this event notification
      */
-    public Map<String, Action> getActions()
+    public Map<String, NotificationAction> getActions()
     {   
         return actionsTable;
     }
@@ -87,55 +81,9 @@ public class EventNotification
      * @return the <tt>Action</tt> corresponding to the given
      * <tt>actionType</tt>
      */
-    public Action getAction(String actionType)
+    public NotificationAction getAction(String actionType)
     {
         return actionsTable.get(actionType);
-    }
-
-    /**
-     * The representation of an action, containing the corresponding
-     * action type, action descriptor and the default message associated with
-     * the action.
-     */
-    public static class Action
-    {
-        private final String actionType;
-        private final NotificationActionHandler actionHandler;
-
-        /**
-         * Creates an instance of <tt>Action</tt> by specifying the type of the
-         * action, the descriptor and the default message.
-         * 
-         * @param actionType one of NotificationService.ACTION_XXX constants
-         * @param actionHandler the handler that will process the given action
-         * type
-         */
-        Action( String actionType,
-                NotificationActionHandler actionHandler)
-        {
-            this.actionType = actionType;
-            this.actionHandler = actionHandler;
-        }
-
-        /**
-         * Returns the the handler that will process the given action
-         * type.
-         * @return the the handler that will process the given action
-         * type.
-         */
-        public NotificationActionHandler getActionHandler()
-        {
-            return actionHandler;
-        }
-
-        /**
-         * Return the action type name.
-         * @return the action type name.
-         */
-        public String getActionType()
-        {
-            return actionType;
-        }
     }
 
     /**

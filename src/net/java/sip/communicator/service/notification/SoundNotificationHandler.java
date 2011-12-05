@@ -14,30 +14,15 @@ package net.java.sip.communicator.service.notification;
  * @author Yana Stamcheva
  */
 public interface SoundNotificationHandler
-    extends NotificationActionHandler
+    extends NotificationHandler
 {
-    /**
-     * Returns the loop interval. This is the interval of milliseconds to wait
-     * before repeating the sound, when playing a sound in loop. If this method
-     * returns -1 the sound should not played in loop.
-     * 
-     * @return the loop interval 
-     */
-    public int getLoopInterval();
-    
-    /**
-     * Returns the descriptor pointing to the sound to be played.
-     * 
-     * @return the descriptor pointing to the sound to be played.
-     */
-    public String getDescriptor();
-    
     /**
      * Start playing the sound pointed by <tt>getDescriotor</tt>. This
      * method should check the loopInterval value to distinguish whether to play
      * a simple sound or to play it in loop.
+     * @param action the action to act upon
      */
-    public void start();
+    public void start(SoundNotificationAction action);
     
     /**
      * Stops playing the sound pointing by <tt>getDescriptor</tt>. This method

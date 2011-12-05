@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.notification;
 
 import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.notification.*;
@@ -29,73 +28,65 @@ public class NotificationActivator
     private final Logger logger = Logger.getLogger(NotificationActivator.class);
 
     protected static BundleContext bundleContext;
-    
-    private static ConfigurationService configService;
-    
+
     private static AudioNotifierService audioNotifierService;
-    
     private static SystrayService systrayService;
-
     private static NotificationService notificationService;
-
     private static ResourceManagementService resourcesService;
-
     private static UIService uiService = null;
-
     private static MediaService mediaService;
-    
+
+    private CommandNotificationHandler commandHandler;
+    private LogMessageNotificationHandler logMessageHandler;
+    private PopupMessageNotificationHandler popupMessageHandler;
+    private SoundNotificationHandler soundHandler;
+
     public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
+        try
+        {
+            logger.logEntry();
+            logger.info("Notification handler Service...[  STARTED ]");
 
-        try {
-            // Create the notification service implementation
-            notificationService = new NotificationServiceImpl();
 
-            if (logger.isInfoEnabled())
-                logger.info("Notification Service...[  STARTED ]");
+            // Get the notification service implementation
+            ServiceReference notifReference = bundleContext
+                .getServiceReference(NotificationService.class.getName());
 
-            bundleContext.registerService(NotificationService.class.getName(),
-                notificationService, null);
+            notificationService = (NotificationService) bundleContext
+                .getService(notifReference);
+
+            commandHandler = new CommandNotificationHandlerImpl();
+            logMessageHandler = new LogMessageNotificationHandlerImpl();
+            popupMessageHandler = new PopupMessageNotificationHandlerImpl();
+            soundHandler = new SoundNotificationHandlerImpl();
+
+            notificationService.addActionHandler(commandHandler);
+            notificationService.addActionHandler(logMessageHandler);
+            notificationService.addActionHandler(popupMessageHandler);
+            notificationService.addActionHandler(soundHandler);
 
             new NotificationManager().init();
 
-            if (logger.isInfoEnabled())
-                logger.info("Notification Service ...[REGISTERED]");
-            
-            logger.logEntry();
+            logger.info("Notification handler Service ...[REGISTERED]");
         }
-        finally {
+        finally
+        {
             logger.logExit();
         }
     }
 
     public void stop(BundleContext bc) throws Exception
     {
-        if (logger.isInfoEnabled())
-            logger.info("UI Service ...[STOPPED]");
+        notificationService.removeActionHandler(commandHandler.getActionType());
+        notificationService.removeActionHandler(logMessageHandler.getActionType());
+        notificationService.removeActionHandler(popupMessageHandler.getActionType());
+        notificationService.removeActionHandler(soundHandler.getActionType());
+
+        logger.info("Notification handler Service ...[STOPPED]");
     }
 
-    /**
-     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>ConfigurationService</tt> obtained from the bundle
-     * context
-     */
-    public static ConfigurationService getConfigurationService()
-    {
-        if(configService == null)
-        {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
-        }
-
-        return configService;
-    }
-    
     /**
      * Returns the <tt>AudioNotifierService</tt> obtained from the bundle
      * context.
@@ -118,7 +109,7 @@ public class NotificationActivator
 
         return audioNotifierService;
     }
-    
+
     /**
      * Returns the <tt>SystrayService</tt> obtained from the bundle context.
      * 

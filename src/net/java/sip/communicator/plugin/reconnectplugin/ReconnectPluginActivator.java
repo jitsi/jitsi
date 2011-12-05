@@ -299,7 +299,7 @@ public class ReconnectPluginActivator
 
             notificationService.registerDefaultNotificationForEvent(
                 NETWORK_NOTIFICATIONS,
-                NotificationService.ACTION_POPUP_MESSAGE,
+                NotificationAction.ACTION_POPUP_MESSAGE,
                 null,
                 null);
         }

@@ -326,7 +326,7 @@ public class NotificationConfigurationPanel
             NotificationConfigurationActivator.getNotificationService()
                     .registerNotificationForEvent(
                             entry.getEvent(),
-                            NotificationService.ACTION_COMMAND,
+                            NotificationAction.ACTION_COMMAND,
                             entry.getProgramFile(),
                             ""
                     );
@@ -338,7 +338,7 @@ public class NotificationConfigurationPanel
             NotificationConfigurationActivator.getNotificationService()
                     .registerNotificationForEvent(
                             entry.getEvent(),
-                            NotificationService.ACTION_SOUND,
+                            NotificationAction.ACTION_SOUND,
                             entry.getSoundFile(),
                             ""
                     );
@@ -366,7 +366,7 @@ public class NotificationConfigurationPanel
             NotificationConfigurationActivator.getNotificationService()
                     .registerNotificationForEvent(
                             entry.getEvent(),
-                            NotificationService.ACTION_COMMAND,
+                            NotificationAction.ACTION_COMMAND,
                             entry.getProgramFile(),
                             ""
                     );
@@ -378,7 +378,7 @@ public class NotificationConfigurationPanel
             NotificationConfigurationActivator.getNotificationService()
                     .registerNotificationForEvent(
                             entry.getEvent(),
-                            NotificationService.ACTION_SOUND,
+                            NotificationAction.ACTION_SOUND,
                             entry.getSoundFile(),
                             ""
                     );

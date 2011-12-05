@@ -13,17 +13,11 @@ package net.java.sip.communicator.service.notification;
  * @author Yana Stamcheva
  */
 public interface CommandNotificationHandler
-    extends NotificationActionHandler
+    extends NotificationHandler
 {
     /**
-     * Executes the program pointed by the descriptor. 
+     * Executes the program pointed by the descriptor.
+     * @param action the action to act upon
      */
-    public void execute();
-    
-    /**
-     * Returns the descriptor pointing to the command to be executed.
-     * 
-     * @return the descriptor pointing to the command to be executed.
-     */
-    public String getDescriptor();
+    public void execute(CommandNotificationAction action);
 }
