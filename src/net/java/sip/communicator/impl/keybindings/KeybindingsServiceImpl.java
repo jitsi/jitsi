@@ -230,10 +230,11 @@ class KeybindingsServiceImpl
                 new KeybindingSetImpl(merged, category, customFile);
             this.bindings.put(category, newSet);
             newSet.addObserver(this);
-
-            globalBindings = new GlobalKeybindingSetImpl();
-            globalBindings.setBindings(getGlobalShortcutFromConfiguration());
         }
+
+        // global shortcut initialization
+        globalBindings = new GlobalKeybindingSetImpl();
+        globalBindings.setBindings(getGlobalShortcutFromConfiguration());
 
         this.isRunning = true;
     }
@@ -330,6 +331,48 @@ class KeybindingsServiceImpl
         String propName2 = null;
         String names[] = new String[]{"answer", "hangup", "contactlist",
             "mute"};
+        Object configured = configService.getProperty(
+            "net.java.sip.communicator.impl.keybinding.global.configured");
+
+        if(configured == null)
+        {
+            // default keystrokes
+            for(String name : names)
+            {
+                List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
+
+                if(name.equals("answer"))
+                {
+                    kss.add(AWTKeyStroke.getAWTKeyStroke(
+                        "shift ctrl pressed A"));
+                }
+                else if(name.equals("hangup"))
+                {
+                    kss.add(AWTKeyStroke.getAWTKeyStroke(
+                    "shift ctrl pressed H"));
+                }
+                else if(name.equals("contactlist"))
+                {
+                    kss.add(AWTKeyStroke.getAWTKeyStroke(
+                    "shift ctrl pressed L"));
+                }
+                else if(name.equals("mute"))
+                {
+                    kss.add(AWTKeyStroke.getAWTKeyStroke(
+                    "shift ctrl pressed M"));
+                }
+                else
+                    continue;
+
+                gBindings.put(name, kss);
+            }
+
+            configService.setProperty(
+                "net.java.sip.communicator.impl.keybinding.global.configured",
+                "true");
+
+            return gBindings;
+        }
 
         for(String name : names)
         {
