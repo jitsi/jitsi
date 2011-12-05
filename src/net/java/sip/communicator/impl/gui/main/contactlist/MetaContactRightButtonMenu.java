@@ -685,7 +685,7 @@ public class MetaContactRightButtonMenu
                     OperationSetVideoTelephony.class);
 
             CallManager.createVideoCall(
-                contact.getProtocolProvider(), contact.getAddress());
+                contact.getProtocolProvider(), contact);
         }
         else if (itemName.equals("shareFullScreen"))
         {

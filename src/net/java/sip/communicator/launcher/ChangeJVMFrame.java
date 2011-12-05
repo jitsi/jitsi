@@ -14,12 +14,17 @@ import javax.swing.event.*;
 /**
  * The <tt>ChangeJVMFrame</tt> will ask the user to install the newest java
  * version if she's using an old and incompatible one.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ChangeJVMFrame
     extends JFrame
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The MacOSX operating system.
      */
@@ -54,6 +59,12 @@ public class ChangeJVMFrame
 
     private JPanel mainPanel = new JPanel(new BorderLayout());
 
+    /**
+     * Initializes new frame that will ask the user to install the newest java
+     * version if she's using an old and incompatible one.
+     *
+     * @param osName OS name
+     */
     public ChangeJVMFrame(String osName)
     {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

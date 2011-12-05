@@ -238,13 +238,25 @@ public class CallManager
     }
 
     /**
-     * Creates a call to the contact represented by the given string.
+     * Creates a video call to the contact represented by the given string.
      *
      * @param protocolProvider the protocol provider to which this call belongs.
      * @param contact the contact to call to
      */
-    public static void createVideoCall( ProtocolProviderService protocolProvider,
+    public static void createVideoCall(ProtocolProviderService protocolProvider,
                                         String contact)
+    {
+        new CreateVideoCallThread(protocolProvider, contact).start();
+    }
+
+    /**
+     * Creates a video call to the contact represented by the given string.
+     *
+     * @param protocolProvider the protocol provider to which this call belongs.
+     * @param contact the contact to call to
+     */
+    public static void createVideoCall(ProtocolProviderService protocolProvider,
+                                        Contact contact)
     {
         new CreateVideoCallThread(protocolProvider, contact).start();
     }
