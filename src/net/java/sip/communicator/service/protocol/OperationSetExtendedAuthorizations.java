@@ -17,6 +17,21 @@ public interface OperationSetExtendedAuthorizations
     extends OperationSet
 {
     /**
+     * The available subscription of the contact.
+     * NotSubscribed - when we are not subscribed for
+     *      the contacts presence statuses.
+     * Subscribed - we are subscribed for the contact statuses.
+     * SubscriptionPending - we have subscribed for
+     *      contact statuses, but haven't received authorization yet.
+     */
+    public enum SubscriptionStatus
+    {
+        NotSubscribed,
+        Subscribed,
+        SubscriptionPending
+    }
+
+    /**
      * Send a positive authorization to <tt>contact</tt> thus allowing them to
      * add us to their contact list without needing to first request an
      * authorization.
@@ -41,4 +56,13 @@ public interface OperationSetExtendedAuthorizations
     public void reRequestAuthorization(AuthorizationRequest request,
                                        Contact contact)
         throws OperationFailedException;
+
+    /**
+     * Returns the subscription status for the <tt>contact</tt> or
+     * if not available returns null.
+     * @param contact the contact to query for subscription status.
+     * @return the subscription status for the <tt>contact</tt> or
+     *         if not available returns null.
+     */
+    public SubscriptionStatus getSubscriptionStatus(Contact contact);
 }

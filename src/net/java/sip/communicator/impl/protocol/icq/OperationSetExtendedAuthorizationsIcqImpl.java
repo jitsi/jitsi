@@ -101,4 +101,28 @@ public class OperationSetExtendedAuthorizationsIcqImpl
                 "The icq provider must be signed on the ICQ service before "
                 +"being able to communicate.");
     }
+
+    /**
+     * Returns the subscription status for the <tt>contact</tt> or
+     * if not available returns null.
+     * @param contact the contact to query for subscription status.
+     * @return the subscription status for the <tt>contact</tt> or
+     *         if not available returns null.
+     */
+    public SubscriptionStatus getSubscriptionStatus(Contact contact)
+    {
+        if(contact == null || ! (contact instanceof ContactIcqImpl) )
+            throw new IllegalArgumentException(
+                "Argument is not an icq contact (contact=" + contact + ")");
+
+        if(((ContactIcqImpl)contact).getJoustSimBuddy()
+            .isAwaitingAuthorization())
+        {
+            return SubscriptionStatus.SubscriptionPending;
+        }
+        else
+        {
+            return SubscriptionStatus.Subscribed;
+        }
+    }
 }
