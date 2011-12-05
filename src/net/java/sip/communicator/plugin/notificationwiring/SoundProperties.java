@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.notification;
+package net.java.sip.communicator.plugin.notificationwiring;
 
 import net.java.sip.communicator.service.resources.*;
 
@@ -72,7 +72,7 @@ public final class SoundProperties
          * because it will be accessing a field, not a local variable).
          */
         ResourceManagementService resources =
-            NotificationActivator.getResources();
+            NotificationWiringActivator.getResources();
 
         INCOMING_MESSAGE = resources.getSoundPath("INCOMING_MESSAGE");
         INCOMING_FILE = resources.getSoundPath("INCOMING_FILE");

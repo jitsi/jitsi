@@ -19,6 +19,7 @@ import static net.java.sip.communicator.service.notification.event.NotificationE
  * The implementation of the <tt>NotificationService</tt>.
  * 
  * @author Yana Stamcheva
+ * @author Ingo Bauersachs
  */
 class NotificationServiceImpl
     implements NotificationService
@@ -55,6 +56,12 @@ class NotificationServiceImpl
      */
     private final List<NotificationChangeListener> changeListeners
         = new Vector<NotificationChangeListener>();
+
+    /**
+     * Queue to cache fired notifications before all handlers are registered.
+     */
+    private Queue<NotificationData> notificationCache
+        = new LinkedList<NotificationData>();
 
     /**
      * Creates an instance of <tt>NotificationServiceImpl</tt> by loading all
@@ -295,6 +302,14 @@ class NotificationServiceImpl
         synchronized(handlers)
         {
             handlers.put(handler.getActionType(), handler);
+            if(handlers.size() == NUM_ACTIONS && notificationCache != null)
+            {
+                for(NotificationData event : notificationCache)
+                    fireNotification(event);
+
+                notificationCache.clear();
+                notificationCache = null;
+            }
         }
     }
 
@@ -328,26 +343,12 @@ class NotificationServiceImpl
     }
 
     /**
-     * If there is a registered event notification of the given
-     * <tt>eventType</tt> and the event notification is currently activated, the
-     * list of registered actions is executed.
-     * 
-     * @param eventType the type of the event that we'd like to fire a
-     *            notification for.
-     * @param title the title of the given message
-     * @param message the message to use if and where appropriate (e.g. with
-     *            systray or log notification.)
-     * @param icon the icon to show in the notification if and where appropriate
-     * @param tag additional info to be used by the notification handler
+     * Executes a notification data object on the handlers.
+     * @param data The notification data to act upon.
      */
-    public void fireNotification(
-        String eventType,
-        String title,
-        String message,
-        byte[] icon,
-        Object tag)
+    private void fireNotification(NotificationData data)
     {
-        Notification notification = notifications.get(eventType);
+        Notification notification = notifications.get(data.getEventType());
         if(notification == null || !notification.isActive())
             return;
 
@@ -362,18 +363,19 @@ class NotificationServiceImpl
             {
                 ((PopupMessageNotificationHandler) handler)
                     .popupMessage((PopupMessageNotificationAction) action,
-                        title, message, icon, tag);
+                        data.getTitle(), data.getMessage(),
+                        data.getIcon(), data.getTag());
             }
             else if (actionType.equals(ACTION_LOG_MESSAGE))
             {
                 ((LogMessageNotificationHandler) handler)
                     .logMessage((LogMessageNotificationAction) action,
-                        message);
+                        data.getMessage());
             }
             else if (actionType.equals(ACTION_SOUND))
             {
                 ((SoundNotificationHandler) handler)
-                    .start((SoundNotificationAction) action);
+                    .start((SoundNotificationAction) action, data);
             }
             else if (actionType.equals(ACTION_COMMAND))
             {
@@ -385,15 +387,59 @@ class NotificationServiceImpl
 
     /**
      * If there is a registered event notification of the given
+     * <tt>eventType</tt> and the event notification is currently activated, the
+     * list of registered actions is executed.
+     * 
+     * @param eventType the type of the event that we'd like to fire a
+     *            notification for.
+     * @param title the title of the given message
+     * @param message the message to use if and where appropriate (e.g. with
+     *            systray or log notification.)
+     * @param icon the icon to show in the notification if and where appropriate
+     * @param tag additional info to be used by the notification handler
+     * 
+     * @return An object referencing the notification. It may be used to stop a
+     *         still running notification. Can be null if the eventType is
+     *         unknown or the notification is not active.
+     */
+    public NotificationData fireNotification(
+        String eventType,
+        String title,
+        String message,
+        byte[] icon,
+        Object tag)
+    {
+        Notification notification = notifications.get(eventType);
+        if(notification == null || !notification.isActive())
+            return null;
+
+        NotificationData data = new NotificationData(eventType, title,
+            message, icon, tag);
+
+        //cache the notification when the handlers are not yet ready
+        if (notificationCache != null)
+            notificationCache.add(data);
+        else
+            fireNotification(data);
+
+        return data;
+    }
+
+    /**
+     * If there is a registered event notification of the given
      * <tt>eventType</tt> and the event notification is currently activated, we
      * go through the list of registered actions and execute them.
      * 
      * @param eventType the type of the event that we'd like to fire a
-     * notification for.
+     *            notification for.
+     * 
+     * @return An object referencing the notification. It may be used to stop a
+     *         still running notification. Can be null if the eventType is
+     *         unknown or the notification is not active.
      */
-    public void fireNotification(String eventType)
+    public NotificationData fireNotification(String eventType)
     {
-        this.fireNotification(eventType, null, null, null, null);
+        return this.fireNotification(eventType, null, null, null, null);
     }
 
     /**

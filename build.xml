@@ -916,7 +916,8 @@
         bundle-systemactivitynotifications,
         bundle-osdependent,bundle-browserlauncher,
         bundle-pluginmanager,bundle-skinmanager,
-        bundle-notification-service,bundle-notification-handlers,bundle-notification-config,
+        bundle-notification-service,bundle-notification-handlers,
+        bundle-notification-wiring,bundle-notification-config,
         bundle-contacteventhandler,
         bundle-plugin-contactinfo,bundle-plugin-chatalerter, bundle-keybindings,
         bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
@@ -2060,12 +2061,23 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-NOTIFICATION-HANDLERS -->
     <target name="bundle-notification-handlers">
         <!-- Creates a bundle for the notifications.-->
         <jar compress="false" destfile="${bundles.dest}/notification-handlers.jar"
             manifest="${src}/net/java/sip/communicator/impl/notification/notification.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/notification"
                 prefix="net/java/sip/communicator/impl/notification"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-NOTIFICATION-WIRING -->
+    <target name="bundle-notification-wiring">
+        <!-- Creates a bundle for the notifications.-->
+        <jar compress="false" destfile="${bundles.dest}/notification-wiring.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/notificationwiring/notificationwiring.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/notificationwiring"
+                prefix="net/java/sip/communicator/plugin/notificationwiring"/>
         </jar>
     </target>
 

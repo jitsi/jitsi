@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.notification;
+package net.java.sip.communicator.plugin.notificationwiring;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -67,6 +67,13 @@ public class NotificationManager
      * Time to live : 1 minute
      */
     private Map<Contact,Long> proactiveTimer = new HashMap<Contact, Long>();
+
+    /**
+     * Stores notification references to stop them if a notification has expired
+     * (e.g. to stop the dialing sound).
+     */
+    private Map<Call, NotificationData> callNotifications =
+        new WeakHashMap<Call, NotificationData>();
 
     /**
      * Default event type for call been saved using a recorder.
@@ -138,7 +145,7 @@ public class NotificationManager
         registerDefaultNotifications();
 
         // listens for new protocols
-        NotificationActivator.bundleContext.addServiceListener(this);
+        NotificationWiringActivator.bundleContext.addServiceListener(this);
 
         // enumerate currently registered protocols
         for(ProtocolProviderService pp : getProtocolProviders())
@@ -146,7 +153,7 @@ public class NotificationManager
             handleProviderAdded(pp);
         }
 
-        NotificationActivator.getMediaService().addRecorderListener(this);
+        NotificationWiringActivator.getMediaService().addRecorderListener(this);
     }
 
     /**
@@ -155,27 +162,27 @@ public class NotificationManager
     private void registerDefaultNotifications()
     {
         NotificationService notificationService
-            = NotificationActivator.getNotificationService();
+            = NotificationWiringActivator.getNotificationService();
 
         if(notificationService == null)
             return;
 
         // Register incoming message notifications.
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.INCOMING_MESSAGE,
+                INCOMING_MESSAGE,
                 NotificationAction.ACTION_POPUP_MESSAGE,
                 null,
                 null);
 
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.INCOMING_MESSAGE,
+                INCOMING_MESSAGE,
                 NotificationAction.ACTION_SOUND,
                 SoundProperties.INCOMING_MESSAGE,
                 null);
 
         // Register incoming call notifications.
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.INCOMING_CALL,
+                INCOMING_CALL,
                 NotificationAction.ACTION_POPUP_MESSAGE,
                 null,
                 null);
@@ -184,7 +191,7 @@ public class NotificationManager
             = new SoundNotificationAction(SoundProperties.INCOMING_CALL, 2000);
 
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.INCOMING_CALL,
+                INCOMING_CALL,
                 inCallSoundHandler);
 
         // Register outgoing call notifications.
@@ -192,7 +199,7 @@ public class NotificationManager
             = new SoundNotificationAction(SoundProperties.OUTGOING_CALL, 3000);
 
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.OUTGOING_CALL,
+                OUTGOING_CALL,
                 outCallSoundHandler);
 
         // Register busy call notifications.
@@ -200,7 +207,7 @@ public class NotificationManager
             = new SoundNotificationAction(SoundProperties.BUSY, 1);
 
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.BUSY_CALL,
+                BUSY_CALL,
                 busyCallSoundHandler);
 
         // Register dial notifications.
@@ -208,7 +215,7 @@ public class NotificationManager
             = new SoundNotificationAction(SoundProperties.DIALING, 0);
 
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.DIALING,
+                DIALING,
                 dialSoundHandler);
 
         // Register the hangup sound notification.
@@ -216,53 +223,53 @@ public class NotificationManager
             = new SoundNotificationAction(SoundProperties.HANG_UP, -1);
 
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.HANG_UP,
+                HANG_UP,
                 hangupSoundHandler);
 
         // Register proactive notifications.
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.PROACTIVE_NOTIFICATION,
+                PROACTIVE_NOTIFICATION,
                 NotificationAction.ACTION_POPUP_MESSAGE,
                 null,
                 null);
 
         // Register warning message notifications.
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.SECURITY_MESSAGE,
+                SECURITY_MESSAGE,
                 NotificationAction.ACTION_POPUP_MESSAGE,
                 null,
                 null);
 
         // Register sound notification for security state on during a call.
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.CALL_SECURITY_ON,
+                CALL_SECURITY_ON,
                 NotificationAction.ACTION_SOUND,
                 SoundProperties.CALL_SECURITY_ON,
                 null);
 
         // Register sound notification for security state off during a call.
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.CALL_SECURITY_ERROR,
+                CALL_SECURITY_ERROR,
                 NotificationAction.ACTION_SOUND,
                 SoundProperties.CALL_SECURITY_ERROR,
                 null);
 
         // Register sound notification for incoming files.
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.INCOMING_FILE,
+                INCOMING_FILE,
                 NotificationAction.ACTION_POPUP_MESSAGE,
                 null,
                 null);
 
         notificationService.registerDefaultNotificationForEvent(
-                NotificationManager.INCOMING_FILE,
+                INCOMING_FILE,
                 NotificationAction.ACTION_SOUND,
                 SoundProperties.INCOMING_FILE,
                 null);
 
         // Register notification for saved calls.
         notificationService.registerDefaultNotificationForEvent(
-            NotificationManager.CALL_SAVED,
+            CALL_SAVED,
             NotificationAction.ACTION_POPUP_MESSAGE,
             null,
             null);
@@ -283,7 +290,7 @@ public class NotificationManager
         {
             // get all registered provider factories
             serRefs
-                = NotificationActivator.bundleContext.getServiceReferences(
+                = NotificationWiringActivator.bundleContext.getServiceReferences(
                         ProtocolProviderFactory.class.getName(),
                         null);
         }
@@ -301,7 +308,7 @@ public class NotificationManager
             {
                 ProtocolProviderFactory providerFactory
                     = (ProtocolProviderFactory)
-                        NotificationActivator.bundleContext.getService(serRef);
+                        NotificationWiringActivator.bundleContext.getService(serRef);
 
                 providerFactoriesMap.put(
                         serRef.getProperty(ProtocolProviderFactory.PROTOCOL),
@@ -323,7 +330,7 @@ public class NotificationManager
         {
             // get all registered provider factories
             serRefs
-                = NotificationActivator.bundleContext.getServiceReferences(
+                = NotificationWiringActivator.bundleContext.getServiceReferences(
                         ProtocolProviderService.class.getName(),
                         null);
         }
@@ -341,7 +348,7 @@ public class NotificationManager
             {
                 ProtocolProviderService pp
                     = (ProtocolProviderService)
-                        NotificationActivator.bundleContext.getService(serRef);
+                        NotificationWiringActivator.bundleContext.getService(serRef);
 
                 providersList.add(pp);
             }
@@ -521,7 +528,7 @@ public class NotificationManager
         }
 
         Object service =
-            NotificationActivator.bundleContext.getService(serviceRef);
+            NotificationWiringActivator.bundleContext.getService(serviceRef);
 
         // we don't care if the source service is not a protocol provider
         if (!(service instanceof ProtocolProviderService))
@@ -547,18 +554,19 @@ public class NotificationManager
      * @param eventType the event type for which we fire a notification
      * @param messageTitle the title of the message
      * @param message the content of the message
+     * @return A reference to the fired notification to stop it.
      */
-    public static void fireNotification(String eventType,
+    public static NotificationData fireNotification(String eventType,
                                         String messageTitle,
                                         String message)
     {
         NotificationService notificationService
-            = NotificationActivator.getNotificationService();
+            = NotificationWiringActivator.getNotificationService();
 
         if(notificationService == null)
-            return;
+            return null;
 
-        notificationService.fireNotification(   eventType,
+        return notificationService.fireNotification(   eventType,
                                                 messageTitle,
                                                 message,
                                                 null,
@@ -581,13 +589,13 @@ public class NotificationManager
                                             String message)
     {
         NotificationService notificationService
-            = NotificationActivator.getNotificationService();
+            = NotificationWiringActivator.getNotificationService();
 
         if(notificationService == null)
             return;
 
         NotificationAction popupActionHandler = null;
-        UIService uiService = NotificationActivator.getUIService();
+        UIService uiService = NotificationWiringActivator.getUIService();
 
         Chat chatPanel = null;
         byte[] contactIcon = null;
@@ -619,7 +627,7 @@ public class NotificationManager
 
         if (chatPanel != null)
         {
-            if (eventType.equals(NotificationManager.INCOMING_MESSAGE)
+            if (eventType.equals(INCOMING_MESSAGE)
                     && chatPanel.isChatFocused())
             {
                 popupActionHandler = notificationService
@@ -646,28 +654,29 @@ public class NotificationManager
      * constants defined in this class.
      *
      * @param eventType the event type for which we want to fire a notification
+     * @return A reference to the fired notification to stop it.
      */
-    public static void fireNotification(String eventType)
+    public static NotificationData fireNotification(String eventType)
     {
         NotificationService notificationService
-            = NotificationActivator.getNotificationService();
+            = NotificationWiringActivator.getNotificationService();
 
         if(notificationService == null)
-            return;
+            return null;
 
-        notificationService.fireNotification(eventType);
+        return notificationService.fireNotification(eventType);
     }
 
     /**
      * Stops all sounds for the given event type.
      *
-     * @param eventType the event type for which we should stop sounds. One of
+     * @param notificationData the event type for which we should stop sounds. One of
      * the static event types defined in this class.
      */
-    public static void stopSound(String eventType)
+    public static void stopSound(NotificationData data)
     {
         NotificationService notificationService
-            = NotificationActivator.getNotificationService();
+            = NotificationWiringActivator.getNotificationService();
 
         if(notificationService == null)
             return;
@@ -676,11 +685,10 @@ public class NotificationManager
             notificationService.getActionHandlers(
                 NotificationAction.ACTION_SOUND);
 
-        //TODO make SoundNotificationHandler handle multiple sound at once
-        // There can be no sound action handler for this event type
+        // There could be no sound action handler for this event type
         if(soundHandlers != null)
             for(NotificationHandler handler : soundHandlers)
-                ((SoundNotificationHandler)handler).stop();
+                ((SoundNotificationHandler)handler).stop(data);
     }
 
     /**
@@ -699,7 +707,7 @@ public class NotificationManager
         }
         else
         {
-            URL path = NotificationActivator.getResources()
+            URL path = NotificationWiringActivator.getResources()
                 .getImageURL(imageID.getId());
 
             if (path != null)
@@ -718,17 +726,6 @@ public class NotificationManager
         }
 
         return image;
-    }
-
-    /**
-     * Stops all telephony related sounds.
-     */
-    private static void stopAllTelephonySounds()
-    {
-        NotificationManager.stopSound(NotificationManager.DIALING);
-        NotificationManager.stopSound(NotificationManager.BUSY_CALL);
-        NotificationManager.stopSound(NotificationManager.INCOMING_CALL);
-        NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
     }
 
     /**
@@ -807,13 +804,13 @@ public class NotificationManager
         try
         {
             // Fire notification
-            String title = NotificationActivator.getResources().getI18NString(
+            String title = NotificationWiringActivator.getResources().getI18NString(
                 "service.gui.MSG_RECEIVED",
                 new String[]{evt.getSourceContact().getDisplayName()});
 
             fireChatNotification(
                     evt.getSourceContact(),
-                    NotificationManager.INCOMING_MESSAGE,
+                    INCOMING_MESSAGE,
                     title,
                     evt.getSourceMessage().getContent());
         }
@@ -853,14 +850,13 @@ public class NotificationManager
             Contact sourceContact = request.getSender();
 
             //Fire notification
-            String title = NotificationActivator.getResources().getI18NString(
+            String title = NotificationWiringActivator.getResources().getI18NString(
                 "service.gui.FILE_RECEIVING_FROM",
                 new String[]{sourceContact.getDisplayName()});
 
-            NotificationManager
-                .fireChatNotification(
+            fireChatNotification(
                     sourceContact,
-                    NotificationManager.INCOMING_FILE,
+                    INCOMING_FILE,
                     title,
                     request.getFileName());
         }
@@ -912,7 +908,7 @@ public class NotificationManager
             // check whether the current chat window shows the
             // chat we received a typing info for and in such case don't show
             // notifications
-            UIService uiService = NotificationActivator.getUIService();
+            UIService uiService = NotificationWiringActivator.getUIService();
 
             if(uiService != null)
             {
@@ -958,11 +954,11 @@ public class NotificationManager
 
             this.proactiveTimer.put(contact, currentTime);
 
-            NotificationManager.fireChatNotification(
+            fireChatNotification(
                 contact,
-                NotificationManager.PROACTIVE_NOTIFICATION,
+                PROACTIVE_NOTIFICATION,
                 contact.getDisplayName(),
-                NotificationActivator.getResources()
+                NotificationWiringActivator.getResources()
                     .getI18NString("service.gui.PROACTIVE_NOTIFICATION"));
         }
         catch(Throwable t)
@@ -984,12 +980,13 @@ public class NotificationManager
             String peerName = event.getSourceCall()
                 .getCallPeers().next().getDisplayName();
 
-            NotificationManager.fireNotification(
-                    NotificationManager.INCOMING_CALL,
+            callNotifications.put(event.getSourceCall(),
+                fireNotification(
+                    INCOMING_CALL,
                     "",
-                    NotificationActivator.getResources()
+                    NotificationWiringActivator.getResources()
                             .getI18NString("service.gui.INCOMING_CALL",
-                                    new String[]{peerName}));
+                                    new String[]{peerName})));
 
             call.addCallChangeListener(this);
 
@@ -1035,10 +1032,11 @@ public class NotificationManager
         try
         {
             // Stop all telephony related sounds.
-            stopAllTelephonySounds();
+//            stopAllTelephonySounds();
+            stopSound(callNotifications.get(event.getSourceCall()));
 
             // Play the hangup sound.
-            NotificationManager.fireNotification(NotificationManager.HANG_UP);
+            fireNotification(HANG_UP);
         }
         catch(Throwable t)
         {
@@ -1096,6 +1094,7 @@ public class NotificationManager
         try
         {
             CallPeer sourcePeer = evt.getSourceCallPeer();
+            Call call = sourcePeer.getCall();
             CallPeerState newState = (CallPeerState) evt.getNewValue();
             CallPeerState oldState = (CallPeerState) evt.getOldValue();
 
@@ -1104,12 +1103,11 @@ public class NotificationManager
             if (newState == CallPeerState.INITIATING_CALL
                 || newState == CallPeerState.CONNECTING)
             {
-                NotificationManager
-                    .fireNotification(NotificationManager.DIALING);
+                callNotifications.put(call, fireNotification(DIALING));
             }
             else
             {
-                NotificationManager.stopSound(NotificationManager.DIALING);
+                stopSound(callNotifications.get(call));
             }
 
             if (newState == CallPeerState.ALERTING_REMOTE_SIDE
@@ -1118,54 +1116,20 @@ public class NotificationManager
                 //need to fire a notification here.
                 && oldState != CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
             {
-                NotificationManager
-                    .fireNotification(NotificationManager.OUTGOING_CALL);
+                callNotifications.put(call, fireNotification(OUTGOING_CALL));
             }
             else if (newState == CallPeerState.BUSY)
             {
-                NotificationManager.stopSound(NotificationManager.OUTGOING_CALL);
-
                 // We start the busy sound only if we're in a simple call.
-                if (!isConference(sourcePeer.getCall()))
+                if (!isConference(call))
                 {
-                    NotificationManager.fireNotification(
-                        NotificationManager.BUSY_CALL);
-                }
-            }
-            else if (newState == CallPeerState.CONNECTING_INCOMING_CALL ||
-                newState == CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA)
-            {
-                if (!CallPeerState.isOnHold(oldState))
-                {
-                    NotificationManager
-                        .stopSound(NotificationManager.OUTGOING_CALL);
-                    NotificationManager
-                        .stopSound(NotificationManager.INCOMING_CALL);
-                }
-            }
-            else if (newState == CallPeerState.CONNECTING_WITH_EARLY_MEDIA)
-            {
-                //this means a call with early media. make sure that we are not
-                //playing local notifications any more.
-                NotificationManager
-                    .stopSound(NotificationManager.OUTGOING_CALL);
-            }
-            else if (newState == CallPeerState.CONNECTED)
-            {
-                if (!CallPeerState.isOnHold(oldState))
-                {
-                    NotificationManager
-                        .stopSound(NotificationManager.OUTGOING_CALL);
-                    NotificationManager
-                        .stopSound(NotificationManager.INCOMING_CALL);
+                    callNotifications.put(call, fireNotification(BUSY_CALL));
                 }
             }
             else if (newState == CallPeerState.DISCONNECTED
                     || newState == CallPeerState.FAILED)
             {
-                stopAllTelephonySounds();
-
-                NotificationManager.fireNotification(NotificationManager.HANG_UP);
+                callNotifications.put(call, fireNotification(HANG_UP));
             }
         }
         catch(Throwable t)
@@ -1220,8 +1184,7 @@ public class NotificationManager
                 && peer.getProtocolProvider().isSignalingTransportSecure())
                 || !evt.getSecurityController().requiresSecureSignalingTransport())
             {
-                NotificationManager.fireNotification(
-                    NotificationManager.CALL_SECURITY_ON);
+                fireNotification(CALL_SECURITY_ON);
             }
         }
         catch(Throwable t)
@@ -1254,13 +1217,13 @@ public class NotificationManager
                 // Don't play alert sound for Info or warning.
                 case CallPeerSecurityMessageEvent.INFORMATION:
                 {
-                    messageTitle = NotificationActivator.getResources()
+                    messageTitle = NotificationWiringActivator.getResources()
                         .getI18NString("service.gui.SECURITY_INFO");
                     break;
                 }
                 case CallPeerSecurityMessageEvent.WARNING:
                 {
-                    messageTitle = NotificationActivator.getResources()
+                    messageTitle = NotificationWiringActivator.getResources()
                         .getI18NString("service.gui.SECURITY_WARNING");
                     break;
                 }
@@ -1268,15 +1231,14 @@ public class NotificationManager
                 case CallPeerSecurityMessageEvent.SEVERE:
                 case CallPeerSecurityMessageEvent.ERROR:
                 {
-                    messageTitle = NotificationActivator.getResources()
+                    messageTitle = NotificationWiringActivator.getResources()
                         .getI18NString("service.gui.SECURITY_ERROR");
-                    NotificationManager.fireNotification(
-                        NotificationManager.CALL_SECURITY_ERROR);
+                    fireNotification(CALL_SECURITY_ERROR);
                 }
             }
 
-            NotificationManager.fireNotification(
-                NotificationManager.SECURITY_MESSAGE,
+            fireNotification(
+                SECURITY_MESSAGE,
                 messageTitle,
                 event.getI18nMessage());
         }
@@ -1335,13 +1297,13 @@ public class NotificationManager
             if (fireChatNotification)
             {
                 String title
-                    = NotificationActivator.getResources().getI18NString(
+                    = NotificationWiringActivator.getResources().getI18NString(
                         "service.gui.MSG_RECEIVED",
                         new String[] { sourceMember.getName() });
 
-                NotificationManager.fireChatNotification(
+                fireChatNotification(
                         sourceChatRoom,
-                        NotificationManager.INCOMING_MESSAGE,
+                        INCOMING_MESSAGE,
                         title,
                         messageContent);
             }
@@ -1455,13 +1417,13 @@ public class NotificationManager
             if (fireChatNotification)
             {
                 String title
-                    = NotificationActivator.getResources().getI18NString(
+                    = NotificationWiringActivator.getResources().getI18NString(
                             "service.gui.MSG_RECEIVED",
                             new String[] { sourceParticipant.getDisplayName() });
 
-                NotificationManager.fireChatNotification(
+                fireChatNotification(
                     sourceChatRoom,
-                    NotificationManager.INCOMING_MESSAGE,
+                    INCOMING_MESSAGE,
                     title,
                     messageContent);
             }
@@ -1521,8 +1483,7 @@ public class NotificationManager
 
                 if (securityEvent instanceof CallPeerSecurityOnEvent)
                 {
-                    NotificationManager.fireNotification(
-                        NotificationManager.CALL_SECURITY_ON);
+                    fireNotification(CALL_SECURITY_ON);
                 }
             }
         }
@@ -1552,11 +1513,11 @@ public class NotificationManager
     {
         try
         {
-            NotificationManager.fireNotification(
-                    NotificationManager.CALL_SAVED,
-                    NotificationActivator.getResources().getI18NString(
+            fireNotification(
+                    CALL_SAVED,
+                    NotificationWiringActivator.getResources().getI18NString(
                             "plugin.callrecordingconfig.CALL_SAVED"),
-                    NotificationActivator.getResources().getI18NString(
+                    NotificationWiringActivator.getResources().getI18NString(
                             "plugin.callrecordingconfig.CALL_SAVED_TO",
                             new String[] { recorder.getFilename() }));
         }

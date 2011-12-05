@@ -39,6 +39,11 @@ public abstract class NotificationAction
     public static final String ACTION_COMMAND = "CommandAction";
 
     /**
+     * Defines the number of actions.
+     */
+    public static final int NUM_ACTIONS = 4;
+
+    /**
      * Indicates if this handler is enabled.
      */
     private boolean isEnabled = true;

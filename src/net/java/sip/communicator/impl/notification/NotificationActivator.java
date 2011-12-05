@@ -7,10 +7,7 @@
 package net.java.sip.communicator.impl.notification;
 
 import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
@@ -25,16 +22,14 @@ import org.osgi.framework.*;
 public class NotificationActivator
     implements BundleActivator
 {
-    private final Logger logger = Logger.getLogger(NotificationActivator.class);
+    private final Logger logger =
+        Logger.getLogger(NotificationActivator.class);
 
     protected static BundleContext bundleContext;
 
     private static AudioNotifierService audioNotifierService;
     private static SystrayService systrayService;
     private static NotificationService notificationService;
-    private static ResourceManagementService resourcesService;
-    private static UIService uiService = null;
-    private static MediaService mediaService;
 
     private CommandNotificationHandler commandHandler;
     private LogMessageNotificationHandler logMessageHandler;
@@ -67,8 +62,6 @@ public class NotificationActivator
             notificationService.addActionHandler(popupMessageHandler);
             notificationService.addActionHandler(soundHandler);
 
-            new NotificationManager().init();
-
             logger.info("Notification handler Service ...[REGISTERED]");
         }
         finally
@@ -79,10 +72,14 @@ public class NotificationActivator
 
     public void stop(BundleContext bc) throws Exception
     {
-        notificationService.removeActionHandler(commandHandler.getActionType());
-        notificationService.removeActionHandler(logMessageHandler.getActionType());
-        notificationService.removeActionHandler(popupMessageHandler.getActionType());
-        notificationService.removeActionHandler(soundHandler.getActionType());
+        notificationService.removeActionHandler(
+            commandHandler.getActionType());
+        notificationService.removeActionHandler(
+            logMessageHandler.getActionType());
+        notificationService.removeActionHandler(
+            popupMessageHandler.getActionType());
+        notificationService.removeActionHandler(
+            soundHandler.getActionType());
 
         logger.info("Notification handler Service ...[STOPPED]");
     }
@@ -127,64 +124,5 @@ public class NotificationActivator
         }
 
         return systrayService;
-    }
-
-    /**
-     * Returns the <tt>NotificationService</tt> obtained from the bundle context.
-     *
-     * @return the <tt>NotificationService</tt> obtained from the bundle context
-     */
-    public static NotificationService getNotificationService()
-    {
-        return notificationService;
-    }
-
-    /**
-     * Returns the <tt>ResourceManagementService</tt>, through which we will
-     * access all resources.
-     *
-     * @return the <tt>ResourceManagementService</tt>, through which we will
-     * access all resources.
-     */
-    public static ResourceManagementService getResources()
-    {
-        if (resourcesService == null)
-        {
-            resourcesService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        ResourceManagementService.class);
-        }
-        return resourcesService;
-    }
-
-    /**
-     * Returns the current implementation of the <tt>UIService</tt>.
-     * @return the current implementation of the <tt>UIService</tt>
-     */
-    public static UIService getUIService()
-    {
-        if (uiService == null)
-        {
-            uiService = ServiceUtils.getService(bundleContext, UIService.class);
-        }
-
-        return uiService;
-    }
-
-    /**
-     * Returns an instance of the <tt>MediaService</tt> obtained from the
-     * bundle context.
-     * @return an instance of the <tt>MediaService</tt> obtained from the
-     * bundle context
-     */
-    public static MediaService getMediaService()
-    {
-        if (mediaService == null)
-        {
-            mediaService
-                = ServiceUtils.getService(bundleContext, MediaService.class);
-        }
-        return mediaService;
     }
 }

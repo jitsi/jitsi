@@ -6,22 +6,22 @@
  */
 package net.java.sip.communicator.impl.notification;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * An implementation of the <tt>SoundNotificationHandlerImpl</tt> interface.
+ * An implementation of the <tt>SoundNotificationHandler</tt> interface.
  * 
  * @author Yana Stamcheva
  */
 public class SoundNotificationHandlerImpl
     implements SoundNotificationHandler
 {
-    /**
-     * The audio clip that manages to play the sound.
-     */
-    private SCAudioClip audio;
+    WeakHashMap<SCAudioClip, NotificationData> playedClips =
+        new WeakHashMap<SCAudioClip, NotificationData>();
 
     /**
      * {@inheritDoc}
@@ -34,9 +34,10 @@ public class SoundNotificationHandlerImpl
     /**
      * Plays the sound given by the containing <tt>soundFileDescriptor</tt>. The
      * sound is played in loop if the loopInterval is defined.
-     * @param action the action to act upon.
+     * @param action The action to act upon.
+     * @param data Additional data for the event.
      */
-    public void start(SoundNotificationAction action)
+    public void start(SoundNotificationAction action, NotificationData data)
     {
         AudioNotifierService audioNotifService
             = NotificationActivator.getAudioNotifier();
@@ -45,18 +46,13 @@ public class SoundNotificationHandlerImpl
             || StringUtils.isNullOrEmpty(action.getDescriptor(), true))
             return;
 
-        //stop any previous audio notification
-        if(audio != null)
-        {
-            stop();
-        }
-
-        audio = audioNotifService.createAudio(action.getDescriptor());
+        SCAudioClip audio = audioNotifService.createAudio(action.getDescriptor());
 
         // it is possible that audio cannot be created
         if(audio == null)
             return;
 
+        playedClips.put(audio, data);
         if(action.getLoopInterval() > -1)
             audio.playInLoop(action.getLoopInterval());
         else
@@ -65,17 +61,26 @@ public class SoundNotificationHandlerImpl
 
     /**
      * Stops the sound.
+     * @param data Additional data for the event.
      */
-    public void stop()
+    public void stop(NotificationData data)
     {
         AudioNotifierService audioNotifService
             = NotificationActivator.getAudioNotifier();
 
-        if(audioNotifService == null || audio == null)
+        if(audioNotifService == null)
             return;
-
-        audio.stop();
-        audioNotifService.destroyAudio(audio);
-        audio = null;
+        
+        for (Map.Entry<SCAudioClip, NotificationData> entry : playedClips
+            .entrySet())
+        {
+            if(entry.getValue() == data)
+            {
+                SCAudioClip audio = entry.getKey();
+                audio.stop();
+                audioNotifService.destroyAudio(audio);
+                return;
+            }
+        }
     }
 }

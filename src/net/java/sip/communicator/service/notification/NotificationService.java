@@ -234,16 +234,18 @@ public interface NotificationService
      * in the list of registered event types.
      * 
      * @param eventType the type of the event that we'd like to fire a
-     * notification for.
+     *            notification for.
      * @param messageTitle the message title to use if and where appropriate
-     * (e.g. with systray)
+     *            (e.g. with systray)
      * @param message the message to use if and where appropriate (e.g. with
-     * systray or log notification.)
-     * @param icon the icon to show in the notification if and where
-     * appropriate
+     *            systray or log notification.)
+     * @param icon the icon to show in the notification if and where appropriate
      * @param tag additional info to be used by the notification handler
+     * @return An object referencing the notification. It may be used to stop a
+     *         still running notification. Can be null if the eventType is
+     *         unknown or the notification is not active.
      */
-    public void fireNotification(   String eventType,
+    public NotificationData fireNotification(   String eventType,
                                     String messageTitle,
                                     String message,
                                     byte[] icon,
@@ -260,8 +262,12 @@ public interface NotificationService
      * 
      * @param eventType the type of the event that we'd like to fire a
      * notification for.
+     * 
+     * @return An object referencing the notification. It may be used to stop a
+     *         still running notification. Can be null if the eventType is
+     *         unknown or the notification is not active.
      */
-    public void fireNotification(String eventType);
+    public NotificationData fireNotification(String eventType);
 
     /**
      * Activates or deactivates all notification actions related to the
