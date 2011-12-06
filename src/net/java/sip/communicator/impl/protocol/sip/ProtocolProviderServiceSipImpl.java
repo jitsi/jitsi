@@ -797,9 +797,9 @@ public class ProtocolProviderServiceSipImpl
     {
         Request request = requestEvent.getRequest();
 
-        if(getRegistrarConnection() != null
-           && !getRegistrarConnection().isRegistrarless()
-           && !getRegistrarConnection().isRequestFromSameConnection(request)
+        if(sipRegistrarConnection != null
+           && !sipRegistrarConnection.isRegistrarless()
+           && !sipRegistrarConnection.isRequestFromSameConnection(request)
            && !forceLooseRouting)
         {
             logger.warn("Received request not from our proxy, ignoring it! "
@@ -1300,7 +1300,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public String getContactAddressCustomParamValue()
     {
-            SipRegistrarConnection src = getRegistrarConnection();
+            SipRegistrarConnection src = sipRegistrarConnection;
             if (src != null && !src.isRegistrarless())
             {
                 // if we don't replace the dots in the hostname, we get
@@ -1643,9 +1643,8 @@ public class ProtocolProviderServiceSipImpl
      */
     public Address getOurSipAddress(SipURI intendedDestination)
     {
-        SipRegistrarConnection src = getRegistrarConnection();
-
-        if( src != null && !src.isRegistrarless() )
+        SipRegistrarConnection src = sipRegistrarConnection;
+        if (src != null && !src.isRegistrarless())
             return src.getAddressOfRecord();
 
         //we are apparently running in "No Registrar" mode so let's create an
@@ -2001,8 +2000,8 @@ public class ProtocolProviderServiceSipImpl
         // registrar connection can be null while creating accounts
         try
         {
-            if(this.getRegistrarConnection() != null)
-                this.getRegistrarConnection().setTransport(proxyTransport);
+            if(sipRegistrarConnection != null)
+                sipRegistrarConnection.setTransport(proxyTransport);
         }
         catch (ParseException ex    )
         {
@@ -2138,11 +2137,9 @@ public class ProtocolProviderServiceSipImpl
      */
     public String getDefaultTransport()
     {
-        SipRegistrarConnection srConnection = getRegistrarConnection();
-
-        if( srConnection != null)
+        if( sipRegistrarConnection != null)
         {
-            String registrarTransport = srConnection.getTransport();
+            String registrarTransport = sipRegistrarConnection.getTransport();
             if(   registrarTransport != null
                && registrarTransport.length() > 0)
            {
@@ -2579,7 +2576,7 @@ public class ProtocolProviderServiceSipImpl
         {
             //if we have a registrar, then we could append its domain name as
             //default
-            SipRegistrarConnection src = getRegistrarConnection();
+            SipRegistrarConnection src = sipRegistrarConnection;
             if(src != null && !src.isRegistrarless() )
             {
                 uriStr = uriStr + "@"
@@ -3181,8 +3178,7 @@ public class ProtocolProviderServiceSipImpl
 
         try
         {
-            this.getRegistrarConnection().setTransport(
-                    connectionTransports[ix]);
+            sipRegistrarConnection.setTransport(connectionTransports[ix]);
         }
         catch (ParseException ex)
         {
