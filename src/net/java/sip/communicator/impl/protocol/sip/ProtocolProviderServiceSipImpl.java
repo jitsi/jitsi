@@ -1770,8 +1770,6 @@ public class ProtocolProviderServiceSipImpl
             }
         }
 
-        InetAddress proxyAddress = null;
-
         //init proxy port
         int proxyPort = ListeningPoint.PORT_5060;
 
@@ -1795,6 +1793,7 @@ public class ProtocolProviderServiceSipImpl
             proxyTransport = getDefaultTransport();
         }
 
+        InetSocketAddress proxySocketAddress = null;
         try
         {
             //check if user has overridden proxy port.
@@ -1807,8 +1806,6 @@ public class ProtocolProviderServiceSipImpl
                     + NetworkUtils.MAX_PORT_NUMBER
                     + " and does not therefore represent a valid port number.");
             }
-
-            InetSocketAddress proxySocketAddress = null;
 
             if(accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.PROXY_AUTO_CONFIG, false))
@@ -1895,8 +1892,6 @@ public class ProtocolProviderServiceSipImpl
             if(proxySocketAddress == null)
                 throw new UnknownHostException();
 
-            proxyAddress = proxySocketAddress.getAddress();
-
             if(this.currentConnectionAddress == null)
                 this.currentConnectionAddress = proxySocketAddress;
 
@@ -1960,7 +1955,7 @@ public class ProtocolProviderServiceSipImpl
         }
 
         // Return if no proxy is specified or if the proxyAddress is null.
-        if(proxyAddress == null)
+        if(proxySocketAddress == null)
         {
             return;
         }
@@ -1968,27 +1963,13 @@ public class ProtocolProviderServiceSipImpl
         // lets change registrar connections transport
         // make sure it reflects the transport we choose from DNS records
         // registrar connection can be null while creating accounts
-        try
-        {
-            if(sipRegistrarConnection != null)
-                sipRegistrarConnection.setTransport(proxyTransport);
-        }
-        catch (ParseException ex    )
-        {
-            //this really shouldn't happen as we ve already did it
-            logger.error("Failed to change a registrar connection transport "
-                + currentConnectionAddress
-                , ex);
-            throw new IllegalArgumentException(
-                "Failed to change a registrar connection transport "
-                + currentConnectionAddress + ": "
-                + ex.getMessage());
-        }
+        if(sipRegistrarConnection != null)
+            sipRegistrarConnection.setTransport(proxyTransport);
 
         //store a reference to our sip proxy so that we can use it when
         //constructing via and contact headers.
         this.outboundProxySocketAddress
-            = new InetSocketAddress(proxyAddress, proxyPort);
+            = new InetSocketAddress(proxySocketAddress.getAddress(), proxyPort);
         this.outboundProxyTransport = proxyTransport;
     }
 
@@ -3128,22 +3109,7 @@ public class ProtocolProviderServiceSipImpl
             return;
 
         this.currentConnectionAddress = connectionAddresses[ix];
-
-        try
-        {
-            sipRegistrarConnection.setTransport(connectionTransports[ix]);
-        }
-        catch (ParseException ex)
-        {
-            //this really shouldn't happen as we ve already did it
-            logger.error("Failed to change a registrar connection transport "
-                + currentConnectionAddress
-                , ex);
-            throw new IllegalArgumentException(
-                "Failed to change a registrar connection transport "
-                + currentConnectionAddress + ": "
-                + ex.getMessage());
-        }
+        sipRegistrarConnection.setTransport(connectionTransports[ix]);
 
         initOutboundProxy(ix);
     }

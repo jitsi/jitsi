@@ -201,12 +201,8 @@ public class SipRegistrarConnection
      * Changes transport of registrar connection and recreates
      * registrar URI.
      * @param newRegistrationTransport the new transport.
-     *
-     * @throws ParseException in case the specified registrar address is not a
-     * valid registrar address.
      */
     void setTransport(String newRegistrationTransport)
-        throws ParseException
     {
         if(newRegistrationTransport.equals(registrationTransport))
             return;
