@@ -63,7 +63,7 @@ Import-Package: org.apache.log4j,
  javax.xml.namespace,
  javax.xml.transform,
  javax.xml.transform.dom,
- javax.xml.transform.stream,
+ javax.xml.transform.stream
 Export-Package: net.java.sip.communicator.impl.protocol.sip,
  net.java.sip.communicator.impl.protocol.sip.net,
  net.java.sip.communicator.impl.protocol.sip.xcap,

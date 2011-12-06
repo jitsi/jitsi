@@ -58,8 +58,6 @@ public class AdvancedConfigurationPanel
     {
         super(new BorderLayout(10, 0));
 
-        AdvancedConfigActivator.bundleContext.addServiceListener(this);
-
         initList();
 
         centerPanel.setPreferredSize(new Dimension(500, 500));

@@ -16,7 +16,7 @@ Import-Package: org.osgi.framework,
  javax.xml.transform.dom,
  javax.xml.transform.stream,
  net.java.sip.communicator.util,
- net.java.sip.communicator.util.xml,
+ net.java.sip.communicator.util.xml
 Export-Package: net.java.sip.communicator.service.history,
  net.java.sip.communicator.service.history.event,
  net.java.sip.communicator.service.history.records

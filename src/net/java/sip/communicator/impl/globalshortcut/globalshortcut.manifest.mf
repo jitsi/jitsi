@@ -10,5 +10,5 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.service.keybindings,
  net.java.sip.communicator.service.gui,
- net.java.sip.communicator.util,
-Export-package: net.java.sip.communicator.service.globalshortcut,
+ net.java.sip.communicator.util
+Export-package: net.java.sip.communicator.service.globalshortcut

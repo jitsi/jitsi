@@ -8,4 +8,4 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.provdisc,
  net.java.sip.communicator.service.provdisc.event,
  net.java.sip.communicator.util,
- javax.jmdns,
+ javax.jmdns

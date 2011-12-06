@@ -16,7 +16,7 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.icqconstants,
- net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.service.protocol.event
 Export-Package: net.java.sip.communicator.service.msghistory,
  net.java.sip.communicator.service.msghistory.event
 Metadata-Location: /net/java/sip/communicator/impl/msghistory/msghistory.metadata.xml

@@ -47,6 +47,16 @@ public class AdvancedConfigActivator
         = "net.java.sip.communicator.plugin.advancedconfig.DISABLED";
 
     /**
+     * The advanced configuration panel registered by this bundle.
+     */
+    private static AdvancedConfigurationPanel panel;
+
+    /**
+     * The OSGi service registration of the panel.
+     */
+    private static ServiceRegistration panelRegistration;
+
+    /**
      * Starts this bundle.
      * @param bc the bundle context
      * @throws Exception if something goes wrong
@@ -63,11 +73,15 @@ public class AdvancedConfigActivator
         Dictionary<String, String> properties = new Hashtable<String, String>();
         properties.put( ConfigurationForm.FORM_TYPE,
                         ConfigurationForm.GENERAL_TYPE);
-        bundleContext
+        panel = new AdvancedConfigurationPanel();
+        panelRegistration = bundleContext
             .registerService(
                 ConfigurationForm.class.getName(),
-                new AdvancedConfigurationPanel(),
+                panel,
                 properties);
+
+
+        bundleContext.addServiceListener(panel);
 
         if (logger.isInfoEnabled())
             logger.info("ADVANCED CONFIG PLUGIN... [REGISTERED]");
@@ -80,6 +94,8 @@ public class AdvancedConfigActivator
      */
     public void stop(BundleContext bc) throws Exception
     {
+        bc.removeServiceListener(panel);
+        panelRegistration.unregister();
     }
 
     /**

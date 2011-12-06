@@ -14,4 +14,4 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.util.swing,
  javax.swing,
  javax.swing.event,
- javax.swing.table,
+ javax.swing.table

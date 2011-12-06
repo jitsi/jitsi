@@ -22,5 +22,5 @@ Import-Package: org.osgi.framework,
  javax.swing.event,
  javax.swing.table,
  javax.swing.tree,
- javax.swing.text,
+ javax.swing.text
 Export-Package: net.java.sip.communicator.service.googlecontacts

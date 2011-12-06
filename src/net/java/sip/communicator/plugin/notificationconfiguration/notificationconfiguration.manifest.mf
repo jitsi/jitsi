@@ -27,4 +27,4 @@ Import-Package: org.osgi.framework,
  javax.swing.filechooser,
  javax.swing.tree,
  javax.swing.undo,
- javax.swing.border,
+ javax.swing.border
