@@ -87,5 +87,8 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/httpmime-4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpcore-4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpclient-4.1.2.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/cglib-nodep.osgi-2.1_3.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/easymock-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

@@ -123,7 +123,7 @@
             <compilation-unit>
                 <package-root>test</package-root>
                 <unit-tests/>
-                <classpath mode="compile">classes:lib/felix.jar:lib/bundle/junit.jar:lib/installer-exclude/joscar-client.jar:lib/installer-exclude/joscar-common.jar:lib/installer-exclude/joscar-protocol.jar:lib/installer-exclude/smack.jar</classpath>
+                <classpath mode="compile">classes:lib/felix.jar:lib/bundle/junit.jar:lib/installer-exclude/joscar-client.jar:lib/installer-exclude/joscar-common.jar:lib/installer-exclude/joscar-protocol.jar:lib/installer-exclude/smack.jar:lib/installer-exclude/cglib-nodep.osgi-2.1_3.jar:lib/installer-exclude/easymock-3.1.jar:lib/installer-exclude/objenesis-1.2.jar</classpath>
                 <built-to>classes</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
