@@ -93,13 +93,6 @@ public class ProtocolProviderServiceSipImpl
         new Hashtable<String, List<MethodProcessor>>();
 
     /**
-     * The name of the property under which the user may specify the number of
-     * seconds that registrations take to expire.
-     */
-    private static final String REGISTRATION_EXPIRATION =
-        "net.java.sip.communicator.impl.protocol.sip.REGISTRATION_EXPIRATION";
-
-    /**
      * The name of the property under which the user may specify a transport
      * to use for destinations whose preferred transport is unknown.
      */
@@ -1540,12 +1533,6 @@ public class ProtocolProviderServiceSipImpl
                 + " and does not therefore represent a valid port number.");
         }
 
-        //init expiration timeout
-        int expires =
-            SipActivator.getConfigurationService().getInt(
-                REGISTRATION_EXPIRATION,
-                SipRegistrarConnection.DEFAULT_REGISTRATION_EXPIRATION);
-
         //Initialize our connection with the registrar
         // we insert the default transport if none is specified
         // use it for registrar connection
@@ -1553,7 +1540,6 @@ public class ProtocolProviderServiceSipImpl
             registrarAddressStr
             , registrarPort
             , getDefaultTransport()
-            , expires
             , this);
     }
 

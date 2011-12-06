@@ -55,11 +55,18 @@ public class SipRegistrarConnection
     private String registrarName = null;
 
     /**
+     * The name of the property under which the user may specify the number of
+     * seconds that registrations take to expire.
+     */
+    private static final String REGISTRATION_EXPIRATION =
+        "net.java.sip.communicator.impl.protocol.sip.REGISTRATION_EXPIRATION";
+
+    /**
     * The default amount of time (in seconds) that registration take to
     * expire or otherwise put - the number of seconds we wait before re-
     * registering.
     */
-    public static final int DEFAULT_REGISTRATION_EXPIRATION = 600;
+    private static final int DEFAULT_REGISTRATION_EXPIRATION = 600;
 
     /**
     * The amount of time (in seconds) that registration take to expire or
@@ -159,10 +166,10 @@ public class SipRegistrarConnection
     *
     * @param registrarName the FQDN of the registrar we will
     * be registering with.
+    * @param registrarPort the port of the registrar we will
+    * be registering with.
     * @param registrationTransport the transport to use when sending our
     * REGISTER request to the server.
-    * @param expirationTimeout the number of seconds to wait before
-    * re-registering.
     * @param sipProviderCallback a reference to the
     * ProtocolProviderServiceSipImpl instance that created us.
     */
@@ -170,7 +177,6 @@ public class SipRegistrarConnection
                             String       registrarName,
                             int          registrarPort,
                             String       registrationTransport,
-                            int          expirationTimeout,
                             ProtocolProviderServiceSipImpl sipProviderCallback)
     {
         this.registrarPort = registrarPort;
@@ -178,7 +184,11 @@ public class SipRegistrarConnection
         this.registrarName = registrarName;
         this.sipProvider = sipProviderCallback;
 
-        this.registrationsExpiration = expirationTimeout;
+        //init expiration timeout
+        this.registrationsExpiration = 
+            SipActivator.getConfigurationService().getInt(
+                REGISTRATION_EXPIRATION,
+                DEFAULT_REGISTRATION_EXPIRATION);
 
         //init our address of record to save time later
         getAddressOfRecord();
