@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -55,6 +56,12 @@ public class MetaUIContact
      * The parent <tt>UIGroup</tt> of this contact.
      */
     private UIGroup parentUIGroup;
+
+    /**
+     * The subscription status of this meta contact. It will be turned to true
+     * when all the contact details are checked.
+     */
+    boolean subscribed = false;
 
     /**
      * Creates an instance of <tt>MetaUIContact</tt> by specifying the
@@ -260,7 +267,16 @@ public class MetaUIContact
 
         // If there's no avatar we have nothing more to do here.
         if((avatarBytes == null) || (avatarBytes.length <= 0))
+        {
+            if (!subscribed)
+            {
+                return ImageUtils.getScaledRoundedIcon(
+                    ImageLoader.getImage(ImageLoader.UNAUTHORIZED_CONTACT_PHOTO),
+                    width, height);
+            }
+
             return null;
+        }
 
         // If the cell is selected we return a zoomed version of the avatar
         // image.
@@ -304,19 +320,56 @@ public class MetaUIContact
      */
     public String getDisplayDetails()
     {
-        String statusMessage = null;
+        String displayDetails = null;
+
         Iterator<Contact> protoContacts = metaContact.getContacts();
+
+        String subscriptionDetails = null;
 
         while (protoContacts.hasNext())
         {
             Contact protoContact = protoContacts.next();
 
-            statusMessage = protoContact.getStatusMessage();
-            if (statusMessage != null && statusMessage.length() > 0)
+            OperationSetExtendedAuthorizations authOpSet
+                = protoContact.getProtocolProvider()
+                    .getOperationSet(OperationSetExtendedAuthorizations.class);
+
+            if (authOpSet != null
+                && authOpSet.getSubscriptionStatus(protoContact) != null
+                && !authOpSet.getSubscriptionStatus(protoContact)
+                    .equals(SubscriptionStatus.Subscribed))
+            {
+                SubscriptionStatus status
+                    = authOpSet.getSubscriptionStatus(protoContact);
+
+                if (status.equals(SubscriptionStatus.SubscriptionPending))
+                    subscriptionDetails = GuiActivator.getResources()
+                        .getI18NString("service.gui.WAITING_AUTHORIZATION");
+                else if (status.equals(SubscriptionStatus.NotSubscribed))
+                    subscriptionDetails = GuiActivator.getResources()
+                        .getI18NString("service.gui.NOT_AUTHORIZED");
+            }
+            else if (protoContact.getStatusMessage() != null
+                && protoContact.getStatusMessage().length() > 0)
+            {
+                subscribed = true;
+                displayDetails = protoContact.getStatusMessage();
                 break;
+            }
+            else
+            {
+                subscribed = true;
+            }
         }
 
-        return statusMessage;
+        if ((displayDetails == null
+            || displayDetails.length() <= 0)
+            && !subscribed
+            && subscriptionDetails != null
+            && subscriptionDetails.length() > 0)
+            displayDetails = subscriptionDetails;
+
+        return displayDetails;
     }
 
     /**

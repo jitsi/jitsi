@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.authorization.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
@@ -26,6 +27,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -189,6 +191,20 @@ public class MetaContactRightButtonMenu
             .getI18NString("service.gui.VIEW_HISTORY"));
 
     /**
+     * Multi protocol contact authorization request menu.
+     */
+    private final SIPCommMenu multiContactRequestAuthMenu
+        = new SIPCommMenu(GuiActivator.getResources()
+            .getI18NString("service.gui.RE_REQUEST_AUTHORIZATION"));
+
+    /**
+     * Authorization request menu item.
+     */
+    private final JMenuItem requestAuthMenuItem
+        = new JMenuItem(GuiActivator.getResources()
+            .getI18NString("service.gui.RE_REQUEST_AUTHORIZATION"));
+
+    /**
      * The <tt>MetaContact</tt> over which the right button was pressed.
      */
     private final MetaContact metaContact;
@@ -229,6 +245,11 @@ public class MetaContactRightButtonMenu
     private static final String regionDesktopSharingPrefix = "shareRegionScreen:";
 
     /**
+     * The prefix for full screen desktop sharing menu.
+     */
+    private static final String requestAuthPrefix = "requestAuth:";
+
+    /**
      * The contact to move when the move menu has been chosen.
      */
     private Contact contactToMove;
@@ -253,6 +274,11 @@ public class MetaContactRightButtonMenu
      * The contact list component.
      */
     private final TreeContactList contactList;
+
+    /**
+     * The first unsubscribed contact we found.
+     */
+    private Contact firstUnsubscribedContact = null;
 
     /**
      * Creates an instance of ContactRightButtonMenu.
@@ -404,6 +430,26 @@ public class MetaContactRightButtonMenu
                                         + protocolProvider.getProtocolName(),
                                         protocolIcon));
                 }
+
+                OperationSetExtendedAuthorizations authOpSet
+                    = protocolProvider.getOperationSet(
+                        OperationSetExtendedAuthorizations.class);
+
+                if (authOpSet != null
+                    && authOpSet.getSubscriptionStatus(contact) != null
+                    && !authOpSet.getSubscriptionStatus(contact)
+                        .equals(SubscriptionStatus.Subscribed))
+                {
+                    if (firstUnsubscribedContact == null)
+                        firstUnsubscribedContact = contact;
+
+                    multiContactRequestAuthMenu.add(
+                        createMenuItem( contactAddress,
+                                        requestAuthPrefix
+                                        + contact.getAddress()
+                                        + protocolProvider.getProtocolName(),
+                                        protocolIcon));
+                }
             }
         }
 
@@ -477,6 +523,32 @@ public class MetaContactRightButtonMenu
         addSeparator();
 
         add(viewHistoryItem);
+
+        addSeparator();
+
+        Contact defaultContact = metaContact.getDefaultContact();
+        int authRequestItemCount = multiContactRequestAuthMenu.getItemCount();
+        // If we have more than one request to make.
+        if (authRequestItemCount > 1)
+        {
+            this.add(multiContactRequestAuthMenu);
+        }
+        // If we have more than one protocol contacts and only one need
+        // authorization or we have only one contact that needs authorization.
+        else if (authRequestItemCount == 1
+            || (metaContact.getContactCount() == 1
+                && defaultContact.getProtocolProvider()
+                    .getOperationSet(OperationSetExtendedAuthorizations.class)
+                        != null)
+                && !defaultContact.getProtocolProvider()
+                    .getOperationSet(OperationSetExtendedAuthorizations.class)
+                        .getSubscriptionStatus(defaultContact).equals(
+                            SubscriptionStatus.Subscribed))
+        {
+            this.add(requestAuthMenuItem);
+            this.requestAuthMenuItem.setName("requestAuth");
+            this.requestAuthMenuItem.addActionListener(this);
+        }
 
         initPluginComponents();
 
@@ -766,6 +838,18 @@ public class MetaContactRightButtonMenu
                 history.setVisible(true);
             }
         }
+        else if (itemName.equals("requestAuth"))
+        {
+            // If we have more than one protocol contacts, but just one of them
+            // needs authorization.
+            if (firstUnsubscribedContact != null)
+                contact = firstUnsubscribedContact;
+            // If we have only one protocol contact and it needs authorization.
+            else
+                contact = metaContact.getDefaultContact();
+
+            requestAuthorization(contact);
+        }
         else if (itemName.startsWith(moveToPrefix))
         {
             MetaContactListManager.moveMetaContactToGroup(
@@ -852,6 +936,13 @@ public class MetaContactRightButtonMenu
             CallManager.createRegionDesktopSharing(
                                                 contact.getProtocolProvider(),
                                                 contact.getAddress());
+        }
+        else if (itemName.startsWith(requestAuthPrefix))
+        {
+            contact = getContactFromMetaContact(
+                    itemName.substring(requestAuthPrefix.length()));
+
+            requestAuthorization(contact);
         }
     }
 
@@ -1091,6 +1182,12 @@ public class MetaContactRightButtonMenu
 
         callContactMenu.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
+
+        requestAuthMenuItem.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.UNAUTHORIZED_CONTACT_16x16)));
+
+        multiContactRequestAuthMenu.setIcon(new ImageIcon(
+            ImageLoader.getImage(ImageLoader.UNAUTHORIZED_CONTACT_16x16)));
     }
 
     /**
@@ -1123,5 +1220,53 @@ public class MetaContactRightButtonMenu
         }
 
         return false;
+    }
+
+    /**
+     * Requests authorization for contact.
+     *
+     * @param contact the contact for which we request authorization
+     */
+    private void requestAuthorization(final Contact contact)
+    {
+        final OperationSetExtendedAuthorizations authOpSet
+            = contact.getProtocolProvider().getOperationSet(
+                OperationSetExtendedAuthorizations.class);
+
+        if (authOpSet == null)
+            return;
+
+        final AuthorizationRequest request = new AuthorizationRequest();
+
+        final RequestAuthorizationDialog dialog 
+            = new RequestAuthorizationDialog(mainFrame, contact, request);
+
+        new Thread()
+        {
+            public void run()
+            {
+                int returnCode = dialog.showDialog();
+
+                if(returnCode == RequestAuthorizationDialog.OK_RETURN_CODE)
+                {
+                    request.setReason(dialog.getRequestReason());
+
+                    try
+                    {
+                        authOpSet.reRequestAuthorization(request, contact);
+                    }
+                    catch (OperationFailedException e)
+                    {
+                        new ErrorDialog(mainFrame,
+                            GuiActivator.getResources()
+                                .getI18NString(
+                                    "service.gui.RE_REQUEST_AUTHORIZATION"),
+                            e.getMessage(),
+                            ErrorDialog.WARNING)
+                                .showDialog();
+                    }
+                }
+            }
+        }.start();
     }
 }

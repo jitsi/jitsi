@@ -830,6 +830,18 @@ public class ImageLoader
         = new ImageID("service.gui.DEFAULT_USER_PHOTO");
 
     /**
+     * The image used, when a contact is unauthorized.
+     */
+    public static final ImageID UNAUTHORIZED_CONTACT_PHOTO
+        = new ImageID("service.gui.icons.UNAUTHORIZED_CONTACT_PHOTO");
+
+    /**
+     * Re-request authorization menu item icon.
+     */
+    public static final ImageID UNAUTHORIZED_CONTACT_16x16
+        = new ImageID("service.gui.icons.UNAUTHORIZED_CONTACT_16x16");
+
+    /**
      * The image used to draw a frame around the contact photo image.
      */
     public static final ImageID USER_PHOTO_FRAME
