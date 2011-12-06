@@ -165,9 +165,6 @@ public class SipRegistrarConnection
     * re-registering.
     * @param sipProviderCallback a reference to the
     * ProtocolProviderServiceSipImpl instance that created us.
-    *
-    * @throws ParseException in case the specified registrar address is not a
-    * valid registrar address.
     */
     public SipRegistrarConnection(
                             String       registrarName,
@@ -175,7 +172,6 @@ public class SipRegistrarConnection
                             String       registrationTransport,
                             int          expirationTimeout,
                             ProtocolProviderServiceSipImpl sipProviderCallback)
-        throws ParseException
     {
         this.registrarPort = registrarPort;
         this.registrationTransport = registrationTransport;

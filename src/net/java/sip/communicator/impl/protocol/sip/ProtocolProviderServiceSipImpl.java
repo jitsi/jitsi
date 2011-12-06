@@ -1553,28 +1553,14 @@ public class ProtocolProviderServiceSipImpl
                 SipRegistrarConnection.DEFAULT_REGISTRATION_EXPIRATION);
 
         //Initialize our connection with the registrar
-        try
-        {
-            // we insert the default transport if none is specified
-            // use it for registrar connection
-            this.sipRegistrarConnection = new SipRegistrarConnection(
-                registrarAddressStr
-                , registrarPort
-                , getDefaultTransport()
-                , expires
-                , this);
-        }
-        catch (ParseException ex)
-        {
-            //this really shouldn't happen as we're using InetAddress-es
-            logger.error("Failed to create a registrar connection with "
-                + registrarAddressStr
-                , ex);
-            throw new IllegalArgumentException(
-                "Failed to create a registrar connection with "
-                + registrarAddressStr + ": "
-                + ex.getMessage());
-        }
+        // we insert the default transport if none is specified
+        // use it for registrar connection
+        this.sipRegistrarConnection = new SipRegistrarConnection(
+            registrarAddressStr
+            , registrarPort
+            , getDefaultTransport()
+            , expires
+            , this);
     }
 
     /**
