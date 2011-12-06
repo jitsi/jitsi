@@ -58,6 +58,10 @@ public class SIPCommunicator
     public static void main(String[] args)
         throws Exception
     {
+        // this needs to be set before any DNS lookup is run (which includes the
+        // Java SecurityManager)
+        System.setProperty("sun.net.spi.nameservice.provider.1", "dns,dnsjava");
+
         String version = System.getProperty("java.version");
         String vmVendor = System.getProperty("java.vendor");
         String osName = System.getProperty("os.name");
