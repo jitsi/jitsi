@@ -12,23 +12,13 @@ import org.xmlpull.v1.*;
 
 
 /**
- * The KeepAliveEventProvider parses KeepAlive Event packets.
+ * The KeepAliveEventProvider parses ping iq packets.
  *
  * @author Damian Minkov
  */
 public class KeepAliveEventProvider
     implements IQProvider
 {
-    /**
-     * Element name for keepalive.
-     */
-    public static final String ELEMENT_NAME = "keepalive";
-
-    /**
-     * Namespace for keepalive.
-     */
-    public static final String NAMESPACE = "jitsi:iq:keepalive";
-
     /**
      * Creates a new KeepAliveEventProvider.
      * ProviderManager requires that every PacketExtensionProvider has a public,
@@ -38,7 +28,7 @@ public class KeepAliveEventProvider
     {}
 
     /**
-     * Parses a KeepAliveEvent packet .
+     * Parses a ping iq packet .
      *
      * @param parser an XML parser.
      * @return a new IQ instance.
@@ -49,38 +39,15 @@ public class KeepAliveEventProvider
     {
         KeepAliveEvent result = new KeepAliveEvent();
 
-        boolean done = false;
-        while (!done)
-        {
-            try
-            {
-                int eventType = parser.next();
-                if(eventType == XmlPullParser.START_TAG)
-                {
-                    if(parser.getName().equals(KeepAliveEvent.
-                                               SOURCE_PROVIDER_HASH))
-                    {
-                        result.setSrcProviderHash(Integer.parseInt(parser.
-                            nextText()));
-                    }
-                    if(parser.getName().equals(KeepAliveEvent.SOURCE_OPSET_HASH))
-                    {
-                        result.setSrcOpSetHash(Integer.parseInt(parser.nextText()));
-                    }
-                }
-                else if(eventType == XmlPullParser.END_TAG)
-                {
-                    if(parser.getName().equals(ELEMENT_NAME))
-                    {
-                        done = true;
-                    }
-                }
-            }
-            catch(NumberFormatException ex)
-            {
-                ex.printStackTrace();
-            }
-        }
+        String type = parser.getAttributeValue(null, "type");
+        String id = parser.getAttributeValue(null, "id");
+        String from = parser.getAttributeValue(null, "from");
+        String to = parser.getAttributeValue(null, "to");
+
+        result.setType(IQ.Type.fromString(type));
+        result.setPacketID(id);
+        result.setFrom(from);
+        result.setTo(to);
 
         return result;
     }

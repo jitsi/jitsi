@@ -15,6 +15,7 @@ import java.util.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
@@ -1229,7 +1230,7 @@ public class ProtocolProviderServiceJabberImpl
      * Unregister and fire the event if requested
      * @param fireEvent boolean
      */
-    void unregister(boolean fireEvent)
+    public void unregister(boolean fireEvent)
     {
         synchronized(initializationLock)
         {
@@ -1343,9 +1344,9 @@ public class ProtocolProviderServiceJabberImpl
             OperationSetBasicInstantMessagingJabberImpl basicInstantMessaging =
                 new OperationSetBasicInstantMessagingJabberImpl(this);
 
-            if (keepAliveStrValue != null)
-                basicInstantMessaging.setKeepAliveEnabled(Boolean
-                    .parseBoolean(keepAliveStrValue));
+            if (keepAliveStrValue == null
+                || !keepAliveStrValue.equalsIgnoreCase(Boolean.FALSE.toString()))
+                new KeepAliveManager(this);
 
             addSupportedOperationSet(
                 OperationSetBasicInstantMessaging.class,
@@ -1644,7 +1645,7 @@ public class ProtocolProviderServiceJabberImpl
      * @return a reference to the <tt>XMPPConnection</tt> last opened by this
      * provider.
      */
-    protected XMPPConnection getConnection()
+    public XMPPConnection getConnection()
     {
         return connection;
     }

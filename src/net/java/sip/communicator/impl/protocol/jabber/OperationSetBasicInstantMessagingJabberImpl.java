@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
@@ -41,21 +40,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicInstantMessagingJabberImpl.class);
-
-    /**
-     * KeepAlive interval for sending packets
-     */
-    private static final long KEEPALIVE_INTERVAL = 180000l; // 3 minutes
-
-    /**
-     * The interval after which a packet is considered to be lost
-     */
-    private static final long KEEPALIVE_WAIT = 20000l;
-
-    /**
-     * Indicates whether we should be sending our own keep alive packets.
-     */
-    private boolean keepAliveEnabled = false;
 
     /**
      * The maximum number of unread threads that we'd be notifying the user of.
@@ -99,32 +83,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private static final long JID_INACTIVITY_TIMEOUT = 10*60*1000;//10 min.
 
     /**
-     * The task sending packets
-     */
-    private KeepAliveSendTask keepAliveSendTask = null;
-
-    /**
-     * The timer executing tasks on specified intervals
-     */
-    private Timer keepAliveTimer;
-
-    /**
      * Indicates the time of the last Mailbox report that we received from
      * Google (if this is a Google server we are talking to). Should be included
      * in all following mailbox queries
      */
     private long lastReceivedMailboxResultTime = -1;
-
-    /**
-     * The queue holding the received packets
-     */
-    private final LinkedList<KeepAliveEvent> receivedKeepAlivePackets
-        = new LinkedList<KeepAliveEvent>();
-
-    /**
-     * Stores the number of keep alive packets that we haven't heard back for.
-     */
-    private int failedKeepalivePackets = 0;
 
     /**
      * The provider that created us.
@@ -166,12 +129,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
         this.jabberProvider = provider;
         provider.addRegistrationStateChangeListener(
                         new RegistrationStateListener());
-
-        // register the KeepAlive Extension in the smack library
-        ProviderManager.getInstance()
-            .addIQProvider(KeepAliveEventProvider.ELEMENT_NAME,
-                           KeepAliveEventProvider.NAMESPACE,
-                           new KeepAliveEventProvider());
     }
 
     /**
@@ -566,26 +523,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                 if (enableGmailNotifications)
                     subscribeForGmailNotifications();
-
-
-                // run keep alive thread
-                if((keepAliveSendTask == null || keepAliveTimer == null)
-                    && keepAliveEnabled)
-                {
-                    jabberProvider.getConnection().addPacketListener(
-                        new KeepalivePacketListener(),
-                        new PacketTypeFilter(
-                            KeepAliveEvent.class));
-
-                    keepAliveSendTask = new KeepAliveSendTask();
-
-                    keepAliveTimer = new Timer("Jabber keepalive timer for <"
-                        + evt.getProvider().getAccountID() + ">", true);
-                    keepAliveTimer.scheduleAtFixedRate(
-                        keepAliveSendTask,
-                        KEEPALIVE_INTERVAL,
-                        KEEPALIVE_INTERVAL);
-                }
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED
@@ -596,17 +533,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     if(smackMessageListener != null)
                         jabberProvider.getConnection().removePacketListener(
                             smackMessageListener);
-                }
-
-                if(keepAliveSendTask != null)
-                {
-                    keepAliveSendTask.cancel();
-                    keepAliveSendTask = null;
-                }
-                if(keepAliveTimer != null)
-                {
-                    keepAliveTimer.cancel();
-                    keepAliveTimer = null;
                 }
 
                 smackMessageListener = null;
@@ -766,161 +692,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
         }
     }
 
-
-    /**
-     * Receives incoming KeepAlive Packets
-     */
-    private class KeepalivePacketListener
-        implements PacketListener
-    {
-        /**
-         * Handles incoming keep alive packets.
-         *
-         * @param packet the packet that we need to handle if it is a keep alive
-         * one.
-         */
-        public void processPacket(Packet packet)
-        {
-            if(packet != null &&  !(packet instanceof KeepAliveEvent))
-                return;
-
-            KeepAliveEvent keepAliveEvent = (KeepAliveEvent)packet;
-
-            if(logger.isDebugEnabled())
-            {
-                if (logger.isDebugEnabled())
-                    logger.debug("Received keepAliveEvent from "
-                             + keepAliveEvent.getFromUserID()
-                             + " the message : "
-                             + keepAliveEvent.toXML());
-            }
-
-            receivedKeepAlivePackets.addLast(keepAliveEvent);
-        }
-    }
-
-    /**
-     * Task sending packets on intervals.
-     * The task is runned on specified intervals by the keepAliveTimer
-     */
-    private class KeepAliveSendTask
-        extends TimerTask
-    {
-        /**
-         * Sends a single <tt>KeepAliveEvent</tt>.
-         */
-        public void run()
-        {
-            // if we are not registerd do nothing
-            if(!jabberProvider.isRegistered())
-            {
-                if (logger.isTraceEnabled())
-                    logger.trace("provider not registered. "
-                             +"won't send keep alive. acc.id="
-                             + jabberProvider.getAccountID()
-                                .getAccountUniqueID());
-                return;
-            }
-
-            KeepAliveEvent keepAliveEvent =
-                new KeepAliveEvent(jabberProvider.getConnection().getUser());
-
-            keepAliveEvent.setSrcOpSetHash(
-                OperationSetBasicInstantMessagingJabberImpl.this.hashCode());
-            keepAliveEvent.setSrcProviderHash(jabberProvider.hashCode());
-
-            // schedule the check task
-            keepAliveTimer.schedule(
-                new KeepAliveCheckTask(), KEEPALIVE_WAIT);
-
-            if (logger.isTraceEnabled())
-                logger.trace(
-                "send keepalive for acc: "
-                + jabberProvider.getAccountID().getAccountUniqueID());
-
-            jabberProvider.getConnection().sendPacket(keepAliveEvent);
-        }
-    }
-
-    /**
-     * Check if the first received packet in the queue
-     * is ok and if its not or the queue has no received packets
-     * the this means there is some network problem, so fire event
-     */
-    private class KeepAliveCheckTask
-        extends TimerTask
-    {
-        /**
-         * Checks if the first received packet in the queue is ok and if it is
-         * not or if the queue has no received packets then this means there
-         * is some network problem, so we fire an event
-         */
-        public void run()
-        {
-            try
-            {
-                // check till we find a correct message
-                // or if NoSuchElementException is thrown
-                // there is no message
-                while(!checkFirstPacket());
-                failedKeepalivePackets = 0;
-            }
-            catch (NoSuchElementException ex)
-            {
-                logger.error(
-                    "Did not receive last keep alive packet for account "
-                    + jabberProvider.getAccountID().getAccountUniqueID());
-
-                failedKeepalivePackets++;
-
-                // if we have 3 keepalive fails then unregister
-                if(failedKeepalivePackets == 3)
-                {
-                    logger.error("unregistering.");
-
-                    jabberProvider.unregister(false);
-
-                    jabberProvider.fireRegistrationStateChanged(
-                        jabberProvider.getRegistrationState(),
-                        RegistrationState.CONNECTION_FAILED,
-                        RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
-                        null);
-
-                    failedKeepalivePackets = 0;
-                }
-            }
-        }
-
-        /**
-         * Checks whether first packet in queue is ok
-         * @return <tt>true</tt> if the topmost keep alive packet seems to be ok
-         * and <tt>false</tt> otherwise.
-         *
-         * @throws NoSuchElementException if the topmost packet is malformed.
-         */
-        private boolean checkFirstPacket()
-            throws NoSuchElementException
-        {
-            KeepAliveEvent receivedEvent
-                = receivedKeepAlivePackets.removeLast();
-
-            return
-                (jabberProvider.hashCode() == receivedEvent.getSrcProviderHash()
-                    && OperationSetBasicInstantMessagingJabberImpl.this.hashCode()
-                            == receivedEvent.getSrcOpSetHash()
-                    && jabberProvider.getAccountID().getUserID()
-                            .equals(receivedEvent.getFromUserID()));
-        }
-    }
-
-    /**
-     * Enable sending keep alive packets
-     * @param keepAliveEnabled boolean
-     */
-    public void setKeepAliveEnabled(boolean keepAliveEnabled)
-    {
-        this.keepAliveEnabled = keepAliveEnabled;
-    }
 
     /**
      * A filter that prevents this operation set from handling multi user chat

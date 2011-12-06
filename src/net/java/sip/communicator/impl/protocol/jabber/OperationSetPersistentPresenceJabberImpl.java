@@ -1111,22 +1111,29 @@ public class OperationSetPersistentPresenceJabberImpl
                     AuthorizationRequest req = new AuthorizationRequest();
                     AuthorizationResponse response
                         = handler.processAuthorisationRequest(req, srcContact);
-                    Presence.Type responsePresenceType;
+                    Presence.Type responsePresenceType = null;
 
-                    if(response != null
-                       && response.getResponseCode()
+                    if(response != null)
+                    {
+                        if(response.getResponseCode()
                                .equals(AuthorizationResponse.ACCEPT))
-                    {
-                        responsePresenceType = Presence.Type.subscribed;
-                        if (logger.isInfoEnabled())
-                            logger.info("Sending Accepted Subscription");
+                        {
+                            responsePresenceType = Presence.Type.subscribed;
+                            if (logger.isInfoEnabled())
+                                logger.info("Sending Accepted Subscription");
+                        }
+                        else if(response.getResponseCode()
+                                .equals(AuthorizationResponse.REJECT))
+                        {
+                            responsePresenceType = Presence.Type.unsubscribed;
+                            if (logger.isInfoEnabled())
+                                logger.info("Sending Rejected Subscription");
+                        }
                     }
-                    else
-                    {
-                        responsePresenceType = Presence.Type.unsubscribed;
-                        if (logger.isInfoEnabled())
-                            logger.info("Sending Rejected Subscription");
-                    }
+
+                    // subscription ignored
+                    if(responsePresenceType == null)
+                        return;
 
                     Presence responsePacket = new Presence(
                             responsePresenceType);

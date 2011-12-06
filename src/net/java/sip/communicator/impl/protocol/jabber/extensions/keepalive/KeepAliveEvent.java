@@ -7,14 +7,11 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive;
 
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.*;
 
 /**
- * KeepAlive Event. Events are send on specified interval
- * and must be received from the sendin provider.
- * Carries the information for the source ProtocolProvider and
- * source OperationSet - so we can be sure that we are sending and receiving the
- * same package.
+ * KeepAlive Event. Events are sent if there are no received packets
+ * for a specified interval of time.
+ * XEP-0199: XMPP Ping.
  *
  * @author Damian Minkov
  */
@@ -22,17 +19,14 @@ public class KeepAliveEvent
     extends IQ
 {
     /**
-     * Element name for source provider hash.
+     * Element name for ping.
      */
-    public static final String SOURCE_PROVIDER_HASH = "src-provider-hash";
+    public static final String ELEMENT_NAME = "ping";
 
     /**
-     * Element name for source opset hash.
+     * Namespace for ping.
      */
-    public static final String SOURCE_OPSET_HASH = "src-opset-hash";
-
-    private int srcProviderHash = -1;
-    private int srcOpSetHash = -1;
+    public static final String NAMESPACE = "urn:xmpp:ping";
 
     /**
      * Constructs empty packet
@@ -45,13 +39,15 @@ public class KeepAliveEvent
      *
      * @param to the address of the contact that the packet is to be sent to.
      */
-    public KeepAliveEvent(String to)
+    public KeepAliveEvent(String from, String to)
     {
         if (to == null)
         {
             throw new IllegalArgumentException("Parameter cannot be null");
         }
+        setType(Type.GET);
         setTo(to);
+        setFrom(from);
     }
 
     /**
@@ -62,69 +58,10 @@ public class KeepAliveEvent
     public String getChildElementXML()
     {
         StringBuffer buf = new StringBuffer();
-        buf.append("<").append(KeepAliveEventProvider.ELEMENT_NAME).
-            append(" xmlns=\"").append(KeepAliveEventProvider.NAMESPACE).
-            append("\">");
+        buf.append("<").append(ELEMENT_NAME).
+            append(" xmlns=\"").append(NAMESPACE).
+            append("\"/>");
 
-        buf.append("<").
-            append(SOURCE_PROVIDER_HASH).append(">").
-                append(getSrcProviderHash()).append("</").
-            append(SOURCE_PROVIDER_HASH).append(">");
-
-        buf.append("<").
-            append(SOURCE_OPSET_HASH).append(">").
-                append(getSrcOpSetHash()).append("</").
-            append(SOURCE_OPSET_HASH).append(">");
-
-        buf.append("</").append(KeepAliveEventProvider.ELEMENT_NAME).append(">");
         return buf.toString();
-    }
-
-    /**
-     * The user id sending this packet
-     * @return String user id
-     */
-    public String getFromUserID()
-    {
-        if(getFrom() != null)
-            return StringUtils.parseBareAddress(getFrom());
-        else
-            return null;
-    }
-
-    /**
-     * Returns the hash of the source opeartion set sending this message
-     * @return int hash of the operation set
-     */
-    public int getSrcOpSetHash()
-    {
-        return srcOpSetHash;
-    }
-
-    /**
-     * Returns the hash of the source provider sending this message
-     * @return int hash of the provider
-     */
-    public int getSrcProviderHash()
-    {
-        return srcProviderHash;
-    }
-
-    /**
-     * Sets the hash of the source provider that will send the message
-     * @param srcProviderHash int hash of the provider
-     */
-    public void setSrcProviderHash(int srcProviderHash)
-    {
-        this.srcProviderHash = srcProviderHash;
-    }
-
-    /**
-     * Sets the hash of the source opeartion set that will send the message
-     * @param srcOpSetHash int hash of the operation set
-     */
-    public void setSrcOpSetHash(int srcOpSetHash)
-    {
-        this.srcOpSetHash = srcOpSetHash;
     }
 }
