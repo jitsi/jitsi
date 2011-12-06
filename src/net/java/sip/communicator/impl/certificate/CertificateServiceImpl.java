@@ -166,15 +166,6 @@ public class CertificateServiceImpl
         String tsFile = (String)config.getProperty(PNAME_TRUSTSTORE_FILE);
         String tsPassword = credService.loadPassword(PNAME_TRUSTSTORE_PASSWORD);
 
-        //TODO remove this after stable release 4 (rev3593 is r1, 3651 is r2)
-        //migrate the misnamed truststore property
-        if(tsFile != null && tsFile.equals("Windows-ROOT"))
-        {
-            tsType = tsFile;
-            tsFile = null;
-            config.setProperty(PNAME_TRUSTSTORE_TYPE, tsType);
-            config.removeProperty(PNAME_TRUSTSTORE_FILE);
-        }
         //TODO remove this as soon as we ship with JRE 1.7
         //remove windows root from x64 on Java < 1.7
         if (!(OSUtils.IS_WINDOWS32
@@ -509,7 +500,6 @@ public class CertificateServiceImpl
     {
         try
         {
-            //TODO: inject our own socket factory to use our own DNS stuff
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(
                 keyManagers,
