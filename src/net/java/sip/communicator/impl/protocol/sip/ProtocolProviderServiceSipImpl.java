@@ -100,13 +100,6 @@ public class ProtocolProviderServiceSipImpl
         "net.java.sip.communicator.service.protocol.sip.PREFERRED_SIP_PORT";
 
     /**
-     * Property used in default settings if we want to override the system
-     * property for java.net.preferIPv6Addresses, with values true or false.
-     */
-    private static final String PREFER_IPV6_ADDRESSES =
-        "net.java.sip.communicator.impl.protocol.sip.PREFER_IPV6_ADDRESSES";
-
-    /**
      * The name of the property under which the user may specify the number of
      * seconds that registrations take to expire.
      */
@@ -1948,7 +1941,6 @@ public class ProtocolProviderServiceSipImpl
                         resolveAddresses(
                             proxyAddressStr,
                             addresses,
-                            checkPreferIPv6Addresses(),
                             proxyPort);
 
                         connectionAddresses = addresses.toArray(
@@ -2716,8 +2708,6 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        boolean preferIPv6Addresses = checkPreferIPv6Addresses();
-
         // first make NAPTR resolve to get protocol, if needed
         if(resolveProtocol)
         {
@@ -2734,7 +2724,6 @@ public class ProtocolProviderServiceSipImpl
                                 rec[1],
                                 resultAddresses,
                                 resultTransports,
-                                preferIPv6Addresses,
                                 true);
                     }
 
@@ -2772,7 +2761,6 @@ public class ProtocolProviderServiceSipImpl
                         tp,
                         resultAddresses,
                         resultTransports,
-                        preferIPv6Addresses,
                         false);
                     if(!resultAddresses.isEmpty())
                     {
@@ -2788,7 +2776,6 @@ public class ProtocolProviderServiceSipImpl
                     transport,
                     resultAddresses,
                     resultTransports,
-                    preferIPv6Addresses,
                     false);
             }
         }
@@ -2809,7 +2796,6 @@ public class ProtocolProviderServiceSipImpl
         resolveAddresses(
                 address,
                 tempResultAddresses,
-                preferIPv6Addresses,
                 defaultPort);
         for(InetSocketAddress a : tempResultAddresses)
         {
@@ -2842,14 +2828,13 @@ public class ProtocolProviderServiceSipImpl
      * <tt>preferIPv6Addresses</tt> option.
      * @param address the address to resolve.
      * @param resultAddresses the List in which we provide the result.
-     * @param preferIPv6Addresses whether ipv6 address should go before ipv4.
      * @param defaultPort the port to use for the result address.
      * @throws UnknownHostException its not supposed to be thrown, cause
      * the address we use is an ip address.
      */
     private void resolveAddresses(
             String address, List<InetSocketAddress> resultAddresses,
-            boolean preferIPv6Addresses, int defaultPort)
+            int defaultPort)
             throws UnknownHostException
     {
         //we need to resolve the address only if its a hostname.
@@ -2863,43 +2848,20 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        InetSocketAddress addressObj4 = null;
-        InetSocketAddress addressObj6 = null;
         try
         {
-            addressObj4 = NetworkUtils.getARecord(address, defaultPort);
-        }
-        catch (ParseException ex)
-        {
-            logger.error("Error parsing dns record.", ex);
-        }
-        try
-        {
-            addressObj6 = NetworkUtils.getAAAARecord(address, defaultPort);
+            for(InetSocketAddress a :
+                NetworkUtils.getAandAAAARecords(address, defaultPort))
+            {
+                resultAddresses.add(a);
+            }
         }
         catch (ParseException ex)
         {
             logger.error("Error parsing dns record.", ex);
         }
 
-        if(preferIPv6Addresses)
-        {
-            if(addressObj6 != null && !resultAddresses.contains(addressObj6))
-                resultAddresses.add(addressObj6);
-
-            if(addressObj4 != null && !resultAddresses.contains(addressObj4))
-                resultAddresses.add(addressObj4);
-        }
-        else
-        {
-            if(addressObj4 != null && !resultAddresses.contains(addressObj4))
-                resultAddresses.add(addressObj4);
-
-            if(addressObj6 != null && !resultAddresses.contains(addressObj6))
-                resultAddresses.add(addressObj6);
-        }
-
-        if(addressObj4 == null && addressObj6 == null)
+        if(resultAddresses.size() == 0)
             logger.warn("No AAAA and A record found for " + address);
     }
 
@@ -2941,7 +2903,6 @@ public class ProtocolProviderServiceSipImpl
      * @param transport the transport to use
      * @param resultAddresses the result address after resolve.
      * @param resultTransports and the addresses transports.
-     * @param preferIPv6Addresses is ipv6 addresses are preferred over ipv4.
      * @param srvQueryString is the supplied address is of type
      *  _sip(s)._protocol.address, a string ready for srv queries, used
      * when we have a NAPTR returned records with value <tt>true</tt>.
@@ -2951,7 +2912,6 @@ public class ProtocolProviderServiceSipImpl
                             String transport,
                             List<InetSocketAddress> resultAddresses,
                             List<String> resultTransports,
-                            boolean preferIPv6Addresses,
                             boolean srvQueryString)
             throws  ParseException
     {
@@ -2987,7 +2947,6 @@ public class ProtocolProviderServiceSipImpl
                     resolveAddresses(
                         s.getTarget(),
                         tempResultAddresses,
-                        preferIPv6Addresses,
                         s.getPort());
                 }
                 catch(UnknownHostException e)
@@ -3166,24 +3125,6 @@ public class ProtocolProviderServiceSipImpl
             throw new OperationFailedException(message, errorCode);
         else
             throw new OperationFailedException(message, errorCode, cause);
-    }
-
-    /**
-     * Check is property java.net.preferIPv6Addresses has default value
-     * set in the application using our property:
-     * net.java.sip.communicator.impl.protocol.sip.PREFER_IPV6_ADDRESSES
-     * if not set - use setting from the system property.
-     * @return is property java.net.preferIPv6Addresses <code>"true"</code>.
-     */
-    public static boolean checkPreferIPv6Addresses()
-    {
-        String defaultSetting = SipActivator.getResources().getSettingsString(
-                PREFER_IPV6_ADDRESSES);
-        if(!StringUtils.isNullOrEmpty(defaultSetting))
-            return Boolean.parseBoolean(defaultSetting);
-
-        // if there is no default setting return the system wide value.
-        return Boolean.getBoolean("java.net.preferIPv6Addresses");
     }
 
     /**
