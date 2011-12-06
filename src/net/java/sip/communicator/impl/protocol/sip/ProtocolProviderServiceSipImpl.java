@@ -332,16 +332,8 @@ public class ProtocolProviderServiceSipImpl
         //avoid being asked for credentials before being ready to provide them
         sipSecurityManager.setSecurityAuthority(authority);
 
-        // We check here if the sipRegistrarConnection is initialized. This is
-        // needed in case that in the initialization process we had no internet
-        // connection and resolving the registrar failed.
-        if (sipRegistrarConnection == null)
-            initRegistrarConnection((SipAccountID) accountID);
-
-        // The same here, we check if the outbound proxy is initialized in case
-        // through the initialization process there was no internet connection.
-        if (outboundProxySocketAddress == null)
-            initOutboundProxy((SipAccountID)accountID, 0);
+        initRegistrarConnection();
+        initOutboundProxy(0);
 
         //connect to the Registrar.
         if (sipRegistrarConnection != null)
@@ -406,14 +398,6 @@ public class ProtocolProviderServiceSipImpl
 
             this.sipStatusEnum = new SipStatusEnum(protocolIconPath);
 
-            boolean isProxyValidated =
-                accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED, false);
-            //init the proxy, we had to have at least one address configured
-            // so use it, if it fails later we will use next one
-            if(!isProxyValidated)
-                initOutboundProxy(accountID, 0);
-
             if(sipStackSharing == null)
                 sipStackSharing = new SipStackSharing();
 
@@ -446,8 +430,6 @@ public class ProtocolProviderServiceSipImpl
             {
                 ourDisplayName = accountID.getUserID();
             }
-
-            initRegistrarConnection(accountID);
 
             //init our call processor
             OperationSetBasicTelephonySipImpl opSetBasicTelephonySipImpl
@@ -1517,12 +1499,10 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Initializes the SipRegistrarConnection that this class will be using.
      *
-     * @param accountID the ID of the account that this registrar is associated
-     * with.
      * @throws java.lang.IllegalArgumentException if one or more account
      * properties have invalid values.
      */
-    private void initRegistrarConnection(SipAccountID accountID)
+    private void initRegistrarConnection()
         throws IllegalArgumentException
     {
         //First init the registrar address
@@ -1548,7 +1528,7 @@ public class ProtocolProviderServiceSipImpl
         if(registrarAddressStr == null
            || registrarAddressStr.trim().length() == 0)
         {
-            initRegistrarlessConnection(accountID);
+            initRegistrarlessConnection();
             return;
         }
 
@@ -1600,12 +1580,10 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Initializes the SipRegistrarConnection that this class will be using.
      *
-     * @param accountID the ID of the account that this registrar is associated
-     * with.
      * @throws java.lang.IllegalArgumentException if one or more account
      * properties have invalid values.
      */
-    private void initRegistrarlessConnection(SipAccountID accountID)
+    private void initRegistrarlessConnection()
         throws IllegalArgumentException
     {
         //registrar transport
@@ -1777,11 +1755,9 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Extracts all properties concerning the usage of an outbound proxy for
      * this account.
-     * @param accountID the account whose outbound proxy we are currently
-     * initializing.
      * @param ix index of the address to use.
      */
-    void initOutboundProxy(SipAccountID accountID, int ix)
+    private void initOutboundProxy(int ix)
     {
         //First init the proxy address
         String proxyAddressStr =
@@ -3220,7 +3196,7 @@ public class ProtocolProviderServiceSipImpl
                 + ex.getMessage());
         }
 
-        initOutboundProxy((SipAccountID)getAccountID(), ix);
+        initOutboundProxy(ix);
     }
 
     protected InetSocketAddress getCurrentConnectionAddress()
