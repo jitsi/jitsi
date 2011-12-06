@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 import gov.nist.javax.sip.address.*;
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.message.*;
+import net.java.sip.communicator.impl.protocol.sip.net.*;
 import net.java.sip.communicator.impl.protocol.sip.security.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -155,31 +156,9 @@ public class ProtocolProviderServiceSipImpl
     private SipSecurityManager sipSecurityManager = null;
 
     /**
-     * The address and port of an outbound proxy if we have one (remains null
-     * if we are not using a proxy).
+     * Address resolver for the outbound proxy connection.
      */
-    private InetSocketAddress outboundProxySocketAddress = null;
-
-    /**
-     * The transport used by our outbound proxy (remains null
-     * if we are not using a proxy).
-     */
-    private String outboundProxyTransport = null;
-
-    /**
-     * Array of ordered addresses to try when connecting.
-     */
-    private InetSocketAddress[] connectionAddresses = null;
-
-    /**
-     * Array of ordered addresses transports to try when connecting.
-     */
-    private String[] connectionTransports = null;
-
-    /**
-    * The InetAddress we are connecting to, outbound proxy.
-    */
-    private InetSocketAddress currentConnectionAddress = null;
+    private ProxyConnection connection;
 
     /**
      * The logo corresponding to the jabber protocol.
@@ -320,11 +299,17 @@ public class ProtocolProviderServiceSipImpl
         sipSecurityManager.setSecurityAuthority(authority);
 
         initRegistrarConnection();
-        initOutboundProxy(0);
-
         //connect to the Registrar.
-        if (sipRegistrarConnection != null)
-            sipRegistrarConnection.register();
+        connection = ProxyConnection.create(this);
+        if(!registerUsingNextAddress())
+        {
+            logger.error("No address found for " + this);
+            fireRegistrationStateChanged(
+                RegistrationState.UNREGISTERED,
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                "Invalid or inaccessible server address.");
+        }
     }
 
     /**
@@ -340,7 +325,7 @@ public class ProtocolProviderServiceSipImpl
     {
         if(getRegistrationState().equals(RegistrationState.UNREGISTERED)
             || getRegistrationState().equals(RegistrationState.UNREGISTERING)
-                || getRegistrationState().equals(RegistrationState.CONNECTION_FAILED))
+            || getRegistrationState().equals(RegistrationState.CONNECTION_FAILED))
         {
             return;
         }
@@ -1013,9 +998,7 @@ public class ProtocolProviderServiceSipImpl
             addressFactory = null;
             sipSecurityManager = null;
 
-            connectionAddresses = null;
-            connectionTransports = null;
-            currentConnectionAddress = null;
+            connection = null;
 
             methodProcessors.clear();
 
@@ -1386,18 +1369,14 @@ public class ProtocolProviderServiceSipImpl
             logger.trace("Query for a " + transport + " listening point");
 
         //override the transport in case we have an outbound proxy.
-        if(outboundProxySocketAddress != null)
+        if(connection.getAddress() != null)
         {
             if (logger.isTraceEnabled())
                 logger.trace("Will use proxy address");
-            transport = outboundProxyTransport;
+            transport = connection.getTransport();
         }
 
-        if(   transport == null
-           || transport.trim().length() == 0
-           || (   ! transport.trim().equalsIgnoreCase(ListeningPoint.TCP)
-               && ! transport.trim().equalsIgnoreCase(ListeningPoint.UDP)
-               && ! transport.trim().equalsIgnoreCase(ListeningPoint.TLS)))
+        if(!isValidTransport(transport))
         {
             transport = getDefaultTransport();
         }
@@ -1435,26 +1414,9 @@ public class ProtocolProviderServiceSipImpl
      * @return the listening point that we should use to contact the
      * intended destination.
      */
-    public ListeningPoint getListeningPoint(Address intendedDestination)
-    {
-        return getListeningPoint((SipURI)intendedDestination.getURI());
-    }
-
-    /**
-     * Returns the default listening point that we should use to contact the
-     * intended destination.
-     *
-     * @param intendedDestination the address that we will be trying to contact
-     * through the listening point we are trying to obtain.
-     *
-     * @return the listening point that we should use to contact the
-     * intended destination.
-     */
     public ListeningPoint getListeningPoint(SipURI intendedDestination)
     {
-        String transport = intendedDestination.getTransportParam();
-
-        return getListeningPoint(transport);
+        return getListeningPoint(intendedDestination.getTransportParam());
     }
 
     /**
@@ -1652,48 +1614,9 @@ public class ProtocolProviderServiceSipImpl
         }
     }
 
-    /**
-     * In case we are using an outbound proxy this method returns
-     * a suitable string for use with Router.
-     * The method returns <tt>null</tt> otherwise.
-     *
-     * @return the string of our outbound proxy if we are using one and
-     * <tt>null</tt> otherwise.
-     */
-    public String getOutboundProxyString()
+    public ProxyConnection getConnection()
     {
-        InetAddress proxyAddress = outboundProxySocketAddress.getAddress();
-        StringBuilder proxyStringBuffer
-            = new StringBuilder(proxyAddress.getHostAddress());
-
-        if(proxyAddress instanceof Inet6Address)
-        {
-            proxyStringBuffer.insert(0, '[');
-            proxyStringBuffer.append(']');
-        }
-    
-        proxyStringBuffer.append(':');
-        proxyStringBuffer.append(outboundProxySocketAddress.getPort());
-        proxyStringBuffer.append('/');
-        proxyStringBuffer.append(outboundProxyTransport);
-
-        return proxyStringBuffer.toString();
-    }
-
-    /**
-     * Compares an InetAddress against the active outbound proxy. The comparison
-     * is by reference, not equals.
-     * 
-     * @param addressToTest The addres to test.
-     * @return True when the InetAddress is the same as the outbound proxy.
-     */
-    public boolean matchesInetAddress(InetAddress addressToTest)
-    {
-        // if the proxy is not yet initialized then this is not the provider that
-        // caused this comparison
-        if(outboundProxySocketAddress == null)
-            return false;
-        return addressToTest == outboundProxySocketAddress.getAddress();
+        return connection;
     }
 
     /**
@@ -1704,259 +1627,7 @@ public class ProtocolProviderServiceSipImpl
      */
     public boolean isSignalingTransportSecure()
     {
-        return ListeningPoint.TLS.equalsIgnoreCase(outboundProxyTransport);
-    }
-
-    /**
-     * Extracts all properties concerning the usage of an outbound proxy for
-     * this account.
-     * @param ix index of the address to use.
-     */
-    private void initOutboundProxy(int ix)
-    {
-        //First init the proxy address
-        String proxyAddressStr =
-            accountID
-                .getAccountPropertyString(ProtocolProviderFactory.
-                        PROXY_ADDRESS);
-        boolean proxyAddressAndPortEntered = false;
-
-        if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0
-            || accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.PROXY_AUTO_CONFIG, false))
-        {
-            String userID =  accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.USER_ID);
-
-            int domainIx = userID.indexOf("@");
-
-            if(domainIx > 0)
-            {
-                proxyAddressStr = userID.substring(domainIx + 1);
-            }
-            else
-            {
-                proxyAddressStr = accountID
-                    .getAccountPropertyString(ProtocolProviderFactory.
-                            SERVER_ADDRESS);
-
-                if(proxyAddressStr == null || proxyAddressStr.trim().length() == 0)
-                {
-                    /* registrarless account */
-                    return;
-                }
-            }
-        }
-        else
-        {
-            if(accountID.getAccountProperty(ProtocolProviderFactory.PROXY_PORT)
-                    != null)
-            {
-                proxyAddressAndPortEntered = true;
-            }
-        }
-
-        //init proxy port
-        int proxyPort = ListeningPoint.PORT_5060;
-
-        //proxy transport
-        String proxyTransport = accountID.getAccountPropertyString(
-                ProtocolProviderFactory.PREFERRED_TRANSPORT);
-
-        if (proxyTransport != null && proxyTransport.length() > 0)
-        {
-            if (!proxyTransport.equals(ListeningPoint.UDP)
-                && !proxyTransport.equals(ListeningPoint.TCP)
-                && !proxyTransport.equals(ListeningPoint.TLS))
-            {
-                throw new IllegalArgumentException(proxyTransport
-                    + " is not a valid transport protocol. Transport must be "
-                    + "left blank or set to TCP, UDP or TLS.");
-            }
-        }
-        else
-        {
-            proxyTransport = getDefaultTransport();
-        }
-
-        InetSocketAddress proxySocketAddress = null;
-        try
-        {
-            //check if user has overridden proxy port.
-            proxyPort = accountID.getAccountPropertyInt(
-                    ProtocolProviderFactory.PROXY_PORT,
-                    proxyPort);
-            if (proxyPort > NetworkUtils.MAX_PORT_NUMBER)
-            {
-                throw new IllegalArgumentException(proxyPort + " is larger than "
-                    + NetworkUtils.MAX_PORT_NUMBER
-                    + " and does not therefore represent a valid port number.");
-            }
-
-            if(accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.PROXY_AUTO_CONFIG, false))
-            {
-                if(connectionAddresses == null)
-                {
-                    ArrayList<InetSocketAddress> proxySocketAddressesList
-                        = new ArrayList<InetSocketAddress>();
-                    ArrayList<String> proxyTransportsList
-                            = new ArrayList<String>();
-
-                    resolveSipAddress(
-                            proxyAddressStr,
-                            proxyTransport,
-                            proxySocketAddressesList,
-                            proxyTransportsList,
-                            true);
-
-                    connectionTransports = proxyTransportsList.toArray(
-                            new String[proxyTransportsList.size()]);
-                    connectionAddresses = proxySocketAddressesList.toArray(
-                            new InetSocketAddress[proxySocketAddressesList.size()]);
-                }
-
-                proxyTransport = connectionTransports[ix];
-                proxySocketAddress = connectionAddresses[ix];
-            }
-            else
-            {
-                // according rfc3263 if proxy address and port are
-                // explicitly entered don't make SRV queries
-                if(proxyAddressAndPortEntered)
-                {
-                    if(connectionAddresses == null)
-                    {
-                        ArrayList<InetSocketAddress> addresses
-                            = new ArrayList<InetSocketAddress>();
-
-                        resolveAddresses(
-                            proxyAddressStr,
-                            addresses,
-                            proxyPort);
-
-                        connectionAddresses = addresses.toArray(
-                                new InetSocketAddress[addresses.size()]);
-
-                        // we have transport, use it for all addresses
-                        connectionTransports = new String[addresses.size()];
-                        Arrays.fill(connectionTransports, proxyTransport);
-                    }
-                    // only set if enough results found
-                    if(connectionAddresses.length > ix)
-                        proxySocketAddress = connectionAddresses[ix];
-                }
-                else
-                {
-                    if(connectionAddresses == null)
-                    {
-                        ArrayList<InetSocketAddress> proxySocketAddressesList
-                            = new ArrayList<InetSocketAddress>();
-                        ArrayList<String> proxyTransportsList
-                            = new ArrayList<String>();
-
-                        resolveSipAddress(
-                            proxyAddressStr,
-                            proxyTransport,
-                            proxySocketAddressesList,
-                            proxyTransportsList,
-                            false);
-
-                        connectionTransports = proxyTransportsList.toArray(
-                            new String[proxyTransportsList.size()]);
-                        connectionAddresses =
-                            proxySocketAddressesList.toArray(
-                                new InetSocketAddress[
-                                            proxySocketAddressesList.size()]);
-                    }
-
-                    proxyTransport = connectionTransports[ix];
-                    proxySocketAddress = connectionAddresses[ix];
-                }
-            }
-
-            if(proxySocketAddress == null)
-                throw new UnknownHostException();
-
-            if(this.currentConnectionAddress == null)
-                this.currentConnectionAddress = proxySocketAddress;
-
-            proxyPort = proxySocketAddress.getPort();
-
-            if (logger.isTraceEnabled())
-                logger.trace("Setting proxy address = " + proxyAddressStr);
-
-            // We should set here the property to indicate that the proxy
-            // address is validated. When we load stored accounts we check
-            // this property in order to prevent checking again the proxy
-            // address. this is needed because in the case we don't have
-            // network while loading the application we still want to have
-            // our accounts loaded.
-            accountID.putAccountProperty(
-                ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED,
-                Boolean.toString(true));
-        }
-        catch (UnknownHostException ex)
-        {
-            logger.error(proxyAddressStr
-                            + " appears to be an either invalid"
-                            + " or inaccessible address.",
-                            ex);
-
-            boolean isProxyValidated =
-                accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.PROXY_ADDRESS_VALIDATED, false);
-
-            // We should check here if the proxy address was already validated.
-            // When we load stored accounts we want to prevent checking again the
-            // proxy address. This is needed because in the case we don't have
-            // network while loading the application we still want to have our
-            // accounts loaded.
-            if (!isProxyValidated)
-            {
-                throw new IllegalArgumentException(
-                    proxyAddressStr
-                    + " appears to be an either invalid or"
-                    + " inaccessible address.",
-                    ex);
-            }
-        }
-
-        if(connectionAddresses == null
-            || connectionAddresses.length == 0)
-        {
-            sipRegistrarConnection = null;
-            // no addresses, maybe network down, lets try
-            // resolving them later
-            connectionAddresses = null;
-            connectionTransports = null;
-
-            fireRegistrationStateChanged(
-                RegistrationState.UNREGISTERED,
-                RegistrationState.CONNECTION_FAILED,
-                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
-                "Invalid or inaccessible server address.");
-
-            return;
-        }
-
-        // Return if no proxy is specified or if the proxyAddress is null.
-        if(proxySocketAddress == null)
-        {
-            return;
-        }
-
-        // lets change registrar connections transport
-        // make sure it reflects the transport we choose from DNS records
-        // registrar connection can be null while creating accounts
-        if(sipRegistrarConnection != null)
-            sipRegistrarConnection.setTransport(proxyTransport);
-
-        //store a reference to our sip proxy so that we can use it when
-        //constructing via and contact headers.
-        this.outboundProxySocketAddress
-            = new InetSocketAddress(proxySocketAddress.getAddress(), proxyPort);
-        this.outboundProxyTransport = proxyTransport;
+        return ListeningPoint.TLS.equalsIgnoreCase(connection.getTransport());
     }
 
     /**
@@ -2057,20 +1728,13 @@ public class ProtocolProviderServiceSipImpl
      */
     public String getDefaultTransport()
     {
-        if( sipRegistrarConnection != null)
+        if(sipRegistrarConnection != null
+            && !sipRegistrarConnection.isRegistrarless()
+            && connection != null
+            && connection.getAddress() != null
+            && connection.getTransport() != null)
         {
-            String registrarTransport = sipRegistrarConnection.getTransport();
-            if(   registrarTransport != null
-               && registrarTransport.length() > 0)
-           {
-               return registrarTransport;
-           }
-        }
-
-        if(outboundProxySocketAddress != null
-            && outboundProxyTransport != null)
-        {
-            return outboundProxyTransport;
+            return connection.getTransport();
         }
         else
         {
@@ -2106,19 +1770,6 @@ public class ProtocolProviderServiceSipImpl
     public SipProvider getDefaultJainSipProvider()
     {
         return getJainSipProvider(getDefaultTransport());
-    }
-
-    /**
-     * Returns the listening point that corresponds to the transport returned by
-     * getDefaultTransport(). Equivalent to calling
-     * getListeningPoint(getDefaultTransport())
-     *
-     * @return the Jain SipProvider that corresponds to the transport returned
-     * by getDefaultTransport().
-     */
-    public ListeningPoint getDefaultListeningPoint()
-    {
-        return getListeningPoint(getDefaultTransport());
     }
 
     /**
@@ -2518,320 +2169,6 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Tries to resolve <tt>address</tt> into a valid InetSocketAddress using
-     * an <tt>SRV</tt> query where it exists and A/AAAA where it doesn't.
-     * If there is no SRV,A or AAAA records return the socket address created
-     * with the supplied <tt>address</tt>, so we can keep old behaviour.
-     * When letting underling libs and java to resolve the address.
-     *
-     * @param address the address we'd like to resolve.
-     * @param transport the protocol that we'd like to use when accessing
-     * address.
-     * @param resultAddresses the list that will be filled with the result
-     * addresses. An <tt>InetSocketAddress</tt> instances containing the
-     * <tt>SRV</tt> record for <tt>address</tt> if one has been defined and the
-     * A/AAAA record where it hasn't.
-     * @param resultTransports the transports for the <tt>resultAddresses</tt>.
-     * @param resolveProtocol if the protocol should be resolved
-     * @return the transports that is used, when the <tt>transport</tt> is with
-     * value Auto we resolve the address with NAPTR query, if no NAPTR record
-     * we will use the default one.
-     *
-     * @throws UnknownHostException if <tt>address</tt> is not a valid host
-     * address.
-     */
-    public void resolveSipAddress(
-            String address, String transport,
-            List<InetSocketAddress> resultAddresses,
-            List<String> resultTransports,
-            boolean resolveProtocol)
-        throws UnknownHostException
-    {
-        //we need to resolve the address only if its a hostname.
-        if(NetworkUtils.isValidIPAddress(address))
-        {
-            InetAddress addressObj = NetworkUtils.getInetAddress(address);
-
-            //this is an ip address so we need to return default ports since
-            //we can't get them from a DNS.
-            int port = ListeningPoint.PORT_5060;
-            if(transport.equalsIgnoreCase(ListeningPoint.TLS))
-                port = ListeningPoint.PORT_5061;
-
-            resultTransports.add(transport);
-            resultAddresses.add(new InetSocketAddress(addressObj, port));
-
-            // as its ip address return, no dns is needed.
-            return;
-        }
-
-        // first make NAPTR resolve to get protocol, if needed
-        if(resolveProtocol)
-        {
-            try
-            {
-                String[][] naptrRecords = NetworkUtils.getNAPTRRecords(address);
-
-                if(naptrRecords != null && naptrRecords.length > 0)
-                {
-                    for(String[] rec : naptrRecords)
-                    {
-                        resolveSRV(
-                                rec[2],
-                                rec[1],
-                                resultAddresses,
-                                resultTransports,
-                                true);
-                    }
-
-                    // NAPTR found use only it
-                    if(logger.isInfoEnabled())
-                        logger.info("Found NAPTR record and using it:"
-                            + resultAddresses);
-
-                    // return only if found something
-                    if(resultAddresses.size() > 0
-                        && resultTransports.size() > 0)
-                    return;
-                }
-            }
-            catch (ParseException e)
-            {
-                logger.error("Error parsing dns record.", e);
-            }
-        }
-
-        //try to obtain SRV mappings from the DNS
-        try
-        {
-            if(resolveProtocol)
-            {
-                String[] transports = new String[]{
-                    ListeningPoint.TLS,
-                    ListeningPoint.TCP,
-                    ListeningPoint.UDP
-                };
-                for(String tp : transports)
-                {
-                    resolveSRV(
-                        address,
-                        tp,
-                        resultAddresses,
-                        resultTransports,
-                        false);
-                    if(!resultAddresses.isEmpty())
-                    {
-                        transport = tp;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                resolveSRV(
-                    address,
-                    transport,
-                    resultAddresses,
-                    resultTransports,
-                    false);
-            }
-        }
-        catch (ParseException e)
-        {
-            logger.error("Error parsing dns record.", e);
-        }
-
-        //no SRV means default ports
-        int defaultPort = ListeningPoint.PORT_5060;
-        if(transport.equalsIgnoreCase(ListeningPoint.TLS))
-            defaultPort = ListeningPoint.PORT_5061;
-
-        ArrayList<InetSocketAddress> tempResultAddresses
-            = new ArrayList<InetSocketAddress>();
-
-        // after checking SRVs, lets add and AAAA and A records
-        resolveAddresses(
-                address,
-                tempResultAddresses,
-                defaultPort);
-        for(InetSocketAddress a : tempResultAddresses)
-        {
-            if(!resultAddresses.contains(a))
-            {
-                resultAddresses.add(a);
-                resultTransports.add(transport);
-            }
-        }
-
-        // make sure we don't return empty array
-        if(resultAddresses.size() == 0)
-        {
-            resultAddresses.add(new InetSocketAddress(address, defaultPort));
-            resultTransports.add(transport);
-
-            // there were no SRV mappings so we only need to A/AAAA resolve the
-            // address. Do this before we instantiate the
-            // resulting InetSocketAddress because its constructor
-            // suppresses UnknownHostException-s and we want to know if
-            // something goes wrong.
-            @SuppressWarnings("unused")
-            InetAddress addressObj = InetAddress.getByName(address);
-        }
-    }
-
-    /**
-     * Resolves the given address. Resolves A and AAAA records and returns
-     * them in <tt>resultAddresses</tt> ordered according
-     * <tt>preferIPv6Addresses</tt> option.
-     * @param address the address to resolve.
-     * @param resultAddresses the List in which we provide the result.
-     * @param defaultPort the port to use for the result address.
-     * @throws UnknownHostException its not supposed to be thrown, cause
-     * the address we use is an ip address.
-     */
-    private void resolveAddresses(
-            String address, List<InetSocketAddress> resultAddresses,
-            int defaultPort)
-            throws UnknownHostException
-    {
-        //we need to resolve the address only if its a hostname.
-        if(NetworkUtils.isValidIPAddress(address))
-        {
-            InetAddress addressObj = NetworkUtils.getInetAddress(address);
-
-            resultAddresses.add(new InetSocketAddress(addressObj, defaultPort));
-
-            // as its ip address return, no dns is needed.
-            return;
-        }
-
-        try
-        {
-            for(InetSocketAddress a :
-                NetworkUtils.getAandAAAARecords(address, defaultPort))
-            {
-                resultAddresses.add(a);
-            }
-        }
-        catch (ParseException ex)
-        {
-            logger.error("Error parsing dns record.", ex);
-        }
-
-        if(resultAddresses.size() == 0)
-            logger.warn("No AAAA and A record found for " + address);
-    }
-
-    /**
-     * Tries to resolve <tt>address</tt> into a valid InetSocketAddress using
-     * an <tt>SRV</tt> query where it exists and A/AAAA where it doesn't. The
-     * method assumes that the transport that we'll be using when connecting to
-     * address is the one that has been defined as default for this provider.
-     *
-     * @param address the address we'd like to resolve.
-     *
-     * @return an <tt>InetSocketAddress</tt> instance containing the
-     * <tt>SRV</tt> record for <tt>address</tt> if one has been defined and the
-     * A/AAAA record where it hasn't.
-     *
-     * @throws UnknownHostException if <tt>address</tt> is not a valid host
-     * address.
-     */
-    public InetSocketAddress resolveSipAddress(String address)
-        throws UnknownHostException
-    {
-        ArrayList<InetSocketAddress> socketAddressesList =
-            new ArrayList<InetSocketAddress>();
-
-        resolveSipAddress(address, getDefaultTransport(), socketAddressesList,
-                new ArrayList<String>(),
-                getAccountID().getAccountPropertyBoolean(
-                        ProtocolProviderFactory.PROXY_AUTO_CONFIG, false));
-
-        return socketAddressesList.get(0);
-    }
-
-    /**
-     * Resolves the SRV records add their corresponding AAAA and A records
-     * in the <tt>resultAddresses</tt> ordered by the preference
-     * <tt>preferIPv6Addresses</tt> and their corresponding <tt>transport</tt>
-     * in the <tt>resultTransports</tt>.
-     * @param address the address to resolve.
-     * @param transport the transport to use
-     * @param resultAddresses the result address after resolve.
-     * @param resultTransports and the addresses transports.
-     * @param srvQueryString is the supplied address is of type
-     *  _sip(s)._protocol.address, a string ready for srv queries, used
-     * when we have a NAPTR returned records with value <tt>true</tt>.
-     * @throws ParseException exception when parsing dns address
-     */
-    private void resolveSRV(String address,
-                            String transport,
-                            List<InetSocketAddress> resultAddresses,
-                            List<String> resultTransports,
-                            boolean srvQueryString)
-            throws  ParseException
-    {
-        SRVRecord srvRecords[] = null;
-
-        if(srvQueryString)
-        {
-            srvRecords = NetworkUtils.getSRVRecords(address);
-        }
-        else
-        {
-            srvRecords = NetworkUtils.getSRVRecords(
-                    transport.equalsIgnoreCase(ListeningPoint.TLS)
-                            ? "sips" : "sip",
-                    transport.equalsIgnoreCase(ListeningPoint.UDP)
-                            ? ListeningPoint.UDP : ListeningPoint.TCP,
-                    address);
-        }
-
-        if(srvRecords != null)
-        {
-            ArrayList<InetSocketAddress> tempResultAddresses
-                = new ArrayList<InetSocketAddress>();
-
-            for(SRVRecord s : srvRecords)
-            {
-                // add corresponding A and AAAA records
-                // to the host address from SRV records
-                try
-                {
-                    // as these are already resolved addresses (the SRV res.)
-                    // lets get it without triggering a PTR
-                    resolveAddresses(
-                        s.getTarget(),
-                        tempResultAddresses,
-                        s.getPort());
-                }
-                catch(UnknownHostException e)
-                {
-                    logger.warn("Address unknown:" + s.getTarget(), e);
-                }
-
-                /* add and every SRV address itself if not already there
-                if(!tempResultAddresses.contains(s))
-                    tempResultAddresses.add(s);
-                */
-
-                if (logger.isTraceEnabled())
-                    logger.trace("Returned SRV " + s);
-            }
-
-            for(InetSocketAddress a : tempResultAddresses)
-            {
-                if(!resultAddresses.contains(a))
-                {
-                    resultAddresses.add(a);
-                    resultTransports.add(transport);
-                }
-            }
-        }
-    }
-
-    /**
      * Returns the <tt>InetAddress</tt> that is most likely to be to be used
      * as a next hop when contacting the specified <tt>destination</tt>. This is
      * an utility method that is used whenever we have to choose one of our
@@ -2853,7 +2190,6 @@ public class ProtocolProviderServiceSipImpl
     {
         return getIntendedDestination((SipURI)destination.getURI());
     }
-
 
     /**
      * Returns the <tt>InetAddress</tt> that is most likely to be to be used
@@ -2905,7 +2241,7 @@ public class ProtocolProviderServiceSipImpl
         //but the destination could only be known to our outbound proxy
         //if we have one. If this is the case replace the destination
         //address with that of the proxy.(report by Dan Bogos)
-        InetSocketAddress outboundProxy = outboundProxySocketAddress;
+        InetSocketAddress outboundProxy = connection.getAddress();
 
         if(outboundProxy != null)
         {
@@ -2915,16 +2251,11 @@ public class ProtocolProviderServiceSipImpl
         }
         else
         {
-            try
-            {
-                destinationInetAddress = resolveSipAddress(host);
-            }
-            catch (UnknownHostException ex)
-            {
-                throw new IllegalArgumentException(
-                    host + " is not a valid internet address.",
-                    ex);
-            }
+            ProxyConnection tempConn = new AutoProxyConnection(
+                (SipAccountID)getAccountID(),
+                host,
+                getDefaultTransport());
+            destinationInetAddress = tempConn.getAddress();
         }
 
         if(logger.isDebugEnabled())
@@ -3046,63 +2377,39 @@ public class ProtocolProviderServiceSipImpl
      */
     boolean registerUsingNextAddress()
     {
-        // means no connection
-        if(connectionAddresses == null)
+        if(connection == null)
             return false;
 
-        int i = 0;
-        for (; i < connectionAddresses.length; i++)
+        try
         {
-            if(connectionAddresses[i].equals(currentConnectionAddress))
-                break;
-        }
-
-        if(i + 1 < connectionAddresses.length)
-        {
-            changeAddress(i + 1);
-
-            try
+            if(sipRegistrarConnection.isRegistrarless())
             {
+                sipRegistrarConnection.setTransport(getDefaultTransport());
                 sipRegistrarConnection.register();
-            }
-            catch (Throwable e)
-            {
-                logger.error("Cannot send register!", e);
-                sipRegistrarConnection.setRegistrationState(
-                    RegistrationState.CONNECTION_FAILED,
-                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
-                    "A timeout occurred while trying to connect to the server.");
-            }
+                return true;
 
-            return true;
+            }
+            else if(connection.getNextAddress())
+            {
+                sipRegistrarConnection.setTransport(connection.getTransport());
+                sipRegistrarConnection.register();
+                return true;
+            }
+        }
+        catch (Throwable e)
+        {
+            logger.error("Cannot send register!", e);
+            sipRegistrarConnection.setRegistrationState(
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                "A timeout occurred while trying to connect to the server.");
         }
 
         // as we reached the last address lets change it to the first one
         // so we don't get stuck to the last one forever, and the next time
         // use again the first one
-        changeAddress(0);
-
+        connection.reset();
         return false;
-    }
-
-    /**
-     * Change the current address used to register to ix one.
-     * @param ix the index of the new address to assign.
-     */
-    private void changeAddress(int ix)
-    {
-        if(ix >= connectionAddresses.length)
-            return;
-
-        this.currentConnectionAddress = connectionAddresses[ix];
-        sipRegistrarConnection.setTransport(connectionTransports[ix]);
-
-        initOutboundProxy(ix);
-    }
-
-    protected InetSocketAddress getCurrentConnectionAddress()
-    {
-        return currentConnectionAddress;
     }
 
     /**
@@ -3129,5 +2436,18 @@ public class ProtocolProviderServiceSipImpl
                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
                 "A timeout occurred while trying to connect to the server.");
         }
+    }
+
+    /**
+     * Determines whether the supplied transport is a known SIP transport method
+     * 
+     * @param transport the SIP transport to check
+     * @return True when transport is one of UDP, TCP or TLS.
+     */
+    public static boolean isValidTransport(String transport)
+    {
+        return ListeningPoint.UDP.equalsIgnoreCase(transport)
+            || ListeningPoint.TLS.equalsIgnoreCase(transport)
+            || ListeningPoint.TCP.equalsIgnoreCase(transport);
     }
 }

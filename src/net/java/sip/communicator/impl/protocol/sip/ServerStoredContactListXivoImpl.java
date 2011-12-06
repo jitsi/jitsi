@@ -173,7 +173,7 @@ public class ServerStoredContactListXivoImpl
             connection = new Socket(serverAddress, 5003);
         else // lets try using our sip connected address
             connection = new Socket(
-                sipProvider.getCurrentConnectionAddress().getAddress(), 5003);
+                sipProvider.getConnection().getAddress().getAddress(), 5003);
 
         connectionWriter = new PrintStream(connection.getOutputStream());
     }

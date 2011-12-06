@@ -7,13 +7,15 @@ System-Bundle: yes
 Import-Package: net.java.sip.communicator.service.configuration,
  junit.framework,
  org.osgi.framework,
- org.w3c.dom;
- javax.xml.namespace;
+ org.w3c.dom,
+ org.easymock,
+ javax.xml.namespace,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.xml,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.impl.protocol.sip,
+ net.java.sip.communicator.impl.protocol.sip.net,
  net.java.sip.communicator.impl.protocol.sip.xcap,
  net.java.sip.communicator.impl.protocol.sip.xcap.utils,
  net.java.sip.communicator.impl.protocol.sip.xcap.model,

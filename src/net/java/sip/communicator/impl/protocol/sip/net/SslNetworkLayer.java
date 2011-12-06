@@ -190,7 +190,8 @@ public class SslNetworkLayer
         for (ProtocolProviderServiceSipImpl pps : ProtocolProviderServiceSipImpl
             .getAllInstances())
         {
-            if (pps.matchesInetAddress(address))
+            if (pps.getConnection() != null
+                && pps.getConnection().isSameInetAddress(address))
             {
                 provider = pps;
                 break;

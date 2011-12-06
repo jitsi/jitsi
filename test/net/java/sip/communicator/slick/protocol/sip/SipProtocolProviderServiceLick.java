@@ -79,6 +79,9 @@ public class SipProtocolProviderServiceLick
         // xcap parsing tests
         addTest(TestXCapParse.suite());
 
+        //proxy detection tests
+        addTestSuite(TestAutoProxyDetection.class);
+
         //First test account installation so that the service that has
         //been installed by it gets tested by the rest of the tests.
         addTestSuite(TestAccountInstallation.class);

@@ -126,7 +126,7 @@ public class ProxyRouter
             ProtocolProviderServiceSipImpl sipProvider
                 = ((ProtocolProviderServiceSipImpl) service);
 
-            String proxy = sipProvider.getOutboundProxyString();
+            String proxy = sipProvider.getConnection().getOutboundProxyString();
 
             boolean forceLooseRouting = Boolean.valueOf((String)
                 sipProvider.getAccountID().getAccountProperty(

@@ -1,0 +1,384 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.protocol.sip.net;
+
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.*;
+
+import java.net.*;
+import java.text.*;
+
+import javax.sip.*;
+
+import net.java.sip.communicator.impl.protocol.sip.*;
+import net.java.sip.communicator.util.*;
+import static javax.sip.ListeningPoint.*;
+
+/**
+ * Implementation of the autodetect proxy connection. Tries to resolve a SIP-
+ * server by querying DNS in this order: NAPTR-SRV-A; SRV-A; A.
+ * 
+ * @author Ingo Bauersachs
+ */
+public class AutoProxyConnection
+    extends ProxyConnection
+{
+    private enum State
+    {
+        New,
+        Naptr,
+        NaptrSrv,
+        NaptrSrvHosts,
+        NaptrSrvHostIPs,
+        Srv,
+        SrvHosts,
+        SrvHostIPs,
+        Hosts,
+        IP
+    }
+
+    /**
+     * Wrapper around {@link NetworkUtils} to support Unit Tests.
+     */
+    protected static class LocalNetworkUtils
+    {
+        public InetAddress getInetAddress(String address)
+            throws UnknownHostException
+        {
+            return NetworkUtils.getInetAddress(address);
+        }
+
+        public String[][] getNAPTRRecords(String address)
+            throws ParseException
+        {
+            return NetworkUtils.getNAPTRRecords(address);
+        }
+
+        public SRVRecord[] getSRVRecords(String service, String proto,
+            String address) throws ParseException
+        {
+            return NetworkUtils.getSRVRecords(service, proto, address);
+        }
+
+        public InetSocketAddress[] getAandAAAARecords(String target, int port)
+            throws ParseException
+        {
+            return NetworkUtils.getAandAAAARecords(target, port);
+        }
+
+        public boolean isValidIPAddress(String address)
+        {
+            return NetworkUtils.isValidIPAddress(address);
+        }
+
+        public SRVRecord[] getSRVRecords(String domain)
+            throws ParseException
+        {
+            return NetworkUtils.getSRVRecords(domain);
+        }
+    }
+
+    private final static Logger logger
+        = Logger.getLogger(AutoProxyConnection.class);
+
+    private State state;
+    private String address;
+    private final String defaultTransport;
+    private LocalNetworkUtils nu = new LocalNetworkUtils();
+
+    private final static String[] transports = new String[]
+    {
+        ListeningPoint.TLS,
+        ListeningPoint.TCP,
+        ListeningPoint.UDP
+    };
+    private boolean hadSrvResults;
+    private String[][] naptrRecords;
+    private int naptrIndex;
+    private SRVRecord[] srvRecords;
+    private int srvRecordsIndex;
+    private int srvTransportIndex;
+    private InetSocketAddress socketAddresses[];
+    private int socketAddressIndex;
+
+    /**
+     * Creates a new instance of this class. Uses the server from the account.
+     * 
+     * @param account the account of this SIP protocol instance
+     * @param defaultTransport the default transport to use when DNS does not
+     *            provide a protocol through NAPTR or SRV
+     */
+    public AutoProxyConnection(SipAccountID account, String defaultTransport)
+    {
+        super(account);
+        this.defaultTransport = defaultTransport;
+        reset();
+    }
+
+    /**
+     * Creates a new instance of this class. Uses the supplied address instead
+     * of the server address from the account.
+     * 
+     * @param account the account of this SIP protocol instance
+     * @param address the domain on which to perform autodetection
+     * @param defaultTransport the default transport to use when DNS does not
+     *            provide a protocol through NAPTR or SRV
+     */
+    public AutoProxyConnection(SipAccountID account, String address,
+        String defaultTransport)
+    {
+        super(account);
+        this.defaultTransport = defaultTransport;
+        reset();
+        this.address = address;
+    }
+
+    /**
+     * Sets the NetworkUtils wrapper. Used for Unit-Testing.
+     * @param nu the the NetworkUtils wrapper.
+     */
+    protected void setNetworkUtils(LocalNetworkUtils nu)
+    {
+        this.nu = nu;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.java.sip.communicator.impl.protocol.sip.net.ProxyConnection#
+     * getNextAddressFromDns()
+     */
+    protected boolean getNextAddressFromDns()
+    {
+        try
+        {
+            return getNextAddressInternal();
+        }
+        catch(ParseException ex)
+        {
+            logger.error("Unable to get DNS data for <" + address
+                + "> in state" + state, ex);
+        }
+        return false;
+    }
+
+    /**
+     * Gets the next address from DNS.
+     */
+    private boolean getNextAddressInternal()
+        throws ParseException
+    {
+        switch(state)
+        {
+            case New:
+                state = State.Naptr;
+                return getNextAddressFromDns();
+            case IP:
+                if(socketAddressIndex == 0)
+                {
+                    socketAddressIndex++;
+                    try
+                    {
+                        socketAddress = new InetSocketAddress(
+                            nu.getInetAddress(address),
+                            ListeningPoint.TLS.equalsIgnoreCase(transport)
+                                ? ListeningPoint.PORT_5061
+                                : ListeningPoint.PORT_5060
+                        );
+                    }
+                    catch (UnknownHostException e)
+                    {
+                        //this is not supposed to happen
+                        logger.error("invalid IP address: " + address, e);
+                        return false;
+                    }
+                    transport = defaultTransport;
+                    return true;
+                }
+                return false;
+            case Naptr:
+                naptrRecords = nu.getNAPTRRecords(address);
+                if(naptrRecords != null && naptrRecords.length > 0)
+                {
+                    state = State.NaptrSrv;
+                    naptrIndex = 0;
+                }
+                else
+                {
+                    hadSrvResults = false;
+                    state = State.Srv;
+                    srvTransportIndex = 0;
+                }
+
+                return getNextAddressFromDns();
+            case NaptrSrv:
+                for(; naptrIndex < naptrRecords.length; naptrIndex++)
+                {
+                    srvRecords = nu.getSRVRecords(
+                        naptrRecords[naptrIndex][2]);
+                    if(srvRecords != null && srvRecords.length > 0)
+                    {
+                        state = State.NaptrSrvHosts;
+                        if(TLS.equalsIgnoreCase(naptrRecords[naptrIndex][1]))
+                            transport = TLS;
+                        else if(TCP.equalsIgnoreCase(naptrRecords[naptrIndex][1]))
+                            transport = TCP;
+                        else
+                            transport = UDP;
+                        srvRecordsIndex = 0;
+                        if(getNextAddressFromDns())
+                        {
+                            naptrIndex++;
+                            return true;
+                        }
+                    }
+                }
+                return false; //no more naptr's
+            case NaptrSrvHosts:
+                for(; srvRecordsIndex < srvRecords.length; srvRecordsIndex++)
+                {
+                    socketAddresses = nu.getAandAAAARecords(
+                        srvRecords[srvRecordsIndex].getTarget(),
+                        srvRecords[srvRecordsIndex].getPort());
+                    if(socketAddresses != null && socketAddresses.length > 0)
+                    {
+                        state = State.NaptrSrvHostIPs;
+                        socketAddressIndex = 0;
+                        if(getNextAddressFromDns())
+                        {
+                            srvRecordsIndex++;
+                            return true;
+                        }
+                    }
+                }
+                state = State.NaptrSrv;
+                return getNextAddressFromDns(); //backtrack to next naptr
+            case NaptrSrvHostIPs:
+                if(socketAddressIndex >= socketAddresses.length)
+                {
+                    state = State.NaptrSrvHosts;
+                    return getNextAddressFromDns(); //backtrack to next srv
+                }
+                socketAddress = socketAddresses[socketAddressIndex];
+                socketAddressIndex++;
+                return true;
+            case Srv:
+                for(;srvTransportIndex < transports.length; srvTransportIndex++)
+                {
+                    srvRecords = nu.getSRVRecords(
+                        (TLS.equals(transports[srvTransportIndex])
+                            ? "sips"
+                            : "sip"),
+                        (UDP.equalsIgnoreCase(transports[srvTransportIndex])
+                            ? UDP
+                            : TCP),
+                        address);
+                    if(srvRecords != null && srvRecords.length > 0)
+                    {
+                        hadSrvResults = true;
+                        state = State.SrvHosts;
+                        srvRecordsIndex = 0;
+                        transport = transports[srvTransportIndex];
+                        if(getNextAddressFromDns())
+                        {
+                            srvTransportIndex++;
+                            return true;
+                        }
+                    }
+                }
+                if(!hadSrvResults)
+                {
+                    state = State.Hosts;
+                    socketAddressIndex = 0;
+                    return getNextAddressFromDns();
+                }
+                return false;
+            case SrvHosts:
+                for(; srvRecordsIndex < srvRecords.length; srvRecordsIndex++)
+                {
+                    socketAddresses = nu.getAandAAAARecords(
+                        srvRecords[srvRecordsIndex].getTarget(),
+                        srvRecords[srvRecordsIndex].getPort());
+                    if(socketAddresses != null && socketAddresses.length > 0)
+                    {
+                        state = State.SrvHostIPs;
+                        socketAddressIndex = 0;
+                        if(getNextAddressFromDns())
+                        {
+                            srvRecordsIndex++;
+                            return true;
+                        }
+                    }
+                }
+                state = State.Srv;
+                return getNextAddressFromDns(); //backtrack to next srv record
+            case SrvHostIPs:
+                if(socketAddressIndex >= socketAddresses.length)
+                {
+                    state = State.SrvHosts;
+                    return getNextAddressFromDns();
+                }
+                socketAddress = socketAddresses[socketAddressIndex];
+                socketAddressIndex++;
+                return true;
+            case Hosts:
+                transport = defaultTransport;
+
+                if(socketAddresses == null)
+                {
+                    socketAddresses = nu.getAandAAAARecords(
+                        address,
+                        ListeningPoint.PORT_5060);
+                }
+
+                if(socketAddresses != null && socketAddresses.length > 0
+                    && socketAddressIndex < socketAddresses.length)
+                {
+                    socketAddress = socketAddresses[socketAddressIndex++];
+                    return true;
+                }
+                return false;
+        }
+        return false;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * net.java.sip.communicator.impl.protocol.sip.net.ProxyConnection#reset()
+     */
+    @Override
+    public void reset()
+    {
+        super.reset();
+        state = State.New;
+
+        //determine the hostname of the proxy for autodetection:
+        //1) server part of the user ID
+        //2) name of the registrar when the user ID contains no domain
+        String userID =  account.getAccountPropertyString(USER_ID);
+        int domainIx = userID.indexOf("@");
+        if(domainIx > 0)
+        {
+            address = userID.substring(domainIx + 1);
+        }
+        else
+        {
+            address = account.getAccountPropertyString(SERVER_ADDRESS);
+            if(address == null || address.trim().length() == 0)
+            {
+                //registrarless account
+                return;
+            }
+        }
+        if(nu.isValidIPAddress(address))
+        {
+            state = State.IP;
+            socketAddressIndex = 0;
+        }
+    }
+}

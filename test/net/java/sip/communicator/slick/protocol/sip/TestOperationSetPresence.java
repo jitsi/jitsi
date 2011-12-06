@@ -118,11 +118,7 @@ public class TestOperationSetPresence
         if(SipSlickFixture.onlineTestingDisabled)
         {
             TestSuite suite = new TestSuite();
-            //the only test around here that we could run without net
-            //connectivity
-            suite.addTest(
-                new TestOperationSetPresence(
-                        "testSupportedStatusSetForCompleteness"));
+            //currently no tests without online connection
             return suite;
         }
 
