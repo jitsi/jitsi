@@ -38,7 +38,8 @@ Import-Package: org.xml.sax,
  sun.awt.shell,
  sun.net.util,
  sun.net.dns,
- com.sun.awt
+ com.sun.awt,
+ org.xbill.DNS
 Export-Package: net.java.sip.communicator.util.xml,
  net.java.sip.communicator.util.swing.plaf,
  net.java.sip.communicator.util.swing.event,
