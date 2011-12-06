@@ -94,13 +94,6 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * The name of the property under which the user may specify the number of
-     * the port where they would prefer us to bind our sip socket.
-     */
-    private static final String PREFERRED_SIP_PORT =
-        "net.java.sip.communicator.service.protocol.sip.PREFERRED_SIP_PORT";
-
-    /**
-     * The name of the property under which the user may specify the number of
      * seconds that registrations take to expire.
      */
     private static final String REGISTRATION_EXPIRATION =
@@ -420,35 +413,6 @@ public class ProtocolProviderServiceSipImpl
             // so use it, if it fails later we will use next one
             if(!isProxyValidated)
                 initOutboundProxy(accountID, 0);
-
-            //init proxy port
-            int preferredSipPort = ListeningPoint.PORT_5060;
-
-            String proxyPortStr = SipActivator.getConfigurationService().
-                    getString(PREFERRED_SIP_PORT);
-
-            if (proxyPortStr != null && proxyPortStr.length() > 0)
-            {
-                try
-                {
-                    preferredSipPort = Integer.parseInt(proxyPortStr);
-                }
-                catch (NumberFormatException ex)
-                {
-                    logger.error(
-                        proxyPortStr
-                        + " is not a valid port value. Expected an integer"
-                        , ex);
-                }
-
-                if (preferredSipPort > NetworkUtils.MAX_PORT_NUMBER)
-                {
-                    logger.error(preferredSipPort + " is larger than "
-                                 + NetworkUtils.MAX_PORT_NUMBER
-                                 + " and does not "
-                                 + "therefore represent a valid port number.");
-                }
-            }
 
             if(sipStackSharing == null)
                 sipStackSharing = new SipStackSharing();
