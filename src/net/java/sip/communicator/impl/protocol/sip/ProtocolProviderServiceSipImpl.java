@@ -162,12 +162,6 @@ public class ProtocolProviderServiceSipImpl
     private SipSecurityManager sipSecurityManager = null;
 
     /**
-     * The string representing our outbound proxy if we have one (remains null
-     * if we are not using a proxy).
-     */
-    private String outboundProxyString = null;
-
-    /**
      * The address and port of an outbound proxy if we have one (remains null
      * if we are not using a proxy).
      */
@@ -1399,7 +1393,7 @@ public class ProtocolProviderServiceSipImpl
             logger.trace("Query for a " + transport + " listening point");
 
         //override the transport in case we have an outbound proxy.
-        if(getOutboundProxy() != null)
+        if(outboundProxySocketAddress != null)
         {
             if (logger.isTraceEnabled())
                 logger.trace("Will use proxy address");
@@ -1682,19 +1676,22 @@ public class ProtocolProviderServiceSipImpl
      */
     public String getOutboundProxyString()
     {
-        return this.outboundProxyString;
-    }
+        InetAddress proxyAddress = outboundProxySocketAddress.getAddress();
+        StringBuilder proxyStringBuffer
+            = new StringBuilder(proxyAddress.getHostAddress());
 
-    /**
-     * In case we are using an outbound proxy this method returns its address.
-     * The method returns <tt>null</tt> otherwise.
-     *
-     * @return the address of our outbound proxy if we are using one and
-     * <tt>null</tt> otherwise.
-     */
-    public InetSocketAddress getOutboundProxy()
-    {
-        return this.outboundProxySocketAddress;
+        if(proxyAddress instanceof Inet6Address)
+        {
+            proxyStringBuffer.insert(0, '[');
+            proxyStringBuffer.append(']');
+        }
+    
+        proxyStringBuffer.append(':');
+        proxyStringBuffer.append(outboundProxySocketAddress.getPort());
+        proxyStringBuffer.append('/');
+        proxyStringBuffer.append(outboundProxyTransport);
+
+        return proxyStringBuffer.toString();
     }
 
     /**
@@ -1711,19 +1708,6 @@ public class ProtocolProviderServiceSipImpl
         if(outboundProxySocketAddress == null)
             return false;
         return addressToTest == outboundProxySocketAddress.getAddress();
-    }
-
-    /**
-     * In case we are using an outbound proxy this method returns the transport
-     * we are using to connect to it. The method returns <tt>null</tt>
-     * otherwise.
-     *
-     * @return the transport used to connect to our outbound proxy if we are
-     * using one and <tt>null</tt> otherwise.
-     */
-    public String getOutboundProxyTransport()
-    {
-        return this.outboundProxyTransport;
     }
 
     /**
@@ -2000,23 +1984,6 @@ public class ProtocolProviderServiceSipImpl
                 + currentConnectionAddress + ": "
                 + ex.getMessage());
         }
-
-        StringBuilder proxyStringBuffer
-            = new StringBuilder(proxyAddress.getHostAddress());
-
-        if(proxyAddress instanceof Inet6Address)
-        {
-            proxyStringBuffer.insert(0, '[');
-            proxyStringBuffer.append(']');
-        }
-
-        proxyStringBuffer.append(':');
-        proxyStringBuffer.append(Integer.toString(proxyPort));
-        proxyStringBuffer.append('/');
-        proxyStringBuffer.append(proxyTransport);
-
-        //done parsing. init properties.
-        this.outboundProxyString = proxyStringBuffer.toString();
 
         //store a reference to our sip proxy so that we can use it when
         //constructing via and contact headers.
@@ -2971,7 +2938,7 @@ public class ProtocolProviderServiceSipImpl
         //but the destination could only be known to our outbound proxy
         //if we have one. If this is the case replace the destination
         //address with that of the proxy.(report by Dan Bogos)
-        InetSocketAddress outboundProxy = getOutboundProxy();
+        InetSocketAddress outboundProxy = outboundProxySocketAddress;
 
         if(outboundProxy != null)
         {
