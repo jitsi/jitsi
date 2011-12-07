@@ -188,7 +188,18 @@ public class SipCommunicatorSlickRunner
                     //"felix.embedded.execution" property to true
                     //we could therefore now System.exit() with a code
                     //indicating whether or not all unit tests went wrong
-                    System.exit(errCount > 0? -1: 0);
+
+                    // After updating to Felix 3.2.2, System.exit locks
+                    // the tests and it never stop, so it has to be removed
+                    // or in new thread.
+                    new Thread(new Runnable()
+                    {
+                        public void run()
+                        {
+                            System.exit(errCount > 0? -1: 0);
+                        }
+                    }).start();
+
                 }
             }
             });
