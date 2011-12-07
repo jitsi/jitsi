@@ -198,24 +198,22 @@ public class GoogleContactsSourceService
             SRVRecord srvRecords[] =
                 NetworkUtils.getSRVRecords("xmpp-client", "tcp", domain);
 
-            if(srvRecords == null)
+            if(srvRecords != null)
             {
-                return null;
-            }
+                // To detect that account is a google ones, we try following:
+                // - lookup in SRV and see if it is google.com;
+                // - if the account has been created with GoogleTalk form;
+                // - if it is an "external" google contact.
 
-            // To detect that account is a google ones, we try the following:
-            // - lookup in SRV and see if it is google.com;
-            // - if the account has been created with GoogleTalk form;
-            // - if it is an "external" google contact.
-
-            // SRV checks
-            for(SRVRecord srv : srvRecords)
-            {
-                if(srv.getTarget().endsWith("google.com") ||
-                        srv.getTarget().endsWith("google.com."))
+                // SRV checks
+                for(SRVRecord srv : srvRecords)
                 {
-                    isGoogleAppsOrGmail = true;
-                    break;
+                    if(srv.getTarget().endsWith("google.com") ||
+                            srv.getTarget().endsWith("google.com."))
+                    {
+                        isGoogleAppsOrGmail = true;
+                        break;
+                    }
                 }
             }
 
