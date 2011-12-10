@@ -2416,10 +2416,10 @@ public class ProtocolProviderServiceJabberImpl
             {
                 try
                 {
-                    int trafficClass = Integer.parseInt(dscp);
+                    int dscpInt = Integer.parseInt(dscp) << 2;
 
-                    if(trafficClass > 0)
-                        s.setTrafficClass(trafficClass);
+                    if(dscpInt > 0)
+                        s.setTrafficClass(dscpInt);
                 }
                 catch (Exception e)
                 {

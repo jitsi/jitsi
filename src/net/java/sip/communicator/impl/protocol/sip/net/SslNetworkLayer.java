@@ -358,7 +358,7 @@ public class SslNetworkLayer
      */
     private void setTrafficClass(Socket s)
     {
-        int tc = getTrafficClass();
+        int tc = getDSCP();
 
         try
         {
@@ -377,7 +377,7 @@ public class SslNetworkLayer
      */
     private void setTrafficClass(DatagramSocket s)
     {
-        int tc = getTrafficClass();
+        int tc = getDSCP();
 
         try
         {
@@ -394,17 +394,17 @@ public class SslNetworkLayer
      *
      * @return SIP traffic class or 0 if not configured
      */
-    private int getTrafficClass()
+    private int getDSCP()
     {
         ConfigurationService configService =
             SipActivator.getConfigurationService();
 
-        String trafficClass =
+        String dscp =
             (String)configService.getProperty(SIP_DSCP_PROPERTY);
 
-        if(trafficClass != null)
+        if(dscp != null)
         {
-            return Integer.parseInt(trafficClass);
+            return Integer.parseInt(dscp) << 2;
         }
 
         return 0;

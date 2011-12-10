@@ -407,7 +407,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         int trafficClass = 0;
 
         // get traffic class value for RTP audio/video
-        trafficClass = getTrafficClass(type);
+        trafficClass = getDSCP(type);
 
         if(trafficClass <= 0)
             return;
@@ -452,27 +452,27 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      *
      * @return SIP traffic class or 0 if not configured
      */
-    private int getTrafficClass(MediaType type)
+    private int getDSCP(MediaType type)
     {
         ConfigurationService configService =
             ProtocolMediaActivator.getConfigurationService();
 
-        String trafficClass = null;
+        String dscp = null;
 
         if(type == MediaType.AUDIO)
-            trafficClass =
+            dscp =
                 (String)configService.getProperty(
                     RTP_AUDIO_DSCP_PROPERTY);
         else if(type == MediaType.VIDEO)
-            trafficClass =
+            dscp =
                 (String)configService.getProperty(
                     RTP_VIDEO_DSCP_PROPERTY);
         else
             return 0;
 
-        if(trafficClass != null)
+        if(dscp != null)
         {
-            return Integer.parseInt(trafficClass);
+            return Integer.parseInt(dscp) << 2;
         }
 
         return 0;
