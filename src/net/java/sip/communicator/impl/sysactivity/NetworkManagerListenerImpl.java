@@ -18,6 +18,7 @@ import org.freedesktop.dbus.exceptions.*;
  *
  * @author Damian Minkov
  */
+@SuppressWarnings("rawtypes")
 public class NetworkManagerListenerImpl
     implements DBusSigHandler
 {
@@ -77,7 +78,8 @@ public class NetworkManagerListenerImpl
         try
         {
             dbusConn.addSigHandler(DBus.NameOwnerChanged.class, this);
-            dbusConn.addSigHandler(NetworkManager.StateChange.class, this);
+            dbusConn.addSigHandler(DBusNetworkManager.StateChange.class, this);
+            dbusConn.addSigHandler(DBusNetworkManager.StateChanged.class, this);
         }
         catch(DBusException e)
         {
@@ -98,7 +100,10 @@ public class NetworkManagerListenerImpl
         try
         {
             dbusConn.removeSigHandler(DBus.NameOwnerChanged.class, this);
-            dbusConn.removeSigHandler(NetworkManager.StateChange.class, this);
+            dbusConn.removeSigHandler(
+                DBusNetworkManager.StateChange.class, this);
+            dbusConn.removeSigHandler(
+                DBusNetworkManager.StateChanged.class, this);
         }
         catch(DBusException e)
         {
@@ -117,7 +122,7 @@ public class NetworkManagerListenerImpl
             DBus.NameOwnerChanged nameOwnerChanged =
                 (DBus.NameOwnerChanged)dBusSignal;
 
-            if(nameOwnerChanged.name.equals(NetworkManager.class.getName()))
+            if(nameOwnerChanged.name.equals("org.freedesktop.NetworkManager"))
             {
                 boolean b1 = nameOwnerChanged.old_owner != null
                     && nameOwnerChanged.old_owner.length() > 0;
@@ -134,21 +139,26 @@ public class NetworkManagerListenerImpl
                 }
             }
         }
-        else if(dBusSignal instanceof NetworkManager.StateChange)
+        else if(dBusSignal instanceof DBusNetworkManager.StateChange)
         {
-            NetworkManager.StateChange stateChange =
-                (NetworkManager.StateChange)dBusSignal;
+            DBusNetworkManager.StateChange stateChange =
+                (DBusNetworkManager.StateChange)dBusSignal;
 
             SystemActivityEvent evt = null;
             switch(stateChange.getStatus())
             {
-                case NetworkManager.NM_STATE_CONNECTED:
-                case NetworkManager.NM_STATE_DISCONNECTED:
+                case DBusNetworkManager.NM_STATE_CONNECTED:
+                case DBusNetworkManager.NM_STATE_DISCONNECTED:
+                case DBusNetworkManager.NM9_STATE_DISCONNECTED:
+                case DBusNetworkManager.NM9_STATE_CONNECTED_LOCAL:
+                case DBusNetworkManager.NM9_STATE_CONNECTED_SITE:
+                case DBusNetworkManager.NM9_STATE_CONNECTED_GLOBAL:
                     evt = new SystemActivityEvent(
                         SysActivityActivator.getSystemActivityService(),
                         SystemActivityEvent.EVENT_NETWORK_CHANGE);
                     break;
-                case NetworkManager.NM_STATE_ASLEEP:
+                case DBusNetworkManager.NM_STATE_ASLEEP:
+                case DBusNetworkManager.NM9_STATE_ASLEEP:
                     evt = new SystemActivityEvent(
                         SysActivityActivator.getSystemActivityService(),
                         SystemActivityEvent.EVENT_SLEEP);
