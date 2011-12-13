@@ -215,6 +215,12 @@ public class MediaUtils
             Constants.H264_RTP,
             h264FormatParams,
             h264AdvancedAttributes);
+        /*
+         * XXX Android's current video CaptureDevice is based on MediaRecorder
+         * and provides support for packetization-mode=1 only.
+         */
+        if (!OSUtils.IS_ANDROID)
+        {
         // packetization-mode=0
         /*
          * XXX At the time of this writing,
@@ -234,6 +240,7 @@ public class MediaUtils
             Constants.H264_RTP,
             h264FormatParams,
             h264AdvancedAttributes);
+        }
 
         /* H263+ */
         Map<String, String> h263FormatParams

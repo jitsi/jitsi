@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import net.java.sip.communicator.impl.protocol.sip.xcap.*;
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;

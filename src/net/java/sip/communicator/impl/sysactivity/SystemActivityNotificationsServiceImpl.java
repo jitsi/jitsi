@@ -532,6 +532,16 @@ public class SystemActivityNotificationsServiceImpl
                     return false;
             }
         }
+        else if(OSUtils.IS_ANDROID)
+        {
+            switch(eventID)
+            {
+                case SystemActivityEvent.EVENT_NETWORK_CHANGE:
+                    return true;
+                default:
+                    return false;
+            }
+        }
         else
             return false;
     }

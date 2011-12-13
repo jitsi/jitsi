@@ -389,8 +389,15 @@ public class DeviceConfiguration
                 {
                     setAudioPlaybackDevice(null, false);
                     setAudioNotifyDevice(null, false);
-                    setAudioCaptureDevice(null, false);
-                    setAudioSystem(AUDIO_SYSTEM_JAVASOUND, null, false);
+                    if (OSUtils.IS_ANDROID)
+                    {
+                        setAudioCaptureDevice(audioCaptureDevices[0], false);
+                    }
+                    else
+                    {
+                        setAudioCaptureDevice(null, false);
+                        setAudioSystem(AUDIO_SYSTEM_JAVASOUND, null, false);
+                    }
                 }
             }
             else

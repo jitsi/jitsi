@@ -623,7 +623,7 @@ public class AudioMixer
          */
         FormatControl[] formatControls = captureDevice.getFormatControls();
 
-        if (formatControls != null)
+        if (!OSUtils.IS_ANDROID && formatControls != null)
             for (int i = 0; i < formatControls.length; i++)
                 formatControls[i]
                     = new ReadOnlyFormatControlDelegate(formatControls[i]);

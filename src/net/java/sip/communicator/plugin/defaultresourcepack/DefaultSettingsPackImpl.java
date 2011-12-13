@@ -60,7 +60,7 @@ public class DefaultSettingsPackImpl
      */
     public String getDescription()
     {
-        return "Provide SIP Communicator default settings resource pack.";
+        return "Provide Jitsi default settings resource pack.";
     }
 
     /**

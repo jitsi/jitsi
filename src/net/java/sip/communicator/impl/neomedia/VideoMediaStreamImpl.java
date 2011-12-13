@@ -305,12 +305,21 @@ public class VideoMediaStreamImpl
     {
         super.configureDataOutputStream(dataOutputStream);
 
+        /*
+         * XXX Android's current video CaptureDevice is based on MediaRecorder
+         * which gives no control over the number and the size of the packets,
+         * frame dropping is not implemented because it is hard since
+         * MediaRecorder generates encoded video.
+         */
+        if (!OSUtils.IS_ANDROID)
+        {
         int maxBandwidth
             = NeomediaActivator.getMediaServiceImpl().getDeviceConfiguration()
                     .getVideoMaxBandwidth();
 
         //maximum one packet for X milliseconds(the settings are for one second)
         dataOutputStream.setMaxPacketsPerMillis(1, 1000 / maxBandwidth);
+        }
     }
 
     /**
