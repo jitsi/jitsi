@@ -58,10 +58,6 @@ public class SIPCommunicator
     public static void main(String[] args)
         throws Exception
     {
-        // this needs to be set before any DNS lookup is run (which includes the
-        // Java SecurityManager)
-        System.setProperty("sun.net.spi.nameservice.provider.1", "dns,dnsjava");
-
         String version = System.getProperty("java.version");
         String vmVendor = System.getProperty("java.vendor");
         String osName = System.getProperty("os.name");
@@ -74,6 +70,14 @@ public class SIPCommunicator
          * them starts (e.g. Felix).
          */
         setScHomeDir(osName);
+
+        // this needs to be set before any DNS lookup is run
+        File f = new File(System.getProperty(PNAME_SC_HOME_DIR_LOCATION),
+            System.getProperty(PNAME_SC_HOME_DIR_NAME)
+            + File.separator + ".usednsjava");
+        if(f.exists())
+            System.setProperty(
+                "sun.net.spi.nameservice.provider.1", "dns,dnsjava");
 
         if (version.startsWith("1.4") || vmVendor.startsWith("Gnu") ||
                 vmVendor.startsWith("Free"))
@@ -147,10 +151,13 @@ public class SIPCommunicator
      * and net.java.sip.communicator.SC_HOME_DIR_NAME (if they aren't already
      * set) in accord with the OS conventions specified by the name of the OS.
      *
+     * Please leave the access modifier as package (default) to allow launch-
+     * wrappers to call it.
+     *
      * @param osName the name of the OS according to which the SC_HOME_DIR_*
      *            properties are to be set
      */
-    private static void setScHomeDir(String osName)
+    static void setScHomeDir(String osName)
     {
         /*
          * Though we'll be setting the SC_HOME_DIR_* property values depending
@@ -249,7 +256,7 @@ public class SIPCommunicator
             System.setProperty(PNAME_SC_HOME_DIR_LOCATION, location);
             System.setProperty(PNAME_SC_HOME_DIR_NAME, name);
         }
-
+ 
         // when we end up with the home dirs, make sure we have log dir
         new File(location, name + File.separator + "log").mkdirs();
     }
