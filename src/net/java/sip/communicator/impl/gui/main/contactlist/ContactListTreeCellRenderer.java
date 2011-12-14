@@ -780,9 +780,15 @@ public class ContactListTreeCellRenderer
 
         // for SourceContact in history that do not support telephony, we
         // show the button but disabled
+        List<ProtocolProviderService> providers
+            = GuiActivator.getOpSetRegisteredProviders(
+                OperationSetBasicTelephony.class,
+                null,
+                null);
+
         if (telephonyContact != null ||
-                uiContact.getDescriptor() instanceof SourceContact ||
-                hasPhone)
+            uiContact.getDescriptor() instanceof SourceContact ||
+            (hasPhone && providers.size() > 0))
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;

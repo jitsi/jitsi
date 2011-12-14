@@ -532,7 +532,8 @@ public class MetaContactRightButtonMenu
             sendSmsItem.setName("sendSms");
         }
 
-        if (callContactMenu.getItemCount() > 1 || hasPhones)
+        if (callContactMenu.getItemCount() > 1 ||
+            (hasPhones && callContactMenu.getItemCount() > 0))
         {
             this.add(callContactMenu);
         }
