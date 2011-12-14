@@ -10,6 +10,7 @@ import java.awt.*;
 
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
@@ -24,6 +25,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -734,10 +736,53 @@ public class ContactListTreeCellRenderer
             = uiContact.getDefaultContactDetail(
                 OperationSetBasicTelephony.class);
 
+        // Check if contact has additional phone numbers, if yes show the
+        // call button
+        boolean hasPhone = false;
+
+        if(uiContact.getContactNode().getContactDescriptor().getDescriptor()
+            instanceof MetaContact)
+        {
+            MetaContact metaContact =
+                (MetaContact)uiContact.getContactNode().getContactDescriptor().
+                    getDescriptor();
+            Iterator<Contact> contacts = metaContact.getContacts();
+
+            while(contacts.hasNext() && !hasPhone)
+            {
+                Contact contact = contacts.next();
+                OperationSetServerStoredContactInfo infoOpSet =
+                    contact.getProtocolProvider().getOperationSet(
+                        OperationSetServerStoredContactInfo.class);
+                Iterator<GenericDetail> details = null;
+
+                if(infoOpSet != null)
+                {
+                    details = infoOpSet.getAllDetailsForContact(contact);
+
+                    while(details.hasNext())
+                    {
+                        GenericDetail d = details.next();
+                        if(d instanceof PhoneNumberDetail)
+                        {
+                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                            if(pnd.getNumber() != null &&
+                                pnd.getNumber().length() > 0)
+                            {
+                                hasPhone = true;
+                                break;
+                            }
+                         }
+                    }
+                }
+            }
+        }
+
         // for SourceContact in history that do not support telephony, we
         // show the button but disabled
         if (telephonyContact != null ||
-                uiContact.getDescriptor() instanceof SourceContact)
+                uiContact.getDescriptor() instanceof SourceContact ||
+                hasPhone)
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
@@ -752,7 +797,7 @@ public class ContactListTreeCellRenderer
 
             callButton.setBounds(x,
                 nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
-            callButton.setEnabled(telephonyContact != null);
+            callButton.setEnabled(telephonyContact != null || hasPhone);
 
             x += callButton.getWidth();
         }
@@ -912,9 +957,66 @@ public class ContactListTreeCellRenderer
                 .getContactDetailsForOperationSet(
                     OperationSetBasicTelephony.class);
 
+        // Adds additional phone numbers found in contact information
+        ContactNode n = (ContactNode)treeNode;
+        MetaContact metaContact = null;
+        boolean hasPhone = false;
+
+        if(n.getContactDescriptor().getDescriptor() instanceof MetaContact)
+        {
+            metaContact = (MetaContact)n.getContactDescriptor().getDescriptor();
+            Iterator<Contact> contacts = metaContact.getContacts();
+
+            while(contacts.hasNext())
+            {
+                Contact contact = contacts.next();
+                OperationSetServerStoredContactInfo infoOpSet =
+                    contact.getProtocolProvider().getOperationSet(
+                        OperationSetServerStoredContactInfo.class);
+                Iterator<GenericDetail> details = null;
+                ArrayList<String> phones = new ArrayList<String>();
+
+                if(infoOpSet != null)
+                {
+                    details = infoOpSet.getAllDetailsForContact(contact);
+
+                    while(details.hasNext())
+                    {
+                        GenericDetail d = details.next();
+                        if(d instanceof PhoneNumberDetail)
+                        {
+                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                            if(pnd.getNumber() != null &&
+                                pnd.getNumber().length() > 0)
+                            {
+                                phones.add(pnd.getNumber());
+                                UIContactDetail cd =
+                                    new UIContactDetail(
+                                        pnd.getNumber(),
+                                        pnd.getNumber(),
+                                        null,
+                                        new ArrayList<String>(),
+                                        null,
+                                        null,
+                                        null)
+                                {
+                                    public PresenceStatus getPresenceStatus()
+                                    {
+                                        return null;
+                                    }
+                                };
+                                telephonyContacts.add(cd);
+                                hasPhone = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         ChooseCallAccountPopupMenu chooseAccountDialog = null;
 
-        if (telephonyContacts.size() == 1)
+        if (telephonyContacts.size() == 1 && !hasPhone)
         {
             UIContactDetail detail = telephonyContacts.get(0);
 
@@ -952,7 +1054,7 @@ public class ContactListTreeCellRenderer
                             tree, detail.getAddress(), providers);
             }
         }
-        else if (telephonyContacts.size() > 1)
+        else if (telephonyContacts.size() > 1 || hasPhone)
         {
             chooseAccountDialog
                 = new ChooseCallAccountPopupMenu(tree, telephonyContacts);

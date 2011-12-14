@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List; // disambiguation
 
 import javax.swing.*;
 
@@ -28,6 +29,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -230,6 +232,11 @@ public class MetaContactRightButtonMenu
     private static final String callContactPrefix = "callContact:";
 
     /**
+     * The prefix for call phone menu.
+     */
+    private static final String callPhonePrefix = "callPhone:";
+
+    /**
      * The prefix for video call contact menu.
      */
     private static final String videoCallPrefix = "videoCall:";
@@ -360,6 +367,11 @@ public class MetaContactRightButtonMenu
             this.moveSubcontactMenu.addSeparator();
         }
 
+        List<ProtocolProviderService> providers =
+            CallManager.getTelephonyProviders();
+        boolean hasPhones = false;
+        boolean separator = false;
+
         while (contacts.hasNext())
         {
             Contact contact = contacts.next();
@@ -384,8 +396,34 @@ public class MetaContactRightButtonMenu
                             + protocolProvider.getProtocolName(),
                             protocolIcon));
 
+            OperationSetServerStoredContactInfo infoOpSet =
+                contact.getProtocolProvider().getOperationSet(
+                    OperationSetServerStoredContactInfo.class);
+            Iterator<GenericDetail> details = null;
+            ArrayList<String> phones = new ArrayList<String>();
+
+            if(infoOpSet != null)
+            {
+                details = infoOpSet.getAllDetailsForContact(contact);
+
+                while(details.hasNext())
+                {
+                    GenericDetail d = details.next();
+                    if(d instanceof PhoneNumberDetail)
+                    {
+                        PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                        if(pnd.getNumber() != null &&
+                            pnd.getNumber().length() > 0)
+                        {
+                            phones.add(pnd.getNumber());
+                            hasPhones = true;
+                        }
+                    }
+                }
+            }
+
             // add all the contacts that support telephony to the call menu
-            if (metaContact.getContactCount() > 1)
+            if (metaContact.getContactCount() > 1 || phones.size() > 0)
             {
                 if (protocolProvider.getOperationSet(
                         OperationSetBasicTelephony.class) != null &&
@@ -393,10 +431,11 @@ public class MetaContactRightButtonMenu
                                 OperationSetBasicTelephony.class))
                 {
                     callContactMenu.add(
-                        createMenuItem( contactAddress,
-                                        callContactPrefix + contact.getAddress()
-                                        + protocolProvider.getProtocolName(),
-                                        protocolIcon));
+                        createMenuItem(contactAddress,
+                                       callContactPrefix + contact.getAddress()
+                                       + protocolProvider.getProtocolName(),
+                                       protocolIcon));
+                    separator = true;
                 }
 
                 if (protocolProvider.getOperationSet(
@@ -451,6 +490,36 @@ public class MetaContactRightButtonMenu
                                         protocolIcon));
                 }
             }
+
+            for(String phone : phones)
+            {
+                if(providers.size() > 0)
+                {
+                    JMenuItem menu = createMenuItem(phone,
+                        callPhonePrefix + phone,
+                        null);
+                    callContactMenu.add(menu);
+                    separator = true;
+                }
+            }
+
+            if(separator && contacts.hasNext())
+            {
+                callContactMenu.addSeparator();
+                separator = false;
+            }
+        }
+
+        // if a separator is the last item, remove it
+        Component c = null;
+
+        if(callContactMenu.getMenuComponentCount() > 0)
+            c = callContactMenu.getMenuComponent(
+                callContactMenu.getMenuComponentCount() - 1);
+
+        if(c != null && (c instanceof JSeparator))
+        {
+            callContactMenu.remove(c);
         }
 
         this.add(sendMessageItem);
@@ -463,7 +532,7 @@ public class MetaContactRightButtonMenu
             sendSmsItem.setName("sendSms");
         }
 
-        if (callContactMenu.getItemCount() > 1)
+        if (callContactMenu.getItemCount() > 1 || hasPhones)
         {
             this.add(callContactMenu);
         }
@@ -944,6 +1013,26 @@ public class MetaContactRightButtonMenu
 
             requestAuthorization(contact);
         }
+        else if (itemName.startsWith(callPhonePrefix))
+        {
+            List<ProtocolProviderService> providers =
+                CallManager.getTelephonyProviders();
+            String phone = itemName.substring(callPhonePrefix.length());
+
+            if(providers.size() > 1)
+            {
+                ChooseCallAccountDialog chooseAccount =
+                    new ChooseCallAccountDialog(
+                        phone,
+                        OperationSetBasicTelephony.class,
+                        providers);
+                chooseAccount.setVisible(true);
+            }
+            else
+            {
+                CallManager.createCall(providers.get(0), phone);
+            }
+        }
     }
 
     /**
@@ -1238,7 +1327,7 @@ public class MetaContactRightButtonMenu
 
         final AuthorizationRequest request = new AuthorizationRequest();
 
-        final RequestAuthorizationDialog dialog 
+        final RequestAuthorizationDialog dialog
             = new RequestAuthorizationDialog(mainFrame, contact, request);
 
         new Thread()
