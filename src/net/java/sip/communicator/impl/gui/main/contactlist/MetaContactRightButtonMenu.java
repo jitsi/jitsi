@@ -532,16 +532,24 @@ public class MetaContactRightButtonMenu
             sendSmsItem.setName("sendSms");
         }
 
-        if (callContactMenu.getItemCount() > 1 ||
-            (hasPhones && callContactMenu.getItemCount() > 0))
+        if (callContactMenu.getItemCount() > 1)
         {
             this.add(callContactMenu);
         }
         else
         {
-            this.add(callItem);
-            this.callItem.setName("call");
+            if((hasPhones && callContactMenu.getItemCount() > 0))
+            {
+                JMenuItem item = callContactMenu.getItem(0);
+                this.callItem.setName(item.getName());
+            }
+            else
+            {
+                this.callItem.setName("call");
+            }
+
             this.callItem.addActionListener(this);
+            this.add(callItem);
         }
 
         if (videoCallMenu.getItemCount() > 1)
@@ -641,7 +649,7 @@ public class MetaContactRightButtonMenu
             this.sendFileItem.setEnabled(false);
 
         if (metaContact.getDefaultContact(
-            OperationSetBasicTelephony.class) == null)
+            OperationSetBasicTelephony.class) == null && !hasPhones)
             this.callItem.setEnabled(false);
 
         if (metaContact.getDefaultContact(

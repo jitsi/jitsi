@@ -966,7 +966,6 @@ public class ContactListTreeCellRenderer
         // Adds additional phone numbers found in contact information
         ContactNode n = (ContactNode)treeNode;
         MetaContact metaContact = null;
-        boolean hasPhone = false;
 
         if(n.getContactDescriptor().getDescriptor() instanceof MetaContact)
         {
@@ -1012,7 +1011,6 @@ public class ContactListTreeCellRenderer
                                     }
                                 };
                                 telephonyContacts.add(cd);
-                                hasPhone = true;
                             }
                         }
                     }
@@ -1022,7 +1020,7 @@ public class ContactListTreeCellRenderer
 
         ChooseCallAccountPopupMenu chooseAccountDialog = null;
 
-        if (telephonyContacts.size() == 1 && !hasPhone)
+        if (telephonyContacts.size() == 1)
         {
             UIContactDetail detail = telephonyContacts.get(0);
 
@@ -1060,7 +1058,7 @@ public class ContactListTreeCellRenderer
                             tree, detail.getAddress(), providers);
             }
         }
-        else if (telephonyContacts.size() > 1 || hasPhone)
+        else if (telephonyContacts.size() > 1)
         {
             chooseAccountDialog
                 = new ChooseCallAccountPopupMenu(tree, telephonyContacts);

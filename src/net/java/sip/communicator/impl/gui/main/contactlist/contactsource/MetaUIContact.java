@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -253,7 +254,7 @@ public class MetaUIContact
     /**
      * Gets the avatar of a specific <tt>MetaContact</tt> in the form of an
      * <tt>ImageIcon</tt> value.
-     * 
+     *
      * @param isSelected indicates if the contact is selected
      * @param width the desired icon width
      * @param height the desired icon height
@@ -288,7 +289,7 @@ public class MetaUIContact
             = (Object[]) metaContact.getData(AVATAR_DATA_KEY);
         ImageIcon avatar = null;
 
-        if ((avatarCache != null) && (avatarCache[0] == avatarBytes)) 
+        if ((avatarCache != null) && (avatarCache[0] == avatarBytes))
             avatar = (ImageIcon) avatarCache[1];
 
         // If the avatar isn't available or it's not up-to-date, create it.
@@ -406,6 +407,29 @@ public class MetaUIContact
             //String statusMessage = protocolContact.getStatusMessage();
 
             tip.addLine(protocolStatusIcon, contactAddress);
+            OperationSetServerStoredContactInfo infoOpSet =
+                protocolContact.getProtocolProvider().getOperationSet(
+                    OperationSetServerStoredContactInfo.class);
+
+            if(infoOpSet != null)
+            {
+                Iterator<GenericDetail> details =
+                    infoOpSet.getAllDetailsForContact(protocolContact);
+
+                while(details.hasNext())
+                {
+                    GenericDetail d = details.next();
+                    if(d instanceof PhoneNumberDetail)
+                    {
+                        PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                        if(pnd.getNumber() != null &&
+                            pnd.getNumber().length() > 0)
+                        {
+                            tip.addLine(null, pnd.getNumber());
+                        }
+                     }
+                }
+            }
 
             // Set the first found status message.
             if (statusMessage == null
