@@ -429,6 +429,9 @@ public class CallPanel
     /**
      * Executes the action associated with the "Hang up" button which may be
      * invoked by clicking the button in question or closing this dialog.
+     *
+     * @param isCloseWait true to schedule close after some seconds, false to
+     * close immediately
      */
     public void actionPerformedOnHangupButton(boolean isCloseWait)
     {
@@ -642,6 +645,8 @@ public class CallPanel
 
     /**
      * Enables or disable all setting buttons.
+     *
+     * @param enable true to enable all setting buttons, false to disable them
      */
     public void enableButtons(boolean enable)
     {
@@ -686,6 +691,7 @@ public class CallPanel
                     OperationSetVideoTelephony.class) != null)
             {
                 fullScreenButton.setEnabled(enable);
+                videoButton.setEnabled(enable);
                 desktopSharingButton.setEnabled(enable);
             }
         }
@@ -1089,6 +1095,8 @@ public class CallPanel
 
     /**
      * Adds remote video specific components.
+     *
+     * @param callPeer the <tt>CallPeer</tt>
      */
     public void addRemoteVideoSpecificComponents(CallPeer callPeer)
     {
