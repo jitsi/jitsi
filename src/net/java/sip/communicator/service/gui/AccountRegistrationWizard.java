@@ -292,4 +292,16 @@ public abstract class AccountRegistrationWizard
 
         return false;
     }
+
+    /**
+     * Indicates if a wizard is hidden. This may be used if we don't want that
+     * a wizard appears in the list of available networks.
+     *
+     * @return <tt>true</tt> to indicate that a wizard is hidden, <tt>false</tt>
+     * otherwise
+     */
+    public boolean isHidden()
+    {
+        return false;
+    }
 }
