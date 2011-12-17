@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  * Represents a <tt>PushBufferStream</tt> containing the result of the audio
  * mixing of <tt>DataSource</tt>s.
  * 
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class AudioMixingPushBufferStream
     extends ControlsAdapter
@@ -232,12 +232,9 @@ public class AudioMixingPushBufferStream
             int[] inputStreamSamples = inputSamples[0];
 
             if (inputStreamSamples != null)
-                System
-                    .arraycopy(
-                        inputStreamSamples,
-                        0,
-                        outputSamples,
-                        0,
+                System.arraycopy(
+                        inputStreamSamples, 0,
+                        outputSamples, 0,
                         inputStreamSamples.length);
             return outputSamples;
         }
@@ -323,11 +320,11 @@ public class AudioMixingPushBufferStream
             = mix(inputSamples, outputFormat, maxInputSampleCount);
     
         Class<?> outputDataType = outputFormat.getDataType();
-    
+
         if (Format.byteArray.equals(outputDataType))
         {
             byte[] outputData;
-    
+
             switch (outputFormat.getSampleSizeInBits())
             {
             case 16:
@@ -347,7 +344,7 @@ public class AudioMixingPushBufferStream
                     new UnsupportedOperationException(
                             "AudioMixingPushBufferStream.read(Buffer)");
             }
-    
+
             buffer.setData(outputData);
             buffer.setFormat(outputFormat);
             buffer.setLength(outputData.length);

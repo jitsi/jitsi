@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.impl.neomedia.conference;
 
+import java.lang.ref.*;
+
+import javax.media.*;
 import javax.media.protocol.*;
 
 /**
@@ -19,10 +22,15 @@ import javax.media.protocol.*;
  * extracted into its own file for the sake of clarity.
  * </p>
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 class InputStreamDesc
 {
+    /**
+     * The <tt>Buffer</tt> into which media data is to be read from
+     * {@link #inputStream}.
+     */
+    private SoftReference<Buffer> buffer;
 
     /**
      * The <tt>DataSource</tt> which created the <tt>SourceStream</tt> described
@@ -64,6 +72,27 @@ class InputStreamDesc
     }
 
     /**
+     * Gets the <tt>Buffer</tt> into which media data is to be read from the
+     * <tt>SourceStream</tt> described by this instance.
+     *
+     * @param create the indicator which determines whether the <tt>Buffer</tt>
+     * is to be created in case it does not exist
+     * @return the <tt>Buffer</tt> into which media data is to be read from the
+     * <tt>SourceStream</tt> described by this instance
+     */
+    public Buffer getBuffer(boolean create)
+    {
+        Buffer buffer = (this.buffer == null) ? null : this.buffer.get();
+
+        if ((buffer == null) && create)
+        {
+            buffer = new Buffer();
+            setBuffer(buffer);
+        }
+        return buffer;
+    }
+
+    /**
      * Gets the <tt>SourceStream</tt> described by this instance.
      *
      * @return the <tt>SourceStream</tt> described by this instance
@@ -88,6 +117,19 @@ class InputStreamDesc
     }
 
     /**
+     * Sets the <tt>Buffer</tt> into which media data is to be read from the
+     * <tt>SourceStream</tt> described by this instance.
+     *
+     * @param buffer the <tt>Buffer</tt> into which media data is to be read
+     * from the <tt>SourceStream</tt> described by this instance
+     */
+    public void setBuffer(Buffer buffer)
+    {
+        this.buffer
+            = (buffer == null) ? null : new SoftReference<Buffer>(buffer);
+    }
+
+    /**
      * Sets the <tt>SourceStream</tt> to be described by this instance.
      *
      * @param inputStream the <tt>SourceStream</tt> to be described by this
@@ -95,6 +137,15 @@ class InputStreamDesc
      */
     public void setInputStream(SourceStream inputStream)
     {
-        this.inputStream = inputStream;
+        if (this.inputStream != inputStream)
+        {
+            this.inputStream = inputStream;
+
+            /*
+             * Since the inputStream has changed, one may argue that the Buffer
+             * of the old value is not optimal for the new value.
+             */
+            setBuffer(null);
+        }
     }
 }
