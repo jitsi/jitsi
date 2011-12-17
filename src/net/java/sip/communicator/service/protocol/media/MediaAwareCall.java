@@ -388,15 +388,17 @@ public abstract class MediaAwareCall<
         if(device == null)
             device = mediaService.getDefaultDevice(mediaType, mediaUseCase);
 
+        /*
+         * Make sure that the audio device has an AudioMixer in order to support
+         * conferencing and call recording.
+         */
         if (MediaType.AUDIO.equals(mediaType))
         {
-            if (conferenceAudioMixer == null)
-            {
-                if (device != null)
-                    conferenceAudioMixer = mediaService.createMixer(device);
-            }
-            return conferenceAudioMixer;
+            if ((conferenceAudioMixer == null) && (device != null)) 
+                conferenceAudioMixer = mediaService.createMixer(device);
+            device = conferenceAudioMixer;
         }
+
         return device;
     }
 

@@ -18,7 +18,7 @@ import javax.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.util.*;
 
-import com.sun.media.util.*;
+import net.sf.fmj.media.util.*;
 
 /**
  * Facilitates the implementations of the <tt>CaptureDevice</tt> and

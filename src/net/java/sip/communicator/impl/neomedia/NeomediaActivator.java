@@ -6,8 +6,11 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
+import net.java.sip.communicator.impl.neomedia.notify.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
@@ -18,17 +21,16 @@ import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.impl.neomedia.codec.video.h264.ConfigurationPanel;
-import net.java.sip.communicator.impl.neomedia.notify.*;
-
 import org.osgi.framework.*;
+
+import com.sun.media.util.*;
 
 /**
  * Implements <tt>BundleActivator</tt> for the neomedia bundle.
  *
  * @author Martin Andre
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class NeomediaActivator
     implements BundleActivator
@@ -112,6 +114,51 @@ public class NeomediaActivator
     private static UIService uiService = null;
 
     /**
+     * Sets up FMJ for execution. For example, sets properties which instruct
+     * FMJ whether it is to create a log, where the log is to be created.
+     */
+    private void setupFMJ()
+    {
+        /*
+         * Since FMJ is part of neomedia, FMJ's log should be enabled when
+         * neomedia's log is enabled.
+         */
+        Registry.set("allowLogging", logger.isDebugEnabled());
+
+        String scHomeDirLocation
+            = System.getProperty(
+                ConfigurationService.PNAME_SC_HOME_DIR_LOCATION);
+
+        if (scHomeDirLocation != null)
+        {
+            String scHomeDirName
+                = System.getProperty(
+                    ConfigurationService.PNAME_SC_HOME_DIR_NAME);
+
+            if (scHomeDirName != null)
+            {
+                File scHomeDir = new File(scHomeDirLocation, scHomeDirName);
+
+                /* Write FMJ's log in Jitsi's log directory. */
+                Registry.set(
+                    "secure.logDir",
+                    new File(scHomeDir, "log").getPath());
+
+                /* Write FMJ's registry in Jitsi's user data directory. */
+                String jmfRegistryFilename
+                    = "net.sf.fmj.utility.JmfRegistry.filename";
+
+                if (System.getProperty(jmfRegistryFilename) == null)
+                {
+                    System.setProperty(
+                        jmfRegistryFilename,
+                        new File(scHomeDir, ".fmj.registry").getAbsolutePath());
+                }
+            }
+        }
+    }
+
+    /**
      * Starts the execution of the neomedia bundle in the specified context.
      *
      * @param bundleContext the context in which the neomedia bundle is to start
@@ -126,6 +173,8 @@ public class NeomediaActivator
             logger.debug("Started.");
 
         NeomediaActivator.bundleContext = bundleContext;
+
+        setupFMJ();
 
         // MediaService
         mediaServiceImpl = new MediaServiceImpl();

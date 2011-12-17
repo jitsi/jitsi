@@ -6,14 +6,12 @@
  */
 package net.java.sip.communicator.impl.neomedia.device;
 
-import java.io.*;
 import java.util.*;
 
 import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
 
 import com.sun.media.util.*;
@@ -24,7 +22,7 @@ import com.sun.media.util.*;
  *
  * @author Emil Ivov
  * @author Ken Larson
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class JmfDeviceDetector
 {
@@ -62,12 +60,6 @@ public class JmfDeviceDetector
      */
     private static final String PROP_REGISTRY_AUTHOR_VALUE
         = "sip-communicator.org";
-
-    /**
-     * The name of the file that the JMF registry uses for storing and loading
-     * JMF properties.
-     */
-    private static final String JMF_PROPERTIES_FILE_NAME = "jmf.properties";
 
     /**
      * Default constructor - does nothing.
@@ -231,25 +223,6 @@ public class JmfDeviceDetector
         if (logger.isInfoEnabled())
             logger.info("Looking for video capture devices");
 
-        //FMJ
-        /* disable LTI-CIVIL for now as we have native capture for all OS */
-        /*
-        boolean fmjVideoAvailable = isFMJVideoAvailable();
-
-        try
-        {
-            if(fmjVideoAvailable)
-                new FMJCivilVideoAuto();
-        }
-        catch (Throwable exc)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("No FMJ CIVIL video detected: " + exc.getMessage(),
-                        exc);
-            fmjVideoAvailable = false;
-        }
-        */
-
         if (OSUtils.IS_MAC) // QuickTime
         {
             try
@@ -301,84 +274,6 @@ public class JmfDeviceDetector
                     "No desktop streaming available: " + exc.getMessage(),
                     exc);
         }
-    }
-
-    /**
-     * Currently fmj video under macosx using java version 1.6 is not supported.
-     * As macosx video support is using libQTJNative.jnilib which supports
-     * only java 1.5 and is deprecated.
-     * @return is fmj video supported under current OS and environment.
-     */
-    private boolean isFMJVideoAvailable()
-    {
-        return
-            !(OSUtils.IS_MAC
-                && System.getProperty("java.version").startsWith("1.6"));
-    }
-
-    /**
-     * Runs JMFInit the first time the application is started so that capture
-     * devices are properly detected and initialized by JMF.
-     */
-    public static void setupJMF()
-    {
-        logger.logEntry();
-        try
-        {
-
-            // we'll be storing our jmf.properties file inside the
-            //sip-communicator directory. If it does not exist - we created it.
-            //If the jmf.properties file has 0 length then this is the first
-            //time we're running and should detect capture devices
-            File jmfPropsFile = null;
-            try
-            {
-                FileAccessService faService
-                    = NeomediaActivator.getFileAccessService();
-                if(faService != null)
-                {
-                    jmfPropsFile = faService.
-                        getPrivatePersistentFile(JMF_PROPERTIES_FILE_NAME);
-                }
-                //small hack for when running from outside oscar
-                else
-                {
-                    jmfPropsFile
-                    = new File(System.getProperty("user.home")
-                               + File.separator
-                               + ".sip-communicator/jmf.properties");
-                }
-                //force reinitialization
-                if(jmfPropsFile.exists())
-                    jmfPropsFile.delete();
-                jmfPropsFile.createNewFile();
-            }
-            catch (Exception exc)
-            {
-                throw new RuntimeException(
-                    "Failed to create the jmf.properties file.", exc);
-            }
-            String classpath =  System.getProperty("java.class.path");
-
-            classpath = jmfPropsFile.getParentFile().getAbsolutePath()
-                + System.getProperty("path.separator")
-                + classpath;
-
-            System.setProperty("java.class.path", classpath);
-
-            /** @todo run this only if necessary and in parallel. Right now
-             * we're running detection no matter what. We should be more
-             * intelligent and detect somehow whether new devices are present
-             * before we run our detection tests.*/
-            JmfDeviceDetector detector = new JmfDeviceDetector();
-            detector.initialize();
-        }
-        finally
-        {
-            logger.logExit();
-        }
-
-        setupRenderers();
     }
 
     /**
@@ -441,7 +336,8 @@ public class JmfDeviceDetector
      */
     public static void detectAndConfigureCaptureDevices()
     {
-        setupJMF();
+        new JmfDeviceDetector().initialize();
+        setupRenderers();
     }
 
     /**
@@ -449,7 +345,6 @@ public class JmfDeviceDetector
      */
     public static void reinitializeVideoCaptureDevices()
     {
-        JmfDeviceDetector detector = new JmfDeviceDetector();
-        detector.reinitializeVideo();
+        new JmfDeviceDetector().reinitializeVideo();
     }
 }

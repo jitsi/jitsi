@@ -15,14 +15,12 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.util.*;
 
-import com.sun.media.util.*;
-
 /**
  * Creates PortAudio capture devices by enumerating all host devices that have
  * input channels.
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class PortAudioAuto
 {
@@ -68,10 +66,6 @@ public class PortAudioAuto
     PortAudioAuto()
         throws Exception
     {
-        // enable jmf logging, so we can track codec chains and formats
-        if(logger.isDebugEnabled())
-            Registry.set("allowLogging", true);
-
         // if PortAudio has a problem initializing like missing native
         // components it will trow exception here and PortAudio rendering will
         // not be inited.

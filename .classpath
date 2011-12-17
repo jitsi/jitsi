@@ -20,7 +20,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/jdic_misc.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jfontchooser-1.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jml-1.0b5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jna.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/joscar-client.jar"/>
@@ -34,7 +33,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/laf-widget.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/libphonenumber-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/log4j-1.2.8.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/lti-civil-no_s_w_t.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jain-sdp.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="https://hudson.jboss.org/jenkins/job/jain-sip/lastStableBuild/artifact/javadoc/"/>
@@ -50,17 +48,12 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/transparency.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/ymsg_network_v0_67.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/zrtp4j-light.jar"/>
-	<classpathentry kind="lib" path="lib/os-specific/linux/installer-exclude/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/linux/jdic_stub.jar"/>
-	<classpathentry kind="lib" path="lib/os-specific/mac/installer-exclude/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/mac/OrangeExtensions.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/mac/growl4j.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/mac/jdic_stub.jar"/>
-	<classpathentry kind="lib" path="lib/os-specific/solaris/installer-exclude/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/solaris/jdic_stub.jar"/>
-	<classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/jmf.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/jna-platform-win32.jar"/>
-	<classpathentry kind="lib" path="lib/os-specific/windows/installer-exclude/sound.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/windows/jdic_stub.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/lcrypto-jdk16-143.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/otr4j.jar"/>

@@ -186,11 +186,6 @@
     <!-- set the os.lib.home here in case it was not set before -->
     <property name="os.lib.home" value="${lib}"/>
 
-    <!-- set the jmf.properties here in case they were not set before -->
-    <property name="jmf.jar" value="${os.lib.home}/installer-exclude/jmf.jar"/>
-    <property name="sound.jar" value="${os.lib.home}/installer-exclude/sound.jar"/>
-    <!-- end jmf.home-->
-
     <property name="jdic_stub.jar" value="${os.lib.home}/jdic_stub.jar"/>
 
     <property name="profiler.args" value="" />
@@ -1116,9 +1111,9 @@
     <!--BUNDLE-NEOMEDIA-->
     <target name="bundle-neomedia">
         <!-- Creates a bundle containing the impl of the neomedia package and
-             the win jmf implementation.-->
+            FMJ. -->
         <jar
-            compress="false" destfile="${bundles.dest.win}/neomedia.jar"
+            compress="false" destfile="${bundles.dest}/neomedia.jar"
             manifest="${src}/net/java/sip/communicator/impl/neomedia/neomedia.manifest.mf">
 
             <zipfileset dir="${dest}/net/java/sip/communicator/service/neomedia"
@@ -1129,71 +1124,8 @@
                 prefix="net/java/sip/communicator/service/audionotifier"/>
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
-            <zipfileset src="${lib.win.noinst}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib.win.noinst}/sound.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
-        </jar>
-
-        <!-- Creates a bundle containing the impl of the neomedia package and
-             the linux jmf implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.lin}/neomedia.jar"
-            manifest="${src}/net/java/sip/communicator/impl/neomedia/neomedia.manifest.mf">
-
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/neomedia"
-                prefix="net/java/sip/communicator/service/neomedia"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/neomedia"
-                prefix="net/java/sip/communicator/impl/neomedia"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
-                prefix="net/java/sip/communicator/service/audionotifier"/>
-            <zipfileset dir="${resources}/images/impl/media"
-                prefix="resources/images/impl/media"/>
-            <zipfileset src="${lib.lin.noinst}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
-        </jar>
-
-        <!-- Creates a bundle containing the impl of the neomedia package and
-             the mac jmf implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.mac}/neomedia.jar"
-            manifest="${src}/net/java/sip/communicator/impl/neomedia/neomedia.manifest.mf">
-
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/neomedia"
-                prefix="net/java/sip/communicator/service/neomedia"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/neomedia"
-                prefix="net/java/sip/communicator/impl/neomedia"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
-                prefix="net/java/sip/communicator/service/audionotifier"/>
-            <zipfileset dir="${resources}/images/impl/media"
-                prefix="resources/images/impl/media"/>
-            <zipfileset src="${lib.mac.noinst}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
-        </jar>
-
-        <!-- Creates a bundle containing the impl of the neomedia package and
-             the standard jmf implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest.freebsd}/neomedia.jar"
-            manifest="${src}/net/java/sip/communicator/impl/neomedia/neomedia.manifest.mf">
-
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/neomedia"
-                prefix="net/java/sip/communicator/service/neomedia"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/neomedia"
-                prefix="net/java/sip/communicator/impl/neomedia"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
-                prefix="net/java/sip/communicator/service/audionotifier"/>
-            <zipfileset dir="${resources}/images/impl/media"
-                prefix="resources/images/impl/media"/>
-            <zipfileset src="${lib.noinst}/jmf.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/lti-civil-no_s_w_t.jar" prefix=""/>
         </jar>
     </target>
 

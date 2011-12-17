@@ -8,94 +8,202 @@
 #define AUDIO_QUALITY_IMPROVEMENT_IMPLEMENTATION
 #include "AudioQualityImprovement.h"
 
+#include <limits.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
-static void AudioQualityImprovement_cancelEchoFromPlay
-    (AudioQualityImprovement *audioQualityImprovement,
-    void *buffer,
-    unsigned long length);
-static void AudioQualityImprovement_free
-    (AudioQualityImprovement *audioQualityImprovement);
+#define MIN_SOUND_PRESSURE_LEVEL 40
+#define MAX_SOUND_PRESSURE_LEVEL 85
+
+/**
+ *
+ * @param aqi
+ * @param samples
+ * @param count the number of samples specified in <tt>samples</tt>
+ * @return the sound pressure level in dB of the specified <tt>samples</tt>
+ */
+static float AudioQualityImprovement_calculateSoundPressureLevel
+    (AudioQualityImprovement *aqi, spx_int16_t *samples, spx_uint32_t count);
+
+/**
+ *
+ * @param aqi
+ * @param buffer
+ * @param length the length of <tt>buffer</tt> in bytes
+ * @return the sound pressure level in dB of the playback which has been matched
+ * to the specified capture <tt>buffer</tt> for the purposes of echo
+ * cancellation if echo suppression is enabled; otherwise, <tt>0</tt>
+ */
+static float AudioQualityImprovement_cancelEchoFromPlay
+    (AudioQualityImprovement *aqi,
+    void *buffer, unsigned long length);
+static void AudioQualityImprovement_free(AudioQualityImprovement *aqi);
 static AudioQualityImprovement *AudioQualityImprovement_new
     (const char *stringID, jlong longID, AudioQualityImprovement *next);
+static void AudioQualityImprovement_popFromPlay
+    (AudioQualityImprovement *aqi, spx_uint32_t sampleCount);
 static void AudioQualityImprovement_resampleInPlay
-    (AudioQualityImprovement *audioQualityImprovement,
-    double sampleRate,
-    unsigned long sampleSizeInBits,
-    int channels,
-    void *buffer,
-    unsigned long length);
-static void AudioQualityImprovement_retain
-    (AudioQualityImprovement *audioQualityImprovement);
+    (AudioQualityImprovement *aqi,
+    double sampleRate, unsigned long sampleSizeInBits, int channels,
+    void *buffer, unsigned long length);
+static void AudioQualityImprovement_retain(AudioQualityImprovement *aqi);
 static void AudioQualityImprovement_setFrameSize
-    (AudioQualityImprovement *audioQualityImprovement, jint frameSize);
+    (AudioQualityImprovement *aqi, jint frameSize);
+static void AudioQualityImprovement_setInputLatency
+    (AudioQualityImprovement *aqi, jlong inputLatency);
+static void AudioQualityImprovement_setOutputLatency
+    (AudioQualityImprovement *aqi, jlong outputLatency);
+static void AudioQualityImprovement_suppressEcho
+    (AudioQualityImprovement *aqi,
+    spx_int16_t *buffer, spx_uint32_t length,
+    float spl);
+
+/**
+ * Updates the indicator of the specified <tt>AudioQualityImprovement</tt> which
+ * determines whether <tt>AudioQualityImprovement#play</tt> delays the access to
+ * it from <tt>AudioQualityImprovement#echo</tt>.
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> of which to update the
+ * indicator which determines whether <tt>AudioQualityImprovement#play</tt>
+ * delays the access to it from <tt>AudioQualityImprovement#echo</tt>
+ */
+static void AudioQualityImprovement_updatePlayDelay
+    (AudioQualityImprovement *aqi);
+static void AudioQualityImprovement_updatePlayIsDelaying
+    (AudioQualityImprovement *aqi);
 static void AudioQualityImprovement_updatePreprocess
-    (AudioQualityImprovement *audioQualityImprovement);
+    (AudioQualityImprovement *aqi);
 
-#ifndef _WIN32
-static pthread_mutex_t AudioQualityImprovement_sharedInstancesMutex
-    = PTHREAD_MUTEX_INITIALIZER;
-#else /* Windows */
-static CRITICAL_SECTION AudioQualityImprovement_sharedInstancesMutex = {(void*)-1, -1, 0, 0, 0, 0};
-#endif
+/**
+ * Returns the current time in milliseconds (akin to
+ * <tt>java.lang.System#currentTimeMillis()</tt>).
+ *
+ * @return the current time in milliseconds
+ */
+static jlong System_currentTimeMillis();
 
-static AudioQualityImprovement *AudioQualityImprovement_sharedInstances
-    = NULL;
+static Mutex *AudioQualityImprovement_sharedInstancesMutex = NULL;
+static AudioQualityImprovement *AudioQualityImprovement_sharedInstances = NULL;
 
-static void
+/**
+ *
+ * @param aqi
+ * @param samples
+ * @param count the number of samples specified in <tt>samples</tt>
+ * @return the sound pressure level in dB of the specified <tt>samples</tt>
+ */
+static float
+AudioQualityImprovement_calculateSoundPressureLevel
+    (AudioQualityImprovement *aqi, spx_int16_t *samples, spx_uint32_t count)
+{
+    spx_uint32_t i;
+    float rms;
+    float spl;
+
+    if (!count)
+        return 0;
+
+    rms = 0;
+    for (i = 0; i < count; i++)
+    {
+        float sample = samples[i] / (float) SHRT_MAX;
+
+        rms += sample * sample;
+    }
+    rms = sqrtf(rms / count);
+
+    spl = (rms > 0) ? 20 * log10f(rms / 0.00002) : -MAX_SOUND_PRESSURE_LEVEL;
+    return spl;
+}
+
+/**
+ *
+ * @param aqi
+ * @param buffer
+ * @param length the length of <tt>buffer</tt> in bytes
+ * @return the sound pressure level in dB of the playback which has been matched
+ * to the specified capture <tt>buffer</tt> for the purposes of echo
+ * cancellation if echo suppression is enabled; otherwise, <tt>0</tt>
+ */
+static float
 AudioQualityImprovement_cancelEchoFromPlay
-    (AudioQualityImprovement *audioQualityImprovement,
+    (AudioQualityImprovement *aqi,
     void *buffer, unsigned long length)
 {
-    if (!(audioQualityImprovement->out)
-            || (audioQualityImprovement->outCapacity < length))
+    spx_uint32_t sampleCount;
+    float spl;
+
+    if (aqi->playIsDelaying == JNI_TRUE)
+        return 0;
+
+    sampleCount = length / sizeof(spx_int16_t);
+    if (aqi->playLength < sampleCount)
+        return 0;
+
+    /*
+     * Ensure that out exists and is large enough to receive the result of the
+     * echo cancellation.
+     */
+    if (!(aqi->out) || (aqi->outCapacity < length))
     {
-        spx_int16_t *newOut = realloc(audioQualityImprovement->out, length);
+        spx_int16_t *newOut = realloc(aqi->out, length);
 
         if (newOut)
         {
-            audioQualityImprovement->out = newOut;
-            audioQualityImprovement->outCapacity = length;
+            aqi->out = newOut;
+            aqi->outCapacity = length;
         }
         else
-            return;
+            return 0;
     }
-    speex_echo_cancellation(
-        audioQualityImprovement->echo,
-        buffer,
-        audioQualityImprovement->play,
-        audioQualityImprovement->out);
-    audioQualityImprovement->playSize = 0;
-    memcpy(buffer, audioQualityImprovement->out, length);
+
+    /* Perform the echo cancellation and return the result in buffer. */
+    speex_echo_cancellation(aqi->echo, buffer, aqi->play, aqi->out);
+    memcpy(buffer, aqi->out, length);
+
+    /*
+     * Calculate the sound pressure level in dB to be returned (if echo
+     * suppression is enabled and, thus, needs it).
+     */
+    spl
+        = (JNI_TRUE == aqi->suppressEcho)
+            ? AudioQualityImprovement_calculateSoundPressureLevel(
+                aqi,
+                aqi->play, sampleCount)
+            : 0;
+
+    AudioQualityImprovement_popFromPlay(aqi, sampleCount);
+
+    return spl;
 }
 
 static void
-AudioQualityImprovement_free(AudioQualityImprovement *audioQualityImprovement)
+AudioQualityImprovement_free(AudioQualityImprovement *aqi)
 {
     /* mutex */
-    mutex_destroy(audioQualityImprovement->mutex);
-    free(audioQualityImprovement->mutex);
+    Mutex_free(aqi->mutex);
     /* preprocess */
-    if (audioQualityImprovement->preprocess)
-        speex_preprocess_state_destroy(audioQualityImprovement->preprocess);
+    if (aqi->preprocess)
+        speex_preprocess_state_destroy(aqi->preprocess);
     /* echo */
-    if (audioQualityImprovement->echo)
-        speex_echo_state_destroy(audioQualityImprovement->echo);
+    if (aqi->echo)
+        speex_echo_state_destroy(aqi->echo);
     /* out */
-    if (audioQualityImprovement->out)
-        free(audioQualityImprovement->out);
+    if (aqi->out)
+        free(aqi->out);
     /* play */
-    if (audioQualityImprovement->play)
-        free(audioQualityImprovement->play);
+    if (aqi->play)
+        free(aqi->play);
     /* resampler */
-    if (audioQualityImprovement->resampler)
-        speex_resampler_destroy(audioQualityImprovement->resampler);
+    if (aqi->resampler)
+        speex_resampler_destroy(aqi->resampler);
     /* stringID */
-    free(audioQualityImprovement->stringID);
+    free(aqi->stringID);
 
-    free(audioQualityImprovement);
+    free(aqi);
 }
 
 AudioQualityImprovement *
@@ -103,7 +211,7 @@ AudioQualityImprovement_getSharedInstance(const char *stringID, jlong longID)
 {
     AudioQualityImprovement *theSharedInstance = NULL;
 
-    if (!mutex_lock(&AudioQualityImprovement_sharedInstancesMutex))
+    if (!Mutex_lock(AudioQualityImprovement_sharedInstancesMutex))
     {
         AudioQualityImprovement *aSharedInstance
             = AudioQualityImprovement_sharedInstances;
@@ -131,125 +239,158 @@ AudioQualityImprovement_getSharedInstance(const char *stringID, jlong longID)
             if (theSharedInstance)
                 AudioQualityImprovement_sharedInstances = theSharedInstance;
         }
-        mutex_unlock(&AudioQualityImprovement_sharedInstancesMutex);
+        Mutex_unlock(AudioQualityImprovement_sharedInstancesMutex);
     }
     return theSharedInstance;
+}
+
+/** Loads the <tt>AudioQualityImprovement</tt> class. */
+void
+AudioQualityImprovement_load()
+{
+    AudioQualityImprovement_sharedInstancesMutex = Mutex_new(NULL);
 }
 
 static AudioQualityImprovement *
 AudioQualityImprovement_new
     (const char *stringID, jlong longID, AudioQualityImprovement *next)
 {
-    AudioQualityImprovement *audioQualityImprovement
-        = malloc(sizeof(AudioQualityImprovement));
+    AudioQualityImprovement *aqi = calloc(1, sizeof(AudioQualityImprovement));
 
-    if (audioQualityImprovement)
+    if (aqi)
     {
-        audioQualityImprovement->echo = NULL;
-        audioQualityImprovement->mutex = NULL;
-        audioQualityImprovement->out = NULL;
-        audioQualityImprovement->play = NULL;
-        audioQualityImprovement->preprocess = NULL;
-        audioQualityImprovement->resampler = NULL;
-        /* audioQualityImprovement->stringID = NULL; */
-
         /* stringID */
-        audioQualityImprovement->stringID = strdup(stringID);
-        if (!(audioQualityImprovement->stringID))
+        aqi->stringID = strdup(stringID);
+        if (!(aqi->stringID))
         {
-            AudioQualityImprovement_free(audioQualityImprovement);
+            AudioQualityImprovement_free(aqi);
             return NULL;
         }
         /* mutex */
-        audioQualityImprovement->mutex = malloc(sizeof(Mutex));
-        if (!(audioQualityImprovement->mutex)
-                || mutex_init(audioQualityImprovement->mutex, NULL))
+        aqi->mutex = Mutex_new(NULL);
+        if (!(aqi->mutex))
         {
-            AudioQualityImprovement_free(audioQualityImprovement);
+            AudioQualityImprovement_free(aqi);
             return NULL;
         }
 
-        audioQualityImprovement->denoise = JNI_FALSE;
-        audioQualityImprovement->echoFilterLengthInMillis = 0;
-        audioQualityImprovement->frameSize = 0;
-        audioQualityImprovement->longID = longID;
-        audioQualityImprovement->next = next;
-        audioQualityImprovement->retainCount = 1;
-        audioQualityImprovement->sampleRate = 0;
+        aqi->inputLatency = -1;
+        aqi->longID = longID;
+        aqi->next = next;
+        aqi->outputLatency = -1;
+        aqi->retainCount = 1;
+        aqi->suppressEcho = JNI_TRUE;
     }
-    return audioQualityImprovement;
+    return aqi;
 }
 
-void AudioQualityImprovement_process
-    (AudioQualityImprovement *audioQualityImprovement,
-    AudioQualityImprovementSampleOrigin sampleOrigin,
-    double sampleRate,
-    unsigned long sampleSizeInBits,
-    int channels,
-    void *buffer,
-    unsigned long length)
+static void
+AudioQualityImprovement_popFromPlay
+    (AudioQualityImprovement *aqi, spx_uint32_t sampleCount)
 {
-    if ((sampleSizeInBits == 16)
-            && (channels == 1)
-            && !mutex_lock(audioQualityImprovement->mutex))
+    spx_uint32_t i;
+    spx_uint32_t sampleCountToMove = aqi->playLength - sampleCount;
+    spx_int16_t *playNew = aqi->play;
+    spx_int16_t *playOld = aqi->play + sampleCount;
+
+    for (i = 0; i < sampleCountToMove; i++)
+        *playNew++ = *playOld++;
+    aqi->playLength -= sampleCount;
+}
+
+/**
+ *
+ * @param aqi
+ * @param sampleOrigin
+ * @param sampleRate
+ * @param sampleSizeInBits
+ * @param channels
+ * @param latency the latency of the stream associated with <tt>buffer</tt> in
+ * milliseconds
+ * @param buffer
+ * @param length the length of <tt>buffer</tt> in bytes
+ */
+void
+AudioQualityImprovement_process
+    (AudioQualityImprovement *aqi,
+    AudioQualityImprovementSampleOrigin sampleOrigin,
+    double sampleRate, unsigned long sampleSizeInBits, int channels,
+    jlong latency,
+    void *buffer, unsigned long length)
+{
+    if ((sampleSizeInBits == 16) && (channels == 1) && !Mutex_lock(aqi->mutex))
     {
         switch (sampleOrigin)
         {
         case AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_INPUT:
-            if (sampleRate == audioQualityImprovement->sampleRate)
+            if (sampleRate == aqi->sampleRate)
             {
-                AudioQualityImprovement_setFrameSize(
-                    audioQualityImprovement,
-                    length);
-                if (audioQualityImprovement->preprocess)
+                AudioQualityImprovement_setFrameSize(aqi, length);
+                if (aqi->preprocess)
                 {
-                    if (audioQualityImprovement->echo
-                            && audioQualityImprovement->play
-                            && (audioQualityImprovement->playSize
-                                    == audioQualityImprovement->frameSize))
+                    float spl;
+                    jboolean suppressEcho;
+
+                    AudioQualityImprovement_setInputLatency(aqi, latency);
+
+                    if (aqi->echo && aqi->play && aqi->playLength)
                     {
-                        AudioQualityImprovement_cancelEchoFromPlay(
-                            audioQualityImprovement,
-                            buffer,
-                            length);
+                        spl
+                            = AudioQualityImprovement_cancelEchoFromPlay(
+                                aqi,
+                                buffer, length);
+                        suppressEcho = aqi->suppressEcho;
                     }
-                    speex_preprocess_run(
-                        audioQualityImprovement->preprocess,
-                        buffer);
+                    else
+                    {
+                        spl = 0;
+                        /*
+                         * Let the echo suppression fade out if it's enabled and
+                         * there hasn't been recent playback.
+                         */
+                        suppressEcho
+                            = (aqi->suppressEcho && !(aqi->playLength))
+                                ? JNI_TRUE
+                                : JNI_FALSE;
+                    }
+
+                    speex_preprocess_run(aqi->preprocess, buffer);
+
+                    if (JNI_TRUE == suppressEcho)
+                        AudioQualityImprovement_suppressEcho(
+                            aqi,
+                            buffer, length / sizeof(spx_int16_t),
+                            spl);
                 }
             }
             break;
+
         case AUDIO_QUALITY_IMPROVEMENT_SAMPLE_ORIGIN_OUTPUT:
-            if (audioQualityImprovement->preprocess
-                    && audioQualityImprovement->echo)
+            if (aqi->preprocess && aqi->echo)
             {
+                AudioQualityImprovement_setOutputLatency(aqi, latency);
                 AudioQualityImprovement_resampleInPlay(
-                    audioQualityImprovement,
-                    sampleRate,
-                    sampleSizeInBits,
-                    channels,
-                    buffer,
-                    length);
+                    aqi,
+                    sampleRate, sampleSizeInBits, channels,
+                    buffer, length);
             }
             break;
         }
-        mutex_unlock(audioQualityImprovement->mutex);
+        Mutex_unlock(aqi->mutex);
     }
 }
 
 void
-AudioQualityImprovement_release
-    (AudioQualityImprovement *audioQualityImprovement)
+AudioQualityImprovement_release(AudioQualityImprovement *aqi)
 {
-    if (!mutex_lock(&AudioQualityImprovement_sharedInstancesMutex))
+    if (!Mutex_lock(AudioQualityImprovement_sharedInstancesMutex))
     {
-        if (!mutex_lock(audioQualityImprovement->mutex))
+        if (!Mutex_lock(aqi->mutex))
         {
-            --(audioQualityImprovement->retainCount);
-            if (audioQualityImprovement->retainCount < 1)
+            --(aqi->retainCount);
+            if (aqi->retainCount < 1)
             {
-                if (audioQualityImprovement
-                        == AudioQualityImprovement_sharedInstances)
+                if (aqi == AudioQualityImprovement_sharedInstances)
                 {
                     AudioQualityImprovement_sharedInstances
                         = AudioQualityImprovement_sharedInstances->next;
@@ -264,301 +405,502 @@ AudioQualityImprovement_release
                         AudioQualityImprovement *nextSharedInstance
                             = prevSharedInstance->next;
 
-                        if (audioQualityImprovement == nextSharedInstance)
+                        if (aqi == nextSharedInstance)
                         {
-                            prevSharedInstance->next
-                                = audioQualityImprovement->next;
+                            prevSharedInstance->next = aqi->next;
                             break;
                         }
                         prevSharedInstance = nextSharedInstance;
                     }
                 }
 
-                mutex_unlock(audioQualityImprovement->mutex);
-                AudioQualityImprovement_free(audioQualityImprovement);
+                Mutex_unlock(aqi->mutex);
+                AudioQualityImprovement_free(aqi);
             }
             else
-                mutex_unlock(audioQualityImprovement->mutex);
+                Mutex_unlock(aqi->mutex);
         }
-        mutex_unlock(&AudioQualityImprovement_sharedInstancesMutex);
+        Mutex_unlock(AudioQualityImprovement_sharedInstancesMutex);
     }
 }
+
+/**
+ *
+ * @param aqi
+ * @param sampleRate
+ * @param sampleSizeInBits
+ * @param channels
+ * @param buffer
+ * @param length the length of <tt>buffer</tt> in bytes
+ */
 static void
 AudioQualityImprovement_resampleInPlay
-    (AudioQualityImprovement *audioQualityImprovement,
-    double sampleRate,
-    unsigned long sampleSizeInBits,
-    int channels,
-    void *buffer,
-    unsigned long length)
+    (AudioQualityImprovement *aqi,
+    double sampleRate, unsigned long sampleSizeInBits, int channels,
+    void *buffer, unsigned long length)
 {
     spx_uint32_t playSize;
+    spx_uint32_t playCapacity;
+    spx_uint32_t playLength;;
+    spx_int16_t *play;
 
-    if (sampleRate == audioQualityImprovement->sampleRate)
+    if (sampleRate == aqi->sampleRate)
         playSize = length;
-    else if (length * audioQualityImprovement->sampleRate
-            == audioQualityImprovement->frameSize * sampleRate)
+    else if (length * aqi->sampleRate == aqi->frameSize * sampleRate)
     {
-        if (audioQualityImprovement->resampler)
+        if (aqi->resampler)
         {
             speex_resampler_set_rate(
-                audioQualityImprovement->resampler,
-                (spx_uint32_t) sampleRate,
-                (spx_uint32_t) (audioQualityImprovement->sampleRate));
-            playSize = audioQualityImprovement->frameSize;
+                aqi->resampler,
+                (spx_uint32_t) sampleRate, (spx_uint32_t) (aqi->sampleRate));
+            playSize = aqi->frameSize;
         }
         else
         {
-            audioQualityImprovement->resampler
+            aqi->resampler
                 = speex_resampler_init(
                     channels,
-                    (spx_uint32_t) sampleRate,
-                    (spx_uint32_t) (audioQualityImprovement->sampleRate),
+                    (spx_uint32_t) sampleRate, (spx_uint32_t) (aqi->sampleRate),
                     SPEEX_RESAMPLER_QUALITY_VOIP,
                     NULL);
-            if (!(audioQualityImprovement->resampler))
+            if (aqi->resampler)
+                playSize = aqi->frameSize;
+            else
             {
-                audioQualityImprovement->playSize = 0;
+                aqi->playIsDelaying = JNI_TRUE;
+                aqi->playLength = 0;
                 return;
             }
         }
     }
     else
     {
-        audioQualityImprovement->playSize = 0;
+        /*
+         * The specified buffer neither is in the format of the audio capture
+         * nor can be resampled to it.
+         */
+        aqi->playIsDelaying = JNI_TRUE;
+        aqi->playLength = 0;
         return;
     }
-    if (!(audioQualityImprovement->play)
-            || (audioQualityImprovement->playCapacity < playSize))
-    {
-        spx_int16_t *newPlay = realloc(audioQualityImprovement->play, playSize);
 
+    /* Ensure that play exists and is large enough. */
+    playCapacity
+        = ((1 + aqi->playDelay) + 1) * (aqi->frameSize / sizeof(spx_int16_t));
+    playLength = playSize / sizeof(spx_int16_t);
+    if (playCapacity < playLength)
+        playCapacity = playLength;
+    if (!(aqi->play) || (aqi->playCapacity < playCapacity))
+    {
+        spx_int16_t *newPlay;
+
+        newPlay = realloc(aqi->play, playCapacity * sizeof(spx_int16_t));
         if (newPlay)
         {
-            audioQualityImprovement->play = newPlay;
-            audioQualityImprovement->playCapacity = playSize;
+            if (!(aqi->play))
+            {
+                aqi->playIsDelaying = JNI_TRUE;
+                aqi->playLength = 0;
+            }
+
+            aqi->play = newPlay;
+            aqi->playCapacity = playCapacity;
         }
         else
         {
-            audioQualityImprovement->playSize = 0;
+            aqi->playIsDelaying = JNI_TRUE;
+            aqi->playLength = 0;
             return;
         }
     }
-    if (length == audioQualityImprovement->frameSize)
+
+    /* Ensure that there is room for buffer in play. */
+    if (aqi->playLength + playLength > aqi->playCapacity)
     {
-        memcpy(audioQualityImprovement->play, buffer, playSize);
-        audioQualityImprovement->playSize = playSize;
+        aqi->playIsDelaying = JNI_TRUE;
+        aqi->playLength = 0;
+        /*
+         * We don't have enough room in play for buffer which means that we'll
+         * have to throw some samples away. But it'll effectively mean that
+         * we'll enlarge the drift which will disrupt the echo cancellation. So
+         * it seems the least of two evils to just reset the echo cancellation.
+         */
+        speex_echo_state_reset(aqi->echo);
     }
+
+    /* Place buffer in play. */
+    play = aqi->play + aqi->playLength;
+    if (length == aqi->frameSize)
+        memcpy(play, buffer, playSize);
     else
     {
         unsigned long sampleSizeInBytes = sampleSizeInBits / 8;
         spx_uint32_t bufferSampleCount = length / sampleSizeInBytes;
-        spx_uint32_t playSampleCount = playSize / sampleSizeInBytes;
 
         speex_resampler_process_interleaved_int(
-            audioQualityImprovement->resampler,
-            buffer,
-            &bufferSampleCount,
-            audioQualityImprovement->play,
-            &playSampleCount);
-        audioQualityImprovement->playSize = playSampleCount * sampleSizeInBytes;
+            aqi->resampler,
+            buffer, &bufferSampleCount, play, &playLength);
     }
+    aqi->playLength += playLength;
+
+    /* Take into account the latency. */
+    if (aqi->playIsDelaying == JNI_TRUE)
+        AudioQualityImprovement_updatePlayIsDelaying(aqi);
 }
 
 static void
-AudioQualityImprovement_retain
-    (AudioQualityImprovement *audioQualityImprovement)
+AudioQualityImprovement_retain(AudioQualityImprovement *aqi)
 {
-    if (!mutex_lock(audioQualityImprovement->mutex))
+    if (!Mutex_lock(aqi->mutex))
     {
-        ++(audioQualityImprovement->retainCount);
-        mutex_unlock(audioQualityImprovement->mutex);
+        ++(aqi->retainCount);
+        Mutex_unlock(aqi->mutex);
     }
 }
 
+/**
+ * Sets the indicator which determines whether noise suppression is to be
+ * performed by the specified <tt>AudioQualityImprovement</tt> (for captured
+ * audio).
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> on which to set the indicator
+ * which determines whether it is to perform noise suppression (for captured audio)
+ * @param denoise <tt>JNI_TRUE</tt> if the specified <tt>aqi</tt> is to perform
+ * noise suppression (for captured audio); otherwise, <tt>JNI_FALSE</tt>
+ */
 void
 AudioQualityImprovement_setDenoise
-    (AudioQualityImprovement *audioQualityImprovement, jboolean denoise)
+    (AudioQualityImprovement *aqi, jboolean denoise)
 {
-    if (!mutex_lock(audioQualityImprovement->mutex))
+    if (!Mutex_lock(aqi->mutex))
     {
-        if (audioQualityImprovement->denoise != denoise)
+        if (aqi->denoise != denoise)
         {
-            audioQualityImprovement->denoise = denoise;
-            AudioQualityImprovement_updatePreprocess(audioQualityImprovement);
+            aqi->denoise = denoise;
+            AudioQualityImprovement_updatePreprocess(aqi);
         }
-        mutex_unlock(audioQualityImprovement->mutex);
+        Mutex_unlock(aqi->mutex);
     }
 }
 
+/**
+ * Sets the filter length in milliseconds of the echo cancellation
+ * implementation of the specified <tt>AudioQualityImprovement</tt>. The
+ * recommended filter length is approximately the third of the room
+ * reverberation time. For example, in a small room, reverberation time is in
+ * the order of 300 ms, so a filter length of 100 ms is a good choice (800
+ * samples at 8000 Hz sampling rate).
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> to set the filter length of
+ * @param echoFilterLengthInMillis the filter length in milliseconds of the echo
+ * cancellation of <tt>aqi</tt>
+ */
 void
 AudioQualityImprovement_setEchoFilterLengthInMillis
-    (AudioQualityImprovement *audioQualityImprovement,
-    jlong echoFilterLengthInMillis)
+    (AudioQualityImprovement *aqi, jlong echoFilterLengthInMillis)
 {
     if (echoFilterLengthInMillis < 0)
         echoFilterLengthInMillis = 0;
-    if (!mutex_lock(audioQualityImprovement->mutex))
+    if (!Mutex_lock(aqi->mutex))
     {
-        if (audioQualityImprovement->echoFilterLengthInMillis
-                != echoFilterLengthInMillis)
+        if (aqi->echoFilterLengthInMillis != echoFilterLengthInMillis)
         {
-            audioQualityImprovement->echoFilterLengthInMillis
-                = echoFilterLengthInMillis;
-            AudioQualityImprovement_updatePreprocess(audioQualityImprovement);
+            aqi->echoFilterLengthInMillis = echoFilterLengthInMillis;
+            AudioQualityImprovement_updatePreprocess(aqi);
         }
-        mutex_unlock(audioQualityImprovement->mutex);
+        Mutex_unlock(aqi->mutex);
     }
 }
 
 static void
 AudioQualityImprovement_setFrameSize
-    (AudioQualityImprovement *audioQualityImprovement, jint frameSize)
+    (AudioQualityImprovement *aqi, jint frameSize)
 {
-    if (audioQualityImprovement->frameSize != frameSize)
+    if (aqi->frameSize != frameSize)
     {
-        audioQualityImprovement->frameSize = frameSize;
-        AudioQualityImprovement_updatePreprocess(audioQualityImprovement);
+        aqi->frameSize = frameSize;
+        AudioQualityImprovement_updatePreprocess(aqi);
+    }
+}
+
+static void
+AudioQualityImprovement_setInputLatency
+    (AudioQualityImprovement *aqi, jlong inputLatency)
+{
+    if (aqi->inputLatency != inputLatency)
+    {
+        aqi->inputLatency = inputLatency;
+        AudioQualityImprovement_updatePlayDelay(aqi);
+    }
+}
+
+static void
+AudioQualityImprovement_setOutputLatency
+    (AudioQualityImprovement *aqi, jlong outputLatency)
+{
+    if (aqi->outputLatency != outputLatency)
+    {
+        aqi->outputLatency = outputLatency;
+        AudioQualityImprovement_updatePlayDelay(aqi);
     }
 }
 
 void
 AudioQualityImprovement_setSampleRate
-    (AudioQualityImprovement *audioQualityImprovement, int sampleRate)
+    (AudioQualityImprovement *aqi, int sampleRate)
 {
-    if (!mutex_lock(audioQualityImprovement->mutex))
+    if (!Mutex_lock(aqi->mutex))
     {
-        if (audioQualityImprovement->sampleRate != sampleRate)
+        if (aqi->sampleRate != sampleRate)
         {
-            audioQualityImprovement->sampleRate = sampleRate;
-            AudioQualityImprovement_updatePreprocess(audioQualityImprovement);
+            aqi->sampleRate = sampleRate;
+            AudioQualityImprovement_updatePlayDelay(aqi);
+            AudioQualityImprovement_updatePreprocess(aqi);
         }
-        mutex_unlock(audioQualityImprovement->mutex);
+        Mutex_unlock(aqi->mutex);
+    }
+}
+static void
+AudioQualityImprovement_suppressEcho
+    (AudioQualityImprovement *aqi,
+    spx_int16_t *buffer, spx_uint32_t length,
+    float spl)
+{
+    float amplifier;
+    spx_int16_t i;
+
+    if (spl < MIN_SOUND_PRESSURE_LEVEL)
+        spl = MIN_SOUND_PRESSURE_LEVEL;
+    else if (spl > MAX_SOUND_PRESSURE_LEVEL)
+        spl = MAX_SOUND_PRESSURE_LEVEL;
+
+    /* Decay #suppressEchoSPL. */
+    if (aqi->suppressEchoSPLTime
+            && (aqi->suppressEchoSPL > MIN_SOUND_PRESSURE_LEVEL))
+    {
+        aqi->suppressEchoSPL
+            -= (System_currentTimeMillis() - aqi->suppressEchoSPLTime)
+                * aqi->suppressEchoSPLDecay;
+        if (aqi->suppressEchoSPL <= MIN_SOUND_PRESSURE_LEVEL)
+        {
+            aqi->suppressEchoSPLDecay = 0;
+            aqi->suppressEchoSPLTime = 0;
+        }
+    }
+
+    if (spl < aqi->suppressEchoSPL)
+        spl = aqi->suppressEchoSPL;
+    else
+    {
+        aqi->suppressEchoSPL = spl;
+        aqi->suppressEchoSPLDecay
+            = ((MIN_SOUND_PRESSURE_LEVEL == spl)
+                    ? 1
+                    : (spl - MIN_SOUND_PRESSURE_LEVEL))
+                / 1000.0;
+        aqi->suppressEchoSPLTime = System_currentTimeMillis();
+    }
+
+    amplifier
+        = 1
+            - (spl - MIN_SOUND_PRESSURE_LEVEL)
+                / (float) (MAX_SOUND_PRESSURE_LEVEL - MIN_SOUND_PRESSURE_LEVEL);
+
+    for (i = 0; i < length; i++)
+        buffer[i] = (spx_int16_t) (amplifier * buffer[i]);
+}
+
+/** Unloads the <tt>AudioQualityImprovement</tt> class. */
+void
+AudioQualityImprovement_unload()
+{
+    if (AudioQualityImprovement_sharedInstancesMutex)
+    {
+        Mutex_free(AudioQualityImprovement_sharedInstancesMutex);
+        AudioQualityImprovement_sharedInstancesMutex = NULL;
     }
 }
 
 static void
-AudioQualityImprovement_updatePreprocess
-    (AudioQualityImprovement *audioQualityImprovement)
+AudioQualityImprovement_updatePlayDelay(AudioQualityImprovement *aqi)
 {
-    if (audioQualityImprovement->echo)
+    spx_uint32_t playDelay;
+
+    if ((aqi->inputLatency < 0)
+            || (aqi->outputLatency < 0)
+            || !(aqi->frameSize)
+            || !(aqi->sampleRate))
+    {
+        playDelay = MIN_PLAY_DELAY_IN_FRAMES;
+    }
+    else
+    {
+        playDelay
+            = (aqi->outputLatency * aqi->sampleRate)
+                / ((aqi->frameSize / sizeof(spx_int16_t)) * 1000);
+        if (playDelay < MIN_PLAY_DELAY_IN_FRAMES)
+            playDelay = MIN_PLAY_DELAY_IN_FRAMES;
+    }
+
+    if (aqi->playDelay != playDelay)
+    {
+        aqi->playDelay = playDelay;
+        if (aqi->play && (aqi->playIsDelaying == JNI_TRUE))
+            AudioQualityImprovement_updatePlayIsDelaying(aqi);
+    }
+}
+
+/**
+ * Updates the indicator of the specified <tt>AudioQualityImprovement</tt> which
+ * determines whether <tt>AudioQualityImprovement#play</tt> delays the access to
+ * it from <tt>AudioQualityImprovement#echo</tt>.
+ *
+ * @param aqi the <tt>AudioQualityImprovement</tt> of which to update the
+ * indicator which determines whether <tt>AudioQualityImprovement#play</tt>
+ * delays the access to it from <tt>AudioQualityImprovement#echo</tt>
+ */
+static void
+AudioQualityImprovement_updatePlayIsDelaying(AudioQualityImprovement *aqi)
+{
+    spx_uint32_t playDelay
+        = aqi->playDelay * (aqi->frameSize / sizeof(spx_int16_t));
+
+    aqi->playIsDelaying
+        = ((aqi->playLength < playDelay) && (playDelay <= aqi->playCapacity))
+            ? JNI_TRUE
+            : JNI_FALSE;
+}
+
+static void
+AudioQualityImprovement_updatePreprocess(AudioQualityImprovement *aqi)
+{
+    if (aqi->echo)
     {
         int frameSize = 0;
 
-        if ((audioQualityImprovement->echoFilterLengthInMillis > 0)
-                && (audioQualityImprovement->sampleRate > 0)
+        if ((aqi->echoFilterLengthInMillis > 0)
+                && (aqi->sampleRate > 0)
                 && speex_echo_ctl(
-                    audioQualityImprovement->echo,
-                    SPEEX_ECHO_GET_FRAME_SIZE,
-                    &frameSize))
+                    aqi->echo,
+                    SPEEX_ECHO_GET_FRAME_SIZE, &frameSize))
             frameSize = 0;
         if (frameSize
-                && (audioQualityImprovement->frameSize
+                && (aqi->frameSize
                     == (frameSize * (16 /* sampleSizeInBits */ / 8))))
         {
             int echoFilterLength
                 = (int)
-                    ((audioQualityImprovement->sampleRate
-                            * audioQualityImprovement->echoFilterLengthInMillis)
+                    ((aqi->sampleRate * aqi->echoFilterLengthInMillis)
                         / 1000);
 
-            if (audioQualityImprovement->filterLengthOfEcho != echoFilterLength)
+            if (aqi->filterLengthOfEcho != echoFilterLength)
                 frameSize = 0;
         }
         else
             frameSize = 0;
         if (frameSize < 1)
         {
-            if (audioQualityImprovement->preprocess)
+            if (aqi->preprocess)
             {
                 speex_preprocess_ctl(
-                    audioQualityImprovement->preprocess,
-                    SPEEX_PREPROCESS_SET_ECHO_STATE,
-                    NULL);
+                    aqi->preprocess,
+                    SPEEX_PREPROCESS_SET_ECHO_STATE, NULL);
             }
-            speex_echo_state_destroy(audioQualityImprovement->echo);
-            audioQualityImprovement->echo = NULL;
+            speex_echo_state_destroy(aqi->echo);
+            aqi->echo = NULL;
         }
     }
-    if (audioQualityImprovement->preprocess
-            && ((audioQualityImprovement->frameSize
-                    != audioQualityImprovement->frameSizeOfPreprocess)
-                || (audioQualityImprovement->sampleRate
-                        != audioQualityImprovement->sampleRateOfPreprocess)))
+    if (aqi->preprocess
+            && ((aqi->frameSize != aqi->frameSizeOfPreprocess)
+                || (aqi->sampleRate != aqi->sampleRateOfPreprocess)))
     {
-        speex_preprocess_state_destroy(audioQualityImprovement->preprocess);
-        audioQualityImprovement->preprocess = NULL;
+        speex_preprocess_state_destroy(aqi->preprocess);
+        aqi->preprocess = NULL;
     }
-    if ((audioQualityImprovement->frameSize > 0)
-            && (audioQualityImprovement->sampleRate > 0))
+    if ((aqi->frameSize > 0) && (aqi->sampleRate > 0))
     {
-        if (audioQualityImprovement->echoFilterLengthInMillis > 0)
+        if (aqi->echoFilterLengthInMillis > 0)
         {
-            if (!(audioQualityImprovement->echo))
+            if (!(aqi->echo))
             {
+                int echoFrameSize
+                    = aqi->frameSize / (16 /* sampleSizeInBits */ / 8);
                 int echoFilterLength
                     = (int)
-                        ((audioQualityImprovement->sampleRate
-                                * audioQualityImprovement
-                                        ->echoFilterLengthInMillis)
+                        ((aqi->sampleRate * aqi->echoFilterLengthInMillis)
                             / 1000);
 
-                audioQualityImprovement->echo
-                    = speex_echo_state_init(
-                        audioQualityImprovement->frameSize
-                            / (16 /* sampleSizeInBits */ / 8),
-                        echoFilterLength);
-                audioQualityImprovement->filterLengthOfEcho
-                    = echoFilterLength;
+                aqi->echo
+                    = speex_echo_state_init(echoFrameSize, echoFilterLength);
+                aqi->filterLengthOfEcho = echoFilterLength;
+                /*
+                 * Since echo has just been (re)created, make sure that the
+                 * delay in play will happen again taking into consideration the
+                 * latest frameSize.
+                 */
+                if (aqi->play)
+                    AudioQualityImprovement_updatePlayIsDelaying(aqi);
             }
-            if (audioQualityImprovement->echo)
+            if (aqi->echo)
             {
                 speex_echo_ctl(
-                    audioQualityImprovement->echo,
-                    SPEEX_ECHO_SET_SAMPLING_RATE,
-                    &(audioQualityImprovement->sampleRate));
+                    aqi->echo,
+                    SPEEX_ECHO_SET_SAMPLING_RATE, &(aqi->sampleRate));
             }
         }
-        if (audioQualityImprovement->denoise || audioQualityImprovement->echo)
+        if (aqi->denoise || aqi->echo)
         {
-            if (!(audioQualityImprovement->preprocess))
+            if (!(aqi->preprocess))
             {
-                audioQualityImprovement->preprocess
+                aqi->preprocess
                     = speex_preprocess_state_init(
-                        audioQualityImprovement->frameSize
-                            / (16 /* sampleSizeInBits */ / 8),
-                        audioQualityImprovement->sampleRate);
-                audioQualityImprovement->frameSizeOfPreprocess
-                    = audioQualityImprovement->frameSize;
-                audioQualityImprovement->sampleRateOfPreprocess
-                    = audioQualityImprovement->sampleRate;
-                if (audioQualityImprovement->preprocess)
+                        aqi->frameSize / (16 /* sampleSizeInBits */ / 8),
+                        aqi->sampleRate);
+                aqi->frameSizeOfPreprocess = aqi->frameSize;
+                aqi->sampleRateOfPreprocess = aqi->sampleRate;
+                if (aqi->preprocess)
                 {
-                    int vad = 1;
+                    int on = 1;
 
                     speex_preprocess_ctl(
-                        audioQualityImprovement->preprocess,
-                        SPEEX_PREPROCESS_SET_VAD,
-                        &vad);
+                        aqi->preprocess,
+                        SPEEX_PREPROCESS_SET_DEREVERB, &on);
+                    speex_preprocess_ctl(
+                        aqi->preprocess,
+                        SPEEX_PREPROCESS_SET_VAD, &on);
                 }
             }
-            if (audioQualityImprovement->preprocess)
+            if (aqi->preprocess)
             {
-                int denoise
-                    = (audioQualityImprovement->denoise == JNI_TRUE) ? 1 : 0;
+                int denoise = (aqi->denoise == JNI_TRUE) ? 1 : 0;
 
                 speex_preprocess_ctl(
-                    audioQualityImprovement->preprocess,
-                    SPEEX_PREPROCESS_SET_DENOISE,
-                    &denoise);
-                if (audioQualityImprovement->echo)
+                    aqi->preprocess,
+                    SPEEX_PREPROCESS_SET_DENOISE, &denoise);
+                if (aqi->echo)
                 {
                     speex_preprocess_ctl(
-                        audioQualityImprovement->preprocess,
-                        SPEEX_PREPROCESS_SET_ECHO_STATE,
-                        audioQualityImprovement->echo);
+                        aqi->preprocess,
+                        SPEEX_PREPROCESS_SET_ECHO_STATE, aqi->echo);
                 }
             }
         }
     }
+}
+
+/**
+ * Returns the current time in milliseconds (akin to
+ * <tt>java.lang.System#currentTimeMillis()</tt>).
+ *
+ * @return the current time in milliseconds
+ */
+static jlong
+System_currentTimeMillis()
+{
+    struct timeval tv;
+
+    return
+        (gettimeofday(&tv, NULL) == 0)
+            ? ((tv.tv_sec * 1000) + (tv.tv_usec / 1000))
+            : -1;
 }

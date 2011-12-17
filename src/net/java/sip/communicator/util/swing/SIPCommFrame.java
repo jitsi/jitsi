@@ -26,7 +26,7 @@ import net.java.sip.communicator.util.*;
  * semi-transparent background.
  * 
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Adam Netocny
  */
 public class SIPCommFrame
@@ -222,23 +222,24 @@ public class SIPCommFrame
     protected void setKeybindingInput(KeybindingSet.Category category)
     {
         // Removes old binding set
-        if (this.bindings != null)
+        if (bindings != null)
         {
-            this.bindings.deleteObserver(this);
+            bindings.deleteObserver(this);
             resetInputMap();
         }
 
         // Adds new bindings to input map
-        this.bindings =
-            UtilActivator.getKeybindingsService().getBindings(category);
+        bindings
+            = UtilActivator.getKeybindingsService().getBindings(category);
 
-        for (Map.Entry<KeyStroke, String> key2action : this.bindings
-            .getBindings().entrySet())
+        if (bindings != null)
         {
-            imap.put(key2action.getKey(), key2action.getValue());
-        }
+            for (Map.Entry<KeyStroke, String> key2action
+                    : bindings.getBindings().entrySet())
+                imap.put(key2action.getKey(), key2action.getValue());
 
-        this.bindings.addObserver(this);
+            bindings.addObserver(this);
+        }
     }
 
     /**
