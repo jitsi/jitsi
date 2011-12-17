@@ -1,5 +1,5 @@
 /*
- * SIP Communicator, the OpenSource Java VoIP and Instant Messaging client.
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
@@ -21,6 +21,13 @@ static LPMAPIINITIALIZE MsOutlookAddrBookContactSourceService_mapiInitialize;
 static LPMAPILOGONEX MsOutlookAddrBookContactSourceService_mapiLogonEx;
 static LPMAPIUNINITIALIZE
     MsOutlookAddrBookContactSourceService_mapiUninitialize;
+
+static LPMAPISESSION MsOutlookAddrBookContactSourceService_mapiSession = NULL;
+static CRITICAL_SECTION MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection;
+
+static jboolean
+MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
+    (LPCTSTR name, DWORD nameLength);
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
@@ -193,9 +200,10 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                         DWORD defaultValueLength
                             = defaultValueSize / sizeof(TCHAR);
 
-                        if ((0 == defaultValueLength) || (0 == defaultValue[0]))
-                            checkHKeyLocalMachine = JNI_TRUE;
-                        else
+                        if (JNI_TRUE
+                                == MsOutlookAddrBookContactSourceService_isValidDefaultMailClient(
+                                        defaultValue,
+                                        defaultValueLength))
                         {
                             checkHKeyLocalMachine = JNI_FALSE;
                             if (_tcsnicmp(
@@ -204,6 +212,8 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                                     == 0)
                                 hResult = S_OK;
                         }
+                        else
+                            checkHKeyLocalMachine = JNI_TRUE;
                     }
                     else
                         checkHKeyLocalMachine = JNI_FALSE;
@@ -246,10 +256,12 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                 {
                     DWORD defaultValueLength = defaultValueSize / sizeof(TCHAR);
 
-                    if (_tcsnicmp(
-                                _T("Microsoft Outlook"), defaultValue,
-                                defaultValueLength)
-                            == 0)
+                    if ((_tcsnicmp(
+                                    _T("Microsoft Outlook"), defaultValue,
+                                    defaultValueLength)
+                                == 0)
+                            && (JNI_TRUE
+                                    == MsOutlookAddrBookContactSourceService_isValidDefaultMailClient(_T("Microsoft Outlook"), 17)))
                         hResult = S_OK;
                 }
                 RegCloseKey(regKey);
@@ -288,6 +300,10 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
                             GetProcAddress(lib, "MAPIFreeBuffer");
                     MsOutlookAddrBookContactSourceService_mapiLogonEx
                         = (LPMAPILOGONEX) GetProcAddress(lib, "MAPILogonEx");
+
+                    InitializeCriticalSection(
+                            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
+
                     if (MsOutlookAddrBookContactSourceService_mapiAllocateBuffer
                             && MsOutlookAddrBookContactSourceService_mapiFreeBuffer
                             && MsOutlookAddrBookContactSourceService_mapiLogonEx)
@@ -315,7 +331,21 @@ JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIUninitialize
     (JNIEnv *jniEnv, jclass clazz)
 {
+    EnterCriticalSection(
+            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
+    if (MsOutlookAddrBookContactSourceService_mapiSession)
+    {
+        MsOutlookAddrBookContactSourceService_mapiSession->Logoff(0, 0, 0);
+        MsOutlookAddrBookContactSourceService_mapiSession->Release();
+        MsOutlookAddrBookContactSourceService_mapiSession = NULL;
+    }
+    LeaveCriticalSection(
+            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
+
     MsOutlookAddrBookContactSourceService_mapiUninitialize();
+
+    DeleteCriticalSection(
+            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
 }
 
 SCODE
@@ -338,10 +368,63 @@ MsOutlookAddrBook_mapiLogonEx
     FLAGS flags,
     LPMAPISESSION FAR *mapiSession)
 {
-    return
-        MsOutlookAddrBookContactSourceService_mapiLogonEx(
-                uiParam,
-                profileName, password,
-                flags,
-                mapiSession);
+    HRESULT hResult;
+
+    EnterCriticalSection(
+            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
+    if (MsOutlookAddrBookContactSourceService_mapiSession)
+        hResult = S_OK;
+    else
+    {
+        hResult
+            = MsOutlookAddrBookContactSourceService_mapiLogonEx(
+                    uiParam,
+                    profileName, password,
+                    flags,
+                    &MsOutlookAddrBookContactSourceService_mapiSession);
+    }
+    if (HR_SUCCEEDED(hResult))
+        *mapiSession = MsOutlookAddrBookContactSourceService_mapiSession;
+    LeaveCriticalSection(
+            &MsOutlookAddrBookContactSourceService_mapiSessionCriticalSection);
+
+    return hResult;
+}
+
+static jboolean
+MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
+    (LPCTSTR name, DWORD nameLength)
+{
+    jboolean validDefaultMailClient = JNI_FALSE;
+
+    if ((0 != nameLength) && (0 != name[0]))
+    {
+        LPTSTR str;
+        TCHAR keyName[
+                22 /* Software\Clients\Mail\ */
+                    + 255
+                    + 1 /* The terminating null character */];
+        HKEY key;
+
+        str = keyName;
+        _tcsncpy(str, _T("Software\\Clients\\Mail\\"), 22);
+        str += 22;
+        if (nameLength > 255)
+            nameLength = 255;
+        _tcsncpy(str, name, nameLength);
+        *(str + nameLength) = 0;
+
+        if (ERROR_SUCCESS
+                == RegOpenKeyEx(
+                        HKEY_LOCAL_MACHINE,
+                        keyName,
+                        0,
+                        KEY_QUERY_VALUE,
+                        &key))
+        {
+            validDefaultMailClient = JNI_TRUE;
+            RegCloseKey(key);
+        }
+    }
+    return validDefaultMailClient;
 }

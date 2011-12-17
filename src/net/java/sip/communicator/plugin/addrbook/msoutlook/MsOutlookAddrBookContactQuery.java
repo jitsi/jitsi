@@ -12,6 +12,7 @@ import java.util.regex.*;
 import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>ContactQuery</tt> for the Address Book of Microsoft Outlook.
@@ -21,6 +22,13 @@ import net.java.sip.communicator.service.protocol.*;
 public class MsOutlookAddrBookContactQuery
     extends AsyncContactQuery<MsOutlookAddrBookContactSourceService>
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>MsOutlookAddrBookContactQuery</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(MsOutlookAddrBookContactQuery.class);
+
     private static final int dispidEmail1EmailAddress = 11;
 
     private static final int dispidEmail2EmailAddress = 12;
@@ -53,7 +61,8 @@ public class MsOutlookAddrBookContactQuery
             0x0FFE /* PR_OBJECT_TYPE */,
             0x00008083 /* dispidEmail1EmailAddress */,
             0x00008093 /* dispidEmail2EmailAddress */,
-            0x000080A3 /* dispidEmail3EmailAddress */
+            0x000080A3 /* dispidEmail3EmailAddress */,
+            0x3A16 /* PR_COMPANY_NAME */
         };
 
     /**
@@ -84,6 +93,8 @@ public class MsOutlookAddrBookContactQuery
      * property in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
     private static final int PR_BUSINESS2_TELEPHONE_NUMBER = 6;
+
+    private static final int PR_COMPANY_NAME = 14;
 
     /**
      * The index of the id of the <tt>PR_DISPLAY_NAME</tt> property in
@@ -376,35 +387,49 @@ public class MsOutlookAddrBookContactQuery
                 }
             }
 
-            GenericSourceContact sourceContact
-                = new GenericSourceContact(
-                        getContactSource(),
-                        (String) props[PR_DISPLAY_NAME],
-                        contactDetails);
-
-            if (MAPI_MESSAGE == objType)
+            /*
+             * What's the point of showing a contact who has no contact details?
+             */
+            if (!contactDetails.isEmpty())
             {
-                ++mapiMessageCount;
+                String displayName = (String) props[PR_DISPLAY_NAME];
 
-                try
-                {
-                    Object[] images
-                        = IMAPIProp_GetProps(
-                                iUnknown,
-                                new long[] { PR_ATTACHMENT_CONTACTPHOTO },
-                                0);
-                    Object image = images[0];
+                if ((displayName == null) || (displayName.length() == 0))
+                    displayName = (String) props[PR_COMPANY_NAME];
 
-                    if (image instanceof byte[])
-                        sourceContact.setImage((byte[]) image);
-                }
-                catch (MsOutlookMAPIHResultException ex)
+                GenericSourceContact sourceContact
+                    = new GenericSourceContact(
+                            getContactSource(),
+                            displayName,
+                            contactDetails);
+
+                if (MAPI_MESSAGE == objType)
                 {
-                    // Ignore it, the image isn't as vital as the SourceContact.
+                    ++mapiMessageCount;
+
+                    try
+                    {
+                        Object[] images
+                            = IMAPIProp_GetProps(
+                                    iUnknown,
+                                    new long[] { PR_ATTACHMENT_CONTACTPHOTO },
+                                    0);
+                        Object image = images[0];
+
+                        if (image instanceof byte[])
+                            sourceContact.setImage((byte[]) image);
+                    }
+                    catch (MsOutlookMAPIHResultException ex)
+                    {
+                        /*
+                         * Ignore it, the image isn't as vital as the
+                         * SourceContact.
+                         */
+                    }
                 }
+
+                addQueryResult(sourceContact);
             }
-
-            addQueryResult(sourceContact);
         }
         return (getStatus() == QUERY_IN_PROGRESS);
     }
@@ -416,23 +441,33 @@ public class MsOutlookAddrBookContactQuery
      */
     protected void run()
     {
-        foreachMailUser(
-            query.toString(),
-            new PtrCallback()
-            {
-                public boolean callback(long iUnknown)
+        synchronized (MsOutlookAddrBookContactQuery.class)
+        {
+            foreachMailUser(
+                query.toString(),
+                new PtrCallback()
                 {
-                    try
+                    public boolean callback(long iUnknown)
                     {
-                        return onMailUser(iUnknown);
+                        try
+                        {
+                            return onMailUser(iUnknown);
+                        }
+                        catch (MsOutlookMAPIHResultException e)
+                        {
+                            if (logger.isDebugEnabled())
+                            {
+                                logger.debug(
+                                    MsOutlookAddrBookContactQuery.class
+                                            .getSimpleName()
+                                        + "#onMailUser(long)",
+                                    e);
+                            }
+                            return false;
+                        }
                     }
-                    catch (MsOutlookMAPIHResultException ex)
-                    {
-                        ex.printStackTrace(System.err);
-                        return false;
-                    }
-                }
-            });
+                });
+        }
     }
 
     /**

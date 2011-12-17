@@ -1,8 +1,8 @@
 CC = gcc -O2
-OUTLOOK_MAPI_HEADERS ?= C:/Users/lyubomir/Downloads/Outlook2010MAPIHeaders
+OUTLOOK_MAPI_HEADERS ?= C:/Users/lyub0m1r/Downloads/Outlook2010MAPIHeaders
 TARGET_BASENAME = jmsoutlookaddrbook
 
-ARCH = $(shell $(CC) -dumpmachine | sed -e s/x86_64-.*/-64/ -e s/i.86-.*// -e s/mingw32//)
+ARCH ?= $(shell $(CC) -dumpmachine | sed -e s/x86_64-.*/-64/ -e s/i.86-.*// -e s/mingw32//)
 ifeq "$(ARCH)" "-64"
 	JAVA_HOME ?= C:/PROGRA~1/jdk
 else
