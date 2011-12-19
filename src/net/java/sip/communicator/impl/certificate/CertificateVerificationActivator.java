@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.certificate;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
@@ -32,11 +31,6 @@ public class CertificateVerificationActivator
      * The configuration service.
      */
     private static ConfigurationService configService;
-
-    /**
-     * The service giving access to files.
-     */
-    private static FileAccessService fileAccessService;
 
     /**
      * The service giving access to all resources.
@@ -77,7 +71,6 @@ public class CertificateVerificationActivator
     public void stop(BundleContext bc) throws Exception
     {
         configService = null;
-        fileAccessService = null;
         resourcesService = null;
         credService = null;
     }
@@ -98,23 +91,6 @@ public class CertificateVerificationActivator
                         ConfigurationService.class);
         }
         return configService;
-    }
-
-    /**
-     * Returns the <tt>FileAccessService</tt> obtained from the bundle context.
-     *
-     * @return the <tt>FileAccessService</tt> obtained from the bundle context
-     */
-    public static FileAccessService getFileAccessService()
-    {
-        if (fileAccessService == null)
-        {
-            fileAccessService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        FileAccessService.class);
-        }
-        return fileAccessService;
     }
 
     /**
