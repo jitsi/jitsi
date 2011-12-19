@@ -1,0 +1,25 @@
+CC = g++ -O2
+TARGET_BASENAME = junbound.dll
+TARGET_DIR ?= ../../../lib/native/windows
+
+ifeq ($(wildcard /bin/cygpath.*),/bin/cygpath.exe)
+    target.dir := $(shell cygpath --mixed "$(TARGET_DIR)")
+    cygwin.target.dir := $(shell cygpath --unix "$(TARGET_DIR)")
+else
+    target.dir := "$(TARGET_DIR)"
+    cygwin.target.dir := "$(TARGET_DIR)"
+endif
+
+CPPFLAGS = \
+	-Wall -Wreturn-type \
+	-DWINVER=0x0502 -D_WIN32_WINNT=0x0502 \
+	-DJNI_IMPLEMENTATION \
+	-I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/win32" -Iwindows32
+
+LDFLAGS = -shared -static -Wl,--kill-at -Wl,--subsystem,windows
+LIBS = -Lwindows32 -lunbound -lldns -lcrypto -lws2_32 -lgdi32 -liphlpapi
+TARGET = $(TARGET_DIR)/$(TARGET_BASENAME)
+
+$(TARGET): src/*.cpp
+	$(CC) $(CPPFLAGS) $^ $(LDFLAGS) -o $@ $(LIBS)
+	-strip $(TARGET)

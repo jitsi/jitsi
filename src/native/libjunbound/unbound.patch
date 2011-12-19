@@ -1,0 +1,42 @@
+--- unbound-1.4.12-orig/libunbound/context.h	2009-02-05 10:48:02.000000000 +0100
++++ unbound-1.4.12/libunbound/context.h	2011-12-13 23:19:23.706773580 +0100
+@@ -234,7 +234,7 @@
+  * @param cbarg: user arg for async queries.
+  * @return new ctx_query or NULL for malloc failure.
+  */
+-struct ctx_query* context_new(struct ub_ctx* ctx, char* name, int rrtype,
++struct ctx_query* context_create(struct ub_ctx* ctx, char* name, int rrtype,
+         int rrclass, ub_callback_t cb, void* cbarg);
+ 
+ /**
+--- unbound-1.4.12-orig/libunbound/context.c	2009-10-08 19:05:53.000000000 +0200
++++ unbound-1.4.12/libunbound/context.c	2011-12-13 23:19:26.042744210 +0100
+@@ -124,7 +124,7 @@
+ }
+ 
+ struct ctx_query* 
+-context_new(struct ub_ctx* ctx, char* name, int rrtype, int rrclass, 
++context_create(struct ub_ctx* ctx, char* name, int rrtype, int rrclass, 
+ 	ub_callback_t cb, void* cbarg)
+ {
+ 	struct ctx_query* q = (struct ctx_query*)calloc(1, sizeof(*q));
+--- unbound-1.4.12-orig/libunbound/libunbound.c	2010-07-07 15:13:36.000000000 +0200
++++ unbound-1.4.12/libunbound/libunbound.c	2011-12-13 23:19:20.758810633 +0100
+@@ -564,7 +564,7 @@
+ 	}
+ 	/* create new ctx_query and attempt to add to the list */
+ 	lock_basic_unlock(&ctx->cfglock);
+-	q = context_new(ctx, name, rrtype, rrclass, NULL, NULL);
++	q = context_create(ctx, name, rrtype, rrclass, NULL, NULL);
+ 	if(!q)
+ 		return UB_NOMEM;
+ 	/* become a resolver thread for a bit */
+@@ -624,7 +624,7 @@
+ 	}
+ 
+ 	/* create new ctx_query and attempt to add to the list */
+-	q = context_new(ctx, name, rrtype, rrclass, callback, mydata);
++	q = context_create(ctx, name, rrtype, rrclass, callback, mydata);
+ 	if(!q)
+ 		return UB_NOMEM;
+ 
