@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.dnsconfig;
 
 import java.awt.*;
@@ -15,6 +21,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.dns.*;
 import net.java.sip.communicator.util.swing.*;
 
 import static net.java.sip.communicator.util.NetworkUtils.*;
@@ -26,7 +33,7 @@ import static net.java.sip.communicator.util.dns.ParallelResolver.*;
  * 
  * @author Ingo Bauersachs
  */
-public class DnsConfigPanel
+public class ParallelDnsPanel
     extends TransparentPanel
     implements ActionListener,
                ChangeListener,
@@ -54,7 +61,7 @@ public class DnsConfigPanel
     /**
      * Creates a new instance of this class and prepares the UI
      */
-    public DnsConfigPanel()
+    public ParallelDnsPanel()
     {
         initServices();
         initComponents();
@@ -165,7 +172,6 @@ public class DnsConfigPanel
         JLabel descriptionLabel = new JLabel(label);
         descriptionLabel.setToolTipText(label);
         descriptionLabel.setForeground(Color.GRAY);
-        Font f = descriptionLabel.getFont().deriveFont(8);
         descriptionLabel.setFont(descriptionLabel.getFont().deriveFont(11f));
         cr.gridy = 4;
         mainPanel.add(descriptionLabel, cr);
@@ -183,6 +189,21 @@ public class DnsConfigPanel
         cr.insets = new Insets(5, 3, 3, 3);
         mainPanel.add(descriptionLabel, cr);
 
+    }
+
+    /**
+     * Update the UI based on whether DNSSEC is enabled. If DNSSEC is enabled,
+     * the parallel resolver is automatically disabled.
+     */
+    public void updateDnssecState()
+    {
+        boolean isDnssec = configService.getBoolean(
+            DnsUtilActivator.PNAME_DNSSEC_RESOLVER_ENABLED,
+            DnsUtilActivator.PDEFAULT_DNSSEC_RESOLVER_ENABLED);
+        if(isDnssec)
+            chkBackupDnsEnabled.setSelected(false);
+        chkBackupDnsEnabled.setEnabled(!isDnssec);
+        updateButtonsState();
     }
 
     /**
