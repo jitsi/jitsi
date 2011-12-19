@@ -452,6 +452,9 @@
                 <include name="*" />
             </fileset>
         </copy>
+        <antcall target="wix-sign-dlls">
+            <param name="folder.to.sign" value="${light.dir}/native"/>
+        </antcall>
         <mkdir dir="${light.dir}/sc-bundles" />
         <copy todir="${light.dir}/sc-bundles" overwrite="true">
             <fileset dir="${sc.basedir}/sc-bundles">
@@ -894,6 +897,19 @@
             <arg value="${sign.cert.password}" />
             <arg value="${file.to.sign}" />
         </exec>
+    </target>
+
+    <!-- signs all dll files in folder - $folder.to.sign
+        do it if $sign.cert.file is available -->
+    <target name="wix-sign-dlls" depends="define-ant-contrib-task">
+        <foreach param="${file.to.sign}" target="wix-sign-file"
+                 inheritall="true" inheritrefs="true">
+            <path>
+                <fileset dir="${folder.to.sign}">
+                    <include name="*.dll"/>
+                </fileset>
+            </path>
+        </foreach>
     </target>
 
     <!-- - - - - - - - - - - BUILDING RELEASE PACKAGES - - - - - - - - - - - -->

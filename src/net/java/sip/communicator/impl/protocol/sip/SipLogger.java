@@ -259,8 +259,10 @@ public class SipLogger
     {
         try
         {
-            if(!SipActivator.getPacketLogging().isLoggingEnabled(
-                    PacketLoggingService.ProtocolName.SIP))
+            PacketLoggingService packetLogging = SipActivator.getPacketLogging();
+            if( packetLogging == null
+                || !packetLogging.isLoggingEnabled(
+                        PacketLoggingService.ProtocolName.SIP))
                 return;
 
             boolean isTransportUDP = message.getTopmostVia().getTransport()
@@ -310,7 +312,7 @@ public class SipLogger
             }
 
             byte[] msg = message.toString().getBytes("UTF-8");
-            SipActivator.getPacketLogging().logPacket(
+            packetLogging.logPacket(
                     PacketLoggingService.ProtocolName.SIP,
                     srcAddr, srcPort,
                     dstAddr, dstPort,
