@@ -123,6 +123,18 @@ public class NetworkUtils
         = "net.java.sip.communicator.util.dns.BACKUP_RESOLVER_FALLBACK_IP";
 
     /**
+     * The name of the boolean property that defines whether all domain names
+     * looked up from Jitsi should be treated as absolute.
+     */
+    public static final String PNAME_DNS_ALWAYS_ABSOLUTE
+        = "net.java.sip.communicator.util.dns.DNSSEC_ALWAYS_ABSOLUTE";
+
+    /**
+     * Default value of {@link #PNAME_DNS_ALWAYS_ABSOLUTE}.
+     */
+    public static final boolean PDEFAULT_DNS_ALWAYS_ABSOLUTE = false;
+
+    /**
      * The DNSjava resolver that we use with SRV and NAPTR queries in order to
      * try and smooth the problem of DNS servers that silently drop them.
      */
@@ -334,7 +346,7 @@ public class NetworkUtils
      */
     public static byte[] strToIPv4(String ipv4AddrStr)
     {
-        if (ipv4AddrStr.length() == 0)
+        if (ipv4AddrStr == null || ipv4AddrStr.length() == 0)
             return null;
 
         byte[] address = new byte[IN4_ADDR_SIZE];
@@ -435,7 +447,7 @@ public class NetworkUtils
     public static byte[] strToIPv6(String ipv6AddrStr)
     {
         // Bail out if the string is shorter than "::"
-        if (ipv6AddrStr.length() < 2)
+        if (ipv6AddrStr == null || ipv6AddrStr.length() < 2)
             return null;
 
         int colonIndex;
@@ -581,9 +593,10 @@ public class NetworkUtils
      * @return an array of SRVRecord containing records returned by the DNS
      * server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     * @throws DnssecException when a DNSSEC validation failure occurred.
      */
     public static SRVRecord[] getSRVRecords(String domain)
-        throws ParseException
+        throws ParseException, DnssecException
     {
         Record[] records = null;
         try
@@ -595,6 +608,10 @@ public class NetworkUtils
         {
             logger.error("Failed to parse domain=" + domain, tpe);
             throw new ParseException(tpe.getMessage(), 0);
+        }
+        catch(DnssecRuntimeException e)
+        {
+            throw new DnssecException(e);
         }
         if (records == null)
         {
@@ -644,11 +661,12 @@ public class NetworkUtils
      * @return the first InetSocketAddress containing records returned by the
      * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     * @throws DnssecException when a DNSSEC validation failure occurred.
      */
     public static SRVRecord getSRVRecord(String service,
                                          String proto,
                                          String domain)
-        throws ParseException
+        throws ParseException, DnssecException
     {
         SRVRecord[] records = getSRVRecords("_" + service
                                                  + "._" + proto
@@ -672,11 +690,12 @@ public class NetworkUtils
      * @return the InetSocketAddress[] containing records returned by the
      * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     * @throws DnssecException when a DNSSEC validation failure occurred.
      */
     public static SRVRecord[] getSRVRecords(String service,
                                                    String proto,
                                                    String domain)
-        throws ParseException
+        throws ParseException, DnssecException
     {
         SRVRecord[] records = getSRVRecords("_" + service
                                                  + "._" + proto
@@ -698,9 +717,10 @@ public class NetworkUtils
      * @return an array with the values or null if no records found.
      *
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     * @throws DnssecException when a DNSSEC validation failure occurred.
      */
     public static String[][] getNAPTRRecords(String domain)
-        throws ParseException
+        throws ParseException, DnssecException
     {
         Record[] records = null;
         try
@@ -712,6 +732,10 @@ public class NetworkUtils
         {
             logger.error("Failed to parse domain="+domain, tpe);
             throw new ParseException(tpe.getMessage(), 0);
+        }
+        catch(DnssecRuntimeException e)
+        {
+            throw new DnssecException(e);
         }
         if (records == null)
         {
@@ -849,9 +873,10 @@ public class NetworkUtils
      * @return an array of InetSocketAddress containing records returned by the
      *         DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     * @throws DnssecException when a DNSSEC validation failure occurred.
      */
     public static InetSocketAddress[] getAandAAAARecords(String domain, int port)
-        throws ParseException
+        throws ParseException, DnssecException
     {
         byte[] address = null;
         if((address = strToIPv4(domain)) != null
@@ -889,7 +914,15 @@ public class NetworkUtils
                 logger.error("Failed to parse domain <" + domain + ">", tpe);
                 throw new ParseException(tpe.getMessage(), 0);
             }
-            Record[] records = lookup.run();
+            Record[] records = null;
+            try
+            {
+                records = lookup.run();
+            }
+            catch(DnssecRuntimeException e)
+            {
+                throw new DnssecException(e);
+            }
             if(records != null)
             {
                 for(Record r : records)
@@ -931,9 +964,10 @@ public class NetworkUtils
      * @return an array of InetSocketAddress containing records returned by the
      * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     * @throws DnssecException when a DNSSEC validation failure occurred.
      */
     public static InetSocketAddress getARecord(String domain, int port)
-        throws ParseException
+        throws ParseException, DnssecException
     {
         byte[] address;
         if((address = strToIPv4(domain)) != null)
@@ -967,14 +1001,26 @@ public class NetworkUtils
             logger.error("Failed to parse domain="+domain, tpe);
             throw new ParseException(tpe.getMessage(), 0);
         }
+        catch(DnssecRuntimeException e)
+        {
+            throw new DnssecException(e);
+        }
         if (records != null && records.length > 0)
         {
             if(logger.isTraceEnabled())
                 logger.trace("A record for " + domain + "="
                     + ((ARecord)records[0]).getAddress());
-            return new InetSocketAddress(
-                ((ARecord)records[0]).getAddress(),
-                port);
+            try
+            {
+                return new InetSocketAddress(
+                    InetAddress.getByAddress(domain,
+                        ((ARecord)records[0]).getAddress().getAddress()),
+                    port);
+            }
+            catch (UnknownHostException e)
+            {
+                return null;
+            }
         }
         else
         {
@@ -992,9 +1038,10 @@ public class NetworkUtils
      * @return an array of InetSocketAddress containing records returned by the
      * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
+     * @throws DnssecException 
      */
     public static InetSocketAddress getAAAARecord(String domain, int port)
-        throws ParseException
+        throws ParseException, DnssecException
     {
         byte[] address;
         if((address = strToIPv6(domain)) != null)
@@ -1028,14 +1075,26 @@ public class NetworkUtils
             logger.error("Failed to parse domain="+domain, tpe);
             throw new ParseException(tpe.getMessage(), 0);
         }
+        catch(DnssecRuntimeException e)
+        {
+            throw new DnssecException(e);
+        }
         if (records != null && records.length > 0)
         {
             if(logger.isTraceEnabled())
                 logger.trace("AAAA record for " + domain + "="
                     + ((AAAARecord)records[0]).getAddress());
-            return new InetSocketAddress(
-                ((AAAARecord)records[0]).getAddress(),
-                port);
+            try
+            {
+                return new InetSocketAddress(
+                    InetAddress.getByAddress(domain,
+                        ((AAAARecord)records[0]).getAddress().getAddress()),
+                    port);
+            }
+            catch (UnknownHostException e)
+            {
+                return null;
+            }
         }
         else
         {
@@ -1155,7 +1214,7 @@ public class NetworkUtils
 
     /**
      * Creates a new {@link Lookup} instance using our own {@link
-     * ParallelResolver}.
+     * ParallelResolver} if it is enabled and DNSSEC is not active.
      *
      * @param domain the domain we will be resolving
      * @param type the type of the record we will be trying to obtain.
@@ -1178,6 +1237,15 @@ public class NetworkUtils
                 .addNetworkConfigurationChangeListener(netListener);
         }
 
+        // make domain name absolute if requested
+        if(UtilActivator.getConfigurationService().getBoolean(
+            PNAME_DNS_ALWAYS_ABSOLUTE,
+            PDEFAULT_DNS_ALWAYS_ABSOLUTE))
+        {
+            if(!Name.fromString(domain).isAbsolute())
+                domain = domain + ".";
+        }
+
         Lookup lookup = new Lookup(domain, type);
 
         if(logger.isTraceEnabled())
@@ -1194,8 +1262,14 @@ public class NetworkUtils
 
         if(!UtilActivator.getConfigurationService()
                 .getBoolean(PNAME_BACKUP_RESOLVER_ENABLED,
-                    PDEFAULT_BACKUP_RESOLVER_ENABLED))
+                    PDEFAULT_BACKUP_RESOLVER_ENABLED)
+            || UtilActivator.getConfigurationService().getBoolean(
+                DnsUtilActivator.PNAME_DNSSEC_RESOLVER_ENABLED,
+                DnsUtilActivator.PDEFAULT_DNSSEC_RESOLVER_ENABLED
+            ))
+        {
             return lookup;
+        }
 
         //Initiate our global parallel resolver if this is our first ever
         //DNS query. The lock here is heavy but necessary as a) the config
@@ -1340,7 +1414,7 @@ public class NetworkUtils
     {
         // reread system dns configuration
         ResolverConfig.refresh();
-        Lookup.refreshDefault();
+        DnsUtilActivator.refreshResolver();
         if(parallelResolver instanceof ParallelResolver)
         {
             //needs a separate lock object because the parallelResolver could

@@ -7,6 +7,7 @@ System-Bundle: yes
 Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.packetlogging,
  net.java.sip.communicator.util,
+ net.java.sip.communicator.util.dns,
  net.java.sip.communicator.service.sysactivity,
  net.java.sip.communicator.service.sysactivity.event,
  org.osgi.framework,

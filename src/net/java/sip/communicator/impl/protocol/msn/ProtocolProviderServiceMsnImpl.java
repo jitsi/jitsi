@@ -12,6 +12,7 @@ import java.nio.channels.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.dns.*;
 import net.sf.jml.*;
 import net.sf.jml.event.*;
 import net.sf.jml.exception.*;
@@ -227,6 +228,14 @@ public class ProtocolProviderServiceMsnImpl
                     getRegistrationState(),
                     RegistrationState.CONNECTION_FAILED,
                     RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                    null);
+            }
+            catch(DnssecRuntimeException ex)
+            {
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST,
                     null);
             }
         }

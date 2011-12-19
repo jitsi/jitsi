@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.NetworkUtils;
+import net.java.sip.communicator.util.dns.*;
 
 import org.ice4j.*;
 import org.ice4j.ice.*;
@@ -639,6 +640,11 @@ public class NetworkAddressManagerServiceImpl
              logger.info(domainName + " seems to be causing parse problems", e);
              srvrAddress = null;
          }
+        catch (DnssecException e)
+        {
+            logger.warn("DNSSEC validation for " + domainName
+                + " STUN/TURN failed.", e);
+        }
 
          if(srvrAddress != null)
          {

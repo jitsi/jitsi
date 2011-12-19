@@ -14,6 +14,7 @@ import java.text.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.dns.*;
 
 /**
  * Implementation of the manually configured SIP proxy connection. IP Address
@@ -52,6 +53,7 @@ public class ManualProxyConnection
      */
     @Override
     public boolean getNextAddressFromDns()
+        throws DnssecException
     {
         if(lookups == null)
         {

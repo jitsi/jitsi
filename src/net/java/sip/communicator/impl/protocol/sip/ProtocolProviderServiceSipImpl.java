@@ -15,6 +15,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.version.Version;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.dns.*;
+
 import org.osgi.framework.*;
 
 import javax.sip.*;
@@ -299,13 +301,14 @@ public class ProtocolProviderServiceSipImpl
         sipSecurityManager.setSecurityAuthority(authority);
 
         initRegistrarConnection();
+
         //connect to the Registrar.
         connection = ProxyConnection.create(this);
         if(!registerUsingNextAddress())
         {
             logger.error("No address found for " + this);
             fireRegistrationStateChanged(
-                RegistrationState.UNREGISTERED,
+                RegistrationState.REGISTERING,
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
                 "Invalid or inaccessible server address.");
@@ -2395,6 +2398,17 @@ public class ProtocolProviderServiceSipImpl
                 sipRegistrarConnection.register();
                 return true;
             }
+        }
+        catch (DnssecException e)
+        {
+            logger.error("DNSSEC failure while getting address for "
+                + this, e);
+            fireRegistrationStateChanged(
+                RegistrationState.REGISTERING,
+                RegistrationState.UNREGISTERED,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                "Invalid or inaccessible server address.");
+            return true;
         }
         catch (Throwable e)
         {

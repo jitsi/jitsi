@@ -20,6 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.dns.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
@@ -576,6 +577,8 @@ public class ProtocolProviderServiceJabberImpl
             Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
 
             ConnectState state;
+            //[0] = hadDnsSecException
+            boolean[] hadDnsSecException = new boolean[]{false};
 
             // try connecting with auto-detection if enabled
             boolean isServerOverriden =
@@ -584,8 +587,13 @@ public class ProtocolProviderServiceJabberImpl
 
             if(!isServerOverriden)
             {
-                state = connectUsingSRVRecords(
-                        serviceName, password, serviceName);
+                state = connectUsingSRVRecords(serviceName, password,
+                        serviceName, hadDnsSecException);
+                if(hadDnsSecException[0])
+                {
+                    setDnssecLoginFailure();
+                    return;
+                }
                 if(state == ConnectState.ABORT_CONNECTING
                     || state == ConnectState.STOP_TRYING)
                     return;
@@ -596,13 +604,19 @@ public class ProtocolProviderServiceJabberImpl
             String customXMPPDomain = getAccountID()
                 .getAccountPropertyString("CUSTOM_XMPP_DOMAIN");
 
-            if(customXMPPDomain != null)
+            if(customXMPPDomain != null && !hadDnsSecException[0])
             {
                 state = connectUsingSRVRecords(
-                            customXMPPDomain, password, serviceName);
+                            customXMPPDomain, password, serviceName,
+                            hadDnsSecException);
+                if(hadDnsSecException[0])
+                {
+                    setDnssecLoginFailure();
+                    return;
+                }
                 if(state == ConnectState.ABORT_CONNECTING
                     || state == ConnectState.STOP_TRYING)
-                return;
+                    return;
             }
 
             // connect with specified server name
@@ -625,6 +639,13 @@ public class ProtocolProviderServiceJabberImpl
             {
                 logger.error("Domain not resolved", e);
             }
+            catch (DnssecException e)
+            {
+                logger.error("DNSSEC failure for overridden server", e);
+                setDnssecLoginFailure();
+                return;
+            }
+
             if (addrs == null || addrs.length == 0)
             {
                 fireRegistrationStateChanged(
@@ -633,24 +654,37 @@ public class ProtocolProviderServiceJabberImpl
                     RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
                     "No server addresses found");
             }
-
-            for (InetSocketAddress isa : addrs)
+            else
             {
-                try
+                for (InetSocketAddress isa : addrs)
                 {
-                    state = connectAndLogin(isa, password, serviceName);
-                    if(state == ConnectState.ABORT_CONNECTING
-                        || state == ConnectState.STOP_TRYING)
-                        return;
-                }
-                catch(XMPPException ex)
-                {
-                    disconnectAndCleanConnection();
-                    if(isAuthenticationFailed(ex))
-                        throw ex;
+                    try
+                    {
+                        state = connectAndLogin(isa, password,
+                            serviceName);
+                        if(state == ConnectState.ABORT_CONNECTING
+                            || state == ConnectState.STOP_TRYING)
+                            return;
+                    }
+                    catch(XMPPException ex)
+                    {
+                        disconnectAndCleanConnection();
+                        if(isAuthenticationFailed(ex))
+                            throw ex;
+                    }
                 }
             }
         }
+    }
+
+    private void setDnssecLoginFailure()
+    {
+        eventDuringLogin = new RegistrationStateChangeEvent(
+            this,
+            getRegistrationState(),
+            RegistrationState.UNREGISTERED,
+            RegistrationStateChangeEvent.REASON_USER_REQUEST,
+            "No usable host found due to DNSSEC failures");
     }
 
     /**
@@ -658,12 +692,14 @@ public class ProtocolProviderServiceJabberImpl
      * @param domain the domain to use
      * @param password the password of the user
      * @param serviceName the domain name of the user's login
+     * @param dnssecState state of possible received DNSSEC exceptions
      * @return whether to continue trying or stop.
      */
     private ConnectState connectUsingSRVRecords(
         String domain,
         String password,
-        String serviceName)
+        String serviceName,
+        boolean[] dnssecState)
         throws XMPPException
     {
         // check to see is there SRV records for this server domain
@@ -676,6 +712,11 @@ public class ProtocolProviderServiceJabberImpl
         catch (ParseException e)
         {
             logger.error("SRV record not resolved", e);
+        }
+        catch (DnssecException e)
+        {
+            logger.error("DNSSEC failure for SRV lookup", e);
+            dnssecState[0] = true;
         }
 
         if(srvRecords != null)
@@ -695,14 +736,21 @@ public class ProtocolProviderServiceJabberImpl
                 {
                     logger.error("Invalid SRV record target", e);
                 }
-                if (addrs == null)
+                catch (DnssecException e)
+                {
+                    logger.error("DNSSEC failure for A/AAAA lookup of SRV", e);
+                    dnssecState[0] = true;
+                }
+                if (addrs == null || addrs.length == 0)
                     continue;
 
                 for (InetSocketAddress isa : addrs)
                 {
                     try
                     {
-                        return connectAndLogin(isa, password, serviceName);
+                        ConnectState state = connectAndLogin(
+                            isa, password, serviceName);
+                        return state;
                     }
                     catch(XMPPException ex)
                     {
@@ -2379,6 +2427,11 @@ public class ProtocolProviderServiceJabberImpl
         catch (ParseException e)
         {
             logger.info("Failed to get SRV records for XMPP domain");
+            return false;
+        }
+        catch (DnssecException e)
+        {
+            logger.error("DNSSEC failure while checking for google domains", e);
             return false;
         }
 

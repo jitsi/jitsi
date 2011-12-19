@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.flap.*;
 import net.kano.joscar.flapcmd.*;
+import net.kano.joscar.net.*;
 import net.kano.joscar.snaccmd.auth.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.*;
@@ -137,18 +138,6 @@ public class ProtocolProviderServiceIcqImpl
             return RegistrationState.UNREGISTERED;
 
         return lastRegistrationState;
-    }
-
-    /**
-     * Converts the specified joust sim connection state to a corresponding
-     * RegistrationState.
-     * @param jsState the joust sim connection state.
-     * @return a RegistrationState corresponding best to the specified
-     * joustSimState.
-     */
-    private RegistrationState joustSimStateToRegistrationState(State jsState)
-    {
-        return joustSimStateToRegistrationState(jsState, null);
     }
 
     /**
@@ -757,13 +746,28 @@ public class ProtocolProviderServiceIcqImpl
                     if (logger.isDebugEnabled())
                         logger.debug("The aim Connection was disconnected!");
             }
-            else
-                if(newState == State.FAILED)
+            else if(newState == State.FAILED)
+            {
+                // assume that a failure during connect&resolve is a DNSSEC
+                // validation error
+                if (oldState == State.CONNECTINGAUTH &&
+                    conn.getLoginService() != null &&
+                    conn.getLoginService().getOscarConnection() != null &&
+                    conn.getLoginService().getOscarConnection()
+                        .getConnectionState() == ClientConn.STATE_RESOLVING
+                )
                 {
-                    if (logger.isDebugEnabled())
-                        logger.debug("The aim Connection failed! "
-                                 + event.getNewStateInfo());
+                    fireRegistrationStateChanged(
+                        getRegistrationState(),
+                        RegistrationState.UNREGISTERED,
+                        RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                        "Disconnected due to assumed DNSSEC failure");
+                    return;
                 }
+                else if (logger.isDebugEnabled())
+                    logger.debug("The aim Connection failed! "
+                             + event.getNewStateInfo());
+            }
 
             if(event.getNewStateInfo() instanceof LoginFailureStateInfo)
             {

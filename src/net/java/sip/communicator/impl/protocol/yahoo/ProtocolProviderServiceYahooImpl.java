@@ -11,6 +11,7 @@ import java.io.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.dns.*;
 
 import ymsg.network.*;
 import ymsg.network.event.*;
@@ -250,6 +251,13 @@ public class ProtocolProviderServiceYahooImpl
                     getRegistrationState(),
                     RegistrationState.CONNECTION_FAILED,
                     RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
+            }
+            catch (DnssecRuntimeException ex)
+            {
+                fireRegistrationStateChanged(
+                    getRegistrationState(),
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
             }
         }
     }

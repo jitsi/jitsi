@@ -16,6 +16,7 @@ import java.text.ParseException;
 import net.java.sip.communicator.impl.protocol.sip.SipAccountID;
 import net.java.sip.communicator.impl.protocol.sip.net.AutoProxyConnection;
 import net.java.sip.communicator.util.SRVRecord;
+import net.java.sip.communicator.util.dns.DnssecException;
 import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.*;
 import junit.framework.TestCase;
 
@@ -103,7 +104,7 @@ public class TestAutoProxyDetection
         a4 = new InetSocketAddress(ia4, 5063);
     }
 
-    private void prepareOneNaptrOneSrv() throws ParseException
+    private void prepareOneNaptrOneSrv() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{
             {"0", "udp", "_sip._udp." + DOMAIN}
@@ -112,7 +113,7 @@ public class TestAutoProxyDetection
             .andReturn(new SRVRecord[]{ srv1 });
     }
 
-    private void prepareOneNaptrTwoSrv() throws ParseException
+    private void prepareOneNaptrTwoSrv() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{
             {"0", "udp", "_sip._udp." + DOMAIN}
@@ -121,7 +122,7 @@ public class TestAutoProxyDetection
             .andReturn(new SRVRecord[]{ srv1, srv2 });
     }
 
-    public void testOneNaptrNoSrv() throws ParseException
+    public void testOneNaptrNoSrv() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{
             {"0", "udp", "_sip._udp." + DOMAIN}
@@ -133,7 +134,7 @@ public class TestAutoProxyDetection
         verify(account, nu);
     }
 
-    public void testOneNaptrOneSrvOneA() throws ParseException
+    public void testOneNaptrOneSrvOneA() throws ParseException, DnssecException
     {
         prepareOneNaptrOneSrv();
         expect(nu.getAandAAAARecords("proxy1." + DOMAIN, 5060))
@@ -147,7 +148,7 @@ public class TestAutoProxyDetection
         verify(account, nu, srv1);
     }
 
-    public void testOneNaptrOneSrvTwoA() throws ParseException
+    public void testOneNaptrOneSrvTwoA() throws ParseException, DnssecException
     {
         prepareOneNaptrOneSrv();
         expect(nu.getAandAAAARecords("proxy1." + DOMAIN, 5060))
@@ -166,7 +167,7 @@ public class TestAutoProxyDetection
 
     //-----------------------
 
-    public void testOneNaptrTwoSrvOneA() throws ParseException
+    public void testOneNaptrTwoSrvOneA() throws ParseException, DnssecException
     {
         prepareOneNaptrTwoSrv();
         expect(nu.getAandAAAARecords("proxy1." + DOMAIN, 5060))
@@ -185,7 +186,7 @@ public class TestAutoProxyDetection
         verify(account, nu, srv1, srv2);
     }
 
-    public void testOneNaptrTwoSrvTwoA() throws ParseException
+    public void testOneNaptrTwoSrvTwoA() throws ParseException, DnssecException
     {
         prepareOneNaptrTwoSrv();
         expect(nu.getAandAAAARecords("proxy1." + DOMAIN, 5060))
@@ -215,7 +216,9 @@ public class TestAutoProxyDetection
 
     //-------------------
 
-    public void testThreeNaptrOneSrvEachOneAEach() throws ParseException
+    public void testThreeNaptrOneSrvEachOneAEach()
+        throws ParseException,
+        DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{
             {"0", "udp", "_sip._udp." + DOMAIN},
@@ -254,7 +257,7 @@ public class TestAutoProxyDetection
 
     //-----------------------
 
-    public void testNoSrvOneA() throws ParseException
+    public void testNoSrvOneA() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
         expect(nu.getSRVRecords("sips", "TCP", DOMAIN)).andReturn(null);
@@ -272,7 +275,7 @@ public class TestAutoProxyDetection
         verify(account, nu);
     }
 
-    public void testOneSrvOneA() throws ParseException
+    public void testOneSrvOneA() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
         expect(nu.getSRVRecords("sips", "TCP", DOMAIN)).andReturn(null);
@@ -291,7 +294,7 @@ public class TestAutoProxyDetection
         verify(account, nu, srv1);
     }
 
-    public void testOneSrvTwoA() throws ParseException
+    public void testOneSrvTwoA() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
         expect(nu.getSRVRecords("sips", "TCP", DOMAIN)).andReturn(null);
@@ -314,7 +317,7 @@ public class TestAutoProxyDetection
         verify(account, nu, srv1);
     }
 
-    public void testTwoSrvOneA() throws ParseException
+    public void testTwoSrvOneA() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
         expect(nu.getSRVRecords("sips", "TCP", DOMAIN))
@@ -342,7 +345,7 @@ public class TestAutoProxyDetection
 
     //----------------------
 
-    public void testNoA() throws ParseException
+    public void testNoA() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
         expect(nu.getSRVRecords("sips", "TCP", DOMAIN)).andReturn(null);
@@ -357,7 +360,7 @@ public class TestAutoProxyDetection
         verify(account, nu);
     }
 
-    public void testOneA() throws ParseException
+    public void testOneA() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
         expect(nu.getSRVRecords("sips", "TCP", DOMAIN)).andReturn(null);
@@ -375,7 +378,7 @@ public class TestAutoProxyDetection
         verify(account, nu);
     }
 
-    public void testTwoA() throws ParseException
+    public void testTwoA() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
         expect(nu.getSRVRecords("sips", "TCP", DOMAIN)).andReturn(null);
@@ -397,7 +400,9 @@ public class TestAutoProxyDetection
         verify(account, nu);
     }
 
-    public void testNotReturningSameAddressTwice() throws ParseException
+    public void testNotReturningSameAddressTwice()
+        throws ParseException,
+        DnssecException
     {
         expect(srv1.getTarget()).andReturn("proxy1."+DOMAIN);
         expect(srv1.getPort()).andReturn(5060);

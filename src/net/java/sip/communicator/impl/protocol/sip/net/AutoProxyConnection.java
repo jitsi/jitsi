@@ -15,6 +15,7 @@ import javax.sip.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.dns.*;
 import static javax.sip.ListeningPoint.*;
 
 /**
@@ -52,19 +53,19 @@ public class AutoProxyConnection
         }
 
         public String[][] getNAPTRRecords(String address)
-            throws ParseException
+            throws ParseException, DnssecException
         {
             return NetworkUtils.getNAPTRRecords(address);
         }
 
         public SRVRecord[] getSRVRecords(String service, String proto,
-            String address) throws ParseException
+            String address) throws ParseException, DnssecException
         {
             return NetworkUtils.getSRVRecords(service, proto, address);
         }
 
         public InetSocketAddress[] getAandAAAARecords(String target, int port)
-            throws ParseException
+            throws ParseException, DnssecException
         {
             return NetworkUtils.getAandAAAARecords(target, port);
         }
@@ -75,7 +76,7 @@ public class AutoProxyConnection
         }
 
         public SRVRecord[] getSRVRecords(String domain)
-            throws ParseException
+            throws ParseException, DnssecException
         {
             return NetworkUtils.getSRVRecords(domain);
         }
@@ -152,6 +153,7 @@ public class AutoProxyConnection
      * getNextAddressFromDns()
      */
     protected boolean getNextAddressFromDns()
+        throws DnssecException
     {
         try
         {
@@ -167,9 +169,13 @@ public class AutoProxyConnection
 
     /**
      * Gets the next address from DNS.
+     * 
+     * @throws DnssecException When a DNSSEC failure occured during the lookup.
+     * @throws ParseException When a domain name (possibly returned from DNS
+     *             itself) is invalid.
      */
     private boolean getNextAddressInternal()
-        throws ParseException
+        throws DnssecException, ParseException
     {
         switch(state)
         {

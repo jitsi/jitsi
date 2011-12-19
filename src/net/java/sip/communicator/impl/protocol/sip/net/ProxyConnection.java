@@ -4,6 +4,7 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
+import net.java.sip.communicator.util.dns.DnssecException;
 import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.*;
 
 /**
@@ -34,8 +35,6 @@ public abstract class ProxyConnection
      */
     public final InetSocketAddress getAddress()
     {
-        if(socketAddress == null)
-            getNextAddress();
         return socketAddress;
     }
 
@@ -45,8 +44,6 @@ public abstract class ProxyConnection
      */
     public final String getTransport()
     {
-        if(transport == null)
-            getNextAddress();
         return transport;
     }
 
@@ -61,8 +58,7 @@ public abstract class ProxyConnection
     public final String getOutboundProxyString()
     {
         if(socketAddress == null)
-            if(!getNextAddress())
-                return null;
+            return null;
 
         InetAddress proxyAddress = socketAddress.getAddress();
         StringBuilder proxyStringBuffer
@@ -106,7 +102,7 @@ public abstract class ProxyConnection
      *         false if the last address was reached. A new lookup from scratch
      *         can be started by calling {@link #reset()}.
      */
-    public final boolean getNextAddress()
+    public final boolean getNextAddress() throws DnssecException
     {
         boolean result;
         String key = null;
@@ -132,8 +128,10 @@ public abstract class ProxyConnection
      * have to care about duplicate addresses.
      * 
      * @return True when a further address was available.
+     * @throws DnssecException when a DNSSEC validation failure occured.
      */
-    protected abstract boolean getNextAddressFromDns();
+    protected abstract boolean getNextAddressFromDns()
+        throws DnssecException;
 
     /**
      * Resets the lookup to it's initial state. Overriders methods have to call

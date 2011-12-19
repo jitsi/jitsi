@@ -888,7 +888,8 @@
     <!-- - - - - - - - - - - - - - BUNDLE BUILDING TARGETS - - - - - - - -       -->
     <!--ALL BUNDLES-->
     <target name="bundles"
-        depends="bundle-sc-launcher,bundle-util,bundle-configuration,bundle-configuration-slick,
+        depends="bundle-sc-launcher,bundle-util,bundle-util-dns,
+        bundle-configuration,bundle-configuration-slick,
         bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
         bundle-netaddr,bundle-netaddr-slick,bundle-slickless,
@@ -1048,9 +1049,21 @@
         <jar compress="false" destfile="${bundles.dest}/util.jar"
             manifest="${src}/net/java/sip/communicator/util/util.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/util"
-                prefix="net/java/sip/communicator/util"/>
+                prefix="net/java/sip/communicator/util">
+                <exclude name="dns/**"/>
+            </zipfileset>
             <zipfileset src="${lib.noinst}/dnsjava.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/laf-widget.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-UTIL-DNS-->
+    <target name="bundle-util-dns">
+        <!-- Create the dns.jar-->
+        <jar compress="true" destfile="${bundles.dest}/dns.jar"
+            manifest="${src}/net/java/sip/communicator/util/dns/util.dns.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/util/dns"
+                prefix="net/java/sip/communicator/util/dns"/>
         </jar>
     </target>
 
