@@ -169,7 +169,8 @@ public class ProvisioningForm
         uuidPane.setEditable(false);
         uuidPane.setOpaque(false);
         uuidPane.setText(
-                config.getString(ProvisioningActivator.PROVISIONING_UUID_PROP));
+                config.getString(ProvisioningServiceImpl.
+                    PROVISIONING_UUID_PROP));
 
         uuidPanel.add(new JLabel(resources.getI18NString(
                 "plugin.provisioning.UUID")));
@@ -276,7 +277,8 @@ public class ProvisioningForm
      */
     private void initButtonStates()
     {
-        String provMethod = ProvisioningActivator.getProvisioningMethod();
+        String provMethod = ProvisioningActivator.getProvisioningService().
+            getProvisioningMethod();
         boolean isProvEnabled
             = (provMethod != null
                 && provMethod.length() > 0
@@ -296,7 +298,8 @@ public class ProvisioningForm
             {
                 manualButton.setSelected(true);
 
-                String uri = ProvisioningActivator.getProvisioningUri();
+                String uri = ProvisioningActivator.getProvisioningService().
+                    getProvisioningUri();
                 if (uri != null)
                     uriField.setText(uri);
             }
@@ -311,16 +314,16 @@ public class ProvisioningForm
         // creadentials
         forgetPasswordButton.setEnabled(isProvEnabled);
         usernameField.setText(ProvisioningActivator.getConfigurationService()
-                .getString(ProvisioningActivator.PROPERTY_PROVISIONING_USERNAME));
+            .getString(ProvisioningServiceImpl.PROPERTY_PROVISIONING_USERNAME));
 
         if(ProvisioningActivator.getCredentialsStorageService()
             .isStoredEncrypted(
-                    ProvisioningActivator.PROPERTY_PROVISIONING_PASSWORD))
+                    ProvisioningServiceImpl.PROPERTY_PROVISIONING_PASSWORD))
         {
             passwordField.setText(
                 ProvisioningActivator.getCredentialsStorageService()
                 .loadPassword(
-                        ProvisioningActivator.PROPERTY_PROVISIONING_PASSWORD));
+                    ProvisioningServiceImpl.PROPERTY_PROVISIONING_PASSWORD));
         }
     }
 
@@ -367,8 +370,8 @@ public class ProvisioningForm
                     }
                 }
 
-                ProvisioningActivator
-                    .setProvisioningMethod(provisioningMethod);
+                ProvisioningActivator.getProvisioningService().
+                    setProvisioningMethod(provisioningMethod);
             }
         });
 
@@ -377,8 +380,8 @@ public class ProvisioningForm
             public void stateChanged(ChangeEvent e)
             {
                 if (dhcpButton.isSelected())
-                    ProvisioningActivator
-                        .setProvisioningMethod("DHCP");
+                    ProvisioningActivator.getProvisioningService().
+                        setProvisioningMethod("DHCP");
             }
         });
 
@@ -387,8 +390,8 @@ public class ProvisioningForm
             public void stateChanged(ChangeEvent e)
             {
                 if (dnsButton.isSelected())
-                    ProvisioningActivator
-                        .setProvisioningMethod("DNS");
+                    ProvisioningActivator.getProvisioningService().
+                        setProvisioningMethod("DNS");
             }
         });
 
@@ -397,8 +400,8 @@ public class ProvisioningForm
             public void stateChanged(ChangeEvent e)
             {
                 if (bonjourButton.isSelected())
-                    ProvisioningActivator
-                        .setProvisioningMethod("Bonjour");
+                    ProvisioningActivator.getProvisioningService().
+                        setProvisioningMethod("Bonjour");
             }
         });
 
@@ -412,15 +415,19 @@ public class ProvisioningForm
 
                 if (isSelected)
                 {
-                    ProvisioningActivator
-                        .setProvisioningMethod("Manual");
+                    ProvisioningActivator.getProvisioningService().
+                        setProvisioningMethod("Manual");
 
                     String uriText = uriField.getText();
                     if (uriText != null && uriText.length() > 0)
-                        ProvisioningActivator.setProvisioningUri(uriText);
+                        ProvisioningActivator.getProvisioningService().
+                            setProvisioningUri(uriText);
                 }
                 else
-                    ProvisioningActivator.setProvisioningUri(null);
+                {
+                    ProvisioningActivator.getProvisioningService().
+                        setProvisioningUri(null);
+                }
             }
         });
 
@@ -435,7 +442,8 @@ public class ProvisioningForm
 
                 String uriText = uriField.getText();
                 if (uriText != null && uriText.length() > 0)
-                    ProvisioningActivator.setProvisioningUri(uriText);
+                    ProvisioningActivator.getProvisioningService().
+                        setProvisioningUri(uriText);
             }
 
             public void focusGained(FocusEvent e) {}
@@ -453,7 +461,8 @@ public class ProvisioningForm
 
                 int result = JOptionPane.showConfirmDialog(
                     (Component)ProvisioningActivator.getUIService()
-                        .getExportedWindow(ExportedWindow.MAIN_WINDOW).getSource(),
+                        .getExportedWindow(ExportedWindow.MAIN_WINDOW).
+                            getSource(),
                     ProvisioningActivator.getResourceService().getI18NString(
                             "plugin.provisioning.REMOVE_CREDENTIALS_MESSAGE"),
                     ProvisioningActivator.getResourceService().getI18NString(
@@ -463,11 +472,11 @@ public class ProvisioningForm
                 if (result == JOptionPane.YES_OPTION)
                 {
                     ProvisioningActivator.getCredentialsStorageService()
-                        .removePassword(
-                            ProvisioningActivator.PROPERTY_PROVISIONING_PASSWORD);
+                        .removePassword(ProvisioningServiceImpl.
+                            PROPERTY_PROVISIONING_PASSWORD);
                     ProvisioningActivator.getConfigurationService()
-                        .removeProperty(
-                            ProvisioningActivator.PROPERTY_PROVISIONING_USERNAME);
+                        .removeProperty(ProvisioningServiceImpl.
+                            PROPERTY_PROVISIONING_USERNAME);
 
                     usernameField.setText("");
                     passwordField.setText("");

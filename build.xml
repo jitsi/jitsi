@@ -2624,6 +2624,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/provisioning/provisioning.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/provisioning"
                 prefix="net/java/sip/communicator/plugin/provisioning" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/provisioning"
+                prefix="net/java/sip/communicator/service/provisioning" />
         </jar>
     </target>
 

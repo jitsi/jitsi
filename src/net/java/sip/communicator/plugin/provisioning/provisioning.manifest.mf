@@ -14,6 +14,7 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.netaddr,
  net.java.sip.communicator.service.credentialsstorage,
+ net.java.sip.communicator.service.provisioning,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.swing,
  javax.swing,
@@ -31,3 +32,4 @@ Import-Package: org.osgi.framework,
  javax.swing.tree,
  javax.swing.undo,
  javax.swing.border
+Export-Package: net.java.sip.communicator.service.provisioning

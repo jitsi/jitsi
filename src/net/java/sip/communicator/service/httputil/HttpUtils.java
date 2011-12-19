@@ -608,6 +608,16 @@ public class HttpUtils
         private boolean challengedForCredentials = false;
 
         /**
+         * Authentication username if any.
+         */
+        private String authUsername = null;
+
+        /**
+         * Authentication password if any.
+         */
+        private String authPassword = null;
+
+        /**
          * Creates HTTPCredentialsProvider.
          * @param usernamePropertyName the property to use to retrieve/store
          * username value if protected site is hit, for username
@@ -670,6 +680,9 @@ public class HttpUtils
                         new String(authWindow.getPassword())
                     );
 
+                    authUsername = authWindow.getUserName();
+                    authPassword = new String(authWindow.getPassword());
+
                     // if password remember is checked lets save passwords,
                     // if they seem not correct later will be removed.
                     if(authWindow.isRememberPassword())
@@ -693,6 +706,11 @@ public class HttpUtils
             else
             {
                 // we have saved values lets return them
+                authUsername = 
+                HttpUtilActivator.getConfigurationService().getString(
+                        usernamePropertyName);
+                authPassword = pass;
+
                 return new UsernamePasswordCredentials(
                         HttpUtilActivator.getConfigurationService().getString(
                             usernamePropertyName),
@@ -721,6 +739,8 @@ public class HttpUtils
                     passwordPropertyName);
             }
             this.challengedForCredentials = false;
+            authUsername = null;
+            authPassword = null;
         }
 
         /**
@@ -759,6 +779,24 @@ public class HttpUtils
         boolean isChallengedForCredentials()
         {
             return this.challengedForCredentials;
+        }
+
+        /**
+         * Returns authentication username if any
+         * @return authentication username or null
+         */
+        public String getAuthenticationUsername()
+        {
+            return authUsername;
+        }
+
+        /**
+         * Returns authentication password if any
+         * @return authentication password or null
+         */
+        public String getAuthenticationPassword()
+        {
+            return authPassword;
         }
     }
 
@@ -839,14 +877,14 @@ public class HttpUtils
         /**
          * The httpclient.
          */
-        HttpClient httpClient;
+        DefaultHttpClient httpClient;
 
         /**
          * Creates HTTPResponseResult.
          * @param entity the httpclient entity.
          * @param httpClient the httpclient.
          */
-        HTTPResponseResult(HttpEntity entity, HttpClient httpClient)
+        HTTPResponseResult(HttpEntity entity, DefaultHttpClient httpClient)
         {
             this.entity = entity;
             this.httpClient = httpClient;
@@ -899,6 +937,24 @@ public class HttpUtils
                 if(httpClient != null)
                     httpClient.getConnectionManager().shutdown();
             }
+        }
+
+        /**
+         * Get the credentials used by the request.
+         */
+        public String[] getCredentials()
+        {
+            String cred[] = new String[2];
+
+            if(httpClient != null)
+            {
+                HTTPCredentialsProvider prov = (HTTPCredentialsProvider)
+                        httpClient.getCredentialsProvider();
+                cred[0] = prov.getAuthenticationUsername(); 
+                cred[1] = prov.getAuthenticationPassword(); 
+            }
+           
+            return cred;
         }
     }
 }
