@@ -3,7 +3,11 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/felix.jar"/>
+	<classpathentry kind="lib" path="lib/felix.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.osgi.org/javadoc/r4v42/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/jdic-all.jar"/>
 	<classpathentry kind="lib" path="lib/bundle/junit.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/apache-ant-1.7.0.jar"/>
