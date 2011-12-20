@@ -134,12 +134,12 @@ public class MediaServiceImpl
     /**
      * The volume control of the media service playback.
      */
-    private static OutputVolumeControl outputVolumeControl;
+    private static VolumeControl outputVolumeControl;
 
     /**
      * The volume control of the media service capture.
      */
-    private static InputVolumeControl inputVolumeControl;
+    private static VolumeControl inputVolumeControl;
 
     /**
      * Lock to protected reinitialization of video devices.
@@ -591,28 +591,40 @@ public class MediaServiceImpl
     }
 
     /**
-     * Returns the control that handles current playback levels.
+     * Gets the <tt>VolumeControl</tt> which controls the volume level of audio
+     * output/playback.
      *
-     * @return the volume playback control.
+     * @return the <tt>VolumeControl</tt> which controls the volume level of
+     * audio output/playback
+     * @see MediaService#getOutputVolumeControl()
      */
-    public OutputVolumeControl getOutputVolumeControl()
+    public VolumeControl getOutputVolumeControl()
     {
-        if(outputVolumeControl == null)
-            outputVolumeControl = new OutputVolumeControlImpl();
-
+        if (outputVolumeControl == null)
+        {
+            outputVolumeControl
+                = new AbstractVolumeControl(
+                        VolumeControl.PLAYBACK_VOLUME_LEVEL_PROPERTY_NAME);
+        }
         return outputVolumeControl;
     }
 
     /**
-     * Returns the control that handles current capture levels.
+     * Gets the <tt>VolumeControl</tt> which controls the volume level of audio
+     * input/capture.
      *
-     * @return the volume capture control.
+     * @return the <tt>VolumeControl</tt> which controls the volume level of
+     * audio input/capture
+     * @see MediaService#getInputVolumeControl()
      */
-    public InputVolumeControl getInputVolumeControl()
+    public VolumeControl getInputVolumeControl()
     {
-        if(inputVolumeControl == null)
-            inputVolumeControl = new InputVolumeControlImpl();
-
+        if (inputVolumeControl == null)
+        {
+            inputVolumeControl
+                = new AbstractVolumeControl(
+                        VolumeControl.CAPTURE_VOLUME_LEVEL_PROPERTY_NAME);
+        }
         return inputVolumeControl;
     }
 

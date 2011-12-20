@@ -145,10 +145,10 @@ public class PortAudioRenderer
     private Format[] supportedInputFormats;
 
     /**
-     * The <tt>GainControl</tt> used to control volume/gain of current played
-     * media.
+     * The <tt>GainControl</tt> through which volume/gain of rendered media is
+     * controlled.
      */
-    private GainControl gainControl = null;
+    private final GainControl gainControl;
 
     /**
      * Initializes a new <tt>PortAudioRenderer</tt> instance.
@@ -166,12 +166,14 @@ public class PortAudioRenderer
      */
     public PortAudioRenderer(boolean enableVolumeControl)
     {
-        if(enableVolumeControl)
-            this.gainControl
+        if (enableVolumeControl)
+            gainControl
                 = (GainControl)
                     NeomediaActivator
                         .getMediaServiceImpl()
                             .getOutputVolumeControl();
+        else
+            gainControl = null;
     }
 
     /**

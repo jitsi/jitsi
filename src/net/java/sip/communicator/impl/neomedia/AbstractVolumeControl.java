@@ -24,8 +24,9 @@ import net.java.sip.communicator.util.*;
  * functionalities to work as one.
  *
  * @author Damian Minkov
+ * @author Lyubomir Marinov
  */
-public abstract class AbstractVolumeControl
+public class AbstractVolumeControl
     implements VolumeControl,
                GainControl
 {
@@ -55,8 +56,8 @@ public abstract class AbstractVolumeControl
      * The <tt>VolumeChangeListener</tt> interested in volume change events
      * through VolumeControl Interface.
      */
-    private List<VolumeChangeListener> volumeChangeListeners =
-            new ArrayList<VolumeChangeListener>();
+    private final List<VolumeChangeListener> volumeChangeListeners
+        = new ArrayList<VolumeChangeListener>();
 
     /**
      * Listeners interested in volume change inside jmf.
@@ -66,12 +67,12 @@ public abstract class AbstractVolumeControl
     /**
      * The current volume level.
      */
-    private float currentVolumeLevel = DEFAULT_VOLUME_LEVEL;
+    private float volumeLevel = DEFAULT_VOLUME_LEVEL;
 
     /**
      * Current mute state, by default we start unmuted.
      */
-    private boolean currentMuteState = false;
+    private boolean mute = false;
 
     /**
      * Current level in db.
@@ -81,34 +82,53 @@ public abstract class AbstractVolumeControl
     /**
      * The initial volume level, when this instance was created.
      */
-    private float initialVolumeLevel = DEFAULT_VOLUME_LEVEL;
+    private final float initialVolumeLevel;
 
     /**
-     * Creates volume control instance and initialise initial level value
-     * if stored in config service.
+     * The name of the configuration property which specifies the value of the
+     * volume level of this <tt>AbstractVolumeControl</tt>.
      */
-    AbstractVolumeControl()
+    private final String volumeLevelConfigurationPropertyName;
+
+    /**
+     * Creates volume control instance and initializes initial level value
+     * if stored in the configuration service.
+     *
+     * @param volumeLevelConfigurationPropertyName the name of the configuration
+     * property which specifies the value of the volume level of the new
+     * instance
+     */
+    public AbstractVolumeControl(
+        String volumeLevelConfigurationPropertyName)
     {
+        this.volumeLevelConfigurationPropertyName
+            = volumeLevelConfigurationPropertyName;
+
         // read initial level from config service if any
-        String initialLevel =
-            NeomediaActivator.getConfigurationService()
-                .getString(getStoreLevelPropertyName());
+        String initialVolumeLevelString
+            = NeomediaActivator.getConfigurationService().getString(
+                    this.volumeLevelConfigurationPropertyName);
+        float initialVolumeLevel = DEFAULT_VOLUME_LEVEL;
+
         try
         {
-            if(initialLevel != null)
+            if (initialVolumeLevelString != null)
             {
-                currentVolumeLevel = Float.valueOf(initialLevel);
-                initialVolumeLevel = currentVolumeLevel;
-
+                initialVolumeLevel = Float.parseFloat(initialVolumeLevelString);
                 if(logger.isDebugEnabled())
-                    logger.debug("Restore volume: "
-                            + currentVolumeLevel);
+                {
+                    logger.debug(
+                            "Restored volume: " + initialVolumeLevelString);
+                }
             }
         }
         catch(Throwable t)
         {
             logger.warn("Error restoring volume", t);
         }
+
+        this.initialVolumeLevel = initialVolumeLevel;
+        this.volumeLevel = this.initialVolumeLevel;
     }
 
     /**
@@ -170,7 +190,7 @@ public abstract class AbstractVolumeControl
      */
     public float getVolume()
     {
-        return currentVolumeLevel;
+        return volumeLevel;
     }
 
     /**
@@ -183,7 +203,7 @@ public abstract class AbstractVolumeControl
      */
     public float getLevel()
     {
-        return this.currentVolumeLevel;
+        return volumeLevel;
     }
 
     /**
@@ -250,22 +270,22 @@ public abstract class AbstractVolumeControl
      */
     private float setVolumeLevel(float value)
     {
-        if(this.currentVolumeLevel == value)
+        if (volumeLevel == value)
             return value;
 
         if(value < MIN_VOLUME_LEVEL)
-            this.currentVolumeLevel = MIN_VOLUME_LEVEL;
+            volumeLevel = MIN_VOLUME_LEVEL;
         else if(value > MAX_VOLUME_LEVEL)
-            this.currentVolumeLevel = MAX_VOLUME_LEVEL;
+            volumeLevel = MAX_VOLUME_LEVEL;
         else
-            this.currentVolumeLevel = value;
+            volumeLevel = value;
 
         fireVolumeChange();
 
         // save the level change, so we can restore it on next run
         NeomediaActivator.getConfigurationService().setProperty(
-                getStoreLevelPropertyName(),
-                String.valueOf(currentVolumeLevel));
+                this.volumeLevelConfigurationPropertyName,
+                String.valueOf(volumeLevel));
 
         float f1 = value / initialVolumeLevel;
         db = (float)((Math.log((double)f1 != 0.0D ?
@@ -274,7 +294,7 @@ public abstract class AbstractVolumeControl
 
         fireGainEvents();
 
-        return this.currentVolumeLevel;
+        return volumeLevel;
     }
 
     /**
@@ -284,14 +304,13 @@ public abstract class AbstractVolumeControl
      */
     public void setMute(boolean mute)
     {
-        if(mute == this.currentMuteState)
-            return;
+        if (this.mute != mute)
+        {
+            this.mute = mute;
 
-        this.currentMuteState = mute;
-
-        fireVolumeChange();
-
-        fireGainEvents();
+            fireVolumeChange();
+            fireGainEvents();
+        }
     }
 
     /**
@@ -301,7 +320,7 @@ public abstract class AbstractVolumeControl
      */
     public boolean getMute()
     {
-        return this.currentMuteState;
+        return mute;
     }
 
     /**
@@ -321,20 +340,16 @@ public abstract class AbstractVolumeControl
         if(this.db != gain)
         {
             this.db = gain;
+
             float f1 = (float)Math.pow(10D, (double)this.db / 20D);
-            this.currentVolumeLevel = f1 * this.initialVolumeLevel;
-            if((double)this.currentVolumeLevel < 0.0D)
-            {
-                setVolumeLevel(0.0F);
-            }
-            else if((double)this.currentVolumeLevel > 1.0D)
-            {
-                setVolumeLevel(1.0F);
-            }
-            else
-            {
-                setVolumeLevel(this.currentVolumeLevel);
-            }
+            float volumeLevel = f1 * this.initialVolumeLevel;
+
+            if(volumeLevel < 0.0F)
+                volumeLevel = 0.0F;
+            else if(volumeLevel > 1.0F)
+                volumeLevel = 1.0F;
+
+            setVolumeLevel(volumeLevel);
         }
         return this.db;
     }
@@ -361,7 +376,6 @@ public abstract class AbstractVolumeControl
         {
             if(gainChangeListeners == null)
                 gainChangeListeners = new ArrayList<GainChangeListener>();
-
             gainChangeListeners.add(listener);
         }
     }
@@ -388,9 +402,7 @@ public abstract class AbstractVolumeControl
         synchronized(volumeChangeListeners)
         {
             if(!volumeChangeListeners.contains(listener))
-            {
                 volumeChangeListeners.add(listener);
-            }
         }
     }
 
@@ -412,21 +424,20 @@ public abstract class AbstractVolumeControl
      */
     private void fireVolumeChange()
     {
-        List<VolumeChangeListener> copyVolumeListeners;
+        VolumeChangeListener[] ls;
+
         synchronized(volumeChangeListeners)
         {
-            copyVolumeListeners =
-                    new ArrayList<VolumeChangeListener>(volumeChangeListeners);
+            ls
+                = volumeChangeListeners.toArray(
+                        new VolumeChangeListener[volumeChangeListeners.size()]);
         }
 
-        VolumeChangeEvent changeEvent = new VolumeChangeEvent(
-                this, this.currentVolumeLevel, this.currentMuteState);
+        VolumeChangeEvent changeEvent
+            = new VolumeChangeEvent(this, volumeLevel, mute);
 
-
-        for(VolumeChangeListener l : copyVolumeListeners)
-        {
+        for(VolumeChangeListener l : ls)
             l.volumeChange(changeEvent);
-        }
     }
 
     /**
@@ -436,14 +447,11 @@ public abstract class AbstractVolumeControl
     {
         if(gainChangeListeners != null)
         {
-            GainChangeEvent gainchangeevent =
-                    new GainChangeEvent(
-                            this, currentMuteState, db, currentVolumeLevel);
+            GainChangeEvent gainchangeevent
+                = new GainChangeEvent(this, mute, db, volumeLevel);
 
             for(GainChangeListener gainchangelistener : gainChangeListeners)
-            {
                 gainchangelistener.gainChange(gainchangeevent);
-            }
         }
     }
 
@@ -455,12 +463,4 @@ public abstract class AbstractVolumeControl
     {
         return null;
     }
-
-    /**
-     * Implementers return the property name they use to store
-     * sound level information.
-     *
-     * @return sound level property name for storing configuration.
-     */
-    abstract String getStoreLevelPropertyName();
 }

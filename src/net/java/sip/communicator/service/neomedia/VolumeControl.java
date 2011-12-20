@@ -10,13 +10,25 @@ import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
  * Control for volume level in media service.
- * @see InputVolumeControl
- * @see OutputVolumeControl
  *
  * @author Damian Minkov
  */
 public interface VolumeControl
 {
+    /**
+     * The name of the configuration property which specifies the volume level
+     * of audio input.
+     */
+    public final static String CAPTURE_VOLUME_LEVEL_PROPERTY_NAME
+            = "net.java.sip.communicator.service.media.CAPTURE_VOLUME_LEVEL";
+
+    /**
+     * The name of the configuration property which specifies the volume level
+     * of audio output.
+     */
+    public final static String PLAYBACK_VOLUME_LEVEL_PROPERTY_NAME
+            = "net.java.sip.communicator.service.media.PLAYBACK_VOLUME_LEVEL";
+
     /**
      * Current volume value.
      * @return the current volume level.

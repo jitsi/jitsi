@@ -66,6 +66,12 @@ public class PortAudioStream
     private int framesPerBuffer;
 
     /**
+     * The <tt>GainControl</tt> through which the volume/gain of captured media
+     * is controlled.
+     */
+    private final GainControl gainControl;
+
+    /**
      * Native pointer to a PaStreamParameters object.
      */
     private long inputParameters = 0;
@@ -85,11 +91,6 @@ public class PortAudioStream
      * not, for example, be closed.
      */
     private boolean streamIsBusy = false;
-
-    /**
-     * Volume Control used to control volume of current captured media.
-     */
-    private final GainControl volumeControl;
 
     /**
      * Initializes a new <tt>PortAudioStream</tt> instance which is to have its
@@ -113,7 +114,7 @@ public class PortAudioStream
 
         this.audioQualityImprovement = audioQualityImprovement;
 
-        this.volumeControl
+        gainControl
             = (GainControl)
                 NeomediaActivator.getMediaServiceImpl().getInputVolumeControl();
     }
@@ -191,10 +192,10 @@ public class PortAudioStream
             }
 
             // if we have some volume setting apply them
-            if(volumeControl != null)
+            if (gainControl != null)
             {
                 AbstractVolumeControl.applyGain(
-                        volumeControl,
+                        gainControl,
                         bufferData, 0, bytesPerBuffer);
             }
 

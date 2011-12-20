@@ -145,16 +145,22 @@ public interface MediaService
     public SDesControl createSDesControl();
 
     /**
-     * Returns the control that handles current playback levels.
-     * @return the volume playback control.
+     * Gets the <tt>VolumeControl</tt> which controls the volume level of audio
+     * output/playback.
+     *
+     * @return the <tt>VolumeControl</tt> which controls the volume level of
+     * audio output/playback
      */
-    public OutputVolumeControl getOutputVolumeControl();
+    public VolumeControl getOutputVolumeControl();
 
     /**
-     * Returns the control that handles current capture levels.
-     * @return the volume capture control.
+     * Gets the <tt>VolumeControl</tt> which controls the volume level of audio
+     * input/capture.
+     *
+     * @return the <tt>VolumeControl</tt> which controls the volume level of
+     * audio input/capture
      */
-    public InputVolumeControl getInputVolumeControl();
+    public VolumeControl getInputVolumeControl();
 
     /**
      * Get available <tt>ScreenDevice</tt>s.
