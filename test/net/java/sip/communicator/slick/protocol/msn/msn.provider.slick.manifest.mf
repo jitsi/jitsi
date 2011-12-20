@@ -13,4 +13,5 @@ Import-Package: junit.framework,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.service.protocol.msnconstants,
  net.java.sip.communicator.util,
+ net.java.sip.communicator.util.dns,
  net.java.sip.communicator.service.fileaccess

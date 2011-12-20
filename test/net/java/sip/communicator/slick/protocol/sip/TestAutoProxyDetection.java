@@ -141,6 +141,7 @@ public class TestAutoProxyDetection
             .andReturn(new InetSocketAddress[]{a1});
         replay(nu, srv1);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
 
@@ -155,6 +156,7 @@ public class TestAutoProxyDetection
             .andReturn(new InetSocketAddress[]{a1, a2});
         replay(nu, srv1);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
         assertTrue(apd.getNextAddress());
@@ -176,6 +178,7 @@ public class TestAutoProxyDetection
             .andReturn(new InetSocketAddress[]{a2});
         replay(nu, srv1, srv2);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
         assertTrue(apd.getNextAddress());
@@ -195,6 +198,7 @@ public class TestAutoProxyDetection
             .andReturn(new InetSocketAddress[]{a3, a4});
         replay(nu, srv1, srv2);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
 
@@ -240,6 +244,7 @@ public class TestAutoProxyDetection
 
         replay(nu, srv1, srv2, srv3);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
 
@@ -268,6 +273,7 @@ public class TestAutoProxyDetection
 
         replay(nu);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
 
@@ -287,6 +293,7 @@ public class TestAutoProxyDetection
 
         replay(nu, srv1);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
 
@@ -306,6 +313,7 @@ public class TestAutoProxyDetection
 
         replay(nu, srv1);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
 
@@ -332,6 +340,7 @@ public class TestAutoProxyDetection
 
         replay(nu, srv1, srv2);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a2, apd.getAddress());
         assertEquals("TLS", apd.getTransport());
 
@@ -371,6 +380,7 @@ public class TestAutoProxyDetection
 
         replay(nu);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
 
@@ -389,6 +399,7 @@ public class TestAutoProxyDetection
 
         replay(nu);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
 
@@ -423,6 +434,7 @@ public class TestAutoProxyDetection
 
         replay(nu, srv1);
 
+        assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
 

@@ -8,5 +8,6 @@ Import-Package: net.java.sip.communicator.service.configuration,
  junit.framework,
  org.osgi.framework,
  net.java.sip.communicator.util,
+ net.java.sip.communicator.util.dns,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event
