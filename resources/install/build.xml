@@ -1183,6 +1183,30 @@
       </chmod>
     </target>
 
+    <!-- Creates empty folders in Contents/Resources for
+          available languages, so macosx can switch languages -->
+    <target name="dmg-create-language-folders"
+            depends="define-ant-contrib-task">
+
+        <foreach param="file.language.resource" target="dmg-language-folder"
+                 inheritall="true" inheritrefs="true">
+            <path>
+                <fileset dir="${sc.basedir}/resources/languages">
+                    <include name="*.properties"/>
+                </fileset>
+            </path>
+        </foreach>
+    </target>
+    <target name="dmg-language-folder">
+        <propertyregex property="jitsi.available.lang.resource"
+                      input="${file.language.resource}"
+                      regexp="resources_(.*)\.properties"
+                      select="\1"
+                      casesensitive="false"
+                      defaultValue="en"/>
+        <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Resources/${jitsi.available.lang.resource}.lproj"/>
+    </target>
+
     <!-- Create the DMG - This only works on MacOSX (need hdiutil) -->
     <target name="dmg" depends="macosx-sparkle"
             if="is.running.macos"
@@ -1194,6 +1218,10 @@
                 value="${package.name}-tmp.dmg"/>
       <delete file="${macosx.app.dir}/${macosx.dmg.name}"
               quiet="yes" failonerror="false"/>
+
+      <!-- Creates empty folders in Contents/Resources for
+      available languages, so macosx can switch languages -->
+      <antcall target="dmg-create-language-folders" />
 
       <!-- Create a temporary Disk Image -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
