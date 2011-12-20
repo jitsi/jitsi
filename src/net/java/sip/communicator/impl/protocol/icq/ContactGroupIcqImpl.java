@@ -484,12 +484,6 @@ public class ContactGroupIcqImpl
 
         for (Buddy buddy : serverBuddies)
         {
-            if(buddy.isAwaitingAuthorization())
-            {
-                ssclCallback.addAwaitingAuthorizationContact(buddy);
-                continue;
-            }
-
             ContactIcqImpl contact
                 = findContact(buddy.getScreenname().getFormatted());
 

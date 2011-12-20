@@ -98,12 +98,6 @@ public class ServerStoredContactListIcqImpl
     private NickRetriever nickRetriever = null;
 
     /**
-     * Used for retrieving missing nicks on specified contacts
-     */
-    static final String awaitingAuthorizationGroupName
-        = "Awaiting authorization";
-
-    /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
      *
      * @param parentOperationSet the operation set that created us and that
@@ -747,8 +741,7 @@ public class ServerStoredContactListIcqImpl
             ContactGroupIcqImpl gr =
                 (ContactGroupIcqImpl)getRootGroup().getGroup(i);
 
-            if(!gr.isPersistent() &&
-                    !gr.getGroupName().equals(awaitingAuthorizationGroupName))
+            if(!gr.isPersistent())
                 return gr;
         }
 
@@ -767,94 +760,6 @@ public class ServerStoredContactListIcqImpl
     {
         if(icqProvider.USING_ICQ)
             nickRetriever.addContact(c);
-    }
-
-    protected void addAwaitingAuthorizationContact(Buddy buddy)
-    {
-        //Check whether a Awaiting authorization group already exists and if
-        //not create one
-        ContactGroupIcqImpl theAwaitingAuthorizationGroup =
-                findContactGroup(awaitingAuthorizationGroupName);
-
-        if(theAwaitingAuthorizationGroup == null)
-        {
-            List<Buddy> emptyBuddies = new LinkedList<Buddy>();
-            theAwaitingAuthorizationGroup = new ContactGroupIcqImpl(
-                new VolatileGroup(awaitingAuthorizationGroupName),
-                emptyBuddies,
-                this,
-                false);
-
-            this.rootGroup.addSubGroup(theAwaitingAuthorizationGroup);
-
-            fireGroupEvent(theAwaitingAuthorizationGroup
-                           , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-        }
-
-        ContactGroupIcqImpl oldParentGroup = null;
-        ContactIcqImpl newContact = findContactByJoustSimBuddy(buddy);
-
-        if(newContact != null)
-            oldParentGroup = (ContactGroupIcqImpl)newContact
-                                        .getParentContactGroup();
-
-        boolean fireResolvedEvent = false;
-
-        if(newContact == null)
-        {
-            newContact = new ContactIcqImpl(
-                buddy, ServerStoredContactListIcqImpl.this, true, true);
-        }
-        else
-        {
-            oldParentGroup.removeContact(newContact);
-
-            newContact.setJoustSimBuddy(buddy);
-            newContact.setPersistent(true);
-            if(!newContact.isResolved())
-            {
-                newContact.setResolved(true);
-                fireResolvedEvent = true;
-            }
-        }
-
-        theAwaitingAuthorizationGroup.addContact(newContact);
-
-        int index = theAwaitingAuthorizationGroup.findContactIndex(newContact);
-
-        //register a listener for name changes of this buddy
-        buddy.addBuddyListener(jsimBuddyListener);
-
-        //tell listeners about the added group
-        if(oldParentGroup == null)
-        {
-            fireContactAdded(theAwaitingAuthorizationGroup, newContact);
-        }
-        else if(oldParentGroup != theAwaitingAuthorizationGroup)
-        {
-            fireContactMoved(oldParentGroup, theAwaitingAuthorizationGroup
-                             , newContact, index);
-        }
-
-        //fire an event in case the contact has just been resolved.
-        if(fireResolvedEvent)
-        {
-            fireContactResolved(theAwaitingAuthorizationGroup, newContact);
-        }
-    }
-
-    protected void moveAwaitingAuthorizationContact(ContactIcqImpl contact)
-    {
-        ContactGroupIcqImpl parentGroup = findGroup(contact.getJoustSimBuddy());
-
-        if(parentGroup == null)
-            return;
-
-        findContactGroup(awaitingAuthorizationGroupName).removeContact(contact);
-        parentGroup.addContact(contact);
-
-        fireContactMoved(findContactGroup(awaitingAuthorizationGroupName),
-            parentGroup, contact, parentGroup.findContactIndex(contact));
     }
 
     ContactGroupIcqImpl findGroup(Buddy buddy)
@@ -1033,12 +938,6 @@ public class ServerStoredContactListIcqImpl
                 return;
             }
 
-            if(buddy.isAwaitingAuthorization())
-            {
-                addAwaitingAuthorizationContact(buddy);
-                return;
-            }
-
             if(newContact == null)
             {
                 newContact = new ContactIcqImpl(
@@ -1102,31 +1001,7 @@ public class ServerStoredContactListIcqImpl
             ContactGroupIcqImpl parentGroup = findContactGroup(group);
             ContactIcqImpl contactToRemove = parentGroup.findContact(buddy);
 
-            if(contactToRemove == null)
-            {
-                // this buddy is not in this group
-                // it can be in awaiting authorization group
-                // will search it there
-
-                ContactGroupIcqImpl theAwaitingAuthorizationGroup =
-                    findContactGroup(awaitingAuthorizationGroupName);
-                if(theAwaitingAuthorizationGroup != null)
-                {
-                    contactToRemove =
-                        theAwaitingAuthorizationGroup.
-                            findContact(buddy.getScreenname().getFormatted());
-
-                    if(contactToRemove == null)
-                        return;
-
-                    theAwaitingAuthorizationGroup.removeContact(contactToRemove);
-
-                    buddy.removeBuddyListener(jsimBuddyListener);
-
-                    fireContactRemoved(theAwaitingAuthorizationGroup, contactToRemove);
-                }
-            }
-            else
+            if(contactToRemove != null)
             {
                 parentGroup.removeContact(contactToRemove);
 

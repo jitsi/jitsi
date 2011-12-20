@@ -778,25 +778,6 @@ public class OperationSetPersistentPresenceIcqImpl
                 "The specified group is not an icq contact group."
                 + newParent);
 
-        ContactGroupIcqImpl theAwaitingAuthorizationGroup =
-            ssContactList.findContactGroup(
-                ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);
-
-        if(newParent.equals(theAwaitingAuthorizationGroup))
-                throw new IllegalArgumentException(
-                "Cannot move contacts to this group : " +
-                    theAwaitingAuthorizationGroup);
-
-        if(((ContactIcqImpl)contactToMove).isPersistent()
-            && !contactToMove.getParentContactGroup().isPersistent())
-        {
-            if(contactToMove.getParentContactGroup().equals(
-                theAwaitingAuthorizationGroup))
-                throw new IllegalArgumentException(
-                "Cannot move contacts from this group : " +
-                    theAwaitingAuthorizationGroup);
-        }
-
         ssContactList.moveContact((ContactIcqImpl)contactToMove,
                                   (ContactGroupIcqImpl)newParent);
     }
@@ -1432,8 +1413,6 @@ public class OperationSetPersistentPresenceIcqImpl
             if (logger.isTraceEnabled())
                 logger.trace("authorizationAccepted from " + screenname);
             Contact srcContact = findContactByID(screenname.getFormatted());
-            ssContactList.moveAwaitingAuthorizationContact(
-                (ContactIcqImpl)srcContact);
 
             authorizationHandler.processAuthorizationResponse(
                 new AuthorizationResponse(AuthorizationResponse.ACCEPT, reason)
@@ -1489,48 +1468,6 @@ public class OperationSetPersistentPresenceIcqImpl
 
                 if(buddy instanceof VolatileBuddy)
                     ((VolatileBuddy)buddy).setAwaitingAuthorization(true);
-
-                 ContactGroupIcqImpl theAwaitingAuthorizationGroup =
-                     ssContactList.findContactGroup(
-                        ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);
-
-
-                if(theAwaitingAuthorizationGroup == null)
-                {
-                    theAwaitingAuthorizationGroup
-                        = new ContactGroupIcqImpl(
-                            new VolatileGroup(
-                                    ServerStoredContactListIcqImpl
-                                        .awaitingAuthorizationGroupName),
-                            null,
-                            ssContactList,
-                            false);
-
-                    ((RootContactGroupIcqImpl)ssContactList.getRootGroup()).
-                        addSubGroup(theAwaitingAuthorizationGroup);
-
-                    ssContactList.fireGroupEvent(theAwaitingAuthorizationGroup
-                        , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-                }
-
-
-                 parent.removeContact(srcContact);
-                 theAwaitingAuthorizationGroup.addContact(srcContact);
-
-                 try
-                 {
-                     Thread.sleep(500);
-                 }
-                 catch (InterruptedException ex)
-                 {
-                     /*
-                      * I don't know why the exception is ignored, I just fixed
-                      * an incorrect use of Object.wait(long).
-                      */
-                 }
-
-                 fireSubscriptionMovedEvent(srcContact,
-                     parent, theAwaitingAuthorizationGroup);
             }
 
             AuthorizationRequest authRequest =
@@ -1620,47 +1557,56 @@ public class OperationSetPersistentPresenceIcqImpl
             if (logger.isTraceEnabled())
                 logger.trace("Running status retreiver for AwaitingAuthorizationContacts");
 
-            ContactGroupIcqImpl theAwaitingAuthorizationGroup =
-                ssContactList.findContactGroup(
-                    ServerStoredContactListIcqImpl.awaitingAuthorizationGroupName);
+            Iterator<ContactGroup> groupsIter
+                    = getServerStoredContactListRoot().subgroups();
 
-            if(theAwaitingAuthorizationGroup == null)
-                return;
-
-            Iterator<Contact> iter = theAwaitingAuthorizationGroup.contacts();
-            while (iter.hasNext())
+            while(groupsIter.hasNext())
             {
-                ContactIcqImpl sourceContact = (ContactIcqImpl)iter.next();
-                String sourceContactAddress = sourceContact.getAddress();
-                PresenceStatus newStatus
-                    = queryContactStatus(sourceContactAddress);
-                PresenceStatus oldStatus = sourceContact.getPresenceStatus();
+                ContactGroup group = groupsIter.next();
+                Iterator<Contact> contactsIter = group.contacts();
 
-                if(newStatus.equals(oldStatus))
-                   continue;
-
-                sourceContact.updatePresenceStatus(newStatus);
-
-                fireContactPresenceStatusChangeEvent(
-                    sourceContact,
-                    theAwaitingAuthorizationGroup,
-                    oldStatus,
-                    newStatus);
-
-                if (!newStatus.equals(IcqStatusEnum.OFFLINE)
-                        && !buddiesSeenAvailable.contains(sourceContactAddress))
+                while(contactsIter.hasNext())
                 {
-                    buddiesSeenAvailable.add(sourceContactAddress);
-                    try
-                    {
-                        AuthorizationRequest req = new AuthorizationRequest();
-                        req.setReason("I'm resending my request. Please authorize me!");
+                    ContactIcqImpl sourceContact
+                        = (ContactIcqImpl)contactsIter.next();
 
-                        opSetExtendedAuthorizations
-                            .reRequestAuthorization(req, sourceContact);
-                    } catch (OperationFailedException ex)
+                    if(!sourceContact.getJoustSimBuddy()
+                        .isAwaitingAuthorization())
+                        continue;
+
+                    String sourceContactAddress = sourceContact.getAddress();
+                    PresenceStatus newStatus
+                        = queryContactStatus(sourceContactAddress);
+                    PresenceStatus oldStatus = sourceContact.getPresenceStatus();
+
+                    if(newStatus.equals(oldStatus))
+                       continue;
+
+                    sourceContact.updatePresenceStatus(newStatus);
+
+                    fireContactPresenceStatusChangeEvent(
+                        sourceContact,
+                        sourceContact.getParentContactGroup(),
+                        oldStatus,
+                        newStatus);
+
+                    if (!newStatus.equals(IcqStatusEnum.OFFLINE)
+                        && !buddiesSeenAvailable.contains(sourceContactAddress))
                     {
-                        logger.error("failed to reRequestAuthorization", ex);
+                        buddiesSeenAvailable.add(sourceContactAddress);
+                        try
+                        {
+                            AuthorizationRequest req =
+                                new AuthorizationRequest();
+                            req.setReason("I'm resending my request. " +
+                                "Please authorize me!");
+
+                            opSetExtendedAuthorizations
+                                .reRequestAuthorization(req, sourceContact);
+                        } catch (OperationFailedException ex)
+                        {
+                            logger.error("failed to reRequestAuthorization", ex);
+                        }
                     }
                 }
             }
