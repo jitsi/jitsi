@@ -902,7 +902,7 @@
     <!-- signs all dll files in folder - $folder.to.sign
         do it if $sign.cert.file is available -->
     <target name="wix-sign-dlls" depends="define-ant-contrib-task">
-        <foreach param="${file.to.sign}" target="wix-sign-file"
+        <foreach param="file.to.sign" target="wix-sign-file"
                  inheritall="true" inheritrefs="true">
             <path>
                 <fileset dir="${folder.to.sign}">
