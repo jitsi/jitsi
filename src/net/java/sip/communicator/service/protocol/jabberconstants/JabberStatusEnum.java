@@ -270,6 +270,9 @@ public class JabberStatusEnum
     {
         InputStream is = getResourceAsStream(imagePath, clazz);
 
+        if(is == null)
+            return null;
+
         byte[] icon = null;
         try
         {
@@ -283,7 +286,8 @@ public class JabberStatusEnum
         finally {
             try
             {
-                is.close();
+                if(is != null)
+                    is.close();
             }
             catch (IOException ex)
             {

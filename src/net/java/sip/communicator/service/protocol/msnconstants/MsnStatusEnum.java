@@ -141,6 +141,9 @@ public class MsnStatusEnum
         InputStream is = MsnStatusEnum.class.getClassLoader()
             .getResourceAsStream(imagePath);
 
+        if(is == null)
+            return null;
+
         byte[] icon = null;
         try {
             icon = new byte[is.available()];

@@ -174,6 +174,9 @@ public class YahooStatusEnum
         InputStream is = YahooStatusEnum.class.getClassLoader()
             .getResourceAsStream(imagePath);
 
+        if(is == null)
+            return null;
+
         byte[] icon = null;
         try {
             icon = new byte[is.available()];
