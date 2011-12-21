@@ -187,7 +187,7 @@ public abstract class UIContactDetail
     /**
      * Sets the prefix to be used when calling this contact detail.
      *
-     * @param the prefix to be used when calling this contact detail
+     * @param prefix the prefix to be used when calling this contact detail
      */
     public void setPrefix(String prefix)
     {

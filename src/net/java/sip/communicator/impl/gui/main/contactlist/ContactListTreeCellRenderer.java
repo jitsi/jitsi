@@ -763,7 +763,9 @@ public class ContactListTreeCellRenderer
                     while(details.hasNext())
                     {
                         GenericDetail d = details.next();
-                        if(d instanceof PhoneNumberDetail)
+                        if(d instanceof PhoneNumberDetail && 
+                            !(d instanceof PagerDetail) && 
+                            !(d instanceof FaxDetail))
                         {
                             PhoneNumberDetail pnd = (PhoneNumberDetail)d;
                             if(pnd.getNumber() != null &&
@@ -988,7 +990,9 @@ public class ContactListTreeCellRenderer
                     while(details.hasNext())
                     {
                         GenericDetail d = details.next();
-                        if(d instanceof PhoneNumberDetail)
+                        if(d instanceof PhoneNumberDetail && 
+                            !(d instanceof PagerDetail) && 
+                            !(d instanceof FaxDetail))
                         {
                             PhoneNumberDetail pnd = (PhoneNumberDetail)d;
                             if(pnd.getNumber() != null &&
@@ -998,7 +1002,8 @@ public class ContactListTreeCellRenderer
                                 UIContactDetail cd =
                                     new UIContactDetail(
                                         pnd.getNumber(),
-                                        pnd.getNumber(),
+                                        pnd.getNumber() + 
+                                        " (" + pnd.getDetailDisplayName() + ")",
                                         null,
                                         new ArrayList<String>(),
                                         null,

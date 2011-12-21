@@ -419,13 +419,16 @@ public class MetaUIContact
                 while(details.hasNext())
                 {
                     GenericDetail d = details.next();
-                    if(d instanceof PhoneNumberDetail)
+                    if(d instanceof PhoneNumberDetail &&
+                        !(d instanceof FaxDetail) && 
+                        !(d instanceof PagerDetail))
                     {
                         PhoneNumberDetail pnd = (PhoneNumberDetail)d;
                         if(pnd.getNumber() != null &&
                             pnd.getNumber().length() > 0)
                         {
-                            tip.addLine(null, pnd.getNumber());
+                            tip.addLine(null, pnd.getNumber() + 
+                                " (" + pnd.getDetailDisplayName() + ")");
                         }
                      }
                 }

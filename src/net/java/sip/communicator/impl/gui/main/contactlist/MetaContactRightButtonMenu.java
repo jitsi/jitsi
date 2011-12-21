@@ -409,13 +409,16 @@ public class MetaContactRightButtonMenu
                 while(details.hasNext())
                 {
                     GenericDetail d = details.next();
-                    if(d instanceof PhoneNumberDetail)
+                    if(d instanceof PhoneNumberDetail && 
+                        !(d instanceof PagerDetail) && 
+                        !(d instanceof FaxDetail))
                     {
                         PhoneNumberDetail pnd = (PhoneNumberDetail)d;
                         if(pnd.getNumber() != null &&
                             pnd.getNumber().length() > 0)
                         {
-                            phones.add(pnd.getNumber());
+                            phones.add(pnd.getNumber() 
+                                + " (" + pnd.getDetailDisplayName() + ")");
                             hasPhones = true;
                         }
                     }
@@ -493,10 +496,11 @@ public class MetaContactRightButtonMenu
 
             for(String phone : phones)
             {
+                String p = phone.substring(0, phone.lastIndexOf("(") - 1);
                 if(providers.size() > 0)
                 {
                     JMenuItem menu = createMenuItem(phone,
-                        callPhonePrefix + phone,
+                        callPhonePrefix + p,
                         null);
                     callContactMenu.add(menu);
                     separator = true;

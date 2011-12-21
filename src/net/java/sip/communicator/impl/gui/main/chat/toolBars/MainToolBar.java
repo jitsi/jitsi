@@ -575,6 +575,11 @@ public class MainToolBar
         return historyButton;
     }
 
+    /**
+     * Get the smileys box.
+     * 
+     * @return the smileys box
+     */
     public SmileysSelectorBox getSmileysBox()
     {
         return smileysBox;
