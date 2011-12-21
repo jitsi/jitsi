@@ -112,6 +112,7 @@
       <linkerarg value="-lX11" location="end" if="is.running.linux" />
 
       <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
       <compilerarg value="-arch" if="is.running.macos" />
@@ -165,6 +166,7 @@
       <fileset dir="${src}/native/hid" includes="net*.c KeyboardUtil_unix.c" if="is.running.linux" />
 
       <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
       <compilerarg value="-arch" if="is.running.macos" />
@@ -228,6 +230,7 @@
       <fileset dir="${src}/native/jawtrenderer" includes="net*.c JAWTRenderer_Linux.c" if="is.running.linux"/>
       
       <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
       <compilerarg value="-arch" if="is.running.macos" />
@@ -327,6 +330,7 @@
       <linkerarg value="-Wl,-Bsymbolic" if="is.running.linux" />
 
       <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
       <compilerarg value="-arch" if="is.running.macos" />
@@ -406,6 +410,7 @@
       <linkerarg value="-lpthread" location="end" if="is.running.linux" />
 
       <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch"  if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
       <compilerarg value="-arch" if="is.running.macos" />
@@ -490,6 +495,7 @@
       <linkerarg value="-lm" location="end" if="is.running.linux" />
 
       <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch"  if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
       <compilerarg value="-arch" if="is.running.macos" />
@@ -546,6 +552,7 @@
       <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
 
       <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch"  if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
       <compilerarg value="-arch" if="is.running.macos" />
@@ -595,6 +602,7 @@
       <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
 
       <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
       <compilerarg value="-arch" if="is.running.macos" />
