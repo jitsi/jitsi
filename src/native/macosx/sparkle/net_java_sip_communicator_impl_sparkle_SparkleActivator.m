@@ -21,18 +21,19 @@
  */
 
 #include <Cocoa/Cocoa.h>
-#include <Sparkle/Sparkle.h>
+#include <Sparkle.h>
 #include "net_java_sip_communicator_impl_sparkle_SparkleActivator.h"
 
 /*
  * Class:     net_java_sip_communicator_impl_sparkle_SparkleActivator
  * Method:    initSparkle
- * Signature: (Ljava/lang/String;ZILjava/lang/String;)V
+ * Signature: (Ljava/lang/String;ZILjava/lang/String;Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
   (JNIEnv *env, jclass obj, jstring pathToSparkleFramework, 
-   jboolean updateAtStartup, jint checkInterval, jstring downloadLink)
+   jboolean updateAtStartup, jint checkInterval, jstring downloadLink,
+   jstring menuItemTitle)
 {
     BOOL hasLaunchedBefore = [[NSUserDefaults standardUserDefaults] boolForKey:@"SCHasLaunchedBefore"];
 
@@ -64,10 +65,22 @@ Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
         }
     }
 
+    NSString* menuTitle;
+    if(!menuItemTitle)
+    {
+        menuTitle = @"Check for Updates...";
+    }
+    else
+    {
+        const char* menuTitleChars =
+            (*env)->GetStringUTFChars(env, menuItemTitle, 0);
+        menuTitle = [NSString stringWithCString: menuTitleChars length: strlen(menuTitleChars)];
+    }
+
     NSMenu* menu = [[NSApplication sharedApplication] mainMenu];
     NSMenu* applicationMenu = [[menu itemAtIndex:0] submenu];
     NSMenuItem* checkForUpdatesMenuItem = [[NSMenuItem alloc]
-                                            initWithTitle:@"Check for Updates..."
+                                            initWithTitle:menuTitle
                                             action:@selector(checkForUpdates:)
                                             keyEquivalent:@""];
 

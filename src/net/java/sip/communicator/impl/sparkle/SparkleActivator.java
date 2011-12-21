@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.sparkle;
 
+import net.java.sip.communicator.service.resources.*;
 import org.osgi.framework.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -45,11 +46,14 @@ public class SparkleActivator
      * @param downloadLink a custom download link for sparkle (i.e. the
      * SUFeedURL). If null the default URL will be choosen (the
      * SUFeedURL parameter in the .app/Contents/Info.pList).
+     * @param menuItemTitle localized string to be used for the menu item title
+     *                      in macosx specific menu.
      */
     public native static void initSparkle(String pathToSparkleFramework,
                                           boolean updateAtStartup,
                                           int checkInterval,
-                                          String downloadLink);
+                                          String downloadLink,
+                                          String menuItemTitle);
 
     /**
      * Whether updates are checked at startup
@@ -110,7 +114,9 @@ public class SparkleActivator
         // TODO: better way to get the Sparkle Framework path?
         initSparkle(System.getProperty("user.dir")
                     + "/../../Frameworks/Sparkle.framework",
-                    updateAtStartup, checkInterval, downloadLink);
+                    updateAtStartup, checkInterval, downloadLink,
+                    ResourceManagementServiceUtils.getService(bundleContext)
+                        .getI18NString("impl.sparkle.CHECK_FOR_UPDATE_TITLE"));
         if (logger.isInfoEnabled())
             logger.info("Sparkle Plugin ...[Started]");
     }

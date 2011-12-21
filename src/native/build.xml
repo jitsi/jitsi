@@ -755,6 +755,7 @@
       <compilerarg value="-arch" />
       <compilerarg value="ppc" />
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" />
+      <compilerarg value="-I/System/Library/Frameworks/Sparkle.framework/Versions/A/Headers/" />
 
       <linkerarg value="-arch" />
       <linkerarg value="x86_64" />
