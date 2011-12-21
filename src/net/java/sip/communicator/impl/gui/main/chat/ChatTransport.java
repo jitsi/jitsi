@@ -123,7 +123,7 @@ public interface ChatTransport
     /**
      * Sends the given SMS message trough this chat transport.
      *
-     * @param phoneNumber the phone number to which to send the message
+     * @param contact the phone number to which to send the message
      * @param message The message to send.
      * @throws Exception if the send doesn't succeed
      */

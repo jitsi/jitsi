@@ -21,11 +21,13 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -310,7 +312,42 @@ public class MainToolBar
                 chatPanel.findInviteChatTransport() != null);
             sendFileButton.setEnabled(
                 chatPanel.findFileTransferChatTransport() != null);
-            callButton.setEnabled(!getOperationSetForCapabilities(
+            
+            boolean hasPhone = false;
+            
+            Iterator<Contact> contacts = contact.getContacts();
+            while(contacts.hasNext())
+            {
+                Contact c = contacts.next();
+                OperationSetServerStoredContactInfo infoOpSet =
+                    c.getProtocolProvider().getOperationSet(
+                        OperationSetServerStoredContactInfo.class);
+                Iterator<GenericDetail> details = null;
+    
+                if(infoOpSet != null)
+                {
+                    details = infoOpSet.getAllDetailsForContact(c);
+    
+                    while(details.hasNext())
+                    {
+                        GenericDetail d = details.next();
+                        if(d instanceof PhoneNumberDetail && 
+                            !(d instanceof PagerDetail) && 
+                            !(d instanceof FaxDetail))
+                        {
+                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                            if(pnd.getNumber() != null &&
+                                pnd.getNumber().length() > 0)
+                            {
+                                hasPhone = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            callButton.setEnabled(hasPhone || !getOperationSetForCapabilities(
                 chatPanel.chatSession.getTransportsForOperationSet(
                     OperationSetBasicTelephony.class),
                     OperationSetBasicTelephony.class).isEmpty());
@@ -485,22 +522,134 @@ public class MainToolBar
             List<ChatTransport> contactOpSetSupported =
                 getOperationSetForCapabilities(telTransports,
                         OperationSetBasicTelephony.class);
-
-            if (telTransports != null)
+            
+            MetaContact metaContact
+                = GuiActivator.getUIService().getChatContact(chatPanel);
+            Iterator<Contact> contacts = metaContact.getContacts(); 
+            List<UIContactDetail> phones = new ArrayList<UIContactDetail>();
+        
+            while(contacts.hasNext())
             {
-                if (contactOpSetSupported.size() == 1)
+                Contact contact = contacts.next();
+                
+                OperationSetServerStoredContactInfo infoOpSet =
+                    contact.getProtocolProvider().getOperationSet(
+                        OperationSetServerStoredContactInfo.class);
+                Iterator<GenericDetail> details = null;
+
+                if(infoOpSet != null)
+                {
+                    details = infoOpSet.getAllDetailsForContact(contact);
+
+                    while(details.hasNext())
+                    {
+                        GenericDetail d = details.next();
+                        if(d instanceof PhoneNumberDetail && 
+                            !(d instanceof PagerDetail) && 
+                            !(d instanceof FaxDetail))
+                        {
+                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                            if(pnd.getNumber() != null &&
+                                pnd.getNumber().length() > 0)
+                            {
+                                UIContactDetail cd =
+                                    new UIContactDetail(
+                                        pnd.getNumber(),
+                                        pnd.getNumber() + 
+                                        " (" + pnd.getDetailDisplayName() + ")",
+                                        null,
+                                        new ArrayList<String>(),
+                                        null,
+                                        null,
+                                        null)
+                                {
+                                    public PresenceStatus getPresenceStatus()
+                                    {
+                                        return null;
+                                    }
+                                };
+                                phones.add(cd);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (telTransports != null || phones.size() > 0)
+            {
+                if (contactOpSetSupported.size() == 1 && phones.size() == 0)
                 {
                     ChatTransport transport = contactOpSetSupported.get(0);
                     CallManager.createCall(
                         transport.getProtocolProvider(),
                         transport.getName());
                 }
-                else if (contactOpSetSupported.size() > 1)
+                else if (contactOpSetSupported.size() == 0
+                    && phones.size() == 1)
                 {
+                    UIContactDetail detail = phones.get(0);
+
+                    ProtocolProviderService preferredProvider
+                        = detail.getPreferredProtocolProvider(
+                            OperationSetBasicTelephony.class);
+
+                    List<ProtocolProviderService> providers
+                        = GuiActivator.getOpSetRegisteredProviders(
+                            OperationSetBasicTelephony.class,
+                            preferredProvider,
+                            detail.getPreferredProtocol(
+                                OperationSetBasicTelephony.class));
+
+                    if (providers != null)
+                    {
+                        int providersCount = providers.size();
+
+                        if (providersCount <= 0)
+                        {
+                            new ErrorDialog(null,
+                                GuiActivator.getResources().getI18NString(
+                                    "service.gui.CALL_FAILED"),
+                                GuiActivator.getResources().getI18NString(
+                                    "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
+                            .showDialog();
+                        }
+                        else if (providersCount == 1)
+                        {
+                            CallManager.createCall(
+                                providers.get(0), detail.getAddress());
+                        }
+                        else if (providersCount > 1)
+                        {
+                            ChooseCallAccountPopupMenu chooseAccountDialog = 
+                                new ChooseCallAccountPopupMenu(
+                                    callButton, detail.getAddress(), providers);
+                            Point location = new Point(callButton.getX(),
+                                callButton.getY() + callButton.getHeight());
+
+                            SwingUtilities.convertPointToScreen(
+                                location, this);
+
+                            chooseAccountDialog
+                                .showPopupMenu(location.x, location.y);
+                        }
+                    }
+                }
+                else if ((contactOpSetSupported.size() + phones.size()) > 1)
+                {
+                    List<Object> allContacts = new ArrayList<Object>();
+                    for(ChatTransport t : contactOpSetSupported)
+                    {
+                        allContacts.add(t);
+                    }
+                    for(UIContactDetail t : phones)
+                    {
+                        allContacts.add(t);
+                    }
+                                        
                     ChooseCallAccountPopupMenu chooseAccountDialog
                         = new ChooseCallAccountPopupMenu(
                             callButton,
-                            contactOpSetSupported);
+                            allContacts);
 
                     Point location = new Point(callButton.getX(),
                         callButton.getY() + callButton.getHeight());

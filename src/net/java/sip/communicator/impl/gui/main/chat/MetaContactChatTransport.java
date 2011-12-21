@@ -347,7 +347,7 @@ public class MetaContactChatTransport
      * Sends the given sms message trough this chat transport.
      *
      * @param contact the destination contact
-     * @param messageText the message to send
+     * @param message the message to send
      * @throws Exception if the send operation is interrupted
      */
     public void sendSmsMessage(Contact contact, String message)
