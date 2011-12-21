@@ -54,7 +54,7 @@ public interface ProtocolNames
     /**
      * The Yahoo! messenger protcool.
      */
-    public static final String YAHOO  = "Yahoo";
+    public static final String YAHOO  = "Yahoo!";
 
     /**
      * The Skype protcool.
