@@ -111,12 +111,18 @@ public class SparkleActivator
         String downloadLink = getConfigurationService().getString(
                 PROP_UPDATE_LINK);
 
+        String title = ResourceManagementServiceUtils.getService(bundleContext)
+                .getI18NString("plugin.updatechecker.UPDATE_MENU_ENTRY");
+
+        // add common suffix of this menu title
+        if(title != null)
+            title += "...";
+
         // TODO: better way to get the Sparkle Framework path?
         initSparkle(System.getProperty("user.dir")
                     + "/../../Frameworks/Sparkle.framework",
-                    updateAtStartup, checkInterval, downloadLink,
-                    ResourceManagementServiceUtils.getService(bundleContext)
-                        .getI18NString("impl.sparkle.CHECK_FOR_UPDATE_TITLE"));
+                    updateAtStartup, checkInterval, downloadLink, title);
+
         if (logger.isInfoEnabled())
             logger.info("Sparkle Plugin ...[Started]");
     }
