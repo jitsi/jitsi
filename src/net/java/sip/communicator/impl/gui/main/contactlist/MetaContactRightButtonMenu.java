@@ -249,7 +249,8 @@ public class MetaContactRightButtonMenu
     /**
      * The prefix for region screen desktop sharing menu.
      */
-    private static final String regionDesktopSharingPrefix = "shareRegionScreen:";
+    private static final String regionDesktopSharingPrefix =
+        "shareRegionScreen:";
 
     /**
      * The prefix for full screen desktop sharing menu.
@@ -653,7 +654,8 @@ public class MetaContactRightButtonMenu
             this.sendFileItem.setEnabled(false);
 
         if (metaContact.getDefaultContact(
-            OperationSetBasicTelephony.class) == null && !hasPhones)
+            OperationSetBasicTelephony.class) == null && (!hasPhones || 
+            CallManager.getTelephonyProviders().size() == 0))
             this.callItem.setEnabled(false);
 
         if (metaContact.getDefaultContact(
