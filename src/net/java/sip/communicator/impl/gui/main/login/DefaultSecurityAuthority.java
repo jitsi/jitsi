@@ -63,7 +63,7 @@ public class DefaultSecurityAuthority
         {
             errorMessage
                 = GuiActivator.getResources().getI18NString(
-                    "service.gui.AUTHENTICATION_FAILED");
+                    "service.gui.AUTHENTICATION_FAILED", new String[]{realm});
         }
 
         AuthenticationWindow loginWindow = null;
