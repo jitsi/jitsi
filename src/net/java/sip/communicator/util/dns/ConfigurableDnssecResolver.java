@@ -329,13 +329,17 @@ public class ConfigurableDnssecResolver
 
     private String getExceptionMessage(SecureMessage msg)
     {
-        //TODO parse bogus reason text and translate
         return msg.getBogusReason() == null
             ? R.getI18NString(
-                "util.dns.INSECURE_ANSWER_MESSAGE",
+                "util.dns.INSECURE_ANSWER_MESSAGE_NO_REASON",
                 new String[]{msg.getQuestion().getName().toString()}
               )
-            : msg.getBogusReason();
+            : R.getI18NString(
+                "util.dns.INSECURE_ANSWER_MESSAGE_REASON",
+                new String[]{msg.getQuestion().getName().toString(),
+                    //TODO parse bogus reason text and translate
+                    msg.getBogusReason()}
+              );
     }
 
     private String createPropNameUnsigned(String fqdn, String type)

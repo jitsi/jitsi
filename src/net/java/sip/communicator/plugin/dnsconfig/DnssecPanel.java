@@ -88,6 +88,7 @@ public class DnssecPanel
         cl.gridy = cr.gridy = 0;
         cl.anchor = cr.anchor = GridBagConstraints.LINE_START;
         cl.gridx = 0;
+        cl.fill = GridBagConstraints.HORIZONTAL;
         cl.weightx = 0;
         cl.insets = new Insets(0, 0, 0, 10);
         cr.gridx = 1;
@@ -112,23 +113,37 @@ public class DnssecPanel
         pnlCommon.add(chkEnabled, cl);
         cl.gridwidth = 1;
 
+        cl.gridy = ++cr.gridy;
+        JLabel lblRestart = new JLabel(
+            R.getI18NString("plugin.dnsconfig.dnssec.RESTART_WARNING",
+            new String[]{
+                R.getSettingsString("service.gui.APPLICATION_NAME")
+            }));
+        lblRestart.setBorder(BorderFactory.createEmptyBorder(0, 22, 10, 0));
+        cl.gridwidth = GridBagConstraints.REMAINDER;
+        pnlCommon.add(lblRestart, cl);
+        cl.gridwidth = 1;
+
         //custom nameservers
         cl.gridy = ++cr.gridy;
         JLabel lblNameserver = new JLabel(
             R.getI18NString("plugin.dnsconfig.dnssec.lblNameservers"));
+        lblNameserver.setBorder(BorderFactory.createEmptyBorder(0, 22, 0, 0));
         pnlCommon.add(lblNameserver, cl);
 
         txtNameservers = new JTextField();
         pnlCommon.add(txtNameservers, cr);
         cl.gridy = ++cr.gridy;
-        JLabel lblNameserversHint = new JLabel(
+        JLabel lblNsHint = new JLabel(
             R.getI18NString("plugin.dnsconfig.dnssec.lblNameserversHint"));
-        pnlCommon.add(lblNameserversHint, cr);
+        lblNsHint.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        pnlCommon.add(lblNsHint, cr);
 
         //default dnssec handling
         cl.gridy = ++cr.gridy;
         JLabel lblDefault = new JLabel(
             R.getI18NString("plugin.dnsconfig.dnssec.lblDefault"));
+        lblDefault.setBorder(BorderFactory.createEmptyBorder(0, 22, 0, 0));
         pnlCommon.add(lblDefault, cl);
         cboDefault = new JComboBox(SecureResolveMode.values());
         cboDefault.setRenderer(getResolveModeRenderer());
@@ -158,7 +173,10 @@ public class DnssecPanel
         cboTblModeEditor.setRenderer(getResolveModeRenderer());
         tblDomains.getColumnModel().getColumn(1).setCellEditor(
             new DefaultCellEditor(cboTblModeEditor));
-        add(new JScrollPane(tblDomains), BorderLayout.CENTER);
+        JScrollPane pnlScroller = new JScrollPane(tblDomains);
+        pnlScroller.setBorder(BorderFactory.createEmptyBorder(0, 22, 0, 0));
+        pnlScroller.setOpaque(false);
+        add(pnlScroller, BorderLayout.CENTER);
     }
 
     /**
@@ -304,6 +322,7 @@ public class DnssecPanel
             config.setProperty(
                 DnsUtilActivator.PNAME_DNSSEC_NAMESERVERS,
                 txtNameservers.getText());
+            NetworkUtils.reloadDnsResolverConfig();
         }
     }
 
