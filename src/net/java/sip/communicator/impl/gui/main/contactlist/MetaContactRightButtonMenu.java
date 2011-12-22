@@ -418,8 +418,32 @@ public class MetaContactRightButtonMenu
                         if(pnd.getNumber() != null &&
                             pnd.getNumber().length() > 0)
                         {
+                            String localizedType = null;
+                            
+                            if(d instanceof WorkPhoneDetail)
+                            {
+                                localizedType = 
+                                    GuiActivator.getResources().
+                                        getI18NString(
+                                            "service.gui.WORK_PHONE");
+                            }
+                            else if(d instanceof MobilePhoneDetail)
+                            {
+                                localizedType = 
+                                    GuiActivator.getResources().
+                                        getI18NString(
+                                            "service.gui.MOBILE_PHONE");                                    
+                            }
+                            else
+                            {
+                                localizedType = 
+                                    GuiActivator.getResources().
+                                        getI18NString(
+                                            "service.gui.PHONE");                                    
+                            }
+                                
                             phones.add(pnd.getNumber() 
-                                + " (" + pnd.getDetailDisplayName() + ")");
+                                + " (" + localizedType + ")");
                             hasPhones = true;
                         }
                     }
