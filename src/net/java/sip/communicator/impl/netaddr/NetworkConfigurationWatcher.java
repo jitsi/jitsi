@@ -346,6 +346,18 @@ public class NetworkConfigurationWatcher
                 logger.error("Error checking network interfaces", e);
             }
         }
+        else if(event.getEventID() == SystemActivityEvent.EVENT_DNS_CHANGE)
+        {
+            try
+            {
+                eventDispatcher.fireChangeEvent(
+                    new ChangeEvent(event.getSource(), ChangeEvent.DNS_CHANGE));
+            }
+            catch(Throwable t)
+            {
+                logger.error("Error dispatching dns change.");
+            }
+        }
     }
 
     /**

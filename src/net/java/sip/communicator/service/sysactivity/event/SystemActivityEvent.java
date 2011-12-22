@@ -77,6 +77,11 @@ public class SystemActivityEvent
     public static final int EVENT_SYSTEM_IDLE_END = 11;
 
     /**
+     * A change in dns configuration has occurred.
+     */
+    public static final int EVENT_DNS_CHANGE = 12;
+
+    /**
      * The type of the event.
      */
     private final int eventID;

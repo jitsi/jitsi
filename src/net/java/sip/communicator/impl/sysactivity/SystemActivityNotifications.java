@@ -64,6 +64,11 @@ public class SystemActivityNotifications
     public static final int NOTIFY_NETWORK_CHANGE = 9;
 
     /**
+     * A change in dns configuration has occurred.
+     */
+    public static final int NOTIFY_DNS_CHANGE = 10;
+
+    /**
      * The logger.
      */
     private static Logger logger = Logger.getLogger(

@@ -263,6 +263,12 @@ public class SystemActivityNotificationsServiceImpl
                     SystemActivityEvent.EVENT_NETWORK_CHANGE);
                 break;
             }
+            case SystemActivityNotifications.NOTIFY_DNS_CHANGE :
+            {
+                evt = new SystemActivityEvent(this,
+                    SystemActivityEvent.EVENT_DNS_CHANGE);
+                break;
+            }
         }
 
         if(evt != null)

@@ -128,12 +128,27 @@ static CFRunLoopSourceRef rlSrc;
     [self notify:net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_NETWORK_CHANGE];
 }
 
+-(void) dnsChange: (NSNotification *) notification
+{
+    [self notify:net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_NOTIFY_DNS_CHANGE];
+}
+
 void scCallback(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info)
 {
     NSAutoreleasePool* localPool = [NSAutoreleasePool new];
 
     [[NSNotificationCenter defaultCenter] postNotificationName
         :@"NetworkConfigurationDidChangeNotification" object:(id)info];
+
+    [localPool drain];
+}
+
+void scDnsCallback(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info)
+{
+    NSAutoreleasePool* localPool = [NSAutoreleasePool new];
+
+    [[NSNotificationCenter defaultCenter] postNotificationName
+        :@"DnsConfigurationDidChangeNotification" object:(id)info];
 
     [localPool drain];
 }
@@ -203,8 +218,11 @@ void scCallback(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info)
             [[NSNotificationCenter defaultCenter] addObserver:self
                     selector: @selector(netChange:)
                     name:@"NetworkConfigurationDidChangeNotification" object:NULL];
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                    selector: @selector(dnsChange:)
+                    name:@"DnsConfigurationDidChangeNotification" object:NULL];
 
-
+            {
             SCDynamicStoreRef dynStore;
 
             SCDynamicStoreContext context = {0, NULL, NULL, NULL, NULL};
@@ -241,6 +259,46 @@ void scCallback(SCDynamicStoreRef store, CFArrayRef changedKeys, void *info)
             CFRunLoopAddSource(
                 CFRunLoopGetCurrent(), rlSrc, kCFRunLoopDefaultMode);
             CFRelease(rlSrc);
+            }
+
+            {
+                SCDynamicStoreRef dynStore;
+
+                SCDynamicStoreContext context = {0, NULL, NULL, NULL, NULL};
+
+                dynStore = SCDynamicStoreCreate(kCFAllocatorDefault,
+                                      CFBundleGetIdentifier(CFBundleGetMainBundle()),
+                                      scDnsCallback,
+                                      &context);
+
+                const CFStringRef keys[1] = {
+                    CFSTR("State:/Network/Global/DNS")
+                };
+                CFArrayRef watchedKeys = CFArrayCreate(kCFAllocatorDefault,
+                                             (const void **)keys,
+                                             1,
+                                             &kCFTypeArrayCallBacks);
+                if (!SCDynamicStoreSetNotificationKeys(dynStore,
+                                             NULL,
+                                             watchedKeys))
+                {
+                    CFRelease(watchedKeys);
+                    fprintf(stderr, "SCDynamicStoreSetNotificationKeys() failed: %s",
+                        SCErrorString(SCError()));
+                    CFRelease(dynStore);
+                    dynStore = NULL;
+
+                    return;
+                }
+                CFRelease(watchedKeys);
+
+
+                rlSrc = SCDynamicStoreCreateRunLoopSource(
+                    kCFAllocatorDefault, dynStore, 0);
+                CFRunLoopAddSource(
+                    CFRunLoopGetCurrent(), rlSrc, kCFRunLoopDefaultMode);
+                CFRelease(rlSrc);
+                }
         }
     }
 }

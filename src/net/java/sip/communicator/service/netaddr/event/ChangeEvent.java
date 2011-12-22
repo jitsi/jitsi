@@ -42,6 +42,11 @@ public class ChangeEvent
     public static final int ADDRESS_UP = 3;
 
     /**
+     * Event type for dns change.
+     */
+    public static final int DNS_CHANGE = 4;
+
+    /**
      * The type of the current event.
      */
     private int type = -1;
@@ -161,11 +166,13 @@ public class ChangeEvent
             case IFACE_UP: buff.append("Interface up"); break;
             case ADDRESS_DOWN : buff.append("Address down"); break;
             case ADDRESS_UP : buff.append("Address up"); break;
+            case DNS_CHANGE : buff.append("Dns has changed"); break;
         }
 
         buff.append(", standby=" + standby)
             .append(", source=" + source)
-            .append(", address=" + address);
+            .append(", address=" + address)
+            .append(", isInitial=" + initial);
 
         return buff.toString();
     }
