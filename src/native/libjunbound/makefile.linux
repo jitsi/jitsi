@@ -1,6 +1,5 @@
 CC = g++ -O2
 TARGET_BASENAME = libjunbound.so
-TARGET_DIR ?= ../../../lib/native/linux-64
 
 CPPFLAGS = \
 	-Wall -Wreturn-type \
@@ -10,7 +9,7 @@ CPPFLAGS = \
 
 LDFLAGS = -shared
 LIBS = -lunbound
-TARGET = $(TARGET_DIR)/$(TARGET_BASENAME)
+TARGET = $(TARGET_BASENAME)
 
 $(TARGET): src/*.cpp
 	$(CC) $(CPPFLAGS) $^ $(LDFLAGS) -o $@ $(LIBS)
