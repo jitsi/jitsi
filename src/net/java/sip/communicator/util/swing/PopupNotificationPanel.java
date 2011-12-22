@@ -54,7 +54,9 @@ public class PopupNotificationPanel
         notifTitle = new JLabel(
                 UtilActivator.getResources().getSettingsString(
                     "service.gui.APPLICATION_NAME")
-                    + (titleString == null ? "" : ": " + titleString),
+                    + (StringUtils.isNullOrEmpty(titleString, true)
+                        ? ""
+                        : ": " + titleString),
                 SwingConstants.LEFT);
 
         notifClose = new SIPCommButton();
