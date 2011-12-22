@@ -891,6 +891,8 @@
             <arg value="sign" />
             <arg value="/d" />
             <arg value="${application.name}" />
+            <arg value="/t" />
+            <arg value="http://tsa.starfieldtech.com" />
             <arg value="/f" />
             <arg value="${sign.cert.file}" />
             <arg value="/p" />
