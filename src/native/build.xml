@@ -742,12 +742,17 @@
     </cc>
   </target>
 
-  <!-- compile sparkle library for Mac OS X (32-bit/64-bit/ppc) -->
+  <!-- compile sparkle library for Mac OS X (32-bit/64-bit/ppc)
+  make sure you do export MACOSX_DEPLOYMENT_TARGET=10.5
+  and also:
+  install_name_tool -change "@loader_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" "@executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" libsparkle_init.dylib
+  -->
   <target name="sparkle" description="Build sparkle shared library for Mac OS X" if="is.running.macos"
     depends="init-native">
     <cc outtype="shared" name="gcc" outfile="${native_install_dir}/sparkle_init" objdir="${obj}">
       <compilerarg value="-Wall" />
       <compilerarg value="-O2" />
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" />
       <compilerarg value="x86_64" />
       <compilerarg value="-arch" />

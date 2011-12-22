@@ -73,8 +73,8 @@ Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
     else
     {
         const char* menuTitleChars =
-            (*env)->GetStringUTFChars(env, menuItemTitle, 0);
-        menuTitle = [NSString stringWithCString: menuTitleChars length: strlen(menuTitleChars)];
+            (const char *)(*env)->GetStringUTFChars(env, menuItemTitle, 0);
+        menuTitle = [NSString stringWithUTF8String: menuTitleChars];
     }
 
     NSMenu* menu = [[NSApplication sharedApplication] mainMenu];
