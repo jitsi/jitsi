@@ -18,11 +18,6 @@ import java.awt.event.*;
 public class GlobalShortcutEntry
 {
     /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
-    /**
      * Disabled keystroke.
      */
     private static final AWTKeyStroke DISABLED = null;

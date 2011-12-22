@@ -87,7 +87,8 @@ public class KeybindingsConfigPanel
             // adds listener that receives events to set bindings
             this.addKeyListener(newChooser.makeAdaptor());
 
-            chooserPanes.addTab(getReadableConstant(category.toString()),
+            chooserPanes.addTab(KeybindingChooserActivator.getResources()
+                .getI18NString("plugin.keybindings." + category.toString()),
                 scroller);
             this.choosers.put(bindingSet, newChooser);
         }
@@ -95,38 +96,10 @@ public class KeybindingsConfigPanel
         // global shortcut
         GlobalShortcutConfigForm globalBindingPanel =
             new GlobalShortcutConfigForm();
-        chooserPanes.addTab("Global shortcut", globalBindingPanel);
+        chooserPanes.addTab(KeybindingChooserActivator.getResources()
+            .getI18NString("plugin.keybindings.GLOBAL"), globalBindingPanel);
 
         add(chooserPanes);
-    }
-
-    /**
-     * Provides a more readable version of constant names. Spaces replace
-     * underscores and this changes the input to lowercase except the first
-     * letter of each word. For instance, "RARE_CARDS" would become "Rare
-     * Cards".
-     *
-     * @param input string to be converted
-     * @return reader friendly variant of constant name
-     */
-    private static String getReadableConstant(String input)
-    {
-        char[] name = input.toCharArray();
-
-        boolean isStartOfWord = true;
-        for (int i = 0; i < name.length; ++i)
-        {
-            char chr = name[i];
-            if (chr == '_')
-                name[i] = ' ';
-            else if (isStartOfWord)
-                name[i] = Character.toUpperCase(chr);
-            else
-                name[i] = Character.toLowerCase(chr);
-            isStartOfWord = chr == '_';
-        }
-
-        return new String(name);
     }
 
     /**
