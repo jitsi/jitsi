@@ -125,6 +125,17 @@ public class NeomediaActivator
          */
         Registry.set("allowLogging", logger.isDebugEnabled());
 
+        /*
+         * Disable the loading of .fmj.registry because Kertesz Laszlo has
+         * reported that audio input devices duplicate after restarting Jitsi.
+         * Besides, Jitsi does not really need .fmj.registry on startup.
+         */
+        String jmfRegistryDisableLoad
+            = "net.sf.fmj.utility.JmfRegistry.disableLoad";
+
+        if (System.getProperty(jmfRegistryDisableLoad) == null)
+            System.setProperty(jmfRegistryDisableLoad, "true");
+
         String scHomeDirLocation
             = System.getProperty(
                 ConfigurationService.PNAME_SC_HOME_DIR_LOCATION);

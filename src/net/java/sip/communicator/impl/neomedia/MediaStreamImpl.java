@@ -1274,9 +1274,7 @@ public class MediaStreamImpl
                         = super.createDataOutputStream();
 
                     if (dataOutputStream != null)
-                    {
                         configureDataOutputStream(dataOutputStream);
-                    }
                     return dataOutputStream;
                 }
 
@@ -1288,9 +1286,7 @@ public class MediaStreamImpl
                         = super.createDataInputStream();
 
                     if (dataInputStream != null)
-                    {
                         configureDataInputStream(dataInputStream);
-                    }
                     return dataInputStream;
                 }
             };

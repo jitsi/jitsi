@@ -22,7 +22,7 @@ import java.net.*;
 public interface StreamConnector
 {
     /**
-     * Enumeration of supported protocols.
+     * Enumerates the protocols supported by <tt>StreamConnector</tt>.
      */
     public enum Protocol
     {
@@ -42,8 +42,8 @@ public interface StreamConnector
      * use for data (e.g. RTP) traffic.
      *
      * @return a reference to the <tt>DatagramSocket</tt> that a stream should
-     * use for data (e.g. RTP) traffic or null if this <tt>StreamConnector</tt>
-     * does not handle UDP sockets.
+     * use for data (e.g. RTP) traffic or <tt>null</tt> if this
+     * <tt>StreamConnector</tt> does not handle UDP sockets.
      */
     public DatagramSocket getDataSocket();
 
@@ -52,8 +52,8 @@ public interface StreamConnector
      * use for control data (e.g. RTCP).
      *
      * @return a reference to the <tt>DatagramSocket</tt> that a stream should
-     * use for control data (e.g. RTCP) or null if this <tt>StreamConnector</tt>
-     * does not handle UDP sockets.
+     * use for control data (e.g. RTCP) or <tt>null</tt> if this
+     * <tt>StreamConnector</tt> does not handle UDP sockets.
      */
     public DatagramSocket getControlSocket();
 
@@ -62,8 +62,8 @@ public interface StreamConnector
      * use for data (e.g. RTP) traffic.
      *
      * @return a reference to the <tt>Socket</tt> that a stream should
-     * use for data (e.g. RTP) traffic or null if this <tt>StreamConnector</tt>
-     * does not handle TCP sockets.
+     * use for data (e.g. RTP) traffic or <tt>null</tt> if this
+     * <tt>StreamConnector</tt> does not handle TCP sockets.
      */
     public Socket getDataTCPSocket();
 
@@ -72,8 +72,8 @@ public interface StreamConnector
      * use for control data (e.g. RTCP).
      *
      * @return a reference to the <tt>Socket</tt> that a stream should
-     * use for control data (e.g. RTCP) or null if this <tt>StreamConnector</tt>
-     * does not handle TCP sockets.
+     * use for control data (e.g. RTCP) or <tt>null</tt> if this
+     * <tt>StreamConnector</tt> does not handle TCP sockets.
      */
     public Socket getControlTCPSocket();
 
