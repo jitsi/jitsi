@@ -123,8 +123,12 @@ NSString* dd_stringifyModifierFlags(NSUInteger flags);
 	
 	EventHotKeyRef carbonHotKey;
 	UInt32 flags = dd_translateModifierFlags(modifierFlags);
-	OSStatus err = RegisterEventHotKey(keyCode, flags, keyID, GetEventDispatcherTarget(), 0, &carbonHotKey);
-	
+#ifdef __LP64__
+    OSStatus err = RegisterEventHotKey(keyCode, flags, keyID, GetEventDispatcherTarget(), 0, &carbonHotKey);
+#else
+    OSStatus err = RegisterEventHotKey(keyCode, flags, keyID, GetApplicationEventTarget(), 0, &carbonHotKey);
+#endif
+    	
 	//error registering hot key
 	if (err != 0) { return NO; }
 	
