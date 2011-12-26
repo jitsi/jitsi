@@ -2258,7 +2258,18 @@ public class ProtocolProviderServiceSipImpl
                 (SipAccountID)getAccountID(),
                 host,
                 getDefaultTransport());
-            destinationInetAddress = tempConn.getAddress();
+            try
+            {
+                if(tempConn.getNextAddress())
+                    destinationInetAddress = tempConn.getAddress();
+                else
+                    throw new IllegalArgumentException(host
+                        + " could not be resolved to an internet address.");
+            }
+            catch (DnssecException e)
+            {
+                logger.error("unable to obtain next hop address", e);
+            }
         }
 
         if(logger.isDebugEnabled())
