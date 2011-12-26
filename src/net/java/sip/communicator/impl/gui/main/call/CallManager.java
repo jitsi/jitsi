@@ -1074,8 +1074,6 @@ public class CallManager
             if (telephonyOpSet == null)
                 return;
 
-            Throwable exception = null;
-
             try
             {
                 if (contact != null)
@@ -1083,15 +1081,7 @@ public class CallManager
                 else if (stringContact != null)
                     telephonyOpSet.createCall(stringContact);
             }
-            catch (OperationFailedException e)
-            {
-                exception = e;
-            }
-            catch (ParseException e)
-            {
-                exception = e;
-            }
-            if (exception != null)
+            catch (Throwable exception)
             {
                 logger.error("The call could not be created: ", exception);
 
