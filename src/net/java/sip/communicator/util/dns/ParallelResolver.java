@@ -553,8 +553,8 @@ public class ParallelResolver implements Resolver
                     return;
 
                 //if there was a response we're only done if it is satisfactory
-                if(    localResponse == null
-                    || isResponseSatisfactory(localResponse))
+                if(    localResponse != null
+                    && isResponseSatisfactory(localResponse))
                 {
                     response = localResponse;
                     done = true;
