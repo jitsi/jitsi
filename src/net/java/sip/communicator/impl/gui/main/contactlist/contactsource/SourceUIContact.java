@@ -64,7 +64,15 @@ public class SourceUIContact
         this.sourceContact = contact;
         this.uiGroup = parentGroup;
 
+        if(contact.getContactDetails() != null)
+            for(ContactDetail detail : contact.getContactDetails())
+            {
+                if(detail.getContactAddress() != null)
+                    searchStrings.add(detail.getContactAddress());
+            }
+
         searchStrings.add(contact.getDisplayName());
+
     }
 
     /**

@@ -646,7 +646,7 @@ public class HistoryReaderImpl
 
                 nameVals.add(nodeName);
                 // Get nested TEXT node's value
-                nameVals.add(propertyNode.getFirstChild().getNodeValue());
+                nameVals.add(nodeValue);
 
             }
         }
