@@ -307,9 +307,14 @@ public class AddContactDialog
         Iterator<MetaContactGroup> groupList
             = GuiActivator.getContactListService().getRoot().getSubgroups();
 
-        while(groupList.hasNext())
+        while (groupList.hasNext())
         {
-            groupCombo.addItem(groupList.next());
+            MetaContactGroup group = groupList.next();
+
+            if (!group.isPersistent())
+                continue;
+
+            groupCombo.addItem(group);
         }
 
         final String newGroupString = GuiActivator.getResources()

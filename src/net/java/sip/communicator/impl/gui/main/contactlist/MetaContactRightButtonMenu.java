@@ -340,6 +340,9 @@ public class MetaContactRightButtonMenu
         {
             MetaContactGroup group = groups.next();
 
+            if (!group.isPersistent())
+                continue;
+
             JMenuItem menuItem = new JMenuItem(group.getGroupName());
 
             menuItem.setName(moveToPrefix + group.getMetaUID());

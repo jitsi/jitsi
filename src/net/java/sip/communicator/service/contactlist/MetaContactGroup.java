@@ -327,4 +327,12 @@ public interface MetaContactGroup
      *            <code>key</code>
      */
     public void setData(Object key, Object value);
+
+    /**
+     * Determines whether or not this meta group contains only groups that are
+     * being stored by a server.
+     *
+     * @return true if the meta group is persistent and false otherwise.
+     */
+    public boolean isPersistent();
 }
