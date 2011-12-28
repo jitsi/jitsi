@@ -59,6 +59,11 @@ public class ContactGroupIcqImpl
     private ServerStoredContactListIcqImpl ssclCallback = null;
 
     /**
+     * Whether current group is persistent.
+     */
+    private boolean isPersistent;
+
+    /**
      * Creates an ICQ group using the specified <tt>joustSimGroup</tt> as
      * a source. The newly created group will always return the name of the
      * underlying joustSimGroup and would thus automatically adapt to changes.
@@ -81,10 +86,12 @@ public class ContactGroupIcqImpl
     ContactGroupIcqImpl(MutableGroup joustSimGroup,
                         Iterable<? extends Buddy> groupMembers,
                         ServerStoredContactListIcqImpl ssclCallback,
-                        boolean isResolved)
+                        boolean isResolved,
+                        boolean isPersistent)
     {
         this.joustSimSourceGroup = joustSimGroup;
         this.isResolved = isResolved;
+        this.isPersistent = isPersistent;
         this.ssclCallback = ssclCallback;
 
         //store a copy of the name now so that we can detect changes in the
@@ -420,7 +427,7 @@ public class ContactGroupIcqImpl
      */
     public boolean isPersistent()
     {
-        return !(joustSimSourceGroup instanceof VolatileGroup);
+        return isPersistent;
     }
 
     /**
@@ -459,6 +466,7 @@ public class ContactGroupIcqImpl
     void setResolved(boolean resolved)
     {
         this.isResolved = resolved;
+        this.isPersistent = true;
     }
 
     /**

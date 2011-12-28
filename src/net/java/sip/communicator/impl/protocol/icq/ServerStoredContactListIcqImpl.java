@@ -511,7 +511,7 @@ public class ServerStoredContactListIcqImpl
         {
             List<Buddy> emptyBuddies = new LinkedList<Buddy>();
             theVolatileGroup = new ContactGroupIcqImpl(
-                new VolatileGroup(), emptyBuddies, this, false);
+                new VolatileGroup(), emptyBuddies, this, false, false);
             theVolatileGroup.addContact(newVolatileContact);
 
             this.rootGroup.addSubGroup(theVolatileGroup);
@@ -575,7 +575,7 @@ public class ServerStoredContactListIcqImpl
         //First create the new volatile contact;
         List<Buddy> emptyBuddies = new LinkedList<Buddy>();
         ContactGroupIcqImpl newUnresolvedGroup = new ContactGroupIcqImpl(
-                new VolatileGroup(groupName), emptyBuddies, this, false);
+                new VolatileGroup(groupName), emptyBuddies, this, false, true);
 
         this.rootGroup.addSubGroup(newUnresolvedGroup);
 
@@ -816,7 +816,7 @@ public class ServerStoredContactListIcqImpl
                 newGroup = new ContactGroupIcqImpl(
                       (MutableGroup) group
                     , buddies
-                    , ServerStoredContactListIcqImpl.this, true);
+                    , ServerStoredContactListIcqImpl.this, true, true);
 
                 //this is the first group so insert at 0.
                 rootGroup.addSubGroup(newGroup);

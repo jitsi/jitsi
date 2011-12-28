@@ -454,7 +454,7 @@ public class ServerStoredContactListMsnImpl
             MsnContact[] emptyBuddies = new MsnContact[]{};
 
             theVolatileGroup = new ContactGroupMsnImpl(
-                new VolatileGroup(), emptyBuddies, this, false);
+                new VolatileGroup(), emptyBuddies, this, false, false);
             theVolatileGroup.addContact(newVolatileContact);
 
             this.rootGroup.addSubGroup(theVolatileGroup);
@@ -521,7 +521,7 @@ public class ServerStoredContactListMsnImpl
         //First create the new volatile contact;
         MsnContact[] emptyBuddies = new MsnContact[]{};
         ContactGroupMsnImpl newUnresolvedGroup = new ContactGroupMsnImpl(
-                new VolatileGroup(groupName), emptyBuddies, this, false);
+                new VolatileGroup(groupName), emptyBuddies, this, false, true);
 
         this.rootGroup.addSubGroup(newUnresolvedGroup);
 
@@ -627,7 +627,7 @@ public class ServerStoredContactListMsnImpl
      */
     public void renameGroup(ContactGroupMsnImpl groupToRename, String newName)
     {
-        printList();
+        //printList();
         msnProvider.getMessenger().
             renameGroup(groupToRename.getSourceGroup().getGroupId(), newName);
     }
@@ -892,6 +892,7 @@ public class ServerStoredContactListMsnImpl
                                 item,
                                 item.getContacts(),
                                 ServerStoredContactListMsnImpl.this,
+                                true,
                                 true);
 
                     rootGroup.addSubGroup(newGroup);
@@ -1094,6 +1095,7 @@ public class ServerStoredContactListMsnImpl
                 new ContactGroupMsnImpl(group,
                                new MsnContact[]{},
                                ServerStoredContactListMsnImpl.this,
+                               true,
                                true);
 
             rootGroup.addSubGroup(newGroup);

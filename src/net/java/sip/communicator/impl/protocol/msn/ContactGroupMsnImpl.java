@@ -57,6 +57,11 @@ public class ContactGroupMsnImpl
     private final ServerStoredContactListMsnImpl ssclCallback;
 
     /**
+     * Whether this group is persistent.
+     */
+    private boolean isPersistent;
+
+    /**
      * Creates an Msn group using the specified <tt>RosterGroup</tt> as
      * a source. The newly created group will always return the name of the
      * underlying RosterGroup and would thus automatically adapt to changes.
@@ -75,10 +80,12 @@ public class ContactGroupMsnImpl
     ContactGroupMsnImpl(MsnGroup msnGroup,
                         MsnContact[] groupMembers,
                         ServerStoredContactListMsnImpl ssclCallback,
-                        boolean isResolved)
+                        boolean isResolved,
+                        boolean isPersistent)
     {
         this.msnGroup = msnGroup;
         this.isResolved = isResolved;
+        this.isPersistent = isPersistent;
         this.ssclCallback = ssclCallback;
 
         for (MsnContact groupMember : groupMembers)
@@ -320,7 +327,7 @@ public class ContactGroupMsnImpl
      */
     public boolean isPersistent()
     {
-        return !(msnGroup instanceof VolatileGroup);
+        return isPersistent;
     }
 
     /**
@@ -359,6 +366,7 @@ public class ContactGroupMsnImpl
             return;
 
         this.isResolved = true;
+        this.isPersistent = true;
 
         this.msnGroup = msnGroup;
 
