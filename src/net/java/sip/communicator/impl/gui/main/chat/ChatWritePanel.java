@@ -968,8 +968,22 @@ public class ChatWritePanel
      *
      * @param chatTransport the chat transport to be selected
      */
-    public void setSelectedChatTransport(ChatTransport chatTransport)
+    public void setSelectedChatTransport(final ChatTransport chatTransport)
     {
+        // We need to be sure that the following code is executed in the event
+        // dispatch thread.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setSelectedChatTransport(chatTransport);
+                }
+            });
+            return;
+        }
+
         if (transportSelectorBox != null)
         {
             transportSelectorBox.setSelected(chatTransport);

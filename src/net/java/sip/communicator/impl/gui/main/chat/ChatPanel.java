@@ -737,8 +737,22 @@ public class ChatPanel
      *
      * @param chatMessage the chat message to add
      */
-    private void addChatMessage(ChatMessage chatMessage)
+    private void addChatMessage(final ChatMessage chatMessage)
     {
+        // We need to be sure that chat messages are added in the event dispatch
+        // thread.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addChatMessage(chatMessage);
+                }
+            });
+            return;
+        }
+
         if (ConfigurationManager.isHistoryShown() && !isHistoryLoaded)
         {
             synchronized (incomingEventBuffer)
@@ -1124,29 +1138,30 @@ public class ChatPanel
 
         this.setSelectedChatTransport(sendFileTransport);
 
+        if(file.length() > sendFileTransport.getMaximumFileLength())
+        {
+            addMessage(
+                chatSession.getCurrentChatTransport().getName(),
+                System.currentTimeMillis(),
+                Chat.ERROR_MESSAGE,
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.FILE_TOO_BIG",
+                    new String[]{
+                        sendFileTransport.getMaximumFileLength()/1024/1024
+                        + " MB"}),
+                "",
+                "text");
+
+            fileComponent.setFailed();
+
+            return;
+        }
+
         SwingWorker worker = new SwingWorker()
         {
             public Object construct()
                 throws Exception
             {
-                if(file.length() > sendFileTransport.getMaximumFileLength())
-                {
-                    addMessage(
-                        chatSession.getCurrentChatTransport().getName(),
-                        System.currentTimeMillis(),
-                        Chat.ERROR_MESSAGE,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.FILE_TOO_BIG",
-                            new String[]{
-                                sendFileTransport.getMaximumFileLength()/1024/1024
-                                + " MB"}),
-                        "",
-                        "text");
-                    fileComponent.setFailed();
-
-                    return "";
-                }
-
                 final FileTransfer fileTransfer
                     = sendFileTransport.sendFile(file);
 
@@ -1157,13 +1172,7 @@ public class ChatPanel
                 // active components.
                 fileTransfer.addStatusListener(ChatPanel.this);
 
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        fileComponent.setProtocolFileTransfer(fileTransfer);
-                    }
-                });
+                fileComponent.setProtocolFileTransfer(fileTransfer);
 
                 return "";
             }
@@ -1200,6 +1209,20 @@ public class ChatPanel
      */
     public void sendFile(final File file)
     {
+        // We need to be sure that the following code is executed in the event
+        // dispatch thread.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    sendFile(file);
+                }
+            });
+            return;
+        }
+
         final ChatTransport fileTransferTransport
             = findFileTransferChatTransport();
 

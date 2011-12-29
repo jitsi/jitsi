@@ -107,10 +107,24 @@ public class SendFileConversationComponent
      * Handles file transfer status changes. Updates the interface to reflect
      * the changes.
      */
-    public void statusChanged(FileTransferStatusChangeEvent event)
+    public void statusChanged(final FileTransferStatusChangeEvent event)
     {
         FileTransfer fileTransfer = event.getFileTransfer();
         int status = event.getNewStatus();
+
+        // We need to be sure that ui related work is executed in the event
+        // dispatch thread.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    statusChanged(event);
+                }
+            });
+            return;
+        }
 
         if (status == FileTransferStatusChangeEvent.COMPLETED
             || status == FileTransferStatusChangeEvent.CANCELED
@@ -201,6 +215,20 @@ public class SendFileConversationComponent
      */
     public void setFailed()
     {
+        // We need to be sure that UI related work is executed in the event
+        // dispatch thread.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setFailed();
+                }
+            });
+            return;
+        }
+
         hideProgressRelatedComponents();
 
         titleLabel.setText(
