@@ -887,7 +887,7 @@
 
     <target name="wix-sign-file" if="sign.cert.file">
         <exec executable="${inst.resrc}/windows/signtool.exe"
-              failonerror="true">
+              failonerror="false">
             <arg value="sign" />
             <arg value="/d" />
             <arg value="${application.name}" />
