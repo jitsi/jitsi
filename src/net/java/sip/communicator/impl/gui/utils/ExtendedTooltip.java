@@ -217,17 +217,23 @@ public class ExtendedTooltip
         String text = label.getText();
 
         int iconWidth = 0;
+        int iconHeight = 0;
         if (icon != null)
+        {
             iconWidth = icon.getIconWidth();
+            iconHeight = icon.getIconHeight();
+        }
 
-        int stringWidth
+        int labelWidth
             = GuiUtils.getStringWidth(label, text)
                 + iconWidth
                 + label.getIconTextGap();
 
-        int stringHeight = GuiUtils.getStringSize(label, text).height;
+        int textHeight = GuiUtils.getStringSize(label, text).height;
 
-        return new Dimension(stringWidth, stringHeight);
+        int labelHeight = (iconHeight > textHeight) ? iconHeight : textHeight;
+
+        return new Dimension(labelWidth, labelHeight);
     }
 
     /**
