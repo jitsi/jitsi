@@ -1022,7 +1022,7 @@ public class OperationSetBasicTelephonyJabberImpl
     private void processSessionIQ(SessionIQ sessionIQ)
     {
         //let's first see whether we have a peer that's concerned by this IQ
-        CallPeerGTalkImpl callPeer =
+        final CallPeerGTalkImpl callPeer =
             activeGTalkCallsRepository.findCallPeer(sessionIQ.getID());
         IQ.Type type = sessionIQ.getType();
 
@@ -1051,22 +1051,36 @@ public class OperationSetBasicTelephonyJabberImpl
 
             if(redirect != null)
             {
-                CallGTalkImpl call = callPeer.getCall();
-
-                try
+                final CallGTalkImpl call = callPeer.getCall();
+                final String redirAddr;
+                String redir = redirect.getRedir();
+                
+                if(redir.startsWith("xmpp:"))
+                    redirAddr = redir.substring(5);
+                else
+                    redirAddr = null;
+                
+                if(redirAddr == null)
+                    return;
+                
+                // launch the "new" call in another thread to not block 
+                // smack processor
+                new Thread()
                 {
-                    String redir = redirect.getRedir();
-                    callPeer.setState(CallPeerState.DISCONNECTED);
-
-                    if(redir.startsWith("xmpp:"))
-                        redir = redir.substring(5);
-
-                    call.initiateGTalkSession(redir, null);
-                }
-                catch(Exception e)
-                {
-                    logger.info("Failed to initiate GTalk session (redirect)");
-                }
+                    public void run()
+                    {
+                        try
+                        {
+                            call.initiateGTalkSession(redirAddr, null);
+                            callPeer.setState(CallPeerState.DISCONNECTED);
+                        }
+                        catch(Exception e)
+                        {
+                            logger.info(
+                                "Failed to initiate GTalk session (redirect)");
+                        }
+                    }
+                }.start();
                 return;
             }
 

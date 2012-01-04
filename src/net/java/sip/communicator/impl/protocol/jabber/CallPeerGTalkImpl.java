@@ -262,6 +262,14 @@ public class CallPeerGTalkImpl
 
         protocolProvider.getConnection().sendPacket(sessionInitIQ);
 
+        // for Google Voice JID without resource we do not harvest and send
+        // candidates
+        if(getAddress().endsWith(
+            ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN))
+        {
+            return;
+        }
+        
         getMediaHandler().harvestCandidates(offer.getPayloadTypes(),
                 new CandidatesSender()
         {
@@ -685,7 +693,8 @@ public class CallPeerGTalkImpl
             }
         }
 
-        if(fullJID.contains("@voice.google.com"))
+        if(fullJID.contains(
+            "@" + ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN))
             return true;
 
         return false;

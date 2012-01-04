@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.util.*;
+
 import org.jivesoftware.smack.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
@@ -25,6 +27,11 @@ public class CallGTalkImpl
         OperationSetBasicTelephonyJabberImpl,
         ProtocolProviderServiceJabberImpl>
 {
+    /**
+     * If the first callPeer is a Google Voice (without resource) ones.
+     */
+    private boolean firstCallPeerIsGV = false; 
+    
     /**
      * Initializes a new <tt>CallGTalkImpl</tt> instance belonging to
      * <tt>sourceProvider</tt> and associated with the jingle session with the
@@ -157,14 +164,44 @@ public class CallGTalkImpl
         // create the session-initiate IQ
         CallPeerGTalkImpl callPeer = new CallPeerGTalkImpl(calleeJID, this);
 
+        if(!firstCallPeerIsGV)
+            firstCallPeerIsGV = calleeJID.endsWith(
+                ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN);
+        
         addCallPeer(callPeer);
 
         callPeer.setState(CallPeerState.INITIATING_CALL);
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
-        if(getCallPeerCount() == 1)
+        if(getCallPeerCount() == 1 && !calleeJID.endsWith(
+            ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN) ||
+            getCallPeerCount() == 2 && firstCallPeerIsGV)
+        {
+            if(firstCallPeerIsGV)
+            {
+                // now all is setup, considered that there is no GV call
+                firstCallPeerIsGV = false;
+                Iterator<CallPeerGTalkImpl> it =
+                    getCallPeersVector().iterator();
+                String sub = calleeJID.substring(0, calleeJID.indexOf("/"));
+                
+                // remove Google Voice first call from CallPeer vector otherwise
+                // we will display a conference call window
+                while(it.hasNext())
+                {
+                    CallPeer p = it.next();
+                    
+                    if(p.getAddress().equals(sub))
+                    {
+                        it.remove();
+                        break;
+                    }   
+                }
+            }
+            
             parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
+        }
 
         CallPeerMediaHandlerGTalkImpl mediaHandler
             = callPeer.getMediaHandler();
