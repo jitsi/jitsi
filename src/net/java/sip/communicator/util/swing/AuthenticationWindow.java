@@ -95,6 +95,26 @@ public class AuthenticationWindow
     private boolean buttonClicked = false;
 
     /**
+     * Used to override default Authentication window title.
+     */
+    private String windowTitle = null;
+
+    /**
+     * Used to override default window text.
+     */
+    private String windowText = null;
+
+    /**
+     * Used to override username label text.
+     */
+    private String usernameLabelText = null;
+
+    /**
+     * Used to override password label text.
+     */
+    private String passwordLabelText = null;
+
+    /**
      * Creates an instance of the <tt>LoginWindow</tt>.
      *
      * @param server the server name
@@ -105,7 +125,34 @@ public class AuthenticationWindow
                                 boolean isUserNameEditable,
                                 ImageIcon icon)
     {
+        this(server, isUserNameEditable, icon, null, null, null, null);
+    }
+    
+    /**
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     *
+     * @param server the server name
+     * @param isUserNameEditable indicates if the user name is editable
+     * @param icon the icon to display on the left of the authentication window
+     * @param windowTitle customized window title
+     * @param windowText customized window text
+     * @param usernameLabelText customized username field label text
+     * @param passwordLabelText customized password field label text
+     */
+    public AuthenticationWindow(String server,
+                                boolean isUserNameEditable,
+                                ImageIcon icon,
+                                String windowTitle,
+                                String windowText,
+                                String usernameLabelText,
+                                String passwordLabelText)
+    {
         super(false);
+
+        this.windowTitle = windowTitle;
+        this.windowText = windowText;
+        this.usernameLabelText = usernameLabelText;
+        this.passwordLabelText = passwordLabelText;
 
         init(server, isUserNameEditable, icon);
     }
@@ -373,8 +420,37 @@ public class AuthenticationWindow
      */
     private void init()
     {
-        setTitle(UtilActivator.getResources().getI18NString(
-            "service.gui.AUTHENTICATION_WINDOW_TITLE", new String[]{server}));
+        String title;
+
+        if(windowTitle != null)
+            title = windowTitle;
+        else
+            title = UtilActivator.getResources().getI18NString(
+                "service.gui.AUTHENTICATION_WINDOW_TITLE", new String[]{server});
+
+        String text;
+        if(windowText != null)
+            text = windowText;
+        else
+            text = UtilActivator.getResources().getI18NString(
+                        "service.gui.AUTHENTICATION_REQUESTED_SERVER",
+                        new String[]{server});
+
+        String uinText;
+        if(usernameLabelText != null)
+            uinText = usernameLabelText;
+        else
+            uinText = UtilActivator.getResources().getI18NString(
+                            "service.gui.IDENTIFIER");
+
+        String passText;
+        if(passwordLabelText != null)
+            passText = passwordLabelText;
+        else
+            passText = UtilActivator.getResources().getI18NString(
+                            "service.gui.PASSWORD");
+
+        setTitle(title);
 
         infoTextArea.setEditable(false);
         infoTextArea.setOpaque(false);
@@ -382,20 +458,13 @@ public class AuthenticationWindow
         infoTextArea.setWrapStyleWord(true);
         infoTextArea.setFont(
             infoTextArea.getFont().deriveFont(Font.BOLD));
-        infoTextArea.setText(
-            UtilActivator.getResources().getI18NString(
-                "service.gui.AUTHENTICATION_REQUESTED_SERVER",
-                new String[]{server}));
+        infoTextArea.setText(text);
         infoTextArea.setAlignmentX(0.5f);
 
-        JLabel uinLabel
-            = new JLabel(UtilActivator.getResources().getI18NString(
-                        "service.gui.IDENTIFIER"));
+        JLabel uinLabel = new JLabel(uinText);
         uinLabel.setFont(uinLabel.getFont().deriveFont(Font.BOLD));
 
-        JLabel passwdLabel
-            = new JLabel(UtilActivator.getResources().getI18NString(
-                        "service.gui.PASSWORD"));
+        JLabel passwdLabel = new JLabel(passText);
         passwdLabel.setFont(passwdLabel.getFont().deriveFont(Font.BOLD));
 
         TransparentPanel labelsPanel
