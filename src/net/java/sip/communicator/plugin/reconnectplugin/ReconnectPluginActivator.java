@@ -413,8 +413,6 @@ public class ReconnectPluginActivator
      */
     public synchronized void configurationChanged(ChangeEvent event)
     {
-        String ifaceName = (String)event.getSource();
-
         if(event.getType() == ChangeEvent.IFACE_UP)
         {
             // no connection so one is up, lets connect
@@ -438,10 +436,12 @@ public class ReconnectPluginActivator
                 needsReconnection.clear();
             }
 
-            connectedInterfaces.add(ifaceName);
+            connectedInterfaces.add((String)event.getSource());
         }
         else if(event.getType() == ChangeEvent.IFACE_DOWN)
         {
+            String ifaceName = (String)event.getSource();
+
             connectedInterfaces.remove(ifaceName);
 
             // one is down and at least one more is connected

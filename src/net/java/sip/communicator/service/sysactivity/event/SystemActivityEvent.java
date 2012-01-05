@@ -108,4 +108,13 @@ public class SystemActivityEvent
     {
         return this.eventID;
     }
+
+    /**
+     * Returns a String representation of this SystemActivityEvent object.
+     *
+     * @return  A a String representation of this SystemActivityEvent object.
+     */
+    public String toString() {
+        return getClass().getName() + "[eventID=" + eventID + "]";
+    }
 }
