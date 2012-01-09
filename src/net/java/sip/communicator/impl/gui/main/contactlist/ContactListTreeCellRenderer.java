@@ -385,7 +385,7 @@ public class ContactListTreeCellRenderer
 
             this.nameLabel.setText(displayName);
 
-            if(contactList.isContactActive(contact))
+            if(statusIcon != null && contactList.isContactActive(contact))
                 statusIcon.setImage(msgReceivedImage);
             else
                 statusIcon = contact.getStatusIcon();
