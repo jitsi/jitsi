@@ -201,9 +201,31 @@ public class ContactListTransferHandler
 
                         if (transferredContact != destContact)
                         {
-                            MetaContactListManager.moveMetaContactToMetaContact(
-                                (MetaContact) transferredContact.getDescriptor(),
-                                (MetaContact) destContact.getDescriptor());
+                            String mergeEnabledStr =
+                                GuiActivator.getResources().getSettingsString(
+                                    "impl.gui.dnd.MERGE_ENABLED");
+
+                            // by default merging contacts is enabled
+                            if(mergeEnabledStr != null
+                                && !Boolean.parseBoolean(mergeEnabledStr))
+                            {
+                                UIGroup destGroup =
+                                    destContact.getParentGroup();
+
+                                if (destGroup == null
+                                    || !(destGroup instanceof MetaUIGroup))
+                                    return false;
+
+                                MetaContactListManager.moveMetaContactToGroup(
+                                    (MetaContact) transferredContact.getDescriptor(),
+                                    (MetaContactGroup) destGroup.getDescriptor());
+                            }
+                            else
+                            {
+                                MetaContactListManager.moveMetaContactToMetaContact(
+                                    (MetaContact) transferredContact.getDescriptor(),
+                                    (MetaContact) destContact.getDescriptor());
+                            }
                         }
                         return true;
                     }
