@@ -214,8 +214,23 @@ public class CallGTalkImpl
         //STUN/TURN addresses in initiateSession() which would take a while.
         callPeer.setState(CallPeerState.CONNECTING);
 
-        callPeer.initiateSession(sessionInitiateExtensions);
+        // if initializing session fails, set peer to failed
+        boolean sessionInitiated = false;
+        try
+        {
 
-        return callPeer;
+            callPeer.initiateSession(sessionInitiateExtensions);
+            sessionInitiated = true;
+
+            return callPeer;
+        }
+        finally
+        {
+            // if initialization throws an exception
+            if(!sessionInitiated)
+            {
+                callPeer.setState(CallPeerState.FAILED);
+            }
+        }
     }
 }
