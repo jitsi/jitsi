@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -183,6 +184,9 @@ public class ChatRoomTableDialog
         okButton.addActionListener(this);
         cancelButton.addActionListener(this);
 
+        addButton.setEnabled(false);
+        removeButton.setEnabled(false);
+
         westButtonPanel.add(addButton);
         westButtonPanel.add(removeButton);
         eastButtonPanel.add(cancelButton);
@@ -213,9 +217,15 @@ public class ChatRoomTableDialog
                 chatRoomsTableUI.clearSelection();
 
                 if(editor.getText().trim().length() > 0)
+                {
                     okButton.setEnabled(true);
+                    addButton.setEnabled(true);
+                }
                 else
+                {
                     okButton.setEnabled(false);
+                    addButton.setEnabled(false);
+                }
             }
 
             public void keyPressed(KeyEvent e)
@@ -239,7 +249,10 @@ public class ChatRoomTableDialog
                         editor.setText(room.getChatRoomName());
                         providersCombo.setSelectedItem(room.getParentProvider());
                         okButton.setEnabled(true);
+                        removeButton.setEnabled(true);
                     }
+                    else
+                        removeButton.setEnabled(false);
                 }                
             }
         });
@@ -297,6 +310,9 @@ public class ChatRoomTableDialog
         if(sourceButton.equals(addButton))
         {
             String chatRoomName = editor.getText();
+            
+            if(StringUtils.isNullOrEmpty(chatRoomName))
+                return;
 
             ChatRoomWrapper chatRoomWrapper =
                 GuiActivator

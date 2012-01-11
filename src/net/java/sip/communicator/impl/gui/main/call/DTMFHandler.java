@@ -192,7 +192,8 @@ public class DTMFHandler
     {
         this.callContainer = callContainer;
 
-        this.addParent(callContainer.getCallWindow().getFrame());
+        if(callContainer != null)
+            this.addParent(callContainer.getCallWindow().getFrame());
 
         KeyboardFocusManager keyManager
             = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -201,14 +202,10 @@ public class DTMFHandler
 
     /**
      * Creates DTMF handler for a call.
-     * @param callContainer the <tt>CallContainer</tt>, where this handler is
-     * registered
      */
     public DTMFHandler()
     {
-        KeyboardFocusManager keyManager
-            = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        keyManager.addKeyEventDispatcher(this);
+        this(null);
     }
 
     /**
@@ -307,7 +304,8 @@ public class DTMFHandler
                 audioNotifier.createAudio(info.sound);
 
             // some little silence, must have a non-zero or it won't loop
-            currentlyPlayingAudio.playInLoop(10);
+            if(currentlyPlayingAudio != null)
+                currentlyPlayingAudio.playInLoop(10);
         }
 
         if (callContainer != null)

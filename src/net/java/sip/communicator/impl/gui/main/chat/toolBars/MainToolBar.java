@@ -315,32 +315,35 @@ public class MainToolBar
             
             boolean hasPhone = false;
             
-            Iterator<Contact> contacts = contact.getContacts();
-            while(contacts.hasNext())
+            if(contact != null)
             {
-                Contact c = contacts.next();
-                OperationSetServerStoredContactInfo infoOpSet =
-                    c.getProtocolProvider().getOperationSet(
-                        OperationSetServerStoredContactInfo.class);
-                Iterator<GenericDetail> details = null;
-    
-                if(infoOpSet != null)
+                Iterator<Contact> contacts = contact.getContacts();
+                while(contacts.hasNext())
                 {
-                    details = infoOpSet.getAllDetailsForContact(c);
-    
-                    while(details.hasNext())
+                    Contact c = contacts.next();
+                    OperationSetServerStoredContactInfo infoOpSet =
+                        c.getProtocolProvider().getOperationSet(
+                            OperationSetServerStoredContactInfo.class);
+                    Iterator<GenericDetail> details = null;
+
+                    if(infoOpSet != null)
                     {
-                        GenericDetail d = details.next();
-                        if(d instanceof PhoneNumberDetail && 
-                            !(d instanceof PagerDetail) && 
-                            !(d instanceof FaxDetail))
+                        details = infoOpSet.getAllDetailsForContact(c);
+
+                        while(details.hasNext())
                         {
-                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                            if(pnd.getNumber() != null &&
-                                pnd.getNumber().length() > 0)
+                            GenericDetail d = details.next();
+                            if(d instanceof PhoneNumberDetail &&
+                                !(d instanceof PagerDetail) &&
+                                !(d instanceof FaxDetail))
                             {
-                                hasPhone = true;
-                                break;
+                                PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                                if(pnd.getNumber() != null &&
+                                    pnd.getNumber().length() > 0)
+                                {
+                                    hasPhone = true;
+                                    break;
+                                }
                             }
                         }
                     }
