@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -64,6 +65,11 @@ public class CallPanel
      * The conference button name.
      */
     private static final String CONFERENCE_BUTTON = "CONFERENCE_BUTTON";
+
+    /**
+     * The chat button name.
+     */
+    private static final String CHAT_BUTTON = "CHAT_BUTTON";
 
     /**
      * The hang up button name.
@@ -146,6 +152,11 @@ public class CallPanel
     private SIPCommButton conferenceButton = new SIPCommButton(
         ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
         ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+
+    /**
+     * Chat button.
+     */
+    private SIPCommButton chatButton;
 
     /**
      * HangUp button.
@@ -307,6 +318,14 @@ public class CallPanel
         transferCallButton = new TransferCallButton(call);
         fullScreenButton = new FullScreenButton(this);
 
+        chatButton = new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+                ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE));
+        chatButton.setName(CHAT_BUTTON);
+        chatButton.setToolTipText(
+            GuiActivator.getResources().getI18NString("service.gui.CHAT"));
+        chatButton.addActionListener(this);
+
         localLevel = new InputVolumeControlButton(
             call,
             ImageLoader.MICROPHONE,
@@ -367,6 +386,18 @@ public class CallPanel
             addConferenceSpecificComponents();
         }
 
+        //chatButton.setEnabled(false);
+        //Collection<Contact> collectionIMCapableContacts =
+        //    getIMCapableCallPeers();
+        // Enables the button only if there is 1 and only 1 peer which is
+        // basicIM capable.
+        //if(collectionIMCapableContacts.size() == 1)
+        if(getIMCapableCallPeers().size() == 1)
+        {
+            settingsPanel.add(chatButton);
+            //chatButton.setEnabled(true);
+        }
+
         dtmfHandler = new DTMFHandler(this);
 
         JComponent bottomBar = createBottomBar();
@@ -423,6 +454,22 @@ public class CallPanel
                 = new ConferenceInviteDialog(call);
 
             inviteDialog.setVisible(true);
+        }
+        else if (buttonName.equals(CHAT_BUTTON))
+        {
+            Collection<Contact> collectionIMCapableContacts =
+                getIMCapableCallPeers();
+            // If a single peer is basic instant messaging capable, then we
+            // create a chat with this account.
+            if(collectionIMCapableContacts.size() == 1)
+            {
+                Contact contact = collectionIMCapableContacts.iterator().next();
+                MetaContact metaContact =
+                    GuiActivator.getContactListService()
+                    .findMetaContactByContact(contact);
+                GuiActivator.getUIService().getChatWindowManager()
+                    .startChat(metaContact);
+            }
         }
     }
 
@@ -1431,5 +1478,43 @@ public class CallPanel
         {
             listeners.next().callTitleChanged(this);
         }
+    }
+
+    /**
+     * Returns the list of call peers which are capable to manage basic instant
+     * messaging operations.
+     *
+     * @return The collection of contacts for this call which are IM capable.
+     */
+    private Collection<Contact> getIMCapableCallPeers()
+    {
+            Vector<Contact> contactVector = new Vector<Contact>(
+                    call.getCallPeerCount());
+            Iterator<? extends CallPeer> callPeers = call.getCallPeers();
+            CallPeer callPeer;
+            Contact contact;
+            // Checks if the protocol provider of this call supports basic
+            // instant messaging.
+            if(call.getProtocolProvider().getOperationSet(
+                        OperationSetBasicInstantMessaging.class) != null)
+            {
+                // For each peers of this call, checks if it is basic instant
+                // mesaging capable.
+                while(callPeers.hasNext())
+                {
+                    callPeer = callPeers.next();
+                    contact = callPeer.getContact();
+
+                    // If a peer is basic instant messaging capable, then add
+                    // its account to the list of IM capable peers.
+                    if(callPeer.getProtocolProvider().getOperationSet(
+                            OperationSetBasicInstantMessaging.class) != null &&
+                            contact != null)
+                    {
+                        contactVector.add(contact);
+                    }
+                }
+            }
+            return contactVector;
     }
 }

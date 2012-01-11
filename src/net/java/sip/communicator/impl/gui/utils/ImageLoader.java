@@ -332,6 +332,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CHAT_BUTTON_SMALL");
 
     /**
+     * The chat button small image white on transparent version.
+     */
+    public static final ImageID CHAT_BUTTON_SMALL_WHITE
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_SMALL_WHITE");
+
+    /**
      * The chat call button image.
      */
     public static final ImageID CHAT_CALL
