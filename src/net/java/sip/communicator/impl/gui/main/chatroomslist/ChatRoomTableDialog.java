@@ -168,6 +168,19 @@ public class ChatRoomTableDialog
             }
         });
 
+        // if a room is selected enable buttons
+        roomsCombo.addItemListener(new ItemListener(){
+            public void itemStateChanged(ItemEvent e)
+            {
+                if(e.getStateChange() == ItemEvent.SELECTED
+                    && roomsCombo.getSelectedIndex() != -1)
+                {
+                    okButton.setEnabled(true);
+                    addButton.setEnabled(true);
+                }
+            }
+        });
+
         valuesPanel.add(providersCombo);
         valuesPanel.add(roomsCombo);
 
@@ -213,6 +226,12 @@ public class ChatRoomTableDialog
         editor.addKeyListener(new KeyListener() {
 
             public void keyTyped(KeyEvent e)
+            {}
+
+            public void keyPressed(KeyEvent e)
+            {}
+
+            public void keyReleased(KeyEvent e)
             {
                 chatRoomsTableUI.clearSelection();
 
@@ -227,12 +246,6 @@ public class ChatRoomTableDialog
                     addButton.setEnabled(false);
                 }
             }
-
-            public void keyPressed(KeyEvent e)
-            {}
-
-            public void keyReleased(KeyEvent e)
-            {}
         });
         // when we select a room from the available ones we clear anything
         // typed for the room name and set the room we selected

@@ -610,6 +610,9 @@ public class UIServiceImpl
             = GuiActivator.getContactListService()
                 .findMetaContactByContact(contact);
 
+        if(metaContact == null)
+            return null;
+
         return chatWindowManager.getContactChat(metaContact, true);
     }
 

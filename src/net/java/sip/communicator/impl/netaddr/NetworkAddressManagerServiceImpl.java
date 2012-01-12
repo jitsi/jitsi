@@ -542,7 +542,7 @@ public class NetworkAddressManagerServiceImpl
       *
       * @param listener the listener.
       */
-     public void addNetworkConfigurationChangeListener(
+     public synchronized void addNetworkConfigurationChangeListener(
          NetworkConfigurationChangeListener listener)
      {
          if(networkConfigurationWatcher == null)
@@ -557,7 +557,7 @@ public class NetworkAddressManagerServiceImpl
       *
       * @param listener the listener.
       */
-     public void removeNetworkConfigurationChangeListener(
+     public synchronized void removeNetworkConfigurationChangeListener(
          NetworkConfigurationChangeListener listener)
      {
         if(networkConfigurationWatcher != null)
