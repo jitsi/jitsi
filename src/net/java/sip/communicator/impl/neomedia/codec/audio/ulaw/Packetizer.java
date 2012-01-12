@@ -6,11 +6,9 @@
  */
 package net.java.sip.communicator.impl.neomedia.codec.audio.ulaw;
 
-import java.io.*;
-import javax.media.*;
-
 /**
- * Overrides the ULaw Packetizer with a different packet size
+ * Overrides the ULaw Packetizer with a different packet size.
+ *
  * @author Thomas Hofer
  */
 public class Packetizer
@@ -21,21 +19,10 @@ public class Packetizer
      */
     public Packetizer()
     {
-        super();
         // RFC 3551 4.5 Audio Encodings default ms/packet is 20
         packetSize = 160;
         setPacketSize(packetSize);
 
-        // Workaround to use our ulaw packetizer
-        PlugInManager.removePlugIn("com.sun.media.codec.audio.ulaw.Packetizer",
-            PlugInManager.CODEC);
-        try
-        {
-            PlugInManager.commit();
-        }
-        catch (IOException e)
-        {
-        }
         PLUGIN_NAME = "ULaw Packetizer";
     }
 }

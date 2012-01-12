@@ -49,13 +49,6 @@ public class EncodingConfiguration
     public static final boolean G729 = false;
 
     /**
-     * The name of the class implementing the Speex resampler which is to
-     * override the default JMF resampler.
-     */
-    private static final String SPEEX_RESAMPLER
-        = "net.java.sip.communicator.impl.neomedia.codec.audio.speex.SpeexResampler";
-
-    /**
      * The additional custom JMF codecs.
      */
     private static final String[] CUSTOM_CODECS =
@@ -74,7 +67,7 @@ public class EncodingConfiguration
                 : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.Packetizer",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIEncoder",
-            SPEEX_RESAMPLER,
+            "net.java.sip.communicator.impl.neomedia.codec.audio.speex.SpeexResampler",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JavaEncoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.mp3.JNIEncoder",
@@ -430,8 +423,10 @@ public class EncodingConfiguration
         @SuppressWarnings("unchecked")
         Collection<String> registeredPlugins
             = new HashSet<String>(
-                    PlugInManager
-                        .getPlugInList(null, null, PlugInManager.CODEC));
+                    PlugInManager.getPlugInList(
+                            null,
+                            null,
+                            PlugInManager.CODEC));
         boolean commit = false;
 
         // Remove JavaRGBToYUV.
@@ -455,16 +450,23 @@ public class EncodingConfiguration
 
         // Remove JMF's GSM codec. As working only on some OS.
         String gsmCodecPackage = "com.ibm.media.codec.audio.gsm.";
-        String[] classes = new String[]
-        {
-            "JavaEncoder", "JavaDecoder", "Packetizer",
-            "NativeDecoder", "NativeDecoder_ms", "JavaDecoder_ms",
-            "NativeEncoder", "NativeEncoder_ms", "JavaEncoder_ms"
-        };
-        for(String cl : classes)
+        String[] gsmCodecClasses
+            = new String[]
+                    {
+                        "JavaDecoder",
+                        "JavaDecoder_ms",
+                        "JavaEncoder",
+                        "JavaEncoder_ms",
+                        "NativeDecoder",
+                        "NativeDecoder_ms",
+                        "NativeEncoder",
+                        "NativeEncoder_ms",
+                        "Packetizer"
+                    };
+        for(String gsmCodecClass : gsmCodecClasses)
         {
             PlugInManager.removePlugIn(
-                gsmCodecPackage + cl,
+                gsmCodecPackage + gsmCodecClass,
                 PlugInManager.CODEC);
         }
 
@@ -489,7 +491,8 @@ public class EncodingConfiguration
             if (registeredPlugins.contains(className))
             {
                 if (logger.isDebugEnabled())
-                    logger.debug("Codec : " + className + " is already registered");
+                    logger.debug(
+                        "Codec " + className + " is already registered");
             }
             else
             {
@@ -535,8 +538,8 @@ public class EncodingConfiguration
         }
 
         /*
-         * Move the Speex resampler at the top of the Codec list so that it gets
-         * picked instead of the JMF resampler.
+         * If Jitsi provides a codec which is also provided by FMJ and/or JMF,
+         * use Jitsi's version.
          */
         @SuppressWarnings("unchecked")
         Vector<String> codecs
@@ -544,14 +547,27 @@ public class EncodingConfiguration
 
         if (codecs != null)
         {
-            int speexResamplerIndex = codecs.indexOf(SPEEX_RESAMPLER);
+            boolean setPlugInList = false;
 
-            if (speexResamplerIndex != -1)
+            for (int i = CUSTOM_CODECS.length - 1; i >= 0; i--)
             {
-                codecs.remove(speexResamplerIndex);
-                codecs.add(0, SPEEX_RESAMPLER);
-                PlugInManager.setPlugInList(codecs, PlugInManager.CODEC);
+                String className = CUSTOM_CODECS[i];
+
+                if (className != null)
+                {
+                    int classNameIndex = codecs.indexOf(className);
+
+                    if (classNameIndex != -1)
+                    {
+                        codecs.remove(classNameIndex);
+                        codecs.add(0, className);
+                        setPlugInList = true;
+                    }
+                }
             }
+
+            if (setPlugInList)
+                PlugInManager.setPlugInList(codecs, PlugInManager.CODEC);
         }
 
         if (commit)

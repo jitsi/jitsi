@@ -9,100 +9,103 @@ package net.java.sip.communicator.impl.neomedia.codec.audio.alaw;
 import javax.media.*;
 import javax.media.format.*;
 
-import com.ibm.media.codec.audio.*;
-
 import net.java.sip.communicator.impl.neomedia.codec.*;
 
 /**
- * Packetizer for ALAW codec
+ * Implements an RTP packetizer for the A-law codec.
+ *
  * @author Damian Minkov
+ * @author Lyubomir Marinov
  */
 public class Packetizer
-    extends AudioPacketizer
+    extends com.ibm.media.codec.audio.AudioPacketizer
 {
     /**
-     * Constructs a new ALAW packetizer.
+     * Initializes a new <tt>Packetizer</tt> instance.
      */
     public Packetizer()
     {
+        defaultOutputFormats
+            = new AudioFormat[]
+                    {
+                        new AudioFormat(
+                                Constants.ALAW_RTP,
+                                Format.NOT_SPECIFIED,
+                                8,
+                                1,
+                                Format.NOT_SPECIFIED,
+                                Format.NOT_SPECIFIED,
+                                8,
+                                Format.NOT_SPECIFIED,
+                                Format.byteArray)
+                    };
         packetSize = 160;
-        supportedInputFormats = new AudioFormat[]
-            {
-            new AudioFormat(
-                AudioFormat.ALAW,
-                Format.NOT_SPECIFIED,
-                8,
-                1,
-                Format.NOT_SPECIFIED,
-                Format.NOT_SPECIFIED,
-                8,
-                Format.NOT_SPECIFIED,
-                Format.byteArray
-            )
-        };
-        defaultOutputFormats = new AudioFormat[]
-            {
-            new AudioFormat(
-                AudioFormat.ALAW,
-                Format.NOT_SPECIFIED,
-                8,
-                1,
-                Format.NOT_SPECIFIED,
-                Format.NOT_SPECIFIED,
-                8,
-                Format.NOT_SPECIFIED,
-                Format.byteArray
-            )
-        };
+        PLUGIN_NAME = "A-law Packetizer";
+        supportedInputFormats
+            = new AudioFormat[]
+                    {
+                        new AudioFormat(
+                                AudioFormat.ALAW,
+                                Format.NOT_SPECIFIED,
+                                8,
+                                1,
+                                Format.NOT_SPECIFIED,
+                                Format.NOT_SPECIFIED,
+                                8,
+                                Format.NOT_SPECIFIED,
+                                Format.byteArray)
+                    };
+    }
 
-        PLUGIN_NAME = "ALaw Packetizer";
-
+    public Object[] getControls()
+    {
+        if (controls == null)
+        {
+            controls
+                = new Control[]
+                        {
+                            new PacketSizeAdapter(this, packetSize, true)
+                        };
+        }
+        return controls;
     }
 
     protected Format[] getMatchingOutputFormats(Format in)
     {
-
         AudioFormat af = (AudioFormat) in;
+        double sampleRate = af.getSampleRate();
 
-        supportedOutputFormats = new AudioFormat[]
-            {
-            new AudioFormat(
-                Constants.ALAW_RTP,
-                af.getSampleRate(),
-                8,
-                1,
-                Format.NOT_SPECIFIED,
-                Format.NOT_SPECIFIED,
-                8,
-                Format.NOT_SPECIFIED,
-                Format.byteArray
-            )
-        };
+        supportedOutputFormats
+            = new AudioFormat[]
+                    {
+                        new AudioFormat(
+                                Constants.ALAW_RTP,
+                                sampleRate,
+                                8,
+                                1,
+                                Format.NOT_SPECIFIED,
+                                Format.NOT_SPECIFIED,
+                                8,
+                                sampleRate,
+                                Format.byteArray)
+                    };
         return supportedOutputFormats;
     }
 
-    public void open() throws ResourceUnavailableException
+    public void open()
+        throws ResourceUnavailableException
     {
         setPacketSize(packetSize);
         reset();
     }
 
-    public java.lang.Object[] getControls()
-    {
-        if (controls == null)
-        {
-            controls = new Control[1];
-            controls[0] = new PacketSizeAdapter(this, packetSize, true);
-        }
-        return controls;
-    }
-
     /**
-     * Set packet size.
+     * Sets the packet size to be used by this <tt>Packetizer</tt>.
      *
-     * @param newPacketSize new packet size for this <tt>Packetizer</tt>
+     * @param newPacketSize the new packet size to be used by this
+     * <tt>Packetizer</tt>
      */
-    public synchronized void setPacketSize(int newPacketSize)
+    private synchronized void setPacketSize(int newPacketSize)
     {
         packetSize = newPacketSize;
 
@@ -111,40 +114,37 @@ public class Packetizer
         if (history == null)
         {
             history = new byte[packetSize];
-            return;
         }
-
-        if (packetSize > history.length)
+        else if (packetSize > history.length)
         {
             byte[] newHistory = new byte[packetSize];
+
             System.arraycopy(history, 0, newHistory, 0, historyLength);
             history = newHistory;
         }
     }
 
-}
-
-class PacketSizeAdapter
-    extends com.sun.media.controls.PacketSizeAdapter
-{
-    public PacketSizeAdapter(Codec newOwner, int newPacketSize,
-                             boolean newIsSetable)
+    private static class PacketSizeAdapter
+        extends com.sun.media.controls.PacketSizeAdapter
     {
-        super(newOwner, newPacketSize, newIsSetable);
-    }
+        public PacketSizeAdapter(Codec owner, int packetSize, boolean settable)
+        {
+            super(owner, packetSize, settable);
+        }
 
-    public int setPacketSize(int numBytes)
-    {
-        int numOfPackets = numBytes;
+        @Override
+        public int setPacketSize(int numBytes)
+        {
+            if (numBytes < 10)
+                numBytes = 10;
+            if (numBytes > 8000)
+                numBytes = 8000;
 
-        if (numOfPackets < 10)
-            numOfPackets = 10;
-        if (numOfPackets > 8000)
-            numOfPackets = 8000;
-        packetSize = numOfPackets;
+            packetSize = numBytes;
 
-        ((Packetizer)owner).setPacketSize(packetSize);
+            ((Packetizer)owner).setPacketSize(packetSize);
 
-        return packetSize;
+            return packetSize;
+        }
     }
 }
