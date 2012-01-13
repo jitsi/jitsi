@@ -142,61 +142,67 @@ public class NetworkEventDispatcher
      */
     public void run()
     {
-        stopped = false;
-
-        while(!stopped)
+        try
         {
-            Map.Entry<ChangeEvent, Integer> eventToProcess = null;
-            List<NetworkConfigurationChangeListener> listenersCopy = null;
+            stopped = false;
 
-            synchronized(eventsToDispatch)
+            while(!stopped)
             {
-                if(eventsToDispatch.size() == 0)
+                Map.Entry<ChangeEvent, Integer> eventToProcess = null;
+                List<NetworkConfigurationChangeListener> listenersCopy;
+
+                synchronized(eventsToDispatch)
                 {
-                    try {
-                        eventsToDispatch.wait();
-                    }
-                    catch (InterruptedException iex){}
-                }
-
-                //no point in dispatching if there's no one
-                //listening
-                if (listeners.size() == 0)
-                    continue;
-
-                //store the ref of the listener in case someone resets
-                //it before we've had a chance to notify it.
-                listenersCopy = new ArrayList
-                        <NetworkConfigurationChangeListener>(listeners);
-
-                Iterator<Map.Entry<ChangeEvent, Integer>> iter =
-                        eventsToDispatch.entrySet().iterator();
-                if(iter.hasNext())
-                {
-                    eventToProcess = iter.next();
-                    iter.remove();
-                }
-            }
-
-            if(eventToProcess != null && listenersCopy != null)
-            {
-                if(eventToProcess.getValue() > 0)
-                    synchronized(this)
+                    if(eventsToDispatch.size() == 0)
                     {
-                        try{
-                            wait(eventToProcess.getValue());
-                        }catch(Throwable t){}
+                        try {
+                            eventsToDispatch.wait();
+                        }
+                        catch (InterruptedException iex){}
                     }
 
-                for (int i = 0; i < listenersCopy.size(); i++)
-                {
-                    fireChangeEvent(eventToProcess.getKey(),
-                                    listenersCopy.get(i));
-                }
-            }
+                    //no point in dispatching if there's no one
+                    //listening
+                    if (listeners.size() == 0)
+                        continue;
 
-            eventToProcess = null;
-            listenersCopy = null;
+                    //store the ref of the listener in case someone resets
+                    //it before we've had a chance to notify it.
+                    listenersCopy = new ArrayList
+                            <NetworkConfigurationChangeListener>(listeners);
+
+                    Iterator<Map.Entry<ChangeEvent, Integer>> iter =
+                            eventsToDispatch.entrySet().iterator();
+                    if(iter.hasNext())
+                    {
+                        eventToProcess = iter.next();
+                        iter.remove();
+                    }
+                }
+
+                if(eventToProcess != null && listenersCopy != null)
+                {
+                    if(eventToProcess.getValue() > 0)
+                        synchronized(this)
+                        {
+                            try{
+                                wait(eventToProcess.getValue());
+                            }catch(Throwable t){}
+                        }
+
+                    for (int i = 0; i < listenersCopy.size(); i++)
+                    {
+                        fireChangeEvent(eventToProcess.getKey(),
+                                        listenersCopy.get(i));
+                    }
+                }
+
+                eventToProcess = null;
+                listenersCopy = null;
+            }
+        } catch(Throwable t)
+        {
+            logger.error("Error dispatching thread ended unexpectedly", t);
         }
     }
 

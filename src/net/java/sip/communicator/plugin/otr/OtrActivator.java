@@ -22,6 +22,12 @@ public class OtrActivator
     implements BundleActivator, ServiceListener
 {
     /**
+     * A property used in configuration to disable the otr plugin.
+     */
+    public static final String OTR_DISABLED_PROP =
+        "net.java.sip.communicator.plugin.otr.DISABLED";
+
+    /**
      * The {@link BundleContext} of the {@link OtrActivator}.
      */
     public static BundleContext bundleContext;
@@ -68,16 +74,6 @@ public class OtrActivator
     {
         bundleContext = bc;
 
-        // Init static variables, don't proceed without them.
-        scOtrEngine = new ScOtrEngineImpl();
-        otrTransformLayer = new OtrTransformLayer();
-
-        resourceService =
-            ResourceManagementServiceUtils
-                .getService(OtrActivator.bundleContext);
-        if (resourceService == null)
-            return;
-
         ServiceReference refConfigService =
             OtrActivator.bundleContext
                 .getServiceReference(ConfigurationService.class.getName());
@@ -88,6 +84,20 @@ public class OtrActivator
         configService =
             (ConfigurationService) OtrActivator.bundleContext
                 .getService(refConfigService);
+
+        // check whether someone has disabled this plugin
+        if(configService.getBoolean(OTR_DISABLED_PROP, false))
+            return;
+
+        // Init static variables, don't proceed without them.
+        scOtrEngine = new ScOtrEngineImpl();
+        otrTransformLayer = new OtrTransformLayer();
+
+        resourceService =
+            ResourceManagementServiceUtils
+                .getService(OtrActivator.bundleContext);
+        if (resourceService == null)
+            return;
 
         ServiceReference refUIService =
             OtrActivator.bundleContext.getServiceReference(UIService.class
