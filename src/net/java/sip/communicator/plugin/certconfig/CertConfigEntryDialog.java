@@ -77,7 +77,8 @@ public class CertConfigEntryDialog
                 chkSavePassword.setSelected(entry.isSavePassword());
                 cboKeyStoreTypes.setEnabled(true);
                 cboKeyStoreTypes.setSelectedItem(entry.getKeyStoreType());
-                keyStore = loadKeyStore();
+                if(keyStore == null)
+                    keyStore = loadKeyStore();
                 cboAlias.setEnabled(true);
                 loadAliases();
                 cboAlias.setSelectedItem(entry.getAlias());
