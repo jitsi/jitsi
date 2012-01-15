@@ -696,10 +696,12 @@ public abstract class MediaAwareCallPeer
         // If this event has been triggered because of a call end event and the
         // call is already ended we don't need to alert the user for
         // security off.
-        Call call = getCall();
-
         if((call != null) && !call.getCallState().equals(CallState.CALL_ENDED))
-            fireCallPeerSecurityOffEvent(sessionType);
+        {
+            CallPeerSecurityOffEvent event
+                = new CallPeerSecurityOffEvent( this, sessionType);
+            fireCallPeerSecurityOffEvent(event);
+        }
     }
 
     /**

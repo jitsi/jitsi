@@ -280,8 +280,6 @@ public abstract class AbstractCallPeer<T extends Call,
      * source, setting it to be of type <tt>eventType</tt> and the corresponding
      * <tt>oldValue</tt> and <tt>newValue</tt>.
      *
-     * @param sessionType the type of the session - audio or video
-     * @param cipher the cipher associated with the event.
      * @param evt the event object with details to pass on to the consumers
      */
     protected void fireCallPeerSecurityOnEvent(CallPeerSecurityOnEvent evt)
@@ -311,33 +309,28 @@ public abstract class AbstractCallPeer<T extends Call,
      * source, setting it to be of type <tt>eventType</tt> and the corresponding
      * <tt>oldValue</tt> and <tt>newValue</tt>.
      *
-     * @param sessionType the type of the session - audio or video
+     * @param evt the event object with details to pass on to the consumers
      */
-    protected void fireCallPeerSecurityOffEvent(int sessionType)
+    protected void fireCallPeerSecurityOffEvent(CallPeerSecurityOffEvent evt)
     {
-        CallPeerSecurityOffEvent event
-            = new CallPeerSecurityOffEvent( this, sessionType);
-
-        lastSecurityEvent = event;
+        lastSecurityEvent = evt;
 
         if (logger.isDebugEnabled())
             logger.debug(
             "Dispatching a CallPeerSecurityAuthenticationEvent event to "
                      + callPeerSecurityListeners.size()
-                     +" listeners. event is: " + event.toString());
+                     +" listeners. event is: " + evt.toString());
 
-        Iterator<CallPeerSecurityListener> listeners = null;
+        List<CallPeerSecurityListener> listeners = null;
         synchronized (callPeerSecurityListeners)
         {
             listeners = new ArrayList<CallPeerSecurityListener>(
-                                callPeerSecurityListeners).iterator();
+                                callPeerSecurityListeners);
         }
 
-        while (listeners.hasNext())
+        for(CallPeerSecurityListener listener : listeners)
         {
-            CallPeerSecurityListener listener = listeners.next();
-
-            listener.securityOff(event);
+            listener.securityOff(evt);
         }
     }
 
