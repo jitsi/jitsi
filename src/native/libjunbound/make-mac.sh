@@ -1,11 +1,17 @@
 #!/bin/bash
+#-------------
+#Note: To compile the PPC support, you must have XCode 3.x installed!
+#      Remove the "-arch ppc" arguments to build only for 32/64 bit
+#-------------
+
 set -e
 
 out=`pwd`/build/mac
 prefix=$out/libs
 
 mkdir -p $out
-mkdir -p $prefix
+mkdir -p $prefix/lib
+mkdir -p $prefix/include
 
 cd $out
 
@@ -13,9 +19,9 @@ expat=expat-2.0.1
 ldns=ldns-1.6.11
 unbound=unbound-1.4.14
 
-wget -nc http://downloads.sourceforge.net/project/expat/expat/2.0.1/$expat.tar.gz
-wget -nc http://nlnetlabs.nl/downloads/ldns/$ldns.tar.gz
-wget -nc http://unbound.net/downloads/$unbound.tar.gz
+curl -L http://downloads.sourceforge.net/project/expat/expat/2.0.1/expat-2.0.1.tar.gz -o $expat.tar.gz
+curl -L http://nlnetlabs.nl/downloads/ldns/$ldns.tar.gz -o $ldns.tar.gz
+curl -L http://unbound.net/downloads/$unbound.tar.gz -o $unbound.tar.gz
 
 tar -xzvf $expat.tar.gz
 tar -xzvf $ldns.tar.gz
@@ -25,33 +31,31 @@ mv $expat expat
 mv $ldns ldns
 mv $unbound unbound
 
+export MACOSX_DEPLOYMENT_TARGET=10.5
+export CC="/usr/bin/gcc -arch i386 -arch x86_64 -arch ppc -mmacosx-version-min=10.5"
+export CPP="/usr/bin/gcc -E"
+    
 function build_arch {
-    CC="gcc -mmacosx-version-min=10.5 -arch $1"
     prefixarch="${prefix}_$1"
     mkdir -p $prefixarch
 
     cd $out/$2
-    ./configure --with-pic --prefix=$prefixarch
+
+    ./configure --with-ssl=/usr --disable-gost --with-pic --with-ldns=$prefixarch --with-expat=$prefixarch --prefix=$prefixarch
+
     make clean
     make
     make install
 }
 
 function build_lib {
-    #build each architecture
-    build_arch i386 $1
-    build_arch x86_64 $1
-    build_arch ppc $1
-
-    #Combine the libraries
-    lipo -create ${prefix}_i386/lib/lib$1.a ${prefix}_x86_64/lib/lib$1.a ${prefix}_ppc/lib/lib$1.a -output ${prefix}/lib/lib$1.a
+    build_arch all $1
 }
 
-build_lib expat
-build_lib ldns
-build_lib unbound
+#build_lib expat
+#build_lib ldns
+#build_lib unbound
 
-cp -r ${prefix}_i386/include $prefix/
+cp -r ${prefix}_all/include $prefix/
 cd $out
-g++ -mmacosx-version-min=10.5 -arch x86_64 -arch i386 -arch ppc $out/../../src/net_java_sip_communicator_util_dns_UnboundApi.cpp -fpic -shared -o $out/libjunbound.jnilib -I/System/Library/Frameworks/JavaVM.framework/Version/CurrentJDK/Home/include -I$prefix/include -L$prefix/lib -lunbound -lldns -lcrypto
-
+g++ -mmacosx-version-min=10.4 -arch x86_64 -arch i386 -arch ppc $out/../../src/net_java_sip_communicator_util_dns_UnboundApi.cpp -fpic -shared -o $out/libjunbound.jnilib -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers -I${prefix}_all/include -L${prefix}_all/lib -lunbound -lldns -lcrypto
