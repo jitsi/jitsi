@@ -1250,6 +1250,8 @@ public class MediaServiceImpl
     {
         MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
         CaptureDeviceInfo devInfo = dev.getCaptureDeviceInfo();
+        if(devInfo == null)
+            return null;
         MediaLocator locator = devInfo.getLocator();
 
         if(!ImageStreamingAuto.LOCATOR_PROTOCOL.equals(locator.getProtocol()))

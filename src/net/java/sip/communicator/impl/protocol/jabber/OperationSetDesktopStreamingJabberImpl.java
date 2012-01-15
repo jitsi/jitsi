@@ -167,14 +167,7 @@ public class OperationSetDesktopStreamingJabberImpl
     public void setLocalVideoAllowed(Call call, boolean allowed)
         throws OperationFailedException
     {
-        ((CallJabberImpl)call).setLocalVideoAllowed(allowed,
-                MediaUseCase.DESKTOP);
-        ((CallJabberImpl)call).setVideoDevice(null);
-        MediaDevice device = ((CallJabberImpl)call).getDefaultDevice(
-                MediaType.VIDEO);
-        size = (((VideoMediaFormat)device.getFormat()).getSize());
-        ((CallJabberImpl)call).modifyVideoContent(allowed);
-        origin = getOriginForMediaDevice(device);
+        setLocalVideoAllowed(call, null, allowed);
     }
 
     /**
@@ -186,7 +179,8 @@ public class OperationSetDesktopStreamingJabberImpl
      *
      * @param call the <tt>Call</tt> to allow/disallow the streaming of local
      * video for
-     * @param mediaDevice the media device to use for the desktop streaming
+     * @param mediaDevice the media device to use for the desktop streaming.
+     * If the device is null, the default device is used.
      * @param allowed <tt>true</tt> to allow the streaming of local video for
      * the specified <tt>Call</tt>; <tt>false</tt> to disallow it
      *
@@ -197,10 +191,17 @@ public class OperationSetDesktopStreamingJabberImpl
                                      boolean allowed)
         throws OperationFailedException
     {
+        if(mediaDevice == null)
+            mediaDevice = ((CallJabberImpl)call).getDefaultDevice(
+                MediaType.VIDEO);
+
         ((CallJabberImpl)call).setLocalVideoAllowed(allowed,
                 MediaUseCase.DESKTOP);
         ((CallJabberImpl)call).setVideoDevice(mediaDevice);
-        size = ((VideoMediaFormat)mediaDevice.getFormat()).getSize();
+        if(((VideoMediaFormat)mediaDevice.getFormat()) != null)
+            size = ((VideoMediaFormat)mediaDevice.getFormat()).getSize();
+        else
+            size = null;
         ((CallJabberImpl)call).modifyVideoContent(allowed);
         origin = getOriginForMediaDevice(mediaDevice);
     }
