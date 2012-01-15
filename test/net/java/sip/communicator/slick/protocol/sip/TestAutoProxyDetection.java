@@ -281,6 +281,22 @@ public class TestAutoProxyDetection
         verify(account, nu);
     }
 
+    public void testOneSrvNoA() throws ParseException, DnssecException
+    {
+        expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
+        expect(nu.getSRVRecords("sips", "TCP", DOMAIN)).andReturn(null);
+        expect(nu.getSRVRecords("sip", "TCP", DOMAIN)).andReturn(null);
+        expect(nu.getSRVRecords("sip", "UDP", DOMAIN))
+            .andReturn(new SRVRecord[]{srv1});
+        expect(nu.getAandAAAARecords("proxy1." + DOMAIN, 5060))
+            .andReturn(null);
+
+        replay(nu, srv1);
+
+        assertFalse(apd.getNextAddress());
+        verify(account, nu, srv1);
+    }
+
     public void testOneSrvOneA() throws ParseException, DnssecException
     {
         expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
@@ -347,6 +363,34 @@ public class TestAutoProxyDetection
         assertTrue(apd.getNextAddress());
         assertEquals(a1, apd.getAddress());
         assertEquals("UDP", apd.getTransport());
+
+        assertFalse(apd.getNextAddress());
+        verify(account, nu, srv1, srv2);
+    }
+
+    public void testTwoSameSrvOneA() throws ParseException, DnssecException
+    {
+        expect(nu.getNAPTRRecords(DOMAIN)).andReturn(new String[][]{});
+        expect(nu.getSRVRecords("sips", "TCP", DOMAIN))
+            .andReturn(new SRVRecord[]{srv1, srv2});
+        expect(nu.getSRVRecords("sip", "TCP", DOMAIN)).andReturn(null);
+        expect(nu.getSRVRecords("sip", "UDP", DOMAIN)).andReturn(null);
+        expect(nu.getAandAAAARecords("proxy1." + DOMAIN, 5060))
+            .andReturn(new InetSocketAddress[]{a1});
+        expect(nu.getAandAAAARecords("proxy2." + DOMAIN, 5061))
+            .andReturn(new InetSocketAddress[]{a2});
+
+        replay(nu, srv1, srv2);
+
+        assertTrue(apd.getNextAddress());
+        assertEquals(a1, apd.getAddress());
+        assertEquals("TLS", apd.getTransport());
+        assertEquals(5060, apd.getAddress().getPort());
+
+        assertTrue(apd.getNextAddress());
+        assertEquals(a2, apd.getAddress());
+        assertEquals("TLS", apd.getTransport());
+        assertEquals(5061, apd.getAddress().getPort());
 
         assertFalse(apd.getNextAddress());
         verify(account, nu, srv1, srv2);

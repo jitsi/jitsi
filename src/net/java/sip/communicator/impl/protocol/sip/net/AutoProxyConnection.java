@@ -303,6 +303,11 @@ public class AutoProxyConnection
                 }
                 return false;
             case SrvHosts:
+                if(srvRecordsIndex >= srvRecords.length)
+                {
+                    state = State.Srv;
+                    return getNextAddressFromDns(); //backtrack to next srv record
+                }
                 for(; srvRecordsIndex < srvRecords.length; srvRecordsIndex++)
                 {
                     socketAddresses = nu.getAandAAAARecords(
@@ -319,8 +324,7 @@ public class AutoProxyConnection
                         }
                     }
                 }
-                state = State.Srv;
-                return getNextAddressFromDns(); //backtrack to next srv record
+                return false;
             case SrvHostIPs:
                 if(socketAddressIndex >= socketAddresses.length)
                 {
