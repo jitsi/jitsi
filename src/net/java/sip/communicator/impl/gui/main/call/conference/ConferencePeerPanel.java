@@ -240,9 +240,12 @@ public class ConferencePeerPanel
     public void securityOff(CallPeerSecurityOffEvent evt)
     {
         super.securityOff(evt);
-        if(securityPanel != null)
+        if(securityPanel != null
+            && !securityStatusLabel.isAudioSecurityOn()
+            && !securityStatusLabel.isVideoSecurityOn())
         {
             securityPanel.getParent().remove(securityPanel);
+            securityPanel = null;
         }
     }
 

@@ -128,7 +128,7 @@ public abstract class BasicConferenceParticipantPanel
     /**
      * The security status of the peer
      */
-    private SecurityStatusLabel securityStatusLabel;
+    protected SecurityStatusLabel securityStatusLabel;
 
     /**
      * Indicates if this panel is mentioned for the local participant.

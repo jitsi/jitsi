@@ -707,9 +707,12 @@ public class OneToOneCallPeerPanel
                 break;
         }
 
-        if (securityPanel != null)
+        if (securityPanel != null
+            && !securityStatusLabel.isAudioSecurityOn()
+            && !securityStatusLabel.isVideoSecurityOn())
         {
             securityPanel.getParent().remove(securityPanel);
+            securityPanel = null;
         }
     }
 

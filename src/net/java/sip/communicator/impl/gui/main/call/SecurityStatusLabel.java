@@ -126,6 +126,15 @@ public class SecurityStatusLabel
     }
 
     /**
+     * Gets the audio security status.
+     * @return the audio security status.
+     */
+    public boolean isAudioSecurityOn()
+    {
+        return isAudioSecurityOn;
+    }
+
+    /**
      * Sets the audio security on or off.
      *
      * @param isAudioSecurityOn indicates if the audio security is turned on or
@@ -134,6 +143,15 @@ public class SecurityStatusLabel
     public void setAudioSecurityOn(boolean isAudioSecurityOn)
     {
         this.isAudioSecurityOn = isAudioSecurityOn;
+    }
+
+    /**
+     * Gets the video security status.
+     * @return the video security status.
+     */
+    public boolean isVideoSecurityOn()
+    {
+        return isVideoSecurityOn;
     }
 
     /**
