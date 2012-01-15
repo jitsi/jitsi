@@ -333,11 +333,6 @@ public class ZRTPTransformEngine
     private short senderZrtpSeqNo = 0;
 
     /**
-     * The number of sent packets
-     */
-    private long sendPacketCount = 0;
-
-    /**
      * The timeout provider instance
      * This is used for handling the ZRTP timers
      */
@@ -627,7 +622,6 @@ public class ZRTPTransformEngine
         }
 
         // If SRTP is active then srtpTransformer is set, use it.
-        sendPacketCount++;
         if (srtpOutTransformer == null)
         {
             return pkt;
