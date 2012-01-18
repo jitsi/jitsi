@@ -138,7 +138,7 @@ public class ConnectionPanel
 
         JPanel checkBoxesPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
-        checkBoxesPanel.add(sendKeepAliveBox);
+        //checkBoxesPanel.add(sendKeepAliveBox);
         checkBoxesPanel.add(gmailNotificationsBox);
         checkBoxesPanel.add(googleContactsBox);
         checkBoxesPanel.add(allowNonSecureBox);

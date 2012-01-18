@@ -294,8 +294,8 @@ public class JabberAccountRegistrationWizard
             accountProperties.put(ProtocolProviderFactory.PASSWORD, passwd);
         }
 
-        accountProperties.put("SEND_KEEP_ALIVE",
-                              String.valueOf(registration.isSendKeepAlive()));
+        //accountProperties.put("SEND_KEEP_ALIVE",
+        //                      String.valueOf(registration.isSendKeepAlive()));
 
         accountProperties.put("GMAIL_NOTIFICATIONS_ENABLED",
                     String.valueOf(registration.isGmailNotificationEnabled()));

@@ -380,7 +380,7 @@ public class ClientCapabilities
             {
                 String keepAliveMethod =
                     provider.getAccountID().getAccountPropertyString(
-                        ProtocolProviderServiceSipImpl.KEEP_ALIVE_METHOD);
+                        ProtocolProviderFactory.KEEP_ALIVE_METHOD);
 
                 if (logger.isTraceEnabled())
                     logger.trace("Keep alive method " + keepAliveMethod);
@@ -392,7 +392,7 @@ public class ClientCapabilities
 
                 int keepAliveInterval =
                     provider.getAccountID().getAccountPropertyInt(
-                        ProtocolProviderServiceSipImpl.KEEP_ALIVE_INTERVAL, -1);
+                        ProtocolProviderFactory.KEEP_ALIVE_INTERVAL, -1);
 
                 if (logger.isTraceEnabled())
                     logger.trace("Keep alive inerval is " + keepAliveInterval);

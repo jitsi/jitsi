@@ -834,20 +834,27 @@ public class OperationSetPersistentPresenceJabberImpl
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
-            if(evt.getNewState() == RegistrationState.REGISTERED)
+            if(evt.getNewState() == RegistrationState.REGISTERING)
             {
-                contactChangesListener = new ContactChangesListener();
-                parentProvider.getConnection().getRoster()
-                    .addRosterListener(contactChangesListener);
-
+                // we will add listener for RosterPackets
+                // as this will indicate when one is received
+                // and we are ready to dispatch the contact list
+                // note that our listener will be added just before the
+                // one used in the Roster itself, but later we
+                // will wait for it to be ready
+                // (inside method XMPPConnection.getRoaster())
+                parentProvider.getConnection().addPacketListener(
+                    new ServerStoredListInit(),
+                    new PacketTypeFilter(RosterPacket.class)
+                );
+            }
+            else if(evt.getNewState() == RegistrationState.REGISTERED)
+            {
                 fireProviderStatusChangeEvent(
                     currentStatus,
                     parentProvider
                         .getJabberStatusEnum()
                             .getStatus(JabberStatusEnum.AVAILABLE));
-
-                // init ssList
-                ssContactList.init();
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
@@ -1201,5 +1208,54 @@ public class OperationSetPersistentPresenceJabberImpl
     public void setResourcePriority(int resourcePriority)
     {
         this.resourcePriority = resourcePriority;
+    }
+
+    /**
+     * Runnable that resolves our list against the server side roster.
+     * This thread is the one which will call getRoaster for the first time.
+     * And if roaster is currently processing will wait for it (the wait
+     * is internal into XMPPConnection.getRoaster method).
+     */
+    private class ServerStoredListInit
+        implements Runnable,
+                   PacketListener
+    {
+        public void run()
+        {
+            // init ssList
+            ssContactList.init();
+
+            contactChangesListener = new ContactChangesListener();
+            Roster roster =
+                parentProvider.getConnection().getRoster();
+            roster.addRosterListener(contactChangesListener);
+
+            // as we have dispatched the contact list and Roaster is ready
+            // lets start the jingle nodes discovery
+            parentProvider.startJingleNodesDiscovery();
+
+            // we've done processing lets remove us from the packet
+            // listener
+            parentProvider.getConnection()
+                .removePacketListener(this);
+
+        }
+
+        /**
+         * When roaster packet with no error is received we are ready to
+         * to dispatch the contact list, doing it in different thread
+         * to avoid blocking xmpp packet receiving.
+         * @param packet the roaster packet
+         */
+        public void processPacket(Packet packet)
+        {
+            // don't process packets that are errors
+            if(packet.getError() != null)
+            {
+                return;
+            }
+
+            new Thread(this, getClass().getName()).start();
+        }
     }
 }

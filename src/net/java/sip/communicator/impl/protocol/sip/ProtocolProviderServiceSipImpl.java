@@ -122,16 +122,6 @@ public class ProtocolProviderServiceSipImpl
     private static final int  MAX_FORWARDS = 70;
 
     /**
-     * Keep-alive method can be - register,options or udp
-     */
-    public static final String KEEP_ALIVE_METHOD = "KEEP_ALIVE_METHOD";
-
-    /**
-     * The interval for keep-alive
-     */
-    public static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
-
-    /**
      * The default maxForwards header that we use in our requests.
      */
     private MaxForwardsHeader maxForwardsHeader = null;

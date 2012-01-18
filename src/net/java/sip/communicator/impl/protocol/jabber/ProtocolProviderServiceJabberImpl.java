@@ -1138,9 +1138,6 @@ public class ProtocolProviderServiceJabberImpl
 
         if(connection.isAuthenticated())
         {
-            connection.getRoster().
-                setSubscriptionMode(Roster.SubscriptionMode.manual);
-
             fireRegistrationStateChanged(
                 getRegistrationState(),
                 RegistrationState.REGISTERED,
@@ -1164,8 +1161,6 @@ public class ProtocolProviderServiceJabberImpl
             {
                 logger.error("Failed to publish presence status");
             }
-
-            startJingleNodesDiscovery();
 
             return ConnectState.STOP_TRYING;
         }
@@ -1360,7 +1355,8 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add("http://jabber.org/protocol/disco#info");
 
             String keepAliveStrValue
-                = accountID.getAccountPropertyString("SEND_KEEP_ALIVE");
+                = accountID.getAccountPropertyString(
+                    ProtocolProviderFactory.KEEP_ALIVE_METHOD);
             String resourcePriority
                 = accountID.getAccountPropertyString(
                         ProtocolProviderFactory.RESOURCE_PRIORITY);
@@ -1398,7 +1394,7 @@ public class ProtocolProviderServiceJabberImpl
                 new OperationSetBasicInstantMessagingJabberImpl(this);
 
             if (keepAliveStrValue == null
-                || !keepAliveStrValue.equalsIgnoreCase(Boolean.FALSE.toString()))
+                || keepAliveStrValue.equalsIgnoreCase("XEP-0199"))
                 new KeepAliveManager(this);
 
             addSupportedOperationSet(

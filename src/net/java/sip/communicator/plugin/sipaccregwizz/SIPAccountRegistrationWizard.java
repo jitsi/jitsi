@@ -476,13 +476,13 @@ public class SIPAccountRegistrationWizard
                 registration.getTlsClientCertificate());
 
         if(registration.getKeepAliveMethod() != null)
-            accountProperties.put("KEEP_ALIVE_METHOD",
+            accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_METHOD,
                 registration.getKeepAliveMethod());
         else
-            accountProperties.put("KEEP_ALIVE_METHOD",
+            accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_METHOD,
                 registration.getDefaultKeepAliveMethod());
 
-        accountProperties.put("KEEP_ALIVE_INTERVAL",
+        accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_INTERVAL,
             registration.getKeepAliveInterval());
 
         accountProperties.put("XIVO_ENABLE",

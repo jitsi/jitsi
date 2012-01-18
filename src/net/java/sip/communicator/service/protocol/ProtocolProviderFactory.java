@@ -394,6 +394,16 @@ public abstract class ProtocolProviderFactory
     public static final String SMS_SERVER_ADDRESS = "SMS_SERVER_ADDRESS";
 
     /**
+     * Keep-alive method used by the protocol.
+     */
+    public static final String KEEP_ALIVE_METHOD = "KEEP_ALIVE_METHOD";
+
+    /**
+     * The interval for keep-alives if any.
+     */
+    public static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
+
+    /**
      * The <code>BundleContext</code> containing (or to contain) the service
      * registration of this factory.
      */

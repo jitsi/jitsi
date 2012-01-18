@@ -355,10 +355,12 @@ public class SIPAccountRegistrationForm
                     ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION);
 
         String keepAliveMethod =
-        accountID.getAccountPropertyString("KEEP_ALIVE_METHOD");
+        accountID.getAccountPropertyString(
+            ProtocolProviderFactory.KEEP_ALIVE_METHOD);
 
         String keepAliveInterval =
-        accountID.getAccountPropertyString("KEEP_ALIVE_INTERVAL");
+        accountID.getAccountPropertyString(
+            ProtocolProviderFactory.KEEP_ALIVE_INTERVAL);
 
         String voicemailURI = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.VOICEMAIL_URI);

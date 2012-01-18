@@ -190,8 +190,12 @@ public class MetaContactGroupImpl
             Iterator<MetaContact> itr = getChildContacts();
             while(itr.hasNext())
             {
-                if(itr.next().getDefaultContact()
-                    .getPresenceStatus().isOnline())
+                Contact contact = itr.next().getDefaultContact();
+
+                if(contact == null)
+                    continue;
+                
+                if(contact.getPresenceStatus().isOnline())
                 {
                     onlineContactsNumber++;
                 }

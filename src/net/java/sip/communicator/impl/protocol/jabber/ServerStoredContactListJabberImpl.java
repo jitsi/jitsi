@@ -748,6 +748,7 @@ public class ServerStoredContactListJabberImpl
     void init()
     {
         this.roster = jabberProvider.getConnection().getRoster();
+        this.roster.setSubscriptionMode(Roster.SubscriptionMode.manual);
 
         initRoster();
 

@@ -97,9 +97,9 @@ public class KeepAliveManager
             keepAliveSendTask = new KeepAliveSendTask();
 
             keepAliveCheckInterval =
-                2 * SmackConfiguration.getKeepAliveInterval();
+                SmackConfiguration.getKeepAliveInterval();
             if(keepAliveCheckInterval == 0)
-                keepAliveCheckInterval = 60000;
+                keepAliveCheckInterval = 30000;
             
             keepAliveTimer = new Timer("Jabber keepalive timer for <"
                 + parentProvider.getAccountID() + ">", true);
