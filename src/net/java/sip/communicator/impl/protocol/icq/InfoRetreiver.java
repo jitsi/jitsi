@@ -113,37 +113,62 @@ public class InfoRetreiver
      */
     protected List<GenericDetail> getContactDetails(String uin)
     {
-        List<GenericDetail> result = retreivedDetails.get(uin);
+        List<GenericDetail> result = getCachedContactDetails(uin);
 
         if(result == null)
         {
-            int reqID = requestID++;
-
-            //retrieve the details
-            long toICQUin = Long.parseLong(uin);
-            MetaFullInfoRequest infoRequest =
-                new MetaFullInfoRequest(
-                    Long.parseLong(ownerUin),
-                    reqID,
-                    toICQUin);
-
-            UserInfoResponseRetriever responseRetriever =
-                new UserInfoResponseRetriever(reqID);
-
-            icqProvider.getAimConnection().getInfoService().getOscarConnection()
-                .sendSnacRequest(infoRequest, responseRetriever);
-
-            responseRetriever.waitForLastInfo(60000);
-
-            result = responseRetriever.result;
-
-            if (result == null)
-                result = new LinkedList<GenericDetail>();
-
-            retreivedDetails.put(uin, result);
+            return retrieveDetails(uin);
         }
 
-        return new LinkedList<GenericDetail>(result);
+        return result;
+    }
+
+    /**
+     * Retrieve details and return them or if missing return an empty list.
+     * @param uin the uin to search for.
+     * @return the details or empty list.
+     */
+    protected List<GenericDetail> retrieveDetails(String uin)
+    {
+        int reqID = requestID++;
+
+        //retrieve the details
+        long toICQUin = Long.parseLong(uin);
+        MetaFullInfoRequest infoRequest =
+            new MetaFullInfoRequest(
+                Long.parseLong(ownerUin),
+                reqID,
+                toICQUin);
+
+        UserInfoResponseRetriever responseRetriever =
+            new UserInfoResponseRetriever(reqID);
+
+        icqProvider.getAimConnection().getInfoService().getOscarConnection()
+            .sendSnacRequest(infoRequest, responseRetriever);
+
+        responseRetriever.waitForLastInfo(60000);
+
+        List<GenericDetail> result = responseRetriever.result;
+
+        if (result == null)
+            result = new LinkedList<GenericDetail>();
+
+        // put even empty result to bypass further retrieve
+        retreivedDetails.put(uin, responseRetriever.result);
+
+        return responseRetriever.result;
+    }
+
+    /**
+     * Request the full info for the given uin if available in cache,
+     * if missing return null.
+     *
+     * @param uin to search for in cache.
+     * @return list of details.
+     */
+    protected List<GenericDetail> getCachedContactDetails(String uin)
+    {
+        return retreivedDetails.get(uin);
     }
 
     /**

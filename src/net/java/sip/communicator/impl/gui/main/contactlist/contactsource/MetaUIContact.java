@@ -379,7 +379,7 @@ public class MetaUIContact
      */
     public ExtendedTooltip getToolTip()
     {
-        ExtendedTooltip tip = new ExtendedTooltip(
+        final ExtendedTooltip tip = new ExtendedTooltip(
             GuiActivator.getUIService().getMainFrame(), true);
 
         byte[] avatarImage = metaContact.getAvatar();
@@ -414,47 +414,24 @@ public class MetaUIContact
             if(infoOpSet != null)
             {
                 Iterator<GenericDetail> details =
-                    infoOpSet.getAllDetailsForContact(protocolContact);
-
-                while(details.hasNext())
-                {
-                    GenericDetail d = details.next();
-                    if(d instanceof PhoneNumberDetail &&
-                        !(d instanceof FaxDetail) && 
-                        !(d instanceof PagerDetail))
-                    {
-                        PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                        if(pnd.getNumber() != null &&
-                            pnd.getNumber().length() > 0)
+                    infoOpSet.requestAllDetailsForContact(protocolContact,
+                        new OperationSetServerStoredContactInfo
+                                .DetailsResponseListener()
                         {
-                            String localizedType = null;
-                            
-                            if(d instanceof WorkPhoneDetail)
+                            public void detailsRetrieved(
+                                Iterator<GenericDetail> details)
                             {
-                                localizedType = 
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.WORK_PHONE");
+                                fillTooltipLines(tip, details);
                             }
-                            else if(d instanceof MobilePhoneDetail)
-                            {
-                                localizedType = 
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.MOBILE_PHONE");                                    
-                            }
-                            else
-                            {
-                                localizedType = 
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.PHONE");                                    
-                            }
-                                
-                            tip.addLine(null, pnd.getNumber() + 
-                                " (" + localizedType + ")");
-                        }
-                     }
+                        });
+
+                if(details != null)
+                    fillTooltipLines(tip, details);
+                else
+                {
+                    tip.addLine(null,
+                        GuiActivator.getResources().
+                            getI18NString("service.gui.LOADING"));
                 }
             }
 
@@ -469,6 +446,61 @@ public class MetaUIContact
             tip.setBottomText(statusMessage);
 
         return tip;
+    }
+
+    /**
+     * Fills the tooltip with details.
+     * @param tip the tooltip to fill
+     * @param details the available details.
+     */
+    private void fillTooltipLines(ExtendedTooltip tip,
+                                  Iterator<GenericDetail> details)
+    {
+        tip.removeAllLines();
+
+        while(details.hasNext())
+        {
+            GenericDetail d = details.next();
+            if(d instanceof PhoneNumberDetail &&
+                !(d instanceof FaxDetail) &&
+                !(d instanceof PagerDetail))
+            {
+                PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                if(pnd.getNumber() != null &&
+                    pnd.getNumber().length() > 0)
+                {
+                    String localizedType = null;
+
+                    if(d instanceof WorkPhoneDetail)
+                    {
+                        localizedType =
+                            GuiActivator.getResources().
+                                getI18NString(
+                                    "service.gui.WORK_PHONE");
+                    }
+                    else if(d instanceof MobilePhoneDetail)
+                    {
+                        localizedType =
+                            GuiActivator.getResources().
+                                getI18NString(
+                                    "service.gui.MOBILE_PHONE");
+                    }
+                    else
+                    {
+                        localizedType =
+                            GuiActivator.getResources().
+                                getI18NString(
+                                    "service.gui.PHONE");
+                    }
+
+                    tip.addLine(null, (pnd.getNumber() +
+                        " (" + localizedType + ")"));
+                }
+             }
+        }
+
+        tip.validate();
+        tip.repaint();
     }
 
     /**

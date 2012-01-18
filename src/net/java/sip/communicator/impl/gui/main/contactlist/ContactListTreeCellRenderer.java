@@ -193,7 +193,7 @@ public class ContactListTreeCellRenderer
     /**
      * The parent tree.
      */
-    private JTree tree;
+    private TreeContactList tree;
 
     /**
      * Initializes the panel containing the node.
@@ -339,7 +339,7 @@ public class ContactListTreeCellRenderer
         boolean selected, boolean expanded, boolean leaf, int row,
         boolean hasFocus)
     {
-        this.tree = tree;
+        this.tree = (TreeContactList)tree;
         this.row = row;
         this.isSelected = selected;
         this.treeNode = (TreeNode) value;
@@ -740,8 +740,10 @@ public class ContactListTreeCellRenderer
         // call button
         boolean hasPhone = false;
 
+        // check for phone stored in contact info only
+        // if telephony contact is missing
         if(uiContact.getContactNode().getContactDescriptor().getDescriptor()
-            instanceof MetaContact)
+            instanceof MetaContact && telephonyContact == null)
         {
             MetaContact metaContact =
                 (MetaContact)uiContact.getContactNode().getContactDescriptor().
@@ -754,27 +756,32 @@ public class ContactListTreeCellRenderer
                 OperationSetServerStoredContactInfo infoOpSet =
                     contact.getProtocolProvider().getOperationSet(
                         OperationSetServerStoredContactInfo.class);
-                Iterator<GenericDetail> details = null;
+                Iterator<GenericDetail> details;
 
                 if(infoOpSet != null)
                 {
-                    details = infoOpSet.getAllDetailsForContact(contact);
+                    details = infoOpSet.requestAllDetailsForContact(
+                        contact,
+                        new DetailsListener(treeNode, callButton, uiContact));
 
-                    while(details.hasNext())
+                    if(details != null)
                     {
-                        GenericDetail d = details.next();
-                        if(d instanceof PhoneNumberDetail && 
-                            !(d instanceof PagerDetail) && 
-                            !(d instanceof FaxDetail))
+                        while(details.hasNext())
                         {
-                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                            if(pnd.getNumber() != null &&
-                                pnd.getNumber().length() > 0)
+                            GenericDetail d = details.next();
+                            if(d instanceof PhoneNumberDetail &&
+                                !(d instanceof PagerDetail) &&
+                                !(d instanceof FaxDetail))
                             {
-                                hasPhone = true;
-                                break;
-                            }
-                         }
+                                PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                                if(pnd.getNumber() != null &&
+                                    pnd.getNumber().length() > 0)
+                                {
+                                    hasPhone = true;
+                                    break;
+                                }
+                             }
+                        }
                     }
                 }
             }
@@ -1487,5 +1494,86 @@ public class ContactListTreeCellRenderer
 
         desktopSharingButton.setPressedImage(ImageLoader.getImage(
                 ImageLoader.DESKTOP_BUTTON_SMALL_PRESSED));
+    }
+
+    /**
+     * Listens for contact details if not cached, we will receive when they
+     * are retrieved to update current call button state, if meanwhile
+     * user hasn't changed the current contact.
+     */
+    private class DetailsListener
+        implements OperationSetServerStoredContactInfo.DetailsResponseListener
+    {
+        /**
+         * The source this listener is created for, if current tree node
+         * changes ignore any event.
+         */
+        private Object source;
+
+        /**
+         * The button to change.
+         */
+        private JButton callButton;
+
+        /**
+         * The ui contact to update after changes.
+         */
+        private UIContact uiContact;
+
+        /**
+         * Create listener.
+         * @param source the contact this listener is for, if different
+         *               than current ignore.
+         * @param callButton
+         * @param uiContact the contact to refresh
+         */
+        DetailsListener(Object source, JButton callButton, UIContact uiContact)
+        {
+            this.source = source;
+            this.callButton = callButton;
+            this.uiContact = uiContact;
+        }
+
+        /**
+         * Details have been retrieved.
+         * @param details the details retrieved if any.
+         */
+        public void detailsRetrieved(Iterator<GenericDetail> details)
+        {
+            // if treenode has changed ignore
+            if(!source.equals(treeNode))
+                return;
+
+            // if call button is enabled nothing to check
+            if(callButton.isEnabled())
+                return;
+
+            while(details.hasNext())
+            {
+                GenericDetail d = details.next();
+
+                if(d instanceof PhoneNumberDetail &&
+                    !(d instanceof PagerDetail) &&
+                    !(d instanceof FaxDetail))
+                {
+                    PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                    if(pnd.getNumber() != null &&
+                        pnd.getNumber().length() > 0)
+                    {
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                callButton.setEnabled(false);
+
+                                tree.refreshContact(uiContact);
+                            }
+                        });
+
+                        return;
+                    }
+                 }
+            }
+        }
     }
 }

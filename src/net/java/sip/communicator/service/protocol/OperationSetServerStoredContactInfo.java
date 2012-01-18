@@ -80,4 +80,28 @@ public interface OperationSetServerStoredContactInfo
      * contact.
      */
     public Iterator<GenericDetail> getAllDetailsForContact(Contact contact);
+
+    /**
+     * Requests all details existing for the specified contact.
+     * @param contact the specified contact
+     * @return a java.util.Iterator over all details existing for the specified
+     * contact. If there are missing in the local cache null value will
+     * be returned and they will be scheduled for retrieve.
+     * The <tt>listener</tt> will be used to inform that retrieve has finished.
+     */
+    public Iterator<GenericDetail> requestAllDetailsForContact(
+        Contact contact, DetailsResponseListener listener);
+
+    /**
+     * Retrieving details can take some time, this listener will inform
+     * when retrieving has ended and will return the details if any.
+     */
+    public interface DetailsResponseListener
+    {
+        /**
+         * Informs for details retrieved.
+         * @param detailIterator the details retrieved if any.
+         */
+        public void detailsRetrieved(Iterator<GenericDetail> detailIterator);
+    }
 }

@@ -314,8 +314,13 @@ public class MainToolBar
                 chatPanel.findFileTransferChatTransport() != null);
             
             boolean hasPhone = false;
+            boolean hasTelephony =
+                !getOperationSetForCapabilities(
+                    chatPanel.chatSession.getTransportsForOperationSet(
+                        OperationSetBasicTelephony.class),
+                        OperationSetBasicTelephony.class).isEmpty();
             
-            if(contact != null)
+            if(!hasTelephony && contact != null)
             {
                 Iterator<Contact> contacts = contact.getContacts();
                 while(contacts.hasNext())
@@ -324,25 +329,30 @@ public class MainToolBar
                     OperationSetServerStoredContactInfo infoOpSet =
                         c.getProtocolProvider().getOperationSet(
                             OperationSetServerStoredContactInfo.class);
-                    Iterator<GenericDetail> details = null;
+                    Iterator<GenericDetail> details;
 
                     if(infoOpSet != null)
                     {
-                        details = infoOpSet.getAllDetailsForContact(c);
+                        details = infoOpSet.requestAllDetailsForContact(c,
+                            new DetailsListener(
+                                    chatPanel.chatSession, callButton));
 
-                        while(details.hasNext())
+                        if(details != null)
                         {
-                            GenericDetail d = details.next();
-                            if(d instanceof PhoneNumberDetail &&
-                                !(d instanceof PagerDetail) &&
-                                !(d instanceof FaxDetail))
+                            while(details.hasNext())
                             {
-                                PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                                if(pnd.getNumber() != null &&
-                                    pnd.getNumber().length() > 0)
+                                GenericDetail d = details.next();
+                                if(d instanceof PhoneNumberDetail &&
+                                    !(d instanceof PagerDetail) &&
+                                    !(d instanceof FaxDetail))
                                 {
-                                    hasPhone = true;
-                                    break;
+                                    PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                                    if(pnd.getNumber() != null &&
+                                        pnd.getNumber().length() > 0)
+                                    {
+                                        hasPhone = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -350,10 +360,7 @@ public class MainToolBar
                 }
             }
             
-            callButton.setEnabled(hasPhone || !getOperationSetForCapabilities(
-                chatPanel.chatSession.getTransportsForOperationSet(
-                    OperationSetBasicTelephony.class),
-                    OperationSetBasicTelephony.class).isEmpty());
+            callButton.setEnabled(hasTelephony || hasPhone);
             desktopSharingButton.setEnabled(!getOperationSetForCapabilities(
                 chatPanel.chatSession.getTransportsForOperationSet(
                     OperationSetDesktopSharingServer.class),
@@ -854,4 +861,57 @@ public class MainToolBar
         optionsButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_CONFIGURE_ICON));
     }
+
+    /**
+     * Listens for responses if later received deliver them.
+     * If meanwhile chat session has been changed ignore any events.
+     */
+    private class DetailsListener
+        implements OperationSetServerStoredContactInfo.DetailsResponseListener
+    {
+        private ChatSession source;
+        private JButton callButton;
+
+        /**
+         * Creates listener.
+         * @param chatSession the source chat session.
+         * @param callButton the call button.
+         */
+        DetailsListener(ChatSession chatSession, JButton callButton)
+        {
+            this.source = chatSession;
+            this.callButton = callButton;
+        }
+
+        /**
+         * Details has been retrieved.
+         * @param details the details retrieved if any.
+         */
+        public void detailsRetrieved(Iterator<GenericDetail> details)
+        {
+            if(!source.equals(chatSession))
+                return;
+
+            if(callButton.isEnabled())
+                return;
+
+            while(details.hasNext())
+            {
+                GenericDetail d = details.next();
+                if(d instanceof PhoneNumberDetail &&
+                    !(d instanceof PagerDetail) &&
+                    !(d instanceof FaxDetail))
+                {
+                    PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                    if(pnd.getNumber() != null &&
+                        pnd.getNumber().length() > 0)
+                    {
+                        callButton.setEnabled(true);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
 }

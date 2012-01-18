@@ -197,6 +197,14 @@ public class ExtendedTooltip
     }
 
     /**
+     * Clear all lines.
+     */
+    public void removeAllLines()
+    {
+        linesPanel.removeAll();
+    }
+
+    /**
      * Sets the text that would appear on the bottom of the tooltip.
      * @param text the text to set
      */

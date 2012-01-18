@@ -102,162 +102,186 @@ public class InfoRetreiver
      */
     List<GenericDetail> getContactDetails(String contactAddress)
     {
-        List<GenericDetail> result = retreivedDetails.get(contactAddress);
+        List<GenericDetail> result = getCachedContactDetails(contactAddress);
 
         if(result == null)
         {
-            result = new LinkedList<GenericDetail>();
-            try
-            {
-                XMPPConnection connection = jabberProvider.getConnection();
+            return retrieveDetails(contactAddress);
+        }
 
-                if(connection == null || !connection.isAuthenticated())
-                    return null;
+        return result;
+    }
 
-                VCard card = new VCard();
-                card.load(connection, contactAddress);
+    /**
+     * Retrieve details and return them or if missing return an empty list.
+     * @param contactAddress the address to search for.
+     * @return the details or empty list.
+     */
+    protected List<GenericDetail> retrieveDetails(String contactAddress)
+    {
+        List<GenericDetail> result = new LinkedList<GenericDetail>();
+        try
+        {
+            XMPPConnection connection = jabberProvider.getConnection();
 
-                String tmp = null;
+            if(connection == null || !connection.isAuthenticated())
+                return null;
 
-                tmp = checkForFullName(card);
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.DisplayNameDetail(tmp));
+            VCard card = new VCard();
+            card.load(connection, contactAddress);
 
-                tmp = card.getFirstName();
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.FirstNameDetail(tmp));
+            String tmp;
 
-                tmp = card.getMiddleName();
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.MiddleNameDetail(tmp));
+            tmp = checkForFullName(card);
+            if(tmp != null)
+                result.add(new ServerStoredDetails.DisplayNameDetail(tmp));
 
-                tmp = card.getLastName();
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.LastNameDetail(tmp));
+            tmp = card.getFirstName();
+            if(tmp != null)
+                result.add(new ServerStoredDetails.FirstNameDetail(tmp));
 
-                tmp = card.getNickName();
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.NicknameDetail(tmp));
+            tmp = card.getMiddleName();
+            if(tmp != null)
+                result.add(new ServerStoredDetails.MiddleNameDetail(tmp));
 
-                // Home Details
-                // addrField one of
-                // POSTAL, PARCEL, (DOM | INTL), PREF, POBOX, EXTADR, STREET,
-                // LOCALITY, REGION, PCODE, CTRY
-                tmp = card.getAddressFieldHome("STREET");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.AddressDetail(tmp));
+            tmp = card.getLastName();
+            if(tmp != null)
+                result.add(new ServerStoredDetails.LastNameDetail(tmp));
 
-                tmp = card.getAddressFieldHome("LOCALITY");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.CityDetail(tmp));
+            tmp = card.getNickName();
+            if(tmp != null)
+                result.add(new ServerStoredDetails.NicknameDetail(tmp));
 
-                tmp = card.getAddressFieldHome("REGION");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.ProvinceDetail(tmp));
+            // Home Details
+            // addrField one of
+            // POSTAL, PARCEL, (DOM | INTL), PREF, POBOX, EXTADR, STREET,
+            // LOCALITY, REGION, PCODE, CTRY
+            tmp = card.getAddressFieldHome("STREET");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.AddressDetail(tmp));
 
-                tmp = card.getAddressFieldHome("PCODE");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.PostalCodeDetail(tmp));
+            tmp = card.getAddressFieldHome("LOCALITY");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.CityDetail(tmp));
+
+            tmp = card.getAddressFieldHome("REGION");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.ProvinceDetail(tmp));
+
+            tmp = card.getAddressFieldHome("PCODE");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.PostalCodeDetail(tmp));
 
 //                tmp = card.getAddressFieldHome("CTRY");
 //                if(tmp != null)
 //                    result.add(new ServerStoredDetails.CountryDetail(tmp);
 
-                // phoneType one of
-                //VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
+            // phoneType one of
+            //VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
 
-                tmp = card.getPhoneHome("VOICE");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.PhoneNumberDetail(tmp));
+            tmp = card.getPhoneHome("VOICE");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.PhoneNumberDetail(tmp));
 
-                tmp = card.getPhoneHome("FAX");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.FaxDetail(tmp));
+            tmp = card.getPhoneHome("FAX");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.FaxDetail(tmp));
 
-                tmp = card.getPhoneHome("PAGER");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.PagerDetail(tmp));
+            tmp = card.getPhoneHome("PAGER");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.PagerDetail(tmp));
 
-                tmp = card.getPhoneHome("CELL");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.MobilePhoneDetail(tmp));
+            tmp = card.getPhoneHome("CELL");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.MobilePhoneDetail(tmp));
 
-                tmp = card.getEmailHome();
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.EmailAddressDetail(tmp));
+            tmp = card.getEmailHome();
+            if(tmp != null)
+                result.add(new ServerStoredDetails.EmailAddressDetail(tmp));
 
-                // Work Details
-                // addrField one of
-                // POSTAL, PARCEL, (DOM | INTL), PREF, POBOX, EXTADR, STREET,
-                // LOCALITY, REGION, PCODE, CTRY
-                tmp = card.getAddressFieldWork("STREET");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.WorkAddressDetail(tmp));
+            // Work Details
+            // addrField one of
+            // POSTAL, PARCEL, (DOM | INTL), PREF, POBOX, EXTADR, STREET,
+            // LOCALITY, REGION, PCODE, CTRY
+            tmp = card.getAddressFieldWork("STREET");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.WorkAddressDetail(tmp));
 
-                tmp = card.getAddressFieldWork("LOCALITY");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.WorkCityDetail(tmp));
+            tmp = card.getAddressFieldWork("LOCALITY");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.WorkCityDetail(tmp));
 
-                tmp = card.getAddressFieldWork("REGION");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.WorkProvinceDetail(tmp));
+            tmp = card.getAddressFieldWork("REGION");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.WorkProvinceDetail(tmp));
 
-                tmp = card.getAddressFieldWork("PCODE");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.WorkPostalCodeDetail(tmp));
+            tmp = card.getAddressFieldWork("PCODE");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.WorkPostalCodeDetail(tmp));
 
 //                tmp = card.getAddressFieldWork("CTRY");
 //                if(tmp != null)
 //                    result.add(new ServerStoredDetails.WorkCountryDetail(tmp);
 
-                // phoneType one of
-                //VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
+            // phoneType one of
+            //VOICE, FAX, PAGER, MSG, CELL, VIDEO, BBS, MODEM, ISDN, PCS, PREF
 
-                tmp = card.getPhoneWork("VOICE");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.WorkPhoneDetail(tmp));
+            tmp = card.getPhoneWork("VOICE");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.WorkPhoneDetail(tmp));
 
-                tmp = card.getPhoneWork("FAX");
-                if(tmp != null)
-                    result.add(new WorkFaxDetail(tmp));
+            tmp = card.getPhoneWork("FAX");
+            if(tmp != null)
+                result.add(new WorkFaxDetail(tmp));
 
-                tmp = card.getPhoneWork("PAGER");
-                if(tmp != null)
-                    result.add(new WorkPagerDetail(tmp));
+            tmp = card.getPhoneWork("PAGER");
+            if(tmp != null)
+                result.add(new WorkPagerDetail(tmp));
 
-                tmp = card.getPhoneWork("CELL");
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.WorkMobilePhoneDetail(tmp));
+            tmp = card.getPhoneWork("CELL");
+            if(tmp != null)
+                result.add(new ServerStoredDetails.WorkMobilePhoneDetail(tmp));
 
 
-                tmp = card.getEmailWork();
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.EmailAddressDetail(tmp));
+            tmp = card.getEmailWork();
+            if(tmp != null)
+                result.add(new ServerStoredDetails.EmailAddressDetail(tmp));
 
-                tmp = card.getOrganization();
-                if(tmp != null)
-                    result.add(new ServerStoredDetails.WorkOrganizationNameDetail(tmp));
+            tmp = card.getOrganization();
+            if(tmp != null)
+                result.add(new ServerStoredDetails.WorkOrganizationNameDetail(tmp));
 
-                tmp = card.getOrganizationUnit();
-                if(tmp != null)
-                    result.add(new WorkDepartmentNameDetail(tmp));
+            tmp = card.getOrganizationUnit();
+            if(tmp != null)
+                result.add(new WorkDepartmentNameDetail(tmp));
 
-                byte[] imageBytes = card.getAvatar();
-                if(imageBytes != null && imageBytes.length > 0)
-                    result.add(new ServerStoredDetails.ImageDetail(
-                        "Image", imageBytes));
-            }
-            catch (Exception exc)
-            {
-                logger.error("Cannot load details for contact "
-                    + this + " : " + exc.getMessage()
-                    , exc);
-            }
+            byte[] imageBytes = card.getAvatar();
+            if(imageBytes != null && imageBytes.length > 0)
+                result.add(new ServerStoredDetails.ImageDetail(
+                    "Image", imageBytes));
+        }
+        catch (Throwable exc)
+        {
+            logger.error("Cannot load details for contact "
+                + this + " : " + exc.getMessage()
+                , exc);
         }
 
         retreivedDetails.put(contactAddress, result);
 
-        return new LinkedList<GenericDetail>(result);
+        return result;
+    }
+
+    /**
+     * request the full info for the given contactAddress if available
+     * in cache.
+     *
+     * @param contactAddress to search for
+     * @return list of the details if any.
+     */
+    List<GenericDetail> getCachedContactDetails(String contactAddress)
+    {
+        return retreivedDetails.get(contactAddress);
     }
 
     private String checkForFullName(VCard card)
