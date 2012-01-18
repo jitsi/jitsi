@@ -379,7 +379,7 @@ public class MetaUIContact
      */
     public ExtendedTooltip getToolTip()
     {
-        final ExtendedTooltip tip = new ExtendedTooltip(
+        ExtendedTooltip tip = new ExtendedTooltip(
             GuiActivator.getUIService().getMainFrame(), true);
 
         byte[] avatarImage = metaContact.getAvatar();
@@ -389,10 +389,22 @@ public class MetaUIContact
 
         tip.setTitle(metaContact.getDisplayName());
 
+        loadTooltip(tip);
+
+        return tip;
+    }
+
+    /**
+     * Loads the tooltip with the data for current metacontact.
+     * @param tip the tooltip to fill.
+     */
+    private void loadTooltip(final ExtendedTooltip tip)
+    {
         Iterator<Contact> i = metaContact.getContacts();
 
         String statusMessage = null;
         Contact protocolContact;
+        boolean isLoading = false;
         while (i.hasNext())
         {
             protocolContact = i.next();
@@ -421,18 +433,19 @@ public class MetaUIContact
                             public void detailsRetrieved(
                                 Iterator<GenericDetail> details)
                             {
-                                fillTooltipLines(tip, details);
+                                // remove previously shown information
+                                // as it contains "Loading..." text
+                                tip.removeAllLines();
+
+                                // load it again
+                                loadTooltip(tip);
                             }
                         });
 
                 if(details != null)
                     fillTooltipLines(tip, details);
                 else
-                {
-                    tip.addLine(null,
-                        GuiActivator.getResources().
-                            getI18NString("service.gui.LOADING"));
-                }
+                    isLoading = true;
             }
 
             // Set the first found status message.
@@ -442,10 +455,13 @@ public class MetaUIContact
                 statusMessage = protocolContact.getStatusMessage();
         }
 
+        if(isLoading)
+            tip.addLine(null,
+                        GuiActivator.getResources()
+                            .getI18NString("service.gui.LOADING"));
+
         if (statusMessage != null)
             tip.setBottomText(statusMessage);
-
-        return tip;
     }
 
     /**
@@ -456,8 +472,6 @@ public class MetaUIContact
     private void fillTooltipLines(ExtendedTooltip tip,
                                   Iterator<GenericDetail> details)
     {
-        tip.removeAllLines();
-
         while(details.hasNext())
         {
             GenericDetail d = details.next();
@@ -499,7 +513,7 @@ public class MetaUIContact
              }
         }
 
-        tip.validate();
+        tip.revalidate();
         tip.repaint();
     }
 
