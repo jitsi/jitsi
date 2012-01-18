@@ -231,6 +231,11 @@ public class SIPCommTextFieldUI
      */
     protected void updateDeleteIcon(MouseEvent evt)
     {
+        // If the component is null we have nothing more to do here. Fixes a
+        // NullPointerException in getDeleteButtonRectangle().
+        if (getComponent() == null)
+            return;
+
         int x = evt.getX();
         int y = evt.getY();
 
