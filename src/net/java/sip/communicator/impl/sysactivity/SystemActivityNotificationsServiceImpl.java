@@ -30,10 +30,10 @@ public class SystemActivityNotificationsServiceImpl
         SystemActivityNotificationsServiceImpl.class.getName());
 
     /**
-     * A list of listeners registered for system activity events.
+     * The thread dispatcher of network change events.
      */
-    private final List<SystemActivityChangeListener> activityChangeListeners =
-        new LinkedList<SystemActivityChangeListener>();
+    private SystemActivityEventDispatcher eventDispatcher =
+            new SystemActivityEventDispatcher();
 
     /**
      * A list of listeners registered for idle events.
@@ -130,6 +130,8 @@ public class SystemActivityNotificationsServiceImpl
             NetworkManagerListenerImpl.getInstance().stop();
         }
 
+        eventDispatcher.stop();
+
         running = false;
 
         synchronized(this)
@@ -148,13 +150,7 @@ public class SystemActivityNotificationsServiceImpl
     public void addSystemActivityChangeListener(
         SystemActivityChangeListener listener)
     {
-        synchronized (activityChangeListeners)
-        {
-            if (!activityChangeListeners.contains(listener))
-            {
-                activityChangeListeners.add(listener);
-            }
-        }
+        eventDispatcher.addSystemActivityChangeListener(listener);
     }
 
     /**
@@ -166,10 +162,7 @@ public class SystemActivityNotificationsServiceImpl
     public void removeSystemActivityChangeListener(
         SystemActivityChangeListener listener)
     {
-        synchronized (activityChangeListeners)
-        {
-            activityChangeListeners.remove(listener);
-        }
+        eventDispatcher.removeSystemActivityChangeListener(listener);
     }
 
     /**
@@ -416,28 +409,15 @@ public class SystemActivityNotificationsServiceImpl
      */
     protected void fireSystemActivityEvent(SystemActivityEvent evt)
     {
-        Collection<SystemActivityChangeListener> listeners;
-        synchronized (this.activityChangeListeners)
+        // give time to java to dispatch same
+        // event and populate its network interfaces
+        if(evt.getEventID() == SystemActivityEvent.EVENT_NETWORK_CHANGE
+           && OSUtils.IS_WINDOWS)
         {
-            listeners = new ArrayList<SystemActivityChangeListener>(
-                this.activityChangeListeners);
+            eventDispatcher.fireSystemActivityEvent(evt, 500);
         }
-
-        if (logger.isDebugEnabled())
-            logger.debug("Dispatching SystemActivityEvent Listeners="
-                + listeners.size() + " evt=" + evt);
-
-        for (SystemActivityChangeListener listener : listeners)
-        {
-            try
-            {
-                listener.activityChanged(evt);
-            }
-            catch (Throwable e)
-            {
-                logger.error("Error delivering event", e);
-            }
-        }
+        else
+            eventDispatcher.fireSystemActivityEvent(evt);
     }
 
     /**
