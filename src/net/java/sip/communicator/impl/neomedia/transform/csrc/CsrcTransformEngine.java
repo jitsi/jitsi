@@ -137,9 +137,9 @@ public class CsrcTransformEngine
      */
     public synchronized RawPacket transform(RawPacket pkt)
     {
-        // if somebody has modified the packet and added an extension 
+        // if somebody has modified the packet and added an extension
         // don't process it. As ZRTP creates special rtp packets carring no
-        // rtp data and those packets are used only by zrtp we don't use them. 
+        // rtp data and those packets are used only by zrtp we don't use them.
         if(pkt.getExtensionBit())
             return pkt;
 

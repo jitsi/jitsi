@@ -89,6 +89,11 @@ public class PortAudioRenderer
     private static MediaLocator defaultLocator;
 
     /**
+     * Value to indicate if default locator has changed.
+     */
+    private static boolean changeDefaultLocator = false;
+
+    /**
      * The audio samples left unwritten by a previous call to
      * {@link #process(Buffer)}. As {@link #bytesPerBuffer} number of
      * bytes are always written, the number of the unwritten audio samples is
@@ -437,6 +442,24 @@ public class PortAudioRenderer
     }
 
     /**
+     * Update default locator.
+     */
+    private void updateDefaultLocator()
+    {
+        try
+        {
+            stop();
+            close();
+            open();
+            start();
+        }
+        catch(ResourceUnavailableException e)
+        {
+            logger.info("Error reinit default portaudio locator", e);
+        }
+    }
+
+    /**
      * Renders the audio data contained in a specific <tt>Buffer</tt> onto the
      * PortAudio device represented by this <tt>Renderer</tt>.
      *
@@ -447,6 +470,12 @@ public class PortAudioRenderer
      */
     public int process(Buffer buffer)
     {
+        if(changeDefaultLocator && locator == null)
+        {
+            updateDefaultLocator();
+            changeDefaultLocator = false;
+        }
+
         synchronized (this)
         {
             if (!started || (stream == 0))
@@ -568,6 +597,8 @@ public class PortAudioRenderer
             return;
 
         PortAudioRenderer.defaultLocator = defaultLocator;
+
+        changeDefaultLocator = true;
     }
 
     /**

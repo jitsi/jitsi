@@ -133,4 +133,11 @@ public abstract class AbstractMediaDevice
     {
         return null;
     }
+
+    /**
+     * Closes this <tt>MediaDevice</tt>.
+     */
+    public void close()
+    {
+    }
 }

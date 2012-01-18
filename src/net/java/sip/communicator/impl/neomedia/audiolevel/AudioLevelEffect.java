@@ -55,6 +55,11 @@ public class AudioLevelEffect
     private Format[] supportedAudioFormats;
 
     /**
+     * Audio level listener.
+     */
+    private SimpleAudioLevelListener audioLevelListener = null;
+    
+    /**
      * The minimum and maximum values of the scale
      */
     public AudioLevelEffect()
@@ -87,7 +92,18 @@ public class AudioLevelEffect
      */
     public void setAudioLevelListener(SimpleAudioLevelListener listener)
     {
+        audioLevelListener = listener;
         eventDispatcher.setAudioLevelListener(listener);
+    }
+    
+    /**
+     * Returns audio level listener.
+     * 
+     * @return audio level listener or <tt>null</tt> if not exist
+     */
+    public SimpleAudioLevelListener getAudioLevelListener()
+    {
+        return audioLevelListener;
     }
 
     /**

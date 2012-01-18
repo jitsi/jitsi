@@ -153,6 +153,24 @@ public class AudioMixerMediaDevice
     }
 
     /**
+     * Closes this <tt>MediaDevice</tt> and removes all of the
+     * <tt>MediaDeviceSession</tt> of its <tt>AudioMixerMediaDeviceSession</tt>.
+     */
+    @Override
+    public void close()
+    {
+        List<MediaDeviceSession> sessions = new ArrayList<MediaDeviceSession>();
+        for(MediaStreamMediaDeviceSession s :
+            deviceSession.mediaStreamMediaDeviceSessions)
+        {
+            sessions.add(s);
+        }
+
+        for(MediaDeviceSession s : sessions)
+            s.close();
+    }
+
+    /**
      * Connects to a specific <tt>CaptureDevice</tt> given in the form of a
      * <tt>DataSource</tt>.
      *
@@ -212,8 +230,32 @@ public class AudioMixerMediaDevice
     public synchronized MediaDeviceSession createSession()
     {
         if (deviceSession == null)
+        {
             deviceSession = new AudioMixerMediaDeviceSession();
+        }
         return new MediaStreamMediaDeviceSession(deviceSession);
+    }
+
+    /**
+     * Creates a new <tt>MediaDeviceSession</tt> instance which is to represent
+     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt> and the
+     * rendering part of a previous <tt>MediaDeviceSession</tt>.
+     *
+     * @param oldSession previous <tt>MediaDeviceSession</tt>
+     * @return a new <tt>MediaDeviceSession</tt> instance which is to represent
+     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt>
+     */
+    @Override
+    public MediaDeviceSession createSession(MediaDeviceSession oldSession)
+    {
+        MediaStreamMediaDeviceSession session =
+            (MediaStreamMediaDeviceSession)createSession();
+        MediaStreamMediaDeviceSession old =
+            (MediaStreamMediaDeviceSession)oldSession;
+
+        session.setStreamAudioLevelListener(old.streamAudioLevelListener);
+        session.setLocalUserAudioLevelListener(old.localUserAudioLevelListener);
+        return session;
     }
 
     /**
@@ -271,7 +313,9 @@ public class AudioMixerMediaDevice
                     if (inputDataSource == captureDevice)
                         AudioMixerMediaDevice.this.connect(dataSource);
                     else
+                    {
                         super.connect(dataSource, inputDataSource);
+                    }
                 }
 
                 @Override
@@ -326,9 +370,11 @@ public class AudioMixerMediaDevice
                             && buffer.getData() != null)
                         {
                             if(! streamEventDispatcher.isRunning())
+                            {
                                 new Thread(streamEventDispatcher,
                                    "StreamAudioLevelDispatcher (Mixer Edition)")
                                         .start();
+                            }
                             streamEventDispatcher.addData(buffer);
                         }
                     }
@@ -713,7 +759,9 @@ public class AudioMixerMediaDevice
                     if (mediaStreamMediaDeviceSessions
                                 .remove(mediaStreamMediaDeviceSession)
                             && mediaStreamMediaDeviceSessions.isEmpty())
+                    {
                         close();
+                    }
                 }
             }
         }

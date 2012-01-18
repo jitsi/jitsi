@@ -258,4 +258,18 @@ public class AudioMediaDeviceSession
     {
         return -1;
     }
+
+    /**
+     * Transfer rendering part from <tt>session</tt> to this instance.
+     *
+     * @param session <tt>MediaDeviceSession</tt> to transfer data from
+     */
+    protected void transferRenderingSession(MediaDeviceSession session)
+    {
+        AudioMediaDeviceSession amds = (AudioMediaDeviceSession)session;
+        this.setStreamAudioLevelListener(
+            amds.streamAudioLevelEffect.getAudioLevelListener());
+        this.setLocalUserAudioLevelListener(
+            amds.localUserAudioLevelEffect.getAudioLevelListener());
+    }
 }

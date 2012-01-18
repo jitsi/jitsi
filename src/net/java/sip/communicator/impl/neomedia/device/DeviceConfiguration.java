@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
+import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
@@ -35,7 +36,8 @@ import net.java.sip.communicator.util.*;
 @SuppressWarnings("unchecked")
 public class DeviceConfiguration
     extends PropertyChangeNotifier
-    implements PropertyChangeListener
+    implements PropertyChangeListener, 
+               PortAudioDeviceChangedCallback
 {
 
     /**
@@ -324,6 +326,7 @@ public class DeviceConfiguration
         }
 
         registerCustomRenderers();
+        PortAudio.addDeviceChangedCallback(this);
     }
 
     /**
@@ -348,114 +351,8 @@ public class DeviceConfiguration
      */
     private void extractConfiguredCaptureDevices()
     {
-        ConfigurationService config
-            = NeomediaActivator.getConfigurationService();
-
-        if (logger.isInfoEnabled())
-            logger.info("Scanning for configured Audio Devices.");
-        CaptureDeviceInfo[] audioCaptureDevices =
-            getAvailableAudioCaptureDevices();
-        if (config.getBoolean(PROP_AUDIO_DEVICE_IS_DISABLED, false))
-        {
-            audioCaptureDevice = null;
-            audioSystem = AUDIO_NONE;
-        }
-        else if (audioCaptureDevices.length < 1)
-        {
-            logger.warn("No Audio Device was found.");
-            audioCaptureDevice = null;
-            audioSystem = AUDIO_NONE;
-        }
-        else
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("Found " + audioCaptureDevices.length
-                + " capture devices: " + audioCaptureDevices);
-
-            String audioDevName = config.getString(PROP_AUDIO_DEVICE);
-
-            if(audioDevName == null || audioDevName.equals(AUDIO_NONE))
-            {
-                // the default behaviour if nothing set is to use PortAudio
-                // this will also choose the capture device
-                if(PortAudioAuto.isSupported())
-                {
-                    setAudioSystem(AUDIO_SYSTEM_PORTAUDIO, null, false);
-                    if(audioDevName != null
-                        && audioDevName.equals(AUDIO_NONE))
-                        setAudioCaptureDevice(null, false);
-                }
-                else
-                {
-                    setAudioPlaybackDevice(null, false);
-                    setAudioNotifyDevice(null, false);
-                    if (OSUtils.IS_ANDROID)
-                    {
-                        setAudioCaptureDevice(audioCaptureDevices[0], false);
-                    }
-                    else
-                    {
-                        setAudioCaptureDevice(null, false);
-                        setAudioSystem(AUDIO_SYSTEM_JAVASOUND, null, false);
-                    }
-                }
-            }
-            else
-            {
-                for (CaptureDeviceInfo captureDeviceInfo : audioCaptureDevices)
-                {
-                    if (audioDevName.equals(captureDeviceInfo.getName()))
-                    {
-                        setAudioSystem(getAudioSystem(captureDeviceInfo),
-                            captureDeviceInfo, false);
-                        break;
-                    }
-                }
-
-                if(getAudioSystem() == null || !PortAudioAuto.isSupported())
-                {
-                    logger.warn("Computer sound config changed or " +
-                        "there is a problem since last config was saved, " +
-                        "will back to default");
-                    setAudioPlaybackDevice(null, false);
-                    setAudioNotifyDevice(null, false);
-                    setAudioCaptureDevice(null, false);
-                    setAudioSystem(AUDIO_SYSTEM_PORTAUDIO, null, false);
-                }
-            }
-            if (audioCaptureDevice != null)
-                if (logger.isInfoEnabled())
-                    logger.info("Found " + audioCaptureDevice.getName()
-                    + " as an audio capture device.");
-        }
-
-        if (config.getBoolean(PROP_VIDEO_DEVICE_IS_DISABLED, false))
-            videoCaptureDevice = null;
-        else
-        {
-            if (logger.isInfoEnabled())
-                logger.info("Scanning for configured Video Devices.");
-
-            Format[] formats
-                = new Format[]
-                        {
-                            new AVFrameFormat(),
-                            new VideoFormat(VideoFormat.RGB),
-                            new VideoFormat(VideoFormat.YUV),
-                            new VideoFormat(Constants.H264)
-                        };
-
-            for (Format format : formats)
-            {
-                videoCaptureDevice
-                    = extractConfiguredVideoCaptureDevice(format);
-                if (videoCaptureDevice != null)
-                    break;
-            }
-            if (videoCaptureDevice == null)
-                if (logger.isInfoEnabled())
-                    logger.info("No Video Device was found.");
-        }
+        extractConfiguredAudioCaptureDevices();
+        extractConfiguredVideoCaptureDevices();
     }
 
     /**
@@ -1400,6 +1297,141 @@ public class DeviceConfiguration
         {
             videoMaxBandwidth = -1;
         }
+    }
+    
+    /**
+     * Detects audio capture devices configured through JMF and disable audio if
+     * none was found.
+     */
+    private void extractConfiguredAudioCaptureDevices()
+    {
+        ConfigurationService config
+            = NeomediaActivator.getConfigurationService();
+    
+        if (logger.isInfoEnabled())
+            logger.info("Scanning for configured Audio Devices.");
+        
+        CaptureDeviceInfo[] audioCaptureDevices =
+            getAvailableAudioCaptureDevices();
+        if (config.getBoolean(PROP_AUDIO_DEVICE_IS_DISABLED, false))
+        {
+            audioCaptureDevice = null;
+            audioSystem = AUDIO_NONE;
+        }
+        else if (audioCaptureDevices.length < 1)
+        {
+            logger.warn("No Audio Device was found.");
+            audioCaptureDevice = null;
+            audioSystem = AUDIO_NONE;
+        }
+        else
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("Found " + audioCaptureDevices.length
+                + " capture devices: " + audioCaptureDevices);
+    
+            String audioDevName = config.getString(PROP_AUDIO_DEVICE);
+    
+            if(audioDevName == null || audioDevName.equals(AUDIO_NONE))
+            {
+                // the default behaviour if nothing set is to use PortAudio
+                // this will also choose the capture device
+                if(PortAudioAuto.isSupported())
+                {
+                    setAudioSystem(AUDIO_SYSTEM_PORTAUDIO, null, false);
+                    if(audioDevName != null
+                        && audioDevName.equals(AUDIO_NONE))
+                        setAudioCaptureDevice(null, false);
+                }
+                else
+                {
+                    setAudioPlaybackDevice(null, false);
+                    setAudioNotifyDevice(null, false);
+                    if (OSUtils.IS_ANDROID)
+                    {
+                        setAudioCaptureDevice(audioCaptureDevices[0], false);
+                    }
+                    else
+                    {
+                        setAudioCaptureDevice(null, false);
+                        setAudioSystem(AUDIO_SYSTEM_JAVASOUND, null, false);
+                    }
+                }
+            }
+            else
+            {
+                for (CaptureDeviceInfo captureDeviceInfo : audioCaptureDevices)
+                {
+                    if (audioDevName.equals(captureDeviceInfo.getName()))
+                    {
+                        setAudioSystem(getAudioSystem(captureDeviceInfo),
+                            captureDeviceInfo, false);
+                        break;
+                    }
+                }
+    
+                if(getAudioSystem() == null || !PortAudioAuto.isSupported())
+                {
+                    logger.warn("Computer sound config changed or " +
+                        "there is a problem since last config was saved, " +
+                        "will back to default");
+                    setAudioPlaybackDevice(null, false);
+                    setAudioNotifyDevice(null, false);
+                    setAudioCaptureDevice(null, false);
+                    setAudioSystem(AUDIO_SYSTEM_PORTAUDIO, null, false);
+                }
+            }
+            if (audioCaptureDevice != null)
+                if (logger.isInfoEnabled())
+                    logger.info("Found " + audioCaptureDevice.getName()
+                    + " as an audio capture device.");
+        }
+    }
+    
+    /**
+     * Detects video capture devices configured through JMF and disable video if
+     * none was found.
+     */
+    private void extractConfiguredVideoCaptureDevices()
+    {
+        ConfigurationService config
+            = NeomediaActivator.getConfigurationService();
+        
+        if (config.getBoolean(PROP_VIDEO_DEVICE_IS_DISABLED, false))
+            videoCaptureDevice = null;
+        else
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Scanning for configured Video Devices.");
 
+            Format[] formats
+                = new Format[]
+                        {
+                            new AVFrameFormat(),
+                            new VideoFormat(VideoFormat.RGB),
+                            new VideoFormat(VideoFormat.YUV),
+                            new VideoFormat(Constants.H264)
+                        };
+
+            for (Format format : formats)
+            {
+                videoCaptureDevice
+                    = extractConfiguredVideoCaptureDevice(format);
+                if (videoCaptureDevice != null)
+                    break;
+            }
+            if (videoCaptureDevice == null)
+                if (logger.isInfoEnabled())
+                    logger.info("No Video Device was found.");
+        }
+    }
+    
+    /**
+     * Callback when PortAudio device changed.
+     */
+    public void deviceChanged()
+    {
+        JmfDeviceDetector.reinitializePortAudio();
+        extractConfiguredAudioCaptureDevices();
     }
 }

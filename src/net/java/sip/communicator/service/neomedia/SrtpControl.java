@@ -24,7 +24,7 @@ public interface SrtpControl
 
     /**
      * Sets a <tt>SrtpListener</tt> that will listen for security events.
-     * 
+     *
      * @param srtpListener the <tt>SrtpListener</tt> that will receive the
      *            events
      */
@@ -63,7 +63,7 @@ public interface SrtpControl
 
     /**
      * Returns the transform engine currently used by this stream.
-     * 
+     *
      * @return the RTP stream transformation engine
      */
     public TransformEngine getTransformEngine();
@@ -71,7 +71,7 @@ public interface SrtpControl
     /**
      * Sets the <tt>RTPConnector</tt> which is to use or uses this SRTP engine.
      *
-     * @param connector the <tt>RTPConnector</tt> which is to use or uses this
+     * @param newValue the <tt>RTPConnector</tt> which is to use or uses this
      * SRTP engine
      */
     public void setConnector(AbstractRTPConnector newValue);
@@ -79,7 +79,7 @@ public interface SrtpControl
     /**
      * Indicates if the key exchange method is dependent on secure transport of
      * the signaling channel.
-     * 
+     *
      * @return True when secure signaling is required to make the encryption
      *         secure, false otherwise.
      */

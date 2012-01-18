@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
+import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.impl.neomedia.transform.sdes.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -39,7 +40,8 @@ import net.java.sip.communicator.util.swing.*;
  * @author Dmitri Melnikov
  */
 public class MediaServiceImpl
-    implements MediaService
+    implements MediaService,
+               PortAudioDeviceChangedCallback
 {
     /**
      * The logger.
@@ -152,6 +154,11 @@ public class MediaServiceImpl
      */
     private final List<Recorder.Listener> recorderListeners =
             new ArrayList<Recorder.Listener>();
+
+    /**
+     * Audio configuration panel.
+     */
+    private SIPCommDialog audioConfiguration = null;
 
     /**
      * Create a <tt>MediaStream</tt> which will use a specific
@@ -559,6 +566,52 @@ public class MediaServiceImpl
         encodingConfiguration.initializeFormatPreferences();
         encodingConfiguration.registerCustomPackages();
         encodingConfiguration.registerCustomCodecs();
+
+        if(!OSUtils.IS_ANDROID)
+        {
+            final Component panel = MediaConfiguration.createBasicControls(
+                DeviceConfigurationComboBoxModel.AUDIO, false);
+
+            audioConfiguration = new SIPCommDialog()
+            {
+                /**
+                 * Serial version UID.
+                 */
+                private static final long serialVersionUID = 0L;
+
+                /**
+                 * {@inheritDoc}
+                 */
+                @Override
+                protected void close(boolean isEscaped)
+                {
+                    setVisible(false);
+                }
+            };
+
+            TransparentPanel mainPanel = new TransparentPanel(new
+                BorderLayout());
+            TransparentPanel btnPanel = new TransparentPanel(new
+                FlowLayout(FlowLayout.RIGHT));
+            JButton btn = new JButton(NeomediaActivator.getResources().
+                getI18NString("service.gui.CLOSE"));
+            btn.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent evt)
+                {
+                    audioConfiguration.setVisible(false);
+                }
+            });
+            btnPanel.add(btn);
+            mainPanel.add(panel, BorderLayout.CENTER);
+            mainPanel.add(btnPanel, BorderLayout.SOUTH);
+
+            audioConfiguration.add(mainPanel);
+            audioConfiguration.validate();
+            audioConfiguration.pack();
+
+            PortAudio.addDeviceChangedCallback(this);
+        }
     }
 
     /**
@@ -567,6 +620,7 @@ public class MediaServiceImpl
      */
     void stop()
     {
+        PortAudio.removeDeviceChangedCallback(this);
     }
 
     /**
@@ -582,7 +636,7 @@ public class MediaServiceImpl
 
     /**
      * Creates <tt>SDesControl</tt> used to control all SDes options.
-     * 
+     *
      * @return SDesControl instance.
      */
     public SDesControl createSDesControl()
@@ -1317,5 +1371,46 @@ public class MediaServiceImpl
     public Iterator<Recorder.Listener> getRecorderListeners()
     {
         return recorderListeners.iterator();
+    }
+
+    /**
+     * Callback called from native PortAudio side that notify device changed.
+     */
+    public void deviceChanged()
+    {
+        showAudioConfiguration();
+    }
+
+    /**
+     * Show audio configuration panel when media devices change.
+     */
+    private void showAudioConfiguration()
+    {
+        if(audioConfiguration == null)
+        {
+            return;
+        }
+
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    showAudioConfiguration();
+                }
+            });
+            return;
+        }
+
+        SwingUtilities.updateComponentTreeUI(
+            audioConfiguration.getComponent(0));
+        audioConfiguration.pack();
+        audioConfiguration.repaint();
+
+        if(!audioConfiguration.isVisible())
+        {
+            audioConfiguration.setVisible(true);
+        }
     }
 }

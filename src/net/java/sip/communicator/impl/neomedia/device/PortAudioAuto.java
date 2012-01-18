@@ -66,6 +66,38 @@ public class PortAudioAuto
     PortAudioAuto()
         throws Exception
     {
+        reinit();
+        
+        // now add it as available audio system to DeviceConfiguration
+        DeviceConfiguration.addAudioSystem(
+                DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
+
+        supported = true;
+    }
+    
+    /**
+     * PortAudio device changed callback.
+     */
+    public void deviceChanged()
+    {
+        try
+        {
+            reinit();
+        }
+        catch(Exception e)
+        {
+            logger.warn("Error while reinitialize PortAudio devices", e);
+        }
+    }
+    
+    /**
+     * Reinitializes PortAudio system.
+     * @throws Exception if anything wrong happens while creating the PortAudio
+     * capture devices
+     */
+    public void reinit()
+        throws Exception
+    {
         // if PortAudio has a problem initializing like missing native
         // components it will trow exception here and PortAudio rendering will
         // not be inited.
@@ -73,10 +105,14 @@ public class PortAudioAuto
 
         int defaultInputDeviceIx = PortAudio.Pa_GetDefaultInputDevice();
         int defaultOutputDeviceIx = PortAudio.Pa_GetDefaultOutputDevice();
+        
+        playbackDevices = null;
+        defaultPlaybackDevice = null;
+        defaultCaptureDevice = null;
 
         /*
         // for windows we will search for directsound devices, to set them as
-        // defualt, we need info for defualt devices host api
+        // default, we need info for default devices host api
         PortAudio.PaHostApiTypeId defaultInputHostApi
             = PortAudio.PaHostApiTypeId.undefined;
         PortAudio.PaHostApiTypeId defaultOutputHostApi
@@ -97,6 +133,42 @@ public class PortAudioAuto
         }
         */
 
+        AudioFormat fmt = new AudioFormat(
+            AudioFormat.LINEAR,
+            Format.NOT_SPECIFIED,
+            Format.NOT_SPECIFIED,
+            Format.NOT_SPECIFIED,
+            AudioFormat.LITTLE_ENDIAN,
+            AudioFormat.SIGNED,
+            Format.NOT_SPECIFIED /* frameSizeInBits */,
+            Format.NOT_SPECIFIED /* frameRate */,
+            Format.byteArray);
+        
+        Iterator<?> it = CaptureDeviceManager.getDeviceList(fmt).iterator();
+        List<CaptureDeviceInfo> devicesToRemove = 
+            new ArrayList<CaptureDeviceInfo>();
+        
+        while(it.hasNext())
+        {
+            CaptureDeviceInfo ifo = (CaptureDeviceInfo)it.next();
+
+            if(!ifo.getLocator().getProtocol().equals("portaudio"))
+            {
+                continue;
+            }
+            else
+            {
+                devicesToRemove.add(ifo);
+            }
+        }
+        
+        for(CaptureDeviceInfo info : devicesToRemove)
+        {
+            CaptureDeviceManager.removeDevice(info);
+        }
+        if(devicesToRemove.size() > 0)
+            CaptureDeviceManager.commit();
+        
         Vector<CaptureDeviceInfo> playbackDevVector =
             new Vector<CaptureDeviceInfo>();
         int channels = 1;
@@ -201,14 +273,7 @@ public class PortAudioAuto
         }
 
         playbackDevices = playbackDevVector.toArray(new CaptureDeviceInfo[0]);
-
         CaptureDeviceManager.commit();
-
-        // now add it as available audio system to DeviceConfiguration
-        DeviceConfiguration.addAudioSystem(
-                DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
-
-        supported = true;
     }
 
     /**

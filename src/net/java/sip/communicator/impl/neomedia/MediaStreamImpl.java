@@ -45,7 +45,8 @@ public class MediaStreamImpl
     implements ReceiveStreamListener,
                SendStreamListener,
                SessionListener,
-               RemoteListener
+               RemoteListener,
+               PropertyChangeListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>MediaStreamImpl</tt> class and its
@@ -223,6 +224,11 @@ public class MediaStreamImpl
     private StatisticsEngine statisticsEngine = null;
 
     /**
+     * If the device session has been reinited.
+     */
+    private boolean deviceSessionReinit = false;
+
+    /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media.
      * The new instance will not have an associated <tt>StreamConnector</tt> and
@@ -265,6 +271,9 @@ public class MediaStreamImpl
          * right type because we do not support just about any MediaDevice yet.
          */
         setDevice(device);
+
+        NeomediaActivator.getMediaServiceImpl().getDeviceConfiguration().
+            addPropertyChangeListener(this);
 
         //TODO add option to disable ZRTP, e.g. by implementing a NullControl
         this.srtpControl
@@ -499,6 +508,8 @@ public class MediaStreamImpl
      */
     public void close()
     {
+        NeomediaActivator.getMediaServiceImpl().getDeviceConfiguration().
+            removePropertyChangeListener(this);
         stop();
         closeSendStreams();
 
@@ -1359,9 +1370,14 @@ public class MediaStreamImpl
                     deviceSessionPropertyChangeListener);
 
                 // keep player active
-                deviceSession.setDisposePlayerOnClose(false);
+                deviceSession.setDisposePlayerOnClose(
+                    (deviceSession instanceof VideoMediaDeviceSession)
+                    == false);
                 deviceSession.close();
+
+                deviceSession.getDevice().close();
                 deviceSession = null;
+                deviceSessionReinit = true;
             }
             else
             {
@@ -1404,7 +1420,9 @@ public class MediaStreamImpl
                 synchronized (receiveStreamSyncRoot)
                 {
                     if (receiveStream != null)
+                    {
                         deviceSession.setReceiveStream(receiveStream);
+                    }
                 }
             }
         }
@@ -2346,7 +2364,8 @@ public class MediaStreamImpl
             buff = new StringBuilder(StatisticsEngine.RTP_STAT_PREFIX);
 
             buff.append("call stats for incoming ")
-                .append(getFormat().getMediaType()).append(" stream SSRC:")
+                .append(getFormat() != null ? getFormat().getMediaType() : "")
+                .append(" stream SSRC:")
                 .append(getRemoteSourceID())
                 .append("\n").append(StatisticsEngine.RTP_STAT_PREFIX)
                 .append("packets received: ").append(rs.getPacketsRecd())
@@ -2392,6 +2411,41 @@ public class MediaStreamImpl
         catch(Throwable t)
         {
             logger.error("Error writing statistics", t);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        // for the moment only handle audio device
+        if(this instanceof VideoMediaStreamImpl)
+        {
+            return;
+        }
+
+        String prop = evt.getPropertyName();
+
+        if(prop.equals(DeviceConfiguration.AUDIO_CAPTURE_DEVICE))
+        {
+            if(evt.getOldValue() == evt.getNewValue())
+                return;
+
+            if(deviceSessionReinit == false)
+                firePropertyChange("CHANGE_CAPTURE_DEV", evt.getOldValue(),
+                    evt.getNewValue());
+
+            deviceSessionReinit = false;
+/*
+            MediaServiceImpl mediaService =
+                NeomediaActivator.getMediaServiceImpl();
+            MediaFormat format = getFormat();
+            this.setDevice(mediaService.createMixer(
+                mediaService.getDefaultDevice(MediaType.AUDIO,
+                    MediaUseCase.CALL)));
+            this.setFormat(format);
+*/
         }
     }
 }

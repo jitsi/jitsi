@@ -62,6 +62,11 @@ public class JmfDeviceDetector
         = "sip-communicator.org";
 
     /**
+     * PortAudioAuto reference.
+     */
+    private static PortAudioAuto portaudioAuto = null;
+
+    /**
      * Default constructor - does nothing.
      */
     public JmfDeviceDetector()
@@ -187,7 +192,7 @@ public class JmfDeviceDetector
         }
         try
         {
-            new PortAudioAuto();
+            portaudioAuto = new PortAudioAuto();
         }
         catch (Throwable exc)
         {
@@ -346,5 +351,22 @@ public class JmfDeviceDetector
     public static void reinitializeVideoCaptureDevices()
     {
         new JmfDeviceDetector().reinitializeVideo();
+    }
+
+    /**
+     * Reinitialize PortAudio devices.
+     */
+    public static void reinitializePortAudio()
+    {
+        if(portaudioAuto != null)
+        {
+            try
+            {
+                portaudioAuto.reinit();
+            }
+            catch(Exception e)
+            {
+            }
+        }
     }
 }

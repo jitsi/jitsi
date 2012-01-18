@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Represents a <tt>PushBufferStream</tt> containing the result of the audio
  * mixing of <tt>DataSource</tt>s.
- * 
+ *
  * @author Lyubomir Marinov
  */
 public class AudioMixingPushBufferStream
@@ -84,7 +84,7 @@ public class AudioMixingPushBufferStream
      * input data of a specific <tt>AudioMixerPushBufferStream</tt> and
      * excluding from the mix the audio contributions of a specific
      * <tt>AudioMixingPushBufferDataSource</tt>.
-     * 
+     *
      * @param audioMixerStream the <tt>AudioMixerPushBufferStream</tt> reading
      * data from input <tt>DataSource</tt>s and to push it to the new
      * <tt>AudioMixingPushBufferStream</tt>
@@ -147,7 +147,7 @@ public class AudioMixingPushBufferStream
      * Gets the <tt>AudioMixingPushBufferDataSource</tt> which created and owns
      * this instance and defines the input data which is to not be mixed in the
      * output of this <tt>PushBufferStream</tt>.
-     * 
+     *
      * @return the <tt>AudioMixingPushBufferDataSource</tt> which created and
      * owns this instance and defines the input data which is to not be mixed in
      * the output of this <tt>PushBufferStream</tt>
@@ -173,7 +173,7 @@ public class AudioMixingPushBufferStream
     /**
      * Gets the maximum possible value for an audio sample of a specific
      * <tt>AudioFormat</tt>.
-     * 
+     *
      * @param outputFormat the <tt>AudioFormat</tt> of which to get the maximum
      * possible value for an audio sample
      * @return the maximum possible value for an audio sample of the specified
@@ -205,9 +205,9 @@ public class AudioMixingPushBufferStream
      * Mixes as in audio mixing a specified collection of audio sample sets and
      * returns the resulting mix audio sample set in a specific
      * <tt>AudioFormat</tt>.
-     * 
+     *
      * @param inputSamples the collection of audio sample sets to be mixed into
-     * one audio sample set in the sense of audio mixing 
+     * one audio sample set in the sense of audio mixing
      * @param outputFormat the <tt>AudioFormat</tt> in which the resulting mix
      * audio sample set is to be produced
      * @param outputSampleCount the size of the resulting mix audio sample set
@@ -240,7 +240,7 @@ public class AudioMixingPushBufferStream
         }
 
         int maxOutputSample;
-    
+
         try
         {
             maxOutputSample = getMaxOutputSample(outputFormat);
@@ -249,23 +249,23 @@ public class AudioMixingPushBufferStream
         {
             throw new UnsupportedOperationException(ufex);
         }
-    
+
         for (int[] inputStreamSamples : inputSamples)
         {
-    
+
             if (inputStreamSamples == null)
                 continue;
-    
+
             int inputStreamSampleCount = inputStreamSamples.length;
-    
+
             if (inputStreamSampleCount <= 0)
                 continue;
-    
+
             for (int i = 0; i < inputStreamSampleCount; i++)
             {
                 int inputStreamSample = inputStreamSamples[i];
                 int outputSample = outputSamples[i];
-    
+
                 outputSamples[i]
                     = inputStreamSample
                             + outputSample
@@ -318,7 +318,7 @@ public class AudioMixingPushBufferStream
         AudioFormat outputFormat = getFormat();
         int[] outputSamples
             = mix(inputSamples, outputFormat, maxInputSampleCount);
-    
+
         Class<?> outputDataType = outputFormat.getDataType();
 
         if (Format.byteArray.equals(outputDataType))
@@ -361,7 +361,7 @@ public class AudioMixingPushBufferStream
      * Sets the collection of audio sample sets to be mixed in the sense of
      * audio mixing by this stream when data is read from it. Triggers a push to
      * the clients of this stream.
-     * 
+     *
      * @param inputSamples the collection of audio sample sets to be mixed by
      * this stream when data is read from it
      * @param maxInputSampleCount the maximum number of per-stream audio samples
@@ -442,7 +442,7 @@ public class AudioMixingPushBufferStream
      * Converts an integer to a series of bytes and writes the result into a
      * specific output array of bytes starting the writing at a specific offset
      * in it.
-     * 
+     *
      * @param input the integer to be written out as a series of bytes
      * @param output the output to receive the conversion of the specified
      * integer to a series of bytes

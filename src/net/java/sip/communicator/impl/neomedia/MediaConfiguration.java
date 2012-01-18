@@ -85,7 +85,7 @@ public class MediaConfiguration
      * Creates the ui controls for portaudio.
      * @param portAudioPanel the panel
      */
-    private static void createPortAudioControls(JPanel portAudioPanel)
+    static void createPortAudioControls(JPanel portAudioPanel)
     {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.insets = new Insets(3, 0, 3, 5);
@@ -182,13 +182,23 @@ public class MediaConfiguration
     }
 
     /**
-     * Creates all the controls for a type(AUDIO or VIDEO)
+     * Creates basic controls for a type(AUDIO or VIDEO)
      * @param type the type.
      * @return the build Component.
      */
-    private static Component createControls(int type)
+    public static Component createBasicControls(int type)
     {
-        SIPCommTabbedPane container = new SIPCommTabbedPane();
+        return createBasicControls(type, true);
+    }
+
+    /**
+     * Creates basic controls for a type(AUDIO or VIDEO)
+     * @param type the type.
+     * @param addTypeCbo add the type combobox
+     * @return the build Component.
+     */
+    public static Component createBasicControls(int type, boolean addTypeCbo)
+    {
         final JComboBox cboDevice = new JComboBox();
         cboDevice.setEditable(false);
         cboDevice.setModel(  new DeviceConfigurationComboBoxModel(
@@ -232,18 +242,22 @@ public class MediaConfiguration
         else
             portAudioPanel = null;
 
-        JLabel label = new JLabel(getLabelText(type));
-        label.setDisplayedMnemonic(getDisplayedMnemonic(type));
-        label.setLabelFor(cboDevice);
-
-        Container pnlDevice
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-        pnlDevice.setMaximumSize(new Dimension(WIDTH, 25));
-        pnlDevice.add(label);
-        pnlDevice.add(cboDevice);
-
         JPanel pnlDeviceAndDetails = new TransparentPanel(new BorderLayout());
-        pnlDeviceAndDetails.add(pnlDevice, BorderLayout.NORTH);
+
+        if(addTypeCbo)
+        {
+            Container pnlDevice
+                = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
+            JLabel label = new JLabel(getLabelText(type));
+
+            label.setDisplayedMnemonic(getDisplayedMnemonic(type));
+            label.setLabelFor(cboDevice);
+
+            pnlDevice.setMaximumSize(new Dimension(WIDTH, 25));
+            pnlDevice.add(label);
+            pnlDevice.add(cboDevice);
+            pnlDeviceAndDetails.add(pnlDevice, BorderLayout.NORTH);
+        }
 
         // if creating controls for audio will add devices panel
         // otherwise it is video controls and will add preview panel
@@ -258,6 +272,19 @@ public class MediaConfiguration
             );
         }
 
+        return pnlDeviceAndDetails;
+    }
+
+    /**
+     * Creates all the controls (including encoding) for a type(AUDIO or VIDEO)
+     * @param type the type.
+     * @return the build Component.
+     */
+    private static Component createControls(int type)
+    {
+        SIPCommTabbedPane container = new SIPCommTabbedPane();
+        Component pnlDeviceAndDetails = createBasicControls(type);
+
         ResourceManagementService R = NeomediaActivator.getResources();
         container.insertTab(
             R.getI18NString("impl.media.configform.DEVICES"),
@@ -265,7 +292,7 @@ public class MediaConfiguration
         container.insertTab(
             R.getI18NString("impl.media.configform.ENCODINGS"),
             null, createEncodingControls(type), null, 1);
-        if (portAudioPanel == null)
+        if (type == DeviceConfigurationComboBoxModel.VIDEO)
             container.insertTab(
                 R.getI18NString("impl.media.configform.VIDEO_MORE_SETTINGS"),
                 null, createVideoAdvancedSettings(), null, 2);

@@ -1211,6 +1211,8 @@ public abstract class CallPeerMediaHandler<
                 stream = mediaService.createMediaStream(
                             connector, device, control);
             }
+
+            stream.addPropertyChangeListener(getPeer().getCall());
         }
         else
         {

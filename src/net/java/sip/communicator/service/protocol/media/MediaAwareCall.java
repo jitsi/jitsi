@@ -12,6 +12,7 @@ import java.util.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -37,7 +38,8 @@ public abstract class MediaAwareCall<
                 U extends OperationSetBasicTelephony<V>,
                 V extends ProtocolProviderService>
     extends AbstractCall<T, V>
-    implements CallPeerListener
+    implements CallPeerListener,
+               PropertyChangeListener
 {
     /**
      * The <tt>MediaDevice</tt> which performs audio mixing for this
@@ -394,7 +396,7 @@ public abstract class MediaAwareCall<
          */
         if (MediaType.AUDIO.equals(mediaType))
         {
-            if ((conferenceAudioMixer == null) && (device != null)) 
+            if ((conferenceAudioMixer == null) && (device != null))
                 conferenceAudioMixer = mediaService.createMixer(device);
             device = conferenceAudioMixer;
         }
@@ -832,5 +834,36 @@ public abstract class MediaAwareCall<
     public void setAudioDevice(MediaDevice dev)
     {
         this.audioDevice = dev;
+    }
+
+    /**
+     * Notifies this <tt>PropertyChangeListener</tt> that the value of
+     * a specific property of the notifier it is registered with has
+     * changed.
+     *
+     * @param evt a <tt>PropertyChangeEvent</tt> which describes the
+     * source of the event, the name of the property which has changed
+     * its value and the old and new values of the property
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        String propertyName = evt.getPropertyName();
+
+        if(propertyName.equals("CHANGE_CAPTURE_DEV"))
+        {
+            conferenceAudioMixer = null;
+            for(MediaAwareCallPeer<?,?,?> p : getCallPeersVector())
+            {
+                MediaStream  stream =
+                    p.getMediaHandler().getStream(MediaType.AUDIO);
+                if(stream != null)
+                {
+                    MediaFormat fmt = stream.getFormat();
+                    stream.setDevice(getDefaultDevice(MediaType.AUDIO));
+                    stream.setFormat(fmt);
+                }
+            }
+        }
     }
 }

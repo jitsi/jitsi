@@ -260,12 +260,17 @@ AudioQualityImprovement_new
     if (aqi)
     {
         /* stringID */
-        aqi->stringID = strdup(stringID);
+        size_t slen = strlen(stringID);
+        aqi->stringID = malloc(slen + 1);
+
         if (!(aqi->stringID))
         {
             AudioQualityImprovement_free(aqi);
             return NULL;
         }
+        strncpy(aqi->stringID, stringID, slen);
+        aqi->stringID[slen] = 0x00;
+
         /* mutex */
         aqi->mutex = Mutex_new(NULL);
         if (!(aqi->mutex))

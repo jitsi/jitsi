@@ -293,6 +293,14 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_Po
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_setEchoFilterLengthInMillis
   (JNIEnv *, jclass, jlong, jlong);
 
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_portaudio_PortAudio
+ * Method:    updateAvailableDeviceList
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_updateAvailableDeviceList
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

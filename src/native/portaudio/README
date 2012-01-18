@@ -1,7 +1,13 @@
 1. portaudio
+
+    Get portaudio-hotplug branch and apply the portaudio-hotplug-os patch:
+    $ svn co https://www.portaudio.com/repos/portaudio/branches/hotplug
+    $ patch -p0 < portaudio-hotplug-os.patch
+    $ autoreconf -i (OS X and Linux only)
+
     - Linux/FreeBSD
-    pa_linux_alsa.c-by-Werner.patch
-    pa_linux_alsa.c-fix-blocked-renderer.patch
+    pa_linux_alsa.c-by-Werner.patch (already in portaudio-hotplug-os.patch)
+    pa_linux_alsa.c-fix-blocked-renderer.patch (already in portaudio-hotplug-os.patch)
     $ ./configure --disable-shared --enable-static --with-pic --with-jack=no && make/gmake 
 
     - Mac OS X
@@ -9,7 +15,11 @@
     $ ./configure --disable-shared --enable-static --with-pic && make
 
     - Windows
-    $ ./configure --disable-shared --enable-static --with-pic --with-dxdir=$DXDIR --with-winapi=wmme,directx && make
+    Download directx devpack for MinGW at http://www.dgrigoriadis.net/post/2004/06/26/DirectXDevPak-for-Dev-Cpp.aspx and
+    extract it.
+    
+    $ DXDIR=/path/to/directx_dev_pack_directory
+    $ ./configure --disable-shared --enable-static --with-pic --with-dxdir=$DXDIR --with-winapi=wmme,directx,wdmks && make
 
 2. speex
     - Linux/FreeBSD, Windows

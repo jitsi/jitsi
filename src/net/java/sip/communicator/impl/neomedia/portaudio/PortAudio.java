@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia.portaudio;
 import java.io.*;
 import java.lang.reflect.*;
 import java.nio.charset.*;
+import java.util.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
@@ -19,15 +20,26 @@ import net.java.sip.communicator.util.*;
  *
  * @author Lyubomir Marinov
  * @author Damian Minkov
+ * @author Sebastien Vincent
  */
 public final class PortAudio
 {
-
     /**
      * The <tt>Logger</tt> used by the <tt>PortAudio</tt> class for logging
      * output.
      */
     private static final Logger logger = Logger.getLogger(PortAudio.class);
+
+    /**
+     * List of device changed callbacks.
+     */
+    public static final List<PortAudioDeviceChangedCallback> callbacks =
+        new Vector<PortAudioDeviceChangedCallback>();
+
+    /**
+     * Synchronization object.
+     */
+    private static final Object syncRoot = new Object();
 
     static
     {
@@ -82,6 +94,9 @@ public final class PortAudio
      */
     public static final double LATENCY_UNSPECIFIED = 0d;
 
+    /**
+     * PortAudio "no device" constant.
+     */
     public static final int paNoDevice = -1;
 
     /**
@@ -499,6 +514,15 @@ public final class PortAudio
             int numberOfWrites)
         throws PortAudioException;
 
+    /**
+     * Gets the human-readable name of the <tt>PaDeviceInfo</tt> specified by a
+     * pointer to it.
+     *
+     * @param deviceInfo the pointer to the <tt>PaDeviceInfo</tt> to get the
+     * human-readable name of
+     * @return the human-readable name of the <tt>PaDeviceInfo</tt> pointed to
+     * by <tt>deviceInfo</tt>
+     */
     public static String PaDeviceInfo_getName(long deviceInfo)
     {
         byte[] nameBytes = PaDeviceInfo_getNameBytes(deviceInfo);
@@ -648,6 +672,12 @@ public final class PortAudio
      */
     public static native int PaHostApiInfo_getType(long hostApiInfo);
 
+    /**
+     * Free StreamParameters resources specified by a pointer to it.
+     *
+     * @param streamParameters the pointer to the <tt>PaStreamParameters</tt>
+     * to free
+     */
     public static void PaStreamParameters_free(long streamParameters)
     {
         try
@@ -732,6 +762,52 @@ public final class PortAudio
     public static native void setEchoFilterLengthInMillis(
             long stream,
             long echoFilterLengthInMillis);
+
+    /**
+     * Updates available device lists in PortAudio.
+     */
+    private static native void updateAvailableDeviceList();
+
+    /**
+     * Adds a device changed callback.
+     *
+     * @param cb callback that will be called if device are added/removed
+     */
+    public static void addDeviceChangedCallback(
+        PortAudioDeviceChangedCallback cb)
+    {
+        if(!callbacks.contains(cb))
+            callbacks.add(cb);
+    }
+
+    /**
+     * Removes a device changed callback.
+     *
+     * @param cb callback that will be called if device are added/removed
+     */
+    public static void removeDeviceChangedCallback(
+        PortAudioDeviceChangedCallback cb)
+    {
+        if(callbacks.contains(cb))
+            callbacks.remove(cb);
+    }
+
+
+    /**
+     * Callback called from native PortAudio side that notify device changed.
+     */
+    public static void deviceChanged()
+    {
+        synchronized(syncRoot)
+        {
+            updateAvailableDeviceList();
+
+            for(PortAudioDeviceChangedCallback cb : callbacks)
+            {
+                cb.deviceChanged();
+            }
+        }
+    }
 
     /**
      * Prevents the creation of <tt>PortAudio</tt> instances.

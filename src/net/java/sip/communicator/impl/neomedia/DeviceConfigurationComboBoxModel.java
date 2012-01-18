@@ -14,12 +14,14 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
+import net.java.sip.communicator.impl.neomedia.portaudio.*;
 
 /**
  * @author Lubomir Marinov
  */
 public class DeviceConfigurationComboBoxModel
-    implements ComboBoxModel
+    implements ComboBoxModel,
+               PortAudioDeviceChangedCallback
 {
     /**
      * Encapsulates CaptureDeviceInfo
@@ -133,6 +135,11 @@ public class DeviceConfigurationComboBoxModel
 
         this.deviceConfiguration = deviceConfiguration;
         this.type = type;
+        
+        if(type == AUDIO)
+        {
+            PortAudio.addDeviceChangedCallback(this);
+        }
     }
 
     public void addListDataListener(ListDataListener listener)
@@ -169,9 +176,8 @@ public class DeviceConfigurationComboBoxModel
      */
     private CaptureDevice[] getDevices()
     {
-        if (devices != null)
+        if (type != AUDIO && devices != null)
             return devices;
-
 
         CaptureDeviceInfo[] infos;
         switch (type)
@@ -228,7 +234,6 @@ public class DeviceConfigurationComboBoxModel
         default:
             throw new IllegalStateException("type");
         }
-
 
         for (CaptureDevice device : getDevices())
         {
@@ -331,5 +336,46 @@ public class DeviceConfigurationComboBoxModel
         {
             devices = null;
         }
+    }
+    
+    /**
+     * Reinitializes audio devices.
+     */
+    public void reinitAudio()
+    {
+        if(type == AUDIO)
+        {
+            devices = null;
+            // only for PortAudio
+            if(deviceConfiguration.getAudioSystem().equals(
+                DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+            {
+                String systemName = DeviceConfiguration.AUDIO_NONE;
+                
+                deviceConfiguration.setAudioSystem(systemName, null, false);
+                fireContentsChanged(-1, -1);
+                setSelectedItem(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
+                fireContentsChanged(-1, -1);
+            }
+        }
+    }
+    
+    /**
+     * Callback when PortAudio device changed.
+     */
+    public void deviceChanged()
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    deviceChanged();
+                }
+            });
+            return;
+        }   
+        reinitAudio();
     }
 }

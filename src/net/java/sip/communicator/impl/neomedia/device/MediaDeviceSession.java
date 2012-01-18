@@ -340,6 +340,10 @@ public class MediaDeviceSession
         // playback
         if (disposePlayerOnClose)
             disposePlayer();
+
+        processor = null;
+        player = null;
+        captureDevice = null;
     }
 
     /**

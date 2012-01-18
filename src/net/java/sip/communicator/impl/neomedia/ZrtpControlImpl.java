@@ -205,7 +205,7 @@ public class ZrtpControlImpl
      * calls this method to start the multi-stream ZRTP sessions.
      *
      * enable auto-start mode (auto-sensing) to the engine.
-     * @param multiStreamData
+     * @param master master SRTP data
      */
     public void setMultistream(SrtpControl master)
     {
@@ -258,7 +258,7 @@ public class ZrtpControlImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.neomedia.ZrtpControl#getSecurityString
      * ()
@@ -270,7 +270,7 @@ public class ZrtpControlImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * net.java.sip.communicator.service.neomedia.ZrtpControl#isSecurityVerified
      * ()
@@ -282,7 +282,7 @@ public class ZrtpControlImpl
 
     /**
      * Returns false, ZRTP exchanges is keys over the media path.
-     * 
+     *
      * @return false
      */
     public boolean requiresSecureSignalingTransport()

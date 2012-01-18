@@ -64,6 +64,15 @@ typedef struct
     JavaVM *vm;
 } PortAudioStream;
 
+/**
+ * \brief PortAudio attribute for device changed callback.
+ */
+typedef struct PortAudioDeviceChangedAttr
+{
+    jclass clazz; /**< PortAudio class reference. */
+    jmethodID methodid; /**< Method void deviceChanged() reference. */
+}PortAudioDeviceChangedAttr;
+
 static PaStreamParameters *PortAudio_fixInputParametersSuggestedLatency
     (PaStreamParameters *inputParameters,
     jdouble sampleRate, jlong framesPerBuffer,
@@ -128,11 +137,15 @@ static int PortAudioStream_pseudoBlockingCallback
 static void PortAudioStream_pseudoBlockingFinishedCallback(void *userData);
 static void PortAudioStream_release(PortAudioStream *stream);
 static void PortAudioStream_retain(PortAudioStream *stream);
+static void devicesChangedCallback(void* p);
 
 static const char *AUDIO_QUALITY_IMPROVEMENT_STRING_ID = "portaudio";
 #define LATENCY_HIGH net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_HIGH
 #define LATENCY_LOW net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_LOW
 #define LATENCY_UNSPECIFIED net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_LATENCY_UNSPECIFIED
+
+static JavaVM* g_jvm = NULL;
+static PortAudioDeviceChangedAttr g_device_changed_attr;
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_free
@@ -231,9 +244,27 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_Pa_1Initialize(
     JNIEnv *env, jclass clazz)
 {
     PaError errorCode = Pa_Initialize();
+    jclass cls = NULL;
+    jmethodID mid = NULL;
 
     if (paNoError != errorCode)
         PortAudio_throwException(env, errorCode);
+
+    (*env)->GetJavaVM(env, &g_jvm);
+    cls = (*env)->FindClass(env, "net/java/sip/communicator/impl/neomedia/portaudio/PortAudio");
+
+    if(cls)
+    {
+        cls = (*env)->NewGlobalRef(env, cls);
+    }
+
+    if(cls)
+    {
+        mid = (*env)->GetStaticMethodID(env, cls, "deviceChanged", "()V");
+    }
+    g_device_changed_attr.clazz = cls;
+    g_device_changed_attr.methodid = mid;
+    Pa_SetDevicesChangedCallback(NULL, devicesChangedCallback);
 }
 
 JNIEXPORT jboolean JNICALL
@@ -950,6 +981,12 @@ Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_setEchoFilterLe
     }
 }
 
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_portaudio_PortAudio_updateAvailableDeviceList
+    (JNIEnv *env, jclass clazz)
+{
+    Pa_UpdateAvailableDeviceList();
+}
+
 JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved)
 {
@@ -1467,3 +1504,32 @@ PortAudioStream_retain(PortAudioStream *stream)
         Mutex_unlock(stream->mutex);
     }
 }
+
+static void devicesChangedCallback(void* p)
+{
+    JNIEnv *env = NULL;
+    jclass clazz = NULL;
+    jmethodID methodid = NULL;
+
+    (void)p;
+
+    if ((*g_jvm)->AttachCurrentThread(g_jvm, (void **)&env, NULL ))
+    {
+        fprintf( stderr, "failed to attach current thread to JVM\n" );fflush(stderr);
+        return;
+    }
+
+    clazz = g_device_changed_attr.clazz;
+    methodid = g_device_changed_attr.methodid;
+
+    if(clazz)
+    {
+        if(methodid)
+        {
+            (*env)->CallStaticVoidMethod(env, clazz, methodid);
+        }
+    }
+
+    (*g_jvm)->DetachCurrentThread(g_jvm);
+}
+

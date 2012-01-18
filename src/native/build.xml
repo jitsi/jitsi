@@ -452,6 +452,7 @@
       <linkerarg value="-lportaudio" location="end" if="is.running.windows" />
       <linkerarg value="-lspeexdsp" location="end" if="is.running.windows" />
       <linkerarg value="-lwinmm" location="end" if="is.running.windows" />
+      <linkerarg value="-lsetupapi" location="end" if="is.running.windows" />
       <linkerarg value="-lm" location="end" if="is.running.windows" />
       <linkerarg value="-lstdc++" location="end" if="is.running.windows" />
       <linkerarg value="-lole32" location="end" if="is.running.windows" />

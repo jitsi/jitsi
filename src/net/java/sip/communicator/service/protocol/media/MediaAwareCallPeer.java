@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.protocol.media;
 import java.beans.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.neomedia.SrtpControl;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
