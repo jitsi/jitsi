@@ -1544,10 +1544,6 @@ public class ContactListTreeCellRenderer
             if(!source.equals(treeNode))
                 return;
 
-            // if call button is enabled nothing to check
-            if(callButton.isEnabled())
-                return;
-
             while(details.hasNext())
             {
                 GenericDetail d = details.next();
@@ -1564,7 +1560,7 @@ public class ContactListTreeCellRenderer
                         {
                             public void run()
                             {
-                                callButton.setEnabled(false);
+                                callButton.setEnabled(true);
 
                                 tree.refreshContact(uiContact);
                             }

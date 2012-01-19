@@ -194,7 +194,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
                 List<GenericDetail> result =
                     infoRetreiver.retrieveDetails(contact.getAddress());
 
-                if(contact.getImage() != null)
+                if(contact.getImage() != null && result != null)
                 {
                     result.add(new ServerStoredDetails.ImageDetail(
                         "Image", contact.getImage()));
@@ -208,7 +208,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
                         listenersForDetails.remove(contact.getAddress());
                 }
 
-                if(listeners == null)
+                if(listeners == null || result == null)
                     return;
 
                 for(DetailsResponseListener l : listeners)

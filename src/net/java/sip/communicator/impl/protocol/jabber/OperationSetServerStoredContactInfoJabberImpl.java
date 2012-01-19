@@ -165,7 +165,7 @@ public class OperationSetServerStoredContactInfoJabberImpl
                         listenersForDetails.remove(contact.getAddress());
                 }
 
-                if(listeners == null)
+                if(listeners == null || result == null)
                     return;
 
                 for(DetailsResponseListener l : listeners)
