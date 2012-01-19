@@ -614,7 +614,7 @@ public class MediaServiceImpl
 
                 PortAudio.addDeviceChangedCallback(this);
             }
-            catch(Exception e)
+            catch(Throwable e)
             {
                 logger.info("Cannot create audio configuration panel", e);
             }
