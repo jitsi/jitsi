@@ -1345,13 +1345,28 @@ public class ChatPanel
      */
     protected void sendInstantMessage()
     {
-        // Trims the html message, as it sometimes contains a lot of empty
-        // lines, which causes some problems to some protocols.
-        String htmlText = getTextFromWriteArea(
-            OperationSetBasicInstantMessaging.HTML_MIME_TYPE).trim();
+        String htmlText;
+        String plainText;
 
-        String plainText = getTextFromWriteArea(
-            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+        // read the text and clear it as quick as possible
+        // to avoid double sending if the user hits enter too quickly
+        synchronized(writeMessagePanel)
+        {
+            if(isWriteAreaEmpty())
+                return;
+
+            // Trims the html message, as it sometimes contains a lot of empty
+            // lines, which causes some problems to some protocols.
+            htmlText = getTextFromWriteArea(
+                OperationSetBasicInstantMessaging.HTML_MIME_TYPE).trim();
+
+            plainText = getTextFromWriteArea(
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+
+            // clear the message earlier
+            // to avoid as much as possible to not sending it twice (double enter)
+            this.refreshWriteArea();
+        }
 
         String messageText;
         String mimeType;
@@ -1430,8 +1445,6 @@ public class ChatPanel
             // Send TYPING STOPPED event before sending the message
             getChatWritePanel().stopTypingTimer();
         }
-
-        this.refreshWriteArea();
     }
 
     /**
