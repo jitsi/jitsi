@@ -569,48 +569,55 @@ public class MediaServiceImpl
 
         if(!OSUtils.IS_ANDROID)
         {
-            final Component panel = MediaConfiguration.createBasicControls(
-                DeviceConfigurationComboBoxModel.AUDIO, false);
-
-            audioConfiguration = new SIPCommDialog()
+            try
             {
-                /**
-                 * Serial version UID.
-                 */
-                private static final long serialVersionUID = 0L;
+                final Component panel = MediaConfiguration.createBasicControls(
+                    DeviceConfigurationComboBoxModel.AUDIO, false);
 
-                /**
-                 * {@inheritDoc}
-                 */
-                @Override
-                protected void close(boolean isEscaped)
+                audioConfiguration = new SIPCommDialog()
                 {
-                    setVisible(false);
-                }
-            };
+                    /**
+                     * Serial version UID.
+                     */
+                    private static final long serialVersionUID = 0L;
 
-            TransparentPanel mainPanel = new TransparentPanel(new
-                BorderLayout());
-            TransparentPanel btnPanel = new TransparentPanel(new
-                FlowLayout(FlowLayout.RIGHT));
-            JButton btn = new JButton(NeomediaActivator.getResources().
-                getI18NString("service.gui.CLOSE"));
-            btn.addActionListener(new ActionListener()
+                    /**
+                     * {@inheritDoc}
+                     */
+                    @Override
+                    protected void close(boolean isEscaped)
+                    {
+                        setVisible(false);
+                    }
+                };
+
+                TransparentPanel mainPanel = new TransparentPanel(new
+                    BorderLayout());
+                TransparentPanel btnPanel = new TransparentPanel(new
+                    FlowLayout(FlowLayout.RIGHT));
+                JButton btn = new JButton(NeomediaActivator.getResources().
+                    getI18NString("service.gui.CLOSE"));
+                btn.addActionListener(new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent evt)
+                    {
+                        audioConfiguration.setVisible(false);
+                    }
+                });
+                btnPanel.add(btn);
+                mainPanel.add(panel, BorderLayout.CENTER);
+                mainPanel.add(btnPanel, BorderLayout.SOUTH);
+
+                audioConfiguration.add(mainPanel);
+                audioConfiguration.validate();
+                audioConfiguration.pack();
+
+                PortAudio.addDeviceChangedCallback(this);
+            }
+            catch(Exception e)
             {
-                public void actionPerformed(ActionEvent evt)
-                {
-                    audioConfiguration.setVisible(false);
-                }
-            });
-            btnPanel.add(btn);
-            mainPanel.add(panel, BorderLayout.CENTER);
-            mainPanel.add(btnPanel, BorderLayout.SOUTH);
-
-            audioConfiguration.add(mainPanel);
-            audioConfiguration.validate();
-            audioConfiguration.pack();
-
-            PortAudio.addDeviceChangedCallback(this);
+                logger.info("Cannot create audio configuration panel", e);
+            }
         }
     }
 
