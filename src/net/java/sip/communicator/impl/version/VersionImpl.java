@@ -308,7 +308,7 @@ public class VersionImpl
             catch (Exception e)
             {
                 // if resource bundle is not found or the key is missing
-                // return the defautl name
+                // return the default name
                 applicationName = DEFAULT_APPLICATION_NAME;
             }
         }

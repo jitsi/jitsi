@@ -59,15 +59,16 @@ public class VersionActivator
 
         VersionServiceImpl versionServiceImpl = new VersionServiceImpl();
 
-        //reg the icq account man.
         versionServReg =  context.registerService(
                     VersionService.class.getName(),
                     versionServiceImpl,
                     null);
         if (logger.isDebugEnabled())
-            logger.debug("SIP Protocol Provider Factory ... [REGISTERED]");
-        if (logger.isDebugEnabled())
-            logger.debug("SIP Communicator Version: sip-communicator-"
+            logger.debug("Jitsi Version Service ... [REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("Jitsi Version: "
+                     + VersionImpl.currentVersion().getApplicationName()
+                     + " "
                      + VersionImpl.currentVersion().toString());
 
         //register properties for those that would like to use them
