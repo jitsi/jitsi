@@ -188,6 +188,14 @@ public class ProtocolProviderServiceJabberImpl
     public static final int SMACK_PACKET_REPLY_TIMEOUT = 45000;
 
     /**
+     * Property for vcard reply timeout. Time to wait before
+     * we think vcard retrieving has timeouted, default value
+     * of smack is 5000 (5 sec.).
+     */
+    public static final String VCARD_REPLY_TIMEOUT_PROPERTY =
+        "net.java.sip.communicator.impl.protocol.jabber.VCARD_REPLY_TIMEOUT";
+
+    /**
      * XMPP signaling DSCP configuration property name.
      */
     private static final String XMPP_DSCP_PROPERTY =

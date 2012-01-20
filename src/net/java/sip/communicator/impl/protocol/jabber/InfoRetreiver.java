@@ -6,13 +6,16 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.lang.reflect.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.ServerStoredDetails;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
-import net.java.sip.communicator.util.Logger;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smackx.packet.VCard;
+import net.java.sip.communicator.util.*;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * Handles and retrieves all info of our contacts or our account info
@@ -40,11 +43,20 @@ public class InfoRetreiver
     // used when sending commands for user info to the server
     private final String ownerUin;
 
+    /**
+     * The timeout to wait before considering vcard has time outed.
+     */
+    private final long vcardTimeoutReply;
+
     protected InfoRetreiver
         (ProtocolProviderServiceJabberImpl jabberProvider, String ownerUin)
     {
         this.jabberProvider = jabberProvider;
         this.ownerUin = ownerUin;
+        
+        vcardTimeoutReply = JabberActivator.getConfigurationService().getLong(
+            ProtocolProviderServiceJabberImpl.VCARD_REPLY_TIMEOUT_PROPERTY,
+            -1);
     }
 
     /**
@@ -128,7 +140,14 @@ public class InfoRetreiver
                 return null;
 
             VCard card = new VCard();
-            card.load(connection, contactAddress);
+
+            // if there is no value or is equals to the default one
+            // load vcard using smack load method
+            if(vcardTimeoutReply == -1
+               || vcardTimeoutReply == SmackConfiguration.getPacketReplyTimeout())
+                card.load(connection, contactAddress);
+            else
+                load(card, connection, contactAddress, vcardTimeoutReply);
 
             String tmp;
 
@@ -284,6 +303,11 @@ public class InfoRetreiver
         return retreivedDetails.get(contactAddress);
     }
 
+    /**
+     * Checks for full name tag in the <tt>card</tt>.
+     * @param card the card to check.
+     * @return the Full name if existing, null otherwise.
+     */
     private String checkForFullName(VCard card)
     {
         String vcardXml = card.toXML();
@@ -300,6 +324,68 @@ public class InfoRetreiver
             return null;
 
         return vcardXml.substring(indexOpen + TAG_FN_OPEN.length(), indexClose);
+    }
+
+    /**
+     * Load VCard for the given user.
+     * Using the specified timeout.
+     */
+    public void load(VCard vcard,
+                     Connection connection,
+                     String user,
+                     long timeout)
+        throws XMPPException
+    {
+        vcard.setTo(user);
+
+        vcard.setType(IQ.Type.GET);
+        PacketCollector collector = connection.createPacketCollector(
+                new PacketIDFilter(vcard.getPacketID()));
+        connection.sendPacket(vcard);
+
+        VCard result = null;
+        try
+        {
+            result = (VCard) collector.nextResult(timeout);
+
+            if (result == null)
+            {
+                String errorMessage = "Timeout getting VCard information";
+                throw new XMPPException(errorMessage, new XMPPError(
+                        XMPPError.Condition.request_timeout, errorMessage));
+            }
+
+            if (result.getError() != null)
+            {
+                throw new XMPPException(result.getError());
+            }
+        }
+        catch (ClassCastException e)
+        {
+            logger.error("No vcard for " + user);
+        }
+
+        if (result == null)
+            result = new VCard();
+
+        // copy loaded vcard fields in the supplied one.
+        Field[] fields = VCard.class.getDeclaredFields();
+        for (Field field : fields)
+        {
+            if (field.getDeclaringClass() == VCard.class &&
+                    !Modifier.isFinal(field.getModifiers()))
+            {
+                try
+                {
+                    field.setAccessible(true);
+                    field.set(vcard, field.get(result));
+                }
+                catch (IllegalAccessException e)
+                {
+                    throw new RuntimeException("Cannot set field:" + field, e);
+                }
+            }
+        }
     }
 
     /**
