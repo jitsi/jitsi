@@ -31,6 +31,11 @@ public abstract class BasicConferenceParticipantPanel
     implements Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Background color.
      */
     private static final Color bgColor = new Color(255, 255, 255);
@@ -144,6 +149,7 @@ public abstract class BasicConferenceParticipantPanel
      * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
      *
      * @param renderer the renderer for the call
+     * @param isLocalPeer if the peer is the local ones
      */
     public BasicConferenceParticipantPanel( CallRenderer renderer,
                                             boolean isLocalPeer)
@@ -428,7 +434,7 @@ public abstract class BasicConferenceParticipantPanel
      * <p>
      * Sets the secured status icon to the status panel and initializes/updates
      * the corresponding security details.
-     * 
+     *
      * @param evt Details about the event that caused this message.
      */
     public void securityOn(CallPeerSecurityOnEvent evt)
@@ -457,7 +463,7 @@ public abstract class BasicConferenceParticipantPanel
 
     /**
      * Indicates that the security has gone off.
-     * 
+     *
      * @param evt Details about the event that caused this message.
      */
     public void securityOff(CallPeerSecurityOffEvent evt)

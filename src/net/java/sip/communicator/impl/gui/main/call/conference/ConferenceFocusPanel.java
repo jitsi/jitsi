@@ -56,6 +56,12 @@ public class ConferenceFocusPanel
             = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
 
     /**
+     * Listens for sound level events on the conference members.
+     */
+    private ConferenceMembersSoundLevelListener
+        conferenceMembersSoundLevelListener = null;
+
+    /**
      * The panel of the focus peer.
      */
     private ConferencePeerPanel focusPeerPanel;
@@ -73,6 +79,7 @@ public class ConferenceFocusPanel
      * @param callRenderer the parent call renderer
      * @param callPanel the call panel
      * @param callPeer the peer represented by this focus panel
+     * @param videoHandler the video handler
      */
     public ConferenceFocusPanel(ConferenceCallPanel callRenderer,
                                 CallPanel callPanel,
@@ -127,7 +134,8 @@ public class ConferenceFocusPanel
     public void addConferenceMemberPanel(ConferenceMember member)
     {
         String localUserAddress
-            = focusPeer.getProtocolProvider().getAccountID().getAccountAddress();
+            = focusPeer.getProtocolProvider().getAccountID().
+                getAccountAddress();
 
         boolean isLocalMember
             = addressesAreEqual(member.getAddress(), localUserAddress);
@@ -540,22 +548,26 @@ public class ConferenceFocusPanel
     }
 
     /**
-     * Returns null to indicate that there's no conference member sound level
-     * listener registered with this focus panel.
+     * Returns the listener instance and created if needed.
+     * @return the conferenceMembersSoundLevelListener
      */
     public ConferenceMembersSoundLevelListener
         getConferenceMembersSoundLevelListener()
     {
-        return null;
+        if(conferenceMembersSoundLevelListener == null)
+            conferenceMembersSoundLevelListener =
+                new ConfMembersSoundLevelListener();
+
+        return conferenceMembersSoundLevelListener;
     }
 
     /**
-     * Returns null to indicate that there's no stream sound level listener
-     * registered with this focus panel.
+     * Returns the listener instance and created if needed.
+     * @return the streamSoundLevelListener
      */
     public SoundLevelListener getStreamSoundLevelListener()
     {
-        return null;
+        return focusPeerPanel.getStreamSoundLevelListener();
     }
 
     /**
@@ -572,8 +584,57 @@ public class ConferenceFocusPanel
         }
     }
 
+    /**
+     * Returns the video handler associated with this call peer renderer.
+     *
+     * @return the video handler associated with this call peer renderer
+     */
     public UIVideoHandler getVideoHandler()
     {
         return videoHandler;
+    }
+
+    /**
+     * Updates according sound level indicators to reflect the new member sound
+     * level.
+     */
+    private class ConfMembersSoundLevelListener
+        implements ConferenceMembersSoundLevelListener
+    {
+        /**
+         * Delivers <tt>SoundLevelChangeEvent</tt>s on conference member
+         * sound level change.
+         *
+         * @param event the notification event containing the list of changes.
+         */
+        public void soundLevelChanged(
+            ConferenceMembersSoundLevelEvent event)
+        {
+            Map<ConferenceMember, Integer> levels = event.getLevels();
+
+            for(Map.Entry<ConferenceMember, Integer> e : levels.entrySet())
+            {
+                ConferenceMember key = e.getKey();
+                Integer value = e.getValue();
+                Contact contact = focusPeerPanel.getCallPeerContact();
+
+                if(key.getAddress().equals(
+                    contact.getAddress()))
+                {
+                    focusPeerPanel.updateSoundBar(value);
+                    break;
+                }
+            }
+
+            for (Map.Entry<ConferenceMember, ConferenceMemberPanel> entry
+                    : conferenceMembersPanels.entrySet())
+            {
+                ConferenceMember member = entry.getKey();
+                int memberSoundLevel
+                    = levels.containsKey(member) ? levels.get(member) : 0;
+
+                entry.getValue().updateSoundBar(memberSoundLevel);
+            }
+        }
     }
 }

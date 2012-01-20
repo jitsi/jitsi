@@ -576,7 +576,6 @@ public abstract class MediaAwareCallPeer
     {
         synchronized (conferenceMemberAudioLevelListeners)
         {
-
             if (conferenceMemberAudioLevelListeners.size() == 0)
             {
                 // if this is the first listener that's being registered with

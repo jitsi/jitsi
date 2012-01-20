@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
-import java.util.*;
 
 import javax.swing.*;
 
@@ -85,19 +84,6 @@ public class ConferencePeerPanel
     private CallPeerAdapter callPeerAdapter;
 
     /**
-     * Maps a <tt>ConferenceMember</tt> to its renderer panel.
-     */
-    private final Hashtable<ConferenceMember, ConferenceMemberPanel>
-        conferenceMembersPanels
-            = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
-
-    /**
-     * Listens for sound level events on the conference members.
-     */
-    private ConferenceMembersSoundLevelListener
-        conferenceMembersSoundLevelListener = null;
-
-    /**
      * Listens for sound level changes on the stream of the
      * conference members.
      */
@@ -153,6 +139,7 @@ public class ConferencePeerPanel
      * @param callRenderer the renderer of the corresponding call
      * @param callContainer the container, in which this panel is shown
      * @param callPeer The peer who own this UI
+     * @param videoHandler the video handler
      */
     public ConferencePeerPanel( ConferenceCallPanel callRenderer,
                                 CallPanel callContainer,
@@ -212,7 +199,7 @@ public class ConferencePeerPanel
      * <p>
      * Sets the secured status icon to the status panel and initializes/updates
      * the corresponding security details.
-     * 
+     *
      * @param evt Details about the event that caused this message.
      */
     @Override
@@ -233,7 +220,7 @@ public class ConferencePeerPanel
 
     /**
      * Indicates that the security has gone off.
-     * 
+     *
      * @param evt Details about the event that caused this message.
      */
     @Override
@@ -385,17 +372,13 @@ public class ConferencePeerPanel
     }
 
     /**
-     * Returns the listener instance and created if needed.
-     * @return the conferenceMembersSoundLevelListener
+     * Returns null to indicate that there's no stream sound level listener
+     * registered with this focus panel.
      */
     public ConferenceMembersSoundLevelListener
         getConferenceMembersSoundLevelListener()
     {
-        if(conferenceMembersSoundLevelListener == null)
-            conferenceMembersSoundLevelListener =
-                new ConfMembersSoundLevelListener();
-
-        return conferenceMembersSoundLevelListener;
+        return null;
     }
 
     /**
@@ -407,36 +390,6 @@ public class ConferencePeerPanel
         if(streamSoundLevelListener == null)
             streamSoundLevelListener = new StreamSoundLevelListener();
         return streamSoundLevelListener;
-    }
-
-    /**
-     * Updates according sound level indicators to reflect the new member sound
-     * level.
-     */
-    private class ConfMembersSoundLevelListener
-        implements ConferenceMembersSoundLevelListener
-    {
-        /**
-         * Delivers <tt>SoundLevelChangeEvent</tt>s on conference member
-         * sound level change.
-         *
-         * @param event the notification event containing the list of changes.
-         */
-        public void soundLevelChanged(
-            ConferenceMembersSoundLevelEvent event)
-        {
-            Map<ConferenceMember, Integer> levels = event.getLevels();
-
-            for (Map.Entry<ConferenceMember, ConferenceMemberPanel> entry
-                    : conferenceMembersPanels.entrySet())
-            {
-                ConferenceMember member = entry.getKey();
-                int memberSoundLevel
-                    = levels.containsKey(member) ? levels.get(member) : 0;
-
-                entry.getValue().updateSoundBar(memberSoundLevel);
-            }
-        }
     }
 
     /**
@@ -497,7 +450,7 @@ public class ConferencePeerPanel
 
     /**
      * Returns the parent call renderer.
-     * 
+     *
      * @return the parent call renderer
      */
     public CallRenderer getCallRenderer()
@@ -523,5 +476,15 @@ public class ConferencePeerPanel
     public UIVideoHandler getVideoHandler()
     {
         return videoHandler;
+    }
+
+    /**
+     * Returns <tt>CallPeer</tt> contact.
+     *
+     * @return <tt>CallPeer</tt> contact
+     */
+    public Contact getCallPeerContact()
+    {
+        return callPeer.getContact();
     }
 }

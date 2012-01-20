@@ -39,6 +39,9 @@ public class ConferenceCallPanel
      */
     private final Call call;
 
+    /**
+     * The scroll pane.
+     */
     private final JScrollPane scrollPane = new JScrollPane();
 
     /**
@@ -68,6 +71,9 @@ public class ConferenceCallPanel
     private final List<Container> videoContainers
         = new LinkedList<Container>();
 
+    /**
+     * The video handler.
+     */
     private UIVideoHandler videoHandler;
 
     /**
@@ -144,6 +150,11 @@ public class ConferenceCallPanel
         videoContainers.add(videoContainer);
     }
 
+    /**
+     * Returns the vertical <tt>JScrollBar</tt>.
+     *
+     * @return the vertical <tt>JScrollBar</tt>
+     */
     public JScrollBar getVerticalScrollBar()
     {
         return scrollPane.getVerticalScrollBar();
@@ -201,14 +212,18 @@ public class ConferenceCallPanel
         {
             confPeerRenderer = new ConferenceFocusPanel(
                 this, callPanel, peer, videoHandler);
+            peer.addConferenceMembersSoundLevelListener(confPeerRenderer.
+                getConferenceMembersSoundLevelListener());
+            peer.addStreamSoundLevelListener(confPeerRenderer.
+                getStreamSoundLevelListener());
         }
         else
         {
             confPeerRenderer
                 = new ConferencePeerPanel(this, callPanel, peer, videoHandler);
 
-            peer.addConferenceMembersSoundLevelListener(
-                confPeerRenderer.getConferenceMembersSoundLevelListener());
+            //peer.addConferenceMembersSoundLevelListener(
+            //    confPeerRenderer.getConferenceMembersSoundLevelListener());
             peer.addStreamSoundLevelListener(
                 confPeerRenderer.getStreamSoundLevelListener());
         }

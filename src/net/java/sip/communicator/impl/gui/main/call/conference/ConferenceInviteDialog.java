@@ -28,6 +28,11 @@ import net.java.sip.communicator.util.swing.*;
 public class ConferenceInviteDialog
     extends InviteDialog
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final JComboBox accountSelectorBox = new JComboBox();
 
     private Object lastSelectedAccount;
@@ -78,6 +83,8 @@ public class ConferenceInviteDialog
 
         this.accountSelectorBox.setRenderer(new DefaultListCellRenderer()
         {
+            private static final long serialVersionUID = 0L;
+
             public Component getListCellRendererComponent(JList list,
                 Object value, int index, boolean isSelected,
                 boolean cellHasFocus)

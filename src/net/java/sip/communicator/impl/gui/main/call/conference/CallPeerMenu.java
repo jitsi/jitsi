@@ -32,6 +32,11 @@ public class CallPeerMenu
     implements  CallPeerListener,
                 Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final CallPeer callPeer;
 
     private final String onHoldText = GuiActivator.getResources()

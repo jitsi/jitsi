@@ -30,6 +30,11 @@ public class SoundLevelIndicator
                Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Image when a sound level block is active
      */
     private ImageIcon soundLevelActiveImage;
@@ -240,7 +245,7 @@ public class SoundLevelIndicator
     /**
      * Returns the number of sound level bars that we could currently show in
      * this panel.
-     * 
+     *
      * @param windowWidth the current width of the call window
      * @return the number of sound level bars that we could currently show in
      * this panel
