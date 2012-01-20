@@ -37,6 +37,7 @@ public class KeepAliveEvent
     /**
      * Construct packet for sending.
      *
+     * @param from the address of the contact that the packet coming from.
      * @param to the address of the contact that the packet is to be sent to.
      */
     public KeepAliveEvent(String from, String to)

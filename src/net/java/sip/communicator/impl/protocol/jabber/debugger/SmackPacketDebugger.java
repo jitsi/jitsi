@@ -8,11 +8,8 @@ package net.java.sip.communicator.impl.protocol.jabber.debugger;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.service.packetlogging.*;
-import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
-
-import java.net.*;
 
 /**
  * The jabber packet listener that logs the packets to the packet logging
@@ -44,7 +41,7 @@ public class SmackPacketDebugger
     private PacketLoggingService packetLogging = null;
 
     /**
-     * Creates the SmackPacketDebugger instance. 
+     * Creates the SmackPacketDebugger instance.
      */
     public SmackPacketDebugger()
     {

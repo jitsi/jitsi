@@ -343,7 +343,7 @@ public class OperationSetBasicTelephonyJabberImpl
             else
             {
                 // test GTALK property
-                if(!protocolProvider.isGTalkTesting() && !alwaysCallGtalk)
+                if(!protocolProvider.isGTalkTesting())
                 {
                     continue;
                 }
@@ -1054,16 +1054,16 @@ public class OperationSetBasicTelephonyJabberImpl
                 final CallGTalkImpl call = callPeer.getCall();
                 final String redirAddr;
                 String redir = redirect.getRedir();
-                
+
                 if(redir.startsWith("xmpp:"))
                     redirAddr = redir.substring(5);
                 else
                     redirAddr = null;
-                
+
                 if(redirAddr == null)
                     return;
-                
-                // launch the "new" call in another thread to not block 
+
+                // launch the "new" call in another thread to not block
                 // smack processor
                 new Thread()
                 {

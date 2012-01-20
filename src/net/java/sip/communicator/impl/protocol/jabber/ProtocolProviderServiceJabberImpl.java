@@ -200,7 +200,7 @@ public class ProtocolProviderServiceJabberImpl
      */
     private static final String XMPP_DSCP_PROPERTY =
         "net.java.sip.communicator.impl.protocol.XMPP_DSCP";
-    
+
     /**
      * Google voice domain name.
      */
