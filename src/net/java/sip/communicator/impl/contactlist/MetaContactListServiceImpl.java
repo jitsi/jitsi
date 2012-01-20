@@ -2534,13 +2534,18 @@ public class MetaContactListServiceImpl
                     + evt.getSourceGroup().getGroupName() + "should be placed.");
             }
 
+            // check whether the meta group was already existing before
+            // adding proto-groups to it
+            boolean isExisting = parentMetaGroup.getMetaContactSubgroup(
+                evt.getSourceGroup().getGroupName()) != null;
+
             // add parent group to the ServerStoredGroupEvent
             MetaContactGroup newMetaGroup
                 = handleGroupCreatedEvent(parentMetaGroup, evt.getSourceGroup());
 
             //if this was the first contact group in the meta group fire an
             //ADDED event. otherwise fire a modification event.
-            if(newMetaGroup.countContactGroups() > 1)
+            if(newMetaGroup.countContactGroups() > 1 || isExisting)
             {
                 fireMetaContactGroupEvent(
                     newMetaGroup
