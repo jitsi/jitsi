@@ -158,7 +158,7 @@ public class MediaServiceImpl
     /**
      * Audio configuration panel.
      */
-    private SIPCommDialog audioConfiguration = null;
+    private SIPCommDialog audioConfigDialog = null;
 
     /**
      * Create a <tt>MediaStream</tt> which will use a specific
@@ -574,7 +574,7 @@ public class MediaServiceImpl
                 final Component panel = MediaConfiguration.createBasicControls(
                     DeviceConfigurationComboBoxModel.AUDIO, false);
 
-                audioConfiguration = new SIPCommDialog()
+                audioConfigDialog = new SIPCommDialog()
                 {
                     /**
                      * Serial version UID.
@@ -591,26 +591,57 @@ public class MediaServiceImpl
                     }
                 };
 
-                TransparentPanel mainPanel = new TransparentPanel(new
-                    BorderLayout());
-                TransparentPanel btnPanel = new TransparentPanel(new
-                    FlowLayout(FlowLayout.RIGHT));
+                TransparentPanel mainPanel
+                    = new TransparentPanel(new BorderLayout(20, 5));
+
+                TransparentPanel fieldsPanel
+                    = new TransparentPanel(new BorderLayout(10, 5));
+
+                mainPanel.setBorder(
+                    BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+                TransparentPanel btnPanel
+                    = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
                 JButton btn = new JButton(NeomediaActivator.getResources().
                     getI18NString("service.gui.CLOSE"));
+
                 btn.addActionListener(new ActionListener()
                 {
                     public void actionPerformed(ActionEvent evt)
                     {
-                        audioConfiguration.setVisible(false);
+                        audioConfigDialog.setVisible(false);
                     }
                 });
                 btnPanel.add(btn);
-                mainPanel.add(panel, BorderLayout.CENTER);
-                mainPanel.add(btnPanel, BorderLayout.SOUTH);
 
-                audioConfiguration.add(mainPanel);
-                audioConfiguration.validate();
-                audioConfiguration.pack();
+                JTextArea infoTextArea = new JTextArea();
+                infoTextArea.setOpaque(false);
+                infoTextArea.setEditable(false);
+                infoTextArea.setWrapStyleWord(true);
+                infoTextArea.setLineWrap(true);
+                infoTextArea.setText(NeomediaActivator.getResources()
+                    .getI18NString(
+                        "impl.media.configform.AUDIO_DEVICE_CONNECTED_REMOVED"));
+
+                fieldsPanel.add(infoTextArea, BorderLayout.NORTH);
+                fieldsPanel.add(panel, BorderLayout.CENTER);
+                fieldsPanel.add(btnPanel, BorderLayout.SOUTH);
+
+                TransparentPanel iconPanel
+                    = new TransparentPanel(new BorderLayout());
+                iconPanel.add(new JLabel(NeomediaActivator.getResources()
+                    .getImage("plugin.mediaconfig.AUDIO_ICON_64x64")),
+                    BorderLayout.NORTH);
+
+                mainPanel.add(iconPanel,BorderLayout.WEST);
+                mainPanel.add(fieldsPanel, BorderLayout.CENTER);
+
+                audioConfigDialog.setTitle(NeomediaActivator.getResources()
+                    .getI18NString("impl.media.configform.AUDIO_DEVICE_CONFIG"));
+                audioConfigDialog.add(mainPanel);
+                audioConfigDialog.validate();
+                audioConfigDialog.pack();
 
                 PortAudio.addDeviceChangedCallback(this);
             }
@@ -1393,7 +1424,7 @@ public class MediaServiceImpl
      */
     private void showAudioConfiguration()
     {
-        if(audioConfiguration == null)
+        if(audioConfigDialog == null)
         {
             return;
         }
@@ -1411,13 +1442,13 @@ public class MediaServiceImpl
         }
 
         SwingUtilities.updateComponentTreeUI(
-            audioConfiguration.getComponent(0));
-        audioConfiguration.pack();
-        audioConfiguration.repaint();
+            audioConfigDialog.getComponent(0));
+        audioConfigDialog.pack();
+        audioConfigDialog.repaint();
 
-        if(!audioConfiguration.isVisible())
+        if(!audioConfigDialog.isVisible())
         {
-            audioConfiguration.setVisible(true);
+            audioConfigDialog.setVisible(true);
         }
     }
 }
