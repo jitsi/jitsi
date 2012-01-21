@@ -430,9 +430,19 @@ public class MetaContactListSource
      */
     public void metaContactAdded(final MetaContactEvent evt)
     {
-        final MetaContact metaContact = evt.getSourceMetaContact();
-        final MetaContactGroup parentGroup = evt.getParentGroup();
+        metaContactAdded(evt.getSourceMetaContact(),
+                        evt.getParentGroup());
+    }
 
+    /**
+     * Adds a node in the contact list, when a <tt>MetaContact</tt> has been
+     * added in the <tt>MetaContactListService</tt>.
+     * @param metaContact to add to the contact list.
+     * @param parentGroup the group we add in.
+     */
+    private void metaContactAdded(final MetaContact metaContact,
+                                 final MetaContactGroup parentGroup)
+    {
         UIContact uiContact;
 
         synchronized (metaContact)
@@ -503,6 +513,15 @@ public class MetaContactListSource
             GuiActivator.getContactList().addGroup(uiGroup, true);
         else
             MetaContactListSource.removeUIGroup(metaGroup);
+
+        // iterate over the contacts, they may need to be displayed
+        // some protocols fire events for adding contacts after firing
+        // that group has been created and this is not needed, but some don't
+        Iterator<MetaContact> iterContacts = metaGroup.getChildContacts();
+        while(iterContacts.hasNext())
+        {
+            metaContactAdded(iterContacts.next(), metaGroup);
+        }
     }
 
     /**
@@ -716,18 +735,20 @@ public class MetaContactListSource
         final MetaContact metaContact = evt.getNewParent();
 
         UIContact parentUIContact;
+        boolean parentUIContactCreated = false;
         synchronized (metaContact)
         {
             parentUIContact = MetaContactListSource.getUIContact(metaContact);
 
             if (parentUIContact == null)
             {
+                parentUIContactCreated = true;
                 parentUIContact
                     = MetaContactListSource.createUIContact(metaContact);
             }
         }
 
-        if (parentUIContact != null)
+        if (parentUIContact != null && parentUIContactCreated)
         {
             ContactListFilter currentFilter
                 = GuiActivator.getContactList().getCurrentFilter();
@@ -808,6 +829,7 @@ public class MetaContactListSource
         }
 
         UIContact newUIContact;
+        boolean newUIContactCreated = false;
         synchronized (newParent)
         {
             // Add new parent if matching.
@@ -815,12 +837,15 @@ public class MetaContactListSource
 
             if (newUIContact == null)
             {
+                newUIContactCreated = true;
                 newUIContact
                     = MetaContactListSource.createUIContact(newParent);
             }
         }
 
-        if (newUIContact != null)
+        // if the contact is not created already created, we are just merging
+        // don't do anything
+        if (newUIContact != null && newUIContactCreated)
         {
             if (GuiActivator.getContactList().getCurrentFilter()
                     .isMatching(newUIContact))

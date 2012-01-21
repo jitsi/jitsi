@@ -94,6 +94,23 @@ public class KeepAliveManager
             parentProvider.getConnection().removePacketListener(this);
             parentProvider.getConnection().addPacketListener(this, null);
 
+            // if for some unknown reason we got two registered events
+            // and we have already created those tasks make sure we cancel them
+            if(keepAliveSendTask != null)
+            {
+                logger.error("Those task is not supposed to be available for "
+                    + parentProvider.getAccountID().getDisplayName());
+                keepAliveSendTask.cancel();
+                keepAliveSendTask = null;
+            }
+            if(keepAliveTimer != null)
+            {
+                logger.error("Those timer is not supposed to be available for "
+                    + parentProvider.getAccountID().getDisplayName());
+                keepAliveTimer.cancel();
+                keepAliveTimer = null;
+            }
+
             keepAliveSendTask = new KeepAliveSendTask();
 
             keepAliveCheckInterval =
@@ -185,7 +202,8 @@ public class KeepAliveManager
             {
                 if(waitingForPacketWithID != null)
                 {
-                    logger.error("un-registering not received ping packet.");
+                    logger.error("un-registering not received ping packet " +
+                        "for: " + parentProvider.getAccountID().getDisplayName());
 
                     parentProvider.unregister(false);
 
