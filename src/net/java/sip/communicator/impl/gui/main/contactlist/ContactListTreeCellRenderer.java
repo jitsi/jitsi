@@ -742,12 +742,12 @@ public class ContactListTreeCellRenderer
 
         // check for phone stored in contact info only
         // if telephony contact is missing
-        if(uiContact.getContactNode().getContactDescriptor().getDescriptor()
-            instanceof MetaContact && telephonyContact == null)
+        if(uiContact.getDescriptor() != null
+           && uiContact.getDescriptor() instanceof MetaContact
+           && telephonyContact == null)
         {
             MetaContact metaContact =
-                (MetaContact)uiContact.getContactNode().getContactDescriptor().
-                    getDescriptor();
+                (MetaContact)uiContact.getDescriptor();
             Iterator<Contact> contacts = metaContact.getContacts();
 
             while(contacts.hasNext() && !hasPhone)

@@ -1181,7 +1181,7 @@ public class TreeContactList
         Component mouseComponent
             = renderer.findComponentAt(translatedX, translatedY);
 
-        if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled() && mouseComponent != null)
             logger.debug("DISPATCH MOUSE EVENT TO COMPONENT: "
                     + mouseComponent.getClass().getName()
                     + " with bounds: " + mouseComponent.getBounds()

@@ -179,19 +179,24 @@ public class SIPCommTextFieldUI
 
             Rectangle deleteButtonRect = getDeleteButtonRect();
 
-            int dx = deleteButtonRect.x;
-            int dy = deleteButtonRect.y;
-
-            if (c.getText() != null
-                    && c.getText().length() > 0
-                    && isDeleteButtonEnabled)
+            if(deleteButtonRect != null)
             {
-                if (isDeleteMouseOver)
-                    g2.drawImage(deleteButtonRolloverImg, dx, dy, null);
-                else
-                    g2.drawImage(deleteButtonImg, dx, dy, null);
+                int dx = deleteButtonRect.x;
+                int dy = deleteButtonRect.y;
 
-                isDeleteIconVisible = true;
+                if (c.getText() != null
+                        && c.getText().length() > 0
+                        && isDeleteButtonEnabled)
+                {
+                    if (isDeleteMouseOver)
+                        g2.drawImage(deleteButtonRolloverImg, dx, dy, null);
+                    else
+                        g2.drawImage(deleteButtonImg, dx, dy, null);
+
+                    isDeleteIconVisible = true;
+                }
+                else
+                    isDeleteIconVisible = false;
             }
             else
                 isDeleteIconVisible = false;
@@ -267,6 +272,9 @@ public class SIPCommTextFieldUI
     {
         JTextComponent c = getComponent();
 
+        if(c == null)
+            return null;
+
         Rectangle rect = c.getBounds();
 
         int dx = rect.width - deleteButton.getWidth() - BUTTON_GAP - 5;
@@ -292,6 +300,9 @@ public class SIPCommTextFieldUI
         }
 
         JTextComponent c = getComponent();
+        
+        if(c == null)
+            return null;
 
         Rectangle alloc = c.getBounds();
 
@@ -439,7 +450,8 @@ public class SIPCommTextFieldUI
 
     private void updateCursor(MouseEvent mouseEvent)
     {
-        if (getVisibleEditorRect().contains(mouseEvent.getPoint()))
+        Rectangle rect = getVisibleEditorRect();
+        if (rect != null && rect.contains(mouseEvent.getPoint()))
         {
             getComponent().setCursor(
                 Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
