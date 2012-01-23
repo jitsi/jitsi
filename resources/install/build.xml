@@ -76,7 +76,7 @@
             value="${package.name}"/>
     </target>
     <target name="-prepare-debian-sh-homedir" if="application.home.dirname">
-        <replace file="${inst.resrc}/debian/_PACKAGE_NAME_.sh"
+        <replace file="${inst.resrc}/debian/${package.name}.sh"
             token="net.java.sip.communicator.launcher.SIPCommunicator"
             value="-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${application.home.dirname} net.java.sip.communicator.launcher.SIPCommunicator"/>
     </target>
