@@ -761,6 +761,19 @@ public class ProtocolProviderServiceJabberImpl
                 {
                     try
                     {
+                        // if failover mechanism is enabled, use it,
+                        // default is not enabled.
+                        if(JabberActivator.getConfigurationService()
+                            .getBoolean(
+                                FailoverConnectionMonitor.FAILOVER_ENABLED_PROP,
+                                false
+                            ))
+                        {
+                            FailoverConnectionMonitor.getInstance(this)
+                                .setCurrent(serviceName,
+                                            srv.getTarget());
+                        }
+
                         ConnectState state = connectAndLogin(
                             isa, password, serviceName);
                         return state;
