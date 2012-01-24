@@ -36,7 +36,7 @@ import net.java.sip.communicator.util.*;
 @SuppressWarnings("unchecked")
 public class DeviceConfiguration
     extends PropertyChangeNotifier
-    implements PropertyChangeListener, 
+    implements PropertyChangeListener,
                PortAudioDeviceChangedCallback
 {
 
@@ -291,6 +291,8 @@ public class DeviceConfiguration
         new Dimension(160, 100),
                 //QCIF
                 new Dimension(176, 144),
+                // QVGA
+                new Dimension(320, 200),
                 // QVGA
                 new Dimension(320, 240),
                 //CIF
@@ -1298,7 +1300,7 @@ public class DeviceConfiguration
             videoMaxBandwidth = -1;
         }
     }
-    
+
     /**
      * Detects audio capture devices configured through JMF and disable audio if
      * none was found.
@@ -1307,10 +1309,10 @@ public class DeviceConfiguration
     {
         ConfigurationService config
             = NeomediaActivator.getConfigurationService();
-    
+
         if (logger.isInfoEnabled())
             logger.info("Scanning for configured Audio Devices.");
-        
+
         CaptureDeviceInfo[] audioCaptureDevices =
             getAvailableAudioCaptureDevices();
         if (config.getBoolean(PROP_AUDIO_DEVICE_IS_DISABLED, false))
@@ -1329,9 +1331,9 @@ public class DeviceConfiguration
             if (logger.isDebugEnabled())
                 logger.debug("Found " + audioCaptureDevices.length
                 + " capture devices: " + audioCaptureDevices);
-    
+
             String audioDevName = config.getString(PROP_AUDIO_DEVICE);
-    
+
             if(audioDevName == null || audioDevName.equals(AUDIO_NONE))
             {
                 // the default behaviour if nothing set is to use PortAudio
@@ -1369,7 +1371,7 @@ public class DeviceConfiguration
                         break;
                     }
                 }
-    
+
                 if(getAudioSystem() == null || !PortAudioAuto.isSupported())
                 {
                     logger.warn("Computer sound config changed or " +
@@ -1387,7 +1389,7 @@ public class DeviceConfiguration
                     + " as an audio capture device.");
         }
     }
-    
+
     /**
      * Detects video capture devices configured through JMF and disable video if
      * none was found.
@@ -1396,7 +1398,7 @@ public class DeviceConfiguration
     {
         ConfigurationService config
             = NeomediaActivator.getConfigurationService();
-        
+
         if (config.getBoolean(PROP_VIDEO_DEVICE_IS_DISABLED, false))
             videoCaptureDevice = null;
         else
@@ -1425,7 +1427,7 @@ public class DeviceConfiguration
                     logger.info("No Video Device was found.");
         }
     }
-    
+
     /**
      * Callback when PortAudio device changed.
      */

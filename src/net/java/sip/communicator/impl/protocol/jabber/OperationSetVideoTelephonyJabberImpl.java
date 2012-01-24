@@ -166,7 +166,10 @@ public class OperationSetVideoTelephonyJabberImpl
      */
     public QualityControl getQualityControl(CallPeer peer)
     {
-        return ((CallPeerJabberImpl) peer).getMediaHandler().
-            getQualityControl();
+        if(peer instanceof CallPeerJabberImpl)
+            return ((CallPeerJabberImpl) peer).getMediaHandler().
+                getQualityControl();
+        else
+            return null;
     }
 }

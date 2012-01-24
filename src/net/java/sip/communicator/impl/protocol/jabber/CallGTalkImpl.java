@@ -30,8 +30,8 @@ public class CallGTalkImpl
     /**
      * If the first callPeer is a Google Voice (without resource) ones.
      */
-    private boolean firstCallPeerIsGV = false; 
-    
+    private boolean firstCallPeerIsGV = false;
+
     /**
      * Initializes a new <tt>CallGTalkImpl</tt> instance belonging to
      * <tt>sourceProvider</tt> and associated with the jingle session with the
@@ -167,7 +167,7 @@ public class CallGTalkImpl
         if(!firstCallPeerIsGV)
             firstCallPeerIsGV = calleeJID.endsWith(
                 ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN);
-        
+
         addCallPeer(callPeer);
 
         callPeer.setState(CallPeerState.INITIATING_CALL);
@@ -185,21 +185,21 @@ public class CallGTalkImpl
                 Iterator<CallPeerGTalkImpl> it =
                     getCallPeersVector().iterator();
                 String sub = calleeJID.substring(0, calleeJID.indexOf("/"));
-                
+
                 // remove Google Voice first call from CallPeer vector otherwise
                 // we will display a conference call window
                 while(it.hasNext())
                 {
                     CallPeer p = it.next();
-                    
+
                     if(p.getAddress().equals(sub))
                     {
                         it.remove();
                         break;
-                    }   
+                    }
                 }
             }
-            
+
             parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
         }
 

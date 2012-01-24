@@ -1315,6 +1315,25 @@ public class TransportManagerGTalkImpl
     }
 
     /**
+     * Send empty UDP packet to target destination data/control ports
+     * in order to open port on NAT or RTP proxy if any.
+     *
+     * @param target <tt>MediaStreamTarget</tt>
+     * @param type the {@link MediaType} of the connector we'd like to send
+     * the hole punching packet through.
+     */
+    @Override
+    public void sendHolePunchPacket(MediaStreamTarget target, MediaType type)
+    {
+        /* Override TransportManager.sendHolePunchPacket that send zero length
+         * UDP packet and do nothing instead. For some applications (especially
+         * those installed on smartphones like Android ones), the zero length
+         * UDP packet can confuse them.
+         */
+        return;
+    }
+
+    /**
      * Close this transport manager and release resources.
      */
     public void close()
