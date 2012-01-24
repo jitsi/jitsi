@@ -31,8 +31,8 @@ public class FailoverConnectionMonitor
     /**
      * Property to enable/disable failover functionality.
      */
-    public static final String FAILOVER_ENABLED_PROP =
-        "net.java.sip.communicator.impl.protocol.jabber.FAILOVER_ENABLED";
+    public static final String REVERSE_FAILOVER_ENABLED_PROP =
+        "net.java.sip.communicator.impl.protocol.jabber.REVERSE_FAILOVER_ENABLED";
 
     /**
      * Property to specify the interval between checks when in failover state.

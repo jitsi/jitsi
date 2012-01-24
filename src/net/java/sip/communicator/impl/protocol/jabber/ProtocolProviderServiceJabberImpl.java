@@ -764,8 +764,8 @@ public class ProtocolProviderServiceJabberImpl
                         // if failover mechanism is enabled, use it,
                         // default is not enabled.
                         if(JabberActivator.getConfigurationService()
-                            .getBoolean(
-                                FailoverConnectionMonitor.FAILOVER_ENABLED_PROP,
+                            .getBoolean(FailoverConnectionMonitor
+                                                .REVERSE_FAILOVER_ENABLED_PROP,
                                 false
                             ))
                         {
