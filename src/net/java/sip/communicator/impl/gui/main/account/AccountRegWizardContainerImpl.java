@@ -161,7 +161,30 @@ public class AccountRegWizardContainerImpl
     public AccountRegistrationWizard getProtocolWizard(
                                     ProtocolProviderService protocolProvider)
     {
-        return registeredWizards.get(protocolProvider.getProtocolDisplayName());
+        AccountRegistrationWizard res = registeredWizards.get(protocolProvider.getProtocolDisplayName());
+
+        // compatibility check, some protocols have changed name
+        // and when they have those name saved in configuration
+        // cannot be edited, so lets check whether there is a wizard
+        // with the same protocol name like the one of its provider
+        if(res == null)
+        {
+            //lets find matching protocol name in registered wizards
+            Iterator<AccountRegistrationWizard> iter =
+                registeredWizards.values().iterator();
+            while(iter.hasNext())
+            {
+                AccountRegistrationWizard wizard = iter.next();
+                if(wizard.getProtocolName()
+                    .equals(protocolProvider.getProtocolName()))
+                {
+                    res = wizard;
+                    break;
+                }
+            }
+        }
+
+        return res;
     }
 
     /**
