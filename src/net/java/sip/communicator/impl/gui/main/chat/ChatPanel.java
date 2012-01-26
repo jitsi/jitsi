@@ -1947,10 +1947,22 @@ public class ChatPanel
      * @param date the date on which the request has been received
      */
     public void addIncomingFileTransferRequest(
-        OperationSetFileTransfer fileTransferOpSet,
-        IncomingFileTransferRequest request,
-        Date date)
+        final OperationSetFileTransfer fileTransferOpSet,
+        final IncomingFileTransferRequest request,
+        final Date date)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    addIncomingFileTransferRequest(
+                        fileTransferOpSet, request, date);
+                }
+            });
+        }
+
         this.addActiveFileTransfer(request.getID(), request);
 
         ReceiveFileConversationComponent component

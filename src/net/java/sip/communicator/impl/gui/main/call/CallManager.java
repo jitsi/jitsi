@@ -69,8 +69,20 @@ public class CallManager
          * ring phone sound to the user.
          * @param event the <tt>CallEvent</tt>
          */
-        public void incomingCallReceived(CallEvent event)
+        public void incomingCallReceived(final CallEvent event)
         {
+            if(!SwingUtilities.isEventDispatchThread())
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        incomingCallReceived(event);
+                    }
+                });
+                return;
+            }
+
             Call sourceCall = event.getSourceCall();
             final ReceivedCallDialog receivedCallDialog
                 = new ReceivedCallDialog(sourceCall, event.isVideoCall());

@@ -1130,7 +1130,25 @@ public class ProtocolProviderServiceJabberImpl
             throw new XMPPException("TLS is required by client");
         }
 
-        connection.addConnectionListener(connectionListener);
+        if(!connection.isConnected())
+        {
+            // connection is not connected, lets set state to our connection
+            // as failed seems there is some lag/problem with network
+            // and this way we will inform for it and later reconnect if needed
+            // as IllegalStateException that is thrown within
+            // addConnectionListener is not handled properly
+            disconnectAndCleanConnection();
+
+            fireRegistrationStateChanged(getRegistrationState(),
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND, null);
+
+            return ConnectState.ABORT_CONNECTING;
+        }
+        else
+        {
+            connection.addConnectionListener(connectionListener);
+        }
 
         if(abortConnecting)
         {

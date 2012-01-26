@@ -233,62 +233,13 @@ public class ContactListPane
         Contact protocolContact = evt.getSourceContact();
         Message message = evt.getSourceMessage();
         int eventType = evt.getEventType();
-
         MetaContact metaContact = GuiActivator.getContactListService()
                 .findMetaContactByContact(protocolContact);
 
         if(metaContact != null)
         {
-            // Obtain the corresponding chat panel.
-            final ChatPanel chatPanel
-                = chatWindowManager.getContactChat( metaContact,
-                                                    protocolContact,
-                                                    message.getMessageUID());
-
-            // Show an envelope on the sender contact in the contact list and
-            // in the systray.
-            if (!chatPanel.isChatFocused())
-                contactList.setActiveContact(metaContact, true);
-
-            // Distinguish the message type, depending on the type of event that
-            // we have received.
-            String messageType = null;
-
-            if(eventType == MessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
-            {
-                messageType = Chat.INCOMING_MESSAGE;
-            }
-            else if(eventType == MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED)
-            {
-                messageType = Chat.SYSTEM_MESSAGE;
-            }
-            else if(eventType == MessageReceivedEvent.SMS_MESSAGE_RECEIVED)
-            {
-                messageType = Chat.SMS_MESSAGE;
-            }
-
-            chatPanel.addMessage(
-                protocolContact.getAddress(),
-                protocolContact.getDisplayName(),
-                evt.getTimestamp(),
-                messageType,
-                message.getContent(),
-                message.getContentType());
-
-            // Opens the chat panel with the new message in the UI thread.
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    chatWindowManager.openChat(chatPanel, false);
-                }
-            });
-
-            ChatTransport chatTransport
-                = chatPanel.getChatSession()
-                    .findChatTransportForDescriptor(protocolContact);
-
-            chatPanel.setSelectedChatTransport(chatTransport);
+            messageReceived(protocolContact,
+                metaContact, message, eventType, evt.getTimestamp());
         }
         else
         {
@@ -296,6 +247,83 @@ public class ContactListPane
                 logger.trace("MetaContact not found for protocol contact: "
                     + protocolContact + ".");
         }
+    }
+
+    /**
+     * When a message is received determines whether to open a new chat window
+     * or chat window tab, or to indicate that a message is received from a
+     * contact which already has an open chat. When the chat is found checks if
+     * in mode "Auto popup enabled" and if this is the case shows the message in
+     * the appropriate chat panel.
+     *
+     * @param protocolContact the source contact of the event
+     * @param metaContact the metacontact containing <tt>protocolContact</tt>
+     * @param message the message to deliver
+     * @param eventType the event type
+     * @param timestamp the timestamp of the event
+     */
+    private void messageReceived(final Contact protocolContact,
+                                 final MetaContact metaContact,
+                                 final Message message,
+                                 final int eventType,
+                                 final long timestamp)
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    messageReceived(protocolContact,
+                        metaContact, message, eventType, timestamp);
+                }
+            });
+            return;
+        }
+
+        // Obtain the corresponding chat panel.
+        final ChatPanel chatPanel
+            = chatWindowManager.getContactChat( metaContact,
+                                                protocolContact,
+                                                message.getMessageUID());
+
+        // Show an envelope on the sender contact in the contact list and
+        // in the systray.
+        if (!chatPanel.isChatFocused())
+            contactList.setActiveContact(metaContact, true);
+
+        // Distinguish the message type, depending on the type of event that
+        // we have received.
+        String messageType = null;
+
+        if(eventType == MessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
+        {
+            messageType = Chat.INCOMING_MESSAGE;
+        }
+        else if(eventType == MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED)
+        {
+            messageType = Chat.SYSTEM_MESSAGE;
+        }
+        else if(eventType == MessageReceivedEvent.SMS_MESSAGE_RECEIVED)
+        {
+            messageType = Chat.SMS_MESSAGE;
+        }
+
+        chatPanel.addMessage(
+            protocolContact.getAddress(),
+            protocolContact.getDisplayName(),
+            timestamp,
+            messageType,
+            message.getContent(),
+            message.getContentType());
+
+        chatWindowManager.openChat(chatPanel, false);
+
+        ChatTransport chatTransport
+            = chatPanel.getChatSession()
+                .findChatTransportForDescriptor(protocolContact);
+
+        chatPanel.setSelectedChatTransport(chatTransport);
     }
 
     /**
