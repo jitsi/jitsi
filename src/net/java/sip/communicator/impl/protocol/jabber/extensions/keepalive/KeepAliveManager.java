@@ -112,6 +112,7 @@ public class KeepAliveManager
             }
 
             keepAliveSendTask = new KeepAliveSendTask();
+            waitingForPacketWithID = null;
 
             keepAliveCheckInterval =
                 SmackConfiguration.getKeepAliveInterval();
@@ -129,6 +130,8 @@ public class KeepAliveManager
             || evt.getNewState() == RegistrationState.CONNECTION_FAILED
             || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED)
         {
+            waitingForPacketWithID = null;
+
             if(parentProvider.getConnection() != null)
                 parentProvider.getConnection().removePacketListener(this);
 
@@ -216,19 +219,26 @@ public class KeepAliveManager
                     return;
                 }
 
-                // lets send a ping
-                KeepAliveEvent ping = new KeepAliveEvent(
-                    parentProvider.getOurJID(),
-                    parentProvider.getAccountID().getService()
-                );
+                try
+                {
+                    // lets send a ping
+                    KeepAliveEvent ping = new KeepAliveEvent(
+                        parentProvider.getOurJID(),
+                        parentProvider.getAccountID().getService()
+                    );
 
-                waitingForPacketWithID = ping.getPacketID();
+                    if (logger.isTraceEnabled())
+                        logger.trace("send keepalive for acc: "
+                            + parentProvider.getAccountID().getDisplayName());
 
-                if (logger.isTraceEnabled())
-                    logger.trace("send keepalive for acc: "
-                        + parentProvider.getAccountID().getDisplayName());
-
-                parentProvider.getConnection().sendPacket(ping);
+                    waitingForPacketWithID = ping.getPacketID();
+                    parentProvider.getConnection().sendPacket(ping);
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error sending ping request!", t);
+                    waitingForPacketWithID = null;
+                }
             }
         }
     }
