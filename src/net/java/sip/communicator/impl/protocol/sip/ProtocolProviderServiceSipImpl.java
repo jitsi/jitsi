@@ -419,6 +419,11 @@ public class ProtocolProviderServiceSipImpl
                     OperationSetAdvancedTelephony.class,
                     opSetBasicTelephonySipImpl);
 
+                addSupportedOperationSet(
+                    OperationSetAutoAnswer.class,
+                    new OperationSetAutoAnswerSipImpl(
+                            opSetBasicTelephonySipImpl));
+
                 // init call security
                 addSupportedOperationSet(
                     OperationSetSecureZrtpTelephony.class,

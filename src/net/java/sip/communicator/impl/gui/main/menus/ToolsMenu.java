@@ -242,6 +242,11 @@ public class ToolsMenu
         conferenceMenuItem.addActionListener(this);
         this.add(conferenceMenuItem);
 
+        AutoAnswerMenu autoAnswerMenu = new AutoAnswerMenu();
+        this.add(autoAnswerMenu);
+
+        this.addSeparator();
+
         // Show/hide offline contacts menu item.
         String offlineTextKey = ConfigurationManager.isShowOffline()
                             ? "service.gui.HIDE_OFFLINE_CONTACTS"

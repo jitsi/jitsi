@@ -991,6 +991,10 @@ public class OperationSetBasicTelephonySipImpl
         CallPeerSipImpl existingPeer
                                 = activeCallsRepository.findCallPeer(dialog);
 
+        OperationSetAutoAnswerSipImpl autoAnswerOpSet =
+            (OperationSetAutoAnswerSipImpl)
+                protocolProvider.getOperationSet(OperationSetAutoAnswer.class);
+
         if(existingPeer == null)
         {
             //this is not a reINVITE. check if it's a transfer
@@ -1000,14 +1004,26 @@ public class OperationSetBasicTelephonySipImpl
 
             if (replacesHeader == null)
             {
-                //this is a brand new call (not a transfered one)
+                // checks for forward of call, if no further processing
+                // is needed return
+                if(autoAnswerOpSet != null
+                    && autoAnswerOpSet.preCallCheck(invite, serverTransaction))
+                    return;
+
+                //this is a brand new call (not a transferred one)
                 CallSipImpl call = new CallSipImpl(this);
                 call.processInvite(sourceProvider, serverTransaction);
+
+                // checks for auto answering of call, if no further processing
+                // is needed return
+                if(autoAnswerOpSet != null
+                    && autoAnswerOpSet.followCallCheck(invite, call))
+                    return;
             }
             else
             {
-                //this is a transfered call which is replacing an existing one
-                //(i.e. an attended transfer).
+                //this is a transferred call which is replacing an
+                // existing one (i.e. an attended transfer).
                 existingPeer = activeCallsRepository.findCallPeer(
                                     replacesHeader.getCallId(),
                                     replacesHeader.getToTag(),
