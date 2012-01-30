@@ -14,7 +14,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ConfigFormListCellRenderer</tt> is the custom cell renderer used in
- * the SIP-Communicator's <tt>ConfigFormList</tt>. It extends TransparentPanel
+ * the Jitsi's <tt>ConfigFormList</tt>. It extends TransparentPanel
  * instead of JLabel, which allows adding different buttons and icons to the
  * cell.
  * <br>

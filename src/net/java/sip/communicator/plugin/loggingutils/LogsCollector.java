@@ -57,7 +57,7 @@ public class LogsCollector
      * @param destination the possible destination archived file
      * @param optional an optional file to be added to the archive.
      */
-    static File collectLogs(File destination, File optional)
+    public static File collectLogs(File destination, File optional)
     {
         if(destination == null)
             return null;

@@ -144,7 +144,7 @@ public class FileHandler
             {
                 if(pattern == null)
                     pattern = homeLocation + "/" + dirName +
-                            "/log/sip-communicator%u.log";
+                            "/log/jitsi%u.log";
                 else
                     pattern = pattern.replaceAll("\\%s",
                         homeLocation + "/" + dirName);
@@ -154,7 +154,7 @@ public class FileHandler
             // properties are also not defined its most probably running from
             // source or testing - lets create log directory in working dir.
             if(pattern == null)
-                pattern = "./log/sip-communicator%u.log";
+                pattern = "./log/jitsi%u.log";
 
             checkDestinationDirectory(pattern);
         }

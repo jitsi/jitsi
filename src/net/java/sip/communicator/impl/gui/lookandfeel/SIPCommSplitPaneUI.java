@@ -12,7 +12,7 @@ import javax.swing.plaf.basic.*;
 import javax.swing.plaf.metal.*;
 
 /**
- * SIP-Communicator split pane.
+ * Jitsi split pane.
  * 
  * @author Yana Stamcheva
  */

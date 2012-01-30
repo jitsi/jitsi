@@ -32,7 +32,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ContactListCellRenderer</tt> is the custom cell renderer used in the
- * SIP-Communicator's <tt>ContactList</tt>. It extends JPanel instead of JLabel,
+ * Jitsi's <tt>ContactList</tt>. It extends JPanel instead of JLabel,
  * which allows adding different buttons and icons to the contact cell. The cell
  * border and background are repainted.
  *

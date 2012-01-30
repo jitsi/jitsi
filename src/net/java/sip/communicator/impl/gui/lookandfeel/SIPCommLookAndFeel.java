@@ -52,7 +52,7 @@ public class SIPCommLookAndFeel
      */
     public String getDescription()
     {
-        return "The SIP-Communicator look and feel.";
+        return "The Jitsi look and feel.";
     }
 
     /**
