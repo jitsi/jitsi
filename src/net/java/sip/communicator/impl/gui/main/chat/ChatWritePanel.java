@@ -596,7 +596,7 @@ public class ChatWritePanel
             ArrayList<String> contacts = new ArrayList<String>();
             while(iter.hasNext())
             {
-                ChatContact c = iter.next();
+                ChatContact<?> c = iter.next();
                 if(c.getName().length() >= (index-position) && 
                     c.getName().substring(0,index-position).equals(sequence))
                 {

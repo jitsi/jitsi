@@ -115,31 +115,38 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     public StreamConnector getStreamConnector(MediaType mediaType)
         throws OperationFailedException
     {
-        StreamConnector streamConnector = streamConnectors[mediaType.ordinal()];
+        int streamConnectorIndex = mediaType.ordinal();
+        StreamConnector streamConnector
+            = streamConnectors[streamConnectorIndex];
 
-        if(streamConnector == null || streamConnector.getProtocol() ==
-            StreamConnector.Protocol.UDP)
+        if((streamConnector == null)
+            || (streamConnector.getProtocol() == StreamConnector.Protocol.UDP))
         {
-                if(streamConnector == null ||
-                    streamConnector.getDataSocket().isClosed() ||
-                    (streamConnector.getControlSocket() != null &&
-                        streamConnector.getControlSocket().isClosed()))
-                {
-                    streamConnectors[mediaType.ordinal()]
-                                     = streamConnector
-                                     = createStreamConnector(mediaType);
-                }
-        }
-        else if(streamConnector != null && streamConnector.getProtocol() ==
-            StreamConnector.Protocol.TCP)
-        {
-            if(streamConnector.getDataTCPSocket().isClosed()
-                || (streamConnector.getControlTCPSocket() != null &&
-                    streamConnector.getControlTCPSocket().isClosed()))
+            DatagramSocket controlSocket;
+
+            if((streamConnector == null)
+                || streamConnector.getDataSocket().isClosed()
+                || (((controlSocket = streamConnector.getControlSocket())
+                        != null)
+                    && controlSocket.isClosed()))
             {
-                streamConnectors[mediaType.ordinal()]
-                                 = streamConnector
-                                 = createStreamConnector(mediaType);
+                streamConnectors[streamConnectorIndex]
+                    = streamConnector
+                    = createStreamConnector(mediaType);
+            }
+        }
+        else if(streamConnector.getProtocol() == StreamConnector.Protocol.TCP)
+        {
+            Socket controlTCPSocket;
+
+            if(streamConnector.getDataTCPSocket().isClosed()
+                || (((controlTCPSocket = streamConnector.getControlTCPSocket())
+                        != null)
+                    && controlTCPSocket.isClosed()))
+            {
+                streamConnectors[streamConnectorIndex]
+                    = streamConnector
+                    = createStreamConnector(mediaType);
             }
         }
         return streamConnector;
@@ -371,22 +378,32 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
             synchronized(connector)
             {
-                if(connector.getProtocol() == StreamConnector.Protocol.TCP)
+                if(connector.getProtocol() != StreamConnector.Protocol.TCP)
                 {
-                    return;
+                    DatagramSocket socket;
+
+                    /* data port (RTP) */
+                    if((socket = connector.getDataSocket()) != null)
+                    {
+                        socket.send(
+                            new DatagramPacket(
+                                new byte[0],
+                                0,
+                                target.getDataAddress().getAddress(),
+                                target.getDataAddress().getPort()));
+                    }
+
+                    /* control port (RTCP) */
+                    if((socket = connector.getControlSocket()) != null)
+                    {
+                        socket.send(
+                            new DatagramPacket(
+                                new byte[0],
+                                0,
+                                target.getControlAddress().getAddress(),
+                                target.getControlAddress().getPort()));
+                    }
                 }
-
-                /* data port (RTP) */
-                if(connector.getDataSocket() != null)
-                    connector.getDataSocket().send(new DatagramPacket(
-                        new byte[0], 0, target.getDataAddress().getAddress(),
-                        target.getDataAddress().getPort()));
-
-                /* control port (RTCP) */
-                if(connector.getControlSocket() != null)
-                    connector.getControlSocket().send(new DatagramPacket(
-                        new byte[0], 0, target.getControlAddress().getAddress(),
-                        target.getControlAddress().getPort()));
             }
         }
         catch(Exception e)
@@ -404,16 +421,15 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     protected void setTrafficClass(MediaStreamTarget target, MediaType type)
     {
-        int trafficClass = 0;
-
         // get traffic class value for RTP audio/video
-        trafficClass = getDSCP(type);
+        int trafficClass = getDSCP(type);
 
         if(trafficClass <= 0)
             return;
 
         if (logger.isInfoEnabled())
-            logger.info("Set traffic class for " + type + " " + trafficClass);
+            logger.info(
+                "Set traffic class for " + type + " to " + trafficClass);
         try
         {
             StreamConnector connector = getStreamConnector(type);
@@ -442,40 +458,46 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         }
         catch(Exception e)
         {
-            logger.error("Error cannot send to remote peer", e);
+            logger.error(
+                "Failed to set traffic class for " + type + " to "
+                    + trafficClass,
+                e);
         }
     }
 
-
     /**
-     * Get the SIP traffic class from configuration.
+     * Gets the SIP traffic class associated with a specific <tt>MediaType</tt>
+     * from the configuration.
      *
-     * @return SIP traffic class or 0 if not configured
+     * @param type the <tt>MediaType</tt> to get the associated SIP traffic
+     * class of
+     * @return the SIP traffic class associated with the specified
+     * <tt>MediaType</tt> or <tt>0</tt> if not configured
      */
     private int getDSCP(MediaType type)
     {
-        ConfigurationService configService =
-            ProtocolMediaActivator.getConfigurationService();
+        String dscpPropertyName;
 
-        String dscp = null;
-
-        if(type == MediaType.AUDIO)
-            dscp =
-                (String)configService.getProperty(
-                    RTP_AUDIO_DSCP_PROPERTY);
-        else if(type == MediaType.VIDEO)
-            dscp =
-                (String)configService.getProperty(
-                    RTP_VIDEO_DSCP_PROPERTY);
-        else
-            return 0;
-
-        if(dscp != null)
+        switch (type)
         {
-            return Integer.parseInt(dscp) << 2;
+        case AUDIO:
+            dscpPropertyName = RTP_AUDIO_DSCP_PROPERTY;
+            break;
+        case VIDEO:
+            dscpPropertyName = RTP_VIDEO_DSCP_PROPERTY;
+            break;
+        default:
+            dscpPropertyName = null;
+            break;
         }
 
-        return 0;
+        return
+            (dscpPropertyName == null)
+                ? 0
+                : (ProtocolMediaActivator.getConfigurationService().getInt(
+                        dscpPropertyName,
+                        0)
+                    << 2);
     }
 
     /**

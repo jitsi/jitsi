@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.neomedia.device;
 
 import javax.media.*;
-import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
@@ -18,12 +17,13 @@ import net.java.sip.communicator.util.*;
  * Discovers and registers <tt>CaptureDevice</tt>s which implement the Video for
  * Linux Two API Specification with JMF.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class Video4Linux2Auto
 {
     /**
-     * The <tt>Logger</tt>.
+     * The <tt>Logger</tt> used by the <tt>Video4Linux2Auto</tt> class and its
+     * instances for logging output.
      */
     private static final Logger logger =
             Logger.getLogger(Video4Linux2Auto.class);

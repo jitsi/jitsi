@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.neomedia.event.*;
 
 /**
  * @author Bing SU (nova.su@gmail.com)
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
 public class RTCPConnectorInputStream
@@ -23,8 +23,8 @@ public class RTCPConnectorInputStream
     /**
      * List of feedback listeners;
      */
-    private List<RTCPFeedbackListener> listeners =
-        new ArrayList<RTCPFeedbackListener>();
+    private final List<RTCPFeedbackListener> rtcpFeedbackListeners
+        = new ArrayList<RTCPFeedbackListener>();
 
     /**
      * Initializes a new <tt>RTCPConnectorInputStream</tt> which is to receive
@@ -45,10 +45,8 @@ public class RTCPConnectorInputStream
      */
     public void addRTCPFeedbackListener(RTCPFeedbackListener listener)
     {
-        if(!listeners.contains(listener))
-        {
-            listeners.add(listener);
-        }
+        if(!rtcpFeedbackListeners.contains(listener))
+            rtcpFeedbackListeners.add(listener);
     }
 
     /**
@@ -58,10 +56,7 @@ public class RTCPConnectorInputStream
      */
     public void removeRTCPFeedbackListener(RTCPFeedbackListener listener)
     {
-        if(listeners.contains(listener))
-        {
-            listeners.remove(listener);
-        }
+        rtcpFeedbackListeners.remove(listener);
     }
 
     /**
@@ -114,10 +109,8 @@ public class RTCPConnectorInputStream
             RTCPFeedbackEvent evt = new RTCPFeedbackEvent(this, fmt, pt);
 
             /* notify feedback listeners */
-            for(RTCPFeedbackListener l : listeners)
-            {
+            for(RTCPFeedbackListener l : rtcpFeedbackListeners)
                 l.feedbackReceived(evt);
-            }
         }
 
         System.arraycopy(

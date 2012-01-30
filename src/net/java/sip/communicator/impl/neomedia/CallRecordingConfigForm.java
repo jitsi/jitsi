@@ -29,7 +29,7 @@ public class CallRecordingConfigForm
                DocumentListener
 {
     /**
-     * Sesrial version UID.
+     * Serial version UID.
      */
     private static final long serialVersionUID = 0L;
 

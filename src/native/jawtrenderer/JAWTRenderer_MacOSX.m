@@ -8,6 +8,7 @@
 #include "JAWTRenderer.h"
 
 #include <jawt_md.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -93,8 +94,8 @@ JAWTRenderer_addNotifyLightweightComponent
     JAWTRenderer *parentRenderer;
     NSAutoreleasePool *autoreleasePool;
 
-    renderer = (JAWTRenderer *) handle;
-    parentRenderer = (JAWTRenderer *) parentHandle;
+    renderer = (JAWTRenderer *) (intptr_t) handle;
+    parentRenderer = (JAWTRenderer *) (intptr_t) parentHandle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     if (parentRenderer)
@@ -111,7 +112,7 @@ JAWTRenderer_close
     JAWTRenderer *renderer;
     NSAutoreleasePool *autoreleasePool;
 
-    renderer = (JAWTRenderer *) handle;
+    renderer = (JAWTRenderer *) (intptr_t) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     JAWTRenderer_removeNotifyLightweightComponent(handle, component);
@@ -131,7 +132,7 @@ JAWTRenderer_open(JNIEnv *jniEnv, jclass clazz, jobject component)
     renderer = [[JAWTRenderer alloc] init];
 
     [autoreleasePool release];
-    return (jlong) renderer;
+    return (jlong) (intptr_t) renderer;
 }
 
 jboolean
@@ -147,7 +148,7 @@ JAWTRenderer_paint
         JAWTRenderer *renderer;
         NSAutoreleasePool *autoreleasePool;
 
-        renderer = (JAWTRenderer *) handle;
+        renderer = (JAWTRenderer *) (intptr_t) handle;
         autoreleasePool = [[NSAutoreleasePool alloc] init];
 
         if (renderer->view != component)
@@ -191,7 +192,7 @@ JAWTRenderer_paintLightweightComponent
     JAWTRenderer *renderer;
     NSAutoreleasePool *autoreleasePool;
 
-    renderer = (JAWTRenderer *) handle;
+    renderer = (JAWTRenderer *) (intptr_t) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     // TODO Auto-generated method stub
@@ -210,7 +211,7 @@ JAWTRenderer_process
     JAWTRenderer *renderer;
     NSAutoreleasePool *autoreleasePool;
 
-    renderer = (JAWTRenderer *) handle;
+    renderer = (JAWTRenderer *) (intptr_t) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     if (data && length)
@@ -298,7 +299,7 @@ JAWTRenderer_processLightweightComponentEvent
     JAWTRenderer *renderer;
     NSAutoreleasePool *autoreleasePool;
 
-    renderer = (JAWTRenderer *) handle;
+    renderer = (JAWTRenderer *) (intptr_t) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     @synchronized (renderer)
@@ -318,7 +319,7 @@ JAWTRenderer_removeNotifyLightweightComponent(jlong handle, jobject component)
     JAWTRenderer *renderer;
     NSAutoreleasePool *autoreleasePool;
 
-    renderer = (JAWTRenderer *) handle;
+    renderer = (JAWTRenderer *) (intptr_t) handle;
     autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     [renderer removeFromSuperrenderer];
@@ -725,6 +726,7 @@ JAWTRenderer_sysctlbyname(JNIEnv *jniEnv, jstring name)
                 if (glContext)
                 {
                     GLint surfaceOpacity;
+                    GLint swapInterval;
 
                     // prepareOpenGL
                     [glContext makeCurrentContext];
@@ -732,11 +734,21 @@ JAWTRenderer_sysctlbyname(JNIEnv *jniEnv, jstring name)
                     surfaceOpacity = 1;
                     [glContext setValues:&surfaceOpacity
                             forParameter:NSOpenGLCPSurfaceOpacity];
-
+                    swapInterval = 0;
+                    [glContext setValues:&swapInterval
+                            forParameter:NSOpenGLCPSwapInterval];
+                    
+                    glDisable(GL_ALPHA_TEST);
                     glDisable(GL_BLEND);
-                    glDisable(GL_DEPTH_TEST);
-                    glDepthMask(GL_FALSE);
                     glDisable(GL_CULL_FACE);
+                    glDisable(GL_DEPTH_TEST);
+                    glDisable(GL_DITHER);
+                    glDisable(GL_LIGHTING);
+                    glDisable(GL_SCISSOR_TEST);
+                    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                    glDepthMask(GL_FALSE);
+                    glStencilMask(0);
+                    glHint(GL_TRANSFORM_HINT_APPLE, GL_FASTEST);
                     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
                     glClear(GL_COLOR_BUFFER_BIT);
                 }

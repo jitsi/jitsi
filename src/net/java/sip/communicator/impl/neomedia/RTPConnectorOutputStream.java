@@ -33,7 +33,7 @@ public abstract class RTPConnectorOutputStream
      * <tt>OutOfMemoryError</tt>s which, technically, may arise if the capacity
      * of the queue is unlimited.
      */
-    private static final int
+    public static final int
         MAX_PACKETS_PER_MILLIS_POLICY_PACKET_QUEUE_CAPACITY
             = 256;
 
@@ -45,7 +45,7 @@ public abstract class RTPConnectorOutputStream
     private MaxPacketsPerMillisPolicy maxPacketsPerMillisPolicy;
 
     /**
-     * Stream targets' ip addresses and ports.
+     * Stream targets' IP addresses and ports.
      */
     protected final List<InetSocketAddress> targets
         = new LinkedList<InetSocketAddress>();
@@ -184,23 +184,28 @@ public abstract class RTPConnectorOutputStream
      * @param target the target
      * @throws IOException if something goes wrong during sending
      */
-    protected abstract void sendToTarget(RawPacket packet,
-        InetSocketAddress target) throws IOException;
+    protected abstract void sendToTarget(
+        RawPacket packet,
+        InetSocketAddress target)
+            throws IOException;
 
     /**
-     * Log the packet.
+     * Logs a specific <tt>RawPacket</tt> associated with a specific remote
+     * address.
      *
      * @param packet packet to log
+     * @param target the remote address associated with the <tt>packet</tt>
      */
-    protected abstract void doLogPacket(RawPacket packet,
+    protected abstract void doLogPacket(
+        RawPacket packet,
         InetSocketAddress target);
 
     /**
      * Returns whether or not this <tt>RTPConnectorOutputStream</tt> has a valid
      * socket.
      *
-     * @returns true if this <tt>RTPConnectorOutputStream</tt> has a valid
-     * socket, false otherwise
+     * @return <tt>true</tt> if this <tt>RTPConnectorOutputStream</tt> has a
+     * valid socket; <tt>false</tt>, otherwise
      */
     protected abstract boolean isSocketValid();
 
@@ -216,9 +221,7 @@ public abstract class RTPConnectorOutputStream
     private boolean send(RawPacket packet)
     {
         if(!isSocketValid())
-        {
             return false;
-        }
 
         numberOfPackets++;
         for (InetSocketAddress target : targets)

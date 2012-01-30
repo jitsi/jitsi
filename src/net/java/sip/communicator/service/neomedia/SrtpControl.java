@@ -71,10 +71,10 @@ public interface SrtpControl
     /**
      * Sets the <tt>RTPConnector</tt> which is to use or uses this SRTP engine.
      *
-     * @param newValue the <tt>RTPConnector</tt> which is to use or uses this
+     * @param connector the <tt>RTPConnector</tt> which is to use or uses this
      * SRTP engine
      */
-    public void setConnector(AbstractRTPConnector newValue);
+    public void setConnector(AbstractRTPConnector connector);
 
     /**
      * Indicates if the key exchange method is dependent on secure transport of
