@@ -87,6 +87,9 @@ public class FileMenu
 
         this.parentWindow = parentWindow;
 
+        // whether the last item added was a separator
+        boolean endsWithSeparator = false;
+
         Boolean showAccountConfig = GuiActivator.getConfigurationService()
             .getBoolean(ConfigurationFrame.SHOW_ACCOUNT_CONFIG_PROPERTY, true);
 
@@ -103,9 +106,16 @@ public class FileMenu
 
             newAccountMenuItem.setMnemonic(resources
                 .getI18nMnemonic("service.gui.NEW_ACCOUNT"));
-        }
 
-        this.addSeparator();
+            // add separator only if there are other items enabled
+            if(!ConfigurationManager.isAddContactDisabled()
+               || !ConfigurationManager.isCreateGroupDisabled()
+               || !ConfigurationManager.isGoToChatroomDisabled())
+            {
+                this.addSeparator();
+                endsWithSeparator = true;
+            }
+        }
 
         if (!ConfigurationManager.isAddContactDisabled())
         {
@@ -120,15 +130,38 @@ public class FileMenu
 
             addContactItem.setMnemonic(resources
                 .getI18nMnemonic("service.gui.ADD_CONTACT"));
+
+            // if next item is disabled add separator here
+            // only if there is something next
+            if(ConfigurationManager.isCreateGroupDisabled()
+               && !ConfigurationManager.isGoToChatroomDisabled())
+            {
+                this.addSeparator();
+                endsWithSeparator = true;
+            }
+            else
+                endsWithSeparator = false;
         }
 
-        this.add(createGroupItem);
+        if (!ConfigurationManager.isCreateGroupDisabled())
+        {
+            this.add(createGroupItem);
 
-        this.addSeparator();
+            // add separator if there is something next
+            if(!ConfigurationManager.isGoToChatroomDisabled())
+            {
+                this.addSeparator();
+                endsWithSeparator = true;
+            }
+        }
 
-        this.add(myChatRoomsItem);
+        if (!ConfigurationManager.isGoToChatroomDisabled())
+        {
+            this.add(myChatRoomsItem);
+            endsWithSeparator = false;
+        }
 
-        registerCloseMenuItem();
+        registerCloseMenuItem(!endsWithSeparator);
 
         // All items are now instantiated and could safely load the skin.
         loadSkin();
@@ -226,14 +259,15 @@ public class FileMenu
 
     /**
      * Registers the close menu item.
+     * @param addSeparator whether we should add separator before the menu item.
      */
-    private void registerCloseMenuItem()
+    private void registerCloseMenuItem(boolean addSeparator)
     {
         UIService uiService = GuiActivator.getUIService();
         if ((uiService == null) || !uiService.useMacOSXScreenMenuBar()
             || !registerCloseMenuItemMacOSX())
         {
-            registerCloseMenuItemNonMacOSX();
+            registerCloseMenuItemNonMacOSX(addSeparator);
         }
     }
 
@@ -294,13 +328,16 @@ public class FileMenu
 
     /**
      * Registers the close menu item for all NON-MacOSX platforms.
+     * @param addSeparator whether we should add separator before the menu item.
      */
-    private void registerCloseMenuItemNonMacOSX()
+    private void registerCloseMenuItemNonMacOSX(boolean addSeparator)
     {
         closeMenuItem = new JMenuItem(
             GuiActivator.getResources().getI18NString("service.gui.QUIT"));
 
-        this.addSeparator();
+        if(addSeparator)
+            this.addSeparator();
+        
         this.add(closeMenuItem);
         closeMenuItem.setName("close");
         closeMenuItem.addActionListener(this);

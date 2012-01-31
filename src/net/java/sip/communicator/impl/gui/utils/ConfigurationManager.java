@@ -132,6 +132,16 @@ public class ConfigurationManager
     private static boolean isAddContactDisabled;
 
     /**
+     * Indicates if the go to chatroom functionality is disabled.
+     */
+    private static boolean isGoToChatroomDisabled;
+
+    /**
+     * Indicates if the create group functionality is disabled.
+     */
+    private static boolean isCreateGroupDisabled;
+
+    /**
      * Indicates if the remove contact functionality is disabled.
      */
     private static boolean isRemoveContactDisabled;
@@ -489,6 +499,20 @@ public class ConfigurationManager
                 "CONTACT_ADD_DISABLED",
                 false);
 
+        // Load the "CREATE_GROUP_DISABLED" property.
+        isCreateGroupDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.contactlist." +
+                "CREATE_GROUP_DISABLED",
+                false);
+
+        // Load the "GO_TO_CHATROOM_DISABLED" property.
+        isGoToChatroomDisabled
+            = configService.getBoolean(
+                "net.java.sip.communicator.impl.gui.main.chatroomslist." +
+                "GO_TO_CHATROOM_DISABLED",
+                false);
+
         // Load the "REMOVE_CONTACT_DISABLED" property.
         isRemoveContactDisabled
             = configService.getBoolean(
@@ -737,6 +761,28 @@ public class ConfigurationManager
     public static boolean isAddContactDisabled()
     {
         return isAddContactDisabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "CREATE_GROUP_DISABLED" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "CREATE_GROUP_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isCreateGroupDisabled()
+    {
+        return isCreateGroupDisabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "GO_TO_CHATROOM_DISABLED" property is
+     * true, otherwise - returns <code>false</code>..
+     * @return <code>true</code> if the "GO_TO_CHATROOM_DISABLED" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isGoToChatroomDisabled()
+    {
+        return isGoToChatroomDisabled;
     }
 
     /**
