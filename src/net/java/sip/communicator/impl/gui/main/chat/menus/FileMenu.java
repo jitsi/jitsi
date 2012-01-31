@@ -57,7 +57,10 @@ public class FileMenu
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.FILE"));
 
-        this.add(myChatRoomsItem);
+        if (!ConfigurationManager.isGoToChatroomDisabled())
+        {
+            this.add(myChatRoomsItem);
+        }
         this.add(historyItem);
 
         this.addSeparator();

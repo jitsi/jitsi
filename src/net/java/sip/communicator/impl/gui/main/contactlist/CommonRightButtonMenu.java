@@ -51,7 +51,8 @@ public class CommonRightButtonMenu
         if (!ConfigurationManager.isAddContactDisabled())
             this.add(addContactItem);
 
-        this.add(createGroupItem);
+        if (!ConfigurationManager.isCreateGroupDisabled())
+            this.add(createGroupItem);
 
         this.addContactItem.setMnemonic(GuiActivator.getResources()
             .getI18nMnemonic("service.gui.ADD_CONTACT"));

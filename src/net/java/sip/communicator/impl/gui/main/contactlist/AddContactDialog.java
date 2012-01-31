@@ -320,7 +320,10 @@ public class AddContactDialog
         final String newGroupString = GuiActivator.getResources()
             .getI18NString("service.gui.CREATE_GROUP");
 
-        groupCombo.addItem(newGroupString);
+        if (!ConfigurationManager.isCreateGroupDisabled())
+        {
+            groupCombo.addItem(newGroupString);
+        }
 
         groupCombo.addActionListener(new ActionListener()
         {
