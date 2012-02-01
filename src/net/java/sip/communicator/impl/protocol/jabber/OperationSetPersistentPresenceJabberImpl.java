@@ -1222,6 +1222,10 @@ public class OperationSetPersistentPresenceJabberImpl
     {
         public void run()
         {
+            // we are already notified lets remove us from the packet
+            // listener
+            parentProvider.getConnection()
+                .removePacketListener(this);
             // init ssList
             ssContactList.init();
 
@@ -1233,12 +1237,6 @@ public class OperationSetPersistentPresenceJabberImpl
             // as we have dispatched the contact list and Roaster is ready
             // lets start the jingle nodes discovery
             parentProvider.startJingleNodesDiscovery();
-
-            // we've done processing lets remove us from the packet
-            // listener
-            parentProvider.getConnection()
-                .removePacketListener(this);
-
         }
 
         /**

@@ -360,6 +360,11 @@ public class ProtocolProviderServiceJabberImpl
     private UserCredentials userCredentials = null;
 
     /**
+     * The currently running keepAliveManager if enabled.
+     */
+    private KeepAliveManager keepAliveManager = null;
+
+    /**
      * Returns the state of the registration of this protocol provider
      * @return the <tt>RegistrationState</tt> that this provider is
      * currently in or null in case it is in a unknown state.
@@ -1434,7 +1439,10 @@ public class ProtocolProviderServiceJabberImpl
 
             if (keepAliveStrValue == null
                 || keepAliveStrValue.equalsIgnoreCase("XEP-0199"))
-                new KeepAliveManager(this);
+            {
+                if(keepAliveManager == null)
+                    keepAliveManager = new KeepAliveManager(this);
+            }
 
             addSupportedOperationSet(
                 OperationSetBasicInstantMessaging.class,
@@ -2318,6 +2326,8 @@ public class ProtocolProviderServiceJabberImpl
         JabberAccountID accID = (JabberAccountID)getAccountID();
         final SmackServiceNode service = new SmackServiceNode(connection,
                 60000);
+        // make sure SmackServiceNode will clean up when connection is closed
+        connection.addConnectionListener(service);
 
         for(JingleNodeDescriptor desc : accID.getJingleNodes())
         {
