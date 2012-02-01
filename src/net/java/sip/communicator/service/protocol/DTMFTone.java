@@ -153,4 +153,49 @@ public final class DTMFTone
         return getValue().hashCode();
     }
 
+    /**
+     * Parses input <tt>value</tt> and return the corresponding tone.
+     * If unknown will return null;
+     * @param value the input value.
+     * @return the corresponding tone, <tt>null</tt> for unknown.
+     */
+    public static DTMFTone getDTMFTone(String value)
+    {
+        if(value == null)
+            return null;
+        else if(value.equals(DTMF_0.getValue()))
+            return DTMF_0;
+        else if(value.equals(DTMF_1.getValue()))
+            return DTMF_1;
+        else if(value.equals(DTMF_2.getValue()))
+            return DTMF_2;
+        else if(value.equals(DTMF_3.getValue()))
+            return DTMF_3;
+        else if(value.equals(DTMF_4.getValue()))
+            return DTMF_4;
+        else if(value.equals(DTMF_5.getValue()))
+            return DTMF_5;
+        else if(value.equals(DTMF_6.getValue()))
+            return DTMF_6;
+        else if(value.equals(DTMF_7.getValue()))
+            return DTMF_7;
+        else if(value.equals(DTMF_8.getValue()))
+            return DTMF_8;
+        else if(value.equals(DTMF_9.getValue()))
+            return DTMF_9;
+        else if(value.equals(DTMF_A.getValue()))
+            return DTMF_A;
+        else if(value.equals(DTMF_B.getValue()))
+            return DTMF_B;
+        else if(value.equals(DTMF_C.getValue()))
+            return DTMF_C;
+        else if(value.equals(DTMF_D.getValue()))
+            return DTMF_D;
+        else if(value.equals(DTMF_SHARP.getValue()))
+            return DTMF_SHARP;
+        else if(value.equals(DTMF_STAR.getValue()))
+            return DTMF_STAR;
+        else
+            return null;
+    }
 }

@@ -134,4 +134,13 @@ public class OperationSetDTMFSipImpl
 
         return false;
     }
+
+    /**
+     * Returns DTMFInfo mode implementation.
+     * @return DTMFInfo mode implementation.
+     */
+    DTMFInfo getDtmfModeInfo()
+    {
+        return dtmfModeInfo;
+    }
 }

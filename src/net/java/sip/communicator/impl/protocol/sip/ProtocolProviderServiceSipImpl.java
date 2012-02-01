@@ -443,9 +443,15 @@ public class ProtocolProviderServiceSipImpl
                     new OperationSetTelephonyConferencingSipImpl(this));
 
                 // init DTMF (from JM Heitz)
+                OperationSetDTMFSipImpl operationSetDTMFSip
+                    = new OperationSetDTMFSipImpl(this);
                 addSupportedOperationSet(
-                    OperationSetDTMF.class,
-                    new OperationSetDTMFSipImpl(this));
+                    OperationSetDTMF.class, operationSetDTMFSip);
+
+                addSupportedOperationSet(
+                    OperationSetIncomingDTMF.class,
+                    new OperationSetIncomingDTMFSipImpl(
+                            this, operationSetDTMFSip));
 
                 boolean isDesktopStreamingDisabled
                     = SipActivator.getConfigurationService()

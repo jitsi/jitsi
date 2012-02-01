@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip.dtmf;
 
 import gov.nist.javax.sip.header.*;
 
+import java.io.*;
 import java.text.*;
 import java.util.*;
 
@@ -17,6 +18,7 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -57,6 +59,12 @@ public class DTMFInfo
      * Involved protocol provider service.
      */
     private final ProtocolProviderServiceSipImpl pps;
+
+    /**
+     * A list of listeners registered for dtmf tone events.
+     */
+    private final List<DTMFListener> dtmfListeners =
+        new LinkedList<DTMFListener>();
 
     /**
      * Constructor
@@ -276,5 +284,175 @@ public class DTMFInfo
             }
         }
         return processed;
+    }
+
+    /*
+     * Receives dtmf info requests.
+     */
+    public boolean processRequest(RequestEvent requestEvent)
+    {
+        Request request = requestEvent.getRequest();
+
+        ContentTypeHeader contentTypeHeader
+            = (ContentTypeHeader)
+                request.getHeader(ContentTypeHeader.NAME);
+
+        if ((contentTypeHeader != null)
+                && CONTENT_TYPE.equalsIgnoreCase(
+                        contentTypeHeader.getContentType())
+                && CONTENT_SUB_TYPE.equalsIgnoreCase(
+                        contentTypeHeader.getContentSubType()))
+        {
+            try
+            {
+                byte[] value;
+                Object valueObj = request.getContent();
+
+                if(valueObj instanceof String)
+                    value = ((String)valueObj).getBytes("UTF-8");
+                else if(valueObj instanceof byte[])
+                    value = (byte[])valueObj;
+                else
+                {
+                    logger.error("Unknown content type");
+                    return false;
+                }
+
+                Properties prop = new Properties();
+                prop.load(new ByteArrayInputStream(value));
+
+                String signal = prop.getProperty("Signal");
+                String durationStr = prop.getProperty("Duration");
+                
+                DTMFTone tone = DTMFTone.getDTMFTone(signal);
+                
+                if(tone == null)
+                {
+                    logger.warn("Unknown tone received: " + tone);
+                    return false;
+                }
+                
+                long duration = 0;
+                try
+                {
+                    duration = Long.parseLong(durationStr);
+                }
+                catch(NumberFormatException ex)
+                {
+                    logger.warn("Error parsing duration:" + durationStr, ex);
+                }
+
+                // fire event
+                fireToneEvent(tone, duration);
+            }
+            catch(IOException ioe)
+            {}
+
+            Response responseOK;
+
+            try
+            {
+                responseOK = pps.getMessageFactory().createResponse(
+                            Response.OK, requestEvent.getRequest());
+            }
+            catch (ParseException ex)
+            {
+                //What else could we do apart from logging?
+                logger.warn("Failed to create OK for incoming INFO request", ex);
+                return false;
+            }
+
+            try
+            {
+                SipStackSharing.getOrCreateServerTransaction(requestEvent).
+                    sendResponse(responseOK);
+            }
+            catch(TransactionUnavailableException ex)
+            {
+                if (logger.isInfoEnabled())
+                    logger.info("Failed to respond to an incoming "
+                            +"transactionless INFO request");
+                if (logger.isTraceEnabled())
+                    logger.trace("Exception was:", ex);
+                return false;
+            }
+            catch (InvalidArgumentException ex)
+            {
+                //What else could we do apart from logging?
+                logger.warn("Failed to send OK for incoming INFO request", ex);
+                return false;
+            }
+            catch (SipException ex)
+            {
+                //What else could we do apart from logging?
+                logger.warn("Failed to send OK for incoming INFO request", ex);
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Fire event to interested listeners.
+     * @param tone to go into event.
+     * @param duration of the tone.
+     */
+    private void fireToneEvent(DTMFTone tone, long duration)
+    {
+        Collection<DTMFListener> listeners;
+        synchronized (this.dtmfListeners)
+        {
+            listeners = new ArrayList<DTMFListener>(this.dtmfListeners);
+        }
+
+        DTMFReceivedEvent evt = new DTMFReceivedEvent(pps, tone, duration);
+
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching DTMFTone Listeners=" + listeners.size()
+            + " evt=" + evt);
+
+        try
+        {
+            for (DTMFListener listener : listeners)
+            {
+                listener.toneReceived(evt);
+            }
+        }
+        catch (Throwable e)
+        {
+            logger.error("Error delivering dtmf tone", e);
+        }
+    }
+
+    /**
+     * Registers the specified DTMFListener with this provider so that it could
+     * be notified when incoming DTMF tone is received.
+     * @param listener the listener to register with this provider.
+     *
+     */
+    public void addDTMFListener(DTMFListener listener)
+    {
+        synchronized (dtmfListeners)
+        {
+            if (!dtmfListeners.contains(listener))
+            {
+                dtmfListeners.add(listener);
+            }
+        }
+    }
+
+    /**
+     * Removes the specified listener from the list of DTMF listeners.
+     * @param listener the listener to unregister.
+     */
+    public void removeDTMFListener(DTMFListener listener)
+    {
+        synchronized (dtmfListeners)
+        {
+            dtmfListeners.remove(listener);
+        }
     }
 }
