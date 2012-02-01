@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol.media;
 import java.awt.*;
 import java.beans.*;
 import java.text.*;
+import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -27,6 +28,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * <tt>CallSipImpl</tt> or <tt>CallJabberImpl</tt>.
  * @param <W> the <tt>MediaAwarePeerCall</tt> implementation like
  * <tt>CallPeerSipImpl</tt> or <tt>CallPeerJabberImpl</tt>.
+ *
  * @author Emil Ivov
  * @author Sebastien Vincent
  */
@@ -130,10 +132,26 @@ public abstract class AbstractOperationSetVideoTelephony<
      * @return the visual/video <tt>Component</tt> available in this telephony
      * for the specified <tt>peer</tt> if any; otherwise, <tt>null</tt>
      */
-    @SuppressWarnings("unchecked") // work with MediaAware* in media package
+    @Deprecated
     public Component getVisualComponent(CallPeer peer)
     {
-        return ((W)peer).getMediaHandler().getVisualComponent();
+        List<Component> visualComponents = getVisualComponents(peer);
+
+        return visualComponents.isEmpty() ? null : visualComponents.get(0);
+    }
+
+    /**
+     * Gets the visual/video <tt>Component</tt>s available in this telephony for
+     * a specific <tt>CallPeer</tt>.
+     *
+     * @param peer the <tt>CallPeer</tt> whose videos are to be retrieved
+     * @return the visual/video <tt>Component</tt>s available in this telephony
+     * for the specified <tt>peer</tt>
+     */
+    @SuppressWarnings("unchecked") // work with MediaAware* in media package
+    public List<Component> getVisualComponents(CallPeer peer)
+    {
+        return ((W)peer).getMediaHandler().getVisualComponents();
     }
 
     /**

@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Implements <tt>MediaDevice</tt> for the JMF <tt>CaptureDevice</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Emil Ivov
  */
 public class MediaDeviceImpl
@@ -126,12 +126,14 @@ public class MediaDeviceImpl
             }
 
             if (exception != null)
+            {
                 logger
                     .error(
                         "Failed to create CaptureDevice"
                             + " from CaptureDeviceInfo "
                             + captureDeviceInfo,
                         exception);
+            }
             else
             {
                 if(captureDevice instanceof AbstractPullBufferCaptureDevice)
@@ -317,26 +319,19 @@ public class MediaDeviceImpl
     }
 
     /**
-     * Gets a list of <tt>MediaFormat</tt>s supported by this
+     * Gets the list of <tt>MediaFormat</tt>s supported by this
      * <tt>MediaDevice</tt>.
      *
-     * @return the list of <tt>MediaFormat</tt>s supported by this device
-     * @see MediaDevice#getSupportedFormats()
-     */
-    public List<MediaFormat> getSupportedFormats()
-    {
-        return this.getSupportedFormats(null, null);
-    }
-    /**
-     * Gets a list of <tt>MediaFormat</tt>s supported by this
-     * <tt>MediaDevice</tt>.
      * @param sendPreset the preset used to set some of the format parameters,
      * used for video and settings.
+     * @param receivePreset the preset used to set the receive format
+     * parameters, used for video and settings.
      * @return the list of <tt>MediaFormat</tt>s supported by this device
      * @see MediaDevice#getSupportedFormats()
      */
-    public List<MediaFormat> getSupportedFormats(QualityPreset sendPreset,
-                                                 QualityPreset receivePreset)
+    public List<MediaFormat> getSupportedFormats(
+            QualityPreset sendPreset,
+            QualityPreset receivePreset)
     {
         MediaServiceImpl mediaServiceImpl
             = NeomediaActivator.getMediaServiceImpl();

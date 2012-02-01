@@ -24,7 +24,7 @@ public abstract class AbstractMediaStream
      * The name of this stream, that some protocols may use for diagnostic
      * purposes.
      */
-    private String streamName;
+    private String name;
 
     /**
      * The delegate of this instance which implements support for property
@@ -67,6 +67,20 @@ public abstract class AbstractMediaStream
         Object newValue)
     {
         propertyChangeSupport.firePropertyChange(property, oldValue, newValue);
+    }
+
+    /**
+     * Returns the name of this stream or <tt>null</tt> if no name has been
+     * set. A stream name is used by some protocols, for diagnostic purposes
+     * mostly. In XMPP for example this is the name of the content element that
+     * describes a stream.
+     *
+     * @return the name of this stream or <tt>null</tt> if no name has been
+     * set.
+     */
+    public String getName()
+    {
+        return name;
     }
 
     /**
@@ -128,33 +142,6 @@ public abstract class AbstractMediaStream
     }
 
     /**
-     * Returns the name of this stream or <tt>null</tt> if no name has been
-     * set. A stream name is used by some protocols, for diagnostic purposes
-     * mostly. In XMPP for example this is the name of the content element that
-     * describes a stream.
-     *
-     * @return the name of this stream or <tt>null</tt> if no name has been
-     * set.
-     */
-    public String getName()
-    {
-        return streamName;
-    }
-
-    /**
-     * Sets the name of this stream. Stream names are used by some protocols,
-     * for diagnostic purposes mostly. In XMPP for example this is the name of
-     * the content element that describes a stream.
-     *
-     * @param streamName the name of this stream or <tt>null</tt> if no name has
-     * been set.
-     */
-    public void setName(String streamName)
-    {
-        this.streamName = streamName;
-    }
-
-    /**
      * Removes the specified <tt>PropertyChangeListener</tt> from this stream so
      * that it won't receive further property change events.
      *
@@ -164,5 +151,18 @@ public abstract class AbstractMediaStream
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
         propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Sets the name of this stream. Stream names are used by some protocols,
+     * for diagnostic purposes mostly. In XMPP for example this is the name of
+     * the content element that describes a stream.
+     *
+     * @param name the name of this stream or <tt>null</tt> if no name has been
+     * set.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
     }
 }

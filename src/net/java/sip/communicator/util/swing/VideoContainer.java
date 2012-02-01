@@ -7,6 +7,7 @@
 package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.lang.reflect.*;
 
 import net.java.sip.communicator.util.*;
@@ -28,6 +29,9 @@ public class VideoContainer
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(VideoContainer.class);
+
+    public static final Color DEFAULT_BACKGROUND_COLOR
+        = OSUtils.IS_MAC ? Color.BLACK : null;
 
     /**
      * The name of the instance method of <tt>Component</tt>s added to
@@ -67,8 +71,47 @@ public class VideoContainer
 
         this.noVideoComponent = noVideoComponent;
 
-        add(this.noVideoComponent, VideoLayout.CENTER_REMOTE, -1);
-        validate();
+        /*
+         * JAWTRenderer on Mac OS X will by default occupy the whole video
+         * container and will, consequently, draw a black background. In certain
+         * problematic cases which it will try to provide a workaround, it will
+         * not occupy the whole video container. To make the experience
+         * relatively the same, always use a black background.
+         */
+        if (DEFAULT_BACKGROUND_COLOR != null)
+        {
+            setBackground(DEFAULT_BACKGROUND_COLOR);
+            addContainerListener(
+                new ContainerListener()
+                {
+                    public void componentAdded(ContainerEvent e)
+                    {
+                        int componentCount = getComponentCount();
+
+                        if ((componentCount == 1)
+                                && (getComponent(0)
+                                    == VideoContainer.this.noVideoComponent))
+                            componentCount = 0;
+
+                        setOpaque(componentCount > 0);
+                    }
+
+                    public void componentRemoved(ContainerEvent e)
+                    {
+                        /*
+                         * It's all the same with respect to the purpose of this
+                         * ContainerListener.
+                         */
+                        componentAdded(e);
+                    }
+                });
+        }
+
+        if (this.noVideoComponent != null)
+        {
+            add(this.noVideoComponent, VideoLayout.CENTER_REMOTE, -1);
+            validate();
+        }
     }
 
     /**
@@ -227,9 +270,22 @@ public class VideoContainer
             validate();
         }
 
-        if (VideoLayout.CENTER_REMOTE.equals(
-                        ((VideoLayout) getLayout()).getComponentConstraints(
-                                comp))
+        Component[] components = getComponents();
+        VideoLayout videoLayout = (VideoLayout) getLayout();
+        boolean hasComponentsAtCenterRemote = false;
+
+        for (Component c : components)
+        {
+            if (!c.equals(noVideoComponent)
+                    && VideoLayout.CENTER_REMOTE.equals(
+                            videoLayout.getComponentConstraints(c)))
+            {
+                hasComponentsAtCenterRemote = true;
+                break;
+            }
+        }
+
+        if (!hasComponentsAtCenterRemote
                 && (noVideoComponent != null)
                 && !noVideoComponent.equals(comp))
         {
@@ -257,8 +313,11 @@ public class VideoContainer
         if ((canvas != null) && (canvas.getParent() != this))
             canvas = null;
 
-        add(noVideoComponent, VideoLayout.CENTER_REMOTE);
-        validate();
+        if (noVideoComponent != null)
+        {
+            add(noVideoComponent, VideoLayout.CENTER_REMOTE);
+            validate();
+        }
     }
 
     /**

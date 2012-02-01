@@ -97,26 +97,15 @@ public class MediaDeviceSession
     private boolean mute = false;
 
     /**
-     * The <tt>DataSource</tt> being played back on the <tt>MediaDevice</tt>
-     * represented by this instance.
-     */
-    private DataSource playbackDataSource;
-
-    /**
-     * The <tt>Object</tt> used to synchronize the access to the
-     * playback-related state of this instance.
-     */
-    private final Object playbackSyncRoot = new Object();
-
-    /**
-     * The <tt>Player</tt> rendering {@link #playbackDataSource} on the
+     * The list of playbacks of <tt>ReceiveStream</tt>s and/or
+     * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
      * <tt>MediaDevice</tt> represented by this instance.
      */
-    private Player player;
+    private final List<Playback> playbacks = new LinkedList<Playback>();
 
     /**
-     * The <tt>ControllerListener</tt> which listens to {@link #player} for
-     * <tt>ControllerEvent</tt>s.
+     * The <tt>ControllerListener</tt> which listens to the <tt>Player</tt>s of
+     * {@link #playbacks} for <tt>ControllerEvent</tt>s.
      */
     private ControllerListener playerControllerListener;
 
@@ -151,15 +140,6 @@ public class MediaDeviceSession
      * {@link #setFormat(MediaFormat)}.
      */
     private boolean processorIsPrematurelyClosed;
-
-    /**
-     * The <tt>ReceiveStream</tt> rendered by this instance on its associated
-     * <tt>MediaDevice</tt>. The <tt>DataSource</tt> of the
-     * <tt>ReceiveStream</tt> is actually rendered and is assigned to
-     * {@link #playbackDataSource}. It is possible to have a
-     * <tt>playbackDataSource</tt> and not have a <tt>ReceiveStream</tt>.
-     */
-    private ReceiveStream receiveStream;
 
     /**
      * The list of SSRC identifiers representing the parties that we are
@@ -200,13 +180,15 @@ public class MediaDeviceSession
     }
 
     /**
-     * Dispose (or not) the player when this instance closes.
+     * Sets the indicator which determines whether this instance is to dispose
+     * of its associated player upon closing.
      *
-     * @param dispose value to set
+     * @param disposePlayerOnClose <tt>true</tt> to have this instance dispose
+     * of its associated player upon closing; otherwise, <tt>false</tt>
      */
-    public void setDisposePlayerOnClose(boolean dispose)
+    public void setDisposePlayerOnClose(boolean disposePlayerOnClose)
     {
-        disposePlayerOnClose = dispose;
+        this.disposePlayerOnClose = disposePlayerOnClose;
     }
 
     /**
@@ -342,7 +324,7 @@ public class MediaDeviceSession
             disposePlayer();
 
         processor = null;
-        player = null;
+//        player = null;
         captureDevice = null;
     }
 
@@ -425,48 +407,6 @@ public class MediaDeviceSession
     }
 
     /**
-     * Creates a new <tt>Player</tt> to render the <tt>playbackDataSource</tt>
-     * of this instance on the associated <tt>MediaDevice</tt>.
-     *
-     * @return a new <tt>Player</tt> to render the <tt>playbackDataSource</tt>
-     * of this instance on the associated <tt>MediaDevice</tt> or <tt>null</tt>
-     * if the <tt>playbackDataSource</tt> of this instance is not to be rendered
-     */
-    protected Player createPlayer()
-    {
-        // A Player is documented to be created on a connected DataSource.
-        Throwable exception;
-
-        try
-        {
-            this.playbackDataSource.connect();
-            exception = null;
-        }
-        catch (IOException ioex)
-        {
-            // TODO
-            exception = ioex;
-        }
-
-        if (exception == null)
-        {
-            Player player = createPlayer(this.playbackDataSource);
-
-            if (player == null)
-                this.playbackDataSource.disconnect();
-            else
-                return player;
-        }
-        else
-            logger
-                .error(
-                    "Failed to connect to "
-                        + MediaStreamImpl.toString(this.playbackDataSource),
-                    exception);
-        return null;
-    }
-
-    /**
      * Creates a new <tt>Player</tt> for a specific <tt>DataSource</tt> so that
      * it is played back on the <tt>MediaDevice</tt> represented by this
      * instance.
@@ -475,10 +415,29 @@ public class MediaDeviceSession
      * for
      * @return a new <tt>Player</tt> for the specified <tt>dataSource</tt>
      */
-    private Player createPlayer(DataSource dataSource)
+    protected Player createPlayer(DataSource dataSource)
     {
         Processor player = null;
         Throwable exception = null;
+
+        // A Player is documented to be created on a connected DataSource.
+        try
+        {
+            dataSource.connect();
+        }
+        catch (IOException ioex)
+        {
+            // TODO
+            exception = ioex;
+        }
+        if (exception != null)
+        {
+            logger.error(
+                    "Failed to connect to "
+                        + MediaStreamImpl.toString(dataSource),
+                    exception);
+            return player;
+        }
 
         try
         {
@@ -492,12 +451,13 @@ public class MediaDeviceSession
         {
             exception = npe;
         }
-
         if (exception != null)
+        {
             logger.error(
                     "Failed to create Player for "
                         + MediaStreamImpl.toString(dataSource),
                     exception);
+        }
         else
         {
             /*
@@ -534,9 +494,93 @@ public class MediaDeviceSession
                             + player.hashCode()
                             + " for "
                             + MediaStreamImpl.toString(dataSource));
-            return player;
         }
-        return null;
+
+        if (player == null)
+            dataSource.disconnect();
+
+        return player;
+    }
+
+    /**
+     * Initializes a new FMJ <tt>Processor</tt> which is to transcode
+     * {@link #captureDevice} into the format of this instance.
+     *
+     * @return a new FMJ <tt>Processor</tt> which is to transcode
+     * <tt>captureDevice</tt> into the format of this instance
+     */
+    protected Processor createProcessor()
+    {
+        DataSource captureDevice = getConnectedCaptureDevice();
+
+        if (captureDevice != null)
+        {
+            Processor processor = null;
+            Throwable exception = null;
+
+            try
+            {
+                processor = Manager.createProcessor(captureDevice);
+            }
+            catch (IOException ioe)
+            {
+                // TODO
+                exception = ioe;
+            }
+            catch (NoProcessorException npe)
+            {
+                // TODO
+                exception = npe;
+            }
+
+            if (exception != null)
+                logger
+                    .error(
+                        "Failed to create Processor for " + captureDevice,
+                        exception);
+            else
+            {
+                if (processorControllerListener == null)
+                    processorControllerListener = new ControllerListener()
+                    {
+
+                        /**
+                         * Notifies this <tt>ControllerListener</tt> that
+                         * the <tt>Controller</tt> which it is registered
+                         * with has generated an event.
+                         *
+                         * @param event the <tt>ControllerEvent</tt>
+                         * specifying the <tt>Controller</tt> which is the
+                         * source of the event and the very type of the
+                         * event
+                         * @see ControllerListener#controllerUpdate(
+                         * ControllerEvent)
+                         */
+                        public void controllerUpdate(ControllerEvent event)
+                        {
+                            processorControllerUpdate(event);
+                        }
+                    };
+                processor
+                    .addControllerListener(processorControllerListener);
+
+                if (waitForState(processor, Processor.Configured))
+                {
+                    this.processor = processor;
+                    processorIsPrematurelyClosed = false;
+                }
+                else
+                {
+                    if (processorControllerListener != null)
+                        processor
+                            .removeControllerListener(
+                                processorControllerListener);
+                    processor = null;
+                }
+            }
+        }
+
+        return this.processor;
     }
 
     /**
@@ -595,28 +639,21 @@ public class MediaDeviceSession
     }
 
     /**
-     * Releases the resources allocated by {@link #player} in the course of its
-     * execution and prepares it to be garbage collected.
+     * Releases the resources allocated by the <tt>Player</tt>s of
+     * {@link #playbacks} in the course of their execution and prepares them to
+     * be garbage collected.
      */
     private void disposePlayer()
     {
-        Player player;
-
-        synchronized (playbackSyncRoot)
+        synchronized (playbacks)
         {
-            /*
-             * If #disposePlayer(Player) is just executed inside the
-             * synchronized block protected by #playbackSyncRoot, it practically
-             * locks the rest of the state protected by the same synchronization
-             * root. But that is not necessary because #disposePlayer(Player)
-             * will protect #player when necessary. Anyway, the change from the
-             * described behavior to the current one has been made while solving
-             * a deadlock.
-             */
-            player = this.player;
+            for (Playback playback : playbacks)
+                if (playback.player != null)
+                {
+                    disposePlayer(playback.player);
+                    playback.player = null;
+                }
         }
-        if (player != null)
-            disposePlayer(player);
     }
 
     /**
@@ -627,11 +664,8 @@ public class MediaDeviceSession
      */
     protected void disposePlayer(Player player)
     {
-        synchronized (playbackSyncRoot)
+        synchronized (playbacks)
         {
-            if (this.player == player)
-                this.player = null;
-
             if (playerControllerListener != null)
                 player.removeControllerListener(playerControllerListener);
             player.stop();
@@ -727,7 +761,7 @@ public class MediaDeviceSession
      * @return {@link #captureDevice} in a connected state; <tt>null</tt> if
      * this instance fails to create <tt>captureDevice</tt> or to connect to it
      */
-    private DataSource getConnectedCaptureDevice()
+    protected DataSource getConnectedCaptureDevice()
     {
         DataSource captureDevice = getCaptureDevice();
 
@@ -888,19 +922,68 @@ public class MediaDeviceSession
     }
 
     /**
-     * Gets the <tt>Player</tt> rendering the <tt>ReceiveStream</tt> of this
+     * Gets the information related to the playback of a specific
+     * <tt>DataSource</tt> on the <tt>MediaDevice</tt> represented by this
+     * <tt>MediaDeviceSession</tt>.
+     *
+     * @param dataSource the <tt>DataSource</tt> to get the information related
+     * to the playback of
+     * @return the information related to the playback of the specified
+     * <tt>DataSource</tt> on the <tt>MediaDevice</tt> represented by this
+     * <tt>MediaDeviceSession</tt>
+     */
+    private Playback getPlayback(DataSource dataSource)
+    {
+        synchronized (playbacks)
+        {
+            for (Playback playback : playbacks)
+                if (playback.dataSource == dataSource)
+                    return playback;
+        }
+        return null;
+    }
+
+    /**
+     * Gets the information related to the playback of a specific
+     * <tt>ReceiveStream</tt> on the <tt>MediaDevice</tt> represented by this
+     * <tt>MediaDeviceSession</tt>.
+     *
+     * @param receiveStream the <tt>ReceiveStream</tt> to get the information
+     * related to the playback of
+     * @return the information related to the playback of the specified
+     * <tt>ReceiveStream</tt> on the <tt>MediaDevice</tt> represented by this
+     * <tt>MediaDeviceSession</tt>
+     */
+    private Playback getPlayback(ReceiveStream receiveStream)
+    {
+        synchronized (playbacks)
+        {
+            for (Playback playback : playbacks)
+                if (playback.receiveStream == receiveStream)
+                    return playback;
+        }
+        return null;
+    }
+
+    /**
+     * Gets the <tt>Player</tt>s rendering the <tt>ReceiveStream</tt>s of this
      * instance on its associated <tt>MediaDevice</tt>.
      *
-     * @return the <tt>Player</tt> rendering the <tt>ReceiveStream</tt>s of this
-     * instance on its associated <tt>MediaDevice</tt> if it exists; otherwise,
-     * <tt>null</tt>
+     * @return the <tt>Player</tt>s rendering the <tt>ReceiveStream</tt>s of
+     * this instance on its associated <tt>MediaDevice</tt>
      */
-    protected Player getPlayer()
+    protected List<Player> getPlayers()
     {
-        synchronized (playbackSyncRoot)
+        List<Player> players;
+
+        synchronized (playbacks)
         {
-            return player;
+            players = new ArrayList<Player>(playbacks.size());
+            for (Playback playback : playbacks)
+                if (playback.player != null)
+                    players.add(playback.player);
         }
+        return players;
     }
 
     /**
@@ -913,90 +996,29 @@ public class MediaDeviceSession
     private Processor getProcessor()
     {
         if (processor == null)
-        {
-            DataSource captureDevice = getConnectedCaptureDevice();
-
-            if (captureDevice != null)
-            {
-                Processor processor = null;
-                Throwable exception = null;
-
-                try
-                {
-                    processor = Manager.createProcessor(captureDevice);
-                }
-                catch (IOException ioe)
-                {
-                    // TODO
-                    exception = ioe;
-                }
-                catch (NoProcessorException npe)
-                {
-                    // TODO
-                    exception = npe;
-                }
-
-                if (exception != null)
-                    logger
-                        .error(
-                            "Failed to create Processor for " + captureDevice,
-                            exception);
-                else
-                {
-                    if (processorControllerListener == null)
-                        processorControllerListener = new ControllerListener()
-                        {
-
-                            /**
-                             * Notifies this <tt>ControllerListener</tt> that
-                             * the <tt>Controller</tt> which it is registered
-                             * with has generated an event.
-                             *
-                             * @param event the <tt>ControllerEvent</tt>
-                             * specifying the <tt>Controller</tt> which is the
-                             * source of the event and the very type of the
-                             * event
-                             * @see ControllerListener#controllerUpdate(
-                             * ControllerEvent)
-                             */
-                            public void controllerUpdate(ControllerEvent event)
-                            {
-                                processorControllerUpdate(event);
-                            }
-                        };
-                    processor
-                        .addControllerListener(processorControllerListener);
-
-                    if (waitForState(processor, Processor.Configured))
-                    {
-                        this.processor = processor;
-                        processorIsPrematurelyClosed = false;
-                    }
-                    else
-                    {
-                        if (processorControllerListener != null)
-                            processor
-                                .removeControllerListener(
-                                    processorControllerListener);
-                        processor = null;
-                    }
-                }
-            }
-        }
+            processor = createProcessor();
         return processor;
     }
 
     /**
-     * Gets the <tt>ReceiveStream</tt> being played back on the
+     * Gets a list of the <tt>ReceiveStream</tt>s being played back on the
      * <tt>MediaDevice</tt> represented by this instance.
      *
-     * @return the <tt>ReceiveStream</tt> being played back on the
-     * <tt>MediaDevice</tt> represented by this instance if it has been
-     * previously set; otherwise, <tt>null</tt>
+     * @return a list of <tt>ReceiveStream</tt>s being played back on the
+     * <tt>MediaDevice</tt> represented by this instance
      */
-    public ReceiveStream getReceiveStream()
+    public List<ReceiveStream> getReceiveStreams()
     {
-        return receiveStream;
+        List<ReceiveStream> receiveStreams;
+
+        synchronized (playbacks)
+        {
+            receiveStreams = new ArrayList<ReceiveStream>(playbacks.size());
+            for (Playback playback : playbacks)
+                if (playback.receiveStream != null)
+                    receiveStreams.add(playback.receiveStream);
+        }
+        return receiveStreams;
     }
 
     /**
@@ -1096,19 +1118,24 @@ public class MediaDeviceSession
     }
 
     /**
-     * Notifies this instance that the value of its <tt>playbackDataSource</tt>
-     * property has changed from a specific <tt>oldValue</tt> to a specific
-     * <tt>newValue</tt>. Allows extenders to override and perform additional
-     * processing of the change.
+     * Notifies this <tt>MediaDeviceSession</tt> that a <tt>DataSource</tt> has
+     * been added for playback on the represented <tt>MediaDevice</tt>.
      *
-     * @param oldValue the <tt>DataSource</tt> which used to be the value of the
-     * <tt>playbackDataSource</tt> property of this instance
-     * @param newValue the <tt>DataSource</tt> which is the value of the
-     * <tt>playbackDataSource</tt> property of this instance
+     * @param playbackDataSource the <tt>DataSource</tt> which has been added
+     * for playback on the represented <tt>MediaDevice</tt>
      */
-    protected void playbackDataSourceChanged(
-            DataSource oldValue,
-            DataSource newValue)
+    protected void playbackDataSourceAdded(DataSource playbackDataSource)
+    {
+    }
+
+    /**
+     * Notifies this <tt>MediaDeviceSession</tt> that a <tt>DataSource</tt> has
+     * been removed from playback on the represented <tt>MediaDevice</tt>.
+     *
+     * @param playbackDataSource the <tt>DataSource</tt> which has been removed
+     * from playback on the represented <tt>MediaDevice</tt>
+     */
+    protected void playbackDataSourceRemoved(DataSource playbackDataSource)
     {
     }
 
@@ -1299,19 +1326,32 @@ public class MediaDeviceSession
     }
 
     /**
-     * Notifies this instance that the value of its <tt>receiveStream</tt>
-     * property has changed from a specific <tt>oldValue</tt> to a specific
-     * <tt>newValue</tt>. Allows extenders to override and perform additional
-     * processing of the change.
+     * Notifies this instance that a specific <tt>ReceiveStream</tt> has been
+     * added to the list of playbacks of <tt>ReceiveStream</tt>s and/or
+     * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+     * <tt>MediaDevice</tt> represented by this instance.
      *
-     * @param oldValue the <tt>ReceiveStream</tt> which used to be the value of
-     * the <tt>receiveStream</tt> property of this instance
-     * @param newValue the <tt>ReceiveStream</tt> which is the value of the
-     * <tt>receiveStream</tt> property of this instance
+     * @param receiveStream the <tt>ReceiveStream</tt> which has been added to
+     * the list of playbacks of <tt>ReceiveStream</tt>s and/or
+     * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+     * <tt>MediaDevice</tt> represented by this instance
      */
-    protected void receiveStreamChanged(
-            ReceiveStream oldValue,
-            ReceiveStream newValue)
+    protected void receiveStreamAdded(ReceiveStream receiveStream)
+    {
+    }
+
+    /**
+     * Notifies this instance that a specific <tt>ReceiveStream</tt> has been
+     * removed from the list of playbacks of <tt>ReceiveStream</tt>s and/or
+     * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+     * <tt>MediaDevice</tt> represented by this instance.
+     *
+     * @param receiveStream the <tt>ReceiveStream</tt> which has been removed
+     * from the list of playbacks of <tt>ReceiveStream</tt>s and/or
+     * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+     * <tt>MediaDevice</tt> represented by this instance
+     */
+    protected void receiveStreamRemoved(ReceiveStream receiveStream)
     {
     }
 
@@ -1560,30 +1600,80 @@ public class MediaDeviceSession
     }
 
     /**
-     * Sets the <tt>DataSource</tt> to be played back on the
-     * <tt>MediaDevice</tt> represented by this instance.
+     * Adds a specific <tt>DataSource</tt> to the list of playbacks of
+     * <tt>ReceiveStream</tt>s and/or <tt>DataSource</tt>s performed by
+     * respective <tt>Player</tt>s on the <tt>MediaDevice</tt> represented by
+     * this instance.
      *
-     * @param playbackDataSource the <tt>DataSource</tt> to be played back on
-     * the <tt>MediaDevice</tt> represented by this instance or <tt>null</tt> to
-     * have this instance not play anything back
+     * @param playbackDataSource the <tt>DataSource</tt> which to be added to
+     * the list of playbacks of <tt>ReceiveStream</tt>s and/or
+     * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+     * <tt>MediaDevice</tt> represented by this instance
      */
-    public void setPlaybackDataSource(DataSource playbackDataSource)
+    public void addPlaybackDataSource(DataSource playbackDataSource)
     {
-        synchronized (playbackSyncRoot)
+        synchronized (playbacks)
         {
-            if (this.playbackDataSource == playbackDataSource)
-                return;
+            Playback playback = getPlayback(playbackDataSource);
 
-            DataSource oldValue = this.playbackDataSource;
+            if (playback == null)
+            {
+                if (playbackDataSource
+                        instanceof ReceiveStreamPushBufferDataSource)
+                {
+                    ReceiveStream receiveStream
+                        = ((ReceiveStreamPushBufferDataSource)
+                                playbackDataSource)
+                            .getReceiveStream();
 
-            if (this.playbackDataSource != null)
-                disposePlayer();
+                    playback = getPlayback(receiveStream);
+                }
+                if (playback == null)
+                {
+                    playback = new Playback(playbackDataSource);
+                    playbacks.add(playback);
+                }
+                else
+                    playback.dataSource = playbackDataSource;
 
-            this.playbackDataSource = playbackDataSource;
-            playbackDataSourceChanged(oldValue, this.playbackDataSource);
+                playback.player = createPlayer(playbackDataSource);
 
-            if (this.playbackDataSource != null)
-                player = createPlayer();
+                playbackDataSourceAdded(playbackDataSource);
+            }
+        }
+    }
+
+    /**
+     * Removes a specific <tt>DataSource</tt> from the list of playbacks of
+     * <tt>ReceiveStream</tt>s and/or <tt>DataSource</tt>s performed by
+     * respective <tt>Player</tt>s on the <tt>MediaDevice</tt> represented by
+     * this instance.
+     *
+     * @param playbackDataSource the <tt>DataSource</tt> which to be removed
+     * from the list of playbacks of <tt>ReceiveStream</tt>s and/or
+     * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+     * <tt>MediaDevice</tt> represented by this instance
+     */
+    public void removePlaybackDataSource(DataSource playbackDataSource)
+    {
+        synchronized (playbacks)
+        {
+            Playback playback = getPlayback(playbackDataSource);
+
+            if (playback != null)
+            {
+                if (playback.player != null)
+                {
+                    disposePlayer(playback.player);
+                    playback.player = null;
+                }
+
+                playback.dataSource = null;
+                if (playback.receiveStream == null)
+                    playbacks.remove(playback);
+
+                playbackDataSourceRemoved(playbackDataSource);
+            }
         }
     }
 
@@ -1611,33 +1701,25 @@ public class MediaDeviceSession
     }
 
     /**
-     * Sets the <tt>ReceiveStream</tt> which is to be played back on the
-     * <tt>MediaDevice</tt> represented by this instance.
+     * Adds a specific <tt>ReceiveStream</tt> to the list of playbacks of
+     * <tt>ReceiveStream</tt>s and/or <tt>DataSource</tt>s performed by
+     * respective <tt>Player</tt>s on the <tt>MediaDevice</tt> represented by
+     * this instance.
      *
-     * @param receiveStream the <tt>ReceiveStream</tt> which is to be played
-     * back on the <tt>MediaDevice</tt> represented by this instance
+     * @param receiveStream the <tt>ReceiveStream</tt> which to be added to the
+     * list of playbacks of <tt>ReceiveStream</tt>s and/or <tt>DataSource</tt>s
+     * performed by respective <tt>Player</tt>s on the <tt>MediaDevice</tt>
+     * represented by this instance
      */
-    public void setReceiveStream(ReceiveStream receiveStream)
+    public void addReceiveStream(ReceiveStream receiveStream)
     {
-        synchronized (playbackSyncRoot)
+        synchronized (playbacks)
         {
-            if (this.receiveStream == receiveStream)
-                return;
-
-            ReceiveStream oldValue = this.receiveStream;
-
-            if (this.receiveStream != null)
+            if (getPlayback(receiveStream) == null)
             {
-                removeSSRC(this.receiveStream.getSSRC());
-                setPlaybackDataSource(null);
-            }
+                playbacks.add(new Playback(receiveStream));
 
-            this.receiveStream = receiveStream;
-            receiveStreamChanged(oldValue, this.receiveStream);
-
-            if (this.receiveStream != null)
-            {
-                addSSRC(this.receiveStream.getSSRC());
+                addSSRC(receiveStream.getSSRC());
 
                 // playbackDataSource
                 DataSource receiveStreamDataSource
@@ -1646,23 +1728,65 @@ public class MediaDeviceSession
                 if (receiveStreamDataSource != null)
                 {
                     if (receiveStreamDataSource instanceof PushBufferDataSource)
+                    {
                         receiveStreamDataSource
                             = new ReceiveStreamPushBufferDataSource(
                                     receiveStream,
                                     (PushBufferDataSource)
                                         receiveStreamDataSource,
                                     true);
+                    }
                     else
+                    {
                         logger.warn(
                                 "Adding ReceiveStream with DataSource"
                                     + " not of type PushBufferDataSource but "
-                                    + receiveStreamDataSource
-                                        .getClass().getSimpleName()
+                                    + receiveStreamDataSource.getClass()
+                                            .getSimpleName()
                                     + " which may prevent the ReceiveStream"
                                     + " from properly transferring to another"
                                     + " MediaDevice if such a need arises.");
-                    setPlaybackDataSource(receiveStreamDataSource);
+                    }
+                    addPlaybackDataSource(receiveStreamDataSource);
                 }
+
+                receiveStreamAdded(receiveStream);
+            }
+        }
+    }
+
+    /**
+     * Removes a specific <tt>ReceiveStream</tt> from the list of playbacks of
+     * <tt>ReceiveStream</tt>s and/or <tt>DataSource</tt>s performed by
+     * respective <tt>Player</tt>s on the <tt>MediaDevice</tt> represented by
+     * this instance.
+     *
+     * @param receiveStream the <tt>ReceiveStream</tt> which to be removed from
+     * the list of playbacks of <tt>ReceiveStream</tt>s and/or
+     * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+     * <tt>MediaDevice</tt> represented by this instance
+     */
+    public void removeReceiveStream(ReceiveStream receiveStream)
+    {
+        synchronized (playbacks)
+        {
+            Playback playback = getPlayback(receiveStream);
+
+            if (playback != null)
+            {
+                removeSSRC(receiveStream.getSSRC());
+                if (playback.dataSource != null)
+                    removePlaybackDataSource(playback.dataSource);
+
+                if (playback.dataSource != null)
+                {
+                    logger.warn(
+                            "Removing ReceiveStream"
+                                + " with associated DataSource");
+                }
+                playbacks.remove(playback);
+
+                receiveStreamRemoved(receiveStream);
             }
         }
     }
@@ -1831,23 +1955,79 @@ public class MediaDeviceSession
     }
 
     /**
-     * Transfer rendering part from <tt>session</tt> to this instance.
+     * Copies the playback part of a specific <tt>MediaDeviceSession</tt> into
+     * this instance.
      *
-     * @param session <tt>MediaDeviceSession</tt> to transfer data from
+     * @param deviceSession the <tt>MediaDeviceSession</tt> to copy the playback
+     * part of into this instance
      */
-    protected void transferRenderingSession(MediaDeviceSession session)
+    public void copyPlayback(MediaDeviceSession deviceSession)
     {
-        if (session.disposePlayerOnClose)
+        if (deviceSession.disposePlayerOnClose)
         {
-            logger.error("Cannot tranfer rendering session if " +
-                    "MediaDeviceSession has closed it");
+            logger.error(
+                    "Cannot copy playback"
+                        + " if MediaDeviceSession has closed it");
         }
         else
         {
-            this.player = session.player;
-            this.playbackDataSource = session.playbackDataSource;
-            this.receiveStream = session.receiveStream;
-            setSsrcList(session.ssrcList);
+            playbacks.addAll(deviceSession.playbacks);
+            setSsrcList(deviceSession.ssrcList);
+        }
+    }
+
+    /**
+     * Represents the information related to the playback of a
+     * <tt>DataSource</tt> on the <tt>MediaDevice</tt> represented by a
+     * <tt>MediaDeviceSession</tt>. The <tt>DataSource</tt> may have an
+     * associated <tt>ReceiveStream</tt>.
+     */
+    private static class Playback
+    {
+        /**
+         * The <tt>DataSource</tt> the information related to the playback of
+         * which is represented by this instance and which is associated with
+         * {@link #receiveStream}.
+         */
+        public DataSource dataSource;
+
+        /**
+         * The <tt>ReceiveStream</tt> the information related to the playback of
+         * which is represented by this instance and which is associated with
+         * {@link #dataSource}.
+         */
+        public ReceiveStream receiveStream;
+
+        /**
+         * The <tt>Player</tt> which performs the actual playback.
+         */
+        public Player player;
+
+        /**
+         * Initializes a new <tt>Playback</tt> instance which is to represent
+         * the information related to the playback of a specific
+         * <tt>DataSource</tt>.
+         *
+         * @param dataSource the <tt>DataSource</tt> the information related to
+         * the playback of which is to be represented by the new instance
+         */
+        public Playback(DataSource dataSource)
+        {
+            this.dataSource = dataSource;
+        }
+
+        /**
+         * Initializes a new <tt>Playback</tt> instance which is to represent
+         * the information related to the playback of a specific
+         * <tt>ReceiveStream</tt>.
+         *
+         * @param receiveStream the <tt>ReceiveStream</tt> the information
+         * related to the playback of which is to be represented by the new
+         * instance
+         */
+        public Playback(ReceiveStream receiveStream)
+        {
+            this.receiveStream = receiveStream;
         }
     }
 }

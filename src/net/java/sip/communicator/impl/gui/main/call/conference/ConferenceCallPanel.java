@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -103,7 +104,7 @@ public class ConferenceCallPanel
      */
     public ConferenceCallPanel(CallPanel callPanel, Call c)
     {
-        super(new BorderLayout());
+        super(new GridBagLayout());
 
         this.callPanel = callPanel;
         this.call = c;
@@ -126,26 +127,81 @@ public class ConferenceCallPanel
         Iterator<? extends CallPeer> iterator = this.call.getCallPeers();
 
         while (iterator.hasNext())
-        {
             this.addCallPeerPanel(iterator.next());
-        }
 
         scrollPane.setBorder(null);
 
         mainPanel.setTransferHandler(new CallTransferHandler(call));
 
-        add(scrollPane, BorderLayout.CENTER);
+        GridBagConstraints scrollPaneGridBagConstraints
+            = new GridBagConstraints();
+
+        scrollPaneGridBagConstraints.fill = GridBagConstraints.BOTH;
+        scrollPaneGridBagConstraints.gridx = 1;
+        scrollPaneGridBagConstraints.gridy = 0;
+        scrollPaneGridBagConstraints.weightx = 1;
+        scrollPaneGridBagConstraints.weighty = 1;
+        add(scrollPane, scrollPaneGridBagConstraints);
 
         addVideoContainer();
     }
 
+    /**
+     * Initializes a new <tt>VideoContainer</tt> instance which is to contain
+     * the visual/video <tt>Component</tt>s of {@link #call}. 
+     */
     private void addVideoContainer()
     {
-        final VideoContainer videoContainer = new VideoContainer(new JLabel());
+        final VideoContainer videoContainer = new VideoContainer(null);
 
-        videoContainer.setPreferredSize(new Dimension(1, 1));
+        videoContainer.setPreferredSize(new Dimension(0, 0));
 
-        add(videoContainer, BorderLayout.WEST);
+        GridBagConstraints videoContainerGridBagConstraints
+            = new GridBagConstraints();
+
+        videoContainerGridBagConstraints.fill = GridBagConstraints.BOTH;
+        videoContainerGridBagConstraints.gridx = 0;
+        videoContainerGridBagConstraints.gridy = 0;
+        videoContainerGridBagConstraints.weightx = 0;
+        videoContainerGridBagConstraints.weighty = 1;
+        add(videoContainer, videoContainerGridBagConstraints);
+        videoContainer.addContainerListener(
+            new ContainerListener()
+            {
+                public void componentAdded(ContainerEvent e)
+                {
+                    GridBagLayout layout = (GridBagLayout) getLayout();
+                    boolean maximizeVideoContainer
+                        = (videoContainer.getComponentCount() > 0);
+
+                    for (Component component : getComponents())
+                    {
+                        GridBagConstraints constraints
+                            = layout.getConstraints(component);
+
+                        if (maximizeVideoContainer)
+                        {
+                            constraints.weightx
+                                = (component == videoContainer) ? 1 : 0;
+                        }
+                        else
+                        {
+                            constraints.weightx
+                                = (component == videoContainer) ? 0 : 1;
+                        }
+                        layout.setConstraints(component, constraints);
+                    }
+                }
+
+                public void componentRemoved(ContainerEvent e)
+                {
+                    /*
+                     * It's all the same with respect to the purpose of this
+                     * ContainerListener.
+                     */
+                    componentAdded(e);
+                }
+            });
 
         videoContainers.add(videoContainer);
     }
@@ -331,6 +387,7 @@ public class ConferenceCallPanel
         // Single instance used by JViewport.
         static MyViewportLayout SHARED_INSTANCE = new MyViewportLayout();
 
+        @Override
         public void layoutContainer(Container parent)
         {
             JViewport vp = (JViewport)parent;

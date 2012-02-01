@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -69,14 +70,21 @@ public class VideoMediaDeviceSession
     private KeyFrameControl.KeyFrameRequester keyFrameRequester;
 
     /**
-     * Local <tt>Player</tt> for the local video.
+     * The <tt>Player</tt> which provides the local visual/video
+     * <tt>Component</tt>.
      */
-    private Processor localPlayer = null;
+    private Player localPlayer;
 
     /**
-     * Use or not RTCP feedback Picture Loss Indication.
+     * The <tt>Object</tt> which synchronizes the access to
+     * {@link #localPlayer}.
      */
-    private boolean usePLI = false;
+    private final Object localPlayerSyncRoot = new Object();
+
+    /**
+     * Local SSRC.
+     */
+    private long localSSRC = -1;
 
     /**
      * Output size of the stream.
@@ -89,14 +97,11 @@ public class VideoMediaDeviceSession
     private Dimension outputSize;
 
     /**
-     * The <tt>RTPConnector</tt>.
+     * The <tt>SwScaler</tt> inserted into the codec chain of the
+     * <tt>Player</tt> rendering the media received from the remote peer and
+     * enabling the explicit setting of the video size.
      */
-    private AbstractRTPConnector rtpConnector = null;
-
-    /**
-     * Local SSRC.
-     */
-    private long localSSRC = -1;
+    private SwScaler playerScaler;
 
     /**
      * Remote SSRC.
@@ -104,11 +109,15 @@ public class VideoMediaDeviceSession
     private long remoteSSRC = -1;
 
     /**
-     * The <tt>SwScaler</tt> inserted into the codec chain of the
-     * <tt>Player</tt> rendering the media received from the remote peer and
-     * enabling the explicit setting of the video size.
+     * The <tt>RTPConnector</tt> with which the <tt>RTPManager</tt> of this
+     * instance is to be or is already initialized.
      */
-    private SwScaler playerScaler;
+    private AbstractRTPConnector rtpConnector;
+
+    /**
+     * Use or not RTCP feedback Picture Loss Indication.
+     */
+    private boolean usePLI = false;
 
     /**
      * The facility which aids this instance in managing a list of
@@ -128,23 +137,6 @@ public class VideoMediaDeviceSession
     public VideoMediaDeviceSession(AbstractMediaDevice device)
     {
         super(device);
-    }
-
-    /**
-     * Initializes a new <tt>VideoMediaDeviceSession</tt> instance which is to
-     * represent the work of a <tt>MediaStream</tt> with a specific video
-     * <tt>MediaDevice</tt>.
-     *
-     * @param session previous <tt>MediaDeviceSession</tt>
-     * @param device the video <tt>MediaDevice</tt> the use of which by a
-     * <tt>MediaStream</tt> is to be represented by the new instance
-     */
-    public VideoMediaDeviceSession(
-            AbstractMediaDevice device,
-            MediaDeviceSession session)
-    {
-        this(device);
-        transferRenderingSession(session);
     }
 
     /**
@@ -251,7 +243,8 @@ public class VideoMediaDeviceSession
              * FIXME PullBufferDataSource does not seem to be correctly cloned
              * by JMF.
              */
-            if (!(captureDevice instanceof PullBufferDataSource))
+            if (!(captureDevice instanceof SourceCloneable)
+                    && !(captureDevice instanceof PullBufferDataSource))
             {
                 DataSource cloneableDataSource
                     = Manager.createCloneableDataSource(captureDevice);
@@ -408,47 +401,72 @@ public class VideoMediaDeviceSession
     }
 
     /**
-     * Get the local <tt>Player</tt> if it exists,
-     * create it otherwise
-     * @return local <tt>Player</tt>
+     * Initializes a new <tt>Player</tt> instance which is to provide the local
+     * visual/video <tt>Component</tt>. The new instance is initialized to
+     * render the media of the <tt>captureDevice</tt> of this
+     * <tt>MediaDeviceSession</tt>.
+     *
+     * @return a new <tt>Player</tt> instance which is to provide the local
+     * visual/video <tt>Component</tt>
      */
-    private Player getLocalPlayer()
+    private Player createLocalPlayer()
     {
-        DataSource captureDevice = getCaptureDevice();
+        return createLocalPlayer(getCaptureDevice());
+    }
+
+    /**
+     * Initializes a new <tt>Player</tt> instance which is to provide the local
+     * visual/video <tt>Component</tt>. The new instance is initialized to
+     * render the media of a specific <tt>DataSource</tt>.
+     *
+     * @param captureDevice the <tt>DataSource</tt> which is to have its media
+     * rendered by the new instance as the local visual/video <tt>Component</tt>
+     * @return a new <tt>Player</tt> instance which is to provide the local
+     * visual/video <tt>Component</tt>
+     */
+    protected Player createLocalPlayer(DataSource captureDevice)
+    {
         DataSource dataSource
             = (captureDevice instanceof SourceCloneable)
                 ? ((SourceCloneable) captureDevice).createClone()
                 : null;
+        Processor localPlayer = null;
 
-        /* create local player */
-        if (localPlayer == null && dataSource != null)
+        if (dataSource != null)
         {
-            Exception excpt = null;
+            Exception exception = null;
+
             try
             {
                 localPlayer = Manager.createProcessor(dataSource);
             }
             catch (Exception ex)
             {
-                excpt = ex;
+                exception = ex;
             }
 
-            if(excpt == null)
+            if (exception == null)
             {
-                localPlayer.addControllerListener(new ControllerListener()
+                if (localPlayer != null)
                 {
-                    public void controllerUpdate(ControllerEvent event)
-                    {
-                        controllerUpdateForCreateLocalVisualComponent(event);
-                    }
-                });
-                localPlayer.configure();
+                    localPlayer.addControllerListener(
+                        new ControllerListener()
+                        {
+                            public void controllerUpdate(ControllerEvent event)
+                            {
+                                controllerUpdateForCreateLocalVisualComponent(
+                                    event);
+                            }
+                        });
+                    localPlayer.configure();
+                }
             }
             else
             {
-                logger.error("Failed to connect to "
-                        + MediaStreamImpl.toString(dataSource),
-                    excpt);
+                logger.error(
+                        "Failed to connect to "
+                            + MediaStreamImpl.toString(dataSource),
+                        exception);
             }
         }
 
@@ -468,7 +486,8 @@ public class VideoMediaDeviceSession
     {
         if (controllerEvent instanceof ConfigureCompleteEvent)
         {
-            Processor player = (Processor)controllerEvent.getSourceController();
+            Processor player
+                = (Processor) controllerEvent.getSourceController();
 
             /*
              * Use SwScaler for the scaling since it produces an image with
@@ -511,29 +530,34 @@ public class VideoMediaDeviceSession
         {
             Player player = (Player) controllerEvent.getSourceController();
             Component visualComponent = player.getVisualComponent();
+            boolean start;
 
-            if (visualComponent != null)
+            if (visualComponent == null)
+                start = false;
+            else
             {
-                if (fireVideoEvent(
-                        VideoEvent.VIDEO_ADDED,
-                        visualComponent,
-                        VideoEvent.LOCAL,
-                        true))
-                {
-                    localVisualComponentConsumed(visualComponent, player);
-                }
-                else
-                {
-                    // No listener interested in our event so free resources.
-                    if(localPlayer == player)
-                        localPlayer = null;
-
-                    player.stop();
-                    player.deallocate();
-                    player.close();
-                }
+                start
+                    = fireVideoEvent(
+                            VideoEvent.VIDEO_ADDED,
+                            visualComponent,
+                            VideoEvent.LOCAL,
+                            true);
             }
-            player.start();
+            if (start)
+                player.start();
+            else
+            {
+                // No listener is interested in our event so free the resources.
+                synchronized (localPlayerSyncRoot)
+                {
+                    if (localPlayer == player)
+                        localPlayer = null;
+                }
+
+                player.stop();
+                player.deallocate();
+                player.close();
+            }
         }
     }
 
@@ -574,8 +598,13 @@ public class VideoMediaDeviceSession
          * it to the currently registered VideoListeners in a VideoEvent after
          * returning from the call.
          */
-        getLocalPlayer();
-        return null;
+        synchronized (localPlayerSyncRoot)
+        {
+            if (localPlayer == null)
+                localPlayer = createLocalPlayer();
+            return
+                (localPlayer == null) ? null : getVisualComponent(localPlayer);
+        }
     }
 
     /**
@@ -676,30 +705,44 @@ public class VideoMediaDeviceSession
     }
 
     /**
-     * Disposes the local visual <tt>Component</tt> of the local peer.
+     * Disposes of the local visual <tt>Component</tt> of the local peer.
      *
      * @param component the local visual <tt>Component</tt> of the local peer to
      * dispose of
      */
     public void disposeLocalVisualComponent(Component component)
     {
-        /*
-         * Desktop streaming does not use a Player but a Canvas with its name
-         * equals to the value of DESKTOP_STREAMING_ICON.
-         */
-        if ((component != null)
-                && DESKTOP_STREAMING_ICON.equals(component.getName()))
+        if (component != null)
         {
-            fireVideoEvent(
-                    VideoEvent.VIDEO_REMOVED, component, VideoEvent.LOCAL,
-                    false);
-            return;
+            /*
+             * Desktop streaming does not use a Player but a Canvas with its
+             * name equal to the value of DESKTOP_STREAMING_ICON.
+             */
+            if (DESKTOP_STREAMING_ICON.equals(component.getName()))
+            {
+                fireVideoEvent(
+                        VideoEvent.VIDEO_REMOVED, component, VideoEvent.LOCAL,
+                        false);
+            }
+            else
+            {
+                Player localPlayer;
+
+                synchronized (localPlayerSyncRoot)
+                {
+                    localPlayer = this.localPlayer;
+                }
+                if (localPlayer != null)
+                {
+                    Component localPlayerVisualComponent
+                        = getVisualComponent(localPlayer);
+
+                    if ((localPlayerVisualComponent == null)
+                            || (localPlayerVisualComponent == component))
+                        disposeLocalPlayer(localPlayer);
+                }
+            }
         }
-
-        Player localPlayer = this.localPlayer;
-
-        if (localPlayer != null)
-            disposeLocalPlayer(localPlayer);
     }
 
     /**
@@ -713,52 +756,65 @@ public class VideoMediaDeviceSession
      * @param player the <tt>Player</tt> to dispose of
      * @see MediaDeviceSession#disposePlayer(Player)
      */
-    protected void disposeLocalPlayer(Player player)
+    private void disposeLocalPlayer(Player player)
     {
         /*
          * The player is being disposed so let the (interested) listeners know
          * its Player#getVisualComponent() (if any) should be released.
          */
-        Component visualComponent = getVisualComponent(player);
+        Component visualComponent = null;
 
-        if(localPlayer == player)
-            localPlayer = null;
+        try
+        {
+            visualComponent = getVisualComponent(player);
 
-        player.stop();
-        player.deallocate();
-        player.close();
+            player.stop();
+            player.deallocate();
+            player.close();
+        }
+        finally
+        {
+            synchronized (localPlayerSyncRoot)
+            {
+                if (localPlayer == player)
+                    localPlayer = null;
+            }
 
-        if (visualComponent != null)
-            fireVideoEvent(
-                VideoEvent.VIDEO_REMOVED, visualComponent, VideoEvent.LOCAL,
-                false);
+            if (visualComponent != null)
+                fireVideoEvent(
+                    VideoEvent.VIDEO_REMOVED, visualComponent, VideoEvent.LOCAL,
+                    false);
+        }
     }
 
     /**
-     * Returns the visual <tt>Component</tt> where video from the remote peer
-     * is being rendered or <tt>null</tt> if no video is currently rendered.
+     * Gets the visual <tt>Component</tt>s where video from the remote peer is
+     * being rendered.
      *
-     * @return the visual <tt>Component</tt> where video from the remote peer
-     * is being rendered or <tt>null</tt> if no video is currently rendered
+     * @return the visual <tt>Component</tt>s where video from the remote peer
+     * is being rendered
      */
-    public Component getVisualComponent()
+    public List<Component> getVisualComponents()
     {
-        Component visualComponent = null;
+        List<Component> visualComponents = new LinkedList<Component>();
 
         /*
          * When we know (through means such as SDP) that we don't want to
          * receive, it doesn't make sense to wait for the remote peer to
          * acknowledge our desire. So we'll just stop depicting the video of the
-         * remote peer regarldess of whether it stops or continues its sending.
+         * remote peer regardless of whether it stops or continues its sending.
          */
         if (getStartedDirection().allowsReceiving())
         {
-            Player player = getPlayer();
+            for (Player player : getPlayers())
+            {
+                Component visualComponent = getVisualComponent(player);
 
-            if (player != null)
-                visualComponent = getVisualComponent(player);
+                if (visualComponent != null)
+                    visualComponents.add(visualComponent);
+            }
         }
-        return visualComponent;
+        return visualComponents;
     }
 
     /**
@@ -774,43 +830,25 @@ public class VideoMediaDeviceSession
      */
     private static Component getVisualComponent(Player player)
     {
-        Component visualComponent;
+        Component visualComponent = null;
 
-        try
+        if (player.getState() >= Player.Realized)
         {
-            visualComponent = player.getVisualComponent();
-        }
-        catch (NotRealizedError e)
-        {
-            visualComponent = null;
-
-            if (logger.isDebugEnabled())
-                logger
-                    .debug(
-                        "Called Player#getVisualComponent() "
-                            + "on Unrealized player "
-                            + player,
-                        e);
+            try
+            {
+                visualComponent = player.getVisualComponent();
+            }
+            catch (NotRealizedError nre)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug(
+                            "Called Player#getVisualComponent() "
+                                + "on unrealized player "
+                                + player,
+                            nre);
+            }
         }
         return visualComponent;
-    }
-
-    /**
-     * Notifies this <tt>VideoMediaDeviceSession</tt> that a specific visual
-     * <tt>Component</tt> which depicts video streaming from the local peer to
-     * the remote peer and which has been created by a specific <tt>Player</tt>
-     * has been delivered to the registered <tt>VideoListener</tt>s and at least
-     * one of them has consumed it.
-     *
-     * @param visualComponent the visual <tt>Component</tt> depicting local
-     * video which has been consumed by the registered <tt>VideoListener</tt>s
-     * @param player the local <tt>Player</tt> which has created the specified
-     * visual <tt>Component</tt>
-     */
-    private void localVisualComponentConsumed(
-            Component visualComponent,
-            Player player)
-    {
     }
 
     /**
@@ -1534,51 +1572,50 @@ public class VideoMediaDeviceSession
     {
         super.startedDirectionChanged(oldValue, newValue);
 
-        Player player = getPlayer();
-
-        if (player == null)
-            return;
-
-        int state = player.getState();
-
-        /*
-         * The visual Component of a Player is safe to access and, respectively,
-         * report through a VideoEvent only when the Player is Realized.
-         */
-        if (state < Player.Realized)
-            return;
-
-        if (newValue.allowsReceiving())
+        for (Player player : getPlayers())
         {
-            if (state != Player.Started)
-            {
-                player.start();
+            int state = player.getState();
 
+            /*
+             * The visual Component of a Player is safe to access and,
+             * respectively, report through a VideoEvent only when the Player is
+             * Realized.
+             */
+            if (state < Player.Realized)
+                continue;
+
+            if (newValue.allowsReceiving())
+            {
+                if (state != Player.Started)
+                {
+                    player.start();
+
+                    Component visualComponent = getVisualComponent(player);
+
+                    if (visualComponent != null)
+                    {
+                        fireVideoEvent(
+                            VideoEvent.VIDEO_ADDED,
+                            visualComponent,
+                            VideoEvent.REMOTE,
+                            false);
+                    }
+                }
+            }
+            else if (state > Processor.Configured)
+            {
                 Component visualComponent = getVisualComponent(player);
+
+                player.stop();
 
                 if (visualComponent != null)
                 {
                     fireVideoEvent(
-                        VideoEvent.VIDEO_ADDED,
+                        VideoEvent.VIDEO_REMOVED,
                         visualComponent,
                         VideoEvent.REMOTE,
                         false);
                 }
-            }
-        }
-        else if (state > Processor.Configured)
-        {
-            Component visualComponent = getVisualComponent(player);
-
-            player.stop();
-
-            if (visualComponent != null)
-            {
-                fireVideoEvent(
-                    VideoEvent.VIDEO_REMOVED,
-                    visualComponent,
-                    VideoEvent.REMOTE,
-                    false);
             }
         }
     }

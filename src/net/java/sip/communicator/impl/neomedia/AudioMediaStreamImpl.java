@@ -10,7 +10,6 @@ import java.util.*;
 import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
-import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
@@ -24,7 +23,7 @@ import net.java.sip.communicator.util.*;
  * Extends <tt>MediaStreamImpl</tt> in order to provide an implementation of
  * <tt>AudioMediaStream</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Emil Ivov
  */
 public class AudioMediaStreamImpl
@@ -53,7 +52,7 @@ public class AudioMediaStreamImpl
      * List of RTP format strings which are supported by SIP Communicator in
      * addition to the JMF standard formats.
      *
-     * @see #registerCustomCodecFormats(RTPManager)
+     * @see #registerCustomCodecFormats(StreamRTPManager)
      */
     private static final AudioFormat[] CUSTOM_CODEC_FORMATS
         = new AudioFormat[]
@@ -117,7 +116,7 @@ public class AudioMediaStreamImpl
      */
     @Override
     protected void configureRTPManagerBufferControl(
-            RTPManager rtpManager,
+            StreamRTPManager rtpManager,
             BufferControl bufferControl)
     {
         /*
@@ -217,10 +216,10 @@ public class AudioMediaStreamImpl
      *
      * @param rtpManager the <tt>RTPManager</tt> to register
      * {@link #CUSTOM_CODEC_FORMATS} with
-     * @see MediaStreamImpl#registerCustomCodecFormats(RTPManager)
+     * @see MediaStreamImpl#registerCustomCodecFormats(StreamRTPManager)
      */
     @Override
-    protected void registerCustomCodecFormats(RTPManager rtpManager)
+    protected void registerCustomCodecFormats(StreamRTPManager rtpManager)
     {
         super.registerCustomCodecFormats(rtpManager);
 

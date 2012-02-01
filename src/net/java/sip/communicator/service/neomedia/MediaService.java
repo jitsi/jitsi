@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
  * capture as well as media transport (e.g. over RTP).
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public interface MediaService
 {
@@ -284,4 +285,13 @@ public interface MediaService
      * @return currently registered <tt>Recorder.Listener</tt>s.
      */
     public Iterator<Recorder.Listener> getRecorderListeners();
+
+    /**
+     * Initializes a new <tt>RTPTranslator</tt> which is to forward RTP and RTCP
+     * traffic between multiple <tt>MediaStream</tt>s.
+     *
+     * @return a new <tt>RTPTranslator</tt> which is to forward RTP and RTCP
+     * traffic between multiple <tt>MediaStream</tt>s
+     */
+    public RTPTranslator createRTPTranslator();
 }

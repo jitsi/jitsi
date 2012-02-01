@@ -13,13 +13,14 @@ import javax.media.protocol.*;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 
 /**
  * Defines the interface for <tt>MediaDevice</tt> required by the
  * <tt>net.java.sip.communicator.impl.neomedia</tt> implementation of
  * <tt>net.java.sip.communicator.service.neomedia</tt>.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractMediaDevice
     implements MediaDevice
@@ -30,64 +31,10 @@ public abstract class AbstractMediaDevice
     private MediaDeviceSession session = null;
 
     /**
-     * Creates a <tt>DataSource</tt> instance for this <tt>MediaDevice</tt>
-     * which gives access to the captured media.
-     *
-     * @return a <tt>DataSource</tt> instance which gives access to the media
-     * captured by this <tt>MediaDevice</tt>
+     * Closes this <tt>MediaDevice</tt>.
      */
-    abstract DataSource createOutputDataSource();
-
-    /**
-     * Creates a new <tt>MediaDeviceSession</tt> instance which is to represent
-     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt>.
-     *
-     * @return a new <tt>MediaDeviceSession</tt> instance which is to represent
-     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt>
-     */
-    public MediaDeviceSession createSession()
+    public void close()
     {
-        switch (getMediaType())
-        {
-        case VIDEO:
-            session = new VideoMediaDeviceSession(this);
-            return session;
-        default:
-            session = new AudioMediaDeviceSession(this);
-            return session;
-        }
-    }
-
-    /**
-     * Creates a new <tt>MediaDeviceSession</tt> instance which is to represent
-     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt> and the
-     * rendering part of a previous <tt>MediaDeviceSession</tt>.
-     *
-     * @param oldSession previous <tt>MediaDeviceSession</tt>
-     * @return a new <tt>MediaDeviceSession</tt> instance which is to represent
-     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt>
-     */
-    public MediaDeviceSession createSession(MediaDeviceSession oldSession)
-    {
-        switch (getMediaType())
-        {
-        case VIDEO:
-            session = new VideoMediaDeviceSession(this, oldSession);
-            return session;
-        default:
-            session = new AudioMediaDeviceSession(this, oldSession);
-            return session;
-        }
-    }
-
-    /**
-     * Get the last used <tt>MediaDeviceSession</tt>.
-     *
-     * @return <tt>MediaDeviceSession</tt>
-     */
-    public MediaDeviceSession getSession()
-    {
-        return session;
     }
 
     /**
@@ -122,6 +69,46 @@ public abstract class AbstractMediaDevice
     }
 
     /**
+     * Creates a <tt>DataSource</tt> instance for this <tt>MediaDevice</tt>
+     * which gives access to the captured media.
+     *
+     * @return a <tt>DataSource</tt> instance which gives access to the media
+     * captured by this <tt>MediaDevice</tt>
+     */
+    abstract DataSource createOutputDataSource();
+
+    /**
+     * Creates a new <tt>MediaDeviceSession</tt> instance which is to represent
+     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt>.
+     *
+     * @return a new <tt>MediaDeviceSession</tt> instance which is to represent
+     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt>
+     */
+    public MediaDeviceSession createSession()
+    {
+        switch (getMediaType())
+        {
+        case VIDEO:
+            session = new VideoMediaDeviceSession(this);
+            break;
+        default:
+            session = new AudioMediaDeviceSession(this);
+            break;
+        }
+        return session;
+    }
+
+    /**
+     * Get the last used <tt>MediaDeviceSession</tt>.
+     *
+     * @return <tt>MediaDeviceSession</tt>
+     */
+    public MediaDeviceSession getSession()
+    {
+        return session;
+    }
+
+    /**
      * Returns a <tt>List</tt> containing (at the time of writing) a single
      * extension descriptor indicating <tt>RECVONLY</tt> support for
      * mixer-to-client audio levels.
@@ -135,9 +122,14 @@ public abstract class AbstractMediaDevice
     }
 
     /**
-     * Closes this <tt>MediaDevice</tt>.
+     * Gets a list of <tt>MediaFormat</tt>s supported by this
+     * <tt>MediaDevice</tt>.
+     *
+     * @return the list of <tt>MediaFormat</tt>s supported by this device
+     * @see MediaDevice#getSupportedFormats()
      */
-    public void close()
+    public List<MediaFormat> getSupportedFormats()
     {
+        return getSupportedFormats(null, null);
     }
 }

@@ -32,6 +32,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * <tt>ProtocolProviderServiceJabberImpl</tt>
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public abstract class MediaAwareCall<
                 T extends MediaAwareCallPeer<?, ?, V>,
@@ -48,6 +49,14 @@ public abstract class MediaAwareCall<
      * {@link #conferenceFocus} is <tt>true</tt>.
      */
     private MediaDevice conferenceAudioMixer;
+
+    /**
+     * The <tt>MediaDevice</tt> which performs video mixing for this
+     * <tt>Call</tt> and its <tt>CallPeer</tt>s when the local peer represented
+     * by this <tt>Call</tt> is acting as a conference focus i.e.
+     * {@link #conferenceFocus} is <tt>true</tt>.
+     */
+    private MediaDevice conferenceVideoMixer;
 
     /**
      * The indicator which determines whether the local peer represented by this
@@ -124,6 +133,14 @@ public abstract class MediaAwareCall<
                 fireLocalUserAudioLevelChangeEvent(level);
             }
         };
+
+    /**
+     * The <tt>RTPTranslator</tt> which forwards video RTP and RTCP traffic
+     * between the <tt>CallPeer</tt>s of this <tt>Call</tt> when the local
+     * peer represented by this <tt>Call</tt> is acting as a conference focus
+     * i.e. {@link #conferenceFocus} is <tt>true</tt>.
+     */
+    private RTPTranslator videoRTPTranslator;
 
     /**
      * Crates a <tt>Call</tt> instance belonging to <tt>parentOpSet</tt>.
@@ -308,6 +325,37 @@ public abstract class MediaAwareCall<
     }
 
     /**
+     * Gets the <tt>RTPTranslator</tt> which forwards RTP and RTCP traffic
+     * between the <tt>CallPeer</tt>s of this <tt>Call</tt> when the local
+     * peer represented by this <tt>Call</tt> is acting as a conference focus
+     * i.e. {@link #conferenceFocus} is <tt>true</tt>.
+     *
+     * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> which
+     * RTP and RTCP traffic is to be forwarded between
+     * @return the <tt>RTPTranslator</tt> which forwards RTP and RTCP traffic
+     * between the <tt>CallPeer</tt>s of this <tt>Call</tt> when the local
+     * peer represented by this <tt>Call</tt> is acting as a conference focus
+     * i.e. {@link #conferenceFocus} is <tt>true</tt>
+     */
+    public RTPTranslator getRTPTranslator(MediaType mediaType)
+    {
+        RTPTranslator rtpTranslator = null;
+
+        if (isConferenceFocus() && MediaType.VIDEO.equals(mediaType))
+        {
+            if (videoRTPTranslator == null)
+            {
+                videoRTPTranslator
+                    = ProtocolMediaActivator
+                        .getMediaService()
+                            .createRTPTranslator();
+            }
+            rtpTranslator = videoRTPTranslator;
+        }
+        return rtpTranslator;
+    }
+
+    /**
      * Gets the indicator which determines whether the local peer represented by
      * this <tt>Call</tt> is acting as a conference focus and thus may need to
      * send the corresponding parameters in its outgoing signaling.
@@ -337,16 +385,23 @@ public abstract class MediaAwareCall<
 
             /*
              * If this Call switches from being a conference focus to not being
-             * one, dispose of the audio mixer used when it was a conference
-             * focus.
+             * one, dispose of the mixers used when it was a conference focus.
              */
             if (!this.conferenceFocus)
+            {
                 conferenceAudioMixer = null;
+                conferenceVideoMixer = null;
+                if (videoRTPTranslator != null)
+                {
+                    videoRTPTranslator.dispose();
+                    videoRTPTranslator = null;
+                }
+            }
 
             // fire that the focus property has changed
             fireCallChangeEvent(
-                CallChangeEvent.CALL_FOCUS_CHANGE,
-                !this.conferenceFocus, this.conferenceFocus);
+                    CallChangeEvent.CALL_FOCUS_CHANGE,
+                    !this.conferenceFocus, this.conferenceFocus);
         }
     }
 
@@ -371,10 +426,9 @@ public abstract class MediaAwareCall<
      */
     public MediaDevice getDefaultDevice(MediaType mediaType)
     {
-        MediaDevice device = null;
-        MediaService mediaService = ProtocolMediaActivator.getMediaService();
+        MediaDevice device;
 
-        switch(mediaType)
+        switch (mediaType)
         {
         case AUDIO:
             device = audioDevice;
@@ -387,18 +441,31 @@ public abstract class MediaAwareCall<
             return null;
         }
 
-        if(device == null)
+        MediaService mediaService = ProtocolMediaActivator.getMediaService();
+
+        if (device == null)
             device = mediaService.getDefaultDevice(mediaType, mediaUseCase);
 
         /*
          * Make sure that the audio device has an AudioMixer in order to support
          * conferencing and call recording.
          */
-        if (MediaType.AUDIO.equals(mediaType))
+        switch (mediaType)
         {
+        case AUDIO:
             if ((conferenceAudioMixer == null) && (device != null))
                 conferenceAudioMixer = mediaService.createMixer(device);
             device = conferenceAudioMixer;
+            break;
+
+        case VIDEO:
+            if (isConferenceFocus())
+            {
+                if ((conferenceVideoMixer == null) && (device != null)) 
+                    conferenceVideoMixer = mediaService.createMixer(device);
+                device = conferenceVideoMixer;
+            }
+            break;
         }
 
         return device;
@@ -756,9 +823,7 @@ public abstract class MediaAwareCall<
             Iterator<Recorder.Listener> iterListeners =
                 ProtocolMediaActivator.getMediaService().getRecorderListeners();
             while(iterListeners.hasNext())
-            {
                 recorder.addListener(iterListeners.next());
-            }
 
             /*
              * If the recorder gets stopped earlier than this call ends, don't
@@ -785,9 +850,7 @@ public abstract class MediaAwareCall<
             // add listener for mute event to all current peers
             Iterator<T> iter = getCallPeers();
             while(iter.hasNext())
-            {
                 iter.next().addPropertyChangeListener(muteListener);
-            }
 
             updateRecorderMuteState(recorder);
         }

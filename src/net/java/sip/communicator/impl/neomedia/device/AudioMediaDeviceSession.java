@@ -56,22 +56,6 @@ public class AudioMediaDeviceSession
     }
 
     /**
-     * Initializes a new <tt>MediaDeviceSession</tt> instance which is to
-     * represent the use of a specific <tt>MediaDevice</tt> by a
-     * <tt>MediaStream</tt>.
-     *
-     * @param session previous <tt>MediaDeviceSession</tt>
-     * @param device the <tt>MediaDevice</tt> the use of which by a
-     * <tt>MediaStream</tt> is to be represented by the new instance
-     */
-    protected AudioMediaDeviceSession(AbstractMediaDevice device,
-            MediaDeviceSession session)
-    {
-        this(device);
-        transferRenderingSession(session);
-    }
-
-    /**
      * Called by {@link MediaDeviceSession#playerControllerUpdate(
      * ControllerEvent event)} when the player associated with this session's
      * <tt>ReceiveStream</tt> moves enters the <tt>Configured</tt> state, so
@@ -260,13 +244,17 @@ public class AudioMediaDeviceSession
     }
 
     /**
-     * Transfer rendering part from <tt>session</tt> to this instance.
+     * Copies the playback part of a specific <tt>MediaDeviceSession</tt> into
+     * this instance.
      *
-     * @param session <tt>MediaDeviceSession</tt> to transfer data from
+     * @param deviceSession the <tt>MediaDeviceSession</tt> to copy the playback
+     * part of into this instance
      */
-    protected void transferRenderingSession(MediaDeviceSession session)
+    @Override
+    public void copyPlayback(MediaDeviceSession deviceSession)
     {
-        AudioMediaDeviceSession amds = (AudioMediaDeviceSession)session;
+        AudioMediaDeviceSession amds = (AudioMediaDeviceSession) deviceSession;
+
         this.setStreamAudioLevelListener(
             amds.streamAudioLevelEffect.getAudioLevelListener());
         this.setLocalUserAudioLevelListener(

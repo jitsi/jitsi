@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.awt.*;
 import java.beans.*;
 import java.text.*;
+import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -18,7 +19,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * functionality in telephony such as visual <tt>Component</tt>s displaying
  * video and listening to dynamic availability of such <tt>Component</tt>s.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Sebastien Vincent
  */
 public interface OperationSetVideoTelephony
@@ -88,7 +89,18 @@ public interface OperationSetVideoTelephony
      * @return the visual/video <tt>Component</tt> available in this telephony
      * for the specified <tt>peer</tt> if any; otherwise, <tt>null</tt>
      */
+    @Deprecated
     public Component getVisualComponent(CallPeer peer);
+
+    /**
+     * Gets the visual/video <tt>Component</tt>s available in this telephony for
+     * a specific <tt>CallPeer</tt>.
+     *
+     * @param peer the <tt>CallPeer</tt> whose videos are to be retrieved
+     * @return the visual/video <tt>Component</tt>s available in this telephony
+     * for the specified <tt>peer</tt>
+     */
+    public List<Component> getVisualComponents(CallPeer peer);
 
     /**
      * Removes a specific <tt>VideoListener</tt> from this telephony in

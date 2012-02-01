@@ -337,7 +337,7 @@ public class JAWTRenderer
             }
         }
         /*
-         * The #addNotify() invocation, if any, shoud happen outside the
+         * The #addNotify() invocation, if any, should happen outside the
          * synchronized block in order to avoid a deadlock.
          */
         if (addNotify)

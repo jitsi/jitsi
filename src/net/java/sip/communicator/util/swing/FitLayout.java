@@ -18,7 +18,7 @@ import java.awt.*;
  * <code>Component</code> in its entirety for which preserving the aspect ratio
  * is important.
  * 
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class FitLayout
     implements LayoutManager
@@ -90,6 +90,15 @@ public class FitLayout
                     componentSize.height = maximumSize.height;
             }
         }
+
+        /*
+         * Why would one fit a Component into a rectangle with zero width and
+         * height?
+         */
+        if (componentSize.height < 1)
+            componentSize.height = 1;
+        if (componentSize.width < 1)
+            componentSize.width = 1;
 
         component.setBounds(
                 bounds.x

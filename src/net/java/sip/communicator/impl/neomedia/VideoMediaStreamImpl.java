@@ -8,13 +8,13 @@ package net.java.sip.communicator.impl.neomedia;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.regex.*;
 
 import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
 import javax.media.protocol.*;
-import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -61,7 +61,7 @@ public class VideoMediaStreamImpl
     /**
      * The <tt>KeyFrameControl</tt> of this <tt>VideoMediaStream</tt>.
      */
-    private KeyFrameControlImpl keyFrameControl;
+    private KeyFrameControl keyFrameControl;
 
     /**
      * The <tt>QualityControl</tt> of this <tt>VideoMediaStream</tt>.
@@ -313,12 +313,15 @@ public class VideoMediaStreamImpl
          */
         if (!OSUtils.IS_ANDROID)
         {
-        int maxBandwidth
-            = NeomediaActivator.getMediaServiceImpl().getDeviceConfiguration()
-                    .getVideoMaxBandwidth();
+            int maxBandwidth
+                = NeomediaActivator
+                    .getMediaServiceImpl()
+                        .getDeviceConfiguration()
+                            .getVideoMaxBandwidth();
 
-        //maximum one packet for X milliseconds(the settings are for one second)
-        dataOutputStream.setMaxPacketsPerMillis(1, 1000 / maxBandwidth);
+            // maximum one packet for X milliseconds(the settings are for one
+            // second)
+            dataOutputStream.setMaxPacketsPerMillis(1, 1000 / maxBandwidth);
         }
     }
 
@@ -334,7 +337,7 @@ public class VideoMediaStreamImpl
      */
     @Override
     protected void configureRTPManagerBufferControl(
-            RTPManager rtpManager,
+            StreamRTPManager rtpManager,
             BufferControl bufferControl)
     {
         super.configureRTPManagerBufferControl(rtpManager, bufferControl);
@@ -542,22 +545,43 @@ public class VideoMediaStreamImpl
     }
 
     /**
-     * Returns a reference to the visual <tt>Component</tt> where video from the
-     * remote peer is being rendered or <tt>null</tt> if no video is currently
-     * rendered.
+     * Gets the visual <tt>Component</tt> where video from the remote peer is
+     * being rendered or <tt>null</tt> if no video is currently being rendered.
      *
-     * @return a reference to the visual <tt>Component</tt> where video from
-     * the remote peer is being rendered or <tt>null</tt> if no video is
-     * currently rendered
+     * @return the visual <tt>Component</tt> where video from the remote peer is
+     * being rendered or <tt>null</tt> if no video is currently being rendered
+     * @see VideoMediaStream#getVisualComponent()
      */
+    @Deprecated
     public Component getVisualComponent()
     {
-        MediaDeviceSession deviceSession = getDeviceSession();
+        List<Component> visualComponents = getVisualComponents();
 
-        return
-            (deviceSession instanceof VideoMediaDeviceSession)
-                ? ((VideoMediaDeviceSession) deviceSession).getVisualComponent()
-                : null;
+        return visualComponents.isEmpty() ? null : visualComponents.get(0);
+    }
+
+    /**
+     * Gets a list of the visual <tt>Component</tt>s where video from the remote
+     * peer is being rendered.
+     *
+     * @return a list of the visual <tt>Component</tt>s where video from the
+     * remote peer is being rendered
+     * @see VideoMediaStream#getVisualComponents()
+     */
+    public List<Component> getVisualComponents()
+    {
+        MediaDeviceSession deviceSession = getDeviceSession();
+        List<Component> visualComponents;
+
+        if (deviceSession instanceof VideoMediaDeviceSession)
+        {
+            visualComponents
+                = ((VideoMediaDeviceSession) deviceSession)
+                    .getVisualComponents();
+        }
+        else
+            visualComponents = Collections.emptyList();
+        return visualComponents;
     }
 
     /**
@@ -586,8 +610,8 @@ public class VideoMediaStreamImpl
      * implementation before it got changed to <tt>newValue</tt>
      * @param newValue the current <tt>RTPConnector</tt> of this
      * <tt>MediaStream</tt> which replaced <tt>oldValue</tt>
-     * @see MediaStreamImpl#rtpConnectorChanged(RTPTransformConnector,
-     * RTPTransformConnector)
+     * @see MediaStreamImpl#rtpConnectorChanged(AbstractRTPConnector,
+     * AbstractRTPConnector)
      */
     @Override
     protected void rtpConnectorChanged(
@@ -872,14 +896,15 @@ public class VideoMediaStreamImpl
     /**
      * Set local SSRC.
      *
-     * @param ssrc source ID
+     * @param localSourceID source ID
      */
     @Override
-    protected void setLocalSourceID(long ssrc)
+    protected void setLocalSourceID(long localSourceID)
     {
-        super.setLocalSourceID(ssrc);
+        super.setLocalSourceID(localSourceID);
 
-        ((VideoMediaDeviceSession) getDeviceSession()).setLocalSSRC(ssrc);
+        ((VideoMediaDeviceSession) getDeviceSession()).setLocalSSRC(
+                localSourceID);
     }
 
     /**
@@ -915,7 +940,7 @@ public class VideoMediaStreamImpl
     public KeyFrameControl getKeyFrameControl()
     {
         if (keyFrameControl == null)
-            keyFrameControl = new KeyFrameControlImpl();
+            keyFrameControl = new KeyFrameControlAdapter();
         return keyFrameControl;
     }
 
@@ -956,17 +981,6 @@ public class VideoMediaStreamImpl
                 }
             }
         }
-    }
-
-    /**
-     * Implements the <tt>KeyFrameControl</tt> of this
-     * <tt>VideoMediaStream</tt>.
-     *
-     * @author Lyubomir Marinov
-     */
-    private class KeyFrameControlImpl
-        extends KeyFrameControlAdapter
-    {
     }
 
     /**
@@ -1070,8 +1084,8 @@ public class VideoMediaStreamImpl
         }
 
         /**
-         * The local setting of capture.
-         * @return
+         * Gets the local setting of capture.
+         * @return the local setting of capture
          */
         private QualityPreset getPreferredSendPreset()
         {

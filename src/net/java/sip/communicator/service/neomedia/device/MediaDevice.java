@@ -20,6 +20,44 @@ import net.java.sip.communicator.service.neomedia.format.*;
  */
 public interface MediaDevice
 {
+
+    /**
+     * Returns the <tt>MediaDirection</tt> supported by this device.
+     *
+     * @return <tt>MediaDirection.SENDONLY</tt> if this is a read-only device,
+     * <tt>MediaDirection.RECVONLY</tt> if this is a write-only device and
+     * <tt>MediaDirection.SENDRECV</tt> if this <tt>MediaDevice</tt> can both
+     * capture and render media.
+     */
+    public MediaDirection getDirection();
+
+    /**
+     * Returns the <tt>MediaFormat</tt> that this device is currently set to use
+     * when capturing data.
+     *
+     * @return the <tt>MediaFormat</tt> that this device is currently set to
+     * provide media in.
+     */
+    public MediaFormat getFormat();
+
+    /**
+     * Returns the <tt>MediaType</tt> that this device supports.
+     *
+     * @return <tt>MediaType.AUDIO</tt> if this is an audio device or
+     * <tt>MediaType.VIDEO</tt> in case of a video device.
+     */
+    public MediaType getMediaType();
+
+    /**
+     * Returns the <tt>List</tt> of <tt>RTPExtension</tt>s that this device
+     * know how to handle.
+     *
+     * @return the <tt>List</tt> of <tt>RTPExtension</tt>s that this device
+     * know how to handle or <tt>null</tt> if the device does not support any
+     * RTP extensions.
+     */
+    public List<RTPExtension> getSupportedExtensions();
+
     /**
      * Returns a list of <tt>MediaFormat</tt> instances representing the media
      * formats supported by this <tt>MediaDevice</tt>.
@@ -40,42 +78,6 @@ public interface MediaDevice
      * @return the list of <tt>MediaFormat</tt>s supported by this device.
      */
     public List<MediaFormat> getSupportedFormats(
-            QualityPreset localPreset, QualityPreset remotePreset);
-
-    /**
-     * Returns the <tt>List</tt> of <tt>RTPExtension</tt>s that this device
-     * know how to handle.
-     *
-     * @return the <tt>List</tt> of <tt>RTPExtension</tt>s that this device
-     * know how to handle or <tt>null</tt> if the device does not support any
-     * RTP extensions.
-     */
-    public List<RTPExtension> getSupportedExtensions();
-
-    /**
-     * Returns the <tt>MediaType</tt> that this device supports.
-     *
-     * @return <tt>MediaType.AUDIO</tt> if this is an audio device or
-     * <tt>MediaType.VIDEO</tt> in case of a video device.
-     */
-    public MediaType getMediaType();
-
-    /**
-     * Returns the <tt>MediaFormat</tt> that this device is currently set to use
-     * when capturing data.
-     *
-     * @return the <tt>MediaFormat</tt> that this device is currently set to
-     * provide media in.
-     */
-    public MediaFormat getFormat();
-
-    /**
-     * Returns the <tt>MediaDirection</tt> supported by this device.
-     *
-     * @return <tt>MediaDirection.SENDONLY</tt> if this is a read-only device,
-     * <tt>MediaDirection.RECVONLY</tt> if this is a write-only device and
-     * <tt>MediaDirection.SENDRECV</tt> if this <tt>MediaDevice</tt> can both
-     * capture and render media.
-     */
-    public MediaDirection getDirection();
+            QualityPreset localPreset,
+            QualityPreset remotePreset);
 }

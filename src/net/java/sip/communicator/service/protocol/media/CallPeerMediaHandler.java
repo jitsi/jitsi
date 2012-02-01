@@ -1059,9 +1059,30 @@ public abstract class CallPeerMediaHandler<
      * is currently being rendered or <tt>null</tt> if there is currently no
      * video streaming from the remote peer
      */
+    @Deprecated
     public Component getVisualComponent()
     {
-        return (videoStream == null) ? null : videoStream.getVisualComponent();
+        List<Component> visualComponents = getVisualComponents();
+
+        return visualComponents.isEmpty() ? null : visualComponents.get(0);
+    }
+
+    /**
+     * Gets the visual <tt>Component</tt>s in which videos from the remote peer
+     * are currently being rendered.
+     *
+     * @return the visual <tt>Component</tt>s in which videos from the remote
+     * peer are currently being rendered
+     */
+    public List<Component> getVisualComponents()
+    {
+        List<Component> visualComponents;
+
+        if (videoStream == null)
+            visualComponents = Collections.emptyList();
+        else
+            visualComponents = videoStream.getVisualComponents();
+        return visualComponents;
     }
 
     /**
@@ -1264,23 +1285,36 @@ public abstract class CallPeerMediaHandler<
         stream.setDirection(direction);
         stream.setFormat(format);
 
-        if( stream instanceof AudioMediaStream)
+        MediaAwareCall<?, ?, ?> call = peer.getCall();
+        MediaType mediaType
+            = (stream instanceof AudioMediaStream)
+                ? MediaType.AUDIO
+                : MediaType.VIDEO;
+
+        stream.setRTPTranslator(call.getRTPTranslator(mediaType));
+
+        switch (mediaType)
         {
+        case AUDIO:
             setAudioStream((AudioMediaStream) stream);
-
             registerAudioLevelListeners(audioStream);
-        }
-        else
-            setVideoStream((VideoMediaStream) stream);
+            break;
 
-        if(peer.getCall().isDefaultEncrypted())
+        case VIDEO:
+            setVideoStream((VideoMediaStream) stream);
+            break;
+        }
+
+        if (call.isDefaultEncrypted())
         {
-            // we use the audio stream for master stream
-            // when using SRTP multistreams.
+            /*
+             * We'll use the audio stream as the master stream when using SRTP
+             * multistreams.
+             */
             SrtpControl srtpControl = stream.getSrtpControl();
 
             srtpControl.setSrtpListener(srtpListener);
-            srtpControl.start(stream instanceof AudioMediaStream);
+            srtpControl.start(MediaType.AUDIO.equals(mediaType));
         }
 
         return stream;

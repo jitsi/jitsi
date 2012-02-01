@@ -19,8 +19,6 @@ import javax.media.rtp.*;
 import javax.media.rtp.event.*;
 import javax.media.rtp.rtcp.*;
 
-import com.sun.media.rtp.*;
-
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
@@ -101,16 +99,11 @@ public class MediaStreamImpl
         = new HashMap<Byte, MediaFormat>();
 
     /**
-     * The <tt>ReceiveStream</tt> this instance plays back on its associated
+     * The <tt>ReceiveStream</tt>s this instance plays back on its associated
      * <tt>MediaDevice</tt>.
      */
-    private ReceiveStream receiveStream;
-
-    /**
-     * The <tt>Object</tt> which synchronizes the access to
-     * {@link #receiveStream} and its registration with {@link #deviceSession}.
-     */
-    private final Object receiveStreamSyncRoot = new Object();
+    private final List<ReceiveStream> receiveStreams
+        = new LinkedList<ReceiveStream>();
 
     /**
      * The <tt>RTPConnector</tt> through which this instance sends and receives
@@ -129,7 +122,13 @@ public class MediaStreamImpl
      * The <tt>RTPManager</tt> which utilizes {@link #rtpConnector} and sends
      * and receives RTP and RTCP traffic on behalf of this <tt>MediaStream</tt>.
      */
-    private RTPManager rtpManager;
+    private StreamRTPManager rtpManager;
+
+    /**
+     * The <tt>RTPTranslator</tt>, if any, which forwards RTP and RTCP traffic
+     * between this and other <tt>MediaStream</tt>s.
+     */
+    private RTPTranslator rtpTranslator;
 
     /**
      * The indicator which determines whether {@link #createSendStreams()} has
@@ -325,7 +324,7 @@ public class MediaStreamImpl
      * which any optional configuration is to be performed
      */
     protected void configureRTPManagerBufferControl(
-            RTPManager rtpManager,
+            StreamRTPManager rtpManager,
             BufferControl bufferControl)
     {
     }
@@ -582,7 +581,7 @@ public class MediaStreamImpl
      */
     private void createSendStreams()
     {
-        RTPManager rtpManager = getRTPManager();
+        StreamRTPManager rtpManager = getRTPManager();
         MediaDeviceSession deviceSession = getDeviceSession();
         DataSource dataSource = deviceSession.getOutputDataSource();
         int streamCount;
@@ -649,14 +648,20 @@ public class MediaStreamImpl
                                 + " in RTPManager with hashCode "
                                 + rtpManager.hashCode());
 
-                // If a ZRTP engine is available then set the SSRC of this
-                // stream
-                // currently ZRTP supports only one SSRC per engine
+                long localSSRC = sendStream.getSSRC();
+
+                if (getLocalSourceID() != localSSRC)
+                    setLocalSourceID(localSSRC);
+
+                /*
+                 * If a ZRTP engine is available, then let it know about the
+                 * SSRC of the new SendStream. Currently, ZRTP supports only one
+                 * SSRC per engine.
+                 */
                 TransformEngine engine = srtpControl.getTransformEngine();
 
-                if (engine != null && engine instanceof ZRTPTransformEngine)
-                    ((ZRTPTransformEngine)engine)
-                        .setOwnSSRC(sendStream.getSSRC());
+                if ((engine != null) && (engine instanceof ZRTPTransformEngine))
+                    ((ZRTPTransformEngine)engine).setOwnSSRC(localSSRC);
             }
             catch (IOException ioe)
             {
@@ -1077,7 +1082,7 @@ public class MediaStreamImpl
      * @return the <tt>RTPManager</tt> instance which sends and receives RTP and
      * RTCP traffic on behalf of this <tt>MediaStream</tt>
      */
-    private RTPManager getRTPManager()
+    private StreamRTPManager getRTPManager()
     {
         if (rtpManager == null)
         {
@@ -1086,7 +1091,7 @@ public class MediaStreamImpl
             if (rtpConnector == null)
                 throw new IllegalStateException("rtpConnector");
 
-            rtpManager = RTPManager.newInstance();
+            rtpManager = new StreamRTPManager(rtpTranslator);
 
             registerCustomCodecFormats(rtpManager);
 
@@ -1113,8 +1118,7 @@ public class MediaStreamImpl
              * As JMF keeps the SSRC as a signed int value, convert it to
              * unsigned.
              */
-            setLocalSourceID(
-                    ((RTPSessionMgr) rtpManager).getLocalSSRC() & 0xFFFFFFFFL);
+            setLocalSourceID(rtpManager.getLocalSSRC() & 0xFFFFFFFFL);
         }
         return rtpManager;
     }
@@ -1196,7 +1200,7 @@ public class MediaStreamImpl
      * @param rtpManager the <tt>RTPManager</tt> to register any custom JMF
      * <tt>Format</tt>s with
      */
-    protected void registerCustomCodecFormats(RTPManager rtpManager)
+    protected void registerCustomCodecFormats(StreamRTPManager rtpManager)
     {
         synchronized (dynamicRTPPayloadTypes)
         {
@@ -1384,21 +1388,19 @@ public class MediaStreamImpl
                 startedDirection = MediaDirection.INACTIVE;
             }
 
-            if(oldValue != null)
-            {
-                // transfer the rendering session objects (JMF player, ...)
-                // to the new MediaDeviceSession. So we do not have a
-                // reinitialization of the receive stream if we just change our
-                // device (switch from camera to desktop streaming).
-                deviceSession = abstractMediaDevice.createSession(oldValue);
-            }
-            else
-            {
-                deviceSession = abstractMediaDevice.createSession();
-            }
+            deviceSession = abstractMediaDevice.createSession();
+
+            /*
+             * Copy the playback from the old MediaDeviceSession into the new
+             * MediaDeviceSession in order to prevent the recreation of the
+             * playback of the ReceiveStream(s) when just changing the
+             * MediaDevice of this MediaSteam. 
+             */
+            if (oldValue != null)
+                deviceSession.copyPlayback(oldValue);
 
             deviceSession.addPropertyChangeListener(
-                deviceSessionPropertyChangeListener);
+                    deviceSessionPropertyChangeListener);
 
             /*
              * Setting a new device resets any previously-set direction.
@@ -1417,12 +1419,10 @@ public class MediaStreamImpl
                 deviceSession.setMute(mute);
                 deviceSession.start(startedDirection);
 
-                synchronized (receiveStreamSyncRoot)
+                synchronized (receiveStreams)
                 {
-                    if (receiveStream != null)
-                    {
-                        deviceSession.setReceiveStream(receiveStream);
-                    }
+                    for (ReceiveStream receiveStream : receiveStreams)
+                        deviceSession.addReceiveStream(receiveStream);
                 }
             }
         }
@@ -1671,7 +1671,7 @@ public class MediaStreamImpl
     @SuppressWarnings("unchecked")
     private void startReceiveStreams()
     {
-        RTPManager rtpManager = getRTPManager();
+        StreamRTPManager rtpManager = getRTPManager();
         List<ReceiveStream> receiveStreams;
 
         try
@@ -1692,57 +1692,33 @@ public class MediaStreamImpl
 
         if (receiveStreams != null)
         {
-            // receiveStreams coming from rtp manager can be empty
-            // we do not receive any rtcp from other side,
-            // than we use local stored receive stream
-            if(receiveStreams.size() == 0)
-            {
-                if(receiveStream != null)
-                {
-                    try
-                    {
-                        DataSource receiveStreamDataSource
-                            = receiveStream.getDataSource();
+            /*
+             * It turns out that the receiveStreams list of rtpManager can be
+             * empty. As a workaround, use the receiveStreams of this instance.
+             */
+            if (receiveStreams.isEmpty() && (this.receiveStreams != null)) 
+                receiveStreams = this.receiveStreams;
 
-                        /*
-                         * For an unknown reason, the stream DataSource can be null
-                         * at the end of the Call after re-INVITEs have been
-                         * handled.
-                         */
-                        if (receiveStreamDataSource != null)
-                            receiveStreamDataSource.start();
-                    }
-                    catch (IOException ioex)
-                    {
-                        logger.warn(
-                                "Failed to start stream " + receiveStream,
-                                ioex);
-                    }
+            for (ReceiveStream receiveStream : receiveStreams)
+            {
+                try
+                {
+                    DataSource receiveStreamDataSource
+                        = receiveStream.getDataSource();
+
+                    /*
+                     * For an unknown reason, the stream DataSource can be null
+                     * at the end of the Call after re-INVITEs have been
+                     * handled.
+                     */
+                    if (receiveStreamDataSource != null)
+                        receiveStreamDataSource.start();
                 }
-            }
-            else
-            {
-                for (ReceiveStream receiveStream : receiveStreams)
+                catch (IOException ioex)
                 {
-                    try
-                    {
-                        DataSource receiveStreamDataSource
-                            = receiveStream.getDataSource();
-
-                        /*
-                         * For an unknown reason, the stream DataSource can be
-                         * null at the end of the Call after re-INVITEs have
-                         * been handled.
-                         */
-                        if (receiveStreamDataSource != null)
-                            receiveStreamDataSource.start();
-                    }
-                    catch (IOException ioex)
-                    {
-                        logger.warn(
-                                "Failed to start stream " + receiveStream,
-                                ioex);
-                    }
+                    logger.warn(
+                            "Failed to start receive stream " + receiveStream,
+                            ioex);
                 }
             }
         }
@@ -1763,7 +1739,7 @@ public class MediaStreamImpl
         if (!sendStreamsAreCreated)
             createSendStreams();
 
-        RTPManager rtpManager = getRTPManager();
+        StreamRTPManager rtpManager = getRTPManager();
         @SuppressWarnings("unchecked")
         Iterable<SendStream> sendStreams = rtpManager.getSendStreams();
 
@@ -1889,62 +1865,38 @@ public class MediaStreamImpl
 
         if (receiveStreams != null)
         {
-            // receiveStreams coming from rtp manager can be empty
-            // we do not receive any rtcp from other side,
-            // than we use local stored receive stream
-            if(receiveStreams.size() == 0)
+            /*
+             * It turns out that the receiveStreams list of rtpManager can be
+             * empty. As a workaround, use the receiveStreams of this instance.
+             */
+            if (receiveStreams.isEmpty() && (this.receiveStreams != null)) 
+                receiveStreams = this.receiveStreams;
+
+            for (ReceiveStream receiveStream : receiveStreams)
             {
-                if(receiveStream != null)
+                try
                 {
-                    try
-                    {
-                        if(logger.isTraceEnabled())
-                            logger.trace("Stopping receive stream with hashcode "
-                                + receiveStream.hashCode());
+                    if (logger.isTraceEnabled())
+                        logger.trace(
+                                "Stopping receive stream with hashcode "
+                                    + receiveStream.hashCode());
 
-                        DataSource receiveStreamDataSource
-                            = receiveStream.getDataSource();
+                    DataSource receiveStreamDataSource
+                        = receiveStream.getDataSource();
 
-                        /*
-                         * For an unknown reason, the stream DataSource can be
-                         * null at the end of the Call after re-INVITEs have
-                         * been handled.
-                         */
-                        if (receiveStreamDataSource != null)
-                            receiveStreamDataSource.stop();
-                    }
-                    catch (IOException ioex)
-                    {
-                        logger.warn("Failed to stop stream "
-                                + receiveStream, ioex);
-                    }
+                    /*
+                     * For an unknown reason, the stream DataSource can be null
+                     * at the end of the Call after re-INVITEs have been
+                     * handled.
+                     */
+                    if (receiveStreamDataSource != null)
+                        receiveStreamDataSource.stop();
                 }
-            }
-            else
-            {
-                for (ReceiveStream receiveStream : receiveStreams)
+                catch (IOException ioex)
                 {
-                    try
-                    {
-                        if(logger.isTraceEnabled())
-                            logger.trace("Stopping receive stream with hashcode "
-                                + receiveStream.hashCode());
-
-                        DataSource receiveStreamDataSource
-                            = receiveStream.getDataSource();
-
-                        /*
-                         * For an unknown reason, the stream DataSource can be null
-                         * at the end of the Call after re-INVITEs have been
-                         * handled.
-                         */
-                        if (receiveStreamDataSource != null)
-                            receiveStreamDataSource.stop();
-                    }
-                    catch (IOException ioex)
-                    {
-                        logger.warn("Failed to stop stream " + receiveStream, ioex);
-                    }
+                    logger.warn(
+                            "Failed to stop receive stream " + receiveStream,
+                            ioex);
                 }
             }
         }
@@ -2087,16 +2039,16 @@ public class MediaStreamImpl
 
                 setRemoteSourceID(receiveStreamSSRC);
 
-                synchronized (receiveStreamSyncRoot)
+                synchronized (receiveStreams)
                 {
-                    if (this.receiveStream != receiveStream)
+                    if (!receiveStreams.contains(receiveStream))
                     {
-                        this.receiveStream = receiveStream;
+                        receiveStreams.add(receiveStream);
 
                         MediaDeviceSession deviceSession = getDeviceSession();
 
                         if (deviceSession != null)
-                            deviceSession.setReceiveStream(this.receiveStream);
+                            deviceSession.addReceiveStream(receiveStream);
                     }
                 }
             }
@@ -2120,16 +2072,16 @@ public class MediaStreamImpl
 
             if (receiveStream != null)
             {
-                synchronized (receiveStreamSyncRoot)
+                synchronized (receiveStreams)
                 {
-                    if (this.receiveStream == receiveStream)
+                    if (receiveStreams.contains(receiveStream))
                     {
-                        this.receiveStream = null;
+                        receiveStreams.remove(receiveStream);
 
                         MediaDeviceSession deviceSession = getDeviceSession();
 
                         if (deviceSession != null)
-                            deviceSession.setReceiveStream(null);
+                            deviceSession.removeReceiveStream(receiveStream);
                     }
                 }
             }
@@ -2147,9 +2099,13 @@ public class MediaStreamImpl
      */
     public void update(SendStreamEvent event)
     {
-        if ((event instanceof NewSendStreamEvent)
-                && (event.getSendStream().getSSRC() != this.localSourceID))
-            setLocalSourceID(event.getSendStream().getSSRC());
+        if (event instanceof NewSendStreamEvent)
+        {
+            long localSourceID = event.getSendStream().getSSRC();
+
+            if (getLocalSourceID() != localSourceID)
+                setLocalSourceID(localSourceID);
+        }
     }
 
     /**
@@ -2241,16 +2197,19 @@ public class MediaStreamImpl
      * Sets the local SSRC identifier and fires the corresponding
      * <tt>PropertyChangeEvent</tt>.
      *
-     * @param ssrc the SSRC identifier that this stream will be using in
-     * outgoing RTP packets from now on.
+     * @param localSourceID the SSRC identifier that this stream will be using
+     * in outgoing RTP packets from now on
      */
-    protected void setLocalSourceID(long ssrc)
+    protected void setLocalSourceID(long localSourceID)
     {
-        Long oldValue = this.localSourceID;
+        if (this.localSourceID != localSourceID)
+        {
+            Long oldValue = this.localSourceID;
 
-        this.localSourceID = ssrc;
+            this.localSourceID = localSourceID;
 
-        firePropertyChange(PNAME_LOCAL_SSRC, oldValue, ssrc);
+            firePropertyChange(PNAME_LOCAL_SSRC, oldValue, this.localSourceID);
+        }
     }
 
     /**
@@ -2317,11 +2276,11 @@ public class MediaStreamImpl
     }
 
     /**
-     * Prints all statistics available for rtpManager.
+     * Prints all statistics available for {@link #rtpManager}.
      *
-     * @param rtpManager the RTP manager that we'd like to print statistics for.
+     * @param rtpManager the <tt>RTPManager</tt> to print statistics for
      */
-    private void printFlowStatistics(RTPManager rtpManager)
+    private void printFlowStatistics(StreamRTPManager rtpManager)
     {
         try
         {
@@ -2447,5 +2406,17 @@ public class MediaStreamImpl
             this.setFormat(format);
 */
         }
+    }
+
+    /**
+     * Sets the <tt>RTPTranslator</tt> which is to forward RTP and RTCP traffic
+     * between this and other <tt>MediaStream</tt>s.
+     *
+     * @param rtpTranslator the <tt>RTPTranslator</tt> which is to forward RTP
+     * and RTCP traffic between this and other <tt>MediaStream</tt>s
+     */
+    public void setRTPTranslator(RTPTranslator rtpTranslator)
+    {
+        this.rtpTranslator = rtpTranslator;
     }
 }

@@ -21,7 +21,7 @@ import net.sf.fmj.media.*;
  * between color spaces (typically, RGB and YUV).
  *
  * @author Sebastien Vincent
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class SwScaler
     extends AbstractCodec
@@ -304,11 +304,15 @@ public class SwScaler
                 return BUFFER_PROCESSED_FAILED;
         }
 
-        int dstFmt;
-        int dstLength;
         Dimension outputSize = outputFormat.getSize();
         int outputWidth = outputSize.width;
         int outputHeight = outputSize.height;
+
+        if ((outputWidth < 2) || (outputHeight < 2)) // FFmpeg will crash.
+            return OUTPUT_BUFFER_NOT_FILLED;
+
+        int dstFmt;
+        int dstLength;
 
         if (outputFormat instanceof YUVFormat)
         {

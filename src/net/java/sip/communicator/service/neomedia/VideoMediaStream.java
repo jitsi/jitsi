@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.neomedia;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -17,7 +18,7 @@ import net.java.sip.communicator.service.neomedia.event.*;
  * video streaming.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public interface VideoMediaStream
     extends MediaStream
@@ -38,15 +39,23 @@ public interface VideoMediaStream
     public void disposeLocalVisualComponent(Component component);
 
     /**
-     * Returns a reference to the visual <tt>Component</tt> where video from the
-     * remote peer is being rendered or <tt>null</tt> if no video is currently
-     * rendered.
+     * Gets the visual <tt>Component</tt> where video from the remote peer is
+     * being rendered or <tt>null</tt> if no video is currently being rendered.
      *
-     * @return a reference to the visual <tt>Component</tt> where video from
-     * the remote peer is being rendered or <tt>null</tt> if no video is
-     * currently rendered.
+     * @return the visual <tt>Component</tt> where video from the remote peer is
+     * being rendered or <tt>null</tt> if no video is currently being rendered
      */
+    @Deprecated
     public Component getVisualComponent();
+
+    /**
+     * Gets a list of the visual <tt>Component</tt>s where video from the remote
+     * peer is being rendered.
+     *
+     * @return a list of the visual <tt>Component</tt>s where video from the
+     * remote peer is being rendered
+     */
+    public List<Component> getVisualComponents();
 
     /**
      * Adds a specific <tt>VideoListener</tt> to this <tt>VideoMediaStream</tt>

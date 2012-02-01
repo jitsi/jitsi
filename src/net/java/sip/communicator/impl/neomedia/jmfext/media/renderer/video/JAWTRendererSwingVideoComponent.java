@@ -16,6 +16,7 @@ import javax.media.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Implements a Swing <tt>Component</tt> in which <tt>JAWTRenderer</tt> paints.
@@ -83,7 +84,7 @@ public class JAWTRendererSwingVideoComponent
      * <tt>JAWTRenderer</tt> wants <tt>paint</tt> calls on its Swing
      * <tt>Component</tt> to be delivered.
      *
-     * @see AWTVideoComponent#wantsPaint
+     * @see JAWTRendererVideoComponent#wantsPaint
      */
     private boolean wantsPaint = true;
 
@@ -94,6 +95,9 @@ public class JAWTRendererSwingVideoComponent
      */
     public JAWTRendererSwingVideoComponent(JAWTRenderer renderer)
     {
+        if (VideoContainer.DEFAULT_BACKGROUND_COLOR != null)
+            setBackground(VideoContainer.DEFAULT_BACKGROUND_COLOR);
+
         this.renderer = renderer;
     }
 
@@ -848,7 +852,7 @@ public class JAWTRendererSwingVideoComponent
         /**
          * Removes all <tt>NonVideoComponent</tt>s from this
          * <tt>SwingVideoComponentCanvas</tt> so that their associated
-         * <tt>Component</tt>s are no longer painted by the reperesented native
+         * <tt>Component</tt>s are no longer painted by the represented native
          * <tt>JAWTRenderer</tt>.
          */
         private void removeAllNonVideoComponents()

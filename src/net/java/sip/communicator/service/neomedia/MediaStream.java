@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
  * the <tt>openMediaStream()</tt> method of the <tt>MediaService</tt>.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public interface MediaStream
 {
@@ -309,10 +309,10 @@ public interface MediaStream
      * for diagnostic purposes mostly. In XMPP for example this is the name of
      * the content element that describes a stream.
      *
-     * @param streamName the name of this stream or <tt>null</tt> if no name has
-     * been set.
+     * @param name the name of this stream or <tt>null</tt> if no name has been
+     * set.
      */
-    public void setName(String streamName);
+    public void setName(String name);
 
     /**
      * The <tt>ZrtpControl</tt> which controls the ZRTP for this stream.
@@ -320,4 +320,13 @@ public interface MediaStream
      * @return the <tt>ZrtpControl</tt> which controls the ZRTP for this stream
      */
     public SrtpControl getSrtpControl();
+
+    /**
+     * Sets the <tt>RTPTranslator</tt> which is to forward RTP and RTCP traffic
+     * between this and other <tt>MediaStream</tt>s.
+     *
+     * @param rtpTranslator the <tt>RTPTranslator</tt> which is to forward RTP
+     * and RTCP traffic between this and other <tt>MediaStream</tt>s
+     */
+    public void setRTPTranslator(RTPTranslator rtpTranslator);
 }

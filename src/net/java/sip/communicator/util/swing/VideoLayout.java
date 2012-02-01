@@ -8,11 +8,12 @@ package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
 /**
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Yana Stamcheva
  */
 public class VideoLayout extends FitLayout
@@ -69,9 +70,9 @@ public class VideoLayout extends FitLayout
     private Component local;
 
     /**
-     * The component containing the remote video.
+     * The list of <tt>Component</tt>s depicting remote videos.
      */
-    private Component remote;
+    private final List<Component> remotes = new LinkedList<Component>();
 
     /**
      * The x coordinate alignment of the remote video.
@@ -98,12 +99,12 @@ public class VideoLayout extends FitLayout
 
         if ((name == null) || name.equals(CENTER_REMOTE))
         {
-            remote = comp;
+            remotes.add(comp);
             remoteAlignmentX = Component.CENTER_ALIGNMENT;
         }
         else if (name.equals(EAST_REMOTE))
         {
-            remote = comp;
+            remotes.add(comp);
             remoteAlignmentX = Component.RIGHT_ALIGNMENT;
         }
         else if (name.equals(LOCAL))
@@ -122,7 +123,7 @@ public class VideoLayout extends FitLayout
     @Override
     protected Component getComponent(Container parent)
     {
-        return getRemote();
+        return (remotes.size() == 1) ? remotes.get(0) : null;
     }
 
     /**
@@ -150,16 +151,6 @@ public class VideoLayout extends FitLayout
     }
 
     /**
-     * Returns the remote video component.
-     *
-     * @return the remote video component
-     */
-    public Component getRemote()
-    {
-        return remote;
-    }
-
-    /**
      * Returns the local video close button.
      *
      * @return the local video close button
@@ -176,52 +167,81 @@ public class VideoLayout extends FitLayout
      */
     public void layoutContainer(Container parent)
     {
+        int remoteCount = remotes.size();
         Component local = getLocal();
-
-        super.layoutContainer(parent,
-            (local == null) ? Component.CENTER_ALIGNMENT : remoteAlignmentX);
-        
         Dimension parentSize = parent.getSize();
+
+        if (remoteCount == 1)
+        {
+            super.layoutContainer(parent,
+                    (local == null)
+                        ? Component.CENTER_ALIGNMENT
+                        : remoteAlignmentX);
+        }
+        else if (remoteCount > 0)
+        {
+            int columns = 2;
+            int rows = (remoteCount + columns - 1) / columns;
+            Rectangle bounds
+                = new Rectangle(
+                        0,
+                        0,
+                        parentSize.width / columns,
+                        parentSize.height / rows);
+            int columnsMinus1 = columns - 1;
+            int i = 0;
+
+            for (Component remote : remotes)
+            {
+                /*
+                 * We want the remote videos ordered from right to left so that
+                 * the local video does not cover a remote video when possible.
+                 */
+                bounds.x = (columnsMinus1 - (i % columns)) * bounds.width;
+                bounds.y = (i / columns) * bounds.height;
+                super.layoutComponent(
+                        remote,
+                        bounds,
+                        Component.CENTER_ALIGNMENT,
+                        Component.CENTER_ALIGNMENT);
+
+                i++;
+                if (i >= remoteCount)
+                    break;
+            }
+        }
 
         if (local != null)
         {
-            int height = Math.round(parentSize.height * LOCAL_TO_REMOTE_RATIO);
-            int width = Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO);
-
+            Component remote0 = remotes.isEmpty() ? null : remotes.get(0);
             int localX;
             int localY;
+            int height = Math.round(parentSize.height * LOCAL_TO_REMOTE_RATIO);
+            int width = Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO);
 
             /*
              * XXX The remote Component being a JLabel is meant to signal that
              * there is no remote video and the remote is the photoLabel.
              */
-            if (remote instanceof JLabel)
+            if ((remotes.size() == 1) && (remote0 instanceof JLabel))
             {
                 localX = parentSize.width/2 - width/2;
                 localY = parentSize.height - height;
 
                 super.layoutComponent(
                     local,
-                    new Rectangle(
-                        localX,
-                        localY,
-                        width,
-                        height),
+                    new Rectangle(localX, localY, width, height),
                     Component.CENTER_ALIGNMENT,
                     Component.BOTTOM_ALIGNMENT);
             }
             else
             {
-                localX = remote.getX() + 5;
+                localX = ((remote0 == null) ? 0 : remote0.getX()) + 5;
                 localY = parentSize.height - height - 5;
 
                 super.layoutComponent(
                     local,
-                    new Rectangle(
-                        localX,
-                        localY,
-                        width,
-                        height),
+                    new Rectangle(localX, localY, width, height),
                     Component.LEFT_ALIGNMENT,
                     Component.BOTTOM_ALIGNMENT);
             }
@@ -284,13 +304,13 @@ public class VideoLayout extends FitLayout
     {
         super.removeLayoutComponent(comp);
 
-        if (remote == comp)
-            remote = null;
-        else if (local == comp)
+        if (local == comp)
             local = null;
         else if (closeButton == comp)
             closeButton = null;
         else if (canvas == comp)
             canvas = null;
+        else
+            remotes.remove(comp);
     }
 }

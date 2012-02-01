@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
+import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
@@ -106,7 +107,7 @@ public class UIVideoHandler
      * is represented by a <code>Component</code> and it cannot be displayed in
      * multiple <code>Container</code>s at one and the same time) as soon as it
      * arrives.
-     * @return the video telephony operation set, where the vide listener was
+     * @return the video telephony operation set, where the video listener was
      * added
      */
     public OperationSetVideoTelephony addVideoListener()
@@ -390,14 +391,15 @@ public class UIVideoHandler
                 switch (event.getType())
                 {
                 case VideoEvent.VIDEO_ADDED:
-                    if (origin == VideoEvent.LOCAL)
+                    switch (origin)
                     {
+                    case VideoEvent.LOCAL:
                         this.localVideo = video;
                         this.closeButton = new CloseButton();
-                    }
-                    else if (origin == VideoEvent.REMOTE)
-                    {
+                        break;
+                    case VideoEvent.REMOTE:
                         this.remoteVideo = video;
+                        break;
                     }
 
                     addMouseListeners(origin);
@@ -410,18 +412,19 @@ public class UIVideoHandler
                     break;
 
                 case VideoEvent.VIDEO_REMOVED:
-                    if (origin == VideoEvent.LOCAL)
+                    switch (origin)
                     {
+                    case VideoEvent.LOCAL:
                         if (localVideo == video)
                         {
                             this.localVideo = null;
                             this.closeButton = null;
                         }
-                    }
-                    else if (origin == VideoEvent.REMOTE)
-                    {
+                        break;
+                    case VideoEvent.REMOTE:
                         if (remoteVideo == video)
                             this.remoteVideo = null;
+                        break;
                     }
                     break;
                 }
@@ -526,24 +529,42 @@ public class UIVideoHandler
         videoContainer.removeAll();
 
         // REMOTE
-        Component video = videoTelephony.getVisualComponent(callPeer);
+        /*
+         * UIVideoHandlers share a single VideoContainer in a Call i.e. there is
+         * a single video area even in conference calls. So rather than adding
+         * the videos of a single CallPeer, each UIVideoHandler adds all videos
+         * of a Call.
+         */
+        Iterator<? extends CallPeer> callPeerIter
+            = callPeer.getCall().getCallPeers();
+        List<Component> remoteVideos = new LinkedList<Component>();
 
-        if (video != null)
+        while (callPeerIter.hasNext())
         {
-            Container videoParent = video.getParent();
-
-            if (videoParent != null)
-                videoParent.remove(video);
-
-            videoContainer.add(video, VideoLayout.CENTER_REMOTE, 0);
-
-            callRenderer.getCallContainer()
-                .addRemoteVideoSpecificComponents(callPeer);
+            remoteVideos.addAll(
+                    videoTelephony.getVisualComponents(
+                            callPeerIter.next()));
         }
-        else
+
+        if (remoteVideos.isEmpty())
         {
             callRenderer.getCallContainer()
                 .removeRemoteVideoSpecificComponents();
+        }
+        else
+        {
+            for (Component remoteVideo : remoteVideos)
+            {
+                Container remoteVideoParent = remoteVideo.getParent();
+
+                if (remoteVideoParent != null)
+                    remoteVideoParent.remove(remoteVideo);
+
+                videoContainer.add(remoteVideo, VideoLayout.CENTER_REMOTE, 0);
+            }
+
+            callRenderer.getCallContainer()
+                .addRemoteVideoSpecificComponents(callPeer);
         }
 
         // LOCAL
@@ -600,16 +621,19 @@ public class UIVideoHandler
 
             if (videoTelephony.isLocalVideoStreaming(callPeer.getCall()))
             {
-                try
+                if (localVideo == null)
                 {
-                    videoTelephony.createLocalVisualComponent(
-                            callPeer, listener);
-                }
-                catch (OperationFailedException ex)
-                {
-                    logger.error(
-                            "Failed to create local video/visual Component.",
-                            ex);
+                    try
+                    {
+                        videoTelephony.createLocalVisualComponent(
+                                callPeer, listener);
+                    }
+                    catch (OperationFailedException ex)
+                    {
+                        logger.error(
+                                "Failed to create local video Component.",
+                                ex);
+                    }
                 }
             }
             else if (localVideo != null)
@@ -1197,6 +1221,7 @@ public class UIVideoHandler
         return localVideo;
     }
 
+    @Deprecated
     public Component getRemoteVideoComponent()
     {
         return remoteVideo;

@@ -230,32 +230,8 @@ public class AudioMixerMediaDevice
     public synchronized MediaDeviceSession createSession()
     {
         if (deviceSession == null)
-        {
             deviceSession = new AudioMixerMediaDeviceSession();
-        }
         return new MediaStreamMediaDeviceSession(deviceSession);
-    }
-
-    /**
-     * Creates a new <tt>MediaDeviceSession</tt> instance which is to represent
-     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt> and the
-     * rendering part of a previous <tt>MediaDeviceSession</tt>.
-     *
-     * @param oldSession previous <tt>MediaDeviceSession</tt>
-     * @return a new <tt>MediaDeviceSession</tt> instance which is to represent
-     * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt>
-     */
-    @Override
-    public MediaDeviceSession createSession(MediaDeviceSession oldSession)
-    {
-        MediaStreamMediaDeviceSession session =
-            (MediaStreamMediaDeviceSession)createSession();
-        MediaStreamMediaDeviceSession old =
-            (MediaStreamMediaDeviceSession)oldSession;
-
-        session.setStreamAudioLevelListener(old.streamAudioLevelListener);
-        session.setLocalUserAudioLevelListener(old.localUserAudioLevelListener);
-        return session;
     }
 
     /**
@@ -313,9 +289,7 @@ public class AudioMixerMediaDevice
                     if (inputDataSource == captureDevice)
                         AudioMixerMediaDevice.this.connect(dataSource);
                     else
-                    {
                         super.connect(dataSource, inputDataSource);
-                    }
                 }
 
                 @Override
@@ -433,7 +407,7 @@ public class AudioMixerMediaDevice
     @Override
     public List<RTPExtension> getSupportedExtensions()
     {
-        if ( rtpExtensions == null)
+        if (rtpExtensions == null)
         {
             rtpExtensions = new ArrayList<RTPExtension>(1);
 
@@ -459,27 +433,20 @@ public class AudioMixerMediaDevice
     }
 
     /**
-     * Gets a list of <tt>MediaFormat</tt>s supported by this
-     * <tt>MediaDevice</tt>. Currently does nothing.
-     * @param sendPreset does nothing for audio.
-     * @return the list of <tt>MediaFormat</tt>s supported by this device
-     * @see MediaDevice#getSupportedFormats()
-     */
-    public List<MediaFormat> getSupportedFormats(QualityPreset sendPreset,
-                                                 QualityPreset receivePreset)
-    {
-        return device.getSupportedFormats();
-    }
-    /**
-     * Gets a list of <tt>MediaFormat</tt>s supported by this
+     * Gets the list of <tt>MediaFormat</tt>s supported by this
      * <tt>MediaDevice</tt>.
      *
-     * @return the list of <tt>MediaFormat</tt>s supported by this device
+     * @param sendPreset not used
+     * @param receivePreset not used
+     * @return the list of <tt>MediaFormat</tt>s supported by this
+     * <tt>MediaDevice</tt>
      * @see MediaDevice#getSupportedFormats()
      */
-    public List<MediaFormat> getSupportedFormats()
+    public List<MediaFormat> getSupportedFormats(
+            QualityPreset sendPreset,
+            QualityPreset receivePreset)
     {
-        return this.getSupportedFormats(null, null);
+        return device.getSupportedFormats();
     }
 
     /**
@@ -610,15 +577,16 @@ public class AudioMixerMediaDevice
          * audio to be added to the mix produced by the associated
          * <tt>MediaDevice</tt>
          */
-        void addPlaybackDataSource(DataSource playbackDataSource)
+        @Override
+        public void addPlaybackDataSource(DataSource playbackDataSource)
         {
             /*
              * We don't play back the contributions of the conference members
              * separately, we have a single playback of the mix of all
              * contributions but ours.
              */
-            setPlaybackDataSource(
-                (AudioMixingPushBufferDataSource) getCaptureDevice());
+            super.addPlaybackDataSource(
+                    (AudioMixingPushBufferDataSource) getCaptureDevice());
         }
 
         /**
@@ -631,7 +599,8 @@ public class AudioMixerMediaDevice
          * contributing audio to the mix produced by its associated
          * <tt>AudioMixer</tt>
          */
-        void addReceiveStream(ReceiveStream receiveStream)
+        @Override
+        public void addReceiveStream(ReceiveStream receiveStream)
         {
             addSSRC(receiveStream.getSSRC());
         }
@@ -759,9 +728,7 @@ public class AudioMixerMediaDevice
                     if (mediaStreamMediaDeviceSessions
                                 .remove(mediaStreamMediaDeviceSession)
                             && mediaStreamMediaDeviceSessions.isEmpty())
-                    {
                         close();
-                    }
                 }
             }
         }
@@ -774,15 +741,18 @@ public class AudioMixerMediaDevice
          * audio to be removed from the mix produced by the associated
          * <tt>AudioMixer</tt>
          */
-        void removePlaybackDataSource(final DataSource playbackDataSource)
+        @Override
+        public void removePlaybackDataSource(
+                final DataSource playbackDataSource)
         {
-            removeInputDataSources(new DataSourceFilter()
-            {
-                public boolean accept(DataSource dataSource)
+            removeInputDataSources(
+                new DataSourceFilter()
                 {
-                    return dataSource.equals(playbackDataSource);
-                }
-            });
+                    public boolean accept(DataSource dataSource)
+                    {
+                        return dataSource.equals(playbackDataSource);
+                    }
+                });
         }
 
         /**
@@ -795,7 +765,8 @@ public class AudioMixerMediaDevice
          * contributing audio to the mix produced by its associated
          * <tt>AudioMixer</tt>
          */
-        void removeReceiveStream(ReceiveStream receiveStream)
+        @Override
+        public void removeReceiveStream(ReceiveStream receiveStream)
         {
             removeSSRC(receiveStream.getSSRC());
 
@@ -816,10 +787,8 @@ public class AudioMixerMediaDevice
                 AudioLevelEventDispatcher dispatcher =
                     streamAudioLevelListeners.remove(stream);
 
-                if(dispatcher != null)
-                {
+                if (dispatcher != null)
                     dispatcher.setAudioLevelListener(null);
-                }
             }
         }
     }
@@ -911,18 +880,17 @@ public class AudioMixerMediaDevice
         }
 
         /**
-         * Creates a new <tt>Player</tt> to render the
-         * <tt>playbackDataSource</tt> of this instance on the associated
-         * <tt>MediaDevice</tt>.
+         * Creates a new <tt>Player</tt> for a specific <tt>DataSource</tt> so
+         * that it is played back on the <tt>MediaDevice</tt> represented by
+         * this instance.
          *
-         * @return a new <tt>Player</tt> to render the
-         * <tt>playbackDataSource</tt> of this instance on the associated
-         * <tt>MediaDevice</tt> or <tt>null</tt> if the
-         * <tt>playbackDataSource</tt> of this instance is not to be rendered
-         * @see MediaDeviceSession#createPlayer()
+         * @param dataSource the <tt>DataSource</tt> to create a new
+         * <tt>Player</tt> for
+         * @return a new <tt>Player</tt> for the specified <tt>dataSource</tt>
+         * @see MediaDeviceSession#createPlayer(DataSource)
          */
         @Override
-        protected Player createPlayer()
+        protected Player createPlayer(DataSource dataSource)
         {
             /*
              * We don't want the contribution of each conference member played
@@ -949,44 +917,52 @@ public class AudioMixerMediaDevice
         }
 
         /**
-         * Notifies this instance that the value of its
-         * <tt>playbackDataSource</tt> property has changed from a specific
-         * <tt>oldValue</tt> to a specific <tt>newValue</tt>.
+         * Notifies this <tt>MediaDeviceSession</tt> that a <tt>DataSource</tt>
+         * has been added for playback on the represented <tt>MediaDevice</tt>.
          *
-         * @param oldValue the <tt>DataSource</tt> which used to be the value of
-         * the <tt>playbackDataSource</tt> property of this instance
-         * @param newValue the <tt>DataSource</tt> which is the value of the
-         * <tt>playbackDataSource</tt> property of this instance
-         * @see MediaDeviceSession#playbackDataSourceChanged(DataSource,
-         * DataSource)
+         * @param playbackDataSource the <tt>DataSource</tt> which has been
+         * added for playback on the represented <tt>MediaDevice</tt>
+         * @see MediaDeviceSession#playbackDataSourceAdded(DataSource)
          */
         @Override
-        protected void playbackDataSourceChanged(
-                DataSource oldValue,
-                DataSource newValue)
+        protected void playbackDataSourceAdded(DataSource playbackDataSource)
         {
-            super.playbackDataSourceChanged(oldValue, newValue);
+            super.playbackDataSourceAdded(playbackDataSource);
 
-            if (oldValue != null)
-                audioMixerMediaDeviceSession.removePlaybackDataSource(oldValue);
-            if (newValue != null)
-            {
-                DataSource captureDevice = getCaptureDevice();
+            DataSource captureDevice = getCaptureDevice();
 
-                /*
-                 * Unwrap wrappers of the captureDevice until
-                 * AudioMixingPushBufferDataSource is found.
-                 */
-                if (captureDevice instanceof PushBufferDataSourceDelegate<?>)
-                    captureDevice
-                        = ((PushBufferDataSourceDelegate<?>) captureDevice)
-                            .getDataSource();
-                if (captureDevice instanceof AudioMixingPushBufferDataSource)
-                    ((AudioMixingPushBufferDataSource) captureDevice)
-                        .addInputDataSource(newValue);
+            /*
+             * Unwrap wrappers of the captureDevice until
+             * AudioMixingPushBufferDataSource is found.
+             */
+            if (captureDevice instanceof PushBufferDataSourceDelegate<?>)
+                captureDevice
+                    = ((PushBufferDataSourceDelegate<?>) captureDevice)
+                        .getDataSource();
+            if (captureDevice instanceof AudioMixingPushBufferDataSource)
+                ((AudioMixingPushBufferDataSource) captureDevice)
+                    .addInputDataSource(playbackDataSource);
 
-                audioMixerMediaDeviceSession.addPlaybackDataSource(newValue);
-            }
+            audioMixerMediaDeviceSession.addPlaybackDataSource(
+                    playbackDataSource);
+        }
+
+        /**
+         * Notifies this <tt>MediaDeviceSession</tt> that a <tt>DataSource</tt>
+         * has been removed from playback on the represented
+         * <tt>MediaDevice</tt>.
+         *
+         * @param playbackDataSource the <tt>DataSource</tt> which has been
+         * removed from playback on the represented <tt>MediaDevice</tt>
+         * @see MediaDeviceSession#playbackDataSourceRemoved(DataSource)
+         */
+        @Override
+        protected void playbackDataSourceRemoved(DataSource playbackDataSource)
+        {
+            super.playbackDataSourceRemoved(playbackDataSource);
+
+            audioMixerMediaDeviceSession.removePlaybackDataSource(
+                    playbackDataSource);
         }
 
         /**
@@ -1008,43 +984,54 @@ public class AudioMixerMediaDevice
         }
 
         /**
-         * Notifies this instance that the value of its <tt>receiveStream</tt>
-         * property has changed from a specific <tt>oldValue</tt> to a specific
-         * <tt>newValue</tt>.
+         * Notifies this instance that a specific <tt>ReceiveStream</tt> has
+         * been added to the list of playbacks of <tt>ReceiveStream</tt>s and/or
+         * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+         * <tt>MediaDevice</tt> represented by this instance.
          *
-         * @param oldValue the <tt>ReceiveStream</tt> which used to be the value
-         * of the <tt>receiveStream</tt> property of this instance
-         * @param newValue the <tt>ReceiveStream</tt> which is the value of the
-         * <tt>receiveStream</tt> property of this instance
-         * @see MediaDeviceSession#receiveStreamChanged(ReceiveStream,
-         * ReceiveStream)
+         * @param receiveStream the <tt>ReceiveStream</tt> which has been added
+         * to the list of playbacks of <tt>ReceiveStream</tt>s and/or
+         * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+         * <tt>MediaDevice</tt> represented by this instance
          */
         @Override
-        protected void receiveStreamChanged(
-                ReceiveStream oldValue,
-                ReceiveStream newValue)
+        protected void receiveStreamAdded(ReceiveStream receiveStream)
         {
-            super.receiveStreamChanged(oldValue, newValue);
+            super.receiveStreamAdded(receiveStream);
 
-            if (oldValue != null)
-                audioMixerMediaDeviceSession.removeReceiveStream(oldValue);
-            if (newValue != null)
+            /*
+             * If someone registered a stream level listener, we can now add it
+             * since we have the stream that it's supposed to listen to.
+             */
+            synchronized(streamAudioLevelListenerLock)
             {
-                /*
-                 * If someone registered a stream level listener, we can now add
-                 * it since we have the stream that it's supposed to listen to.
-                 */
-                synchronized(streamAudioLevelListenerLock)
-                {
-                    if(this.streamAudioLevelListener != null)
-                        audioMixerMediaDeviceSession
-                            .putStreamAudioLevelListener(
-                                newValue,
-                                streamAudioLevelListener);
-                }
-
-                audioMixerMediaDeviceSession.addReceiveStream(newValue);
+                if(this.streamAudioLevelListener != null)
+                    audioMixerMediaDeviceSession
+                        .putStreamAudioLevelListener(
+                            receiveStream,
+                            streamAudioLevelListener);
             }
+
+            audioMixerMediaDeviceSession.addReceiveStream(receiveStream);
+        }
+
+        /**
+         * Notifies this instance that a specific <tt>ReceiveStream</tt> has
+         * been removed from the list of playbacks of <tt>ReceiveStream</tt>s
+         * and/or <tt>DataSource</tt>s performed by respective <tt>Player</tt>s
+         * on the <tt>MediaDevice</tt> represented by this instance.
+         *
+         * @param receiveStream the <tt>ReceiveStream</tt> which has been
+         * removed from the list of playbacks of <tt>ReceiveStream</tt>s and/or
+         * <tt>DataSource</tt>s performed by respective <tt>Player</tt>s on the
+         * <tt>MediaDevice</tt> represented by this instance
+         */
+        @Override
+        protected void receiveStreamRemoved(ReceiveStream receiveStream)
+        {
+            super.receiveStreamRemoved(receiveStream);
+
+            audioMixerMediaDeviceSession.removeReceiveStream(receiveStream);
         }
 
         /**
@@ -1100,26 +1087,33 @@ public class AudioMixerMediaDevice
          */
         @Override
         public void setStreamAudioLevelListener(
-                                            SimpleAudioLevelListener listener)
+                SimpleAudioLevelListener listener)
         {
             synchronized(streamAudioLevelListenerLock)
             {
                 this.streamAudioLevelListener = listener;
 
-                ReceiveStream receiveStream = getReceiveStream();
-
-                if( listener != null)
+                for (ReceiveStream receiveStream : getReceiveStreams())
                 {
-                    //if we already have a ReceiveStream - register the listener
-                    //with the mixer. Otherwise - wait till we get one.
-                    if( receiveStream != null)
+                    if (listener != null)
+                    {
+                        /*
+                         * If we already have a ReceiveStream, register the
+                         * listener with the mixer; otherwise, wait till we get
+                         * one.
+                         */
                         audioMixerMediaDeviceSession
                             .putStreamAudioLevelListener(
-                                receiveStream, listener);
+                                receiveStream,
+                                listener);
+                    }
+                    else
+                    {
+                        audioMixerMediaDeviceSession
+                            .removeStreamAudioLevelListener(
+                                receiveStream);
+                    }
                 }
-                else if( receiveStream != null)
-                    audioMixerMediaDeviceSession
-                        .removeStreamAudioLevelListener(receiveStream);
             }
         }
 

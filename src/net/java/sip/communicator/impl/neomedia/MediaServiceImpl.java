@@ -249,13 +249,19 @@ public class MediaServiceImpl
      */
     public MediaDevice createMixer(MediaDevice device)
     {
-        if (MediaType.AUDIO.equals(device.getMediaType()))
+        switch (device.getMediaType())
+        {
+        case AUDIO:
             return new AudioMixerMediaDevice((AudioMediaDeviceImpl) device);
-        /*
-         * TODO If we do not support mixing, should we return null or rather a
-         * MediaDevice with INACTIVE MediaDirection?
-         */
-        return null;
+        case VIDEO:
+            return new VideoTranslatorMediaDevice((MediaDeviceImpl) device);
+        default:
+            /*
+             * TODO If we do not support mixing, should we return null or rather
+             * a MediaDevice with INACTIVE MediaDirection?
+             */
+            return null;
+        }
     }
 
     /**
@@ -1424,31 +1430,41 @@ public class MediaServiceImpl
      */
     private void showAudioConfiguration()
     {
-        if(audioConfigDialog == null)
+        if (audioConfigDialog != null)
         {
-            return;
-        }
-
-        if (!SwingUtilities.isEventDispatchThread())
-        {
-            SwingUtilities.invokeLater(new Runnable()
+            if (!SwingUtilities.isEventDispatchThread())
             {
-                public void run()
-                {
-                    showAudioConfiguration();
-                }
-            });
-            return;
-        }
+                SwingUtilities.invokeLater(
+                        new Runnable()
+                                {
+                                    public void run()
+                                    {
+                                        showAudioConfiguration();
+                                    }
+                                });
+                return;
+            }
 
-        SwingUtilities.updateComponentTreeUI(
-            audioConfigDialog.getComponent(0));
-        audioConfigDialog.pack();
-        audioConfigDialog.repaint();
+            SwingUtilities.updateComponentTreeUI(
+                audioConfigDialog.getComponent(0));
+            audioConfigDialog.pack();
+            audioConfigDialog.repaint();
 
-        if(!audioConfigDialog.isVisible())
-        {
-            audioConfigDialog.setVisible(true);
+            if (!audioConfigDialog.isVisible())
+                audioConfigDialog.setVisible(true);
         }
+    }
+
+    /**
+     * Initializes a new <tt>RTPTranslator</tt> which is to forward RTP and RTCP
+     * traffic between multiple <tt>MediaStream</tt>s.
+     *
+     * @return a new <tt>RTPTranslator</tt> which is to forward RTP and RTCP
+     * traffic between multiple <tt>MediaStream</tt>s
+     * @see MediaService#createRTPTranslator()
+     */
+    public RTPTranslator createRTPTranslator()
+    {
+        return new RTPTranslatorImpl();
     }
 }
