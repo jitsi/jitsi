@@ -305,11 +305,24 @@ public class SwScaler
         }
 
         Dimension outputSize = outputFormat.getSize();
+
+        if (outputSize == null)
+        {
+            outputSize = inputFormat.getSize();
+            if (outputSize == null)
+                return BUFFER_PROCESSED_FAILED;
+        }
+
         int outputWidth = outputSize.width;
         int outputHeight = outputSize.height;
 
         if ((outputWidth < 2) || (outputHeight < 2)) // FFmpeg will crash.
             return OUTPUT_BUFFER_NOT_FILLED;
+
+        // Apply the outputSize to the outputFormat of the output Buffer.
+        outputFormat = setSize(outputFormat, outputSize);
+        if (outputFormat == null)
+            return BUFFER_PROCESSED_FAILED;
 
         int dstFmt;
         int dstLength;
@@ -322,7 +335,10 @@ public class SwScaler
         }
         else /* RGB format */
         {
-            dstFmt = FFmpeg.PIX_FMT_RGB32;
+            dstFmt
+                = OSUtils.IS_ANDROID
+                    ? getNativeRGBFormat((RGBFormat) outputFormat)
+                    : FFmpeg.PIX_FMT_RGB32;
             dstLength = (outputWidth * outputHeight * 4);
         }
 
@@ -355,6 +371,10 @@ public class SwScaler
         }
 
         Dimension inputSize = inputFormat.getSize();
+
+        if (inputSize == null)
+            return BUFFER_PROCESSED_FAILED;
+
         int inputWidth = inputSize.width;
         int inputHeight = inputSize.height;
         Object src = input.getData();
@@ -435,10 +455,9 @@ public class SwScaler
     public Format setInputFormat(Format format)
     {
         Format inputFormat
-            = ((format instanceof VideoFormat)
-                    && (((VideoFormat) format).getSize() == null))
-                ? null // size is required
-                : super.setInputFormat(format);
+            = (format instanceof VideoFormat)
+                ? super.setInputFormat(format)
+                : null /* A size is not required, the input must be video. */;
 
         if (inputFormat != null)
         {
@@ -501,15 +520,31 @@ public class SwScaler
     }
 
     /**
+     * Sets the size i.e. width and height of the current <tt>outputFormat</tt>
+     * of this <tt>SwScaler</tt>
+     * 
+     * @param size the size i.e. width and height to be set on the current
+     * <tt>outputFormat</tt> of this <tt>SwScaler</tt>
+     */
+    private void setOutputFormatSize(Dimension size)
+    {
+        VideoFormat outputFormat = (VideoFormat) getOutputFormat();
+
+        if (outputFormat != null)
+        {
+            outputFormat = setSize(outputFormat, size);
+            if (outputFormat != null)
+                setOutputFormat(outputFormat);
+        }
+    }
+
+    /**
      * Sets the output size.
      *
      * @param size the size to set as the output size
      */
     public void setOutputSize(Dimension size)
     {
-        if(size == null)
-            size = new Dimension(640, 480);
-
         supportedOutputFormats[0]
             = new YUVFormat(size, -1, Format.byteArray, -1.0f,
                     YUVFormat.YUV_420, -1, -1, 0, -1, -1);
@@ -533,20 +568,34 @@ public class SwScaler
             = new RGBFormat(size, -1, Format.shortArray, -1.0f, 24, -1, -1, -1);
 
         // Set the size to the outputFormat as well.
-        VideoFormat outputFormat = (VideoFormat) getOutputFormat();
+        setOutputFormatSize(size);
+    }
 
+    /**
+     * Gets a <tt>VideoFormat</tt> with a specific size i.e. width and height
+     * using a specific <tt>VideoFormat</tt> as a template.
+     *
+     * @param format the <tt>VideoFormat</tt> which is the template for the
+     * <tt>VideoFormat</tt> to be returned
+     * @param size the size i.e. width and height of the <tt>VideoFormat</tt> to
+     * be returned
+     * @return a <tt>VideoFormat</tt> with the specified <tt>size</tt> and based
+     * on the specified <tt>format</tt>
+     */
+    private static VideoFormat setSize(VideoFormat format, Dimension size)
+    {
         /*
          * Since the size of the Format has changed, its size-related properties
          * should change as well. Format#intersects doesn't seem to be cool
          * because it preserves them and thus the resulting Format is
          * inconsistent.
          */
-        if (outputFormat instanceof RGBFormat)
+        if (format instanceof RGBFormat)
         {
-            RGBFormat rgbOutputFormat = (RGBFormat) outputFormat;
-            Class<?> dataType = outputFormat.getDataType();
-            int bitsPerPixel = rgbOutputFormat.getBitsPerPixel();
-            int pixelStride = rgbOutputFormat.getPixelStride();
+            RGBFormat rgbFormat = (RGBFormat) format;
+            Class<?> dataType = format.getDataType();
+            int bitsPerPixel = rgbFormat.getBitsPerPixel();
+            int pixelStride = rgbFormat.getPixelStride();
 
             if ((pixelStride == Format.NOT_SPECIFIED)
                     && (dataType != null)
@@ -555,44 +604,48 @@ public class SwScaler
                     = dataType.equals(Format.byteArray)
                         ? (bitsPerPixel / 8)
                         : 1;
-            setOutputFormat(
-                new RGBFormat(
+            format
+                = new RGBFormat(
                         size,
                         Format.NOT_SPECIFIED,
                         dataType,
-                        outputFormat.getFrameRate(),
+                        format.getFrameRate(),
                         bitsPerPixel,
-                        rgbOutputFormat.getRedMask(),
-                        rgbOutputFormat.getGreenMask(),
-                        rgbOutputFormat.getBlueMask(),
+                        rgbFormat.getRedMask(),
+                        rgbFormat.getGreenMask(),
+                        rgbFormat.getBlueMask(),
                         pixelStride,
-                        (pixelStride == Format.NOT_SPECIFIED)
+                        ((pixelStride == Format.NOT_SPECIFIED)
+                                || (size == null))
                             ? Format.NOT_SPECIFIED
-                            : (pixelStride * size.width), // lineStride
-                        rgbOutputFormat.getFlipped(),
-                        rgbOutputFormat.getEndian()));
+                            : (pixelStride * size.width) /* lineStride */,
+                        rgbFormat.getFlipped(),
+                        rgbFormat.getEndian());
         }
-        else if (outputFormat instanceof YUVFormat)
+        else if (format instanceof YUVFormat)
         {
-            YUVFormat yuvOutputFormat = (YUVFormat) outputFormat;
+            YUVFormat yuvFormat = (YUVFormat) format;
 
-            setOutputFormat(
-                new YUVFormat(
+            format
+                = new YUVFormat(
                         size,
                         Format.NOT_SPECIFIED,
-                        outputFormat.getDataType(),
-                        outputFormat.getFrameRate(),
-                        yuvOutputFormat.getYuvType(),
+                        format.getDataType(),
+                        format.getFrameRate(),
+                        yuvFormat.getYuvType(),
                         Format.NOT_SPECIFIED,
                         Format.NOT_SPECIFIED,
                         0,
                         Format.NOT_SPECIFIED,
-                        Format.NOT_SPECIFIED));
+                        Format.NOT_SPECIFIED);
         }
-        else if (outputFormat != null)
+        else if (format != null)
+        {
             logger.warn(
                     "SwScaler outputFormat of type "
-                        + outputFormat.getClass().getSimpleName()
+                        + format.getClass().getName()
                         + " is not supported for optimized scaling.");
+        }
+        return format;
     }
 }

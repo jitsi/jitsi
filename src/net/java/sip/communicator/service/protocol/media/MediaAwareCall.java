@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A utility class implementing media control code shared between current
@@ -453,9 +454,16 @@ public abstract class MediaAwareCall<
         switch (mediaType)
         {
         case AUDIO:
-            if ((conferenceAudioMixer == null) && (device != null))
+            /*
+             * TODO AudioMixer leads to very poor audio quality on Android so do
+             * not use it unless it is really really necessary.
+             */
+            if ((conferenceAudioMixer == null)
+                    && (device != null)
+                    && (!OSUtils.IS_ANDROID || isConferenceFocus()))
                 conferenceAudioMixer = mediaService.createMixer(device);
-            device = conferenceAudioMixer;
+            if (conferenceAudioMixer != null)
+                device = conferenceAudioMixer;
             break;
 
         case VIDEO:
@@ -463,7 +471,8 @@ public abstract class MediaAwareCall<
             {
                 if ((conferenceVideoMixer == null) && (device != null)) 
                     conferenceVideoMixer = mediaService.createMixer(device);
-                device = conferenceVideoMixer;
+                if (conferenceVideoMixer != null)
+                    device = conferenceVideoMixer;
             }
             break;
         }
