@@ -31,6 +31,15 @@ public class ConferenceCallPanel
     implements CallRenderer
 {
     /**
+     * The <tt>preferredSize</tt> to be set on {@link #scrollPane} if there is
+     * video displayed.
+     */
+    private static final Dimension SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO
+        = new Dimension(
+                400 /* It sounds reasonable without being justified. */,
+                100 /* It is arbitrary and, hopefully, unnecessary. */);
+
+    /**
      * Serial version UID.
      */
     private static final long serialVersionUID = 0L;
@@ -110,7 +119,6 @@ public class ConferenceCallPanel
         this.call = c;
 
         mainPanel = new TransparentPanel();
-
         mainPanel.setLayout(new GridBagLayout());
 
         scrollPane.setHorizontalScrollBarPolicy(
@@ -130,6 +138,12 @@ public class ConferenceCallPanel
             this.addCallPeerPanel(iterator.next());
 
         scrollPane.setBorder(null);
+        /*
+         * The scrollPane seems to receive only a few pixels of width at times
+         * when there is video displayed, not always. Try to work around that
+         * misbehavior by specifying a minimum size.
+         */
+        scrollPane.setMinimumSize(SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO);
 
         mainPanel.setTransferHandler(new CallTransferHandler(call));
 
@@ -165,13 +179,17 @@ public class ConferenceCallPanel
         videoContainerGridBagConstraints.weightx = 0;
         videoContainerGridBagConstraints.weighty = 1;
         add(videoContainer, videoContainerGridBagConstraints);
+        /*
+         * When the videoContainer is empty i.e. it has nothing to show, don't
+         * show it.
+         */
         videoContainer.addContainerListener(
             new ContainerListener()
             {
                 public void componentAdded(ContainerEvent e)
                 {
                     GridBagLayout layout = (GridBagLayout) getLayout();
-                    boolean maximizeVideoContainer
+                    boolean videoContainerIsVisible
                         = (videoContainer.getComponentCount() > 0);
 
                     for (Component component : getComponents())
@@ -179,15 +197,21 @@ public class ConferenceCallPanel
                         GridBagConstraints constraints
                             = layout.getConstraints(component);
 
-                        if (maximizeVideoContainer)
+                        if (videoContainerIsVisible)
                         {
                             constraints.weightx
                                 = (component == videoContainer) ? 1 : 0;
+                            scrollPane.setPreferredSize(
+                                    SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO);
                         }
                         else
                         {
                             constraints.weightx
                                 = (component == videoContainer) ? 0 : 1;
+
+                            if (SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO.equals(
+                                    scrollPane.getPreferredSize()))
+                                scrollPane.setPreferredSize(null);
                         }
                         layout.setConstraints(component, constraints);
                     }
@@ -594,8 +618,11 @@ public class ConferenceCallPanel
             component.setPreferredSize(new Dimension(width, height));
             component.setSize(new Dimension(width, height));
 
-            component.getParent().setPreferredSize(new Dimension(width, height));
-            component.getParent().setSize(new Dimension(width, height));
+            Container componentParent = component.getParent();
+
+            componentParent.setPreferredSize(new Dimension(width, height));
+            componentParent.setSize(new Dimension(width, height));
+
             /*
              * If we're going to make too small a change, don't even bother.
              * Besides, we don't want some weird recursive resizing.
@@ -612,6 +639,12 @@ public class ConferenceCallPanel
                         newFrameX, newFrameY,
                         newFrameWidth, newFrameHeight);
             }
+
+            /*
+             * It seems that the video container does not fill its dedicated
+             * area because we've set its size above.
+             */
+            validate();
         }
     }
 

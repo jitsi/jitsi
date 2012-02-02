@@ -863,7 +863,7 @@ public abstract class CallPeerMediaHandler<
              * about changes in the availability of video in the old
              * videoStream.
              */
-            Component oldVisualComponent = null;
+            List<Component> oldVisualComponents = null;
 
             if (this.videoStream != null)
             {
@@ -871,7 +871,7 @@ public abstract class CallPeerMediaHandler<
                         streamPropertyChangeListener);
 
                 this.videoStream.removeVideoListener(videoStreamVideoListener);
-                oldVisualComponent = this.videoStream.getVisualComponent();
+                oldVisualComponents = this.videoStream.getVisualComponents();
 
                 /*
                  * The current videoStream is going away so this
@@ -897,7 +897,7 @@ public abstract class CallPeerMediaHandler<
              * Make sure we will notify the registered VideoListeners about
              * changes in the availability of video in the new videoStream.
              */
-            Component newVisualComponent = null;
+            List<Component> newVisualComponents = null;
 
             if (this.videoStream != null)
             {
@@ -907,7 +907,7 @@ public abstract class CallPeerMediaHandler<
                 videoRemoteSSRC = this.videoStream.getRemoteSourceID();
 
                 this.videoStream.addVideoListener(videoStreamVideoListener);
-                newVisualComponent = this.videoStream.getVisualComponent();
+                newVisualComponents = this.videoStream.getVisualComponents();
             }
             else
                 videoLocalSSRC = videoRemoteSSRC = SSRC_UNKNOWN;
@@ -919,16 +919,35 @@ public abstract class CallPeerMediaHandler<
              * Notify the VideoListeners in case there was a change in the
              * availability of the visual Components displaying remote video.
              */
-            if (oldVisualComponent != null)
-                fireVideoEvent(
-                    VideoEvent.VIDEO_REMOVED,
-                    oldVisualComponent,
-                    VideoEvent.REMOTE);
-            if (newVisualComponent != null)
-                fireVideoEvent(
-                    VideoEvent.VIDEO_ADDED,
-                    newVisualComponent,
-                    VideoEvent.REMOTE);
+            if ((oldVisualComponents != null) && !oldVisualComponents.isEmpty())
+            {
+                /*
+                 * Discard Components which are present in the old and in the
+                 * new Lists.
+                 */
+                if (newVisualComponents == null)
+                    newVisualComponents = Collections.emptyList();
+                for (Component oldVisualComponent : oldVisualComponents)
+                {
+                    if (!newVisualComponents.remove(oldVisualComponent))
+                    {
+                        fireVideoEvent(
+                            VideoEvent.VIDEO_REMOVED,
+                            oldVisualComponent,
+                            VideoEvent.REMOTE);
+                    }
+                }
+            }
+            if ((newVisualComponents != null) && !newVisualComponents.isEmpty())
+            {
+                for (Component newVisualComponent : newVisualComponents)
+                {
+                    fireVideoEvent(
+                        VideoEvent.VIDEO_ADDED,
+                        newVisualComponent,
+                        VideoEvent.REMOTE);
+                }
+            }
         }
     }
 

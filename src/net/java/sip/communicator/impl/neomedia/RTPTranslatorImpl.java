@@ -39,6 +39,10 @@ public class RTPTranslatorImpl
     private static final Logger logger
         = Logger.getLogger(RTPTranslatorImpl.class);
 
+    /**
+     * An array with <tt>long</tt> element type and no elements explicitly
+     * defined to reduce unnecessary allocations.
+     */
     private static final long[] EMPTY_LONG_ARRAY = new long[0];
 
     /**
@@ -54,6 +58,10 @@ public class RTPTranslatorImpl
      */
     private final RTPManager manager = RTPManager.newInstance();
 
+    /**
+     * The <tt>SendStream</tt>s created by the <tt>RTPManager</tt> and the
+     * <tt>StreamRTPManager</tt>-specific views to them.
+     */
     private final List<SendStreamDesc> sendStreams
         = new LinkedList<SendStreamDesc>();
 
@@ -64,6 +72,9 @@ public class RTPTranslatorImpl
     private final List<StreamRTPManagerDesc> streamRTPManagers
         = new ArrayList<StreamRTPManagerDesc>();
 
+    /**
+     * Initializes a new <tt>RTPTranslatorImpl</tt> instance.
+     */
     public RTPTranslatorImpl()
     {
         manager.addReceiveStreamListener(this);
@@ -75,20 +86,16 @@ public class RTPTranslatorImpl
     {
         manager.addFormat(format, payloadType);
 
-        StreamRTPManagerDesc streamRTPManagerDesc
-            = getStreamRTPManagerDesc(streamRTPManager, true);
-
-        streamRTPManagerDesc.addFormat(format, payloadType);
+        getStreamRTPManagerDesc(streamRTPManager, true)
+            .addFormat(format, payloadType);
     }
 
     public synchronized void addReceiveStreamListener(
             StreamRTPManager streamRTPManager,
             ReceiveStreamListener listener)
     {
-        StreamRTPManagerDesc streamRTPManagerDesc
-            = getStreamRTPManagerDesc(streamRTPManager, true);
-
-        streamRTPManagerDesc.addReceiveStreamListener(listener);
+        getStreamRTPManagerDesc(streamRTPManager, true)
+            .addReceiveStreamListener(listener);
     }
 
     public void addRemoteListener(
@@ -382,6 +389,17 @@ public class RTPTranslatorImpl
         return read;
     }
 
+    /**
+     * Reads an <tt>int</tt> from a specific <tt>byte</tt> buffer starting at a
+     * specific <tt>offset</tt>. The implementation is the same as
+     * {@link DataInputStream#readInt()}.
+     *
+     * @param buffer the <tt>byte</tt> buffer to read an <tt>int</tt> from
+     * @param offset the zero-based offset in <tt>buffer</tt> to start reading
+     * an <tt>int</tt> from
+     * @return an <tt>int</tt> read from the specified <tt>buffer</tt> starting
+     * at the specified <tt>offset</tt>
+     */
     private static int readInt(byte[] buffer, int offset)
     {
         return
@@ -892,6 +910,11 @@ public class RTPTranslatorImpl
         }
     }
 
+    /**
+     * Implements the <tt>RTPConnector</tt> with which this instance initializes
+     * its <tt>RTPManager</tt>. It delegates to the <tt>RTPConnector</tt> of the
+     * various <tt>StreamRTPManager</tt>s.
+     */
     private class RTPConnectorImpl
         implements RTPConnector
     {
@@ -1172,17 +1195,44 @@ public class RTPTranslatorImpl
         public int length;
     }
 
+    /**
+     * Describes a <tt>SendStream</tt> created by the <tt>RTPManager</tt> of
+     * this instance. Contains information about the <tt>DataSource</tt> and its
+     * stream index from which the <tt>SendStream</tt> has been created so that
+     * various <tt>StreamRTPManager</tt> receive different views of one and the
+     * same <tt>SendStream</tt>.
+     */
     private class SendStreamDesc
     {
+        /**
+         * The <tt>DataSource</tt> from which {@link #sendStream} has been
+         * created.
+         */
         public final DataSource dataSource;
 
+        /**
+         * The <tt>SendStream</tt> created from the stream of
+         * {@link #dataSource} at index {@link #streamIndex}.
+         */
         public final SendStream sendStream;
 
+        /**
+         * The list of <tt>StreamRTPManager</tt>-specific views to
+         * {@link #sendStream}.
+         */
         private final List<SendStreamImpl> sendStreams
             = new LinkedList<SendStreamImpl>();
 
+        /**
+         * The number of <tt>StreamRTPManager</tt>s which have started their
+         * views of {@link #sendStream}.
+         */
         private int started;
 
+        /**
+         * The index of the stream of {@link #dataSource} from which
+         * {@link #sendStream} has been created.
+         */
         public final int streamIndex;
 
         public SendStreamDesc(
