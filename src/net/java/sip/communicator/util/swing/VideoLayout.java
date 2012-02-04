@@ -167,8 +167,19 @@ public class VideoLayout extends FitLayout
      */
     public void layoutContainer(Container parent)
     {
-        int remoteCount = remotes.size();
+        List<Component> remotes;
         Component local = getLocal();
+
+        if ((this.remotes.size() > 1) && (local != null))
+        {
+            remotes = new ArrayList<Component>();
+            remotes.addAll(this.remotes);
+            remotes.add(local);
+        }
+        else
+            remotes = this.remotes;
+
+        int remoteCount = remotes.size();
         Dimension parentSize = parent.getSize();
 
         if (remoteCount == 1)
@@ -213,37 +224,41 @@ public class VideoLayout extends FitLayout
 
         if (local != null)
         {
-            Component remote0 = remotes.isEmpty() ? null : remotes.get(0);
-            int localX;
-            int localY;
-            int height = Math.round(parentSize.height * LOCAL_TO_REMOTE_RATIO);
-            int width = Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO);
-
-            /*
-             * XXX The remote Component being a JLabel is meant to signal that
-             * there is no remote video and the remote is the photoLabel.
-             */
-            if ((remotes.size() == 1) && (remote0 instanceof JLabel))
+            if (!remotes.contains(local))
             {
-                localX = parentSize.width/2 - width/2;
-                localY = parentSize.height - height;
+                Component remote0 = remotes.isEmpty() ? null : remotes.get(0);
+                int localX;
+                int localY;
+                int height
+                    = Math.round(parentSize.height * LOCAL_TO_REMOTE_RATIO);
+                int width
+                    = Math.round(parentSize.width * LOCAL_TO_REMOTE_RATIO);
 
-                super.layoutComponent(
-                    local,
-                    new Rectangle(localX, localY, width, height),
-                    Component.CENTER_ALIGNMENT,
-                    Component.BOTTOM_ALIGNMENT);
-            }
-            else
-            {
-                localX = ((remote0 == null) ? 0 : remote0.getX()) + 5;
-                localY = parentSize.height - height - 5;
-
-                super.layoutComponent(
-                    local,
-                    new Rectangle(localX, localY, width, height),
-                    Component.LEFT_ALIGNMENT,
-                    Component.BOTTOM_ALIGNMENT);
+                /*
+                 * XXX The remote Component being a JLabel is meant to signal
+                 * that there is no remote video and the remote is the
+                 * photoLabel.
+                 */
+                if ((remotes.size() == 1) && (remote0 instanceof JLabel))
+                {
+                    localX = parentSize.width/2 - width/2;
+                    localY = parentSize.height - height;
+                    super.layoutComponent(
+                        local,
+                        new Rectangle(localX, localY, width, height),
+                        Component.CENTER_ALIGNMENT,
+                        Component.BOTTOM_ALIGNMENT);
+                }
+                else
+                {
+                    localX = ((remote0 == null) ? 0 : remote0.getX()) + 5;
+                    localY = parentSize.height - height - 5;
+                    super.layoutComponent(
+                        local,
+                        new Rectangle(localX, localY, width, height),
+                        Component.LEFT_ALIGNMENT,
+                        Component.BOTTOM_ALIGNMENT);
+                }
             }
 
             if (closeButton != null)
@@ -251,8 +266,9 @@ public class VideoLayout extends FitLayout
                 super.layoutComponent(
                     closeButton,
                     new Rectangle(
-                        (localX + local.getWidth() - closeButton.getWidth()),
-                        localY,
+                        local.getX() + local.getWidth()
+                            - closeButton.getWidth(),
+                        local.getY(),
                         closeButton.getWidth(),
                         closeButton.getHeight()),
                         Component.CENTER_ALIGNMENT,
