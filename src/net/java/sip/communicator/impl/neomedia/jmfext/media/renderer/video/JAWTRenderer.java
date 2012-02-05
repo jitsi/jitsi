@@ -14,7 +14,9 @@ import javax.media.format.*;
 import javax.media.renderer.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -86,12 +88,24 @@ public class JAWTRenderer
          */
         if (OSUtils.IS_MAC)
         {
-            String hwModel = sysctlbyname("hw.model");
+            ConfigurationService conf
+                = NeomediaActivator.getConfigurationService();
 
-            USE_MACOSX_CALAYERS
-                = (hwModel == null)
-                    || !(hwModel.startsWith("MacBookPro8")
-                            || hwModel.startsWith("MacBookAir4"));
+            if ((conf == null)
+                    || conf.getBoolean(
+                            JAWTRenderer.class.getName()
+                                + ".USE_MACOSX_CALAYERS",
+                            false))
+            {
+                String hwModel = sysctlbyname("hw.model");
+
+                USE_MACOSX_CALAYERS
+                    = (hwModel == null)
+                        || !(hwModel.startsWith("MacBookPro8")
+                                || hwModel.startsWith("MacBookAir4"));
+            }
+            else
+                USE_MACOSX_CALAYERS = false;
         }
         else
         {
