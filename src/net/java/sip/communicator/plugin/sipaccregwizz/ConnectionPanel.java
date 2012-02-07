@@ -54,6 +54,13 @@ public class ConnectionPanel
 
     private JTextField keepAliveIntervalValue = new JTextField();
 
+    private JComboBox dtmfMethodBox
+        = new JComboBox(new Object []
+                                {
+                                    "RFC4733 / SIP-INFO",
+                                    "INBAND"
+                                });
+
     private boolean isServerOverridden = false;
 
     private SIPAccountRegistrationForm regform;
@@ -195,7 +202,11 @@ public class ConnectionPanel
         voicemailField.setText(regform.getRegistration().getVoicemailURI());
 
         mainPanel.add(Box.createVerticalStrut(5));
+        mainPanel.add(createDTMFPanel());
+
+        mainPanel.add(Box.createVerticalStrut(5));
         mainPanel.add(voicemailPanel);
+
 
         this.add(mainPanel, BorderLayout.NORTH);
     }
@@ -306,6 +317,24 @@ public class ConnectionPanel
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE")));
 
         return keepAlivePanel;
+    }
+
+    /**
+     * Creates the DTMF panel.
+     * @return the created DTMF panel
+     */
+    private Component createDTMFPanel()
+    {
+        JPanel dtmfPanel = new TransparentPanel(new BorderLayout(10, 10));
+        JLabel dtmfMethodLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.DTMF_METHOD"));
+        dtmfPanel.add(dtmfMethodLabel, BorderLayout.WEST);
+
+        dtmfMethodBox.setSelectedItem(
+                regform.getRegistration().getDefaultDTMFMethod());
+        dtmfPanel.add(dtmfMethodBox, BorderLayout.CENTER);
+
+        return dtmfPanel;
     }
 
     /**
@@ -488,6 +517,36 @@ public class ConnectionPanel
     String getKeepAliveInterval()
     {
         return keepAliveIntervalValue.getText();
+    }
+
+    /**
+     * Returns the DTMF method.
+     * @return the DTMF method
+     */
+    String getDTMFMethod()
+    {
+        Object selItem = dtmfMethodBox.getSelectedItem();
+
+        if(selItem != null)
+            return selItem.toString();
+        else
+            return null;
+    }
+
+    /**
+     * Sets the DTMF method.
+     * @param dtmfMethod the DTMF method
+     */
+    void setDTMFMethod(String dtmfMethod)
+    {
+        if(dtmfMethod == null)
+        {
+            dtmfMethodBox.setSelectedItem(0);
+        }
+        else
+        {
+            dtmfMethodBox.setSelectedItem(dtmfMethod);
+        }
     }
 
     /**

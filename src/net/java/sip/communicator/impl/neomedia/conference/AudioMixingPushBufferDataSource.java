@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.conference;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -15,6 +16,7 @@ import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.control.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -27,7 +29,8 @@ import net.java.sip.communicator.util.*;
 public class AudioMixingPushBufferDataSource
     extends PushBufferDataSource
     implements CaptureDevice,
-               MuteDataSource
+               MuteDataSource,
+               InbandDTMFDataSource
 {
 
     /**
@@ -68,6 +71,11 @@ public class AudioMixingPushBufferDataSource
      * to transmit "silence" instead of the actual media.
      */
     private boolean mute = false;
+
+    /**
+     * The tones to send via inband DTMF, if not empty.
+     */
+    private LinkedList<DTMFInbandTone> tones = new LinkedList<DTMFInbandTone>();
 
     /**
      * Initializes a new <tt>AudioMixingPushBufferDataSource</tt> instance which
@@ -362,5 +370,44 @@ public class AudioMixingPushBufferDataSource
         {
             this.mute = mute;
         }
+    }
+
+    /**
+     * Adds a new inband DTMF tone to send.
+     *
+     * @param tone the DTMF tone to send.
+     */
+    public void addDTMF(DTMFInbandTone tone)
+    {
+        this.tones.add(tone);
+    }
+
+    /**
+     * Determines whether this <tt>DataSource</tt> sends a DTMF tone.
+     *
+     * @return <tt>true</tt> if this <tt>DataSource</tt> is sending a DTMF tone;
+     * otherwise, <tt>false</tt>.
+     */
+    public boolean isSendingDTMF()
+    {
+        return !this.tones.isEmpty();
+    }
+
+    /**
+     * Gets the next inband DTMF tone signal.
+     *
+     * @param samplingFrequency The sampling frequency (codec clock rate) in Hz
+     * of the stream which will encapsulate this signal.
+     * @param sampleSizeInBits The size of each sample (8 for a byte, 16 for a
+     * short and 32 for an int)
+     *
+     * @return The data array containing the DTMF signal.
+     */
+    public int[] getNextToneSignal(
+            double samplingFrequency,
+            int sampleSizeInBits)
+    {
+        DTMFInbandTone tone = tones.poll();
+        return tone.getAudioSamples(samplingFrequency, sampleSizeInBits);
     }
 }

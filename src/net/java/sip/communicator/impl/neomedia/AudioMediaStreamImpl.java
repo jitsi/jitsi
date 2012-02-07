@@ -291,6 +291,21 @@ public class AudioMediaStreamImpl
     }
 
     /**
+     * Adds a new inband DTMF tone to send.
+     *
+     * @param tone the DTMF tone to send.
+     */
+    public void addInbandDTMF(DTMFInbandTone tone)
+    {
+        MediaDeviceSession deviceSession = getDeviceSession();
+
+        if (deviceSession != null)
+        {
+            deviceSession.addDTMF(tone);
+        }
+    }
+
+    /**
      * In addition to calling
      * {@link MediaStreamImpl#addRTPExtension(byte, RTPExtension)}
      * this method enables sending of CSRC audio levels. The reason we are
@@ -419,7 +434,6 @@ public class AudioMediaStreamImpl
 
         if(dtmfTransfrmEngine != null)
         {
-           dtmfTransfrmEngine.stop();
            dtmfTransfrmEngine = null;
         }
     }

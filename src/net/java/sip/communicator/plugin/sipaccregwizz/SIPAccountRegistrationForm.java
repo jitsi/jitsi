@@ -278,6 +278,9 @@ public class SIPAccountRegistrationForm
         registration.setKeepAliveInterval(
             connectionPanel.getKeepAliveInterval());
 
+        registration.setDTMFMethod(
+            connectionPanel.getDTMFMethod());
+
         SIPAccRegWizzActivator.getUIService().getAccountRegWizardContainer()
             .setBackButtonEnabled(true);
 
@@ -362,6 +365,9 @@ public class SIPAccountRegistrationForm
         accountID.getAccountPropertyString(
             ProtocolProviderFactory.KEEP_ALIVE_INTERVAL);
 
+        String dtmfMethod =
+        accountID.getAccountPropertyString("DTMF_METHOD");
+
         String voicemailURI = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.VOICEMAIL_URI);
 
@@ -423,6 +429,8 @@ public class SIPAccountRegistrationForm
 
         connectionPanel.setKeepAliveMethod(keepAliveMethod);
         connectionPanel.setKeepAliveInterval(keepAliveInterval);
+
+        connectionPanel.setDTMFMethod(dtmfMethod);
 
         if (voicemailURI != null && voicemailURI.length() > 0)
             connectionPanel.setVoicemailURI(voicemailURI);

@@ -24,6 +24,11 @@ public class OperationSetDTMFSipImpl
     implements OperationSetDTMF
 {
     /**
+     * The DTMF method used to send tones.
+     */
+    private String dtmfMethod = null;
+
+    /**
      * DTMF mode sending DTMF as sip info.
      */
     private final DTMFInfo dtmfModeInfo;
@@ -34,14 +39,27 @@ public class OperationSetDTMFSipImpl
     private final DTMF4733 dtmfModeRFC4733;
 
     /**
+     * DTMF sending inband tones into the audio stream.
+     */
+    private final DTMFInband dtmfModeInband;
+
+    /**
      * Constructor.
      *
      * @param pps the SIP Protocol provider service
      */
     public OperationSetDTMFSipImpl(ProtocolProviderServiceSipImpl pps)
     {
+        AccountID accountID = pps.getAccountID();
+        this.dtmfMethod = accountID.getAccountPropertyString("DTMF_METHOD");
+        if(dtmfMethod == null)
+        {
+            accountID.putAccountProperty("DTMF_METHOD", "RFC4733 / SIP-INFO");
+        }
+
         dtmfModeInfo = new DTMFInfo(pps);
         dtmfModeRFC4733 = new DTMF4733();
+        dtmfModeInband = new DTMFInband();
     }
 
     /**
@@ -72,16 +90,27 @@ public class OperationSetDTMFSipImpl
 
         CallPeerSipImpl cp = (CallPeerSipImpl) (callPeer);
 
-        if(isRFC4733Active(cp))
+        if(this.dtmfMethod == null ||
+                this.dtmfMethod.equals("RFC4733 / SIP-INFO"))
         {
-            dtmfModeRFC4733.startSendingDTMF(
-                ((AudioMediaStream)cp.getMediaHandler()
-                    .getStream(MediaType.AUDIO)),
-                tone);
+            if(isRFC4733Active(cp))
+            {
+                dtmfModeRFC4733.startSendingDTMF(
+                    ((AudioMediaStream)cp.getMediaHandler()
+                        .getStream(MediaType.AUDIO)),
+                    tone);
+            }
+            else
+            {
+                dtmfModeInfo.startSendingDTMF(cp, tone);
+            }
         }
         else
         {
-            dtmfModeInfo.startSendingDTMF(cp, tone);
+            dtmfModeInband.addInbandDTMF(
+                    ((AudioMediaStream)cp.getMediaHandler()
+                        .getStream(MediaType.AUDIO)),
+                    tone);
         }
     }
 
@@ -103,15 +132,19 @@ public class OperationSetDTMFSipImpl
 
         CallPeerSipImpl cp = (CallPeerSipImpl) (callPeer);
 
-        if(isRFC4733Active(cp))
+        if(this.dtmfMethod == null ||
+                this.dtmfMethod.equals("RFC4733 / SIP-INFO"))
         {
-            dtmfModeRFC4733.stopSendingDTMF(
-                ((AudioMediaStream)cp.getMediaHandler()
-                    .getStream(MediaType.AUDIO)));
-        }
-        else
-        {
-            dtmfModeInfo.stopSendingDTMF(cp);
+            if(isRFC4733Active(cp))
+            {
+                dtmfModeRFC4733.stopSendingDTMF(
+                    ((AudioMediaStream)cp.getMediaHandler()
+                        .getStream(MediaType.AUDIO)));
+            }
+            else
+            {
+                dtmfModeInfo.stopSendingDTMF(cp);
+            }
         }
     }
 

@@ -1001,7 +1001,31 @@ class AudioMixerPushBufferStream
         {
             InputStreamDesc inputStreamDesc = inputStreams[i];
 
-            if (outputDataSource.equals(inputStreamDesc.getOutputDataSource())
+            if(audioMixer.captureDevice instanceof
+                    AudioMixingPushBufferDataSource
+                    && inputStreamDesc.inputDataSourceDesc.inputDataSource ==
+                    audioMixer.captureDevice
+                    && outputDataSource.isSendingDTMF())
+            {
+                PushBufferStream inputStream
+                    = (PushBufferStream) inputStreamDesc.getInputStream();
+                AudioFormat inputStreamFormat
+                    = (AudioFormat) inputStream.getFormat();
+
+                double samplingFrequency = inputStreamFormat.getSampleRate();
+                int sampleSizeInBits = inputStreamFormat.getSampleSizeInBits();
+
+                // Generates the inband DTMF signal.
+                inputSamples[i] = outputDataSource.getNextToneSignal(
+                        samplingFrequency,
+                        sampleSizeInBits);
+                if(maxInputSampleCount < inputSamples[i].length)
+                {
+                    maxInputSampleCount = inputSamples[i].length;
+                }
+            }
+            else if (outputDataSource.equals(
+                        inputStreamDesc.getOutputDataSource())
                     || (outputDataSourceIsMute
                             && (inputStreamDesc
                                         .inputDataSourceDesc

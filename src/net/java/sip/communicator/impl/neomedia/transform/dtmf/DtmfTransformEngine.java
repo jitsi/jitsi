@@ -81,11 +81,6 @@ public class DtmfTransformEngine
         DTMFTone.DTMF_SHARP, DTMFTone.DTMF_STAR};
 
     /**
-     * The dispatcher that is delivering tones to the media steam.
-     */
-    private DTMFDispatcher dtmfDispatcher = null;
-
-    /**
      * The status that this engine is currently in.
      */
     private ToneTransmissionState toneTransmissionState
@@ -186,13 +181,7 @@ public class DtmfTransformEngine
         if(currentDtmfPayload == pkt.getPayloadType())
         {
             DtmfRawPacket p = new DtmfRawPacket(pkt);
-
-            if (dtmfDispatcher == null)
-            {
-                dtmfDispatcher = new DTMFDispatcher();
-                new Thread(dtmfDispatcher).start();
-            }
-            dtmfDispatcher.addTonePacket(p);
+            this.addTonePacket(p);
 
             // ignore received dtmf packets
             // if jmf receive change in rtp payload stops reception
@@ -327,133 +316,33 @@ public class DtmfTransformEngine
     }
 
     /**
-     * Stops threads that this transform engine is using for even delivery.
+     * A packet that we should convert to tone and deliver
+     * to our media stream and its listeners in a separate thread.
+     *
+     * @param p the packet we will convert and deliver.
      */
-    public void stop()
+    private void addTonePacket(DtmfRawPacket p)
     {
-        if(dtmfDispatcher != null)
-            dtmfDispatcher.stop();
+        DTMFTone tone = getToneFromPacket(p);
+        boolean toEnd = p.isEnd();
+
+        mediaStream.fireDTMFEvent(tone, toEnd);
     }
 
     /**
-     * A simple thread that waits for new tones to be reported from incoming
-     * RTP packets and then delivers them to the <tt>AudioMediaStream</tt>
-     * associated with this engine. The reason we need to do this in a separate
-     * thread is of course the time sensitive nature of incoming RTP packets.
+     * Maps DTMF packet codes to our DTMFTone objects.
+     * @param p the packet
+     * @return the corresponding tone.
      */
-    private class DTMFDispatcher
-        implements Runnable
+    private DTMFTone getToneFromPacket(DtmfRawPacket p)
     {
-        /** Indicates whether this thread is supposed to be running */
-        private boolean isRunning = false;
-
-        /** The tone that we last received from the reverseTransform thread*/
-        private DTMFTone lastReceivedTone = null;
-
-        /** The tone that we last received from the reverseTransform thread*/
-        private DTMFTone lastReportedTone = null;
-
-        /**
-         * Have we received end of the currently started tone.
-         */
-        private boolean toEnd = false;
-
-        /**
-         * Waits for new tone to be reported via the <tt>addTonePacket()</tt>
-         * method and then delivers them to the <tt>AudioMediaStream</tt> that
-         * we are associated with.
-         */
-        public void run()
+        for (int i = 0; i < supportedTones.length; i++)
         {
-            isRunning = true;
-
-            DTMFTone temp = null;
-
-            while(isRunning)
-            {
-                synchronized(this)
-                {
-                    if(lastReceivedTone == null)
-                    {
-                        try
-                        {
-                            wait();
-                        }
-                        catch (InterruptedException ie) {}
-                    }
-
-                    temp = lastReceivedTone;
-                    // make lastReportedLevels to null
-                    // so we will wait for the next tone on next iteration
-                    lastReceivedTone = null;
-                }
-
-                if(temp != null
-                    && ((lastReportedTone == null && !toEnd)
-                        || (lastReportedTone != null && toEnd)))
-                {
-                    //now notify our listener
-                    if (mediaStream != null)
-                    {
-                        mediaStream.fireDTMFEvent(temp, toEnd);
-                        if(toEnd)
-                            lastReportedTone = null;
-                        else
-                            lastReportedTone = temp;
-                        toEnd = false;
-                    }
-                }
-            }
+            DTMFTone t = supportedTones[i];
+            if(t.getCode() == p.getCode())
+                return t;
         }
 
-        /**
-         * A packet that we should convert to tone and deliver
-         * to our media stream and its listeners in a separate thread.
-         *
-         * @param p the packet we will convert and deliver.
-         */
-        public void addTonePacket(DtmfRawPacket p)
-        {
-            synchronized(this)
-            {
-                this.lastReceivedTone = getToneFromPacket(p);
-                this.toEnd = p.isEnd();
-
-                notifyAll();
-            }
-        }
-
-        /**
-         * Causes our run method to exit so that this thread would stop
-         * handling levels.
-         */
-        public void stop()
-        {
-            synchronized(this)
-            {
-                this.lastReceivedTone = null;
-                isRunning = false;
-
-                notifyAll();
-            }
-        }
-
-        /**
-         * Maps DTMF packet codes to our DTMFTone objects.
-         * @param p the packet
-         * @return the corresponding tone.
-         */
-        private DTMFTone getToneFromPacket(DtmfRawPacket p)
-        {
-            for (int i = 0; i < supportedTones.length; i++)
-            {
-                DTMFTone t = supportedTones[i];
-                if(t.getCode() == p.getCode())
-                    return t;
-            }
-
-            return null;
-        }
+        return null;
     }
-
 }

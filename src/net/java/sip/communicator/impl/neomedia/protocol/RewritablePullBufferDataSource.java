@@ -7,9 +7,12 @@
 package net.java.sip.communicator.impl.neomedia.protocol;
 
 import java.io.*;
+import java.util.*;
 
 import javax.media.*;
 import javax.media.protocol.*;
+
+import net.java.sip.communicator.service.neomedia.*;
 
 /**
  * Implements a <tt>PullBufferDataSource</tt> wrapper which provides mute
@@ -23,9 +26,10 @@ import javax.media.protocol.*;
  * @author Damian Minkov
  * @author Lubomir Marinov
  */
-public class MutePullBufferDataSource
+public class RewritablePullBufferDataSource
     extends PullBufferDataSourceDelegate<PullBufferDataSource>
-    implements MuteDataSource
+    implements MuteDataSource,
+               InbandDTMFDataSource
 {
     /**
      * The indicator which determines whether this <tt>DataSource</tt> is mute.
@@ -33,13 +37,18 @@ public class MutePullBufferDataSource
     private boolean mute;
 
     /**
-     * Initializes a new <tt>MutePullBufferDataSource</tt> instance which is to
-     * provide mute support for a specific <tt>PullBufferDataSource</tt>.
+     * The tones to send via inband DTMF, if not empty.
+     */
+    private LinkedList<DTMFInbandTone> tones = new LinkedList<DTMFInbandTone>();
+
+    /**
+     * Initializes a new <tt>RewritablePullBufferDataSource</tt> instance which
+     * is to provide mute support for a specific <tt>PullBufferDataSource</tt>.
      *
      * @param dataSource the <tt>PullBufferDataSource</tt> the new instance is
      *            to provide mute support for
      */
-    public MutePullBufferDataSource(PullBufferDataSource dataSource)
+    public RewritablePullBufferDataSource(PullBufferDataSource dataSource)
     {
         super(dataSource);
     }
@@ -64,6 +73,27 @@ public class MutePullBufferDataSource
     public boolean isMute()
     {
         return mute;
+    }
+
+    /**
+     * Adds a new inband DTMF tone to send.
+     *
+     * @param tone the DTMF tone to send.
+     */
+    public void addDTMF(DTMFInbandTone tone)
+    {
+        this.tones.add(tone);
+    }
+
+    /**
+     * Determines whether this <tt>DataSource</tt> sends a DTMF tone.
+     *
+     * @return <tt>true</tt> if this <tt>DataSource</tt> is sending a DTMF tone;
+     * otherwise, <tt>false</tt>.
+     */
+    public boolean isSendingDTMF()
+    {
+        return !this.tones.isEmpty();
     }
 
     /**
@@ -130,18 +160,24 @@ public class MutePullBufferDataSource
 
         /**
          * Implements PullBufferStream#read(Buffer). If this instance is muted
-         * (through its owning MutePullBufferDataSource), overwrites the data
-         * read from the wrapped PullBufferStream with silence data.
-         * @param buffer which data will be filled.
-         * @throws IOException Thrown if an error occurs while reading.
+         * (through its owning RewritablePullBufferDataSource), overwrites the
+         * data read from the wrapped PullBufferStream with silence data.
+         * @param buffer which data will be filled.  @throws IOException Thrown
+         * if an error occurs while reading.
          */
         public void read(Buffer buffer)
             throws IOException
         {
             stream.read(buffer);
 
-            if (isMute())
-                MutePushBufferDataSource.mute(buffer);
+            if (isSendingDTMF())
+            {
+                RewritablePushBufferDataSource.sendDTMF(buffer, tones.poll());
+            }
+            else if (isMute())
+            {
+                RewritablePushBufferDataSource.mute(buffer);
+            }
         }
 
         /**

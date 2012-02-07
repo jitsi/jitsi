@@ -7,10 +7,16 @@
 package net.java.sip.communicator.impl.neomedia.protocol;
 
 import java.io.*;
+import java.nio.ByteBuffer; // disambiguation.
+import java.nio.ByteOrder; // disambiguation.
+import java.nio.IntBuffer; // disambiguation.
 import java.util.*;
 
 import javax.media.*;
+import javax.media.format.*;
 import javax.media.protocol.*;
+
+import net.java.sip.communicator.service.neomedia.*;
 
 /**
  * Implements a <tt>PushBufferDataSource</tt> wrapper which provides mute
@@ -23,9 +29,10 @@ import javax.media.protocol.*;
  *
  * @author Lyubomir Marinov
  */
-public class MutePushBufferDataSource
+public class RewritablePushBufferDataSource
     extends PushBufferDataSourceDelegate<PushBufferDataSource>
-    implements MuteDataSource
+    implements MuteDataSource,
+               InbandDTMFDataSource
 {
 
     /**
@@ -34,13 +41,18 @@ public class MutePushBufferDataSource
     private boolean mute;
 
     /**
-     * Initializes a new <tt>MutePushBufferDataSource</tt> instance which is to
-     * provide mute support for a specific <tt>PushBufferDataSource</tt>.
+     * The tones to send via inband DTMF, if not empty.
+     */
+    private LinkedList<DTMFInbandTone> tones = new LinkedList<DTMFInbandTone>();
+
+    /**
+     * Initializes a new <tt>RewritablePushBufferDataSource</tt> instance which
+     * is to provide mute support for a specific <tt>PushBufferDataSource</tt>.
      * 
      * @param dataSource the <tt>PushBufferDataSource</tt> the new instance is
      *            to provide mute support for
      */
-    public MutePushBufferDataSource(PushBufferDataSource dataSource)
+    public RewritablePushBufferDataSource(PushBufferDataSource dataSource)
     {
         super(dataSource);
     }
@@ -124,6 +136,141 @@ public class MutePushBufferDataSource
     }
 
     /**
+     * Adds a new inband DTMF tone to send.
+     *
+     * @param tone the DTMF tone to send.
+     */
+    public void addDTMF(DTMFInbandTone tone)
+    {
+        this.tones.add(tone);
+    }
+
+    /**
+     * Determines whether this <tt>DataSource</tt> sends a DTMF tone.
+     *
+     * @return <tt>true</tt> if this <tt>DataSource</tt> is sending a DTMF tone;
+     * otherwise, <tt>false</tt>.
+     */
+    public boolean isSendingDTMF()
+    {
+        return !this.tones.isEmpty();
+    }
+
+    /**
+     * Replaces the media data contained in a specific <tt>Buffer</tt> with an
+     * inband DTMF tone signal.
+     *
+     * @param buffer the <tt>Buffer</tt> the data contained in which is to be
+     * replaced with the DTMF tone
+     * @param tone the <tt>DMFTTone</tt> to send via inband DTMF signal.
+     */
+    public static void sendDTMF(
+            Buffer buffer,
+            DTMFInbandTone tone)
+    {
+        Object data = buffer.getData();
+
+        // Send the inband DTMF tone only if the buffer contains audio data.
+        if (data != null && (buffer.getFormat() instanceof AudioFormat))
+        {
+            Class<?> dataClass = data.getClass();
+            double audioSample;
+            double amplitudeCoefficient;
+            int fromIndex = buffer.getOffset();
+
+            AudioFormat audioFormat = (AudioFormat) buffer.getFormat();
+            double samplingFrequency = audioFormat.getSampleRate();
+            int sampleSizeInBits = audioFormat.getSampleSizeInBits();
+
+            // Generates the inband DTMF signal.
+            int[] sampleData = tone.getAudioSamples(
+                    samplingFrequency,
+                    sampleSizeInBits);
+            IntBuffer sampleDataIntBuffer = IntBuffer.wrap(sampleData);
+
+            int toIndex = fromIndex +
+                sampleData.length * (sampleSizeInBits / 8);
+            ByteBuffer newData = ByteBuffer.allocate(toIndex);
+
+            // Prepares newData to be endian compliant with original buffer
+            // data. 
+            if(audioFormat.getEndian() == AudioFormat.BIG_ENDIAN)
+            {
+                newData.order(ByteOrder.BIG_ENDIAN);
+            }
+            else
+            {
+                newData.order(ByteOrder.LITTLE_ENDIAN);
+            }
+
+            // Keeps data unchanged if storeed before the original buffer offset
+            // index.
+            // Takes care of original data array type (byte, short or int).
+            if (Format.byteArray.equals(dataClass))
+            {
+                newData.put(((byte[]) data), 0, fromIndex);
+            }
+            else if (Format.shortArray.equals(dataClass))
+            {
+                for(int i = 0; i < fromIndex; ++i)
+                {
+                    newData.putShort(((short[]) data)[i]);
+                }
+            }
+            else if (Format.intArray.equals(dataClass))
+            {
+                for(int i = 0; i < fromIndex; ++i)
+                {
+                    newData.putInt(((int[]) data)[i]);
+                }
+            }
+
+            // Copies inband DTMF singal into newData.
+            // Takes care of audio format encryption data type (byte, short or
+            // int).
+            switch (sampleSizeInBits)
+            {
+                case 8:
+                    for(int i = 0; i < sampleData.length; ++i)
+                    {
+                        newData.put(((byte) sampleData[i]));
+                    }
+                    break;
+                case 16:
+                    for(int i = 0; i < sampleData.length; ++i)
+                    {
+                        newData.putShort(((short) sampleData[i]));
+                    }
+                    break;
+                case 32:
+                    for(int i = 0; i < sampleData.length; ++i)
+                    {
+                        newData.putInt(sampleData[i]);
+                    }
+                    break;
+            }
+
+            // Copies newData up to date into the original buffer.
+            // Takes care of original data array type (byte, short or int).
+            if (Format.byteArray.equals(dataClass))
+            {
+                buffer.setData(newData.array());
+            }
+            else if (Format.shortArray.equals(dataClass))
+            {
+                buffer.setData(newData.asShortBuffer().array());
+            }
+            else if (Format.intArray.equals(dataClass))
+            {
+                buffer.setData(newData.asIntBuffer().array());
+            }
+
+            // Updates the buffer length.
+            buffer.setLength(toIndex - fromIndex);
+        }
+    }
+
+    /**
      * Implements a <tt>PushBufferStream</tt> wrapper which provides mute
      * support for the wrapped instance.
      */
@@ -157,7 +304,7 @@ public class MutePushBufferDataSource
 
         /**
          * Implements {@link PushBufferStream#read(Buffer)}. If this instance is
-         * muted (through its owning <tt>MutePushBufferDataSource</tt>),
+         * muted (through its owning <tt>RewritablePushBufferDataSource</tt>),
          * overwrites the data read from the wrapped <tt>PushBufferStream</tt>
          * with silence data.
          *
@@ -171,8 +318,14 @@ public class MutePushBufferDataSource
         {
             stream.read(buffer);
 
-            if (isMute())
+            if (isSendingDTMF())
+            {
+                sendDTMF(buffer, tones.poll());
+            }
+            else if (isMute())
+            {
                 mute(buffer);
+            }
         }
 
         /**

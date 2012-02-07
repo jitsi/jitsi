@@ -262,6 +262,10 @@ public class SIPAccountRegistrationWizard
             Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"),
             registration.getKeepAliveInterval());
 
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.DTMF_METHOD"),
+            registration.getDTMFMethod());
+
         if (registration.isXCapEnable() || registration.isXiVOEnable())
         {
             summaryTable.put("XCAP " + Resources.getString(
@@ -484,6 +488,13 @@ public class SIPAccountRegistrationWizard
 
         accountProperties.put(ProtocolProviderFactory.KEEP_ALIVE_INTERVAL,
             registration.getKeepAliveInterval());
+
+        if(registration.getDTMFMethod() != null)
+            accountProperties.put("DTMF_METHOD",
+                registration.getDTMFMethod());
+        else
+            accountProperties.put("DTMF_METHOD",
+                registration.getDefaultDTMFMethod());
 
         accountProperties.put("XIVO_ENABLE",
                 Boolean.toString(registration.isXiVOEnable()));

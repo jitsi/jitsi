@@ -390,13 +390,13 @@ public class MediaDeviceSession
             if (captureDevice instanceof PushBufferDataSource)
             {
                 captureDevice
-                    = new MutePushBufferDataSource(
+                    = new RewritablePushBufferDataSource(
                             (PushBufferDataSource) captureDevice);
             }
             else if (captureDevice instanceof PullBufferDataSource)
             {
                 captureDevice
-                    = new MutePullBufferDataSource(
+                    = new RewritablePullBufferDataSource(
                             (PullBufferDataSource) captureDevice);
             }
         }
@@ -1596,6 +1596,21 @@ public class MediaDeviceSession
 
             if (captureDevice instanceof MuteDataSource)
                 ((MuteDataSource) captureDevice).setMute(this.mute);
+        }
+    }
+
+    /**
+     * Adds a new inband DTMF tone to send.
+     *
+     * @param tone the DTMF tone to send.
+     */
+    public void addDTMF(DTMFInbandTone tone)
+    {
+        DataSource captureDevice = this.captureDevice;
+
+        if (captureDevice instanceof InbandDTMFDataSource)
+        {
+            ((InbandDTMFDataSource) captureDevice).addDTMF(tone);
         }
     }
 

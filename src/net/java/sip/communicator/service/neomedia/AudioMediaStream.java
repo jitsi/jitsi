@@ -85,4 +85,11 @@ public interface AudioMediaStream
      * @param listener the listener that we'd like to unregister
      */
     public void removeDTMFListener(DTMFListener listener);
+
+    /**
+     * Adds a new inband DTMF tone to send.
+     *
+     * @param tone the DTMF tone to send.
+     */
+    public void addInbandDTMF(DTMFInbandTone tone);
 }

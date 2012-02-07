@@ -26,6 +26,8 @@ public class SIPAccountRegistration
 
     public static String DEFAULT_KEEP_ALIVE_INTERVAL = "25";
 
+    private String defaultDTMFMethod = "RFC4733 / SIP-INFO";
+
     private String id;
 
     private String password;
@@ -73,6 +75,8 @@ public class SIPAccountRegistration
     private String keepAliveMethod = null;
 
     private String keepAliveInterval = DEFAULT_KEEP_ALIVE_INTERVAL;
+
+    private String dtmfMethod = null;
 
     private String defaultDomain = null;
 
@@ -431,6 +435,26 @@ public class SIPAccountRegistration
     }
 
     /**
+     * Returns the DTMF method.
+     *
+     * @return the DTMF method.
+     */
+    public String getDTMFMethod()
+    {
+        return dtmfMethod;
+    }
+
+    /**
+     * Sets the DTMF method.
+     *
+     * @param dtmfMethod the DTMF method to set
+     */
+    public void setDTMFMethod(String dtmfMethod)
+    {
+        this.dtmfMethod = dtmfMethod;
+    }
+
+    /**
      * If default call encryption is enabled
      *
      * @return If default call encryption is enabled
@@ -535,6 +559,22 @@ public class SIPAccountRegistration
     public void setDefaultKeepAliveMethod(String defaultKeepAliveMethod)
     {
         this.defaultKeepAliveMethod = defaultKeepAliveMethod;
+    }
+
+    /**
+     * @return the defaultDTMFMethod
+     */
+    public String getDefaultDTMFMethod()
+    {
+        return defaultDTMFMethod;
+    }
+
+    /**
+     * @param defaultDTMFMethod the defaultDTMFMethod to set
+     */
+    public void setDefaultDTMFMethod(String defaultDTMFMethod)
+    {
+        this.defaultDTMFMethod = defaultDTMFMethod;
     }
 
     /**

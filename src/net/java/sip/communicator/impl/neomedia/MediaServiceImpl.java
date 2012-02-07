@@ -1287,9 +1287,10 @@ public class MediaServiceImpl
             (VideoMediaDeviceSession)dev.getSession();
 
         DataSource ds = session.getCaptureDevice();
-        if(ds instanceof MutePullBufferDataSource)
+        if(ds instanceof RewritablePullBufferDataSource)
         {
-            MutePullBufferDataSource ds2 = (MutePullBufferDataSource)ds;
+            RewritablePullBufferDataSource ds2 =
+                (RewritablePullBufferDataSource)ds;
             ds = ds2.getWrappedDataSource();
         }
 
