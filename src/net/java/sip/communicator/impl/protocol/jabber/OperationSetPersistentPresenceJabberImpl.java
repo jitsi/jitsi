@@ -1226,13 +1226,10 @@ public class OperationSetPersistentPresenceJabberImpl
             // listener
             parentProvider.getConnection()
                 .removePacketListener(this);
-            // init ssList
-            ssContactList.init();
 
+            // init ssList
             contactChangesListener = new ContactChangesListener();
-            Roster roster =
-                parentProvider.getConnection().getRoster();
-            roster.addRosterListener(contactChangesListener);
+            ssContactList.init(contactChangesListener);
 
             // as we have dispatched the contact list and Roaster is ready
             // lets start the jingle nodes discovery

@@ -745,9 +745,10 @@ public class ServerStoredContactListJabberImpl
      * roster that this list is to use for retrieving
      * server stored information
      */
-    void init()
+    void init(RosterListener presenceChangeListener)
     {
         this.roster = jabberProvider.getConnection().getRoster();
+        this.roster.addRosterListener(presenceChangeListener);
         this.roster.setSubscriptionMode(Roster.SubscriptionMode.manual);
 
         initRoster();

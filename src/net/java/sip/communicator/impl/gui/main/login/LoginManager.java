@@ -33,7 +33,8 @@ import org.osgi.framework.*;
  */
 public class LoginManager
     implements  ServiceListener,
-                RegistrationStateChangeListener
+                RegistrationStateChangeListener,
+                AccountManagerListener
 {
     private final Logger logger = Logger.getLogger(LoginManager.class);
 
@@ -87,36 +88,71 @@ public class LoginManager
      */
     public void runLogin(MainFrame parent)
     {
+        // if someone is late registering catch it
+        GuiActivator.getAccountManager().addListener(this);
+
         for (ProtocolProviderFactory providerFactory : GuiActivator
             .getProtocolProviderFactories().values())
         {
-            ServiceReference serRef;
-            ProtocolProviderService protocolProvider;
+            addAccountsForProtocolProviderFactory(providerFactory);
+        }
+    }
 
-            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+    /**
+     * Notifies that the loading of the stored accounts of a
+     * specific <code>ProtocolProviderFactory</code> has finished.
+     *
+     * @param event the <code>AccountManagerEvent</code> describing the
+     *            <code>AccountManager</code> firing the notification and the
+     *            other details of the specific notification.
+     */
+    public void handleAccountManagerEvent(AccountManagerEvent event)
+    {
+        if(event.getType()
+            == AccountManagerEvent.STORED_ACCOUNTS_LOADED)
+        {
+            addAccountsForProtocolProviderFactory(event.getFactory());
+        }
+    }
+
+    /**
+     * Handles stored accounts for a protocol provider factory and add them
+     * to the UI and register them if needed.
+     * @param providerFactory the factory to handle.
+     */
+    private void addAccountsForProtocolProviderFactory(
+        ProtocolProviderFactory providerFactory)
+    {
+        ServiceReference serRef;
+        ProtocolProviderService protocolProvider;
+
+        for (AccountID accountID : providerFactory.getRegisteredAccounts())
+        {
+            serRef = providerFactory.getProviderForAccount(accountID);
+
+            protocolProvider =
+                (ProtocolProviderService) GuiActivator.bundleContext
+                    .getService(serRef);
+
+            // check whether we have already loaded this provider
+            if(this.mainFrame.hasProtocolProvider(protocolProvider))
+                continue;
+
+            protocolProvider.addRegistrationStateChangeListener(this);
+
+            this.mainFrame.addProtocolProvider(protocolProvider);
+
+            Object status =
+                this.mainFrame
+                    .getProtocolProviderLastStatus(protocolProvider);
+
+            if (status == null
+                || status.equals(Constants.ONLINE_STATUS)
+                || ((status instanceof PresenceStatus)
+                    && (((PresenceStatus) status)
+                    .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)))
             {
-                serRef = providerFactory.getProviderForAccount(accountID);
-
-                protocolProvider =
-                    (ProtocolProviderService) GuiActivator.bundleContext
-                        .getService(serRef);
-
-                protocolProvider.addRegistrationStateChangeListener(this);
-
-                this.mainFrame.addProtocolProvider(protocolProvider);
-
-                Object status =
-                    this.mainFrame
-                        .getProtocolProviderLastStatus(protocolProvider);
-
-                if (status == null
-                    || status.equals(Constants.ONLINE_STATUS)
-                    || ((status instanceof PresenceStatus)
-                        && (((PresenceStatus) status)
-                        .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)))
-                {
-                    this.login(protocolProvider);
-                }
+                this.login(protocolProvider);
             }
         }
     }

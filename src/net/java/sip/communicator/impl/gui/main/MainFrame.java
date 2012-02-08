@@ -782,12 +782,18 @@ public class MainFrame
      */
     public void addProtocolProvider(ProtocolProviderService protocolProvider)
     {
+        synchronized(this.protocolProviders)
+        {
+            if(this.protocolProviders.containsKey(protocolProvider))
+                return;
+
+            this.protocolProviders.put(protocolProvider,
+                    initiateProviderIndex(protocolProvider));
+        }
+        
         if (logger.isTraceEnabled())
             logger.trace("Add the following protocol provider to the gui: "
                 + protocolProvider.getAccountID().getAccountAddress());
-
-        this.protocolProviders.put(protocolProvider,
-                initiateProviderIndex(protocolProvider));
 
         this.addProtocolSupportedOperationSets(protocolProvider);
 
@@ -803,6 +809,20 @@ public class MainFrame
     }
 
     /**
+     * Checks whether we have already loaded the protocol provider.
+     * @param protocolProvider the provider to check.
+     * @return whether we have already loaded the specified provider.
+     */
+    public boolean hasProtocolProvider(
+        ProtocolProviderService protocolProvider)
+    {
+        synchronized(this.protocolProviders)
+        {
+            return this.protocolProviders.containsKey(protocolProvider);
+        }
+    }
+
+    /**
      * Adds an account to the application.
      *
      * @param protocolProvider The protocol provider of the account.
@@ -813,7 +833,10 @@ public class MainFrame
             logger.trace("Remove the following protocol provider to the gui: "
                 + protocolProvider.getAccountID().getAccountAddress());
 
-        this.protocolProviders.remove(protocolProvider);
+        synchronized(this.protocolProviders)
+        {
+            this.protocolProviders.remove(protocolProvider);
+        }
 
         this.removeProtocolSupportedOperationSets(protocolProvider);
 
