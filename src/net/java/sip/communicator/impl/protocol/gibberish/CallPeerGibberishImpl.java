@@ -110,6 +110,16 @@ public class CallPeerGibberishImpl
     }
 
     /**
+     * Returns full URI of the address.
+     *
+     * @return full URI of the address
+     */
+    public String getURI()
+    {
+        return "gibberish:" + peerAddress;
+    }
+
+    /**
      * Returns a reference to the call that this peer belongs to.
      *
      * @return a reference to the call containing this peer.

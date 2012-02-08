@@ -756,6 +756,23 @@ public class CallManager
     }
 
     /**
+     * Invites the given list of <tt>callees</tt> to the given conference
+     * <tt>call</tt>.
+     *
+     * @param provider provider to which the callee belongs
+     * @param callee the list of contacts to invite
+     * @param call existing call
+     */
+    public static void inviteToCrossProtocolConferenceCall(
+        ProtocolProviderService provider,
+        String callee,
+        Call call)
+    {
+        new InviteToCrossProtocolConferenceCallThread(provider, callee, call).
+            start();
+    }
+
+    /**
      * Puts on or off hold the given <tt>callPeer</tt>.
      * @param callPeer the peer to put on/off hold
      * @param isOnHold indicates the action (on hold or off hold)
@@ -1494,6 +1511,79 @@ public class CallManager
     }
 
     /**
+     * Invites a list of callees to a conference call.
+     */
+    private static class InviteToCrossProtocolConferenceCallThread
+        extends Thread
+    {
+        private final ProtocolProviderService provider;
+
+        private final String callee;
+
+        private final Call call;
+
+        public InviteToCrossProtocolConferenceCallThread(
+            ProtocolProviderService provider,
+            String callee,
+            Call call)
+        {
+            this.provider = provider;
+            this.callee = callee;
+            this.call = call;
+        }
+
+        @Override
+        public void run()
+        {
+            CallGroup group = null;
+
+            if(call.getCallGroup() == null)
+            {
+                group = new CallGroup();
+                group.addCall(call);
+            }
+            else
+            {
+                group = call.getCallGroup();
+            }
+
+            OperationSetBasicTelephony<?> opSetTelephony =
+                provider.getOperationSet(OperationSetBasicTelephony.class);
+
+            if(opSetTelephony != null)
+            {
+                Exception exception = null;
+
+                try
+                {
+                    Call c = opSetTelephony.createCall(callee, group);
+                    group.addCall(c);
+                }
+                catch(Exception e)
+                {
+                    exception = e;
+                    logger.info("Failed to call " + callee, e);
+                }
+
+                if (exception != null)
+                {
+                    logger
+                        .error("Failed to invite callee: " + callee, exception);
+
+                    new ErrorDialog(
+                            null,
+                            GuiActivator
+                                .getResources()
+                                    .getI18NString("service.gui.ERROR"),
+                            exception.getMessage(),
+                            ErrorDialog.ERROR)
+                        .showDialog();
+                }
+            }
+        }
+    }
+
+    /**
      * Hang-ups all call peers in the given call.
      */
     private static class HangupCallThread
@@ -1509,23 +1599,51 @@ public class CallManager
         @Override
         public void run()
         {
-            ProtocolProviderService pps = call.getProtocolProvider();
-            Iterator<? extends CallPeer> peers = call.getCallPeers();
+            Iterator<? extends CallPeer> peers = null;
 
-            while (peers.hasNext())
+            if(call.getCallGroup() != null)
             {
-                CallPeer peer = peers.next();
-                OperationSetBasicTelephony<?> telephony
-                    = pps.getOperationSet(OperationSetBasicTelephony.class);
+                List<Call> calls = call.getCallGroup().getCalls();
 
-                try
+                for(Call c : calls)
                 {
-                    telephony.hangupCallPeer(peer);
+                    peers = c.getCallPeers();
+                    CallPeer peer = peers.next();
+                    OperationSetBasicTelephony<?> telephony
+                        = peer.getCall().getProtocolProvider().
+                            getOperationSet(OperationSetBasicTelephony.class);
+
+                    try
+                    {
+                        telephony.hangupCallPeer(peer);
+                    }
+                    catch (OperationFailedException e)
+                    {
+                        logger.error("Could not hang up : " + peer
+                            + " caused by the following exception: " + e);
+                    }
                 }
-                catch (OperationFailedException e)
+            }
+            else
+            {
+                ProtocolProviderService pps = call.getProtocolProvider();
+                peers = call.getCallPeers();
+
+                while (peers.hasNext())
                 {
-                    logger.error("Could not hang up : " + peer
-                        + " caused by the following exception: " + e);
+                    CallPeer peer = peers.next();
+                    OperationSetBasicTelephony<?> telephony
+                        = pps.getOperationSet(OperationSetBasicTelephony.class);
+
+                    try
+                    {
+                        telephony.hangupCallPeer(peer);
+                    }
+                    catch (OperationFailedException e)
+                    {
+                        logger.error("Could not hang up : " + peer
+                            + " caused by the following exception: " + e);
+                    }
                 }
             }
         }

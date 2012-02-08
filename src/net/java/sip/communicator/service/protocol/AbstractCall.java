@@ -30,6 +30,17 @@ public abstract class AbstractCall<T extends CallPeer,
     private Vector<T> callPeers = new Vector<T>();
 
     /**
+     * List of <tt>CallPeer</tt> from other protocol (cross-protocol conference
+     * call).
+     */
+    private Vector<CallPeer> crossProtocolCallPeers = new Vector<CallPeer>();
+
+    /**
+     * The <tt>CallGroup</tt> of this <tt>Call</tt>.
+     */
+    protected CallGroup callGroup = null;
+
+    /**
      * Creates a new Call instance.
      *
      * @param sourceProvider the proto provider that created us.
@@ -74,6 +85,43 @@ public abstract class AbstractCall<T extends CallPeer,
     }
 
     /**
+     * Returns an iterator over all cross-protocol call peers.
+     *
+     * @return an Iterator over all cross-protocol peers currently involved in
+     * the call.
+     */
+    public Iterator<CallPeer> getCrossProtocolCallPeers()
+    {
+        return new LinkedList<CallPeer>(getCrossProtocolCallPeersVector()).
+            iterator();
+    }
+
+    /**
+     * Returns the number of cross-protocol peers currently associated with this
+     * call.
+     *
+     * @return an <tt>int</tt> indicating the number of cross-protocol peers
+     * currently associated with this call.
+     */
+    public int getCrossProtocolCallPeerCount()
+    {
+        return crossProtocolCallPeers.size();
+    }
+
+    /**
+     * Returns the {@link Vector} containing cross-protocol {@link CallPeer}s
+     * currently part of this call. This method should eventually be removed and
+     * code that is using it in the descendants should be brought here.
+     *
+     * @return  the {@link Vector} containing cross-protocol {@link CallPeer}s
+     * currently participating in this call.
+     */
+    protected Vector<CallPeer> getCrossProtocolCallPeersVector()
+    {
+        return crossProtocolCallPeers;
+    }
+
+    /**
      * Returns a reference to the <tt>ProtocolProviderService</tt> instance
      * that created this call.
      *
@@ -84,5 +132,26 @@ public abstract class AbstractCall<T extends CallPeer,
     public U getProtocolProvider()
     {
         return (U) super.getProtocolProvider();
+    }
+
+    /**
+     * Returns the <tt>CallGroup</tt> from which this <tt>Call</tt> belongs.
+     *
+     * @return <tt>CallGroup</tt> or null if the <tt>Call</tt> does not belongs
+     * to a <tt>CallGroup</tt>
+     */
+    public CallGroup getCallGroup()
+    {
+        return callGroup;
+    }
+
+    /**
+     * Sets the <tt>CallGroup</tt> of this <tt>Call</tt>.
+     *
+     * @param callGroup <tt>CallGroup</tt> to set
+     */
+    public void setCallGroup(CallGroup callGroup)
+    {
+        this.callGroup = callGroup;
     }
 }

@@ -41,6 +41,7 @@ public abstract class MediaAwareCall<
                 V extends ProtocolProviderService>
     extends AbstractCall<T, V>
     implements CallPeerListener,
+               CallChangeListener,
                PropertyChangeListener
 {
     /**
@@ -429,6 +430,27 @@ public abstract class MediaAwareCall<
     {
         MediaDevice device;
 
+        if(conferenceAudioMixer == null && mediaType == MediaType.AUDIO &&
+            callGroup != null && callGroup.getCalls().size() > 0)
+        {
+            conferenceAudioMixer =
+                ((MediaAwareCall<?,?,?>)callGroup.getCalls().get(0)).
+                    conferenceAudioMixer;
+            device = conferenceAudioMixer;
+        }
+        /*
+        else if(conferenceVideoMixer == null && mediaType == MediaType.VIDEO &&
+            callGroup != null && callGroup.getCalls().size() > 0 &&
+            isConferenceFocus())
+        {
+            conferenceVideoMixer =
+                ((MediaAwareCall<?,?,?>)callGroup.getCalls().get(0)).
+                    conferenceVideoMixer;
+            device = conferenceVideoMixer;
+        }
+        */
+
+
         switch (mediaType)
         {
         case AUDIO:
@@ -469,7 +491,7 @@ public abstract class MediaAwareCall<
         case VIDEO:
             if (isConferenceFocus())
             {
-                if ((conferenceVideoMixer == null) && (device != null)) 
+                if ((conferenceVideoMixer == null) && (device != null))
                     conferenceVideoMixer = mediaService.createMixer(device);
                 if (conferenceVideoMixer != null)
                     device = conferenceVideoMixer;
@@ -925,6 +947,7 @@ public abstract class MediaAwareCall<
         if(propertyName.equals("CHANGE_CAPTURE_DEV"))
         {
             conferenceAudioMixer = null;
+            audioDevice = null;
             for(MediaAwareCallPeer<?,?,?> p : getCallPeersVector())
             {
                 MediaStream  stream =
@@ -936,6 +959,78 @@ public abstract class MediaAwareCall<
                     stream.setFormat(fmt);
                 }
             }
+        }
+    }
+
+    /**
+     * Indicates that a new call peer has joined the source call.
+     *
+     * @param evt the <tt>CallPeerEvent</tt> containing the source call
+     * and call peer.
+     */
+    public void callPeerAdded(CallPeerEvent evt)
+    {
+        /* peer from another protocol (for cross-protocol conference call) */
+        getCrossProtocolCallPeersVector().add(evt.getSourceCallPeer());
+    }
+
+    /**
+     * Indicates that a call peer has left the source call.
+     *
+     * @param evt the <tt>CallPeerEvent</tt> containing the source call
+     * and call peer.
+     */
+    public void callPeerRemoved(CallPeerEvent evt)
+    {
+        /* peer from another protocol (for cross-protocol conference call) */
+        getCrossProtocolCallPeersVector().remove(evt.getSourceCallPeer());
+    }
+
+    /**
+     * Indicates that a change has occurred in the state of the source call.
+     *
+     * @param evt the <tt>CallChangeEvent</tt> instance containing the source
+     * calls and its old and new state.
+     */
+    public void callStateChanged(CallChangeEvent evt)
+    {
+    }
+
+    /**
+     * Notified when a call are added to a <tt>CallGroup</tt>.
+     *
+     * @param evt event
+     */
+    public void callAdded(CallGroupEvent evt)
+    {
+        Call c = evt.getSourceCall();
+        c.addCallChangeListener(this);
+
+        Iterator<? extends CallPeer> peers = c.getCallPeers();
+        while(peers.hasNext())
+        {
+            CallPeer p = peers.next();
+            getCrossProtocolCallPeersVector().add(p);
+            fireCallPeerEvent(p, CallPeerEvent.CALL_PEER_ADDED);
+        }
+    }
+
+    /**
+     * Notified when a call are removed from a <tt>CallGroup</tt>.
+     *
+     * @param evt event
+     */
+    public void callRemoved(CallGroupEvent evt)
+    {
+        Call c = evt.getSourceCall();
+        c.removeCallChangeListener(this);
+
+        Iterator<? extends CallPeer> peers = c.getCallPeers();
+        while(peers.hasNext())
+        {
+            CallPeer p = peers.next();
+            getCrossProtocolCallPeersVector().remove(p);
+            fireCallPeerEvent(p, CallPeerEvent.CALL_PEER_REMOVED);
         }
     }
 }

@@ -1394,7 +1394,7 @@ public class MediaStreamImpl
              * Copy the playback from the old MediaDeviceSession into the new
              * MediaDeviceSession in order to prevent the recreation of the
              * playback of the ReceiveStream(s) when just changing the
-             * MediaDevice of this MediaSteam. 
+             * MediaDevice of this MediaSteam.
              */
             if (oldValue != null)
                 deviceSession.copyPlayback(oldValue);
@@ -1696,7 +1696,7 @@ public class MediaStreamImpl
              * It turns out that the receiveStreams list of rtpManager can be
              * empty. As a workaround, use the receiveStreams of this instance.
              */
-            if (receiveStreams.isEmpty() && (this.receiveStreams != null)) 
+            if (receiveStreams.isEmpty() && (this.receiveStreams != null))
                 receiveStreams = this.receiveStreams;
 
             for (ReceiveStream receiveStream : receiveStreams)
@@ -1869,7 +1869,7 @@ public class MediaStreamImpl
              * It turns out that the receiveStreams list of rtpManager can be
              * empty. As a workaround, use the receiveStreams of this instance.
              */
-            if (receiveStreams.isEmpty() && (this.receiveStreams != null)) 
+            if (receiveStreams.isEmpty() && (this.receiveStreams != null))
                 receiveStreams = this.receiveStreams;
 
             for (ReceiveStream receiveStream : receiveStreams)

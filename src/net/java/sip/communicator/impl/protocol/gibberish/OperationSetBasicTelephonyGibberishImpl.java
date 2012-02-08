@@ -121,6 +121,43 @@ public class OperationSetBasicTelephonyGibberishImpl
     }
 
     /**
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
+     * it given by her <tt>String</tt> URI.
+     *
+     * @param callee the address of the callee who we should invite to a new
+     *            <tt>Call</tt>
+     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     *         available in the <tt>Call</tt> as a <tt>CallPeer</tt>
+     * @throws OperationFailedException with the corresponding code if we fail
+     *             to create the call
+     */
+    public Call createCall(String callee, CallGroup group)
+        throws OperationFailedException
+    {
+        return createCall(callee);
+    }
+
+    /**
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
+     * it given by her <tt>Contact</tt>.
+     *
+     * @param callee the address of the callee who we should invite to a new
+     *            call
+     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     *         available in the <tt>Call</tt> as a <tt>CallPeer</tt>
+     * @throws OperationFailedException with the corresponding code if we fail
+     *             to create the call
+     */
+    public Call createCall(Contact callee, CallGroup group)
+        throws OperationFailedException
+    {
+        return createCall(callee);
+    }
+
+
+    /**
      * Returns an iterator over all currently active calls.
      *
      * @return Iterator

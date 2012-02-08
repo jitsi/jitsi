@@ -26,6 +26,11 @@ public class MockCall
      */
     private static final Logger logger = Logger.getLogger(MockCall.class);
 
+    /**
+     * Constructs a new <tt>MockCall</tt>.
+     *
+     * @param sourceProvider Provider
+     */
     public MockCall(MockProvider sourceProvider)
     {
         super(sourceProvider);
@@ -148,6 +153,24 @@ public class MockCall
      */
     public void removeLocalUserSoundLevelListener(
         SoundLevelListener l)
+    {
+    }
+
+    /**
+     * Notified when a call are added to a <tt>CallGroup</tt>.
+     *
+     * @param evt event
+     */
+    public void callAdded(CallGroupEvent evt)
+    {
+    }
+
+    /**
+     * Notified when a call are removed from a <tt>CallGroup</tt>.
+     *
+     * @param evt event
+     */
+    public void callRemoved(CallGroupEvent evt)
     {
     }
 }

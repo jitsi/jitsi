@@ -318,11 +318,10 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * @param event a <tt>CallPeerEvent</tt> which specifies the
      * <tt>CallPeer</tt> which has been added to a <tt>Call</tt>
      */
-    @SuppressWarnings("unchecked")
     public void callPeerAdded(CallPeerEvent event)
     {
-        MediaAwareCallPeerT callPeer =
-            (MediaAwareCallPeerT)event.getSourceCallPeer();
+        MediaAwareCallPeer<?,?,?> callPeer =
+            (MediaAwareCallPeer<?,?,?>)event.getSourceCallPeer();
 
         callPeer.addCallPeerListener(callPeerListener);
         callPeer.getMediaHandler().addPropertyChangeListener(this);
@@ -357,7 +356,10 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      */
     private void callPeersChanged(CallPeerEvent event)
     {
-        notifyAll(event.getSourceCall());
+        Call call = event.getSourceCall();
+
+        notifyAll(call);
+        notifyCallsInGroup(call);
     }
 
     /**
@@ -389,6 +391,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             if (call != null)
             {
                 notifyAll(call);
+                notifyCallsInGroup(call);
             }
         }
     }
@@ -481,6 +484,33 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      */
     public void callStateChanged(CallChangeEvent event)
     {
+    }
+
+    /**
+     * Notify the <tt>Call</tt>s in the <tt>CallGroup</tt> if any.
+     *
+     * @param call the <tt>Call</tt>
+     */
+    private void notifyCallsInGroup(Call call)
+    {
+        if(call.getCallGroup() != null)
+        {
+            CallGroup group = call.getCallGroup();
+            for(Call c : group.getCalls())
+            {
+                if(c == call)
+                    continue;
+
+                AbstractOperationSetTelephonyConferencing<?,?,?,?,?> opSet =
+                    (AbstractOperationSetTelephonyConferencing<?,?,?,?,?>)
+                    c.getProtocolProvider().getOperationSet(
+                        OperationSetTelephonyConferencing.class);
+                if(opSet != null)
+                {
+                    opSet.notifyAll(c);
+                }
+            }
+        }
     }
 
     /**

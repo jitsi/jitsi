@@ -74,7 +74,8 @@ public class VideoTranslatorMediaDevice
         streamDeviceSessions.remove(streamDeviceSession);
         if (streamDeviceSessions.isEmpty())
         {
-            deviceSession.close();
+            if(deviceSession != null)
+                deviceSession.close();
             deviceSession = null;
         }
         else

@@ -89,6 +89,39 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
         throws OperationFailedException;
 
     /**
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
+     * it given by her <tt>String</tt> URI.
+     *
+     * @param uri the address of the callee who we should invite to a new
+     * <tt>Call</tt>
+     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the call
+     * @throws ParseException if <tt>callee</tt> is not a valid SIP address
+     * <tt>String</tt>
+     */
+    public Call createCall(String uri, CallGroup group)
+        throws OperationFailedException,
+               ParseException;
+
+    /**
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
+     * to it given by her <tt>Contact</tt>.
+     *
+     * @param callee the address of the callee who we should invite to a new
+     * call
+     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the call
+     */
+    public Call createCall(Contact callee, CallGroup group)
+        throws OperationFailedException;
+
+    /**
      * Indicates a user request to answer an incoming call from the specified
      * CallPeer.
      * @param peer the call peer that we'd like to answer.

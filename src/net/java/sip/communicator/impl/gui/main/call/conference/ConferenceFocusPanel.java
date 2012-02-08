@@ -616,10 +616,9 @@ public class ConferenceFocusPanel
             {
                 ConferenceMember key = e.getKey();
                 Integer value = e.getValue();
-                Contact contact = focusPeerPanel.getCallPeerContact();
+                String address = focusPeerPanel.getCallPeerContactAddress();
 
-                if(key.getAddress().equals(
-                    contact.getAddress()))
+                if(key.getAddress().equals(address))
                 {
                     focusPeerPanel.updateSoundBar(value);
                     break;

@@ -209,8 +209,23 @@ public class CallShortcut
                         {
                             try
                             {
-                                opSet.hangupCallPeer(
-                                    cCall.getCallPeers().next());
+                                Iterator<? extends CallPeer> peers =
+                                    cCall.getCrossProtocolCallPeers();
+
+                                while(peers.hasNext())
+                                {
+                                    CallPeer peer = peers.next();
+
+                                    peer.getProtocolProvider().getOperationSet(
+                                        OperationSetBasicTelephony.class).
+                                        hangupCallPeer(peer);
+                                }
+
+                                peers = cCall.getCallPeers();
+
+                                while(peers.hasNext())
+                                    opSet.hangupCallPeer(
+                                        peers.next());
                             }
                             catch(OperationFailedException e)
                             {
@@ -262,7 +277,8 @@ public class CallShortcut
     {
         synchronized(outgoingCalls)
         {
-            outgoingCalls.add(event.getSourceCall());
+            if(event.getSourceCall().getCallGroup() == null)
+                outgoingCalls.add(event.getSourceCall());
         }
     }
 

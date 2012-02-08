@@ -479,12 +479,12 @@ public class ConferencePeerPanel
     }
 
     /**
-     * Returns <tt>CallPeer</tt> contact.
+     * Returns <tt>CallPeer</tt> contact address.
      *
-     * @return <tt>CallPeer</tt> contact
+     * @return <tt>CallPeer</tt> contact address
      */
-    public Contact getCallPeerContact()
+    public String getCallPeerContactAddress()
     {
-        return callPeer.getContact();
+        return callPeer.getURI();
     }
 }

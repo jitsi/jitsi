@@ -137,6 +137,13 @@ public class ConferenceCallPanel
         while (iterator.hasNext())
             this.addCallPeerPanel(iterator.next());
 
+        iterator = this.call.getCrossProtocolCallPeers();
+
+        while (iterator.hasNext())
+        {
+            this.addCallPeerPanel(iterator.next());
+        }
+
         scrollPane.setBorder(null);
         /*
          * The scrollPane seems to receive only a few pixels of width at times

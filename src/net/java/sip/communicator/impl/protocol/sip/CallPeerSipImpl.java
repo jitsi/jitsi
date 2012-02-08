@@ -151,6 +151,16 @@ public class CallPeerSipImpl
     }
 
     /**
+     * Returns full URI of the address.
+     *
+     * @return full URI of the address
+     */
+    public String getURI()
+    {
+        return getPeerAddress().getURI().toString();
+    }
+
+    /**
      * Returns the address of the remote party (making sure that it corresponds
      * to the latest address we've received) and caches it.
      *

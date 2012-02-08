@@ -21,6 +21,7 @@ import net.java.sip.communicator.util.*;
  * @author Emanuel Onica
  */
 public abstract class Call
+    implements CallGroupListener
 {
     /**
      * Our class logger.
@@ -301,7 +302,7 @@ public abstract class Call
      *
      * @param newState a reference to the <tt>CallState</tt> instance that the
      *            call is to enter.
-     * @param cause the event that is the cause of the current change of state. 
+     * @param cause the event that is the cause of the current change of state.
      */
     protected void setCallState(CallState newState, CallPeerChangeEvent cause)
     {
@@ -337,6 +338,21 @@ public abstract class Call
     }
 
     /**
+     * Sets the <tt>CallGroup</tt> of this <tt>Call</tt>.
+     *
+     * @param callGroup <tt>CallGroup</tt> to set
+     */
+    public abstract void setCallGroup(CallGroup callGroup);
+
+    /**
+     * Returns the <tt>CallGroup</tt> from which this <tt>Call</tt> belongs.
+     *
+     * @return <tt>CallGroup</tt> or null if the <tt>Call</tt> does not belongs
+     * to a <tt>CallGroup</tt>
+     */
+    public abstract CallGroup getCallGroup();
+
+    /**
      * Returns an iterator over all call peers.
      *
      * @return an Iterator over all peers currently involved in the call.
@@ -350,6 +366,23 @@ public abstract class Call
      *         associated with this call.
      */
     public abstract int getCallPeerCount();
+
+    /**
+     * Returns an iterator over all cross-protocol call peers.
+     *
+     * @return an Iterator over all cross-protocol peers currently involved in
+     * the call.
+     */
+    public abstract Iterator<CallPeer> getCrossProtocolCallPeers();
+
+    /**
+     * Returns the number of cross-protocol peers currently associated with this
+     * call.
+     *
+     * @return an <tt>int</tt> indicating the number of cross-protocol peers
+     * currently associated with this call.
+     */
+    public abstract int getCrossProtocolCallPeerCount();
 
     /**
      * Gets the indicator which determines whether the local peer represented by
@@ -376,5 +409,6 @@ public abstract class Call
      * related information.
      * @param l the <tt>SoundLevelListener</tt> to remove
      */
-    public abstract void removeLocalUserSoundLevelListener(SoundLevelListener l);
+    public abstract void removeLocalUserSoundLevelListener(
+        SoundLevelListener l);
 }

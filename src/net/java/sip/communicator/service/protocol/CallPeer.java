@@ -73,6 +73,14 @@ public interface CallPeer
     public String getAddress();
 
     /**
+     * Returns full URI of the address. For example sip:user@domain.org or
+     * xmpp:user@domain.org.
+     *
+     * @return full URI of the address
+     */
+    public String getURI();
+
+    /**
      * Returns an object representing the current state of that peer.
      * CallPeerState may vary among CONNECTING, RINGING, CALLING, BUSY,
      * CONNECTED, and others, and it reflects the state of the connection between

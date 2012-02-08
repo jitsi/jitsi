@@ -289,8 +289,21 @@ public class CallJabberImpl
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
-        if(getCallPeerCount() == 1)
+        if(getCallPeerCount() == 1 && getCallGroup() == null)
+        {
             parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
+        }
+        else if(getCallGroup() != null)
+        {
+            // only TelephonyConferencing OperationSet should know about it
+            CallEvent cEvent = new CallEvent(this, CallEvent.CALL_INITIATED);
+            AbstractOperationSetTelephonyConferencing<?,?,?,?,?> opSet =
+                (AbstractOperationSetTelephonyConferencing<?,?,?,?,?>)
+                getProtocolProvider().getOperationSet(
+                    OperationSetTelephonyConferencing.class);
+            if(opSet != null)
+                opSet.outgoingCallCreated(cEvent);
+        }
 
         CallPeerMediaHandlerJabberImpl mediaHandler
             = callPeer.getMediaHandler();
@@ -394,5 +407,25 @@ public class CallJabberImpl
                 return peer;
         }
         return null;
+    }
+
+    /**
+     * Notified when a call are added to a <tt>CallGroup</tt>.
+     *
+     * @param evt event
+     */
+    public void callAdded(CallGroupEvent evt)
+    {
+        Iterator<CallPeerJabberImpl> peers = getCallPeers();
+
+        // reflect conference focus
+        while(peers.hasNext())
+        {
+            setConferenceFocus(true);
+            CallPeerJabberImpl callPeer = peers.next();
+            callPeer.sendCoinSessionInfo(true);
+        }
+
+        super.callAdded(evt);
     }
 }

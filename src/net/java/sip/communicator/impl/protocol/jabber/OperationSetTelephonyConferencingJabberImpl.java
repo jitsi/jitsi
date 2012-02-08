@@ -101,7 +101,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     protected void notifyAll(Call call)
     {
-        if(!call.isConferenceFocus())
+        if(call.getCallGroup() == null && !call.isConferenceFocus())
         {
             return;
         }
@@ -128,6 +128,9 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     private void notify(CallPeer callPeer)
     {
+        if(!(callPeer instanceof CallPeerJabberImpl))
+            return;
+
         // check that callPeer supports COIN before sending him a
         // conference-info
         String to = getBasicTelephony().getFullCalleeURI(callPeer.getAddress());
@@ -166,11 +169,11 @@ public class OperationSetTelephonyConferencingJabberImpl
      * @return list of media packet extension
      */
     private List<MediaPacketExtension> getMedia(
-            CallPeerJabberImpl callPeer,
+            MediaAwareCallPeer<?,?,?> callPeer,
             boolean remote)
     {
         MediaPacketExtension ext = null;
-        CallPeerMediaHandlerJabberImpl mediaHandler =
+        CallPeerMediaHandler<?> mediaHandler =
             callPeer.getMediaHandler();
         List<MediaPacketExtension> ret =
             new ArrayList<MediaPacketExtension>();
@@ -212,7 +215,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * @return user packet extension
      */
     private UserPacketExtension getUser(
-            CallPeerJabberImpl callPeer)
+            MediaAwareCallPeer<?,?,?> callPeer)
     {
         UserPacketExtension ext = new UserPacketExtension(
                 callPeer.getAddress());
@@ -222,7 +225,7 @@ public class OperationSetTelephonyConferencingJabberImpl
         ext.setDisplayText(callPeer.getDisplayName());
         EndpointStatusType status = getEndpointStatus(callPeer);
 
-        endpoint = new EndpointPacketExtension(callPeer.getAddress());
+        endpoint = new EndpointPacketExtension(callPeer.getURI());
         endpoint.setStatus(status);
 
         medias = getMedia(callPeer, true);
@@ -251,7 +254,8 @@ public class OperationSetTelephonyConferencingJabberImpl
      * an <tt>endpoint</tt> XML element and which describes the state of the
      * specified <tt>callPeer</tt>
      */
-    private EndpointStatusType getEndpointStatus(CallPeerJabberImpl callPeer)
+    private EndpointStatusType getEndpointStatus(
+        MediaAwareCallPeer<?,?,?> callPeer)
     {
         CallPeerState callPeerState = callPeer.getState();
 
@@ -314,7 +318,8 @@ public class OperationSetTelephonyConferencingJabberImpl
 
         // conference-state
         StatePacketExtension state = new StatePacketExtension();
-        state.setUserCount(call.getCallPeerCount() + 1);
+        state.setUserCount(call.getCallPeerCount() + 1 +
+            call.getCrossProtocolCallPeerCount());
         iq.addExtension(state);
 
         // users
@@ -322,11 +327,11 @@ public class OperationSetTelephonyConferencingJabberImpl
 
         // user
         UserPacketExtension user = new UserPacketExtension(
-               parentProvider.getOurJID());
+               "xmpp:" + parentProvider.getOurJID());
 
         // endpoint
         EndpointPacketExtension endpoint = new EndpointPacketExtension(
-                parentProvider.getOurJID());
+            "xmpp:" + parentProvider.getOurJID());
         endpoint.setStatus(EndpointStatusType.connected);
 
         // media
@@ -345,6 +350,16 @@ public class OperationSetTelephonyConferencingJabberImpl
         while (callPeerIter.hasNext())
         {
             UserPacketExtension ext = getUser(callPeerIter.next());
+            users.addChildExtension(ext);
+        }
+
+        Iterator<CallPeer> crossProtocolCallPeerIter =
+            call.getCrossProtocolCallPeers();
+
+        while (crossProtocolCallPeerIter.hasNext())
+        {
+            UserPacketExtension ext = getUser(
+                (MediaAwareCallPeer<?,?,?>)crossProtocolCallPeerIter.next());
             users.addChildExtension(ext);
         }
 
@@ -532,27 +547,6 @@ public class OperationSetTelephonyConferencingJabberImpl
     }
 
     /**
-     * Removes the parameters (specified after a slash) from a specific
-     * address <tt>String</tt> if any are present in it.
-     *
-     * @param address the <tt>String</tt> value representing an address from
-     * which any parameters are to be removed
-     * @return a <tt>String</tt> representing the specified <tt>address</tt>
-     * without any parameters
-     */
-    private static String stripParametersFromAddress(String address)
-    {
-        if (address != null)
-        {
-            int parametersBeginIndex = address.indexOf('/');
-
-            if (parametersBeginIndex > -1)
-                address = address.substring(0, parametersBeginIndex);
-        }
-        return address;
-    }
-
-    /**
      * Handle Coin IQ.
      *
      * @param coinIQ Coin IQ
@@ -594,9 +588,7 @@ public class OperationSetTelephonyConferencingJabberImpl
 
             if(u.getAttribute("entity") != null)
             {
-                address
-                    = stripParametersFromAddress(
-                            (String)u.getAttribute("entity"));
+                address = (String)u.getAttribute("entity");
             }
 
             if ((address == null) || (address.length() < 1))

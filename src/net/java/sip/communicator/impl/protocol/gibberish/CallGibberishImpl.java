@@ -176,4 +176,22 @@ public class CallGibberishImpl
         SoundLevelListener l)
     {
     }
+
+    /**
+     * Notified when a call are added to a <tt>CallGroup</tt>.
+     *
+     * @param evt event
+     */
+    public void callAdded(CallGroupEvent evt)
+    {
+    }
+
+    /**
+     * Notified when a call are removed from a <tt>CallGroup</tt>.
+     *
+     * @param evt event
+     */
+    public void callRemoved(CallGroupEvent evt)
+    {
+    }
 }

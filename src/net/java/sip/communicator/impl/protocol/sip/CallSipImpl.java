@@ -301,11 +301,14 @@ public class CallSipImpl
                 logger.warn("Error getting media types", t);
             }
 
-            getParentOperationSet().fireCallEvent( (incomingCall
+            if(this.getCallGroup() == null)
+            {
+                getParentOperationSet().fireCallEvent( (incomingCall
                                         ? CallEvent.CALL_RECEIVED
                                         : CallEvent.CALL_INITIATED),
                                         this,
                                         mediaDirections);
+            }
         }
 
         return callPeer;
@@ -406,5 +409,34 @@ public class CallSipImpl
     public void setInitialQualityPreferences(QualityPreset qualityPreferences)
     {
         this.initialQualityPreferences = qualityPreferences;
+    }
+
+    /**
+     * Notified when a call are added to a <tt>CallGroup</tt>.
+     *
+     * @param evt event
+     */
+    public void callAdded(CallGroupEvent evt)
+    {
+        Iterator<CallPeerSipImpl> peers = getCallPeers();
+
+        // reinvite peers to reflect conference focus
+        while(peers.hasNext())
+        {
+            setConferenceFocus(true);
+            CallPeerSipImpl callPeer = peers.next();
+
+            try
+            {
+                callPeer.sendReInvite();
+            }
+            catch(OperationFailedException e)
+            {
+                logger.info("Failed to reinvite peer: "
+                    + callPeer.getAddress());
+            }
+        }
+
+        super.callAdded(evt);
     }
 }

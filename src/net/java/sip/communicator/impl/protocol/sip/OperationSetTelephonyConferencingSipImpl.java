@@ -252,9 +252,13 @@ public class OperationSetTelephonyConferencingSipImpl
      */
     public void callPeerAdded(CallPeerEvent event)
     {
+        super.callPeerAdded(event);
+
+        if(!(event.getSourceCallPeer() instanceof CallPeerSipImpl))
+            return;
+
         CallPeerSipImpl callPeer = (CallPeerSipImpl) event.getSourceCallPeer();
         callPeer.addMethodProcessorListener(this);
-        super.callPeerAdded(event);
     }
 
     /**
@@ -331,7 +335,8 @@ public class OperationSetTelephonyConferencingSipImpl
         append(xml, "<", ELEMENT_CONFERENCE_STATE, ">");
         // <user-count>
         append(xml, "<", ELEMENT_USER_COUNT, ">");
-        xml.append(call.getCallPeerCount() + 1);
+        xml.append(call.getCallPeerCount() + 1 +
+            call.getCrossProtocolCallPeerCount());
         // </user-count>
         append(xml, "</", ELEMENT_USER_COUNT, ">");
         // </conference-state>
@@ -374,6 +379,15 @@ public class OperationSetTelephonyConferencingSipImpl
 
         while (callPeerIter.hasNext())
             getUserXML(callPeerIter.next(), xml);
+
+        // cross-protocol CallPeer
+        Iterator<CallPeer> crossProtocolCallPeerIter =
+            call.getCrossProtocolCallPeers();
+
+        while (crossProtocolCallPeerIter.hasNext())
+            getUserXML(
+                (MediaAwareCallPeer<?,?,?>)crossProtocolCallPeerIter.next(),
+                xml);
 
         // </users>
         append(xml, "</", ELEMENT_USERS, ">");
@@ -477,7 +491,7 @@ public class OperationSetTelephonyConferencingSipImpl
      * an <tt>endpoint</tt> XML element and which describes the state of the
      * specified <tt>callPeer</tt>
      */
-    private String getEndpointStatusXML(CallPeerSipImpl callPeer)
+    private String getEndpointStatusXML(MediaAwareCallPeer<?,?,?> callPeer)
     {
         CallPeerState callPeerState = callPeer.getState();
 
@@ -523,11 +537,11 @@ public class OperationSetTelephonyConferencingSipImpl
      * <tt>callPeer</tt>
      */
     private void getMediaXML(
-            CallPeerSipImpl callPeer,
+            MediaAwareCallPeer<?,?,?> callPeer,
             boolean remote,
             StringBuffer xml)
     {
-        CallPeerMediaHandlerSipImpl mediaHandler = callPeer.getMediaHandler();
+        CallPeerMediaHandler<?> mediaHandler = callPeer.getMediaHandler();
 
         for (MediaType mediaType : MediaType.values())
         {
@@ -585,7 +599,8 @@ public class OperationSetTelephonyConferencingSipImpl
      * tree describing the conference participation of the specified
      * <tt>callPeer</tt> to
      */
-    private void getUserXML(CallPeerSipImpl callPeer, StringBuffer xml)
+    private void getUserXML(MediaAwareCallPeer<?,?,?> callPeer,
+        StringBuffer xml)
     {
         // <user>
         append(xml, "<", ELEMENT_USER);
@@ -594,7 +609,7 @@ public class OperationSetTelephonyConferencingSipImpl
             xml,
             " entity=\"",
             domElementWriter
-                .encode(stripParametersFromAddress(callPeer.getAddress())),
+                .encode(stripParametersFromAddress(callPeer.getURI())),
             "\"");
         // state
         xml.append(" state=\"full\">");

@@ -120,6 +120,16 @@ public class CallPeerJabberImpl
     }
 
     /**
+     * Returns full URI of the address.
+     *
+     * @return full URI of the address
+     */
+    public String getURI()
+    {
+        return "xmpp:" + peerJID;
+    }
+
+    /**
      * Specifies the address, phone number, or other protocol specific
      * identifier that represents this call peer. This method is to be
      * used by service users and MUST NOT be called by the implementation.

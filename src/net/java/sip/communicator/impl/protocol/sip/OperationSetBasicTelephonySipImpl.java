@@ -111,9 +111,7 @@ public class OperationSetBasicTelephonySipImpl
         throws OperationFailedException,
                ParseException
     {
-        Address toAddress = protocolProvider.parseAddressString(callee);
-
-        return createOutgoingCall(toAddress, null);
+        return createCall(callee, null);
     }
 
     /**
@@ -130,6 +128,47 @@ public class OperationSetBasicTelephonySipImpl
      */
     public Call createCall(Contact callee) throws OperationFailedException
     {
+        return createCall(callee, null);
+    }
+
+    /**
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt> to
+     * it given by her <tt>String</tt> URI.
+     *
+     * @param callee the address of the callee who we should invite to a new
+     * <tt>Call</tt>
+     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the call
+     * @throws ParseException if <tt>callee</tt> is not a valid SIP address
+     * <tt>String</tt>
+     */
+    public Call createCall(String callee, CallGroup group)
+        throws OperationFailedException,
+               ParseException
+    {
+        Address toAddress = protocolProvider.parseAddressString(callee);
+
+        return createOutgoingCall(toAddress, null, group);
+    }
+
+    /**
+     * Creates a new <tt>Call</tt> and invites a specific <tt>CallPeer</tt>
+     * to it given by her <tt>Contact</tt>.
+     *
+     * @param callee the address of the callee who we should invite to a new
+     * call
+     * @param group <tt>CallGroup</tt> from which the <tt>Call</tt> will belong
+     * @return a newly created <tt>Call</tt>. The specified <tt>callee</tt> is
+     * available in the <tt>Call</tt> as a <tt>CallPeer</tt>
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the call
+     */
+    public Call createCall(Contact callee, CallGroup group)
+        throws OperationFailedException
+    {
         Address toAddress;
 
         try
@@ -143,7 +182,7 @@ public class OperationSetBasicTelephonySipImpl
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        return createOutgoingCall(toAddress, null);
+        return createOutgoingCall(toAddress, null, group);
     }
 
     /**
@@ -185,10 +224,12 @@ public class OperationSetBasicTelephonySipImpl
      * to create the call.
      */
     private synchronized CallSipImpl createOutgoingCall(Address calleeAddress,
-        javax.sip.message.Message cause) throws OperationFailedException
+        javax.sip.message.Message cause, CallGroup group)
+            throws OperationFailedException
     {
         CallSipImpl call = createOutgoingCall();
 
+        call.setCallGroup(group);
         call.invite(calleeAddress, cause);
 
         return call;
@@ -563,7 +604,7 @@ public class OperationSetBasicTelephonySipImpl
              * We have to bypass SIP specifications in the SIP NOTIFY
              * message is desktop sharing specific and thus do not close the
              * call.
-             * 
+             *
              * XXX this is not an optimal solution, the ideal will be
              * to prevent disordering.
              */
@@ -1328,7 +1369,8 @@ public class OperationSetBasicTelephonySipImpl
         CallSipImpl referToCall;
         try
         {
-            referToCall = createOutgoingCall(referToAddress, referRequest);
+            referToCall = createOutgoingCall(referToAddress, referRequest,
+                null);
         }
         catch (OperationFailedException ex)
         {
