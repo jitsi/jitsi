@@ -762,12 +762,15 @@ public class MetaContactListSource
                 if (!MetaContactListSource
                         .isRootGroup(parentGroup))
                 {
-                    uiGroup = MetaContactListSource
-                        .getUIGroup(parentGroup);
-
-                    if (uiGroup == null)
+                    synchronized(parentGroup)
+                    {
                         uiGroup = MetaContactListSource
-                            .createUIGroup(parentGroup);
+                            .getUIGroup(parentGroup);
+
+                        if (uiGroup == null)
+                            uiGroup = MetaContactListSource
+                                .createUIGroup(parentGroup);
+                    }
                 }
 
                 GuiActivator.getContactList()

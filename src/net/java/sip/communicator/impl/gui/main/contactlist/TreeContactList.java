@@ -567,12 +567,17 @@ public class TreeContactList
             return;
         }
 
-        GroupNode parentNode = treeModel.getRoot();
+        GroupNode groupNode = group.getGroupNode();
+        
+        if(groupNode == null)
+        {
+            GroupNode parentNode = treeModel.getRoot();
 
-        if (isSorted)
-            parentNode.sortedAddContactGroup(group);
-        else
-            parentNode.addContactGroup(group);
+            if (isSorted)
+                parentNode.sortedAddContactGroup(group);
+            else
+                parentNode.addContactGroup(group);
+        }
 
         expandGroup(treeModel.getRoot());
     }

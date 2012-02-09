@@ -245,8 +245,18 @@ public class PresenceFilter
 
             if (isMatching(subgroup))
             {
-                GuiActivator.getContactList().addGroup(
-                    MetaContactListSource.createUIGroup(subgroup), true);
+                UIGroup uiGroup;
+                synchronized(subgroup)
+                {
+                    uiGroup = MetaContactListSource
+                        .getUIGroup(subgroup);
+
+                    if (uiGroup == null)
+                        uiGroup = MetaContactListSource
+                            .createUIGroup(subgroup);
+                }
+
+                GuiActivator.getContactList().addGroup(uiGroup, true);
 
                 addMatching(subgroup, query, resultCount);
             }
