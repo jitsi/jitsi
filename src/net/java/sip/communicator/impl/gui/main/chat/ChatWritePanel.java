@@ -132,7 +132,10 @@ public class ChatWritePanel
         this.changeSendCommand((messageCommand == null || messageCommand
             .equalsIgnoreCase("enter")));
 
-        initDefaultFontConfiguration();
+        if(ConfigurationManager.isFontSupportEnabled())
+        {
+            initDefaultFontConfiguration();
+        }
     }
 
     /**

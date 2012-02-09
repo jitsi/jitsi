@@ -539,38 +539,61 @@ public class ConfigurationManager
                 "ADVANCED_CONFIG_DISABLED",
                 isAdvancedConfigDisabled);
 
-        // Load default font family string.
-        defaultFontFamily = configService.getString(
-            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_FAMILY");
+        if(isFontSupportEnabled())
+        {
+            // Load default font family string.
+            defaultFontFamily = configService.getString(
+                "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_FAMILY");
 
-        // Load default font size.
-        defaultFontSize = configService.getString(
-            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_SIZE");
+            // Load default font size.
+            defaultFontSize = configService.getString(
+                "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_SIZE");
 
-        // Load isBold chat property.
-        isDefaultFontBold
-            = configService.getBoolean(
+            // Load isBold chat property.
+            isDefaultFontBold = configService.getBoolean(
                 "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_BOLD",
                 isDefaultFontBold);
 
-        // Load isItalic chat property.
-        isDefaultFontItalic
-            = configService.getBoolean(
+            // Load isItalic chat property.
+            isDefaultFontItalic = configService.getBoolean(
                 "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_ITALIC",
                 isDefaultFontItalic);
 
-        // Load isUnderline chat property.
-        isDefaultFontUnderline
-            = configService.getBoolean(
+            // Load isUnderline chat property.
+            isDefaultFontUnderline = configService.getBoolean(
                 "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_UNDERLINE",
                 isDefaultFontUnderline);
 
-        // Load default font color property.
-        int colorSetting = configService.getInt(
-            "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_COLOR", -1);
+            // Load default font color property.
+            int colorSetting = configService.getInt(
+                "net.java.sip.communicator.impl.gui.chat.DEFAULT_FONT_COLOR",
+                -1);
 
-        if(colorSetting != -1)
-            defaultFontColor = colorSetting;
+            if(colorSetting != -1)
+                defaultFontColor = colorSetting;
+        }
+    }
+
+    /**
+     * Checks whether font support is disabled, checking in default
+     * settings for the default value.
+     * @return is font support disabled.
+     */
+    public static boolean isFontSupportEnabled()
+    {
+        String fontDisabledProp =
+            "net.java.sip.communicator.impl.gui.FONT_SUPPORT_ENABLED";
+
+        boolean defaultValue = false;
+        
+        String defaultSettingStr =
+            GuiActivator.getResources().getSettingsString(fontDisabledProp);
+
+        if(defaultSettingStr != null)
+            defaultValue = Boolean.parseBoolean(defaultSettingStr);
+
+        return configService.getBoolean(
+            fontDisabledProp, defaultValue);
     }
 
     /**

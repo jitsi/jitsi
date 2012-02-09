@@ -199,7 +199,15 @@ public class MainToolBar
 
         this.addSeparator();
 
-        this.add(fontButton);
+        if(ConfigurationManager.isFontSupportEnabled())
+        {
+            this.add(fontButton);
+            fontButton.setName("font");
+            fontButton.setToolTipText(GuiActivator.getResources()
+                .getI18NString("service.gui.CHANGE_FONT"));
+            fontButton.addActionListener(this);
+        }
+
         initSmiliesSelectorBox();
 
         this.addSeparator();
@@ -231,10 +239,6 @@ public class MainToolBar
         optionsButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.OPTIONS"));
 
-        fontButton.setName("font");
-        fontButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.CHANGE_FONT"));
-
         this.sendFileButton.setName("sendFile");
         this.sendFileButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.SEND_FILE"));
@@ -253,7 +257,6 @@ public class MainToolBar
         desktopSharingButton.addActionListener(this);
         historyButton.addActionListener(this);
         optionsButton.addActionListener(this);
-        fontButton.addActionListener(this);
         sendFileButton.addActionListener(this);
         previousButton.addActionListener(this);
         nextButton.addActionListener(this);

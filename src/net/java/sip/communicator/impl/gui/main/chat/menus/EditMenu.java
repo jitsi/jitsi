@@ -59,18 +59,24 @@ public class EditMenu
         this.cutMenuItem.setName("cut");
         this.copyMenuItem.setName("copy");
         this.pasteMenuItem.setName("paste");
-        this.fontDialogMenuItem.setName("font");
 
         this.cutMenuItem.addActionListener(this);
         this.copyMenuItem.addActionListener(this);
         this.pasteMenuItem.addActionListener(this);
-        this.fontDialogMenuItem.addActionListener(this);
 
         this.add(cutMenuItem);
         this.add(copyMenuItem);
         this.add(pasteMenuItem);
-        this.addSeparator();
-        this.add(fontDialogMenuItem);
+
+        if(ConfigurationManager.isFontSupportEnabled())
+        {
+            this.addSeparator();
+            this.fontDialogMenuItem.setName("font");
+            this.fontDialogMenuItem.addActionListener(this);
+            this.add(fontDialogMenuItem);
+            this.fontDialogMenuItem.setMnemonic(
+                GuiActivator.getResources().getI18nMnemonic("service.gui.FONT"));
+        }
 
         this.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.EDIT"));
@@ -80,8 +86,6 @@ public class EditMenu
             GuiActivator.getResources().getI18nMnemonic("service.gui.COPY"));
         this.pasteMenuItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.PASTE"));
-        this.fontDialogMenuItem.setMnemonic(
-            GuiActivator.getResources().getI18nMnemonic("service.gui.FONT"));
 
         this.cutMenuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_X,
