@@ -9,7 +9,9 @@ package net.java.sip.communicator.util;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
+import java.lang.reflect.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -18,20 +20,19 @@ import javax.swing.*;
  * some special operations with strings.
  * 
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Adam Netocny
  */
 public class GuiUtils
 {
     /**
-     * List of all windows owned by the app.
+     * The list of all <tt>Window</tt>s owned by this application.
      */
-    private static final ArrayList<Window> WINDOW_LIST
-        = new ArrayList<Window>();
+    private static final List<Window> WINDOW_LIST;
 
-    private static Calendar c1 = Calendar.getInstance();
+    private static final Calendar c1 = Calendar.getInstance();
 
-    private static Calendar c2 = Calendar.getInstance();
+    private static final Calendar c2 = Calendar.getInstance();
 
     /**
      * Number of milliseconds in a second.
@@ -57,9 +58,12 @@ public class GuiUtils
     // normalization purposes. Non-European digits that may be used in phone numbers are mapped to a
     // European equivalent.
     private static final Map<Character, Character> DIGIT_MAPPINGS;
-    static {
+
+    static
+    {
         HashMap<Character, Character> digitMap
             = new HashMap<Character, Character>(50);
+
         digitMap.put('0', '0');
         digitMap.put('\uFF10', '0');  // Fullwidth digit 0
         digitMap.put('\u0660', '0');  // Arabic-indic digit 0
@@ -91,6 +95,30 @@ public class GuiUtils
         digitMap.put('\uFF19', '9');  // Fullwidth digit 9
         digitMap.put('\u0669', '9');  // Arabic-indic digit 9
         DIGIT_MAPPINGS = Collections.unmodifiableMap(digitMap);
+
+        /*
+         * WINDOW_LIST is flawed because there are more calls to addWindow than
+         * to removeWindow. Java 6 has introduced Window#getWindows so try to
+         * use it instead.
+         */
+        Method Window_getWindows = null;
+
+        try
+        {
+            Window_getWindows = Window.class.getMethod("getWindows");
+        }
+        catch (NoSuchMethodException nsme)
+        {
+            /*
+             * Ignore the exception because we are just checking whether the
+             * method exists.
+             */
+        }
+        catch (SecurityException se)
+        {
+        }
+        WINDOW_LIST
+            = (Window_getWindows == null) ? new ArrayList<Window>() : null;
     }
 
     /**
@@ -142,9 +170,7 @@ public class GuiUtils
     public static Rectangle2D getDefaultStringSize(String text)
     {
         Font font = UIManager.getFont("Label.font");
-
         FontRenderContext frc = new FontRenderContext(null, true, false);
-
         TextLayout layout = new TextLayout(text, font, frc);
 
         return layout.getBounds();
@@ -161,12 +187,11 @@ public class GuiUtils
     public static int countOccurrences(String text, char needle)
     {
         int count = 0;
+
         for (char c : text.toCharArray())
         {
             if (c == needle)
-            {
                ++count;
-            }
         }
         return count;
     }
@@ -459,15 +484,60 @@ public class GuiUtils
      */
     public static Window[] getWindows()
     {
-        Window[] retVal = new Window[WINDOW_LIST.size()];
-
-        int c = 0;
-        for(Window w : WINDOW_LIST)
+        if (WINDOW_LIST == null)
         {
-            retVal[c++] = w;
-        }
+            Method Window_getWindows = null;
 
-        return retVal;
+            try
+            {
+                Window_getWindows = Window.class.getMethod("getWindows");
+            }
+            catch (NoSuchMethodException nsme)
+            {
+                /* Ignore it because we cannot really do anything useful. */
+            }
+            catch (SecurityException se)
+            {
+            }
+
+            Object windows = null;
+
+            if (Window_getWindows != null)
+            {
+                try
+                {
+                    windows = Window_getWindows.invoke(null);
+                }
+                catch (ExceptionInInitializerError eiie)
+                {
+                    /* Ignore it because we cannot really do anything useful. */
+                }
+                catch (IllegalAccessException iae)
+                {
+                }
+                catch (IllegalArgumentException iae)
+                {
+                }
+                catch (InvocationTargetException ite)
+                {
+                }
+                catch (NullPointerException npe)
+                {
+                }
+            }
+
+            return
+                (windows instanceof Window[])
+                    ? (Window[]) windows
+                    : new Window[0];
+        }
+        else
+        {
+            synchronized (WINDOW_LIST)
+            {
+                return WINDOW_LIST.toArray(new Window[WINDOW_LIST.size()]);
+            }
+        }
     }
 
     /**
@@ -476,7 +546,14 @@ public class GuiUtils
      */
     public static void addWindow(Window w)
     {
-        WINDOW_LIST.add(w);
+        if (WINDOW_LIST != null)
+        {
+            synchronized (WINDOW_LIST)
+            {
+                if (!WINDOW_LIST.contains(w))
+                    WINDOW_LIST.add(w);
+            }
+        }
     }
 
     /**
@@ -485,7 +562,13 @@ public class GuiUtils
      */
     public static void removeWindow(Window w)
     {
-        WINDOW_LIST.remove(w);
+        if (WINDOW_LIST != null)
+        {
+            synchronized (WINDOW_LIST)
+            {
+                WINDOW_LIST.remove(w);
+            }
+        }
     }
 
     /**
@@ -513,12 +596,11 @@ public class GuiUtils
      */
     public static int getComponentIndex(Component c, Container container)
     {
-        for (int i = 0; i < container.getComponentCount(); i++)
+        for (int i = 0, count = container.getComponentCount(); i < count; i++)
         {
             if (container.getComponent(i).equals(c))
                 return i;
         }
-
         return -1;
     }
 
@@ -552,9 +634,7 @@ public class GuiUtils
         if (children != null)
         {
             for(int i = 0; i < children.length; i++)
-            {
                 updateComponentTreeUI0(children[i]);
-            }
         }
     }
 }
