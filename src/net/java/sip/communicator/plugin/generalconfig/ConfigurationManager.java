@@ -525,9 +525,9 @@ public class ConfigurationManager
         boolean isHistoryLoggingEnabled)
     {
         ConfigurationManager.isHistoryLoggingEnabled = isHistoryLoggingEnabled;
-        
+
         configService.setProperty(
-            "net.java.sip.communicator.impl.msghistory.isMessageHistoryEnabled",
+            "impl.msghistory.IS_MESSAGE_HISTORY_ENABLED",
             Boolean.toString(isHistoryLoggingEnabled));
     }
     
@@ -541,12 +541,12 @@ public class ConfigurationManager
     public static void setHistoryShown(boolean isHistoryShown)
     {
         ConfigurationManager.isHistoryShown = isHistoryShown;
-        
+
         configService.setProperty(
             "service.gui.IS_MESSAGE_HISTORY_SHOWN",
             Boolean.toString(isHistoryShown));
     }
-    
+
     /**
      * Updates the "chatHistorySize" property through the
      * <tt>ConfigurationService</tt>.
@@ -557,7 +557,7 @@ public class ConfigurationManager
     public static void setChatHistorySize(int historySize)
     {
         ConfigurationManager.chatHistorySize = historySize;
-        
+
         configService.setProperty(
             "service.gui.MESSAGE_HISTORY_SIZE",
             Integer.toString(chatHistorySize));
