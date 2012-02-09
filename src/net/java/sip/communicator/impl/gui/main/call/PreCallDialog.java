@@ -10,7 +10,9 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -117,6 +119,11 @@ public abstract class PreCallDialog
         preCallWindow = createPreCallWindow(title, text, accounts);
 
         this.video = video;
+
+        // check whether we have device enabled for capturing(sending)
+        this.video = video && GuiActivator.getMediaService().getDefaultDevice(
+            MediaType.VIDEO, MediaUseCase.CALL).getDirection().allowsSending();
+
         this.initComponents();
     }
 

@@ -478,8 +478,9 @@ public class CallPeerMediaHandlerJabberImpl
                 = JingleUtils.getDirection(ourContent, !peer.isInitiator());
 
             // if we answer with video, tell remote peer that video direction is
-            // sendrecv
-            if(type == MediaType.VIDEO && isLocalVideoTransmissionEnabled())
+            // sendrecv, and whether video device can capture(send)
+            if(type == MediaType.VIDEO && isLocalVideoTransmissionEnabled()
+                && dev.getDirection().allowsSending())
             {
                direction = MediaDirection.SENDRECV;
                ourContent.setSenders(SendersEnum.both);
