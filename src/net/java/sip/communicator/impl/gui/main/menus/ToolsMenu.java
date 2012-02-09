@@ -40,7 +40,16 @@ public class ToolsMenu
                 PluginComponentListener,
                 Skinnable
 {
+    /**
+     * Local logger.
+     */
     private final Logger logger = Logger.getLogger(ToolsMenu.class);
+
+    /**
+     * Property to disable auto answer menu.
+     */
+    private static final String AUTO_ANSWER_MENU_DISABLED_PROP =
+        "net.java.sip.communicator.impl.gui.main.menus.AUTO_ANSWER_MENU_DISABLED";
 
     /**
     * Conference call menu item.
@@ -242,8 +251,13 @@ public class ToolsMenu
         conferenceMenuItem.addActionListener(this);
         this.add(conferenceMenuItem);
 
-        AutoAnswerMenu autoAnswerMenu = new AutoAnswerMenu();
-        this.add(autoAnswerMenu);
+        if(!GuiActivator.getConfigurationService().getBoolean(
+            AUTO_ANSWER_MENU_DISABLED_PROP,
+            false))
+        {
+            AutoAnswerMenu autoAnswerMenu = new AutoAnswerMenu();
+            this.add(autoAnswerMenu);
+        }
 
         this.addSeparator();
 
