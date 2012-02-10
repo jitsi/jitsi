@@ -210,7 +210,7 @@ public class AccountListCellRenderer
 
         if (checkBox == null)
         {
-            checkBox = new JCheckBox();
+            checkBox = new SIPCommCheckBox();
             account.setEnableCheckBox(checkBox);
         }
 
