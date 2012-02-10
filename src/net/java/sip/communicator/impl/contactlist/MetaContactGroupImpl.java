@@ -1062,7 +1062,11 @@ public class MetaContactGroupImpl
                 return true;
         }
 
-        return false;
+        // this is new and empty group, we can store it as user want this
+        if(countContactGroups() == 0)
+            return true;
+        else
+            return false;
     }
 
     /**

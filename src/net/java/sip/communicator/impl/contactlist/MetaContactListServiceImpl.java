@@ -770,6 +770,34 @@ public class MetaContactListServiceImpl
     {
         ( (MetaContactGroupImpl) group).setGroupName(newGroupName);
 
+        Iterator<ContactGroup> groups = group.getContactGroups();
+
+        while (groups.hasNext())
+        {
+            ContactGroup protoGroup =  groups.next();
+
+            //get a persistent presence operation set
+            OperationSetPersistentPresence opSetPresence
+                = protoGroup
+                    .getProtocolProvider()
+                        .getOperationSet(
+                            OperationSetPersistentPresence.class);
+
+            if (opSetPresence != null)
+            {
+                try
+                {
+                    opSetPresence.renameServerStoredContactGroup(
+                        protoGroup, newGroupName);
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error renaming protocol group: "
+                        + protoGroup, t);
+                }
+            }
+        }
+
         fireMetaContactGroupEvent(group, null, null
             , MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED);
     }

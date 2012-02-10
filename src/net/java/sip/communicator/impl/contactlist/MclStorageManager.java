@@ -1794,6 +1794,7 @@ public class MclStorageManager
 
         switch (evt.getEventID())
         {
+        case MetaContactGroupEvent.CONTACT_GROUP_RENAMED_IN_META_GROUP:
         case MetaContactGroupEvent.CONTACT_GROUP_REMOVED_FROM_META_GROUP:
         case MetaContactGroupEvent.CONTACT_GROUP_ADDED_TO_META_GROUP:
             // the fact that a contact group was added or removed to a
@@ -1829,9 +1830,6 @@ public class MclStorageManager
         case MetaContactGroupEvent.META_CONTACT_GROUP_RENAMED:
             mcGroupNode
                 .setAttribute(GROUP_NAME_ATTR_NAME, mcGroup.getGroupName());
-            break;
-        case MetaContactGroupEvent.CONTACT_GROUP_RENAMED_IN_META_GROUP:
-            // proto group names are not stored so ignore.
             break;
         }
 

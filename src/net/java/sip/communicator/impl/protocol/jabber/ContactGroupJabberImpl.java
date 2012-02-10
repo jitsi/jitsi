@@ -495,19 +495,12 @@ public class ContactGroupJabberImpl
     }
 
     /**
-     * Change the source group
-     * change the buddies
+     * Change the source group, used when renaming groups.
      *
      * @param newGroup RosterGroup
      */
     void setSourceGroup(RosterGroup newGroup)
     {
         this.id = newGroup.getName();
-
-        // clear current buddies . new entries will be added
-        buddies.clear();
-
-        for (RosterEntry item : newGroup.getEntries())
-            addContact( new ContactJabberImpl(item, ssclCallback, true, true) );
     }
 }

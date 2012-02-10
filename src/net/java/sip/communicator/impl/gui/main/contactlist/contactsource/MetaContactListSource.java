@@ -17,6 +17,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import javax.swing.*;
+
 /**
  * The <tt>MetaContactListSource</tt> is an abstraction of the
  * <tt>MetaContactListService</tt>, which makes the correspondence between a
@@ -601,6 +603,22 @@ public class MetaContactListSource
      */
     public void metaContactMoved(final MetaContactMovedEvent evt)
     {
+        // fixes an issue with moving meta contacts where removeContact
+        // will set data to null in swing thread and it will be after we have
+        // set the data here, so we also move this set to the swing thread
+        // to order the calls of setData.
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    metaContactMoved(evt);
+                }
+            });
+            return;
+        }
+
         final MetaContact metaContact = evt.getSourceMetaContact();
         final MetaContactGroup oldParent = evt.getOldParent();
         final MetaContactGroup newParent = evt.getNewParent();
@@ -628,8 +646,7 @@ public class MetaContactListSource
                 GuiActivator.getContactList().removeContact(uiContact);
 
             // Add the contact to the new place.
-            uiContact = MetaContactListSource.createUIContact(
-                evt.getSourceMetaContact());
+            uiContact = MetaContactListSource.createUIContact(metaContact);
 
             UIGroup newUIGroup = null;
             if (!MetaContactListSource.isRootGroup(newParent))
