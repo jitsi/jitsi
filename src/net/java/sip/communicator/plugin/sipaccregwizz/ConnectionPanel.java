@@ -57,8 +57,14 @@ public class ConnectionPanel
     private JComboBox dtmfMethodBox
         = new JComboBox(new Object []
                                 {
-                                    "RFC4733 / SIP-INFO",
-                                    "INBAND"
+                                    Resources.getString(
+                                        "plugin.sipaccregwizz.DTMF_AUTO"),
+                                    Resources.getString(
+                                        "plugin.sipaccregwizz.DTMF_RTP"),
+                                    Resources.getString(
+                                        "plugin.sipaccregwizz.DTMF_SIP_INFO"),
+                                    Resources.getString(
+                                        "plugin.sipaccregwizz.DTMF_INBAND")
                                 });
 
     private boolean isServerOverridden = false;
@@ -527,10 +533,33 @@ public class ConnectionPanel
     {
         Object selItem = dtmfMethodBox.getSelectedItem();
 
-        if(selItem != null)
-            return selItem.toString();
-        else
+        // By default sets DTMF mezthod to auto.
+        if(selItem == null)
+        {
             return null;
+        }
+
+        String selString = selItem.toString();
+        if(selString.equals(
+                    Resources.getString("plugin.sipaccregwizz.DTMF_RTP")))
+        {
+            return "RTP_DTMF";
+        }
+        else if(selString.equals(
+                    Resources.getString(
+                        "plugin.sipaccregwizz.DTMF_SIP_INFO")))
+        {
+            return "SIP_INFO_DTMF";
+        }
+        else if(selString.equals(
+                    Resources.getString("plugin.sipaccregwizz.DTMF_INBAND")))
+        {
+            return "INBAND_DTMF";
+        }
+        else
+        {
+            return "AUTO_DTMF";
+        }
     }
 
     /**
@@ -545,7 +574,28 @@ public class ConnectionPanel
         }
         else
         {
-            dtmfMethodBox.setSelectedItem(dtmfMethod);
+            String selString;
+            if(dtmfMethod.equals("RTP_DTMF"))
+            {
+                selString =
+                    Resources.getString("plugin.sipaccregwizz.DTMF_RTP");
+            }
+            else if(dtmfMethod.equals("SIP_INFO_DTMF"))
+            {
+                selString =
+                    Resources.getString("plugin.sipaccregwizz.DTMF_SIP_INFO");
+            }
+            else if(dtmfMethod.equals("INBAND_DTMF"))
+            {
+                selString =
+                    Resources.getString("plugin.sipaccregwizz.DTMF_INBAND");
+            }
+            else
+            {
+                selString =
+                    Resources.getString("plugin.sipaccregwizz.DTMF_AUTO");
+            }
+            dtmfMethodBox.setSelectedItem(selString);
         }
     }
 

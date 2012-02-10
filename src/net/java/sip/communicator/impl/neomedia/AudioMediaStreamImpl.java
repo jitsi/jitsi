@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.neomedia.transform.dtmf.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -257,22 +258,47 @@ public class AudioMediaStreamImpl
 
     /**
      * Starts sending the specified <tt>DTMFTone</tt> until the
-     * <tt>stopSendingDTMF()</tt> method is called. Callers should keep in mind
-     * the fact that calling this method would most likely interrupt all audio
-     * transmission until the corresponding stop method is called. Also, calling
-     * this method successively without invoking the corresponding stop method
-     * between the calls will simply replace the <tt>DTMFTone</tt> from the
-     * first call with that from the second.
+     * <tt>stopSendingDTMF()</tt> method is called (Excepts for INBAND DTMF,
+     * which stops by itself this is why where there is no need to call the
+     * stopSendingDTMF). Callers should keep in mind the fact that calling this
+     * method would most likely interrupt all audio transmission until the
+     * corresponding stop method is called. Also, calling this method
+     * successively without invoking the corresponding stop method between the
+     * calls will simply replace the <tt>DTMFTone</tt> from the first call with
+     * that from the second.
      *
-     * @param tone the <tt>DTMFTone</tt> to start sending
-     * @see AudioMediaStream#startSendingDTMF(DTMFTone)
+     * @param tone the <tt>DTMFTone</tt> to start sending.
+     * @param dtmfMethod The kind of DTMF used (RTP, SIP-INOF or INBAND).
+     *
+     * @see AudioMediaStream#startSendingDTMF(DTMFTone, DTMFEnum)
      */
-    public void startSendingDTMF(DTMFTone tone)
+    public void startSendingDTMF(DTMFTone tone, DTMFEnum dtmfMethod)
     {
-        if(dtmfTransfrmEngine == null)
-            return;
+        switch(dtmfMethod)
+        {
+            case RTP_DTMF:
+                if(dtmfTransfrmEngine != null)
+                {
+                    DTMFRtpTone t = DTMFRtpTone.mapTone(tone);
+                    if(t != null)
+                    {
+                        dtmfTransfrmEngine.startSending(t);
+                    }
+                }
+                break;
+            case SIP_INFO_DTMF:
+                // This kind of DTMF is not manged directly by the
+                // OperationSetDTMFSipImpl.
+                break;
+            case INBAND_DTMF:
+                MediaDeviceSession deviceSession = getDeviceSession();
 
-        dtmfTransfrmEngine.startSending(tone);
+                if (deviceSession != null)
+                {
+                    deviceSession.addDTMF(DTMFInbandTone.mapTone(tone));
+                }
+                break;
+        }
     }
 
     /**
@@ -280,28 +306,28 @@ public class AudioMediaStreamImpl
      * <tt>startSendingDTMF()</tt> method. Has no effect if no tone is currently
      * being sent.
      *
-     * @see AudioMediaStream#stopSendingDTMF()
-     */
-    public void stopSendingDTMF()
-    {
-        if(dtmfTransfrmEngine == null)
-            return;
-
-        dtmfTransfrmEngine.stopSendingDTMF();
-    }
-
-    /**
-     * Adds a new inband DTMF tone to send.
+     * @param dtmfMethod The kind of DTMF used (RTP, SIP-INOF or INBAND).
      *
-     * @param tone the DTMF tone to send.
+     * @see AudioMediaStream#stopSendingDTMF(DTMFEnum)
      */
-    public void addInbandDTMF(DTMFInbandTone tone)
+    public void stopSendingDTMF(DTMFEnum dtmfMethod)
     {
-        MediaDeviceSession deviceSession = getDeviceSession();
-
-        if (deviceSession != null)
+        switch(dtmfMethod)
         {
-            deviceSession.addDTMF(tone);
+            case RTP_DTMF:
+                if(dtmfTransfrmEngine != null)
+                {
+                    dtmfTransfrmEngine.stopSendingDTMF();
+                }
+                break;
+            case SIP_INFO_DTMF:
+                // The SIP-INFO DTMF is not manged directly by the
+                // OperationSetDTMFSipImpl.
+                break;
+            case INBAND_DTMF:
+                // The INBAND DTMF is send by impluse of constant duration and
+                // does not need to be stopped explecitely.
+                break;
         }
     }
 
@@ -407,7 +433,7 @@ public class AudioMediaStreamImpl
      * @param tone the new tone
      * @param end is end or start of tone.
      */
-    public void fireDTMFEvent(DTMFTone tone, boolean end)
+    public void fireDTMFEvent(DTMFRtpTone tone, boolean end)
     {
         Iterator<DTMFListener> iter = dtmfListeners.iterator();
         DTMFToneEvent ev = new DTMFToneEvent(this, tone);

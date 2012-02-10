@@ -12,7 +12,7 @@ import net.java.sip.communicator.service.neomedia.*;
 
 /**
  * This event represents starting or ending reception of a specific
- * <tt>DTMFTone</tt>.
+ * <tt>DTMFRtpTone</tt>.
  *
  * @author Emil Ivov
  */
@@ -27,7 +27,7 @@ public class DTMFToneEvent
     /**
      * The tone that this event is pertaining to.
      */
-    private final DTMFTone dtmfTone;
+    private final DTMFRtpTone dtmfTone;
 
     /**
      * Creates an instance of this <tt>DTMFToneEvent</tt> with the specified
@@ -37,7 +37,7 @@ public class DTMFToneEvent
      * tone.
      * @param dtmfTone the tone that we (started/stopped) receiving.
      */
-    public DTMFToneEvent(AudioMediaStream source, DTMFTone dtmfTone)
+    public DTMFToneEvent(AudioMediaStream source, DTMFRtpTone dtmfTone)
     {
         super(source);
 
@@ -49,7 +49,7 @@ public class DTMFToneEvent
      *
      * @return the <tt>DTMFTone</tt> instance that this event pertains to.
      */
-    public DTMFTone getDtmfTone()
+    public DTMFRtpTone getDtmfTone()
     {
         return dtmfTone;
     }

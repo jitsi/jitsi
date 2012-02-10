@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.neomedia;
 
 import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Extends the <tt>MediaStream</tt> interface and adds methods specific to
@@ -52,23 +53,28 @@ public interface AudioMediaStream
 
     /**
      * Starts sending the specified <tt>DTMFTone</tt> until the
-     * <tt>stopSendingDTMF()</tt> method is called. Callers should keep in mind
-     * the fact that calling this method would most likely interrupt all audio
-     * transmission until the corresponding stop method is called. Also, calling
-     * this method successively without invoking the corresponding stop method
-     * between the calls, would simply replace the <tt>DTMFTone</tt> from the
-     * first call with that from the second.
+     * <tt>stopSendingDTMF()</tt> method is called (Excepts for INBAND DTMF,
+     * which stops by itself this is why where there is no need to call the
+     * stopSendingDTMF). Callers should keep in mind the fact that calling this
+     * method would most likely interrupt all audio transmission until the
+     * corresponding stop method is called. Also, calling this method
+     * successively without invoking the corresponding stop method between the
+     * calls will simply replace the <tt>DTMFTone</tt> from the first call with
+     * that from the second.
      *
-     * @param tone the <tt>DTMFTone</tt> that we'd like to start sending.
+     * @param tone the <tt>DTMFTone</tt> to start sending.
+     * @param dtmfMethod The kind of DTMF used (RTP, SIP-INOF or INBAND).
      */
-    public void startSendingDTMF(DTMFTone tone);
+    public void startSendingDTMF(DTMFTone tone, DTMFEnum dtmfMethod);
 
     /**
      * Interrupts transmission of a <tt>DTMFTone</tt> started with the
      * <tt>startSendingDTMF</tt> method. This method has no effect if no tone
      * is being currently sent.
+     *
+     * @param tone the <tt>DTMFTone</tt> to start sending.
      */
-    public void stopSendingDTMF();
+    public void stopSendingDTMF(DTMFEnum dtmfMethod);
 
     /**
      * Registers a listener that would receive notification events if the
@@ -85,11 +91,4 @@ public interface AudioMediaStream
      * @param listener the listener that we'd like to unregister
      */
     public void removeDTMFListener(DTMFListener listener);
-
-    /**
-     * Adds a new inband DTMF tone to send.
-     *
-     * @param tone the DTMF tone to send.
-     */
-    public void addInbandDTMF(DTMFInbandTone tone);
 }

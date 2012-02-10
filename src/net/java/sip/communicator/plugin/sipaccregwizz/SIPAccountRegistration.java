@@ -26,7 +26,7 @@ public class SIPAccountRegistration
 
     public static String DEFAULT_KEEP_ALIVE_INTERVAL = "25";
 
-    private String defaultDTMFMethod = "RFC4733 / SIP-INFO";
+    private String defaultDTMFMethod = "AUTO_DTMF";
 
     private String id;
 
