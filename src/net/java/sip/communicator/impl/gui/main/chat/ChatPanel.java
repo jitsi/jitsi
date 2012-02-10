@@ -2018,6 +2018,10 @@ public class ChatPanel
      */
     public ChatTransport findFileTransferChatTransport()
     {
+        // We currently don't support file transfer in group chats.
+        if (chatSession instanceof ConferenceChatSession)
+            return null;
+
         ChatTransport currentChatTransport
             = chatSession.getCurrentChatTransport();
 

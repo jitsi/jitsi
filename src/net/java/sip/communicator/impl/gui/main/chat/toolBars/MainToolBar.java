@@ -179,6 +179,11 @@ public class MainToolBar
         this.add(desktopSharingButton);
         this.add(sendFileButton);
 
+        ChatPanel chatPanel = chatContainer.getCurrentChat();
+        if (chatPanel == null
+            || !(chatPanel.getChatSession() instanceof MetaContactChatSession))
+            sendFileButton.setEnabled(false);
+
         this.addSeparator();
 
         this.add(historyButton);
@@ -313,16 +318,17 @@ public class MainToolBar
 
             inviteButton.setEnabled(
                 chatPanel.findInviteChatTransport() != null);
+
             sendFileButton.setEnabled(
                 chatPanel.findFileTransferChatTransport() != null);
-            
+
             boolean hasPhone = false;
             boolean hasTelephony =
                 !getOperationSetForCapabilities(
                     chatPanel.chatSession.getTransportsForOperationSet(
                         OperationSetBasicTelephony.class),
                         OperationSetBasicTelephony.class).isEmpty();
-            
+
             if(!hasTelephony && contact != null)
             {
                 Iterator<Contact> contacts = contact.getContacts();
@@ -579,14 +585,14 @@ public class MainToolBar
                                     localizedType = 
                                         GuiActivator.getResources().
                                             getI18NString(
-                                                "service.gui.MOBILE_PHONE");                                    
+                                                "service.gui.MOBILE_PHONE");
                                 }
                                 else
                                 {
                                     localizedType = 
                                         GuiActivator.getResources().
                                             getI18NString(
-                                                "service.gui.PHONE");                                    
+                                                "service.gui.PHONE");
                                 }
                                     
                                 UIContactDetail cd =
