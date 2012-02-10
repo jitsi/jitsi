@@ -959,8 +959,8 @@ public class TestMetaContactList
                        , newMetaGroup.getGroupName(), renamedGroupName);
 
         //check that the mock group did not change name
-        assertEquals ( "renameMetaContactGroup renamed a proto group!"
-                       , newMockGroup.getGroupName(), newGroupName);
+        assertEquals("renameMetaContactGroup didn't renamed a proto group!"
+            , newMockGroup.getGroupName(), renamedGroupName);
 
         //remove the meta contact group
         fixture.metaClService.removeMetaContactGroup(newMetaGroup);
