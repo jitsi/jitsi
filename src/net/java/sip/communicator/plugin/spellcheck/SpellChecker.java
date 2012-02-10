@@ -23,10 +23,15 @@ import org.osgi.framework.*;
  * configurations.
  * 
  * @author Damian Johnson
+ * @author Lyubomir Marinov
  */
 class SpellChecker
     implements ChatListener
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>SpellChecker</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger = Logger.getLogger(SpellChecker.class);
 
     private static final String LOCALE_CONFIG_PARAM =
@@ -60,18 +65,21 @@ class SpellChecker
     private ArrayList<ChatAttachments> attachedChats =
         new ArrayList<ChatAttachments>();
 
-    private boolean isEnabled = true;
+    private boolean enabled = true;
 
     /**
      * Associates spell checking capabilities with all chats. This doesn't do
      * anything if this is already running.
      * 
      * @param bc execution context of the bundle
+     * @throws Exception
      */
     synchronized void start(BundleContext bc) throws Exception
     {
-        isEnabled = SpellCheckActivator.getConfigService()
-        .getBoolean("plugin.spellcheck.ENABLE", true);
+        enabled
+            = SpellCheckActivator.getConfigService().getBoolean(
+                    "plugin.spellcheck.ENABLE",
+                    true);
         
         FileAccessService faService =
             SpellCheckActivator.getFileAccessService();
@@ -143,12 +151,7 @@ class SpellChecker
         {
             SpellCheckActivator.getUIService().addChatListener(this);
             for (Chat chat : SpellCheckActivator.getUIService().getAllChats())
-            {
-                ChatAttachments wrapper = new ChatAttachments(chat, this.dict);
-
-                wrapper.attachListeners();
-                this.attachedChats.add(wrapper);
-            }
+                chatCreated(chat);
         }
 
         if (logger.isInfoEnabled())
@@ -165,55 +168,105 @@ class SpellChecker
         synchronized (this.attachedChats)
         {
             for (ChatAttachments chat : this.attachedChats)
-            {
                 chat.detachListeners();
-            }
             this.attachedChats.clear();
             SpellCheckActivator.getUIService().removeChatListener(this);
         }
     }
 
-    // attaches listeners to new chats
-    public void chatCreated(Chat chat)
+    /**
+     * Notifies this instance that a <tt>Chat</tt> has been closed.
+     *
+     * @param chat the <tt>Chat</tt> which has been closed
+     */
+    public void chatClosed(Chat chat)
     {
-        synchronized (this.attachedChats)
+        synchronized (attachedChats)
         {
-            ChatAttachments wrapper = new ChatAttachments(chat, this.dict);
-            wrapper.setEnabled(this.isEnabled);
-            wrapper.attachListeners();
+            ChatAttachments wrapper = getChatAttachments(chat);
 
-            this.attachedChats.add(wrapper);
+            if (wrapper != null)
+            {
+                attachedChats.remove(wrapper);
+                wrapper.detachListeners();
+            }
         }
     }
 
     /**
+     * Notifies this instance that a new <tt>Chat</tt> has been created.
+     * Attaches listeners to the new <tt>chat</tt>.
+     *
+     * @param chat the new <tt>Chat</tt> which has been created
+     */
+    public void chatCreated(Chat chat)
+    {
+        synchronized (attachedChats)
+        {
+            if (getChatAttachments(chat) == null)
+            {
+                ChatAttachments wrapper = new ChatAttachments(chat, this.dict);
+
+                wrapper.setEnabled(enabled);
+                wrapper.attachListeners();
+                attachedChats.add(wrapper);
+            }
+        }
+    }
+
+    /**
+     * Gets the <tt>ChatAttachments</tt> instance associated with a specific
+     * <tt>Chat</tt>.
+     *
+     * @param chat the <tt>Chat</tt> whose associated <tt>ChatAttachments</tt>
+     * instance is to be returned
+     * @return the <tt>ChatAttachments</tt> instances associated with the
+     * specified <tt>chat</tt>; otherwise, <tt>null</tt>
+     */
+    private ChatAttachments getChatAttachments(Chat chat)
+    {
+        synchronized (attachedChats)
+        {
+            for (ChatAttachments chatAttachments : attachedChats)
+                if (chatAttachments.chat.equals(chat))
+                    return chatAttachments;
+        }
+        return null;
+    }
+
+    /**
      * Provides the user's list of words to be ignored by the spell checker.
-     * 
+     *
      * @return user's word list
      */
-    ArrayList<String> getPersonalWords()
+    List<String> getPersonalWords()
     {
-        synchronized (this.personalDictLocation)
+        List<String> personalWords = new ArrayList<String>();
+
+        synchronized (personalDictLocation)
         {
             try
             {
                 // Retrieves contents of the custom dictionary
-                ArrayList<String> customWords = new ArrayList<String>();
-                Scanner customDictScanner =
-                    new Scanner(this.personalDictLocation);
-                while (customDictScanner.hasNextLine())
+                Scanner personalDictScanner
+                    = new Scanner(personalDictLocation);
+
+                try
                 {
-                    customWords.add(customDictScanner.nextLine());
+                    while (personalDictScanner.hasNextLine())
+                        personalWords.add(personalDictScanner.nextLine());
                 }
-                customDictScanner.close();
-                return customWords;
+                finally
+                {
+                    personalDictScanner.close();
+                }
             }
             catch (FileNotFoundException exc)
             {
                 logger.error("Unable to read custom dictionary", exc);
-                return new ArrayList<String>();
             }
         }
+        return personalWords;
     }
 
     /**
@@ -252,9 +305,7 @@ class SpellChecker
 
                     // updates chats
                     for (ChatAttachments chat : this.attachedChats)
-                    {
                         chat.setDictionary(this.dict);
-                    }
                 }
             }
             catch (IOException exc)
@@ -323,9 +374,7 @@ class SpellChecker
 
                 // updates chats
                 for (ChatAttachments chat : this.attachedChats)
-                {
                     chat.setDictionary(this.dict);
-                }
             }
         }
     }
@@ -388,21 +437,19 @@ class SpellChecker
     {
         synchronized (this.attachedChats)
         {
-            return this.isEnabled;
+            return enabled;
         }
     }
 
-    void setEnabled(boolean enable)
+    void setEnabled(boolean enabled)
     {
-        if (enable != this.isEnabled)
+        if (this.enabled != enabled)
         {
             synchronized (this.attachedChats)
             {
-                this.isEnabled = enable;
+                this.enabled = enabled;
                 for (ChatAttachments chatAttachment : this.attachedChats)
-                {
-                    chatAttachment.setEnabled(enable);
-                }
+                    chatAttachment.setEnabled(this.enabled);
             }
         }
     }
@@ -417,9 +464,7 @@ class SpellChecker
 
         int len;
         while ((len = input.read(buf)) > 0)
-        {
             output.write(buf, 0, len);
-        }
 
         input.close();
         output.close();

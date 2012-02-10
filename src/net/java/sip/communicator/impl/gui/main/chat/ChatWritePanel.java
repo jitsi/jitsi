@@ -35,7 +35,7 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
  * contains an editor, where user writes the text.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Adam Netocny
  */
 public class ChatWritePanel
@@ -47,7 +47,11 @@ public class ChatWritePanel
                 DocumentListener,
                 Skinnable
 {
-    private final Logger logger = Logger.getLogger(ChatWritePanel.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>ChatWritePanel</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(ChatWritePanel.class);
 
     private final JEditorPane editorPane = new JEditorPane();
 
@@ -133,9 +137,7 @@ public class ChatWritePanel
             .equalsIgnoreCase("enter")));
 
         if(ConfigurationManager.isFontSupportEnabled())
-        {
             initDefaultFontConfiguration();
-        }
     }
 
     /**
@@ -353,7 +355,6 @@ public class ChatWritePanel
      */
     public void dispose()
     {
-
         /*
          * Stop the Timers because they're implicitly globally referenced and
          * thus don't let them retain this instance.
@@ -363,9 +364,7 @@ public class ChatWritePanel
         stoppedTypingTimer.stop();
         stoppedTypingTimer.removeActionListener(this);
         if (typingState != OperationSetTypingNotifications.STATE_STOPPED)
-        {
             stopTypingTimer();
-        }
     }
 
     /**

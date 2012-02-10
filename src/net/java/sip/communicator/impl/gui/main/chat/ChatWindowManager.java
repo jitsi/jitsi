@@ -17,28 +17,37 @@ import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Manages chat windows and panels.
  *
  * @author Yana Stamcheva
  * @author Valentin Martinet
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class ChatWindowManager
 {
-    private final java.util.List<ChatPanel> chatPanels
+    /**
+     * The <tt>Logger</tt> used by the <tt>ChatWindowManager</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(ChatWindowManager.class);
+
+    private final List<ChatPanel> chatPanels
         = new ArrayList<ChatPanel>();
 
-    private ArrayList <ChatListener> newChatListeners
+    private final List <ChatListener> chatListeners
         = new ArrayList <ChatListener> ();
 
-    private final Object syncChat = new Object();
+    private final Object chatSyncRoot = new Object();
 
     /**
-     * Opens the specified <tt>ChatPanel</tt> and optinally brings it to the
+     * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
      * front.
      *
      * @param chatPanel the <tt>ChatPanel</tt> to be opened
@@ -60,7 +69,7 @@ public class ChatWindowManager
             return;
         }
 
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             ChatContainer chatContainer = chatPanel.getChatContainer();
 
@@ -103,7 +112,7 @@ public class ChatWindowManager
      */
     private boolean isChatOpenedForDescriptor(Object descriptor)
     {
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             ChatPanel chatPanel = findChatPanelForDescriptor(descriptor);
 
@@ -130,7 +139,7 @@ public class ChatWindowManager
             return;
         }
 
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             if(containsChat(chatPanel))
             {
@@ -223,21 +232,41 @@ public class ChatWindowManager
      */
     private void closeAllChats(ChatContainer chatContainer)
     {
-        List<ChatPanel> chatPanelsToDispose = chatContainer.getChats();
+        Collection<ChatPanel> chatPanels = new HashSet<ChatPanel>();
 
-        for (ChatPanel chatPanel : chatPanelsToDispose)
-            chatPanel.dispose();
-
+        chatPanels.addAll(chatContainer.getChats());
         synchronized (chatPanels)
         {
-            chatPanels.removeAll(chatPanelsToDispose);
+            chatPanels.addAll(chatPanels);
         }
 
-        if (chatContainer.getChatCount() > 0)
-            chatContainer.removeAllChats();
+        ChatPanel currentChat = chatContainer.getCurrentChat();
+
+        for (ChatPanel chatPanel : chatPanels)
+        {
+            /*
+             * We'll close the current ChatPanel last in order to avoid multiple
+             * changes of the current ChatPanel.
+             */
+            if (chatPanel != currentChat)
+            {
+                try
+                {
+                    closeChatPanel(chatPanel);
+                }
+                catch (Exception e)
+                {
+                    logger.error("Failed to close chat: " + chatPanel, e);
+                }
+            }
+        }
+        /* As mentioned earlier, close the current ChatPanel last. */
+        if ((currentChat != null) && chatPanels.contains(currentChat))
+            closeChatPanel(currentChat);
 
         // Remove the envelope from the all active contacts in the contact list.
-        GuiActivator.getContactList().deactivateAll();
+        if (chatContainer.getChatCount() <= 0)
+            GuiActivator.getContactList().deactivateAll();
     }
 
     /**
@@ -252,7 +281,7 @@ public class ChatWindowManager
      */
     void closeAllChats(ChatContainer chatContainer, boolean warningEnabled)
     {
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             // If no warning is enabled we just close all chats without asking
             // and return.
@@ -434,7 +463,7 @@ public class ChatWindowManager
             boolean create,
             String escapedMessageID)
     {
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             ChatPanel chatPanel = findChatPanelForDescriptor(metaContact);
 
@@ -459,7 +488,7 @@ public class ChatWindowManager
 
         Iterator<ChatPanel> chatPanelsIter = chatPanels.iterator();
 
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             if (ConfigurationManager.isMultiChatWindowEnabled())
             {
@@ -504,7 +533,7 @@ public class ChatWindowManager
             ChatRoomWrapper chatRoomWrapper,
             boolean create)
     {
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
 
@@ -532,7 +561,7 @@ public class ChatWindowManager
             AdHocChatRoomWrapper chatRoomWrapper,
             boolean create)
     {
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             ChatPanel chatPanel = findChatPanelForDescriptor(chatRoomWrapper);
 
@@ -597,7 +626,7 @@ public class ChatWindowManager
                                   boolean create,
                                   String escapedMessageID)
     {
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             ChatRoomList chatRoomList
                 = GuiActivator
@@ -652,7 +681,7 @@ public class ChatWindowManager
                                   boolean create,
                                   String escapedMessageID)
     {
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             AdHocChatRoomList chatRoomList = GuiActivator.getUIService()
                 .getConferenceChatManager().getAdHocChatRoomList();
@@ -762,16 +791,21 @@ public class ChatWindowManager
     {
         ChatContainer chatContainer = chatPanel.getChatContainer();
 
-        chatContainer.removeChat(chatPanel);
+        if (chatContainer != null)
+            chatContainer.removeChat(chatPanel);
 
         boolean isChatPanelContained;
+
         synchronized (chatPanels)
         {
             isChatPanelContained = chatPanels.remove(chatPanel);
         }
 
         if (isChatPanelContained)
+        {
             chatPanel.dispose();
+            fireChatClosed(chatPanel);
+        }
     }
 
     /**
@@ -864,15 +898,7 @@ public class ChatWindowManager
         if (ConfigurationManager.isHistoryShown())
             chatPanel.loadHistory(escapedMessageID);
 
-        // notifies listeners interested in the chat's instantiation
-        synchronized (newChatListeners)
-        {
-            for (ChatListener listener : newChatListeners)
-            {
-                listener.chatCreated(chatPanel);
-            }
-        }
-
+        fireChatCreated(chatPanel);
         return chatPanel;
     }
 
@@ -908,8 +934,8 @@ public class ChatWindowManager
             else
             {
                 chatContainer = new ChatWindow();
-                GuiActivator.getUIService()
-                    .registerExportedWindow((ChatWindow) chatContainer);
+                GuiActivator.getUIService().registerExportedWindow(
+                    (ExportedWindow) chatContainer);
             }
         }
         else
@@ -974,15 +1000,7 @@ public class ChatWindowManager
         if (ConfigurationManager.isHistoryShown())
             chatPanel.loadHistory(escapedMessageID);
 
-        // notifies listeners interested in the chat's instantiation
-        synchronized (newChatListeners)
-        {
-            for (ChatListener listener : newChatListeners)
-            {
-                listener.chatCreated(chatPanel);
-            }
-        }
-
+        fireChatCreated(chatPanel);
         return chatPanel;
     }
 
@@ -1015,15 +1033,7 @@ public class ChatWindowManager
         if (ConfigurationManager.isHistoryShown())
             chatPanel.loadHistory(escapedMessageID);
 
-        // notifies listeners interested in the chat's instantiation
-        synchronized (newChatListeners)
-        {
-            for (ChatListener listener : newChatListeners)
-            {
-                listener.chatCreated(chatPanel);
-            }
-        }
-
+        fireChatCreated(chatPanel);
         return chatPanel;
     }
 
@@ -1040,6 +1050,40 @@ public class ChatWindowManager
             if (chatPanel.getChatSession().getDescriptor().equals(descriptor))
                 return chatPanel;
         return null;
+    }
+
+    /**
+     * Notifies the <tt>ChatListener</tt>s registered with this instance that
+     * a specific <tt>Chat</tt> has been closed.
+     *
+     * @param chat the <tt>Chat</tt> which has been closed and which the
+     * <tt>ChatListener</tt>s registered with this instance are to be notified
+     * about 
+     */
+    private void fireChatClosed(Chat chat)
+    {
+        synchronized (chatListeners)
+        {
+            for (ChatListener listener : chatListeners)
+                listener.chatClosed(chat);
+        }
+    }
+
+    /**
+     * Notifies the <tt>ChatListener</tt>s registered with this instance that
+     * a specific <tt>Chat</tt> has been created.
+     *
+     * @param chat the <tt>Chat</tt> which has been created and which the
+     * <tt>ChatListener</tt>s registered with this instance are to be notified
+     * about 
+     */
+    private void fireChatCreated(Chat chat)
+    {
+        synchronized (chatListeners)
+        {
+            for (ChatListener listener : chatListeners)
+                listener.chatCreated(chat);
+        }
     }
 
     /**
@@ -1128,7 +1172,7 @@ public class ChatWindowManager
      */
     public Collection <ChatPanel> getAllChats()
     {
-        synchronized (syncChat)
+        synchronized (chatSyncRoot)
         {
             return chatPanels;
         }
@@ -1141,9 +1185,10 @@ public class ChatWindowManager
      */
     public void addChatListener(ChatListener listener)
     {
-        synchronized (newChatListeners)
+        synchronized (chatListeners)
         {
-            newChatListeners.add(listener);
+            if (!chatListeners.contains(listener))
+                chatListeners.add(listener);
         }
     }
 
@@ -1153,9 +1198,9 @@ public class ChatWindowManager
      */
     public void removeChatListener(ChatListener listener)
     {
-        synchronized (newChatListeners)
+        synchronized (chatListeners)
         {
-            newChatListeners.remove(listener);
+            chatListeners.remove(listener);
         }
     }
 }

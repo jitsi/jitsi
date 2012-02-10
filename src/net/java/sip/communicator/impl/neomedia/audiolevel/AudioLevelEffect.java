@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.neomedia.event.*;
  *
  * @author Damian Minkov
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class AudioLevelEffect
     extends ControlsAdapter
@@ -33,21 +33,23 @@ public class AudioLevelEffect
     private static final boolean COPY_DATA_FROM_INPUT_TO_OUTPUT = true;
 
     /**
+     * The <tt>SimpleAudioLevelListener</tt> which this instance associates with
+     * its {@link #eventDispatcher}.
+     */
+    private SimpleAudioLevelListener audioLevelListener = null;
+
+    /**
      * The dispatcher of the events which handles the calculation and the event
      * firing in different thread in order to now slow down the JMF codec chain.
      */
     private final AudioLevelEventDispatcher eventDispatcher
-        = new AudioLevelEventDispatcher();
+        = new AudioLevelEventDispatcher("AudioLevelEffect Dispatcher");
 
     /**
-     * Input Format
+     * The indicator which determines whether {@link #open()} has been called on
+     * this instance without an intervening {@link #close()}.
      */
-    private AudioFormat inputFormat;
-
-    /**
-     * Output Format
-     */
-    private AudioFormat outputFormat;
+    private boolean open = false;
 
     /**
      * The supported audio formats by this effect.
@@ -55,28 +57,24 @@ public class AudioLevelEffect
     private Format[] supportedAudioFormats;
 
     /**
-     * Audio level listener.
-     */
-    private SimpleAudioLevelListener audioLevelListener = null;
-    
-    /**
      * The minimum and maximum values of the scale
      */
     public AudioLevelEffect()
     {
-        supportedAudioFormats = new Format[]
-        {
-            new AudioFormat(
-                    AudioFormat.LINEAR,
-                    Format.NOT_SPECIFIED,
-                    16,
-                    1,
-                    AudioFormat.LITTLE_ENDIAN,
-                    AudioFormat.SIGNED,
-                    16,
-                    Format.NOT_SPECIFIED,
-                    Format.byteArray)
-        };
+        supportedAudioFormats
+            = new Format[]
+                    {
+                        new AudioFormat(
+                                AudioFormat.LINEAR,
+                                Format.NOT_SPECIFIED,
+                                16,
+                                1,
+                                AudioFormat.LITTLE_ENDIAN,
+                                AudioFormat.SIGNED,
+                                16,
+                                Format.NOT_SPECIFIED,
+                                Format.byteArray)
+                    };
     }
 
     /**
@@ -92,8 +90,12 @@ public class AudioLevelEffect
      */
     public void setAudioLevelListener(SimpleAudioLevelListener listener)
     {
-        audioLevelListener = listener;
-        eventDispatcher.setAudioLevelListener(listener);
+        synchronized (eventDispatcher)
+        {
+            audioLevelListener = listener;
+            if (open)
+                eventDispatcher.setAudioLevelListener(audioLevelListener);
+        }
     }
     
     /**
@@ -103,7 +105,10 @@ public class AudioLevelEffect
      */
     public SimpleAudioLevelListener getAudioLevelListener()
     {
-        return audioLevelListener;
+        synchronized (eventDispatcher)
+        {
+            return audioLevelListener;
+        }
     }
 
     /**
@@ -125,18 +130,20 @@ public class AudioLevelEffect
      */
     public Format[] getSupportedOutputFormats(Format input)
     {
-        return new Format[]{
-            new AudioFormat(
-                AudioFormat.LINEAR,
-                ((AudioFormat)input).getSampleRate(),
-                16,
-                1,
-                AudioFormat.LITTLE_ENDIAN,
-                AudioFormat.SIGNED,
-                16,
-                Format.NOT_SPECIFIED,
-                Format.byteArray)
-            };
+        return
+            new Format[]
+                    {
+                        new AudioFormat(
+                                AudioFormat.LINEAR,
+                                ((AudioFormat)input).getSampleRate(),
+                                16,
+                                1,
+                                AudioFormat.LITTLE_ENDIAN,
+                                AudioFormat.SIGNED,
+                                16,
+                                Format.NOT_SPECIFIED,
+                                Format.byteArray)
+                    };
     }
 
     /**
@@ -147,8 +154,7 @@ public class AudioLevelEffect
      */
     public Format setInputFormat(Format format)
     {
-        this.inputFormat = (AudioFormat)format;
-        return inputFormat;
+        return (format instanceof AudioFormat) ? (AudioFormat) format : null;
     }
 
     /**
@@ -159,8 +165,7 @@ public class AudioLevelEffect
      */
     public Format setOutputFormat(Format format)
     {
-        this.outputFormat = (AudioFormat)format;
-        return outputFormat;
+        return (format instanceof AudioFormat) ? (AudioFormat) format : null;
     }
 
     /**
@@ -175,6 +180,10 @@ public class AudioLevelEffect
      */
     public int process(Buffer inputBuffer, Buffer outputBuffer)
     {
+        /*
+         * In accord with what an Effect is generally supposed to do, copy the
+         * data from the inputBuffer into outputBuffer.
+         */
         if (COPY_DATA_FROM_INPUT_TO_OUTPUT)
         {
             // Copy the actual data from the input to the output.
@@ -215,7 +224,11 @@ public class AudioLevelEffect
             outputBuffer.copy(inputBuffer);
         }
 
-        //now copy the output to the level dispatcher.
+        /*
+         * At long last, do the job which this AudioLevelEffect exists for i.e.
+         * deliver the data to eventDispatcher so that its audio level gets
+         * calculated and delivered to audioEventListener. 
+         */
         eventDispatcher.addData(outputBuffer);
 
         return BUFFER_PROCESSED_OK;
@@ -241,10 +254,13 @@ public class AudioLevelEffect
     public void open()
         throws ResourceUnavailableException
     {
-        synchronized(eventDispatcher)
+        synchronized (eventDispatcher)
         {
-            new Thread(eventDispatcher, "AudioLevelEffect Notification Thread")
-                    .start();
+            if (!open)
+            {
+                open = true;
+                eventDispatcher.setAudioLevelListener(audioLevelListener);
+            }
         }
     }
 
@@ -253,9 +269,13 @@ public class AudioLevelEffect
      */
     public void close()
     {
-        synchronized(eventDispatcher)
+        synchronized (eventDispatcher)
         {
-            eventDispatcher.stop();
+            if (open)
+            {
+                open = false;
+                eventDispatcher.setAudioLevelListener(null);
+            }
         }
     }
 

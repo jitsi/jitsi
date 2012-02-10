@@ -253,15 +253,15 @@ public class DTMFHandler
 
             if(info.keyChar == e.getKeyChar())
             {
-                if(e.getID() == KeyEvent.KEY_PRESSED)
+                switch (e.getID())
                 {
+                case KeyEvent.KEY_PRESSED:
                     startSendingDtmfTone(info);
-                }
-                else if(e.getID() == KeyEvent.KEY_RELEASED)
-                {
+                    break;
+                case KeyEvent.KEY_RELEASED:
                     stopSendingDtmfTone();
+                    break;
                 }
-
                 return false;
             }
         }

@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
+import java.lang.ref.*;
 import java.util.*;
 import java.util.List;
 
@@ -67,8 +68,18 @@ public class UIServiceImpl
 
     private AccountRegWizardContainerImpl wizardContainer;
 
-    private final List<PluginComponentListener> pluginComponentListeners =
-        new Vector<PluginComponentListener>();
+    /**
+     * The <tt>PluginComponentListener</tt>s interested into when
+     * <tt>PluginComponent</tt>s gets added and removed.
+     * <p>
+     * Because <tt>UIServiceImpl</tt> is global with respect to the lifetime of
+     * the application and, consequently, <tt>PluginComponentListener</tt>s get
+     * leaked, the listeners are referenced by <tt>WeakReference</tt>s.
+     * </p>
+     */
+    private final List<WeakReference<PluginComponentListener>>
+        pluginComponentListeners
+            = new ArrayList<WeakReference<PluginComponentListener>>();
 
     private static final List<Container> supportedContainers
         = new ArrayList<Container>();
@@ -217,19 +228,29 @@ public class UIServiceImpl
 
         synchronized (pluginComponentListeners)
         {
-            for (PluginComponentListener l : pluginComponentListeners)
+            Iterator<WeakReference<PluginComponentListener>> i
+                = pluginComponentListeners.iterator();
+
+            while (i.hasNext())
             {
-                switch (evt.getEventID())
+                PluginComponentListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else
                 {
-                case PluginComponentEvent.PLUGIN_COMPONENT_ADDED:
-                    l.pluginComponentAdded(evt);
-                    break;
-                case PluginComponentEvent.PLUGIN_COMPONENT_REMOVED:
-                    l.pluginComponentRemoved(evt);
-                    break;
-                default:
-                    logger.error("Unknown event type " + evt.getEventID());
-                    break;
+                    switch (evt.getEventID())
+                    {
+                    case PluginComponentEvent.PLUGIN_COMPONENT_ADDED:
+                        l.pluginComponentAdded(evt);
+                        break;
+                    case PluginComponentEvent.PLUGIN_COMPONENT_REMOVED:
+                        l.pluginComponentRemoved(evt);
+                        break;
+                    default:
+                        logger.error("Unknown event type " + evt.getEventID());
+                        break;
+                    }
                 }
             }
         }
@@ -489,13 +510,28 @@ public class UIServiceImpl
      * Adds the given <tt>PluginComponentListener</tt> to the list of component
      * listeners registered in this <tt>UIService</tt> implementation.
      *
-     * @param l the <tt>PluginComponentListener</tt> to add
+     * @param listener the <tt>PluginComponentListener</tt> to add
      */
-    public void addPluginComponentListener(PluginComponentListener l)
+    public void addPluginComponentListener(PluginComponentListener listener)
     {
         synchronized (pluginComponentListeners)
         {
-            pluginComponentListeners.add(l);
+            Iterator<WeakReference<PluginComponentListener>> i
+                = pluginComponentListeners.iterator();
+            boolean contains = false;
+
+            while (i.hasNext())
+            {
+                PluginComponentListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else if (l.equals(listener))
+                    contains = true;
+            }
+            if (!contains)
+                pluginComponentListeners.add(
+                        new WeakReference<PluginComponentListener>(listener));
         }
     }
 
@@ -503,13 +539,22 @@ public class UIServiceImpl
      * Removes the given <tt>PluginComponentListener</tt> from the list of
      * component listeners registered in this <tt>UIService</tt> implementation.
      *
-     * @param l the <tt>PluginComponentListener</tt> to remove
+     * @param listener the <tt>PluginComponentListener</tt> to remove
      */
-    public void removePluginComponentListener(PluginComponentListener l)
+    public void removePluginComponentListener(PluginComponentListener listener)
     {
         synchronized (pluginComponentListeners)
         {
-            pluginComponentListeners.remove(l);
+            Iterator<WeakReference<PluginComponentListener>> i
+                = pluginComponentListeners.iterator();
+
+            while (i.hasNext())
+            {
+                PluginComponentListener l = i.next().get();
+
+                if ((l == null) || l.equals(listener))
+                    i.remove();
+            }
         }
     }
 

@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -41,7 +42,7 @@ import com.explodingpixels.macwidgets.*;
  * Note that the conference case is not yet implemented.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Adam Netocny
  */
 public class ChatWindow
@@ -51,14 +52,18 @@ public class ChatWindow
                 PluginComponentListener,
                 WindowFocusListener
 {
-    private final Logger logger = Logger.getLogger(ChatWindow.class);
+    /**
+     * The <tt>Logger</tt> used by the <tt>ChatWindow</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(ChatWindow.class);
 
     private ConversationTabbedPane chatTabbedPane = null;
 
     private int chatCount = 0;
 
-    private final java.util.List<ChatChangeListener> chatChangeListeners =
-        new Vector<ChatChangeListener>();
+    private final List<ChatChangeListener> chatChangeListeners
+        = new Vector<ChatChangeListener>();
 
     private final JPanel mainPanel
         = new TransparentPanel(new BorderLayout());
@@ -95,9 +100,7 @@ public class ChatWindow
     public ChatWindow()
     {
         if (!ConfigurationManager.isWindowDecorated())
-        {
             this.setUndecorated(true);
-        }
 
         this.addWindowFocusListener(this);
 
@@ -105,9 +108,7 @@ public class ChatWindow
 
         //If in mode TABBED_CHAT_WINDOW initialize the tabbed pane
         if(ConfigurationManager.isMultiChatWindowEnabled())
-        {
             chatTabbedPane = new ConversationTabbedPane();
-        }
 
         menuBar = new MessageWindowMenuBar(this);
 
@@ -167,7 +168,15 @@ public class ChatWindow
     {
         try
         {
-            GuiActivator.getUIService().removePluginComponentListener(this);
+            UIServiceImpl uiService = GuiActivator.getUIService();
+
+            /*
+             * The ChatWindow should seize to exist so we don't want any strong
+             * references to it i.e. it cannot be exported anymore.
+             */
+            uiService.unregisterExportedWindow(this);
+
+            uiService.removePluginComponentListener(this);
             mainToolBar.dispose();
             menuBar.dispose();
         }
@@ -207,9 +216,7 @@ public class ChatWindow
             public void run()
             {
                 for (ChatChangeListener l : chatChangeListeners)
-                {
                     l.chatChanged(chatPanel);
-                }
             }
         }.start();
     }
@@ -398,11 +405,6 @@ public class ChatWindow
             this.removeChat(getCurrentChat());
         }
 
-        /*
-         * The ChatWindow should seize to exist so we don't want any strong
-         * references to it i.e. it cannot be exported anymore.
-         */
-        GuiActivator.getUIService().unregisterExportedWindow(this);
         dispose();
     }
 
@@ -434,9 +436,7 @@ public class ChatWindow
             public void run()
             {
                 for (ChatChangeListener l : chatChangeListeners)
-                {
                     l.chatChanged(chatPanel);
-                }
             }
         }.start();
     }
@@ -451,8 +451,8 @@ public class ChatWindow
     {
         if(getChatTabCount() > 0)
         {
-            ChatPanel chatPanel = (ChatPanel) this.chatTabbedPane
-                .getComponentAt(index);
+            ChatPanel chatPanel
+                = (ChatPanel) this.chatTabbedPane.getComponentAt(index);
 
             setCurrentChat(chatPanel);
         }
@@ -476,9 +476,7 @@ public class ChatWindow
                 Component c = mainPanel.getComponent(i);
 
                 if(c instanceof ChatPanel)
-                {
                     return (ChatPanel) c;
-                }
             }
         }
         return null;
@@ -489,39 +487,21 @@ public class ChatWindow
      *
      * @return the currently available chat panels.
      */
-    public java.util.List<ChatPanel> getChats()
+    public List<ChatPanel> getChats()
     {
-        ArrayList<ChatPanel> chatPanels = new ArrayList<ChatPanel>();
+        java.awt.Container container
+            = (getChatTabCount() > 0) ? chatTabbedPane : mainPanel;
+        int componentCount = container.getComponentCount();
+        List<ChatPanel> chatPanels
+            = new ArrayList<ChatPanel>(componentCount);
 
-        if(getChatTabCount() > 0)
+        for (int i = 0; i < componentCount; i++)
         {
-            int componentCount = chatTabbedPane.getComponentCount();
+            Component c = container.getComponent(i);
 
-            for (int i = 0; i < componentCount; i ++)
-            {
-                Component c = chatTabbedPane.getComponent(i);
-
-                if(c instanceof ChatPanel)
-                {
-                    chatPanels.add((ChatPanel)c);
-                }
-            }
+            if (c instanceof ChatPanel)
+                chatPanels.add((ChatPanel) c);
         }
-        else
-        {
-            int componentCount = mainPanel.getComponentCount();
-
-            for (int i = 0; i < componentCount; i ++)
-            {
-                Component c = mainPanel.getComponent(i);
-
-                if(c instanceof ChatPanel)
-                {
-                    chatPanels.add((ChatPanel)c);
-                }
-            }
-        }
-
         return chatPanels;
     }
 
@@ -588,14 +568,14 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            if (getChatTabCount() > 0) {
+            if (getChatTabCount() > 0)
+            {
                 int selectedIndex = chatTabbedPane.getSelectedIndex();
-                if (selectedIndex < chatTabbedPane.getTabCount() - 1) {
+
+                if (selectedIndex < chatTabbedPane.getTabCount() - 1)
                     setCurrentChatTab(selectedIndex + 1);
-                }
-                else {
+                else
                     setCurrentChatTab(0);
-                }
             }
         }
     }
@@ -610,14 +590,14 @@ public class ChatWindow
     {
         public void actionPerformed(ActionEvent e)
         {
-            if (getChatTabCount() > 0) {
+            if (getChatTabCount() > 0)
+            {
                 int selectedIndex = chatTabbedPane.getSelectedIndex();
-                if (selectedIndex != 0) {
+
+                if (selectedIndex != 0)
                     setCurrentChatTab(selectedIndex - 1);
-                }
-                else {
+                else
                     setCurrentChatTab(chatTabbedPane.getTabCount() - 1);
-                }
             }
         }
     }
@@ -699,9 +679,8 @@ public class ChatWindow
         {
             String title = getTitle();
 
-            if (title.startsWith("*")) {
+            if (title.startsWith("*"))
                 setTitle(title.substring(1, title.length()));
-            }
         }
 
         public void windowOpened(WindowEvent e)
@@ -710,12 +689,10 @@ public class ChatWindow
             {
                 keyManager
                     = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-
-                keyDispatcher = new MainKeyDispatcher(keyManager);
+                if (keyDispatcher == null)
+                    keyDispatcher = new MainKeyDispatcher(keyManager);
+                keyManager.addKeyEventDispatcher(keyDispatcher);
             }
-
-            keyManager.addKeyEventDispatcher(
-                new MainKeyDispatcher(keyManager));
         }
 
         @Override
@@ -1138,7 +1115,7 @@ public class ChatWindow
      */
     public void directoryDropped(File dir, Point point)
     {
-        //TODO: Implement send directory
+        // TODO Implement send directory
     }
 
     /**
@@ -1148,13 +1125,11 @@ public class ChatWindow
      */
     public void fileDropped(File file, Point point)
     {
-        ChatPanel chatPanel = getCurrentChat();
-
-        chatPanel.sendFile(file);
+        getCurrentChat().sendFile(file);
     }
 
     /**
-     * Opens the specified <tt>ChatPanel</tt> and optinally brings it to the
+     * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
      * front.
      *
      * @param chatPanel the <tt>ChatPanel</tt> to be opened
@@ -1166,8 +1141,7 @@ public class ChatWindow
     {
         if(getExtendedState() != JFrame.ICONIFIED)
         {
-            if(ConfigurationManager.isAutoPopupNewMessage()
-                    || setSelected)
+            if(ConfigurationManager.isAutoPopupNewMessage() || setSelected)
                 toFront();
         }
         else
@@ -1188,8 +1162,7 @@ public class ChatWindow
         {
             setCurrentChat(chatPanel);
         }
-        else if(!getCurrentChat().equals(chatPanel)
-            && getChatTabCount() > 0)
+        else if(!getCurrentChat().equals(chatPanel) && getChatTabCount() > 0)
         {
             highlightTab(chatPanel);
         }
@@ -1249,7 +1222,7 @@ public class ChatWindow
      */
     private class MainKeyDispatcher implements KeyEventDispatcher
     {
-        private KeyboardFocusManager keyManager;
+        private final KeyboardFocusManager keyManager;
 
         /**
          * Creates an instance of <tt>MainKeyDispatcher</tt>.
@@ -1271,8 +1244,7 @@ public class ChatWindow
         {
             // If this window is not the focus window  or if the event is not
             // of type PRESSED we have nothing more to do here.
-            if (!isFocused()
-                || (e.getID() != KeyEvent.KEY_TYPED))
+            if (!isFocused() || (e.getID() != KeyEvent.KEY_TYPED))
                 return false;
 
             if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED
@@ -1281,13 +1253,15 @@ public class ChatWindow
                 return false;
             }
 
-            JEditorPane chatWriteEditor
-                = getCurrentChat().getChatWritePanel().getEditorPane();
+            ChatWritePanel chatWritePanel
+                = getCurrentChat().getChatWritePanel();
+            JEditorPane chatWriteEditor = chatWritePanel.getEditorPane();
 
             if (keyManager.getFocusOwner() != null
-                && !getCurrentChat().getChatWritePanel().isFocusOwner())
+                && !chatWritePanel.isFocusOwner())
             {
-                // Request the focus in the chat write panel if a letter is typed.
+                // Request the focus in the chat write panel if a letter is
+                // typed.
                 chatWriteEditor.requestFocusInWindow();
 
                 // We re-dispatch the event to the chat write panel.

@@ -45,20 +45,13 @@ public class VolumeControlSlider
         volumeControl.addVolumeChangeListener(this);
 
         volumeSlider = new JSlider(JSlider.VERTICAL, 0, 100, 50);
-
         volumeSlider.setPreferredSize(new Dimension(20, 100));
 
         // Sets the minimum, maximum and default volume values for the volume
         // slider.
-        if (volumeControl != null)
-        {
-            volumeSlider.setMinimum(
-                (int) (volumeControl.getMinValue()*MULTIPLIER));
-            volumeSlider.setMaximum(
-                (int) (volumeControl.getMaxValue()*MULTIPLIER));
-            volumeSlider.setValue(
-                (int) (volumeControl.getVolume()*MULTIPLIER));
-        }
+        volumeSlider.setMinimum((int) (volumeControl.getMinValue()*MULTIPLIER));
+        volumeSlider.setMaximum((int) (volumeControl.getMaxValue()*MULTIPLIER));
+        volumeSlider.setValue((int) (volumeControl.getVolume()*MULTIPLIER));
 
         // Adds a change listener to the slider in order to correctly set
         // the volume through the VolumeControl service, on user change.

@@ -80,7 +80,8 @@ public class AudioMixerMediaDevice
      * audio level.
      */
     private final AudioLevelEventDispatcher localUserAudioLevelDispatcher
-        = new AudioLevelEventDispatcher();
+        = new AudioLevelEventDispatcher(
+                "Local User Audio Level Dispatcher (Mixer Edition)");
 
     /**
      * The <tt>List</tt> where we store all listeners interested in changes of
@@ -338,17 +339,11 @@ public class AudioMixerMediaDevice
                                 = streamAudioLevelListeners.get(receiveStream);
                         }
 
-                        if(streamEventDispatcher != null
-                            && !buffer.isDiscard()
-                            && buffer.getLength() > 0
-                            && buffer.getData() != null)
+                        if ((streamEventDispatcher != null)
+                                && !buffer.isDiscard()
+                                && (buffer.getLength() > 0)
+                                && (buffer.getData() != null))
                         {
-                            if(! streamEventDispatcher.isRunning())
-                            {
-                                new Thread(streamEventDispatcher,
-                                   "StreamAudioLevelDispatcher (Mixer Edition)")
-                                        .start();
-                            }
                             streamEventDispatcher.addData(buffer);
                         }
                     }
@@ -512,10 +507,6 @@ public class AudioMixerMediaDevice
                 {
                     localUserAudioLevelDispatcher
                         .setAudioLevelListener(localUserAudioLevelDelegator);
-
-                    new Thread(localUserAudioLevelDispatcher,
-                          "Local User Audio Level Dispatcher (Mixer Edition)")
-                                .start();
                 }
 
                 //check if this listener has already been added.
@@ -625,7 +616,7 @@ public class AudioMixerMediaDevice
         }
 
         /**
-         * Sets <tt>l</tt> as the list of listeners that will receive
+         * Sets <tt>listener</tt> as the list of listeners that will receive
          * notifications of audio level event changes in the data arriving from
          * <tt>stream</tt>.
          *
@@ -634,7 +625,7 @@ public class AudioMixerMediaDevice
          * @param listener the listener we'd like to register for notifications
          * from <tt>stream</tt>.
          */
-        public void putStreamAudioLevelListener(
+        public void setStreamAudioLevelListener(
                 ReceiveStream stream,
                 SimpleAudioLevelListener listener)
         {
@@ -643,16 +634,36 @@ public class AudioMixerMediaDevice
                 AudioLevelEventDispatcher dispatcher
                     = streamAudioLevelListeners.get(stream);
 
-                if (dispatcher == null)
+                if (listener == null)
                 {
-                    //this is not a replacement but a registration for a stream
-                    //that was not listened to so far. create it and "put" it
-                    dispatcher = new AudioLevelEventDispatcher();
-                    dispatcher.setMapCache(audioLevelCache, stream.getSSRC());
-                    streamAudioLevelListeners.put(stream, dispatcher);
+                    if (dispatcher != null)
+                    {
+                        try
+                        {
+                            dispatcher.setAudioLevelListener(null);
+                            dispatcher.setAudioLevelCache(null, -1);
+                        }
+                        finally
+                        {
+                            streamAudioLevelListeners.remove(dispatcher);
+                        }
+                    }
                 }
-
-                dispatcher.setAudioLevelListener(listener);
+                else
+                {
+                    if (dispatcher == null)
+                    {
+                        dispatcher
+                            = new AudioLevelEventDispatcher(
+                                    "Stream Audio Level Dispatcher"
+                                        + " (Mixer Edition)");
+                        dispatcher.setAudioLevelCache(
+                                audioLevelCache,
+                                stream.getSSRC());
+                        streamAudioLevelListeners.put(stream, dispatcher);
+                    }
+                    dispatcher.setAudioLevelListener(listener);
+                }
             }
         }
 
@@ -700,10 +711,7 @@ public class AudioMixerMediaDevice
                 //if this was the last listener then we also need to remove the
                 //dispatcher
                 if (localUserAudioLevelListeners.isEmpty())
-                {
-                    localUserAudioLevelDispatcher.stop();
                     localUserAudioLevelDispatcher.setAudioLevelListener(null);
-                }
             }
         }
 
@@ -772,24 +780,6 @@ public class AudioMixerMediaDevice
 
             //make sure we no longer cache levels for that stream.
             audioLevelCache.removeLevel(receiveStream.getSSRC());
-        }
-
-        /**
-         * Removes listeners registered for audio level changes with the
-         * specified receive  <tt>stream</tt>.
-         *
-         * @param stream the stream whose listeners we'd like to get rid of.
-         */
-        public void removeStreamAudioLevelListener(ReceiveStream stream)
-        {
-            synchronized(streamAudioLevelListeners)
-            {
-                AudioLevelEventDispatcher dispatcher =
-                    streamAudioLevelListeners.remove(stream);
-
-                if (dispatcher != null)
-                    dispatcher.setAudioLevelListener(null);
-            }
         }
     }
 
@@ -1006,8 +996,7 @@ public class AudioMixerMediaDevice
             synchronized(streamAudioLevelListenerLock)
             {
                 if(this.streamAudioLevelListener != null)
-                    audioMixerMediaDeviceSession
-                        .putStreamAudioLevelListener(
+                    audioMixerMediaDeviceSession.setStreamAudioLevelListener(
                             receiveStream,
                             streamAudioLevelListener);
             }
@@ -1095,24 +1084,13 @@ public class AudioMixerMediaDevice
 
                 for (ReceiveStream receiveStream : getReceiveStreams())
                 {
-                    if (listener != null)
-                    {
-                        /*
-                         * If we already have a ReceiveStream, register the
-                         * listener with the mixer; otherwise, wait till we get
-                         * one.
-                         */
-                        audioMixerMediaDeviceSession
-                            .putStreamAudioLevelListener(
-                                receiveStream,
-                                listener);
-                    }
-                    else
-                    {
-                        audioMixerMediaDeviceSession
-                            .removeStreamAudioLevelListener(
-                                receiveStream);
-                    }
+                    /*
+                     * If we already have a ReceiveStream, register the listener
+                     * with the mixer; otherwise, wait till we get one.
+                     */
+                    audioMixerMediaDeviceSession.setStreamAudioLevelListener(
+                            receiveStream,
+                            listener);
                 }
             }
         }

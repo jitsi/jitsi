@@ -9,15 +9,24 @@ package net.java.sip.communicator.service.gui.event;
 import net.java.sip.communicator.service.gui.Chat;
 
 /**
- * Listens for the instantiation of new chats.
+ * Listens to the creation and closing of <tt>Chat</tt>s.
  *
  * @author Damian Johnson
+ * @author Lyubomir Marinov
  */
 public interface ChatListener
 {
     /**
-     * Indicates how newly instantiated chats should be handled.
-     * @param newChat chat that has just been instantiated
+     * Notifies this instance that a <tt>Chat</tt> has been closed.
+     *
+     * @param chat the <tt>Chat</tt> which has been closed
      */
-    void chatCreated(Chat newChat);
+    public void chatClosed(Chat chat);
+
+    /**
+     * Notifies this instance that a new <tt>Chat</tt> has been created.
+     *
+     * @param chat the new <tt>Chat</tt> which has been created
+     */
+    public void chatCreated(Chat chat);
 }

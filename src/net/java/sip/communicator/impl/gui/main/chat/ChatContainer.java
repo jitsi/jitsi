@@ -57,7 +57,7 @@ public interface ChatContainer
     public java.util.List<ChatPanel> getChats();
 
     /**
-     * Opens the specified <tt>ChatPanel</tt> and optinally brings it to the
+     * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
      * front.
      *
      * @param chatPanel the <tt>ChatPanel</tt> to be opened
@@ -127,6 +127,8 @@ public interface ChatContainer
 
     /**
      * Updates history buttons state.
+     *
+     * @param chatPanel
      */
     public void updateHistoryButtonState(ChatPanel chatPanel);
 }

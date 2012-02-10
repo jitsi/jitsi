@@ -34,7 +34,7 @@ class ChatAttachments
     private static final ImageIcon ADD_WORD_ICON = Resources
         .getImage(Resources.ADD_WORD_ICON);
 
-    private final Chat chat;
+    public final Chat chat;
 
     private final DocUnderliner docListener; // The red-squibble drawing code
 
@@ -53,7 +53,7 @@ class ChatAttachments
     
     private SpellCheckerConfigDialog dialog;
 
-    ChatAttachments(Chat chat, final SpellDictionary dict)
+    public ChatAttachments(Chat chat, final SpellDictionary dict)
     {
         this.chat = chat;
         this.dict = dict;
@@ -201,7 +201,7 @@ class ChatAttachments
     }
 
     // provides popup menu entries (mostly separated for readability)
-    private ArrayList<JMenuItem> getCorrections(final Word clickedWord)
+    private List<JMenuItem> getCorrections(final Word clickedWord)
     {
         ArrayList<JMenuItem> correctionEntries = new ArrayList<JMenuItem>();
 
@@ -275,11 +275,11 @@ class ChatAttachments
     private class CorrectionListener
         implements ActionListener
     {
-        private Word clickedWord;
+        private final Word clickedWord;
 
-        private String correction;
+        private final String correction;
 
-        CorrectionListener(Word clickedWord, String correction)
+        public CorrectionListener(Word clickedWord, String correction)
         {
             this.clickedWord = clickedWord;
             this.correction = correction;

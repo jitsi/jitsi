@@ -48,7 +48,7 @@ public class InputVolumeControlButton
     /**
      * Our volume control.
      */
-    private VolumeControl volumeControl;
+    private final VolumeControl volumeControl;
 
     private final VolumeControlSlider sliderMenu;
 
@@ -59,7 +59,7 @@ public class InputVolumeControlButton
      */
     private boolean mute = false;
 
-    private boolean sliderMenuVisible = false;
+    private boolean sliderMenuIsVisible = false;
 
     /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
@@ -131,12 +131,10 @@ public class InputVolumeControlButton
         this.fullScreen = fullScreen;
         this.mute = selected;
 
-        if(volumeControl == null)
-            volumeControl = getVolumeControl();
+        volumeControl = getVolumeControl();
 
         // Creates the menu that would contain the volume control component.
         sliderMenu = new VolumeControlSlider(volumeControl);
-
         sliderMenu.setInvoker(this);
 
         addMouseListener(new MouseAdapter()
@@ -158,7 +156,7 @@ public class InputVolumeControlButton
 
             public void mouseReleased(MouseEvent mouseevent)
             {
-                if (!sliderMenuVisible)
+                if (!sliderMenuIsVisible)
                     timerTask.cancel();
                 else
                     setSelected(!isSelected());
@@ -173,11 +171,10 @@ public class InputVolumeControlButton
      */
     private VolumeControl getVolumeControl()
     {
-        VolumeControl volumeControl = GuiActivator.getMediaService()
-                .getInputVolumeControl();
+        VolumeControl volumeControl
+            = GuiActivator.getMediaService().getInputVolumeControl();
 
         volumeControl.addVolumeChangeListener(this);
-
         return volumeControl;
     }
 
@@ -201,13 +198,13 @@ public class InputVolumeControlButton
             public void popupMenuWillBecomeVisible(
                 PopupMenuEvent popupmenuevent)
             {
-                sliderMenuVisible = true;
+                sliderMenuIsVisible = true;
             }
 
             public void popupMenuWillBecomeInvisible(
                 PopupMenuEvent popupmenuevent)
             {
-                sliderMenuVisible = false;
+                sliderMenuIsVisible = false;
             }
 
             public void popupMenuCanceled(PopupMenuEvent popupmenuevent) {}
@@ -303,7 +300,7 @@ public class InputVolumeControlButton
     @Override
     public void buttonPressed()
     {
-        if (!sliderMenuVisible)
+        if (!sliderMenuIsVisible)
             toggleMute();
     }
 }

@@ -99,11 +99,8 @@ public class ChatTransferHandler
     {
         for(DataFlavor f: flavor)
         {
-            if (f.equals(uiContactDataFlavor)
-                || f.equals(uriListFlavor))
-            {
+            if (f.equals(uiContactDataFlavor) || f.equals(uriListFlavor))
                 return true;
-            }
         }
 
         return super.canImport(comp, flavor);
@@ -133,9 +130,7 @@ public class ChatTransferHandler
                     Collection<File> files = (Collection<File>) o;
 
                     for(File file: files)
-                    {
                         chatPanel.sendFile(file);
-                    }
 
                     // Otherwise fire files dropped event.
                     return true;

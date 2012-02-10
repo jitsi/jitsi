@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia;
 
 import java.awt.*;
+import java.lang.ref.*;
 import java.util.*;
 import java.util.List;
 
@@ -53,14 +54,21 @@ public class AbstractVolumeControl
     private static final float DEFAULT_VOLUME_LEVEL = 0.5F;
 
     /**
-     * The <tt>VolumeChangeListener</tt> interested in volume change events
-     * through VolumeControl Interface.
+     * The <tt>VolumeChangeListener</tt>s interested in volume change events
+     * through the <tt>VolumeControl</tt> interface.
+     * <p>
+     * Because the instances of <tt>AbstractVolumeControl</tt> are global at the
+     * time of this writing and, consequently, they cause the
+     * <tt>VolumeChangeListener</tt>s to be leaked, the listeners are referenced
+     * using <tt>WeakReference</tt>s. 
+     * </p>
      */
-    private final List<VolumeChangeListener> volumeChangeListeners
-        = new ArrayList<VolumeChangeListener>();
+    private final List<WeakReference<VolumeChangeListener>>
+        volumeChangeListeners
+            = new ArrayList<WeakReference<VolumeChangeListener>>();
 
     /**
-     * Listeners interested in volume change inside jmf.
+     * Listeners interested in volume change inside FMJ/JMF.
      */
     private List<GainChangeListener> gainChangeListeners;
 
@@ -399,10 +407,24 @@ public class AbstractVolumeControl
      */
     public void addVolumeChangeListener(VolumeChangeListener listener)
     {
-        synchronized(volumeChangeListeners)
+        synchronized (volumeChangeListeners)
         {
-            if(!volumeChangeListeners.contains(listener))
-                volumeChangeListeners.add(listener);
+            Iterator<WeakReference<VolumeChangeListener>> i
+                = volumeChangeListeners.iterator();
+            boolean contains = false;
+
+            while (i.hasNext())
+            {
+                VolumeChangeListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else if (l.equals(listener))
+                    contains = true;
+            }
+            if(!contains)
+                volumeChangeListeners.add(
+                        new WeakReference<VolumeChangeListener>(listener));
         }
     }
 
@@ -413,9 +435,18 @@ public class AbstractVolumeControl
      */
     public void removeVolumeChangeListener(VolumeChangeListener listener)
     {
-        synchronized(volumeChangeListeners)
+        synchronized (volumeChangeListeners)
         {
-            volumeChangeListeners.remove(listener);
+            Iterator<WeakReference<VolumeChangeListener>> i
+                = volumeChangeListeners.iterator();
+
+            while (i.hasNext())
+            {
+                VolumeChangeListener l = i.next().get();
+
+                if ((l == null) || l.equals(listener))
+                    i.remove();
+            }
         }
     }
 
@@ -424,13 +455,25 @@ public class AbstractVolumeControl
      */
     private void fireVolumeChange()
     {
-        VolumeChangeListener[] ls;
+        List<VolumeChangeListener> ls;
 
-        synchronized(volumeChangeListeners)
+        synchronized (volumeChangeListeners)
         {
+            Iterator<WeakReference<VolumeChangeListener>> i
+                = volumeChangeListeners.iterator();
+
             ls
-                = volumeChangeListeners.toArray(
-                        new VolumeChangeListener[volumeChangeListeners.size()]);
+                = new ArrayList<VolumeChangeListener>(
+                        volumeChangeListeners.size());
+            while (i.hasNext())
+            {
+                VolumeChangeListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else
+                    ls.add(l);
+            }
         }
 
         VolumeChangeEvent changeEvent
