@@ -281,6 +281,7 @@ public class ChatConversationPanel
                 }
             }
         };
+
         chatTextPane.addComponentListener(componentListener);
         getViewport().addComponentListener(componentListener);
     }
@@ -553,7 +554,12 @@ public class ChatConversationPanel
         {
             Element root = document.getDefaultRootElement();
 
-            scrollToBottomIsPending = true;
+//          Need to call explicitly scrollToBottom, because for some
+//          reason the componentResized event isn't fired every time we
+//          add text.
+//          Replaced by the code on line: 573.
+//
+//            scrollToBottomIsPending = true;
 
             try
             {
@@ -561,6 +567,11 @@ public class ChatConversationPanel
                     .insertAfterEnd(
                         root.getElement(root.getElementCount() - 1),
                         chatString);
+
+                // Need to call explicitly scrollToBottom, because for some
+                // reason the componentResized event isn't fired every time we
+                // add text.
+                SwingUtilities.invokeLater(scrollToBottomRunnable);
             }
             catch (BadLocationException e)
             {
