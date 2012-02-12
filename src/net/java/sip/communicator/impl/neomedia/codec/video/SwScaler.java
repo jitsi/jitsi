@@ -34,6 +34,12 @@ public class SwScaler
     private static final Logger logger = Logger.getLogger(SwScaler.class);
 
     /**
+     * The minimum height and/or width of the input and/or output to be passed
+     * to <tt>sws_scale</tt> in order to prevent its crashing.
+     */
+    private static final int MIN_SWS_SCALE_HEIGHT_OR_WIDTH = 4;
+
+    /**
      * The indicator which determines whether this scaler will attempt to keep
      * the width and height of YUV 420 output even.
      */
@@ -316,8 +322,9 @@ public class SwScaler
         int outputWidth = outputSize.width;
         int outputHeight = outputSize.height;
 
-        if ((outputWidth < 2) || (outputHeight < 2)) // FFmpeg will crash.
-            return OUTPUT_BUFFER_NOT_FILLED;
+        if ((outputWidth < MIN_SWS_SCALE_HEIGHT_OR_WIDTH)
+                || (outputHeight <= MIN_SWS_SCALE_HEIGHT_OR_WIDTH))
+            return OUTPUT_BUFFER_NOT_FILLED; // sws_scale will crash
 
         // Apply the outputSize to the outputFormat of the output Buffer.
         outputFormat = setSize(outputFormat, outputSize);
@@ -377,6 +384,11 @@ public class SwScaler
 
         int inputWidth = inputSize.width;
         int inputHeight = inputSize.height;
+
+        if ((inputWidth < MIN_SWS_SCALE_HEIGHT_OR_WIDTH)
+                || (inputHeight < MIN_SWS_SCALE_HEIGHT_OR_WIDTH))
+            return OUTPUT_BUFFER_NOT_FILLED; // sws_scale will crash
+
         Object src = input.getData();
         int srcFmt;
         long srcPicture;

@@ -25,6 +25,7 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Dilshan Amadoru
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class ConferenceCallPanel
     extends TransparentPanel
@@ -221,6 +222,43 @@ public class ConferenceCallPanel
                                 scrollPane.setPreferredSize(null);
                         }
                         layout.setConstraints(component, constraints);
+                    }
+
+                    /*
+                     * When the first visual/videoComponent gets added, this
+                     * videoContainer is still not accommodated by the frame
+                     * size because it has just become visible. So try to resize
+                     * the frame to accommodate this videoContainer.
+                     */
+                    if (e.getID() == ContainerEvent.COMPONENT_ADDED)
+                    {
+                        Component component = e.getComponent();
+                        Dimension preferredSize = component.getPreferredSize();
+
+                        if ((preferredSize != null)
+                                && (preferredSize.width > 0)
+                                && (preferredSize.height > 0))
+                        {
+                            ensureSize(
+                                    component,
+                                    preferredSize.width, preferredSize.height);
+                        }
+                        else
+                        {
+                            /*
+                             * XXX The method ensureSize is supposed to know
+                             * that it should not apply the specified size to
+                             * the videoContainer.
+                             */
+                            int s
+                                = Math.max(
+                                        SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO
+                                            .width,
+                                        SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO
+                                            .height);
+
+                            ensureSize(videoContainer, s, s);
+                        }
                     }
                 }
 
@@ -550,8 +588,11 @@ public class ConferenceCallPanel
              */
             return;
         }
-        else if (frame.equals(frame.getGraphicsConfiguration()
-                                .getDevice().getFullScreenWindow()))
+        else if (frame.equals(
+                frame
+                    .getGraphicsConfiguration()
+                        .getDevice()
+                            .getFullScreenWindow()))
         {
             /*
              * Forcing the size of a Component which is displayed in a
@@ -572,7 +613,6 @@ public class ConferenceCallPanel
              */
             int newFrameWidth
                 = width + frameSize.width - component.getSize().width;
-
             int newFrameHeight
                 = (frameSize.height > height) ? frameSize.height : height;
 
@@ -618,17 +658,19 @@ public class ConferenceCallPanel
                 newFrameHeight = minSize.height;
 
             /*
-             * XXX Unreliable because VideoRenderer Components such as the
-             * Component of the AWTRenderer on Linux overrides its
-             * #getPreferredSize().
+             * XXX An ugly way of detecting whether the component is a
+             * visual/video Component.
              */
-            component.setPreferredSize(new Dimension(width, height));
-            component.setSize(new Dimension(width, height));
-
-            Container componentParent = component.getParent();
-
-            componentParent.setPreferredSize(new Dimension(width, height));
-            componentParent.setSize(new Dimension(width, height));
+            if (videoContainers.contains(component.getParent()))
+            {
+                /*
+                 * XXX Unreliable because VideoRenderer Components such as the
+                 * Component of the AWTRenderer on Linux overrides its
+                 * #getPreferredSize().
+                 */
+                component.setPreferredSize(new Dimension(width, height));
+                component.setSize(new Dimension(width, height));
+            }
 
             /*
              * If we're going to make too small a change, don't even bother.
@@ -637,11 +679,23 @@ public class ConferenceCallPanel
             int frameWidthDelta = newFrameWidth - frameSize.width;
             int frameHeightDelta = newFrameHeight - frameSize.height;
 
-            if ((frameWidthDelta < -1)
-                    || (frameWidthDelta > 1)
-                    || (frameHeightDelta < -1)
-                    || (frameHeightDelta > 1))
+            /*
+             * We are in a video conference so the frame size is not likely to
+             * ever be big enough i.e. do not reduce it.
+             */
+            if ((frameWidthDelta > 1) || (frameHeightDelta > 1))
             {
+                if (!(frameWidthDelta > 1))
+                {
+                    newFrameX = frameLocation.x;
+                    newFrameWidth = frameSize.width;
+                }
+                else if (!(frameHeightDelta > 1))
+                {
+                    newFrameY = frameLocation.y;
+                    newFrameHeight = frameSize.height;
+                }
+
                 frame.setBounds(
                         newFrameX, newFrameY,
                         newFrameWidth, newFrameHeight);

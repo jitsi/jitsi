@@ -120,7 +120,7 @@ public class JAWTRenderer
     private Component component;
 
     /**
-     * The handle of the native counterpart of this <tt>JAWTRenderer</tt>.
+     * The handle to the native counterpart of this <tt>JAWTRenderer</tt>.
      */
     private long handle = 0;
 
@@ -276,11 +276,24 @@ public class JAWTRenderer
         return component;
     }
 
+    /**
+     * Gets the handle to the native counterpart of this <tt>JAWTRenderer</tt>.
+     *
+     * @return the handle to the native counterpart of this
+     * <tt>JAWTRenderer</tt>
+     */
     long getHandle()
     {
         return handle;
     }
 
+    /**
+     * Gets the <tt>Object</tt> which synchronizes the access to the handle to
+     * the native counterpart of this <tt>JAWTRenderer</tt>.
+     *
+     * @return the <tt>Object</tt> which synchronizes the access to the handle
+     * to the native counterpart of this <tt>JAWTRenderer</tt>
+     */
     Object getHandleLock()
     {
         return this;

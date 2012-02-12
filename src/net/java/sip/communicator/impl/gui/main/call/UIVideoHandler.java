@@ -494,9 +494,10 @@ public class UIVideoHandler
                 {
                     // We should ensure window size only if we are not in a
                     // single window mode.
-                    if (!callRenderer.getCallContainer().getCallWindow()
-                            .equals(GuiActivator.getUIService()
-                                .getSingleWindowContainer()))
+                    if (!callRenderer.getCallContainer().getCallWindow().equals(
+                                GuiActivator
+                                    .getUIService()
+                                        .getSingleWindowContainer()))
                     {
                         callRenderer.ensureSize(visualComponent, width, height);
                     }
@@ -535,8 +536,8 @@ public class UIVideoHandler
          * the videos of a single CallPeer, each UIVideoHandler adds all videos
          * of a Call.
          */
-        Iterator<? extends CallPeer> callPeerIter
-            = callPeer.getCall().getCallPeers();
+        Call call = callPeer.getCall();
+        Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
         List<Component> remoteVideos = new LinkedList<Component>();
 
         while (callPeerIter.hasNext())
@@ -545,11 +546,11 @@ public class UIVideoHandler
                     videoTelephony.getVisualComponents(
                             callPeerIter.next()));
         }
-
         if (remoteVideos.isEmpty())
         {
-            callRenderer.getCallContainer()
-                .removeRemoteVideoSpecificComponents();
+            callRenderer
+                .getCallContainer()
+                    .removeRemoteVideoSpecificComponents();
         }
         else
         {
@@ -559,12 +560,11 @@ public class UIVideoHandler
 
                 if (remoteVideoParent != null)
                     remoteVideoParent.remove(remoteVideo);
-
                 videoContainer.add(remoteVideo, VideoLayout.CENTER_REMOTE, 0);
             }
 
-            callRenderer.getCallContainer()
-                .addRemoteVideoSpecificComponents(callPeer);
+            callRenderer.getCallContainer().addRemoteVideoSpecificComponents(
+                    callPeer);
         }
 
         // LOCAL
@@ -583,7 +583,7 @@ public class UIVideoHandler
             if (localVideoVisible)
             {
                 videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
-                if (!CallManager.isDesktopSharingEnabled(callPeer.getCall()))
+                if (!CallManager.isDesktopSharingEnabled(call))
                     videoContainer.add(
                             closeButton,
                             VideoLayout.CLOSE_LOCAL_BUTTON,

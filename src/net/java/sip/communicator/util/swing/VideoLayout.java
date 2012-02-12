@@ -13,6 +13,9 @@ import java.util.List;
 import javax.swing.*;
 
 /**
+ * Implements the <tt>LayoutManager</tt> which lays out the local and remote
+ * videos in a video <tt>Call</tt>.
+ *
  * @author Lyubomir Marinov
  * @author Yana Stamcheva
  */
@@ -29,6 +32,18 @@ public class VideoLayout extends FitLayout
     public static final String CENTER_REMOTE = "CENTER_REMOTE";
 
     /**
+     * The close local video constraint.
+     */
+    public static final String CLOSE_LOCAL_BUTTON = "CLOSE_LOCAL_BUTTON";
+
+    /**
+     * The number of columns into which the local and remote visual/video
+     * <tt>Component</tt>s are to be organized when there are multiple remote
+     * ones.
+     */
+    private static final int COLUMNS = 2;
+
+    /**
      * The east remote video constraint.
      */
     public static final String EAST_REMOTE = "EAST_REMOTE";
@@ -37,11 +52,6 @@ public class VideoLayout extends FitLayout
      * The local video constraint.
      */
     public static final String LOCAL = "LOCAL";
-
-    /**
-     * The close local video constraint.
-     */
-    public static final String CLOSE_LOCAL_BUTTON = "CLOSE_LOCAL_BUTTON";
 
     /**
      * The ration between the local and the remote video.
@@ -165,11 +175,17 @@ public class VideoLayout extends FitLayout
      *
      * @param parent the container to lay out
      */
+    @Override
     public void layoutContainer(Container parent)
     {
         List<Component> remotes;
         Component local = getLocal();
 
+        /*
+         * When there are multiple remote visual/video Components, the local one
+         * will be displayed as if it is a remote one i.e. in the same grid, not
+         * on top of a remote one.
+         */
         if ((this.remotes.size() > 1) && (local != null))
         {
             remotes = new ArrayList<Component>();
@@ -191,7 +207,7 @@ public class VideoLayout extends FitLayout
         }
         else if (remoteCount > 0)
         {
-            int columns = 2;
+            int columns = COLUMNS;
             int rows = (remoteCount + columns - 1) / columns;
             Rectangle bounds
                 = new Rectangle(
@@ -224,6 +240,10 @@ public class VideoLayout extends FitLayout
 
         if (local != null)
         {
+            /*
+             * If the local visual/video Component is not displayed as if it is
+             * a remote one, it will be placed on top of a remote one.
+             */
             if (!remotes.contains(local))
             {
                 Component remote0 = remotes.isEmpty() ? null : remotes.get(0);
@@ -244,35 +264,35 @@ public class VideoLayout extends FitLayout
                     localX = parentSize.width/2 - width/2;
                     localY = parentSize.height - height;
                     super.layoutComponent(
-                        local,
-                        new Rectangle(localX, localY, width, height),
-                        Component.CENTER_ALIGNMENT,
-                        Component.BOTTOM_ALIGNMENT);
+                            local,
+                            new Rectangle(localX, localY, width, height),
+                            Component.CENTER_ALIGNMENT,
+                            Component.BOTTOM_ALIGNMENT);
                 }
                 else
                 {
                     localX = ((remote0 == null) ? 0 : remote0.getX()) + 5;
                     localY = parentSize.height - height - 5;
                     super.layoutComponent(
-                        local,
-                        new Rectangle(localX, localY, width, height),
-                        Component.LEFT_ALIGNMENT,
-                        Component.BOTTOM_ALIGNMENT);
+                            local,
+                            new Rectangle(localX, localY, width, height),
+                            Component.LEFT_ALIGNMENT,
+                            Component.BOTTOM_ALIGNMENT);
                 }
             }
 
             if (closeButton != null)
             {
                 super.layoutComponent(
-                    closeButton,
-                    new Rectangle(
-                        local.getX() + local.getWidth()
-                            - closeButton.getWidth(),
-                        local.getY(),
-                        closeButton.getWidth(),
-                        closeButton.getHeight()),
-                        Component.CENTER_ALIGNMENT,
-                        Component.CENTER_ALIGNMENT);
+                        closeButton,
+                        new Rectangle(
+                            local.getX() + local.getWidth()
+                                - closeButton.getWidth(),
+                            local.getY(),
+                            closeButton.getWidth(),
+                            closeButton.getHeight()),
+                            Component.CENTER_ALIGNMENT,
+                            Component.CENTER_ALIGNMENT);
             }
         }
 
@@ -293,8 +313,10 @@ public class VideoLayout extends FitLayout
      * @return a Dimension containing, the minimum layout size for the given
      * container
      */
+    @Override
     public Dimension minimumLayoutSize(Container parent)
     {
+        // TODO Auto-generated method stub
         return super.minimumLayoutSize(parent);
     }
 
@@ -305,8 +327,81 @@ public class VideoLayout extends FitLayout
      * @return a Dimension containing, the preferred layout size for the given
      * container
      */
+    @Override
     public Dimension preferredLayoutSize(Container parent)
     {
+        List<Component> remotes;
+        Component local = getLocal();
+
+        /*
+         * When there are multiple remote visual/video Components, the local one
+         * will be displayed as if it is a remote one i.e. in the same grid, not
+         * on top of a remote one.
+         */
+        if ((this.remotes.size() > 1) && (local != null))
+        {
+            remotes = new ArrayList<Component>();
+            remotes.addAll(this.remotes);
+            remotes.add(local);
+        }
+        else
+            remotes = this.remotes;
+
+        int remoteCount = remotes.size();
+
+        if (remoteCount == 0)
+        {
+            /*
+             * If there is no remote visual/video Component, the local one will
+             * serve the preferredSize of the Container.
+             */
+            if (local != null)
+            {
+                Dimension preferredSize = local.getPreferredSize();
+
+                if (preferredSize != null)
+                    return preferredSize;
+            }
+        }
+        else if (remoteCount == 1)
+        {
+            /*
+             * If there is a single remote visual/video Component, the local one
+             * will be on top of it so the remote one will serve the
+             * preferredSize of the Container.
+             */
+            Dimension preferredSize = remotes.get(0).getPreferredSize();
+
+            if (preferredSize != null)
+                return preferredSize;
+        }
+        else if (remoteCount > 1)
+        {
+            int maxWidth = 0;
+            int maxHeight = 0;
+
+            for (Component remote : remotes)
+            {
+                Dimension preferredSize = remote.getPreferredSize();
+
+                if (preferredSize != null)
+                {
+                    if (maxWidth < preferredSize.width)
+                        maxWidth = preferredSize.width;
+                    if (maxHeight < preferredSize.height)
+                        maxHeight = preferredSize.height;
+                }
+            }
+
+            if ((maxWidth > 0) && (maxHeight > 0))
+            {
+                int columns = COLUMNS;
+                int rows = (remoteCount + columns - 1) / columns;
+
+                return new Dimension(maxWidth * columns, maxHeight * rows);
+            }
+        }
+
         return super.preferredLayoutSize(parent);
     }
 
