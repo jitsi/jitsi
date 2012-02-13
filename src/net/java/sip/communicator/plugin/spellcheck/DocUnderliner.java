@@ -264,6 +264,10 @@ abstract class DocUnderliner
             String msg = "Bad bounds (programmer error in spell checker)";
             logger.error(msg, exc);
         }
+        catch (Throwable exc)
+        {
+            logger.error("Error words processing", exc);
+        }
 
         promptRepaint();
     }
@@ -299,6 +303,10 @@ abstract class DocUnderliner
         {
             String msg = "Bad bounds (programmer error in spell checker)";
             logger.error(msg, exc);
+        }
+        catch (Throwable exc)
+        {
+            logger.error("Error words processing", exc);
         }
     }
 
