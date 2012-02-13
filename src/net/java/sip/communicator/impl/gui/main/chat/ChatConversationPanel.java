@@ -246,6 +246,10 @@ public class ChatConversationPanel
             public void actionPerformed(ActionEvent e)
             {
                 GuiActivator.getBrowserLauncher().openURL(currentHref);
+
+                // after opening the link remove the currentHref to avoid
+                // clicking on the window to gain focus to open the link again
+                ChatConversationPanel.this.currentHref = "";
             }
         });
 
