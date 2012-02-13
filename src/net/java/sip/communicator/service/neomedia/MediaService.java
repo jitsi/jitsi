@@ -238,8 +238,9 @@ public interface MediaService
      * @param x new x coordinate origin
      * @param y new y coordinate origin
      */
-    public void movePartialDesktopStreaming(MediaDevice mediaDevice, int x,
-            int y);
+    public void movePartialDesktopStreaming(
+            MediaDevice mediaDevice,
+            int x, int y);
 
     /**
      * If the <tt>MediaDevice</tt> corresponds to partial desktop streaming

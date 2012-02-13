@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.io.*;
 import java.text.*;
-import java.util.List; // disambiguation
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -30,13 +29,14 @@ import net.java.sip.communicator.util.*;
  * @author Sebastien Vincent
  */
 public class OperationSetDesktopSharingClientSipImpl
-    implements OperationSetDesktopSharingClient
+    extends AbstractOperationSetDesktopSharingClient
+                <ProtocolProviderServiceSipImpl>
 {
     /**
      * Our class logger.
      */
-    private static final Logger logger = Logger
-            .getLogger(OperationSetDesktopSharingClientSipImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(OperationSetDesktopSharingClientSipImpl.class);
 
     /**
      * The <tt>CallPeerListener</tt> which listens to modifications in the
@@ -57,8 +57,8 @@ public class OperationSetDesktopSharingClientSipImpl
             CallPeer peer = evt.getSourceCallPeer();
             CallPeerState state = peer.getState();
 
-            if(state != null && (state.equals(CallPeerState.DISCONNECTED) ||
-                            state.equals(CallPeerState.FAILED)))
+            if (CallPeerState.DISCONNECTED.equals(state)
+                    || CallPeerState.FAILED.equals(state))
             {
                 /* if the peer is disconnected or call has failed, remove
                  * corresponding subscription.
@@ -76,25 +76,11 @@ public class OperationSetDesktopSharingClientSipImpl
     };
 
     /**
-     * List of listeners to be notified when a change occurred in remote control
-     * access.
-     */
-    private List<RemoteControlListener> listeners =
-        new ArrayList<RemoteControlListener>();
-
-    /**
      * The <tt>EventPackageNotifier</tt> which implements remote-control
      * event-package notifier support on behalf of this
      * <tt>OperationSetDesktopSharingClient</tt> instance.
      */
     private final EventPackageNotifier notifier;
-
-    /**
-     * The SIP <tt>ProtocolProviderService</tt> implementation which created
-     * this instance and for which telephony conferencing services are being
-     * provided by this instance.
-     */
-    private final ProtocolProviderServiceSipImpl parentProvider;
 
     /**
      * The <tt>Timer</tt> which executes delayed tasks scheduled by
@@ -105,7 +91,7 @@ public class OperationSetDesktopSharingClientSipImpl
     /**
      * List of SIP NOTIFY messages.
      */
-    private Queue<String> inputEvents = new LinkedList<String>();
+    private final Queue<String> inputEvents = new LinkedList<String>();
 
     /**
      * Synchronization object for {@link #inputEvents} access.
@@ -122,38 +108,42 @@ public class OperationSetDesktopSharingClientSipImpl
     public OperationSetDesktopSharingClientSipImpl(
             ProtocolProviderServiceSipImpl parentProvider)
     {
-        this.parentProvider = parentProvider;
+        super(parentProvider);
 
-        this.notifier = new EventPackageNotifier(
-                this.parentProvider,
-                DesktopSharingProtocolSipImpl.EVENT_PACKAGE,
-                DesktopSharingProtocolSipImpl.SUBSCRIPTION_DURATION,
-                DesktopSharingProtocolSipImpl.CONTENT_SUB_TYPE,
-                this.timer)
-        {
-            protected Subscription createSubscription(
-                    Address fromAddress,
-                    String eventId)
+        notifier
+            = new EventPackageNotifier(
+                    this.parentProvider,
+                    DesktopSharingProtocolSipImpl.EVENT_PACKAGE,
+                    DesktopSharingProtocolSipImpl.SUBSCRIPTION_DURATION,
+                    DesktopSharingProtocolSipImpl.CONTENT_SUB_TYPE,
+                    this.timer)
             {
-                /* new subscription received */
-                fireRemoteControlGranted();
+                protected Subscription createSubscription(
+                        Address fromAddress,
+                        String eventId)
+                {
+                    /* new subscription received */
+                    fireRemoteControlGranted();
 
-                return
-                    new RemoteControlNotifierSubscription(
-                            fromAddress,
-                            eventId);
-            }
+                    return
+                        new RemoteControlNotifierSubscription(
+                                fromAddress,
+                                eventId);
+                }
 
-            protected void removeSubscription(
-                Response response,
-                String eventId,
-                ClientTransaction clientTransaction)
-            {
-                super.removeSubscription(response, eventId, clientTransaction);
+                protected void removeSubscription(
+                    Response response,
+                    String eventId,
+                    ClientTransaction clientTransaction)
+                {
+                    super.removeSubscription(
+                            response,
+                            eventId,
+                            clientTransaction);
 
-                fireRemoteControlRevoked();
-            }
-        };
+                    fireRemoteControlRevoked();
+                }
+            };
     }
 
     /**
@@ -203,34 +193,27 @@ public class OperationSetDesktopSharingClientSipImpl
         /* build a SIP NOTIFY with the corresponding keyboard event
          * and send it
          */
-        String msg = null;
-        int keycode = event.getKeyCode();
-        int key = event.getKeyChar();
+        int keyChar = event.getKeyChar();
+        int keyCode
+            = (keyChar == KeyEvent.CHAR_UNDEFINED)
+                ? event.getKeyCode()
+                : keyChar;
 
-        if(key != KeyEvent.CHAR_UNDEFINED)
-        {
-            keycode = event.getKeyChar();
-        }
-        else
-        {
-            keycode = event.getKeyCode();
-        }
-
-        if(keycode == 0)
-        {
+        if (keyCode == 0)
             return;
-        }
+
+        String msg;
 
         switch(event.getID())
         {
         case KeyEvent.KEY_TYPED:
-            msg = DesktopSharingProtocolSipImpl.getKeyTypedXML(keycode);
+            msg = DesktopSharingProtocolSipImpl.getKeyTypedXML(keyCode);
             break;
         case KeyEvent.KEY_PRESSED:
-            msg = DesktopSharingProtocolSipImpl.getKeyPressedXML(keycode);
+            msg = DesktopSharingProtocolSipImpl.getKeyPressedXML(keyCode);
             break;
         case KeyEvent.KEY_RELEASED:
-            msg = DesktopSharingProtocolSipImpl.getKeyReleasedXML(keycode);
+            msg = DesktopSharingProtocolSipImpl.getKeyReleasedXML(keyCode);
             break;
         default:
             /* ignore */
@@ -323,58 +306,6 @@ public class OperationSetDesktopSharingClientSipImpl
         {
             inputEvents.add(msg);
             notifySubscriptions();
-        }
-    }
-
-    /**
-     * Fire a <tt>RemoteControlGrantedEvent</tt> to all registered listeners.
-     */
-    public void fireRemoteControlGranted()
-    {
-        RemoteControlGrantedEvent event = new RemoteControlGrantedEvent(this);
-        for(RemoteControlListener l : listeners)
-        {
-            l.remoteControlGranted(event);
-        }
-    }
-
-    /**
-     * Fire a <tt>RemoteControlGrantedEvent</tt> to all registered listeners.
-     */
-    public void fireRemoteControlRevoked()
-    {
-        RemoteControlRevokedEvent event = new RemoteControlRevokedEvent(this);
-        for(RemoteControlListener l : listeners)
-        {
-            l.remoteControlRevoked(event);
-        }
-    }
-
-    /**
-     * Add a <tt>RemoteControlListener</tt> to be notified when remote peer
-     * accept to give us full control.
-     *
-     * @param listener <tt>RemoteControlListener</tt> to add
-     */
-    public void addRemoteControlListener(RemoteControlListener listener)
-    {
-        if(!listeners.contains(listener))
-        {
-            listeners.add(listener);
-        }
-    }
-
-    /**
-     * Remove a <tt>RemoteControlListener</tt> to be notified when remote peer
-     * accept/revoke to give us full control.
-     *
-     * @param listener <tt>RemoteControlListener</tt> to remove
-     */
-    public void removeRemoteControlListener(RemoteControlListener listener)
-    {
-        if(listeners.contains(listener))
-        {
-            listeners.remove(listener);
         }
     }
 
@@ -503,14 +434,16 @@ public class OperationSetDesktopSharingClientSipImpl
                 if (dialog != null)
                 {
                     OperationSetBasicTelephony<?> basicTelephony
-                    = parentProvider.getOperationSet(
+                        = parentProvider.getOperationSet(
                                 OperationSetBasicTelephony.class);
 
                     if (basicTelephony != null)
                     {
-                        callPeer =
-                            ((OperationSetBasicTelephonySipImpl)basicTelephony)
-                               .getActiveCallsRepository().findCallPeer(dialog);
+                        callPeer
+                            = ((OperationSetBasicTelephonySipImpl)
+                                    basicTelephony)
+                               .getActiveCallsRepository()
+                                   .findCallPeer(dialog);
 
                         if (callPeer != null)
                             callPeer.addCallPeerListener(callPeerListener);

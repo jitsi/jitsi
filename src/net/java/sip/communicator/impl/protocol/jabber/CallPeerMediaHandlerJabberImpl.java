@@ -528,9 +528,7 @@ public class CallPeerMediaHandlerJabberImpl
                 for(Map.Entry<String, String> f : adv.entrySet())
                 {
                     if(f.getKey().equals("imageattr"))
-                    {
                         supportQualityControls = true;
-                    }
                 }
             }
 

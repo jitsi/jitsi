@@ -218,8 +218,8 @@ public class GeneralDialPanel
         dialPadPanel.removeAll();
 
         Image bgImage = ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG);
+        DTMFHandler.DTMFToneInfo[] availableTones = DTMFHandler.AVAILABLE_TONES;
 
-        DTMFHandler.DTMFToneInfo[] availableTones = DTMFHandler.availableTones;
         for (int i = 0; i < availableTones.length; i++)
         {
             DTMFHandler.DTMFToneInfo info = availableTones[i];
@@ -228,15 +228,16 @@ public class GeneralDialPanel
             if(info.imageID == null)
                 continue;
 
-            JComponent c;
-            if (OSUtils.IS_MAC)
-                c = createMacOSXDialButton(
-                        info.macImageID,
-                        info.macImageRolloverID,
-                        info.tone.getValue());
-            else
-                c = createDialButton(
-                        bgImage, info.imageID, info.tone.getValue());
+            JComponent c
+                = OSUtils.IS_MAC
+                    ? createMacOSXDialButton(
+                            info.macImageID,
+                            info.macImageRolloverID,
+                            info.tone.getValue())
+                    : createDialButton(
+                            bgImage,
+                            info.imageID,
+                            info.tone.getValue());
 
             dialPadPanel.add(c);
         }

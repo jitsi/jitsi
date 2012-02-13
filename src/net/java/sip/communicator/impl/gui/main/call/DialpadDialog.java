@@ -17,7 +17,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * The <tt>DialpadDialog</tt> is a popup dialog containing a dialpad.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class DialpadDialog
     extends JDialog
@@ -34,11 +34,13 @@ public class DialpadDialog
         dialPanel.setOpaque(false);
 
         BackgroundPanel bgPanel = new BackgroundPanel();
+
         bgPanel.setLayout(new BorderLayout());
         bgPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         bgPanel.add(dialPanel, BorderLayout.CENTER);
 
         Container contentPane = getContentPane();
+
         contentPane.setLayout(new BorderLayout());
         contentPane.add(bgPanel, BorderLayout.CENTER);
 
@@ -51,14 +53,27 @@ public class DialpadDialog
      *
      * @param dtmfHandler handles DTMFs.
      */
-    public DialpadDialog(
-        DTMFHandler dtmfHandler)
+    public DialpadDialog(final DTMFHandler dtmfHandler)
     {
         this(new DialPanel(dtmfHandler));
 
         this.setModal(false);
 
-        dtmfHandler.addParent(this);
+        addWindowListener(
+                new WindowAdapter()
+                {
+                    @Override
+                    public void windowClosed(WindowEvent e)
+                    {
+                        dtmfHandler.removeParent(DialpadDialog.this);
+                    }
+
+                    @Override
+                    public void windowOpened(WindowEvent e)
+                    {
+                        dtmfHandler.addParent(DialpadDialog.this);
+                    }
+                });
     }
 
     /**

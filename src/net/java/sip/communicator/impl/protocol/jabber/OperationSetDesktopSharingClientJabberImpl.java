@@ -8,15 +8,11 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import java.util.List; // disambiguation
 
 import org.jivesoftware.smack.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements all desktop sharing client-side related functions for Jabber
@@ -25,28 +21,9 @@ import net.java.sip.communicator.util.*;
  * @author Sebastien Vincent
  */
 public class OperationSetDesktopSharingClientJabberImpl
-    implements OperationSetDesktopSharingClient
+    extends AbstractOperationSetDesktopSharingClient
+                <ProtocolProviderServiceJabberImpl>
 {
-    /**
-     * Our class logger.
-     */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetDesktopSharingClientJabberImpl.class);
-
-    /**
-     * The Jabber <tt>ProtocolProviderService</tt> implementation which created
-     * this instance and for which telephony conferencing services are being
-     * provided by this instance.
-     */
-    private final ProtocolProviderServiceJabberImpl parentProvider;
-
-    /**
-     * List of listeners to be notified when a change occurred in remote control
-     * access.
-     */
-    private List<RemoteControlListener> listeners =
-        new ArrayList<RemoteControlListener>();
-
     /**
      * Initializes a new <tt>OperationSetDesktopSharingClientJabberImpl</tt>.
      *
@@ -57,67 +34,7 @@ public class OperationSetDesktopSharingClientJabberImpl
     public OperationSetDesktopSharingClientJabberImpl(
             ProtocolProviderServiceJabberImpl parentProvider)
     {
-        this.parentProvider = parentProvider;
-    }
-
-    /**
-     * Fire a <tt>RemoteControlGrantedEvent</tt> to all registered listeners.
-     */
-    public void fireRemoteControlGranted()
-    {
-        RemoteControlGrantedEvent event = new RemoteControlGrantedEvent(this);
-
-        for (RemoteControlListener l : listeners)
-        {
-            l.remoteControlGranted(event);
-        }
-    }
-
-    /**
-     * Fire a <tt>RemoteControlGrantedEvent</tt> to all registered listeners.
-     */
-    public void fireRemoteControlRevoked()
-    {
-        RemoteControlRevokedEvent event = new RemoteControlRevokedEvent(this);
-
-        for (RemoteControlListener l : listeners)
-        {
-            l.remoteControlRevoked(event);
-        }
-    }
-
-    /**
-     * Add a <tt>RemoteControlListener</tt> to be notified when remote peer
-     * accept to give us full control.
-     *
-     * @param listener <tt>RemoteControlListener</tt> to add
-     */
-    public void addRemoteControlListener(RemoteControlListener listener)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("Enable remote control");
-
-        if (!listeners.contains(listener))
-        {
-            listeners.add(listener);
-        }
-    }
-
-    /**
-     * Remove a <tt>RemoteControlListener</tt> to be notified when remote peer
-     * accept/revoke to give us full control.
-     *
-     * @param listener <tt>RemoteControlListener</tt> to remove
-     */
-    public void removeRemoteControlListener(RemoteControlListener listener)
-    {
-        if (logger.isInfoEnabled())
-            logger.info("Disable remote control");
-
-        if (listeners.contains(listener))
-        {
-            listeners.remove(listener);
-        }
+        super(parentProvider);
     }
 
     /**

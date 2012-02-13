@@ -189,17 +189,21 @@ public class DialPanel
         dialPadPanel.removeAll();
 
         Image bgImage = ImageLoader.getImage(ImageLoader.DIAL_BUTTON_BG);
+        DTMFHandler.DTMFToneInfo[] availableTones = DTMFHandler.AVAILABLE_TONES;
 
-        DTMFHandler.DTMFToneInfo[] availableTones = DTMFHandler.availableTones;
         for (int i = 0; i < availableTones.length; i++)
         {
             DTMFHandler.DTMFToneInfo info = availableTones[i];
-            // we add only buttons having image
-            if(info.imageID == null)
-                continue;
 
-            dialPadPanel.add(
-                createDialButton(bgImage, info.imageID, info.tone.getValue()));
+            // we add only buttons having image
+            if (info.imageID != null)
+            {
+                dialPadPanel.add(
+                        createDialButton(
+                                bgImage,
+                                info.imageID,
+                                info.tone.getValue()));
+            }
         }
     }
 }

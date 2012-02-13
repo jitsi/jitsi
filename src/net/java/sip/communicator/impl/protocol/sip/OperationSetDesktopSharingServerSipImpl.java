@@ -195,11 +195,14 @@ public class OperationSetDesktopSharingServerSipImpl
     {
         CallSipImpl call = (CallSipImpl)super.createVideoCall(callee, device);
         CallPeerSipImpl callPeer = call.getCallPeers().next();
+
         callPeer.addMethodProcessorListener(this);
         callPeer.addCallPeerListener(callPeerListener);
 
-        size = (((VideoMediaFormat)call.getDefaultDevice(MediaType.VIDEO).
-                getFormat()).getSize());
+        size
+            = (((VideoMediaFormat)
+                    call.getDefaultDevice(MediaType.VIDEO).getFormat())
+                .getSize());
         origin = getOriginForMediaDevice(device);
         return call;
     }
@@ -214,7 +217,7 @@ public class OperationSetDesktopSharingServerSipImpl
     {
         RemoteControlSubscriberSubscription subscription
             = new RemoteControlSubscriberSubscription(
-                    (CallPeerSipImpl)callPeer);
+                    (CallPeerSipImpl) callPeer);
 
         try
         {
@@ -225,7 +228,6 @@ public class OperationSetDesktopSharingServerSipImpl
             logger.error(
                     "Failed to create or send a remote-control subscription",
                     ofe);
-            return;
         }
     }
 
@@ -240,8 +242,10 @@ public class OperationSetDesktopSharingServerSipImpl
         /* unsubscribe */
         try
         {
-            Address addr = parentProvider.parseAddressString(
-                    callPeer.getAddress());
+            Address addr
+                = parentProvider.parseAddressString(
+                        callPeer.getAddress());
+
             subscriber.unsubscribe(addr, false);
          }
         catch(ParseException ex)

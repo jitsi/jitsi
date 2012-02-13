@@ -92,8 +92,6 @@ public interface AdHocChatRoom
      *
      * @return a <tt>List</tt> of <tt>Contact</tt>s instances
      * corresponding to all room members.
-     * @throws OperationFailedException if we fail retrieving the list of room
-     * participants.
      */
     public List<Contact> getParticipants();
 

@@ -50,7 +50,7 @@ public class UIVideoHandler
      * Listener for all key and mouse events. It is used for desktop sharing
      * purposes.
      */
-    private MouseAndKeyListener mouseAndKeyListener = null;
+    private MouseAndKeyListener mouseAndKeyListener;
 
     /**
      * The local video mouse listener.
@@ -676,6 +676,7 @@ public class UIVideoHandler
             remoteVideo.removeMouseWheelListener(mouseAndKeyListener);
         }
     }
+
     /**
      * Listener for all key and mouse events and will transfer them to
      * the <tt>OperationSetDesktopSharingClient</tt>.
@@ -690,7 +691,7 @@ public class UIVideoHandler
                    MouseWheelListener
     {
         /**
-         * Desktop sharing clien-side <tt>OperationSet</tt>.
+         * Desktop sharing client-side <tt>OperationSet</tt>.
          */
         private final OperationSetDesktopSharingClient desktopSharingClient;
 
@@ -743,26 +744,17 @@ public class UIVideoHandler
         /**
          * {@inheritDoc}
          */
-        public void mouseClicked(MouseEvent event)
-        {
-            /* do nothing */
-        }
+        public void mouseClicked(MouseEvent event) {}
 
         /**
          * {@inheritDoc}
          */
-        public void mouseEntered(MouseEvent event)
-        {
-            /* do nothing */
-        }
+        public void mouseEntered(MouseEvent event) {}
 
         /**
          * {@inheritDoc}
          */
-        public void mouseExited(MouseEvent event)
-        {
-            /* do nothing */
-        }
+        public void mouseExited(MouseEvent event) {}
 
         /**
          * {@inheritDoc}
@@ -825,9 +817,7 @@ public class UIVideoHandler
             char key = event.getKeyChar();
 
             if(key != '\n' && key != '\b')
-            {
                 desktopSharingClient.sendKeyboardEvent(callPeer, event);
-            }
         }
 
         /**
@@ -838,11 +828,8 @@ public class UIVideoHandler
         public void remoteControlGranted(RemoteControlGrantedEvent event)
         {
             allowRemoteControl = true;
-
             if(remoteVideo != null)
-            {
                 addMouseAndKeyListeners();
-            }
         }
 
         /**
@@ -1018,14 +1005,14 @@ public class UIVideoHandler
      */
     public OperationSetDesktopSharingClient addRemoteControlListener()
     {
-        final Call call = callPeer.getCall();
+        Call call = callPeer.getCall();
 
         if (call == null)
             return null;
 
-        OperationSetDesktopSharingClient desktopSharingClient =
-            call.getProtocolProvider()
-            .getOperationSet(OperationSetDesktopSharingClient.class);
+        OperationSetDesktopSharingClient desktopSharingClient
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetDesktopSharingClient.class);
 
         if(desktopSharingClient != null)
         {
@@ -1036,25 +1023,27 @@ public class UIVideoHandler
     }
 
     /**
-     * Sets up listening to remote-control notifications (granted or revoked).
-     *
-     * @return reference to <tt>OperationSetDesktopSharingClient</tt>
+     * Removes the setup for listening to remote-control notifications (granted
+     * or revoked).
      */
     public void removeRemoteControlListener()
     {
-        final Call call = callPeer.getCall();
-
-        if (call == null)
-            return;
-
-        OperationSetDesktopSharingClient desktopSharingClient =
-            call.getProtocolProvider().getOperationSet(
-                OperationSetDesktopSharingClient.class);
-
-        if(desktopSharingClient != null && mouseAndKeyListener != null)
+        if (mouseAndKeyListener != null)
         {
-            desktopSharingClient
-                .removeRemoteControlListener(mouseAndKeyListener);
+            Call call = callPeer.getCall();
+
+            if (call != null)
+            {
+                OperationSetDesktopSharingClient desktopSharingClient
+                    = call.getProtocolProvider().getOperationSet(
+                            OperationSetDesktopSharingClient.class);
+
+                if (desktopSharingClient != null)
+                {
+                    desktopSharingClient.removeRemoteControlListener(
+                        mouseAndKeyListener);
+                }
+            }
         }
     }
 
