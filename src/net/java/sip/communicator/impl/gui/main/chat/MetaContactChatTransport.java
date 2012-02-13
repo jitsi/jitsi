@@ -387,7 +387,11 @@ public class MetaContactChatTransport
             = protocolProvider
                 .getOperationSet(OperationSetTypingNotifications.class);
 
-        if(protocolProvider.isRegistered())
+        // if protocol is not registered or contact is offline don't
+        // try to send typing notifications
+        if(protocolProvider.isRegistered()
+            && contact.getPresenceStatus().getStatus()
+                    >= PresenceStatus.ONLINE_THRESHOLD)
         {
             try
             {
