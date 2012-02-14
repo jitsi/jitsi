@@ -23,6 +23,9 @@ import net.java.sip.communicator.util.swing.*;
 public class ExtendedTooltip
     extends JToolTip
 {
+    private static final Logger logger
+        = Logger.getLogger(ExtendedTooltip.class);
+
     private final JLabel imageLabel = new JLabel();
 
     private final JLabel titleLabel = new JLabel();
@@ -92,7 +95,12 @@ public class ExtendedTooltip
                     = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
 
                 if (popupWindow != null && popupWindow.isVisible())
+                {
+                    if (logger.isInfoEnabled())
+                        logger.info("Tooltip window ancestor to hide: "
+                            + popupWindow);
                     popupWindow.setVisible(false);
+                }
             }
 
             public void windowGainedFocus(WindowEvent e) {}
@@ -108,8 +116,15 @@ public class ExtendedTooltip
                     Window popupWindow
                         = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
 
-                    if (popupWindow != null && popupWindow.isVisible())
+                    if (popupWindow != null
+                        && popupWindow.isVisible())
+                    {
+                        if (logger.isInfoEnabled())
+                            logger.info("Tooltip window ancestor to hide: "
+                                + popupWindow);
+
                         popupWindow.setVisible(false);
+                    }
                 }
             }
         });
