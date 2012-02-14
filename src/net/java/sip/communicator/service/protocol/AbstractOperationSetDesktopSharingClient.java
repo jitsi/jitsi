@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * <tt>OperationSetDesktopSharingClient</tt> which attempts to make it easier
  * for implementers to provide complete solutions while focusing on
  * implementation-specific functionality.
- * 
+ *
  * @param <T>
  *
  * @author Sebastien Vincent
@@ -95,15 +95,17 @@ public abstract class AbstractOperationSetDesktopSharingClient
 
     /**
      * Fires a <tt>RemoteControlGrantedEvent</tt> to all registered listeners.
+     *
+     * @param peer the <tt>CallPeer</tt>
      */
-    public void fireRemoteControlGranted()
+    public void fireRemoteControlGranted(CallPeer peer)
     {
         List<RemoteControlListener> listeners = getListeners();
 
         if (!listeners.isEmpty())
         {
             RemoteControlGrantedEvent event
-                = new RemoteControlGrantedEvent(this);
+                = new RemoteControlGrantedEvent(peer);
 
             for(RemoteControlListener l : listeners)
                 l.remoteControlGranted(event);
@@ -112,15 +114,17 @@ public abstract class AbstractOperationSetDesktopSharingClient
 
     /**
      * Fires a <tt>RemoteControlGrantedEvent</tt> to all registered listeners.
+     *
+     * @param peer the <tt>CallPeer</tt>
      */
-    public void fireRemoteControlRevoked()
+    public void fireRemoteControlRevoked(CallPeer peer)
     {
         List<RemoteControlListener> listeners = getListeners();
 
         if (!listeners.isEmpty())
         {
             RemoteControlRevokedEvent event
-                = new RemoteControlRevokedEvent(this);
+                = new RemoteControlRevokedEvent(peer);
 
             for(RemoteControlListener l : listeners)
                 l.remoteControlRevoked(event);

@@ -123,12 +123,34 @@ public class OperationSetDesktopSharingClientSipImpl
                         String eventId)
                 {
                     /* new subscription received */
-                    fireRemoteControlGranted();
+                    return new RemoteControlNotifierSubscription(
+                            fromAddress,
+                            eventId);
+                }
 
-                    return
-                        new RemoteControlNotifierSubscription(
-                                fromAddress,
-                                eventId);
+                /**
+                 * {@inheritedDocs}.
+                 */
+                @Override
+                public boolean processRequest(RequestEvent requestEvent)
+                {
+                    boolean ret = super.processRequest(requestEvent);
+                    if(requestEvent == null || requestEvent.getDialog() == null
+                        || requestEvent.getDialog().getCallId() == null)
+                        return ret;
+
+                    String callId = requestEvent.getDialog().
+                        getCallId().getCallId();
+                    Subscription subs = this.getSubscription(callId);
+
+                    if(subs instanceof RemoteControlNotifierSubscription)
+                    {
+                        fireRemoteControlGranted(
+                            ((RemoteControlNotifierSubscription)subs).
+                                getCallPeer());
+                    }
+
+                    return ret;
                 }
 
                 protected void removeSubscription(
@@ -136,20 +158,32 @@ public class OperationSetDesktopSharingClientSipImpl
                     String eventId,
                     ClientTransaction clientTransaction)
                 {
-                    super.removeSubscription(
-                            response,
-                            eventId,
-                            clientTransaction);
+                    CallIdHeader callIdHeader
+                        = (CallIdHeader) response.getHeader(CallIdHeader.NAME);
+                    String callId = callIdHeader.getCallId();
+                    Subscription ret = this.getSubscription(callId);
 
-                    fireRemoteControlRevoked();
+                    if(ret instanceof RemoteControlNotifierSubscription)
+                    {
+                        fireRemoteControlRevoked(
+                            ((RemoteControlNotifierSubscription)ret).
+                                getCallPeer());
+                    }
+
+                    super.removeSubscription(
+                        response,
+                        eventId,
+                        clientTransaction);
                 }
             };
     }
 
     /**
      * Notifies all <tt>Subscription</tt>s.
+     *
+     * @param callPeer the <tt>CallPeer</tt> to notify
      */
-    private void notifySubscriptions()
+    private void notifySubscriptions(final CallPeer callPeer)
     {
         EventPackageNotifier.SubscriptionFilter subscriptionFilter
             = new EventPackageNotifier.SubscriptionFilter()
@@ -158,14 +192,11 @@ public class OperationSetDesktopSharingClientSipImpl
                     EventPackageNotifier.Subscription subscription)
             {
                 return
-                    (subscription instanceof RemoteControlNotifierSubscription);
-                    /*
-                        && call
-                                .equals(
-                                    ((RemoteControlNotifierSubscription)
-                                            subscription)
-                                        .getCall());
-                    */
+                    (subscription instanceof RemoteControlNotifierSubscription)
+                        && callPeer.getAddress().equals(
+                            ((RemoteControlNotifierSubscription)subscription).
+                                getCallPeer().getAddress());
+
             }
         };
 
@@ -223,7 +254,7 @@ public class OperationSetDesktopSharingClientSipImpl
         synchronized(inputSync)
         {
             inputEvents.add(msg);
-            notifySubscriptions();
+            notifySubscriptions(callPeer);
         }
     }
 
@@ -261,7 +292,7 @@ public class OperationSetDesktopSharingClientSipImpl
         synchronized(inputSync)
         {
             inputEvents.add(msg);
-            notifySubscriptions();
+            notifySubscriptions(callPeer);
         }
     }
 
@@ -305,7 +336,7 @@ public class OperationSetDesktopSharingClientSipImpl
         synchronized(inputSync)
         {
             inputEvents.add(msg);
-            notifySubscriptions();
+            notifySubscriptions(callPeer);
         }
     }
 

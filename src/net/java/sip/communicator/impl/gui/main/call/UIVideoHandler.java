@@ -86,6 +86,13 @@ public class UIVideoHandler
      */
     private OperationSetVideoTelephony videoTelephony;
 
+    /**
+     * Constructor.
+     *
+     * @param callPeer the <tt>CallPeer</tt>
+     * @param callRenderer ther <tt>CallRenderer</tt>
+     * @param videoContainers the video <tt>Container</tt>
+     */
     public UIVideoHandler(  CallPeer callPeer,
                             CallRenderer callRenderer,
                             List<Container> videoContainers)
@@ -95,6 +102,11 @@ public class UIVideoHandler
         this.videoContainers = videoContainers;
     }
 
+    /**
+     * Set the video cotnainers list.
+     *
+     * @param videoContainers the video <tt>Container</tt> list
+     */
     public void setVideoContainersList(List<Container> videoContainers)
     {
         this.videoContainers = videoContainers;
@@ -234,6 +246,9 @@ public class UIVideoHandler
         return telephony;
     }
 
+    /**
+     * Removes the video listener
+     */
     public void removeVideoListener()
     {
         final Call call = callPeer.getCall();
@@ -696,6 +711,11 @@ public class UIVideoHandler
         private final OperationSetDesktopSharingClient desktopSharingClient;
 
         /**
+         * The remote-controlled <tt>CallPeer</tt>.
+         */
+        private final CallPeer callPeer;
+
+        /**
          * Last time the mouse has moved inside remote video. It is used mainly
          * to avoid sending too much <tt>MouseEvent</tt> which can take a lot of
          * bandwidth.
@@ -706,10 +726,13 @@ public class UIVideoHandler
          * Constructor.
          *
          * @param opSet <tt>OperationSetDesktopSharingClient</tt> object
+         * @param callPeer the remote-controlled <tt>CallPeer</tt>
          */
-        public MouseAndKeyListener(OperationSetDesktopSharingClient opSet)
+        public MouseAndKeyListener(OperationSetDesktopSharingClient opSet,
+            CallPeer callPeer)
         {
             desktopSharingClient = opSet;
+            this.callPeer = callPeer;
         }
 
         /**
@@ -827,6 +850,9 @@ public class UIVideoHandler
          */
         public void remoteControlGranted(RemoteControlGrantedEvent event)
         {
+            if(getCallPeer() != event.getCallPeer())
+                return;
+
             allowRemoteControl = true;
             if(remoteVideo != null)
                 addMouseAndKeyListeners();
@@ -839,11 +865,24 @@ public class UIVideoHandler
          */
         public void remoteControlRevoked(RemoteControlRevokedEvent event)
         {
+            if(getCallPeer() != event.getCallPeer())
+                return;
+
             if(allowRemoteControl)
             {
                 allowRemoteControl = false;
                 removeMouseAndKeyListeners();
             }
+        }
+
+        /**
+         * Returns the remote-controlled <tt>CallPeer</tt>.
+         *
+         * @return the remote-controlled <tt>CallPeer</tt>
+         */
+        public CallPeer getCallPeer()
+        {
+            return callPeer;
         }
     }
 
@@ -1016,7 +1055,8 @@ public class UIVideoHandler
 
         if(desktopSharingClient != null)
         {
-            mouseAndKeyListener = new MouseAndKeyListener(desktopSharingClient);
+            mouseAndKeyListener = new MouseAndKeyListener(desktopSharingClient,
+                callPeer);
             desktopSharingClient.addRemoteControlListener(mouseAndKeyListener);
         }
         return desktopSharingClient;
@@ -1159,7 +1199,7 @@ public class UIVideoHandler
     {
         return localVideoVisible;
     }
-    
+
     private class CloseButton
         extends Label
         implements MouseListener
@@ -1205,11 +1245,21 @@ public class UIVideoHandler
         public void mouseReleased(MouseEvent event) {}
     }
 
+    /**
+     * Get the local video <tt>Component</tt>.
+     *
+     * @return the local video <tt>Component</tt>
+     */
     public Component getLocalVideoComponent()
     {
         return localVideo;
     }
 
+    /**
+     * Get the remote video <tt>Component</tt>.
+     *
+     * @return the remote video <tt>Component</tt>.
+     */
     @Deprecated
     public Component getRemoteVideoComponent()
     {

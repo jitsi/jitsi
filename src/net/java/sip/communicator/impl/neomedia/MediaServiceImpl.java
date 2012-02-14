@@ -24,7 +24,6 @@ import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
-import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.impl.neomedia.transform.sdes.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -1261,52 +1260,6 @@ public class MediaServiceImpl
 
         device = new MediaDeviceImpl(devInfo, MediaType.VIDEO);
         return device;
-    }
-
-    /**
-     * Move origin of a partial desktop streaming <tt>MediaDevice</tt>.
-     *
-     * @param mediaDevice desktop streaming <tt>MediaDevice</tt> obtained by
-     * getMediaDeviceForPartialDesktopStreaming() method.
-     * @param x new x coordinate origin
-     * @param y new y coordinate origin
-     */
-    public void movePartialDesktopStreaming(MediaDevice mediaDevice, int x,
-            int y)
-    {
-        MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
-
-        if(!dev.getCaptureDeviceInfo().getLocator().getProtocol().equals(
-                ImageStreamingAuto.LOCATOR_PROTOCOL))
-            return;
-
-        /* To move origin of the desktop capture, we need to access the
-         * JMF DataSource of imgstreaming
-         */
-        VideoMediaDeviceSession session =
-            (VideoMediaDeviceSession)dev.getSession();
-
-        DataSource ds = session.getCaptureDevice();
-        if(ds instanceof RewritablePullBufferDataSource)
-        {
-            RewritablePullBufferDataSource ds2 =
-                (RewritablePullBufferDataSource)ds;
-            ds = ds2.getWrappedDataSource();
-        }
-
-        ScreenDevice screen = getScreenForPoint(new Point(x, y));
-        ScreenDevice currentScreen = screen;
-
-        if(screen == null)
-            return;
-
-        Rectangle bounds = ((ScreenDeviceImpl)screen).getBounds();
-
-        x -= bounds.x;
-        y -= bounds.y;
-        ((net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource)
-                ds)
-            .setOrigin(0, currentScreen.getIndex(), x,  y);
     }
 
     /**

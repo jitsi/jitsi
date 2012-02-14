@@ -26,11 +26,6 @@ public abstract class AbstractMediaDevice
     implements MediaDevice
 {
     /**
-     * The <tt>MediaDeviceSession</tt> used.
-     */
-    private MediaDeviceSession session = null;
-
-    /**
      * Closes this <tt>MediaDevice</tt>.
      */
     public void close()
@@ -89,23 +84,10 @@ public abstract class AbstractMediaDevice
         switch (getMediaType())
         {
         case VIDEO:
-            session = new VideoMediaDeviceSession(this);
-            break;
+            return new VideoMediaDeviceSession(this);
         default:
-            session = new AudioMediaDeviceSession(this);
-            break;
+            return new AudioMediaDeviceSession(this);
         }
-        return session;
-    }
-
-    /**
-     * Get the last used <tt>MediaDeviceSession</tt>.
-     *
-     * @return <tt>MediaDeviceSession</tt>
-     */
-    public MediaDeviceSession getSession()
-    {
-        return session;
     }
 
     /**

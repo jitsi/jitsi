@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol.event;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * An event listener that should be implemented by parties interested in
  * remote control feature (i.e desktop sharing).
@@ -27,4 +29,11 @@ public interface RemoteControlListener
      * @param event <tt>RemoteControlRevokedEvent</tt>
      */
     public void remoteControlRevoked(RemoteControlRevokedEvent event);
+
+    /**
+     * Returns the remote-controlled <tt>CallPeer</tt>.
+     *
+     * @return the remote-controlled <tt>CallPeer</tt>
+     */
+    public CallPeer getCallPeer();
 }

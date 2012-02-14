@@ -548,7 +548,7 @@ public class CallPeerMediaHandlerJabberImpl
                                 OperationSetDesktopSharingClient.class);
 
                 if (client != null)
-                    client.fireRemoteControlGranted();
+                    client.fireRemoteControlGranted(peer);
             }
         }
         return sessAccept;
@@ -1533,5 +1533,21 @@ public class CallPeerMediaHandlerJabberImpl
     public void setSupportQualityControls(boolean value)
     {
         this.supportQualityControls = value;
+    }
+
+    /**
+     * Closes the <tt>CallPeerMediaHandler</tt>.
+     */
+    public synchronized void close()
+    {
+        super.close();
+
+        OperationSetDesktopSharingClientJabberImpl client
+            = (OperationSetDesktopSharingClientJabberImpl)
+                getPeer().getProtocolProvider().getOperationSet(
+                    OperationSetDesktopSharingClient.class);
+
+        if (client != null)
+            client.fireRemoteControlRevoked(getPeer());
     }
 }

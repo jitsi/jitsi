@@ -266,6 +266,11 @@ public class DesktopSharingFrame
     {
         JPanel contentPane = new JPanel()
         {
+            /**
+             * Serial version UID.
+             */
+            public static final long serialVersionUID = 0L;
+
             protected void paintComponent(Graphics g)
             {
                 super.paintComponent(g);
@@ -376,6 +381,11 @@ public class DesktopSharingFrame
     {
         JPanel buttonPanel = new JPanel(new GridBagLayout())
         {
+            /**
+             * Serial version UID.
+             */
+            public static final long serialVersionUID = 0L;
+
             public void paintComponent(Graphics g)
             {
                 // We experience some problems making this component

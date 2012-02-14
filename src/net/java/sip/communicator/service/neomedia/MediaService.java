@@ -140,7 +140,7 @@ public interface MediaService
 
     /**
      * Creates <tt>SDesControl</tt> used to control all SDes options.
-     * 
+     *
      * @return SDesControl instance.
      */
     public SDesControl createSDesControl();
@@ -229,18 +229,6 @@ public interface MediaService
      */
     public MediaDevice getMediaDeviceForPartialDesktopStreaming(
             int width, int height, int x, int y);
-
-    /**
-     * Move origin of a partial desktop streaming <tt>MediaDevice</tt>.
-     *
-     * @param mediaDevice desktop streaming <tt>MediaDevice</tt> obtained by
-     * getMediaDeviceForPartialDesktopStreaming() method.
-     * @param x new x coordinate origin
-     * @param y new y coordinate origin
-     */
-    public void movePartialDesktopStreaming(
-            MediaDevice mediaDevice,
-            int x, int y);
 
     /**
      * If the <tt>MediaDevice</tt> corresponds to partial desktop streaming

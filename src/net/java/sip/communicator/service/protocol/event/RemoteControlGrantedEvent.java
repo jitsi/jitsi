@@ -2,6 +2,8 @@ package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * Event that notify that remote control feature has been granted. This is used
  * in desktop sharing related usage. After rights being granted, local
@@ -24,5 +26,15 @@ public class RemoteControlGrantedEvent extends EventObject
     public RemoteControlGrantedEvent(Object source)
     {
         super(source);
+    }
+
+    /**
+     * Get the <tt>CallPeer</tt>.
+     *
+     * @return the <tt>CallPeer</tt>
+     */
+    public CallPeer getCallPeer()
+    {
+        return (CallPeer)getSource();
     }
 }

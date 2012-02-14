@@ -204,7 +204,8 @@ public class OperationSetDesktopStreamingSipImpl
 
         MediaDevice device = callImpl.getDefaultDevice(MediaType.VIDEO);
 
-        size = ((VideoMediaFormat)device.getFormat()).getSize();
+        if(device.getFormat() != null)
+            size = ((VideoMediaFormat)device.getFormat()).getSize();
         origin = getOriginForMediaDevice(device);
 
         /* reinvite all peers */
@@ -290,12 +291,13 @@ public class OperationSetDesktopStreamingSipImpl
     public void movePartialDesktopStreaming(Call call, int x, int y)
     {
         CallSipImpl callImpl = (CallSipImpl)call;
-        MediaDevice device = callImpl.getDefaultDevice(MediaType.VIDEO);
+        VideoMediaStream videoStream = (VideoMediaStream)
+            callImpl.getCallPeers().next().getMediaHandler().getStream(
+                MediaType.VIDEO);
 
-        if(device != null)
+        if(videoStream != null)
         {
-            MediaService mediaService = SipActivator.getMediaService();
-            mediaService.movePartialDesktopStreaming(device, x, y);
+            videoStream.movePartialDesktopStreaming(x, y);
 
             if(origin != null)
             {
@@ -306,7 +308,6 @@ public class OperationSetDesktopStreamingSipImpl
             {
                 origin = new Point(x, y);
             }
-
         }
     }
 

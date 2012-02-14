@@ -107,4 +107,13 @@ public interface VideoMediaStream
      */
     public void updateQualityControl(
         Map<String, String> advancedParams);
+
+    /**
+     * Move origin of a partial desktop streaming <tt>MediaDevice</tt>.
+     *
+     * @param x new x coordinate origin
+     * @param y new y coordinate origin
+     */
+    public void movePartialDesktopStreaming(
+            int x, int y);
 }

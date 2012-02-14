@@ -289,12 +289,13 @@ public class OperationSetDesktopStreamingJabberImpl
             int y)
     {
         CallJabberImpl callImpl = (CallJabberImpl)call;
-        MediaDevice device = callImpl.getDefaultDevice(MediaType.VIDEO);
+        VideoMediaStream videoStream = (VideoMediaStream)
+            callImpl.getCallPeers().next().getMediaHandler().getStream(
+                MediaType.VIDEO);
 
-        if(device != null)
+        if(videoStream != null)
         {
-            MediaService mediaService = JabberActivator.getMediaService();
-            mediaService.movePartialDesktopStreaming(device, x, y);
+            videoStream.movePartialDesktopStreaming(x, y);
 
             if(origin != null)
             {

@@ -187,6 +187,8 @@ public class OneToOneCallPeerPanel
      *
      * @param callRenderer the renderer of the call
      * @param callPeer the <tt>CallPeer</tt> represented in this panel
+     * @param videoContainers the video <tt>Container</tt> list
+     * @param vHandler the <tt>UIVideoHandler</tt>
      */
     public OneToOneCallPeerPanel(   CallRenderer callRenderer,
                                     CallPeer callPeer,
@@ -265,6 +267,7 @@ public class OneToOneCallPeerPanel
      *
      * @param callRenderer the renderer of the call
      * @param callPeer the <tt>CallPeer</tt> represented in this panel
+     * @param videoContainers the video <tt>Container</tt> list
      */
     public OneToOneCallPeerPanel(   CallRenderer callRenderer,
                                     CallPeer callPeer,
@@ -845,6 +848,11 @@ public class OneToOneCallPeerPanel
         private final OperationSetDesktopSharingClient desktopSharingClient;
 
         /**
+         * The remote-controlled <tt>CallPeer</tt>.
+         */
+        private final CallPeer callPeer;
+
+        /**
          * Last time the mouse has moved inside remote video. It is used mainly
          * to avoid sending too much <tt>MouseEvent</tt> which can take a lot of
          * bandwidth.
@@ -855,10 +863,13 @@ public class OneToOneCallPeerPanel
          * Constructor.
          *
          * @param opSet <tt>OperationSetDesktopSharingClient</tt> object
+         * @param callPeer the remote-controlled <tt>CallPeer</tt>
          */
-        public MouseAndKeyListener(OperationSetDesktopSharingClient opSet)
+        public MouseAndKeyListener(OperationSetDesktopSharingClient opSet,
+            CallPeer callPeer)
         {
             desktopSharingClient = opSet;
+            this.callPeer = callPeer;
         }
 
         /**
@@ -1007,6 +1018,16 @@ public class OneToOneCallPeerPanel
                 allowRemoteControl = false;
                 removeMouseAndKeyListeners();
             }
+        }
+
+        /**
+         * Returns the remote-controlled <tt>CallPeer</tt>.
+         *
+         * @return the remote-controlled <tt>CallPeer</tt>
+         */
+        public CallPeer getCallPeer()
+        {
+            return callPeer;
         }
     }
 
