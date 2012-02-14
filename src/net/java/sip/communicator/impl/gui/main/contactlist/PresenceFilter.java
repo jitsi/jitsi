@@ -146,7 +146,8 @@ public class PresenceFilter
      */
     private boolean isMatching(MetaContactGroup metaGroup)
     {
-        return (isShowOffline || metaGroup.countOnlineChildContacts() > 0)
+        return (isShowOffline || metaGroup.countOnlineChildContacts() > 0
+                              || MetaContactListSource.isNewGroup(metaGroup))
                 ? true
                 : false;
     }

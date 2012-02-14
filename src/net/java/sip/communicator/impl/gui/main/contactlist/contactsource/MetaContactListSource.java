@@ -47,6 +47,13 @@ public class MetaContactListSource
         = MetaUIGroup.class.getName() + ".uiGroupDescriptor";
 
     /**
+     * The data key of the MetaGroupDescriptor object used to store whether
+     * the group is newly created by user.
+     */
+    private static final String GROUP_IS_NEW_KEY
+        = MetaUIGroup.class.getName() + ".groupIsNew";
+
+    /**
      * The initial result count below which we insert all filter results
      * directly to the contact list without firing events.
      */
@@ -82,6 +89,17 @@ public class MetaContactListSource
     public static UIGroup getUIGroup(MetaContactGroup metaGroup)
     {
         return (UIGroup) metaGroup.getData(UI_GROUP_DATA_KEY);
+    }
+
+    /**
+     * Returns whether <tt>MetaContactGroup</tt> is newly created.
+     * @param metaGroup the <tt>MetaContactGroup</tt>, which we will check.
+     * @return whether the <tt>MetaContactGroup</tt> is newly created.
+     */
+    public static boolean isNewGroup(MetaContactGroup metaGroup)
+    {
+        Object data = metaGroup.getData(GROUP_IS_NEW_KEY);
+        return data == null ? false : (Boolean)data;
     }
 
     /**
@@ -506,6 +524,12 @@ public class MetaContactListSource
                 return;
 
             uiGroup = MetaContactListSource.createUIGroup(metaGroup);
+        }
+
+        // mark group as newly created
+        if(metaGroup.countChildContacts() == 0)
+        {
+            metaGroup.setData(GROUP_IS_NEW_KEY, Boolean.TRUE);
         }
 
         ContactListFilter currentFilter
