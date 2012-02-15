@@ -559,10 +559,10 @@ public class DeviceConfiguration
             dev = videoCaptureDevice;
             break;
         case DESKTOP:
-            CaptureDeviceInfo devs[] =
-                getAvailableVideoCaptureDevices(MediaUseCase.DESKTOP);
+            CaptureDeviceInfo devs[]
+                = getAvailableVideoCaptureDevices(MediaUseCase.DESKTOP);
 
-            if(devs.length > 0)
+            if (devs.length > 0)
                 dev = devs[0];
             break;
         default:

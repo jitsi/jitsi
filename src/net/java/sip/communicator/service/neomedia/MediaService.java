@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
+import java.beans.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -22,6 +23,16 @@ import net.java.sip.communicator.service.neomedia.format.*;
 public interface MediaService
 {
     /**
+     * The name of the property of <tt>MediaService</tt> the value of which
+     * corresponds to the value returned by
+     * {@link #getDefaultDevice(MediaType, MediaUseCase)}. The <tt>oldValue</tt>
+     * and the <tt>newValue</tt> of the fired <tt>PropertyChangeEvent</tt> are
+     * not to be relied on and instead a call to <tt>getDefaultDevice</tt> is to
+     * be performed to retrieve the new value.
+     */
+    public static final String DEFAULT_DEVICE = "defaultDevice";
+
+    /**
      * Returns the default <tt>MediaDevice</tt> for the specified media
      * <tt>type</tt>.
      *
@@ -33,7 +44,8 @@ public interface MediaService
      * @return the currently default <tt>MediaDevice</tt> for the specified
      * <tt>MediaType</tt>, or <tt>null</tt> if no such device exists.
      */
-    public MediaDevice getDefaultDevice(MediaType mediaType,
+    public MediaDevice getDefaultDevice(
+            MediaType mediaType,
             MediaUseCase useCase);
 
     /**
@@ -283,4 +295,22 @@ public interface MediaService
      * traffic between multiple <tt>MediaStream</tt>s
      */
     public RTPTranslator createRTPTranslator();
+
+    /**
+     * Adds a <tt>PropertyChangeListener</tt> to be notified about changes in
+     * the values of the properties of this instance.
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to be notified about
+     * changes in the values of the properties of this instance
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener);
+
+    /**
+     * Removes a <tt>PropertyChangeListener</tt> to no longer be notified about
+     * changes in the values of the properties of this instance.
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to no longer be
+     * notified about changes in the values of the properties of this instance
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener);
 }

@@ -26,13 +26,6 @@ public abstract class AbstractMediaDevice
     implements MediaDevice
 {
     /**
-     * Closes this <tt>MediaDevice</tt>.
-     */
-    public void close()
-    {
-    }
-
-    /**
      * Connects to a specific <tt>CaptureDevice</tt> given in the form of a
      * <tt>DataSource</tt>. Explicitly defined in order to allow extenders to
      * customize the connect procedure.

@@ -152,13 +152,16 @@ public class OperationSetDesktopSharingServerJabberImpl
     public Call createVideoCall(Contact callee, MediaDevice device)
         throws OperationFailedException
     {
-        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(callee,
-                device);
+        CallJabberImpl call
+            = (CallJabberImpl) super.createVideoCall(callee, device);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
+
         callPeer.addCallPeerListener(callPeerListener);
 
-        size = (((VideoMediaFormat)call.getDefaultDevice(
-                MediaType.VIDEO).getFormat()).getSize());
+        size
+            = ((VideoMediaFormat)
+                    call.getDefaultDevice(MediaType.VIDEO).getFormat())
+                .getSize();
         origin = getOriginForMediaDevice(device);
         return call;
     }
@@ -191,8 +194,9 @@ public class OperationSetDesktopSharingServerJabberImpl
      * to create the video call.
      */
     @Override
-    protected Call createOutgoingVideoCall(String calleeAddress, MediaDevice
-            videoDevice)
+    protected Call createOutgoingVideoCall(
+            String calleeAddress,
+            MediaDevice videoDevice)
         throws OperationFailedException
     {
         boolean supported = false;
@@ -231,7 +235,7 @@ public class OperationSetDesktopSharingServerJabberImpl
                     logger.info(fullCalleeURI +
                             ": remote-control not supported!");
 
-                /* XXX fail or not ? */
+                // TODO fail or not?
                 /*
                 throw new OperationFailedException(
                         "Failed to create a true desktop sharing.\n"
@@ -255,11 +259,8 @@ public class OperationSetDesktopSharingServerJabberImpl
 
         CallJabberImpl call = new CallJabberImpl(basicTelephony);
 
-        if(videoDevice != null)
-        {
+        if (videoDevice != null)
             call.setVideoDevice(videoDevice);
-        }
-
         /* enable video */
         call.setLocalVideoAllowed(true, getMediaUseCase());
         /* enable remote-control */

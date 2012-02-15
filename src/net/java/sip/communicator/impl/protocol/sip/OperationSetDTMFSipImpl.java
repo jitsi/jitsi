@@ -33,7 +33,7 @@ public class OperationSetDTMFSipImpl
     /**
      * The DTMF method used to send tones.
      */
-    private DTMFEnum dtmfMethod;
+    private DTMFMethod dtmfMethod;
 
     /**
      * DTMF mode sending DTMF as sip info.
@@ -80,7 +80,7 @@ public class OperationSetDTMFSipImpl
         CallPeerSipImpl cp = (CallPeerSipImpl) (callPeer);
 
         // If this account is configured to use SIP-INFO DTMF.
-        if(this.dtmfMethod == DTMFEnum.SIP_INFO_DTMF)
+        if(this.dtmfMethod == DTMFMethod.SIP_INFO_DTMF)
         {
             dtmfModeInfo.startSendingDTMF(cp, tone);
         }
@@ -88,26 +88,26 @@ public class OperationSetDTMFSipImpl
         // AudioMediaStream interface.
         else
         {
-            DTMFEnum cpDTMFMethod = dtmfMethod;
+            DTMFMethod cpDTMFMethod = dtmfMethod;
 
             // If "auto" DTMF mode selected, automatically selects RTP DTMF is
             // telephon-event is available. Otherwise selects INBAND DMTF.
-            if(this.dtmfMethod == DTMFEnum.AUTO_DTMF)
+            if(this.dtmfMethod == DTMFMethod.AUTO_DTMF)
             {
                 if(isRFC4733Active(cp))
                 {
-                    cpDTMFMethod =  DTMFEnum.RTP_DTMF;
+                    cpDTMFMethod =  DTMFMethod.RTP_DTMF;
                 }
                 else
                 {
-                    cpDTMFMethod = DTMFEnum.INBAND_DTMF;
+                    cpDTMFMethod = DTMFMethod.INBAND_DTMF;
                 }
             }
 
             // If the account is configured to use RTP DTMF method and the call
             // does not manage telephone events. Then, we log it for futur
             // debugging.
-            if(this.dtmfMethod == DTMFEnum.RTP_DTMF && !isRFC4733Active(cp))
+            if(this.dtmfMethod == DTMFMethod.RTP_DTMF && !isRFC4733Active(cp))
             {
                 logger.debug("RTP DTMF used without telephon-event capacities");
             }
@@ -136,7 +136,7 @@ public class OperationSetDTMFSipImpl
         CallPeerSipImpl cp = (CallPeerSipImpl) (callPeer);
 
         // If this account is configured to use SIP-INFO DTMF.
-        if(this.dtmfMethod == DTMFEnum.SIP_INFO_DTMF)
+        if(this.dtmfMethod == DTMFMethod.SIP_INFO_DTMF)
         {
             dtmfModeInfo.stopSendingDTMF(cp);
         }
@@ -144,26 +144,26 @@ public class OperationSetDTMFSipImpl
         // AudioMediaStream interface.
         else
         {
-            DTMFEnum cpDTMFMethod = dtmfMethod;
+            DTMFMethod cpDTMFMethod = dtmfMethod;
 
             // If "auto" DTMF mode selected, automatically selects RTP DTMF is
             // telephon-event is available. Otherwise selects INBAND DMTF.
-            if(this.dtmfMethod == DTMFEnum.AUTO_DTMF)
+            if(this.dtmfMethod == DTMFMethod.AUTO_DTMF)
             {
                 if(isRFC4733Active(cp))
                 {
-                    cpDTMFMethod =  DTMFEnum.RTP_DTMF;
+                    cpDTMFMethod =  DTMFMethod.RTP_DTMF;
                 }
                 else
                 {
-                    cpDTMFMethod = DTMFEnum.INBAND_DTMF;
+                    cpDTMFMethod = DTMFMethod.INBAND_DTMF;
                 }
             }
 
             // If the account is configured to use RTP DTMF method and the call
             // does not manage telephone events. Then, we log it for futur
             // debugging.
-            if(this.dtmfMethod == DTMFEnum.RTP_DTMF && !isRFC4733Active(cp))
+            if(this.dtmfMethod == DTMFMethod.RTP_DTMF && !isRFC4733Active(cp))
             {
                 logger.debug("RTP DTMF used without telephon-event capacities");
             }
@@ -210,7 +210,7 @@ public class OperationSetDTMFSipImpl
      * @return the DTMFEnum corresponding to the DTMF method set for this
      * account.
      */
-    private DTMFEnum getDTMFMethod(ProtocolProviderServiceSipImpl pps)
+    private DTMFMethod getDTMFMethod(ProtocolProviderServiceSipImpl pps)
     {
         AccountID accountID = pps.getAccountID();
 
@@ -232,19 +232,19 @@ public class OperationSetDTMFSipImpl
 
         if(dtmfString.equals("AUTO_DTMF"))
         {
-            return DTMFEnum.AUTO_DTMF;
+            return DTMFMethod.AUTO_DTMF;
         }
         else if(dtmfString.equals("RTP_DTMF"))
         {
-            return DTMFEnum.RTP_DTMF;
+            return DTMFMethod.RTP_DTMF;
         }
         else if(dtmfString.equals("SIP_INFO_DTMF"))
         {
-            return DTMFEnum.SIP_INFO_DTMF;
+            return DTMFMethod.SIP_INFO_DTMF;
         }
         else // if(dtmfString.equals(INBAND_DTMF"))
         {
-            return DTMFEnum.INBAND_DTMF;
+            return DTMFMethod.INBAND_DTMF;
         }
     }
 }

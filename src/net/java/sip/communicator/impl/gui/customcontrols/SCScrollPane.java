@@ -49,10 +49,17 @@ public class SCScrollPane
      *
      * @param view the view to set.
      */
-    public void setViewportView(JComponent view)
+    @Override
+    public void setViewportView(Component view)
     {
-        view.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-        view.setOpaque(false);
+        if (view instanceof JComponent)
+        {
+            JComponent viewAsJComponent = (JComponent) view;
+
+            viewAsJComponent.setBorder(
+                    BorderFactory.createEmptyBorder(3, 3, 3, 3));
+            viewAsJComponent.setOpaque(false);
+        }
 
         super.setViewportView(view);
     }
@@ -62,7 +69,7 @@ public class SCScrollPane
      */
     public void loadSkin()
     {
-        ((SCViewport)this.getViewport()).loadSkin();
+        ((SCViewport) getViewport()).loadSkin();
     }
 
     /**
@@ -97,14 +104,16 @@ public class SCScrollPane
          */
         private boolean getSettingsBoolean(String key)
         {
-            return new Boolean(GuiActivator.getResources().getSettingsString(
-                key)).booleanValue();
+            return
+                Boolean.parseBoolean(
+                        GuiActivator.getResources().getSettingsString(key));
         }
 
         /**
          * Paints this viewport.
          * @param g the <tt>Graphics</tt> object used for painting
          */
+        @Override
         public void paintComponent(Graphics g)
         {
             super.paintComponent(g);

@@ -7,9 +7,9 @@
 package net.java.sip.communicator.service.neomedia;
 
 /**
- * Manages the geneation of the inband DMTF signal. A signal is identified by a
+ * Manages the generation of the inband DMTF signal. A signal is identified by a
  * value (1, 2, 3, 4, 5, 6, 7, 8, 9, *, #, A, B, C and D) and each signal is
- * producted by the composition of 2 frequencies (as defined below).
+ * produced by the composition of 2 frequencies (as defined below).
  * (cf. ITU recommendation Q.23)
  *
  * +------------------------------------------------+
@@ -23,7 +23,6 @@ package net.java.sip.communicator.service.neomedia;
  *
  * @author Vincent Lucas
  */
-
 public class DTMFInbandTone
 {
     /**
@@ -162,7 +161,7 @@ public class DTMFInbandTone
      * The default duration of an inband DTMF tone in ms.
      * 50 ms c.f.
      * http://nemesis.lonestar.org/reference/telecom/signaling/dtmf.html
-     * which cites the norm ANSI T1.401-1988 (but anavailable for me).
+     * which cites the norm ANSI T1.401-1988 (but unavailable to me).
      * But when testing it at 50 ms, the asterisk servers miss some DTMF tone
      * impulses. Thus, set it up 150 ms.
      */
@@ -172,7 +171,7 @@ public class DTMFInbandTone
      * The default duration of an inband DTMF tone in ms.
      * 45 ms c.f.
      * http://nemesis.lonestar.org/reference/telecom/signaling/dtmf.html
-     * which cites the norm ANSI T1.401-1988 (but anavailable for me).
+     * which cites the norm ANSI T1.401-1988 (but unavailable to me).
      * Moreover the minimum duty cycle (signal tone + silence) for
      * ANSI-compliance shall be greater or equal to 100 ms.
      */
@@ -196,14 +195,14 @@ public class DTMFInbandTone
 
     /**
      * Creates a new instance of an inband tone. The value given is the main
-     * identifier which determines which are the two freequencies to used to
+     * identifier which determines which are the two frequencies to used to
      * generate this tone.
      *
      * @param value The identifier of the tone. Available values are (0, 1, 2,
      * 3, 4, 5, 6, 7, 8, 9, *, #, A, B, C and D).
-     * @param frequency1 The first frequence which composes the tone. Available
+     * @param frequency1 The first frequency which composes the tone. Available
      * values corresponds to DTMFInbandTone.frequencyList1.
-     * @param frequency2 The second frequence which composes the tone. Available
+     * @param frequency2 The second frequency which composes the tone. Available
      * values corresponds to DTMFInbandTone.frequencyList2.
      */
     public DTMFInbandTone(String value, double frequency1, double frequency2)
@@ -228,7 +227,7 @@ public class DTMFInbandTone
      *
      * @return the first frequency coded by this tone.
      */
-    private double getFrequency1()
+    public double getFrequency1()
     {
         return this.frequency1;
     }
@@ -238,7 +237,7 @@ public class DTMFInbandTone
      *
      * @return the second frequency coded by this tone.
      */
-    private double getFrequency2()
+    public double getFrequency2()
     {
         return this.frequency2;
     }

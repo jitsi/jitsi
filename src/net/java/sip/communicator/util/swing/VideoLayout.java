@@ -37,13 +37,6 @@ public class VideoLayout extends FitLayout
     public static final String CLOSE_LOCAL_BUTTON = "CLOSE_LOCAL_BUTTON";
 
     /**
-     * The number of columns into which the local and remote visual/video
-     * <tt>Component</tt>s are to be organized when there are multiple remote
-     * ones.
-     */
-    private static final int COLUMNS = 2;
-
-    /**
      * The east remote video constraint.
      */
     public static final String EAST_REMOTE = "EAST_REMOTE";
@@ -123,6 +116,20 @@ public class VideoLayout extends FitLayout
             closeButton = comp;
         else if (name.equals(CANVAS))
             canvas = comp;
+    }
+
+    /**
+     * Determines how may columns to use for the grid display of specific remote
+     * visual/video <tt>Component</tt>s.
+     *
+     * @param remotes the remote visual/video <tt>Component</tt>s to be
+     * displayed in a grid
+     * @return the number of columns to use for the grid display of the
+     * specified remote visual/video <tt>Component</tt>s
+     */
+    private int calculateColumnCount(List<Component> remotes)
+    {
+        return (remotes.size() > 4) ? 3 : 2;
     }
 
     /**
@@ -207,7 +214,7 @@ public class VideoLayout extends FitLayout
         }
         else if (remoteCount > 0)
         {
-            int columns = COLUMNS;
+            int columns = calculateColumnCount(remotes);
             int rows = (remoteCount + columns - 1) / columns;
             Rectangle bounds
                 = new Rectangle(
@@ -395,7 +402,7 @@ public class VideoLayout extends FitLayout
 
             if ((maxWidth > 0) && (maxHeight > 0))
             {
-                int columns = COLUMNS;
+                int columns = calculateColumnCount(remotes);
                 int rows = (remoteCount + columns - 1) / columns;
 
                 return new Dimension(maxWidth * columns, maxHeight * rows);

@@ -9,31 +9,33 @@ package net.java.sip.communicator.service.neomedia.device;
 import java.awt.*;
 
 /**
- * The <tt>ScreenDevice</tt> interface represent physical screen display.
+ * Represents a physical screen display.
  *
  * @author Sebastien Vincent
  */
 public interface ScreenDevice
 {
-    /**
-     * Get the screen index.
-     *
-     * @return screen index
-     */
-    public int getIndex();
 
     /**
-     * If the screen contains specified point.
+     * Determines whether this screen contains a specified point.
      *
      * @param p point coordinate
-     * @return true if point belongs to screen, false otherwise
+     * @return <tt>true</tt> if <tt>point</tt> belongs to this screen;
+     * <tt>false</tt>, otherwise
      */
     public boolean containsPoint(Point p);
 
     /**
-     * Get current resolution of <tt>ScreenDevice</tt> device.
+     * Gets this screen's index.
      *
-     * @return current resolution of the screen
+     * @return this screen's index
+     */
+    public int getIndex();
+
+    /**
+     * Gets the current resolution of this screen.
+     *
+     * @return the current resolution of this screen
      */
     public Dimension getSize();
 }

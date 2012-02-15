@@ -11,15 +11,20 @@ package net.java.sip.communicator.service.neomedia;
  *
  * @author Vincent Lucas
  */
-public enum DTMFEnum
+public enum DTMFMethod
 {
-    // Automatically selects RTP DTMF is telephon-event are available.
-    // Otherwise selects INBAND DMTF.
+    /**
+     * {@link #RTP_DTMF} if telephony-event are available; otherwise,
+     * {@link #INBAND_DTMF}.
+     */
     AUTO_DTMF,
-    // RTP DTMF as defined in RFC4733.
+
+    /** RTP DTMF as defined in RFC4733. */
     RTP_DTMF,
-    // SIP INFO DTMF.
+
+    /** SIP INFO DTMF. */
     SIP_INFO_DTMF,
-    // INBAND DTMF as defined in ITU recommendation Q.23.
+
+    /** INBAND DTMF as defined in ITU-T recommendation Q.23. */
     INBAND_DTMF
 }

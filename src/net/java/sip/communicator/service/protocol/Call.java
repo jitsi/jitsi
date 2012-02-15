@@ -249,28 +249,33 @@ public abstract class Call
                                         Object newValue,
                                         CallPeerChangeEvent cause)
     {
-        CallChangeEvent ccEvent = new CallChangeEvent(
-            this, type, oldValue, newValue, cause);
+        CallChangeEvent event
+            = new CallChangeEvent(
+                    this,
+                    type,
+                    oldValue, newValue,
+                    cause);
 
         if (logger.isDebugEnabled())
-            logger.debug("Dispatching a CallChange event to "
-                     + callListeners.size()
-                     +" listeners. event is: " + ccEvent.toString());
+        {
+            logger.debug(
+                    "Dispatching a CallChange event to "
+                        + callListeners.size()
+                        + " listeners. The CallChange event is: "
+                        + event);
+        }
 
-        Iterator<CallChangeListener> listeners;
+        CallChangeListener[] listeners;
+
         synchronized(callListeners)
         {
             listeners
-                = new ArrayList<CallChangeListener>(callListeners).iterator();
+                = callListeners.toArray(
+                        new CallChangeListener[callListeners.size()]);
         }
-
-        while(listeners.hasNext())
-        {
-            CallChangeListener listener = listeners.next();
-
+        for (CallChangeListener listener : listeners)
             if(type.equals(CallChangeEvent.CALL_STATE_CHANGE))
-                listener.callStateChanged(ccEvent);
-        }
+                listener.callStateChanged(event);
     }
 
     /**
@@ -293,16 +298,18 @@ public abstract class Call
      */
     protected void setCallState(CallState newState)
     {
-        this.setCallState(newState, null);
+        setCallState(newState, null);
     }
 
     /**
-     * Sets the state of this call and fires a call change event notifying
-     * registered listeners for the change.
+     * Sets the state of this <tt>Call</tt> and fires a new
+     * <tt>CallChangeEvent</tt> notifying the registered
+     * <tt>CallChangeListener</tt>s about the change of the state.
      *
-     * @param newState a reference to the <tt>CallState</tt> instance that the
-     *            call is to enter.
-     * @param cause the event that is the cause of the current change of state.
+     * @param newState the <tt>CallState</tt> into which this <tt>Call</tt> is
+     * to enter
+     * @param cause the <tt>CallPeerChangeEvent</tt> which is the cause for the
+     * request to have this <tt>Call</tt> enter the specified <tt>CallState</tt>
      */
     protected void setCallState(CallState newState, CallPeerChangeEvent cause)
     {
@@ -313,7 +320,9 @@ public abstract class Call
             this.callState = newState;
 
             fireCallChangeEvent(
-                CallChangeEvent.CALL_STATE_CHANGE, oldState, newState, cause);
+                    CallChangeEvent.CALL_STATE_CHANGE,
+                    oldState, newState,
+                    cause);
         }
     }
 

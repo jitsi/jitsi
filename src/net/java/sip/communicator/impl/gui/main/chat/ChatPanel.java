@@ -13,6 +13,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -44,7 +45,7 @@ import net.java.sip.communicator.util.swing.SwingWorker;
  * one chat window", each ChatPanel corresponds to a tab in the ChatWindow.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Adam Netocny
  */
 @SuppressWarnings("serial")
@@ -59,6 +60,10 @@ public class ChatPanel
                 FileTransferStatusListener,
                 Skinnable
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>CallPanel</tt> class and its
+     * instances for logging output.
+     */
     private static final Logger logger = Logger.getLogger(ChatPanel.class);
 
     private final JSplitPane messagePane
@@ -114,10 +119,10 @@ public class ChatPanel
 
     private long lastHistoryMsgTimestamp;
 
-    private final java.util.List<ChatFocusListener> focusListeners
+    private final List<ChatFocusListener> focusListeners
         = new Vector<ChatFocusListener>();
 
-    private final java.util.List<ChatHistoryListener> historyListeners
+    private final List<ChatHistoryListener> historyListeners
         = new Vector<ChatHistoryListener>();
 
     private final Vector<Object> incomingEventBuffer = new Vector<Object>();
@@ -832,9 +837,7 @@ public class ChatPanel
                 = this.conversationPanel.processMeCommand(chatMessage);
 
             if (meCommandMsg.length() > 0)
-            {
                 processedMessage = meCommandMsg;
-            }
         }
 
         this.conversationPanel.appendMessageToEnd(
@@ -846,6 +849,8 @@ public class ChatPanel
      * for processing.
      *
      * @param contactName The name of the contact sending the message.
+     * @param contactDisplayName the display name of the contact sending the
+     * message
      * @param date The time at which the message is sent or received.
      * @param messageType The type of the message. One of OUTGOING_MESSAGE
      * or INCOMING_MESSAGE.
@@ -855,11 +860,11 @@ public class ChatPanel
      * @return a string containing the processed message.
      */
     private String processHistoryMessage(String contactName,
-                                        String contactDisplayName,
-                                        long date,
-                                        String messageType,
-                                        String message,
-                                        String contentType)
+                                         String contactDisplayName,
+                                         long date,
+                                         String messageType,
+                                         String message,
+                                         String contentType)
     {
         ChatMessage chatMessage = new ChatMessage(
             contactName, contactDisplayName, date,
@@ -871,10 +876,9 @@ public class ChatPanel
         {
             String tempMessage =
                 conversationPanel.processMeCommand(chatMessage);
+
             if (tempMessage.length() > 0)
-            {
                 processedMessage = tempMessage;
-            }
         }
 
         return processedMessage;
@@ -935,9 +939,7 @@ public class ChatPanel
         JTextComponent textPane = this.conversationPanel.getChatTextPane();
 
         if (textPane.getSelectedText() == null)
-        {
             textPane = this.writeMessagePanel.getEditorPane();
-        }
 
         textPane.copy();
     }
@@ -1453,6 +1455,8 @@ public class ChatPanel
     private class SmsMessageListener implements MessageListener
     {
         /**
+         * Initializes a new <tt>SmsMessageListener</tt> instance.
+         *
          * @param chatTransport Currently unused
          */
         public SmsMessageListener(ChatTransport chatTransport)
@@ -1541,8 +1545,7 @@ public class ChatPanel
                     errorMsg);
         }
 
-        public void messageReceived(MessageReceivedEvent evt)
-        {}
+        public void messageReceived(MessageReceivedEvent evt) {}
     }
 
     /**
@@ -1761,10 +1764,8 @@ public class ChatPanel
             {
                 ChatConversationPanel conversationPanel
                     = getChatConversationPanel();
-
                 Date firstMsgDate
                     = conversationPanel.getPageFirstMsgTimestamp();
-
                 Collection<Object> c = null;
 
                 if(firstMsgDate != null)
@@ -1850,11 +1851,12 @@ public class ChatPanel
 
         public void run()
         {
-            getChatConversationPanel().clear();
+            ChatConversationPanel chatConversationPanel
+                = getChatConversationPanel();
 
+            chatConversationPanel.clear();
             processHistory(chatHistory, "");
-
-            getChatConversationPanel().setDefaultContent();
+            chatConversationPanel.setDefaultContent();
         }
     }
 
@@ -2586,7 +2588,10 @@ public class ChatPanel
     }
 
     /**
-     *  Notifies the user if any member of the chatroom changes nickname
+     * Notifies the user if any member of the chatroom changes nickname.
+     *
+     * @param event a <tt>ChatRoomMemberPropertyChangeEvent</tt> which carries
+     * the specific of the change
      */
     public void chatRoomPropertyChanged(ChatRoomMemberPropertyChangeEvent event)
     {

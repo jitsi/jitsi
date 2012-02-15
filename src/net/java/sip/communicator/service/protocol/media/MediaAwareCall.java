@@ -12,7 +12,6 @@ import java.util.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
-import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -44,6 +43,16 @@ public abstract class MediaAwareCall<
                CallChangeListener,
                PropertyChangeListener
 {
+    /**
+     * The name of the property of <tt>MediaAwareCall</tt> the value of which
+     * corresponds to the value returned by
+     * {@link #getDefaultDevice(MediaType)}. The <tt>oldValue</tt>
+     * and the <tt>newValue</tt> of the fired <tt>PropertyChangeEvent</tt> are
+     * not to be relied on and instead a call to <tt>getDefaultDevice</tt> is to
+     * be performed to retrieve the new value.
+     */
+    public static final String DEFAULT_DEVICE = "defaultDevice";
+
     /**
      * The <tt>MediaDevice</tt> which performs audio mixing for this
      * <tt>Call</tt> and its <tt>CallPeer</tt>s when the local peer represented
@@ -109,18 +118,18 @@ public abstract class MediaAwareCall<
     protected MediaUseCase mediaUseCase = MediaUseCase.ANY;
 
     /**
-     * The <tt>MediaDevice</tt> for video we should use in the call.
-     * In case this member is null, a lookup corresponding to MediaType.VIDEO is
-     * performed to the <tt>MediaService</tt>.
-     */
-    private MediaDevice videoDevice = null;
-
-    /**
      * The <tt>MediaDevice</tt> for audio we should use in the call.
      * In case this member is null, a lookup corresponding to MediaType.AUDIO is
      * performed to the <tt>MediaService</tt>.
      */
     private MediaDevice audioDevice = null;
+
+    /**
+     * The <tt>MediaDevice</tt> for video we should use in the call.
+     * In case this member is null, a lookup corresponding to MediaType.VIDEO is
+     * performed to the <tt>MediaService</tt>.
+     */
+    private MediaDevice videoDevice = null;
 
     /**
      * The listener that would actually subscribe for level events from the
@@ -129,12 +138,12 @@ public abstract class MediaAwareCall<
      */
     private final SimpleAudioLevelListener localAudioLevelDelegator
         = new SimpleAudioLevelListener()
-        {
-            public void audioLevelChanged(int level)
-            {
-                fireLocalUserAudioLevelChangeEvent(level);
-            }
-        };
+                {
+                    public void audioLevelChanged(int level)
+                    {
+                        fireLocalUserAudioLevelChangeEvent(level);
+                    }
+                };
 
     /**
      * The <tt>RTPTranslator</tt> which forwards video RTP and RTCP traffic
@@ -143,6 +152,13 @@ public abstract class MediaAwareCall<
      * i.e. {@link #conferenceFocus} is <tt>true</tt>.
      */
     private RTPTranslator videoRTPTranslator;
+
+    /**
+     * The <tt>PropertyChangeSupport</tt> which helps this instance with
+     * <tt>PropertyChangeListener</tt>s.
+     */
+    private final PropertyChangeSupport propertyChangeSupport
+        = new PropertyChangeSupport(this);
 
     /**
      * Crates a <tt>Call</tt> instance belonging to <tt>parentOpSet</tt>.
@@ -154,6 +170,14 @@ public abstract class MediaAwareCall<
     {
         super(parentOpSet.getProtocolProvider());
         this.parentOpSet = parentOpSet;
+
+        /*
+         * Listen to MediaService in order to reflect changes in the user's
+         * selection with respect to the default device.
+         */
+        ProtocolMediaActivator
+            .getMediaService()
+                .addPropertyChangeListener(this);
     }
 
     /**
@@ -217,7 +241,7 @@ public abstract class MediaAwareCall<
             // if there are more peers and the peer was the first, the one
             // that listens for local levels, now lets make sure
             // the new first will listen for local level events
-            if(!getCallPeersVector().isEmpty() && elementPeerIx == 0)
+            if(!getCallPeersVector().isEmpty() && (elementPeerIx == 0))
             {
                 getCallPeersVector().firstElement().getMediaHandler()
                     .setLocalUserAudioLevelListener(localAudioLevelDelegator);
@@ -226,12 +250,10 @@ public abstract class MediaAwareCall<
 
         try
         {
-            fireCallPeerEvent(callPeer,
-                CallPeerEvent.CALL_PEER_REMOVED);
+            fireCallPeerEvent(callPeer, CallPeerEvent.CALL_PEER_REMOVED);
         }
         finally
         {
-
             /*
              * The peer should loose its state once it has finished
              * firing its events in order to allow the listeners to undo.
@@ -429,27 +451,18 @@ public abstract class MediaAwareCall<
     public MediaDevice getDefaultDevice(MediaType mediaType)
     {
         MediaDevice device;
+        List<Call> callGroupCalls;
 
-        if(conferenceAudioMixer == null && mediaType == MediaType.AUDIO &&
-            callGroup != null && callGroup.getCalls().size() > 0)
+        if ((mediaType == MediaType.AUDIO)
+                && (conferenceAudioMixer == null)
+                && (callGroup != null)
+                && ((callGroupCalls = callGroup.getCalls()).size() > 0))
         {
-            conferenceAudioMixer =
-                ((MediaAwareCall<?,?,?>)callGroup.getCalls().get(0)).
-                    conferenceAudioMixer;
+            conferenceAudioMixer
+                = ((MediaAwareCall<?,?,?>) callGroupCalls.get(0))
+                    .conferenceAudioMixer;
             device = conferenceAudioMixer;
         }
-        /*
-        else if(conferenceVideoMixer == null && mediaType == MediaType.VIDEO &&
-            callGroup != null && callGroup.getCalls().size() > 0 &&
-            isConferenceFocus())
-        {
-            conferenceVideoMixer =
-                ((MediaAwareCall<?,?,?>)callGroup.getCalls().get(0)).
-                    conferenceVideoMixer;
-            device = conferenceVideoMixer;
-        }
-        */
-
 
         switch (mediaType)
         {
@@ -740,6 +753,18 @@ public abstract class MediaAwareCall<
     }
 
     /**
+     * Adds a <tt>PropertyChangeListener</tt> to be notified about changes in
+     * the values of the properties of this instance.
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to be notified about
+     * changes in the values of the properties of this instance
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener)
+    {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    /**
      * Registers a <tt>listener</tt> with all <tt>CallPeer</tt> currently
      * participating with the call so that it would be notified of changes in
      * video related properties (e.g. <tt>LOCAL_VIDEO_STREAMING</tt>).
@@ -755,6 +780,18 @@ public abstract class MediaAwareCall<
 
         while (peers.hasNext())
             peers.next().addVideoPropertyChangeListener(listener);
+    }
+
+    /**
+     * Removes a <tt>PropertyChangeListener</tt> to no longer be notified about
+     * changes in the values of the properties of this instance.
+     *
+     * @param listener the <tt>PropertyChangeListener</tt> to no longer be
+     * notified about changes in the values of the properties of this instance
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener)
+    {
+        propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
     /**
@@ -927,37 +964,39 @@ public abstract class MediaAwareCall<
      */
     public void setAudioDevice(MediaDevice dev)
     {
-        this.audioDevice = dev;
-    }
-
-    /**
-     * Notifies this <tt>PropertyChangeListener</tt> that the value of
-     * a specific property of the notifier it is registered with has
-     * changed.
-     *
-     * @param evt a <tt>PropertyChangeEvent</tt> which describes the
-     * source of the event, the name of the property which has changed
-     * its value and the old and new values of the property
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        String propertyName = evt.getPropertyName();
-
-        if(propertyName.equals("CHANGE_CAPTURE_DEV"))
+        if (audioDevice != dev)
         {
-            conferenceAudioMixer = null;
-            audioDevice = null;
-            for(MediaAwareCallPeer<?,?,?> p : getCallPeersVector())
+            MediaDevice oldAudioDevice = audioDevice;
+
+            audioDevice = dev;
+
+            if (conferenceAudioMixer instanceof MediaDeviceWrapper)
             {
-                MediaStream  stream =
-                    p.getMediaHandler().getStream(MediaType.AUDIO);
-                if(stream != null)
+                MediaDevice wrappedDevice
+                    = ((MediaDeviceWrapper) conferenceAudioMixer)
+                        .getWrappedDevice();
+
+                if (wrappedDevice != audioDevice)
                 {
-                    MediaFormat fmt = stream.getFormat();
-                    stream.setDevice(getDefaultDevice(MediaType.AUDIO));
-                    stream.setFormat(fmt);
+                    conferenceAudioMixer = null;
+
+                    /*
+                     * XXX While we know the old and the new master/wrapped
+                     * devices, we are not sure whether conferenceAudioMixer has
+                     * been used. Anyway, we have to report different values in
+                     * order to have PropertyChangeSupport really fire the
+                     * event.
+                     */
+                    propertyChangeSupport.firePropertyChange(
+                        DEFAULT_DEVICE,
+                        wrappedDevice, audioDevice);
                 }
+            }
+            else if (conferenceAudioMixer == null)
+            {
+                propertyChangeSupport.firePropertyChange(
+                    DEFAULT_DEVICE,
+                    oldAudioDevice, audioDevice);
             }
         }
     }
@@ -1016,7 +1055,7 @@ public abstract class MediaAwareCall<
     }
 
     /**
-     * Notified when a call are removed from a <tt>CallGroup</tt>.
+     * Notified when a call is removed from a <tt>CallGroup</tt>.
      *
      * @param evt event
      */
@@ -1031,6 +1070,81 @@ public abstract class MediaAwareCall<
             CallPeer p = peers.next();
             getCrossProtocolCallPeersVector().remove(p);
             fireCallPeerEvent(p, CallPeerEvent.CALL_PEER_REMOVED);
+        }
+    }
+
+    /**
+     * Sets the state of this <tt>Call</tt> and fires a new
+     * <tt>CallChangeEvent</tt> notifying the registered
+     * <tt>CallChangeListener</tt>s about the change of the state.
+     *
+     * @param newState the <tt>CallState</tt> into which this <tt>Call</tt> is
+     * to enter
+     * @param cause the <tt>CallPeerChangeEvent</tt> which is the cause for the
+     * request to have this <tt>Call</tt> enter the specified <tt>CallState</tt>
+     * @see Call#setCallState(CallState, CallPeerChangeEvent)
+     */
+    @Override
+    protected void setCallState(CallState newState, CallPeerChangeEvent cause)
+    {
+        try
+        {
+            super.setCallState(newState, cause);
+        }
+        finally
+        {
+            if (CallState.CALL_ENDED.equals(getCallState()))
+                ProtocolMediaActivator
+                    .getMediaService()
+                        .removePropertyChangeListener(this);
+        }
+    }
+
+    /**
+     * Notifies this instance about a change of the value of a specific property
+     * from a specific old value to a specific new value. At the time of this
+     * writing, <tt>MediaAwareCall</tt> listeners to the property value changes
+     * of <tt>MediaService</tt> in order to track the changes of the default
+     * <tt>MediaDevice</tt>.
+     *
+     * @param event a <tt>PropertyChangeEvent</tt> which specifies the name of
+     * the property which has its value changed and the old and new values
+     */
+    public void propertyChange(PropertyChangeEvent event)
+    {
+        if (MediaService.DEFAULT_DEVICE.equals(event.getPropertyName()))
+        {
+            /*
+             * XXX We only support changing the default audio device at the time
+             * of this writing.
+             */
+            MediaDevice oldValue = null;
+            MediaDevice newValue
+                = (audioDevice == null)
+                    ? ProtocolMediaActivator.getMediaService().getDefaultDevice(
+                            MediaType.AUDIO,
+                            mediaUseCase)
+                    : audioDevice;
+
+            if (conferenceAudioMixer instanceof MediaDeviceWrapper)
+            {
+                oldValue
+                    = ((MediaDeviceWrapper) conferenceAudioMixer)
+                        .getWrappedDevice();
+            }
+            /*
+             * XXX If MediaService#getDefaultDevice(MediaType, MediaUseCase)
+             * above returns null and its earlier return value was not null, we
+             * will not notify of an actual change in the value of the user's
+             * choice with respect to the default audio device.
+             */
+            if (oldValue != newValue)
+            {
+                conferenceAudioMixer = null;
+                propertyChangeSupport.firePropertyChange(
+                        DEFAULT_DEVICE,
+                        oldValue, newValue);
+            }
         }
     }
 }

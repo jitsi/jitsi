@@ -183,7 +183,15 @@ public class SoundLevelIndicator
         int activeBarNumber
             = Math.round(this.soundLevel * soundBarNumber / (float) range);
 
-        for (int i = 0, count = getComponentCount(); i < count; i++)
+        /*
+         * We cannot use getComponentCount() and then call getComponent(int)
+         * because there are multiple threads involved and the code bellow is
+         * not executed on the UI thread i.e. ArrayIndexOutOfBounds may and do
+         * happen.
+         */
+        Component[] components = getComponents();
+
+        for (int i = 0; i < components.length; i++)
         {
             Component c = getComponent(i);
 

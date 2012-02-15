@@ -65,16 +65,16 @@ public interface AudioMediaStream
      * @param tone the <tt>DTMFTone</tt> to start sending.
      * @param dtmfMethod The kind of DTMF used (RTP, SIP-INOF or INBAND).
      */
-    public void startSendingDTMF(DTMFTone tone, DTMFEnum dtmfMethod);
+    public void startSendingDTMF(DTMFTone tone, DTMFMethod dtmfMethod);
 
     /**
      * Interrupts transmission of a <tt>DTMFTone</tt> started with the
      * <tt>startSendingDTMF</tt> method. This method has no effect if no tone
      * is being currently sent.
      *
-     * @param tone the <tt>DTMFTone</tt> to start sending.
+     * @param dtmfMethod the <tt>DTMFMethod</tt> to stop sending.
      */
-    public void stopSendingDTMF(DTMFEnum dtmfMethod);
+    public void stopSendingDTMF(DTMFMethod dtmfMethod);
 
     /**
      * Registers a listener that would receive notification events if the

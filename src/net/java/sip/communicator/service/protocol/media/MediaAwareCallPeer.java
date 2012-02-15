@@ -43,11 +43,11 @@ public abstract class MediaAwareCallPeer
                SimpleAudioLevelListener
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>AbstractMediaAwareCallPeer</tt>
-     * class and its instances for logging output.
+     * The <tt>Logger</tt> used by the <tt>MediaAwareCallPeer</tt> class and its
+     * instances for logging output.
      */
-    private static final Logger logger = Logger
-                    .getLogger(MediaAwareCallPeer.class.getName());
+    private static final Logger logger
+        = Logger.getLogger(MediaAwareCallPeer.class);
 
     /**
      * A byte array containing the image/photo representing the call peer.
@@ -71,7 +71,7 @@ public abstract class MediaAwareCallPeer
      * video.
      */
     private final List<PropertyChangeListener> videoPropertyChangeListeners
-            = new LinkedList<PropertyChangeListener>();
+        = new LinkedList<PropertyChangeListener>();
 
     /**
      * The list of <tt>SoundLevelListener</tt>s interested in level changes in
@@ -129,9 +129,10 @@ public abstract class MediaAwareCallPeer
         this.call = owningCall;
         this.protocolProvider = owningCall.getProtocolProvider();
 
-        //create the uid
-        this.peerID = String.valueOf(System.currentTimeMillis())
-                             + String.valueOf(hashCode());
+        // create the uid
+        this.peerID
+            = String.valueOf(System.currentTimeMillis())
+                + String.valueOf(hashCode());
 
         // we listen for events when the call will become focus or not
         // of a conference so we will add or remove our sound level listeners

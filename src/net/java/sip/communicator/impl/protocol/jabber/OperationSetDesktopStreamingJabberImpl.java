@@ -191,18 +191,21 @@ public class OperationSetDesktopStreamingJabberImpl
                                      boolean allowed)
         throws OperationFailedException
     {
-        if(mediaDevice == null)
-            mediaDevice = ((CallJabberImpl)call).getDefaultDevice(
-                MediaType.VIDEO);
+        CallJabberImpl callJabberImpl = (CallJabberImpl) call;
 
-        ((CallJabberImpl)call).setLocalVideoAllowed(allowed,
-                MediaUseCase.DESKTOP);
-        ((CallJabberImpl)call).setVideoDevice(mediaDevice);
-        if(((VideoMediaFormat)mediaDevice.getFormat()) != null)
-            size = ((VideoMediaFormat)mediaDevice.getFormat()).getSize();
-        else
-            size = null;
-        ((CallJabberImpl)call).modifyVideoContent(allowed);
+        if (mediaDevice == null)
+            mediaDevice = callJabberImpl.getDefaultDevice(MediaType.VIDEO);
+
+        callJabberImpl.setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
+        callJabberImpl.setVideoDevice(mediaDevice);
+
+        MediaFormat mediaDeviceFormat = mediaDevice.getFormat();
+
+        size
+            = (mediaDeviceFormat == null)
+                ? null
+                : ((VideoMediaFormat) mediaDeviceFormat).getSize();
+        callJabberImpl.modifyVideoContent(allowed);
         origin = getOriginForMediaDevice(mediaDevice);
     }
 
@@ -248,7 +251,8 @@ public class OperationSetDesktopStreamingJabberImpl
         CallJabberImpl call = new CallJabberImpl(basicTelephony);
 
         /* enable video */
-        call.setVideoDevice(videoDevice);
+        if (videoDevice != null)
+            call.setVideoDevice(videoDevice);
         call.setLocalVideoAllowed(true, getMediaUseCase());
 
         basicTelephony.createOutgoingCall(call, calleeAddress);

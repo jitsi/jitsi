@@ -270,9 +270,9 @@ public class AudioMediaStreamImpl
      * @param tone the <tt>DTMFTone</tt> to start sending.
      * @param dtmfMethod The kind of DTMF used (RTP, SIP-INOF or INBAND).
      *
-     * @see AudioMediaStream#startSendingDTMF(DTMFTone, DTMFEnum)
+     * @see AudioMediaStream#startSendingDTMF(DTMFTone, DTMFMethod)
      */
-    public void startSendingDTMF(DTMFTone tone, DTMFEnum dtmfMethod)
+    public void startSendingDTMF(DTMFTone tone, DTMFMethod dtmfMethod)
     {
         switch(dtmfMethod)
         {
@@ -308,9 +308,9 @@ public class AudioMediaStreamImpl
      *
      * @param dtmfMethod The kind of DTMF used (RTP, SIP-INOF or INBAND).
      *
-     * @see AudioMediaStream#stopSendingDTMF(DTMFEnum)
+     * @see AudioMediaStream#stopSendingDTMF(DTMFMethod)
      */
-    public void stopSendingDTMF(DTMFEnum dtmfMethod)
+    public void stopSendingDTMF(DTMFMethod dtmfMethod)
     {
         switch(dtmfMethod)
         {

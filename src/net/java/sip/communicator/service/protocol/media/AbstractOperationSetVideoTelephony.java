@@ -184,12 +184,13 @@ public abstract class AbstractOperationSetVideoTelephony<
      *
      *  @throws OperationFailedException if video initialization fails.
      */
-    @SuppressWarnings("unchecked") // work with MediaAware* in media package
     public void setLocalVideoAllowed(Call call, boolean allowed)
         throws OperationFailedException
     {
-        ((V)call).setVideoDevice(null);
-        ((V)call).setLocalVideoAllowed(allowed, MediaUseCase.CALL);
+        MediaAwareCall<?, ?, ?> mediaAwareCall = (MediaAwareCall<?, ?, ?>) call;
+
+        mediaAwareCall.setVideoDevice(null);
+        mediaAwareCall.setLocalVideoAllowed(allowed, MediaUseCase.CALL);
     }
 
     /**

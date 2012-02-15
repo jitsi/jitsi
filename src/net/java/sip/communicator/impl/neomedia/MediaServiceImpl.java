@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.util.*;
 import java.util.List; // disambiguation
 
@@ -39,11 +40,13 @@ import net.java.sip.communicator.util.swing.*;
  * @author Dmitri Melnikov
  */
 public class MediaServiceImpl
+    extends PropertyChangeNotifier
     implements MediaService,
                PortAudioDeviceChangedCallback
 {
     /**
-     * The logger.
+     * The <tt>Logger</tt> used by the <tt>MediaServiceImpl</tt> class and its
+     * instances for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(MediaServiceImpl.class);
@@ -75,6 +78,20 @@ public class MediaServiceImpl
      */
     private final DeviceConfiguration deviceConfiguration
         = new DeviceConfiguration();
+
+    /**
+     * The <tt>PropertyChangeListener</tt> which listens to
+     * {@link #deviceConfiguration}.
+     */
+    private final PropertyChangeListener
+        deviceConfigurationPropertyChangeListener
+            = new PropertyChangeListener()
+                    {
+                        public void propertyChange(PropertyChangeEvent event)
+                        {
+                            deviceConfigurationPropertyChange(event);
+                        }
+                    };
 
     /**
      * The list of audio <tt>MediaDevice</tt>s reported by this instance when
@@ -158,6 +175,13 @@ public class MediaServiceImpl
      * Audio configuration panel.
      */
     private SIPCommDialog audioConfigDialog = null;
+
+    /**
+     * Initializes a new <tt>MediaServiceImpl</tt> instance.
+     */
+    public MediaServiceImpl()
+    {
+    }
 
     /**
      * Create a <tt>MediaStream</tt> which will use a specific
@@ -568,6 +592,9 @@ public class MediaServiceImpl
     void start()
     {
         deviceConfiguration.initialize();
+        deviceConfiguration.addPropertyChangeListener(
+                deviceConfigurationPropertyChangeListener);
+
         encodingConfiguration.initializeFormatPreferences();
         encodingConfiguration.registerCustomPackages();
         encodingConfiguration.registerCustomCodecs();
@@ -576,8 +603,10 @@ public class MediaServiceImpl
         {
             try
             {
-                final Component panel = MediaConfiguration.createBasicControls(
-                    DeviceConfigurationComboBoxModel.AUDIO, false);
+                final Component panel
+                    = MediaConfiguration.createBasicControls(
+                            DeviceConfigurationComboBoxModel.AUDIO,
+                            false);
 
                 audioConfigDialog = new SIPCommDialog()
                 {
@@ -663,6 +692,8 @@ public class MediaServiceImpl
      */
     void stop()
     {
+        deviceConfiguration.removePropertyChangeListener(
+                deviceConfigurationPropertyChangeListener);
         PortAudio.removeDeviceChangedCallback(this);
     }
 
@@ -1377,6 +1408,30 @@ public class MediaServiceImpl
     public void deviceChanged()
     {
         showAudioConfiguration();
+    }
+
+    /**
+     * Notifies this instance that the value of a property of
+     * {@link #deviceConfiguration} has changed.
+     *
+     * @param event a <tt>PropertyChangeEvent</tt> which specifies the name of
+     * the property which had its value changed and the old and the new values
+     * of that property
+     */
+    private void deviceConfigurationPropertyChange(PropertyChangeEvent event)
+    {
+        String propertyName = event.getPropertyName();
+
+        if (DeviceConfiguration.AUDIO_CAPTURE_DEVICE.equals(propertyName)
+                || DeviceConfiguration.VIDEO_CAPTURE_DEVICE.equals(propertyName))
+        {
+            /*
+             * We do not know the old value of the property at the time of this
+             * writing. We cannot report the new value either because we do not
+             * know the MediaType and the MediaUseCase.
+             */
+            firePropertyChange(DEFAULT_DEVICE, null, null);
+        }
     }
 
     /**

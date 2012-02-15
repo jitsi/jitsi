@@ -33,6 +33,7 @@ import net.java.sip.communicator.util.*;
  */
 public class AudioMixerMediaDevice
     extends AbstractMediaDevice
+    implements MediaDeviceWrapper
 {
     /**
      * The <tt>Logger</tt> used by <tt>AudioMixerMediaDevice</tt> and its
@@ -151,24 +152,6 @@ public class AudioMixerMediaDevice
                 new IllegalArgumentException("device must be able to capture");
 
         this.device = device;
-    }
-
-    /**
-     * Closes this <tt>MediaDevice</tt> and removes all of the
-     * <tt>MediaDeviceSession</tt> of its <tt>AudioMixerMediaDeviceSession</tt>.
-     */
-    @Override
-    public void close()
-    {
-        List<MediaDeviceSession> sessions = new ArrayList<MediaDeviceSession>();
-        for(MediaStreamMediaDeviceSession s :
-            deviceSession.mediaStreamMediaDeviceSessions)
-        {
-            sessions.add(s);
-        }
-
-        for(MediaDeviceSession s : sessions)
-            s.close();
     }
 
     /**
@@ -442,6 +425,19 @@ public class AudioMixerMediaDevice
             QualityPreset receivePreset)
     {
         return device.getSupportedFormats();
+    }
+
+    /**
+     * Gets the actual <tt>MediaDevice</tt> which this <tt>MediaDevice</tt> is
+     * effectively built on top of and forwarding to.
+     *
+     * @return the actual <tt>MediaDevice</tt> which this <tt>MediaDevice</tt>
+     * is effectively built on top of and forwarding to
+     * @see MediaDeviceWrapper#getWrappedDevice()
+     */
+    public MediaDevice getWrappedDevice()
+    {
+        return device;
     }
 
     /**

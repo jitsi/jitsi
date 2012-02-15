@@ -43,8 +43,7 @@ public class MediaStreamImpl
     implements ReceiveStreamListener,
                SendStreamListener,
                SessionListener,
-               RemoteListener,
-               PropertyChangeListener
+               RemoteListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>MediaStreamImpl</tt> class and its
@@ -223,11 +222,6 @@ public class MediaStreamImpl
     private StatisticsEngine statisticsEngine = null;
 
     /**
-     * If the device session has been reinited.
-     */
-    private boolean deviceSessionReinit = false;
-
-    /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media.
      * The new instance will not have an associated <tt>StreamConnector</tt> and
@@ -271,10 +265,7 @@ public class MediaStreamImpl
          */
         setDevice(device);
 
-        NeomediaActivator.getMediaServiceImpl().getDeviceConfiguration().
-            addPropertyChangeListener(this);
-
-        //TODO add option to disable ZRTP, e.g. by implementing a NullControl
+        // TODO Add option to disable ZRTP, e.g. by implementing a NullControl.
         this.srtpControl
                 = (srtpControl == null) ? new ZrtpControlImpl() : srtpControl;
 
@@ -507,8 +498,6 @@ public class MediaStreamImpl
      */
     public void close()
     {
-        NeomediaActivator.getMediaServiceImpl().getDeviceConfiguration().
-            removePropertyChangeListener(this);
         stop();
         closeSendStreams();
 
@@ -1364,10 +1353,12 @@ public class MediaStreamImpl
         if ((deviceSession == null) || (deviceSession.getDevice() != device))
         {
             MediaDeviceSession oldValue = deviceSession;
+            MediaFormat format;
             MediaDirection startedDirection;
 
             if (deviceSession != null)
             {
+                format = getFormat();
                 startedDirection = deviceSession.getStartedDirection();
 
                 deviceSession.removePropertyChangeListener(
@@ -1375,16 +1366,13 @@ public class MediaStreamImpl
 
                 // keep player active
                 deviceSession.setDisposePlayerOnClose(
-                    (deviceSession instanceof VideoMediaDeviceSession)
-                    == false);
+                        !(deviceSession instanceof VideoMediaDeviceSession));
                 deviceSession.close();
-
-                deviceSession.getDevice().close();
                 deviceSession = null;
-                deviceSessionReinit = true;
             }
             else
             {
+                format = null;
                 startedDirection = MediaDirection.INACTIVE;
             }
 
@@ -1410,15 +1398,16 @@ public class MediaStreamImpl
              */
             direction = null;
 
-            MediaDeviceSession newValue = deviceSession;
-
-            deviceSessionChanged(oldValue, newValue);
-
             if (deviceSession != null)
             {
+                if (format != null)
+                    deviceSession.setFormat(format);
                 deviceSession.setMute(mute);
+            }
+            deviceSessionChanged(oldValue, deviceSession);
+            if (deviceSession != null)
+            {
                 deviceSession.start(startedDirection);
-
                 synchronized (receiveStreams)
                 {
                     for (ReceiveStream receiveStream : receiveStreams)
@@ -2370,41 +2359,6 @@ public class MediaStreamImpl
         catch(Throwable t)
         {
             logger.error("Error writing statistics", t);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        // for the moment only handle audio device
-        if(this instanceof VideoMediaStreamImpl)
-        {
-            return;
-        }
-
-        String prop = evt.getPropertyName();
-
-        if(prop.equals(DeviceConfiguration.AUDIO_CAPTURE_DEVICE))
-        {
-            if(evt.getOldValue() == evt.getNewValue())
-                return;
-
-            if(deviceSessionReinit == false)
-                firePropertyChange("CHANGE_CAPTURE_DEV", evt.getOldValue(),
-                    evt.getNewValue());
-
-            deviceSessionReinit = false;
-/*
-            MediaServiceImpl mediaService =
-                NeomediaActivator.getMediaServiceImpl();
-            MediaFormat format = getFormat();
-            this.setDevice(mediaService.createMixer(
-                mediaService.getDefaultDevice(MediaType.AUDIO,
-                    MediaUseCase.CALL)));
-            this.setFormat(format);
-*/
         }
     }
 

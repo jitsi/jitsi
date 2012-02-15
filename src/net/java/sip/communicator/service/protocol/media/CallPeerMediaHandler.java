@@ -325,6 +325,19 @@ public abstract class CallPeerMediaHandler<
     };
 
     /**
+     * The <tt>PropertyChangeListener</tt> which listens to changes in the
+     * values of the properties of the <tt>Call</tt> of {@link #peer}.
+     */
+    private final PropertyChangeListener callPropertyChangeListener
+        = new PropertyChangeListener()
+                {
+                    public void propertyChange(PropertyChangeEvent event)
+                    {
+                        callPropertyChange(event);
+                    }
+                };
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -337,6 +350,8 @@ public abstract class CallPeerMediaHandler<
     {
         this.peer = peer;
         this.srtpListener = srtpListener;
+
+        peer.getCall().addPropertyChangeListener(callPropertyChangeListener);
     }
 
     /**
@@ -404,6 +419,8 @@ public abstract class CallPeerMediaHandler<
         closeStream(MediaType.VIDEO);
 
         locallyOnHold = false;
+
+        peer.getCall().removePropertyChangeListener(callPropertyChangeListener);
     }
 
     /**
@@ -1251,8 +1268,6 @@ public abstract class CallPeerMediaHandler<
                 stream = mediaService.createMediaStream(
                             connector, device, control);
             }
-
-            stream.addPropertyChangeListener(getPeer().getCall());
         }
         else
         {
@@ -1382,6 +1397,35 @@ public abstract class CallPeerMediaHandler<
             (keyFrameControl == null)
                 ? null
                 : keyFrameControl.keyFrameRequest();
+    }
+
+    /**
+     * Notifies this instance that a value of a specific property of the
+     * <tt>Call</tt> of {@link #peer} has changed from a specific old value to a
+     * specific new value.
+     *
+     * @param event a <tt>PropertyChangeEvent</tt> which specified the property
+     * which had its value changed and the old and new values of that property
+     */
+    private void callPropertyChange(PropertyChangeEvent event)
+    {
+        if (MediaAwareCall.DEFAULT_DEVICE.equals(event.getPropertyName()))
+        {
+            /*
+             * XXX We only support changing the default audio device at the time
+             * of this writing.
+             */
+            MediaStream stream = getStream(MediaType.AUDIO);
+            MediaDevice oldValue = stream.getDevice();
+
+            if (oldValue != null)
+            {
+                MediaDevice newValue = getDefaultDevice(MediaType.AUDIO);
+
+                if (oldValue != newValue)
+                    stream.setDevice(newValue);
+            }
+        }
     }
 
     /**
@@ -1653,9 +1697,7 @@ public abstract class CallPeerMediaHandler<
      */
     protected List<RTPExtension> getExtensionsForType(MediaType type)
     {
-        MediaDevice dev = getDefaultDevice(type);
-
-        return dev.getSupportedExtensions();
+        return getDefaultDevice(type).getSupportedExtensions();
     }
 
     /**

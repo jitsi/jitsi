@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.neomedia.format.*;
  */
 public class VideoTranslatorMediaDevice
     extends AbstractMediaDevice
+    implements MediaDeviceWrapper
 {
     /**
      * The <tt>MediaDevice</tt> which this instance enables to be used in a
@@ -194,6 +195,19 @@ public class VideoTranslatorMediaDevice
             QualityPreset remotePreset)
     {
         return device.getSupportedFormats(localPreset, remotePreset);
+    }
+
+    /**
+     * Gets the actual <tt>MediaDevice</tt> which this <tt>MediaDevice</tt> is
+     * effectively built on top of and forwarding to.
+     *
+     * @return the actual <tt>MediaDevice</tt> which this <tt>MediaDevice</tt>
+     * is effectively built on top of and forwarding to
+     * @see MediaDeviceWrapper#getWrappedDevice()
+     */
+    public MediaDevice getWrappedDevice()
+    {
+        return device;
     }
 
     /**
