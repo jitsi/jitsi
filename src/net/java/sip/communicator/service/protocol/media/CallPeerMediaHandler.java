@@ -32,6 +32,7 @@ import net.java.sip.communicator.util.*;
  * or <tt>CallPeerJabberImpl</tt>
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public abstract class CallPeerMediaHandler<
                                         T extends MediaAwareCallPeer<?, ?, ?>>
@@ -328,14 +329,7 @@ public abstract class CallPeerMediaHandler<
      * The <tt>PropertyChangeListener</tt> which listens to changes in the
      * values of the properties of the <tt>Call</tt> of {@link #peer}.
      */
-    private final PropertyChangeListener callPropertyChangeListener
-        = new PropertyChangeListener()
-                {
-                    public void propertyChange(PropertyChangeEvent event)
-                    {
-                        callPropertyChange(event);
-                    }
-                };
+    private final CallPropertyChangeListener callPropertyChangeListener;
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -351,7 +345,19 @@ public abstract class CallPeerMediaHandler<
         this.peer = peer;
         this.srtpListener = srtpListener;
 
-        peer.getCall().addPropertyChangeListener(callPropertyChangeListener);
+        /*
+         * Listener to the call of peer in order to track the user's choice with
+         * respect to the default audio device.
+         */
+        MediaAwareCall<?, ?, ?> call = this.peer.getCall();
+
+        if (call == null)
+            callPropertyChangeListener = null;
+        else
+        {
+            callPropertyChangeListener = new CallPropertyChangeListener(call);
+            call.addPropertyChangeListener(callPropertyChangeListener);
+        }
     }
 
     /**
@@ -420,7 +426,9 @@ public abstract class CallPeerMediaHandler<
 
         locallyOnHold = false;
 
-        peer.getCall().removePropertyChangeListener(callPropertyChangeListener);
+        if (callPropertyChangeListener != null)
+            callPropertyChangeListener.call.removePropertyChangeListener(
+                    callPropertyChangeListener);
     }
 
     /**
@@ -1825,4 +1833,46 @@ public abstract class CallPeerMediaHandler<
      * management
      */
     protected abstract TransportManager<T> getTransportManager();
+
+    /**
+     * Represents the <tt>PropertyChangeListener</tt> which listens to changes
+     * in the values of the properties of the <tt>Call</tt> of {@link #peer}.
+     * Remembers the <tt>Call</tt> it has been added to because <tt>peer</tt>
+     * does not have a <tt>call</tt> anymore at the time {@link #close()} is
+     * called.
+     */
+    private class CallPropertyChangeListener
+        implements PropertyChangeListener
+    {
+        /**
+         * The <tt>Call</tt> this <tt>PropertyChangeListener</tt> will be or is
+         * already added to.
+         */
+        public final MediaAwareCall<?, ?, ?> call;
+
+        /**
+         * Initializes a new <tt>CallPropertyChangeListener</tt> which is to be
+         * added to a specific <tt>Call</tt>.
+         *
+         * @param call the <tt>Call</tt> the new instance is to be added to
+         */
+        public CallPropertyChangeListener(MediaAwareCall<?, ?, ?> call)
+        {
+            this.call = call;
+        }
+
+        /**
+         * Notifies this instance that the value of a specific property of
+         * {@link #call} has changed from a specific old value to a specific
+         * new value.
+         *
+         * @param event a <tt>PropertyChangeEvent</tt> which specifies the name
+         * of the property which had its value changed and the old and new
+         * values
+         */
+        public void propertyChange(PropertyChangeEvent event)
+        {
+            callPropertyChange(event);
+        }
+    }
 }
