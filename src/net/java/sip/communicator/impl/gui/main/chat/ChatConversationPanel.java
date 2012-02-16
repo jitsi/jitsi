@@ -164,7 +164,14 @@ public class ChatConversationPanel
             JScrollBar verticalScrollBar = getVerticalScrollBar();
 
             if (verticalScrollBar != null)
+            {
+                // We need to call both methods in order to be sure to scroll
+                // to the bottom of the text even when the user has selected
+                // something (changed the caret) or when a new tab has been
+                // added or the window has been resized.
                 verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+                chatTextPane.setCaretPosition(document.getLength());
+            }
         }
     };
 
