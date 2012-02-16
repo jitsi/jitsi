@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.provisioning.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import org.osgi.framework.*;
 
 /**
  * Provisioning service.
@@ -60,6 +61,12 @@ public class ProvisioningServiceImpl
      */
     private static final String PROVISIONING_METHOD_PROP
         = "net.java.sip.communicator.plugin.provisioning.METHOD";
+
+    /**
+     * Name of the property, whether provisioning is mandatory.
+     */
+    private static final String PROPERTY_PROVISIONING_MANDATORY
+        = "net.java.sip.communicator.plugin.provisioning.MANDATORY";
 
     /**
      * Name of the property that contains enforce prefix list (separated by
@@ -420,7 +427,51 @@ public class ProvisioningServiceImpl
 
             // if there was an error in retrieving stop
             if(res == null)
+            {
+                // if canceled, lets check whether provisioning is
+                // mandatory
+                boolean provisioningMandatory = false;
+                
+                String defaultSettingsProp =
+                    ProvisioningActivator.getResourceService()
+                        .getSettingsString(PROPERTY_PROVISIONING_MANDATORY);
+                if(defaultSettingsProp != null
+                    && Boolean.parseBoolean(defaultSettingsProp))
+                    provisioningMandatory = true;
+                
+                if(ProvisioningActivator.getConfigurationService().getBoolean(
+                    PROPERTY_PROVISIONING_MANDATORY, provisioningMandatory))
+                {
+                    // as shutdown service is not started and other bundles
+                    // are scheduled to start, stop all of them
+                    {
+                        for(Bundle b : ProvisioningActivator.bundleContext
+                                            .getBundles())
+                        {
+                            try
+                            {
+                                // skip our Bundle avoiding stopping us while
+                                // starting and NPE in felix
+                                if(ProvisioningActivator.bundleContext
+                                    .equals(b.getBundleContext()))
+                                {
+                                    continue;
+                                }
+                                b.stop();
+                            }
+                            catch (BundleException ex)
+                            {
+                                logger.error(
+                                    "Failed to being gentle stop " +
+                                        b.getLocation(), ex);
+                            }
+                        }
+                    }
+                }
+
+                // stop processing
                 return null;
+            }
 
             String userPass[] = res.getCredentials();
             if(userPass[0] != null && userPass[1] != null)

@@ -36,7 +36,7 @@ public class ProvisioningActivator
     /**
      * The current BundleContext.
      */
-    private static BundleContext bundleContext = null;
+    static BundleContext bundleContext = null;
 
     /**
      * A reference to the ConfigurationService implementation instance that
