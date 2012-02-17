@@ -94,11 +94,17 @@ public class ExtendedTooltip
                 Window popupWindow
                     = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
 
-                if (popupWindow != null && popupWindow.isVisible())
+                if (popupWindow != null
+                    && popupWindow.isVisible()
+                    // The popup window should normally be a JWindow, so we
+                    // check here explicitly if for some reason we didn't get
+                    // something else.
+                    && (popupWindow instanceof JWindow))
                 {
                     if (logger.isInfoEnabled())
                         logger.info("Tooltip window ancestor to hide: "
                             + popupWindow);
+
                     popupWindow.setVisible(false);
                 }
             }
@@ -117,7 +123,12 @@ public class ExtendedTooltip
                         = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
 
                     if (popupWindow != null
-                        && popupWindow.isVisible())
+                        && popupWindow.isVisible()
+                        && !(popupWindow instanceof JFrame)
+                        // The popup window should normally be a JWindow, so we
+                        // check here explicitly if for some reason we didn't get
+                        // something else.
+                        && (popupWindow instanceof JWindow))
                     {
                         if (logger.isInfoEnabled())
                             logger.info("Tooltip window ancestor to hide: "
