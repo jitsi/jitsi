@@ -415,6 +415,7 @@ public class CallPeerMediaHandlerSipImpl
             .getAccountPropertyInt(ProtocolProviderFactory.SAVP_OPTION,
                 ProtocolProviderFactory.SAVP_OFF);
 
+        boolean masterStreamSet = false;
         List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
@@ -590,7 +591,28 @@ public class CallPeerMediaHandlerSipImpl
             // create the corresponding stream...
             MediaFormat fmt = findMediaFormat(remoteFormats,
                     mutuallySupportedFormats.get(0));
-            initStream(connector, dev, fmt, target, direction, rtpExtensions);
+
+            boolean masterStream = false;
+            // if we have more than one stream, lets the audio be the master
+            if(!masterStreamSet)
+            {
+                if(remoteDescriptions.size() > 1)
+                {
+                    if(mediaType.equals(MediaType.AUDIO))
+                    {
+                        masterStream = true;
+                        masterStreamSet = true;
+                    }
+                }
+                else
+                {
+                    masterStream = true;
+                    masterStreamSet = true;
+                }
+            }
+
+            initStream(connector, dev, fmt, target, direction, rtpExtensions,
+                masterStream);
 
             // create the answer description
             answerDescriptions.add(md);
@@ -847,6 +869,7 @@ public class CallPeerMediaHandlerSipImpl
 
         this.setCallInfoURL(SdpUtils.getCallInfoURL(answer));
 
+        boolean masterStreamSet = false;
         List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
@@ -992,9 +1015,28 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
 
+            boolean masterStream = false;
+            // if we have more than one stream, lets the audio be the master
+            if(!masterStreamSet)
+            {
+                if(remoteDescriptions.size() > 1)
+                {
+                    if(mediaType.equals(MediaType.AUDIO))
+                    {
+                        masterStream = true;
+                        masterStreamSet = true;
+                    }
+                }
+                else
+                {
+                    masterStream = true;
+                    masterStreamSet = true;
+                }
+            }
+
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
-                                direction, rtpExtensions);
+                                direction, rtpExtensions, masterStream);
         }
     }
 

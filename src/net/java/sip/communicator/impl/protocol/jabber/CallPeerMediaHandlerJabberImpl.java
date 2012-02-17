@@ -193,6 +193,7 @@ public class CallPeerMediaHandlerJabberImpl
      * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
      * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
      * enabled for this stream.
+     * @param masterStream whether the stream to be used as master if secured
      *
      * @return the newly created <tt>MediaStream</tt>.
      *
@@ -205,7 +206,8 @@ public class CallPeerMediaHandlerJabberImpl
                                      MediaFormat          format,
                                      MediaStreamTarget    target,
                                      MediaDirection       direction,
-                                     List<RTPExtension>   rtpExtensions)
+                                     List<RTPExtension>   rtpExtensions,
+                                     boolean masterStream)
         throws OperationFailedException
     {
         MediaStream stream
@@ -215,7 +217,8 @@ public class CallPeerMediaHandlerJabberImpl
                     format,
                     target,
                     direction,
-                    rtpExtensions);
+                    rtpExtensions,
+                    masterStream);
 
         if(stream != null)
             stream.setName(streamName);
@@ -457,10 +460,27 @@ public class CallPeerMediaHandlerJabberImpl
 
         //user answered an incoming call so we go through whatever content
         //entries we are initializing and init their corresponding streams
+
+        // First parse content so we know how may streams,
+        // and what type of content we have
+        Map<ContentPacketExtension,
+            RtpDescriptionPacketExtension> contents
+                = new HashMap<ContentPacketExtension,
+                              RtpDescriptionPacketExtension>();
         for(ContentPacketExtension ourContent : sessAccept)
         {
             RtpDescriptionPacketExtension description
-                = JingleUtils.getRtpDescription(ourContent);
+                            = JingleUtils.getRtpDescription(ourContent);
+            contents.put(ourContent, description);
+        }
+
+        boolean masterStreamSet = false;
+        for(Map.Entry<ContentPacketExtension, RtpDescriptionPacketExtension> en
+                : contents.entrySet())
+        {
+            ContentPacketExtension ourContent = en.getKey();
+
+            RtpDescriptionPacketExtension description = en.getValue();
             MediaType type = MediaType.parseString(description.getMedia());
 
             // stream connector
@@ -532,9 +552,28 @@ public class CallPeerMediaHandlerJabberImpl
                 }
             }
 
+            boolean masterStream = false;
+            // if we have more than one stream, lets the audio be the master
+            if(!masterStreamSet)
+            {
+                if(contents.size() > 1)
+                {
+                    if(type.equals(MediaType.AUDIO))
+                    {
+                        masterStream = true;
+                        masterStreamSet = true;
+                    }
+                }
+                else
+                {
+                    masterStream = true;
+                    masterStreamSet = true;
+                }
+            }
+
             // create the corresponding stream...
             initStream(ourContent.getName(), connector, dev, format, target,
-                            direction, rtpExtensions);
+                            direction, rtpExtensions, masterStream);
 
             // if remote peer requires inputevt, notify UI to capture mouse
             // and keyboard events
@@ -887,12 +926,37 @@ public class CallPeerMediaHandlerJabberImpl
             throws OperationFailedException,
             IllegalArgumentException
     {
+        boolean masterStreamSet = false;
         for(String key : remoteContentMap.keySet())
         {
             ContentPacketExtension ext = remoteContentMap.get(key);
 
+            boolean masterStream = false;
+            // if we have more than one stream, lets the audio be the master
+            if(!masterStreamSet)
+            {
+                RtpDescriptionPacketExtension description
+                    = JingleUtils.getRtpDescription(ext);
+                MediaType mediaType
+                    = MediaType.parseString( description.getMedia() );
+
+                if(remoteContentMap.size() > 1)
+                {
+                    if(mediaType.equals(MediaType.AUDIO))
+                    {
+                        masterStream = true;
+                        masterStreamSet = true;
+                    }
+                }
+                else
+                {
+                    masterStream = true;
+                    masterStreamSet = true;
+                }
+            }
+
             if(ext != null)
-                processContent(ext, false);
+                processContent(ext, false, masterStream);
         }
     }
 
@@ -924,13 +988,13 @@ public class CallPeerMediaHandlerJabberImpl
         {
             if(modify)
             {
-                processContent(content, modify);
+                processContent(content, modify, false);
                 remoteContentMap.put(name, content);
             }
             else
             {
                 ext.setSenders(content.getSenders());
-                processContent(ext, modify);
+                processContent(ext, modify, false);
                 remoteContentMap.put(name, ext);
             }
         }
@@ -982,6 +1046,7 @@ public class CallPeerMediaHandlerJabberImpl
      *
      * @param content a <tt>ContentPacketExtension</tt>
      * @param modify if it correspond to a content-modify for resolution change
+     * @param masterStream whether the stream to be used as master
      * @throws OperationFailedException if we fail to handle <tt>content</tt>
      * for reasons like failing to initialize media devices or streams.
      * @throws IllegalArgumentException if there's a problem with the syntax or
@@ -991,7 +1056,8 @@ public class CallPeerMediaHandlerJabberImpl
      * in this operation can synchronize to the mediaHandler instance to wait
      * processing to stop (method setState in CallPeer).
      */
-    private void processContent(ContentPacketExtension content, boolean modify)
+    private void processContent(ContentPacketExtension content, boolean modify,
+                                boolean masterStream)
         throws OperationFailedException,
                IllegalArgumentException
     {
@@ -1114,7 +1180,8 @@ public class CallPeerMediaHandlerJabberImpl
 
         // create the corresponding stream...
         initStream(content.getName(), connector, dev,
-                supportedFormats.get(0), target, direction, rtpExtensions);
+                supportedFormats.get(0), target, direction, rtpExtensions,
+                masterStream);
     }
 
     /**
@@ -1141,12 +1208,37 @@ public class CallPeerMediaHandlerJabberImpl
          * information compatible with that carried in transport-info.
          */
         processTransportInfo(answer);
-
+        
+        boolean masterStreamSet = false;
         for (ContentPacketExtension content : answer)
         {
             remoteContentMap.put(content.getName(), content);
 
-            processContent(content, false);
+            boolean masterStream = false;
+            // if we have more than one stream, lets the audio be the master
+            if(!masterStreamSet)
+            {
+                RtpDescriptionPacketExtension description
+                    = JingleUtils.getRtpDescription(content);
+                MediaType mediaType
+                    = MediaType.parseString( description.getMedia() );
+
+                if(answer.size() > 1)
+                {
+                    if(mediaType.equals(MediaType.AUDIO))
+                    {
+                        masterStream = true;
+                        masterStreamSet = true;
+                    }
+                }
+                else
+                {
+                    masterStream = true;
+                    masterStreamSet = true;
+                }
+            }
+
+            processContent(content, false, masterStream);
         }
     }
 

@@ -52,6 +52,11 @@ public class ZrtpControlImpl
     private AbstractRTPConnector zrtpConnector = null;
 
     /**
+     * Whether current is master session.
+     */
+    private boolean masterSession = false;
+
+    /**
      * Creates the control.
      */
     ZrtpControlImpl()
@@ -139,14 +144,25 @@ public class ZrtpControlImpl
     }
 
     /**
-     * Starts and enables zrtp in the stream holding this control.
-     * @param masterSession whether this stream is master for the current
-     *        media session.
+     * When in multistream mode, enables the master session.
+     * @param masterSession whether current control, controls the master session.
      */
-    public void start(boolean masterSession)
+    public void setMasterSession(boolean masterSession)
     {
+        // by default its not master, change only if set to be master
+        // sometimes (jingle) streams are re-initing and
+        // we must reuse old value (true) event that false is submitted
+        if(masterSession)
+            this.masterSession = masterSession;
+    }
 
-        boolean zrtpAutoStart = false;
+    /**
+     * Starts and enables zrtp in the stream holding this control.
+     * @param mediaType the media type of the stream this control controls.
+     */
+    public void start(MediaType mediaType)
+    {
+        boolean zrtpAutoStart;
 
         // ZRTP engine initialization
         ZRTPTransformEngine engine = getTransformEngine();
@@ -170,7 +186,10 @@ public class ZrtpControlImpl
 
             // we know that audio is considered as master for zrtp
             securityEventManager.setSessionType(
-               SecurityEventManager.AUDIO_SESSION);
+                mediaType.equals(MediaType.AUDIO) ?
+                    SecurityEventManager.AUDIO_SESSION
+                    : SecurityEventManager.VIDEO_SESSION
+            );
         }
         else
         {
@@ -180,7 +199,9 @@ public class ZrtpControlImpl
             // initially engine has value enableZrtp = false
             zrtpAutoStart = zrtpEngine.isEnableZrtp();
             securityEventManager.setSessionType(
-                SecurityEventManager.VIDEO_SESSION);
+                mediaType.equals(MediaType.AUDIO) ?
+                    SecurityEventManager.AUDIO_SESSION
+                    : SecurityEventManager.VIDEO_SESSION);
         }
 
         // tells the engine whether to autostart(enable)

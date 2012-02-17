@@ -495,7 +495,10 @@ public abstract class MediaAwareCall<
              */
             if ((conferenceAudioMixer == null)
                     && (device != null)
-                    && (!OSUtils.IS_ANDROID || isConferenceFocus()))
+                    && (!OSUtils.IS_ANDROID || isConferenceFocus())
+                    // we can use audio mixer only if we
+                    // have capture device (device can send)
+                    && (device.getDirection().allowsSending()))
                 conferenceAudioMixer = mediaService.createMixer(device);
             if (conferenceAudioMixer != null)
                 device = conferenceAudioMixer;

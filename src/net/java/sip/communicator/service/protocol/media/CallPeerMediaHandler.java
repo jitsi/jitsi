@@ -1236,6 +1236,7 @@ public abstract class CallPeerMediaHandler<
      * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
      * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
      * enabled for this stream.
+     * @param masterStream whether the stream to be used as master if secured
      *
      * @return the newly created <tt>MediaStream</tt>.
      *
@@ -1247,7 +1248,8 @@ public abstract class CallPeerMediaHandler<
                                      MediaFormat          format,
                                      MediaStreamTarget    target,
                                      MediaDirection       direction,
-                                     List<RTPExtension>   rtpExtensions)
+                                     List<RTPExtension>   rtpExtensions,
+                                     boolean masterStream)
         throws OperationFailedException
     {
         MediaType mediaType = device.getMediaType();
@@ -1284,7 +1286,8 @@ public abstract class CallPeerMediaHandler<
 
         return
             configureStream(
-                    device, format, target, direction, rtpExtensions, stream);
+                    device, format, target, direction, rtpExtensions, stream,
+                    masterStream);
     }
 
     /**
@@ -1303,6 +1306,7 @@ public abstract class CallPeerMediaHandler<
      * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
      * enabled for this stream.
      * @param stream the <tt>MediaStream</tt> that we'd like to configure.
+     * @param masterStream whether the stream to be used as master if secured
      *
      * @return the <tt>MediaStream</tt> that we received as a parameter (for
      * convenience reasons).
@@ -1316,7 +1320,8 @@ public abstract class CallPeerMediaHandler<
                                            MediaStreamTarget    target,
                                            MediaDirection       direction,
                                            List<RTPExtension>   rtpExtensions,
-                                           MediaStream          stream)
+                                           MediaStream          stream,
+                                           boolean masterStream)
            throws OperationFailedException
     {
         registerDynamicPTsWithStream(stream);
@@ -1355,8 +1360,9 @@ public abstract class CallPeerMediaHandler<
              */
             SrtpControl srtpControl = stream.getSrtpControl();
 
+            srtpControl.setMasterSession(masterStream);
             srtpControl.setSrtpListener(srtpListener);
-            srtpControl.start(MediaType.AUDIO.equals(mediaType));
+            srtpControl.start(mediaType);
         }
 
         return stream;

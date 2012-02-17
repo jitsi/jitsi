@@ -14,9 +14,9 @@ import ch.imvs.sdes4j.srtp.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
+import net.java.sip.communicator.impl.neomedia.transform.zrtp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
-import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Default implementation of {@link SDesControl} that supports the crypto suites
@@ -93,12 +93,19 @@ public class SDesControlImpl
         return engine != null;
     }
 
-    public void start(boolean masterSession)
+    /**
+     * Not used.
+     * @param masterSession not used.
+     */
+    public void setMasterSession(boolean masterSession)
+    {}
+
+    public void start(MediaType type)
     {
         srtpListener.securityTurnedOn(
-            masterSession ? 
-                CallPeerSecurityStatusEvent.AUDIO_SESSION :
-                CallPeerSecurityStatusEvent.VIDEO_SESSION,
+            type.equals(MediaType.AUDIO) ?
+                SecurityEventManager.AUDIO_SESSION
+                : SecurityEventManager.VIDEO_SESSION,
             selectedInAttribute.getCryptoSuite().encode(), this);
     }
 

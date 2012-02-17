@@ -47,11 +47,16 @@ public interface SrtpControl
     public boolean getSecureCommunicationStatus();
 
     /**
-     * Starts and enables zrtp in the stream holding this control.
-     * @param masterSession whether this stream is master for the current
-     *        media session.
+     * When in multistream mode, enables the master session.
+     * @param masterSession whether current control, controls the master session.
      */
-    public void start(boolean masterSession);
+    public void setMasterSession(boolean masterSession);
+
+    /**
+     * Starts and enables zrtp in the stream holding this control.
+     * @param mediaType the media type of the stream this control controls.
+     */
+    public void start(MediaType mediaType);
 
     /**
      * Sets the multistream data, which means that the master stream

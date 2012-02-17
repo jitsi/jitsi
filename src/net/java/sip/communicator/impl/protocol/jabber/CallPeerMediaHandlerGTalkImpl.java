@@ -230,7 +230,8 @@ public class CallPeerMediaHandlerGTalkImpl
         List<PayloadTypePacketExtension> lst = localContentMap.get("audio");
 
         description.setNamespace(SessionIQProvider.GTALK_AUDIO_NAMESPACE);
-
+        
+        boolean masterStreamSet = false;
         for(MediaType mediaType : MediaType.values())
         {
             MediaFormat format = null;
@@ -291,8 +292,27 @@ public class CallPeerMediaHandlerGTalkImpl
                 new ArrayList<RTPExtension>();
             MediaDirection direction = MediaDirection.SENDRECV;
 
+            boolean masterStream = false;
+            // if we have more than one stream, lets the audio be the master
+            if(!masterStreamSet)
+            {
+                if(MediaType.values().length > 1)
+                {
+                    if(mediaType.equals(MediaType.AUDIO))
+                    {
+                        masterStream = true;
+                        masterStreamSet = true;
+                    }
+                }
+                else
+                {
+                    masterStream = true;
+                    masterStreamSet = true;
+                }
+            }
+
             initStream(mediaName, connector, dev, format, target,
-                    direction, rtpExtensions);
+                    direction, rtpExtensions, masterStream);
         }
 
         return description;
@@ -319,6 +339,7 @@ public class CallPeerMediaHandlerGTalkImpl
     {
         List<PayloadTypePacketExtension> lst = answer.getPayloadTypes();
 
+        boolean masterStreamSet = true;
         for(MediaType mediaType : MediaType.values())
         {
             String ns = getNamespaceForMediaType(mediaType);
@@ -360,8 +381,27 @@ public class CallPeerMediaHandlerGTalkImpl
             List<RTPExtension> rtpExtensions = new ArrayList<RTPExtension>();
             MediaDirection direction = MediaDirection.SENDRECV;
 
+            boolean masterStream = false;
+            // if we have more than one stream, lets the audio be the master
+            if(!masterStreamSet)
+            {
+                if(MediaType.values().length > 1)
+                {
+                    if(mediaType.equals(MediaType.AUDIO))
+                    {
+                        masterStream = true;
+                        masterStreamSet = true;
+                    }
+                }
+                else
+                {
+                    masterStream = true;
+                    masterStreamSet = true;
+                }
+            }
+
             initStream(mediaName, connector, dev, format, target,
-                    direction, rtpExtensions);
+                    direction, rtpExtensions, masterStream);
         }
     }
 
@@ -565,8 +605,7 @@ public class CallPeerMediaHandlerGTalkImpl
      * Create list of payload types for device.
      *
      * @param supportedFormats supported formats of a device
-     * @param direction direction
-     * @param supportedExtensions supported RTP extensions
+     * @param name name of payload type
      * @return list of payload types for this device
      */
     private List<PayloadTypePacketExtension> createPayloadTypesForOffer(
@@ -663,6 +702,7 @@ public class CallPeerMediaHandlerGTalkImpl
      * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
      * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
      * enabled for this stream.
+     * @param masterStream whether the stream to be used as master if secured
      *
      * @return the newly created <tt>MediaStream</tt>.
      *
@@ -675,7 +715,8 @@ public class CallPeerMediaHandlerGTalkImpl
                                      MediaFormat          format,
                                      MediaStreamTarget    target,
                                      MediaDirection       direction,
-                                     List<RTPExtension>   rtpExtensions)
+                                     List<RTPExtension>   rtpExtensions,
+                                     boolean masterStream)
         throws OperationFailedException
     {
         if(format instanceof VideoMediaFormat)
@@ -696,7 +737,8 @@ public class CallPeerMediaHandlerGTalkImpl
                     format,
                     target,
                     direction,
-                    rtpExtensions);
+                    rtpExtensions,
+                    masterStream);
 
         if(stream != null)
             stream.setName(streamName);

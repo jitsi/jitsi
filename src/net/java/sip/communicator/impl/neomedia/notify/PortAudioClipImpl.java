@@ -193,12 +193,16 @@ public class PortAudioClipImpl
          * If the user has configured PortAudio to use no notification device,
          * don't try to play this clip.
          */
-        MediaLocator rendererLocator
+        CaptureDeviceInfo audioNotifyDeviceInfo
             = audioNotifier
-                .getDeviceConfiguration().getAudioNotifyDevice().getLocator();
+                .getDeviceConfiguration().getAudioNotifyDevice();
+        if(audioNotifyDeviceInfo == null)
+            return false;
 
+        MediaLocator rendererLocator = audioNotifyDeviceInfo.getLocator();
         if (rendererLocator == null)
             return false;
+
         renderer.setLocator(rendererLocator);
 
         AudioInputStream audioStream = null;
