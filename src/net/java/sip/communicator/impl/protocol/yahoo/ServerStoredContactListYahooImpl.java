@@ -858,7 +858,9 @@ public class ServerStoredContactListYahooImpl
             {
                 logger.error("cannot send auth deny", ex);
             }
-            }
+
+            return;
+        }
 
         // else we accepted it
         try

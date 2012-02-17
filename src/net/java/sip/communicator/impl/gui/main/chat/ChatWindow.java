@@ -1253,6 +1253,9 @@ public class ChatWindow
                 return false;
             }
 
+            if(getCurrentChat() == null)
+                return false;
+            
             ChatWritePanel chatWritePanel
                 = getCurrentChat().getChatWritePanel();
             JEditorPane chatWriteEditor = chatWritePanel.getEditorPane();

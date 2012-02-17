@@ -254,7 +254,7 @@ public class MetaContactGroupImpl
      *
      * @param metaContactID a String identifier obtained through the
      *   <tt>MetaContact.getMetaUID()</tt> method. <p>
-     * @return the <tt>MetaContact</tt> with the specified idnetifier.
+     * @return the <tt>MetaContact</tt> with the specified identifier.
      */
     public MetaContact getMetaContact(String metaContactID)
     {
@@ -367,7 +367,7 @@ public class MetaContactGroupImpl
                 return mContact;
         }
 
-        //if we didn't find it here, let's try in the subougroups
+        //if we didn't find it here, let's try in the subgroups
         Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
@@ -397,7 +397,7 @@ public class MetaContactGroupImpl
         if (metaUID.equals(groupUID))
             return this;
 
-        //if we didn't find it here, let's try in the subougroups
+        //if we didn't find it here, let's try in the subgroups
         Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
@@ -495,7 +495,7 @@ public class MetaContactGroupImpl
      * MetaContact is originating from the specified account then an empty
      * iterator is returned.
      * <p>
-     * Note to implementors:  In order to prevent problems with concurrency, the
+     * Note to implementers:  In order to prevent problems with concurrency, the
      * <tt>Iterator</tt> returned by this method should not be over the actual
      * list of groups but rather over a copy of that list.
      * <p>
@@ -549,7 +549,7 @@ public class MetaContactGroupImpl
                 return mContact;
         }
 
-        //if we didn't find it here, let's try in the subougroups
+        //if we didn't find it here, let's try in the subgroups
         Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
@@ -597,7 +597,7 @@ public class MetaContactGroupImpl
                 return mContact;
         }
 
-        //if we didn't find it here, let's try in the subougroups
+        //if we didn't find it here, let's try in the subgroups
         Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
@@ -633,7 +633,7 @@ public class MetaContactGroupImpl
             return this;
 
 
-        //if we didn't find it here, let's try in the subougroups
+        //if we didn't find it here, let's try in the subgroups
         Iterator<MetaContactGroup> groupsIter = getSubgroups();
 
         while( groupsIter.hasNext() )
@@ -679,9 +679,9 @@ public class MetaContactGroupImpl
 
     /**
      * Adds the <tt>metaContact</tt> to the local list of child
-     * contacts without setting its parrent contact and without any
+     * contacts without setting its parent contact and without any
      * synchronization. This method is meant for use _PRIMARILY_ by the
-     * <tt>MetaContact</tt> itself upon chenge in its encapsulated protocol
+     * <tt>MetaContact</tt> itself upon change in its encapsulated protocol
      * specific contacts.
      *
      * @param metaContact the <tt>MetaContact</tt> to add in the local vector.
@@ -701,9 +701,9 @@ public class MetaContactGroupImpl
 
     /**
       * Removes the <tt>metaContact</tt> from the local list of child
-      * contacts without unsetting its parrent contact and without any
+      * contacts without unsetting its parent contact and without any
       * synchronization. This method is meant for use _PRIMARILY_ by the
-      * <tt>MetaContact</tt> itself upon chenge in its encapsulated protocol
+      * <tt>MetaContact</tt> itself upon change in its encapsulated protocol
       * specific contacts. The method would also regenerate the ordered copy
       * used for generating iterators and performing search operations over
       * the group.

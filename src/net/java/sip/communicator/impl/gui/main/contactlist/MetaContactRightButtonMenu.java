@@ -650,10 +650,11 @@ public class MetaContactRightButtonMenu
                 && defaultContact.getProtocolProvider()
                     .getOperationSet(OperationSetExtendedAuthorizations.class)
                         != null)
-                && !defaultContact.getProtocolProvider()
-                    .getOperationSet(OperationSetExtendedAuthorizations.class)
-                        .getSubscriptionStatus(defaultContact).equals(
-                            SubscriptionStatus.Subscribed))
+                && !SubscriptionStatus.Subscribed
+                        .equals(defaultContact.getProtocolProvider()
+                                    .getOperationSet(
+                                        OperationSetExtendedAuthorizations.class)
+                                        .getSubscriptionStatus(defaultContact)))
         {
             this.add(requestAuthMenuItem);
             this.requestAuthMenuItem.setName("requestAuth");
