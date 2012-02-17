@@ -375,6 +375,13 @@ public class CallPanel
             fullScreenButton.setEnabled(false);
 
             addOneToOneSpecificComponents();
+
+            // Enables the button only if there is 1 and only 1 peer which is
+            // basicIM capable.
+            if(getIMCapableCallPeers().size() == 1)
+            {
+                settingsPanel.add(chatButton);
+            }
         }
         else
         {
@@ -384,18 +391,6 @@ public class CallPanel
             remoteLevel.setEnabled(false);
 
             addConferenceSpecificComponents();
-        }
-
-        //chatButton.setEnabled(false);
-        //Collection<Contact> collectionIMCapableContacts =
-        //    getIMCapableCallPeers();
-        // Enables the button only if there is 1 and only 1 peer which is
-        // basicIM capable.
-        //if(collectionIMCapableContacts.size() == 1)
-        if(getIMCapableCallPeers().size() == 1)
-        {
-            settingsPanel.add(chatButton);
-            //chatButton.setEnabled(true);
         }
 
         dtmfHandler = new DTMFHandler(this);
