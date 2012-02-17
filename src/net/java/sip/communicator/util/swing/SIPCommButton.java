@@ -70,6 +70,7 @@ public class SIPCommButton
          * and feel.
          */
         this.setContentAreaFilled(false);
+        this.setBorder(null);
 
         this.bgImage = bgImage;
         this.rolloverImage = rolloverImage;
