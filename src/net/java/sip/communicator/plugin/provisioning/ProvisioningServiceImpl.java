@@ -494,6 +494,8 @@ public class ProvisioningServiceImpl
             final BufferedOutputStream bout
                 = new BufferedOutputStream(new FileOutputStream(temp));
 
+            ByteArrayOutputStream logStream = new ByteArrayOutputStream();
+
             try
             {
                 int read = -1;
@@ -502,6 +504,13 @@ public class ProvisioningServiceImpl
                 while((read = pin.read(buff)) != -1)
                 {
                     bout.write(buff, 0, read);
+                    logStream.write(buff, 0, read);
+                }
+
+                if(logger.isInfoEnabled())
+                {
+                    logger.info("Provisioning response : "
+                        + logStream.toString());
                 }
 
                 pin.close();

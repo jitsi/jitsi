@@ -427,6 +427,24 @@ public class NetworkConfigurationWatcher
             }
         }
 
+        // add network debug info, to track wake up problems
+        if(logger.isInfoEnabled())
+        {
+            for(Map.Entry<String, List<InetAddress>> en :
+                activeInterfaces.entrySet())
+            {
+                logger.info("Previously Active " + en.getKey()
+                    + ":" + en.getValue());
+            }
+
+            for(Map.Entry<String, List<InetAddress>> en :
+                currentActiveInterfaces.entrySet())
+            {
+                logger.info("Currently Active " + en.getKey()
+                    + ":" + en.getValue());
+            }
+        }
+
         // search for down interface
         List<String> inactiveActiveInterfaces =
             new ArrayList<String>(activeInterfaces.keySet());

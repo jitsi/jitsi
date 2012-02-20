@@ -153,6 +153,14 @@ public class SystemActivityEventDispatcher
             logger.debug("Dispatching SystemActivityEvent Listeners="
                 + listeners.size() + " evt=" + evt);
 
+        if(logger.isInfoEnabled() &&
+            (evt.getEventID() == SystemActivityEvent.EVENT_NETWORK_CHANGE
+            || evt.getEventID() == SystemActivityEvent.EVENT_DNS_CHANGE))
+        {
+            logger.info("Dispatching SystemActivityEvent Listeners="
+                            + listeners.size() + " evt=" + evt);
+        }
+
         try
         {
             listener.activityChanged(evt);

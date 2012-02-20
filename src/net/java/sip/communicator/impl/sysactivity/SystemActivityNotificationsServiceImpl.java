@@ -409,10 +409,17 @@ public class SystemActivityNotificationsServiceImpl
      */
     protected void fireSystemActivityEvent(SystemActivityEvent evt)
     {
+        // add network activity info, to track wake up problems
+        if(logger.isInfoEnabled() &&
+            (evt.getEventID() == SystemActivityEvent.EVENT_NETWORK_CHANGE
+            || evt.getEventID() == SystemActivityEvent.EVENT_DNS_CHANGE))
+        {
+            logger.info("Received system activity event: " + evt);
+        }
+
         // give time to java to dispatch same
         // event and populate its network interfaces
-        if(evt.getEventID() == SystemActivityEvent.EVENT_NETWORK_CHANGE
-           && OSUtils.IS_WINDOWS)
+        if(evt.getEventID() == SystemActivityEvent.EVENT_NETWORK_CHANGE)
         {
             eventDispatcher.fireSystemActivityEvent(evt, 500);
         }
