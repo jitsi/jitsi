@@ -2604,4 +2604,24 @@ public class ChatPanel
                 ChatConversationPanel.HTML_CONTENT_TYPE);
         
     }
+
+    /**
+     * Add a new ChatLinkClickedListener
+     * 
+     * @param listener ChatLinkClickedListener
+     */
+    public void addChatLinkClickedListener(ChatLinkClickedListener listener)
+    {
+        conversationPanel.addChatLinkClickedListener(listener);
+    }
+
+    /**
+     * Remove existing ChatLinkClickedListener
+     * 
+     * @param listener ChatLinkClickedListener
+     */
+    public void removeChatLinkClickedListener(ChatLinkClickedListener listener)
+    {
+        conversationPanel.removeChatLinkClickedListener(listener);
+    }
 }

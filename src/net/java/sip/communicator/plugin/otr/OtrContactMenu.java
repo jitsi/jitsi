@@ -120,17 +120,8 @@ class OtrContactMenu
             OtrActivator.scOtrEngine.refreshSession(contact);
 
         else if (ACTION_COMMAND_AUTHENTICATE_BUDDY.equals(actionCommand))
-        {
             // Launch auth buddy dialog.
-            OtrBuddyAuthenticationDialog authenticateBuddyDialog =
-                new OtrBuddyAuthenticationDialog(contact);
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-            authenticateBuddyDialog.setLocation(screenSize.width / 2
-                - authenticateBuddyDialog.getWidth() / 2, screenSize.height / 2
-                - authenticateBuddyDialog.getHeight() / 2);
-            authenticateBuddyDialog.setVisible(true);
-        }
+            OtrActionHandlers.openAuthDialog(contact);
 
         else if (ACTION_COMMAND_CB_ENABLE.equals(actionCommand))
         {

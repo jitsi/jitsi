@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.*;
 import java.util.*;
 import java.util.Map.*;
 import java.util.regex.*;
@@ -76,8 +77,16 @@ public class ChatConversationPanel
             "("
             + "(\\bwww\\.[^\\s<>\"]+\\.[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // wwwURL
             + "|"
+            + "(\\bjitsi\\:[^\\s<>\"]+\\.[^\\s<>\"]*\\b)" // internalURL
+            + "|"
             + "(\\b\\w+://[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // protocolURL
             + ")");
+
+    /**
+     * List for observing text messages.
+     */
+    private Set<ChatLinkClickedListener> chatLinkClickedListeners = 
+        new HashSet<ChatLinkClickedListener>();
 
     /**
      * The component rendering chat conversation panel text.
@@ -1072,6 +1081,8 @@ public class ChatConversationPanel
     /**
      * When a right button click is performed in the editor pane, a popup menu
      * is opened.
+     * In case of the Scheme being internal, it won't open the Browser but
+     * instead it will trigger the forwarded action.
      *
      * @param e The MouseEvent.
      */
@@ -1088,7 +1099,25 @@ public class ChatConversationPanel
         else if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0
             && currentHref != null && currentHref.length() != 0)
         {
-            GuiActivator.getBrowserLauncher().openURL(currentHref);
+            URI uri;
+            try
+            {
+                uri = new URI(currentHref);
+            }
+            catch (URISyntaxException e1)
+            {
+                logger.error("Invalid URL", e1);
+                return;
+            }
+            if(uri.getScheme().equals("jitsi"))
+            {
+                for(ChatLinkClickedListener l:chatLinkClickedListeners)
+                {
+                    l.chatLinkClicked(uri);
+                }
+            }
+            else
+                GuiActivator.getBrowserLauncher().openURL(currentHref);
 
             // after opening the link remove the currentHref to avoid
             // clicking on the window to gain focus to open the link again
@@ -1104,7 +1133,8 @@ public class ChatConversationPanel
      */
     private void openContextMenu(Point p)
     {
-        if (currentHref != null && currentHref.length() != 0)
+        if (currentHref != null && currentHref.length() != 0
+                && !currentHref.startsWith("jitsi://"))
         {
             rightButtonMenu.insert(openLinkItem, 0);
             rightButtonMenu.insert(copyLinkItem, 1);
@@ -1429,6 +1459,28 @@ public class ChatConversationPanel
                 logger.error("Insert in the HTMLDocument failed.", e);
             }
         }
+    }
+
+    /**
+     * Registers a new link click listener.
+     * 
+     * @param listener the object that should be notified when an internal
+     * link was clicked.
+     */
+    public void addChatLinkClickedListener(ChatLinkClickedListener listener)
+    {
+        if(!chatLinkClickedListeners.contains(listener))
+            chatLinkClickedListeners.add(listener);
+    }
+
+    /**
+     * Remove a registered link click listener.
+     * 
+     * @param listener a registered click listener to remove
+     */
+    public void removeChatLinkClickedListener(ChatLinkClickedListener listener)
+    {
+        chatLinkClickedListeners.remove(listener);
     }
 
     /**

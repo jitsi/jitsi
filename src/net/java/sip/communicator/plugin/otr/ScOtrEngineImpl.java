@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.plugin.otr;
 
+import java.net.*;
 import java.security.*;
 import java.util.*;
 
@@ -20,12 +21,13 @@ import net.java.sip.communicator.service.protocol.*;
  * @author George Politis
  */
 public class ScOtrEngineImpl
-    implements ScOtrEngine
+    implements ScOtrEngine,
+               ChatLinkClickedListener
 {
     private final OtrConfigurator configurator = new OtrConfigurator();
 
-    private static final Map<SessionID, Contact> contactsMap =
-        new Hashtable<SessionID, Contact>();
+    private static final Map<ScSessionID, Contact> contactsMap =
+        new Hashtable<ScSessionID, Contact>();
 
     private final List<String> injectedMessageUIDs = new Vector<String>();
 
@@ -146,13 +148,30 @@ public class ScOtrEngineImpl
 
                     if (!OtrActivator.scOtrKeyManager.isVerified(contact))
                     {
+                        UUID sessionGuid = null;
+                        for(ScSessionID scSessionID : contactsMap.keySet())
+                        {
+                            if(scSessionID.getSessionID().equals(sessionID))
+                            {
+                                sessionGuid = scSessionID.getGUID();
+                                break;
+                            }
+                        }
+
+                        OtrActivator.uiService.getChat(contact)
+                            .addChatLinkClickedListener(ScOtrEngineImpl.this);
+
                         String unverifiedSessionWarning =
                             OtrActivator.resourceService
                                 .getI18NString(
                                     "plugin.otr.activator.unverifiedsessionwarning",
                                     new String[]
-                                    { contact.getDisplayName() });
-
+                                    {
+                                        contact.getDisplayName(),
+                                        this.getClass().getName(),
+                                        "AUTHENTIFICATION",
+                                        sessionGuid.toString()
+                                    });
                         OtrActivator.uiService.getChat(contact).addMessage(
                             contact.getDisplayName(),
                             System.currentTimeMillis(), Chat.SYSTEM_MESSAGE,
@@ -205,9 +224,13 @@ public class ScOtrEngineImpl
                 .getAccountUniqueID(), contact.getAddress(), contact
                 .getProtocolProvider().getProtocolName());
 
+        if(contactsMap.containsKey(sessionID))
+            return sessionID;
+
+        ScSessionID scSessionID = new ScSessionID(sessionID);
         synchronized (contactsMap)
         {
-            contactsMap.put(sessionID, contact);
+            contactsMap.put(scSessionID, contact);
         }
 
         return sessionID;
@@ -344,5 +367,23 @@ public class ScOtrEngineImpl
 
         for (ScOtrEngineListener l : listeners)
             l.contactPolicyChanged(contact);
+    }
+
+    public void chatLinkClicked(URI url)
+    {
+        String action = url.getPath();
+        if(action.equals("/AUTHENTIFICATION"))
+        {
+            UUID guid = UUID.fromString(url.getQuery());
+            for(ScSessionID scSessionID : contactsMap.keySet())
+            {
+                if(scSessionID.getGUID().equals(guid))
+                {
+                    Contact c = contactsMap.get(scSessionID.getSessionID());
+                    OtrActionHandlers.openAuthDialog(c);
+                    break;
+                }
+            }
+        }
     }
 }

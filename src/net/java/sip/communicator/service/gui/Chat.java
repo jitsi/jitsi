@@ -198,6 +198,27 @@ public interface Chat
         String message, String contentType);
 
     /**
+     * Adds a new ChatLinkClickedListener. The callback is called for every
+     * link whose scheme is <tt>jitsi</tt>. It is the callback's responsibility
+     * to filter the action based on the URI.
+     *
+     * Example:<br>
+     * <tt>jitsi://classname/action?query</tt><br>
+     * Use the name of the registering class as the host, the action to execute
+     * as the path and any parameters as the query.
+     *
+     * @param listener callback that is notified when a link was clicked.
+     */
+    public void addChatLinkClickedListener(ChatLinkClickedListener listener);
+
+    /**
+     * Removes an existing ChatLinkClickedListener
+     *
+     * @param listener the already registered listener to remove.
+     */
+    public void removeChatLinkClickedListener(ChatLinkClickedListener listener);
+
+    /**
      * Provides the {@link Highlighter} used in rendering the chat editor.
      *
      * @return highlighter used to render message being composed
