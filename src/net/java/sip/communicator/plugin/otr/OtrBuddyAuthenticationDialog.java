@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
@@ -19,6 +20,7 @@ import net.java.sip.communicator.util.swing.*;
 @SuppressWarnings("serial")
 public class OtrBuddyAuthenticationDialog
     extends SIPCommDialog
+    implements DocumentListener
 {
     private final Contact contact;
 
@@ -37,11 +39,17 @@ public class OtrBuddyAuthenticationDialog
         loadContact();
     }
 
+    private SIPCommTextField txtRemoteFingerprintComparison;
+
     private JTextArea txtLocalFingerprint;
 
     private JTextArea txtRemoteFingerprint;
 
     private JComboBox cbAction;
+    ActionComboBoxItem actionIHave =
+        new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE);
+    ActionComboBoxItem actionIHaveNot =
+        new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE_NOT);
 
     private JTextArea txtAction;
 
@@ -179,21 +187,28 @@ public class OtrBuddyAuthenticationDialog
         c.weightx = 0.0;
 
         cbAction = new JComboBox();
-
-        ActionComboBoxItem iHave =
-            new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE);
-        ActionComboBoxItem iHaveNot =
-            new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE_NOT);
-        cbAction.addItem(iHave);
-        cbAction.addItem(iHaveNot);
+        cbAction.addItem(actionIHave);
+        cbAction.addItem(actionIHaveNot);
         cbAction.setSelectedItem(OtrActivator.scOtrKeyManager
-            .isVerified(contact) ? iHave : iHaveNot);
+            .isVerified(contact) ? actionIHave : actionIHaveNot);
 
         pnlAction.add(cbAction, c);
 
         txtAction = new CustomTextArea();
         c.weightx = 1.0;
         pnlAction.add(txtAction, c);
+
+        txtRemoteFingerprintComparison = new SIPCommTextField(
+            OtrActivator.resourceService
+            .getI18NString("plugin.otr.authbuddydialog.FINGERPRINT_CHECK",
+                new String[]{contact.getDisplayName()}));
+        txtRemoteFingerprintComparison.getDocument().addDocumentListener(this);
+
+        c.gridwidth = 2;
+        c.gridy = 1;
+        pnlAction.add(txtRemoteFingerprintComparison, c);
+        c.gridwidth = 1;
+        c.gridy = 0;
 
         // Buttons panel.
         JPanel buttonPanel = new TransparentPanel(new GridBagLayout());
@@ -210,7 +225,6 @@ public class OtrBuddyAuthenticationDialog
             }
         });
 
-        c.weightx = 0.0;
         buttonPanel.add(helpButton, c);
 
         // Provide space between help and the other two button, not sure if this
@@ -258,5 +272,42 @@ public class OtrBuddyAuthenticationDialog
         this.getContentPane().add(mainPanel, BorderLayout.NORTH);
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
         this.pack();
+    }
+
+    public void removeUpdate(DocumentEvent e)
+    {
+        compareFingerprints();
+    }
+
+    public void insertUpdate(DocumentEvent e)
+    {
+        compareFingerprints();
+    }
+
+    public void changedUpdate(DocumentEvent e)
+    {
+        compareFingerprints();
+    }
+
+    public void compareFingerprints()
+    {
+        if(txtRemoteFingerprintComparison.getText() == null
+            || txtRemoteFingerprintComparison.getText().length() == 0)
+        {
+            txtRemoteFingerprintComparison.setBackground(Color.white);
+            return;
+        }
+        if(txtRemoteFingerprintComparison.getText().contains(
+            OtrActivator.scOtrKeyManager.getRemoteFingerprint(contact)))
+        {
+            txtRemoteFingerprintComparison.setBackground(Color.green);
+            cbAction.setSelectedItem(actionIHave);
+        }
+        else
+        {
+            txtRemoteFingerprintComparison.setBackground(
+                new Color(243, 72, 48));
+            cbAction.setSelectedItem(actionIHaveNot);
+        }
     }
 }
