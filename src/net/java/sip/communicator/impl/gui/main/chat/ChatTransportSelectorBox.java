@@ -34,6 +34,8 @@ public class ChatTransportSelectorBox
     private static final Logger logger
         = Logger.getLogger(ChatTransportSelectorBox.class);
 
+    private static final long serialVersionUID = 0L;
+
     private final Map<ChatTransport, JMenuItem> transportMenuItems =
         new Hashtable<ChatTransport, JMenuItem>();
 
@@ -46,6 +48,7 @@ public class ChatTransportSelectorBox
     /**
      * Creates an instance of <tt>ChatTransportSelectorBox</tt>.
      *
+     * @param chatPanel the chat panel
      * @param chatSession the corresponding chat session
      * @param selectedChatTransport the chat transport to select by default
      */
@@ -88,10 +91,10 @@ public class ChatTransportSelectorBox
         }
     }
 
-    /*
+    /**
      * Sets the menu to enabled or disabled. The menu is enabled, as soon as it
      * contains one or more items. If it is empty, it is disabled.
-    */
+     */
     private void updateEnableStatus()
     {
         this.menu.setEnabled(this.menu.getItemCount() > 0);
@@ -299,6 +302,8 @@ public class ChatTransportSelectorBox
 
     private class SelectorMenu extends SIPCommMenu
     {
+        private static final long serialVersionUID = 0L;
+
         Image image = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
         public void paintComponent(Graphics g)

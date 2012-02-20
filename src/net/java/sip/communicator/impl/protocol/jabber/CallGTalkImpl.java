@@ -199,8 +199,24 @@ public class CallGTalkImpl
                     }
                 }
             }
-
-            parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
+            // if this was the first peer we added in this call then the call is
+            // new and we also need to notify everyone of its creation.
+            if(getCallPeerCount() == 1 && getCallGroup() == null)
+            {
+                parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
+            }
+            else if(getCallGroup() != null)
+            {
+                // only TelephonyConferencing OperationSet should know about it
+                CallEvent cEvent = new CallEvent(this,
+                    CallEvent.CALL_INITIATED);
+                AbstractOperationSetTelephonyConferencing<?,?,?,?,?> opSet =
+                    (AbstractOperationSetTelephonyConferencing<?,?,?,?,?>)
+                    getProtocolProvider().getOperationSet(
+                        OperationSetTelephonyConferencing.class);
+                if(opSet != null)
+                    opSet.outgoingCallCreated(cEvent);
+            }
         }
 
         CallPeerMediaHandlerGTalkImpl mediaHandler

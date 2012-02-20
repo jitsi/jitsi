@@ -152,6 +152,7 @@ public class OperationSetBasicTelephonyJabberImpl
         if(callPeer.getCall() != call)
         {
             // We may have a Google Talk call here
+            callPeer.getCall().setCallGroup(group);
             return callPeer.getCall();
         }
 
@@ -454,6 +455,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 CallGTalkImpl callGTalk = new CallGTalkImpl(this);
                 MediaUseCase useCase = call.getMediaUseCase();
                 boolean isVideo = call.isLocalVideoAllowed(useCase);
+                callGTalk.setCallGroup(call.getCallGroup());
 
                 callGTalk.setLocalVideoAllowed(isVideo, useCase);
                 peer = callGTalk.initiateGTalkSession(fullCalleeURI,

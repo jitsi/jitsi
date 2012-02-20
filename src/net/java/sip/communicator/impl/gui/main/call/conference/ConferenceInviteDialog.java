@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.call.conference;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List; //disambiguation
 
 import javax.swing.*;
 
@@ -33,10 +34,14 @@ public class ConferenceInviteDialog
      */
     private static final long serialVersionUID = 0L;
 
-    private final JComboBox accountSelectorBox = new JComboBox();
+    /**
+     * The account selector box.
+     */
+    private ProtocolProviderSelectorBox accountBox;
 
-    private Object lastSelectedAccount;
-
+    /**
+     * The call.
+     */
     private final Call call;
 
     /**
@@ -52,79 +57,25 @@ public class ConferenceInviteDialog
 
         this.call = call;
 
-        JLabel accountSelectorLabel = new JLabel(
-            GuiActivator.getResources().getI18NString("service.gui.CALL_VIA"));
-
         TransparentPanel accountSelectorPanel
             = new TransparentPanel(new BorderLayout());
 
         accountSelectorPanel.setBorder(
             BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        accountSelectorPanel.add(accountSelectorLabel, BorderLayout.WEST);
-        accountSelectorPanel.add(accountSelectorBox, BorderLayout.CENTER);
-
-        // Initialize the account selector box.
-        this.initAccountListData();
 
         // init the list, as we check whether features are supported
         // it may take some time if we have too much contacts
-        new Thread(new Runnable()
-        {
-            public void run()
+        SwingUtilities.invokeLater(
+            new Runnable()
             {
-                // Initialize the list of contacts to select from.
-                initContactListData(
-                    (ProtocolProviderService) accountSelectorBox
-                        .getSelectedItem());
-            }
-        }).start();
+                public void run()
+                {
+                    // Initialize the list of contacts to select from.
+                    initContactListData();
+                }
+            });
 
         this.getContentPane().add(accountSelectorPanel, BorderLayout.NORTH);
-
-        this.accountSelectorBox.setRenderer(new DefaultListCellRenderer()
-        {
-            private static final long serialVersionUID = 0L;
-
-            public Component getListCellRendererComponent(JList list,
-                Object value, int index, boolean isSelected,
-                boolean cellHasFocus)
-            {
-                ProtocolProviderService protocolProvider
-                     = (ProtocolProviderService) value;
-
-                if (protocolProvider != null)
-                {
-                    this.setText(
-                        protocolProvider.getAccountID().getDisplayName());
-                    this.setIcon(
-                        ImageLoader.getAccountStatusImage(protocolProvider));
-                }
-
-                return this;
-            }
-        });
-
-        this.accountSelectorBox.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                Object accountSelectorBoxSelectedItem
-                    = accountSelectorBox.getSelectedItem();
-
-                if (lastSelectedAccount == null
-                    || !lastSelectedAccount
-                        .equals(accountSelectorBoxSelectedItem))
-                {
-                    lastSelectedAccount = accountSelectorBoxSelectedItem;
-
-                    removeAllSelectedContacts();
-
-                    initContactListData(
-                        (ProtocolProviderService) accountSelectorBox
-                            .getSelectedItem());
-                }
-            }
-        });
 
         this.addInviteButtonListener(new ActionListener()
         {
@@ -133,19 +84,7 @@ public class ConferenceInviteDialog
                 if (getSelectedMetaContacts() != null
                     || getSelectedStrings() != null)
                 {
-                    ProtocolProviderService selectedProvider
-                        = (ProtocolProviderService) accountSelectorBox
-                            .getSelectedItem();
-
-                    if (selectedProvider == null)
-                        return;
-
-                    inviteContacts(selectedProvider);
-
-                    // Store the last used account in order to pre-select it
-                    // next time.
-                    ConfigurationManager.setLastCallConferenceProvider(
-                        selectedProvider);
+                    inviteContacts();
 
                     dispose();
                 }
@@ -180,42 +119,29 @@ public class ConferenceInviteDialog
      */
     private void initAccountListData()
     {
-        // If we have a specified call, we'll have only one provider in the
-        // box.
-        if (call != null)
-        {
-            accountSelectorBox.addItem(call.getProtocolProvider());
-            accountSelectorBox.setEnabled(false);
-        }
-        else
-        {
-            Iterator<ProtocolProviderService> protocolProviders
-                = GuiActivator.getUIService()
-                    .getMainFrame().getProtocolProviders();
+        Iterator<ProtocolProviderService> protocolProviders
+            = GuiActivator.getUIService()
+                .getMainFrame().getProtocolProviders();
 
-            while(protocolProviders.hasNext())
+        List<ProtocolProviderService> provs =
+            new ArrayList<ProtocolProviderService>();
+        while(protocolProviders.hasNext())
+        {
+            ProtocolProviderService protocolProvider
+                = protocolProviders.next();
+            OperationSet opSet
+                = protocolProvider
+                    .getOperationSet(
+                        OperationSetTelephonyConferencing.class);
+
+            if (opSet != null && protocolProvider.isRegistered())
             {
-                ProtocolProviderService protocolProvider
-                    = protocolProviders.next();
-                OperationSet opSet
-                    = protocolProvider
-                        .getOperationSet(
-                            OperationSetTelephonyConferencing.class);
-
-                if (opSet != null && protocolProvider.isRegistered())
-                {
-                    accountSelectorBox.addItem(protocolProvider);
-                }
+                provs.add(protocolProvider);
             }
         }
 
-        // Obtain the last conference provider used.
-        ProtocolProviderService lastConfProvider
-            = ConfigurationManager.getLastCallConferenceProvider();
-
-        // Try to select the last used account if it's available.
-        if (lastConfProvider != null)
-            accountSelectorBox.setSelectedItem(lastConfProvider);
+        if(accountBox == null)
+            accountBox = new ProtocolProviderSelectorBox(provs.iterator());
     }
 
     /**
@@ -224,7 +150,7 @@ public class ConferenceInviteDialog
      * @param protocolProvider the protocol provider from which to initialize
      * the contact list data
      */
-    private void initContactListData(ProtocolProviderService protocolProvider)
+    private void initContactListData()
     {
         // re-init list.
         this.removeAllMetaContacts();
@@ -232,30 +158,40 @@ public class ConferenceInviteDialog
         MetaContactListService metaContactListService
             = GuiActivator.getContactListService();
 
-        Iterator<MetaContact> contactListIter = metaContactListService
-            .findAllMetaContactsForProvider(protocolProvider);
+        Iterator<ProtocolProviderService> protocolProviders
+            = GuiActivator.getUIService()
+                .getMainFrame().getProtocolProviders();
 
-        while (contactListIter.hasNext())
+        while(protocolProviders.hasNext())
         {
-            MetaContact metaContact = contactListIter.next();
+            ProtocolProviderService protocolProvider = protocolProviders.next();
 
-            if (!containsContact(metaContact))
+            Iterator<MetaContact> contactListIter = metaContactListService
+                .findAllMetaContactsForProvider(protocolProvider);
+
+            while (contactListIter.hasNext())
             {
-                if (metaContact.getDefaultContact(
-                    OperationSetBasicTelephony.class) != null)
-                    addMetaContact(metaContact);
+                MetaContact metaContact = contactListIter.next();
+
+                if (!containsContact(metaContact))
+                {
+                    if (metaContact.getDefaultContact(
+                        OperationSetBasicTelephony.class) != null)
+                        addMetaContact(metaContact);
+                }
             }
         }
     }
 
     /**
      * Invites the contacts to the chat conference.
-     * @param selectedProvider the selected protocol provider
      */
-    private void inviteContacts(ProtocolProviderService selectedProvider)
+    private void inviteContacts()
     {
-        java.util.List<String> selectedContactAddresses
-            = new ArrayList<String>();
+        ProtocolProviderService selectedProvider = null;
+        Map<ProtocolProviderService, List<String>> selectedProviderCallees =
+            new HashMap<ProtocolProviderService, List<String>>();
+        List<String> callees = null;
 
         // Obtain selected contacts.
         Enumeration<MetaContact> selectedContacts = getSelectedMetaContacts();
@@ -267,48 +203,65 @@ public class ConferenceInviteDialog
                 MetaContact metaContact
                     = selectedContacts.nextElement();
 
-                Iterator<Contact> contactsIter = metaContact
-                    .getContactsForProvider(selectedProvider);
+                Iterator<Contact> contactsIter = metaContact.getContacts();
 
                 // We invite the first protocol contact that corresponds to the
                 // invite provider.
                 if (contactsIter.hasNext())
                 {
                     Contact inviteContact = contactsIter.next();
+                    selectedProvider = inviteContact.getProtocolProvider();
 
-                    selectedContactAddresses.add(inviteContact.getAddress());
+                    if(selectedProviderCallees.get(selectedProvider) != null)
+                    {
+                        callees = selectedProviderCallees.get(selectedProvider);
+                    }
+                    else
+                    {
+                         callees = new ArrayList<String>();
+                    }
+
+                    callees.add(inviteContact.getAddress());
+                    selectedProviderCallees.put(selectedProvider, callees);
                 }
             }
         }
 
         // Obtain selected strings.
-        Enumeration<String> selectedStrings = getSelectedStrings();
+        Enumeration<ContactWithProvider> selectedContactWithProvider =
+            getSelectedContactsWithProvider();
 
-        if (selectedStrings != null)
+        if (selectedContactWithProvider != null)
         {
-            while (selectedStrings.hasMoreElements())
+            while (selectedContactWithProvider.hasMoreElements())
             {
-                selectedContactAddresses.add(selectedStrings.nextElement());
+                ContactWithProvider c =
+                    selectedContactWithProvider.nextElement();
+                selectedProvider = c.getProvider();
+
+                if(selectedProviderCallees.get(selectedProvider) != null)
+                {
+                    callees = selectedProviderCallees.get(selectedProvider);
+                }
+                else
+                {
+                     callees = new ArrayList<String>();
+                }
+
+                callees.add(c.getAddress());
+                selectedProviderCallees.put(selectedProvider, callees);
             }
         }
 
-        // Invite all selected.
-        String[] contactAddressStrings = null;
-        if (selectedContactAddresses.size() > 0)
+        if(call != null)
         {
-            contactAddressStrings = new String[selectedContactAddresses.size()];
-            contactAddressStrings
-                = selectedContactAddresses.toArray(contactAddressStrings);
-        }
-
-        if (call != null)
-        {
-            CallManager.inviteToConferenceCall(contactAddressStrings, call);
+            CallManager.inviteToCrossProtocolConferenceCall(
+                selectedProviderCallees, call);
         }
         else
         {
-            CallManager.createConferenceCall(
-                contactAddressStrings, selectedProvider);
+            CallManager.createCrossProtocolConferenceCall(
+                selectedProviderCallees);
         }
     }
 
@@ -339,34 +292,118 @@ public class ConferenceInviteDialog
     }
 
     /**
-     * Returns <tt>true</tt> if <tt>Contact</tt> supports the specified
-     * <tt>OperationSet</tt>, <tt>false</tt> otherwise.
-     *
-     * @param contact contact to check
-     * @param opSet <tt>OperationSet</tt> to search for
-     * @return Returns <tt>true</tt> if <tt>Contact</tt> supports the specified
-     * <tt>OperationSet</tt>, <tt>false</tt> otherwise.
+     * Moves a string from left to right.
      */
-    private boolean hasContactCapabilities(
-            Contact contact, Class<? extends OperationSet> opSet)
+    @Override
+    protected void moveStringFromLeftToRight()
     {
-        OperationSetContactCapabilities capOpSet =
-            contact.getProtocolProvider().
-                getOperationSet(OperationSetContactCapabilities.class);
+        String newContactText = newContactField.getText();
 
-        if (capOpSet == null)
+        ContactWithProvider c = new ContactWithProvider(
+            newContactText, accountBox.getSelectedProvider());
+        if (newContactText != null && newContactText.length() > 0)
+            selectedContactListModel.addElement(c);
+
+        newContactField.setText("");
+    }
+
+    /**
+     * Returns an enumeration of the list of selected Strings.
+     * @return an enumeration of the list of selected Strings
+     */
+    public Enumeration<ContactWithProvider> getSelectedContactsWithProvider()
+    {
+        if (selectedContactListModel.getSize() == 0)
+            return null;
+
+        Vector<ContactWithProvider> selectedStrings =
+            new Vector<ContactWithProvider>();
+        Enumeration<?> selectedContacts = selectedContactListModel.elements();
+        while(selectedContacts.hasMoreElements())
         {
-            // assume contact has OpSet capabilities
-            return true;
-        }
-        else
-        {
-            if(capOpSet.getOperationSet(contact, opSet) != null)
-            {
-                return true;
-            }
+            Object contact = selectedContacts.nextElement();
+            if (contact instanceof ContactWithProvider)
+                selectedStrings.add((ContactWithProvider)contact);
         }
 
-        return false;
+        return selectedStrings.elements();
+    }
+
+    /**
+     * Get the <tt>newContact</tt> component.
+     *
+     * @return the <tt>newContact</tt> component.
+     */
+    @Override
+    public JComponent getNewContactPanel()
+    {
+        initAccountListData();
+
+        JPanel panel = new TransparentPanel(new BorderLayout());
+        panel.add(super.getNewContactPanel(), BorderLayout.CENTER);
+        panel.add(accountBox, BorderLayout.WEST);
+        return panel;
+    }
+
+    /**
+     * Contact with the provider to call him.
+     *
+     * @author Sebastien Vincent
+     */
+    private class ContactWithProvider
+    {
+        /**
+         * The provider.
+         */
+        private final ProtocolProviderService provider;
+
+        /**
+         * The contact.
+         */
+        private final String contact;
+
+        /**
+         * Constructor.
+         *
+         * @param contact the contact
+         * @param provider the provider
+         */
+        public ContactWithProvider(String contact,
+            ProtocolProviderService provider)
+        {
+            this.contact = contact;
+            this.provider = provider;
+        }
+
+        /**
+         * Returns the contact
+         *
+         * @return the contact
+         */
+        public String getAddress()
+        {
+            return contact;
+        }
+
+        /**
+         * Returns the provider.
+         *
+         * @return the provider
+         */
+        public ProtocolProviderService getProvider()
+        {
+            return provider;
+        }
+
+        /**
+         * Returns <tt>String</tt> representation.
+         *
+         * @return <tt>String</tt> representation
+         */
+        @Override
+        public String toString()
+        {
+            return contact;
+        }
     }
 }

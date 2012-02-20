@@ -301,6 +301,32 @@ public class OperationSetTelephonyConferencingJabberImpl
     {
         CoinIQ iq = new CoinIQ();
         CallJabberImpl call = callPeer.getCall();
+        List<CallPeer> crossPeers = new ArrayList<CallPeer>();
+        Iterator<CallPeer> crossProtocolCallPeerIter =
+            call.getCrossProtocolCallPeers();
+
+        while (crossProtocolCallPeerIter.hasNext())
+        {
+            MediaAwareCallPeer<?,?,?> crossPeer =
+                (MediaAwareCallPeer<?,?,?>)crossProtocolCallPeerIter.next();
+            Iterator<CallPeerJabberImpl> it = call.getCallPeers();
+            boolean found = false;
+
+            while(it.hasNext())
+            {
+                if(it.next().getAddress().equals(crossPeer.getAddress()))
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if(found)
+                continue;
+
+            if(!crossPeers.contains(crossPeer))
+                crossPeers.add(crossPeer);
+        }
 
         iq.setFrom(call.getProtocolProvider().getOurJID());
         iq.setTo(callPeer.getAddress());
@@ -319,7 +345,7 @@ public class OperationSetTelephonyConferencingJabberImpl
         // conference-state
         StatePacketExtension state = new StatePacketExtension();
         state.setUserCount(call.getCallPeerCount() + 1 +
-            call.getCrossProtocolCallPeerCount());
+            crossPeers.size());
         iq.addExtension(state);
 
         // users
@@ -353,13 +379,11 @@ public class OperationSetTelephonyConferencingJabberImpl
             users.addChildExtension(ext);
         }
 
-        Iterator<CallPeer> crossProtocolCallPeerIter =
-            call.getCrossProtocolCallPeers();
-
-        while (crossProtocolCallPeerIter.hasNext())
+        for(CallPeer cp : crossPeers)
         {
-            UserPacketExtension ext = getUser(
-                (MediaAwareCallPeer<?,?,?>)crossProtocolCallPeerIter.next());
+            MediaAwareCallPeer<?,?,?> crossPeer =
+                (MediaAwareCallPeer<?,?,?>)cp;
+            UserPacketExtension ext = getUser(crossPeer);
             users.addChildExtension(ext);
         }
 
@@ -444,7 +468,8 @@ public class OperationSetTelephonyConferencingJabberImpl
             while (callPeerIter.hasNext())
             {
                 CallPeerJabberImpl callPeer = callPeerIter.next();
-                callPeer.sendCoinSessionInfo(true);
+                if(callPeer.getState() == CallPeerState.CONNECTED)
+                    callPeer.sendCoinSessionInfo(true);
             }
         }
 
@@ -559,6 +584,7 @@ public class OperationSetTelephonyConferencingJabberImpl
         int conferenceMembersToRemoveCount = conferenceMembersToRemove.length;
         UsersPacketExtension users = null;
         Collection<PacketExtension> usersList = coinIQ.getExtensions();
+        boolean changed = false;
 
         for(PacketExtension ext : usersList)
         {
@@ -671,7 +697,11 @@ public class OperationSetTelephonyConferencingJabberImpl
 
                 if (ssrc != null)
                 {
-                    existingConferenceMember.setSSRC(Long.parseLong(ssrc));
+                    long newSsrc = Long.parseLong(ssrc);
+                    if(existingConferenceMember.getSSRC() != newSsrc)
+                        changed = true;
+
+                    existingConferenceMember.setSSRC(newSsrc);
                 }
 
                 if (addConferenceMember)
@@ -695,5 +725,8 @@ public class OperationSetTelephonyConferencingJabberImpl
             if (conferenceMemberToRemove != null)
                 callPeer.removeConferenceMember(conferenceMemberToRemove);
         }
+
+        if(changed)
+            notifyAll(callPeer.getCall());
     }
 }

@@ -261,8 +261,23 @@ public abstract class MediaAwareCall<
             callPeer.setCall(null);
         }
 
-        if (getCallPeersVector().isEmpty())
+        if (getCallPeersVector().isEmpty() &&
+            getCrossProtocolCallPeersVector().isEmpty())
+        {
             setCallState(CallState.CALL_ENDED, evt);
+
+            if(getCallGroup() != null)
+            {
+                for(Call c : getCallGroup().getCalls())
+                {
+                    if(c == this)
+                        continue;
+
+                    ((MediaAwareCall<?,?,?>)c).setCallState(
+                        CallState.CALL_ENDED, evt);
+                }
+            }
+        }
     }
 
     /**
@@ -1054,6 +1069,7 @@ public abstract class MediaAwareCall<
             CallPeer p = peers.next();
             getCrossProtocolCallPeersVector().add(p);
             fireCallPeerEvent(p, CallPeerEvent.CALL_PEER_ADDED);
+            this.setConferenceFocus(true);
         }
     }
 

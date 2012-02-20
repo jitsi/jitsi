@@ -428,7 +428,9 @@ public class CallSipImpl
 
             try
             {
-                callPeer.sendReInvite();
+                if(callPeer.getDialog() != null &&
+                    callPeer.getDialog().getState() == DialogState.CONFIRMED)
+                    callPeer.sendReInvite();
             }
             catch(OperationFailedException e)
             {

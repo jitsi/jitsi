@@ -83,11 +83,6 @@ public class ConferenceCallPanel
         = new LinkedList<Container>();
 
     /**
-     * The video handler.
-     */
-    private UIVideoHandler videoHandler;
-
-    /**
      * The implementation of the routine which scrolls this scroll pane to its
      * bottom.
      */
@@ -170,7 +165,7 @@ public class ConferenceCallPanel
 
     /**
      * Initializes a new <tt>VideoContainer</tt> instance which is to contain
-     * the visual/video <tt>Component</tt>s of {@link #call}. 
+     * the visual/video <tt>Component</tt>s of {@link #call}.
      */
     private void addVideoContainer()
     {
@@ -327,7 +322,7 @@ public class ConferenceCallPanel
 
         ConferenceCallPeerRenderer confPeerRenderer;
 
-        videoHandler
+        UIVideoHandler videoHandler
             = new UIVideoHandler(peer, this, videoContainers);
 
         videoHandler.addVideoListener();
@@ -391,6 +386,8 @@ public class ConferenceCallPanel
 
         if (confPeerRenderer == null)
             return;
+
+        confPeerRenderer.getVideoHandler().removeRemoteControlListener();
 
         // first remove the listeners as after removing the panel
         // we may still receive sound level indicators and there are

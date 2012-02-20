@@ -260,7 +260,12 @@ public class SingleCallInProgressPolicy
                     if (!call.equals(otherCall)
                             && CallState.CALL_IN_PROGRESS
                                     .equals(otherCall.getCallState()))
-                        putOnHold(otherCall);
+                    {
+                        if((call.getCallGroup() != null ||
+                            otherCall.getCallGroup() != null) &&
+                            call.getCallGroup() != otherCall.getCallGroup())
+                            putOnHold(otherCall);
+                    }
                 }
             }
         }

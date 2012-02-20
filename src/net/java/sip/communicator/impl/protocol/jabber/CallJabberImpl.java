@@ -246,7 +246,7 @@ public class CallJabberImpl
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
-        if(this.getCallPeerCount() == 1)
+        if(this.getCallPeerCount() == 1 && getCallGroup() == null)
             parentOpSet.fireCallEvent(CallEvent.CALL_RECEIVED, this,
                 directions);
 

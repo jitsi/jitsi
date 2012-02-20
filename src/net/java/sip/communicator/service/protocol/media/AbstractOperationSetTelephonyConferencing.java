@@ -143,6 +143,22 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     public Call createConfCall(String[] callees)
         throws OperationFailedException
     {
+        return createConfCall(callees, null);
+    }
+
+    /**
+     * Creates a conference call with the specified callees as call peers.
+     *
+     * @param callees the list of addresses that we should call
+     * @param group the <tt>CallGroup</tt> or null
+     * @return the newly created conference call containing all CallPeers
+     * @throws OperationFailedException if establishing the conference call
+     * fails
+     * @see OperationSetTelephonyConferencing#createConfCall(String[])
+     */
+    public Call createConfCall(String[] callees, CallGroup group)
+        throws OperationFailedException
+    {
         List<CalleeAddressT> calleeAddresses
             = new ArrayList<CalleeAddressT>(callees.length);
 
@@ -150,6 +166,11 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             calleeAddresses.add(parseAddressString(callee));
 
         MediaAwareCallT call = createOutgoingCall();
+        if(group.getCalls().size() > 0)
+        {
+            group.addCall(call);
+            call.setCallGroup(group);
+        }
 
         call.setConferenceFocus(true);
 
@@ -164,7 +185,19 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 wasConferenceFocus = false;
                 call.setConferenceFocus(true);
             }
-            inviteCalleeToCall(calleeAddress, call, wasConferenceFocus);
+            CallPeer p =
+                inviteCalleeToCall(calleeAddress, call, wasConferenceFocus);
+
+            // GTalk case
+            if(p.getCall() != call)
+            {
+                group.addCall(p.getCall());
+            }
+
+            if(call.getCallGroup() == null)
+            {
+                group.addCall(call);
+            }
         }
         return call;
     }

@@ -18,7 +18,7 @@ public interface PhoneNumberI18nService
      * Normalizes a <tt>String</tt> phone number by converting alpha characters
      * to their respective digits on a keypad and then stripping non-digit
      * characters.
-     * 
+     *
      * @param phoneNumber a <tt>String</tt> which represents a phone number to
      * normalize
      * @return a <tt>String</tt> which is a normalized form of the specified
@@ -42,7 +42,7 @@ public interface PhoneNumberI18nService
      * Indicates if the given string is possibly a phone number.
      *
      * @param possibleNumber the string to be verified
-     * @return 
+     * @return true if the given string is a phone number, false otherwise
      */
     public boolean isPhoneNumber(String possibleNumber);
 }

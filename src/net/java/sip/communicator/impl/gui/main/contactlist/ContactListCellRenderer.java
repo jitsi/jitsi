@@ -36,6 +36,11 @@ public class ContactListCellRenderer
                 Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The avatar icon height.
      */
     private static final int AVATAR_HEIGHT = 30;
@@ -178,7 +183,7 @@ public class ContactListCellRenderer
      * @param index the index of the current cell in the source list
      * @param isSelected indicates if this cell is selected
      * @param cellHasFocus indicates if this cell is focused
-     * 
+     *
      * @return this panel
      */
     public Component getListCellRendererComponent(JList list, Object value,
@@ -277,7 +282,7 @@ public class ContactListCellRenderer
 
             // We have no photo icon for groups.
             this.rightLabel.setIcon(null);
-            this.rightLabel.setText( groupItem.countOnlineChildContacts() 
+            this.rightLabel.setText( groupItem.countOnlineChildContacts()
                     + "/" + groupItem.countChildContacts());
 
             this.isLeaf = false;
@@ -286,6 +291,12 @@ public class ContactListCellRenderer
         {
             this.setPreferredSize(new Dimension(20, 30));
             this.nameLabel.setText((String) value);
+            this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
+        }
+        else
+        {
+            this.setPreferredSize(new Dimension(20, 30));
+            this.nameLabel.setText(value.toString());
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
         }
 
@@ -297,7 +308,7 @@ public class ContactListCellRenderer
     /**
      * Gets the avatar of a specific <tt>MetaContact</tt> in the form of an
      * <tt>ImageIcon</tt> value.
-     * 
+     *
      * @param metaContact the <tt>MetaContact</tt> to retrieve the avatar of
      * @return an <tt>ImageIcon</tt> which represents the avatar of the
      * specified <tt>MetaContact</tt>
@@ -309,7 +320,7 @@ public class ContactListCellRenderer
 
         // Try to get the avatar from the cache.
         Object[] avatarCache = (Object[]) metaContact.getData(AVATAR_DATA_KEY);
-        if ((avatarCache != null) && (avatarCache[0] == avatarBytes)) 
+        if ((avatarCache != null) && (avatarCache[0] == avatarBytes))
             avatar = (ImageIcon) avatarCache[1];
 
         // If the avatar isn't available or it's not up-to-date, create it.
@@ -459,7 +470,7 @@ public class ContactListCellRenderer
                             getIconWidth() - 1, getIconHeight() - 1,
                             10, 10);
 
-            // Indent component content from the border. 
+            // Indent component content from the border.
             g2.translate(x + 5, y + 5);
 
             // Paint component.

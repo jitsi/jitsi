@@ -85,7 +85,8 @@ public class CallManager
 
             Call sourceCall = event.getSourceCall();
             final ReceivedCallDialog receivedCallDialog
-                = new ReceivedCallDialog(sourceCall, event.isVideoCall());
+                = new ReceivedCallDialog(sourceCall, event.isVideoCall(),
+                    (CallManager.getActiveCalls().size() > 0));
 
             receivedCallDialog.setVisible(true);
 
@@ -110,7 +111,8 @@ public class CallManager
                             .equals(CallState.CALL_INITIALIZATION)
                         || evt.getNewValue()
                             .equals(CallState.CALL_IN_PROGRESS))
-                        && activeCalls.get(call) == null)
+                        && activeCalls.get(call) == null &&
+                        call.getCallGroup() == null)
                     {
                         openCallContainer(call);
                     }
@@ -191,6 +193,33 @@ public class CallManager
         CallManager.openCallContainer(call);
 
         new AnswerCallThread(call).start();
+    }
+
+    /**
+     * Answers the given call in an existing call. It will end up with a
+     * conference call.
+     *
+     * @param call the call to answer
+     */
+    public static void answerCallInFirstExistingCall(final Call call)
+    {
+        Call existingCall = null;
+
+        // pick up the first available call
+        for(Call c : activeCalls.keySet())
+        {
+            existingCall = c;
+            break;
+        }
+
+        if(existingCall == null)
+        {
+            answerCall(call);
+        }
+        else
+        {
+            new AnswerCallThread(call, existingCall).start();
+        }
     }
 
     /**
@@ -681,17 +710,11 @@ public class CallManager
         // Removes special characters from phone numbers.
         if (ConfigurationManager.isNormalizePhoneNumber())
         {
-            if (!StringUtils.containsLetters(callString)
-                    && GuiActivator.getPhoneNumberService()
-                        .isPhoneNumber(callString))
-            {
-                callString = GuiActivator.getPhoneNumberService()
-                    .normalize(callString);
-            }
-            else
-            {
-                callString = StringUtils.concatenateWords(callString);
-            }
+            String normalizedContact[] = new String[1];
+            normalizedContact[0] = callString;
+
+            normalizePhoneNumbers(normalizedContact);
+            callString = normalizedContact[0];
         }
 
         List<ProtocolProviderService> telephonyProviders
@@ -759,17 +782,26 @@ public class CallManager
      * Invites the given list of <tt>callees</tt> to the given conference
      * <tt>call</tt>.
      *
-     * @param provider provider to which the callee belongs
-     * @param callee the list of contacts to invite
+     * @param callees the list of contacts to invite
      * @param call existing call
      */
     public static void inviteToCrossProtocolConferenceCall(
-        ProtocolProviderService provider,
-        String callee,
+        Map<ProtocolProviderService, List<String>> callees,
         Call call)
     {
-        new InviteToCrossProtocolConferenceCallThread(provider, callee, call).
+        new InviteToCrossProtocolConferenceCallThread(callees, call).
             start();
+    }
+
+    /**
+     * Create a call to the given list of contacts.
+     *
+     * @param callees the list of contacts to invite
+     */
+    public static void createCrossProtocolConferenceCall(
+        Map<ProtocolProviderService, List<String>> callees)
+    {
+        new CreateCrossProtocolConferenceCallThread(callees).start();
     }
 
     /**
@@ -1103,12 +1135,25 @@ public class CallManager
             if (telephonyOpSet == null)
                 return;
 
+            String callString = null;
+
+            if(contact != null)
+                callString = contact.getAddress();
+            else if(stringContact != null)
+                callString = stringContact;
+
+            if(ConfigurationManager.isNormalizePhoneNumber())
+            {
+                String normalizedContact[] = new String[1];
+
+                normalizedContact[0] = callString;
+                normalizePhoneNumbers(normalizedContact);
+                callString = normalizedContact[0];
+            }
+
             try
             {
-                if (contact != null)
-                    telephonyOpSet.createCall(contact);
-                else if (stringContact != null)
-                    telephonyOpSet.createCall(stringContact);
+                telephonyOpSet.createCall(callString);
             }
             catch (Throwable exception)
             {
@@ -1299,9 +1344,18 @@ public class CallManager
     {
         private final Call call;
 
+        private final Call existingCall;
+
         public AnswerCallThread(Call call)
         {
             this.call = call;
+            this.existingCall = null;
+        }
+
+        public AnswerCallThread(Call call, Call existingCall)
+        {
+            this.call = call;
+            this.existingCall = existingCall;
         }
 
         @Override
@@ -1309,6 +1363,22 @@ public class CallManager
         {
             ProtocolProviderService pps = call.getProtocolProvider();
             Iterator<? extends CallPeer> peers = call.getCallPeers();
+            CallGroup group = null;
+            if(existingCall != null)
+            {
+                if(existingCall.getCallGroup() == null)
+                {
+                    group = new CallGroup();
+                    group.addCall(existingCall);
+                }
+                else
+                {
+                    group = existingCall.getCallGroup();
+                }
+
+                if(call.getCallGroup() == null && group != null)
+                    group.addCall(call);
+            }
 
             while (peers.hasNext())
             {
@@ -1408,6 +1478,11 @@ public class CallManager
 
             Throwable exception = null;
 
+            if (ConfigurationManager.isNormalizePhoneNumber())
+            {
+                normalizePhoneNumbers(callees);
+            }
+
             try
             {
                 confOpSet.createConfCall(callees);
@@ -1472,6 +1547,11 @@ public class CallManager
             if (confOpSet == null)
                 return;
 
+            if (ConfigurationManager.isNormalizePhoneNumber())
+            {
+                normalizePhoneNumbers(callees);
+            }
+
             for (String callee : callees)
             {
                 Throwable exception = null;
@@ -1516,19 +1596,16 @@ public class CallManager
     private static class InviteToCrossProtocolConferenceCallThread
         extends Thread
     {
-        private final ProtocolProviderService provider;
-
-        private final String callee;
+        private final Map<ProtocolProviderService, List<String>>
+            callees;
 
         private final Call call;
 
         public InviteToCrossProtocolConferenceCallThread(
-            ProtocolProviderService provider,
-            String callee,
+            Map<ProtocolProviderService, List<String>> callees,
             Call call)
         {
-            this.provider = provider;
-            this.callee = callee;
+            this.callees = callees;
             this.call = call;
         }
 
@@ -1547,37 +1624,117 @@ public class CallManager
                 group = call.getCallGroup();
             }
 
-            OperationSetBasicTelephony<?> opSetTelephony =
-                provider.getOperationSet(OperationSetBasicTelephony.class);
-
-            if(opSetTelephony != null)
+            for(Map.Entry<ProtocolProviderService, List<String>> entry :
+                callees.entrySet())
             {
-                Exception exception = null;
+                ProtocolProviderService provider = entry.getKey();
+                List<String> contacts = entry.getValue();
 
-                try
+                OperationSetBasicTelephony<?> opSetTelephony =
+                    provider.getOperationSet(OperationSetBasicTelephony.class);
+
+                if(opSetTelephony != null)
                 {
-                    Call c = opSetTelephony.createCall(callee, group);
-                    group.addCall(c);
+                    OperationSetTelephonyConferencing opSetConf =
+                        provider.getOperationSet(
+                            OperationSetTelephonyConferencing.class);
+
+                    String[] contactAddressStrings =
+                        new String[contacts.size()];
+                    contacts.toArray(contactAddressStrings);
+
+                    if (ConfigurationManager.isNormalizePhoneNumber())
+                    {
+                        normalizePhoneNumbers(contactAddressStrings);
+                    }
+
+                    try
+                    {
+                        opSetConf.createConfCall(contactAddressStrings, group);
+                    }
+                    catch(Exception exception)
+                    {
+                        logger
+                            .error("Failed to invite callees",
+                                exception);
+
+                        new ErrorDialog(
+                                null,
+                                GuiActivator
+                                    .getResources()
+                                        .getI18NString("service.gui.ERROR"),
+                                exception.getMessage(),
+                                ErrorDialog.ERROR)
+                            .showDialog();
+                    }
                 }
-                catch(Exception e)
-                {
-                    exception = e;
-                    logger.info("Failed to call " + callee, e);
-                }
+            }
+        }
+    }
 
-                if (exception != null)
-                {
-                    logger
-                        .error("Failed to invite callee: " + callee, exception);
+    /**
+     * Invites a list of callees to a conference call.
+     */
+    private static class CreateCrossProtocolConferenceCallThread
+        extends Thread
+    {
+        private final Map<ProtocolProviderService, List<String>>
+            callees;
 
-                    new ErrorDialog(
-                            null,
-                            GuiActivator
-                                .getResources()
-                                    .getI18NString("service.gui.ERROR"),
-                            exception.getMessage(),
-                            ErrorDialog.ERROR)
-                        .showDialog();
+        public CreateCrossProtocolConferenceCallThread(
+            Map<ProtocolProviderService, List<String>> callees)
+        {
+            this.callees = callees;
+        }
+
+        @Override
+        public void run()
+        {
+            CallGroup group = new CallGroup();
+
+            for(Map.Entry<ProtocolProviderService, List<String>> entry :
+                callees.entrySet())
+            {
+                ProtocolProviderService provider = entry.getKey();
+                List<String> contacts = entry.getValue();
+
+                OperationSetBasicTelephony<?> opSetTelephony =
+                    provider.getOperationSet(OperationSetBasicTelephony.class);
+
+                if(opSetTelephony != null)
+                {
+                    OperationSetTelephonyConferencing opSetConf =
+                        provider.getOperationSet(
+                            OperationSetTelephonyConferencing.class);
+
+                    String[] contactAddressStrings =
+                        new String[contacts.size()];
+                    contacts.toArray(contactAddressStrings);
+
+                    if (ConfigurationManager.isNormalizePhoneNumber())
+                    {
+                        normalizePhoneNumbers(contactAddressStrings);
+                    }
+
+                    try
+                    {
+                        opSetConf.createConfCall(contactAddressStrings, group);
+                    }
+                    catch(Exception exception)
+                    {
+                        logger
+                            .error("Failed to invite callees",
+                                exception);
+
+                        new ErrorDialog(
+                                null,
+                                GuiActivator
+                                    .getResources()
+                                        .getI18NString("service.gui.ERROR"),
+                                exception.getMessage(),
+                                ErrorDialog.ERROR)
+                            .showDialog();
+                    }
                 }
             }
         }
@@ -1608,6 +1765,8 @@ public class CallManager
                 for(Call c : calls)
                 {
                     peers = c.getCallPeers();
+                    if(!peers.hasNext())
+                        return;
                     CallPeer peer = peers.next();
                     OperationSetBasicTelephony<?> telephony
                         = peer.getCall().getProtocolProvider().
@@ -1831,5 +1990,35 @@ public class CallManager
         }
 
         return true;
+    }
+
+    /**
+     * Normalizes the phone numbers (if any) in a list of <tt>String</tt>s.
+     *
+     * @param callees list of contact addresses or phone numbers
+     */
+    private static void normalizePhoneNumbers(String callees[])
+    {
+        PhoneNumberI18nService phoneNumberService =
+            GuiActivator.getPhoneNumberService();
+
+        for(int i = 0 ; i < callees.length ; i++)
+        {
+            if (!StringUtils.containsLetters(callees[i]) &&
+                GuiActivator.getPhoneNumberService().isPhoneNumber(callees[i]))
+            {
+                String addr = callees[i];
+                if(phoneNumberService.isPhoneNumber(addr))
+                {
+                    addr = phoneNumberService.normalize(addr);
+                }
+                else
+                {
+                    addr = StringUtils.concatenateWords(callees[i]);
+                }
+
+                callees[i] = addr;
+            }
+        }
     }
 }

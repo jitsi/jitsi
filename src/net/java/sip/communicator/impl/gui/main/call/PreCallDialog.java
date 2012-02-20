@@ -33,6 +33,11 @@ public abstract class PreCallDialog
     private static final String CALL_BUTTON = "CallButton";
 
     /**
+     * The conference call button name.
+     */
+    private static final String CONF_CALL_BUTTON = "ConfCallButton";
+
+    /**
      * The call button name.
      */
     private static final String VIDEO_CALL_BUTTON = "VideoCallButton";
@@ -51,6 +56,12 @@ public abstract class PreCallDialog
      * Call button.
      */
     private SIPCommButton callButton;
+
+    /**
+     * Conference call button to answer the call in an existing call or
+     * conference.
+     */
+    private SIPCommButton mergeCallButton;
 
     /**
      * Video call button.
@@ -93,15 +104,34 @@ public abstract class PreCallDialog
     private boolean video = false;
 
     /**
+     * If the call should be answered in an existing call.
+     */
+    private boolean mergeCall = false;
+
+    /**
      * Creates an instanceof <tt>PreCallDialog</tt> by specifying the dialog
      * title.
      *
      * @param title the title of the dialog
      * @param video if it is a video call
+     * @param existingCall true to answer call in an existing call
      */
-    public PreCallDialog(String title, boolean video)
+    public PreCallDialog(String title, boolean video, boolean existingCall)
     {
-        this(title, null, null, video);
+        this(title, null, null, video, existingCall);
+    }
+
+    /**
+     * Creates an instanceof <tt>PreCallDialog</tt> by specifying the dialog
+     * title and the text to show.
+     *
+     * @param title the title of the dialog
+     * @param text the text to show
+     * @param accounts the list of accounts to choose from
+     */
+    public PreCallDialog(String title, String text, Object[] accounts)
+    {
+        this(title, text, accounts, false, false);
     }
 
     /**
@@ -112,13 +142,15 @@ public abstract class PreCallDialog
      * @param text the text to show
      * @param accounts the list of accounts to choose from
      * @param video if it is a video call
+     * @param existingCall true to answer call in an existing call
      */
     public PreCallDialog(String title, String text, Object[] accounts,
-        boolean video)
+        boolean video, boolean existingCall)
     {
         preCallWindow = createPreCallWindow(title, text, accounts);
 
         this.video = video;
+        this.mergeCall = existingCall;
 
         // check whether we have device enabled for capturing(sending)
         this.video = video && GuiActivator.getMediaService().getDefaultDevice(
@@ -210,6 +242,12 @@ public abstract class PreCallDialog
         callButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.CALL_BUTTON_BG));
 
+        if(mergeCall)
+        {
+            mergeCallButton = new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON_BG));
+        }
+
         if(video)
         {
             videoCallButton = new SIPCommButton(
@@ -227,6 +265,13 @@ public abstract class PreCallDialog
         hangupButton.setName(HANGUP_BUTTON);
 
         callButton.addActionListener(this);
+
+        if(mergeCall)
+        {
+            mergeCallButton.setName(CONF_CALL_BUTTON);
+            mergeCallButton.addActionListener(this);
+        }
+
         hangupButton.addActionListener(this);
 
         if(video)
@@ -282,6 +327,14 @@ public abstract class PreCallDialog
         constraints.gridy = 0;
         constraints.gridheight = 0;
         buttonsPanel.add(callButton, constraints);
+
+        if(mergeCall)
+        {
+            constraints.gridx++;
+            buttonsPanel.add(Box.createHorizontalStrut(HGAP));
+            constraints.gridx++;
+            buttonsPanel.add(mergeCallButton, constraints);
+        }
 
         if(video)
         {
@@ -392,6 +445,10 @@ public abstract class PreCallDialog
         {
             callButtonPressed();
         }
+        else if (buttonName.equals(CONF_CALL_BUTTON))
+        {
+            mergeCallButtonPressed();
+        }
         else if (buttonName.equals(VIDEO_CALL_BUTTON))
         {
             videoCallButtonPressed();
@@ -408,6 +465,11 @@ public abstract class PreCallDialog
      * Indicates that the call button has been pressed.
      */
     public abstract void callButtonPressed();
+
+    /**
+     * Indicates that the conference call button has been pressed.
+     */
+    public abstract void mergeCallButtonPressed();
 
     /**
      * Indicates that the hangup button has been pressed.

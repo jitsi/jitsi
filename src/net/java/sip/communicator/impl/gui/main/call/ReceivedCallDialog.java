@@ -42,15 +42,17 @@ public class ReceivedCallDialog
      *
      * @param call The associated with this dialog incoming call.
      * @param video if the call is a video call
+     * @param existingCall true to answer the call in an existing call (thus
+     * obtaining a conference call)
      */
-    public ReceivedCallDialog(Call call, boolean video)
+    public ReceivedCallDialog(Call call, boolean video, boolean existingCall)
     {
         super(GuiActivator.getResources()
             .getSettingsString("service.gui.APPLICATION_NAME")
             + " "
             + GuiActivator.getResources()
                 .getI18NString("service.gui.INCOMING_CALL_STATUS")
-                    .toLowerCase(), video);
+                    .toLowerCase(), video, existingCall);
 
         this.incomingCall = call;
 
@@ -188,6 +190,16 @@ public class ReceivedCallDialog
     }
 
     /**
+     * Answers the call in an existing call when the existing call
+     * button has been pressed.
+     */
+    @Override
+    public void mergeCallButtonPressed()
+    {
+        CallManager.answerCallInFirstExistingCall(incomingCall);
+    }
+
+    /**
      * Answers the call when the call button has been pressed.
      */
     @Override
@@ -241,5 +253,4 @@ public class ReceivedCallDialog
 
         return peerAddress;
     }
-
 }

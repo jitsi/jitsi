@@ -319,6 +319,33 @@ public class OperationSetTelephonyConferencingSipImpl
 
         StringBuffer xml = new StringBuffer();
         CallSipImpl call = callPeer.getCall();
+        List<CallPeer> crossPeers = new ArrayList<CallPeer>();
+        Iterator<CallPeer> crossProtocolCallPeerIter =
+            call.getCrossProtocolCallPeers();
+
+        while (crossProtocolCallPeerIter.hasNext())
+        {
+            MediaAwareCallPeer<?,?,?> crossPeer =
+                (MediaAwareCallPeer<?,?,?>)crossProtocolCallPeerIter.next();
+            Iterator<CallPeerSipImpl> it = call.getCallPeers();
+            boolean found = false;
+
+            while(it.hasNext())
+            {
+                CallPeerSipImpl cpsip = it.next();
+                if(cpsip.getAddress().equals(crossPeer.getAddress()))
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if(found)
+                continue;
+
+            if(!crossPeers.contains(crossPeer))
+                crossPeers.add(crossPeer);
+        }
 
         xml.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
         // <conference-info>
@@ -380,14 +407,12 @@ public class OperationSetTelephonyConferencingSipImpl
         while (callPeerIter.hasNext())
             getUserXML(callPeerIter.next(), xml);
 
-        // cross-protocol CallPeer
-        Iterator<CallPeer> crossProtocolCallPeerIter =
-            call.getCrossProtocolCallPeers();
-
-        while (crossProtocolCallPeerIter.hasNext())
-            getUserXML(
-                (MediaAwareCallPeer<?,?,?>)crossProtocolCallPeerIter.next(),
-                xml);
+        for(CallPeer cp : crossPeers)
+        {
+            MediaAwareCallPeer<?,?,?> crossPeer =
+                (MediaAwareCallPeer<?,?,?>)cp;
+            getUserXML(crossPeer, xml);
+        }
 
         // </users>
         append(xml, "</", ELEMENT_USERS, ">");
@@ -907,6 +932,7 @@ public class OperationSetTelephonyConferencingSipImpl
         ConferenceMember[] conferenceMembersToRemove
             = callPeer.getConferenceMembers();
         int conferenceMembersToRemoveCount = conferenceMembersToRemove.length;
+        boolean changed = false;
 
         if (usersList.getLength() > 0)
         {
@@ -993,7 +1019,12 @@ public class OperationSetTelephonyConferencingSipImpl
                     existingConferenceMember.setEndpointStatus(endpointStatus);
 
                     if (ssrc != null)
-                        existingConferenceMember.setSSRC(Long.parseLong(ssrc));
+                    {
+                        long newSsrc = Long.parseLong(ssrc);
+                        if(existingConferenceMember.getSSRC() != newSsrc)
+                            changed = true;
+                        existingConferenceMember.setSSRC(newSsrc);
+                    }
 
                     if (addConferenceMember)
                         callPeer.addConferenceMember(existingConferenceMember);
@@ -1015,6 +1046,9 @@ public class OperationSetTelephonyConferencingSipImpl
             if (conferenceMemberToRemove != null)
                 callPeer.removeConferenceMember(conferenceMemberToRemove);
         }
+
+        if(changed)
+            notifyAll(callPeer.getCall());
     }
 
     /**

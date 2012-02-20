@@ -29,7 +29,7 @@ import org.osgi.framework.*;
 /**
  * The <tt>FileMenu</tt> is a menu in the main application menu bar that
  * contains "New account".
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Adam Netocny
@@ -40,6 +40,11 @@ public class ToolsMenu
                 PluginComponentListener,
                 Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Local logger.
      */
@@ -124,7 +129,7 @@ public class ToolsMenu
 
         GuiActivator.getUIService().addPluginComponentListener(this);
     }
-    
+
     /**
      * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
      * @param e the <tt>ActionEvent</tt> that notified us

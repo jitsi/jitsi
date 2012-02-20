@@ -51,13 +51,15 @@ public class ChooseCallAccountDialog
                     .getI18NString("service.gui.CALL_VIA"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CHOOSE_ACCOUNT"),
-                GuiActivator.getAccounts(providers), false);
+                GuiActivator.getAccounts(providers));
 
         this.contactAddress = contactAddress;
         this.opSetClass = opSetClass;
 
         getAccountsCombo().setRenderer(new DefaultListCellRenderer()
         {
+            private static final long serialVersionUID = 0L;
+
             public Component getListCellRendererComponent(
                 JList jlist, Object obj, int i,
                 boolean flag, boolean flag1)
@@ -111,6 +113,13 @@ public class ChooseCallAccountDialog
                 selectedProvider,
                 contactAddress);
         }
+    }
+
+    /**
+     * Indicates that the conference call button has been pressed.
+     */
+    public void mergeCallButtonPressed()
+    {
     }
 
     /**

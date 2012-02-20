@@ -46,11 +46,6 @@ public class CallPeerMenu
 
     private final JMenuItem holdMenuItem= new JMenuItem(onHoldText);
 
-    private final String muteText = GuiActivator.getResources()
-        .getI18NString("service.gui.MUTE");
-    private final String unmuteText = GuiActivator.getResources()
-        .getI18NString("service.gui.UNMUTE");
-
     /**
      * Creates a <tt>CallPeerActionMenuBar</tt> by specifying the associated
      * <tt>callPeer</tt>.

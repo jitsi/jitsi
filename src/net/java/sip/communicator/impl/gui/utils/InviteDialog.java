@@ -30,6 +30,8 @@ public class InviteDialog
     extends SIPCommDialog
     implements Skinnable
 {
+    private static final long serialVersionUID = 0L;
+
     private final JTextArea reasonArea = new JTextArea();
 
     private final JButton inviteButton = new JButton(
@@ -40,10 +42,10 @@ public class InviteDialog
 
     private final DefaultListModel contactListModel = new DefaultListModel();
 
-    private final DefaultListModel selectedContactListModel
+    protected final DefaultListModel selectedContactListModel
         = new DefaultListModel();
 
-    private final SIPCommTextField newContactField
+    protected final SIPCommTextField newContactField
         = new SIPCommTextField(GuiActivator.getResources()
             .getI18NString("service.gui.OR_ENTER_PHONE_NUMBER"));
 
@@ -199,7 +201,7 @@ public class InviteDialog
         TransparentPanel leftPanel = new TransparentPanel(new BorderLayout());
         leftPanel.setBorder(SIPCommBorders.getRoundBorder());
         leftPanel.add(contactListScrollPane);
-        leftPanel.add(newContactField, BorderLayout.SOUTH);
+        leftPanel.add(getNewContactPanel(), BorderLayout.SOUTH);
 
         JPanel listPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         listPanel.setPreferredSize(new Dimension(400, 200));
@@ -396,7 +398,7 @@ public class InviteDialog
     /**
      * Moves a string from left to right.
      */
-    private void moveStringFromLeftToRight()
+    protected void moveStringFromLeftToRight()
     {
         String newContactText = newContactField.getText();
 
@@ -430,6 +432,8 @@ public class InviteDialog
     private class MoveStringToRight
         extends UIAction
     {
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             moveStringFromLeftToRight();
@@ -443,5 +447,15 @@ public class InviteDialog
     {
         iconLabel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.INVITE_DIALOG_ICON)));
+    }
+
+    /**
+     * Get the <tt>newContact</tt> component.
+     *
+     * @return the <tt>newContact</tt> component.
+     */
+    public JComponent getNewContactPanel()
+    {
+        return newContactField;
     }
 }

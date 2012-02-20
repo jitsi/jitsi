@@ -31,6 +31,11 @@ public class CallTransferHandler
     extends ExtendedTransferHandler
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The data flavor used when transferring <tt>UIContact</tt>s.
      */
     protected static final DataFlavor uiContactDataFlavor
@@ -132,6 +137,8 @@ public class CallTransferHandler
                         OperationSetBasicTelephony.class).iterator();
 
                 String callee = null;
+                ProtocolProviderService provider = null;
+
                 while (contactDetails.hasNext())
                 {
                     UIContactDetail detail = contactDetails.next();
@@ -141,14 +148,24 @@ public class CallTransferHandler
                             OperationSetBasicTelephony.class);
 
                     if (detailProvider != null
-                        && detailProvider.equals(callProvider))
+                        /*&& detailProvider.equals(callProvider)*/)
+                    {
                         callee = detail.getAddress();
+                        provider = detailProvider;
+                        break;
+                    }
                 }
 
                 if (callee != null)
                 {
-                    CallManager.inviteToConferenceCall(
-                        new String[]{callee}, call);
+                    Map<ProtocolProviderService, List<String>> callees =
+                        new HashMap<ProtocolProviderService, List<String>>();
+                    List<String> lst = new ArrayList<String>();
+
+                    lst.add(callee);
+                    callees.put(provider, lst);
+                    CallManager.inviteToCrossProtocolConferenceCall(
+                        callees, call);
 
                     return true;
                 }

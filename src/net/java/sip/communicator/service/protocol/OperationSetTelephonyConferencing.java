@@ -30,6 +30,21 @@ public interface OperationSetTelephonyConferencing
                OperationNotSupportedException;
 
     /**
+     * Creates a conference call with the specified callees as call peers.
+     *
+     * @param callees the list of addresses that we should call
+     * @param group the <tt>CallGroup</tt> or null
+     * @return the newly created conference call containing all CallPeers
+     * @throws OperationFailedException if establishing the conference call
+     * fails
+     * @throws OperationNotSupportedException if the provider does not have any
+     * conferencing features.
+     */
+    public Call createConfCall(String[] callees, CallGroup group)
+        throws OperationFailedException,
+               OperationNotSupportedException;
+
+    /**
      * Invites the callee represented by the specified uri to an already
      * existing call. The difference between this method and createConfCall is
      * that inviteCalleeToCall allows a user to transform an existing 1 to 1

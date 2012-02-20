@@ -67,6 +67,20 @@ public class OperationSetTelephonyConferencingGibberishImpl
     public Call createConfCall(String[] callees)
         throws OperationNotSupportedException
     {
+        return createConfCall(callees, null);
+    }
+
+    /**
+     * Creates a conference call with the given list of <tt>callees</tt>
+     * @param callees the list of <tt>callees</tt> to invite in the call
+     * @param group the <tt>CallGroup</tt> or null
+     * @return the created call
+     * @throws OperationNotSupportedException indicates that the operation is
+     * not supported for the given <tt>callees</tt>.
+     */
+    public Call createConfCall(String[] callees, CallGroup group)
+        throws OperationNotSupportedException
+    {
         CallGibberishImpl newCall = new CallGibberishImpl(protocolProvider);
 
         newCall.addCallChangeListener(this);
