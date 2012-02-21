@@ -325,14 +325,10 @@ public class CallManager
     public static boolean isLocalVideoEnabled(Call call)
     {
         OperationSetVideoTelephony telephony
-            = call.getProtocolProvider()
-                .getOperationSet(OperationSetVideoTelephony.class);
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetVideoTelephony.class);
 
-        if (telephony != null
-            && telephony.isLocalVideoAllowed(call))
-            return true;
-
-        return false;
+        return (telephony != null) && telephony.isLocalVideoAllowed(call);
     }
 
     /**
@@ -343,8 +339,8 @@ public class CallManager
      * @param contact the contact to call to
      */
     public static void createDesktopSharing(
-                                    ProtocolProviderService protocolProvider,
-                                    String contact)
+            ProtocolProviderService protocolProvider,
+            String contact)
     {
         // If the user presses cancel on the desktop sharing warning then we
         // have nothing more to do here.
@@ -352,16 +348,16 @@ public class CallManager
             return;
 
         MediaService mediaService = GuiActivator.getMediaService();
-
-        List<MediaDevice> desktopDevices = mediaService.getDevices(
-            MediaType.VIDEO, MediaUseCase.DESKTOP);
-
+        List<MediaDevice> desktopDevices
+            = mediaService.getDevices(MediaType.VIDEO, MediaUseCase.DESKTOP);
         int deviceNumber = desktopDevices.size();
 
         if (deviceNumber == 1)
         {
             createDesktopSharing(
-                protocolProvider, contact, desktopDevices.get(0));
+                    protocolProvider,
+                    contact,
+                    desktopDevices.get(0));
         }
         else if (deviceNumber > 1)
         {
@@ -369,11 +365,11 @@ public class CallManager
                 = new SelectScreenDialog(desktopDevices);
 
             selectDialog.setVisible(true);
-
             if (selectDialog.getSelectedDevice() != null)
-                createDesktopSharing(   protocolProvider,
-                                        contact,
-                                        selectDialog.getSelectedDevice());
+                createDesktopSharing(
+                        protocolProvider,
+                        contact,
+                        selectDialog.getSelectedDevice());
         }
     }
 
@@ -1848,7 +1844,7 @@ public class CallManager
     {
         private final Call call;
 
-        private boolean enable;
+        private final boolean enable;
 
         /**
          * Creates the enable local video call thread.
@@ -1878,20 +1874,16 @@ public class CallManager
             {
                 getActiveCallContainer(call).setDesktopSharingButtonSelected(
                         false);
+
                 JFrame frame = DesktopSharingFrame.getFrameForCall(call);
 
                 if(frame != null)
-                {
                     frame.dispose();
-                }
             }
 
             try
             {
-                telephony.setLocalVideoAllowed(
-                    call,
-                    enable);
-
+                telephony.setLocalVideoAllowed(call, enable);
                 enableSucceeded = true;
             }
             catch (OperationFailedException ex)

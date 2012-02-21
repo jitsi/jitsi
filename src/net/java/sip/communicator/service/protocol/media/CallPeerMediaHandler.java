@@ -1261,12 +1261,16 @@ public abstract class CallPeerMediaHandler<
                 logger.trace("The media types of device and format differ.");
 
             // check whether a control already exists
+            SrtpControl control
+                = srtpControls.size() > 0
+                    ? srtpControls.get(
+                            new MediaTypeSrtpControl(
+                                    mediaType,
+                                    srtpControls.firstKey().srtpControlType))
+                    : null;
             MediaService mediaService
                 = ProtocolMediaActivator.getMediaService();
 
-            SrtpControl control = srtpControls.size() > 0 ?
-                srtpControls.get(new MediaTypeSrtpControl(mediaType,
-                    srtpControls.firstKey().srtpControlType)) : null;
             if(control == null)
             {
                 // this creates the default control, currently ZRTP without

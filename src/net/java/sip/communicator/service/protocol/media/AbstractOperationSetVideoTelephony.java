@@ -182,7 +182,7 @@ public abstract class AbstractOperationSetVideoTelephony<
      * @param allowed <tt>true</tt> if local video transmission is allowed and
      * <tt>false</tt> otherwise.
      *
-     *  @throws OperationFailedException if video initialization fails.
+     * @throws OperationFailedException if video initialization fails.
      */
     public void setLocalVideoAllowed(Call call, boolean allowed)
         throws OperationFailedException

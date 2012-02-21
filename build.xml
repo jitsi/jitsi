@@ -433,7 +433,7 @@
 
     <!-- make and deploy target used in intellij idea -->
     <target name="make-and-deploy"
-            depends="compile,package,deploy-os-specific-bundles"
+            depends="make,deploy-os-specific-bundles"
             description="make and deploy target used in intellij idea"/>
 
     <!-- Determines the Jitsi version if any-->

@@ -441,17 +441,37 @@ public class RTPTranslatorImpl
         // TODO Auto-generated method stub
     }
 
+    /**
+     * Notifies this <tt>ReceiveStreamListener</tt> about a specific event
+     * related to a <tt>ReceiveStream</tt>.
+     *
+     * @param event a <tt>ReceiveStreamEvent</tt> which contains the specifics
+     * of the event this <tt>ReceiveStreamListener</tt> is being notified about
+     * @see ReceiveStreamListener#update(ReceiveStreamEvent)
+     */
     public void update(ReceiveStreamEvent event)
     {
-        StreamRTPManagerDesc streamRTPManagerDesc
-            = findStreamRTPManagerDescByReceiveSSRC(
-                    event.getReceiveStream().getSSRC(),
-                    null);
+        /*
+         * Because NullPointerException was seen during testing, be thorough
+         * with the null checks.
+         */
+        if (event != null)
+        {
+            ReceiveStream receiveStream = event.getReceiveStream();
 
-        if (streamRTPManagerDesc != null)
-            for (ReceiveStreamListener listener
-                    : streamRTPManagerDesc.getReceiveStreamListeners())
-                listener.update(event);
+            if (receiveStream != null)
+            {
+                StreamRTPManagerDesc streamRTPManagerDesc
+                    = findStreamRTPManagerDescByReceiveSSRC(
+                            receiveStream.getSSRC(),
+                            null);
+
+                if (streamRTPManagerDesc != null)
+                    for (ReceiveStreamListener listener
+                            : streamRTPManagerDesc.getReceiveStreamListeners())
+                        listener.update(event);
+            }
+        }
     }
 
     private static class OutputDataStreamDesc

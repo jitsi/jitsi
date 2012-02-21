@@ -46,7 +46,7 @@ import org.xmpp.jnodes.smack.*;
  *
  * @author Damian Minkov
  * @author Symphorien Wanko
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Yana Stamcheva
  * @author Emil Ivov
  */
@@ -2433,13 +2433,15 @@ public class ProtocolProviderServiceJabberImpl
      */
     public boolean isGTalkTesting()
     {
-        return (Boolean.getBoolean("gtalktesting") ||
-            JabberActivator.getConfigurationService().getBoolean(
-                "net.java.sip.communicator.impl.protocol.jabber.gtalktesting"
-                , false) ||
-                accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
-                    true));
+        return
+            Boolean.getBoolean("gtalktesting")
+                || JabberActivator.getConfigurationService().getBoolean(
+                        "net.java.sip.communicator.impl.protocol.jabber"
+                            + ".gtalktesting",
+                        false)
+                || accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
+                        true);
     }
 
     UserCredentials getUserCredentials()

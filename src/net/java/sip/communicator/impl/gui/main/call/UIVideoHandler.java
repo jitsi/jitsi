@@ -20,7 +20,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.transparent.*;
 
 /**
  * The <tt>UIVideoHandler</tt> is meant to handle all video related events.
@@ -337,13 +336,11 @@ public class UIVideoHandler
                         if (CallManager.isDesktopSharingEnabled(call))
                         {
                             callContainer.setDesktopSharingButtonSelected(true);
-
                             if (CallManager.isRegionDesktopSharingEnabled(call))
                             {
-                                TransparentFrame frame = DesktopSharingFrame
-                                    .createTransparentFrame(call, false);
-
-                                frame.setVisible(true);
+                                DesktopSharingFrame
+                                    .createTransparentFrame(call, false)
+                                        .setVisible(true);
                             }
                         }
                         else if (CallManager.isLocalVideoEnabled(call))
@@ -630,7 +627,6 @@ public class UIVideoHandler
         {
             if (videoTelephony == null)
                 return;
-
             if (callPeer == null || callPeer.getCall() == null)
                 return;
 

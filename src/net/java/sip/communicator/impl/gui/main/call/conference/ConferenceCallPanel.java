@@ -126,20 +126,6 @@ public class ConferenceCallPanel
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
 
-        this.addLocalCallPeer();
-
-        Iterator<? extends CallPeer> iterator = this.call.getCallPeers();
-
-        while (iterator.hasNext())
-            this.addCallPeerPanel(iterator.next());
-
-        iterator = this.call.getCrossProtocolCallPeers();
-
-        while (iterator.hasNext())
-        {
-            this.addCallPeerPanel(iterator.next());
-        }
-
         scrollPane.setBorder(null);
         /*
          * The scrollPane seems to receive only a few pixels of width at times
@@ -161,6 +147,22 @@ public class ConferenceCallPanel
         add(scrollPane, scrollPaneGridBagConstraints);
 
         addVideoContainer();
+
+        /*
+         * XXX Call addCallPeerPanel(CallPeer) after calling addVideoContainer()
+         * because the video may already be flowing between the CallPeers.
+         * Otherwise, the videos of the remote CallPeers will not be shown.
+         */
+        addLocalCallPeer();
+
+        Iterator<? extends CallPeer> iterator;
+
+        iterator = this.call.getCallPeers();
+        while (iterator.hasNext())
+            addCallPeerPanel(iterator.next());
+        iterator = this.call.getCrossProtocolCallPeers();
+        while (iterator.hasNext())
+            addCallPeerPanel(iterator.next());
     }
 
     /**
@@ -220,7 +222,7 @@ public class ConferenceCallPanel
                     }
 
                     /*
-                     * When the first visual/videoComponent gets added, this
+                     * When the first visual/video Component gets added, this
                      * videoContainer is still not accommodated by the frame
                      * size because it has just become visible. So try to resize
                      * the frame to accommodate this videoContainer.
@@ -573,6 +575,17 @@ public class ConferenceCallPanel
     public void ensureSize(Component component, int width, int height)
     {
         Frame frame = CallPeerRendererUtils.getFrame(component);
+
+        /*
+         * CallPanel creates ConferenceCallPanel and then adds it to the UI
+         * hierarchy. If the associated Call has just become a conference focus
+         * and the UI is being updated to reflect the change, the existing
+         * CallPeer of the Call may cause this method to be called and then this
+         * ConferenceCallPanel will not have an associated Frame at the time.
+         * But callPanel will (likely) have one.
+         */
+        if ((frame == null) && (callPanel != null))
+            frame = CallPeerRendererUtils.getFrame(callPanel);
 
         if (frame == null)
             return;

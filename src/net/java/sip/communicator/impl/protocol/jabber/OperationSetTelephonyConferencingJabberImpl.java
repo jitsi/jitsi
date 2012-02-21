@@ -123,7 +123,7 @@ public class OperationSetTelephonyConferencingJabberImpl
     /**
      * Notifies all CallPeer associated with and established in a
      * specific call has occurred
-     * @param call the <tt>Call</tt>
+     *
      * @param callPeer the <tt>CallPeer</tt>
      */
     private void notify(CallPeer callPeer)
@@ -461,8 +461,10 @@ public class OperationSetTelephonyConferencingJabberImpl
     {
         if (!wasConferenceFocus && call.isConferenceFocus())
         {
-            // reinvite other peers if any, to inform them that from now
-            // it is a conference call
+            /*
+             * Re-INVITE existing CallPeers to inform them that from now
+             * the specified call is a conference call.
+             */
             Iterator<CallPeerJabberImpl> callPeerIter = call.getCallPeers();
 
             while (callPeerIter.hasNext())
@@ -473,10 +475,15 @@ public class OperationSetTelephonyConferencingJabberImpl
             }
         }
 
-        CoinPacketExtension confInfo = new CoinPacketExtension(true);
-        return getBasicTelephony().createOutgoingCall(
-                call, calleeAddress,
-                Arrays.asList(new PacketExtension[] { confInfo }));
+        return
+            getBasicTelephony().createOutgoingCall(
+                    call,
+                    calleeAddress,
+                    Arrays.asList(
+                            new PacketExtension[]
+                                    {
+                                        new CoinPacketExtension(true)
+                                    }));
     }
 
     /**

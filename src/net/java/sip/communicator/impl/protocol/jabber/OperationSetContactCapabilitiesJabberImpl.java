@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * by the associated protocol provider to be capabilities possessed by the
  * Jabber <tt>Contact</tt> in question.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Yana Stamcheva
  */
 public class OperationSetContactCapabilitiesJabberImpl
@@ -318,14 +318,7 @@ public class OperationSetContactCapabilitiesJabberImpl
          * should fail anyway).
          */
         if (!online)
-        {
-            if (OFFLINE_OPERATION_SETS.contains(opsetClass))
-                return opset;
-            else
-            {
-                return null;
-            }
-        }
+            return OFFLINE_OPERATION_SETS.contains(opsetClass) ? opset : null;
 
         /*
          * If we know the features required for the support of opsetClass, check
@@ -351,19 +344,20 @@ public class OperationSetContactCapabilitiesJabberImpl
             {
                 if(CAPS_OPERATION_SETS_TO_FEATURES.containsKey(opsetClass))
                 {
-                    String[] extFeatures =
-                        CAPS_OPERATION_SETS_TO_FEATURES.get(
-                            opsetClass);
+                    String[] extFeatures
+                        = CAPS_OPERATION_SETS_TO_FEATURES.get(opsetClass);
 
                     // test GTalk
-                    if(!parentProvider.isGTalkTesting())
+                    if (!parentProvider.isGTalkTesting())
                     {
                         opset = null;
                     }
-                    else
-                    if((extFeatures == null) || ((extFeatures.length != 0) &&
-                            !parentProvider.isExtFeatureListSupported(jid,
-                                    extFeatures)))
+                    else if((extFeatures == null)
+                            || ((extFeatures.length != 0)
+                                    && !parentProvider
+                                            .isExtFeatureListSupported(
+                                                    jid,
+                                                    extFeatures)))
                     {
                         opset = null;
                     }

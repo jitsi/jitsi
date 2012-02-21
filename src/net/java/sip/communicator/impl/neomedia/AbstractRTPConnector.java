@@ -13,8 +13,12 @@ import javax.media.rtp.*;
 import net.java.sip.communicator.service.neomedia.*;
 
 /**
+ * Provides a base/default implementation of <tt>RTPConnector</tt> which has
+ * factory methods for its control and data input and output streams and has an
+ * associated <tt>StreamConnector</tt>.
+ *
  * @author Bing SU (nova.su@gmail.com)
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractRTPConnector
     implements RTPConnector
@@ -95,13 +99,11 @@ public abstract class AbstractRTPConnector
             dataOutputStream.close();
             dataOutputStream = null;
         }
-
         if (controlOutputStream != null)
         {
             controlOutputStream.close();
             controlOutputStream = null;
         }
-
         if (dataInputStream != null)
         {
             dataInputStream.close();

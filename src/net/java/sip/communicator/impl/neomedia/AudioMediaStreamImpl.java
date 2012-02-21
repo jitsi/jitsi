@@ -348,11 +348,12 @@ public class AudioMediaStreamImpl
     {
         super.addRTPExtension(extensionID, rtpExtension);
 
-        if ( RTPExtension.CSRC_AUDIO_LEVEL_URN
-                        .equals(rtpExtension.getURI().toString()))
+        if (RTPExtension.CSRC_AUDIO_LEVEL_URN.equals(
+                rtpExtension.getURI().toString()))
         {
             getCsrcEngine().setCsrcAudioLevelAudioLevelExtensionID(
-                            extensionID, rtpExtension.getDirection());
+                    extensionID,
+                    rtpExtension.getDirection());
         }
     }
 

@@ -149,9 +149,10 @@ public class CallPanel
     /**
      * The conference button.
      */
-    private SIPCommButton conferenceButton = new SIPCommButton(
-        ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-        ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+    private SIPCommButton conferenceButton
+        = new SIPCommButton(
+                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+                ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
 
     /**
      * Chat button.
@@ -266,9 +267,7 @@ public class CallPanel
         // the focus state of each call peer.
         Iterator<? extends CallPeer> callPeers = call.getCallPeers();
         while (callPeers.hasNext())
-        {
             callPeers.next().addCallPeerConferenceListener(this);
-        }
 
         // Initializes all buttons and common panels.
         init();
@@ -417,9 +416,7 @@ public class CallPanel
         else if (buttonName.equals(DIAL_BUTTON))
         {
             if (dialpadDialog == null)
-            {
                 dialpadDialog = this.getDialpadDialog();
-            }
 
             if(!dialpadDialog.isVisible())
             {
@@ -445,10 +442,7 @@ public class CallPanel
         }
         else if (buttonName.equals(CONFERENCE_BUTTON))
         {
-            ConferenceInviteDialog inviteDialog
-                = new ConferenceInviteDialog(call);
-
-            inviteDialog.setVisible(true);
+            new ConferenceInviteDialog(call).setVisible(true);
         }
         else if (buttonName.equals(CHAT_BUTTON))
         {
@@ -706,8 +700,8 @@ public class CallPanel
         ProtocolProviderService protocolProvider
             = call.getProtocolProvider();
 
-        if (protocolProvider.getOperationSet(
-            OperationSetVideoTelephony.class) != null)
+        if (protocolProvider.getOperationSet(OperationSetVideoTelephony.class)
+                != null)
         {
             videoButton.setEnabled(enable);
         }
@@ -724,7 +718,8 @@ public class CallPanel
             }
 
             if (protocolProvider.getOperationSet(
-                OperationSetAdvancedTelephony.class) != null)
+                        OperationSetAdvancedTelephony.class)
+                    != null)
             {
                 transferCallButton.setEnabled(enable);
             }
@@ -808,22 +803,18 @@ public class CallPanel
 
         callPeer.removeCallPeerConferenceListener(this);
 
-        Timer timer = new Timer(5000,
-            new RemovePeerPanelListener(callPeer));
+        Timer timer = new Timer(5000, new RemovePeerPanelListener(callPeer));
 
         timer.setRepeats(false);
         timer.start();
 
         // The call is finished when that last peer is removed.
         if (call.getCallPeerCount() == 0)
-        {
             this.stopCallTimer();
-        }
     }
 
     public void callStateChanged(CallChangeEvent evt)
-    {
-    }
+    {}
 
     /**
      * Updates <tt>CallPeer</tt> related components to fit the new focus state.
@@ -1002,7 +993,7 @@ public class CallPanel
     private class RemovePeerPanelListener
         implements ActionListener
     {
-        private CallPeer peer;
+        private final CallPeer peer;
 
         public RemovePeerPanelListener(CallPeer peer)
         {
@@ -1112,15 +1103,29 @@ public class CallPanel
         // whole window to freeze.
         // We check also if the vertical scroll bar is visible in order to
         // correctly pack the window when a peer is removed.
-        boolean isScrollBarVisible = (callPanel instanceof ConferenceCallPanel)
-            && ((ConferenceCallPanel) callPanel).getVerticalScrollBar() != null
-            && ((ConferenceCallPanel) callPanel).getVerticalScrollBar()
-                .isVisible();
+        boolean isScrollBarVisible;
 
-        if (!isScrollBarVisible
-            || getHeight()
-                < GraphicsEnvironment.getLocalGraphicsEnvironment()
-                    .getMaximumWindowBounds().height)
+        if (callPanel instanceof ConferenceCallPanel)
+        {
+            Component scrollBar
+                = ((ConferenceCallPanel) callPanel).getVerticalScrollBar();
+
+            isScrollBarVisible = ((scrollBar != null) && scrollBar.isVisible());
+        }
+        else
+            isScrollBarVisible = false;
+
+        /*
+         * Repacking should be done only when the callWindow is not high enough
+         * to not have a vertical scroll bar and there is still room left to
+         * expand its height without going out of the screen.
+         */
+        if (isScrollBarVisible
+                && (getHeight()
+                        < GraphicsEnvironment
+                            .getLocalGraphicsEnvironment()
+                                .getMaximumWindowBounds()
+                                    .height))
             callWindow.pack();
         else
             repaint();
@@ -1195,11 +1200,6 @@ public class CallPanel
      */
     private void removeOneToOneSpecificComponents()
     {
-        // If we want to enable video in conference calls we need to comment
-        // these lines.
-        if (videoButton.isSelected())
-            videoButton.doClick();
-
         // Disable desktop sharing.
         if (desktopSharingButton.isSelected())
             desktopSharingButton.doClick();

@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
  * order to make it easier for implementers to provide complete solutions while
  * focusing on protocol-specific details.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractProtocolProviderService
     implements ProtocolProviderService
@@ -128,11 +128,8 @@ public abstract class AbstractProtocolProviderService
 
         if (logger.isDebugEnabled())
             logger.debug(
-                "Dispatching "
-                    + event
-                    + " to "
-                    + listeners.length
-                    + " listeners.");
+                    "Dispatching " + event + " to " + listeners.length
+                        + " listeners.");
 
         for (RegistrationStateChangeListener listener : listeners)
             try
@@ -141,7 +138,6 @@ public abstract class AbstractProtocolProviderService
             }
             catch (Throwable throwable)
             {
-
                 /*
                  * The registration state has already changed and we're not
                  * using the RegistrationStateChangeListeners to veto the change
@@ -153,7 +149,10 @@ public abstract class AbstractProtocolProviderService
                 if (throwable instanceof ThreadDeath)
                     throw (ThreadDeath) throwable;
                 logger.error(
-                    "An error occurred while executing RegistrationStateChangeLister#registrationStateChanged(RegistrationStateChangeEvent) of "
+                    "An error occurred while executing "
+                        + "RegistrationStateChangeListener"
+                        + "#registrationStateChanged"
+                        + "(RegistrationStateChangeEvent) of "
                         + listener,
                     throwable);
             }
@@ -188,9 +187,10 @@ public abstract class AbstractProtocolProviderService
      */
     public String getProtocolDisplayName()
     {
-        String displayName =
-            getAccountID().getAccountPropertyString(
-                ProtocolProviderFactory.PROTOCOL);
+        String displayName
+            = getAccountID().getAccountPropertyString(
+                    ProtocolProviderFactory.PROTOCOL);
+
         return (displayName == null) ? getProtocolName() : displayName;
     }
 

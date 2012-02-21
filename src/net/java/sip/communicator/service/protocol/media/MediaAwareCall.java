@@ -380,7 +380,19 @@ public abstract class MediaAwareCall<
     {
         RTPTranslator rtpTranslator = null;
 
-        if (isConferenceFocus() && MediaType.VIDEO.equals(mediaType))
+        /*
+         * XXX The conferenceAudioMixer is created even when this Call is not a
+         * conference focus in order to enable additional functionality.
+         * Similarly, the videoRTPTranslator is created even when this Call is
+         * not a conference focus in order to enable this Call to turn into a
+         * conference focus at a later time. More specifically, MediaStreamImpl
+         * is unable to accommodate an RTPTranslator after it has created its
+         * RTPManager. Yet again like conferenceAudioMixer, we'd better not try
+         * to use it on Android at this time because of performance issues that
+         * may arise.
+         */
+        if (MediaType.VIDEO.equals(mediaType)
+                && (!OSUtils.IS_ANDROID || isConferenceFocus()))
         {
             if (videoRTPTranslator == null)
             {
@@ -504,16 +516,20 @@ public abstract class MediaAwareCall<
         switch (mediaType)
         {
         case AUDIO:
-            /*
-             * TODO AudioMixer leads to very poor audio quality on Android so do
-             * not use it unless it is really really necessary.
-             */
             if ((conferenceAudioMixer == null)
                     && (device != null)
+                    /*
+                     * TODO AudioMixer leads to very poor audio quality on
+                     * Android so do not use it unless it is really really
+                     * necessary.
+                     */
                     && (!OSUtils.IS_ANDROID || isConferenceFocus())
-                    // we can use audio mixer only if we
-                    // have capture device (device can send)
-                    && (device.getDirection().allowsSending()))
+                    /*
+                     * We can use the AudioMixer only if the device is able to
+                     * capture (because the AudioMixer will push when the
+                     * capture device pushes).
+                     */
+                    && device.getDirection().allowsSending())
                 conferenceAudioMixer = mediaService.createMixer(device);
             if (conferenceAudioMixer != null)
                 device = conferenceAudioMixer;
@@ -745,10 +761,7 @@ public abstract class MediaAwareCall<
      */
     public boolean isLocalVideoAllowed(MediaUseCase useCase)
     {
-        if (mediaUseCase.equals(useCase))
-            return localVideoAllowed;
-        else
-            return false;
+        return mediaUseCase.equals(useCase) && localVideoAllowed;
     }
 
     /**
@@ -1069,7 +1082,7 @@ public abstract class MediaAwareCall<
             CallPeer p = peers.next();
             getCrossProtocolCallPeersVector().add(p);
             fireCallPeerEvent(p, CallPeerEvent.CALL_PEER_ADDED);
-            this.setConferenceFocus(true);
+            setConferenceFocus(true);
         }
     }
 

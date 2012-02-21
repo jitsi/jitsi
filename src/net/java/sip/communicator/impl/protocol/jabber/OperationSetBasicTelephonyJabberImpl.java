@@ -449,17 +449,19 @@ public class OperationSetBasicTelephonyJabberImpl
         // initiate call
         try
         {
-            if(isGingle)
+            if (isGingle)
             {
                 logger.info("initiate Gingle call");
                 CallGTalkImpl callGTalk = new CallGTalkImpl(this);
                 MediaUseCase useCase = call.getMediaUseCase();
                 boolean isVideo = call.isLocalVideoAllowed(useCase);
-                callGTalk.setCallGroup(call.getCallGroup());
 
+                callGTalk.setCallGroup(call.getCallGroup());
                 callGTalk.setLocalVideoAllowed(isVideo, useCase);
-                peer = callGTalk.initiateGTalkSession(fullCalleeURI,
-                       sessionInitiateExtensions);
+                peer
+                    = callGTalk.initiateGTalkSession(
+                            fullCalleeURI,
+                            sessionInitiateExtensions);
             }
             else if(di != null)
             {

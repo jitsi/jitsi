@@ -598,13 +598,29 @@ public class VideoMediaDeviceSession
          * it to the currently registered VideoListeners in a VideoEvent after
          * returning from the call.
          */
+        Component localVisualComponent;
+
         synchronized (localPlayerSyncRoot)
         {
             if (localPlayer == null)
                 localPlayer = createLocalPlayer();
-            return
-                (localPlayer == null) ? null : getVisualComponent(localPlayer);
+            localVisualComponent
+                = (localPlayer == null)
+                    ? null
+                    : getVisualComponent(localPlayer);
         }
+        /*
+         * If the local visual/video Component exists at this time, it has
+         * likely been created by a previous call to this method. However, the
+         * caller may still depend on a VIDEO_ADDED event being fired for it.
+         */
+        if (localVisualComponent != null)
+            fireVideoEvent(
+                    VideoEvent.VIDEO_ADDED,
+                    localVisualComponent,
+                    VideoEvent.LOCAL,
+                    false);
+        return localVisualComponent;
     }
 
     /**

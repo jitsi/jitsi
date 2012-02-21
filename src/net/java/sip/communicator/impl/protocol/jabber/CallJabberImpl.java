@@ -289,26 +289,30 @@ public class CallJabberImpl
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
-        if(getCallPeerCount() == 1 && getCallGroup() == null)
+        CallGroup callGroup = getCallGroup();
+
+        if ((getCallPeerCount() == 1) && (callGroup == null))
         {
             parentOpSet.fireCallEvent(CallEvent.CALL_INITIATED, this);
         }
-        else if(getCallGroup() != null)
+        else if (callGroup != null)
         {
             // only TelephonyConferencing OperationSet should know about it
-            CallEvent cEvent = new CallEvent(this, CallEvent.CALL_INITIATED);
-            AbstractOperationSetTelephonyConferencing<?,?,?,?,?> opSet =
-                (AbstractOperationSetTelephonyConferencing<?,?,?,?,?>)
-                getProtocolProvider().getOperationSet(
-                    OperationSetTelephonyConferencing.class);
-            if(opSet != null)
-                opSet.outgoingCallCreated(cEvent);
+            CallEvent event = new CallEvent(this, CallEvent.CALL_INITIATED);
+            AbstractOperationSetTelephonyConferencing<?,?,?,?,?> opSet
+                = (AbstractOperationSetTelephonyConferencing<?,?,?,?,?>)
+                    getProtocolProvider()
+                        .getOperationSet(
+                                OperationSetTelephonyConferencing.class);
+
+            if (opSet != null)
+                opSet.outgoingCallCreated(event);
         }
 
         CallPeerMediaHandlerJabberImpl mediaHandler
             = callPeer.getMediaHandler();
 
-        /* enable video if it is a videocall */
+        /* enable video if it is a video call */
         mediaHandler.setLocalVideoTransmissionEnabled(localVideoAllowed);
         /* enable remote-control if it is a desktop sharing session */
         mediaHandler.setLocalInputEvtAware(localInputEvtAware);
@@ -320,22 +324,19 @@ public class CallJabberImpl
 
         // if initializing session fails, set peer to failed
         boolean sessionInitiated = false;
+
         try
         {
-
             callPeer.initiateSession(sessionInitiateExtensions);
             sessionInitiated = true;
-
-            return callPeer;
         }
         finally
         {
             // if initialization throws an exception
-            if(!sessionInitiated)
-            {
+            if (!sessionInitiated)
                 callPeer.setState(CallPeerState.FAILED);
-            }
         }
+        return callPeer;
     }
 
     /**

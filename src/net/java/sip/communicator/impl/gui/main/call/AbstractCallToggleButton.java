@@ -211,20 +211,19 @@ public abstract class AbstractCallToggleButton
 
         public synchronized void actionPerformed(ActionEvent event)
         {
-            if(!spawnActionInNewThread)
+            if(spawnActionInNewThread)
             {
+                if (runner == null)
+                {
+                    runner = new Thread(this, LocalVideoButton.class.getName());
+                    runner.setDaemon(true);
+
+                    setEnabled(false);
+                    runner.start();
+                }
+            }
+            else
                 buttonPressed();
-                return;
-            }
-
-            if (runner == null)
-            {
-                runner = new Thread(this, LocalVideoButton.class.getName());
-                runner.setDaemon(true);
-
-                setEnabled(false);
-                runner.start();
-            }
         }
 
         public void run()

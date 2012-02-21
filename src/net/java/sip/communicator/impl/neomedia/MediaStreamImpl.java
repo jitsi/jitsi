@@ -332,12 +332,11 @@ public class MediaStreamImpl
     private TransformEngineChain createTransformEngineChain()
     {
         ArrayList<TransformEngine> engineChain
-            = new ArrayList<TransformEngine>(3);
+            = new ArrayList<TransformEngine>(4);
 
         // CSRCs and audio levels
         if (csrcEngine == null)
             csrcEngine = new CsrcTransformEngine(this);
-
         engineChain.add(csrcEngine);
 
         // DTMF
@@ -347,7 +346,7 @@ public class MediaStreamImpl
             engineChain.add(dtmfEngine);
 
         // RTCP Statistics
-        if(statisticsEngine == null)
+        if (statisticsEngine == null)
             statisticsEngine = new StatisticsEngine(this);
         engineChain.add(statisticsEngine);
 
@@ -503,7 +502,7 @@ public class MediaStreamImpl
 
         srtpControl.cleanup();
 
-        if(csrcEngine != null)
+        if (csrcEngine != null)
         {
             csrcEngine.stop();
             csrcEngine = null;
@@ -515,7 +514,7 @@ public class MediaStreamImpl
 
         if (rtpManager != null)
         {
-            if(logger.isInfoEnabled())
+            if (logger.isInfoEnabled())
                 printFlowStatistics(rtpManager);
 
             rtpManager.removeReceiveStreamListener(this);
@@ -843,7 +842,6 @@ public class MediaStreamImpl
         }
         else
             targetIsSet = true;
-
         if (targetIsSet)
         {
             rtpConnectorTarget = target;
@@ -859,6 +857,7 @@ public class MediaStreamImpl
                             + target);
         }
     }
+
     /**
      * Gets the <tt>MediaDevice</tt> that this stream uses to play back and
      * capture media.
@@ -1095,8 +1094,6 @@ public class MediaStreamImpl
             if (bc != null)
                 configureRTPManagerBufferControl(rtpManager, bc);
 
-            //Emil: if you replace this method with another init method make
-            //sure you check that the line below still works.
             rtpManager.initialize(rtpConnector);
 
             /*
@@ -1256,74 +1253,74 @@ public class MediaStreamImpl
         if (connector == null)
             throw new NullPointerException("connector");
 
-        if (rtpConnector != null)
-        {
-            // Is the StreamConnector really changing?
-            if (rtpConnector.getConnector() == connector)
-                return;
-        }
-
         AbstractRTPConnector oldValue = rtpConnector;
 
-        if(connector.getProtocol() == StreamConnector.Protocol.UDP)
+        // Is the StreamConnector really changing?
+        if ((oldValue != null) && (oldValue.getConnector() == connector))
+            return;
+
+        switch (connector.getProtocol())
         {
+        case UDP:
             rtpConnector
                 = new RTPTransformUDPConnector(connector)
-            {
-                @Override
-                protected TransformUDPOutputStream createDataOutputStream()
-                    throws IOException
                 {
-                    TransformUDPOutputStream dataOutputStream
-                        = super.createDataOutputStream();
+                    @Override
+                    protected TransformUDPOutputStream createDataOutputStream()
+                        throws IOException
+                    {
+                        TransformUDPOutputStream dataOutputStream
+                            = super.createDataOutputStream();
 
-                    if (dataOutputStream != null)
-                        configureDataOutputStream(dataOutputStream);
-                    return dataOutputStream;
-                }
+                        if (dataOutputStream != null)
+                            configureDataOutputStream(dataOutputStream);
+                        return dataOutputStream;
+                    }
 
-                @Override
-                protected TransformUDPInputStream createDataInputStream()
-                    throws IOException
-                {
-                    TransformUDPInputStream dataInputStream
-                        = super.createDataInputStream();
+                    @Override
+                    protected TransformUDPInputStream createDataInputStream()
+                        throws IOException
+                    {
+                        TransformUDPInputStream dataInputStream
+                            = super.createDataInputStream();
 
-                    if (dataInputStream != null)
-                        configureDataInputStream(dataInputStream);
-                    return dataInputStream;
-                }
-            };
-        }
-        else if(connector.getProtocol() == StreamConnector.Protocol.TCP)
-        {
+                        if (dataInputStream != null)
+                            configureDataInputStream(dataInputStream);
+                        return dataInputStream;
+                    }
+                };
+            break;
+        case TCP:
             rtpConnector
                 = new RTPTransformTCPConnector(connector)
-            {
-                @Override
-                protected TransformTCPOutputStream createDataOutputStream()
-                    throws IOException
                 {
-                    TransformTCPOutputStream dataOutputStream
-                        = super.createDataOutputStream();
+                    @Override
+                    protected TransformTCPOutputStream createDataOutputStream()
+                        throws IOException
+                    {
+                        TransformTCPOutputStream dataOutputStream
+                            = super.createDataOutputStream();
 
-                    if (dataOutputStream != null)
-                        configureDataOutputStream(dataOutputStream);
-                    return dataOutputStream;
-                }
+                        if (dataOutputStream != null)
+                            configureDataOutputStream(dataOutputStream);
+                        return dataOutputStream;
+                    }
 
-                @Override
-                protected TransformTCPInputStream createDataInputStream()
-                    throws IOException
-                {
-                    TransformTCPInputStream dataInputStream
-                        = super.createDataInputStream();
+                    @Override
+                    protected TransformTCPInputStream createDataInputStream()
+                        throws IOException
+                    {
+                        TransformTCPInputStream dataInputStream
+                            = super.createDataInputStream();
 
-                    if (dataInputStream != null)
-                        configureDataInputStream(dataInputStream);
-                    return dataInputStream;
-                }
-            };
+                        if (dataInputStream != null)
+                            configureDataInputStream(dataInputStream);
+                        return dataInputStream;
+                    }
+                };
+            break;
+        default:
+            throw new IllegalArgumentException("connector");
         }
 
         rtpConnectorChanged(oldValue, rtpConnector);
@@ -1362,7 +1359,7 @@ public class MediaStreamImpl
                 startedDirection = deviceSession.getStartedDirection();
 
                 deviceSession.removePropertyChangeListener(
-                    deviceSessionPropertyChangeListener);
+                        deviceSessionPropertyChangeListener);
 
                 // keep player active
                 deviceSession.setDisposePlayerOnClose(
@@ -1738,10 +1735,13 @@ public class MediaStreamImpl
             {
                 try
                 {
+                    DataSource sendStreamDataSource
+                        = sendStream.getDataSource();
+
                     // TODO Are we sure we want to connect here?
-                    sendStream.getDataSource().connect();
+                    sendStreamDataSource.connect();
                     sendStream.start();
-                    sendStream.getDataSource().start();
+                    sendStreamDataSource.start();
 
                     if (logger.isTraceEnabled())
                     {
@@ -1752,8 +1752,7 @@ public class MediaStreamImpl
                 }
                 catch (IOException ioe)
                 {
-                    logger
-                        .warn("Failed to start stream " + sendStream, ioe);
+                    logger.warn("Failed to start stream " + sendStream, ioe);
                 }
             }
         }
@@ -2371,6 +2370,9 @@ public class MediaStreamImpl
      */
     public void setRTPTranslator(RTPTranslator rtpTranslator)
     {
-        this.rtpTranslator = rtpTranslator;
+        if (this.rtpTranslator != rtpTranslator)
+        {
+            this.rtpTranslator = rtpTranslator;
+        }
     }
 }

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.transform.rtcp;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
+import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.util.*;
 import net.sf.fmj.media.rtp.*;
 
@@ -112,17 +113,18 @@ public class StatisticsEngine
 
                     lost = feedback.getNumLost();
 
-                    // As sender reports are send on every 5 seconds
-                    // print every 4th packet, on every 20 seconds
+                    // As sender reports are sent on every 5 seconds, print
+                    // every 4th packet, on every 20 seconds.
                     if(numberOfSenderReports % 4 != 1)
                         return pkt;
 
                     StringBuilder buff = new StringBuilder(RTP_STAT_PREFIX);
+                    MediaFormat mediaStreamFormat = mediaStream.getFormat();
 
                     buff.append("Sending a report for ")
-                        .append(mediaStream.getFormat() != null ?
-                                mediaStream.getFormat().getMediaType()
-                                : "")
+                        .append(mediaStreamFormat != null
+                                    ? mediaStreamFormat.getMediaType()
+                                    : "")
                         .append(" stream SSRC:")
                         .append(feedback.getSSRC())
                         .append(" [packet count:")

@@ -190,7 +190,6 @@ public class CsrcTransformEngine
     {
         this.csrcAudioLevelExtID = extID;
         this.audioLevelDirection = dir;
-
     }
 
     /**
