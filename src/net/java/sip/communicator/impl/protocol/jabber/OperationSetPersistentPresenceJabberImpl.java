@@ -897,9 +897,20 @@ public class OperationSetPersistentPresenceJabberImpl
     /**
      * Manage changes of statuses by resource.
      */
-    private class ContactChangesListener
+    class ContactChangesListener
         implements RosterListener
     {
+        /**
+         * Store events for later processing, used when
+         * initializing contactlist.
+         */
+        private boolean storeEvents = false;
+
+        /**
+         * Stored presences for later processing.
+         */
+        private List<Presence> storedPresences = null;
+
         /**
          * Map containing all statuses for a userID.
          */
@@ -937,12 +948,41 @@ public class OperationSetPersistentPresenceJabberImpl
         }
 
         /**
+         * Sets store events to true.
+         */
+        void storeEvents()
+        {
+            this.storedPresences = new ArrayList<Presence>();
+            this.storeEvents = true;
+        }
+
+        /**
+         * Process stored presences.
+         */
+        void processStoredEvents()
+        {
+            storeEvents = false;
+            for(Presence p : storedPresences)
+            {
+                firePresenceStatusChanged(p);
+            }
+            storedPresences.clear();
+            storedPresences = null;
+        }
+
+        /**
          * Fires the status change, respecting resource priorities.
          *
          * @param presence the presence changed.
          */
         void firePresenceStatusChanged(Presence presence)
         {
+            if(storeEvents && storedPresences != null)
+            {
+                storedPresences.add(presence);
+                return;
+            }
+
             try
             {
                 String userID

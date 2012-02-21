@@ -745,20 +745,23 @@ public class ServerStoredContactListJabberImpl
      * roster that this list is to use for retrieving
      * server stored information
      */
-    void init(RosterListener presenceChangeListener)
+    void init(OperationSetPersistentPresenceJabberImpl.ContactChangesListener
+                  presenceChangeListener)
     {
         this.roster = jabberProvider.getConnection().getRoster();
+        presenceChangeListener.storeEvents();
         this.roster.addRosterListener(presenceChangeListener);
         this.roster.setSubscriptionMode(Roster.SubscriptionMode.manual);
 
         initRoster();
+        presenceChangeListener.processStoredEvents();
 
         rosterChangeListener = new ChangeListener();
         this.roster.addRosterListener(rosterChangeListener);
     }
 
     /**
-     * Cleanups references and listers.
+     * Cleanups references and listeners.
      */
     void cleanup()
     {
@@ -861,8 +864,7 @@ public class ServerStoredContactListJabberImpl
             if(group == null)
             {
                 // create the group as it doesn't exist
-                ContactGroupJabberImpl newGroup =
-                new ContactGroupJabberImpl(
+                ContactGroupJabberImpl newGroup = new ContactGroupJabberImpl(
                     item, item.getEntries().iterator(), this, true);
 
                 rootGroup.addSubGroup(newGroup);
@@ -870,6 +872,18 @@ public class ServerStoredContactListJabberImpl
                 //tell listeners about the added group
                 fireGroupEvent(newGroup
                                , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+
+                // if presence was already received it,
+                // we must check & dispatch it
+                if(roster != null)
+                {
+                    Iterator<Contact> cIter = newGroup.contacts();
+                    while(cIter.hasNext())
+                    {
+                        parentOperationSet.firePresenceStatusChanged(
+                            roster.getPresence(cIter.next().getAddress()));
+                    }
+                }
             }
             else
             {
@@ -987,6 +1001,15 @@ public class ServerStoredContactListJabberImpl
             if (logger.isDebugEnabled())
                 logger.debug("No presence op. set available. Bailing out.");
             return;
+        }
+
+        // if we are already registered(roster != null) and we are currently
+        // creating the contact list, presences maybe already received
+        // before we have created the contacts, so lets check
+        if(roster != null)
+        {
+            parentOperationSet.firePresenceStatusChanged(
+                    roster.getPresence(contact.getAddress()));
         }
 
         // dispatch
