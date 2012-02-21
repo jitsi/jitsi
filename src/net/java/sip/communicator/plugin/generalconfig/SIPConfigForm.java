@@ -30,7 +30,7 @@ public class SIPConfigForm
 
         TransparentPanel sipClientPortConfigPanel = new TransparentPanel();
         sipClientPortConfigPanel.setLayout(new BorderLayout(10, 10));
-        sipClientPortConfigPanel.setPreferredSize(new Dimension(250, 72));
+        sipClientPortConfigPanel.setPreferredSize(new Dimension(250, 100));
 
         add(sipClientPortConfigPanel, BorderLayout.NORTH);
 
@@ -43,6 +43,10 @@ public class SIPConfigForm
             BorderLayout.WEST);
         sipClientPortConfigPanel.add(valuePanel,
             BorderLayout.CENTER);
+        sipClientPortConfigPanel.add(new JLabel(
+            Resources.getString(
+                "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN")),
+            BorderLayout.SOUTH);
 
         labelPanel.add(new JLabel(
             Resources.getString(
@@ -50,6 +54,9 @@ public class SIPConfigForm
         labelPanel.add(new JLabel(
             Resources.getString(
                 "plugin.generalconfig.SIP_CLIENT_SECURE_PORT")));
+        labelPanel.add(new JLabel(
+            Resources.getString(
+                "plugin.generalconfig.SIP_SSL_PROTOCOLS")));
 
         final JTextField clientPortField = new JTextField(6);
         clientPortField.setText(
@@ -133,6 +140,24 @@ public class SIPConfigForm
             {
                 oldValue = clientSecurePortField.getText();
             }
+        });
+
+        final JTextField sslProtocols = new SIPCommTextField(
+            Resources.getString(
+                "plugin.generalconfig.SIP_SSL_PROTOCOLS_EXAMPLE",
+                new String[]{"SSLv3, TLSv1"}));
+        sslProtocols.setText(
+            String.valueOf(ConfigurationManager.getSSLProtocols()));
+        valuePanel.add(sslProtocols);
+        sslProtocols.addFocusListener(new FocusListener()
+        {
+            public void focusLost(FocusEvent e)
+            {
+                ConfigurationManager.setSSLProtocols(sslProtocols.getText());
+            }
+
+            public void focusGained(FocusEvent e)
+            {}
         });
     }
 }

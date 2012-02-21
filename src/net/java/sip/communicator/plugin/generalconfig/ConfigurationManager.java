@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
 
 public class ConfigurationManager
 {
@@ -611,5 +612,22 @@ public class ConfigurationManager
         return configService.getInt(
             ProtocolProviderFactory.PREFERRED_SECURE_PORT_PROPERTY_NAME,
             5061);
+    }
+
+    public static String getSSLProtocols()
+    {
+        return configService
+            .getString("gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS", "");
+    }
+
+    public static void setSSLProtocols(String enabledProtocols)
+    {
+        if(StringUtils.isNullOrEmpty(enabledProtocols, true))
+            configService.removeProperty(
+                "gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS");
+        else
+            configService.setProperty(
+                "gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS",
+                    enabledProtocols);
     }
 }

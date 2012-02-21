@@ -6,8 +6,13 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.sip.net.*;
 
@@ -21,6 +26,9 @@ public class SipStackProperties
     extends Properties
 {
     private static final long serialVersionUID = 0L;
+
+    private static final Logger logger
+        = Logger.getLogger(SipStackProperties.class);
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find
@@ -190,6 +198,13 @@ public class SipStackProperties
         "javax.sip.STACK_NAME";
 
     /**
+     * The name of the property that defines the supported SSL protocols of the
+     * JSIP stack.
+     */
+    private static final String NSPNAME_TLS_CLIENT_PROTOCOLS =
+        "gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS";
+
+    /**
      * Init sip stack properties.
      */
     public SipStackProperties()
@@ -293,5 +308,30 @@ public class SipStackProperties
 
         this.setProperty("gov.nist.javax.sip.NETWORK_LAYER", 
             SslNetworkLayer.class.getName());
+
+        try
+        {
+            String enabledSslProtocols = SipActivator.getConfigurationService()
+                .getString(NSPNAME_TLS_CLIENT_PROTOCOLS);
+            if(StringUtils.isNullOrEmpty(enabledSslProtocols, true))
+            {
+                SSLSocket temp = (SSLSocket) SSLSocketFactory
+                    .getDefault().createSocket();
+                String[] enabledDefaultProtocols = temp.getEnabledProtocols();
+                enabledSslProtocols = "";
+                for(int i = 0; i < enabledDefaultProtocols.length; i++)
+                {
+                    enabledSslProtocols += enabledDefaultProtocols[i];
+                    if(i < enabledDefaultProtocols.length - 1)
+                        enabledSslProtocols += ",";
+                }
+            }
+            this.setProperty(NSPNAME_TLS_CLIENT_PROTOCOLS, enabledSslProtocols);
+        }
+        catch(IOException ex)
+        {
+            logger.error("Unable to obtain default SSL protocols from Java,"
+                + " using JSIP defaults.", ex);
+        }
     }
 }
