@@ -472,4 +472,28 @@ public class OperationSetContactCapabilitiesJabberImpl
             && evt.getNewStatus().getStatus() < PresenceStatus.ONLINE_THRESHOLD)
             capsManager.removeUserCapsNode(evt.getSourceContact().getAddress());
     }
+
+    /**
+     * Fires event that contact capabilities has changed.
+     * @param user the user to search for its contact.
+     */
+    public void fireContactCapabilitiesChanged(String user)
+    {
+        OperationSetPresence opsetPresence
+            = parentProvider.getOperationSet(OperationSetPresence.class);
+
+        if (opsetPresence != null)
+        {
+            String jid = StringUtils.parseBareAddress(user);
+            Contact contact = opsetPresence.findContactByID(jid);
+
+            if(contact != null)
+            {
+                fireContactCapabilitiesEvent(
+                    contact,
+                    ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
+                    getSupportedOperationSets(contact, true));
+            }
+        }
+    }
 }

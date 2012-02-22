@@ -1242,7 +1242,7 @@ public class ProtocolProviderServiceJabberImpl
 
         discoveryManager
             = new ScServiceDiscoveryManager(
-                    connection,
+                    this,
                     // Remove features supported by smack, but not supported in
                     // SIP Communicator.
                     new String[] { "http://jabber.org/protocol/commands" },
@@ -1305,7 +1305,11 @@ public class ProtocolProviderServiceJabberImpl
             }
             finally
             {
-                discoveryManager = null;
+                if(discoveryManager != null)
+                {
+                    discoveryManager.stop();
+                    discoveryManager = null;
+                }
             }
         }
     }
@@ -2060,7 +2064,11 @@ public class ProtocolProviderServiceJabberImpl
 
         try
         {
-            DiscoverInfo featureInfo = discoveryManager.discoverInfo(jid);
+            DiscoverInfo featureInfo =
+                discoveryManager.discoverInfoNonBlocking(jid);
+
+            if(featureInfo == null)
+                return isFeatureListSupported;
 
             for (String feature : features)
             {

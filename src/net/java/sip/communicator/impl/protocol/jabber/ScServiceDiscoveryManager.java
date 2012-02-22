@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
@@ -62,6 +63,11 @@ public class ScServiceDiscoveryManager
     private final ServiceDiscoveryManager discoveryManager;
 
     /**
+     * The parent provider
+     */
+    private final ProtocolProviderServiceJabberImpl parentProvider;
+
+    /**
      * The {@link XMPPConnection} that this manager is responsible for.
      */
     private final XMPPConnection connection;
@@ -89,11 +95,15 @@ public class ScServiceDiscoveryManager
     private final List<String> extCapabilities = new ArrayList<String>();
 
     /**
+     * The runnable responsible for retrieving discover info.
+     */
+    private DiscoveryInfoRetriever retriever = new DiscoveryInfoRetriever();
+
+    /**
      * Creates a new <tt>ScServiceDiscoveryManager</tt> wrapping the default
      * discovery manager of the specified <tt>connection</tt>.
      *
-     * @param connection the {@link XMPPConnection} that this discovery manager
-     * will be operating in.
+     * @param parentProvider the parent provider that creates discovery manager.
      * @param featuresToRemove an array of <tt>String</tt>s representing the
      * features to be removed from the <tt>ServiceDiscoveryManager</tt> of the
      * specified <tt>connection</tt> which is to be wrapped by the new instance
@@ -103,10 +113,13 @@ public class ScServiceDiscoveryManager
      * which is to be wrapped by the new instance
      */
     public ScServiceDiscoveryManager(
-            XMPPConnection connection,
+            ProtocolProviderServiceJabberImpl parentProvider,
             String[] featuresToRemove,
             String[] featuresToAdd)
     {
+        this.parentProvider = parentProvider;
+        this.connection = parentProvider.getConnection();
+
         this.discoveryManager
             = ServiceDiscoveryManager.getInstanceFor(connection);
 
@@ -147,8 +160,6 @@ public class ScServiceDiscoveryManager
         }
 
         // For every XMPPConnection, add one EntityCapsManager.
-        this.connection = connection;
-
         this.capsManager = new EntityCapsManager();
         capsManager.addPacketListener(connection);
 
@@ -458,7 +469,8 @@ public class ScServiceDiscoveryManager
 
         EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
 
-        if (CACHE_NON_CAPS && (caps == null))
+        // if caps is not valid, has empty hash
+        if (CACHE_NON_CAPS && (caps == null || caps.hash.equals("")))
         {
             discoverInfo = nonCapsCache.get(entityID);
             if (discoverInfo != null)
@@ -489,6 +501,40 @@ public class ScServiceDiscoveryManager
         else
             EntityCapsManager.addDiscoverInfoByCaps(caps, discoverInfo);
         return discoverInfo;
+    }
+
+    /**
+     * Returns the discovered information of a given XMPP entity addressed by
+     * its JID if locally cached, otherwise schedules for retrieval.
+     *
+     * @param entityID the address of the XMPP entity.
+     * @return the discovered information.
+     * @throws XMPPException if the operation failed for some reason.
+     */
+    public DiscoverInfo discoverInfoNonBlocking(String entityID)
+        throws XMPPException
+    {
+        DiscoverInfo discoverInfo = capsManager.getDiscoverInfoByUser(entityID);
+
+        if (discoverInfo != null)
+            return discoverInfo;
+
+        EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
+
+        // if caps is not valid, has empty hash
+        if (CACHE_NON_CAPS && (caps == null || caps.hash.equals("")))
+        {
+            discoverInfo = nonCapsCache.get(entityID);
+            if (discoverInfo != null)
+                return discoverInfo;
+        }
+
+        // add to retrieve thread
+        retriever.addEntityForRetrieve(
+            entityID,
+            caps);
+
+        return null;
     }
 
     /**
@@ -581,5 +627,205 @@ public class ScServiceDiscoveryManager
     public EntityCapsManager getCapsManager()
     {
         return capsManager;
+    }
+
+    /**
+     * Clears/stops what's needed.
+     */
+    public void stop()
+    {
+        if(retriever != null)
+            retriever.stop();
+    }
+
+    /**
+     * Thread that runs the discovery info.
+     */
+    private class DiscoveryInfoRetriever
+        implements Runnable
+    {
+        /**
+         * start/stop.
+         */
+        private boolean stopped = true;
+
+        /**
+         * The thread that runs this dispatcher.
+         */
+        private Thread retrieverThread = null;
+
+        /**
+         * Entities to be processed and their caps.
+         * HashMap so we can store null caps.
+         */
+        private Map<String, EntityCapsManager.Caps> entities
+            = new HashMap<String, EntityCapsManager.Caps>();
+
+        /**
+         * Our capability operation set.
+         */
+        private OperationSetContactCapabilitiesJabberImpl capabilitiesOpSet;
+
+        /**
+         * Runs in different thread.
+         */
+        public void run()
+        {
+            try
+            {
+                stopped = false;
+
+                while(!stopped)
+                {
+                    Map.Entry<String, EntityCapsManager.Caps>
+                        entityToProcess = null;
+
+                    synchronized(entities)
+                    {
+                        if(entities.size() == 0)
+                        {
+                            try
+                            {
+                                entities.wait();
+                            }
+                            catch (InterruptedException iex){}
+                        }
+
+                        Iterator<Map.Entry<String, EntityCapsManager.Caps>>
+                            iter = entities.entrySet().iterator();
+                        if(iter.hasNext())
+                        {
+                            entityToProcess = iter.next();
+                            iter.remove();
+                        }
+                    }
+
+                    if(entityToProcess != null)
+                    {
+                        // process
+                        requestDiscoveryInfo(
+                            entityToProcess.getKey(),
+                            entityToProcess.getValue());
+                    }
+
+                    entityToProcess = null;
+                }
+            } catch(Throwable t)
+            {
+                logger.error("Error requesting discovery info, " +
+                    "thread ended unexpectedly", t);
+            }
+        }
+
+        /**
+         * Requests the discovery info and fires the event if
+         * retrieved.
+         * @param entityID the entity to request
+         * @param caps and its capability.
+         */
+        private void requestDiscoveryInfo(final String entityID,
+                                          EntityCapsManager.Caps caps)
+        {
+            try
+            {
+                DiscoverInfo discoverInfo = discoverInfo(
+                            entityID,
+                            (caps == null ) ? null : caps.getNodeVer());
+
+                if ((caps != null) && !caps.isValid(discoverInfo))
+                {
+                    if(!caps.hash.equals(""))
+                    {
+                        logger.error("Invalid DiscoverInfo for "
+                            + caps.getNodeVer() + ": " + discoverInfo);
+                    }
+                    caps = null;
+                }
+
+                boolean fireEvent;
+
+                if (caps == null)
+                {
+                    if (CACHE_NON_CAPS)
+                    {
+                        nonCapsCache.put(entityID, discoverInfo);
+                        fireEvent = true;
+                    }
+                }
+                else
+                {
+                    EntityCapsManager.addDiscoverInfoByCaps(caps, discoverInfo);
+                    fireEvent = true;
+                }
+
+                // fire event
+                if(fireEvent && capabilitiesOpSet != null)
+                {
+                    capabilitiesOpSet.fireContactCapabilitiesChanged(entityID);
+                }
+            }
+            catch(XMPPException ex)
+            {
+                logger.error("Error requesting discover info for " + entityID,
+                            ex);
+            }
+        }
+
+        /**
+         * Queue entities for retrieval.
+         * @param entityID the entity.
+         * @param caps and its capability.
+         */
+        public void addEntityForRetrieve(String entityID,
+                                         EntityCapsManager.Caps caps)
+        {
+            synchronized(entities)
+            {
+
+                if(!entities.containsKey(entityID))
+                {
+                    entities.put(entityID, caps);
+                    entities.notifyAll();
+                    
+                    if(retrieverThread == null)
+                    {
+                        start();
+                    }
+                }
+            }
+        }
+
+        /**
+         * Start thread.
+         */
+        private void start()
+        {
+            capabilitiesOpSet = (OperationSetContactCapabilitiesJabberImpl)
+                parentProvider.getOperationSet(
+                    OperationSetContactCapabilities.class);
+
+            retrieverThread = new Thread(
+                this,
+                ScServiceDiscoveryManager.class.getName());
+            retrieverThread.setDaemon(true);
+
+            retrieverThread.start();
+
+
+        }
+
+        /**
+         * Stops and clears.
+         */
+        void stop()
+        {
+            synchronized(entities)
+            {
+                stopped = true;
+                entities.notifyAll();
+
+                retrieverThread = null;
+            }
+        }
     }
 }
