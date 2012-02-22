@@ -329,4 +329,13 @@ public interface MediaStream
      * and RTCP traffic between this and other <tt>MediaStream</tt>s
      */
     public void setRTPTranslator(RTPTranslator rtpTranslator);
+
+    /**
+     * Returns a MediaStreamStats object used to get statistics about this
+     * MediaStream.
+     *
+     * @return the MediaStreamStats object used to compute the statistics about
+     * this MediaStream.
+     */
+    public MediaStreamStats getMediaStreamStats();
 }

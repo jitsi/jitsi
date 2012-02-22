@@ -222,6 +222,12 @@ public class MediaStreamImpl
     private StatisticsEngine statisticsEngine = null;
 
     /**
+     * The MediaStreamStatsImpl object used to compute the statistics about
+     * this MediaStreamImpl.
+     */
+    private MediaStreamStatsImpl mediaStreamStatsImpl;
+
+    /**
      * Initializes a new <tt>MediaStreamImpl</tt> instance which will use the
      * specified <tt>MediaDevice</tt> for both capture and playback of media.
      * The new instance will not have an associated <tt>StreamConnector</tt> and
@@ -271,6 +277,9 @@ public class MediaStreamImpl
 
         if (connector != null)
             setConnector(connector);
+
+        this.mediaStreamStatsImpl = new MediaStreamStatsImpl(this);
+
     }
 
     /**
@@ -878,7 +887,7 @@ public class MediaStreamImpl
      * @return the <tt>MediaDeviceSession</tt> which represents the work of this
      * <tt>MediaStream</tt> with its associated <tt>MediaDevice</tt>
      */
-    protected MediaDeviceSession getDeviceSession()
+    public MediaDeviceSession getDeviceSession()
     {
         return deviceSession;
     }
@@ -1039,6 +1048,64 @@ public class MediaStreamImpl
     }
 
     /**
+     * Gets the local address that this stream is sending RTCP traffic from.
+     *
+     * @return an <tt>InetSocketAddress</tt> instance indicating the local
+     * address that this stream is sending RTCP traffic from.
+     * @see MediaStream#getLocalControlAddress()
+     */
+    public InetSocketAddress getLocalControlAddress()
+    {
+        StreamConnector connector =
+            (rtpConnector != null) ? rtpConnector.getConnector() : null;
+
+        if(connector != null)
+        {
+            if(connector.getDataSocket() != null)
+            {
+                return (InetSocketAddress)connector.getControlSocket().
+                    getLocalSocketAddress();
+            }
+            else if(connector.getDataTCPSocket() != null)
+            {
+                return (InetSocketAddress)connector.getControlTCPSocket().
+                    getLocalSocketAddress();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the local address that this stream is sending RTP traffic from.
+     *
+     * @return an <tt>InetSocketAddress</tt> instance indicating the local
+     * address that this stream is sending RTP traffic from.
+     * @see MediaStream#getLocalDataAddress()
+     */
+    public InetSocketAddress getLocalDataAddress()
+    {
+        StreamConnector connector =
+            (rtpConnector != null) ? rtpConnector.getConnector() : null;
+
+        if(connector != null)
+        {
+            if(connector.getDataSocket() != null)
+            {
+                return (InetSocketAddress)connector.getDataSocket().
+                    getLocalSocketAddress();
+            }
+            else if(connector.getDataTCPSocket() != null)
+            {
+                return (InetSocketAddress)connector.getDataTCPSocket().
+                    getLocalSocketAddress();
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Get the synchronization source (SSRC) identifier of the remote peer or
      * <tt>-1</tt> if it is not yet known.
      *
@@ -1070,7 +1137,7 @@ public class MediaStreamImpl
      * @return the <tt>RTPManager</tt> instance which sends and receives RTP and
      * RTCP traffic on behalf of this <tt>MediaStream</tt>
      */
-    private StreamRTPManager getRTPManager()
+    public StreamRTPManager getRTPManager()
     {
         if (rtpManager == null)
         {
@@ -2374,5 +2441,17 @@ public class MediaStreamImpl
         {
             this.rtpTranslator = rtpTranslator;
         }
+    }
+
+    /**
+     * Returns a MediaStreamStats object used to get statistics about this
+     * MediaStream.
+     *
+     * @return the MediaStreamStats object used to compute the statistics about
+     * this MediaStream.
+     */
+    public MediaStreamStats getMediaStreamStats()
+    {
+        return this.mediaStreamStatsImpl;
     }
 }

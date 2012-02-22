@@ -57,6 +57,12 @@ public class CallPanel
     private static final Logger logger = Logger.getLogger(CallDialog.class);
 
     /**
+     * Property to disable the info button.
+     */
+    private static final String SHOW_CALL_INFO_BUTON_PROP =
+        "net.java.sip.communicator.impl.gui.main.call.SHOW_CALL_INFO_BUTTON";
+
+    /**
      * The dial button name.
      */
     private static final String DIAL_BUTTON = "DIAL_BUTTON";
@@ -70,6 +76,11 @@ public class CallPanel
      * The chat button name.
      */
     private static final String CHAT_BUTTON = "CHAT_BUTTON";
+
+    /**
+     * The info button name.
+     */
+    private static final String INFO_BUTTON = "INFO_BUTTON";
 
     /**
      * The hang up button name.
@@ -158,6 +169,16 @@ public class CallPanel
      * Chat button.
      */
     private SIPCommButton chatButton;
+
+    /**
+     * Info button.
+     */
+    private SIPCommButton infoButton;
+
+    /**
+     * The Frame used to display this call information statistics.
+     */
+    private CallInfoFrame callInfoFrame;
 
     /**
      * HangUp button.
@@ -392,6 +413,23 @@ public class CallPanel
             addConferenceSpecificComponents();
         }
 
+        if(GuiActivator.getConfigurationService()
+                .getBoolean(SHOW_CALL_INFO_BUTON_PROP, true))
+        {
+            this.callInfoFrame = new CallInfoFrame(call);
+            this.addCallTitleListener(callInfoFrame);
+
+            infoButton = new SIPCommButton(
+                    ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+                    ImageLoader.getImage(ImageLoader.CALL_INFO));
+            infoButton.setName(INFO_BUTTON);
+            infoButton.setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.PRESS_FOR_CALL_INFO"));
+            infoButton.addActionListener(this);
+            settingsPanel.add(infoButton);
+        }
+
         dtmfHandler = new DTMFHandler(this);
 
         JComponent bottomBar = createBottomBar();
@@ -460,6 +498,10 @@ public class CallPanel
                     .startChat(metaContact);
             }
         }
+        else if (buttonName.equals(INFO_BUTTON))
+        {
+            callInfoFrame.setVisible(!callInfoFrame.isVisible());
+        }
     }
 
     /**
@@ -472,6 +514,8 @@ public class CallPanel
     public void actionPerformedOnHangupButton(boolean isCloseWait)
     {
         Call call = getCall();
+
+        this.callInfoFrame.dispose();
 
         if (call != null)
             CallManager.hangupCall(call);

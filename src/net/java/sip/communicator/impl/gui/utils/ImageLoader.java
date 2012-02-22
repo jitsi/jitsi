@@ -836,6 +836,12 @@ public class ImageLoader
         new ImageID("service.gui.buttons.FULL_SCREEN_BUTTON_BG_PRESSED");
 
     /**
+     * The call information button icon used in the call panel.
+     */
+    public static final ImageID CALL_INFO =
+        new ImageID("service.gui.buttons.CALL_INFO");
+
+    /**
      * The image used, when a contact has no photo specified.
      */
     public static final ImageID DEFAULT_USER_PHOTO
