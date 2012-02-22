@@ -64,7 +64,7 @@ public class ContactListTransferHandler
      * <tt>Transferable</tt>
      * @return the created <tt>Transferable</tt>
      */
-    public Transferable createTransferable(JComponent component)
+    protected Transferable createTransferable(JComponent component)
     {
         if (component instanceof JTree)
         {

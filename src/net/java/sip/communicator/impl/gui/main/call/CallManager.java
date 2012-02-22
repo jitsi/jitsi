@@ -154,6 +154,7 @@ public class CallManager
          * Implements CallListener.callEnded. Stops sounds that are playing at
          * the moment if there're any. Removes the call panel and disables the
          * hang up button.
+         *
          * @param event the <tt>CallEvent</tt>
          */
         public void callEnded(CallEvent event)
@@ -163,6 +164,23 @@ public class CallManager
             if (activeCalls.get(sourceCall) != null)
             {
                 CallPanel callContainer = activeCalls.get(sourceCall);
+
+                CallGroup group = sourceCall.getCallGroup();
+
+                if(group != null)
+                {
+                    for (Call c : group.getCalls())
+                    {
+                        if (c == sourceCall)
+                            continue;
+                        CallPanel container = activeCalls.get(c);
+                        if (container != null)
+                        {
+                            activeCalls.remove(c);
+                            container.getCallWindow().close(container);
+                        }
+                    }
+                }
 
                 activeCalls.remove(sourceCall);
 

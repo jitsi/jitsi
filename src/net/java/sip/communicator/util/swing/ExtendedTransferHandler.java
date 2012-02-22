@@ -26,13 +26,18 @@ import net.java.sip.communicator.util.*;
  * we only accept pasting of plain text. We do this in order to avoid HTML
  * support problems that appear when pasting formatted text into our editable
  * area.
- * 
+ *
  * @author Emil Ivov
  * @author Yana Stamcheva
  */
 public class ExtendedTransferHandler
     extends TransferHandler
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Returns the type of transfer actions supported by the source;
      * any bitwise-OR combination of <tt>COPY</tt>, <tt>MOVE</tt>
@@ -97,10 +102,10 @@ public class ExtendedTransferHandler
      * <tt>Transferable</tt>
      * @return the created <tt>Transferable</tt>
      */
-    public Transferable createTransferable(JComponent component)
+    protected Transferable createTransferable(JComponent component)
     {
-        if (component instanceof JTextPane
-            || component instanceof JTextField)
+        if ((component instanceof JTextPane
+            || component instanceof JTextField))
         {
             return new SelectedTextTransferable((JTextComponent) component);
         }
@@ -275,6 +280,11 @@ public class ExtendedTransferHandler
     private static class SwingDragGestureRecognizer
         extends DragGestureRecognizer
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         SwingDragGestureRecognizer(DragGestureListener dgl)
         {
             super(DragSource.getDefaultDragSource(), null, NONE, dgl);

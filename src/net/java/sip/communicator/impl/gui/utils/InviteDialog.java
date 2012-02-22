@@ -130,7 +130,13 @@ public class InviteDialog
         final DefaultContactList selectedContactList = new DefaultContactList();
 
         contactList.setModel(contactListModel);
+        contactList.setDragEnabled(true);
+        contactList.setTransferHandler(new InviteContactTransferHandler(this,
+            false));
         selectedContactList.setModel(selectedContactListModel);
+        selectedContactList.setTransferHandler(
+            new InviteContactTransferHandler(this, true));
+        selectedContactList.setDragEnabled(true);
 
         contactList.addMouseListener(new MouseAdapter()
         {
@@ -201,7 +207,7 @@ public class InviteDialog
         TransparentPanel leftPanel = new TransparentPanel(new BorderLayout());
         leftPanel.setBorder(SIPCommBorders.getRoundBorder());
         leftPanel.add(contactListScrollPane);
-        leftPanel.add(getNewContactPanel(), BorderLayout.SOUTH);
+        leftPanel.add(newContactField, BorderLayout.SOUTH);
 
         JPanel listPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         listPanel.setPreferredSize(new Dimension(400, 200));
@@ -264,6 +270,26 @@ public class InviteDialog
     }
 
     /**
+     * Adds the given <tt>metaContact</tt> to the right list (selected) of
+     * contacts for invite.
+     * @param metaContact the <tt>MetaContact</tt> to add
+     */
+    public void addSelectedMetaContact(MetaContact metaContact)
+    {
+        selectedContactListModel.addElement(metaContact);
+    }
+
+    /**
+     * Removes the given <tt>metaContact</tt> from the right list (selected) of
+     * contacts available for invite.
+     * @param metaContact the <tt>MetaContact</tt> to remove
+     */
+    public void removeSelectedMetaContact(MetaContact metaContact)
+    {
+        selectedContactListModel.removeElement(metaContact);
+    }
+
+    /**
      * Adds the given <tt>metaContact</tt> to the left list of contacts
      * available for invite.
      * @param metaContact the <tt>MetaContact</tt> to add
@@ -276,7 +302,7 @@ public class InviteDialog
     /**
      * Removes the given <tt>metaContact</tt> from the left list of contacts
      * available for invite.
-     * @param metaContact the <tt>MetaContact</tt> to add
+     * @param metaContact the <tt>MetaContact</tt> to remove
      */
     public void removeMetaContact(MetaContact metaContact)
     {
@@ -413,7 +439,7 @@ public class InviteDialog
      *
      * @param contacts the contact to move.
      */
-    private void moveContactsFromRightToLeft(Object[] contacts)
+    protected void moveContactsFromRightToLeft(Object[] contacts)
     {
         for (Object contact : contacts)
         {
@@ -447,15 +473,5 @@ public class InviteDialog
     {
         iconLabel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.INVITE_DIALOG_ICON)));
-    }
-
-    /**
-     * Get the <tt>newContact</tt> component.
-     *
-     * @return the <tt>newContact</tt> component.
-     */
-    public JComponent getNewContactPanel()
-    {
-        return newContactField;
     }
 }

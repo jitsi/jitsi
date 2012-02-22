@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.gui.main.call.conference;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List; //disambiguation
+import java.util.List; // disambiguation
 
 import javax.swing.*;
 
@@ -37,7 +37,12 @@ public class ConferenceInviteDialog
     /**
      * The account selector box.
      */
-    private ProtocolProviderSelectorBox accountBox;
+    private final JComboBox accountSelectorBox = new JComboBox();
+
+    /**
+     * The last selected account.
+     */
+    private Object lastSelectedAccount;
 
     /**
      * The call.
@@ -57,25 +62,79 @@ public class ConferenceInviteDialog
 
         this.call = call;
 
+        JLabel accountSelectorLabel = new JLabel(
+            GuiActivator.getResources().getI18NString("service.gui.CALL_VIA"));
+
         TransparentPanel accountSelectorPanel
             = new TransparentPanel(new BorderLayout());
 
         accountSelectorPanel.setBorder(
             BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        accountSelectorPanel.add(accountSelectorLabel, BorderLayout.WEST);
+        accountSelectorPanel.add(accountSelectorBox, BorderLayout.CENTER);
+
+        // Initialize the account selector box.
+        this.initAccountListData();
 
         // init the list, as we check whether features are supported
         // it may take some time if we have too much contacts
-        SwingUtilities.invokeLater(
-            new Runnable()
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
             {
-                public void run()
-                {
-                    // Initialize the list of contacts to select from.
-                    initContactListData();
-                }
-            });
+                // Initialize the list of contacts to select from.
+                initContactListData(
+                    (ProtocolProviderService) accountSelectorBox
+                        .getSelectedItem());
+            }
+        });
 
         this.getContentPane().add(accountSelectorPanel, BorderLayout.NORTH);
+
+        this.accountSelectorBox.setRenderer(new DefaultListCellRenderer()
+        {
+            private static final long serialVersionUID = 0L;
+
+            public Component getListCellRendererComponent(JList list,
+                Object value, int index, boolean isSelected,
+                boolean cellHasFocus)
+            {
+                ProtocolProviderService protocolProvider
+                     = (ProtocolProviderService) value;
+
+                if (protocolProvider != null)
+                {
+                    this.setText(
+                        protocolProvider.getAccountID().getDisplayName());
+                    this.setIcon(
+                        ImageLoader.getAccountStatusImage(protocolProvider));
+                }
+
+                return this;
+            }
+        });
+
+        this.accountSelectorBox.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                Object accountSelectorBoxSelectedItem
+                    = accountSelectorBox.getSelectedItem();
+
+                if (lastSelectedAccount == null
+                    || !lastSelectedAccount
+                        .equals(accountSelectorBoxSelectedItem))
+                {
+                    lastSelectedAccount = accountSelectorBoxSelectedItem;
+
+                    //removeAllSelectedContacts();
+
+                    initContactListData(
+                        (ProtocolProviderService) accountSelectorBox
+                            .getSelectedItem());
+                }
+            }
+        });
 
         this.addInviteButtonListener(new ActionListener()
         {
@@ -84,7 +143,16 @@ public class ConferenceInviteDialog
                 if (getSelectedMetaContacts() != null
                     || getSelectedStrings() != null)
                 {
+                    ProtocolProviderService selectedProvider
+                        = (ProtocolProviderService) accountSelectorBox
+                            .getSelectedItem();
+
                     inviteContacts();
+
+                    // Store the last used account in order to pre-select it
+                    // next time.
+                    ConfigurationManager.setLastCallConferenceProvider(
+                        selectedProvider);
 
                     dispose();
                 }
@@ -123,8 +191,6 @@ public class ConferenceInviteDialog
             = GuiActivator.getUIService()
                 .getMainFrame().getProtocolProviders();
 
-        List<ProtocolProviderService> provs =
-            new ArrayList<ProtocolProviderService>();
         while(protocolProviders.hasNext())
         {
             ProtocolProviderService protocolProvider
@@ -136,12 +202,19 @@ public class ConferenceInviteDialog
 
             if (opSet != null && protocolProvider.isRegistered())
             {
-                provs.add(protocolProvider);
+                accountSelectorBox.addItem(protocolProvider);
             }
         }
 
-        if(accountBox == null)
-            accountBox = new ProtocolProviderSelectorBox(provs.iterator());
+        // Obtain the last conference provider used.
+        ProtocolProviderService lastConfProvider
+            = ConfigurationManager.getLastCallConferenceProvider();
+
+        // Try to select the last used account if it's available.
+        if(call != null)
+            accountSelectorBox.setSelectedItem(call.getProtocolProvider());
+        else if (lastConfProvider != null)
+            accountSelectorBox.setSelectedItem(lastConfProvider);
     }
 
     /**
@@ -150,7 +223,7 @@ public class ConferenceInviteDialog
      * @param protocolProvider the protocol provider from which to initialize
      * the contact list data
      */
-    private void initContactListData()
+    private void initContactListData(ProtocolProviderService protocolProvider)
     {
         // re-init list.
         this.removeAllMetaContacts();
@@ -158,27 +231,18 @@ public class ConferenceInviteDialog
         MetaContactListService metaContactListService
             = GuiActivator.getContactListService();
 
-        Iterator<ProtocolProviderService> protocolProviders
-            = GuiActivator.getUIService()
-                .getMainFrame().getProtocolProviders();
+        Iterator<MetaContact> contactListIter = metaContactListService
+            .findAllMetaContactsForProvider(protocolProvider);
 
-        while(protocolProviders.hasNext())
+        while (contactListIter.hasNext())
         {
-            ProtocolProviderService protocolProvider = protocolProviders.next();
+            MetaContact metaContact = contactListIter.next();
 
-            Iterator<MetaContact> contactListIter = metaContactListService
-                .findAllMetaContactsForProvider(protocolProvider);
-
-            while (contactListIter.hasNext())
+            if (!containsContact(metaContact))
             {
-                MetaContact metaContact = contactListIter.next();
-
-                if (!containsContact(metaContact))
-                {
-                    if (metaContact.getDefaultContact(
-                        OperationSetBasicTelephony.class) != null)
-                        addMetaContact(metaContact);
-                }
+                if (metaContact.getDefaultContact(
+                    OperationSetBasicTelephony.class) != null)
+                    addMetaContact(metaContact);
             }
         }
     }
@@ -300,7 +364,8 @@ public class ConferenceInviteDialog
         String newContactText = newContactField.getText();
 
         ContactWithProvider c = new ContactWithProvider(
-            newContactText, accountBox.getSelectedProvider());
+            newContactText, (ProtocolProviderService) accountSelectorBox
+            .getSelectedItem());
         if (newContactText != null && newContactText.length() > 0)
             selectedContactListModel.addElement(c);
 
@@ -327,22 +392,6 @@ public class ConferenceInviteDialog
         }
 
         return selectedStrings.elements();
-    }
-
-    /**
-     * Get the <tt>newContact</tt> component.
-     *
-     * @return the <tt>newContact</tt> component.
-     */
-    @Override
-    public JComponent getNewContactPanel()
-    {
-        initAccountListData();
-
-        JPanel panel = new TransparentPanel(new BorderLayout());
-        panel.add(super.getNewContactPanel(), BorderLayout.CENTER);
-        panel.add(accountBox, BorderLayout.WEST);
-        return panel;
     }
 
     /**
