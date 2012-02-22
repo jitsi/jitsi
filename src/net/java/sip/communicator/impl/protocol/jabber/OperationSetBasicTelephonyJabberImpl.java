@@ -344,7 +344,8 @@ public class OperationSetBasicTelephonyJabberImpl
         boolean isGingle = false;
         String gingleURI = null;
 
-        // choose the resource that has the highest priority AND support Jingle
+        // Choose the resource which has the highest priority AND supports
+        // Jingle.
         while(it.hasNext())
         {
             Presence presence = it.next();
@@ -381,24 +382,14 @@ public class OperationSetBasicTelephonyJabberImpl
                     isGingle = false;
                 }
             }
-            else
+            else if (protocolProvider.isGTalkTesting() /* test GTALK property */
+                    /* see if peer supports Google Talk voice */
+                    && (hasGtalkCaps || alwaysCallGtalk)
+                    && (priority > bestPriority))
             {
-                // test GTALK property
-                if(!protocolProvider.isGTalkTesting())
-                {
-                    continue;
-                }
-
-                /* see if peer supports Google Talk voice */
-                if(hasGtalkCaps || alwaysCallGtalk)
-                {
-                    if(priority > bestPriority)
-                    {
-                        bestPriority = priority;
-                        isGingle = true;
-                        gingleURI = calleeURI;
-                    }
-                }
+                bestPriority = priority;
+                isGingle = true;
+                gingleURI = calleeURI;
             }
         }
 
@@ -417,9 +408,7 @@ public class OperationSetBasicTelephonyJabberImpl
         if(isGingle)
         {
             if(logger.isInfoEnabled())
-            {
                 logger.info(gingleURI + ": Google Talk dialect supported");
-            }
             fullCalleeURI = gingleURI;
         }
         else if(di != null)
@@ -430,8 +419,8 @@ public class OperationSetBasicTelephonyJabberImpl
         else
         {
             if (logger.isInfoEnabled())
-                logger.info(calleeURI +
-                        ": jingle and Google Talk not supported ?");
+                logger.info(
+                        calleeURI + ": jingle and Google Talk not supported?");
 
             throw new OperationFailedException(
                     "Failed to create OutgoingJingleSession.\n"
@@ -440,9 +429,7 @@ public class OperationSetBasicTelephonyJabberImpl
         }
 
         if(logger.isInfoEnabled())
-        {
             logger.info("Choose one is: " + fullCalleeURI + " " + bestPriority);
-        }
 
         AbstractCallPeer<?, ?> peer = null;
 

@@ -480,7 +480,7 @@ public class ScServiceDiscoveryManager
         discoverInfo
             = discoverInfo(
                     entityID,
-                    (caps == null ) ? null : caps.getNodeVer());
+                    (caps == null) ? null : caps.getNodeVer());
 
         if ((caps != null) && !caps.isValid(discoverInfo))
         {

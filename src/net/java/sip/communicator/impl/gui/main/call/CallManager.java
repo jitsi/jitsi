@@ -1608,45 +1608,72 @@ public class CallManager
         @Override
         public void run()
         {
-            CallGroup group = null;
-
-            if(call.getCallGroup() == null)
-            {
-                group = new CallGroup();
-                group.addCall(call);
-            }
-            else
-            {
-                group = call.getCallGroup();
-            }
-
             for(Map.Entry<ProtocolProviderService, List<String>> entry :
                 callees.entrySet())
             {
                 ProtocolProviderService provider = entry.getKey();
-                List<String> contacts = entry.getValue();
+                List<String> contactList = entry.getValue();
 
-                OperationSetBasicTelephony<?> opSetTelephony =
-                    provider.getOperationSet(OperationSetBasicTelephony.class);
+                OperationSetBasicTelephony<?> opSetTelephony
+                    = provider.getOperationSet(
+                            OperationSetBasicTelephony.class);
 
                 if(opSetTelephony != null)
                 {
-                    OperationSetTelephonyConferencing opSetConf =
-                        provider.getOperationSet(
-                            OperationSetTelephonyConferencing.class);
+                    OperationSetTelephonyConferencing opSetConf
+                        = provider.getOperationSet(
+                                OperationSetTelephonyConferencing.class);
 
-                    String[] contactAddressStrings =
-                        new String[contacts.size()];
-                    contacts.toArray(contactAddressStrings);
+                    String[] contactArray
+                        = contactList.toArray(new String[contactList.size()]);
 
                     if (ConfigurationManager.isNormalizePhoneNumber())
+                        normalizePhoneNumbers(contactArray);
+
+                    /* Try to have a single Call per ProtocolProviderService. */
+                    Call providerCall = null;
+                    CallGroup group = null;
+
+                    if (provider.equals(call.getProtocolProvider()))
+                        providerCall = call;
+                    else
                     {
-                        normalizePhoneNumbers(contactAddressStrings);
+                        group = call.getCallGroup();
+                        if (group == null)
+                        {
+                            group = new CallGroup();
+                            group.addCall(call);
+                            call.setCallGroup(group);
+                        }
+                        else
+                        {
+                            for (Call groupCall : group.getCalls())
+                            {
+                                if (provider.equals(
+                                        groupCall.getProtocolProvider()))
+                                {
+                                    providerCall = groupCall;
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                     try
                     {
-                        opSetConf.createConfCall(contactAddressStrings, group);
+                        if (providerCall == null)
+                        {
+                            opSetConf.createConfCall(
+                                    contactArray,
+                                    group);
+                        }
+                        else
+                        {
+                            for (String contact : contactArray)
+                                opSetConf.inviteCalleeToCall(
+                                        contact,
+                                        providerCall);
+                        }
                     }
                     catch(Exception exception)
                     {

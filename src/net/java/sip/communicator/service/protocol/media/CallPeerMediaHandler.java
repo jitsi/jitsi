@@ -576,12 +576,11 @@ public abstract class CallPeerMediaHandler<
     public void setLocalVideoTransmissionEnabled(boolean enabled)
     {
         MediaDirection oldValue = videoDirectionUserPreference;
-        MediaDirection newValue = null;
 
         videoDirectionUserPreference
             = enabled ? MediaDirection.SENDRECV : MediaDirection.RECVONLY;
 
-        newValue = videoDirectionUserPreference;
+        MediaDirection newValue = videoDirectionUserPreference;
 
         /* we do not send an event here if video is enabled because we have to
          * wait video stream starts to have correct MediaDevice set in
@@ -589,7 +588,8 @@ public abstract class CallPeerMediaHandler<
          */
         if(!enabled)
         {
-            firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING,
+            firePropertyChange(
+                    OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING,
                     oldValue, newValue);
         }
     }

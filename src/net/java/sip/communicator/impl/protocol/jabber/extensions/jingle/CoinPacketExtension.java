@@ -43,7 +43,8 @@ public class CoinPacketExtension
     /**
      * Constructs a new <tt>coin</tt> extension.
      *
-     * @param isFocus if the peer is a mixer
+     * @param isFocus <tt>true</tt> if the peer is a conference focus;
+     * otherwise, <tt>false</tt>
      */
     public CoinPacketExtension(boolean isFocus)
     {
