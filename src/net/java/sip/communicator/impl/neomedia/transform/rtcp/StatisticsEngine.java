@@ -71,6 +71,8 @@ public class StatisticsEngine
     }
 
     /**
+     * Transfers RTCP sender report feedback as new information about the
+     * download stream for the MediaStreamStats.
      * Finds the info needed for statistics in the packet and stores it.
      * Then returns the same packet as we are not modifying it.
      *
@@ -79,9 +81,6 @@ public class StatisticsEngine
      */
     public RawPacket transform(RawPacket pkt)
     {
-        if(!logger.isInfoEnabled())
-            return pkt;
-
         try
         {
             numberOfSenderReports++;
@@ -101,6 +100,15 @@ public class StatisticsEngine
                 {
                     RTCPFeedback feedback =
                             (RTCPFeedback)report.getFeedbackReports().get(0);
+
+                    this.mediaStream.getMediaStreamStats()
+                        .updateNewSentFeedback(feedback);
+
+                    // The rest of this function is only used for logging
+                    // purpose. Thus, it is useless to continue if the
+                    // logger is not at least in INFO mode.
+                    if(!logger.isInfoEnabled())
+                        return pkt;
 
                     long jitter = feedback.getJitter();
 
@@ -149,6 +157,8 @@ public class StatisticsEngine
     }
 
     /**
+     * Transfers RTCP sender report feedback as new information about the upload
+     * stream for the MediaStreamStats.
      * Returns the packet as we are listening just for sending packages.
      *
      * @param pkt the packet without any change.
@@ -156,6 +166,32 @@ public class StatisticsEngine
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
+        try
+        {
+            byte[] data = pkt.getBuffer();
+            int offset = pkt.getOffset();
+            int length = pkt.getLength();
+
+            RTCPHeader header = new RTCPHeader(data, offset, length);
+            if (header.getPacketType() == RTCPPacket.SR)
+            {
+                RTCPSenderReport report = new RTCPSenderReport(
+                        data, offset, length);
+
+                if(report.getFeedbackReports().size() > 0)
+                {
+                    RTCPFeedback feedback =
+                            (RTCPFeedback)report.getFeedbackReports().get(0);
+
+                    this.mediaStream.getMediaStreamStats()
+                        .updateNewReceivedFeedback(feedback);
+                }
+            }
+        }
+        catch(Throwable t)
+        {
+            t.printStackTrace();
+        }
         return pkt;
     }
 

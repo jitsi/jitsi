@@ -221,7 +221,7 @@ public class CallPeerInfoPanel
         int remotePort = lastStats.getRemotePort();
 
         // Computes the download loss rate for this stream.
-        double downloadPercentLost = lastStats.getDownloadPercentLost();
+        double downloadPercentLoss = lastStats.getDownloadPercentLoss();
         // Computes the doawnload bandwidth used by this stream.
         double downloadRateKiloBitPerSec =
             lastStats.getDownloadRateKiloBitPerSec();
@@ -229,7 +229,7 @@ public class CallPeerInfoPanel
         double downloadJitterMs = lastStats.getDownloadJitterMs();
 
         // Computes the upload loss rate for this stream.
-        double uploadPercentLost = lastStats.getUploadPercentLost();
+        double uploadPercentLoss = lastStats.getUploadPercentLoss();
         // Computes the doawnload bandwidth used by this stream.
         double uploadRateKiloBitPerSec =
             lastStats.getUploadRateKiloBitPerSec();
@@ -252,13 +252,13 @@ public class CallPeerInfoPanel
         label[6].setText("Download rate (Kbps): ");
         textField[6].setText(((int) downloadRateKiloBitPerSec) + "");
         label[7].setText("Download lost rate (%): ");
-        textField[7].setText(((int) downloadPercentLost) + "");
+        textField[7].setText(((int) downloadPercentLoss) + "");
         label[8].setText("Download jitter (ms): ");
         textField[8].setText(downloadJitterMs + "");
         label[9].setText("Upload rate (Kbps): ");
         textField[9].setText(((int) uploadRateKiloBitPerSec) + "");
         label[10].setText("Upload lost rate (%): ");
-        textField[10].setText(((int) uploadPercentLost) + "");
+        textField[10].setText(((int) uploadPercentLoss) + "");
         label[11].setText("Upload jitter (ms): ");
         textField[11].setText(uploadJitterMs + "");
     }

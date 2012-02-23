@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
+import net.sf.fmj.media.rtp.*;
 import java.util.*;
 import javax.media.rtp.*;
 import javax.media.rtp.rtcp.*;
@@ -65,18 +66,18 @@ public interface MediaStreamStats
     public int getRemotePort();
 
     /**
-     * Returns the percent lost of the download stream.
+     * Returns the percent loss of the download stream.
      *
      * @return the last loss rate computed (in %).
      */
-    public double getDownloadPercentLost();
+    public double getDownloadPercentLoss();
 
     /**
-     * Returns the percent lost of the upload stream.
+     * Returns the percent loss of the upload stream.
      *
      * @return the last loss rate computed (in %).
      */
-    public double getUploadPercentLost();
+    public double getUploadPercentLoss();
 
     /**
      * Returns the bandwidth used by this download stream.
@@ -105,4 +106,18 @@ public interface MediaStreamStats
      * @return the last jitter average computed (in ms).
      */
     public double getUploadJitterMs();
+
+    /**
+     * Updates this stream stats with the new feedback sent.
+     *
+     * @param feedback The last RTCP feedback sent by the MediaStream.
+     */
+    public void updateNewSentFeedback(RTCPFeedback feedback);
+
+    /**
+     * Updates this stream stats with the new feedback received.
+     *
+     * @param feedback The last RTCP feedback received by the MediaStream.
+     */
+    public void updateNewReceivedFeedback(RTCPFeedback feedback);
 }
