@@ -460,7 +460,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                         contact,
                         ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
                         getSupportedOperationSets(user,
-                            contact.getPresenceStatus().isOnline()));
+                            online));
                 }
                 else
                 {
