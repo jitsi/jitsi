@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.StringUtils;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
@@ -448,12 +449,29 @@ public class OperationSetContactCapabilitiesJabberImpl
             // If the contact isn't null and is online we try to discover the
             // new set of operation sets and to notify interested parties.
             // Otherwise we ignore the event.
-            if (contact != null && online)
+            if (contact != null)
             {
-                fireContactCapabilitiesEvent(
-                    contact,
-                    ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
-                    getSupportedOperationSets(user, online));
+                if(online)
+                {
+                    // when going online we have received a presence
+                    // and make sure we discover this particular jid
+                    // for getSupportedOperationSets
+                    fireContactCapabilitiesEvent(
+                        contact,
+                        ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
+                        getSupportedOperationSets(user,
+                            contact.getPresenceStatus().isOnline()));
+                }
+                else
+                {
+                    // when offline, we use the contact, and selecting
+                    // the most connected jid
+                    // for getSupportedOperationSets
+                    fireContactCapabilitiesEvent(
+                        contact,
+                        ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
+                        getSupportedOperationSets(contact));
+                }
             }
         }
     }
@@ -470,7 +488,9 @@ public class OperationSetContactCapabilitiesJabberImpl
         // If the user goes offline we ensure to remove the caps node.
         if (capsManager != null
             && evt.getNewStatus().getStatus() < PresenceStatus.ONLINE_THRESHOLD)
-            capsManager.removeUserCapsNode(evt.getSourceContact().getAddress());
+        {
+            capsManager.removeContactCapsNode(evt.getSourceContact());
+        }
     }
 
     /**
@@ -484,15 +504,23 @@ public class OperationSetContactCapabilitiesJabberImpl
 
         if (opsetPresence != null)
         {
-            String jid = StringUtils.parseBareAddress(user);
-            Contact contact = opsetPresence.findContactByID(jid);
+            String userID = StringUtils.parseBareAddress(user);
+            Contact contact = opsetPresence.findContactByID(userID);
+
+            // this called by received discovery info for particular jid
+            // so we use its online and opsets for this particular jid
+            boolean online = false;
+            Presence presence = parentProvider.getConnection().getRoster()
+                .getPresence(user);
+            if(presence != null)
+                online = presence.isAvailable();
 
             if(contact != null)
             {
                 fireContactCapabilitiesEvent(
                     contact,
                     ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
-                    getSupportedOperationSets(contact, true));
+                    getSupportedOperationSets(user, online));
             }
         }
     }

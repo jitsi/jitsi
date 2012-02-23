@@ -14,6 +14,7 @@ import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger; // disambiguation
 
 import org.jivesoftware.smack.*;
@@ -242,6 +243,52 @@ public class EntityCapsManager
         {
             if (!userCapsNodeListeners.contains(listener))
                 userCapsNodeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Remove records telling what entity caps node a contact has.
+     *
+     * @param contact the contact
+     */
+    public void removeContactCapsNode(Contact contact)
+    {
+        Caps caps = null;
+        String lastRemovedJid = null;
+
+        Iterator<String> iter = userCaps.keySet().iterator();
+        while(iter.hasNext())
+        {
+            String jid = iter.next();
+
+            if(StringUtils.parseBareAddress(jid).equals(
+                contact.getAddress()))
+            {
+                caps = userCaps.get(jid);
+                lastRemovedJid = jid;
+                iter.remove();
+            }
+        }
+
+        // fire only for the last one, at the end the event out
+        // of the protocol will be one and for the contact
+        if(caps != null)
+        {
+            UserCapsNodeListener[] listeners;
+            synchronized (userCapsNodeListeners)
+            {
+                listeners
+                    = userCapsNodeListeners.toArray(
+                            NO_USER_CAPS_NODE_LISTENERS);
+            }
+            if (listeners.length != 0)
+            {
+                String nodeVer = caps.getNodeVer();
+
+                for (UserCapsNodeListener listener : listeners)
+                    listener.userCapsNodeRemoved(
+                        lastRemovedJid, nodeVer, false);
+            }
         }
     }
 
@@ -849,10 +896,17 @@ public class EntityCapsManager
                 if (packet instanceof Presence)
                     online = ((Presence) packet).isAvailable();
 
-                addUserCapsNode(
-                        packet.getFrom(),
-                        ext.getNode(), hash, ext.getVersion(),
-                        ext.getExtensions(), online);
+                if(online)
+                {
+                    addUserCapsNode(
+                            packet.getFrom(),
+                            ext.getNode(), hash, ext.getVersion(),
+                            ext.getExtensions(), online);
+                }
+                else
+                {
+                    removeUserCapsNode(packet.getFrom());
+                }
             }
         }
     }
