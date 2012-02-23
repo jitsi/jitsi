@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 import java.lang.reflect.*;
 
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
 
@@ -1242,7 +1244,13 @@ public class CallPeerJabberImpl
         transportInfo.setTo(getAddress());
         transportInfo.setType(IQ.Type.SET);
 
+        PacketCollector collector = protocolProvider.getConnection()
+              .createPacketCollector(
+                  new PacketIDFilter(transportInfo.getPacketID()));
+
         protocolProvider.getConnection().sendPacket(transportInfo);
+        collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
+        collector.cancel();
     }
 
     /**

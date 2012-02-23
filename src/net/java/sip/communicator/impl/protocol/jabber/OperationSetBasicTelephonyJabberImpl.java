@@ -798,14 +798,6 @@ public class OperationSetBasicTelephonyJabberImpl
         if (! (packet instanceof JingleIQ) && !(packet instanceof SessionIQ))
             return;
 
-        // test GTALK property
-        /*
-        if(!protocolProvider.isGTalkTesting() && (packet instanceof SessionIQ))
-        {
-            return;
-        }
-        */
-
         if(packet instanceof JingleIQ)
         {
             JingleIQ jingleIQ = (JingleIQ)packet;
