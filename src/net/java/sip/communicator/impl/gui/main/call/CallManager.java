@@ -1378,6 +1378,7 @@ public class CallManager
             ProtocolProviderService pps = call.getProtocolProvider();
             Iterator<? extends CallPeer> peers = call.getCallPeers();
             CallGroup group = null;
+
             if(existingCall != null)
             {
                 if(existingCall.getCallGroup() == null)

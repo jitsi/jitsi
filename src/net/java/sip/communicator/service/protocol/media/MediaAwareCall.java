@@ -1077,9 +1077,23 @@ public abstract class MediaAwareCall<
         c.addCallChangeListener(this);
 
         Iterator<? extends CallPeer> peers = c.getCallPeers();
+
         while(peers.hasNext())
         {
             CallPeer p = peers.next();
+
+            if(p instanceof MediaAwareCallPeer)
+            {
+                System.out.println("p instanceof MediaAwareCallPeer");
+                CallPeerMediaHandler<?> mediaHandler =
+                    ((MediaAwareCallPeer<?,?,?>)p).getMediaHandler();
+
+                MediaStream stream = mediaHandler.getStream(MediaType.AUDIO);
+                if(stream != null)
+                    stream.setDevice(this.getDefaultDevice(MediaType.AUDIO));
+                // TODO video
+            }
+
             getCrossProtocolCallPeersVector().add(p);
             fireCallPeerEvent(p, CallPeerEvent.CALL_PEER_ADDED);
             setConferenceFocus(true);
