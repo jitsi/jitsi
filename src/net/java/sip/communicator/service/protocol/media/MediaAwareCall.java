@@ -1084,7 +1084,6 @@ public abstract class MediaAwareCall<
 
             if(p instanceof MediaAwareCallPeer)
             {
-                System.out.println("p instanceof MediaAwareCallPeer");
                 CallPeerMediaHandler<?> mediaHandler =
                     ((MediaAwareCallPeer<?,?,?>)p).getMediaHandler();
 
