@@ -6,20 +6,28 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.util.swing.transparent.*;
-
+import java.awt.*;
 import java.util.*;
+
 import javax.swing.*;
+
+import com.explodingpixels.macwidgets.*;
+
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.media.*;
+import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The frame displaying the statistical information for a call.
  *
  * @author Vincent Lucas
+ * @author Yana Stamcheva
  */
 public class CallInfoFrame
-    extends SIPCommFrame
     implements CallTitleListener
 {
     /**
@@ -28,133 +36,306 @@ public class CallInfoFrame
     private Call call;
 
     /**
-     * The list of call peer IDs displayed.
+     * The call info window.
      */
-    private Vector<CallPeerInfoPanel> callPeerInfoPanels;
-    
+    private final JDialog callInfoWindow;
+
     /**
-     * The panel which contains all the information displayed.
+     * The information text pane.
      */
-    private TransparentPanel callInfoPanel;
+    private final JEditorPane infoTextPane;
+
+    /**
+     * The font color.
+     */
+    private String fontColor;
+
+    /**
+     * The resource management service.
+     */
+    private final ResourceManagementService resources
+        = GuiActivator.getResources();
 
     /**
      * Creates a new frame containing the statistical information for a call.
      *
-     * @param call The call from which are computed the statisics displayed.
+     * @param call The call from which are computed the statistics displayed.
      */
     public CallInfoFrame(Call call)
     {
-        super(false);
-
         this.call = call;
-        this.callPeerInfoPanels =
-            new Vector<CallPeerInfoPanel>(call.getCallPeerCount(), 1);
 
-        this.callInfoPanel = new TransparentPanel();
-        callInfoPanel.setLayout(new BoxLayout(callInfoPanel, BoxLayout.Y_AXIS));
-        this.add(callInfoPanel);
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
 
-        this.addCallInfo();
-        this.updateCallPeerInfo();
+        infoTextPane = createGeneralInfoPane();
+        scrollPane.getViewport().add(infoTextPane);
 
-        this.pack();
+        callInfoWindow
+            = createCallInfoWindow(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.callinfo.TECHNICAL_CALL_INFO"));
+
+        callInfoWindow.getContentPane().add(scrollPane);
+
+        this.constructCallInfo();
     }
 
     /**
-     * Adds a Panel with all information provided for a Call and its
-     * CallStreams.
+     * Creates different types of windows depending on the operating system.
+     *
+     * @param title the title of the created window
      */
-    private void addCallInfo()
+    private JDialog createCallInfoWindow( String title)
     {
+        JDialog callInfoWindow = null;
+
+        if (OSUtils.IS_MAC)
+        {
+            HudWindow window = new HudWindow();
+
+            JDialog dialog = window.getJDialog();
+            dialog.setTitle(title);
+
+            callInfoWindow = window.getJDialog();
+            callInfoWindow.setResizable(true);
+
+            fontColor = "FFFFFF";
+        }
+        else
+        {
+            SIPCommDialog dialog = new SIPCommDialog(false);
+
+            callInfoWindow = dialog;
+            callInfoWindow.setTitle(title);
+
+            fontColor = "000000";
+        }
+
+        return callInfoWindow;
+    }
+
+    /**
+     * Create call info text pane.
+     *
+     * @return the created call info text pane
+     */
+    private JEditorPane createGeneralInfoPane()
+    {
+        JEditorPane infoTextPane = new JEditorPane();
+
+        /*
+         * Make JEditorPane respect our default font because we will be using it
+         * to just display text.
+         */
+        infoTextPane.putClientProperty(
+                JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                true);
+
+        infoTextPane.setOpaque(false);
+        infoTextPane.setEditable(false);
+        infoTextPane.setContentType("text/html");
+
+        return infoTextPane;
+    }
+
+    /**
+     * Returns an HTML string corresponding to the given labelText and infoText,
+     * that could be easily added to the information text pane.
+     *
+     * @param labelText the label text that would be shown in bold
+     * @param infoText the info text that would be shown in plain text
+     * @return the newly constructed HTML string
+     */
+    private String getLineString(String labelText, String infoText)
+    {
+        return "<b>" + labelText + "</b> : " + infoText + "<br/>";
+    }
+
+    /**
+     * Constructs the call info text.
+     */
+    private void constructCallInfo()
+    {
+        StringBuffer stringBuffer = new StringBuffer();
+
+        stringBuffer.append(
+            "<html><body><p align=\"left\">"
+                + "<font color=\"" + fontColor + "\" size=\"3\">");
+
+        stringBuffer.append(getLineString(resources.getI18NString(
+            "service.gui.callinfo.CALL_INFORMATION"), ""));
+
+        stringBuffer.append(getLineString(resources.getI18NString(
+            "service.gui.callinfo.CALL_IDENTITY"),
+            call.getProtocolProvider().getAccountID().getDisplayName()));
+
         int callPeerCount = call.getCallPeerCount();
-        int crossProtocolCallPeerCount = call.getCrossProtocolCallPeerCount();
-        boolean callIsConferenceFocus = call.isConferenceFocus();
-        boolean callIsDefaultEncrypted = call.isDefaultEncrypted();
+        if (call.getCallPeerCount() > 1)
+            stringBuffer.append(
+                getLineString(resources.getI18NString(
+                    "service.gui.callinfo.PEER_COUNT"),
+                    String.valueOf(callPeerCount)));
 
-        String callProtocolDisplayName =
-            call.getProtocolProvider().getProtocolDisplayName();
-        String callProtocolName = call.getProtocolProvider().getProtocolName();
-        boolean callProtocolIsSignalingTransportSecure =
-            call.getProtocolProvider().isSignalingTransportSecure();
+        boolean isConfFocus = call.isConferenceFocus();
 
-        callInfoPanel.add(new JLabel("Call information: "));
-        callInfoPanel.add(new JLabel("Peer count: " + callPeerCount));
-        callInfoPanel.add(new JLabel("Cross Protocol peer count: " +
-                crossProtocolCallPeerCount));
-        callInfoPanel.add(new JLabel("Is conference focus: " +
-                callIsConferenceFocus));
-        callInfoPanel.add(new JLabel("Is default encrypted: " +
-                callIsDefaultEncrypted));
-        callInfoPanel.add(new JLabel("Protocol display name: " +
-                callProtocolDisplayName));
-        callInfoPanel.add(new JLabel("Protocol name: " + callProtocolName));
-        callInfoPanel.add(new JLabel("Protocol is signaling transport secure: "
-                + callProtocolIsSignalingTransportSecure));
+        if (isConfFocus)
+            stringBuffer.append(getLineString(
+                resources.getI18NString(
+                    "service.gui.callinfo.IS_CONFERENCE_FOCUS"),
+                String.valueOf(isConfFocus)));
+
+        String preferredTransport = call.getProtocolProvider().getAccountID()
+            .getAccountPropertyString(
+                ProtocolProviderFactory.PREFERRED_TRANSPORT);
+
+        if (preferredTransport != null && preferredTransport.length() > 0)
+            stringBuffer.append(getLineString(
+                resources.getI18NString("service.gui.callinfo.CALL_TRANSPORT"),
+                preferredTransport));
+
+        constructCallPeersInfo(stringBuffer);
+
+        stringBuffer.append("</font></p></body></html>");
+
+        infoTextPane.setText(stringBuffer.toString());
+        infoTextPane.revalidate();
+        infoTextPane.repaint();
     }
 
     /**
-     * Updates, add and removes respectively current, new or old CallPeers
-     * information statistics.
+     * Constructs call peers' info.
+     *
+     * @param stringBuffer the <tt>StringBuffer</tt>, where call peer info will
+     * be added
      */
-    private void updateCallPeerInfo()
+    private void constructCallPeersInfo(StringBuffer stringBuffer)
     {
-        Vector<CallPeerInfoPanel> leftCallPeers =
-            new Vector<CallPeerInfoPanel>(this.callPeerInfoPanels);
         Iterator<? extends CallPeer> callPeers = this.call.getCallPeers();
+
         while(callPeers.hasNext())
         {
             CallPeer callPeer = (CallPeer) callPeers.next();
-            int index = indexOfCallPeerInfoPanel(callPeer);
-            // If the CallPeer information is not yet displayed, then we had a
-            // corresponding CallPeerInfoPAnel.
-            if(index == -1)
-            {
-                CallPeerInfoPanel callPeerInfoPanel =
-                    new CallPeerInfoPanel(callPeer);
-                callInfoPanel.add(callPeerInfoPanel);
-                callPeerInfoPanels.add(callPeerInfoPanel);
-            }
-            // Else, we update the CallPeerInfoPanel.
-            else
-            {
-                this.callPeerInfoPanels.get(index).updateInfos();
-                // The given CallPeer does not have left the Call, then this
-                // CallPeer is deleted from the leftCallPeers list.
-                leftCallPeers.remove(this.callPeerInfoPanels.get(index));
-            }
+
+            stringBuffer.append("<br/>");
+            constructPeerInfo(callPeer, stringBuffer);
         }
-        // Removes CallPeerInfoPanels corresponding to CallPeers which have
-        // left the Call.
-        for(int i = 0; i < leftCallPeers.size(); ++i)
-        {
-            callInfoPanel.remove(leftCallPeers.get(i));
-            this.callPeerInfoPanels.remove(leftCallPeers.get(i));
-        }
-        // Remove the leftCallPeers from the official CallPeer list displayed.
     }
 
     /**
-     * Returns the index of the CallPeerInfoPanel corresponding to the given
-     * CallPeer.
+     * Constructs peer info.
      *
-     * @param callPeer The CallPeer corresponding to the CallPeerInfoPanel
-     * searched.
-     *
-     * @return the index of the CallPeerInfoPanel inside the callPeerInfoPanels
-     * corresponding to the given CallPeer, if the CallPeerInfoPanel exits.
-     * Otherwise returns -1.
+     * @param callPeer the <tt>CallPeer</tt>, for which we'll construct the info
+     * @param stringBuffer the <tt>StringBuffer</tt>, where call peer info will
+     * be added
      */
-    private int indexOfCallPeerInfoPanel(CallPeer callPeer)
+    private void constructPeerInfo(CallPeer callPeer, StringBuffer stringBuffer)
     {
-        for(int i = 0; i < this.callPeerInfoPanels.size(); ++i)
+        long startTime = callPeer.getCallDurationStartTime();
+        long currentTime = System.currentTimeMillis();
+        long callNbTimeMsSpent = currentTime - startTime;
+
+        String peerAddress = callPeer.getAddress();
+
+        stringBuffer.append(getLineString(peerAddress, ""));
+        stringBuffer.append(getLineString(
+            resources.getI18NString("service.gui.callinfo.CALL_DURATION"),
+            GuiUtils.formatTime(callNbTimeMsSpent)));
+
+        if(callPeer instanceof MediaAwareCallPeer)
         {
-            if(this.callPeerInfoPanels.get(i).getCallPeerID()
-                    .equals(callPeer.getPeerID()))
+            CallPeerMediaHandler callPeerMediaHandler
+                = ((MediaAwareCallPeer) callPeer).getMediaHandler();
+
+            if(callPeerMediaHandler != null)
             {
-                return i;
+                MediaStream mediaStream;
+
+                mediaStream = callPeerMediaHandler.getStream(MediaType.AUDIO);
+
+                if (mediaStream != null)
+                {
+                    stringBuffer.append("<br/>");
+                    stringBuffer.append(getLineString(resources.getI18NString(
+                        "service.gui.callinfo.AUDIO_INFO"), ""));
+                    constructAudioVideoInfo(mediaStream, stringBuffer);
+                }
+
+                mediaStream = callPeerMediaHandler.getStream(MediaType.VIDEO);
+
+                if (mediaStream != null)
+                {
+                    stringBuffer.append("<br/>");
+                    stringBuffer.append(getLineString(resources.getI18NString(
+                        "service.gui.callinfo.VIDEO_INFO"), ""));
+                    constructAudioVideoInfo(mediaStream, stringBuffer);
+                }
             }
         }
-        return -1;
+    }
+
+    /**
+     * Constructs audio video peer info.
+     *
+     * @param mediaStream the <tt>MediaStream</tt> that gives us access to
+     * audio video info
+     * @param stringBuffer the <tt>StringBuffer</tt>, where call peer info will
+     * be added
+     */
+    private void constructAudioVideoInfo(   MediaStream mediaStream,
+                                            StringBuffer stringBuffer)
+    {
+        MediaStreamStats mediaStreamStats
+            = mediaStream.getMediaStreamStats();
+
+        if(mediaStreamStats == null)
+            return;
+
+        mediaStreamStats.updateStats();
+
+        stringBuffer.append(
+            getLineString(
+                resources.getI18NString("service.gui.callinfo.CODEC"),
+                mediaStreamStats.getEncoding()
+                + " / " + mediaStreamStats.getEncodingClockRate() + " Hz"));
+
+        stringBuffer.append(
+            getLineString(
+                resources.getI18NString("service.gui.callinfo.LOCAL_IP"),
+                mediaStreamStats.getLocalIPAddress()
+                + " / " + String.valueOf(mediaStreamStats.getLocalPort())));
+
+        stringBuffer.append(
+            getLineString(
+                resources.getI18NString("service.gui.callinfo.REMOTE_IP"),
+                mediaStreamStats.getRemoteIPAddress()
+                + " / " + String.valueOf(mediaStreamStats.getRemotePort())));
+
+        stringBuffer.append(
+            getLineString(
+                resources.getI18NString(
+                    "service.gui.callinfo.BANDWITH"),
+                    "&darr; "
+                    + (int) mediaStreamStats.getDownloadRateKiloBitPerSec()
+                        + " Kbps "
+                    + " &uarr; "
+                    + (int) mediaStreamStats.getUploadRateKiloBitPerSec()
+                        + " Kbps"));
+
+        stringBuffer.append(
+            getLineString(
+                resources.getI18NString("service.gui.callingo.LOSS_RATE"),
+                    "&darr; " + (int) mediaStreamStats.getDownloadPercentLoss()
+                    + "% &uarr; "
+                    + (int) mediaStreamStats.getUploadPercentLoss()
+                    + "%"));
+
+        stringBuffer.append(
+            getLineString(resources.getI18NString("service.gui.callingo.JITTER"),
+                "&darr; " + mediaStreamStats.getDownloadJitterMs()
+                + " ms &uarr; "
+                + mediaStreamStats.getUploadJitterMs() + " ms"));
     }
 
     /**
@@ -164,7 +345,52 @@ public class CallInfoFrame
      */
     public void callTitleChanged(CallPanel callContainer)
     {
-        this.updateCallPeerInfo();
-        this.pack();
+        String selectedText = infoTextPane.getSelectedText();
+
+        // If there's a selection do not update call info, otherwise the user
+        // would not be able to copy the selected text.
+        if (selectedText != null && selectedText.length() > 0)
+            return;
+
+        constructCallInfo();
+        callInfoWindow.pack();
+    }
+
+    /**
+     * Shows/hides the corresponding window.
+     *
+     * @param isVisible <tt>true</tt> to show the window, <tt>false</tt> to
+     * hide it
+     */
+    public void setVisible(boolean isVisible)
+    {
+        if (isVisible)
+        {
+            callInfoWindow.pack();
+            callInfoWindow.setPreferredSize(new Dimension(300, 450));
+            callInfoWindow.setSize(300, 450);
+            callInfoWindow.setLocationRelativeTo(null);
+        }
+
+        callInfoWindow.setVisible(isVisible);
+    }
+
+    /**
+     * Indicates if the corresponding window is visible.
+     *
+     * @return <tt>true</tt> if the window is visible, <tt>false</tt> -
+     * otherwise
+     */
+    public boolean isVisible()
+    {
+        return callInfoWindow.isVisible();
+    }
+
+    /**
+     * Disposes the corresponding window.
+     */
+    public void dispose()
+    {
+        callInfoWindow.dispose();
     }
 }

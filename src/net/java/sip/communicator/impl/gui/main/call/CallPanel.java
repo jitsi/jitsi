@@ -416,9 +416,6 @@ public class CallPanel
         if(GuiActivator.getConfigurationService()
                 .getBoolean(SHOW_CALL_INFO_BUTON_PROP, true))
         {
-            this.callInfoFrame = new CallInfoFrame(call);
-            this.addCallTitleListener(callInfoFrame);
-
             infoButton = new SIPCommButton(
                     ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
                     ImageLoader.getImage(ImageLoader.CALL_INFO));
@@ -500,6 +497,12 @@ public class CallPanel
         }
         else if (buttonName.equals(INFO_BUTTON))
         {
+            if (callInfoFrame == null)
+            {
+                this.callInfoFrame = new CallInfoFrame(call);
+                this.addCallTitleListener(callInfoFrame);
+            }
+
             callInfoFrame.setVisible(!callInfoFrame.isVisible());
         }
     }
