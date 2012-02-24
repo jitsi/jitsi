@@ -72,11 +72,11 @@ public class ConnectionPanel
     private final JTextField portField
         = new JTextField(JabberAccountRegistration.DEFAULT_PORT);
 
-    private final JCheckBox autoGenerateResource = new JCheckBox(
+    private final JCheckBox autoGenerateResource = new SIPCommCheckBox(
             Resources.getString("plugin.jabberaccregwizz.AUTORESOURCE"),
                 JabberAccountRegistration.DEFAULT_RESOURCE_AUTOGEN);
 
-    JCheckBox allowNonSecureBox = new JCheckBox(
+    JCheckBox allowNonSecureBox = new SIPCommCheckBox(
             Resources.getString("plugin.jabberaccregwizz.ALLOW_NON_SECURE"),
             false);
 
