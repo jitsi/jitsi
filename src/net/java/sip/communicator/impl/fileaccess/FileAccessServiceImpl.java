@@ -328,13 +328,13 @@ public class FileAccessServiceImpl implements FileAccessService
 
             homedir = homedir.trim();
             if (!homedir.endsWith(File.separator))
-        {
+            {
                 homedir += File.separator;
             }
 
             file = new File(homedir + fileName);
             if (file.canRead() || file.canWrite())
-        {
+            {
                 return file;
             }
 
@@ -346,7 +346,7 @@ public class FileAccessServiceImpl implements FileAccessService
                     logger.debug("Creating home directory : "
                         + homedirFile.getAbsolutePath());
                 if (!homedirFile.mkdirs())
-        {
+                {
                     String message = "Could not create the home directory : "
                             + homedirFile.getAbsolutePath();
 
@@ -361,6 +361,19 @@ public class FileAccessServiceImpl implements FileAccessService
             else if (!homedirFile.canWrite())
             {
                 file = null;
+            }
+
+            if(file != null && !file.getParentFile().exists())
+            {
+                if (!file.getParentFile().mkdirs())
+                {
+                    String message = "Could not create the parent directory : "
+                        + homedirFile.getAbsolutePath();
+
+                    if (logger.isDebugEnabled())
+                        logger.debug(message);
+                    throw new IOException(message);
+                }
             }
 
         } finally
