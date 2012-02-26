@@ -6,7 +6,10 @@
  */
 package net.java.sip.communicator.plugin.generalconfig;
 
+import java.io.*;
 import java.util.*;
+
+import javax.net.ssl.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -15,6 +18,9 @@ import net.java.sip.communicator.util.*;
 
 public class ConfigurationManager
 {
+    private static final Logger logger
+        = Logger.getLogger(ConfigurationManager.class);
+
     public static final String ENTER_COMMAND = "Enter";
 
     public static final String CTRL_ENTER_COMMAND = "Ctrl-Enter";
@@ -614,20 +620,55 @@ public class ConfigurationManager
             5061);
     }
 
-    public static String getSSLProtocols()
+    public static String[] getAvailableSslProtocols()
     {
-        return configService
-            .getString("gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS", "");
+        SSLSocket temp;
+        try
+        {
+            temp = (SSLSocket) SSLSocketFactory
+                .getDefault().createSocket();
+            return temp.getSupportedProtocols();
+        }
+        catch (IOException e)
+        {
+            logger.error(e);
+            return new String[]{};
+        }
     }
 
-    public static void setSSLProtocols(String enabledProtocols)
+    public static String[] getEnabledSslProtocols()
     {
-        if(StringUtils.isNullOrEmpty(enabledProtocols, true))
+        String enabledSslProtocols = configService
+            .getString("gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS");
+        if(StringUtils.isNullOrEmpty(enabledSslProtocols, true))
+        {
+            SSLSocket temp;
+            try
+            {
+                temp = (SSLSocket) SSLSocketFactory
+                    .getDefault().createSocket();
+                return temp.getEnabledProtocols();
+            }
+            catch (IOException e)
+            {
+                logger.error(e);
+                return getAvailableSslProtocols();
+            }
+        }
+        return enabledSslProtocols.split("(,)|(,\\s)");
+    }
+
+    public static void setEnabledSslProtocols(String[] enabledProtocols)
+    {
+        if(enabledProtocols == null || enabledProtocols.length == 0)
             configService.removeProperty(
                 "gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS");
         else
+        {
+            String protocols = Arrays.toString(enabledProtocols);
             configService.setProperty(
                 "gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS",
-                    enabledProtocols);
+                    protocols.substring(1, protocols.length() - 1));
+        }
     }
 }

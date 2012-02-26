@@ -7,6 +7,8 @@ package net.java.sip.communicator.plugin.generalconfig;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -20,19 +22,24 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SIPConfigForm
     extends TransparentPanel
+    implements ActionListener
 {
+    private Box pnlSslProtocols;
+
     /**
      * Creates the form.
      */
     public SIPConfigForm()
     {
         super(new BorderLayout());
+        Box box = Box.createVerticalBox();
+        add(box, BorderLayout.NORTH);
 
         TransparentPanel sipClientPortConfigPanel = new TransparentPanel();
         sipClientPortConfigPanel.setLayout(new BorderLayout(10, 10));
-        sipClientPortConfigPanel.setPreferredSize(new Dimension(250, 100));
+        sipClientPortConfigPanel.setPreferredSize(new Dimension(250, 50));
 
-        add(sipClientPortConfigPanel, BorderLayout.NORTH);
+        box.add(sipClientPortConfigPanel);
 
         TransparentPanel labelPanel
             = new TransparentPanel(new GridLayout(0, 1, 2, 2));
@@ -43,10 +50,6 @@ public class SIPConfigForm
             BorderLayout.WEST);
         sipClientPortConfigPanel.add(valuePanel,
             BorderLayout.CENTER);
-        sipClientPortConfigPanel.add(new JLabel(
-            Resources.getString(
-                "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN")),
-            BorderLayout.SOUTH);
 
         labelPanel.add(new JLabel(
             Resources.getString(
@@ -54,9 +57,6 @@ public class SIPConfigForm
         labelPanel.add(new JLabel(
             Resources.getString(
                 "plugin.generalconfig.SIP_CLIENT_SECURE_PORT")));
-        labelPanel.add(new JLabel(
-            Resources.getString(
-                "plugin.generalconfig.SIP_SSL_PROTOCOLS")));
 
         final JTextField clientPortField = new JTextField(6);
         clientPortField.setText(
@@ -142,22 +142,39 @@ public class SIPConfigForm
             }
         });
 
-        final JTextField sslProtocols = new SIPCommTextField(
-            Resources.getString(
-                "plugin.generalconfig.SIP_SSL_PROTOCOLS_EXAMPLE",
-                new String[]{"SSLv3, TLSv1"}));
-        sslProtocols.setText(
-            String.valueOf(ConfigurationManager.getSSLProtocols()));
-        valuePanel.add(sslProtocols);
-        sslProtocols.addFocusListener(new FocusListener()
-        {
-            public void focusLost(FocusEvent e)
-            {
-                ConfigurationManager.setSSLProtocols(sslProtocols.getText());
-            }
+        String configuredProtocols = Arrays.toString(
+            ConfigurationManager.getEnabledSslProtocols()); 
 
-            public void focusGained(FocusEvent e)
-            {}
-        });
+        pnlSslProtocols = Box.createVerticalBox();
+        pnlSslProtocols.setBorder(BorderFactory.createTitledBorder(Resources
+            .getString("plugin.generalconfig.SIP_SSL_PROTOCOLS")));
+        pnlSslProtocols.setAlignmentX(Component.LEFT_ALIGNMENT);
+        for(String protocol : ConfigurationManager.getAvailableSslProtocols())
+        {
+            JCheckBox chkProtocol = new SIPCommCheckBox(protocol);
+            chkProtocol.addActionListener(this);
+            chkProtocol.setSelected(configuredProtocols.contains(protocol));
+            pnlSslProtocols.add(chkProtocol);
+        }
+        pnlSslProtocols.add(new JLabel(
+            Resources.getString(
+                "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN")));
+        JPanel sslWrapper = new TransparentPanel(new BorderLayout());
+        sslWrapper.add(pnlSslProtocols, BorderLayout.CENTER);
+        box.add(sslWrapper);
+    }
+
+    public void actionPerformed(ActionEvent e)
+    {
+        List<String> enabledSslProtocols = new ArrayList<String>(
+            pnlSslProtocols.getComponentCount());
+        for(Component child : pnlSslProtocols.getComponents())
+        {
+            if(child instanceof JCheckBox)
+                if(((JCheckBox) child).isSelected())
+                    enabledSslProtocols.add(((JCheckBox) child).getText());
+        }
+        ConfigurationManager.setEnabledSslProtocols(
+            enabledSslProtocols.toArray(new String[]{}));
     }
 }
