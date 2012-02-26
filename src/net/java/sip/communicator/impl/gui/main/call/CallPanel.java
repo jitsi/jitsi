@@ -518,7 +518,8 @@ public class CallPanel
     {
         Call call = getCall();
 
-        this.callInfoFrame.dispose();
+        if (callInfoFrame != null)
+            callInfoFrame.dispose();
 
         if (call != null)
             CallManager.hangupCall(call);
