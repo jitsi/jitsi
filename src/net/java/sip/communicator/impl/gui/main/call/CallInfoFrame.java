@@ -232,9 +232,11 @@ public class CallInfoFrame
      */
     private void constructPeerInfo(CallPeer callPeer, StringBuffer stringBuffer)
     {
-        long startTime = callPeer.getCallDurationStartTime();
-        long currentTime = System.currentTimeMillis();
-        long callNbTimeMsSpent = currentTime - startTime;
+        Date startTime = new Date(callPeer.getCallDurationStartTime());
+        Date currentTime = new Date(System.currentTimeMillis());
+        Date callNbTimeMsSpent = GuiUtils.substractDates(
+                currentTime,
+                startTime);
 
         String peerAddress = callPeer.getAddress();
 
