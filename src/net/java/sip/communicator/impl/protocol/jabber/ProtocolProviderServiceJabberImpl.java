@@ -666,6 +666,8 @@ public class ProtocolProviderServiceJabberImpl
 
             if (addrs == null || addrs.length == 0)
             {
+                logger.error("No server addresses found");
+
                 fireRegistrationStateChanged(
                     getRegistrationState(),
                     RegistrationState.CONNECTION_FAILED,
@@ -1143,6 +1145,8 @@ public class ProtocolProviderServiceJabberImpl
             // as IllegalStateException that is thrown within
             // addConnectionListener is not handled properly
             disconnectAndCleanConnection();
+
+            logger.error("Connection not established, server not found!");
 
             fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
