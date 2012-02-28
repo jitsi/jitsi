@@ -306,8 +306,16 @@ public class SipStackProperties
         this.setProperty(NSPNAME_STACK_LOGGER, NSPVALUE_STACK_LOGGER);
         this.setProperty(NSPNAME_SERVER_LOGGER, NSPVALUE_SERVER_LOGGER);
 
-        this.setProperty("gov.nist.javax.sip.NETWORK_LAYER", 
-            SslNetworkLayer.class.getName());
+        if(OSUtils.IS_ANDROID)
+        {
+            this.setProperty("gov.nist.javax.sip.NETWORK_LAYER",
+                AndroidNetworkLayer.class.getName());
+        }
+        else
+        {
+            this.setProperty("gov.nist.javax.sip.NETWORK_LAYER",
+                SslNetworkLayer.class.getName());
+        }
 
         try
         {

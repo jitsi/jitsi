@@ -163,7 +163,7 @@ public class SslNetworkLayer
      * @return the server socket factory.
      * @throws IOException problem creating factory.
      */
-    private SSLServerSocketFactory getSSLServerSocketFactory()
+    protected SSLServerSocketFactory getSSLServerSocketFactory()
         throws IOException
     {
         try
@@ -356,7 +356,7 @@ public class SslNetworkLayer
      *
      * @param s <tt>Socket</tt>
      */
-    private void setTrafficClass(Socket s)
+    protected void setTrafficClass(Socket s)
     {
         int tc = getDSCP();
 
@@ -375,7 +375,7 @@ public class SslNetworkLayer
      *
      * @param s <tt>DatagramSocket</tt>
      */
-    private void setTrafficClass(DatagramSocket s)
+    protected void setTrafficClass(DatagramSocket s)
     {
         int tc = getDSCP();
 
