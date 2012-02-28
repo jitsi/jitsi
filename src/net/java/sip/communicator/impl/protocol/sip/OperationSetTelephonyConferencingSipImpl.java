@@ -168,6 +168,53 @@ public class OperationSetTelephonyConferencingSipImpl
     private final TimerScheduler timer = new TimerScheduler();
 
     /**
+     * Listener to CallPeer state.
+     */
+    private final CallPeerListener callPeerStateListener =
+        new CallPeerAdapter()
+        {
+            /**
+             * Indicates that a change has occurred in the status of the source
+             * <tt>CallPeer</tt>.
+             *
+             * @param evt the <tt>CallPeerChangeEvent</tt> instance containing the
+             * source event as well as its previous and its new status
+             */
+            @Override
+            public void peerStateChanged(CallPeerChangeEvent evt)
+            {
+                CallPeer peer = evt.getSourceCallPeer();
+
+                if (peer != null)
+                {
+                    if(peer.getState() == CallPeerState.CONNECTED)
+                    {
+                        if (peer.isConferenceFocus())
+                        {
+                            ConferenceSubscriberSubscription subscription
+                                = new ConferenceSubscriberSubscription(
+                                    (CallPeerSipImpl)peer);
+
+                            try
+                            {
+                                subscriber.subscribe(subscription);
+                            }
+                            catch (OperationFailedException ofe)
+                            {
+                                logger
+                                    .error(
+                                        "Failed to create or send a " +
+                                        "conference subscription to " + peer,
+                                        ofe);
+                            }
+                            peer.removeCallPeerListener(this);
+                        }
+                    }
+                }
+            }
+        };
+
+    /**
      * Initializes a new <tt>OperationSetTelephonyConferencingSipImpl</tt>
      * instance which is to provide telephony conferencing services for the
      * specified SIP <tt>ProtocolProviderService</tt> implementation.
@@ -747,11 +794,15 @@ public class OperationSetTelephonyConferencingSipImpl
                 }
         }
 
+        sourceCallPeer.addCallPeerListener(callPeerStateListener);
         sourceCallPeer.setConferenceFocus(conferenceFocus);
-        if (conferenceFocus)
+
+        if (sourceCallPeer.isConferenceFocus() && sourceCallPeer.getState() ==
+            CallPeerState.CONNECTED)
         {
             ConferenceSubscriberSubscription subscription
-                = new ConferenceSubscriberSubscription(sourceCallPeer);
+                = new ConferenceSubscriberSubscription(
+                    sourceCallPeer);
 
             try
             {
@@ -762,8 +813,7 @@ public class OperationSetTelephonyConferencingSipImpl
                 logger
                     .error(
                         "Failed to create or send a conference subscription to "
-                            + sourceCallPeer,
-                        ofe);
+                        + sourceCallPeer, ofe);
             }
         }
     }

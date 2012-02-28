@@ -428,7 +428,7 @@ public abstract class MediaAwareCall<
      * this <tt>Call</tt> is to act as a conference focus; otherwise,
      * <tt>false</tt>
      */
-    public void setConferenceFocus(boolean conferenceFocus)
+    public synchronized void setConferenceFocus(boolean conferenceFocus)
     {
         if (this.conferenceFocus != conferenceFocus)
         {
@@ -1116,6 +1116,9 @@ public abstract class MediaAwareCall<
             getCrossProtocolCallPeersVector().remove(p);
             fireCallPeerEvent(p, CallPeerEvent.CALL_PEER_REMOVED);
         }
+
+        if((getCallPeerCount() + getCallGroup().getCalls().size()) < 2)
+            setConferenceFocus(false);
     }
 
     /**

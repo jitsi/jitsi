@@ -419,17 +419,16 @@ public class CallSipImpl
     public void callAdded(CallGroupEvent evt)
     {
         Iterator<CallPeerSipImpl> peers = getCallPeers();
+        setConferenceFocus(true);
 
         // reinvite peers to reflect conference focus
         while(peers.hasNext())
         {
-            setConferenceFocus(true);
             CallPeerSipImpl callPeer = peers.next();
 
             try
             {
-                if(callPeer.getDialog() != null &&
-                    callPeer.getDialog().getState() == DialogState.CONFIRMED)
+                if(callPeer.getState() == CallPeerState.CONNECTED)
                     callPeer.sendReInvite();
             }
             catch(OperationFailedException e)

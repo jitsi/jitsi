@@ -424,7 +424,9 @@ public class CallJabberImpl
         {
             setConferenceFocus(true);
             CallPeerJabberImpl callPeer = peers.next();
-            callPeer.sendCoinSessionInfo(true);
+
+            if(callPeer.getState() == CallPeerState.CONNECTED)
+                callPeer.sendCoinSessionInfo(true);
         }
 
         super.callAdded(evt);
