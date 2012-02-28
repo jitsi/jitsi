@@ -1963,6 +1963,7 @@ public class ChatPanel
                         fileTransferOpSet, request, date);
                 }
             });
+            return;
         }
 
         this.addActiveFileTransfer(request.getID(), request);
