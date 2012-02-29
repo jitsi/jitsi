@@ -1618,6 +1618,11 @@ public class ProtocolProviderServiceSipImpl
         }
     }
 
+    /**
+     * Returns the <tt>ProxyConnection</tt>.
+     *
+     * @return the <tt>ProxyConnection</tt>
+     */
     public ProxyConnection getConnection()
     {
         return connection;
@@ -1625,7 +1630,7 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * Indicates if the SIP transport channel is using a TLS secured socket.
-     * 
+     *
      * @return True when TLS is used the SIP transport protocol, false
      *         otherwise or when no proxy is being used.
      */
@@ -2466,7 +2471,7 @@ public class ProtocolProviderServiceSipImpl
 
     /**
      * Determines whether the supplied transport is a known SIP transport method
-     * 
+     *
      * @param transport the SIP transport to check
      * @return True when transport is one of UDP, TCP or TLS.
      */

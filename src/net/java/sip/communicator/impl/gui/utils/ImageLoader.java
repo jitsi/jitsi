@@ -264,7 +264,7 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CALL_BUTTON_BG");
 
     /**
-     * The call button image.
+     * The merge call button image.
      */
     public static final ImageID MERGE_CALL_BUTTON_BG
         = new ImageID("service.gui.buttons.MERGE_CALL_BUTTON_BG");
@@ -655,6 +655,12 @@ public class ImageLoader
      */
     public static final ImageID HOLD_BUTTON
         = new ImageID("service.gui.buttons.HOLD_BUTTON");
+
+    /**
+     * The merge call button image. The icon shown in the CallPeer panel.
+     */
+    public static final ImageID MERGE_CALL_BUTTON
+        = new ImageID("service.gui.buttons.MERGE_CALL_BUTTON");
 
     /**
      * A put-on/off-hold button icon. The icon shown in the CallPeer

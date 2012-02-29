@@ -1078,6 +1078,16 @@ public abstract class MediaAwareCall<
 
         Iterator<? extends CallPeer> peers = c.getCallPeers();
 
+        // sets the right MediaDevice for the added peer if we are the first
+        // Call of the CallGroup
+        if(c instanceof MediaAwareCall && this ==
+            getCallGroup().getCalls().get(0))
+        {
+            ((MediaAwareCall<?,?,?>)c).conferenceAudioMixer = null;
+            ((MediaAwareCall<?,?,?>)c).getDefaultDevice(
+                MediaType.AUDIO);
+        }
+
         while(peers.hasNext())
         {
             CallPeer p = peers.next();
@@ -1089,7 +1099,17 @@ public abstract class MediaAwareCall<
 
                 MediaStream stream = mediaHandler.getStream(MediaType.AUDIO);
                 if(stream != null)
-                    stream.setDevice(this.getDefaultDevice(MediaType.AUDIO));
+                {
+                    if(this == getCallGroup().getCalls().get(0))
+                    {
+                        stream.setDevice(getDefaultDevice(MediaType.AUDIO));
+                        // for some protocol provider like XMPP, we do not
+                        // reinit/reconfigure the stream when we advertise
+                        // conference-info
+                        mediaHandler.registerAudioLevelListeners(
+                            (AudioMediaStream)stream);
+                    }
+                }
                 // TODO video
             }
 

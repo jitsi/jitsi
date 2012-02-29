@@ -1453,7 +1453,7 @@ public abstract class CallPeerMediaHandler<
      * @param audioStream the <tt>AudioMediaStream</tt> that we'd like to
      * register our audio level listeners with.
      */
-    private void registerAudioLevelListeners(AudioMediaStream audioStream)
+    void registerAudioLevelListeners(AudioMediaStream audioStream)
     {
         // if we already have a local level listener - register it now.
         synchronized (localAudioLevelListenerLock)

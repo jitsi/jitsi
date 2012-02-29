@@ -416,28 +416,41 @@ public class CallSipImpl
      *
      * @param evt event
      */
-    public void callAdded(CallGroupEvent evt)
+    public synchronized void callAdded(CallGroupEvent evt)
     {
         Iterator<CallPeerSipImpl> peers = getCallPeers();
-        setConferenceFocus(true);
+        boolean sendReinvite = true;
 
-        // reinvite peers to reflect conference focus
-        while(peers.hasNext())
+        if(evt.getSourceCall().getCallPeers().hasNext())
         {
-            CallPeerSipImpl callPeer = peers.next();
-
-            try
-            {
-                if(callPeer.getState() == CallPeerState.CONNECTED)
-                    callPeer.sendReInvite();
-            }
-            catch(OperationFailedException e)
-            {
-                logger.info("Failed to reinvite peer: "
-                    + callPeer.getAddress());
-            }
+            sendReinvite = !getCrossProtocolCallPeersVector().contains(
+                evt.getSourceCall().getCallPeers().next());
         }
 
+        setConferenceFocus(true);
+
+        if(sendReinvite)
+        {
+            // reinvite peers to reflect conference focus
+            while(peers.hasNext())
+            {
+                CallPeerSipImpl callPeer = peers.next();
+
+                try
+                {
+                    if(callPeer.getState() == CallPeerState.CONNECTED &&
+                        sendReinvite)
+                    {
+                        callPeer.sendReInvite();
+                    }
+                }
+                catch(OperationFailedException e)
+                {
+                    logger.info("Failed to reinvite peer: "
+                        + callPeer.getAddress());
+                }
+            }
+        }
         super.callAdded(evt);
     }
 }

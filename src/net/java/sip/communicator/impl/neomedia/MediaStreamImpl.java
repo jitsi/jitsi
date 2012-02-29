@@ -1052,7 +1052,6 @@ public class MediaStreamImpl
      *
      * @return an <tt>InetSocketAddress</tt> instance indicating the local
      * address that this stream is sending RTCP traffic from.
-     * @see MediaStream#getLocalControlAddress()
      */
     public InetSocketAddress getLocalControlAddress()
     {
@@ -1081,7 +1080,6 @@ public class MediaStreamImpl
      *
      * @return an <tt>InetSocketAddress</tt> instance indicating the local
      * address that this stream is sending RTP traffic from.
-     * @see MediaStream#getLocalDataAddress()
      */
     public InetSocketAddress getLocalDataAddress()
     {

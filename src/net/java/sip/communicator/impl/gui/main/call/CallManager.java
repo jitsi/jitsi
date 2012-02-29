@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.transparent.*;
 
@@ -148,6 +149,13 @@ public class CallManager
                     }
                 }
             });
+
+            for(Map.Entry<Call, CallPanel> entry : activeCalls.entrySet())
+            {
+                CallPanel cp = entry.getValue();
+                if(cp != null)
+                    cp.incomingCallReceived(event);
+            }
         }
 
         /**
@@ -185,6 +193,13 @@ public class CallManager
                 activeCalls.remove(sourceCall);
 
                 callContainer.getCallWindow().closeWait(callContainer);
+
+                for(Map.Entry<Call, CallPanel> entry : activeCalls.entrySet())
+                {
+                    CallPanel cp = entry.getValue();
+                    if(cp != null)
+                        cp.incomingCallReceived(event);
+                }
             }
         }
 
@@ -198,6 +213,13 @@ public class CallManager
             Call sourceCall = event.getSourceCall();
 
             CallManager.openCallContainer(sourceCall);
+
+            for(Map.Entry<Call, CallPanel> entry : activeCalls.entrySet())
+            {
+                CallPanel cp = entry.getValue();
+                if(cp != null)
+                    cp.incomingCallReceived(event);
+            }
         }
     }
 
@@ -238,6 +260,18 @@ public class CallManager
         {
             new AnswerCallThread(call, existingCall).start();
         }
+    }
+
+    /**
+     * Merge two existing <tt>Call</tt>s into a single conference call.
+     *
+     * @param first first call
+     * @param calls list of calls
+     */
+    public static void mergeExistingCall(final Call first,
+        final Collection<Call> calls)
+    {
+        new MergeExistingCalls(first, calls).start();
     }
 
     /**
@@ -1987,6 +2021,130 @@ public class CallManager
                 else
                     logger.error("Failed to put"
                         + callPeerAddress + " off hold.", ex);
+            }
+        }
+    }
+
+    /**
+     * Merge existing calls thread.
+     */
+    private static class MergeExistingCalls
+        extends Thread
+    {
+        /**
+         * First call.
+         */
+        private final Call first;
+
+        /**
+         * Second call.
+         */
+        private final Collection<Call> calls;
+
+        /**
+         * Constructor.
+         *
+         * @param first first call
+         * @param calls list of cals
+         */
+        public MergeExistingCalls(final Call first,
+            final Collection<Call> calls)
+        {
+            this.first = first;
+            this.calls = calls;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void run()
+        {
+            // unselect onhold
+            Iterator<? extends CallPeer> peers = first.getCallPeers();
+            OperationSetBasicTelephony<?> telephony
+                = first.getProtocolProvider().getOperationSet(
+                        OperationSetBasicTelephony.class);
+
+            while (peers.hasNext())
+            {
+                CallPeer callPeer = peers.next();
+                boolean putOffHold = true;
+
+                if(callPeer instanceof MediaAwareCallPeer)
+                {
+                    putOffHold = ((MediaAwareCallPeer<?,?,?>)callPeer).
+                        getMediaHandler().isLocallyOnHold();
+                }
+
+                if(putOffHold)
+                {
+                    try
+                    {
+                        telephony.putOffHold(callPeer);
+                        Thread.sleep(400);
+                    }
+                    catch(Exception ofex)
+                    {
+                        logger.error(
+                                "Failed to put off hold.",
+                                ofex);
+                    }
+                }
+            }
+
+            for(Call c : calls)
+            {
+                if(c == first  || (first.getCallGroup() != null &&
+                    c.getCallGroup() == first.getCallGroup()))
+                    continue;
+
+                peers = c.getCallPeers();
+                telephony = c.getProtocolProvider().getOperationSet(
+                            OperationSetBasicTelephony.class);
+
+                while (peers.hasNext())
+                {
+                    CallPeer callPeer = peers.next();
+                    boolean putOffHold = true;
+
+                    if(callPeer instanceof MediaAwareCallPeer)
+                    {
+                        putOffHold = ((MediaAwareCallPeer<?,?,?>)callPeer).
+                            getMediaHandler().isLocallyOnHold();
+                    }
+
+                    if(putOffHold)
+                    {
+                        try
+                        {
+                            telephony.putOffHold(callPeer);
+                            Thread.sleep(400);
+                        }
+                        catch(Exception ofex)
+                        {
+                            logger.error(
+                                    "Failed to put off hold.",
+                                    ofex);
+                        }
+                    }
+                }
+
+                // dispose existing CallPanel
+                CallPanel callPanel = CallManager.getActiveCallContainer(c);
+                callPanel.getCallWindow().close(callPanel);
+
+                CallGroup group = first.getCallGroup();
+                if(group == null)
+                {
+                    group = new CallGroup();
+                    group.addCall(first);
+                    first.setCallGroup(group);
+                }
+
+                group.addCall(c);
+                group.fireCallGroupEvent(c,
+                    CallGroupEvent.CALLGROUP_CALL_ADDED);
             }
         }
     }

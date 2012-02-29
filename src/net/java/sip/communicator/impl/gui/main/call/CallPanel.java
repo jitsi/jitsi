@@ -44,7 +44,8 @@ public class CallPanel
                CallChangeListener,
                CallPeerConferenceListener,
                PluginComponentListener,
-               Skinnable
+               Skinnable,
+               CallListener
 {
     /**
      * Serial version UID.
@@ -86,6 +87,11 @@ public class CallPanel
      * The hang up button name.
      */
     private static final String HANGUP_BUTTON = "HANGUP_BUTTON";
+
+    /**
+     * The hang up button name.
+     */
+    private static final String MERGE_BUTTON = "MERGE_BUTTON";
 
     /**
      * The dial pad dialog opened when the dial button is clicked.
@@ -184,6 +190,14 @@ public class CallPanel
      * HangUp button.
      */
     private SIPCommButton hangupButton;
+
+    /**
+     * Merge button.
+     */
+    private SIPCommButton mergeButton =
+        new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+            ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON));
 
     /**
      * The call represented in this dialog.
@@ -370,6 +384,12 @@ public class CallPanel
             GuiActivator.getResources().getI18NString("service.gui.HANG_UP"));
         hangupButton.addActionListener(this);
 
+        mergeButton.setName(MERGE_BUTTON);
+        mergeButton.setToolTipText(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.MERGE_TO_CALL"));
+        mergeButton.addActionListener(this);
+
         /*
          * The buttons will be enabled once the call has entered in a connected
          * state.
@@ -383,6 +403,8 @@ public class CallPanel
         settingsPanel.add(conferenceButton);
         settingsPanel.add(holdButton);
         settingsPanel.add(recordButton);
+        settingsPanel.add(mergeButton);
+        mergeButton.setVisible(false);
 
         if (!isLastConference)
         {
@@ -447,6 +469,12 @@ public class CallPanel
         if (buttonName.equals(HANGUP_BUTTON))
         {
             actionPerformedOnHangupButton(false);
+        }
+        else if (buttonName.equals(MERGE_BUTTON))
+        {
+            Collection<Call> calls = CallManager.getActiveCalls();
+
+            CallManager.mergeExistingCall(call, calls);
         }
         else if (buttonName.equals(DIAL_BUTTON))
         {
@@ -742,6 +770,7 @@ public class CallPanel
         recordButton.setEnabled(enable);
         localLevel.setEnabled(enable);
         remoteLevel.setEnabled(enable);
+        mergeButton.setEnabled(enable);
 
         // Buttons would be enabled once the call has entered in state
         // connected.
@@ -1559,5 +1588,76 @@ public class CallPanel
                 }
             }
             return contactVector;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void incomingCallReceived(CallEvent event)
+    {
+        updateMergeButtonState();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void outgoingCallCreated(CallEvent event)
+    {
+        updateMergeButtonState();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void callEnded(CallEvent event)
+    {
+        updateMergeButtonState();
+    }
+
+    /**
+     * Updates the mergeButton visible status.
+     */
+    public void updateMergeButtonState()
+    {
+        Collection<Call> calls = CallManager.getActiveCalls();
+        java.util.List<CallGroup> groups = new java.util.ArrayList<CallGroup>();
+        int cpt = 0;
+
+        if(calls.size() == 1)
+        {
+            mergeButton.setVisible(false);
+            return;
+        }
+
+        for(Call c : calls)
+        {
+            CallGroup group = c.getCallGroup();
+            if(group == null)
+                cpt++;
+            else
+            {
+                if(groups.size() == 0)
+                {
+                    cpt++;
+                    groups.add(group);
+                }
+                else
+                {
+                    for(CallGroup g : groups)
+                    {
+                        if(group == g)
+                            continue;
+                        else
+                        {
+                            cpt++;
+                            groups.add(group);
+                        }
+                    }
+                }
+            }
+        }
+
+        if(cpt > 1)
+            mergeButton.setVisible(true);
     }
 }
