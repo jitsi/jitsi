@@ -546,8 +546,7 @@ public class CallPanel
     {
         Call call = getCall();
 
-        if (callInfoFrame != null)
-            callInfoFrame.dispose();
+        this.disposeCallInfoFrame();
 
         if (call != null)
             CallManager.hangupCall(call);
@@ -1588,6 +1587,17 @@ public class CallPanel
                 }
             }
             return contactVector;
+    }
+
+    /**
+     * Disposes the call info frame if it exists.
+     */
+    public void disposeCallInfoFrame()
+    {
+        if (callInfoFrame != null)
+        {
+            callInfoFrame.dispose();
+        }
     }
 
     /**

@@ -74,6 +74,7 @@ public class CallDialog
     {
         if (this.callPanel.equals(callPanel))
         {
+            this.callPanel.disposeCallInfoFrame();
             dispose();
         }
     }
