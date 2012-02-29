@@ -1640,6 +1640,25 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Returns the transport protocol of this instance.
+     *
+     * @return The transport protocol of this instance (UDP, TCP, TLSv1), or
+     * null the protocol is not connected.
+     */
+    public String getTransportType()
+    {
+        // The transport protocol is not set properly when dealing with a
+        // RegistrarLess account. This is why we return "null" in this case.
+        if(this.sipRegistrarConnection == null
+                || this.sipRegistrarConnection instanceof
+                SipRegistrarlessConnection)
+        {
+            return null;
+        }
+        return sipRegistrarConnection.getTransport();
+    }
+
+    /**
      * Registers <tt>methodProcessor</tt> in the <tt>methorProcessors</tt> table
      * so that it would receives all messages in a transaction initiated by a
      * <tt>method</tt> request. If any previous processors exist for the same

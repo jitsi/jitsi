@@ -187,4 +187,11 @@ public interface ProtocolProviderService
      * @return True when the connection is secured, false otherwise.
      */
     public boolean isSignalingTransportSecure();
+
+    /**
+     * Returns the transport protocol of this instance.
+     *
+     * @return The transport protocol of this instance (UDP, TCP, TLSv1).
+     */
+    public String getTransportType();
 }

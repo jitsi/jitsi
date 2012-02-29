@@ -186,9 +186,8 @@ public class CallInfoFrame
                     "service.gui.callinfo.IS_CONFERENCE_FOCUS"),
                 String.valueOf(isConfFocus)));
 
-        String preferredTransport = call.getProtocolProvider().getAccountID()
-            .getAccountPropertyString(
-                ProtocolProviderFactory.PREFERRED_TRANSPORT);
+        String preferredTransport =
+            call.getProtocolProvider().getTransportType();
 
         if (preferredTransport != null && preferredTransport.length() > 0)
             stringBuffer.append(getLineString(

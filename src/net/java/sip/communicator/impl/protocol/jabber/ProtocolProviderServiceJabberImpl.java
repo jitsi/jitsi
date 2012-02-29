@@ -570,6 +570,28 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Returns the transport protocol of this instance.
+     *
+     * @return The transport protocol of this instance (UDP, TCP, TLSv1), or
+     * null the protocol is not connected.
+     */
+    public String getTransportType()
+    {
+        // Without a connection, there is no transport available.
+        if(connection != null && connection.isConnected())
+        {
+            // Transport using a secure connection.
+            if(connection.isUsingTLS())
+            {
+                return "TLS";
+            }
+            // Transport using a unsecure connection.
+            return "TCP";
+        }
+        return null;
+    }
+
+    /**
      * Connects and logins to the server
      * @param authority SecurityAuthority
      * @param reasonCode the authentication reason code. Indicates the reason of

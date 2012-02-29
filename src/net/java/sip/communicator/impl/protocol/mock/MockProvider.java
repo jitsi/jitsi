@@ -212,6 +212,16 @@ public class MockProvider
     }
 
     /**
+     * Returns the transport protocol of this instance.
+     *
+     * @return The transport protocol of this instance (UDP, TCP, TLSv1).
+     */
+    public String getTransportType()
+    {
+        return null;
+    }
+
+    /**
      * Returns the AccountID that uniquely identifies the account represented by
      * this instance of the ProtocolProviderService.
      * @return the id of the account represented by this provider.
