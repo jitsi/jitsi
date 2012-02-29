@@ -423,7 +423,8 @@ public class MetaUIContact
                 protocolContact.getProtocolProvider().getOperationSet(
                     OperationSetServerStoredContactInfo.class);
 
-            if(infoOpSet != null)
+            if(infoOpSet != null
+                && protocolContact.getProtocolProvider().isRegistered())
             {
                 Iterator<GenericDetail> details =
                     infoOpSet.requestAllDetailsForContact(protocolContact,

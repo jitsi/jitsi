@@ -154,9 +154,9 @@ public class InfoRetreiver
             result = new LinkedList<GenericDetail>();
 
         // put even empty result to bypass further retrieve
-        retreivedDetails.put(uin, responseRetriever.result);
+        retreivedDetails.put(uin, result);
 
-        return responseRetriever.result;
+        return result;
     }
 
     /**

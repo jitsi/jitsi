@@ -753,6 +753,10 @@ public class ContactListTreeCellRenderer
             while(contacts.hasNext() && !hasPhone)
             {
                 Contact contact = contacts.next();
+
+                if(!contact.getProtocolProvider().isRegistered())
+                    continue;
+
                 OperationSetServerStoredContactInfo infoOpSet =
                     contact.getProtocolProvider().getOperationSet(
                         OperationSetServerStoredContactInfo.class);

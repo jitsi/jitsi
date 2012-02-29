@@ -335,6 +335,10 @@ public class MainToolBar
                 while(contacts.hasNext())
                 {
                     Contact c = contacts.next();
+                    
+                    if(!c.getProtocolProvider().isRegistered())
+                        continue;
+                    
                     OperationSetServerStoredContactInfo infoOpSet =
                         c.getProtocolProvider().getOperationSet(
                             OperationSetServerStoredContactInfo.class);
