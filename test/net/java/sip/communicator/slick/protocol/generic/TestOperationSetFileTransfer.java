@@ -353,7 +353,7 @@ public abstract class TestOperationSetFileTransfer
         if(!enableTestReceiverDecline())
             return;
 
-        logger.trace("Start test: receiver will decline incoming fileTransfer");
+        logger.info("Start test: receiver will decline incoming fileTransfer");
 
         File fileToTransfer = getTempFileToTransfer(12345);
 
@@ -452,9 +452,11 @@ public abstract class TestOperationSetFileTransfer
             fileTransferStatusEvent
                 = senderStatusListener.collectedEvents.get(0);
 
-            assertEquals("Event must be refused"
-                         ,FileTransferStatusChangeEvent.REFUSED
-                         ,fileTransferStatusEvent.getNewStatus());
+            assertTrue("Event must be refused (or failed)"
+                         ,(fileTransferStatusEvent.getNewStatus()
+                            == FileTransferStatusChangeEvent.REFUSED)
+                          || (fileTransferStatusEvent.getNewStatus()
+                                == FileTransferStatusChangeEvent.FAILED));
         }
         finally
         {
@@ -817,7 +819,8 @@ public abstract class TestOperationSetFileTransfer
         /**
          * Creates an instance of this call event collector and registers it
          * with listenedOpSet.
-         * @param listenedOpSet the operation set
+         * @param name of collector
+         * @param statusCollector the event collector
          */
         public FileTransferEventCollector(
             String name, FileTransferStatusEventCollector statusCollector)

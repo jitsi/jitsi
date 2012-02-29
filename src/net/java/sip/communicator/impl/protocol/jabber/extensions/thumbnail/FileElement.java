@@ -97,7 +97,7 @@ public class FileElement
         if (getDate() != null)
         {
             buffer.append("date=\"").append(
-                DelayInformation.UTC_FORMAT
+                DelayInformation.XEP_0091_UTC_FORMAT
                 .format(this.getDate())).append("\" ");
         }
 
@@ -248,7 +248,8 @@ public class FileElement
                     file.setHash(hash);
 
                     if (date != null)
-                        file.setDate(DelayInformation.UTC_FORMAT.parse(date));
+                        file.setDate(DelayInformation.
+                            XEP_0091_UTC_FORMAT.parse(date));
 
                     if (thumbnail != null)
                         file.setThumbnailElement(thumbnail);
