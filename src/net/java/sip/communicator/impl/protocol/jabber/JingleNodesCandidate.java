@@ -53,8 +53,11 @@ public class JingleNodesCandidate
     public JingleNodesCandidate(TransportAddress transportAddress,
             Component parentComponent, TransportAddress localEndPoint)
     {
-        super(transportAddress, parentComponent,
-                CandidateType.RELAYED_CANDIDATE);
+        super(
+                transportAddress,
+                parentComponent,
+                CandidateType.RELAYED_CANDIDATE,
+                CandidateExtendedType.JINGLE_NODE_CANDIDATE);
         setBase(this);
         setRelayServerAddress(localEndPoint);
         this.localEndPoint = localEndPoint;
