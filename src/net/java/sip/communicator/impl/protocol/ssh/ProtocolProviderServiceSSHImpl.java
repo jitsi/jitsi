@@ -634,7 +634,7 @@ public class ProtocolProviderServiceSSHImpl
     /**
      * Returns the transport protocol of this instance.
      *
-     * @return The transport protocol of this instance (UDP, TCP, TLSv1).
+     * @return The transport protocol of this instance (TCP).
      */
     public String getTransportType()
     {

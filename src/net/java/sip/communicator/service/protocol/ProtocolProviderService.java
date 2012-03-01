@@ -191,7 +191,8 @@ public interface ProtocolProviderService
     /**
      * Returns the transport protocol of this instance.
      *
-     * @return The transport protocol of this instance (UDP, TCP, TLSv1).
+     * @return The transport protocol of this instance (UDP, TCP, TLS), or null
+     * if the transport protocol is unknown.
      */
     public String getTransportType();
 }

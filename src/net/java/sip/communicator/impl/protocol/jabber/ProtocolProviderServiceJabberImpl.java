@@ -572,8 +572,7 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Returns the transport protocol of this instance.
      *
-     * @return The transport protocol of this instance (UDP, TCP, TLSv1), or
-     * null the protocol is not connected.
+     * @return The transport protocol of this instance (TCP, TLS).
      */
     public String getTransportType()
     {
