@@ -231,18 +231,20 @@ public class CallInfoFrame
      */
     private void constructPeerInfo(CallPeer callPeer, StringBuffer stringBuffer)
     {
-        Date startTime = new Date(callPeer.getCallDurationStartTime());
-        Date currentTime = new Date(System.currentTimeMillis());
-        Date callNbTimeMsSpent = GuiUtils.substractDates(
-                currentTime,
-                startTime);
+        stringBuffer.append(getLineString(callPeer.getAddress(), ""));
 
-        String peerAddress = callPeer.getAddress();
-
-        stringBuffer.append(getLineString(peerAddress, ""));
-        stringBuffer.append(getLineString(
-            resources.getI18NString("service.gui.callinfo.CALL_DURATION"),
-            GuiUtils.formatTime(callNbTimeMsSpent)));
+        if(callPeer.getCallDurationStartTime() !=
+                CallPeer.CALL_DURATION_START_TIME_UNKNOWN)
+        {
+            Date startTime = new Date(callPeer.getCallDurationStartTime());
+            Date currentTime = new Date(System.currentTimeMillis());
+            Date callNbTimeMsSpent = GuiUtils.substractDates(
+                    currentTime,
+                    startTime);
+            stringBuffer.append(getLineString(
+                resources.getI18NString("service.gui.callinfo.CALL_DURATION"),
+                GuiUtils.formatTime(callNbTimeMsSpent)));
+        }
 
         if(callPeer instanceof MediaAwareCallPeer)
         {
@@ -334,17 +336,18 @@ public class CallInfoFrame
 
         stringBuffer.append(
             getLineString(
-                resources.getI18NString("service.gui.callingo.LOSS_RATE"),
+                resources.getI18NString("service.gui.callinfo.LOSS_RATE"),
                     "&darr; " + (int) mediaStreamStats.getDownloadPercentLoss()
                     + "% &uarr; "
                     + (int) mediaStreamStats.getUploadPercentLoss()
                     + "%"));
 
         stringBuffer.append(
-            getLineString(resources.getI18NString("service.gui.callingo.JITTER"),
-                "&darr; " + mediaStreamStats.getDownloadJitterMs()
+            getLineString(resources.getI18NString(
+                    "service.gui.callinfo.JITTER"),
+                "&darr; " + (int) mediaStreamStats.getDownloadJitterMs()
                 + " ms &uarr; "
-                + mediaStreamStats.getUploadJitterMs() + " ms"));
+                + (int) mediaStreamStats.getUploadJitterMs() + " ms"));
     }
 
     /**
