@@ -349,9 +349,9 @@ public class ProtocolProviderServiceYahooImpl
      *
      * @return The "transport" protocol of this instance: TCP.
      */
-    public TransportProtocolEnum getTransportProtocol()
+    public TransportProtocol getTransportProtocol()
     {
-        return TransportProtocolEnum.TCP;
+        return TransportProtocol.TCP;
     }
 
     /**

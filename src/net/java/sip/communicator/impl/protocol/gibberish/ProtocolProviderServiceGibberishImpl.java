@@ -305,9 +305,9 @@ public class ProtocolProviderServiceGibberishImpl
      *
      * @return The "transport" protocol of this instance: UNKNOWN.
      */
-    public TransportProtocolEnum getTransportProtocol()
+    public TransportProtocol getTransportProtocol()
     {
-        return TransportProtocolEnum.UNKNOWN;
+        return TransportProtocol.UNKNOWN;
     }
 
     /**

@@ -1646,7 +1646,7 @@ public class ProtocolProviderServiceSipImpl
      * @return The "transport" protocol of this instance: UDP, TCP, TLS or
      * UNKNOWN.
      */
-    public TransportProtocolEnum getTransportProtocol()
+    public TransportProtocol getTransportProtocol()
     {
         // The transport protocol is not set properly when dealing with a
         // RegistrarLess account. This is why we return "UNKNOWN" in this case.
@@ -1654,9 +1654,9 @@ public class ProtocolProviderServiceSipImpl
                 || this.sipRegistrarConnection instanceof
                 SipRegistrarlessConnection)
         {
-            return TransportProtocolEnum.UNKNOWN;
+            return TransportProtocol.UNKNOWN;
         }
-        return TransportProtocolEnum.parse(
+        return TransportProtocol.parse(
                 sipRegistrarConnection.getTransport());
     }
 

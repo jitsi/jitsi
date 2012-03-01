@@ -575,7 +575,7 @@ public class ProtocolProviderServiceJabberImpl
      *
      * @return The "transport" protocol of this instance: TCP, TLS or UNKNOWN.
      */
-    public TransportProtocolEnum getTransportProtocol()
+    public TransportProtocol getTransportProtocol()
     {
         // Without a connection, there is no transport available.
         if(connection != null && connection.isConnected())
@@ -583,12 +583,12 @@ public class ProtocolProviderServiceJabberImpl
             // Transport using a secure connection.
             if(connection.isUsingTLS())
             {
-                return TransportProtocolEnum.TLS;
+                return TransportProtocol.TLS;
             }
             // Transport using a unsecure connection.
-            return TransportProtocolEnum.TCP;
+            return TransportProtocol.TCP;
         }
-        return TransportProtocolEnum.UNKNOWN;
+        return TransportProtocol.UNKNOWN;
     }
 
     /**

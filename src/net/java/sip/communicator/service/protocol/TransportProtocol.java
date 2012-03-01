@@ -12,7 +12,7 @@ package net.java.sip.communicator.service.protocol;
  *
  * @author Vincent Lucas
  */
-public enum TransportProtocolEnum
+public enum TransportProtocol
 {
     /**
      * The "transport" protocol is unknown.
@@ -34,16 +34,16 @@ public enum TransportProtocolEnum
      */
     TLS;
 
-    public static TransportProtocolEnum parse(String transportProtocol)
+    public static TransportProtocol parse(String transportProtocol)
         throws IllegalArgumentException
     {
-        if(UNKNOWN.toString().equals(transportProtocol))
+        if(UNKNOWN.toString().equalsIgnoreCase(transportProtocol))
             return UNKNOWN;
-        else if(UDP.toString().equals(transportProtocol))
+        else if(UDP.toString().equalsIgnoreCase(transportProtocol))
             return UDP;
-        else if(TCP.toString().equals(transportProtocol))
+        else if(TCP.toString().equalsIgnoreCase(transportProtocol))
             return TCP;
-        else if(TLS.toString().equals(transportProtocol))
+        else if(TLS.toString().equalsIgnoreCase(transportProtocol))
             return TLS;
 
         throw new IllegalArgumentException(

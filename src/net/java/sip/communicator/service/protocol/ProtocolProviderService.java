@@ -195,5 +195,5 @@ public interface ProtocolProviderService
      * @return The "transport" protocol of this instance: UDP, TCP, TLS or
      * UNKNOWN.
      */
-    public TransportProtocolEnum getTransportProtocol();
+    public TransportProtocol getTransportProtocol();
 }
