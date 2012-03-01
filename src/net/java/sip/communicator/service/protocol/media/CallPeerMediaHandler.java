@@ -1885,4 +1885,20 @@ public abstract class CallPeerMediaHandler<
             callPropertyChange(event);
         }
     }
+
+    /**
+     * Returns the extended type of the candidate selected if this transport
+     * manager is using ICE.
+     *
+     * @return The extended type of the candidate selected if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public String getICECandidateExtendedType()
+    {
+        if(getTransportManager() == null)
+        {
+            return null;
+        }
+        return getTransportManager().getICECandidateExtendedType();
+    }
 }

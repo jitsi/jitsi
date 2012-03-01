@@ -8,12 +8,15 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.ice4j.ice.*;
 
 /**
  * <tt>TransportManager</tt>s are responsible for allocating ports, gathering
@@ -553,5 +556,58 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     protected static void setNextMediaPortToTry(int nextMediaPortToTry)
     {
         TransportManager.nextMediaPortToTry = nextMediaPortToTry;
+    }
+
+    /**
+     * Returns the extended type of the candidate selected if this transport
+     * manager is using ICE.
+     *
+     * @return The extended type of the candidate selected if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public abstract String getICECandidateExtendedType();
+
+    /**
+     * Returns the ICE candidate extended type selected by the given agent.
+     *
+     * @param iceAgent The ICE agent managing the ICE offer/answer exchange,
+     * collecting and selecting the candidate.
+     *
+     * @return The ICE candidate extended type selected by the given agent. null
+     * if the iceAgent is null or if there is no candidate selected or
+     * available.
+     */
+    public static String getICECandidateExtendedType(Agent iceAgent)
+    {
+        if(iceAgent != null)
+        {
+            List<IceMediaStream> iceMediaStreams = iceAgent.getStreams();
+            for(int i = 0; i < iceMediaStreams.size(); ++i)
+            {
+                List<org.ice4j.ice.Component> components =
+                    iceMediaStreams.get(i).getComponents();
+                for(int j = 0; j < components.size(); ++j)
+                {
+                    org.ice4j.ice.Component component = components.get(i);
+                    if(component.getComponentID() ==
+                            org.ice4j.ice.Component.RTP)
+                    {
+                        CandidatePair candidatePair =
+                            component.getSelectedPair();
+                        if(candidatePair != null)
+                        {
+                            LocalCandidate localCandidate =
+                                candidatePair.getLocalCandidate();
+                            if(localCandidate != null)
+                            {
+                                return
+                                localCandidate.getExtendedType().toString();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

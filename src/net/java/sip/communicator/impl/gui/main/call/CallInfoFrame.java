@@ -251,9 +251,17 @@ public class CallInfoFrame
 
             if(callPeerMediaHandler != null)
             {
-                MediaStream mediaStream;
+                String iceCandidateExtendedType =
+                    callPeerMediaHandler.getICECandidateExtendedType();
+                if(iceCandidateExtendedType != null)
+                {
+                    stringBuffer.append(getLineString(resources.getI18NString(
+                            "service.gui.callinfo.ICE_CANDIDATE_EXTENDED_TYPE"),
+                                iceCandidateExtendedType));
+                }
 
-                mediaStream = callPeerMediaHandler.getStream(MediaType.AUDIO);
+                MediaStream mediaStream =
+                    callPeerMediaHandler.getStream(MediaType.AUDIO);
 
                 if (mediaStream != null)
                 {

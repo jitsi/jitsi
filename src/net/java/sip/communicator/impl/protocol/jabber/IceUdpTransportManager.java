@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.Candidat
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.ice4j.*;
@@ -1175,5 +1176,18 @@ public class IceUdpTransportManager
         {
             iceAgent.free();
         }
+    }
+
+    /**
+     * Returns the extended type of the candidate selected if this transport
+     * manager is using ICE.
+     *
+     * @return The extended type of the candidate selected if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public String getICECandidateExtendedType()
+    {
+        return TransportManager.getICECandidateExtendedType(
+                this.iceAgent);
     }
 }

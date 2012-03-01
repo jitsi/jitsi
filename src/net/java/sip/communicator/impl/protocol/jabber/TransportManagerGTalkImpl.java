@@ -1344,4 +1344,17 @@ public class TransportManagerGTalkImpl
             iceAgent.free();
         }
     }
+
+    /**
+     * Returns the extended type of the candidate selected if this transport
+     * manager is using ICE.
+     *
+     * @return The extended type of the candidate selected if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public String getICECandidateExtendedType()
+    {
+        return TransportManager.getICECandidateExtendedType(
+                this.iceAgent);
+    }
 }
