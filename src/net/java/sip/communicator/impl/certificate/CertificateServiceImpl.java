@@ -425,7 +425,6 @@ public class CertificateServiceImpl
                             {
                                 AuthenticationWindow aw =
                                     new AuthenticationWindow(
-                                        null,
                                         f.getName(),
                                         null,
                                         kt.getName(),

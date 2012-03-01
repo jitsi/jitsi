@@ -125,7 +125,8 @@ public class AuthenticationWindow
                                 boolean isUserNameEditable,
                                 ImageIcon icon)
     {
-        this(server, isUserNameEditable, icon, null, null, null, null);
+        this(null, null, server, isUserNameEditable, false,
+             icon, null, null, null, null, null);
     }
     
     /**
@@ -139,13 +140,17 @@ public class AuthenticationWindow
      * @param usernameLabelText customized username field label text
      * @param passwordLabelText customized password field label text
      */
-    public AuthenticationWindow(String server,
+    private AuthenticationWindow(String userName,
+                                char[] password,
+                                String server,
                                 boolean isUserNameEditable,
+                                boolean isRememberPassword,
                                 ImageIcon icon,
                                 String windowTitle,
                                 String windowText,
                                 String usernameLabelText,
-                                String passwordLabelText)
+                                String passwordLabelText,
+                                String errorMessage)
     {
         super(false);
 
@@ -153,26 +158,9 @@ public class AuthenticationWindow
         this.windowText = windowText;
         this.usernameLabelText = usernameLabelText;
         this.passwordLabelText = passwordLabelText;
+        this.isRememberPassword = isRememberPassword;
 
-        init(server, isUserNameEditable, icon);
-    }
-
-    /**
-     * Creates an instance of the <tt>LoginWindow</tt>.
-     *
-     * @param owner the owner of this dialog
-     * @param server the server name
-     * @param isUserNameEditable indicates if the user name is editable
-     * @param icon the icon to display on the left of the authentication window
-     */
-    public AuthenticationWindow(Dialog owner,
-                                String server,
-                                boolean isUserNameEditable,
-                                ImageIcon icon)
-    {
-        super(owner, false);
-
-        init(server, isUserNameEditable, icon);
+        init(userName, password, server, isUserNameEditable, icon, errorMessage);
     }
 
     /**
@@ -182,9 +170,12 @@ public class AuthenticationWindow
      * @param isUserNameEditable indicates if the user name is editable
      * @param icon the icon to show on the authentication window
      */
-    private void init(  String server,
+    private void init(  String userName,
+                        char[] password,
+                        String server,
                         boolean isUserNameEditable,
-                        ImageIcon icon)
+                        ImageIcon icon,
+                        String errorMessage)
     {
         this.server = server;
 
@@ -222,6 +213,23 @@ public class AuthenticationWindow
         if (OSUtils.IS_MAC)
             getRootPane()
                 .putClientProperty("apple.awt.brushMetalLook", Boolean.TRUE);
+
+        if (userName != null)
+        {
+            if (uinValue instanceof JLabel)
+               ((JLabel) uinValue).setText(userName);
+            else if (uinValue instanceof JTextField)
+                ((JTextField) uinValue).setText(userName);
+        }
+
+        if (password != null)
+            passwdField.setText(new String(password));
+        
+        if(errorMessage != null)
+        {
+            this.infoTextArea.setForeground(Color.RED);
+            this.infoTextArea.setText(errorMessage);
+        }
     }
 
     /**
@@ -243,90 +251,10 @@ public class AuthenticationWindow
                                 ImageIcon icon,
                                 String errorMessage)
     {
-        this(null, userName, password, server, isUserNameEditable,
-            icon, errorMessage);
-    }
-
-    /**
-     * Creates an instance of the <tt>LoginWindow</tt>.
-     *
-     * @param owner the owner of this dialog
-     * @param userName the user name to set by default
-     * @param password the password to set by default
-     * @param server the server name this authentication window is about
-     * @param isUserNameEditable indicates if the user name should be editable
-     * by the user or not
-     * @param icon the icon displayed on the left of the authentication window
-     * @param errorMessage an error message explaining a reason for opening
-     * the authentication dialog (when a wrong password was provided, etc.)
-     */
-    public AuthenticationWindow(Dialog owner,
-                                String userName,
-                                char[] password,
-                                String server,
-                                boolean isUserNameEditable,
-                                ImageIcon icon,
-                                String errorMessage)
-    {
-        this(owner, userName, password, server, isUserNameEditable, icon);
-
-        this.infoTextArea.setForeground(Color.RED);
-        this.infoTextArea.setText(errorMessage);
-    }
-
-    /**
-     * Creates an instance of the <tt>LoginWindow</tt>.
-     *
-     * @param userName the user name to set by default
-     * @param password the password to set by default
-     * @param server the server name this authentication window is about
-     * @param isUserNameEditable indicates if the user name should be editable
-     * by the user or not
-     * @param isRememberPassword indicates if the password should be rememberd
-     * @param icon the icon displayed on the left of the authentication window
-     * @param errorMessage an error message explaining a reason for opening
-     * the authentication dialog (when a wrong password was provided, etc.)
-     */
-    public AuthenticationWindow(String userName,
-                                char[] password,
-                                String server,
-                                boolean isUserNameEditable,
-                                boolean isRememberPassword,
-                                ImageIcon icon,
-                                String errorMessage)
-    {
-        this(null, userName, password, server, isUserNameEditable,
-            isRememberPassword, icon, errorMessage);
-    }
-
-
-    /**
-     * Creates an instance of the <tt>LoginWindow</tt>.
-     *
-     * @param owner the owner of this dialog
-     * @param userName the user name to set by default
-     * @param password the password to set by default
-     * @param server the server name this authentication window is about
-     * @param isUserNameEditable indicates if the user name should be editable
-     * by the user or not
-     * @param isRememberPassword indicates if the password should be rememberd
-     * @param icon the icon displayed on the left of the authentication window
-     * @param errorMessage an error message explaining a reason for opening
-     * the authentication dialog (when a wrong password was provided, etc.)
-     */
-    public AuthenticationWindow(Dialog owner,
-                                String userName,
-                                char[] password,
-                                String server,
-                                boolean isUserNameEditable,
-                                boolean isRememberPassword,
-                                ImageIcon icon,
-                                String errorMessage)
-    {
-        this(owner, userName, password, server, isUserNameEditable,
-            icon, errorMessage);
-
-        this.isRememberPassword = isRememberPassword;
+        this(userName, password, server,
+                    isUserNameEditable,
+                    false,
+                    icon, null, null, null, null, errorMessage);
     }
 
     /**
@@ -346,7 +274,7 @@ public class AuthenticationWindow
                 boolean isUserNameEditable,
                 ImageIcon icon)
     {
-        this(null, userName, password, server, isUserNameEditable, icon);
+        this(userName, password, server, isUserNameEditable, icon, null);
     }
 
     /**
@@ -368,18 +296,9 @@ public class AuthenticationWindow
                 boolean isUserNameEditable,
                 ImageIcon icon)
     {
-        this(owner, server, isUserNameEditable, icon);
+        super(owner, false);
 
-        if (userName != null)
-        {
-            if (uinValue instanceof JLabel)
-               ((JLabel) uinValue).setText(userName);
-            else if (uinValue instanceof JTextField)
-                ((JTextField) uinValue).setText(userName);
-        }
-
-        if (password != null)
-            passwdField.setText(new String(password));
+        init(userName, password, server, isUserNameEditable, icon, null);
     }
 
     /**
