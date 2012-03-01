@@ -186,13 +186,13 @@ public class CallInfoFrame
                     "service.gui.callinfo.IS_CONFERENCE_FOCUS"),
                 String.valueOf(isConfFocus)));
 
-        String preferredTransport =
-            call.getProtocolProvider().getTransportType();
+        TransportProtocolEnum preferredTransport =
+            call.getProtocolProvider().getTransportProtocol();
 
-        if (preferredTransport != null && preferredTransport.length() > 0)
+        if (preferredTransport != TransportProtocolEnum.UNKNOWN)
             stringBuffer.append(getLineString(
                 resources.getI18NString("service.gui.callinfo.CALL_TRANSPORT"),
-                preferredTransport));
+                preferredTransport.toString()));
 
         constructCallPeersInfo(stringBuffer);
 

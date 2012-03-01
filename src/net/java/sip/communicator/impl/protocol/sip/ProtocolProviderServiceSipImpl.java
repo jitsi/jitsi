@@ -1640,22 +1640,24 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Returns the transport protocol of this instance.
+     * Returns the "transport" protocol of this instance used to carry the
+     * control channel for the current protocol service.
      *
-     * @return The transport protocol of this instance (UDP, TCP, TLS), or null
-     * if the transport protocol is unknown.
+     * @return The "transport" protocol of this instance: UDP, TCP, TLS or
+     * UNKNOWN.
      */
-    public String getTransportType()
+    public TransportProtocolEnum getTransportProtocol()
     {
         // The transport protocol is not set properly when dealing with a
-        // RegistrarLess account. This is why we return "null" in this case.
+        // RegistrarLess account. This is why we return "UNKNOWN" in this case.
         if(this.sipRegistrarConnection == null
                 || this.sipRegistrarConnection instanceof
                 SipRegistrarlessConnection)
         {
-            return null;
+            return TransportProtocolEnum.UNKNOWN;
         }
-        return sipRegistrarConnection.getTransport();
+        return TransportProtocolEnum.parse(
+                sipRegistrarConnection.getTransport());
     }
 
     /**

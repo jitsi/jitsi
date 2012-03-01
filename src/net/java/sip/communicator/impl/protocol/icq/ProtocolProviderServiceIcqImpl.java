@@ -429,13 +429,14 @@ public class ProtocolProviderServiceIcqImpl
     }
 
     /**
-     * Returns the transport protocol of this instance.
+     * Returns the "transport" protocol of this instance used to carry the
+     * control channel for the current protocol service.
      *
-     * @return The transport protocol of this instance (TCP).
+     * @return The "transport" protocol of this instance: TCP.
      */
-    public String getTransportType()
+    public TransportProtocolEnum getTransportProtocol()
     {
-        return "TCP";
+        return TransportProtocolEnum.TCP;
     }
 
     /**
