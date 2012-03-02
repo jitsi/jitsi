@@ -143,6 +143,14 @@ public interface MediaStream
     public InetSocketAddress getRemoteDataAddress();
 
     /**
+     * Returns the transport protocol used by the streams.
+     *
+     * @return the transport protocol (UDP or TCP) used by the streams. null if
+     * the stream connector is not instanciated.
+     */
+    public StreamConnector.Protocol getTransportProtocol();
+
+    /**
      * Adds a property change listener to this stream so that it would be
      * notified upon property change events like for example an SSRC ID which
      * becomes known.

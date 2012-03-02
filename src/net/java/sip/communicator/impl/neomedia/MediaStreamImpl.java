@@ -272,6 +272,9 @@ public class MediaStreamImpl
         setDevice(device);
 
         // TODO Add option to disable ZRTP, e.g. by implementing a NullControl.
+        // If you change the default behavior (initiates a ZrtpControlImpl if
+        // the srtpControl attribute is null), please accordingly modify the
+        // CallPeerMediaHandler.initStream fucntion.
         this.srtpControl
                 = (srtpControl == null) ? new ZrtpControlImpl() : srtpControl;
 
@@ -1101,6 +1104,25 @@ public class MediaStreamImpl
         }
 
         return null;
+    }
+
+    /**
+     * Returns the transport protocol used by the streams.
+     *
+     * @return the transport protocol (UDP or TCP) used by the streams. null if
+     * the stream connector is not instanciated.
+     */
+    public StreamConnector.Protocol getTransportProtocol()
+    {
+        StreamConnector connector =
+            (rtpConnector != null) ? rtpConnector.getConnector() : null;
+
+        if(connector == null)
+        {
+            return null;
+        }
+
+        return connector.getProtocol();
     }
 
     /**

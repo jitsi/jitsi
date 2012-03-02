@@ -1260,27 +1260,34 @@ public abstract class CallPeerMediaHandler<
             if (logger.isTraceEnabled() && (mediaType != format.getMediaType()))
                 logger.trace("The media types of device and format differ.");
 
+            MediaService mediaService =
+                ProtocolMediaActivator.getMediaService();
+            // By default the SrtpControlType is ZRTP.
+            SrtpControlType srtpControlType = SrtpControlType.ZRTP;
+            // But if a SrtpControl exists already, we switch to this
+            // SrtpControlType.
+            if(srtpControls.size() > 0)
+            {
+                srtpControlType = srtpControls.firstKey().srtpControlType;
+            }
+            MediaTypeSrtpControl mediaTypeSrtpControl = 
+                new MediaTypeSrtpControl(mediaType, srtpControlType);
             // check whether a control already exists
-            SrtpControl control
-                = srtpControls.size() > 0
-                    ? srtpControls.get(
-                            new MediaTypeSrtpControl(
-                                    mediaType,
-                                    srtpControls.firstKey().srtpControlType))
-                    : null;
-            MediaService mediaService
-                = ProtocolMediaActivator.getMediaService();
-
+            SrtpControl control = srtpControls.get(mediaTypeSrtpControl);
             if(control == null)
             {
                 // this creates the default control, currently ZRTP without
                 // the hello-hash
+                // The creation of the SrtpControl is done in the
+                // MediaStreamImpl (which creates a new ZrtpControlImpl()), but
+                // this was done without linking to the srtpControls Map.
                 stream = mediaService.createMediaStream(connector, device);
+                srtpControls.put(mediaTypeSrtpControl, stream.getSrtpControl());
             }
             else
             {
                 stream = mediaService.createMediaStream(
-                            connector, device, control);
+                        connector, device, control);
             }
         }
         else
@@ -1884,6 +1891,38 @@ public abstract class CallPeerMediaHandler<
         {
             callPropertyChange(event);
         }
+    }
+
+    /**
+     * Returns the SRTP control type used for a given media type (AUDIO or
+     * VIDEO).
+     *
+     * @param mediaType The media type (AUDIO or VIDEO) which may use SRTP
+     * enabled thanks to a given SRTP control type.
+     *
+     * @return the SRTP control type used (MIKEY, SDES, ZRTP) for the given
+     * media, or null if SRTP is not enabled for this media type.
+     */
+    public SrtpControlType getEncryptionMethod(MediaType mediaType)
+    {
+        SrtpControl srtpControl = null;
+
+        // Goes through the different SRTP control type and stops if we found
+        // the one used for this media stream.
+        for(SrtpControlType srtpControlType : SrtpControlType.values())
+        {
+            // If this SRTP control type exists and is activate to secure the
+            // communication.
+            if((srtpControl = srtpControls.get(new MediaTypeSrtpControl(
+                                mediaType, srtpControlType)))
+                    != null
+                    && srtpControl.getSecureCommunicationStatus())
+            {
+                return srtpControlType;
+            }
+        }
+
+        return null;
     }
 
     /**

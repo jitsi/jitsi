@@ -265,21 +265,35 @@ public class CallInfoFrame
                 MediaStream mediaStream =
                     callPeerMediaHandler.getStream(MediaType.AUDIO);
 
-                if (mediaStream != null)
+                if (mediaStream != null && mediaStream.isStarted())
                 {
                     stringBuffer.append("<br/>");
                     stringBuffer.append(getLineString(resources.getI18NString(
                         "service.gui.callinfo.AUDIO_INFO"), ""));
+
+                    this.appendStreamEncryptionMethod(
+                            stringBuffer,
+                            callPeerMediaHandler,
+                            mediaStream,
+                            MediaType.AUDIO);
+
                     constructAudioVideoInfo(mediaStream, stringBuffer);
                 }
 
                 mediaStream = callPeerMediaHandler.getStream(MediaType.VIDEO);
 
-                if (mediaStream != null)
+                if (mediaStream != null && mediaStream.isStarted())
                 {
                     stringBuffer.append("<br/>");
                     stringBuffer.append(getLineString(resources.getI18NString(
                         "service.gui.callinfo.VIDEO_INFO"), ""));
+
+                    this.appendStreamEncryptionMethod(
+                            stringBuffer,
+                            callPeerMediaHandler,
+                            mediaStream,
+                            MediaType.VIDEO);
+
                     constructAudioVideoInfo(mediaStream, stringBuffer);
                 }
             }
@@ -404,5 +418,61 @@ public class CallInfoFrame
     public void dispose()
     {
         callInfoWindow.dispose();
+    }
+
+    /**
+     * Appends to the string buffer the stream encryption method (null, MIKEY,
+     * SDES, ZRTP) used for a given media stream (type AUDIO or VIDEO).
+     *
+     * @param stringBuffer The string buffer containing the call information
+     * statistics.
+     * @param callPeerMediaHandler The media handler containing the different
+     * media streams.
+     * @param mediaStream the <tt>MediaStream</tt> that gives us access to
+     * audio/video info.
+     * @param mediaType The media type used to determine which stream of the
+     * media handler must returns it encryption method.
+     */
+    private void appendStreamEncryptionMethod(
+            StringBuffer stringBuffer,
+            CallPeerMediaHandler callPeerMediaHandler,
+            MediaStream mediaStream,
+            MediaType mediaType)
+    {
+        String transportProtocolString = "";
+        StreamConnector.Protocol transportProtocol =
+            mediaStream.getTransportProtocol();
+        if(transportProtocol != null)
+        {
+            transportProtocolString = transportProtocol.toString();
+        }
+
+        String rtpType;
+        SrtpControlType srtpControlType = callPeerMediaHandler
+            .getEncryptionMethod(mediaType);
+        // If the stream is secured.
+        if(srtpControlType != null)
+        {
+            rtpType = resources.getI18NString(
+                            "service.gui.callinfo.MEDIA_STREAM_SRTP")
+                + " (" +
+                resources.getI18NString(
+                        "service.gui.callinfo.KEY_EXCHANGE_PROTOCOL")
+                + ": "
+                + srtpControlType.toString()
+                + ")";
+        }
+        // If the stream is not secured.
+        else
+        {
+            rtpType = resources.getI18NString(
+                            "service.gui.callinfo.MEDIA_STREAM_RTP");
+        }
+        // Appends the encryption status String.
+        stringBuffer.append(getLineString(
+                    resources.getI18NString(
+                        "service.gui.callinfo.MEDIA_STREAM_TRANSPORT_PROTOCOL"),
+                    transportProtocolString + " / " + rtpType));
+
     }
 }
