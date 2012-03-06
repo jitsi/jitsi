@@ -665,7 +665,7 @@ public class CallPeerMediaHandlerSipImpl
 
                 String helloHash = zcontrol.getHelloHash();
                 if(helloHash != null && helloHash.length() > 0)
-                    md.setAttribute("zrtp-hash", helloHash);
+                    md.setAttribute(SdpUtils.ZRTP_HASH_ATTR, helloHash);
 
             }
             catch (SdpException ex)
@@ -870,6 +870,8 @@ public class CallPeerMediaHandlerSipImpl
         this.setCallInfoURL(SdpUtils.getCallInfoURL(answer));
 
         boolean masterStreamSet = false;
+        boolean hasZrtp = false;
+        boolean hasSdes = false;
         List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
@@ -1012,6 +1014,8 @@ public class CallPeerMediaHandlerSipImpl
                             it.remove();
                         }
                     }
+
+                    hasSdes = true;
                 }
             }
 
@@ -1034,10 +1038,25 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
 
+            try
+            {
+                hasZrtp = mediaDescription.getAttribute(
+                    SdpUtils.ZRTP_HASH_ATTR) != null;
+            }
+            catch (SdpParseException e)
+            {
+                logger.error("received an unparsable sdp attribute", e);
+            }
+
             // create the corresponding stream...
             initStream(connector, dev, supportedFormats.get(0), target,
                                 direction, rtpExtensions, masterStream);
         }
+        
+        if(hasSdes)
+            addAdvertisedEncryptionMethod(SrtpControlType.SDES);
+        if(hasZrtp)
+            addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
     }
 
     /**

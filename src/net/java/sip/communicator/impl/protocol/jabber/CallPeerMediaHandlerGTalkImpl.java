@@ -148,6 +148,21 @@ public class CallPeerMediaHandlerGTalkImpl
             }
         }
 
+        EncryptionPacketExtension encryptionPacketExtension
+            = offer.getFirstChildOfType(EncryptionPacketExtension.class);
+        if(encryptionPacketExtension != null)
+        {
+            ZrtpHashPacketExtension zrtpHashPacketExtension =
+                encryptionPacketExtension.getFirstChildOfType(
+                    ZrtpHashPacketExtension.class);
+
+            if(zrtpHashPacketExtension != null
+                && zrtpHashPacketExtension.getValue() != null)
+            {
+                addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
+            }
+        }
+
         for(MediaType mediaType : MediaType.values())
         {
             if(!(isAudio && mediaType == MediaType.AUDIO) &&
@@ -338,6 +353,21 @@ public class CallPeerMediaHandlerGTalkImpl
                IllegalArgumentException
     {
         List<PayloadTypePacketExtension> lst = answer.getPayloadTypes();
+
+        EncryptionPacketExtension encryptionPacketExtension
+            = answer.getFirstChildOfType(EncryptionPacketExtension.class);
+        if(encryptionPacketExtension != null)
+        {
+            ZrtpHashPacketExtension zrtpHashPacketExtension =
+                encryptionPacketExtension.getFirstChildOfType(
+                    ZrtpHashPacketExtension.class);
+
+            if(zrtpHashPacketExtension != null
+                && zrtpHashPacketExtension.getValue() != null)
+            {
+                addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
+            }
+        }
 
         boolean masterStreamSet = true;
         for(MediaType mediaType : MediaType.values())

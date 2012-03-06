@@ -8,8 +8,10 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.beans.*;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 
 /**
  * The <tt>CallPeerAdapter</tt> is an adapter that implements all common
@@ -186,6 +188,25 @@ public class CallPeerAdapter
             return;
 
         renderer.securityOff(securityOffEvent);
+    }
+
+    /**
+     * The handler for the security event received. The security event
+     * represents a timeout trying to establish a secure connection.
+     * Most probably the other peer doesn't support it.
+     *
+     * @param securityTimeoutEvent
+     *            the security timeout event received
+     */
+    public void securityTimeout(
+        CallPeerSecurityTimeoutEvent securityTimeoutEvent)
+    {
+        CallPeer peer = (CallPeer) securityTimeoutEvent.getSource();
+
+        if (!peer.equals(callPeer))
+            return;
+
+        renderer.securityTimeout(securityTimeoutEvent);
     }
 
     /**

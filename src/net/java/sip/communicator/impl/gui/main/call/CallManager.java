@@ -91,8 +91,18 @@ public class CallManager
 
             receivedCallDialog.setVisible(true);
 
-            final String peerName
-                = sourceCall.getCallPeers().next().getDisplayName();
+            Iterator<? extends CallPeer> peerIterator =
+                sourceCall.getCallPeers();
+
+            if(!peerIterator.hasNext())
+            {
+                if (receivedCallDialog.isVisible())
+                    receivedCallDialog.setVisible(false);
+
+                return;
+            }
+
+            final String peerName = peerIterator.next().getDisplayName();
             final Date callDate = new Date();
 
             sourceCall.addCallChangeListener(new CallChangeAdapter()

@@ -44,6 +44,17 @@ public interface CallPeerSecurityListener
         CallPeerSecurityOffEvent securityEvent);
 
     /**
+     * The handler for the security event received. The security event
+     * represents a timeout trying to establish a secure connection.
+     * Most probably the other peer doesn't support it.
+     *
+     * @param securityTimeoutEvent
+     *            the security timeout event received
+     */
+    public void securityTimeout(
+        CallPeerSecurityTimeoutEvent securityTimeoutEvent);
+
+    /**
      * The handler of the security message event.
      *
      * @param event the security message event.

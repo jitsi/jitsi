@@ -670,7 +670,7 @@ public class NotificationManager
     /**
      * Stops all sounds for the given event type.
      *
-     * @param notificationData the event type for which we should stop sounds. One of
+     * @param data the event type for which we should stop sounds. One of
      * the static event types defined in this class.
      */
     public static void stopSound(NotificationData data)
@@ -1198,6 +1198,18 @@ public class NotificationManager
      * @param securityOffEvent the event we received
      */
     public void securityOff(CallPeerSecurityOffEvent securityOffEvent)
+    {}
+
+    /**
+     * The handler for the security event received. The security event
+     * represents a timeout trying to establish a secure connection.
+     * Most probably the other peer doesn't support it.
+     *
+     * @param securityTimeoutEvent
+     *            the security timeout event received
+     */
+    public void securityTimeout(
+        CallPeerSecurityTimeoutEvent securityTimeoutEvent)
     {}
 
     /**

@@ -190,7 +190,7 @@ public class OperationSetBasicTelephonySipImpl
      * for use by other <tt>OperationSet</tt>s willing to initialize
      * <tt>Call</tt>s and willing to control their establishment in ways
      * different than {@link #createOutgoingCall(Address,
-     * javax.sip.message.Message)}.
+     * javax.sip.message.Message,CallGroup)}.
      *
      * @return a new outgoing <tt>Call</tt> with no peers in it
      * @throws OperationFailedException if initializing the new outgoing
@@ -623,12 +623,29 @@ public class OperationSetBasicTelephonySipImpl
                 || (responseStatusCodeRange == 5)
                 || (responseStatusCodeRange == 6))
             {
-                logger.error("Received error: " + response.getStatusCode()
-                    + " " + response.getReasonPhrase());
+                String reason = response.getReasonPhrase();
+
+                WarningHeader warningHeader
+                    = (WarningHeader)response.getHeader(WarningHeader.NAME);
+                if(warningHeader != null)
+                {
+                    reason = warningHeader.getText();
+
+                    logger.error("Received error: " + response.getStatusCode()
+                                        + " " + response.getReasonPhrase()
+                                        + " " + warningHeader.getText()
+                                        + "-" + warningHeader.getAgent()
+                                        + "-" + warningHeader.getName());
+                }
+                else
+                {
+                    logger.error("Received error: " + response.getStatusCode()
+                                        + " " + response.getReasonPhrase());
+                }
 
                 if (callPeer != null)
                     callPeer.setState(CallPeerState.FAILED,
-                                    response.getReasonPhrase());
+                                    reason);
 
                 processed = true;
             }
@@ -1053,7 +1070,56 @@ public class OperationSetBasicTelephonySipImpl
 
                 //this is a brand new call (not a transferred one)
                 CallSipImpl call = new CallSipImpl(this);
-                call.processInvite(sourceProvider, serverTransaction);
+                MediaAwareCallPeer peer =
+                    call.processInvite(sourceProvider, serverTransaction);
+
+                if(getProtocolProvider().getAccountID()
+                    .getAccountPropertyBoolean(
+                        ProtocolProviderFactory.MODE_PARANOIA, false)
+                    && peer.getMediaHandler()
+                        .getAdvertisedEncryptionMethods().length == 0)
+                {
+                    // if in paranoia mode and we don't find any encryption
+                    // fail peer/call send error with warning explaining why
+                    
+                    peer.setState(
+                        CallPeerState.FAILED,
+                        "Encryption required!",
+                        Response.SESSION_NOT_ACCEPTABLE);
+
+                    // 606 Not acceptable
+                    // warning header : encryption required
+                    WarningHeader warning = null;
+                    try
+                    {
+                        //399 Miscellaneous warning
+                        warning = protocolProvider.getHeaderFactory()
+                            .createWarningHeader(
+                                protocolProvider.getAccountID().getService()
+                                , 399, "Encryption required!");
+                    }
+                    catch(InvalidArgumentException e)
+                    {
+                        logger.error("Cannot create warning header", e);
+                    }
+                    catch(ParseException e)
+                    {
+                        logger.error("Cannot create warning header", e);
+                    }
+
+                    try
+                    {
+                        protocolProvider.sayError(serverTransaction,
+                                                Response.SESSION_NOT_ACCEPTABLE,
+                                                warning);
+                    }
+                    catch(OperationFailedException e)
+                    {
+                        logger.error("Cannot send 606 error!", e);
+                    }
+
+                    return;
+                }
 
                 // checks for auto answering of call, if no further processing
                 // is needed return

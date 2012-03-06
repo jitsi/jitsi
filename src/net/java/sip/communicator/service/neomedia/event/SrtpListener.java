@@ -50,4 +50,12 @@ public interface SrtpListener
     public void securityMessageReceived(String message,
                                 String i18nMessage,
                                 int severity);
+
+    /**
+     * Indicates that the other party has timeouted replying to our
+     * offer to secure the connection.
+     *
+     * @param sessionType the type of the call session - audio or video.
+     */
+    public void securityTimeout(int sessionType);
 }

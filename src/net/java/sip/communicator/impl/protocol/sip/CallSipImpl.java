@@ -258,6 +258,8 @@ public class CallSipImpl
             mediaDirections.put(MediaType.AUDIO, MediaDirection.INACTIVE);
             mediaDirections.put(MediaType.VIDEO, MediaDirection.INACTIVE);
 
+            boolean hasZrtp = false;
+            boolean hasSdes = false;
             //this check is not mandatory catch all to skip if a problem exists
             try
             {
@@ -279,6 +281,9 @@ public class CallSipImpl
                         MediaType mediaType =
                                 SdpUtils.getMediaType(mediaDescription);
 
+                        hasZrtp = hasZrtp || mediaDescription.getAttribute(
+                            SdpUtils.ZRTP_HASH_ATTR) != null;
+
                         if(mediaType.equals(MediaType.VIDEO))
                         {
                             MediaDirection videoDirection =
@@ -292,6 +297,25 @@ public class CallSipImpl
                                 SdpUtils.getDirection(mediaDescription);
                             mediaDirections.put(MediaType.AUDIO,
                                 audioDirection);
+                        }
+
+                        @SuppressWarnings("unchecked")
+                        Vector<Attribute> attrs =
+                            mediaDescription.getAttributes(true);
+                        for (Attribute a : attrs)
+                        {
+                            try
+                            {
+                                if (a.getName().equals("crypto"))
+                                {
+                                    hasSdes = true;
+                                }
+                            }
+                            catch (SdpParseException e)
+                            {
+                                logger.error(
+                                    "received an unparsable sdp attribute", e);
+                            }
                         }
                     }
                 }
@@ -308,6 +332,18 @@ public class CallSipImpl
                                         : CallEvent.CALL_INITIATED),
                                         this,
                                         mediaDirections);
+            }
+
+            if(hasZrtp)
+            {
+                callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
+                    SrtpControlType.ZRTP);
+            }
+
+            if(hasSdes)
+            {
+                callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
+                    SrtpControlType.SDES);
             }
         }
 

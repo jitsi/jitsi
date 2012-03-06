@@ -350,6 +350,8 @@ public class SecurityEventManager extends ZrtpUserCallback
             logger.debug(sessionTypeToString(sessionType)
             + ": Other party does not support ZRTP key negotiation protocol,"
             + " no secure calls possible.");
+
+        securityListener.securityTimeout(sessionType);
     }
 
     /**

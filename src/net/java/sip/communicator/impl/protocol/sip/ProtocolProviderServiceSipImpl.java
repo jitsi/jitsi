@@ -1939,12 +1939,34 @@ public class ProtocolProviderServiceSipImpl
     public void sayError(ServerTransaction serverTransaction, int errorCode)
         throws OperationFailedException
     {
+        sayError(serverTransaction, errorCode, null);
+    }
+
+    /**
+     * Send an error response with the <tt>errorCode</tt> code using
+     * <tt>serverTransaction</tt>.
+     *
+     * @param serverTransaction the transaction that we'd like to send an error
+     * response in.
+     * @param errorCode the code that the response should have.
+     *
+     * @throws OperationFailedException if we failed constructing or sending a
+     * SIP Message.
+     */
+    public void sayError(ServerTransaction serverTransaction,
+                         int errorCode,
+                         Header header)
+        throws OperationFailedException
+    {
         Request request = serverTransaction.getRequest();
         Response errorResponse = null;
         try
         {
             errorResponse = getMessageFactory().createResponse(
                             errorCode, request);
+
+            if(header != null)
+                errorResponse.setHeader(header);
 
             //we used to be adding a To tag here and we shouldn't. 3261 says:
             //"Dialogs are created through [...] non-failure responses". and

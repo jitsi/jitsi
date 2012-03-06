@@ -78,6 +78,13 @@ public interface CallPeerRenderer
     public void securityOff(CallPeerSecurityOffEvent evt);
 
     /**
+     * Indicates that the security is timeouted, is not supported by the
+     * other end.
+     * @param evt Details about the event that caused this message.
+     */
+    public void securityTimeout(CallPeerSecurityTimeoutEvent evt);
+
+    /**
      * Sets the call peer adapter that manages all related listeners.
      *
      * @param adapter the call peer adapter

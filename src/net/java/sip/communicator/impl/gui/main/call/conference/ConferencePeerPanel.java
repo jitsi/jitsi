@@ -237,6 +237,16 @@ public class ConferencePeerPanel
     }
 
     /**
+     * Indicates that the security is timeouted, is not supported by the
+     * other end.
+     * @param evt Details about the event that caused this message.
+     */
+    public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
+    {
+
+    }
+
+    /**
      * Sets the mute status icon to the status panel.
      *
      * @param isMute indicates if the call with this peer is

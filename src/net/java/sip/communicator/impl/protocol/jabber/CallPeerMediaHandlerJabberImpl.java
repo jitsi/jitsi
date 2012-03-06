@@ -398,6 +398,21 @@ public class CallPeerMediaHandlerJabberImpl
             localContentMap.put(content.getName(), ourContent);
 
             atLeastOneValidDescription = true;
+
+            EncryptionPacketExtension encryptionPacketExtension
+                = description.getFirstChildOfType(EncryptionPacketExtension.class);
+            if(encryptionPacketExtension != null)
+            {
+                ZrtpHashPacketExtension zrtpHashPacketExtension =
+                    encryptionPacketExtension.getFirstChildOfType(
+                        ZrtpHashPacketExtension.class);
+
+                if(zrtpHashPacketExtension != null
+                    && zrtpHashPacketExtension.getValue() != null)
+                {
+                    addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
+                }
+            }
         }
 
         if (!atLeastOneValidDescription)
@@ -1175,6 +1190,21 @@ public class CallPeerMediaHandlerJabberImpl
                             supportedFormats,
                             dev.getSupportedFormats(
                                 sendQualityPreset, receiveQualityPreset));
+            }
+        }
+
+        EncryptionPacketExtension encryptionPacketExtension
+            = description.getFirstChildOfType(EncryptionPacketExtension.class);
+        if(encryptionPacketExtension != null)
+        {
+            ZrtpHashPacketExtension zrtpHashPacketExtension = 
+                encryptionPacketExtension.getFirstChildOfType(
+                    ZrtpHashPacketExtension.class);
+            
+            if(zrtpHashPacketExtension != null
+                && zrtpHashPacketExtension.getValue() != null)
+            {
+                addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
             }
         }
 

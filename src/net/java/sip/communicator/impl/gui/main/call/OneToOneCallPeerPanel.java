@@ -720,6 +720,16 @@ public class OneToOneCallPeerPanel
     }
 
     /**
+     * Indicates that the security is timeouted, is not supported by the
+     * other end.
+     * @param evt Details about the event that caused this message.
+     */
+    public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
+    {
+
+    }
+
+    /**
      * Sets the call peer adapter managing all related listeners.
      * @param adapter the adapter to set
      */

@@ -184,6 +184,28 @@ public class CallJabberImpl
         //before notifying about this call, make sure that it looks alright
         callPeer.processSessionInitiate(jingleIQ);
 
+        // if paranoia is set, to accept the call we need to know that
+        // the other party has support for media encryption
+        if(getProtocolProvider().getAccountID().getAccountPropertyBoolean(
+                ProtocolProviderFactory.MODE_PARANOIA, false)
+            && callPeer.getMediaHandler().getAdvertisedEncryptionMethods().length
+                == 0)
+        {
+            //send an error response;
+            String reasonText = "Encryption required!";
+            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
+                jingleIQ.getTo(),
+                jingleIQ.getFrom(),
+                jingleIQ.getSID(),
+                Reason.SECURITY_ERROR,
+                reasonText);
+
+            callPeer.setState(CallPeerState.FAILED, reasonText);
+            getProtocolProvider().getConnection().sendPacket(errResp);
+
+            return null;
+        }
+
         if( callPeer.getState() == CallPeerState.FAILED)
             return null;
 

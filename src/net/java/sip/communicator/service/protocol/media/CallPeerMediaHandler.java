@@ -89,6 +89,13 @@ public abstract class CallPeerMediaHandler<
         = MediaDirection.SENDRECV;
 
     /**
+     * List of advertised encryption methods. Indicated before establishing the
+     * call.
+     */
+    private List<SrtpControlType> advertisedEncryptionMethods =
+        new ArrayList<SrtpControlType>();
+
+    /**
      * A reference to the CallPeer instance that this handler is managing media
      * streams for.
      */
@@ -720,6 +727,29 @@ public abstract class CallPeerMediaHandler<
             return false;
 
         return true;
+    }
+
+    /**
+     * Returns the advertised methods for securing the call,
+     * this are the methods like SDES, ZRTP that are
+     * indicated in the initial session initialization. Missing here doesn't
+     * mean the other party don't support it.
+     * @return the advertised encryption methods.
+     */
+    public SrtpControlType[] getAdvertisedEncryptionMethods()
+    {
+        return advertisedEncryptionMethods.toArray(
+            new SrtpControlType[advertisedEncryptionMethods.size()]);
+    }
+
+    /**
+     * Adds encryption method to the list of advertised secure methods.
+     * @param encryptionMethod the method to add.
+     */
+    public void addAdvertisedEncryptionMethod(SrtpControlType encryptionMethod)
+    {
+        if(!advertisedEncryptionMethods.contains(encryptionMethod))
+            advertisedEncryptionMethods.add(encryptionMethod);
     }
 
     /**

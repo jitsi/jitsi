@@ -404,6 +404,12 @@ public abstract class ProtocolProviderFactory
     public static final String KEEP_ALIVE_INTERVAL = "KEEP_ALIVE_INTERVAL";
 
     /**
+     * Paranoia mode when turned on requires all calls to be secure and
+     * indicated as such.
+     */
+    public static final String MODE_PARANOIA = "MODE_PARANOIA";
+
+    /**
      * The <code>BundleContext</code> containing (or to contain) the service
      * registration of this factory.
      */

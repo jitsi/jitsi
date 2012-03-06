@@ -687,6 +687,19 @@ public abstract class MediaAwareCallPeer
     }
 
     /**
+     * Indicates that the other party has timeouted replying to our
+     * offer to secure the connection.
+     *
+     * @param sessionType the type of the call session - audio or video.
+     */
+    public void securityTimeout(int sessionType)
+    {
+        CallPeerSecurityTimeoutEvent evt =
+            new CallPeerSecurityTimeoutEvent(this, sessionType);
+        fireCallPeerSecurityTimeoutEvent(evt);
+    }
+
+    /**
      * Sets the security status to OFF for this call peer.
      *
      * @param sessionType the type of the call session - audio or video.

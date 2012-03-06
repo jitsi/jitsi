@@ -51,6 +51,11 @@ public class SdpUtils
     private static final String EXTMAP_ATTR = "extmap";
 
     /**
+     * The name of the SDP attribute that defines zrtp hello hash.
+     */
+    public static final String ZRTP_HASH_ATTR = "zrtp-hash";
+
+    /**
      * Parses the specified <tt>sdp String</tt> into a
      * <tt>SessionDescription</tt> and returns it;
      *
