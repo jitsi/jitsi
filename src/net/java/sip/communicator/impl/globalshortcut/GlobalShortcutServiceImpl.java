@@ -39,6 +39,11 @@ public class GlobalShortcutServiceImpl
         new HashMap<GlobalShortcutListener, List<AWTKeyStroke>>();
 
     /**
+     * List of notifiers when special key detection is enabled.
+     */
+    private final List<GlobalShortcutListener> specialKeyNotifiers =
+        new ArrayList<GlobalShortcutListener>();
+    /**
      * If the service is running or not.
      */
     private boolean isRunning = false;
@@ -57,6 +62,16 @@ public class GlobalShortcutServiceImpl
      * UI shortcut to display GUI.
      */
     private final UIShortcut uiShortcut = new UIShortcut();
+
+    /**
+     * Last special key detected.
+     */
+    private AWTKeyStroke specialKeyDetected = null;
+
+    /**
+     * Object to synchronize special key detection.
+     */
+    private final Object specialKeySyncRoot = new Object();
 
     /**
      * Initializes the <tt>GlobalShortcutServiceImpl</tt>.
@@ -90,6 +105,7 @@ public class GlobalShortcutServiceImpl
         synchronized(mapActions)
         {
             List<AWTKeyStroke> keystrokes = mapActions.get(listener);
+            boolean ok = false;
 
             if(keyStroke == null)
             {
@@ -98,21 +114,38 @@ public class GlobalShortcutServiceImpl
 
             if(keystrokes != null)
             {
-                if(keyboardHook.registerShortcut(keyStroke.getKeyCode(),
-                    getModifiers(keyStroke)))
+                if(keyStroke.getModifiers() != SPECIAL_KEY_MODIFIERS)
                 {
-                    if(add)
-                        keystrokes.add(keyStroke);
+                    ok = keyboardHook.registerShortcut(keyStroke.getKeyCode(),
+                        getModifiers(keyStroke));
+                }
+                else
+                {
+                    ok = keyboardHook.registerSpecial(keyStroke.getKeyCode());
+                }
+
+                if(ok && add)
+                {
+                    keystrokes.add(keyStroke);
                 }
             }
             else
             {
                 keystrokes = new ArrayList<AWTKeyStroke>();
-                if(keyboardHook.registerShortcut(keyStroke.getKeyCode(),
-                    getModifiers(keyStroke)))
+
+                if(keyStroke.getModifiers() != SPECIAL_KEY_MODIFIERS)
                 {
-                    if(add)
-                        keystrokes.add(keyStroke);
+                    ok = keyboardHook.registerShortcut(keyStroke.getKeyCode(),
+                        getModifiers(keyStroke));
+                }
+                else
+                {
+                    ok = keyboardHook.registerSpecial(keyStroke.getKeyCode());
+                }
+
+                if(ok && add)
+                {
+                    keystrokes.add(keyStroke);
                 }
             }
 
@@ -160,8 +193,15 @@ public class GlobalShortcutServiceImpl
                         ks = l;
                 }
 
-                keyboardHook.unregisterShortcut(keyStroke.getKeyCode(),
-                    getModifiers(keyStroke));
+                if(modifiers != SPECIAL_KEY_MODIFIERS)
+                {
+                    keyboardHook.unregisterShortcut(keyStroke.getKeyCode(),
+                        getModifiers(keyStroke));
+                }
+                else
+                {
+                    keyboardHook.unregisterSpecial(keyStroke.getKeyCode());
+                }
 
                 if(remove)
                 {
@@ -228,6 +268,30 @@ public class GlobalShortcutServiceImpl
      */
     public synchronized void receiveKey(int keycode, int modifiers)
     {
+        if(keyboardHook.isSpecialKeyDetection())
+        {
+            specialKeyDetected = AWTKeyStroke.getAWTKeyStroke(keycode,
+                modifiers);
+
+            synchronized(specialKeySyncRoot)
+            {
+                specialKeySyncRoot.notify();
+            }
+
+            GlobalShortcutEvent evt = new GlobalShortcutEvent(
+                specialKeyDetected);
+            List<GlobalShortcutListener> copyListeners =
+                new ArrayList<GlobalShortcutListener>(specialKeyNotifiers);
+
+            for(GlobalShortcutListener l : copyListeners)
+            {
+                l.shortcutReceived(evt);
+            }
+
+            // if special key detection is enabled, disable all other shortcuts
+            return;
+        }
+
         synchronized(mapActions)
         {
             // compare keycode/modifiers to keystroke
@@ -239,7 +303,9 @@ public class GlobalShortcutServiceImpl
                 for(AWTKeyStroke l : lst)
                 {
                     if(l.getKeyCode() == keycode &&
-                        getModifiers(l) == modifiers)
+                        (getModifiers(l) == modifiers ||
+                            (modifiers == SPECIAL_KEY_MODIFIERS &&
+                            l.getModifiers() == modifiers)))
                     {
                         // notify corresponding listeners
                         GlobalShortcutEvent evt = new GlobalShortcutEvent(l);
@@ -379,6 +445,67 @@ public class GlobalShortcutServiceImpl
                 }
             }
         }
+    }
+
+    /**
+     * Enable or disable special key detection.
+     *
+     * @param enable enable or not special key detection.
+     * @param callback object to be notified
+     */
+    public synchronized void setSpecialKeyDetection(boolean enable,
+        GlobalShortcutListener callback)
+    {
+        keyboardHook.detectSpecialKeyPress(enable);
+
+        if(specialKeyNotifiers.contains(callback) == enable)
+        {
+            return;
+        }
+
+        if(enable)
+        {
+            specialKeyNotifiers.add(callback);
+        }
+        else
+        {
+            specialKeyNotifiers.remove(callback);
+        }
+    }
+
+    /**
+     * Get special keystroke or null if not supported or user cancels. If no
+     * special key is detected for 5 seconds, it returns null
+     *
+     * @return special keystroke or null if not supported or user cancels
+     */
+    public AWTKeyStroke getSpecialKey()
+    {
+        AWTKeyStroke ret = null;
+
+        specialKeyDetected = null;
+        keyboardHook.detectSpecialKeyPress(true);
+
+        // Windows only for the moment
+        if(OSUtils.IS_WINDOWS)
+        {
+            synchronized(specialKeySyncRoot)
+            {
+                try
+                {
+                    specialKeySyncRoot.wait(5000);
+                }
+                catch(InterruptedException e)
+                {
+                }
+            }
+
+            ret = specialKeyDetected;
+            specialKeyDetected = null;
+        }
+
+        keyboardHook.detectSpecialKeyPress(false);
+        return ret;
     }
 
     /**

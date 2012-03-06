@@ -183,16 +183,16 @@ class KeybindingsServiceImpl
                 Map<KeyStroke, String> customTmp =
                     new LinkedHashMap<KeyStroke, String>(customBindings);
 
-                for (Map.Entry<KeyStroke, String> shortcut2action : defaultBindings
-                    .entrySet())
+                for (Map.Entry<KeyStroke, String> shortcut2action :
+                    defaultBindings.entrySet())
                 {
                     String action = shortcut2action.getValue();
 
                     if (customTmp.containsValue(action))
                     {
                         KeyStroke custom = null;
-                        for (Map.Entry<KeyStroke, String> customShortcut2action : customTmp
-                            .entrySet())
+                        for(Map.Entry<KeyStroke, String> customShortcut2action :
+                            customTmp.entrySet())
                         {
                             if (customShortcut2action.getValue().equals(action))
                             {
@@ -383,9 +383,15 @@ class KeybindingsServiceImpl
             {
                 kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut));
             }
+
+            // second shortcut is always "special"
             if(shortcut2 != null)
             {
-                kss.add(AWTKeyStroke.getAWTKeyStroke(shortcut2));
+                //16367 is the combination of all possible modifiers
+                //(shift ctrl meta alt altGraph button1 button2 button3 pressed)
+                //it is used to distinguish special key (headset) and others
+                int nb = Integer.parseInt(shortcut2);
+                kss.add(AWTKeyStroke.getAWTKeyStroke(nb, 16367));
             }
             gBindings.put(name, kss);
         }
@@ -417,8 +423,10 @@ class KeybindingsServiceImpl
 
             configService.setProperty(shortcut, kss.size() > 0 ?
                 kss.get(0) : null);
-            configService.setProperty(shortcut2, kss.size() > 1 ?
-                kss.get(1) : null);
+            // second shortcut is special
+            configService.setProperty(shortcut2,
+                (kss.size() > 1 && kss.get(1) != null) ?
+                    kss.get(1).getKeyCode() : null);
         }
     }
 

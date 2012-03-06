@@ -938,3 +938,31 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
     }
 }
 
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerSpecial
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode)
+{
+  (void)jniEnv;
+  (void)clazz;
+  (void)ptr;
+  (void)keycode;
+  return JNI_FALSE;
+}
+
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_unregisterSpecial
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode)
+{
+  (void)jniEnv;
+  (void)clazz;
+  (void)ptr;
+  (void)keycode;
+}
+
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_detectSpecialKeyPress
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jboolean enable)
+{
+  (void)jniEnv;
+  (void)clazz;
+  (void)ptr;
+  (void)enable;
+}
+

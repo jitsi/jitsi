@@ -17,6 +17,11 @@ import java.awt.*;
 public interface GlobalShortcutService
 {
     /**
+     * Value for AWTKeyStroke's modifiers that specify a "special" key shortcut.
+     */
+    public static final int SPECIAL_KEY_MODIFIERS = 16367;
+
+    /**
      * Registers an action to execute when the keystroke is typed.
      *
      * @param l listener to notify when keystroke is typed
@@ -33,6 +38,22 @@ public interface GlobalShortcutService
      */
     public void unregisterShortcut(GlobalShortcutListener l,
         AWTKeyStroke keyStroke);
+
+    /**
+     * Enable or disable special key detection.
+     *
+     * @param enable enable or not special key detection.
+     * @param callback object to be notified
+     */
+    public void setSpecialKeyDetection(boolean enable,
+        GlobalShortcutListener callback);
+
+    /**
+     * Get special keystroke or null if not supported or user cancels.
+     *
+     * @return special keystroke or null if not supported or user cancels
+     */
+    public AWTKeyStroke getSpecialKey();
 
     /**
      * Reload global shortcuts.

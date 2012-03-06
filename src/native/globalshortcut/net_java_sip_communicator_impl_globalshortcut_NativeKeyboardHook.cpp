@@ -61,6 +61,8 @@ class keyboard_hook
     HWND hwnd; /**< Handle of the window that will receive event. */
     int hotkey_next_id; /**< Next ID to use for a  new hotkey. */ 
     std::list<keystrok> keystrokes; /**< List of keystrokes registered. */
+    std::list<int> specials; /**< List of special keystrokes registered. */
+    bool detect; /**< If we are in detection mode. */
 };
 
 /**
@@ -653,13 +655,13 @@ static int convertWindowsKeycodeToJava(int keycode)
         else if(keycode == VK_PERIOD)
             ret = JVK_PERIOD;
         else if(keycode == VK_DOLLAR)
-            ret = JVK_DOLLAR;	
-	else if(keycode == VK_LESS)
-            ret = JVK_LESS;	
-	else if(keycode == VK_GREATER)
-            ret = JVK_GREATER;	
-	else if(keycode == VK_SLASH)
-            ret = JVK_SLASH;	
+            ret = JVK_DOLLAR;  
+        else if(keycode == VK_LESS)
+            ret = JVK_LESS;  
+        else if(keycode == VK_GREATER)
+            ret = JVK_GREATER;  
+        else if(keycode == VK_SLASH)
+            ret = JVK_SLASH;  
     }
     return ret;
 }
@@ -873,6 +875,39 @@ static void RegisterWindowClassW(HINSTANCE hInstance)
 }
 
 /**
+ * \brief Callback handler for low-level keyboard press/release.
+ * \param nCode code
+ * \param wParam wParam
+ * \param lParam lParam
+ * \return CallNextHookEx return value
+ */
+LRESULT CALLBACK keyHandler(int nCode, WPARAM wParam, LPARAM lParam)
+{
+  KBDLLHOOKSTRUCT* kbd = (KBDLLHOOKSTRUCT*)lParam;
+  int pressed = wParam == WM_KEYDOWN;
+
+  if(pressed && kbd->vkCode > 160)
+  {
+    if(g_keyboard_hook.detect)
+    {
+      notify(kbd->vkCode, 16367);
+    }
+    else
+    {
+      for(std::list<int>::const_iterator it = g_keyboard_hook.specials.begin() ; it != g_keyboard_hook.specials.end() ; ++it)
+      {
+        if((*it)== kbd->vkCode)
+        {
+          notify((*it), 16367);
+          break;
+        }
+      }
+    }
+  }
+  return CallNextHookEx(g_keyboard_hook.hook, nCode, wParam, lParam);
+}
+
+/**
  * \brief Thread that create window and that monitor event related to it.
  * \param pThreadParam thread parameter
  * \return 0
@@ -887,6 +922,7 @@ static unsigned WINAPI CreateWndThreadW(LPVOID pThreadParam)
   HWND hWnd = CreateWindowW(WINDOW_SHORTCUT_NAME, NULL, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
       NULL, NULL, hInstance, NULL);
+  keyboard->hook = SetWindowsHookEx(WH_KEYBOARD_LL, keyHandler, NULL, 0);
 
   if(hWnd == NULL)
   {
@@ -926,6 +962,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
   HANDLE hThread = NULL;
   UINT uThreadId = 0;
 
+  keyboard->detect = false;
   hThread = (HANDLE)_beginthreadex(NULL, 0, &CreateWndThreadW, keyboard, 0, &uThreadId);
   if(!hThread)
   {
@@ -940,6 +977,7 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
 {
   keyboard_hook* keyboard = (keyboard_hook*)ptr;
 
+  UnhookWindowsHookEx(keyboard->hook);
   keyboard->hook = 0;
   keyboard->running = 0;
 }
@@ -1017,3 +1055,50 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_Native
   }
 }
 
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_registerSpecial
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode)
+{
+  struct keyboard_hook* keyboard = (struct keyboard_hook*)ptr;
+
+  if(keyboard && keyboard->hook != NULL)
+  {
+    keyboard->specials.push_back((int)keycode);
+    return JNI_TRUE;
+  }
+  return JNI_FALSE;
+}
+
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_unregisterSpecial
+  (JNIEnv* jniEnv, jclass clazz, jlong ptr, jint keycode)
+{
+  struct keyboard_hook* keyboard = (struct keyboard_hook*)ptr;
+
+  if(keyboard)
+  {
+    for(std::list<int>::iterator it = keyboard->specials.begin() ; 
+        it != keyboard->specials.end() ; ++it)
+    {
+      if((*it) == keycode)
+      {
+        keyboard->specials.erase(it);
+        return;
+      }
+    }
+  }
+}
+
+/*
+ * Class:     net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook
+ * Method:    detectSpecialKeyPress
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook_detectSpecialKeyPress
+ (JNIEnv* jniEnv, jclass clazz, jlong ptr, jboolean enable)
+{
+  struct keyboard_hook* keyboard = (struct keyboard_hook*)ptr;
+
+  if(keyboard)
+  {
+    keyboard->detect = (enable == JNI_TRUE) ? true : false;
+  }
+}

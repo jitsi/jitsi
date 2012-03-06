@@ -35,6 +35,11 @@ public class NativeKeyboardHook
     private static long ptr = 0;
 
     /**
+     * If the special key detection is enable.
+     */
+    private boolean specialKeydetection = false;
+
+    /**
      * Constructor.
      */
     public NativeKeyboardHook()
@@ -106,6 +111,57 @@ public class NativeKeyboardHook
     }
 
     /**
+     * Register a special key shortcut (for example key coming from headset).
+     *
+     * @param keycode keycode of the shortcut
+     * @param modifiers modifiers (CTRL, ALT, ...)
+     * @return true if success, false otherwise
+     */
+    public synchronized boolean registerSpecial(int keycode)
+    {
+        if(ptr != 0)
+            return registerSpecial(ptr, keycode);
+
+        return false;
+    }
+
+    /**
+     * Unregister a special key shortcut (for example key coming from headset).
+     *
+     * @param keycode keycode of the shortcut
+     * @param modifiers modifiers (CTRL, ALT, ...)
+     */
+    public synchronized void unregisterSpecial(int keycode)
+    {
+        if(ptr != 0)
+            unregisterSpecial(ptr, keycode);
+    }
+
+    /**
+     * Detect special key press.
+     *
+     * @param enable enable or not the special key press detection.
+     */
+    public synchronized void detectSpecialKeyPress(boolean enable)
+    {
+        if(ptr != 0)
+        {
+            detectSpecialKeyPress(ptr, enable);
+            this.specialKeydetection = enable;
+        }
+    }
+
+    /**
+     * Returns whether or not special key detection is enabled.
+     *
+     * @return true if special key detection is enabled, false otherwise
+     */
+    public boolean isSpecialKeyDetection()
+    {
+        return specialKeydetection;
+    }
+
+    /**
      * Native method to initialize <tt>NativeKeyboardHook</tt>.
      *
      * @return native pointer.
@@ -141,6 +197,7 @@ public class NativeKeyboardHook
      * @param ptr native pointer
      * @param keycode keycode of the shortcut
      * @param modifiers modifiers (CTRL, ALT, ...)
+     * @return true if registration is successful, false otherwise
      */
     private static native boolean registerShortcut(long ptr, int keycode,
         int modifiers);
@@ -154,6 +211,33 @@ public class NativeKeyboardHook
      */
     private static native void unregisterShortcut(long ptr, int keycode,
         int modifiers);
+
+    /**
+     * Native method to register a special key shortcut (for example key coming
+     * from a headset).
+     *
+     * @param ptr native pointer
+     * @param keycode keycode of the shortcut
+     * @return true if registration is successful, false otherwise
+     */
+    private static native boolean registerSpecial(long ptr, int keycode);
+
+    /**
+     * Native method to unregister a special key shortcut (for example key
+     * coming from a headset).
+     *
+     * @param ptr native pointer
+     * @param keycode keycode of the shortcut
+     */
+    private static native void unregisterSpecial(long ptr, int keycode);
+
+    /**
+     * Native method to ook for special key press.
+     *
+     * @param ptr native pointer
+     * @param enable enable or not the special key press detection.
+     */
+    private static native void detectSpecialKeyPress(long ptr, boolean enable);
 
     static
     {

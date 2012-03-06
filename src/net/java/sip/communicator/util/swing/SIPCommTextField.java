@@ -29,6 +29,11 @@ public class SIPCommTextField
                 DocumentListener
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The default text.
      */
     private String defaultText;

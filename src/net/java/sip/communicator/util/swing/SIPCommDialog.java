@@ -144,7 +144,7 @@ public class SIPCommDialog
         amap.put("close", new CloseAction());
 
         imap = this.getRootPane().getInputMap(
-                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         imap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "close");
 
@@ -176,7 +176,7 @@ public class SIPCommDialog
 
     /**
      * Adds a key - action pair for this frame.
-     * 
+     *
      * @param keyStroke the key combination
      * @param action the action which will be executed when user presses the
      * given key combination
@@ -184,9 +184,9 @@ public class SIPCommDialog
     protected void addKeyBinding(KeyStroke keyStroke, Action action)
     {
         String actionID = action.getClass().getName();
-        
+
         amap.put(actionID, action);
-        
+
         imap.put(keyStroke, actionID);
     }
 
@@ -268,8 +268,8 @@ public class SIPCommDialog
     }
 
     /**
-     * Checks whether the current component will 
-     * exceeds the screen size and if it do will set a default size 
+     * Checks whether the current component will
+     * exceeds the screen size and if it do will set a default size
      */
     private void ensureOnScreenLocationAndSize()
     {
@@ -429,6 +429,6 @@ public class SIPCommDialog
      */
     protected void close(boolean isEscaped)
     {
-        
+
     }
 }

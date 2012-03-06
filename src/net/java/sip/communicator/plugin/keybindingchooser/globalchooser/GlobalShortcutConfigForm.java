@@ -62,16 +62,6 @@ public class GlobalShortcutConfigForm
         new GlobalShortcutTableModel();
 
     /**
-     * Current selected row.
-     */
-    private int currentRow = -1;
-
-    /**
-     * Current selected row.
-     */
-    private int currentColumn = -1;
-
-    /**
      * Constructor
      */
     public GlobalShortcutConfigForm()
@@ -97,152 +87,76 @@ public class GlobalShortcutConfigForm
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                if(e.getClickCount() >= 1)
+                if(e.getClickCount() >= 2)
                 {
                     int row = GlobalShortcutConfigForm.this.shortcutsTable.
                         getSelectedRow();
-                    int column = GlobalShortcutConfigForm.this.shortcutsTable.
-                        getSelectedColumn();
+                    GlobalShortcutEntry en =
+                        GlobalShortcutConfigForm.this.tableModel.
+                            getEntryAt(row);
+                    List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
 
-                    if(currentRow != -1  && currentColumn != -1)
-                        return;
+                    GlobalShortcutDialog dialog =
+                        new GlobalShortcutDialog((Dialog)
+                            GlobalShortcutConfigForm.this.getTopLevelAncestor(),
+                            en);
 
-                    if(row >= 0 && column >= 1)
+                    kss.add(en.getShortcut());
+                    kss.add(en.getShortcut2());
+
+                    KeybindingChooserActivator.getGlobalShortcutService().
+                        setEnable(false);
+                    int ret = dialog.showDialog();
+
+                    if(ret == 1)
                     {
-                        currentRow = row;
-                        currentColumn = column;
+                        // ok button clicked
+                        kss = new ArrayList<AWTKeyStroke>();
+                        List<GlobalShortcutEntry> lst =
+                            tableModel.getEntries();
 
-                        if(column == 1)
-                            GlobalShortcutConfigForm.this.tableModel.getEntryAt(
-                                row).setEditShortcut1(true);
-                        else if(column == 2)
-                            GlobalShortcutConfigForm.this.tableModel.getEntryAt(
-                                row).setEditShortcut2(true);
-                        else
-                            return;
+                        for(GlobalShortcutEntry ee : lst)
+                        {
+                            boolean isEntry = (ee == en);
+                            AWTKeyStroke s1 = isEntry ? null :
+                                    ee.getShortcut();
+                            AWTKeyStroke s2 = isEntry ? null :
+                                    ee.getShortcut2();
+
+                            if(s1 != null && en.getShortcut() != null &&
+                                s1.getKeyCode() == en.getShortcut().
+                                    getKeyCode() &&
+                                s1.getModifiers() == en.getShortcut().
+                                    getModifiers())
+                            {
+                                kss.add(null);
+                                kss.add(ee.getShortcut2());
+                                ee.setShortcuts(kss);
+                                break;
+                            }
+                            else if(s2 != null && en.getShortcut2() != null &&
+                                s2.getKeyCode() == en.getShortcut2().
+                                    getKeyCode() &&
+                                s2.getModifiers() == en.getShortcut2().
+                                    getModifiers())
+                            {
+                                kss.add(ee.getShortcut());
+                                kss.add(null);
+                                ee.setShortcuts(kss);
+                                break;
+                            }
+                        }
 
                         KeybindingChooserActivator.getGlobalShortcutService().
-                            setEnable(false);
-                        refresh();
-                        shortcutsTable.setRowSelectionInterval(row, row);
-                    }
-                }
-            }
-        });
-
-        shortcutsTable.addKeyListener(new KeyAdapter()
-        {
-            private KeyEvent buffer = null;
-
-            @Override
-            public void keyPressed(KeyEvent event)
-            {
-                if(currentRow == -1 || currentColumn == -1)
-                    return;
-
-                // delete shortcut
-                if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE)
-                {
-                    GlobalShortcutEntry en =
-                        GlobalShortcutConfigForm.this.tableModel.getEntryAt(
-                            currentRow);
-                   List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
-                   if(currentColumn == 1)
-                   {
-                       kss.add(null);
-                       kss.add(en.getShortcut2());
-                   }
-                   else if(currentColumn == 2)
-                   {
-                       kss.add(en.getShortcut());
-                       kss.add(null);
-                   }
-
-                   currentRow = -1;
-                   currentColumn = -1;
-                   en.setShortcuts(kss);
-                   en.setEditShortcut1(false);
-                   en.setEditShortcut2(false);
-                   GlobalShortcutConfigForm.this.saveConfig();
-                   GlobalShortcutConfigForm.this.refresh();
-                }
-                else
-                {
-                    // Reports KEY_PRESSED events on release to support
-                    // modifiers
-                    this.buffer = event;
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent event)
-            {
-                if (buffer != null)
-                {
-                    AWTKeyStroke input = KeyStroke.getKeyStrokeForEvent(buffer);
-                    buffer = null;
-
-                    if(currentRow != -1)
-                    {
-                        GlobalShortcutEntry en =
-                            GlobalShortcutConfigForm.this.tableModel.getEntryAt(
-                                currentRow);
-                        List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
-
-                        if(currentColumn == 1) // shortcut 1
-                        {
-                            kss.add(input);
-                            kss.add(en.getShortcut2());
-                        }
-                        else if(currentColumn == 2) // shortcut 2
-                        {
-                            kss.add(en.getShortcut());
-                            kss.add(input);
-                        }
-                        else
-                        {
-                            return;
-                        }
-
-                        en.setShortcuts(kss);
-                        en.setEditShortcut1(false);
-                        en.setEditShortcut2(false);
-
-                        kss = new ArrayList<AWTKeyStroke>();
-                        List<GlobalShortcutEntry> lst = tableModel.getEntries();
-
-                        for(GlobalShortcutEntry e : lst)
-                        {
-                            boolean isEntry = (e == en);
-                            AWTKeyStroke s1 = isEntry &&
-                                currentColumn == 1 ? null : e.getShortcut();
-                            AWTKeyStroke s2 = isEntry &&
-                                currentColumn == 2 ? null : e.getShortcut2();
-
-                            if(s1 != null &&
-                                s1.getKeyCode() == input.getKeyCode() &&
-                                s1.getModifiers() == input.getModifiers())
-                            {
-                                kss.add(null);
-                                kss.add(e.getShortcut2());
-                                e.setShortcuts(kss);
-                                break;
-                            }
-                            else if(s2 != null &&
-                                s2.getKeyCode() == input.getKeyCode() &&
-                                s2.getModifiers() == input.getModifiers())
-                            {
-                                kss.add(e.getShortcut());
-                                kss.add(null);
-                                e.setShortcuts(kss);
-                                break;
-                            }
-                        }
-
-                        currentRow = -1;
-                        currentColumn = -1;
+                        setEnable(true);
                         GlobalShortcutConfigForm.this.saveConfig();
                         GlobalShortcutConfigForm.this.refresh();
+                        KeybindingChooserActivator.getGlobalShortcutService().
+                            setEnable(true);
+                    }
+                    else
+                    {
+                        en.setShortcuts(kss);
                     }
                 }
             }

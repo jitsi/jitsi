@@ -10,6 +10,8 @@ import java.util.List; //disambiguation
 import java.awt.*;
 import java.awt.event.*;
 
+import net.java.sip.communicator.service.globalshortcut.*;
+
 /**
  * Entry for a global shortcut.
  *
@@ -103,6 +105,11 @@ public class GlobalShortcutEntry
             {
                 int keycode = shortcut.getKeyCode();
                 int modifiers = shortcut.getModifiers();
+
+                if(modifiers == GlobalShortcutService.SPECIAL_KEY_MODIFIERS)
+                {
+                    return "Special";
+                }
 
                 // Indicates modifiers of the keystroke
                 boolean shiftMask = (modifiers & InputEvent.SHIFT_MASK) != 0;
