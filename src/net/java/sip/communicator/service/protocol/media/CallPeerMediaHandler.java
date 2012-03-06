@@ -1300,7 +1300,7 @@ public abstract class CallPeerMediaHandler<
             {
                 srtpControlType = srtpControls.firstKey().srtpControlType;
             }
-            MediaTypeSrtpControl mediaTypeSrtpControl = 
+            MediaTypeSrtpControl mediaTypeSrtpControl =
                 new MediaTypeSrtpControl(mediaType, srtpControlType);
             // check whether a control already exists
             SrtpControl control = srtpControls.get(mediaTypeSrtpControl);
@@ -1478,7 +1478,10 @@ public abstract class CallPeerMediaHandler<
                 MediaDevice newValue = getDefaultDevice(MediaType.AUDIO);
 
                 if (oldValue != newValue)
+                {
                     stream.setDevice(newValue);
+                    registerAudioLevelListeners((AudioMediaStream)stream);
+                }
             }
         }
     }

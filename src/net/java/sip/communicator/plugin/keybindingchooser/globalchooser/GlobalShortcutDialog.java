@@ -407,6 +407,9 @@ public class GlobalShortcutDialog
         }
     }
 
+    /**
+     * A custom text field UI.
+     */
     public class ShortcutFieldUI
         extends SIPCommTextFieldUI
         implements Skinnable
