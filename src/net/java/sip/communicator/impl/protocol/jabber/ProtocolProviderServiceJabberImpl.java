@@ -784,7 +784,11 @@ public class ProtocolProviderServiceJabberImpl
                     dnssecState[0] = true;
                 }
                 if (addrs == null || addrs.length == 0)
+                {
+                    logger.error("No A/AAAA addresses found for " +
+                        srv.getTarget());
                     continue;
+                }
 
                 for (InetSocketAddress isa : addrs)
                 {
@@ -816,6 +820,8 @@ public class ProtocolProviderServiceJabberImpl
                 }
             }
         }
+        else
+            logger.error("No SRV addresses found for xmpp-client.");
 
         return ConnectState.CONTINUE_TRYING;
     }
