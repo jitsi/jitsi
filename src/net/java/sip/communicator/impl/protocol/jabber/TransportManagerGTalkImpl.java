@@ -394,7 +394,6 @@ public class TransportManagerGTalkImpl
     static Agent createAgent(ProtocolProviderServiceJabberImpl provider,
         boolean controlling)
     {
-
         Agent agent = new Agent(CompatibilityMode.GTALK);
         List<StunServerDescriptor> servers = null;
         boolean atLeastOneStunServer = false;

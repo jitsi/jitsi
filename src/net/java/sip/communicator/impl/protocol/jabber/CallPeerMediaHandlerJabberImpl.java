@@ -45,6 +45,11 @@ public class CallPeerMediaHandlerJabberImpl
     private TransportManagerJabberImpl transportManager;
 
     /**
+     * Synchronization object for transportManager instance.
+     */
+    private final Object transportManagerSyncRoot = new Object();
+
+    /**
      * The current description of the streams that we have going toward the
      * remote side. We use {@link LinkedHashMap}s to make sure that we preserve
      * the order of the individual content extensions.
@@ -400,7 +405,8 @@ public class CallPeerMediaHandlerJabberImpl
             atLeastOneValidDescription = true;
 
             EncryptionPacketExtension encryptionPacketExtension
-                = description.getFirstChildOfType(EncryptionPacketExtension.class);
+                = description.getFirstChildOfType(
+                    EncryptionPacketExtension.class);
             if(encryptionPacketExtension != null)
             {
                 ZrtpHashPacketExtension zrtpHashPacketExtension =
@@ -1197,10 +1203,10 @@ public class CallPeerMediaHandlerJabberImpl
             = description.getFirstChildOfType(EncryptionPacketExtension.class);
         if(encryptionPacketExtension != null)
         {
-            ZrtpHashPacketExtension zrtpHashPacketExtension = 
+            ZrtpHashPacketExtension zrtpHashPacketExtension =
                 encryptionPacketExtension.getFirstChildOfType(
                     ZrtpHashPacketExtension.class);
-            
+
             if(zrtpHashPacketExtension != null
                 && zrtpHashPacketExtension.getValue() != null)
             {
@@ -1238,7 +1244,7 @@ public class CallPeerMediaHandlerJabberImpl
          * information compatible with that carried in transport-info.
          */
         processTransportInfo(answer);
-        
+
         boolean masterStreamSet = false;
         for (ContentPacketExtension content : answer)
         {
@@ -1288,9 +1294,23 @@ public class CallPeerMediaHandlerJabberImpl
 
             if (peer.isInitiator())
             {
-                throw new IllegalStateException(
+                synchronized(transportManagerSyncRoot)
+                {
+                    try
+                    {
+                        transportManagerSyncRoot.wait(5000);
+                    }
+                    catch(InterruptedException e)
+                    {
+                    }
+                }
+
+                if(transportManager == null)
+                    throw new IllegalStateException(
                         "The initiator is expected to specify the transport"
                             + " in their offer.");
+                else
+                    return transportManager;
             }
             else
             {
@@ -1410,6 +1430,11 @@ public class CallPeerMediaHandlerJabberImpl
         {
             throw new IllegalArgumentException(
                     "Unsupported Jingle transport " + xmlns);
+        }
+
+        synchronized(transportManagerSyncRoot)
+        {
+            transportManagerSyncRoot.notify();
         }
     }
 

@@ -867,7 +867,7 @@ public class OperationSetBasicTelephonyJabberImpl
      *
      * @param jingleIQ the {@link JingleIQ} packet we need to be analyzing.
      */
-    private void processJingleIQ(JingleIQ jingleIQ)
+    private void processJingleIQ(final JingleIQ jingleIQ)
     {
         //let's first see whether we have a peer that's concerned by this IQ
         CallPeerJabberImpl callPeer
@@ -940,7 +940,17 @@ public class OperationSetBasicTelephonyJabberImpl
                 call = new CallJabberImpl(this);
             }
 
-            call.processSessionInitiate(jingleIQ);
+            final CallJabberImpl callThread = call;
+
+            new Thread()
+            {
+                @Override
+                public void run()
+                {
+                    callThread.processSessionInitiate(jingleIQ);
+                }
+            }.start();
+
             return;
         }
         else if (callPeer == null)
@@ -1128,13 +1138,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
         if(action == GTalkType.INITIATE)
         {
-            CallGTalkImpl call = null;
-
-            if(call == null)
-            {
-                call = new CallGTalkImpl(this);
-            }
-
+            CallGTalkImpl call = new CallGTalkImpl(this);
             call.processGTalkInitiate(sessionIQ);
             return;
         }

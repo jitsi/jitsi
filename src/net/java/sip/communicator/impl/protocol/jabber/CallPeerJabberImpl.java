@@ -82,6 +82,16 @@ public class CallPeerJabberImpl
     private boolean cancelled = false;
 
     /**
+     * Synchronization object.
+     */
+    private final Object sessionInitiateSyncRoot = new Object();
+
+    /**
+     * If we have processed the session initiate.
+     */
+    private boolean sessionInitiateProcessed = false;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
@@ -253,6 +263,12 @@ public class CallPeerJabberImpl
 
         getProtocolProvider().getConnection().sendPacket(
                 JinglePacketFactory.createRinging(sessionInitIQ));
+
+        synchronized(sessionInitiateSyncRoot)
+        {
+            sessionInitiateProcessed = true;
+            sessionInitiateSyncRoot.notify();
+        }
     }
 
     /**
@@ -990,10 +1006,10 @@ public class CallPeerJabberImpl
                 }
             }
 
-            // if no candidates are present, launch a new Thread which will process
-            // and wait for the connectivity establishment (otherwise the existing
-            // thread will be blocked and thus cannot receive transport-info with
-            // candidates
+            // if no candidates are present, launch a new Thread which will
+            // process and wait for the connectivity establishment (otherwise
+            // the existing thread will be blocked and thus cannot receive
+            // transport-info with candidates
             if(noCands)
             {
                 new Thread()
@@ -1186,7 +1202,25 @@ public class CallPeerJabberImpl
          */
         try
         {
-            getMediaHandler().processTransportInfo(jingleIQ.getContentList());
+            if(isInitiator)
+            {
+                synchronized(sessionInitiateSyncRoot)
+                {
+                    if(!sessionInitiateProcessed)
+                    {
+                        try
+                        {
+                            sessionInitiateSyncRoot.wait();
+                        }
+                        catch(InterruptedException e)
+                        {
+                        }
+                    }
+                }
+            }
+
+            getMediaHandler().processTransportInfo(
+                jingleIQ.getContentList());
         }
         catch (OperationFailedException ofe)
         {
