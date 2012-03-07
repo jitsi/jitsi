@@ -36,6 +36,7 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.*;
+import org.jivesoftware.smackx.bytestreams.socks5.*;
 import org.jivesoftware.smackx.packet.*;
 
 import org.osgi.framework.*;
@@ -1276,10 +1277,10 @@ public class ProtocolProviderServiceJabberImpl
             = new ScServiceDiscoveryManager(
                     this,
                     // Remove features supported by smack, but not supported in
-                    // SIP Communicator.
-                    new String[] { "http://jabber.org/protocol/commands" },
-                    // Add features SIP Communicator supports in addition to
-                    // smack.
+                    // Jitsi. bytestream don't work correctly.
+                    new String[] { "http://jabber.org/protocol/commands",
+                                   Socks5BytestreamManager.NAMESPACE},
+                    // Add features Jitsi supports in addition to smack.
                     supportedFeatures.toArray(
                             new String[supportedFeatures.size()]));
 

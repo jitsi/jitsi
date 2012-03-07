@@ -507,12 +507,6 @@ public class ProvisioningServiceImpl
                     logStream.write(buff, 0, read);
                 }
 
-                if(logger.isInfoEnabled())
-                {
-                    logger.info("Provisioning response : "
-                        + logStream.toString());
-                }
-
                 pin.close();
                 bout.flush();
                 bout.close();
@@ -663,9 +657,12 @@ public class ProvisioningServiceImpl
      */
     private void processProperty(String key, Object value)
     {
-        if((value instanceof String) && ((String)value).equals("${null}"))
+        if((value instanceof String) && value.equals("${null}"))
         {
             ProvisioningActivator.getConfigurationService().removeProperty(key);
+
+            if(logger.isInfoEnabled())
+                logger.info(key + "=" + value);
         }
         else if(key.endsWith(".PASSWORD"))
         {
@@ -673,11 +670,17 @@ public class ProvisioningServiceImpl
             ProvisioningActivator.getCredentialsStorageService().storePassword(
                     key.substring(0, key.lastIndexOf(".")),
                     (String)value);
+
+            if(logger.isInfoEnabled())
+                logger.info(key +"=<password hidden>");
         }
         else
         {
             ProvisioningActivator.getConfigurationService().setProperty(key,
                 value);
+
+            if(logger.isInfoEnabled())
+                logger.info(key + "=" + value);
         }
     }
 
