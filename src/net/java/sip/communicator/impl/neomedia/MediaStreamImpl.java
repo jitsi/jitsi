@@ -153,9 +153,9 @@ public class MediaStreamImpl
     private MediaDirection startedDirection;
 
     /**
-     * The SSRC identifier of the party that we are exchanging media with.
+     * The SSRC identifiers of the party that we are exchanging media with.
      */
-    private long remoteSourceID = -1;
+    private Vector<Long> remoteSourceIDs = new Vector<Long>(1, 1);
 
     /**
      * Our own SSRC identifier.
@@ -762,7 +762,7 @@ public class MediaStreamImpl
         }
 
         int elementsToRemove = 0;
-        long remoteSrcID = this.getRemoteSourceID();
+        Vector<Long> remoteSrcID = this.remoteSourceIDs;
 
         //in case of a conf call the mixer would return all SSRC IDs that are
         //currently contributing including this stream's counterpart. We need
@@ -770,7 +770,7 @@ public class MediaStreamImpl
         //csrc list
         for(long csrc : ssrcArray)
         {
-            if (csrc == remoteSrcID)
+            if (remoteSrcID.contains(csrc))
             {
                 elementsToRemove ++;
             }
@@ -797,7 +797,7 @@ public class MediaStreamImpl
              i++)
         {
             long ssrc = ssrcArray[i];
-            if (ssrc != remoteSrcID)
+            if (!remoteSrcID.contains(ssrc))
             {
                 csrcArray[j] = ssrc;
                 j++;
@@ -1135,7 +1135,11 @@ public class MediaStreamImpl
      */
     public long getRemoteSourceID()
     {
-        return remoteSourceID;
+        if(this.remoteSourceIDs.isEmpty())
+        {
+            return -1;
+        }
+        return this.remoteSourceIDs.lastElement();
     }
 
     /**
@@ -2296,8 +2300,11 @@ public class MediaStreamImpl
      */
     protected void setRemoteSourceID(long ssrc)
     {
-        Long oldValue = this.remoteSourceID;
-        this.remoteSourceID = ssrc;
+        Long oldValue = this.getRemoteSourceID();
+        if(!this.remoteSourceIDs.contains(ssrc))
+        {
+            this.remoteSourceIDs.add(ssrc);
+        }
 
         firePropertyChange(PNAME_REMOTE_SSRC, oldValue, ssrc);
     }
