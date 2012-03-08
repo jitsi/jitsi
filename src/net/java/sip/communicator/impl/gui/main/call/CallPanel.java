@@ -1629,7 +1629,8 @@ public class CallPanel
      */
     public void updateMergeButtonState()
     {
-        Collection<Call> calls = CallManager.getActiveCalls();
+        Collection<Call> calls = new ArrayList<Call>(
+            CallManager.getActiveCalls());
         java.util.List<CallGroup> groups = new java.util.ArrayList<CallGroup>();
         int cpt = 0;
 

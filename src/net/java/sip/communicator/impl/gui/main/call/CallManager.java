@@ -160,9 +160,11 @@ public class CallManager
                 }
             });
 
-            for(Map.Entry<Call, CallPanel> entry : activeCalls.entrySet())
+            List<CallPanel> calls = new ArrayList<CallPanel>(
+                activeCalls.values());
+
+            for(CallPanel cp : calls)
             {
-                CallPanel cp = entry.getValue();
                 if(cp != null)
                     cp.incomingCallReceived(event);
             }
@@ -203,10 +205,11 @@ public class CallManager
                 activeCalls.remove(sourceCall);
 
                 callContainer.getCallWindow().closeWait(callContainer);
+                List<CallPanel> calls = new ArrayList<CallPanel>(
+                    activeCalls.values());
 
-                for(Map.Entry<Call, CallPanel> entry : activeCalls.entrySet())
+                for(CallPanel cp : calls)
                 {
-                    CallPanel cp = entry.getValue();
                     if(cp != null)
                         cp.incomingCallReceived(event);
                 }
@@ -224,9 +227,11 @@ public class CallManager
 
             CallManager.openCallContainer(sourceCall);
 
-            for(Map.Entry<Call, CallPanel> entry : activeCalls.entrySet())
+            List<CallPanel> calls = new ArrayList<CallPanel>(
+                activeCalls.values());
+
+            for(CallPanel cp : calls)
             {
-                CallPanel cp = entry.getValue();
                 if(cp != null)
                     cp.incomingCallReceived(event);
             }
