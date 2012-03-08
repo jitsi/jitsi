@@ -1182,6 +1182,13 @@ public abstract class MediaAwareCall<
     {
         if (MediaService.DEFAULT_DEVICE.equals(event.getPropertyName()))
         {
+            // if we change the device, do it only for the first member
+            if(getCallGroup() != null &&
+                this != getCallGroup().getCalls().get(0))
+            {
+                return;
+            }
+
             /*
              * XXX We only support changing the default audio device at the time
              * of this writing.
@@ -1200,6 +1207,7 @@ public abstract class MediaAwareCall<
                     = ((MediaDeviceWrapper) conferenceAudioMixer)
                         .getWrappedDevice();
             }
+
             /*
              * XXX If MediaService#getDefaultDevice(MediaType, MediaUseCase)
              * above returns null and its earlier return value was not null, we
@@ -1212,6 +1220,25 @@ public abstract class MediaAwareCall<
                 propertyChangeSupport.firePropertyChange(
                         DEFAULT_DEVICE,
                         oldValue, newValue);
+            }
+
+            // now the first member of the group is configured so let's
+            // configure the others
+            if(getCallGroup() != null)
+            {
+                List<Call> calls = getCallGroup().getCalls();
+
+                for(Call c : calls)
+                {
+                    if(c == this)
+                        continue;
+
+                    MediaAwareCall<?,?,?> call = (MediaAwareCall<?,?,?>)c;
+
+                    call.conferenceAudioMixer = null;
+                    call.propertyChangeSupport.firePropertyChange(
+                        DEFAULT_DEVICE, oldValue, newValue);
+                }
             }
         }
     }
