@@ -411,21 +411,14 @@ public class MainFrame
         JComponent layeredPane = this.getLayeredPane();
 
         ResourceManagementService resources = GuiActivator.getResources();
-        String fontName
-            = resources.getSettingsString("service.gui.FONT_NAME");
+        String fontName = resources.getSettingsString("service.gui.FONT_NAME");
+        int fontSize = resources.getSettingsInt("service.gui.FONT_SIZE");
+        Font font = new Font(fontName, Font.BOLD, fontSize);
 
-        String titleFontSize
-            = resources.getSettingsString("service.gui.FONT_SIZE");
-
-        Font font = new Font(   fontName,
-                                Font.BOLD,
-                                Integer.parseInt(titleFontSize));
-
-        final int componentCount = layeredPane.getComponentCount();
-        for (int i = 0; i < componentCount; i++)
-        {
+        for (int i = 0, componentCount = layeredPane.getComponentCount();
+                i < componentCount;
+                i++)
             layeredPane.getComponent(i).setFont(font);
-        }
     }
 
     /**

@@ -134,10 +134,9 @@ public class UIServiceImpl
         // Initialize the single window container if we're in this case. This
         // should be done before initializing the main window, because he'll
         // search for it.
-        String singleWidnowProp = GuiActivator.getResources()
-            .getSettingsString("impl.gui.SINGLE_WINDOW_INTERFACE");
-
-        if (Boolean.parseBoolean(singleWidnowProp))
+        if (Boolean.parseBoolean(
+                GuiActivator.getResources().getSettingsString(
+                        "impl.gui.SINGLE_WINDOW_INTERFACE")))
             singleWindowContainer = new SingleWindowContainer();
 
         // Initialize the main window.
@@ -830,9 +829,11 @@ public class UIServiceImpl
     {
         // Show tooltips immediately and specify a custom background.
         ToolTipManager toolTipManager = ToolTipManager.sharedInstance();
-        UIManager.put("ToolTip.background",
-            new Color(GuiActivator.getResources()
-                    .getColor("service.gui.TOOLTIP_BACKGROUND")));
+        UIManager.put(
+                "ToolTip.background",
+                new Color(
+                        GuiActivator.getResources().getColor(
+                                "service.gui.TOOLTIP_BACKGROUND")));
         toolTipManager.setInitialDelay(500);
         toolTipManager.setDismissDelay(60000);
         toolTipManager.setEnabled(true);
@@ -862,7 +863,6 @@ public class UIServiceImpl
             try
             {
                 UIManager.setLookAndFeel(laf);
-
                 lafIsSet = true;
 
                 UIDefaults uiDefaults = UIManager.getDefaults();
@@ -903,18 +903,14 @@ public class UIServiceImpl
             try
             {
                 SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
-                SIPCommLookAndFeel
-                    .setCurrentTheme(new SIPCommDefaultTheme());
+                SIPCommLookAndFeel.setCurrentTheme(
+                        new SIPCommDefaultTheme());
 
                 // Check the isLookAndFeelDecorated property and set the
-                // appropriate
-                // default decoration.
-                boolean isDecorated =
-                    Boolean.parseBoolean(GuiActivator.getResources()
-                        .getSettingsString(
-                                        "impl.gui.IS_LOOK_AND_FEEL_DECORATED"));
-
-                if (isDecorated)
+                // appropriate default decoration.
+                if (Boolean.parseBoolean(
+                        GuiActivator.getResources().getSettingsString(
+                                "impl.gui.IS_LOOK_AND_FEEL_DECORATED")))
                 {
                     JFrame.setDefaultLookAndFeelDecorated(true);
                     JDialog.setDefaultLookAndFeelDecorated(true);
@@ -1126,17 +1122,11 @@ public class UIServiceImpl
 
         ResourceManagementService resources = GuiActivator.getResources();
         String fontName = resources.getSettingsString("service.gui.FONT_NAME");
-        String titleFontSize =
-            resources.getSettingsString("service.gui.FONT_SIZE");
-
-        Font font = new Font(   fontName,
-                                Font.BOLD,
-                                Integer.parseInt(titleFontSize));
+        int fontSize = resources.getSettingsInt("service.gui.FONT_SIZE");
+        Font font = new Font(fontName, Font.BOLD, fontSize);
 
         for (int i = 0; i < layeredPane.getComponentCount(); i++)
-        {
             layeredPane.getComponent(i).setFont(font);
-        }
     }
 
     /**

@@ -149,11 +149,11 @@ public class Constants
 
     static
     {
+        LookAndFeel laf = UIManager.getLookAndFeel();
         Font font = null;
         String fontName = null;
         int fontSize = 0;
 
-        LookAndFeel laf = UIManager.getLookAndFeel();
         if ((laf != null)
                 && "com.sun.java.swing.plaf.windows.WindowsLookAndFeel".equals(
                         laf.getClass().getName()))
