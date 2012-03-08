@@ -8,6 +8,9 @@ package net.java.sip.communicator.impl.notification;
 
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.*;
+import net.java.sip.communicator.util.*;
+
+import javax.swing.*;
 
 
 /**
@@ -18,6 +21,12 @@ import net.java.sip.communicator.service.systray.*;
 public class PopupMessageNotificationHandlerImpl
     implements PopupMessageNotificationHandler
 {
+    /**
+     * The logger that will be used to log messages.
+     */
+    private Logger logger
+        = Logger.getLogger(PopupMessageNotificationHandlerImpl.class);
+
     /**
      * {@inheritDoc}
      */
@@ -47,6 +56,11 @@ public class PopupMessageNotificationHandlerImpl
         if(systray == null)
             return;
 
-        systray.showPopupMessage(new PopupMessage(title, message, icon, tag));
+        if(!StringUtils.isNullOrEmpty(message))
+            systray.showPopupMessage(
+                new PopupMessage(title, message, icon, tag));
+        else
+            logger.error("Message is null or empty!",
+                new Throwable("Null or empty message"));
     }
 }
