@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.presence.avatar;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.presence.avatar.imagepicker.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -37,6 +38,11 @@ public class SelectAvatarMenu
      * Name of choose button.
      */
     private static final String CHOSE_BUTTON_NAME = "chooseButton";
+
+    /**
+     * Name of remove button.
+     */
+    private static final String REMOVE_BUTTON_NAME = "removeButton";
 
     /**
      * Name of clear button.
@@ -143,6 +149,11 @@ public class SelectAvatarMenu
                 GuiActivator.getResources().getI18NString(
                     "service.gui.avatar.CHOOSE_ICON"),
                 CHOSE_BUTTON_NAME,
+                linkColor);
+        addActionButton(buttonsPanel, this,
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.avatar.REMOVE_ICON"),
+                REMOVE_BUTTON_NAME,
                 linkColor);
         addActionButton(buttonsPanel, this,
                 GuiActivator.getResources().getI18NString(
@@ -355,6 +366,11 @@ public class SelectAvatarMenu
 
             // Inform protocols about the new image
             setNewImage(image);
+        }
+        else if (src.getName().equals("removeButton"))
+        {
+            // Switchs the current avatar image icon to the default one.
+            setNewImage(ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
         }
         else if (src.getName().equals("clearButton"))
         {
