@@ -63,6 +63,12 @@ public class EncodingConfiguration
                 ? "net.sf.fmj.media.codec.audio.alaw.Packetizer"
                 : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.Packetizer",
             FMJConditionals.FMJ_CODECS
+                ? "net.sf.fmj.media.codec.audio.ulaw.Decoder"
+                : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.JavaDecoder",
+            FMJConditionals.FMJ_CODECS
+                ? "net.sf.fmj.media.codec.audio.ulaw.Encoder"
+                : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.JavaEncoder",
+            FMJConditionals.FMJ_CODECS
                 ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
                 : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.Packetizer",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIDecoder",
