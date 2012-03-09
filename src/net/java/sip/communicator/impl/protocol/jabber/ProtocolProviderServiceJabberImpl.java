@@ -1276,10 +1276,7 @@ public class ProtocolProviderServiceJabberImpl
         discoveryManager
             = new ScServiceDiscoveryManager(
                     this,
-                    // Remove features supported by smack, but not supported in
-                    // Jitsi. bytestream don't work correctly.
-                    new String[] { "http://jabber.org/protocol/commands",
-                                   Socks5BytestreamManager.NAMESPACE},
+                    new String[] { "http://jabber.org/protocol/commands"},
                     // Add features Jitsi supports in addition to smack.
                     supportedFeatures.toArray(
                             new String[supportedFeatures.size()]));

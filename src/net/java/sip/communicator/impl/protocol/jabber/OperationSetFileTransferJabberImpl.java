@@ -94,6 +94,9 @@ public class OperationSetFileTransferJabberImpl
 
         provider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
+
+        // use only ibb for file transfers
+        FileTransferNegotiator.IBB_ONLY = true;
     }
 
     /**
