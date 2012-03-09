@@ -46,7 +46,7 @@ public class StatusSimpleSelector
         this.provider = protocolProvider;
 
         /* the parent item */
-        String text = provider.getAccountID().getUserID();
+        String text = provider.getAccountID().getDisplayName();
         this.menu = swing ? new JMenu(text) : new Menu(text);
         updateStatus();
 

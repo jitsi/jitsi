@@ -63,7 +63,7 @@ public class StatusSelector
 
         /* the parent item */
         {
-            String text = provider.getAccountID().getUserID();
+            String text = provider.getAccountID().getDisplayName();
             if (swing)
             {
                 JMenu menu = new JMenu(text);
