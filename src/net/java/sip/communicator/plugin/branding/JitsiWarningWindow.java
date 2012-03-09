@@ -27,6 +27,11 @@ public class JitsiWarningWindow
     extends SIPCommDialog
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Creates an <tt>JitsiWarningWindow</tt> by specifying the parent frame
      * owner.
      * @param owner the parent owner
@@ -133,6 +138,11 @@ public class JitsiWarningWindow
      */
     private class CloseAction extends UIAction
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             setVisible(false);

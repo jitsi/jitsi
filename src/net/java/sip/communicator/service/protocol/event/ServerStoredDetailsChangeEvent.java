@@ -14,6 +14,11 @@ public class ServerStoredDetailsChangeEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates that the ServerStoredDetailsChangeEvent instance was triggered
      * by adding a new detail.
      */
@@ -52,6 +57,9 @@ public class ServerStoredDetailsChangeEvent
      * Constructs a ServerStoredDetailsChangeEvent.
      *
      * @param source The object on which the Event initially occurred.
+     * @param eventID the event ID
+     * @param oldValue old value
+     * @param newValue new value
      * @throws IllegalArgumentException if source is null.
      */
     public ServerStoredDetailsChangeEvent(
@@ -97,7 +105,9 @@ public class ServerStoredDetailsChangeEvent
     }
 
     /**
-     * The event type id.
+     * Returns the event type id.
+     *
+     * @return the event ID
      */
     public int getEventID()
     {

@@ -8,6 +8,11 @@ public class ExtendedEtchedBorder
     extends EtchedBorder
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Thickness of the top line.
      */
     private final int top;
@@ -30,7 +35,7 @@ public class ExtendedEtchedBorder
     /**
      * Creates an etched border with the specified etch-type and specified
      * thickness of each border: top, left, bottom, right.
-     * 
+     *
      * @param etchType the type of etch to be drawn by the border
      * @param top the thickness of the top border
      * @param left the thickness of the left border
@@ -52,7 +57,7 @@ public class ExtendedEtchedBorder
     }
 
     /**
-     * Paints the border for the specified component with the 
+     * Paints the border for the specified component with the
      * specified position and size.
      * @param c the component for which this border is being painted
      * @param g the paint graphics

@@ -10,9 +10,7 @@ import net.java.sip.communicator.service.neomedia.*;
 
 import net.sf.fmj.media.rtp.*;
 import java.net.*;
-import java.util.*;
 import javax.media.rtp.*;
-import javax.media.rtp.rtcp.*;
 
 /**
  * Class used to compute stats concerning a MediaStream.
@@ -127,7 +125,7 @@ public class MediaStreamStatsImpl
         // stream.
         long downloadNewNbByte = this.getDownloadNbByte();
         long uploadNewNbByte = this.getDownloadNbByte();
-        
+
         // Computes the number of update steps which has not been done since
         // last update.
         long downloadNbSteps = downloadNewNbRecv - this.downloadNbPackets;
@@ -420,7 +418,7 @@ public class MediaStreamStatsImpl
      * @param nbByteRecv The number of Byte received.
      * @param callNbTimeMsSpent The time spent since the mediaStreamImpl is
      * connected to the endpoint.
-     * 
+     *
      * @return the bandwidth rate computed in Kilo bits per secondes.
      */
     private static double computeRateKiloBitPerSec(
@@ -460,7 +458,7 @@ public class MediaStreamStatsImpl
             EWMACoeff = 1.0;
         }
         return lastValue * (1.0 - EWMACoeff) + newValue * EWMACoeff;
-            
+
     }
 
     /**
@@ -554,5 +552,4 @@ public class MediaStreamStatsImpl
         }
         return rtpManager.getGlobalTransmissionStats().getBytesSent();
     }
-
 }

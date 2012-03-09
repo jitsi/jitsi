@@ -16,13 +16,18 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * A GUI plug-in for SIP Communicator that will allow cross protocol contact
  * information viewing and editing.
- * 
+ *
  * @author Adam Goldstein
  * @author Yana Stamcheva
  */
 public class ContactInfoDialog
     extends SIPCommFrame
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The right side of this frame that contains protocol specific contact
      * details.
@@ -71,7 +76,7 @@ public class ContactInfoDialog
 
     /**
      * Loads the details of the given contact.
-     * 
+     *
      * @param contact the <tt>Contact</tt>, which details we load
      */
     public void loadContactDetails(Contact contact)

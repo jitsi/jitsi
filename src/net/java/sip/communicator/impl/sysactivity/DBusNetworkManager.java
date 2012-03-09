@@ -11,7 +11,7 @@ import org.freedesktop.dbus.exceptions.*;
 
 /**
  * NetworkManager D-Bus Interface
- * 
+ *
  * @author Damian Minkov
  * @author Ingo Bauersachs
  */
@@ -71,7 +71,7 @@ public interface DBusNetworkManager
 
         /**
          * The current status.
-         * @return
+         * @return the current status
          */
         public int getStatus()
         {
@@ -80,7 +80,7 @@ public interface DBusNetworkManager
 
         /**
          * Returns status description
-         * @return
+         * @return the status description
          */
         public String getStatusName()
         {
@@ -114,7 +114,7 @@ public interface DBusNetworkManager
 
         /**
          * Returns status description
-         * @return
+         * @return the status name
          */
         @Override
         public String getStatusName()

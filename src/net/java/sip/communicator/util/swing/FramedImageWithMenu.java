@@ -16,14 +16,19 @@ import org.jvnet.lafwidget.animation.*;
 
 /**
  * A custom component, used to show images in a frame. A rollover for the
- * content image and optional menu in dialog. 
- * 
+ * content image and optional menu in dialog.
+ *
  * @author Damien Roth
  */
 public class FramedImageWithMenu
     extends FramedImage
     implements MouseListener, PopupMenuListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The dialog containing the menu with actions.
      */
@@ -90,31 +95,31 @@ public class FramedImageWithMenu
         // Intercept the action to validate the user icon and not the default
         super.setImageIcon(imageIcon.getImage());
         this.isDefaultImage = false;
-        
+
         this.currentImage = imageIcon.getImage();
     }
-    
+
     /**
      * Returns the current image with no rounded corners. Only return the user
      * image and not the default image.
-     * 
+     *
      * @return the current image - null if it's the default image
      */
     public Image getAvatar()
     {
         return (!this.isDefaultImage) ? this.currentImage : this.getImage();
     }
-    
+
     @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        
+
         if (drawOverlay)
         {
             g = g.create();
             AntialiasingManager.activateAntialiasing(g);
-            
+
             try
             {
                 // Paint a roll over fade out.
@@ -128,14 +133,14 @@ public class FramedImageWithMenu
                 }
                 else
                     visibility = 0.5f;
-                
+
                 // Draw black overlay
                 g.setColor(new Color(0.0f, 0.0f, 0.0f, visibility));
                 g.fillRoundRect(1, 1, width - 2, height - 2, 10, 10);
-                
+
                 // Draw arrow
                 g.setColor(Color.WHITE);
-                
+
                 int[] arrowX = new int[] {
                         width - 17,
                         width - 7,
@@ -157,7 +162,7 @@ public class FramedImageWithMenu
 
     /**
      * Show the avatar dialog as a glasspane of the mainframe
-     * 
+     *
      * @param show show dialogs if sets to TRUE - hide otherwise
      */
     private void showDialog(MouseEvent e, boolean show)
@@ -166,7 +171,7 @@ public class FramedImageWithMenu
         {
             return;
         }
-        
+
         if (show)
         {
             Point imageLoc = this.getLocationOnScreen();
@@ -189,11 +194,11 @@ public class FramedImageWithMenu
     {
         if (this.drawOverlay)
             return;
-        
+
         this.drawOverlay = true;
-        
+
         FadeTracker fadeTracker = FadeTracker.getInstance();
-        
+
         fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
             FramedImageWithMenu.this,
             true,
@@ -209,7 +214,7 @@ public class FramedImageWithMenu
             this.repaint();
         }
     }
-    
+
     public void mouseReleased(MouseEvent e)
     {
         showDialog(e, !popupMenu.isVisible());

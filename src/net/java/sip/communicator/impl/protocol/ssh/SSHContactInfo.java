@@ -23,15 +23,21 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * @author Shobhit Jindal
  */
-class SSHContactInfo extends SIPCommDialog {
+class SSHContactInfo extends SIPCommDialog
+{
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private ContactSSH sshContact;
-    
+
     private JPanel mainPanel = new TransparentPanel();
     private JPanel machinePanel = new TransparentPanel();
     private JPanel detailNamesPanel = new TransparentPanel();
     private JPanel detailFieldsPanel = new TransparentPanel();
     private JPanel detailsPanel = new TransparentPanel();
-    
+
     private JCheckBox addDetailsCheckBox = new SIPCommCheckBox("Add Details");
 
     private JButton doneButton = new JButton("Done");
@@ -42,41 +48,41 @@ class SSHContactInfo extends SIPCommDialog {
     private JLabel password = new JLabel("Password: ");
     private JTextField passwordField = new JPasswordField();
     private JLabel port = new JLabel("Port: ");
-    
+
     private JFormattedTextField portField;
     private JLabel secs = new JLabel("secs");
     private JLabel statusUpdate = new JLabel("Update Interval: ");
     private JLabel terminalType = new JLabel("Terminal Type: ");
     private JTextField terminalTypeField = new JTextField("SIP Communicator");
     private JSpinner updateTimer = new JSpinner();
-    
+
     private JPanel emptyPanel1 = new TransparentPanel();
-    
+
     private JPanel emptyPanel2 = new TransparentPanel();
-    
+
     private JPanel emptyPanel3 = new TransparentPanel();
-    
+
     private JPanel emptyPanel4 = new TransparentPanel();
-    
+
     private JPanel emptyPanel5 = new TransparentPanel();
-    
+
     private JPanel emptyPanel6 = new TransparentPanel();
-    
+
     private JPanel emptyPanel7 = new TransparentPanel();
-    
+
     private JPanel emptyPanel8 = new TransparentPanel();
-    
+
     private JPanel emptyPanel9 = new TransparentPanel();
-    
+
     private JPanel emptyPanel10 = new TransparentPanel();
-    
+
     private JPanel emptyPanel11 = new TransparentPanel();
-    
+
 //    private ContactGroup contactGroup = null;
-    
+
     /**
      * Creates a new instance of SSHContactInfo
-     * 
+     *
      * @param sshContact the concerned contact
      */
     public SSHContactInfo(ContactSSH sshContact) {
@@ -84,27 +90,27 @@ class SSHContactInfo extends SIPCommDialog {
 
         this.sshContact = sshContact;
         initForm();
-        
+
         this.getContentPane().add(mainPanel);
-        
+
         this.setSize(370, 325);
-        
+
         this.setResizable(false);
-        
+
         this.setTitle("SSH: Account Details of " + sshContact.getDisplayName());
-        
+
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension screenSize = toolkit.getScreenSize();
-        
+
         int x = (screenSize.width - this.getWidth()) / 2;
         int y = (screenSize.height - this.getHeight()) / 2;
-        
+
         this.setLocation(x,y);
-        
+
 //        ProtocolProviderServiceSSHImpl.getUIService().getConfigurationWindow().
 //                addConfigurationForm(this);
     }
-    
+
     /**
      * initialize the form.
      */
@@ -119,13 +125,13 @@ class SSHContactInfo extends SIPCommDialog {
         maskFormatter.setAllowsInvalid(false);
         portField = new JFormattedTextField(maskFormatter);
         portField.setValue(22);
-        
+
         userNameField.setEnabled(false);
         passwordField.setEditable(false);
         portField.setEnabled(false);
         terminalTypeField.setEnabled(false);
         updateTimer.setEnabled(false);
-        
+
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         machinePanel.setLayout(new BoxLayout(machinePanel, BoxLayout.X_AXIS));
         detailNamesPanel.setLayout(new BoxLayout(detailNamesPanel,
@@ -133,10 +139,10 @@ class SSHContactInfo extends SIPCommDialog {
         detailFieldsPanel.setLayout(new BoxLayout(detailFieldsPanel,
                 BoxLayout.Y_AXIS));
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.X_AXIS));
-        
+
         machinePanel.add(machineID);
         machinePanel.add(machineIDField);
-        
+
         detailNamesPanel.add(userName);
         detailNamesPanel.add(emptyPanel1);
         detailNamesPanel.add(password);
@@ -146,7 +152,7 @@ class SSHContactInfo extends SIPCommDialog {
         detailNamesPanel.add(statusUpdate);
         detailNamesPanel.add(emptyPanel4);
         detailNamesPanel.add(terminalType);
-        
+
         detailFieldsPanel.add(userNameField);
         detailFieldsPanel.add(emptyPanel5);
         detailFieldsPanel.add(passwordField);
@@ -156,12 +162,12 @@ class SSHContactInfo extends SIPCommDialog {
         detailFieldsPanel.add(updateTimer);
         detailFieldsPanel.add(emptyPanel8);
         detailFieldsPanel.add(terminalTypeField);
-        
+
         detailsPanel.add(detailNamesPanel);
         detailsPanel.add(detailFieldsPanel);
-        
+
         detailsPanel.setBorder(BorderFactory.createTitledBorder("Details"));
-        
+
         mainPanel.add(emptyPanel9);
         mainPanel.add(machinePanel);
         mainPanel.add(addDetailsCheckBox);
@@ -169,7 +175,7 @@ class SSHContactInfo extends SIPCommDialog {
         mainPanel.add(emptyPanel10);
         mainPanel.add(doneButton);
         mainPanel.add(emptyPanel11);
-        
+
         addDetailsCheckBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 addDetailsCheckBox.setEnabled(false);
@@ -178,18 +184,18 @@ class SSHContactInfo extends SIPCommDialog {
                 portField.setEnabled(true);
                 terminalTypeField.setEnabled(true);
                 updateTimer.setEnabled(true);
-                
+
                 userNameField.grabFocus();
             }
         });
-        
+
         doneButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 if(machineIDField.getText().equals("")) {
                     machineIDField.setText("Field needed");
                     return;
                 }
-                
+
                 sshContact.savePersistentDetails();
 
                 //add contact to contact list
@@ -200,10 +206,10 @@ class SSHContactInfo extends SIPCommDialog {
                             sshContact);
 
                 setVisible(false);
-            }        
+            }
         });
     }
-    
+
     /**
      * Return the ssh icon
      *
@@ -223,7 +229,7 @@ class SSHContactInfo extends SIPCommDialog {
 //    {
 //        return this.contactGroup;
 //    }
-    
+
     /**
      * Sets the UserName of the dialog
      *
@@ -232,7 +238,7 @@ class SSHContactInfo extends SIPCommDialog {
     public void setUserNameField(String userName) {
         this.userNameField.setText(userName);
     }
-    
+
     /**
      * Sets the Password of the dialog
      *
@@ -241,7 +247,7 @@ class SSHContactInfo extends SIPCommDialog {
     public void setPasswordField(String password) {
         this.passwordField.setText(password);
     }
-    
+
     /**
      * Return the hostname
      *
@@ -250,7 +256,7 @@ class SSHContactInfo extends SIPCommDialog {
     public String getHostName() {
         return this.machineIDField.getText();
     }
-    
+
     /**
      * Return the username
      *
@@ -259,7 +265,7 @@ class SSHContactInfo extends SIPCommDialog {
     public String getUserName() {
         return this.userNameField.getText();
     }
-    
+
     /**
      * Return the password
      *
@@ -268,7 +274,7 @@ class SSHContactInfo extends SIPCommDialog {
     public String getPassword() {
         return this.passwordField.getText();
     }
-    
+
     /**
      * Return the terminal type
      *
@@ -277,7 +283,7 @@ class SSHContactInfo extends SIPCommDialog {
     public String getTerminalType() {
         return this.terminalTypeField.getText();
     }
-    
+
     /**
      * Return the port
      *
@@ -286,7 +292,7 @@ class SSHContactInfo extends SIPCommDialog {
     public int getPort() {
         return Integer.parseInt(this.portField.getText().trim());
     }
-    
+
     /**
      * Return the update interval
      *
@@ -295,7 +301,7 @@ class SSHContactInfo extends SIPCommDialog {
     public int getUpdateInterval() {
         return Integer.parseInt(String.valueOf(this.updateTimer.getValue()));
     }
-    
+
     /**
      * Sets the HostName of the dialog
      *
@@ -304,7 +310,7 @@ class SSHContactInfo extends SIPCommDialog {
     public void setHostNameField(String hostName) {
         this.machineIDField.setText(hostName);
     }
-    
+
     /**
      * Sets the Terminal Type of the dialog
      *
@@ -313,7 +319,7 @@ class SSHContactInfo extends SIPCommDialog {
     public void setTerminalType(String termType) {
         this.terminalTypeField.setText(termType);
     }
-    
+
     /**
      * Sets the Update Interval of the dialog
      *
@@ -322,7 +328,7 @@ class SSHContactInfo extends SIPCommDialog {
     public void setUpdateInterval(int interval) {
         this.updateTimer.setValue(interval);
     }
-    
+
     /**
      * Sets the Port of the dialog
      *

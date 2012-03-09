@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.accountinfo;
@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.swing.*;
  * The right side panel of AccountDetailsDialog. Shows one tab of a summary of
  * contact information for the selected subcontact, and has an extended tab
  * listing all of the details.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -97,7 +97,7 @@ public class AccountDetailsPanel
     /**
      * Construct a panel containing all account details for the given protocol
      * provider.
-     * 
+     *
      * @param protocolProvider the protocol provider service
      */
     public AccountDetailsPanel(ProtocolProviderService protocolProvider)
@@ -207,7 +207,7 @@ public class AccountDetailsPanel
     }
 
     /**
-     * Loads details for 
+     * Loads details for
      */
     public void loadDetails()
     {
@@ -513,7 +513,7 @@ public class AccountDetailsPanel
         public void actionPerformed(ActionEvent e)
         {
             SipCommFileChooser chooser = GenericFileDialog.create(
-                null, "Change avatar...", 
+                null, "Change avatar...",
                 SipCommFileChooser.LOAD_FILE_OPERATION,
                 lastAvatarDir.getAbsolutePath());
             chooser.addFilter(new ImageFilter());
@@ -589,7 +589,10 @@ public class AccountDetailsPanel
 
         /**
          * Get the extension of a file.
-         */  
+         *
+         * @param f the file
+         * @return the extension of the file
+         */
         public String getExtension(File f)
         {
             String ext = null;
@@ -615,7 +618,7 @@ public class AccountDetailsPanel
 
     /**
      * Returns a scaled <tt>Image</tt> instance of the given byte image.
-     * 
+     *
      * @param image the image in bytes
      * @return a scaled <tt>Image</tt> instance of the given byte image.
      */
@@ -645,7 +648,7 @@ public class AccountDetailsPanel
     /**
      * Returns <code>true</code> if the account details are loaded,
      * <code>false</code> - otherwise.
-     * 
+     *
      * @return <code>true</code> if the account details are loaded,
      * <code>false</code> - otherwise
      */

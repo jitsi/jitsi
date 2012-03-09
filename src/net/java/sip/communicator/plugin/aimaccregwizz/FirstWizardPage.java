@@ -28,6 +28,11 @@ public class FirstWizardPage
                 ActionListener
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The first page identifier.
      */
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";

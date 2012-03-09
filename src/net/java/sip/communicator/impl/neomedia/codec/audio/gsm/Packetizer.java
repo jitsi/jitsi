@@ -28,6 +28,9 @@ public class Packetizer
         return "GSM Packetizer";
     }
 
+    /**
+     * Constructs a new <tt>Packetizer</tt>.
+     */
     public Packetizer()
     {
         super();

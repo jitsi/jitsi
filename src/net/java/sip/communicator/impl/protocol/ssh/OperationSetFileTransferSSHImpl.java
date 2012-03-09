@@ -28,26 +28,30 @@ public class OperationSetFileTransferSSHImpl
 {
     private static final Logger logger
             = Logger.getLogger(OperationSetFileTransferSSHImpl.class);
-    
+
     /**
      * Currently registered message listeners.
      */
     private Vector<FileTransferListener> fileTransferListeners
         = new Vector<FileTransferListener>();
-    
+
     /**
      * The protocol provider that created us.
      */
     private ProtocolProviderServiceSSHImpl parentProvider = null;
-    
-    
-    /** Creates a new instance of OperationSetFileTransferSSHImpl */
+
+
+    /**
+     * Creates a new instance of OperationSetFileTransferSSHImpl
+     *
+     * @param parentProvider the parent protocol provider service
+     */
     public OperationSetFileTransferSSHImpl(
             ProtocolProviderServiceSSHImpl        parentProvider)
     {
         this.parentProvider = parentProvider;
     }
-    
+
     /**
      * Registers a FileTransferListener with this operation set so that it gets
      * notifications of start, complete, failure of file transfers
@@ -74,7 +78,7 @@ public class OperationSetFileTransferSSHImpl
     }
 
     /**
-     * Sends a file transfer request to the given <tt>toContact</tt>. 
+     * Sends a file transfer request to the given <tt>toContact</tt>.
      * @param toContact the contact that should receive the file
      * @param file the file to send
      */

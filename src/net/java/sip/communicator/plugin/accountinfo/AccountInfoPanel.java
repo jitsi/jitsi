@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.accountinfo;
@@ -19,12 +19,17 @@ import org.osgi.framework.*;
 /**
  * A GUI plug-in for SIP Communicator that will allow users to set cross
  * protocol account information.
- * 
+ *
  * @author Adam Goldstein
  */
 public class AccountInfoPanel
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The right side of the AccountInfo frame that contains protocol specific
      * account details.

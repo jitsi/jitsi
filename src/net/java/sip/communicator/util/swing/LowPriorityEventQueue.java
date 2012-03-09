@@ -40,6 +40,11 @@ public class LowPriorityEventQueue
      */
     private static class LowPriorityInvocationEvent extends InvocationEvent
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public LowPriorityInvocationEvent(Object source, Runnable runnable)
         {
             super(source, PaintEvent.UPDATE, runnable, null, false);

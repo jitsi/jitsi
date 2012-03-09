@@ -11,7 +11,7 @@ import net.java.sip.communicator.service.resources.*;
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class Resources
@@ -27,7 +27,7 @@ public class Resources
     /**
      * A constant pointing to the Aim protocol wizard page image.
      */
-    public static ImageID PAGE_IMAGE 
+    public static ImageID PAGE_IMAGE
         = new ImageID("service.protocol.aim.AIM_64x64");
 
     /**
@@ -50,6 +50,11 @@ public class Resources
         return getResources().getImageInBytes(imageID.getId());
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

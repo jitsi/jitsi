@@ -19,6 +19,9 @@ public class FFmpeg
      */
     public static final long AV_NOPTS_VALUE = 0x8000000000000000L;
 
+    /**
+     * The AV sample format for signed 16.
+     */
     public static final int AV_SAMPLE_FMT_S16 = 1;
 
     /**
@@ -96,8 +99,14 @@ public class FFmpeg
      */
     public static final int FF_MIN_BUFFER_SIZE = 16384;
 
+    /**
+     * The H264 baseline profile.
+     */
     public static final int FF_PROFILE_H264_BASELINE = 66;
 
+    /**
+     * The H264 main profile.
+     */
     public static final int FF_PROFILE_H264_MAIN = 77;
 
     /**
@@ -340,6 +349,12 @@ public class FFmpeg
      */
     public static native void avcodeccontext_add_flags2(long avctx, int flags2);
 
+    /**
+     * Add specified partitions to the avcodeccontext.
+     *
+     * @param avctx pointer to AVCodecContext
+     * @param partitions the partitions to add
+     */
     public static native void avcodeccontext_add_partitions(long avctx,
         int partitions);
 
@@ -695,7 +710,7 @@ public class FFmpeg
     /**
      * Allocates a new <tt>AVFilterGraph</tt> instance.
      *
-     * @return a pointer to the newly-allocated <tt>AVFilterGraph</tt> instance 
+     * @return a pointer to the newly-allocated <tt>AVFilterGraph</tt> instance
      */
     public static native long avfilter_graph_alloc();
 
@@ -725,6 +740,7 @@ public class FFmpeg
      * <tt>AVFilterContext</tt> instance with the specified name is to be found
      * @param name the name of the <tt>AVFilterContext</tt> instance which is to
      * be found in the specified <tt>graph</tt>
+     * @return the filter graph pointer
      */
     public static native long avfilter_graph_get_filter(
             long graph,

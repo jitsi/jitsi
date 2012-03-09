@@ -26,7 +26,7 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * Dialog window to add/edit client certificate configuration entries.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class CertConfigEntryDialog
@@ -62,6 +62,11 @@ public class CertConfigEntryDialog
     // ------------------------------------------------------------------------
     // Initialization
     // ------------------------------------------------------------------------
+    /**
+     * Constructor.
+     *
+     * @param e the <tt>CertificateConfigEntry</tt>
+     */
     public CertConfigEntryDialog(CertificateConfigEntry e)
     {
         super(false);
@@ -373,7 +378,7 @@ public class CertConfigEntryDialog
      * Open the keystore selected by the user. If the type is set as PKCS#11,
      * the file is loaded as a provider. If the store is protected by a
      * password, the user is being asked by an authentication dialog.
-     * 
+     *
      * @return The loaded keystore
      * @throws KeyStoreException when something goes wrong
      */
@@ -508,6 +513,11 @@ public class CertConfigEntryDialog
         );
     }
 
+    /**
+     * Show this dialog.
+     *
+     * @return true if OK has been pressed, false otherwise
+     */
     public boolean showDialog()
     {
         setModal(true);

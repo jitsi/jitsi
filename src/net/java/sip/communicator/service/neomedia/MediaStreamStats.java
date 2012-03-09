@@ -7,9 +7,6 @@
 package net.java.sip.communicator.service.neomedia;
 
 import net.sf.fmj.media.rtp.*;
-import java.util.*;
-import javax.media.rtp.*;
-import javax.media.rtp.rtcp.*;
 
 /**
  * Class used to compute stats concerning a MediaStream.

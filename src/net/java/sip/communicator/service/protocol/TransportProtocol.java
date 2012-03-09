@@ -34,6 +34,14 @@ public enum TransportProtocol
      */
     TLS;
 
+    /**
+     * Parses a <tt>String</tt> and returns the appropriate
+     * <tt>TransportProtocol</tt>.
+     * @param transportProtocol string
+     * @return appropriate <tt>TransportProtocol</tt>
+     * @throws IllegalArgumentException if string is not a transport protocol
+     * valid name
+     */
     public static TransportProtocol parse(String transportProtocol)
         throws IllegalArgumentException
     {

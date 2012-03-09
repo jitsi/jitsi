@@ -34,6 +34,9 @@ public class DefaultLanguagePackImpl
      */
     private Vector<Locale> availableLocales = new Vector<Locale>();
 
+    /**
+     * Constructor.
+     */
     public DefaultLanguagePackImpl()
     {
         // Finds all the files *.properties in the path : /resources/languages.

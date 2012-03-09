@@ -23,44 +23,104 @@ import java.util.*;
  */
 public final class CommonPolicyParser
 {
+    /**
+     * The namespace of the common-policy.
+     */
     public static String NAMESPACE = "urn:ietf:params:xml:ns:common-policy";
 
+    /**
+     * The ruleset element name.
+     */
     public static String RULESET_ELEMENT = "ruleset";
 
+    /**
+     * The rule element name.
+     */
     public static String RULE_ELEMENT = "rule";
 
+    /**
+     * The rule id attribute element name.
+     */
     public static String RULE_ID_ATTR = "id";
 
+    /**
+     * The conditions element name.
+     */
     public static String CONDITIONS_ELEMENT = "conditions";
 
+    /**
+     * The actions element name.
+     */
     public static String ACTIONS_ELEMENT = "actions";
 
+    /**
+     * The transformations element name.
+     */
     public static String TRANSFORMATIONS_ELEMENT = "transformations";
 
+    /**
+     * The identify element name.
+     */
     public static String IDENTITY_ELEMENT = "identity";
 
+    /**
+     * The sphere element name.
+     */
     public static String SPHERE_ELEMENT = "sphere";
 
+    /**
+     * The sphere value element name.
+     */
     public static String SPHERE_VALUE_ATTR = "value";
 
+    /**
+     * The validity element name.
+     */
     public static String VALIDITY_ELEMENT = "validity";
 
+    /**
+     * The validity-from element name.
+     */
     public static String VALIDITY_FROM_ELEMENT = "from";
 
+    /**
+     * The validity-until element name.
+     */
     public static String VALIDITY_UNTIL_ELEMENT = "until";
 
+    /**
+     * The one element name.
+     */
     public static String ONE_ELEMENT = "one";
 
+    /**
+     * The one-id element name.
+     */
     public static String ONE_ID_ATTR = "id";
 
+    /**
+     * The many element name.
+     */
     public static String MANY_ELEMENT = "many";
 
+    /**
+     * The many domain element name.
+     */
     public static String MANY_DOMAIN_ATTR = "domain";
 
+    /**
+     * The except element name.
+     */
     public static String EXCEPT_ELEMENT = "except";
 
+    /**
+     * The except id element name.
+     */
     public static String EXCEPT_ID_ATTR = "id";
 
+    /**
+     * The except domain element name.
+     */
     public static String EXCEPT_DOMAIN_ATTR = "domain";
 
     private CommonPolicyParser()

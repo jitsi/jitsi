@@ -29,8 +29,14 @@ import net.java.sip.communicator.util.*;
 public class HistoryServiceImpl
     implements HistoryService
 {
+    /**
+     * The data directory.
+     */
     public static final String DATA_DIRECTORY = "history_ver1.0";
 
+    /**
+     * The data file.
+     */
     public static final String DATA_FILE = "dbstruct.dat";
 
     /**
@@ -66,6 +72,12 @@ public class HistoryServiceImpl
         {"\\|", "&_pp"}     // the char |
     };
 
+    /**
+     * Constructor.
+     *
+     * @param bundleContext OSGi bundle context
+     * @throws Exception if something went wrong during initialization
+     */
     public HistoryServiceImpl(BundleContext bundleContext)
         throws Exception
     {

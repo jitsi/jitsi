@@ -21,11 +21,16 @@ import net.java.sip.communicator.util.swing.*;
  * The <tt>WelcomeWindow</tt> is actually the splash screen shown while the
  * application is loading. It displays the status of the loading process and
  * some general information about the version, licenses and contact details.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class WelcomeWindow extends JDialog
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private static final String APPLICATION_NAME
         = BrandingActivator.getResources()
             .getSettingsString("service.gui.APPLICATION_NAME");
@@ -40,6 +45,9 @@ public class WelcomeWindow extends JDialog
 
     private final JLabel bundleLabel = new JLabel();
 
+    /**
+     * Constructor.
+     */
     public WelcomeWindow()
     {
         JLabel titleLabel = new JLabel(APPLICATION_NAME);
@@ -109,7 +117,7 @@ public class WelcomeWindow extends JDialog
 
     /**
      * Initializes the title label.
-     * 
+     *
      * @param titleLabel the title label
      */
     private void initTitleLabel(JLabel titleLabel)
@@ -122,7 +130,7 @@ public class WelcomeWindow extends JDialog
 
     /**
      * Initializes the version label.
-     * 
+     *
      * @param versionLabel the version label
      */
     private void initVersionLabel(JLabel versionLabel)
@@ -135,7 +143,7 @@ public class WelcomeWindow extends JDialog
 
     /**
      * Initializes the logo area.
-     * 
+     *
      * @param logoArea the logo area
      */
     private void initLogoArea(JTextArea logoArea)
@@ -158,7 +166,7 @@ public class WelcomeWindow extends JDialog
 
     /**
      * Initializes the copyright area.
-     * 
+     *
      * @param rightsArea the copyright area.
      */
     private void initRightsArea(StyledHTMLEditorPane rightsArea)
@@ -185,7 +193,7 @@ public class WelcomeWindow extends JDialog
 
     /**
      * Initializes the license area.
-     * 
+     *
      * @param licenseArea the license area.
      */
     private void initLicenseArea(StyledHTMLEditorPane licenseArea)
@@ -277,7 +285,7 @@ public class WelcomeWindow extends JDialog
 
     /**
      * Sets the name of the currently loading bundle.
-     * 
+     *
      * @param bundleName the name of the bundle to display
      */
     public void setBundle(String bundleName)
@@ -293,6 +301,11 @@ public class WelcomeWindow extends JDialog
      */
     private class CloseAction extends UIAction
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             WelcomeWindow.this.close();
@@ -305,6 +318,11 @@ public class WelcomeWindow extends JDialog
     private static class WindowBackground
         extends JPanel
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private BufferedImage cache;
 
         private int cacheHeight;

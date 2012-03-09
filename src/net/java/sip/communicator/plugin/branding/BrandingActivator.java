@@ -16,6 +16,9 @@ import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
+/**
+ * Branding bundle activator.
+ */
 public class BrandingActivator
     implements BundleActivator
 {
@@ -30,7 +33,7 @@ public class BrandingActivator
         = "net.java.sip.communicator.plugin.branding.SHOW_SPLASH_SCREEN";
 
     private static BundleContext bundleContext;
-    
+
     private static ResourceManagementService resourcesService;
 
     public void start(BundleContext bc) throws Exception
@@ -254,6 +257,11 @@ public class BrandingActivator
                 : (ConfigurationService) bundleContext.getService(serRef);
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

@@ -23,7 +23,6 @@ class ilbc_common {
                               table */
     {
        int k,n,m, Nit=2, change=0,pos;
-       float tmp;
        float eps=(float)0.039; /* 50 Hz */
        float eps2=(float)0.0195;
        float maxlsf=(float)3.14; /* 4000 Hz */
@@ -39,7 +38,6 @@ class ilbc_common {
                    if ((lsf[pos+1]-lsf[pos])<eps) {
 
                        if (lsf[pos+1]<lsf[pos]) {
-                           tmp=lsf[pos+1];
                            lsf[pos+1]= lsf[pos]+eps2;
                            lsf[pos]= lsf[pos+1]-eps2;
                        } else {

@@ -15,6 +15,9 @@ import java.util.*;
 public interface PresenceStatusListener
     extends EventListener
 {
+    /**
+     * Callback the the contact presence status has changed.
+     */
     public void contactPresenceStatusChanged();
 
 }

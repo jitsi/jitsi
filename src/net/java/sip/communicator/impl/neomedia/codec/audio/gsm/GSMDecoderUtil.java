@@ -22,6 +22,15 @@ public class GSMDecoderUtil
     private static final int PCM_INTS = 160;
     private static final int PCM_BYTES = 320;
 
+    /**
+     * Decode GSM data.
+     *
+     * @param bigEndian if the data are in big endian format
+     * @param data the GSM data
+     * @param offset offset
+     * @param length length of the data
+     * @param decoded decoded data array
+     */
     public static void gsmDecode(boolean bigEndian,
                                  byte[] data,
                                  int offset,

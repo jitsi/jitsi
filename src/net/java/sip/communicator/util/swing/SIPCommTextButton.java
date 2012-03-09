@@ -24,6 +24,11 @@ import org.jvnet.lafwidget.animation.*;
  */
 public class SIPCommTextButton extends JButton
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final float[] borderColor
         = Color.DARK_GRAY.getRGBComponents(null);
 

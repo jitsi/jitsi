@@ -49,7 +49,6 @@ public class CallPeerRecord
                             Date endTime)
     {
         this.peerAddress = peerAddress;
-        this.displayName = displayName;
         this.startTime = startTime;
         this.endTime = endTime;
     }

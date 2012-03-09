@@ -26,6 +26,9 @@ public class HistoryImpl
 {
     private static Logger log = Logger.getLogger(HistoryImpl.class);
 
+    /**
+     * The supported filetype.
+     */
     public static final String SUPPORTED_FILETYPE = "xml";
 
     private HistoryID id;

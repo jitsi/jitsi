@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.contactsourceconfig;
@@ -21,13 +21,7 @@ public class ContactSourceConfigActivator
     implements BundleActivator
 {
     /**
-     * The logger.
-     */
-    private static Logger logger
-        = Logger.getLogger(ContactSourceConfigActivator.class);
-
-    /**
-     * The {@link BundleContext} of the {@link SecurityConfigActivator}.
+     * The {@link BundleContext} of the {@link ContactSourceConfigActivator}.
      */
     public static BundleContext bundleContext;
 

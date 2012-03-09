@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.util.swing;
@@ -15,7 +15,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The master password input dialog.
- * 
+ *
  * @author Dmitri Melnikov
  */
 public class MasterPasswordInputDialog
@@ -23,6 +23,11 @@ public class MasterPasswordInputDialog
     implements ActionListener,
                KeyListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Instance of this class.
      */
@@ -140,7 +145,7 @@ public class MasterPasswordInputDialog
 
     /**
      * Removes and adds again all the components to the main panel.
-     * 
+     *
      * @param includeErrorMsg when true also includes an error text component
      */
     private void rebuildMainPanel(boolean includeErrorMsg)
@@ -156,9 +161,9 @@ public class MasterPasswordInputDialog
 
     /**
      * Shows an input dialog to the user to obtain the master password.
-     * 
+     *
      * @param prevSuccess <tt>true</tt> if any previous call returned a correct
-     * master password and there is no need to show an extra "verification 
+     * master password and there is no need to show an extra "verification
      * failed" message
      * @return the master password obtained from the user or <tt>null</tt> if
      * none was provided
@@ -180,8 +185,8 @@ public class MasterPasswordInputDialog
     /**
      * OK button click event handler. Retrieves the password and hides the
      * dialog.
-     * 
-     * @param e action event 
+     *
+     * @param e action event
      */
     public void actionPerformed(ActionEvent e)
     {
@@ -221,7 +226,7 @@ public class MasterPasswordInputDialog
 
     /**
      * Disables OK button if the password input field is empty.
-     * 
+     *
      * @param event key event
      */
     public void keyReleased(KeyEvent event)
@@ -237,7 +242,7 @@ public class MasterPasswordInputDialog
 
     /**
      * Not overriding.
-     * 
+     *
      * @param arg0 key event
      */
     public void keyPressed(KeyEvent arg0)
@@ -246,7 +251,7 @@ public class MasterPasswordInputDialog
 
     /**
      * Not overriding.
-     * 
+     *
      * @param arg0 key event
      */
     public void keyTyped(KeyEvent arg0)

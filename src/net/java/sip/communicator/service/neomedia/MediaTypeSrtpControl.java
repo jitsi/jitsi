@@ -9,12 +9,19 @@ package net.java.sip.communicator.service.neomedia;
 /**
  * Utility class to combine <tt>MediaType</tt> and <tt>SrtpControlType</tt> as a
  * map key.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class MediaTypeSrtpControl implements Comparable<MediaTypeSrtpControl>
 {
+    /**
+     * The media type.
+     */
     public final MediaType mediaType;
+
+    /**
+     * The SRTP control type.
+     */
     public final SrtpControlType srtpControlType;
 
     /**
@@ -49,7 +56,7 @@ public class MediaTypeSrtpControl implements Comparable<MediaTypeSrtpControl>
     {
         return getWeight() == o.getWeight() ?
                 0 :
-                getWeight() < o.getWeight() ? 
+                getWeight() < o.getWeight() ?
                     -1 : 1;
     }
 

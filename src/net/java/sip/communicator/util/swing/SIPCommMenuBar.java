@@ -14,7 +14,7 @@ import net.java.sip.communicator.util.swing.plaf.*;
  * The SIPCommMenuBar is a <tt>JMenuBar</tt> without border decoration that can
  * be used as a container for other components, like selector boxes that won't
  * need a menu decoration.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -22,6 +22,11 @@ public class SIPCommMenuBar
     extends JMenuBar
     implements Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Creates an instance of <tt>SIPCommMenuBar</tt>.
      */

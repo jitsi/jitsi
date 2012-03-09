@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.*;
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class Resources {
@@ -46,12 +46,12 @@ public class Resources {
     {
         BufferedImage image = null;
 
-        InputStream in = 
+        InputStream in =
             getResources().getImageInputStream(imageID);
-        
+
         if(in == null)
             return null;
-        
+
         try
         {
             image = ImageIO.read(in);
@@ -63,7 +63,12 @@ public class Resources {
 
         return image;
     }
-    
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

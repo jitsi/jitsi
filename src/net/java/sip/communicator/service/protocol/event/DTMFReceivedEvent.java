@@ -39,6 +39,8 @@ public class DTMFReceivedEvent
      * contact.
      *
      * @param source the <tt>Message</tt> whose reception this event represents.
+     * @param value dmtf tone value
+     * @param duration duration of the DTMF tone
      */
     public DTMFReceivedEvent(ProtocolProviderService source,
                              DTMFTone value,

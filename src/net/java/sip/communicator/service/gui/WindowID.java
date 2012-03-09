@@ -17,10 +17,19 @@ public class WindowID{
 
     private String dialogName;
 
+    /**
+     * Creates a new WindowID.
+     * @param dialogName the name of the dialog
+     */
     public WindowID(String dialogName){
         this.dialogName = dialogName;
     }
 
+    /**
+     * Get the ID.
+     *
+     * @return the ID
+     */
     public String getID(){
         return this.dialogName;
     }

@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.contactinfo;
@@ -26,13 +26,18 @@ import net.java.sip.communicator.util.swing.*;
  * The right side panel of ContactInfoDialog. Shows one tab of a summary of
  * contact information for the selected subcontact, and has an extended tab
  * listing all of the details.
- * 
+ *
  * @author Adam Goldstein
  * @author Yana Stamcheva
  */
 public class ContactInfoDetailsPanel
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The tabbed pane containing the two different tabs for details.
      */
@@ -73,7 +78,7 @@ public class ContactInfoDetailsPanel
 
     /**
      * Retrieve and display the information for the newly selected contact, c.
-     * 
+     *
      * @param c the sub-contact we are now focusing on.
      */
     public void loadContactDetails(Contact c)
@@ -137,7 +142,7 @@ public class ContactInfoDetailsPanel
     /**
      * Creates the panel that indicates to the user that the currently selected
      * contact does not support server stored contact info.
-     * 
+     *
      * @return the panel that is added and shows a message that the selected
      *         sub-contact does not have the operation set for server stored
      *         contact info supported.
@@ -165,7 +170,7 @@ public class ContactInfoDetailsPanel
      * LastNameDetail - BirthdateDetail (and calculate age) - GenderDetail -
      * EmailAddressDetail - PhoneNumberDetail. All other details will be* added
      * to our list of extended details.
-     * 
+     *
      * @return the panel that will be added as the summary tab.
      */
     private JPanel createSummaryInfoPanel()
@@ -395,7 +400,7 @@ public class ContactInfoDetailsPanel
 
     /**
      * A panel that displays all of the details retrieved from the opSet.
-     * 
+     *
      * @return a panel that will be added as the extended tab.
      */
     private JPanel createExtendedInfoPanel()
@@ -570,6 +575,11 @@ public class ContactInfoDetailsPanel
         implements HyperlinkListener
     {
         /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
          * The regular expression (in the form of compiled <tt>Pattern</tt>)
          * which matches URLs for the purposed of turning them into links.
          */
@@ -577,10 +587,10 @@ public class ContactInfoDetailsPanel
             + "(\\bwww\\.[^\\s<>\"]+\\.[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // wwwURL
             + "|" + "(\\b\\w+://[^\\s<>\"]+/*[?#]*(\\w+[&=;?]\\w+)*\\b)" // protocolURL
             + ")");
-        
+
         private SIPCommHTMLEditorKit editorKit;
         private HTMLDocument document;
-        
+
         /**
          * Creates and instance of <tt>HTMLTextPane</tt>
          */
@@ -589,19 +599,19 @@ public class ContactInfoDetailsPanel
             editorKit = new SIPCommHTMLEditorKit(this);
 
             this.document = (HTMLDocument) editorKit.createDefaultDocument();
-            
+
             this.addHyperlinkListener(this);
 
             this.setContentType("text/html");
             this.setEditorKitForContentType("text/html", editorKit);
             this.setEditorKit(editorKit);
             this.setDocument(document);
-            
+
             putClientProperty(
                 JTextPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
         }
-        
-        
+
+
         /**
          * Override of parent <tt>setText(String)</tt> to search for URLs and
          * set as hyperlinks.
@@ -610,7 +620,7 @@ public class ContactInfoDetailsPanel
         @Override
         public void setText(String string)
         {
-            
+
             Matcher m = URL_PATTERN.matcher(string);
             StringBuffer msgBuffer = new StringBuffer();
             int prevEnd = 0;
@@ -632,15 +642,15 @@ public class ContactInfoDetailsPanel
                 msgBuffer.append(url);
                 msgBuffer.append("</A>");
             }
-            
+
             String fromPrevEndToEnd = string.substring(prevEnd);
 
             msgBuffer.append(fromPrevEndToEnd);
 
             super.setText(msgBuffer.toString());
-            
+
         }
-        
+
         /**
          * Handles activations of hyperlinks
          * @param e <tt>HyperlinkEvent</tt> to handle.

@@ -25,6 +25,11 @@ public class PopupNotificationPanel
     implements Skinnable
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Logger for this class.
      **/
     private final Logger logger = Logger.getLogger(SIPCommFrame.class);
@@ -107,7 +112,7 @@ public class PopupNotificationPanel
     /**
      * Creates a new notification panel with <tt>notificationContent</tt> as
      * the component to put in that panel
-     * 
+     *
      * @param titleString The title of the popup
      * @param notificationContent content to add in the new created
      * <tt>PopupNotificationPanel</tt>

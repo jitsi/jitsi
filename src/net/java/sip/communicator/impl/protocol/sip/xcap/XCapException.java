@@ -15,6 +15,11 @@ package net.java.sip.communicator.impl.protocol.sip.xcap;
 public class XCapException extends Exception
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Creates a new <code>XCapException</code> instance
      * which does not give a human-readable explanation why the operation is
      * not supported.

@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.contactinfo;
@@ -18,13 +18,18 @@ import net.java.sip.communicator.util.swing.*;
  * The left side panel of ContactInfoDialog. Display all associated subcontacts
  * and their respective protocols in a JList. If a user is selected, the
  * ContactInfoDetailsPanel will be updated to the current contact.
- * 
+ *
  * @author Adam Goldstein
  * @author Yana Stamcheva
  */
 public class ContactInfoContactPanel
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The list of all subcontacts related to the selected contact.
      */
@@ -49,7 +54,7 @@ public class ContactInfoContactPanel
      * contact that was originally selected. Whenever a sub-contact is picked,
      * notifies the protocolPanel of the change and it will update the displayed
      * details.
-     * 
+     *
      * @param contacts the list of contacts
      * @param dialog the contact info dialog
      */
@@ -111,6 +116,11 @@ public class ContactInfoContactPanel
     private static class ContactPanelCellRenderer
         extends DefaultListCellRenderer
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private boolean isSelected;
 
         private Color blueGreyBorderColor = new Color(131, 149, 178);
@@ -125,7 +135,7 @@ public class ContactInfoContactPanel
         /**
          * Renders a <tt>Contact</tt> object in a JList, by visualizing
          * the contact name and the protocol icon.
-         * 
+         *
          * @param list the rendered JList
          * @param value the object to be rendered
          * @param index the index of the object in the list

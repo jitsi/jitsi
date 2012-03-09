@@ -22,6 +22,11 @@ public class AEGetURLEventHandler
      */
     public interface IAEGetURLListener
     {
+        /**
+         * Handle the URL event.
+         *
+         * @param url the URL
+         */
         void handleAEGetURLEvent (String url);
     }
 

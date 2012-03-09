@@ -16,6 +16,11 @@ public class MsOutlookMAPIHResultException
         extends Exception
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>HRESULT</tt> which is represented by this <tt>Exception</tt>.
      */
     private final long hResult;

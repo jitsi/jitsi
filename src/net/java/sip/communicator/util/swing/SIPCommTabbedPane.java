@@ -37,6 +37,11 @@ public class SIPCommTabbedPane
     implements  ChangeListener,
                 Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private int overTabIndex = -1;
 
     private int lastSelectedIndex;
@@ -168,6 +173,11 @@ public class SIPCommTabbedPane
 
         final JFrame frame = new SIPCommFrame()
         {
+            /**
+             * Serial version UID.
+             */
+            private static final long serialVersionUID = 0L;
+
             protected void close(boolean isEscaped)
             {
                 if (isEscaped)
@@ -480,7 +490,7 @@ public class SIPCommTabbedPane
         {
             this.setSelectedIndex(lastSelectedIndex);
         }
-        
+
         super.removeTabAt(index);
     }
 

@@ -74,6 +74,13 @@ public class MessageDeliveryFailedEvent
       */
      private final long timestamp;
 
+     /**
+      * Constructor.
+      *
+      * @param source the message
+      * @param to the "to" contact
+      * @param errorCode error code
+      */
      public MessageDeliveryFailedEvent(Message source,
                                        Contact to,
                                        int errorCode)

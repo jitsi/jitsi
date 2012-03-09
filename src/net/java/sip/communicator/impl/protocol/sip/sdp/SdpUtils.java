@@ -104,6 +104,7 @@ public class SdpUtils
      *
      * @return an empty instance of a <tt>SessionDescription</tt> with
      * preinitialized <tt>s</tt>, <tt>v</tt>, and <tt>t</tt> parameters.
+     * @throws OperationFailedException if the SDP creation failed
      */
     public static SessionDescription createSessionDescription(
                     InetAddress localAddress)
@@ -127,6 +128,7 @@ public class SdpUtils
      *
      * @return an empty instance of a <tt>SessionDescription</tt> with
      * preinitialized <tt>s</tt>, <tt>v</tt>, and <tt>t</tt> parameters.
+     * @throws OperationFailedException if the SDP creation failed
      */
     public static SessionDescription createSessionDescription(
                                    InetAddress              localAddress,
@@ -213,6 +215,7 @@ public class SdpUtils
      *
      * @return a new <tt>SessionDescription</tt> that updates
      * <tt>descToUpdate</tt>;
+     * @throws OperationFailedException if the SDP creation failed
      */
     public static SessionDescription createSessionUpdateDescription(
                           SessionDescription       descToUpdate,
@@ -1557,7 +1560,7 @@ public class SdpUtils
      *
      * @param description the <tt>MediaDescription</tt> whose media type we'd
      * like to extract.
-     *
+     * @param attributeName name of the attribute to check
      * @return the media type (e.g. audio or video) for the specified media
      * <tt>description</tt>.
      *

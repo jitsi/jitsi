@@ -19,6 +19,14 @@ import javax.swing.*;
 public class SIPCommPopupMenu
     extends JPopupMenu
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
+     * Constructor.
+     */
     public SIPCommPopupMenu()
     {
         // Hides the popup menu when the parent window loses focus.
@@ -45,7 +53,7 @@ public class SIPCommPopupMenu
 
                 parentWindow.addWindowListener(new WindowAdapter()
                 {
-                    public void windowDeactivated(WindowEvent e) 
+                    public void windowDeactivated(WindowEvent e)
                     {
                         if (SIPCommPopupMenu.this != null
                                 && SIPCommPopupMenu.this.isVisible())

@@ -23,6 +23,11 @@ import org.jvnet.lafwidget.animation.*;
 public class SIPCommButton
     extends JButton
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private Image bgImage;
 
     private Image pressedImage;
@@ -294,7 +299,7 @@ public class SIPCommButton
     /**
      * Sets the rollover background image of this button.
      *
-     * @param rolloverIconImage the rollover background image of this button.
+     * @param rolloverImage the rollover background image of this button.
      */
     public void setRolloverImage(Image rolloverImage)
     {

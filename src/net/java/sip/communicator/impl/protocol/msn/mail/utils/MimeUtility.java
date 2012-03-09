@@ -1,19 +1,19 @@
 /*
  * MimeUtility.java
  * Copyright (C) 2002, 2004, 2005 The Free Software Foundation
- * 
+ *
  * This file is part of GNU JavaMail, a library.
- * 
+ *
  * GNU JavaMail is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * GNU JavaMail is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -48,10 +48,11 @@ public class MimeUtility
   private MimeUtility()
   {
   }
-  
+
   /**
    * Decodes headers that are defined as '*text' in RFC 822.
    * @param etext the possibly encoded value
+   * @return decoded text
    * @exception UnsupportedEncodingException if the charset conversion failed
    */
   public static String decodeText(String etext)
@@ -66,7 +67,7 @@ public class MimeUtility
     StringBuffer buffer = new StringBuffer();
     StringBuffer extra = new StringBuffer();
     boolean decoded = false;
-    while (st.hasMoreTokens()) 
+    while (st.hasMoreTokens())
       {
         String token = st.nextToken();
         char c = token.charAt(0);
@@ -104,6 +105,7 @@ public class MimeUtility
    * Decodes the specified string using the RFC 2047 rules for parsing an
    * "encoded-word".
    * @param text the possibly encoded value
+   * @return decoded word
    * @exception Exception if the string is not an encoded-word
    * @exception UnsupportedEncodingException if the decoding failed
    */

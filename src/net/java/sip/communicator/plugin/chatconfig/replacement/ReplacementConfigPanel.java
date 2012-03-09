@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.chatconfig.replacement;
@@ -23,12 +23,17 @@ import java.util.*;
 /**
  * The <tt>ConfigurationForm</tt> that would be added in the chat configuration
  * window.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementConfigPanel
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Checkbox to enable/disable smiley replacement.
      */
@@ -62,7 +67,7 @@ public class ReplacementConfigPanel
 
     /**
      * Init the main panel.
-     * 
+     *
      * @return the created component
      */
     private Component createMainPanel()
@@ -114,7 +119,7 @@ public class ReplacementConfigPanel
 
         table.setOpaque(true);
         table.setBackground(Color.white);
-  
+
         JScrollPane tablePane = new JScrollPane(table);
         tablePane.setOpaque(false);
         tablePane.setPreferredSize(new Dimension(mainPanel.getWidth(), 150));
@@ -138,7 +143,7 @@ public class ReplacementConfigPanel
 
         /*
          * list of the source names. Removing 'Smiley' as it shouldn't show up in
-         * the table. 
+         * the table.
          */
         Set<String> keys = ChatConfigActivator.getReplacementSources().keySet();
         ArrayList<String> sourceList = new ArrayList<String>(keys);
@@ -229,6 +234,11 @@ public class ReplacementConfigPanel
     private static class FixedTableCellRenderer
         extends DefaultTableCellRenderer
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public Component getTableCellRendererComponent(JTable table, Object value,
             boolean selected, boolean focused, int row, int column)
         {

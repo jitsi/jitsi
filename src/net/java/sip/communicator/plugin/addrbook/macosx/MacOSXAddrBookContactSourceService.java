@@ -19,6 +19,9 @@ import net.java.sip.communicator.service.contactsource.*;
 public class MacOSXAddrBookContactSourceService
     extends AsyncContactSourceService
 {
+    /**
+     * the Mac OS X address book prefix.
+     */
     public static final String MACOSX_ADDR_BOOK_PREFIX
         = "net.java.sip.communicator.plugin.addrbook.MACOSX_ADDR_BOOK_PREFIX";
 

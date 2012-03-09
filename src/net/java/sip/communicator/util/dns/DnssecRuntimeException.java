@@ -13,12 +13,17 @@ import java.net.UnknownHostException;
  * This is not a checked exception or a derivative of
  * {@link UnknownHostException} so that existing code does not retry the lookup
  * (potentially in a loop).
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class DnssecRuntimeException
     extends RuntimeException
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Creates a new instance of this class.
      * @param message The reason why this exception is thrown.

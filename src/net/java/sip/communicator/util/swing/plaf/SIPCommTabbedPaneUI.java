@@ -274,7 +274,7 @@ public class SIPCommTabbedPaneUI
     protected void updateOverTab(int x, int y)
     {
         int overTabIndex = getTabAtLocation(x, y);
-        if (this.overTabIndex != overTabIndex) 
+        if (this.overTabIndex != overTabIndex)
         {
             this.overTabIndex = overTabIndex;
             tabScroller.tabPanel.repaint();
@@ -337,9 +337,9 @@ public class SIPCommTabbedPaneUI
     /**
      * Invoked by <code>installUI</code> to create a layout manager object to
      * manage the <code>JTabbedPane</code>.
-     * 
+     *
      * @return a layout manager object
-     * 
+     *
      * @see javax.swing.JTabbedPane#getTabLayoutPolicy
      */
     protected LayoutManager createLayoutManager()
@@ -357,7 +357,7 @@ public class SIPCommTabbedPaneUI
     /**
      * Creates and installs any required subcomponents for the JTabbedPane.
      * Invoked by installUI.
-     * 
+     *
      * @since 1.4
      */
     protected void installComponents()
@@ -374,10 +374,10 @@ public class SIPCommTabbedPaneUI
     /**
      * Removes any installed subcomponents from the JTabbedPane. Invoked by
      * uninstallUI.
-     * 
+     *
      * @since 1.4
      */
-    protected void uninstallComponents() 
+    protected void uninstallComponents()
     {
         tabPane.remove(tabScroller.viewport);
         tabPane.remove(tabScroller.scrollForwardButton);
@@ -740,7 +740,7 @@ public class SIPCommTabbedPaneUI
      * edge visual. e.g. A "File" tab which has cropped been cropped just after
      * the "i": ------------- | ..... | | . | | ... . | | . . | | . . | | . . |
      * --------------
-     * 
+     *
      * The x, y arrays below define the pattern used to create a "torn" edge
      * segment which is repeated to fill the edge of the tab. For tabs placed on
      * TOP and BOTTOM, this righthand torn edge is created by line segments
@@ -791,13 +791,13 @@ public class SIPCommTabbedPaneUI
      * inclusive). The destination rectangle parameter must be a valid
      * <code>Rectangle</code> instance. The handling of invalid parameters is
      * unspecified.
-     * 
+     *
      * @param tabIndex
      *            the index of the tab
      * @param dest
      *            the rectangle where the result should be placed
      * @return the resulting rectangle
-     * 
+     *
      * @since 1.4
      */
 
@@ -930,6 +930,11 @@ public class SIPCommTabbedPaneUI
     private static class DirectionAction
         extends AbstractAction
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private final int direction;
 
         public DirectionAction(int direction)
@@ -948,6 +953,11 @@ public class SIPCommTabbedPaneUI
     private static class PageAction
         extends AbstractAction
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private final boolean up;
 
         public PageAction(boolean up)
@@ -1448,6 +1458,11 @@ public class SIPCommTabbedPaneUI
         extends TransparentPanel
         implements UIResource
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public ScrollableTabPanel()
         {
             setLayout(null);
@@ -1514,27 +1529,27 @@ public class SIPCommTabbedPaneUI
     /*
      * GES 2/3/99: The container listener code was added to support HTML
      * rendering of tab titles.
-     * 
+     *
      * Ideally, we would be able to listen for property changes when a tab is
      * added or its text modified. At the moment there are no such events
      * because the Beans spec doesn't allow 'indexed' property changes (i.e. tab
      * 2's text changed from A to B).
-     * 
+     *
      * In order to get around this, we listen for tabs to be added or removed by
      * listening for the container events. we then queue up a runnable (so the
      * component has a chance to complete the add) which checks the tab title of
      * the new component to see if it requires HTML rendering.
-     * 
+     *
      * The Views (one per tab title requiring HTML rendering) are stored in the
      * htmlViews Vector, which is only allocated after the first time we run
      * into an HTML tab. Note that this vector is kept in step with the number
      * of pages, and nulls are added for those pages whose tab title do not
      * require HTML rendering.
-     * 
+     *
      * This makes it easy for the paint and layout code to tell whether to
      * invoke the HTML engine without having to check the string during
      * time-sensitive operations.
-     * 
+     *
      * When we have added a way to listen for tab additions and changes to tab
      * text, this code should be removed and replaced by something which uses
      * that.

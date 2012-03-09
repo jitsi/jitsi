@@ -34,6 +34,12 @@ public class EncodingConfigurationTableModel
 
     private final MediaType type;
 
+    /**
+     * Constructor.
+     *
+     * @param encodingConfiguration the encoding configuration
+     * @param type media type
+     */
     public EncodingConfigurationTableModel(
         EncodingConfiguration encodingConfiguration, int type)
     {
@@ -204,6 +210,13 @@ public class EncodingConfigurationTableModel
         return (columnIndex == 0);
     }
 
+    /**
+     * Move the row.
+     *
+     * @param rowIndex index of the row
+     * @param up true to move up, false to move down
+     * @return the next row index
+     */
     public int move(int rowIndex, boolean up)
     {
         if (up)

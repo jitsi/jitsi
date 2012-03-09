@@ -18,7 +18,7 @@ import javax.swing.*;
 /**
  * The <tt>StringUtils</tt> class is used through this ui implementation for
  * some special operations with strings.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  * @author Adam Netocny
@@ -202,7 +202,7 @@ public class GuiUtils
      * the first date is before the second one and > 0 if the first date is after
      * the second one.
      * @param date1 the first date to compare
-     * @param date2 the second date to compare with 
+     * @param date2 the second date to compare with
      * @return Returns 0 if the two dates are equals, a value < 0 if
      * the first date is before the second one and > 0 if the first date is after
      * the second one
@@ -218,7 +218,7 @@ public class GuiUtils
      * the first date is before the second one and > 0 if the first date is after
      * the second one.
      * @param date1 the first date to compare
-     * @param date2 the second date to compare with 
+     * @param date2 the second date to compare with
      * @return Returns 0 if the two dates are equals, a value < 0 if
      * the first date is before the second one and > 0 if the first date is after
      * the second one
@@ -234,7 +234,7 @@ public class GuiUtils
      * the first date is before the second one and > 0 if the first date is
      * after the second one.
      * @param date1 the first date to compare
-     * @param date2 the second date to compare with 
+     * @param date2 the second date to compare with
      * @return Returns 0 if the two dates are equals, a value < 0 if
      * the first date is before the second one and > 0 if the first date is
      * after the second one
@@ -323,7 +323,7 @@ public class GuiUtils
 
     /**
      * Formats the time for the given date. The result format is the following:
-     * [Hour]:[Minute]:[Second]. For example: 12:25:30. 
+     * [Hour]:[Minute]:[Second]. For example: 12:25:30.
      * @param date the date to format
      * @return the formatted hour string
      */
@@ -334,7 +334,7 @@ public class GuiUtils
 
     /**
      * Formats the time for the given date. The result format is the following:
-     * [Hour]:[Minute]:[Second]. For example: 12:25:30. 
+     * [Hour]:[Minute]:[Second]. For example: 12:25:30.
      * @param time the date to format
      * @return the formatted hour string
      */

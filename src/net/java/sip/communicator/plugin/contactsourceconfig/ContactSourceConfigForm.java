@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.contactsourceconfig;
@@ -16,13 +16,18 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class ContactSourceConfigForm
     extends TransparentPanel
     implements ServiceListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The drop down list of contact sources.
      */
@@ -166,6 +171,11 @@ public class ContactSourceConfigForm
      */
     private class ContactSourceRenderer extends DefaultListCellRenderer
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public Component getListCellRendererComponent(
             JList list, Object value, int index,
                 boolean isSelected, boolean hasFocus)

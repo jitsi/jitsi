@@ -15,10 +15,15 @@ import javax.swing.*;
  *
  * @author Valentin Martinet
  */
-public class SipCommFileChooserImpl 
+public class SipCommFileChooserImpl
     extends JFileChooser
     implements SipCommFileChooser
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Parent component of this dialog (JFrame, Frame, etc)
      */
@@ -26,7 +31,7 @@ public class SipCommFileChooserImpl
 
     /**
      * Constructor
-     * 
+     *
      * @param title title for this dialog
      * @param operation 'Save file' or 'Load file' operation
      */
@@ -57,10 +62,10 @@ public class SipCommFileChooserImpl
 
     /**
      * Returns the selected file by the user from the dialog.
-     * 
+     *
      * @return File the selected file from the dialog
      */
-    public File getApprovedFile() 
+    public File getApprovedFile()
     {
         return this.getSelectedFile();
     }
@@ -70,7 +75,7 @@ public class SipCommFileChooserImpl
      *
      * @param path the default start path for this dialog
      */
-    public void setStartPath(String path) 
+    public void setStartPath(String path)
     {
         // Passing null makes JFileChooser points to user's default dir.
         File file = (path == null) ? null : new File(path);
@@ -87,7 +92,7 @@ public class SipCommFileChooserImpl
 
     /**
      * Shows the dialog and returns the selected file.
-     * 
+     *
      * @return File the selected file in this dialog
      */
     public File getFileFromDialog()
@@ -105,7 +110,7 @@ public class SipCommFileChooserImpl
 
     /**
      * Returns the parent component of this dialog
-     * 
+     *
      * @return Component dialog's parent component
      */
     public Component getParentComponent()
@@ -115,10 +120,10 @@ public class SipCommFileChooserImpl
 
     /**
      * Adds a file filter to this dialog.
-     * 
+     *
      * @param filter the filter to add
      */
-    public void addFilter(SipCommFileFilter filter) 
+    public void addFilter(SipCommFileFilter filter)
     {
         this.addChoosableFileFilter(filter);
     }

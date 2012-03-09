@@ -706,7 +706,7 @@ public class HttpUtils
             else
             {
                 // we have saved values lets return them
-                authUsername = 
+                authUsername =
                 HttpUtilActivator.getConfigurationService().getString(
                         usernamePropertyName);
                 authPassword = pass;
@@ -941,6 +941,8 @@ public class HttpUtils
 
         /**
          * Get the credentials used by the request.
+         *
+         * @return the credentials (login at index 0 and password at index 1)
          */
         public String[] getCredentials()
         {
@@ -950,10 +952,10 @@ public class HttpUtils
             {
                 HTTPCredentialsProvider prov = (HTTPCredentialsProvider)
                         httpClient.getCredentialsProvider();
-                cred[0] = prov.getAuthenticationUsername(); 
-                cred[1] = prov.getAuthenticationPassword(); 
+                cred[0] = prov.getAuthenticationUsername();
+                cred[1] = prov.getAuthenticationPassword();
             }
-           
+
             return cred;
         }
     }

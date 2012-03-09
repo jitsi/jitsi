@@ -32,6 +32,15 @@ public class GSMEncoderUtil {
      */
     private static final int PCM_INTS = 160;
 
+    /**
+     * Encode data to GSM.
+     *
+     * @param bigEndian if the data is in big endian format
+     * @param data data to encode
+     * @param offset offset
+     * @param length length of data
+     * @param decoded array of encoded data.
+     */
     public static void gsmEncode(
             boolean bigEndian,
             byte[] data,

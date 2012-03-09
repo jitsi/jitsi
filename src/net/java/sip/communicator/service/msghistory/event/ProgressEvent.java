@@ -30,6 +30,13 @@ public class ProgressEvent
      */
     private int progress = 0;
 
+    /**
+     * Constructor.
+     *
+     * @param source source <tt>Object</tt>
+     * @param evt the event
+     * @param progress initial progress
+     */
     public ProgressEvent(
         Object source,
         net.java.sip.communicator.service.history.event.ProgressEvent evt,

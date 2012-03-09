@@ -10,12 +10,9 @@ import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
-import javax.swing.*;
-
-
 /**
  * An implementation of the <tt>PopupMessageNotificationHandler</tt> interface.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class PopupMessageNotificationHandlerImpl
@@ -37,7 +34,7 @@ public class PopupMessageNotificationHandlerImpl
 
     /**
      * Shows the given <tt>PopupMessage</tt>
-     * 
+     *
      * @param action the action to act upon
      * @param title the title of the given message
      * @param message the message to use if and where appropriate (e.g. with

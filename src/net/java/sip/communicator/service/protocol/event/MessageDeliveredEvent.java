@@ -34,6 +34,12 @@ public class MessageDeliveredEvent
       */
      private final long timestamp;
 
+     /**
+      * Constructor.
+      *
+      * @param source message source
+      * @param to the "to" contact
+      */
      public MessageDeliveredEvent(Message source, Contact to)
      {
          this(source, to, System.currentTimeMillis());

@@ -16,12 +16,12 @@ import org.xbill.DNS.*;
 
 /**
  * The DNS Util activator registers the DNSSEC resolver if enabled.
- * 
+ *
  * @author Emil Ivov
  * @author Ingo Bauersachs
  */
 public class DnsUtilActivator
-    implements BundleActivator 
+    implements BundleActivator
 {
     /**
      * The name of the property that enables or disables the DNSSEC resolver
@@ -31,7 +31,7 @@ public class DnsUtilActivator
         = "net.java.sip.communicator.util.dns.DNSSEC_ENABLED";
 
     /**
-     * Default value of {@link PNAME_DNSSEC_RESOLVER_ENABLED}.
+     * Default value of @see PNAME_DNSSEC_RESOLVER_ENABLED.
      */
     public static final boolean PDEFAULT_DNSSEC_RESOLVER_ENABLED = false;
 
@@ -165,7 +165,7 @@ public class DnsUtilActivator
 
     /**
      * Returns the service giving access to all application resources.
-     * 
+     *
      * @return the service giving access to all application resources.
      */
     public static ResourceManagementService getResources()

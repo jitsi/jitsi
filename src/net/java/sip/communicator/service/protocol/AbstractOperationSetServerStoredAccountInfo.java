@@ -69,6 +69,7 @@ public abstract class AbstractOperationSetServerStoredAccountInfo
      * Notify all listeners of the corresponding account detail
      * change event.
      *
+     * @param source the protocol provider service source
      * @param eventID the int ID of the event to dispatch
      * @param oldValue the value that the changed property had before the change
      *            occurred.

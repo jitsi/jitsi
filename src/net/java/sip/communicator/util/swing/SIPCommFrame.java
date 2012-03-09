@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.*;
 /**
  * A custom frame that remembers its size and location and could have a
  * semi-transparent background.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  * @author Adam Netocny
@@ -33,6 +33,11 @@ public class SIPCommFrame
     extends JFrame
     implements Observer
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Property that disables the automatic resizing and positioning when a
      * window's top edge is outside the visible area of the screen.
@@ -141,7 +146,9 @@ public class SIPCommFrame
         {
             Method m = Window.class.getMethod("setIconImages", List.class);
             List<Image> logos = new ArrayList<Image>(6)
-            {{
+            {
+                private static final long serialVersionUID = 0L;
+                {
                 add(UtilActivator
                     .getImage("service.gui.SIP_COMMUNICATOR_LOGO"));
                 add(UtilActivator
@@ -154,7 +161,8 @@ public class SIPCommFrame
                     .getImage("service.gui.SIP_COMMUNICATOR_LOGO_64x64"));
                 add(UtilActivator
                     .getImage("service.gui.SIP_COMMUNICATOR_LOGO_128x128"));
-            }};
+                }
+            };
             m.invoke(this, logos);
             // In order to have the same icon when using option panes
             m.invoke(JOptionPane.getRootFrame(), logos);
@@ -190,6 +198,11 @@ public class SIPCommFrame
     private class CloseAction
         extends UIAction
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             if (isSaveSizeAndLocation)
@@ -204,6 +217,11 @@ public class SIPCommFrame
     private class CloseEscAction
         extends UIAction
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             if (isSaveSizeAndLocation)
@@ -216,7 +234,7 @@ public class SIPCommFrame
      * Sets the input map to utilize a given category of keybindings. The frame
      * is updated to reflect the new bindings when they change. This replaces
      * any previous bindings that have been added.
-     * 
+     *
      * @param category set of keybindings to be utilized
      */
     protected void setKeybindingInput(KeybindingSet.Category category)
@@ -245,7 +263,7 @@ public class SIPCommFrame
     /**
      * Bindings the string representation for a keybinding to the action that
      * will be executed.
-     * 
+     *
      * @param binding string representation of action used by input map
      * @param action the action which will be executed when user presses the
      *            given key combination
@@ -601,6 +619,11 @@ public class SIPCommFrame
     public static class MainContentPane
         extends JPanel
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private boolean isColorBgEnabled;
 
         private boolean isImageBgEnabled;
@@ -792,6 +815,6 @@ public class SIPCommFrame
      */
     protected void close(boolean isEscaped)
     {
-        
+
     }
 }

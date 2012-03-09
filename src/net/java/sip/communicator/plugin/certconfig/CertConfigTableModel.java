@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.resources.*;
 /**
  * Backing data model for a JTable that displays the client certificate
  * configuration entries.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class CertConfigTableModel
@@ -29,6 +29,9 @@ public class CertConfigTableModel
     private List<CertificateConfigEntry> model;
     private ResourceManagementService R = CertConfigActivator.R;
 
+    /**
+     * Constructor.
+     */
     public CertConfigTableModel()
     {
         CertConfigActivator.getConfigService().addPropertyChangeListener(this);
@@ -60,6 +63,12 @@ public class CertConfigTableModel
         return null;
     }
 
+    /**
+     * Get <tt>CertificateConfigEntry</tt> located at <tt>rowIndex</tt>.
+     *
+     * @param rowIndex row index
+     * @return <tt>CertificateConfigEntry</tt>
+     */
     public CertificateConfigEntry getItem(int rowIndex)
     {
         return model.get(rowIndex);

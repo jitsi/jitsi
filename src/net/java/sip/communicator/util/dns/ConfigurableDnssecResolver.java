@@ -23,7 +23,7 @@ import org.xbill.DNS.*;
 /**
  * Resolver that wraps a DNSSEC capable resolver and handles validation
  * failures according to the user's settings.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class ConfigurableDnssecResolver
@@ -82,7 +82,7 @@ public class ConfigurableDnssecResolver
     /**
      * Inspects a DNS answer message and handles validation results according to
      * the user's preferences.
-     * 
+     *
      * @throws DnssecRuntimeException when the validation failed and the user
      *             did not choose to ignore it.
      */
@@ -210,6 +210,11 @@ public class ConfigurableDnssecResolver
      */
     private class DnssecDialog extends SIPCommDialog implements ActionListener
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         //UI controls
         private JPanel pnlAdvanced;
         private JPanel pnlStandard;

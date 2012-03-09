@@ -19,6 +19,11 @@ public class TransparentFrame
     implements RootPaneContainer
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Indicates if the transparency is supported from the current graphics
      * environment.
      */

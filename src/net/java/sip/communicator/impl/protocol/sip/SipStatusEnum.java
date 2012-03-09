@@ -13,8 +13,8 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>SipStatusEnum</tt> gives access to presence states for the Sip
  * protocol. All status icons corresponding to presence states are located with
- * the help of the <tt>imagePath</tt> parameter 
- * 
+ * the help of the <tt>imagePath</tt> parameter
+ *
  * @author Emil Ivov
  * @author Yana Stamcheva
  */
@@ -95,11 +95,16 @@ public class SipStatusEnum
     public final List<PresenceStatus> supportedStatusSet
         = new LinkedList<PresenceStatus>();
 
+    /**
+     * Constructor.
+     *
+     * @param iconPath path of the icon
+     */
     public SipStatusEnum(String iconPath)
     {
         this.offlineStatus = new SipPresenceStatus(
             0,
-            OFFLINE, 
+            OFFLINE,
             loadIcon(iconPath + "/sip16x16-offline.png"));
 
         this.busyStatus = new SipPresenceStatus(
@@ -137,7 +142,7 @@ public class SipStatusEnum
 
     /**
      * Returns the offline sip status.
-     * 
+     *
      * @param statusName the name of the status.
      * @return the offline sip status.
      */
@@ -152,7 +157,7 @@ public class SipStatusEnum
         else if (statusName.equals(ON_THE_PHONE))
             return onThePhoneStatus;
         else if (statusName.equals(AWAY))
-            return awayStatus; 
+            return awayStatus;
         else
             return unknownStatus;
     }

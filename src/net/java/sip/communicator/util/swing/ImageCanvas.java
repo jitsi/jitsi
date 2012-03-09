@@ -16,8 +16,18 @@ import javax.swing.*;
 public class ImageCanvas
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private ImageIcon icon;
 
+    /**
+     * Constructor.
+     *
+     * @param image the image for the canvas
+     */
     public ImageCanvas(Image image)
     {
         setImage(image);

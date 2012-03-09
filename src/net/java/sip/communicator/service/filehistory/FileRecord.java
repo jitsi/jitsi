@@ -18,9 +18,13 @@ import net.java.sip.communicator.service.protocol.Contact;
 public class FileRecord
 {
     /**
-     * Possible directions of the transfer
+     * Direction of the transfer: out
      */
     public final static String OUT = "out";
+
+    /**
+     * Direction of the transfer: in
+     */
     public final static String IN = "in";
 
     /**
@@ -57,6 +61,8 @@ public class FileRecord
     /**
      * Constructs new FileRecord
      *
+     * @param id
+     * @param contact
      * @param direction
      * @param date
      * @param file

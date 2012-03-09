@@ -23,12 +23,12 @@ public interface NotificationService
     /**
      * Registers a notification for the given <tt>eventType</tt> by specifying
      * the action to be performed when a notification is fired for this event.
-     * 
+     *
      * Unlike the other <tt>registerNotificationForEvent</tt>
      * method, this one allows the user to specify its own
      * <tt>NotificationAction</tt>, which would be used to handle notifications
      * for the specified <tt>actionType</tt>.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plug-in that's
      * registering it) that we are setting an action for.
      * @param action the <tt>NotificationAction</tt>, which would be
@@ -41,15 +41,15 @@ public interface NotificationService
      * Registers a default notification for the given <tt>eventType</tt> by
      * specifying the action to be performed when a notification is fired for
      * this event.
-     * 
+     *
      * Unlike the other <tt>registerDefaultNotificationForEvent</tt> method,
      * this one allows the user to specify its own <tt>NotificationAction</tt>,
      * which would be used to handle notifications.
-     * 
+     *
      * Default events are stored or executed at first run or when they are
      * missing in the configuration. Also the registered default events are used
      * when restoreDefaults is called.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plug-in that's
      *            registering it) that we are setting an action for.
      * @param handler the <tt>NotificationActionHandler</tt>, which would be
@@ -63,7 +63,7 @@ public interface NotificationService
      * specifying the type of the action to be performed when a notification is
      * fired for this event, the <tt>actionDescriptor</tt> for sound and command
      * actions and the <tt>defaultMessage</tt> for popup and log actions.
-     * 
+     *
      * Actions registered by this method would be handled by some default
      * <tt>NotificationHandler</tt>s, declared by the implementation.
      * <p>
@@ -71,11 +71,11 @@ public interface NotificationService
      * event. Setting the same <tt>actionType</tt> for the same
      * <tt>eventType</tt> twice however would cause the first setting to be
      * overridden.
-     * 
+     *
      * Default events are stored or executed at first run or when
      * they are missing in the configuration. Also the registered default events
      * are used when restoreDefaults is called.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plug-in that's
      *            registering it) that we are setting an action for.
      * @param actionType the type of the action that is to be executed when the
@@ -105,7 +105,7 @@ public interface NotificationService
      * event. Setting the same <tt>actionType</tt> for the same
      * <tt>eventType</tt> twice however would cause the first setting to be
      * overridden.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plug-in that's
      *            registering it) that we are setting an action for.
      * @param actionType the type of the action that is to be executed when the
@@ -124,7 +124,7 @@ public interface NotificationService
                                                 String defaultMessage);
 
     /**
-     * Deletes all registered events and actions 
+     * Deletes all registered events and actions
      * and registers and saves the default events as current.
      */
     public void restoreDefaults();
@@ -136,7 +136,7 @@ public interface NotificationService
      * <p>
      * This method does nothing if the given <tt>eventType</tt> is not contained
      * in the list of registered event types.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      *            registering it) to be removed.
      */
@@ -148,7 +148,7 @@ public interface NotificationService
      * <p>
      * This method does nothing if the given <tt>eventType</tt> or
      * <tt>actionType</tt> are not contained in the list of registered types.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      *            registering it) for which we'll remove the notification.
      * @param actionType the type of the action that is to be executed when the
@@ -163,7 +163,7 @@ public interface NotificationService
      * notification service. Each line in the returned list consists of a
      * String, representing the name of the event (as defined by the plugin that
      * registered it).
-     * 
+     *
      * @return an iterator over a list of all events registered in this
      *         notifications service
      */
@@ -175,7 +175,7 @@ public interface NotificationService
      * <p>
      * This method returns <b>null</b> if the given <tt>eventType</tt> or
      * <tt>actionType</tt> are not contained in the list of registered types.
-     * 
+     *
      * @param eventType the type of the event that we'd like to retrieve.
      * @param actionType the type of the action that we'd like to retrieve a
      *            descriptor for.
@@ -219,9 +219,10 @@ public interface NotificationService
 
     /**
      * Gets at list of handler for the specified action type.
-     * 
+     *
      * @param actionType the type for which the list of handlers should be
      *            retrieved or <tt>null</tt> if all handlers shall be returned.
+     * @return Iterable of NotificationHandler objects
      */
     public Iterable<NotificationHandler> getActionHandlers(String actionType);
 
@@ -232,7 +233,7 @@ public interface NotificationService
      * <p>
      * This method does nothing if the given <tt>eventType</tt> is not contained
      * in the list of registered event types.
-     * 
+     *
      * @param eventType the type of the event that we'd like to fire a
      *            notification for.
      * @param messageTitle the message title to use if and where appropriate
@@ -259,10 +260,10 @@ public interface NotificationService
      * <p>
      * This method does nothing if the given <tt>eventType</tt> is not contained
      * in the list of registered event types.
-     * 
+     *
      * @param eventType the type of the event that we'd like to fire a
      * notification for.
-     * 
+     *
      * @return An object referencing the notification. It may be used to stop a
      *         still running notification. Can be null if the eventType is
      *         unknown or the notification is not active.
@@ -273,19 +274,19 @@ public interface NotificationService
      * Activates or deactivates all notification actions related to the
      * specified <tt>eventType</tt>. This method does nothing if the given
      * <tt>eventType</tt> is not contained in the list of registered event types.
-     * 
+     *
      * @param eventType the name of the event, which actions should be activated
-     * /deactivated. 
+     * /deactivated.
      * @param isActive indicates whether to activate or deactivate the actions
      * related to the specified <tt>eventType</tt>.
      */
     public void setActive(String eventType, boolean isActive);
-    
+
     /**
      * Indicates whether or not actions for the specified <tt>eventType</tt>
      * are activated. This method returns <code>false</code> if the given
      * <tt>eventType</tt> is not contained in the list of registered event types.
-     * 
+     *
      * @param eventType the name of the event (as defined by the plugin that's
      * registered it) that we are checking.
      * @return <code>true</code> if actions for the specified <tt>eventType</tt>

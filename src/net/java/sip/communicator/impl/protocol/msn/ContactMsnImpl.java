@@ -302,7 +302,7 @@ public class ContactMsnImpl
 
     /**
      * Changes the current status message of this contact.
-     * 
+     *
      * @param newStatusMessage the new message.
      */
     public void setStatusMessage(String newStatusMessage)

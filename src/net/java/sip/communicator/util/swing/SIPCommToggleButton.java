@@ -24,6 +24,11 @@ public class SIPCommToggleButton
     extends JToggleButton
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The background image shown in normal button state.
      */
     private Image bgImage;
@@ -99,7 +104,7 @@ public class SIPCommToggleButton
      * @param rolloverImage the roll over image
      * @param iconImage     the icon
      * @param pressedImage  the image used to paint the pressed state
-     * @param pressedIconImage the icon image in a pressed state 
+     * @param pressedIconImage the icon image in a pressed state
      */
     public SIPCommToggleButton( Image bgImage,
                                 Image rolloverImage,

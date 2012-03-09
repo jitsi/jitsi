@@ -29,26 +29,26 @@ public class SSHActivator
 {
     private static final Logger logger
             = Logger.getLogger(SSHActivator.class);
-    
+
     /**
      * A reference to the registration of our SSH protocol provider
      * factory.
      */
     private ServiceRegistration  sshPpFactoryServReg   = null;
-    
+
     /**
      * A reference to the SSH protocol provider factory.
      */
     private static ProtocolProviderFactorySSHImpl
             sshProviderFactory = null;
-    
+
     /**
      * The currently valid bundle context.
      */
     private static BundleContext bundleContext = null;
-    
+
     private static ResourceManagementService resourcesService;
-    
+
     /**
      * Called when this bundle is started. In here we'll export the
      * ssh ProtocolProviderFactory implementation so that it could be
@@ -63,8 +63,8 @@ public class SSHActivator
     public void start(BundleContext context)
     throws Exception
     {
-        this.bundleContext = context;
-        
+        bundleContext = context;
+
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, "SSH");
 
@@ -75,11 +75,11 @@ public class SSHActivator
                 ProtocolProviderFactory.class.getName(),
                 sshProviderFactory,
                 hashtable);
-        
+
         if (logger.isInfoEnabled())
             logger.info("SSH protocol implementation [STARTED].");
     }
-    
+
     /**
      * Returns a reference to the bundle context that we were started with.
      * @return bundleContext a reference to the BundleContext instance
@@ -89,7 +89,7 @@ public class SSHActivator
     {
         return bundleContext;
     }
-    
+
     /**
      * Retrurns a reference to the protocol provider factory that we have
      * registered.
@@ -101,8 +101,8 @@ public class SSHActivator
     {
         return sshProviderFactory;
     }
-    
-    
+
+
     /**
      * Called when this bundle is stopped so the Framework can perform the
      * bundle-specific activities necessary to stop the bundle.
@@ -116,12 +116,17 @@ public class SSHActivator
     public void stop(BundleContext context)
     throws Exception
     {
-        this.sshProviderFactory.stop();
+        sshProviderFactory.stop();
         sshPpFactoryServReg.unregister();
         if (logger.isInfoEnabled())
             logger.info("SSH protocol implementation [STOPPED].");
     }
-    
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

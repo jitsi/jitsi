@@ -33,6 +33,11 @@ public class AboutWindowPluginComponent
 
     private JMenuItem aboutMenuItem;
 
+    /**
+     * Constructor.
+     *
+     * @param container parent container
+     */
     public AboutWindowPluginComponent(Container container)
     {
         super(container);

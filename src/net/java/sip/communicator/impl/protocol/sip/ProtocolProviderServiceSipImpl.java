@@ -1949,7 +1949,7 @@ public class ProtocolProviderServiceSipImpl
      * @param serverTransaction the transaction that we'd like to send an error
      * response in.
      * @param errorCode the code that the response should have.
-     *
+     * @param header SIP header
      * @throws OperationFailedException if we failed constructing or sending a
      * SIP Message.
      */

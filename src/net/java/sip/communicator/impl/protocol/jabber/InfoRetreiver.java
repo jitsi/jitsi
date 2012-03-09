@@ -53,7 +53,7 @@ public class InfoRetreiver
     {
         this.jabberProvider = jabberProvider;
         this.ownerUin = ownerUin;
-        
+
         vcardTimeoutReply = JabberActivator.getConfigurationService().getLong(
             ProtocolProviderServiceJabberImpl.VCARD_REPLY_TIMEOUT_PROPERTY,
             -1);
@@ -329,6 +329,12 @@ public class InfoRetreiver
     /**
      * Load VCard for the given user.
      * Using the specified timeout.
+     *
+     * @param vcard VCard
+     * @param connection XMPP connection
+     * @param user the user
+     * @param timeout timeout in second
+     * @throws XMPPException if something went wrong during VCard loading
      */
     public void load(VCard vcard,
                      Connection connection,

@@ -24,7 +24,14 @@ import net.java.sip.communicator.util.*;
  */
 public class SipApplicationData
 {
+    /**
+     * Key service.
+     */
     public static final String KEY_SERVICE = "service";
+
+    /**
+     * Key subscriptions.
+     */
     public static final String KEY_SUBSCRIPTIONS = "subscriptions";
 
     /**

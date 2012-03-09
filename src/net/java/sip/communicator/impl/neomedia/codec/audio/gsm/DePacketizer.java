@@ -28,6 +28,9 @@ public class DePacketizer
         return "GSM DePacketizer";
     }
 
+    /**
+     * Constructs a new <tt>DePacketizer</tt>.
+     */
     public DePacketizer()
     {
         super();

@@ -15,7 +15,7 @@ import net.java.sip.communicator.util.skin.*;
 
 /**
  * A custom component, used to show images in a frame.
- * 
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -23,6 +23,11 @@ public class FramedImage
     extends JComponent
     implements Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The frame image.
      */
@@ -46,7 +51,7 @@ public class FramedImage
     /**
      * Creates a FramedImage by specifying the width and the height of the
      * label. These are used to paint the image frame in the correct bounds.
-     * 
+     *
      * @param imageIcon the icon to show within the frame
      * @param width the width of the frame
      * @param height the height of the frame
@@ -66,7 +71,7 @@ public class FramedImage
 
     /**
      * Creates a FramedImage by specifying the width and the height of the frame.
-     * 
+     *
      * @param width the width of the frame
      * @param height the height of the frame
      */
@@ -77,7 +82,7 @@ public class FramedImage
 
     /**
      * Sets the image to display in the frame.
-     * 
+     *
      * @param image the image to display in the frame
      */
     public void setImageIcon(byte[] image)

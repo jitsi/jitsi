@@ -23,11 +23,11 @@ import org.osgi.framework.*;
  * exception handler. It doesn't export any services and neither it runs any
  * initialization - all it does is call
  * <tt>Thread.setUncaughtExceptionHandler()</tt>
- * 
+ *
  * @author Emil Ivov
  */
 public class UtilActivator
-    implements BundleActivator, 
+    implements BundleActivator,
                Thread.UncaughtExceptionHandler
 {
     /**
@@ -106,6 +106,11 @@ public class UtilActivator
     {
     }
 
+    /**
+     * Returns the <tt>ConfigurationService</tt> currently registered.
+     *
+     * @return the <tt>ConfigurationService</tt>
+     */
     public static ConfigurationService getConfigurationService()
     {
         if (configurationService == null)
@@ -118,6 +123,11 @@ public class UtilActivator
         return configurationService;
     }
 
+    /**
+     * Returns the <tt>KeybindingsService</tt> currently registered.
+     *
+     * @return the <tt>KeybindingsService</tt>
+     */
     public static KeybindingsService getKeybindingsService()
     {
         if (keybindingsService == null)
@@ -132,7 +142,7 @@ public class UtilActivator
 
     /**
      * Returns the service giving access to all application resources.
-     * 
+     *
      * @return the service giving access to all application resources.
      */
     public static ResourceManagementService getResources()
@@ -163,7 +173,7 @@ public class UtilActivator
 
     /**
      * Returns the image corresponding to the given <tt>imageID</tt>.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the image corresponding to the given <tt>imageID</tt>
      */

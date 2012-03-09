@@ -79,6 +79,14 @@ public class FinalizableAVFrame
         FFmpeg.av_free(data0);
     }
 
+    /**
+     * Read the frame.
+     *
+     * @param buffer buffer
+     * @param format format of the buffer
+     * @param data the data
+     * @param byteBufferPool the <tt>ByteBuffer</tt> pool
+     */
     public static void read(
             Buffer buffer,
             Format format,

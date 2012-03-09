@@ -22,6 +22,11 @@ public class SIPCommDialog
     extends JDialog
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>Logger</tt> used by the <tt>SIPCommDialog</tt> class and its
      * instances for logging output.
      */
@@ -165,6 +170,11 @@ public class SIPCommDialog
      */
     private class CloseAction extends UIAction
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             if(isSaveSizeAndLocation)

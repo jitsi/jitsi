@@ -18,19 +18,69 @@ import net.java.sip.communicator.util.*;
  */
 public class Constants
 {
+    /**
+     * The ALAW/RTP constant.
+     */
     public static final String ALAW_RTP = "ALAW/rtp";
+
+    /**
+     * The G722 constant.
+     */
     public static final String G722 = "g722";
+
+    /**
+     * The G722/RTP constant.
+     */
     public static final String G722_RTP = "g722/rtp";
+
+    /**
+     * The iLBC constant.
+     */
     public static final String ILBC = "ilbc";
+
+    /**
+     * The iLBC/RTP constant.
+     */
     public static final String ILBC_RTP = "ilbc/rtp";
+
+    /**
+     * The SILK constant.
+     */
     public static final String SILK = "SILK";
+
+    /**
+     * The SILK/RTP constant.
+     */
     public static final String SILK_RTP = "SILK/rtp";
+
+    /**
+     * The SPEEX constant.
+     */
     public static final String SPEEX = "speex";
+
+    /**
+     * The SPEEX/RTP constant.
+     */
     public static final String SPEEX_RTP = "speex/rtp";
 
+    /**
+     * The H264 constant.
+     */
     public static final String H264 = "h264";
+
+    /**
+     * The H264/RTP constant.
+     */
     public static final String H264_RTP = "h264/rtp";
+
+    /**
+     * The H263+ constant.
+     */
     public static final String H263P = "H263-1998";
+
+    /**
+     * The H263+/RTP constant.
+     */
     public static final String H263P_RTP = "h263-1998/rtp";
 
     /**

@@ -17,11 +17,17 @@ import javax.swing.text.html.ParagraphView;
 /**
  * The <tt>SIPCommHTMLEditorKit</tt> is an <tt>HTMLEditorKit</tt> which uses
  * an extended <tt>ParagraphView</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SIPCommHTMLEditorKit extends HTMLEditorKit
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+
     private final JComponent container;
 
     /**
@@ -129,7 +135,7 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
          * @param axis may be either View.X_AXIS or View.Y_AXIS
          * @return   the span the view would like to be rendered into >= 0.
          *           Typically the view is told to render into the span
-         *           that is returned, although there is no guarantee.  
+         *           that is returned, although there is no guarantee.
          *           The parent may choose to resize or break the view.
          * @exception IllegalArgumentException for an invalid axis
          */

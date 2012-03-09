@@ -21,25 +21,40 @@ import net.java.sip.communicator.service.neomedia.event.*;
 /**
  * Default implementation of {@link SDesControl} that supports the crypto suites
  * of the original RFC4568 and the KDR parameter, but nothing else.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class SDesControlImpl
     implements SDesControl
 {
+    /**
+     * List of enabled crypto suites.
+     */
     private List<String> enabledCryptoSuites = new ArrayList<String>(3)
-        {{
-            add(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80);
-            add(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_32);
-            add(SrtpCryptoSuite.F8_128_HMAC_SHA1_80);
-        }};
+    {
+        private static final long serialVersionUID = 0L;
 
-    private final List<String> supportedCryptoSuites = new ArrayList<String>(3)
-        {{
+        {
             add(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80);
             add(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_32);
             add(SrtpCryptoSuite.F8_128_HMAC_SHA1_80);
-        }};
+        }
+    };
+
+
+    /**
+     * List of supported crypto suites.
+     */
+    private final List<String> supportedCryptoSuites = new ArrayList<String>(3)
+     {
+        private static final long serialVersionUID = 0L;
+
+        {
+            add(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80);
+            add(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_32);
+            add(SrtpCryptoSuite.F8_128_HMAC_SHA1_80);
+        }
+     };
 
     private SrtpSDesFactory sdesFactory;
     private SrtpCryptoAttribute[] attributes;
@@ -48,11 +63,16 @@ public class SDesControlImpl
     private SrtpCryptoAttribute selectedOutAttribute;
     private SrtpListener srtpListener;
 
+    /**
+     * SDESControl
+     */
     public SDesControlImpl()
     {
         sdesFactory = new SrtpSDesFactory();
         Random r = new Random()
         {
+            private static final long serialVersionUID = 0L;
+
             @Override
             public void nextBytes(byte[] bytes)
             {
@@ -191,7 +211,7 @@ public class SDesControlImpl
 
     /**
      * Returns true, SDES always requires the secure transport of its keys.
-     * 
+     *
      * @return true
      */
     public boolean requiresSecureSignalingTransport()

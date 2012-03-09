@@ -17,6 +17,11 @@ public class TrimTextField
     extends JTextField
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Returns the trimmed value of the text contained in the field.
      * @return the trimmed value of the field.
      */

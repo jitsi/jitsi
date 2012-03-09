@@ -18,8 +18,11 @@ import net.java.sip.communicator.service.resources.*;
  */
 public class Resources
 {
+    /**
+     * The SSH logo imageID.
+     */
     public static ImageID SSH_LOGO = new ImageID("protocolIconSsh");
-    
+
     /**
      * Returns an string corresponding to the given key.
      *
@@ -31,7 +34,7 @@ public class Resources
     {
         return SSHActivator.getResources().getI18NString(key);
     }
-    
+
     /**
      * Loads an image from a given image identifier.
      * @param imageID The identifier of the image.

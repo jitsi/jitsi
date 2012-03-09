@@ -89,32 +89,32 @@ public interface CertificateService
     // Client authentication configuration
     // ------------------------------------------------------------------------
     /**
-     * Returns all saved {@see CertificateConfigEntry}s.
-     * 
+     * Returns all saved {@link CertificateConfigEntry}s.
+     *
      * @return List of the saved authentication configurations.
      */
     public List<CertificateConfigEntry> getClientAuthCertificateConfigs();
 
     /**
-     * Deletes a saved {@see CertificateConfigEntry}.
-     * 
-     * @param id The ID ({@see CertificateConfigEntry#getId()}) of the entry to
+     * Deletes a saved {@link CertificateConfigEntry}.
+     *
+     * @param id The ID ({@link CertificateConfigEntry#getId()}) of the entry to
      *            delete.
      */
     public void removeClientAuthCertificateConfig(String id);
 
     /**
-     * Saves or updates the passed @see CertificateConfigEntry to the config.
-     * If {@see CertificateConfigEntry#getId()} returns null, a new entry is
+     * Saves or updates the passed {@link CertificateConfigEntry} to the config.
+     * If {@link CertificateConfigEntry#getId()} returns null, a new entry is
      * created.
-     * 
+     *
      * @param entry The @see CertificateConfigEntry to save or update.
      */
     public void setClientAuthCertificateConfig(CertificateConfigEntry entry);
 
     /**
      * Gets a list of all supported KeyStore types.
-     * 
+     *
      * @return a list of all supported KeyStore types.
      */
     public List<KeyStoreType> getSupportedKeyStoreTypes();
@@ -125,10 +125,10 @@ public interface CertificateService
     /**
      * Get an SSL Context that validates certificates based on the JRE default
      * check and asks the user when the JRE check fails.
-     * 
+     *
      * CAUTION: Only the certificate itself is validated, no check is performed
      * whether it is valid for a specific server or client.
-     * 
+     *
      * @return An SSL context based on a user confirming trust manager.
      * @throws GeneralSecurityException
      */
@@ -136,7 +136,7 @@ public interface CertificateService
 
     /**
      * Get an SSL Context with the specified trustmanager.
-     * 
+     *
      * @param trustManager The trustmanager that will be used by the created
      *            SSLContext
      * @return An SSL context based on the supplied trust manager.
@@ -147,7 +147,7 @@ public interface CertificateService
 
     /**
      * Get an SSL Context with the specified trustmanager.
-     * 
+     *
      * @param clientCertConfig The ID of a client certificate configuration
      *            entry that is to be used when the server asks for a client TLS
      *            certificate
@@ -162,7 +162,7 @@ public interface CertificateService
 
     /**
      * Get an SSL Context with the specified trustmanager.
-     * 
+     *
      * @param keyManagers The key manager(s) to be used for client
      *            authentication
      * @param trustManager The trustmanager that will be used by the created
@@ -181,7 +181,7 @@ public interface CertificateService
      * performed whether the certificate is valid for a specific server or
      * client. The passed identities are checked by applying a behavior similar
      * to the on regular browsers use.
-     * 
+     *
      * @param identitiesToTest when not <tt>null</tt>, the values are assumed
      *            to be hostnames for invocations of checkServerTrusted and
      *            e-mail addresses for invocations of checkClientTrusted
@@ -193,7 +193,7 @@ public interface CertificateService
 
     /**
      * @see #getTrustManager(Iterable)
-     * 
+     *
      * @param identityToTest when not <tt>null</tt>, the value is assumed to
      *            be a hostname for invocations of checkServerTrusted and an
      *            e-mail address for invocations of checkClientTrusted
@@ -205,7 +205,7 @@ public interface CertificateService
 
     /**
      * @see #getTrustManager(Iterable, CertificateMatcher, CertificateMatcher)
-     * 
+     *
      * @param identityToTest The identity to match against the supplied
      *            verifiers.
      * @param clientVerifier The verifier to use in calls to checkClientTrusted
@@ -225,7 +225,7 @@ public interface CertificateService
      * <tt>null</tt> is passed as the <tt>identityToTest</tt> then no check is
      * performed whether the certificate is valid for a specific server or
      * client.
-     * 
+     *
      * @param identitiesToTest The identities to match against the supplied
      *            verifiers.
      * @param clientVerifier The verifier to use in calls to checkClientTrusted
@@ -241,8 +241,9 @@ public interface CertificateService
 
     /**
      * Adds a certificate to the local trust store.
-     * 
+     *
      * @param cert The certificate to add to the trust store.
+     * @param trustFor
      * @param trustMode Whether to trust the certificate permanently or only
      *            for the current session.
      * @throws CertificateException when the thumbprint could not be calculated

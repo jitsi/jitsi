@@ -275,7 +275,7 @@ public class DtmfTransformEngine
             pktEnd = true;
             remainingsEndPackets = 2;
 
-            toneTransmissionState = ToneTransmissionState.END_SEQUENCE_INITIATED;            
+            toneTransmissionState = ToneTransmissionState.END_SEQUENCE_INITIATED;
         }
         else if(toneTransmissionState == ToneTransmissionState.END_SEQUENCE_INITIATED)
         {
@@ -320,7 +320,7 @@ public class DtmfTransformEngine
      * <tt>startSendingDTMF()</tt> method. Has no effect if no tone is currently
      * being sent.
      *
-     * @see AudioMediaStream#stopSendingDTMF()
+     * @see AudioMediaStream#stopSendingDTMF(DTMFMethod dtmfMethod)
      */
     public void stopSendingDTMF()
     {

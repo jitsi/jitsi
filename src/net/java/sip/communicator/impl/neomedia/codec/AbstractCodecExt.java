@@ -120,8 +120,8 @@ public abstract class AbstractCodecExt
     /**
      * Implements {@link AbstractCodec#getSupportedOutputFormats(Format)}.
      *
-     * @param inputFormat
-     * @return
+     * @param inputFormat input format
+     * @return array of supported output format
      * @see AbstractCodec#getSupportedOutputFormats(Format)
      */
     public Format[] getSupportedOutputFormats(Format inputFormat)
@@ -138,6 +138,10 @@ public abstract class AbstractCodecExt
 
     /**
      * Utility to perform format matching.
+     *
+     * @param in input format
+     * @param outs array of output formats
+     * @return the first output format that is supported
      */
     public static Format matches(Format in, Format outs[])
     {
@@ -176,7 +180,8 @@ public abstract class AbstractCodecExt
      *
      * @param inputBuffer
      * @param outputBuffer
-     * @return
+     * @return BUFFER_PROCESSED_OK if all go OK or BUFFER_PROCESSED_FAILED if
+     * problems occurred
      * @see AbstractCodec#process(Buffer, Buffer)
      */
     public int process(Buffer inputBuffer, Buffer outputBuffer)

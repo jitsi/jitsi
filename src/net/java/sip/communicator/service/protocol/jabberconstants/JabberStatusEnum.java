@@ -266,6 +266,13 @@ public class JabberStatusEnum
         return loadIcon(imagePath, JabberStatusEnum.class);
     }
 
+    /**
+     * Loads the icon.
+     *
+     * @param imagePath path of the image
+     * @param clazz class name
+     * @return the image bytes
+     */
     public static byte[] loadIcon(String imagePath, Class<?> clazz)
     {
         InputStream is = getResourceAsStream(imagePath, clazz);

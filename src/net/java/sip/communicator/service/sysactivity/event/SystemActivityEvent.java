@@ -17,6 +17,11 @@ public class SystemActivityEvent
     extends EventObject
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Notify that computers is going to sleep.
      */
     public static final int EVENT_SLEEP = 0;
@@ -102,7 +107,7 @@ public class SystemActivityEvent
 
     /**
      * Returns the type of the event.
-     * @return
+     * @return the event ID
      */
     public int getEventID()
     {

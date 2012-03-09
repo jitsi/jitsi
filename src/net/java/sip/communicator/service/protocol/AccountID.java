@@ -241,11 +241,24 @@ public abstract class AccountID
         return new HashMap<String, String>(accountProperties);
     }
 
+    /**
+     * Returns the specific account property.
+     *
+     * @param key property key
+     * @return property value corresponding to property key
+     */
     public Object getAccountProperty(Object key)
     {
         return accountProperties.get(key);
     }
 
+    /**
+     * Returns the specific account property.
+     *
+     * @param key property key
+     * @param defaultValue default value if the property does not exist
+     * @return property value corresponding to property key
+     */
     public boolean getAccountPropertyBoolean(Object key, boolean defaultValue)
     {
         String value = getAccountPropertyString(key);

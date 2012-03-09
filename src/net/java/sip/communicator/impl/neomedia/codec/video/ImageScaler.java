@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.neomedia.codec.video;
 
 import java.awt.*;
 import java.awt.image.*;
-import java.awt.geom.*;
 
 import javax.media.Buffer;
 import javax.media.Codec;
@@ -24,7 +23,7 @@ import net.sf.fmj.media.util.ImageToBuffer;
  * Codec that scales images from one size to another.
  * Interestingly, cross-platform JMF does not appear to have a corresponding codec.
  * @author Ken Larson
- * 
+ *
  * Original from fmj project, changed only output format sizes.
  * The sizes are those supported in h263 and h264.
  * @author Damian Minkov
@@ -79,14 +78,14 @@ public class ImageScaler
 //        // TODO: we have to specify the RGB, etc. in the output format.
 //        return result;
     }
-    
+
     @Override
     public Format setInputFormat(Format format)
     {
         final VideoFormat videoFormat = (VideoFormat) format;
         if (videoFormat.getSize() == null)
             return null;    // must set a size.
-        
+
         // TODO: check VideoFormat and compatibility
         bufferToImage = new BufferToImage(videoFormat);
 
@@ -123,7 +122,7 @@ public class ImageScaler
     }
 
     @Override
-    public int process(Buffer input, Buffer output) 
+    public int process(Buffer input, Buffer output)
     {
         if (!checkInputBuffer(input))
         {
@@ -135,9 +134,9 @@ public class ImageScaler
             propagateEOM(output);   // TODO: what about data? can there be any?
             return BUFFER_PROCESSED_OK;
         }
-        
+
         // sometimes format sizes are the same but some other field is different
-        // and jmf use the scaler (in my case length field was not sent in 
+        // and jmf use the scaler (in my case length field was not sent in
         // one of the formats) the check for sizes is made in method
         // setInputFormat
         if(passthrough)
@@ -147,17 +146,17 @@ public class ImageScaler
             output.setOffset(input.getOffset());
             return BUFFER_PROCESSED_OK;
         }
-        
+
         final BufferedImage image = (BufferedImage) bufferToImage.createImage(input);
 /*
         final Dimension inputSize = ((VideoFormat) inputFormat).getSize();
         final Dimension outputSize = ((VideoFormat) outputFormat).getSize();
         final double scaleX = ((double) outputSize.width) / ((double) inputSize.width);
         final double scaleY = ((double) outputSize.height) / ((double) inputSize.height);
-        
+
         final BufferedImage scaled = scale(image, scaleX, scaleY);  // TODO: is the size exact?  what about rounding errors?
 */
-        
+
         final Dimension outputSize = ((VideoFormat) outputFormat).getSize();
         /* rescale by preserving ratio */
         final BufferedImage scaled = scalePreserveRatio(image, outputSize.width, outputSize.height);  // TODO: is the size exact?  what about rounding errors?
@@ -168,16 +167,8 @@ public class ImageScaler
         output.setOffset(b.getOffset());
         output.setFormat(b.getFormat());
         // TODO: what about format?
-    
-        return BUFFER_PROCESSED_OK;   
-    }
 
-    private static BufferedImage scale(BufferedImage bi, double scaleX, double scaleY)
-    {
-        AffineTransform tx = new AffineTransform();
-        tx.scale(scaleX, scaleY);
-        AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BICUBIC);
-        return op.filter(bi, null);
+        return BUFFER_PROCESSED_OK;
     }
 
     /**
@@ -220,7 +211,7 @@ public class ImageScaler
                 /* rescale width */
                 newWidth = ((src.getWidth() * height) / src.getHeight());
                 startWidth = (width - newWidth) / 2;
-                
+
                 startHeight = 0;
                 width = newWidth;
             }

@@ -994,7 +994,8 @@ public class ZRTPTransformEngine
     /**
      *
      * @param info
-     * @see gnu.java.zrtp.ZrtpCallback#zrtpInformEnrollment(java.lang.String)
+     * @see gnu.java.zrtp.ZrtpCallback#zrtpInformEnrollment(
+     * gnu.java.zrtp.ZrtpCodes.InfoEnrollment)
      */
     public void zrtpInformEnrollment(ZrtpCodes.InfoEnrollment info)
     {
@@ -1186,7 +1187,7 @@ public class ZRTPTransformEngine
 
     /**
      * Get the commited SAS rendering algorithm for this ZRTP session.
-     * 
+     *
      * @return the commited SAS rendering algorithm
      */
     public ZrtpConstants.SupportedSASTypes getSasType() {
@@ -1198,8 +1199,8 @@ public class ZRTPTransformEngine
 
     /**
      * Get the computed SAS hash for this ZRTP session.
-     * 
-     * @return a refernce to the byte array that contains the full 
+     *
+     * @return a refernce to the byte array that contains the full
      *         SAS hash.
      */
     public byte[] getSasHash() {
@@ -1211,15 +1212,19 @@ public class ZRTPTransformEngine
 
     /**
      * Send the SAS relay packet.
-     * 
+     *
      * The method creates and sends a SAS relay packet according to the ZRTP
      * specifications. Usually only a MitM capable user agent (PBX) uses this
      * function.
-     * 
+     *
      * @param sh the full SAS hash value
      * @param render the SAS rendering algorithm
+     * @return true if the SASReplay packet has been correctly sent, false
+     * otherwise
      */
-    public boolean sendSASRelayPacket(byte[] sh, ZrtpConstants.SupportedSASTypes render) {
+    public boolean sendSASRelayPacket(byte[] sh,
+        ZrtpConstants.SupportedSASTypes render)
+    {
         if (zrtpEngine != null)
             return zrtpEngine.sendSASRelayPacket(sh, render);
         else
@@ -1227,11 +1232,11 @@ public class ZRTPTransformEngine
     }
     /**
      * Check the state of the MitM mode flag.
-     * 
+     *
      * If true then this ZRTP session acts as MitM, usually enabled by a PBX
      * based client (user agent)
-     * 
-     * @return state of mitmMode 
+     *
+     * @return state of mitmMode
      */
     public boolean isMitmMode() {
         return mitmMode;
@@ -1239,10 +1244,10 @@ public class ZRTPTransformEngine
 
     /**
      * Set the state of the MitM mode flag.
-     * 
-     * If MitM mode is set to true this ZRTP session acts as MitM, usually 
+     *
+     * If MitM mode is set to true this ZRTP session acts as MitM, usually
      * enabled by a PBX based client (user agent).
-     * 
+     *
      * @param mitmMode defines the new state of the mitmMode flag
      */
     public void setMitmMode(boolean mitmMode) {
@@ -1251,10 +1256,10 @@ public class ZRTPTransformEngine
 
     /**
      * Check the state of the enrollment mode.
-     * 
+     *
      * If true then we will set the enrollment flag (E) in the confirm
-     * packets and performs the enrollment actions. A MitM (PBX) enrollment service sets this flagstarted this ZRTP 
-     * session. Can be set to true only if mitmMode is also true. 
+     * packets and performs the enrollment actions. A MitM (PBX) enrollment service sets this flagstarted this ZRTP
+     * session. Can be set to true only if mitmMode is also true.
      * @return status of the enrollmentMode flag.
      */
     public boolean isEnrollmentMode() {
@@ -1266,13 +1271,13 @@ public class ZRTPTransformEngine
 
     /**
      * Set the state of the enrollment mode.
-     * 
+     *
      * If true then we will set the enrollment flag (E) in the confirm
-     * packets and perform the enrollment actions. A MitM (PBX) enrollment 
-     * service must sets this mode to true. 
-     * 
-     * Can be set to true only if mitmMode is also true. 
-     * 
+     * packets and perform the enrollment actions. A MitM (PBX) enrollment
+     * service must sets this mode to true.
+     *
+     * Can be set to true only if mitmMode is also true.
+     *
      * @param enrollmentMode defines the new state of the enrollmentMode flag
      */
     public void setEnrollmentMode(boolean enrollmentMode) {

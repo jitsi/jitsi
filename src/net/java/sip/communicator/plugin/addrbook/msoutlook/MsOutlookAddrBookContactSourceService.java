@@ -21,6 +21,9 @@ import net.java.sip.communicator.service.contactsource.*;
 public class MsOutlookAddrBookContactSourceService
     extends AsyncContactSourceService
 {
+    /**
+     * The outlook address book prefix.
+     */
     public static final String OUTLOOK_ADDR_BOOK_PREFIX
         = "net.java.sip.communicator.plugin.addrbook.OUTLOOK_ADDR_BOOK_PREFIX";
 

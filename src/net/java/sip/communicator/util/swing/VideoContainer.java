@@ -25,11 +25,19 @@ public class VideoContainer
     extends TransparentPanel
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>Logger</tt> used by the <tt>VideoContainer</tt> class and its
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(VideoContainer.class);
 
+    /**
+     * The default background color.
+     */
     public static final Color DEFAULT_BACKGROUND_COLOR
         = OSUtils.IS_MAC ? Color.BLACK : null;
 
@@ -245,7 +253,7 @@ public class VideoContainer
         /*
          * XXX Do not call #remove(Component) beyond this point and before
          * #add(Component, Object, int) because #removeCanvasIfNecessary() will
-         * remove the canvas. 
+         * remove the canvas.
          */
 
         super.add(comp, constraints, index);

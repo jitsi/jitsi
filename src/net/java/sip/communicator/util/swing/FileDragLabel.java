@@ -28,6 +28,11 @@ public class FileDragLabel
                 DragSourceListener,
                 DragGestureListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private static final Logger logger = Logger.getLogger(FileDragLabel.class);
 
     private final DragSource dragSource = DragSource.getDefaultDragSource();
@@ -143,6 +148,11 @@ public class FileDragLabel
         extends Vector<File>
         implements Transferable
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         final static int FILE = 0;
         final static int STRING = 1;
         final static int PLAIN = 2;

@@ -55,6 +55,8 @@ public class DynamicPayloadTypeRegistry
 
     /**
      * Sets the override payload type numbers.
+     *
+     * @param mappings the override payload-type mappings.
      */
     public void setOverridePayloadTypeMappings(Map<Byte, String> mappings)
     {

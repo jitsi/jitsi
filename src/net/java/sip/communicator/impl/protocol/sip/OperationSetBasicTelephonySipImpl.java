@@ -1070,7 +1070,7 @@ public class OperationSetBasicTelephonySipImpl
 
                 //this is a brand new call (not a transferred one)
                 CallSipImpl call = new CallSipImpl(this);
-                MediaAwareCallPeer peer =
+                MediaAwareCallPeer<?,?,?> peer =
                     call.processInvite(sourceProvider, serverTransaction);
 
                 if(getProtocolProvider().getAccountID()
@@ -1081,7 +1081,7 @@ public class OperationSetBasicTelephonySipImpl
                 {
                     // if in paranoia mode and we don't find any encryption
                     // fail peer/call send error with warning explaining why
-                    
+
                     peer.setState(
                         CallPeerState.FAILED,
                         "Encryption required!",

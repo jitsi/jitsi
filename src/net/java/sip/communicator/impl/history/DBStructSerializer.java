@@ -25,11 +25,23 @@ public class DBStructSerializer {
 
     private HistoryServiceImpl historyService;
 
+    /**
+     * Constructor.
+     *
+     * @param historyService the history service
+     */
     public DBStructSerializer(HistoryServiceImpl historyService)
     {
         this.historyService = historyService;
     }
 
+    /**
+     * Write the history.
+     *
+     * @param dbDatFile the database file
+     * @param history the history to write
+     * @throws IOException if write failed for any reason
+     */
     public void writeHistory(File dbDatFile, History history)
             throws IOException {
         DocumentBuilder builder = this.historyService.getDocumentBuilder();

@@ -26,7 +26,6 @@ public class Encoder
     private static final int PCM_BYTES = 320;
     private static final int GSM_BYTES = 33;
     private int innerDataLength = 0;
-    private int inputDataLength = 0;
     byte[] innerContent;
 
     @Override
@@ -35,6 +34,9 @@ public class Encoder
         return "GSM Encoder";
     }
 
+    /**
+     * Constructs a new <tt>Encoder</tt>.
+     */
     public Encoder()
     {
         super();
@@ -123,7 +125,6 @@ public class Encoder
         innerBuffer.setData(mergedContent);
         innerBuffer.setLength(mergedContent.length);
         innerDataLength = innerBuffer.getLength();
-        inputDataLength = inputBuffer.getLength();
 
         if (TRACE) dump("input ", inputBuffer);
 

@@ -34,6 +34,9 @@ public class Decoder
         return "GSM Decoder";
     }
 
+    /**
+     * Constructs a new <tt>Decoder</tt>.
+     */
     public Decoder()
     {
         super();
@@ -130,7 +133,7 @@ public class Decoder
     @Override
     public void close()
     {
-        
+
     }
 
     private static final boolean TRACE = false;

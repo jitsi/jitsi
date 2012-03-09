@@ -93,6 +93,8 @@ public class ContactTimerSSHImpl
     }
     /**
      * Creates a new instance of ContactTimerSSHImpl
+     *
+     * @param sshContact the <tt>Contact</tt>
      */
     public ContactTimerSSHImpl(ContactSSH sshContact)
     {

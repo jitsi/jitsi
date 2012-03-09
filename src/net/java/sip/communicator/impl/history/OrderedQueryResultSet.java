@@ -8,6 +8,7 @@ import net.java.sip.communicator.service.history.*;
  * This implementation is the same as DefaultQueryResultSet but the
  * container holding the records is LinkedList - so guarantees that values are ordered
  *
+ * @param <T> element type of query
  * @author Damian Minkov
  */
 public class OrderedQueryResultSet<T>
@@ -17,6 +18,11 @@ public class OrderedQueryResultSet<T>
 
     private int currentPos = -1;
 
+    /**
+     * Constructor.
+     *
+     * @param records the <tt>Set</tt> of records
+     */
     public OrderedQueryResultSet(Set<T> records)
     {
         this.records = new LinkedList<T>(records);

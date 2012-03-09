@@ -16,7 +16,7 @@ import org.osgi.framework.*;
 
 /**
  * Starts the account info bundle.
- * 
+ *
  * @author Adam Glodstein
  */
 public class AccountInfoActivator
@@ -25,6 +25,9 @@ public class AccountInfoActivator
     private static final Logger logger =
         Logger.getLogger(AccountInfoActivator.class);
 
+    /**
+     * The OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static BrowserLauncherService browserLauncherService;
@@ -46,7 +49,7 @@ public class AccountInfoActivator
     /**
      * Returns all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      * context.
-     * 
+     *
      * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      *         context
      */
@@ -83,6 +86,11 @@ public class AccountInfoActivator
         return providerFactoriesMap;
     }
 
+    /**
+     * Returns the <tt>BrowserLauncherService</tt> currently registered.
+     *
+     * @return the <tt>BrowserLauncherService</tt>
+     */
     public static BrowserLauncherService getBrowserLauncher()
     {
         if (browserLauncherService == null)

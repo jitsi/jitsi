@@ -21,9 +21,24 @@ public interface PacketLoggingService
      */
     public enum ProtocolName
     {
+        /**
+         * SIP protocol name.
+         */
         SIP,
+
+        /**
+         * Jabber protocol name.
+         */
         JABBER,
+
+        /**
+         * RTP protocol name.
+         */
         RTP,
+
+        /**
+         * ICE protocol name.
+         */
         ICE4J
     }
 
@@ -32,7 +47,14 @@ public interface PacketLoggingService
      */
     public enum TransportName
     {
+        /**
+         * UDP transport name.
+         */
         UDP,
+
+        /**
+         * TCP transport name.
+         */
         TCP
     }
 
@@ -85,7 +107,7 @@ public interface PacketLoggingService
      * @param sender are we the sender of the packet or not.
      * @param packetContent the packet content.
      * @param packetOffset the packet content offset.
-     * @param packetLength the packet content length. 
+     * @param packetLength the packet content length.
      */
     public void logPacket(
             ProtocolName protocol,

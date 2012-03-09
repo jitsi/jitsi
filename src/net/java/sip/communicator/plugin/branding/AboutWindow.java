@@ -39,6 +39,10 @@ public class AboutWindow
                 ExportedWindow,
                 Skinnable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * The global/shared <code>AboutWindow</code> currently showing.
@@ -252,6 +256,11 @@ public class AboutWindow
         extends JPanel
         implements Skinnable
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private static final Logger logger
             = Logger.getLogger(WindowBackground.class);
 
@@ -403,6 +412,11 @@ public class AboutWindow
      */
     private class CloseAction extends UIAction
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public void actionPerformed(ActionEvent e)
         {
             setVisible(false);

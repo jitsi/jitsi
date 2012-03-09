@@ -48,7 +48,7 @@ public class RewritablePushBufferDataSource
     /**
      * Initializes a new <tt>RewritablePushBufferDataSource</tt> instance which
      * is to provide mute support for a specific <tt>PushBufferDataSource</tt>.
-     * 
+     *
      * @param dataSource the <tt>PushBufferDataSource</tt> the new instance is
      *            to provide mute support for
      */
@@ -87,7 +87,7 @@ public class RewritablePushBufferDataSource
 
     /**
      * Determines whether this <tt>DataSource</tt> is mute.
-     * 
+     *
      * @return <tt>true</tt> if this <tt>DataSource</tt> is mute; otherwise,
      *         <tt>false</tt>
      */
@@ -126,7 +126,7 @@ public class RewritablePushBufferDataSource
 
     /**
      * Sets the mute state of this <tt>DataSource</tt>.
-     * 
+     *
      * @param mute <tt>true</tt> to mute this <tt>DataSource</tt>; otherwise,
      *            <tt>false</tt>
      */
@@ -174,8 +174,6 @@ public class RewritablePushBufferDataSource
         if (data != null && (buffer.getFormat() instanceof AudioFormat))
         {
             Class<?> dataClass = data.getClass();
-            double audioSample;
-            double amplitudeCoefficient;
             int fromIndex = buffer.getOffset();
 
             AudioFormat audioFormat = (AudioFormat) buffer.getFormat();
@@ -186,14 +184,14 @@ public class RewritablePushBufferDataSource
             int[] sampleData = tone.getAudioSamples(
                     samplingFrequency,
                     sampleSizeInBits);
-            IntBuffer sampleDataIntBuffer = IntBuffer.wrap(sampleData);
+            IntBuffer.wrap(sampleData);
 
             int toIndex = fromIndex +
                 sampleData.length * (sampleSizeInBits / 8);
             ByteBuffer newData = ByteBuffer.allocate(toIndex);
 
             // Prepares newData to be endian compliant with original buffer
-            // data. 
+            // data.
             if(audioFormat.getEndian() == AudioFormat.BIG_ENDIAN)
             {
                 newData.order(ByteOrder.BIG_ENDIAN);
@@ -282,7 +280,7 @@ public class RewritablePushBufferDataSource
         /**
          * Initializes a new <tt>MutePushBufferStream</tt> instance which is to
          * provide mute support to a specific <tt>PushBufferStream</tt>.
-         * 
+         *
          * @param stream the <tt>PushBufferStream</tt> the new instance is to
          * provide mute support to
          */

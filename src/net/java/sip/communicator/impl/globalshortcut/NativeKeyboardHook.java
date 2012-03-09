@@ -114,7 +114,6 @@ public class NativeKeyboardHook
      * Register a special key shortcut (for example key coming from headset).
      *
      * @param keycode keycode of the shortcut
-     * @param modifiers modifiers (CTRL, ALT, ...)
      * @return true if success, false otherwise
      */
     public synchronized boolean registerSpecial(int keycode)
@@ -129,7 +128,6 @@ public class NativeKeyboardHook
      * Unregister a special key shortcut (for example key coming from headset).
      *
      * @param keycode keycode of the shortcut
-     * @param modifiers modifiers (CTRL, ALT, ...)
      */
     public synchronized void unregisterSpecial(int keycode)
     {

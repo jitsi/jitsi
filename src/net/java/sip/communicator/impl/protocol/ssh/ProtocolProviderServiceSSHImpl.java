@@ -34,72 +34,72 @@ public class ProtocolProviderServiceSSHImpl
 {
     private static final Logger logger
             = Logger.getLogger(ProtocolProviderServiceSSHImpl.class);
-    
+
     /**
      * The name of this protocol.
      */
     public static final String SSH_PROTOCOL_NAME = ProtocolNames.SSH;
-    
+
 //    /**
 //     * The identifier for SSH Stack
 //     * Java Secure Channel JSch
 //     */
 //    JSch jsch = new JSch();
-    
+
     /**
-     * The test command given after each command to determine the reply length 
+     * The test command given after each command to determine the reply length
      * of the command
      */
-    //private final String testCommand = 
+    //private final String testCommand =
     //    Resources.getString("testCommand");
-    
+
     /**
      * A reference to the protocol provider of UIService
      */
     private static ServiceReference ppUIServiceRef;
-    
+
     /**
      * Connection timeout to a remote server in milliseconds
      */
     private static int connectionTimeout = 30000;
-    
+
     /**
      * A reference to UI Service
      */
     private static UIService uiService;
-    
+
     /**
      * The id of the account that this protocol provider represents.
      */
     private AccountID accountID = null;
-    
+
     /**
      * We use this to lock access to initialization.
      */
     private final Object initializationLock = new Object();
-    
+
     private OperationSetBasicInstantMessagingSSHImpl basicInstantMessaging;
-    
+
     private OperationSetFileTransferSSHImpl fileTranfer;
-    
+
     /**
      * Indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
-    
+
     /**
      * The logo corresponding to the ssh protocol.
      */
     private ProtocolIconSSHImpl sshIcon
             = new ProtocolIconSSHImpl();
-    
+
     /**
      * The registration state of SSH Provider is taken to be registered by
      * default as it doesn't correspond to the state on remote server
      */
     private RegistrationState currentRegistrationState
             = RegistrationState.REGISTERED;
-    
+
     /**
      * The default constructor for the SSH protocol provider.
      */
@@ -107,7 +107,7 @@ public class ProtocolProviderServiceSSHImpl
     {
         if (logger.isTraceEnabled())
             logger.trace("Creating a ssh provider.");
-        
+
         try
         {
             // converting to milliseconds
@@ -119,7 +119,7 @@ public class ProtocolProviderServiceSSHImpl
             logger.error("Connection Timeout set to 30 seconds");
         }
     }
-    
+
     /**
      * Initializes the service implementation, and puts it in a sate where it
      * could interoperate with other services. It is strongly recomended that
@@ -140,11 +140,11 @@ public class ProtocolProviderServiceSSHImpl
         synchronized(initializationLock)
         {
             this.accountID = accountID;
-            
+
             //initialize the presence operationset
             OperationSetPersistentPresenceSSHImpl persistentPresence =
                     new OperationSetPersistentPresenceSSHImpl(this);
-            
+
             addSupportedOperationSet(
                 OperationSetPersistentPresence.class,
                 persistentPresence);
@@ -154,25 +154,25 @@ public class ProtocolProviderServiceSSHImpl
             addSupportedOperationSet(
                 OperationSetPresence.class,
                 persistentPresence);
-            
+
             //initialize the IM operation set
-            basicInstantMessaging = new 
+            basicInstantMessaging = new
                 OperationSetBasicInstantMessagingSSHImpl(
                     this);
             addSupportedOperationSet(
                 OperationSetBasicInstantMessaging.class,
                 basicInstantMessaging);
-            
+
             //initialze the file transfer operation set
             fileTranfer = new OperationSetFileTransferSSHImpl(this);
             addSupportedOperationSet(
                 OperationSetFileTransfer.class,
                 fileTranfer);
-            
+
             isInitialized = true;
         }
     }
-    
+
     /**
      * Determines whether a vaild session exists for the contact of remote
      * machine.
@@ -188,12 +188,12 @@ public class ProtocolProviderServiceSSHImpl
         if( sshSession != null)
             if(sshSession.isConnected())
                 return true;
-        
+
         // remove reference to an unconnected SSH Session, if any
         sshContact.setSSHSession(null);
         return false;
     }
-    
+
     /**
      * Determines whether the contact is connected to shell of remote machine
      * as a precheck for any further operation
@@ -206,22 +206,22 @@ public class ProtocolProviderServiceSSHImpl
     public boolean isShellConnected(ContactSSH sshContact)
     {
         // a test command may also be run here
-        
+
         if(isSessionValid(sshContact))
         {
             return(sshContact.getShellChannel() != null);
         }
-        
+
         /*
          * Above should be return(sshContact.getShellChannel() != null
          *                     && sshContact.getShellChannel().isConnected());
          *
          * but incorrect reply from stack for isConnected()
          */
-        
+
         return false;
     }
-    
+
     /**
      * Creates a shell channel to the remote machine
      * a new jsch session is also created if the current one is invalid
@@ -242,35 +242,35 @@ public class ProtocolProviderServiceSSHImpl
                 OperationSetPersistentPresenceSSHImpl persistentPresence
                         = (OperationSetPersistentPresenceSSHImpl)sshContact
                         .getParentPresenceOperationSet();
-                
+
                 persistentPresence.changeContactPresenceStatus(
                         sshContact,
                         SSHStatusEnum.CONNECTING);
-                
+
                 try
                 {
                     if(!isSessionValid(sshContact))
                         createSSHSessionAndLogin(sshContact);
-                    
+
                     createShellChannel(sshContact);
-                    
+
                     //initializing the reader and writers of ssh contact
-                    
+
                     persistentPresence.changeContactPresenceStatus(
                             sshContact,
                             SSHStatusEnum.CONNECTED);
-                    
+
                     showWelcomeMessage(sshContact);
-                    
+
                     sshContact.setMessageType(ContactSSH
                             .CONVERSATION_MESSAGE_RECEIVED);
-                    
+
                     sshContact.setConnectionInProgress(false);
-                    
+
                     Thread.sleep(1500);
-                    
+
                     sshContact.setCommandSent(true);
-                    
+
                     basicInstantMessaging.sendInstantMessage(
                             sshContact,
                             firstMessage);
@@ -281,7 +281,7 @@ public class ProtocolProviderServiceSSHImpl
                     persistentPresence.changeContactPresenceStatus(
                             sshContact,
                             SSHStatusEnum.NOT_AVAILABLE);
-                    
+
                     ex.printStackTrace();
                 }
                 finally
@@ -290,38 +290,38 @@ public class ProtocolProviderServiceSSHImpl
                 }
             }
         }));
-        
+
         newConnection.start();
     }
-    
+
     /**
      * Creates a channel for shell type in the current session
      * channel types = shell, sftp, exec(X forwarding),
      *                 direct-tcpip(stream forwarding) etc
      *
      * @param sshContact ID of SSH Contact
-     *
+     * @throws IOException if the shell channel cannot be created
      */
     public void createShellChannel(ContactSSH sshContact)
-    throws IOException
+        throws IOException
     {
         try
         {
             Channel shellChannel = sshContact.getSSHSession()
                 .openChannel("shell");
-            
+
             //initalizing the reader and writers of ssh contact
             sshContact.initializeShellIO(shellChannel.getInputStream(),
                     shellChannel.getOutputStream());
-            
+
             ((ChannelShell)shellChannel).setPtyType(
                     sshContact.getSSHConfigurationForm().getTerminalType());
-            
+
             //initializing the shell
             shellChannel.connect(1000);
-            
+
             sshContact.setShellChannel(shellChannel);
-            
+
             sshContact.sendLine("export PS1=");
         }
         catch (JSchException ex)
@@ -331,11 +331,13 @@ public class ProtocolProviderServiceSSHImpl
                     " server");
         }
     }
-    
+
     /**
      * Closes the Shell channel are associated IO Streams
      *
      * @param sshContact ID of SSH Contact
+     * @throws JSchException if something went wrong in JSch
+     * @throws IOException if I/O exception occurred
      */
     public void closeShellChannel(ContactSSH sshContact) throws
             JSchException,
@@ -345,7 +347,7 @@ public class ProtocolProviderServiceSSHImpl
         sshContact.getShellChannel().disconnect();
         sshContact.setShellChannel(null);
     }
-    
+
     /**
      * Creates a SSH Session with a remote machine and tries to login
      * according to the details specified by Contact
@@ -353,7 +355,7 @@ public class ProtocolProviderServiceSSHImpl
      *
      * @param sshContact ID of SSH Contact
      *
-     * @throws JSchException if a JSch is unable to create a SSH Session with 
+     * @throws JSchException if a JSch is unable to create a SSH Session with
      * the remote machine
      * @throws InterruptedException if the thread is interrupted before session
      *         connected or is timed out
@@ -367,10 +369,10 @@ public class ProtocolProviderServiceSSHImpl
         if (logger.isInfoEnabled())
             logger.info("Creating a new SSH Session to "
                 + sshContact.getHostName());
-        
+
         // creating a new JSch Stack identifier for contact
         JSch jsch = new JSch();
-        
+
         String knownHosts =
             accountID.getAccountPropertyString("KNOWN_HOSTS_FILE");
 
@@ -379,14 +381,14 @@ public class ProtocolProviderServiceSSHImpl
 
         String identitiyKey =
             accountID.getAccountPropertyString("IDENTITY_FILE");
-        
+
         String userName = sshContact.getUserName();
-        
+
         // use the name of system user if the contact has not supplied SSH
         // details
         if(userName.equals(""))
             userName = System.getProperty("user.name");
-        
+
         if(!identitiyKey.equals("Optional"))
             jsch.addIdentity(identitiyKey);
 
@@ -395,22 +397,22 @@ public class ProtocolProviderServiceSSHImpl
                 userName,
                 sshContact.getHostName(),
                 sshContact.getSSHConfigurationForm().getPort());
-        
+
         /**
          * Creating and associating User Info with the session
          * User Info passes authentication from sshContact to SSH Stack
          */
         SSHUserInfo sshUserInfo = new SSHUserInfo(sshContact);
-        
+
         session.setUserInfo(sshUserInfo);
-        
+
         /**
          * initializing the session
          */
         session.connect(connectionTimeout);
-        
+
         int count = 0;
-        
+
         // wait for session to get connected
         while(!session.isConnected() && count<=30000)
         {
@@ -420,7 +422,7 @@ public class ProtocolProviderServiceSSHImpl
                 logger.trace("SSH:" + sshContact.getHostName()
                     + ": Sleep zzz .. " );
         }
-        
+
         // if timeout have exceeded
         if(count>30000)
         {
@@ -429,20 +431,20 @@ public class ProtocolProviderServiceSSHImpl
                     null,
                     "SSH Connection attempt to "
                     + sshContact.getHostName() + " timed out");
-            
+
             // error codes are not defined yet
             throw new OperationFailedException("SSH Connection attempt to " +
                     sshContact.getHostName() + " timed out", 2);
         }
-        
+
         sshContact.setJSch(jsch);
         sshContact.setSSHSession(session);
-        
+
         if (logger.isInfoEnabled())
             logger.info("A new SSH Session to " + sshContact.getHostName()
                 + " Created");
     }
-    
+
     /**
      * Closes the SSH Session associated with the contact
      *
@@ -453,14 +455,15 @@ public class ProtocolProviderServiceSSHImpl
         sshContact.getSSHSession().disconnect();
         sshContact.setSSHSession(null);
     }
-    
+
     /**
      * Presents the login welcome message to user
      *
      * @param sshContact ID of SSH Contact
+     * @throws IOException if I/O exception occurred
      */
     public void showWelcomeMessage(ContactSSH sshContact)
-    throws IOException
+        throws IOException
     {
 /*      //sending the command
         sshContact.sendLine(testCommand);
@@ -487,7 +490,7 @@ public class ProtocolProviderServiceSSHImpl
         if (logger.isDebugEnabled())
             logger.debug("SSH: Welcome message shown");
     }
-    
+
     /**
      * Returns a reference to UIServce for accessing UI related services
      *
@@ -497,7 +500,7 @@ public class ProtocolProviderServiceSSHImpl
     {
         return uiService;
     }
-    
+
     /**
      * Returns the AccountID that uniquely identifies the account represented
      * by this instance of the ProtocolProviderService.
@@ -508,7 +511,7 @@ public class ProtocolProviderServiceSSHImpl
     {
         return accountID;
     }
-    
+
     /**
      * Returns the short name of the protocol that the implementation of this
      * provider is based upon (like SIP, Jabber, ICQ/AIM, or others for
@@ -533,7 +536,7 @@ public class ProtocolProviderServiceSSHImpl
     {
         return currentRegistrationState;
     }
-    
+
     /**
      * Starts the registration process.
      *
@@ -549,22 +552,22 @@ public class ProtocolProviderServiceSSHImpl
     {
         RegistrationState oldState = currentRegistrationState;
         currentRegistrationState = RegistrationState.REGISTERED;
-        
+
         //get a reference to UI Service via its Service Reference
         ppUIServiceRef = SSHActivator.getBundleContext()
             .getServiceReference(UIService.class.getName());
-        
+
         uiService = (UIService)SSHActivator.getBundleContext()
             .getService(ppUIServiceRef);
-        
+
         fireRegistrationStateChanged(
                 oldState
                 , currentRegistrationState
                 , RegistrationStateChangeEvent.REASON_USER_REQUEST
                 , null);
-        
+
     }
-    
+
     /**
      * Makes the service implementation close all open sockets and release
      * any resources that it might have taken and prepare for
@@ -578,7 +581,7 @@ public class ProtocolProviderServiceSSHImpl
         }
         if (logger.isTraceEnabled())
             logger.trace("Killing the SSH Protocol Provider.");
-        
+
         if(isRegistered())
         {
             try
@@ -595,10 +598,10 @@ public class ProtocolProviderServiceSSHImpl
                         , ex);
             }
         }
-        
+
         isInitialized = false;
     }
-    
+
     /**
      * Ends the registration of this protocol provider with the current
      * registration service.
@@ -612,7 +615,7 @@ public class ProtocolProviderServiceSSHImpl
     {
         RegistrationState oldState = currentRegistrationState;
         currentRegistrationState = RegistrationState.UNREGISTERED;
-        
+
         fireRegistrationStateChanged(
                 oldState
                 , currentRegistrationState
@@ -622,7 +625,7 @@ public class ProtocolProviderServiceSSHImpl
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.java.sip.communicator.service.protocol.ProtocolProviderService#
      * isSignallingTransportSecure()
      */

@@ -9,7 +9,7 @@ import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory
 
 /**
  * Abstract class for the determining the address for the SIP proxy.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public abstract class ProxyConnection
@@ -69,7 +69,7 @@ public abstract class ProxyConnection
             proxyStringBuffer.insert(0, '[');
             proxyStringBuffer.append(']');
         }
-    
+
         proxyStringBuffer.append(':');
         proxyStringBuffer.append(socketAddress.getPort());
         proxyStringBuffer.append('/');
@@ -81,7 +81,7 @@ public abstract class ProxyConnection
     /**
      * Compares an InetAddress against the active outbound proxy. The comparison
      * is by reference, not equals.
-     * 
+     *
      * @param addressToTest The addres to test.
      * @return True when the InetAddress is the same as the outbound proxy.
      */
@@ -97,10 +97,11 @@ public abstract class ProxyConnection
     /**
      * Retrieves the next address to use from DNS. Duplicate results are
      * suppressed.
-     * 
+     *
      * @return True if a new address is available through {@link #getAddress()},
      *         false if the last address was reached. A new lookup from scratch
      *         can be started by calling {@link #reset()}.
+     * @throws DnssecException if there is a problem related to DNSSEC
      */
     public final boolean getNextAddress() throws DnssecException
     {
@@ -126,7 +127,7 @@ public abstract class ProxyConnection
     /**
      * Implementations must use this method to get the next address, but do not
      * have to care about duplicate addresses.
-     * 
+     *
      * @return True when a further address was available.
      * @throws DnssecException when a DNSSEC validation failure occured.
      */
@@ -145,7 +146,7 @@ public abstract class ProxyConnection
     /**
      * Factory method to create a proxy connection based on the account settings
      * of the protocol provider.
-     * 
+     *
      * @param pps the protocol provider that needs a SIP server connection.
      * @return An instance of a derived class.
      */

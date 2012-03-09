@@ -12,12 +12,17 @@ import net.java.sip.communicator.service.neomedia.*;
 
 /**
  * Represents the event fired when playback volume value has changed.
- * 
+ *
  * @author Damian Minkov
  */
 public class VolumeChangeEvent
     extends EventObject
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The volume level.
      */

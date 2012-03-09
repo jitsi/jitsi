@@ -20,19 +20,22 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class AimAccRegWizzActivator implements BundleActivator {
-
+public class AimAccRegWizzActivator implements BundleActivator
+{
+    /**
+     * The OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static Logger logger = Logger.getLogger(
         AimAccRegWizzActivator.class);
-    
+
     private static BrowserLauncherService browserLauncherService;
-    
+
     private static UIService uiService;
-    
+
     private static AimAccountRegistrationWizard aimWizard;
-    
+
     /**
      * Starts this bundle.
      */
@@ -88,7 +91,7 @@ public class AimAccRegWizzActivator implements BundleActivator {
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
     }
-    
+
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context.
@@ -106,10 +109,10 @@ public class AimAccRegWizzActivator implements BundleActivator {
 
         return browserLauncherService;
     }
-    
+
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

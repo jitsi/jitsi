@@ -27,8 +27,8 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * This UI displays a different interface, which is independent from the look
- * and feel. 
- * 
+ * and feel.
+ *
  * @author David Bismut, davidou@mageos.com
  * @author Yana Stamcheva
  * @author Adam Netocny
@@ -263,7 +263,7 @@ public class SIPCommTabbedPaneEnhancedUI
 
             titleWidth = SwingUtilities.computeStringWidth(metrics, title);
         }
-        
+
         textRect.width = titleWidth;
 
         View v = getTextViewForTab(tabIndex);
@@ -313,6 +313,11 @@ public class SIPCommTabbedPaneEnhancedUI
     protected class ScrollableTabButton extends
             SIPCommTabbedPaneUI.ScrollableTabButton
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public ScrollableTabButton(int direction)
         {
             super(direction);
@@ -417,7 +422,7 @@ public class SIPCommTabbedPaneEnhancedUI
         return new ScrollableTabButton(direction);
     }
 
-    
+
     protected int calculateTabWidth(int tabPlacement, int tabIndex,
             FontMetrics metrics)
     {

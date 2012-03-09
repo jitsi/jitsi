@@ -29,12 +29,17 @@ public class X509CertificatePanel
 {
     private static final long serialVersionUID = -8368302061995971947L;
 
+    /**
+     * Constructs a X509 certificate panel.
+     *
+     * @param certificate <tt>X509Certificate</tt> object
+     */
     public X509CertificatePanel(X509Certificate certificate)
     {
         ResourceManagementService R = UtilActivator.getResources();
         DateFormat dateFormatter = DateFormat
             .getDateInstance(DateFormat.MEDIUM);
-        
+
         Insets valueInsets = new Insets(2,10,0,0);
         Insets titleInsets = new Insets(10,5,0,0);
 
@@ -387,7 +392,7 @@ public class X509CertificatePanel
     }    /**
      * Calculates the hash of the certificate known as the "thumbprint"
      * and returns it as a string representation.
-     * 
+     *
      * @param cert The certificate to hash.
      * @param algorithm The hash algorithm to use.
      * @return The SHA-1 hash of the certificate.

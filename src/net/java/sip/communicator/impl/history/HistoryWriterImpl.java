@@ -22,7 +22,11 @@ import net.java.sip.communicator.util.xml.*;
 public class HistoryWriterImpl
     implements HistoryWriter
 {
+    /**
+     * Maximum records per file.
+     */
     public static final int MAX_RECORDS_PER_FILE = 150;
+
     private static final String CDATA_SUFFIX = "_CDATA";
 
     private Object docCreateLock = new Object();

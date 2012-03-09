@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.chatconfig.replacement;
@@ -16,12 +16,17 @@ import net.java.sip.communicator.service.replacement.*;
 /**
  * Table model for the table in <tt>ReplacementConfigPanel</tt> listing all
  * available replacement sources
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class ReplacementConfigurationTableModel
     extends AbstractTableModel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The source list of all the available replacement sources
      */
@@ -73,7 +78,7 @@ public class ReplacementConfigurationTableModel
     /**
      * @param rowIndex the row index.
      * @param columnIndex the column index
-     * 
+     *
      * @return the value specified rowIndex and columnIndex. boolean in case of
      *         the first column, String replacement source label in case of the
      *         second column; null otherwise
@@ -83,7 +88,7 @@ public class ReplacementConfigurationTableModel
         String sourceName = sourceList.get(rowIndex);
         ReplacementService source =
             ChatConfigActivator.getReplacementSources().get(sourceName);
-        
+
         switch (columnIndex)
         {
         case 0:
@@ -102,7 +107,7 @@ public class ReplacementConfigurationTableModel
     /**
      * @param rowIndex the row index
      * @param columnIndex the column index
-     * 
+     *
      * @return boolean; true for first column false otherwise
      */
     public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -114,7 +119,7 @@ public class ReplacementConfigurationTableModel
      * Set the value at rowIndex and columnIndex. Sets the replacement source
      * property enabled/disabled based on whether the first column is true or
      * false.
-     * 
+     *
      * @param value The object to set at rowIndex and columnIndex
      * @param rowIndex
      * @param columnIndex
@@ -126,7 +131,7 @@ public class ReplacementConfigurationTableModel
             String sourceName = sourceList.get(rowIndex);
             ReplacementService source =
                 ChatConfigActivator.getReplacementSources().get(sourceName);
-            
+
             boolean e = (Boolean) value;
             configService.setProperty(ReplacementProperty
                 .getPropertyName(source.getSourceName()), e);

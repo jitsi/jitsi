@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.msn;
@@ -13,7 +13,7 @@ import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
 
 /**
- * Implements ad-hoc chat rooms for MSN. 
+ * Implements ad-hoc chat rooms for MSN.
  *
  * @author Rupert Burchardi
  * @author Valentin Martinet
@@ -42,18 +42,18 @@ public class AdHocChatRoomMsnImpl
     private MsnSwitchboard switchboard = null;
 
     /**
-     * Listeners that will be notified of changes in participants status in the 
+     * Listeners that will be notified of changes in participants status in the
      * ad-hoc room, such as participant joined, left, etc.
      */
-    private Vector<AdHocChatRoomParticipantPresenceListener> 
-        participantsPresenceListeners = 
+    private Vector<AdHocChatRoomParticipantPresenceListener>
+        participantsPresenceListeners =
             new Vector<AdHocChatRoomParticipantPresenceListener>();
 
     /**
      * Listeners that will be notified every time a new message is received on
      * this ad-hoc chat room.
      */
-    private Vector<AdHocChatRoomMessageListener> messageListeners 
+    private Vector<AdHocChatRoomMessageListener> messageListeners
         = new Vector<AdHocChatRoomMessageListener>();
 
     /**
@@ -70,7 +70,7 @@ public class AdHocChatRoomMsnImpl
     /**
      * The list of participants of this ad-hoc chat room.
      */
-    private final Hashtable<String, Contact> participants = 
+    private final Hashtable<String, Contact> participants =
         new Hashtable<String, Contact>();
 
     /**
@@ -84,19 +84,19 @@ public class AdHocChatRoomMsnImpl
     private final OperationSetPersistentPresenceMsnImpl presenceOpSet;
 
     /**
-     * Creates a new ad-hoc chat room for MSN named <tt>name</tt>, using the 
+     * Creates a new ad-hoc chat room for MSN named <tt>name</tt>, using the
      * protocol provider <tt>provider</tt>.
-     * 
+     *
      * @param name
      * @param provider
      */
     public AdHocChatRoomMsnImpl(String name,
-                                ProtocolProviderServiceMsnImpl provider) 
+                                ProtocolProviderServiceMsnImpl provider)
     {
         this.name = name;
         this.provider = provider;
-        this.opSetAdHocMuc = 
-            (OperationSetAdHocMultiUserChatMsnImpl) 
+        this.opSetAdHocMuc =
+            (OperationSetAdHocMultiUserChatMsnImpl)
             this.provider.getOperationSet(OperationSetAdHocMultiUserChat.class);
 
         this.presenceOpSet
@@ -106,22 +106,22 @@ public class AdHocChatRoomMsnImpl
     }
 
     /**
-     * Creates a new ad-hoc chat room for MSN named <tt>name</tt>, using the 
+     * Creates a new ad-hoc chat room for MSN named <tt>name</tt>, using the
      * protocol provider <tt>provider</tt> and the msn switchboard
      * <tt>switchboard</tt>.
-     * 
+     *
      * @param name
      * @param provider
      * @param switchboard
      */
     public AdHocChatRoomMsnImpl(String name,
                                 ProtocolProviderServiceMsnImpl provider,
-                                MsnSwitchboard switchboard) 
+                                MsnSwitchboard switchboard)
     {
         this.name = name;
         this.provider = provider;
         this.opSetAdHocMuc
-            = (OperationSetAdHocMultiUserChatMsnImpl) 
+            = (OperationSetAdHocMultiUserChatMsnImpl)
             this.provider.getOperationSet(OperationSetAdHocMultiUserChat.class);
 
         this.presenceOpSet
@@ -129,7 +129,7 @@ public class AdHocChatRoomMsnImpl
                 this.provider.getOperationSet(
                     OperationSetPersistentPresence.class);
 
-        this.switchboard = switchboard; 
+        this.switchboard = switchboard;
 
         this.updateParticipantsList(switchboard);
     }
@@ -137,7 +137,7 @@ public class AdHocChatRoomMsnImpl
     /**
      * Adds a listener that will be notified of changes in our status in the
      * room.
-     * 
+     *
      * @param listener a participant status listener.
      */
     public void addParticipantPresenceListener(
@@ -153,7 +153,7 @@ public class AdHocChatRoomMsnImpl
     /**
      * Registers <tt>listener</tt> so that it would receive events every time a
      * new message is received on this chat room.
-     * 
+     *
      * @param listener a <tt>MessageListener</tt> that would be notified every
      *            time a new message is received on this chat room.
      */
@@ -169,7 +169,7 @@ public class AdHocChatRoomMsnImpl
     /**
      * Removes <tt>listener</tt> so that it won't receive any further message
      * events from this room.
-     * 
+     *
      * @param listener the <tt>MessageListener</tt> to remove from this room
      */
     public void removeMessageListener(ChatRoomMessageListener listener)
@@ -182,9 +182,9 @@ public class AdHocChatRoomMsnImpl
     }
 
     /**
-     * Finds the participant of this ad-hoc chat room corresponding to the 
+     * Finds the participant of this ad-hoc chat room corresponding to the
      * given address.
-     * 
+     *
      * @param address the address to search for.
      * @return the participant of this chat room corresponding to the given
      * nick name.
@@ -208,13 +208,13 @@ public class AdHocChatRoomMsnImpl
     }
 
     /**
-     * Creates a <tt>Message</tt> for this ad-hoc chat room containing 
+     * Creates a <tt>Message</tt> for this ad-hoc chat room containing
      * <tt>text</tt>.
-     * 
+     *
      * @param text
      * @return Message the newly created <tt>Message</tt>
      */
-    public Message createMessage(String text) 
+    public Message createMessage(String text)
     {
         Message msg =
             new MessageMsnImpl(text,
@@ -226,20 +226,20 @@ public class AdHocChatRoomMsnImpl
 
     /**
      * Returns the name of this ad-hoc chatroom
-     * 
+     *
      * @return String
      */
-    public String getName() 
+    public String getName()
     {
         return this.name;
     }
 
     /**
      * Returns the parent provider
-     * 
+     *
      * @return ProtocolProviderService
      */
-    public ProtocolProviderService getParentProvider() 
+    public ProtocolProviderService getParentProvider()
     {
         return this.provider;
     }
@@ -247,10 +247,10 @@ public class AdHocChatRoomMsnImpl
     /**
      * Returns a list containing all the <tt>Contact</tt>s who participate in
      * this ad-hoc chat room.
-     * 
+     *
      * @return List<Contact>
      */
-    public List<Contact> getParticipants() 
+    public List<Contact> getParticipants()
     {
         return new LinkedList<Contact>(this.participants.values());
     }
@@ -258,7 +258,7 @@ public class AdHocChatRoomMsnImpl
     /**
      * Returns the participant of this ad-hoc chat room which corresponds to
      * the given id.
-     * 
+     *
      * @param id ID of the participant
      * @return Contact the corresponding Contact
      */
@@ -269,7 +269,8 @@ public class AdHocChatRoomMsnImpl
 
     /**
      * Adds a participant to the participants list.
-     * 
+     *
+     * @param id the ID
      * @param participant The participant (<tt>Contact</tt>) to add.
      */
     public void addAdHocChatRoomParticipant(String id, Contact participant)
@@ -283,28 +284,33 @@ public class AdHocChatRoomMsnImpl
     /**
      * Removes the participant of this ad-hoc chat room which corresponds to
      * the given id.
-     * 
+     *
      * @param id ID of the participant
      */
     public void removeParticipant(String id)
     {
         Contact contact= this.participants.get(id);
         this.participants.remove(id);
-        
+
         fireParticipantPresenceEvent(contact,
             AdHocChatRoomParticipantPresenceChangeEvent.CONTACT_LEFT, null);
     }
 
     /**
-     * Returns the number of <tt>Contact</tt>s who participate in this ad-hoc 
+     * Returns the number of <tt>Contact</tt>s who participate in this ad-hoc
      * chat room.
      */
-    public int getParticipantsCount() 
+    public int getParticipantsCount()
     {
         return this.participants.size();
     }
 
-    public String getSubject() 
+    /**
+     * Returns the subject.
+     *
+     * @return null
+     */
+    public String getSubject()
     {
         return null;
     }
@@ -312,7 +318,7 @@ public class AdHocChatRoomMsnImpl
     /**
      * Invites another user to this room. If we're not joined nothing will
      * happen.
-     * 
+     *
      * @param userAddress the address of the user (email address) to invite to
      *            the room.(one may also invite users not on their contact
      *            list).
@@ -362,7 +368,7 @@ public class AdHocChatRoomMsnImpl
             switchboard = null;
         }
 
-        Iterator<Contact> participantsIter 
+        Iterator<Contact> participantsIter
             = participants.values().iterator();
 
         while (participantsIter.hasNext())
@@ -378,20 +384,25 @@ public class AdHocChatRoomMsnImpl
         participants.clear();
     }
 
+    /**
+     * Returns if this chatroom is a system ones.
+     *
+     * @return false
+     */
     public boolean isSystem()
     {
         return false;
     }
 
     /**
-     * Sends the given message through the participants of this ad-hoc chat 
+     * Sends the given message through the participants of this ad-hoc chat
      * room.
-     * 
+     *
      * @param message the message to delivered
-     * 
+     *
      * @throws OperationFailedException if send fails
      */
-    public void sendMessage(Message message) throws OperationFailedException 
+    public void sendMessage(Message message) throws OperationFailedException
     {
         if (logger.isInfoEnabled())
             logger.info("switchboard="+this.switchboard);
@@ -409,7 +420,7 @@ public class AdHocChatRoomMsnImpl
 
     /**
      * Sets the corresponding switchboard.
-     * 
+     *
      * @param switchboard Corresponding switchboard.
      */
     public void setSwitchboard(MsnSwitchboard switchboard)
@@ -419,9 +430,9 @@ public class AdHocChatRoomMsnImpl
 
     /**
      * Creates the corresponding AdHocChatRoomParticipantPresenceChangeEvent and
-     * notifies all <tt>AdHocChatRoomParticipantPresenceListener</tt>s that a 
+     * notifies all <tt>AdHocChatRoomParticipantPresenceListener</tt>s that a
      * participant has joined or left this <tt>AdHocChatRoom</tt>.
-     * 
+     *
      * @param participant the <tt>Contact</tt>
      * @param eventID the identifier of the event
      * @param eventReason the reason of the event
@@ -455,7 +466,7 @@ public class AdHocChatRoomMsnImpl
      * <tt>AdHocChatRoomMessageDeliveredEvent</tt>,
      * <tt>AdHocChatRoomMessageReceivedEvent</tt> or a
      * <tt>AdHocChatRoomMessageDeliveryFailedEvent</tt> has been fired.
-     * 
+     *
      * @param evt The specific event
      */
     public void fireMessageEvent(EventObject evt)
@@ -495,9 +506,9 @@ public class AdHocChatRoomMsnImpl
     }
 
     /**
-     * Fills the participants list with all participants inside the switchboard 
+     * Fills the participants list with all participants inside the switchboard
      * (ad-hoc chat room).
-     * 
+     *
      * @param switchboard The corresponding switchboard
      */
     public void updateParticipantsList(MsnSwitchboard switchboard)
@@ -508,7 +519,7 @@ public class AdHocChatRoomMsnImpl
         {
             if (!this.participants.containsKey(msnContact.getId()))
             {
-                // if the member is not inside the members list, create a 
+                // if the member is not inside the members list, create a
                 // contact instance,
                 // add it to the list and fire a member presence event
                 ContactMsnImpl contact
@@ -543,7 +554,7 @@ public class AdHocChatRoomMsnImpl
 
     /**
      * Returns the identifier of this ad-hoc chat room.
-     * 
+     *
      * @return a <tt>String</tt> containing the identifier of this ad-hoc room
      */
     public String getIdentifier()
@@ -553,7 +564,7 @@ public class AdHocChatRoomMsnImpl
 
     /**
      * Removes the given participant presence listener.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removeParticipantPresenceListener(
@@ -568,7 +579,7 @@ public class AdHocChatRoomMsnImpl
 
     /**
      * Removes the given message listener.
-     * 
+     *
      * @param listener the listener to remove
      */
     public void removeMessageListener(AdHocChatRoomMessageListener listener)

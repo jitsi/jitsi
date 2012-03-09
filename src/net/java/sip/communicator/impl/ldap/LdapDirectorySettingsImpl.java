@@ -244,7 +244,7 @@ public class LdapDirectorySettingsImpl
      *
      * @return the encryption property
      *
-     * @see LdapConstants.Encryption
+     * @see net.java.sip.communicator.service.ldap.LdapConstants.Encryption
      */
     public Encryption getEncryption()
     {
@@ -256,7 +256,7 @@ public class LdapDirectorySettingsImpl
      *
      * @param encryption the encryption property
      *
-     * @see LdapConstants.Encryption
+     * @see net.java.sip.communicator.service.ldap.LdapConstants.Encryption
      */
     public void setEncryption(Encryption encryption)
     {
@@ -288,7 +288,7 @@ public class LdapDirectorySettingsImpl
      *
      * @return the auth property
      *
-     * @see LdapConstants.Auth
+     * @see net.java.sip.communicator.service.ldap.LdapConstants.Auth
      */
     public Auth getAuth()
     {
@@ -300,7 +300,7 @@ public class LdapDirectorySettingsImpl
      *
      * @param auth the auth property
      *
-     * @see LdapConstants.Auth
+     * @see net.java.sip.communicator.service.ldap.LdapConstants.Auth
      */
     public void setAuth(Auth auth)
     {
@@ -398,7 +398,7 @@ public class LdapDirectorySettingsImpl
      *
      * @return the search scope
      *
-     * @see LdapConstants.Scope
+     * @see net.java.sip.communicator.service.ldap.LdapConstants.Scope
      * @see LdapDirectorySettings#getScope
      */
     public Scope getScope()
@@ -412,7 +412,7 @@ public class LdapDirectorySettingsImpl
      *
      * @param scope the new search scope
      *
-     * @see LdapConstants.Scope
+     * @see net.java.sip.communicator.service.ldap.LdapConstants.Scope
      * @see LdapDirectorySettings#setScope
      */
     public void setScope(Scope scope)

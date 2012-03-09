@@ -42,7 +42,14 @@ public abstract class KeybindingSet
      */
     public enum Category
     {
+        /**
+         * The "chat" category.
+         */
         CHAT("keybindings-chat", Persistence.SERIAL_HASH),
+
+        /**
+         * The "main" category.
+         */
         MAIN("keybindings-main", Persistence.SERIAL_HASH);
 
         private final String resource;

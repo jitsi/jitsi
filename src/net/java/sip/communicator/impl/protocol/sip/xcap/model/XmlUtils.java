@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model;
 
-import static net.java.sip.communicator.util.xml.XMLUtils.*;
 import org.w3c.dom.*;
 
 import java.util.*;
