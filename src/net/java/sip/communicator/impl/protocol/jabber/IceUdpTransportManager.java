@@ -132,7 +132,7 @@ public class IceUdpTransportManager
 
                 //request a password from the user
                 credentials = provider.getAuthority().obtainCredentials(
-                    ProtocolNames.JABBER,
+                    accID.getDisplayName(),
                     credentials,
                     SecurityAuthority.AUTHENTICATION_REQUIRED);
 

@@ -142,7 +142,7 @@ public class ProtocolProviderServiceYahooImpl
 
                 //request a password from the user
                 credentials = authority.obtainCredentials(
-                    ProtocolNames.YAHOO,
+                    getAccountID().getDisplayName(),
                     credentials,
                     authReasonCode);
 

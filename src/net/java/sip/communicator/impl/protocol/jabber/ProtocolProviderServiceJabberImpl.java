@@ -647,14 +647,21 @@ public class ProtocolProviderServiceJabberImpl
 
             if(customXMPPDomain != null && !hadDnsSecException[0])
             {
+                logger.info("Connect using custom xmpp domain: " +
+                    customXMPPDomain);
+
                 state = connectUsingSRVRecords(
                             customXMPPDomain, password, serviceName,
                             hadDnsSecException);
+
+                logger.info("state for connectUsingSRVRecords: " + state);
+
                 if(hadDnsSecException[0])
                 {
                     setDnssecLoginFailure();
                     return;
                 }
+
                 if(state == ConnectState.ABORT_CONNECTING
                     || state == ConnectState.STOP_TRYING)
                     return;
@@ -784,6 +791,7 @@ public class ProtocolProviderServiceJabberImpl
                     logger.error("DNSSEC failure for A/AAAA lookup of SRV", e);
                     dnssecState[0] = true;
                 }
+
                 if (addrs == null || addrs.length == 0)
                 {
                     logger.error("No A/AAAA addresses found for " +
@@ -814,7 +822,12 @@ public class ProtocolProviderServiceJabberImpl
                     }
                     catch(XMPPException ex)
                     {
+                        logger.error("Error connecting to " + isa
+                            + " for domain:" + domain
+                            + " serviceName:" + serviceName, ex);
+
                         disconnectAndCleanConnection();
+
                         if(isAuthenticationFailed(ex))
                             throw ex;
                     }
@@ -953,7 +966,7 @@ public class ProtocolProviderServiceJabberImpl
 
             //request a password from the user
             credentials = authority.obtainCredentials(
-                ProtocolNames.JABBER,
+                getAccountID().getDisplayName(),
                 credentials,
                 reasonCode);
 

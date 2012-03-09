@@ -724,7 +724,8 @@ public class SipSecurityManager
             defaultCredentials.setUserName(accountID.getUserID());
 
         UserCredentials newCredentials = getSecurityAuthority()
-            .obtainCredentials( realm, defaultCredentials, reasonCode);
+            .obtainCredentials( accountID.getDisplayName(),
+                                defaultCredentials, reasonCode);
 
         // in case user has canceled the login window
         if(newCredentials == null)

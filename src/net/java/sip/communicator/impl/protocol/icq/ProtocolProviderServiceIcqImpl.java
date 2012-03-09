@@ -276,7 +276,7 @@ public class ProtocolProviderServiceIcqImpl
 
                 //request a password from the user
                 credentials = authority.obtainCredentials(
-                    getProtocolName(),
+                    accountID.getDisplayName(),
                     credentials,
                     reasonCode);
 

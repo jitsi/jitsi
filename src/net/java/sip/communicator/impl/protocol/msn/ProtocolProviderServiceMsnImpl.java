@@ -164,7 +164,7 @@ public class ProtocolProviderServiceMsnImpl
                 credentials
                     = authority
                         .obtainCredentials(
-                            ProtocolNames.MSN,
+                            accountID.getDisplayName(),
                             credentials,
                             reasonCode);
 
