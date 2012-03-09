@@ -237,13 +237,10 @@ public class CallInfoFrame
                 CallPeer.CALL_DURATION_START_TIME_UNKNOWN)
         {
             Date startTime = new Date(callPeer.getCallDurationStartTime());
-            Date currentTime = new Date(System.currentTimeMillis());
-            Date callNbTimeMsSpent = GuiUtils.substractDates(
-                    currentTime,
-                    startTime);
             stringBuffer.append(getLineString(
                 resources.getI18NString("service.gui.callinfo.CALL_DURATION"),
-                GuiUtils.formatTime(callNbTimeMsSpent)));
+                GuiUtils.formatTime(startTime.getTime(),
+                                    System.currentTimeMillis())));
         }
 
         if(callPeer instanceof MediaAwareCallPeer)

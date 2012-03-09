@@ -1021,23 +1021,21 @@ public class CallPanel
     {
         public void actionPerformed(ActionEvent e)
         {
-            Date time =
-                GuiUtils.substractDates(new Date(), callStartDate);
-
-            setCallTitle(time);
+            setCallTitle(callStartDate);
         }
     }
 
     /**
-     * Sets the title of this dialog by specifying the call duration.
-     * @param callDuration the duration of the call represented as Date object
+     * Sets the title of this dialog by specifying the call duration till now.
+     * @param startDate the call start date
      */
-    private void setCallTitle(Date callDuration)
+    private void setCallTitle(Date startDate)
     {
         Iterator<? extends CallPeer> callPeers = call.getCallPeers();
 
-        if (callDuration != null)
-            title = GuiUtils.formatTime(callDuration) + " | ";
+        if (startDate != null)
+            title = GuiUtils.formatTime(startDate.getTime(),
+                                        System.currentTimeMillis()) + " | ";
         else
             title = "00:00:00 | ";
 

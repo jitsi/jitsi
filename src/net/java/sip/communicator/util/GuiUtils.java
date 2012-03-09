@@ -351,37 +351,44 @@ public class GuiUtils
         GuiUtils.formatTime(c1.get(Calendar.SECOND), timeStrBuf);
         return timeStrBuf.toString();
     }
+    
+    /**
+     * Formats the time period duration for the given start date and end date.
+     * The result format is the following:
+     * [Hour]:[Minute]:[Second]. For example: 12:25:30. 
+     * @param startDate the start date
+     * @param endDate the end date
+     * @return the formatted hour string
+     */
+    public static String formatTime(Date startDate, Date endDate)
+    {
+        return formatTime(startDate.getTime(), endDate.getTime());
+    }
 
     /**
-     * Subtracts the two dates.
-     * @param date1 the first date argument
-     * @param date2 the second date argument
-     * @return the date resulted from the substracting
+     * Formats the time period duration for the given start date and end date.
+     * The result format is the following:
+     * [Hour]:[Minute]:[Second]. For example: 12:25:30.
+     * @param start the start date in milliseconds
+     * @param end the end date in milliseconds
+     * @return the formatted hour string
      */
-    public static Date substractDates(Date date1, Date date2)
+    public static String formatTime(long start, long end)
     {
-        long d1 = date1.getTime();
-        long d2 = date2.getTime();
-        long difMil = d1-d2;
-        long milPerDay = 1000*60*60*24;
-        long milPerHour = 1000*60*60;
-        long milPerMin = 1000*60;
+        long duration = end - start;
+
         long milPerSec = 1000;
+        long milPerMin = milPerSec*60;
+        long milPerHour = milPerMin*60;
 
-        long days = difMil / milPerDay;
-        int hour = (int)(( difMil - days*milPerDay ) / milPerHour);
-        int min
-            = (int)(( difMil - days*milPerDay - hour*milPerHour ) / milPerMin);
-        int sec
-            = (int)(( difMil - days*milPerDay - hour*milPerHour - min*milPerMin)
-                    / milPerSec);
+        long hours = duration / milPerHour;
+        long minutes
+            = ( duration - hours*milPerHour ) / milPerMin;
+        long seconds
+            = ( duration - hours*milPerHour - minutes*milPerMin)
+                    / milPerSec;
 
-        c1.clear();
-        c1.set(Calendar.HOUR, hour);
-        c1.set(Calendar.MINUTE, min);
-        c1.set(Calendar.SECOND, sec);
-
-        return c1.getTime();
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
     /**

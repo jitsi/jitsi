@@ -90,8 +90,7 @@ public class CallHistorySourceContact implements SourceContact
             + " " + CallHistoryActivator.getResources()
                 .getI18NString("service.gui.DURATION") + ": "
             + GuiUtils.formatTime(
-                GuiUtils.substractDates(
-            callRecord.getEndTime(), callRecord.getStartTime()));
+                    callRecord.getStartTime(), callRecord.getEndTime());
     }
 
     /**
