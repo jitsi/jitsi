@@ -24,6 +24,9 @@ import net.java.sip.communicator.util.*;
 public class IptelAccRegWizzActivator
     implements BundleActivator
 {
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     /**
@@ -73,7 +76,7 @@ public class IptelAccRegWizzActivator
 
     /**
      * Returns the <tt>ProtocolProviderFactory</tt> for the IP Tel protocol.
-     * 
+     *
      * @return the <tt>ProtocolProviderFactory</tt> for the IP Tel protocol
      */
     public static ProtocolProviderFactory getIptelProtocolProviderFactory()
@@ -99,7 +102,7 @@ public class IptelAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

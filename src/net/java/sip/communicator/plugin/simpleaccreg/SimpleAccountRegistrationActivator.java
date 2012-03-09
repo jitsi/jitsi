@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * 
+ *
  * @author Yana Stamcheva
  */
 public class SimpleAccountRegistrationActivator
@@ -40,6 +40,9 @@ public class SimpleAccountRegistrationActivator
     private static final String provisioningFormClassName
         = "net.java.sip.communicator.plugin.provisioning.ProvisioningForm";
 
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static ResourceManagementService resourcesService;
@@ -68,7 +71,7 @@ public class SimpleAccountRegistrationActivator
 
             accountRegFrame.setVisible(true);
         }
-        
+
         if (logger.isInfoEnabled())
             logger.info("SIMPLE ACCOUNT REGISTRATION ...[STARTED]");
     }
@@ -157,7 +160,7 @@ public class SimpleAccountRegistrationActivator
      * return value. Make sure you call it as little as possible if execution
      * speed is under consideration.
      * </p>
-     * 
+     *
      * @return the <tt>MetaContactListService</tt> obtained from the bundle
      *         context
      */
@@ -170,7 +173,7 @@ public class SimpleAccountRegistrationActivator
         return (MetaContactListService) bundleContext
             .getService(serviceReference);
     }
-    
+
     /**
      * Returns the <tt>UIService</tt> obtained from the bundle
      * context.
@@ -180,7 +183,7 @@ public class SimpleAccountRegistrationActivator
      * return value. Make sure you call it as little as possible if execution
      * speed is under consideration.
      * </p>
-     * 
+     *
      * @return the <tt>MetaContactListService</tt> obtained from the bundle
      *         context
      */

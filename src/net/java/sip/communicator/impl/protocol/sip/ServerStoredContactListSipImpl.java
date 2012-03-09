@@ -409,9 +409,6 @@ public class ServerStoredContactListSipImpl
      *
      * @param contact the contact to be renamed.
      * @param newName the new contact name.
-     * @throws OperationFailedException with code NETWORK_FAILURE if the
-     *                                  operation if failed during network
-     *                                  communication.
      */
     synchronized public void renameContact(
             ContactSipImpl contact,
@@ -1606,7 +1603,7 @@ public class ServerStoredContactListSipImpl
         try
         {
             Element typeElement = null;
-            
+
             for(Element el : anyElements)
             {
                 if(el.getNodeName().equals(CONTACT_TYPE_ELEMENT_NAME))

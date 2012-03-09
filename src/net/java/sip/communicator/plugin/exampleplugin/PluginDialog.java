@@ -22,6 +22,11 @@ import net.java.sip.communicator.util.swing.*;
 public class PluginDialog
     extends SIPCommDialog
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private JTextArea infoTextArea = new JTextArea();
 
     private JPanel mainPanel = new TransparentPanel();

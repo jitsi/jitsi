@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.generalconfig;
@@ -24,6 +24,11 @@ public class SIPConfigForm
     extends TransparentPanel
     implements ActionListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private Box pnlSslProtocols;
 
     /**
@@ -131,7 +136,7 @@ public class SIPConfigForm
                     getPopupDialog().showMessagePopupDialog(
                         error,
                         error,
-                        PopupDialog.ERROR_MESSAGE); 
+                        PopupDialog.ERROR_MESSAGE);
                     clientSecurePortField.setText(oldValue);
                 }
             }
@@ -143,7 +148,7 @@ public class SIPConfigForm
         });
 
         String configuredProtocols = Arrays.toString(
-            ConfigurationManager.getEnabledSslProtocols()); 
+            ConfigurationManager.getEnabledSslProtocols());
 
         pnlSslProtocols = Box.createVerticalBox();
         pnlSslProtocols.setBorder(BorderFactory.createTitledBorder(Resources

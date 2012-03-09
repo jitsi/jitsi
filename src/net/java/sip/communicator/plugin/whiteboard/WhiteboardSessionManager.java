@@ -37,6 +37,9 @@ public class WhiteboardSessionManager
 
     private OperationSetWhiteboarding opSetWb;
 
+    /**
+     * Constructor.
+     */
     public WhiteboardSessionManager()
     {
         List<OperationSetWhiteboarding> whiteboardOpSets
@@ -63,14 +66,14 @@ public class WhiteboardSessionManager
             = contact
                 .getProtocolProvider()
                     .getOperationSet(OperationSetWhiteboarding.class);
-        
+
         if (opSetWb == null)
         {
             if (logger.isInfoEnabled())
                 logger.info("Contact does not support whiteboarding");
             return;
         }
-        
+
         WhiteboardFrame wbf = getWhiteboardFrame (contact);
         if(wbf != null)
         {
@@ -268,7 +271,7 @@ public class WhiteboardSessionManager
     /**
      * Moves a <tt>WhiteboardShape</tt> from from one point to another on the
      * board.
-     * 
+     *
      * @param wbSession the white-board session, to which the moved object
      * belongs
      * @param ws the shape to move
@@ -288,7 +291,7 @@ public class WhiteboardSessionManager
 
     /**
      * Deletes a <tt>WhiteboardShape</tt> from the white-board.
-     * 
+     *
      * @param wbSession the white-board session, to which the object belongs
      * @param ws the shape to delete
      */
@@ -527,7 +530,7 @@ public class WhiteboardSessionManager
     /**
      * Called to accept an incoming invitation. Adds the invitation chat room
      * to the list of chat rooms and joins it.
-     * 
+     *
      * @param invitation the invitation to accept.
      */
     public void acceptInvitation(WhiteboardInvitation invitation)
@@ -559,7 +562,7 @@ public class WhiteboardSessionManager
 
     /**
      * Rejects the given invitation with the specified reason.
-     * 
+     *
      * @param whiteboardOpSet the operation set to use for rejecting the
      * invitation
      * @param invitation the invitation to reject
@@ -633,19 +636,19 @@ public class WhiteboardSessionManager
             else if (evt.getEventType().equals(
                 WhiteboardSessionPresenceChangeEvent.LOCAL_USER_KICKED))
             {
-                
+
             }
             else if (evt.getEventType().equals(
                 WhiteboardSessionPresenceChangeEvent.LOCAL_USER_DROPPED))
             {
-                
+
             }
         }
     }
 
     /**
      * Removes a white board frame.
-     * 
+     *
      * @param frame the frame to remove
      */
     public void removeWhiteboardWindow(WhiteboardFrame frame)

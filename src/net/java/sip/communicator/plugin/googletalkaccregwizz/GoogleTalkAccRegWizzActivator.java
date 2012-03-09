@@ -24,6 +24,9 @@ import net.java.sip.communicator.util.*;
 public class GoogleTalkAccRegWizzActivator
     implements BundleActivator
 {
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static ResourceManagementService resourcesService;
@@ -77,7 +80,7 @@ public class GoogleTalkAccRegWizzActivator
     /**
      * Returns the <tt>ProtocolProviderFactory</tt> for the Google Talk
      * protocol.
-     * 
+     *
      * @return the <tt>ProtocolProviderFactory</tt> for the Google Talk
      *         protocol
      */
@@ -104,7 +107,7 @@ public class GoogleTalkAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()
@@ -132,6 +135,11 @@ public class GoogleTalkAccRegWizzActivator
         return browserLauncherService;
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

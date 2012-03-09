@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
@@ -30,7 +30,7 @@ import net.java.sip.communicator.util.swing.SwingWorker;
  * country flags. Selecting a new field causes that locale's dictionary to be
  * downloaded, if not available. The spell checker then use the selected
  * language for further checking.
- * 
+ *
  * @author Damian Johnson
  * @author Yana Stamcheva
  */
@@ -38,6 +38,11 @@ public class LanguageMenuBar
     extends SIPCommMenuBar
     implements PluginComponent
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private static final HashMap<SpellChecker, LanguageMenuBar>
         CLASS_INSTANCES =
             new HashMap<SpellChecker, LanguageMenuBar>();
@@ -66,14 +71,14 @@ public class LanguageMenuBar
 
     private final ArrayList<Parameters.Locale> localeList =
         new ArrayList<Parameters.Locale>();
-    
+
     private final SIPCommTextButton removeItem = new SIPCommTextButton(
         Resources.getString("plugin.spellcheck.UNINSTALL_DICTIONARY"));
 
     /**
      * Provides instance of this class associated with a spell checker. If ones
      * already been created then this instance is used.
-     * 
+     *
      * @param checker spell checker field is to be associated with
      * @return spell checker locale selection field
      */
@@ -131,9 +136,9 @@ public class LanguageMenuBar
 
             localeList.add(locale);
         }
-        
+
         setModelElements(model);
-        
+
         JScrollPane scroll = new JScrollPane(list);
         scroll.setBorder(null);
 
@@ -144,7 +149,7 @@ public class LanguageMenuBar
         list.setSelectedIndex(localeList.indexOf(loc) + 1);
 
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
+
         removeItem.setPreferredSize(new Dimension(30, 28));
 
         list.addListSelectionListener(new LanguageListSelectionListener());
@@ -157,9 +162,9 @@ public class LanguageMenuBar
         SelectedObject selectedObject =
             new SelectedObject(flagIcon, checker.getLocale());
         menu.setSelected(selectedObject);
-        
+
         this.menu.addSeparator();
-        
+
         menu.add(removeItem);
 
         list.addKeyListener(new KeyListener()
@@ -174,7 +179,7 @@ public class LanguageMenuBar
 
                 if (!Character.isLetter(ch))
                     return;
-                
+
                 if (time + 1000 < System.currentTimeMillis())
                     key = "";
 
@@ -194,7 +199,7 @@ public class LanguageMenuBar
                         break;
                     }
                 }
-                
+
                 list.requestFocusInWindow();
 
             }
@@ -209,10 +214,10 @@ public class LanguageMenuBar
 
             }
         });
-        
+
         removeItem.setEnabled(!spellChecker.getLocale().getIsoCode()
             .equals(Parameters.getDefault(Parameters.Default.LOCALE)));
-        
+
         removeItem.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -341,7 +346,7 @@ public class LanguageMenuBar
 
     /**
      * Creates a deep copy of an image.
-     * 
+     *
      * @param image picture to be processed
      * @return copy of the image
      */
@@ -379,7 +384,7 @@ public class LanguageMenuBar
     /**
      * Removes all color from an image and makes it partly translucent. Original
      * grayscale method written by Marty Stepp.
-     * 
+     *
      * @param image picture to be processed
      */
     private static void setFaded(BufferedImage image)
@@ -413,6 +418,11 @@ public class LanguageMenuBar
     private class SelectorMenu
         extends SIPCommMenu
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         Image image = Resources.getImage("service.gui.icons.DOWN_ARROW_ICON")
             .getImage();
 
@@ -449,10 +459,10 @@ public class LanguageMenuBar
 
         return checkBox;
     }
-    
+
     /**
      * Set the elements for list model
-     * 
+     *
      * @param model the model whose elements are to be set
      */
     private void setModelElements(DefaultListModel model)
@@ -539,7 +549,7 @@ public class LanguageMenuBar
             // Indicate to the user that the language is currently
             // loading.
             locale.setLoading(false);
-            
+
             sourceList.removeListSelectionListener(sourceList
                 .getListSelectionListeners()[0]);
             setModelElements((DefaultListModel) sourceList.getModel());
@@ -608,6 +618,11 @@ public class LanguageMenuBar
     private class LanguageListRenderer
         extends DefaultListCellRenderer
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         public Component getListCellRendererComponent(JList list,
             Object value, int index, boolean isSelected,
             boolean cellHasFocus)
@@ -630,13 +645,13 @@ public class LanguageMenuBar
                     + " <font color='gray'><i>loading...</i></font><html>");
             else
                 setText(localeLabel);
-            
+
             setIcon(flagIcon);
-            
+
             return this;
         }
     }
-    
+
     private class LanguageListSelectionListener
         implements ListSelectionListener
     {

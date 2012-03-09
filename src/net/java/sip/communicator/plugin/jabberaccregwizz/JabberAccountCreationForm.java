@@ -19,7 +19,7 @@ import org.jivesoftware.smack.*;
 
 /**
  * Dialog for adding a new Jabber account.
- * 
+ *
  * @author Nicolas Grandclaude
  * @author Yana Stamcheva
  */
@@ -27,6 +27,11 @@ public class JabberAccountCreationForm
     extends TransparentPanel
     implements  JabberAccountCreationFormService
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private static final Logger logger = Logger
         .getLogger(JabberAccountCreationForm.class);
 
@@ -183,7 +188,7 @@ public class JabberAccountCreationForm
 
     /**
      * Creates an account.
-     * 
+     *
      * @return the created account
      */
     public NewAccount createAccount()
@@ -197,9 +202,9 @@ public class JabberAccountCreationForm
         if (new String(password).equals(new String(password2)))
         {
             // the two password fields are the same
-            boolean result = createJabberAccount(server, 
-                5222, 
-                userID, 
+            boolean result = createJabberAccount(server,
+                5222,
+                userID,
                 new String(password));
 
             if (result == true)
@@ -247,7 +252,7 @@ public class JabberAccountCreationForm
      */
     private void initErrorArea()
     {
-        SimpleAttributeSet attribs = new SimpleAttributeSet();  
+        SimpleAttributeSet attribs = new SimpleAttributeSet();
         StyleConstants.setAlignment(attribs, StyleConstants.ALIGN_RIGHT);
         StyleConstants.setFontFamily(attribs, errorPane.getFont().getFamily());
         StyleConstants.setForeground(attribs, Color.RED);

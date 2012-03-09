@@ -24,6 +24,11 @@ public class SavedPasswordsPanel
     extends TransparentPanel
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The {@link CredentialsStorageService}.
      */
     private static final CredentialsStorageService credentialsStorageService
@@ -35,7 +40,7 @@ public class SavedPasswordsPanel
     public SavedPasswordsPanel() {
         this.setLayout(new BorderLayout(10, 10));
         this.setAlignmentX(0.0f);
-        
+
         initComponents();
     }
 
@@ -57,7 +62,7 @@ public class SavedPasswordsPanel
                 if (credentialsStorageService.isUsingMasterPassword())
                 {
                     showSavedPasswordsDialog();
-                } else 
+                } else
                 {
                     SavedPasswordsDialog.getInstance().setVisible(true);
                 }

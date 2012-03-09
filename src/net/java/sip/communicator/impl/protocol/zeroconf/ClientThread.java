@@ -91,7 +91,7 @@ public class ClientThread
                 .getPPS()
                 .getOperationSet(OperationSetTypingNotifications.class);
         this.setDaemon(true);
-        
+
         try
         {
             out = sock.getOutputStream();
@@ -267,9 +267,8 @@ public class ClientThread
 
                 opSetBasicIM.fireMessageReceived(msg, contact);
 
-                opSetTyping.
-                        fireTypingNotificationsEvent((Contact)contact,
-                        opSetTyping.STATE_STOPPED);
+                opSetTyping.fireTypingNotificationsEvent((Contact)contact,
+                    OperationSetTypingNotificationsZeroconfImpl.STATE_STOPPED);
                 break;
 
             case MessageZeroconfImpl.TYPING:
@@ -281,9 +280,8 @@ public class ClientThread
                 if (contact == null)
                     //TODO: Parse contact id to double-check
                     contact = bonjourService.getContact(null, remoteIPAddress);
-                opSetTyping.
-                        fireTypingNotificationsEvent((Contact)contact,
-                        opSetTyping.STATE_TYPING);
+                opSetTyping.fireTypingNotificationsEvent((Contact)contact,
+                    OperationSetTypingNotificationsZeroconfImpl.STATE_TYPING);
 
                 /* TODO: code a private runnable class to be used as timeout
                  * to set the typing state to STATE_PAUSED when a few seconds

@@ -8,24 +8,18 @@
 package net.java.sip.communicator.plugin.globalproxyconfig;
 
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
- * 
+ *
  * @author Atul Aggarwal
  * @author Damian Minkov
  */
 public class Resources
 {
-    /**
-     * Our logger.
-     */
-    private static Logger log = Logger.getLogger(Resources.class);
-
     /**
      * The resource management service.
      */
@@ -40,7 +34,7 @@ public class Resources
     {
         return getResources().getI18NString(key);
     }
-    
+
     /**
      * Returns an application property string corresponding to the given key.
      * @param key The key of the string.
@@ -64,8 +58,8 @@ public class Resources
 
             if(serviceReference == null)
                 return null;
-            
-            resourcesService = 
+
+            resourcesService =
                 (ResourceManagementService)GlobalProxyPluginActivator.bundleContext
                     .getService(serviceReference);
         }

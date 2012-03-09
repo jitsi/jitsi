@@ -35,7 +35,7 @@ public class NewAccount
      * @param userName the account user name
      * @param password the account password
      * @param serverAddress the server address to set
-     * @param serverPort the port to connect to
+     * @param port the port to connect to
      */
     public NewAccount(  String userName,
                         char[] password,

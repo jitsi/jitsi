@@ -23,6 +23,11 @@ public class PresencePanel
         extends TransparentPanel
         implements ActionListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private JPanel presenceOpPanel
             = new TransparentPanel(new BorderLayout(10, 10));
 

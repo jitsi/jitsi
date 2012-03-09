@@ -19,6 +19,11 @@ class StringTableRenderer
     extends DefaultTableCellRenderer
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Creates an instance of <tt>StringTableRenderer</tt>.
      */
     StringTableRenderer()

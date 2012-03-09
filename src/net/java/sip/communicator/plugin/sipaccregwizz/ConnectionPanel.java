@@ -25,6 +25,11 @@ public class ConnectionPanel
                DocumentListener,
                ValidatingPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final JTextField serverField = new JTextField();
 
     private final JTextField proxyField = new JTextField();
@@ -471,7 +476,7 @@ public class ConnectionPanel
     /**
      * Gets the ID of the selected client TLS certificate or <tt>null</tt> if no
      * certificate is selected.
-     * 
+     *
      * @return the ID of the selected client TLS certificate or <tt>null</tt> if
      *         no certificate is selected.
      */

@@ -21,6 +21,11 @@ public class SkinManagerPanel
         extends TransparentPanel
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Remove button.
      */
     private final JButton rmButton = new JButton("Remove selected skin");

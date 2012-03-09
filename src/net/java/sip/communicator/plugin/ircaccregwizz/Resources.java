@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.resources.*;
 public class Resources
 {
     private static ResourceManagementService resourcesService;
-    
+
     /**
      * A constant pointing to the IRC protocol logo image.
      */
@@ -50,6 +50,11 @@ public class Resources
         return getResources().getImageInBytes(imageID.getId());
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

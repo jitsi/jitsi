@@ -15,11 +15,16 @@ import javax.swing.*;
  * The <tt>TitlePanel</tt> is a decorated panel, that could be used for a
  * header or a title area. This panel is used for example in the
  * <tt>ConfigurationFrame</tt>.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class TitlePanel extends JPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * A color between blue and gray used to paint some borders.
      */
@@ -60,7 +65,7 @@ public class TitlePanel extends JPanel
     /**
      * Creates an instance of <tt>TitlePanel</tt> by specifying the title
      * String.
-     * 
+     *
      * @param title A String title.
      */
     public TitlePanel(String title) {

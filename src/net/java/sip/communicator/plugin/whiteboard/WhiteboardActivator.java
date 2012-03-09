@@ -23,6 +23,9 @@ public class WhiteboardActivator implements BundleActivator
 {
     private static Logger logger = Logger.getLogger(WhiteboardActivator.class);
 
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private WhiteboardSessionManager session;

@@ -35,6 +35,11 @@ import net.java.sip.communicator.util.swing.*;
 public abstract class BindingPanel
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private ArrayList<BindingEntry> contents = new ArrayList<BindingEntry>();
 
     /**
@@ -60,6 +65,9 @@ public abstract class BindingPanel
     protected abstract void onClick(MouseEvent event, BindingEntry entry,
         BindingEntry.Field field);
 
+    /**
+     * Constructor.
+     */
     public BindingPanel()
     {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

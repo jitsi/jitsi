@@ -20,6 +20,11 @@ import org.osgi.framework.*;
 public class PluginTableModel
     extends AbstractTableModel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private BundleContext bundleContext = PluginManagerActivator.bundleContext;
 
     private boolean showSystemBundles;

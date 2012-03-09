@@ -142,7 +142,7 @@ public class FacebookAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()
@@ -170,6 +170,11 @@ public class FacebookAccRegWizzActivator
         return browserLauncherService;
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

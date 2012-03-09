@@ -30,6 +30,11 @@ public class CreateIppiAccountForm
     implements SIPAccountCreationFormService
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The logger.
      */
     private static final Logger logger
@@ -159,7 +164,7 @@ public class CreateIppiAccountForm
      */
     private void initErrorArea()
     {
-        SimpleAttributeSet attribs = new SimpleAttributeSet();  
+        SimpleAttributeSet attribs = new SimpleAttributeSet();
         StyleConstants.setAlignment(attribs, StyleConstants.ALIGN_RIGHT);
         StyleConstants.setFontFamily(attribs, errorPane.getFont().getFamily());
         StyleConstants.setForeground(attribs, Color.RED);
@@ -177,7 +182,7 @@ public class CreateIppiAccountForm
     {
         // Check if the two passwords match.
         String pass1 = new String( passField.getPassword());
-        String pass2 = new String( retypePassField.getPassword()); 
+        String pass2 = new String( retypePassField.getPassword());
         if (!pass1.equals(pass2))
         {
             showErrorMessage(

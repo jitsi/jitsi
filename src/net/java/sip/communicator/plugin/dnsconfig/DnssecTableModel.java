@@ -22,12 +22,17 @@ import org.osgi.framework.*;
 /**
  * TableModel for selectively managing DNSSEC behavior for zones ever requested
  * by Jitsi.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class DnssecTableModel
     extends DefaultTableModel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private List<String> data = new LinkedList<String>();
     private ResourceManagementService R;
     private ConfigurationService config;
@@ -48,7 +53,7 @@ public class DnssecTableModel
             data = new ArrayList<String>(0);
     }
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public int getRowCount()
@@ -58,7 +63,7 @@ public class DnssecTableModel
         return data.size();
     }
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public int getColumnCount()
@@ -66,7 +71,7 @@ public class DnssecTableModel
         return 2;
     }
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public String getColumnName(int columnIndex)
@@ -81,7 +86,7 @@ public class DnssecTableModel
         return null;
     }
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public Class<?> getColumnClass(int columnIndex)
@@ -91,7 +96,7 @@ public class DnssecTableModel
         return Component.class;
     }
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -99,7 +104,7 @@ public class DnssecTableModel
         return columnIndex == 1;
     }
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public Object getValueAt(int rowIndex, int columnIndex)
@@ -117,7 +122,7 @@ public class DnssecTableModel
         return null;
     }
 
-    /** 
+    /**
      * {@inheritDoc}
      */
     public void setValueAt(Object aValue, int rowIndex, int columnIndex)

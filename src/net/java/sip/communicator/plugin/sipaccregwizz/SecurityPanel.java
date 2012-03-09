@@ -17,13 +17,18 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * Contains the security settings for SIP media encryption.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class SecurityPanel
     extends TransparentPanel
     implements ActionListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private SIPAccountRegistrationForm regform;
 
     private JPanel pnlAdvancedSettings;
@@ -66,6 +71,11 @@ public class SecurityPanel
 
     private static class CipherTableModel extends AbstractTableModel
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private List<Entry> data = new ArrayList<Entry>();
         private final String defaultCiphers = Resources.getResources()
             .getSettingsString(SDesControl.SDES_CIPHER_SUITES);

@@ -23,6 +23,9 @@ import net.java.sip.communicator.util.*;
 public class MsnAccRegWizzActivator
     implements BundleActivator
 {
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static final Logger logger =
@@ -97,7 +100,7 @@ public class MsnAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

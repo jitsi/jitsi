@@ -28,6 +28,11 @@ public class MasterPasswordPanel
     implements ActionListener
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger
@@ -91,8 +96,8 @@ public class MasterPasswordPanel
 
     /**
      * <tt>ActionListener</tt>'s logic for the master password check box.
-     * 
-     * @param e action event 
+     *
+     * @param e action event
      */
     public void actionPerformed(ActionEvent e)
     {

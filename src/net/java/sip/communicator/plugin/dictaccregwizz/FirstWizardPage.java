@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.dictaccregwizz;
@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>FirstWizardPage</tt> is the page, where user could enter the host,
  * port and the strategy of the account.
- * 
+ *
  * @author ROTH Damien
  * @author LITZELMANN Cedric
  */
@@ -28,6 +28,11 @@ public class FirstWizardPage
     extends TransparentPanel
     implements WizardPage, DocumentListener, ActionListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private JPanel hostPortPanel = new TransparentPanel(new BorderLayout(10, 10));
@@ -51,36 +56,36 @@ public class FirstWizardPage
     private JTextField portField = new JTextField("2628");
 
     private JPanel strategyPanel = new TransparentPanel(new BorderLayout(10, 10));
-    
+
     private JPanel strategyTitleBloc = new TransparentPanel(new BorderLayout());
-    
+
     private JLabel strategyTitle = new JLabel(Resources.getString(
             "plugin.dictaccregwizz.STRATEGY_LIST"));
-    
+
     private JButton strategyLoader
         = new JButton(Resources.getString(
             "plugin.dictaccregwizz.SEARCH_STRATEGIES"));
-    
+
     private StrategiesList strategiesList;
-    
+
     private JTextArea strategyDescription
         = new JTextArea(Resources.getString(
             "plugin.dictaccregwizz.STRATEGY_DESCRIPTION"));
-    
+
     private ProgressPanel searchProgressPanel;
-    
+
     private JPanel mainPanel = new TransparentPanel(new BorderLayout());
-    
+
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
-    
+
     private DictAccountRegistrationWizard wizard;
-    
+
     private String initstrategy = "";
-    
+
     private ThreadManager searchThread = null;
-    
+
     private boolean firstAccount = false;
-    
+
     private boolean isPageCommitted = false;
 
     /**
@@ -91,7 +96,7 @@ public class FirstWizardPage
 
     /**
      * Creates an instance of <tt>FirstWizardPage</tt>.
-     * 
+     *
      * @param wizard the parent wizard
      */
     public FirstWizardPage(DictAccountRegistrationWizard wizard)
@@ -103,13 +108,13 @@ public class FirstWizardPage
         this.setPreferredSize(new Dimension(300, 150));
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        
+
         this.searchThread = new ThreadManager(this);
         this.searchProgressPanel = new ProgressPanel(this.searchThread);
 
         this.firstAccount = !this.hasAccount();
-        
-        if (this.firstAccount) 
+
+        if (this.firstAccount)
         {
             this.initFirstAccount();
         }
@@ -152,13 +157,13 @@ public class FirstWizardPage
 
         hostPortPanel.setBorder(BorderFactory.createTitledBorder(
                 Resources.getString("plugin.dictaccregwizz.SERVER_INFO")));
-        
+
         this.labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
         this.valuesPanel.setLayout(new BoxLayout(valuesPanel, BoxLayout.Y_AXIS));
 
         mainPanel.add(hostPortPanel);
-        
-        this.portField.addKeyListener(new KeyListener() { 
+
+        this.portField.addKeyListener(new KeyListener() {
             public void keyTyped(KeyEvent evt)
             {
                 // If evt isn't a digit, we don't add it
@@ -167,30 +172,30 @@ public class FirstWizardPage
                     evt.consume();
                 }
             }
-            
+
             // Not used
             public void keyPressed(KeyEvent evt) {;}
             public void keyReleased(KeyEvent evt) {;}
         });
-        
+
         // Strategies list
         this.strategiesList = new StrategiesList();
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.getViewport().add(this.strategiesList);
         this.strategyPanel.add(scrollPane);
-        
+
         // Strategy title + button
         this.strategyTitleBloc.add(this.strategyTitle, BorderLayout.WEST);
         this.strategyTitleBloc.add(this.strategyLoader, BorderLayout.EAST);
-        
+
         // Button action listener
         this.strategyLoader.setActionCommand("populateList");
         this.strategyLoader.addActionListener(this);
-        
+
         // South Panel
         JPanel sSouthPanel = new TransparentPanel(new BorderLayout());
-        
+
         // Description
         this.strategyDescription.setLineWrap(true);
         this.strategyDescription.setLineWrap(true);
@@ -198,12 +203,12 @@ public class FirstWizardPage
         this.strategyDescription.setWrapStyleWord(true);
         this.strategyDescription.setAutoscrolls(false);
         sSouthPanel.add(this.strategyDescription);
-        
+
         // Message
         sSouthPanel.add(this.searchProgressPanel, BorderLayout.SOUTH);
-        
+
         this.strategyPanel.add(sSouthPanel, BorderLayout.SOUTH);
-        
+
         this.strategyPanel.add(this.strategyTitleBloc, BorderLayout.NORTH);
         this.strategyPanel.setBorder(BorderFactory.createTitledBorder(
                 Resources.getString("plugin.dictaccregwizz.STRATEGY_SELECTION")));
@@ -211,7 +216,7 @@ public class FirstWizardPage
 
         this.add(mainPanel, BorderLayout.NORTH);
     }
-    
+
     /**
      * Initialize the UI for the first account
      */
@@ -220,10 +225,10 @@ public class FirstWizardPage
         // Data init
         this.hostField = new JTextField("dict.org");
         this.portField = new JTextField("2628");
-        
+
         // Init strategies list
         this.strategiesList = new StrategiesList();
-        
+
         this.mainPanel = new TransparentPanel(new BorderLayout());
 
         JPanel infoTitlePanel
@@ -303,7 +308,7 @@ public class FirstWizardPage
     {
         this.setNextButtonEnabled();
     }
-    
+
     /**
      * Saves the user input when the "Next" wizard buttons is clicked.
      */
@@ -333,7 +338,7 @@ public class FirstWizardPage
         if (this.strategiesList.getModel().getSize() == 0)
         {   // No Strategy, we get them
             this.populateStrategies();
-            
+
             if (!this.searchThread.waitThread())
             {
                 // TODO error dialog : thread interrupted ? no thread ?
@@ -372,7 +377,7 @@ public class FirstWizardPage
         boolean hostOK = DictConnection.isUrl(hostField.getText());
         boolean portOK = (this.portField.getText().length() != 0)
             && Integer.parseInt(this.portField.getText()) > 10;
-        
+
         if (this.firstAccount)
         {
             wizard.getWizardContainer().setNextFinishButtonEnabled(true);
@@ -386,7 +391,7 @@ public class FirstWizardPage
         {
             // Disable the finish button
             wizard.getWizardContainer().setNextFinishButtonEnabled(false);
-            
+
             // Clear the list and disable the button
             this.strategiesList.clear();
             this.strategyLoader.setEnabled(false);
@@ -461,7 +466,7 @@ public class FirstWizardPage
     /**
      * Fills the Host, Port and Strategy fields in this panel with the data comming
      * from the given protocolProvider.
-     * 
+     *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
      *            the data from.
      */
@@ -477,12 +482,12 @@ public class FirstWizardPage
         String strategy =
             accountID
                 .getAccountPropertyString(ProtocolProviderFactory.STRATEGY);
-        
+
         this.initAccountID = accountID;
 
         // Host field
         this.hostField.setText(host);
-        
+
         // Port Field
         this.portField.setText(port);
 
@@ -543,7 +548,7 @@ public class FirstWizardPage
     }
 
     /**
-     * 
+     *
      * @param strategies
      */
     public void setStrategies(List<Strategy> strategies)
@@ -590,10 +595,10 @@ public class FirstWizardPage
     public void setStrategyButtonEnable(boolean e)
     {
         // During all the process the buttons and the fieldsset are in the same state
-        
+
         this.hostField.setEnabled(e);
         this.portField.setEnabled(e);
-        
+
         this.strategyLoader.setEnabled(e);
         wizard.getWizardContainer().setNextFinishButtonEnabled(e);
     }
@@ -605,7 +610,7 @@ public class FirstWizardPage
 
     /**
      * Indicates if this is the first dict account
-     * 
+     *
      * @return TRUE if this is the first dict account - FALSE otherwise
      */
     public boolean isFirstAccount()

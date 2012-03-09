@@ -56,6 +56,7 @@ public class LogsCollector
      * does it end with zip extension, is missing we add it.
      * @param destination the possible destination archived file
      * @param optional an optional file to be added to the archive.
+     * @return the resulting file in zip format
      */
     public static File collectLogs(File destination, File optional)
     {
@@ -235,7 +236,6 @@ public class LogsCollector
         if(files == null)
             return;
 
-        byte[] buf = new byte[1024];
         // First check in working dir
         for(File f: files)
         {

@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.spellcheck;
@@ -23,13 +23,18 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The spell check dialog that would be opened from the right click menu in the
  * chat window.
- * 
+ *
  * @author Purvesh Sahoo
  */
 public class SpellCheckerConfigDialog
     extends SIPCommDialog
     implements ActionListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private static final Logger logger = Logger
         .getLogger(SpellCheckerConfigDialog.class);
 
@@ -243,13 +248,13 @@ public class SpellCheckerConfigDialog
                 int breakIndex = nextWord.getStart();
                 if(breakIndex == 0)
                     breakIndex = nextWord.getEnd() + 1;
-                
+
                 if(nextWord.getText().length() == 0)
                 {
                     breakIndex++;
                     nextWord = getNextWord();
                 }
-                
+
                 while (dict.isCorrect(nextWord.getText())
                     && nextWord.getEnd() + 1 != breakIndex)
                 {
@@ -376,7 +381,7 @@ public class SpellCheckerConfigDialog
 
     /**
      * Sets the model for the suggestion list
-     * 
+     *
      * @param clickedWord
      */
     private void setSuggestionModel(String clickedWord)
@@ -394,7 +399,7 @@ public class SpellCheckerConfigDialog
 
     /**
      * Returns the selected correction value
-     * 
+     *
      * @return selected value from suggestion list
      */
     public Object getCorrection()

@@ -23,12 +23,20 @@ import net.java.sip.communicator.util.swing.*;
 public class KnownFingerprintsPanel
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private JButton btnVerifyFingerprint;
 
     private JButton btnForgetFingerprint;
 
     private JTable contactsTable;
 
+    /**
+     * Constructor.
+     */
     public KnownFingerprintsPanel()
     {
         this.initComponents();
@@ -112,7 +120,7 @@ public class KnownFingerprintsPanel
     /**
      * Gets the selected {@link Contact} for this
      * {@link KnownFingerprintsTableModel}.
-     * 
+     *
      * @return the selected {@link Contact}
      */
     private Contact getSelectedContact()
@@ -129,7 +137,7 @@ public class KnownFingerprintsPanel
     /**
      * Sets up the {@link KnownFingerprintsTableModel} components so that they
      * reflect the {@link Contact} param.
-     * 
+     *
      * @param contact the {@link Contact} to setup the components for.
      */
     private void openContact(Contact contact)

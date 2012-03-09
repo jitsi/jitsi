@@ -20,19 +20,22 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class IcqAccRegWizzActivator implements BundleActivator {
-
+public class IcqAccRegWizzActivator implements BundleActivator
+{
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static Logger logger = Logger.getLogger(
         IcqAccRegWizzActivator.class);
-    
+
     private static BrowserLauncherService browserLauncherService;
-    
+
     private static WizardContainer wizardContainer;
-    
+
     private static IcqAccountRegistrationWizard icqWizard;
-    
+
     private static UIService uiService;
 
     /**
@@ -90,7 +93,7 @@ public class IcqAccRegWizzActivator implements BundleActivator {
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
     }
-    
+
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context.
@@ -111,7 +114,7 @@ public class IcqAccRegWizzActivator implements BundleActivator {
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

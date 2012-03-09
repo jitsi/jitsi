@@ -22,6 +22,11 @@ import org.osgi.framework.*;
 public class PluginManagerPanel
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final JTable pluginTable = new JTable();
 
     private final PluginTableModel tableModel = new PluginTableModel();
@@ -175,7 +180,7 @@ public class PluginManagerPanel
             }
         }
     }
-    
+
 
     /**
      * Adds all system bundles to the bundles list when the check box is

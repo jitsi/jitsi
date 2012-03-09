@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.whiteboard.gui;
@@ -19,13 +19,18 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * Panel for drawing shapes
- * 
+ *
  * @author Julien Waechter
  */
 public class WhiteboardPanel
     extends JPanel
     implements Printable
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Shapes to display
      */
@@ -50,7 +55,7 @@ public class WhiteboardPanel
 
     /**
      * WhiteboardPanel constructor.
-     * 
+     *
      * @param displayList Shapes to display
      * @param wf WhiteboardFrame
      */
@@ -66,7 +71,7 @@ public class WhiteboardPanel
 
     /**
      * Method to draw/hide grid
-     * 
+     *
      * @param grid if true, draw grid
      */
     public void drawGrid(boolean grid)
@@ -83,7 +88,7 @@ public class WhiteboardPanel
      * The passed in <code>Graphics</code> object might have a transform other
      * than the identify transform installed on it. In this case, you might get
      * unexpected results if you cumulatively apply another transform.
-     * 
+     *
      * @param g the <code>Graphics</code> object to protect
      * @see #paint
      * @see ComponentUI
@@ -131,7 +136,7 @@ public class WhiteboardPanel
      * {@link PrinterGraphics} interface to provide additional information. If
      * the <code>Printable</code> object aborts the print job then it throws a
      * {@link PrinterException}.
-     * 
+     *
      * @param graphics the context into which the page is drawn
      * @param pageFormat the size and orientation of the page being drawn
      * @param pageIndex the zero based index of the page to be drawn
@@ -211,7 +216,7 @@ public class WhiteboardPanel
 
     /**
      * Invoked when an action occurs on the delete popup menu.
-     * 
+     *
      * @param evt
      */
     private void deletePopupMenuItemActionPerformed(
@@ -222,7 +227,7 @@ public class WhiteboardPanel
 
     /**
      * Invoked when an action occurs on the color popup menu.
-     * 
+     *
      * @param evt
      */
     private void colorPopupMenuItemActionPerformed(
@@ -233,7 +238,7 @@ public class WhiteboardPanel
 
     /**
      * Invoked when a mouse button has been released on the WhiteboardPanel.
-     * 
+     *
      * @param evt
      */
     private void formMouseReleased(java.awt.event.MouseEvent evt)
@@ -243,7 +248,7 @@ public class WhiteboardPanel
 
     /**
      * Invoked when a mouse button has been pressed on the WhiteboardPanel.
-     * 
+     *
      * @param evt
      */
     private void formMousePressed(java.awt.event.MouseEvent evt)
@@ -268,7 +273,7 @@ public class WhiteboardPanel
 
     /**
      * Manage popup event
-     * 
+     *
      * @param e MouseEvent
      */
     private void checkPopupEvent(MouseEvent e)

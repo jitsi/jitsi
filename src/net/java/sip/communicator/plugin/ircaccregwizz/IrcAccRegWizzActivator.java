@@ -30,6 +30,9 @@ public class IrcAccRegWizzActivator
      */
     public static BundleContext bundleContext;
 
+    /**
+     * The <tt>UIService</tt>.
+     */
     public static UIService uiService;
 
     /**
@@ -118,7 +121,7 @@ public class IrcAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

@@ -23,10 +23,15 @@ import org.osgi.framework.*;
  * @author Adam Netocny
  * @author Yana Stamcheva
  */
-public class SkinSelectorRenderer 
+public class SkinSelectorRenderer
         extends TransparentPanel
         implements ListCellRenderer
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Separator string. Will be replaced with a <tt>JSeparator</tt>.
      */
@@ -70,7 +75,7 @@ public class SkinSelectorRenderer
      * @param cellHasFocus True if the specified cell has the focus.
      * @return A component whose paint() method will render the specified value.
      */
-    public Component getListCellRendererComponent(JList list, Object value, 
+    public Component getListCellRendererComponent(JList list, Object value,
             int index, boolean isSelected, boolean cellHasFocus)
     {
         this.removeAll();

@@ -19,10 +19,15 @@ import org.osgi.framework.*;
  * @author Adam Netocny
  * @author Yana Stamcheva
  */
-public class SkinSelector 
+public class SkinSelector
         extends JComboBox
         implements BundleListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Text for the default skin menu item.
      */

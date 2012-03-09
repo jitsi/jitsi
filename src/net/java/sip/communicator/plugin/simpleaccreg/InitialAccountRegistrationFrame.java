@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.simpleaccreg;
@@ -28,7 +28,7 @@ import org.osgi.framework.*;
  * The <tt>NoAccountFoundPage</tt> is the page shown in the account
  * registration wizard shown in the beginning of the program, when no registered
  * accounts are found.
- * 
+ *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
@@ -36,6 +36,11 @@ public class InitialAccountRegistrationFrame
     extends SIPCommFrame
     implements ServiceListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private ConfigurationService configurationService;
 
     /**
@@ -247,6 +252,11 @@ public class InitialAccountRegistrationFrame
     private class AccountRegistrationPanel
         extends JPanel
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private JLabel usernameLabel
             = new JLabel(Resources.getString(
                 "plugin.simpleaccregwizz.LOGIN_USERNAME"));
@@ -481,7 +491,7 @@ public class InitialAccountRegistrationFrame
     /**
      * Adds a simple account registration form corresponding to the given
      * <tt>AccountRegistrationWizard</tt>.
-     * 
+     *
      * @param wizard the <tt>AccountRegistrationWizard</tt>, which gives us
      * information to fill our simple form.
      */
@@ -601,7 +611,7 @@ public class InitialAccountRegistrationFrame
     /**
      * Saves the (protocol provider, wizard) pair in through the
      * <tt>ConfigurationService</tt>.
-     * 
+     *
      * @param protocolProvider the protocol provider to save
      * @param wizard the wizard to save
      */
@@ -645,6 +655,11 @@ public class InitialAccountRegistrationFrame
         }
     }
 
+    /**
+     * Returns the <tt>ConfigurationService</tt>.
+     *
+     * @return the <tt>ConfigurationService</tt>
+     */
     public ConfigurationService getConfigurationService()
     {
         if (configurationService == null)

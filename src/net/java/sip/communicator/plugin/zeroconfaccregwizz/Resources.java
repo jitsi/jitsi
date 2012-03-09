@@ -11,7 +11,7 @@ import net.java.sip.communicator.service.resources.*;
 /**
  * The Resources class manages the access to the internationalization
  * properties files and the images properties file.
- * 
+ *
  * @author Christian Vincenot
  * @author Maxime Catelin
  */
@@ -45,6 +45,11 @@ public class Resources
         return getResources().getImageInBytes(imageID.getId());
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

@@ -19,12 +19,17 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * The <tt>ConfigurationForm</tt> that would be added in the user interface
  * configuration window.
- * 
+ *
  * @author Damien Roth
  */
 public class AutoAwayConfigurationPanel
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * The default value to be displayed in {@link #timer} and to be considered
      * for {@link Preferences#TIMER}.
@@ -101,7 +106,7 @@ public class AutoAwayConfigurationPanel
      */
     private void initValues()
     {
-        ConfigurationService configService 
+        ConfigurationService configService
             = GeneralConfigPluginActivator.getConfigurationService();
 
         boolean e = configService.getBoolean(Preferences.ENABLE, false);
@@ -117,10 +122,10 @@ public class AutoAwayConfigurationPanel
      */
     private void saveData()
     {
-        ConfigurationService configService 
+        ConfigurationService configService
             = GeneralConfigPluginActivator.getConfigurationService();
 
-        configService.setProperty(Preferences.ENABLE, 
+        configService.setProperty(Preferences.ENABLE,
                                   Boolean.toString(enable.isSelected()));
         configService.setProperty(Preferences.TIMER,
                                   timer.getValue().toString());

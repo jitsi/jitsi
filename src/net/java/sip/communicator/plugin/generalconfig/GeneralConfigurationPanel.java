@@ -31,6 +31,11 @@ public class GeneralConfigurationPanel
     extends TransparentPanel
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The <tt>Logger</tt> used by this <tt>GeneralConfigurationPanel</tt> for
      * logging output.
      */
@@ -85,7 +90,7 @@ public class GeneralConfigurationPanel
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
-            { 
+            {
                 scroller.getVerticalScrollBar().setValue(0);
                 scroller.revalidate();
                 scroller.repaint();
@@ -462,7 +467,7 @@ public class GeneralConfigurationPanel
 
             notifConfigComboBox.addItem(handler);
 
-            if (configuredHandler != null && 
+            if (configuredHandler != null &&
                 configuredHandler.equals(handler.getClass().getName()))
             {
                 notifConfigComboBox.setSelectedItem(handler);
@@ -471,7 +476,7 @@ public class GeneralConfigurationPanel
 
         // We need an entry in combo box that represents automatic
         // popup handler selection in systray service. It is selected
-        // only if there is no user preference regarding which popup 
+        // only if there is no user preference regarding which popup
         // handler to use.
         String auto = "Auto";
         notifConfigComboBox.addItem(auto);
@@ -491,7 +496,7 @@ public class GeneralConfigurationPanel
                     ConfigurationManager.setPopupHandlerConfig(null);
                     GeneralConfigPluginActivator.getSystrayService()
                         .selectBestPopupMessageHandler();
-                    
+
                 } else
                 {
                     PopupMessageHandler handler =
@@ -693,5 +698,5 @@ public class GeneralConfigurationPanel
 
         WindowsStartup.setAutostart(
                 getApplicationName(), workingDir, isAutoStart);
-    } 
+    }
 }

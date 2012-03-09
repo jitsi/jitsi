@@ -18,6 +18,11 @@ import net.java.sip.communicator.util.swing.*;
 public class SIPAccountRegistrationForm
     extends TransparentPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final AccountPanel accountPanel;
     private final ConnectionPanel connectionPanel;
     private final SecurityPanel securityPanel;
@@ -135,7 +140,7 @@ public class SIPAccountRegistrationForm
     }
 
     /**
-     * Adds panel to the list of panels with values which need validation. 
+     * Adds panel to the list of panels with values which need validation.
      * @param panel ValidatingPanel.
      */
     public void addValidatingPanel(ValidatingPanel panel)
@@ -163,7 +168,7 @@ public class SIPAccountRegistrationForm
     /**
      * Indicates if this wizard is modifying an existing account or is creating
      * a new one.
-     * 
+     *
      * @return <code>true</code> to indicate that this wizard is currently in
      * modification mode, <code>false</code> - otherwise.
      */
@@ -298,7 +303,7 @@ public class SIPAccountRegistrationForm
             registration.setClistOptionServerUri(
                     presencePanel.getClistOptionServerUri());
         }
-        
+
         registration.setClistOptionUseSipCredentials(
                 presencePanel.isClistOptionUseSipCredentials());
         registration.setClistOptionUser(presencePanel.getClistOptionUser());

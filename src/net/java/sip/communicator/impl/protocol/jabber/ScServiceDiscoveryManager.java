@@ -398,7 +398,8 @@ public class ScServiceDiscoveryManager
     }
 
     /**
-     * Returns a list of the Items {@link DiscoverItems.Item} defined in the
+     * Returns a list of the Items
+     * {@link org.jivesoftware.smackx.packet.DiscoverItems.Item} defined in the
      * node or in other words <tt>null</tt> since we don't support any.
      *
      * @return always <tt>null</tt> since we don't support items.
@@ -786,7 +787,7 @@ public class ScServiceDiscoveryManager
                 {
                     entities.put(entityID, caps);
                     entities.notifyAll();
-                    
+
                     if(retrieverThread == null)
                     {
                         start();

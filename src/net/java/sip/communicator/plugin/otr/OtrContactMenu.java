@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.plugin.otr;
 
-import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -19,7 +18,7 @@ import net.java.sip.communicator.util.swing.*;
 /**
  * A special {@link JMenu} that holds the menu items for controlling the
  * Off-the-Record functionality for a specific contact.
- * 
+ *
  * @author George Politis
  * @author Lubomir Marinov
  */
@@ -56,7 +55,7 @@ class OtrContactMenu
     private final boolean inMacOSXScreenMenuBar;
 
     /**
-     * We keep this variable so we can determine if the policy has changed 
+     * We keep this variable so we can determine if the policy has changed
      * or not in {@link OtrContactMenu#setOtrPolicy(OtrPolicy)}.
      */
     private OtrPolicy otrPolicy;
@@ -71,7 +70,7 @@ class OtrContactMenu
 
     /**
      * The OtrContactMenu constructor.
-     * 
+     *
      * @param contact the Contact this menu refers to.
      * @param inMacOSXScreenMenuBar <tt>true</tt> if the new menu is to be
      * displayed in the Mac OS X screen menu bar; <tt>false</tt>, otherwise
@@ -336,7 +335,7 @@ class OtrContactMenu
      * Sets the {@link OtrContactMenu#sessionStatus} value, updates the menu
      * icon and, if necessary, rebuilds the menuitems to match the passed in
      * sessionStatus.
-     * 
+     *
      * @param sessionStatus the {@link SessionStatus}.
      */
     private void setSessionStatus(SessionStatus sessionStatus)
@@ -358,7 +357,7 @@ class OtrContactMenu
     /**
      * Sets the {@link OtrContactMenu#otrPolicy} and, if necessary, rebuilds the
      * menuitems to match the passed in otrPolicy.
-     * 
+     *
      * @param otrPolicy
      */
     private void setOtrPolicy(OtrPolicy otrPolicy)

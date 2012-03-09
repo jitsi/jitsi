@@ -25,12 +25,6 @@ public class LoggingUtilsActivator
     implements BundleActivator
 {
     /**
-     * Our logging.
-     */
-    private static Logger logger =
-        Logger.getLogger(LoggingUtilsActivator.class);
-
-    /**
      * The OSGI bundle context.
      */
     static BundleContext        bundleContext         = null;

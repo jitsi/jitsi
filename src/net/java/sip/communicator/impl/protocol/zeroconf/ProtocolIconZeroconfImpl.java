@@ -18,7 +18,7 @@ import org.osgi.framework.*;
 /**
  * Represents the Zeroconf protocol icon. Implements the <tt>ProtocolIcon</tt>
  * interface in order to provide a Zeroconf logo image in two different sizes.
- * 
+ *
  * @author Christian Vincenot
  * @author Jonathan Martin
  */
@@ -26,7 +26,7 @@ public class ProtocolIconZeroconfImpl
     implements ProtocolIcon
 {
     private static Logger logger
-        = Logger.getLogger(ProtocolIconZeroconfImpl.class); 
+        = Logger.getLogger(ProtocolIconZeroconfImpl.class);
 
     private static ResourceManagementService resourcesService;
 
@@ -35,7 +35,7 @@ public class ProtocolIconZeroconfImpl
      */
     private static Hashtable<String, byte[]> iconsTable
         = new Hashtable<String, byte[]>();
-    static 
+    static
     {
         iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
             getImageInBytes("service.protocol.zeroconf.ZEROCONF_16x16"));
@@ -55,7 +55,7 @@ public class ProtocolIconZeroconfImpl
      */
     private static Hashtable<String, String> iconPathsTable
         = new Hashtable<String, String>();
-    static 
+    static
     {
         iconPathsTable.put(ProtocolIcon.ICON_SIZE_16x16,
             getResources().getImagePath(
@@ -126,12 +126,12 @@ public class ProtocolIconZeroconfImpl
     /**
      * Returns the byte representation of the image corresponding to the given
      * identifier.
-     * 
+     *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
      * identifier.
      */
-    public static byte[] getImageInBytes(String imageID) 
+    public static byte[] getImageInBytes(String imageID)
     {
         InputStream in = getResources().
             getImageInputStream(imageID);
@@ -139,13 +139,13 @@ public class ProtocolIconZeroconfImpl
         if (in == null)
             return null;
         byte[] image = null;
-        try 
+        try
         {
             image = new byte[in.available()];
 
             in.read(image);
         }
-        catch (IOException e) 
+        catch (IOException e)
         {
             logger.error("Failed to load image:" + imageID, e);
         }
@@ -153,6 +153,11 @@ public class ProtocolIconZeroconfImpl
         return image;
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

@@ -14,12 +14,17 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * Container for all DNS configuration panels.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class DnsContainerPanel
     extends SIPCommTabbedPane
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     //service references
     private ResourceManagementService R;
 

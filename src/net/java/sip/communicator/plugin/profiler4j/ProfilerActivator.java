@@ -18,6 +18,9 @@ import org.osgi.framework.*;
  */
 public class ProfilerActivator implements BundleActivator {
 
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     Logger logger = Logger.getLogger(ProfilerActivator.class);

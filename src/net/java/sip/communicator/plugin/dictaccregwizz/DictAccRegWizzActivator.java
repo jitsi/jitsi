@@ -24,17 +24,20 @@ import org.osgi.framework.*;
 public class DictAccRegWizzActivator
     implements BundleActivator
 {
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static Logger logger = Logger.getLogger(
         DictAccRegWizzActivator.class);
-    
+
     private static BrowserLauncherService browserLauncherService;
-    
+
     private static WizardContainer wizardContainer;
-    
+
     private static DictAccountRegistrationWizard dictWizard;
-    
+
     private static UIService uiService;
 
     /**
@@ -95,7 +98,7 @@ public class DictAccRegWizzActivator
         String osgiFilter = "("
             + ProtocolProviderFactory.PROTOCOL
             + "="+ProtocolNames.DICT+")";
-        
+
         try {
             serRefs = bundleContext.getServiceReferences(
                 ProtocolProviderFactory.class.getName(), osgiFilter);
@@ -106,7 +109,7 @@ public class DictAccRegWizzActivator
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
     }
-    
+
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context.
@@ -127,7 +130,7 @@ public class DictAccRegWizzActivator
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()

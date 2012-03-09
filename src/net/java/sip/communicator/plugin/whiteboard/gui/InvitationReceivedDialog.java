@@ -17,13 +17,18 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * The dialog that pops up when a chat room invitation is received.
- *  
+ *
  * @author Yana Stamcheva
  */
 public class InvitationReceivedDialog
     extends SIPCommDialog
     implements ActionListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private JTextArea infoTextArea = new JTextArea();
 
     private JTextArea invitationReasonTextArea = new JTextArea();
@@ -74,10 +79,10 @@ public class InvitationReceivedDialog
      * reject the invitation.
      */
     private OperationSetWhiteboarding whiteboardOpSet;
-    
+
     /**
      * Constructs the <tt>ChatInviteDialog</tt>.
-     * 
+     *
      * @param whiteboardManager the <tt>WhiteboardSessionManager</tt> is the one
      * that deals with invitation events
      * @param whiteboardOpSet the operation set that would handle the
@@ -164,7 +169,7 @@ public class InvitationReceivedDialog
     public void actionPerformed(ActionEvent e)
     {
         JButton button = (JButton)e.getSource();
-        
+
         if (button.equals(acceptButton))
         {
             whiteboardManager.acceptInvitation(invitation);
@@ -174,7 +179,7 @@ public class InvitationReceivedDialog
             whiteboardManager.rejectInvitation(whiteboardOpSet,
                 invitation, reasonField.getText());
         }
-        
+
         this.dispose();
     }
 

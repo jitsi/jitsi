@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.plugin.reconnectplugin;
 
-import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.configuration.*;
@@ -23,7 +22,7 @@ import org.osgi.framework.*;
 
 /**
  * Activates the reconnect plug-in.
- * 
+ *
  * @author Damian Minkov
  */
 public class ReconnectPluginActivator
@@ -69,7 +68,7 @@ public class ReconnectPluginActivator
      * network configuration.
      */
     private NetworkAddressManagerService networkAddressManagerService = null;
-    
+
     /**
      * Holds every protocol provider which is can be reconnected and
      * a list of the available and up interfaces when the provider was
@@ -104,7 +103,7 @@ public class ReconnectPluginActivator
      * A list of currently connected interfaces. If empty network is down.
      */
     private Set<String> connectedInterfaces = new HashSet<String>();
-    
+
     /**
      * Timer for scheduling all reconnect operations.
      */
@@ -208,7 +207,7 @@ public class ReconnectPluginActivator
      *
      * @param bundleContext the <tt>BundleContext</tt> in which this bundle is
      * to be stopped
-     * @throws Exception if anything goes wrong while stopping this bundle 
+     * @throws Exception if anything goes wrong while stopping this bundle
      */
     public void stop(BundleContext bundleContext)
         throws Exception
@@ -502,7 +501,7 @@ public class ReconnectPluginActivator
                 notify("", "plugin.reconnectplugin.NETWORK_DOWN", new String[0]);
             }
         }
-        
+
         if(logger.isTraceEnabled())
         {
             logger.trace("Event received " + event
@@ -636,7 +635,7 @@ public class ReconnectPluginActivator
                 {
                     // ignore providers which haven't registered successfully
                     // till now, they maybe misconfigured
-                    String notifyMsg;
+                    //String notifyMsg;
 
                     if(evt.getReasonCode() ==
                         RegistrationStateChangeEvent.REASON_NON_EXISTING_USER_ID)
@@ -744,7 +743,7 @@ public class ReconnectPluginActivator
     private void reconnect(final ProtocolProviderService pp)
     {
         long delay;
-        
+
         if(currentlyReconnecting.containsKey(pp))
         {
             delay = currentlyReconnecting.get(pp).delay;
@@ -894,9 +893,9 @@ public class ReconnectPluginActivator
     private boolean hasAtLeastOneSuccessfulConnection(ProtocolProviderService pp)
     {
        String value = (String)getConfigurationService().getProperty(
-           ATLEAST_ONE_CONNECTION_PROP + "." 
+           ATLEAST_ONE_CONNECTION_PROP + "."
            + pp.getAccountID().getAccountUniqueID());
-       
+
        if(value == null || !value.equals(Boolean.TRUE.toString()))
            return false;
        else

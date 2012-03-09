@@ -11,7 +11,7 @@ import net.java.sip.communicator.service.resources.*;
 /**
  * The Messages class manages the access to the internationalization properties
  * files.
- * 
+ *
  * @author Vladimir Skarupelov;
  */
 public class Resources
@@ -20,7 +20,7 @@ public class Resources
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -29,6 +29,11 @@ public class Resources
         return getResources().getI18NString(key);
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

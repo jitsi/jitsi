@@ -29,6 +29,11 @@ public class LoggingConfigForm
         DocumentListener
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Our Logger.
      */
     private static final Logger logger
@@ -501,6 +506,10 @@ public class LoggingConfigForm
 
         final SIPCommDialog dialog = new SIPCommDialog(false)
         {
+            /**
+             * Serial version UID.
+             */
+            private static final long serialVersionUID = 0L;
 
             /**
              * Dialog is closed. Do nothing.

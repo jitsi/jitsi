@@ -432,22 +432,6 @@ public class OperationSetDesktopSharingClientSipImpl
         }
 
         /**
-         * Gets the <tt>Call</tt> of the <tt>CallPeerSipImpl</tt> subscribed to
-         * the <tt>EventPackageNotifier</tt> and represented by this
-         * <tt>Subscription</tt>.
-         *
-         * @return the <tt>Call</tt> of the <tt>CallPeerSipImpl</tt> subscribed
-         * to the <tt>EventPackageNotifier</tt> and represented by this
-         * <tt>Subscription</tt>
-         */
-        public CallSipImpl getCall()
-        {
-            CallPeerSipImpl callPeer = getCallPeer();
-
-            return (callPeer == null) ? null : callPeer.getCall();
-        }
-
-        /**
          * Gets the <tt>CallPeerSipImpl</tt> subscribed to the
          * <tt>EventPackageNotifier</tt> and represented by this
          * <tt>Subscription</tt>.

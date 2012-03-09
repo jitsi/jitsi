@@ -27,6 +27,9 @@ public class NotificationConfigurationActivator
     private final Logger logger
         = Logger.getLogger(NotificationConfigurationActivator.class);
 
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static AudioNotifierService audioService;
@@ -46,8 +49,8 @@ public class NotificationConfigurationActivator
         = "net.java.sip.communicator.plugin.notificationconfiguration.DISABLED";
 
     /**
-     * Starts this bundle and adds the <tt>AudioConfigurationConfigForm</tt> 
-     * contained in it to the configuration window obtained from the 
+     * Starts this bundle and adds the <tt>AudioConfigurationConfigForm</tt>
+     * contained in it to the configuration window obtained from the
      * <tt>UIService</tt>.
      */
     public void start(BundleContext bc)
@@ -82,9 +85,9 @@ public class NotificationConfigurationActivator
      */
     public void stop(BundleContext bc)
         throws Exception
-    {   
+    {
     }
-    
+
     /**
      * Returns the <tt>AudioService</tt> obtained from the bundle
      * context.
@@ -111,7 +114,7 @@ public class NotificationConfigurationActivator
      * interested in bringing down the penalties imposed by acquiring the value
      * in question should provide it by themselves.
      * </p>
-     * 
+     *
      * @return the <tt>NotificationService</tt> obtained from the bundle context
      */
     public static NotificationService getNotificationService()

@@ -25,12 +25,17 @@ import net.java.sip.communicator.util.swing.*;
 
 /**
  * Configuration of the DNSSEC validating resolver.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class DnssecPanel
     extends TransparentPanel implements ActionListener, FocusListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final static Logger logger = Logger.getLogger(DnssecPanel.class);
 
     //UI Controls
@@ -156,6 +161,11 @@ public class DnssecPanel
         tblDomains.getColumnModel().getColumn(1).setCellRenderer(
             new DefaultTableCellRenderer()
             {
+                /**
+                 * Serial version UID.
+                 */
+                private static final long serialVersionUID = 0L;
+
                 @Override
                 protected void setValue(Object value)
                 {
@@ -289,13 +299,18 @@ public class DnssecPanel
      * Creates a ComboBox renderer for the resolve mode column. The non-edit
      * text is based on the selected value of the row for which the renderer is
      * created.
-     * 
+     *
      * @return ComboBox render for the SecureResolveMode enum.
      */
     private BasicComboBoxRenderer getResolveModeRenderer()
     {
         return new BasicComboBoxRenderer()
         {
+            /**
+             * Serial version UID.
+             */
+            private static final long serialVersionUID = 0L;
+
             @Override
             public Component getListCellRendererComponent(JList list,
                 Object value, int index, boolean isSelected,

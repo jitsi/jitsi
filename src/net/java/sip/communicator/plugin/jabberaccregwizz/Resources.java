@@ -13,13 +13,13 @@ import net.java.sip.communicator.service.resources.*;
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
- * 
+ *
  * @author Yana Stamcheva
  */
 public class Resources
 {
     private static ResourceManagementService resourcesService;
-    
+
     /**
      * A constant pointing to the Jabber protocol logo image.
      */
@@ -34,7 +34,7 @@ public class Resources
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -45,7 +45,7 @@ public class Resources
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -56,7 +56,7 @@ public class Resources
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -67,7 +67,7 @@ public class Resources
 
     /**
      * Loads an image from a given image identifier.
-     * 
+     *
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -79,7 +79,7 @@ public class Resources
     /**
      * Returns the resource for the given key. This could be any resource stored
      * in the resources.properties file of this bundle.
-     * 
+     *
      * @param key the key of the resource to search for
      * @return the resource for the given key
      */
@@ -89,6 +89,11 @@ public class Resources
                                         JabberAccRegWizzActivator.class);
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

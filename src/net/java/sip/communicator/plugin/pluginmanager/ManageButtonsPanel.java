@@ -26,6 +26,11 @@ public class ManageButtonsPanel
     extends TransparentPanel
     implements ActionListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private Logger logger = Logger.getLogger(ManageButtonsPanel.class);
 
     /**

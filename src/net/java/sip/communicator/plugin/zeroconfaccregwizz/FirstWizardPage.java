@@ -27,6 +27,11 @@ public class FirstWizardPage
     implements WizardPage,
                DocumentListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
     private JPanel userPassPanel = new TransparentPanel(new BorderLayout(10, 10));

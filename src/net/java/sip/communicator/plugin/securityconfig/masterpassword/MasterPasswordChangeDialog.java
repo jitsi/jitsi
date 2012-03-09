@@ -29,6 +29,11 @@ public class MasterPasswordChangeDialog
                KeyListener
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Callback interface. Implementing classes know how to change the master
      * password from the old to the new one.
      */
@@ -229,7 +234,7 @@ public class MasterPasswordChangeDialog
 
     /**
      * OK and Cancel button event handler.
-     * 
+     *
      * @param e action event
      */
     public void actionPerformed(ActionEvent e)
@@ -328,7 +333,7 @@ public class MasterPasswordChangeDialog
      * password input fields and enable OK button if they are equal. The second
      * is to measure the password quality of the password from the first input
      * field.
-     * 
+     *
      * @param event key event
      */
     public void keyReleased(KeyEvent event)
@@ -353,7 +358,7 @@ public class MasterPasswordChangeDialog
 
     /**
      * Not overriding.
-     * 
+     *
      * @param arg0 key event
      */
     public void keyPressed(KeyEvent arg0)
@@ -362,7 +367,7 @@ public class MasterPasswordChangeDialog
 
     /**
      * Not overriding.
-     * 
+     *
      * @param arg0 key event
      */
     public void keyTyped(KeyEvent arg0)

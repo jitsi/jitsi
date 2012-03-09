@@ -11,7 +11,7 @@ import net.java.sip.communicator.service.resources.*;
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
- * 
+ *
  * @author ROTH Damien
  * @author LITZELMAN Cedric
  */
@@ -27,7 +27,7 @@ public class Resources
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -45,7 +45,12 @@ public class Resources
     {
         return getResources().getImageInBytes(imageID.getId());
     }
-    
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

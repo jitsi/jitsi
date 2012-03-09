@@ -14,6 +14,11 @@ import com.apple.eawt.*;
 @SuppressWarnings("deprecation")
 public final class MacOSXAboutRegistration
 {
+    /**
+     * Show the about dialog on Mac OS X.
+     *
+     * @return true if the Mac OS X application is not null
+     */
     public static boolean run()
     {
         Application application = Application.getApplication();

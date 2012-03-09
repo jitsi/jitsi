@@ -25,6 +25,11 @@ public class AccountPanel
     implements DocumentListener,
                ValidatingPanel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private final Logger logger = Logger.getLogger(AccountPanel.class);
 
     private final JPanel labelsPanel

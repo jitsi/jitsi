@@ -29,6 +29,11 @@ public class PluginListCellRenderer
     implements TableCellRenderer
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The end color used to paint a gradient selected background.
      */
     private static final Color SELECTED_START_COLOR
@@ -140,7 +145,6 @@ public class PluginListCellRenderer
      * @param vColIndex the column index of the rendered cell
      * @return the rendering component
      */
-    @SuppressWarnings("unchecked")
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int rowIndex, int vColIndex)
     {

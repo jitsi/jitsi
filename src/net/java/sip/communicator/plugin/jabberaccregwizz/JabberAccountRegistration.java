@@ -747,7 +747,7 @@ public class JabberAccountRegistration
     /**
      * Sets the account display name.
      *
-     * @param the account display name
+     * @param accountDisplayName the account display name
      */
     public void setAccountDisplayName(String accountDisplayName)
     {
@@ -766,8 +766,8 @@ public class JabberAccountRegistration
 
     /**
      * Sets the default sms server.
-     * 
-     * @param smsServerAddress the sms server to set as default
+     *
+     * @param serverAddress the sms server to set as default
      */
     public void setSmsServerAddress(String serverAddress)
     {

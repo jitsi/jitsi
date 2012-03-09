@@ -21,6 +21,11 @@ public class ConfigurationPanel
     extends TransparentPanel
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * Initializes a new <tt>ConfigurationPanel</tt> instance.
      */
     public ConfigurationPanel()

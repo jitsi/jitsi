@@ -17,7 +17,12 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Guillaume Schreiner
  */
-public class LocalPositionChangeEvent extends PropertyChangeEvent {
+public class LocalPositionChangeEvent extends PropertyChangeEvent
+{
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
 
     /**
      * Creates an event instance indicating a change of the property specified

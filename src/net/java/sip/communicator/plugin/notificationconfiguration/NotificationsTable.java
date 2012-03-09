@@ -25,6 +25,11 @@ public class NotificationsTable
     implements NotificationChangeListener
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The enabled state of the notification action.
      */
     public static final String ENABLED = "Enabled";
@@ -98,7 +103,7 @@ public class NotificationsTable
                         configPanel.setNotificationEntry(
                             getNotificationEntry(row));
                 }
-            }); 
+            });
 
         initTableData();
 
@@ -341,6 +346,11 @@ public class NotificationsTable
      */
     static class NotificationTable extends JTable
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private String[] columnToolTips;
 
         /**
@@ -361,6 +371,11 @@ public class NotificationsTable
         {
             return new JTableHeader(columnModel)
             {
+                /**
+                 * Serial version UID.
+                 */
+                private static final long serialVersionUID = 0L;
+
                 public String getToolTipText(MouseEvent e)
                 {
                     java.awt.Point p = e.getPoint();
@@ -379,6 +394,11 @@ public class NotificationsTable
     private class NotificationsTableModel
         extends DefaultTableModel
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         /**
          * Creates an instance of <tt>NotificationsTableModel</tt>.
          * @param columns the array of column names
@@ -432,9 +452,9 @@ public class NotificationsTable
                     notifTable.setValueAt(ENABLED, row, col);
 
             NotificationEntry entry = getNotificationEntry(row);
-                     
+
             switch(col)
-            { 
+            {
             case 0:
                 boolean isActive
                     = notifTable.getValueAt(row, 0).equals(Boolean.TRUE);
@@ -681,7 +701,7 @@ public class NotificationsTable
      */
     public void clear()
     {
-        int numrows = model.getRowCount(); 
+        int numrows = model.getRowCount();
         for(int i = numrows - 1; i >=0; i--)
         {
             model.removeRow(i);

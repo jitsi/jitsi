@@ -22,7 +22,6 @@ import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -34,10 +33,9 @@ public class SavedPasswordsDialog
     extends SIPCommDialog
 {
     /**
-     * The logger for this class.
+     * Serial version UID.
      */
-    private static final Logger logger
-        = Logger.getLogger(SavedPasswordsDialog.class);
+    private static final long serialVersionUID = 0L;
 
     /**
      * UI components.
@@ -149,11 +147,21 @@ public class SavedPasswordsDialog
         extends TransparentPanel
     {
         /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
+        /**
          * The table model for the accounts table.
          */
         private class PasswordsTableModel
             extends AbstractTableModel
         {
+            /**
+             * Serial version UID.
+             */
+            private static final long serialVersionUID = 0L;
+
             /**
              * Index of the first column.
              */
@@ -175,8 +183,8 @@ public class SavedPasswordsDialog
 
             /**
              * Returns the name for the given column.
-             * 
-             * @param column the column index 
+             *
+             * @param column the column index
              * @return the column name for the given index
              */
             public String getColumnName(int column)
@@ -202,8 +210,8 @@ public class SavedPasswordsDialog
 
             /**
              * Returns the value for the given row and column.
-             * 
-             * @param row table's row 
+             *
+             * @param row table's row
              * @param column table's column
              * @return object inside the table at the given row and column
              */
@@ -236,8 +244,8 @@ public class SavedPasswordsDialog
 
             /**
              * Number of rows in the table.
-             * 
-             * @return number of rows 
+             *
+             * @return number of rows
              */
             public int getRowCount()
             {
@@ -247,7 +255,7 @@ public class SavedPasswordsDialog
             /**
              * Number of columns depends on whether we are showing passwords or
              * not.
-             * 
+             *
              * @return number of columns
              */
             public int getColumnCount()

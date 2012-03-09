@@ -213,7 +213,7 @@ public class GeneralConfigPluginActivator
 
      /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     static UIService getUIService()
@@ -321,7 +321,7 @@ public class GeneralConfigPluginActivator
 
     /**
      * Gets the service giving access to all application resources.
-     * 
+     *
      * @return the service giving access to all application resources.
      */
     public static ResourceManagementService getResources()
@@ -357,6 +357,11 @@ public class GeneralConfigPluginActivator
 
         JPanel pnlSection = new TransparentPanel()
         {
+            /**
+             * Serial version UID.
+             */
+            private static final long serialVersionUID = 0L;
+
             @Override
             public Component add(Component comp)
             {

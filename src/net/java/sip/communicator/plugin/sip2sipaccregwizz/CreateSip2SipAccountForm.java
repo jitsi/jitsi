@@ -29,6 +29,11 @@ public class CreateSip2SipAccountForm
     implements SIPAccountCreationFormService
 {
     /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
+    /**
      * The logger.
      */
     private static final Logger logger
@@ -168,7 +173,7 @@ public class CreateSip2SipAccountForm
      */
     private void initErrorArea()
     {
-        SimpleAttributeSet attribs = new SimpleAttributeSet();  
+        SimpleAttributeSet attribs = new SimpleAttributeSet();
         StyleConstants.setAlignment(attribs, StyleConstants.ALIGN_RIGHT);
         StyleConstants.setFontFamily(attribs, errorPane.getFont().getFamily());
         StyleConstants.setForeground(attribs, Color.RED);
@@ -186,7 +191,7 @@ public class CreateSip2SipAccountForm
     {
         // Check if the two passwords match.
         String pass1 = new String( passField.getPassword());
-        String pass2 = new String( retypePassField.getPassword()); 
+        String pass2 = new String( retypePassField.getPassword());
         if (!pass1.equals(pass2))
         {
             showErrorMessage(
@@ -216,7 +221,7 @@ public class CreateSip2SipAccountForm
                 .append("&").append(URLEncoder.encode("user_agent", "UTF-8"))
                 .append("=").append(
                     URLEncoder.encode("sip-communicator.org", "UTF-8"));
-                
+
             URL url = new URL(registerLinkBuilder.toString());
             URLConnection conn = url.openConnection();
 

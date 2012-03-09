@@ -75,8 +75,8 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
            throw new IllegalArgumentException(
                "The specified contact is not a Zeroconf contact."
                + to);
-        
-        MessageZeroconfImpl msg = 
+
+        MessageZeroconfImpl msg =
             (MessageZeroconfImpl)createMessage(message.getContent());
 
         deliverMessage(msg, (ContactZeroconfImpl)to);
@@ -95,9 +95,9 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
     private void deliverMessage(Message message, ContactZeroconfImpl to)
     {
             ClientThread thread = to.getClientThread();
-            try 
+            try
             {
-                if (thread == null) 
+                if (thread == null)
                 {
                     Socket sock;
                     if (logger.isDebugEnabled())
@@ -109,26 +109,26 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
                     thread.setContact(to);
                     to.setClientThread(thread);
                     thread.sendHello();
-                    if (to.getClientType() == to.GAIM) 
+                    if (to.getClientType() == ContactZeroconfImpl.GAIM)
                     {
-                        try 
+                        try
                         {
                             Thread.sleep(300);
-                        } 
-                        catch (InterruptedException ex) 
+                        }
+                        catch (InterruptedException ex)
                         {
                             logger.error(ex);
                         }
                     }
-                }   
-                
+                }
+
                 //System.out.println("ZEROCONF: Message content => "+
                 //message.getContent());
                 thread.sendMessage((MessageZeroconfImpl) message);
-            
+
                 fireMessageDelivered(message, to);
-            } 
-            catch (IOException ex) 
+            }
+            catch (IOException ex)
             {
                 logger.error(ex);
             }
@@ -137,7 +137,7 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
     /**
      * Notifies all registered message listeners that a message has been
      * received.
-     * 
+     *
      * @param message the <tt>Message</tt> that has been received.
      * @param from the <tt>Contact</tt> that <tt>message</tt> was received from.
      */
@@ -164,7 +164,7 @@ public class OperationSetBasicInstantMessagingZeroconfImpl
     {
         return true;
     }
-    
+
     /**
      * Determines whether the protocol supports the supplied content type
      *

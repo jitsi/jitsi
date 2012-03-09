@@ -11,13 +11,13 @@ import net.java.sip.communicator.service.resources.*;
 /**
  * The <tt>Resources</tt> class manages the access to the internationalization
  * properties files and the image resources used in this plugin.
- * 
+ *
  * @author Emil Ivov
  */
 public class Resources
 {
     private static ResourceManagementService resourcesService;
-    
+
     /**
      * A constant pointing to the RSS protocol logo image.
      */
@@ -32,7 +32,7 @@ public class Resources
 
     /**
      * Returns an internationalized string corresponding to the given key.
-     * 
+     *
      * @param key The key of the string.
      * @return An internationalized string corresponding to the given key.
      */
@@ -43,7 +43,7 @@ public class Resources
 
     /**
      * Loads an image from a given image identifier.
-     * 
+     *
      * @param imageID The identifier of the image.
      * @return The image for the given identifier.
      */
@@ -52,6 +52,11 @@ public class Resources
         return getResources().getImageInBytes(imageID.getId());
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>
+     */
     public static ResourceManagementService getResources()
     {
         if (resourcesService == null)

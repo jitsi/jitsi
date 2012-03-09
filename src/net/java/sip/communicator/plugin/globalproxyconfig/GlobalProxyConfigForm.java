@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.plugin.globalproxyconfig;
@@ -24,6 +24,11 @@ public class GlobalProxyConfigForm
     implements ActionListener,
                 KeyListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     /**
      * Hold the available proxy types.
      */
@@ -55,11 +60,11 @@ public class GlobalProxyConfigForm
     public GlobalProxyConfigForm()
     {
         super(new BorderLayout());
-        
+
         init();
         loadValues();
     }
-    
+
     /**
      * Creating the configuration form
      */
@@ -166,7 +171,7 @@ public class GlobalProxyConfigForm
 
     /**
      * Loading the values stored onto configuration form
-     */ 
+     */
     private void loadValues()
     {
         ConfigurationService configService =
@@ -214,7 +219,7 @@ public class GlobalProxyConfigForm
             passwordField.setEnabled(false);
         }
     }
-    
+
     /**
      * Function which save values onto configuration file after save button is
      * clicked

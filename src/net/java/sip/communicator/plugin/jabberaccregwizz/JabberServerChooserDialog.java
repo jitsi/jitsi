@@ -36,6 +36,11 @@ public class JabberServerChooserDialog
     extends SIPCommDialog
     implements ListSelectionListener
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     private static final Logger logger = Logger
         .getLogger(JabberServerChooserDialog.class);
 
@@ -77,8 +82,14 @@ public class JabberServerChooserDialog
     {   Resources.getString("plugin.jabberaccregwizz.SERVER_COLUMN"),
         Resources.getString("plugin.jabberaccregwizz.COMMENT_COLUMN")};
 
+    /**
+     * If the OK button is pressed.
+     */
     public boolean isOK = false;
 
+    /**
+     * The selected server.
+     */
     public String serverSelected;
 
     /**
@@ -302,6 +313,11 @@ public class JabberServerChooserDialog
      */
     private class ServerChooserTableModel extends AbstractTableModel
     {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+
         private Document serverComments;
 
         private NodeList commentsList;

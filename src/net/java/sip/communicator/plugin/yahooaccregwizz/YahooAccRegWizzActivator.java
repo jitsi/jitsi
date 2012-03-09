@@ -20,8 +20,11 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class YahooAccRegWizzActivator implements BundleActivator {
-
+public class YahooAccRegWizzActivator implements BundleActivator
+{
+    /**
+     * OSGi bundle context.
+     */
     public static BundleContext bundleContext;
 
     private static final Logger logger =
@@ -95,14 +98,14 @@ public class YahooAccRegWizzActivator implements BundleActivator {
 
     /**
      * Returns the <tt>UIService</tt>.
-     * 
+     *
      * @return the <tt>UIService</tt>
      */
     public static UIService getUIService()
     {
         return uiService;
     }
-    
+
     /**
      * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context.

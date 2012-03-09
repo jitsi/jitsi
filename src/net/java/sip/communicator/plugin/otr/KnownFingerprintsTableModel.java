@@ -18,13 +18,18 @@ import org.osgi.framework.*;
 
 /**
  * A special {@link Panel} for fingerprints display.
- * 
+ *
  * @author George Politis
  * @author Yana Stamcheva
  */
 public class KnownFingerprintsTableModel
     extends AbstractTableModel
 {
+    /**
+     * Serial version UID.
+     */
+    private static final long serialVersionUID = 0L;
+
     public static final int CONTACTNAME_INDEX = 0;
 
     public static final int VERIFIED_INDEX = 1;
