@@ -55,6 +55,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
  * We use AESCipher to handle basic AES encryption / decryption.
  * 
  * @author Bing SU (nova.su@gmail.com)
+ * @author Werner Dittmann <werner.dittmann@t-online.de>
  */
 public class SRTPCipherF8
 {
@@ -74,16 +75,8 @@ public class SRTPCipherF8
         long J;
     }
 
-    public static void process(BlockCipher cipher, byte[] data, int off,
-        int len, byte[] iv, byte[] key, byte[] salt, BlockCipher f8Cipher)
+    public static void deriveForIV(BlockCipher f8Cipher, byte[] key, byte[] salt)
     {
-        F8Context f8ctx = new SRTPCipherF8().new F8Context();
-
-        /*
-         * Get memory for the derived IV (IV')
-         */
-        f8ctx.ivAccent = new byte[BLKLEN];
-
         /*
          * Get memory for the special key. This is the key to compute the
          * derived IV (IV').
@@ -111,13 +104,24 @@ public class SRTPCipherF8
          */
         KeyParameter encryptionKey = new KeyParameter(maskedKey);
         f8Cipher.init(true, encryptionKey);
-
-        /*
-         * Use the masked key to encrypt the original IV to produce IV'.
-         */
-        f8Cipher.processBlock(iv, 0, f8ctx.ivAccent, 0);
         saltMask = null;
         maskedKey = null;
+    }
+
+    public static void process(BlockCipher cipher, byte[] data, int off, int len,
+            byte[] iv, BlockCipher f8Cipher)
+    {
+        F8Context f8ctx = new SRTPCipherF8().new F8Context();
+
+        /*
+         * Get memory for the derived IV (IV')
+         */
+        f8ctx.ivAccent = new byte[BLKLEN];
+
+        /*
+         * Use the derived IV encryption setup to encrypt the original IV to produce IV'.
+         */
+        f8Cipher.processBlock(iv, 0, f8ctx.ivAccent, 0);
 
         f8ctx.J = 0; // initialize the counter
         f8ctx.S = new byte[BLKLEN]; // get the key stream buffer
@@ -138,7 +142,7 @@ public class SRTPCipherF8
             processBlock(cipher, f8ctx, data, off, data, off, inLen);
         }
     }
-
+    
     /**
      * Encrypt / Decrypt a block using F8 Mode AES algorithm, read len bytes
      * data from in at inOff and write the output into out at outOff
@@ -157,7 +161,7 @@ public class SRTPCipherF8
      *            length of the input data
      */
     private static void processBlock(BlockCipher cipher, F8Context f8ctx,
-            byte[] in, int inOff, byte[] out, int outOff, int len)
+            byte[] in, int inOff, byte[] out, int outOff, int len) 
     {
         /*
          * XOR the previous key stream with IV'

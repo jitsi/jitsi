@@ -21,26 +21,6 @@ public class SRTPTransformEngine
     implements TransformEngine
 {
     /**
-     * Master key of this SRTP session
-     */
-    private final byte[] masterKey;
-
-    /**
-     * Master salt key of this SRTP session
-     */
-    private final byte[] masterSalt;
-
-    /**
-     * SRTP processing policy
-     */
-    private final SRTPPolicy srtpPolicy;
-
-    /**
-     * SRTCP processing policy
-     */
-    private final SRTPPolicy srtcpPolicy;
-
-    /**
      * The default SRTPCryptoContext, which will be used to derivate other
      * contexts.
      */
@@ -64,23 +44,15 @@ public class SRTPTransformEngine
     public SRTPTransformEngine(byte[] masterKey, byte[] masterSalt,
                                SRTPPolicy srtpPolicy, SRTPPolicy srtcpPolicy)
     {
-        this.masterKey = new byte[masterKey.length];
-        System.arraycopy(masterKey, 0, this.masterKey, 0, masterKey.length);
-
-        this.masterSalt = new byte[masterSalt.length];
-        System.arraycopy(masterSalt, 0, this.masterSalt, 0, masterSalt.length);
-
-        this.srtpPolicy  = srtpPolicy;
-        this.srtcpPolicy = srtcpPolicy;
 
         this.defaultContext = new SRTPCryptoContext(0, 0, 0,
-                                                    this.masterKey,
-                                                    this.masterSalt,
-                                                    this.srtpPolicy);
+                                                    masterKey,
+                                                    masterSalt,
+                                                    srtpPolicy);
         this.defaultContextControl = new SRTCPCryptoContext(0, 
-                                                    this.masterKey,
-                                                    this.masterSalt, 
-                                                    this.srtcpPolicy);
+                                                    masterKey,
+                                                    masterSalt, 
+                                                    srtcpPolicy);
     }
 
     /**
@@ -101,46 +73,6 @@ public class SRTPTransformEngine
     public PacketTransformer getRTPTransformer()
     {
         return new SRTPTransformer(this);
-    }
-
-    /**
-     * Get the master encryption key
-     *
-     * @return the master encryption key
-     */
-    public byte[] getMasterKey()
-    {
-        return this.masterKey;
-    }
-
-    /**
-     * Get the master salt key
-     *
-     * @return the master salt key
-     */
-    public byte[] getMasterSalt()
-    {
-        return this.masterSalt;
-    }
-
-    /**
-     * Get the SRTCP policy
-     *
-     * @return the SRTCP policy
-     */
-    public SRTPPolicy getSRTCPPolicy()
-    {
-        return this.srtcpPolicy;
-    }
-
-    /**
-     * Get the SRTP policy
-     *
-     * @return the SRTP policy
-     */
-    public SRTPPolicy getSRTPPolicy()
-    {
-        return this.srtpPolicy;
     }
 
     /**
