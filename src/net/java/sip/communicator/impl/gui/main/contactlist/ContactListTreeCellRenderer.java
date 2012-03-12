@@ -867,7 +867,8 @@ public class ContactListTreeCellRenderer
             x += desktopSharingButton.getWidth();
         }
 
-        if (uiContact.getDescriptor() instanceof SourceContact)
+        if (uiContact.getDescriptor() instanceof SourceContact
+            && !ConfigurationManager.isAddContactDisabled())
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
