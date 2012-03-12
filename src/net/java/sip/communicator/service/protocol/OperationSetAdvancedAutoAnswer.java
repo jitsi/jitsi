@@ -7,19 +7,14 @@
 package net.java.sip.communicator.service.protocol;
 
 /**
- * An Operation Set defining options to auto answer/forward incoming calls.
+ * An Advanced Operation Set defining options
+ * to auto answer/forward incoming calls.
  *
  * @author Damian Minkov
  */
-public interface OperationSetAutoAnswer
+public interface OperationSetAdvancedAutoAnswer
     extends OperationSet
 {
-    /**
-     * Auto answer unconditional account property.
-     */
-    public static final String AUTO_ANSWER_UNCOND_PROP =
-        "AUTO_ANSWER_UNCONDITIONAL";
-
     /**
      * Auto answer conditional account property - field name.
      */
@@ -37,18 +32,6 @@ public interface OperationSetAutoAnswer
      */
     public static final String AUTO_ANSWER_FWD_NUM_PROP =
                     "AUTO_ANSWER_FWD_NUM";
-
-    /**
-     * Sets the auto answer option to unconditionally answer all incoming calls.
-     */
-    public void setAutoAnswerUnconditional();
-
-    /**
-     * Is the auto answer option set to unconditionally
-     * answer all incoming calls.
-     * @return is auto answer set to unconditional.
-     */
-    public boolean isAutoAnswerUnconditionalSet();
 
     /**
      * Sets a specified header and its value if they exist in the incoming

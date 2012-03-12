@@ -78,10 +78,10 @@ public class AutoAnswerMenu
      */
     public void addAccount(ProtocolProviderService protocolProvider)
     {
-        OperationSetAutoAnswer opset = protocolProvider
-            .getOperationSet(OperationSetAutoAnswer.class);
+        OperationSetBasicAutoAnswer opSet = protocolProvider
+            .getOperationSet(OperationSetBasicAutoAnswer.class);
 
-        if(opset == null)
+        if(opSet == null)
         {
             return;
         }
@@ -370,6 +370,9 @@ public class AutoAnswerMenu
          */
         private void initComponents()
         {
+            OperationSetAdvancedAutoAnswer opSetAdvanced = providerService
+                        .getOperationSet(OperationSetAdvancedAutoAnswer.class);
+
             ResourceManagementService R = GuiActivator.getResources();
             ButtonGroup group = new ButtonGroup();
             JPanel mainPanel = new TransparentPanel(new GridBagLayout());
@@ -397,63 +400,74 @@ public class AutoAnswerMenu
             group.add(alwaysAnswerRadio);
             mainPanel.add(alwaysAnswerRadio, c);
 
-            c.gridy = currentRow++;
-            alertInfoValue = new SIPCommRadioButton(
-                R.getI18NString("service.gui.AUTO_ANSWER_ALERT_INFO_FIELDS"));
-            group.add(alertInfoValue);
-            mainPanel.add(alertInfoValue, c);
+            if(opSetAdvanced != null)
+            {
+                c.gridy = currentRow++;
+                alertInfoValue = new SIPCommRadioButton(
+                    R.getI18NString("service.gui.AUTO_ANSWER_ALERT_INFO_FIELDS"));
+                group.add(alertInfoValue);
+                mainPanel.add(alertInfoValue, c);
 
-            c.gridy = currentRow++;
-            customValueRadio = new SIPCommRadioButton(
-                R.getI18NString("service.gui.AUTO_ANSWER_CUSTOM_FIELDS"));
-            group.add(customValueRadio);
-            mainPanel.add(customValueRadio, c);
+                c.gridy = currentRow++;
+                customValueRadio = new SIPCommRadioButton(
+                    R.getI18NString("service.gui.AUTO_ANSWER_CUSTOM_FIELDS"));
+                group.add(customValueRadio);
+                mainPanel.add(customValueRadio, c);
 
-            JPanel customHeaderPanel = new TransparentPanel(
-                new GridLayout(1, 2));
-            JPanel namePanel = new TransparentPanel(new BorderLayout());
-            namePanel.add(
-                new JLabel(R.getI18NString("service.gui.AUTO_ANSWER_FIELD")),
-                BorderLayout.WEST);
-            namePanel.add(headerNameField, BorderLayout.CENTER);
-            JPanel valuePanel = new TransparentPanel(new BorderLayout());
-            valuePanel.add(
-                new JLabel(R.getI18NString("service.gui.AUTO_ANSWER_VALUE")),
-                BorderLayout.WEST);
-            valuePanel.add(headerValueField, BorderLayout.CENTER);
-            customHeaderPanel.add(namePanel);
-            customHeaderPanel.add(valuePanel);
-            
-            c.gridy = currentRow++;
-            c.insets = new Insets(0, 28, 0, 0);
-            mainPanel.add(customHeaderPanel, c);
+                JPanel customHeaderPanel = new TransparentPanel(
+                    new GridLayout(1, 2));
+                JPanel namePanel = new TransparentPanel(new BorderLayout());
+                namePanel.add(
+                    new JLabel(R.getI18NString("service.gui.AUTO_ANSWER_FIELD")),
+                    BorderLayout.WEST);
+                namePanel.add(headerNameField, BorderLayout.CENTER);
+                JPanel valuePanel = new TransparentPanel(new BorderLayout());
+                valuePanel.add(
+                    new JLabel(R.getI18NString("service.gui.AUTO_ANSWER_VALUE")),
+                    BorderLayout.WEST);
+                valuePanel.add(headerValueField, BorderLayout.CENTER);
+                customHeaderPanel.add(namePanel);
+                customHeaderPanel.add(valuePanel);
 
-            String description =
-                R.getI18NString("service.gui.AUTO_ANSWER_DESCR_VLUE");
-            JLabel descriptionLabel = new JLabel(description);
-            descriptionLabel.setToolTipText(description);
-            descriptionLabel.setForeground(Color.GRAY);
-            descriptionLabel.setFont(descriptionLabel.getFont().deriveFont(8));
-            descriptionLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-            descriptionLabel.setHorizontalAlignment(JLabel.RIGHT);
+                c.gridy = currentRow++;
+                c.insets = new Insets(0, 28, 0, 0);
+                mainPanel.add(customHeaderPanel, c);
 
-            c.gridy = currentRow++;
-            mainPanel.add(descriptionLabel, c);
+                String description =
+                    R.getI18NString("service.gui.AUTO_ANSWER_DESCR_VLUE");
+                JLabel descriptionLabel = new JLabel(description);
+                descriptionLabel.setToolTipText(description);
+                descriptionLabel.setForeground(Color.GRAY);
+                descriptionLabel.setFont(
+                    descriptionLabel.getFont().deriveFont(8));
+                descriptionLabel.setBorder(
+                    BorderFactory.createEmptyBorder(0, 0, 8, 0));
+                descriptionLabel.setHorizontalAlignment(JLabel.RIGHT);
 
-            c.gridy = currentRow++;
-            c.insets = new Insets(0, 0, 0, 0);
-            mainPanel.add(getTitlePanel(
-                R.getI18NString("service.gui.AUTO_ANSWER_FWD_CALLS")), c);
+                c.gridy = currentRow++;
+                mainPanel.add(descriptionLabel, c);
 
-            c.gridy = currentRow++;
-            callFwd = new SIPCommRadioButton(
-                R.getI18NString("service.gui.AUTO_ANSWER_FWD_CALLS_TO"));
-            group.add(callFwd);
-            mainPanel.add(callFwd, c);
+                c.gridy = currentRow++;
+                c.insets = new Insets(0, 0, 0, 0);
+                mainPanel.add(getTitlePanel(
+                    R.getI18NString("service.gui.AUTO_ANSWER_FWD_CALLS")), c);
 
-            c.gridy = currentRow++;
-            c.insets = new Insets(0, 28, 0, 0);
-            mainPanel.add(callFwdNumberField, c);
+                c.gridy = currentRow++;
+                callFwd = new SIPCommRadioButton(
+                    R.getI18NString("service.gui.AUTO_ANSWER_FWD_CALLS_TO"));
+                group.add(callFwd);
+                mainPanel.add(callFwd, c);
+
+                c.gridy = currentRow++;
+                c.insets = new Insets(0, 28, 0, 0);
+                mainPanel.add(callFwdNumberField, c);
+
+                c.insets = new Insets(0, 0, 0, 0);
+            }
+            else
+            {
+                c.insets = new Insets(10, 0, 0, 0);
+            }
 
             TransparentPanel buttonsPanel
                 = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -471,7 +485,6 @@ public class AutoAnswerMenu
             buttonsPanel.add(cancelButton);
 
             c.gridy = currentRow++;
-            c.insets = new Insets(0, 0, 0, 0);
             mainPanel.add(buttonsPanel, c);
 
             mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -528,12 +541,15 @@ public class AutoAnswerMenu
         {
             if(e.getSource().equals(okButton))
             {
-                OperationSetAutoAnswer opset = providerService
-                            .getOperationSet(OperationSetAutoAnswer.class);
+                OperationSetBasicAutoAnswer opset = providerService
+                    .getOperationSet(OperationSetBasicAutoAnswer.class);
+                OperationSetAdvancedAutoAnswer opSetAdvanced = providerService
+                    .getOperationSet(OperationSetAdvancedAutoAnswer.class);
 
                 if(noneRadio.isSelected())
                 {
                     opset.clear();
+                    opSetAdvanced.clear();
                 }
                 else if(alwaysAnswerRadio.isSelected())
                 {
@@ -541,19 +557,27 @@ public class AutoAnswerMenu
                 }
                 else if(alertInfoValue.isSelected())
                 {
-                    opset.setAutoAnswerCondition(
-                        AUTO_ALERT_INFO_NAME,
-                        AUTO_ALERT_INFO_VALUE);
+                    if(opSetAdvanced != null)
+                    {
+                        opSetAdvanced.setAutoAnswerCondition(
+                            AUTO_ALERT_INFO_NAME,
+                            AUTO_ALERT_INFO_VALUE);
+                    }
                 }
                 else if(customValueRadio.isSelected())
                 {
-                    opset.setAutoAnswerCondition(
-                        headerNameField.getText(),
-                        headerValueField.getText());
+                    if(opSetAdvanced != null)
+                    {
+                        opSetAdvanced.setAutoAnswerCondition(
+                            headerNameField.getText(),
+                            headerValueField.getText());
+                    }
                 }
                 else if(callFwd.isSelected())
                 {
-                    opset.setCallForward(callFwdNumberField.getText());
+                    if(opSetAdvanced != null)
+                        opSetAdvanced.setCallForward(
+                            callFwdNumberField.getText());
                 }
             }
 
@@ -576,8 +600,10 @@ public class AutoAnswerMenu
          */
         private void loadValues()
         {
-            OperationSetAutoAnswer opset = providerService
-                .getOperationSet(OperationSetAutoAnswer.class);
+            OperationSetBasicAutoAnswer opset = providerService
+                .getOperationSet(OperationSetBasicAutoAnswer.class);
+            OperationSetAdvancedAutoAnswer opSetAdvanced = providerService
+                .getOperationSet(OperationSetAdvancedAutoAnswer.class);
             
             if(opset == null)
                 return;
@@ -586,30 +612,33 @@ public class AutoAnswerMenu
             alwaysAnswerRadio.setSelected(
                 opset.isAutoAnswerUnconditionalSet());
 
-            if(opset.isAutoAnswerConditionSet())
+            if(opSetAdvanced != null)
             {
-                String fName = opset.getAutoAnswerHeaderName();
-                String fValue = opset.getAutoAnswerHeaderValue();
-                if(AUTO_ALERT_INFO_NAME.equals(fName)
-                   && AUTO_ALERT_INFO_VALUE.equals(fValue))
+                if(opSetAdvanced.isAutoAnswerConditionSet())
                 {
-                    alertInfoValue.setSelected(true);
+                    String fName = opSetAdvanced.getAutoAnswerHeaderName();
+                    String fValue = opSetAdvanced.getAutoAnswerHeaderValue();
+                    if(AUTO_ALERT_INFO_NAME.equals(fName)
+                       && AUTO_ALERT_INFO_VALUE.equals(fValue))
+                    {
+                        alertInfoValue.setSelected(true);
+                    }
+                    else
+                    {
+                        customValueRadio.setSelected(true);
+                        headerNameField.setText(fName);
+
+                        if(!StringUtils.isNullOrEmpty(fValue))
+                            headerValueField.setText(fValue);
+                    }
+
                 }
-                else
+
+                if(!StringUtils.isNullOrEmpty(opSetAdvanced.getCallForward()))
                 {
-                    customValueRadio.setSelected(true);
-                    headerNameField.setText(fName);
-                    
-                    if(!StringUtils.isNullOrEmpty(fValue))
-                        headerValueField.setText(fValue);
+                    callFwd.setSelected(true);
+                    callFwdNumberField.setText(opSetAdvanced.getCallForward());
                 }
-                
-            }
-            
-            if(!StringUtils.isNullOrEmpty(opset.getCallForward()))
-            {
-                callFwd.setSelected(true);
-                callFwdNumberField.setText(opset.getCallForward());
             }
         }
     }

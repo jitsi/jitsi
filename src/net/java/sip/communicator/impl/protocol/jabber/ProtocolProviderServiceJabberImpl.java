@@ -1642,6 +1642,10 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetTelephonyConferencing.class,
                     new OperationSetTelephonyConferencingJabberImpl(this));
 
+                addSupportedOperationSet(
+                    OperationSetBasicAutoAnswer.class,
+                    new OperationSetAutoAnswerJabberImpl(basicTelephony));
+
                 addJingleFeatures();
 
                 // Check if desktop streaming is enabled.

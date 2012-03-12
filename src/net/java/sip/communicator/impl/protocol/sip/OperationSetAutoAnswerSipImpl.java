@@ -27,7 +27,8 @@ import java.util.*;
  */
 public class OperationSetAutoAnswerSipImpl
     extends CallPeerAdapter
-    implements OperationSetAutoAnswer
+    implements OperationSetBasicAutoAnswer,
+               OperationSetAdvancedAutoAnswer
 {
     /**
      * Our class logger.

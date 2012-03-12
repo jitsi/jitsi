@@ -1051,7 +1051,7 @@ public class OperationSetBasicTelephonySipImpl
 
         OperationSetAutoAnswerSipImpl autoAnswerOpSet =
             (OperationSetAutoAnswerSipImpl)
-                protocolProvider.getOperationSet(OperationSetAutoAnswer.class);
+                protocolProvider.getOperationSet(OperationSetBasicAutoAnswer.class);
 
         if(existingPeer == null)
         {

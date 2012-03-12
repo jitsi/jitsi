@@ -948,6 +948,16 @@ public class OperationSetBasicTelephonyJabberImpl
                 public void run()
                 {
                     callThread.processSessionInitiate(jingleIQ);
+
+                    OperationSetAutoAnswerJabberImpl autoAnswerOpSet =
+                        (OperationSetAutoAnswerJabberImpl)protocolProvider
+                            .getOperationSet(OperationSetBasicAutoAnswer.class);
+
+                    if(autoAnswerOpSet != null
+                        && autoAnswerOpSet.isAutoAnswerUnconditionalSet())
+                    {
+                        autoAnswerOpSet.followCallCheck(callThread);
+                    }
                 }
             }.start();
 
@@ -1140,6 +1150,17 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             CallGTalkImpl call = new CallGTalkImpl(this);
             call.processGTalkInitiate(sessionIQ);
+
+            OperationSetAutoAnswerJabberImpl autoAnswerOpSet =
+                (OperationSetAutoAnswerJabberImpl)protocolProvider
+                    .getOperationSet(OperationSetBasicAutoAnswer.class);
+
+            if(autoAnswerOpSet != null
+                && autoAnswerOpSet.isAutoAnswerUnconditionalSet())
+            {
+                autoAnswerOpSet.followCallCheck(call);
+            }
+
             return;
         }
         else if (callPeer == null)

@@ -419,10 +419,13 @@ public class ProtocolProviderServiceSipImpl
                     OperationSetAdvancedTelephony.class,
                     opSetBasicTelephonySipImpl);
 
-                addSupportedOperationSet(
-                    OperationSetAutoAnswer.class,
+                OperationSetAutoAnswerSipImpl autoAnswerOpSet =
                     new OperationSetAutoAnswerSipImpl(
-                            opSetBasicTelephonySipImpl));
+                            opSetBasicTelephonySipImpl);
+                addSupportedOperationSet(
+                    OperationSetBasicAutoAnswer.class, autoAnswerOpSet);
+                addSupportedOperationSet(
+                    OperationSetAdvancedAutoAnswer.class, autoAnswerOpSet);
 
                 // init call security
                 addSupportedOperationSet(

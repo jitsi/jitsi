@@ -34,6 +34,16 @@ public class ProtocolProviderFactoryJabberImpl
     }
 
     /**
+     * Ovverides the original in order give access to protocol implementation.
+     *
+     * @param accountID the account identifier.
+     */
+    protected void storeAccount(AccountID accountID)
+    {
+        super.storeAccount(accountID);
+    }
+
+    /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
      * <tt>context</tt> BundleContext parameter. This method has a persistent
