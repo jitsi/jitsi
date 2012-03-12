@@ -130,14 +130,14 @@ public class OperationSetAutoAnswerJabberImpl
      * @return <tt>true</tt> if we have processed and no further processing is
      *          needed, <tt>false</tt> otherwise.
      */
-    boolean followCallCheck(
-        AbstractCall<CallPeer, ProtocolProviderServiceJabberImpl> call)
+    boolean followCallCheck(AbstractCall call)
     {
         if(!answerUnconditional)
             return false;
 
         // we are here cause we satisfy the conditional,
         // or unconditional is true
+        @SuppressWarnings("unchecked")
         Iterator<? extends CallPeer> peers = call.getCallPeers();
 
         while (peers.hasNext())
