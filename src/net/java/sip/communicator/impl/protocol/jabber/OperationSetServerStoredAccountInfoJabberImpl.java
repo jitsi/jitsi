@@ -8,12 +8,12 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smackx.packet.*;
-
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 
 /**
  * The Account Info Operation set is a means of accessing and modifying detailed
@@ -215,27 +215,12 @@ public class OperationSetServerStoredAccountInfoJabberImpl
 
         if(detail instanceof ImageDetail)
         {
-            try
-            {
-                VCard v1 = new VCard();
-                v1.load(jabberProvider.getConnection());
-
-                v1.setAvatar(((ImageDetail) detail).getBytes());
-
-                v1.save(jabberProvider.getConnection());
-            } catch (XMPPException xmppe)
-            {
-                xmppe.printStackTrace();
-
-                // return to skip events when there is error
-                return;
-            }
+            // Push the avatar photo to the server.
+            this.uploadImageDetail(
+                    ServerStoredDetailsChangeEvent.DETAIL_ADDED,
+                    null,
+                    detail);
         }
-
-        fireServerStoredDetailsChangeEvent(jabberProvider,
-                        ServerStoredDetailsChangeEvent.DETAIL_ADDED,
-                        null,
-                        detail);
     }
 
     /**
@@ -311,24 +296,11 @@ public class OperationSetServerStoredAccountInfoJabberImpl
 
         if(newDetailValue instanceof ImageDetail)
         {
-            try
-            {
-                VCard v1 = new VCard();
-                v1.load(jabberProvider.getConnection());
-
-                v1.setAvatar(((ImageDetail) newDetailValue).getBytes());
-                v1.save(jabberProvider.getConnection());
-
-                fireServerStoredDetailsChangeEvent(jabberProvider,
-                        ServerStoredDetailsChangeEvent.DETAIL_REPLACED,
-                        currentDetailValue,
-                        newDetailValue);
-
-                return true;
-            } catch (XMPPException xmppe)
-            {
-                xmppe.printStackTrace();
-            }
+            // Push the new avatar photo to the server.
+            return this.uploadImageDetail(
+                    ServerStoredDetailsChangeEvent.DETAIL_REPLACED,
+                    currentDetailValue,
+                    newDetailValue);
         }
 
         return false;
@@ -350,5 +322,74 @@ public class OperationSetServerStoredAccountInfoJabberImpl
             throw new IllegalStateException(
                 "The jabber provider must be signed on before "
                 +"being able to communicate.");
+    }
+
+    /**
+     * Uploads the new avatar image to the server via the vCard mechanism
+     * (XEP-0153).
+     *
+     * @param changeEventID the int ID of the event to dispatch
+     * @param currentDetailValue the detail value we'd like to replace.
+     * @param newDetailValue the value of the detail that we'd like to replace
+     * currentDetailValue with. If ((ImageDetail) newDetailValue).getBytes() is
+     * null, then this function removes the current avatar from the server by
+     * sending a vCard with a "photo" tag without any content.
+     *
+     * @return "true" if the new avatar image has been uploaded (even if the
+     * current avatar image is removed). "false" if an XMPPException occurs.
+     */
+    private boolean uploadImageDetail(
+            int changeEventID,
+            ServerStoredDetails.GenericDetail currentDetailValue,
+            ServerStoredDetails.GenericDetail newDetailValue)
+    {
+        boolean isPhotoChanged = false;
+
+        try
+        {
+            byte[] newAvatar = ((ImageDetail) newDetailValue).getBytes();
+
+            VCardXEP0153 v1 = new VCardXEP0153();
+            // Retrieve the old vCard.
+            v1.load(jabberProvider.getConnection());
+            // Checks if the new avatar photo is diferent form the server one.
+            // If yes, then upload the new avatar photo.
+            if(!Arrays.equals(v1.getAvatar(), newAvatar))
+            {
+                if(newAvatar == null)
+                {
+                    v1.setAvatar(new byte[0]);
+                }
+                else
+                {
+                    v1.setAvatar(newAvatar);
+                }
+                // Saves the new vCard.
+                v1.save(jabberProvider.getConnection());
+            }
+
+            // Sets the new avatar photo advertised in all presence messages,
+            // and send one presence messge immediately.
+            ((OperationSetPersistentPresenceJabberImpl)
+             this.jabberProvider.getOperationSet(
+                 OperationSetPersistentPresence.class))
+                .updateAccountPhotoPresenceExtension(newAvatar);
+
+            // Advertises all detail change listeners, that the server stored
+            // details have changed.
+            fireServerStoredDetailsChangeEvent(
+                    jabberProvider,
+                    changeEventID,
+                    currentDetailValue,
+                    newDetailValue);
+
+            isPhotoChanged = true;
+        }
+        catch (XMPPException xmppe)
+        {
+            xmppe.printStackTrace();
+        }
+
+        return isPhotoChanged;
     }
 }

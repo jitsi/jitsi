@@ -285,10 +285,17 @@ public class SelectAvatarMenu
 
                             if(opSetAvatar != null)
                             {
+                                byte[] imageByte = null;
+                                // Sets new avatar if not null. Otherwise, the
+                                // opSetAvatar.setAvatar(null) will removes the
+                                // current one.
+                                if(image != null)
+                                {
+                                    imageByte = ImageUtils.toByteArray(image);
+                                }
                                 try
                                 {
-                                    opSetAvatar.setAvatar(
-                                        ImageUtils.toByteArray(image));
+                                    opSetAvatar.setAvatar(imageByte);
                                 }
                                 catch(Throwable t)
                                 {
@@ -369,8 +376,8 @@ public class SelectAvatarMenu
         }
         else if (src.getName().equals("removeButton"))
         {
-            // Switchs the current avatar image icon to the default one.
-            setNewImage(ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
+            // Removes the current photo.
+            setNewImage(null);
         }
         else if (src.getName().equals("clearButton"))
         {

@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -522,6 +523,12 @@ public class AccountStatusPanel
     public void avatarChanged(AvatarEvent event)
     {
         currentImage = event.getNewAvatar();
+        // If there is no avatar image set, then displays the default one.
+        if(currentImage == null)
+        {
+            currentImage = ImageUtils.toByteArray(
+                    ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
+        }
         accountImageLabel.setImageIcon(currentImage);
     }
 

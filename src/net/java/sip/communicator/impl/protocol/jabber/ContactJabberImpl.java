@@ -160,7 +160,7 @@ public class ContactJabberImpl
      *
      * @return a reference to the image currently stored by this contact.
      */
-    byte[] getImage(boolean retrieveIfNecessary)
+    public byte[] getImage(boolean retrieveIfNecessary)
     {
         if(image == null && retrieveIfNecessary)
             ssclCallback.addContactForImageUpdate(this);
@@ -172,7 +172,7 @@ public class ContactJabberImpl
      *
      *  @param imgBytes the bytes of the image that we'd like to set.
      */
-    void setImage(byte[] imgBytes)
+    public void setImage(byte[] imgBytes)
     {
         this.image = imgBytes;
     }

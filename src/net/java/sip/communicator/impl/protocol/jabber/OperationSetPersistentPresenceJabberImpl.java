@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
+import java.security.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -17,6 +18,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * The Jabber implementation of a Persistent Presence Operation set. This class
@@ -93,6 +95,13 @@ public class OperationSetPersistentPresenceJabberImpl
      * Manages statuses and different user resources.
      */
     private ContactChangesListener contactChangesListener = null;
+
+    /**
+     * Manages the presence extension to advertise the SHA-1 hash of this
+     * account avatar as defined in XEP-0153.
+     */
+    private VCardTempXUpdatePresenceExtension vCardTempXUpdatePresenceExtension
+        = null;
 
     /**
      * Creates the OperationSet.
@@ -855,6 +864,9 @@ public class OperationSetPersistentPresenceJabberImpl
                     parentProvider
                         .getJabberStatusEnum()
                             .getStatus(JabberStatusEnum.AVAILABLE));
+
+                createContactPhotoPresenceListener();
+                createAccountPhotoPresenceInterceptor();
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
@@ -1291,6 +1303,163 @@ public class OperationSetPersistentPresenceJabberImpl
             }
 
             new Thread(this, getClass().getName()).start();
+        }
+    }
+
+    /**
+     * Creates an interceptor which modifies presence packet in order to add the
+     * the element name "x" and the namespace "vcard-temp:x:update" in order to
+     * advertise the avatar SHA-1 hash.
+     */
+    public void createAccountPhotoPresenceInterceptor()
+    {
+        // Verifies that we creates only one interceptor of this type.
+        if(this.vCardTempXUpdatePresenceExtension == null)
+        {
+            byte[] avatar = null;
+            try
+            {
+                // Retrieves the current server avatar.
+                VCard vCard = new VCard();
+                vCard.load(parentProvider.getConnection());
+                avatar = vCard.getAvatar();
+            }
+            catch(XMPPException ex)
+            {
+                logger.info("Can not retrieve account avatar", ex);
+            }
+
+            // Creates the presence extension to generates the  the element
+            // name "x" and the namespace "vcard-temp:x:update" containing
+            // the avatar SHA-1 hash.
+            this.vCardTempXUpdatePresenceExtension =
+                new VCardTempXUpdatePresenceExtension(avatar);
+
+            // Intercepts all sent presence packet in order to add the
+            // photo tag.
+            parentProvider.getConnection().addPacketInterceptor(
+                    this.vCardTempXUpdatePresenceExtension,
+                    new PacketTypeFilter(Presence.class));
+        }
+    }
+
+    /**
+     * Updates the presence extension to advertise a new photo SHA-1 hash
+     * corresponding to the new avatar given in parameter.
+     *
+     * @param imageBytes The new avatar set for this account.
+     */
+    public void updateAccountPhotoPresenceExtension(byte[] imageBytes)
+    {
+        try
+        {
+            // If the image has changed, then updates the presence extension and
+            // send immediately a presence packet to advertise the photo update.
+            if(this.vCardTempXUpdatePresenceExtension.updateImage(imageBytes))
+            {
+                this.publishPresenceStatus(currentStatus, currentStatusMessage);
+            }
+        }
+        catch(OperationFailedException ex)
+        {
+            logger.info(
+                    "Can not send presence extension to broadcast photo update",
+                    ex);
+        }
+    }
+
+    /**
+     * Creates a listener to call a parser which manages presence packets with
+     * the element name "x" and the namespace "vcard-temp:x:update".
+     */
+    public void createContactPhotoPresenceListener()
+    {
+        // Registers the listener.
+        parentProvider.getConnection().addPacketListener(
+            new PacketListener()
+            { 
+                public void processPacket(Packet packet)
+                {
+                    // Calls the parser to manages this presence packet.
+                    parseContactPhotoPresence(packet);
+                }
+            },
+            // Creates a filter to only listen to presence packet with the
+            // element name "x" and the namespace "vcard-temp:x:update".
+            new AndFilter(new PacketTypeFilter(Presence.class),
+                new PacketExtensionFilter(
+                    VCardTempXUpdatePresenceExtension.ELEMENT_NAME,
+                    VCardTempXUpdatePresenceExtension.NAMESPACE)
+                )
+            );
+    }
+
+    /**
+     * Parses a contact presence packet with the element name "x" and the
+     * namespace "vcard-temp:x:update", in order to decide if the SHA-1 avatar
+     * contained in the photo tag represents a new avatar for this contact.
+     *
+     * @param packet The packet received to parse.
+     */
+    public void parseContactPhotoPresence(Packet packet)
+    {
+        // Retrieves the contact ID and its avatar that Jitsi currently
+        // managed concerning the peer that has send this presence packet.
+        String userID
+            = StringUtils.parseBareAddress(packet.getFrom());
+        ContactJabberImpl sourceContact
+            = ssContactList.findContactById(userID);
+        byte[] currentAvatar = sourceContact.getImage(false);
+
+        // Get the packet extension which contains the photo tag.
+        DefaultPacketExtension defaultPacketExtension =
+            (DefaultPacketExtension) packet.getExtension(
+                    VCardTempXUpdatePresenceExtension.ELEMENT_NAME,
+                    VCardTempXUpdatePresenceExtension.NAMESPACE);
+        try
+        {
+            String packetPhotoSHA1 = defaultPacketExtension.getValue("photo");
+            // If this presence packet has a photo tag with a SHA-1 hash which
+            // differs from the current avatar SHA-1 hash, then Jitsi retreives
+            // the new avatar image and updates this contact image in the
+            // contact list.
+            if(defaultPacketExtension != null
+                    && packetPhotoSHA1 != null
+                    && !packetPhotoSHA1.equals(
+                        VCardTempXUpdatePresenceExtension.getImageSha1(
+                            currentAvatar))
+              )
+            {
+                byte[] newAvatar = null;
+
+                // If there is an avatar image, retreives it. 
+                if(packetPhotoSHA1.length() != 0)
+                {
+                    // Retrieves the new contact avatar image.
+                    VCard vCard = new VCard();
+                    vCard.load(parentProvider.getConnection(), userID);
+                    newAvatar = vCard.getAvatar();
+                }
+                // Else removes the current avatar image, since the contact has
+                // removed it from the server.
+                else
+                {
+                    newAvatar = new byte[0];
+                }
+
+                // Sets the new avatar image to the Jitsi contact.
+                sourceContact.setImage(newAvatar);
+                // Fires a property change event to update the contact list.
+                this.fireContactPropertyChangeEvent(
+                    ContactPropertyChangeEvent.PROPERTY_IMAGE,
+                    sourceContact,
+                    currentAvatar,
+                    newAvatar);
+            }
+        }
+        catch(XMPPException ex)
+        {
+            logger.info("Can not retrieve vCard from: " + packet.getFrom(), ex);
         }
     }
 }
