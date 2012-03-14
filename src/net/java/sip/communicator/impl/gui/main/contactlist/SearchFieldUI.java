@@ -173,6 +173,10 @@ public class SearchFieldUI
     {
         Rectangle rect = super.getVisibleEditorRect();
 
+        // Fixes NullPointerException if the rectangle is null for some reason.
+        if (rect == null)
+            return null;
+
         if ((rect.width > 0) && (rect.height > 0))
         {
             rect.x += searchIcon.getIconWidth() + 8;
