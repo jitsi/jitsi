@@ -22,6 +22,7 @@ import org.jvnet.lafwidget.animation.*;
  */
 public class SIPCommToggleButton
     extends JToggleButton
+    implements OrderedComponent
 {
     /**
      * Serial version UID.
@@ -52,6 +53,11 @@ public class SIPCommToggleButton
      * The icon image shown in pressed button state.
      */
     private Image pressedIconImage;
+
+    /**
+     * The index of the button, used when we want to order our buttons.
+     */
+    private int index = -1;
 
     /**
      * Creates an instance of <tt>SIPCommToggleButton</tt>.
@@ -321,6 +327,24 @@ public class SIPCommToggleButton
     {
         this.pressedImage = pressedImage;
         this.repaint();
+    }
+
+    /**
+     * Change buttons index when we want to order it.
+     * @param index the button index.
+     */
+    public void setIndex(int index)
+    {
+        this.index = index;
+    }
+
+    /**
+     * Returns the current button index we have set, or -1 if none used.
+     * @return
+     */
+    public int getIndex()
+    {
+        return this.index;
     }
 
     /**

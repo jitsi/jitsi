@@ -35,6 +35,24 @@ import net.java.sip.communicator.util.swing.border.*;
 /**
  * The dialog created for a given call.
  *
+ * Ordered buttons we are adding/removing, numbers are the index we have set.
+ * And the order that will be kept.
+ * 0 dialButton
+ * 1 conferenceButton
+ * 2 holdButton
+ * 3 recordButton
+ * 4 mergeButton
+ * 5 transferCallButton
+ * 6 localLevel
+ * 7 remoteLevel
+ * 8 desktopSharingButton
+ * 9 resizeVideoButton
+ * 10 fullScreenButton
+ * 11 videoButton
+ * 12 showHideVideoButton
+ * 19 chatButton
+ * 20 infoButton
+ *
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
@@ -106,7 +124,7 @@ public class CallPanel
     /**
      * The panel containing call settings.
      */
-    private final TransparentPanel settingsPanel = new TransparentPanel();
+    private final TransparentPanel settingsPanel = new OrderedTransparentPanel();
 
     /**
      * The panel representing the call. For conference calls this would be an
@@ -322,6 +340,10 @@ public class CallPanel
         recordButton = new RecordButton(call);
         videoButton = new LocalVideoButton(call);
         showHideVideoButton = new ShowHideVideoButton(call);
+        holdButton.setIndex(2);
+        recordButton.setIndex(3);
+        videoButton.setIndex(11);
+        showHideVideoButton.setIndex(12);
 
         showHideVideoButton.setPeerRenderer(((CallRenderer) callPanel)
             .getCallPeerRenderer(call.getCallPeers().next()));
@@ -351,6 +373,9 @@ public class CallPanel
         desktopSharingButton = new DesktopSharingButton(call);
         transferCallButton = new TransferCallButton(call);
         fullScreenButton = new FullScreenButton(this);
+        desktopSharingButton.setIndex(8);
+        transferCallButton.setIndex(5);
+        fullScreenButton.setIndex(10);
 
         chatButton = new SIPCommButton(
                 ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
@@ -359,6 +384,7 @@ public class CallPanel
         chatButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.CHAT"));
         chatButton.addActionListener(this);
+        chatButton.setIndex(19);
 
         localLevel = new InputVolumeControlButton(
             call,
@@ -367,12 +393,16 @@ public class CallPanel
             false, true, false);
         remoteLevel = new OutputVolumeControlButton(
                 ImageLoader.VOLUME_CONTROL_BUTTON, false, true);
+        localLevel.setIndex(6);
+        remoteLevel.setIndex(7);
 
+        dialButton.setIndex(0);
         dialButton.setName(DIAL_BUTTON);
         dialButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.DIALPAD"));
         dialButton.addActionListener(this);
 
+        conferenceButton.setIndex(1);
         conferenceButton.setName(CONFERENCE_BUTTON);
         conferenceButton.setToolTipText(
             GuiActivator.getResources().getI18NString(
@@ -384,6 +414,7 @@ public class CallPanel
             GuiActivator.getResources().getI18NString("service.gui.HANG_UP"));
         hangupButton.addActionListener(this);
 
+        mergeButton.setIndex(4);
         mergeButton.setName(MERGE_BUTTON);
         mergeButton.setToolTipText(
             GuiActivator.getResources().getI18NString(
@@ -446,6 +477,7 @@ public class CallPanel
                 GuiActivator.getResources().getI18NString(
                     "service.gui.PRESS_FOR_CALL_INFO"));
             infoButton.addActionListener(this);
+            infoButton.setIndex(20);
             settingsPanel.add(infoButton);
         }
 
@@ -1224,7 +1256,10 @@ public class CallPanel
         if(CallManager.isVideoQualityPresetSupported(callPeer))
         {
             if(resizeVideoButton == null)
+            {
                 resizeVideoButton = new ResizeVideoButton(call);
+                resizeVideoButton.setIndex(9);
+            }
 
             if(resizeVideoButton.countAvailableOptions() > 1)
                 settingsPanel.add(resizeVideoButton);
@@ -1304,12 +1339,6 @@ public class CallPanel
         {
             CallPeer callPeer = callPeers.next();
 
-            if (callPeer.getState() == CallPeerState.CONNECTED)
-            {
-                enableButtons(true);
-                return;
-            }
-
             settingsPanel.add(transferCallButton);
 
             Contact peerContact = callPeer.getContact();
@@ -1342,6 +1371,15 @@ public class CallPanel
                     OperationSetVideoTelephony.class) != null)
                     settingsPanel.add(videoButton);
             }
+
+            if (callPeer.getState() == CallPeerState.CONNECTED)
+            {
+                if(!isCallTimerStarted())
+                    startCallTimer();
+
+                enableButtons(true);
+                return;
+            }
         }
         enableButtons(false);
     }
@@ -1361,6 +1399,9 @@ public class CallPanel
         {
             if (callPeers.next().getState() == CallPeerState.CONNECTED)
             {
+                if(!isCallTimerStarted())
+                    startCallTimer();
+
                 enableButtons(true);
                 return;
             }

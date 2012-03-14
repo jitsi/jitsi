@@ -293,6 +293,7 @@ public class OperationSetAutoAnswerSipImpl
         catch (Throwable ex)
         {
             logger.error("Error while trying to send a request", ex);
+            return false;
         }
 
         return true;

@@ -22,6 +22,7 @@ import org.jvnet.lafwidget.animation.*;
  */
 public class SIPCommButton
     extends JButton
+    implements OrderedComponent
 {
     /**
      * Serial version UID.
@@ -39,6 +40,11 @@ public class SIPCommButton
     private Image pressedIconImage;
 
     private Image iconImage;
+
+    /**
+     * The index of the button, used when we want to order our buttons.
+     */
+    private int index = -1;
 
     /**
      * Creates a button.
@@ -344,6 +350,24 @@ public class SIPCommButton
     public void setIconImage(Image iconImage)
     {
         this.iconImage = iconImage;
+    }
+
+    /**
+     * Change buttons index when we want to order it.
+     * @param index the button index.
+     */
+    public void setIndex(int index)
+    {
+        this.index = index;
+    }
+
+    /**
+     * Returns the current button index we have set, or -1 if none used.
+     * @return
+     */
+    public int getIndex()
+    {
+        return this.index;
     }
 
     /**
