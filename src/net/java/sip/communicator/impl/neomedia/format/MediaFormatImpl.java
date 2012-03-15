@@ -508,6 +508,31 @@ public abstract class MediaFormatImpl<T extends Format>
     }
 
     /**
+     * Returns a <tt>String</tt> representation of the real used clock rate
+     * associated with this <tt>MediaFormat</tt> making sure that the value
+     * appears as an integer (i.e. contains no decimal point) unless it is
+     * actually a non integer.
+     * This function corrects the problem of the G.722 codec which advertises
+     * its clock rate to be 8 kHz while 16 kHz is really used to encode the
+     * stream (that's an error noted in the respective RFC and kept for the sake
+     * of compatibility.).
+     *
+     * @return a <tt>String</tt> representation of the real used clock rate
+     * associated with this <tt>MediaFormat</tt>.
+     */
+    public String getRealUsedClockRateString()
+    {
+        // RFC 1890 erroneously assigned 8 kHz to the RTP clock rate for the
+        // G722 payload format. The actual sampling rate for G.722 audio is 16
+        // kHz.
+        if(this.getEncoding().equalsIgnoreCase("G722"))
+        {
+            return "16000";
+        }
+        return this.getClockRateString();
+    }
+
+    /**
      * Sets additional codec settings.
      *
      * @param settings additional settings represented by a map.

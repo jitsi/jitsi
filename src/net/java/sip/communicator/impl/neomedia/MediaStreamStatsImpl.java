@@ -256,7 +256,7 @@ public class MediaStreamStatsImpl
     public String getEncodingClockRate()
     {
         // Gets this stream encoding clock rate.
-        return mediaStreamImpl.getFormat().getClockRateString();
+        return mediaStreamImpl.getFormat().getRealUsedClockRateString();
     }
 
     /**

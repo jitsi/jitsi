@@ -80,6 +80,21 @@ public interface MediaFormat
     public String getClockRateString();
 
     /**
+     * Returns a <tt>String</tt> representation of the real used clock rate
+     * associated with this <tt>MediaFormat</tt> making sure that the value
+     * appears as an integer (i.e. contains no decimal point) unless it is
+     * actually a non integer.
+     * This function corrects the problem of the G.722 codec which advertises
+     * its clock rate to be 8 kHz while 16 kHz is really used to encode the
+     * stream (that's an error noted in the respective RFC and kept for the sake
+     * of compatibility.).
+     *
+     * @return a <tt>String</tt> representation of the real used clock rate
+     * associated with this <tt>MediaFormat</tt>.
+     */
+    public String getRealUsedClockRateString();
+
+    /**
      * Determines whether this <tt>MediaFormat</tt> is equal to
      * <tt>mediaFormat</tt> i.e. they have the same encoding, clock rate, format
      * parameters, advanced attributes, etc.

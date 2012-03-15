@@ -186,18 +186,9 @@ public class EncodingConfigurationTableModel
                 return encoding.getEncoding();
             else
             {
-                String e = encoding.getEncoding();
-                /*
-                 * RFC 1890 erroneously assigned 8 kHz to the RTP clock rate for
-                 * the G722 payload format. The actual sampling rate for G.722
-                 * audio is 16 kHz.
-                 */
-                double cr
-                    = "G722".equalsIgnoreCase(e)
-                        ? 16000
-                        : encoding.getClockRate();
-
-                return e + "/" + ((long) cr);
+                return encoding.getEncoding()
+                    + "/"
+                    + encoding.getRealUsedClockRateString();
             }
         default:
             return null;
