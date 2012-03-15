@@ -59,7 +59,6 @@ Import-Package: org.osgi.framework,
  javax.net.ssl,
  javax.security.sasl,
  javax.security.auth.callback,
- javax.xml.bind.annotation.adapters,
  org.xmpp.jnodes,
  org.xmpp.jnodes.smack,
  org.xmpp.jnodes.nio

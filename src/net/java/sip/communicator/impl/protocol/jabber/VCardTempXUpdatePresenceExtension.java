@@ -7,10 +7,10 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.security.*;
-import javax.xml.bind.annotation.adapters.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.*;
 
 
 /**
@@ -105,10 +105,8 @@ public class VCardTempXUpdatePresenceExtension
         {
             if(image != null)
             {
-                HexBinaryAdapter hexBinaryAdapter = new HexBinaryAdapter();
                 MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
-                imageSha1 = hexBinaryAdapter.marshal(
-                        messageDigest.digest(image));
+                imageSha1 = StringUtils.encodeHex(messageDigest.digest(image));
             }
         }
         catch(NoSuchAlgorithmException ex)
