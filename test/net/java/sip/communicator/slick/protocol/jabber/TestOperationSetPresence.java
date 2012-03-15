@@ -511,9 +511,13 @@ public class TestOperationSetPresence
             = subEvtCollector.collectedEvents.iterator();
         while (events.hasNext())
         {
-            SubscriptionEvent elem = (SubscriptionEvent) events.next();
-            if(elem.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
-                subEvt = elem;
+            EventObject event = events.next();
+            if(event instanceof SubscriptionEvent)
+            {
+                SubscriptionEvent elem = (SubscriptionEvent) event;
+                if(elem.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
+                    subEvt = elem;
+            }
         }
 
         // it happens that when adding contacts which require authorization
