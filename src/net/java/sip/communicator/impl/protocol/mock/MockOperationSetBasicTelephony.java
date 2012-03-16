@@ -189,6 +189,23 @@ public class MockOperationSetBasicTelephony
             logger.info("hangupCallPeer");
         callPeer.setState(CallPeerState.DISCONNECTED, null);
     }
+    /**
+     * Ends the call with the specified <tt>peer</tt>.
+     *
+     * @param peer the peer that we'd like to hang up on.
+     * @param reasonCode indicates if the hangup is following to a call failure or
+     * simply a disconnect indicate by the reason.
+     * @param reason the reason of the hangup. If the hangup is due to a call
+     * failure, then this string could indicate the reason of the failure
+     *
+     * @throws OperationFailedException if we fail to terminate the call.
+     */
+    public void hangupCallPeer(CallPeer peer, int reasonCode, String reason)
+        throws
+        OperationFailedException
+    {
+        hangupCallPeer(peer);
+    }
 
     /**
      * Resumes communication with a call peer previously put on hold.

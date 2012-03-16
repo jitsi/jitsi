@@ -505,13 +505,17 @@ public class CallPeerGTalkImpl
      * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
      * and set the new state to DISCONNECTED.
      *
+     * @param failed indicates if the hangup is following to a call failure or
+     * simply a disconnect
      * @param reasonText the text, if any, to be set on the
      * <tt>ReasonPacketExtension</tt> as the value of its
      * @param reasonOtherExtension the <tt>PacketExtension</tt>, if any, to be
      * set on the <tt>ReasonPacketExtension</tt> as the value of its
      * <tt>otherExtension</tt> property
      */
-    public void hangup(String reasonText, PacketExtension reasonOtherExtension)
+    public void hangup(boolean failed,
+                       String reasonText,
+                       PacketExtension reasonOtherExtension)
     {
         // do nothing if the call is already ended
         if (CallPeerState.DISCONNECTED.equals(getState())
@@ -525,7 +529,12 @@ public class CallPeerGTalkImpl
 
         CallPeerState prevPeerState = getState();
         getMediaHandler().getTransportManager().close();
-        setState(CallPeerState.DISCONNECTED);
+
+        if (failed)
+            setState(CallPeerState.FAILED, reasonText);
+        else
+            setState(CallPeerState.DISCONNECTED, reasonText);
+
         SessionIQ responseIQ = null;
 
         if (prevPeerState.equals(CallPeerState.CONNECTED)
@@ -574,7 +583,14 @@ public class CallPeerGTalkImpl
                                 ReasonPacketExtension.NAMESPACE);
 
                 if (reason != null)
+                {
                     reason.setOtherExtension(reasonOtherExtension);
+                }
+                else if(reason instanceof ReasonPacketExtension)
+                {
+                    responseIQ.setReason(
+                        (ReasonPacketExtension)reasonOtherExtension);
+                }
             }
 
             getProtocolProvider().getConnection().sendPacket(responseIQ);

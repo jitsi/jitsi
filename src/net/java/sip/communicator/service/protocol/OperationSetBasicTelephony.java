@@ -43,6 +43,22 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
         = "net.java.sip.communicator.service.protocol.MAX_MEDIA_PORT_NUMBER";
 
     /**
+     * Reason code used to hangup peer, indicates normal hangup.
+     */
+    public static final int HANGUP_REASON_NORMAL_CLEARING = 200;
+
+    /**
+     * Reason code used to hangup peer when we wait for some event
+     * and it timeouted.
+     */
+    public static final int HANGUP_REASON_TIMEOUT = 408;
+
+    /**
+     * Reason code used to hangup peer if call was not encrypted.
+     */
+    public static final int HANGUP_REASON_ENCRYPTION_REQUIRED = 609;
+
+    /**
      * Registers the specified CallListener with this provider so that it could
      * be notified when incoming calls are received. This method is called
      * by the implementation of the PhoneUI service.
@@ -162,6 +178,22 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
      * encounter an error while performing this operation.
      */
     public void hangupCallPeer(CallPeer peer)
+        throws OperationFailedException;
+
+    /**
+     * Ends the call with the specified <tt>peer</tt>.
+     *
+     * @param peer the peer that we'd like to hang up on.
+     * @param reasonCode indicates if the hangup is following to a call failure or
+     * simply a disconnect indicate by the reason.
+     * @param reason the reason of the hangup. If the hangup is due to a call
+     * failure, then this string could indicate the reason of the failure
+     *
+     * @throws OperationFailedException if we fail to terminate the call.
+     */
+    public void hangupCallPeer(CallPeer peer,
+                               int reasonCode,
+                               String reason)
         throws OperationFailedException;
 
     /**

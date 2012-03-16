@@ -136,7 +136,9 @@ public class CallGTalkImpl
                 == 0)
         {
             //send an error response;
-            String reasonText = "Encryption required!";
+            String reasonText =
+                JabberActivator.getResources().getI18NString(
+                    "service.gui.security.encryption.required");
             SessionIQ errResp = GTalkPacketFactory.createSessionTerminate(
                 sessionIQ.getTo(),
                 sessionIQ.getFrom(),

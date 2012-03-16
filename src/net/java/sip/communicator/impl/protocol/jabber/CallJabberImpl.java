@@ -192,7 +192,9 @@ public class CallJabberImpl
                 == 0)
         {
             //send an error response;
-            String reasonText = "Encryption required!";
+            String reasonText =
+                JabberActivator.getResources().getI18NString(
+                    "service.gui.security.encryption.required");
             JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
                 jingleIQ.getTo(),
                 jingleIQ.getFrom(),

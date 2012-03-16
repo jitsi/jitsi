@@ -584,14 +584,70 @@ public class OperationSetBasicTelephonyJabberImpl
         throws ClassCastException,
                OperationFailedException
     {
+        this.hangupCallPeer(peer, HANGUP_REASON_NORMAL_CLEARING, null);
+    }
+
+    /**
+     * Ends the call with the specified <tt>peer</tt>.
+     *
+     * @param peer the peer that we'd like to hang up on.
+     * @param reasonCode indicates if the hangup is following to a call failure
+     * or simply a disconnect indicate by the reason.
+     * @param reasonText the reason of the hangup. If the hangup is due to a
+     * call failure, then this string could indicate the reason of the failure
+     *
+     * @throws OperationFailedException if we fail to terminate the call.
+     */
+    public void hangupCallPeer(CallPeer peer,
+                               int reasonCode,
+                               String reasonText)
+    {
+        boolean failed = (reasonCode != HANGUP_REASON_NORMAL_CLEARING);
+
+        // if we are failing a peer and have a reason, add the reason packet
+        // extension
+        ReasonPacketExtension reasonPacketExt = null;
+        if(failed && reasonText != null)
+        {
+            Reason reason = convertReasonCodeToSIPCode(reasonCode);
+
+            if(reason != null)
+            {
+                reasonPacketExt = new ReasonPacketExtension(
+                    reason, reasonText, null);
+            }
+        }
+
         // XXX maybe add answer/hangup abstract method to MediaAwareCallPeer
         if(peer instanceof CallPeerJabberImpl)
         {
-            ((CallPeerJabberImpl) peer).hangup(null, null);
+            ((CallPeerJabberImpl) peer)
+                .hangup(failed, reasonText, reasonPacketExt);
         }
         else if(peer instanceof CallPeerGTalkImpl)
         {
-            ((CallPeerGTalkImpl) peer).hangup(null, null);
+            ((CallPeerGTalkImpl) peer)
+                .hangup(failed, reasonText, reasonPacketExt);
+        }
+    }
+
+    /**
+     * Converts the codes for hangup from OperationSetBasicTelephony one
+     * to the jabber reasons.
+     * @param reasonCode the reason code.
+     * @return the jabber Response.
+     */
+    private static Reason convertReasonCodeToSIPCode(int reasonCode)
+    {
+        switch(reasonCode)
+        {
+            case HANGUP_REASON_NORMAL_CLEARING :
+                return Reason.SUCCESS;
+            case HANGUP_REASON_ENCRYPTION_REQUIRED :
+                return Reason.SECURITY_ERROR;
+            case HANGUP_REASON_TIMEOUT :
+                return Reason.TIMEOUT;
+            default : return null;
         }
     }
 

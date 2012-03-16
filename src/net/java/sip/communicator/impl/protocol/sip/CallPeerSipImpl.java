@@ -26,6 +26,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.*;
+
 /**
  * Our SIP implementation of the default CallPeer;
  *
@@ -952,7 +954,7 @@ public class CallPeerSipImpl
         throws OperationFailedException
     {
         // By default we hang up by indicating no failure has happened.
-        hangup(false, null);
+        hangup(HANGUP_REASON_NORMAL_CLEARING, null);
     }
 
     /**
@@ -960,14 +962,14 @@ public class CallPeerSipImpl
      * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
      * and set the new state to DISCONNECTED.
      *
-     * @param failed indicates if the hangup is following to a call failure or
-     * simply a disconnect
+     * @param reasonCode indicates if the hangup is following to a call failure
+     * or simply a disconnect indicate by the reason.
      * @param reason the reason of the hangup. If the hangup is due to a call
      * failure, then this string could indicate the reason of the failure
      *
      * @throws OperationFailedException if we fail to terminate the call.
      */
-    public void hangup(boolean failed, String reason)
+    public void hangup(int reasonCode, String reason)
         throws OperationFailedException
     {
         // do nothing if the call is already ended
@@ -980,6 +982,8 @@ public class CallPeerSipImpl
             return;
         }
 
+        boolean failed = (reasonCode != HANGUP_REASON_NORMAL_CLEARING);
+
         CallPeerState peerState = getState();
         if (peerState.equals(CallPeerState.CONNECTED)
             || CallPeerState.isOnHold(peerState))
@@ -987,7 +991,7 @@ public class CallPeerSipImpl
             // if we fail to send the bye, lets close the call anyway
             try
             {
-                boolean dialogIsAlive = sayBye();
+                boolean dialogIsAlive = sayBye(reasonCode, reason);
                 if (!dialogIsAlive)
                 {
                     setDisconnectedState(failed, reason);
@@ -1134,11 +1138,37 @@ public class CallPeerSipImpl
      * @throws OperationFailedException if we failed constructing or sending a
      * SIP Message.
      */
-    private boolean sayBye() throws OperationFailedException
+    private boolean sayBye(int reasonCode, String reason)
+        throws OperationFailedException
     {
         Dialog dialog = getDialog();
 
         Request bye = messageFactory.createRequest(dialog, Request.BYE);
+
+        if(reasonCode != HANGUP_REASON_NORMAL_CLEARING && reason != null)
+        {
+            int sipCode = convertReasonCodeToSIPCode(reasonCode);
+
+            if(sipCode != -1)
+            {
+                try
+                {
+                    // indicate reason for failure
+                    // using Reason header rfc3326
+                    ReasonHeader reasonHeader =
+                        getProtocolProvider().getHeaderFactory()
+                            .createReasonHeader(
+                                "SIP",
+                                sipCode,
+                                reason);
+                    bye.setHeader(reasonHeader);
+                }
+                catch(Throwable e)
+                {
+                    logger.error("Cannot set reason header", e);
+                }
+            }
+        }
 
         getProtocolProvider().sendInDialogRequest(
                         getJainSipProvider(), bye, dialog);
@@ -1158,6 +1188,26 @@ public class CallPeerSipImpl
                 "Failed to determine whether the dialog should stay alive.",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
             return false;
+        }
+    }
+
+    /**
+     * Converts the codes for hangup from OperationSetBasicTelephony one
+     * to the sip codes.
+     * @param reasonCode the reason code.
+     * @return the sip code or -1 if not found.
+     */
+    private static int convertReasonCodeToSIPCode(int reasonCode)
+    {
+        switch(reasonCode)
+        {
+            case HANGUP_REASON_NORMAL_CLEARING :
+                return Response.ACCEPTED;
+            case HANGUP_REASON_ENCRYPTION_REQUIRED :
+                return Response.SESSION_NOT_ACCEPTABLE;
+            case HANGUP_REASON_TIMEOUT : 
+                return Response.REQUEST_TIMEOUT;
+            default : return -1;
         }
     }
 

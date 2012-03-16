@@ -970,7 +970,9 @@ public class OperationSetBasicTelephonySipImpl
         try
         {
             hangupCallPeer( callPeer,
-                            true, // to indicate the hangup is due to a failure
+                            HANGUP_REASON_TIMEOUT, // to indicate the
+                                                        // hangup is due to
+                                                        // a failure
                             "The remote party has not replied!"
                             + "The call will be disconnected");
         }
@@ -1081,10 +1083,13 @@ public class OperationSetBasicTelephonySipImpl
                 {
                     // if in paranoia mode and we don't find any encryption
                     // fail peer/call send error with warning explaining why
+                    String reasonText =
+                        SipActivator.getResources().getI18NString(
+                            "service.gui.security.encryption.required");
 
                     peer.setState(
                         CallPeerState.FAILED,
-                        "Encryption required!",
+                        reasonText,
                         Response.SESSION_NOT_ACCEPTABLE);
 
                     // 606 Not acceptable
@@ -1096,7 +1101,7 @@ public class OperationSetBasicTelephonySipImpl
                         warning = protocolProvider.getHeaderFactory()
                             .createWarningHeader(
                                 protocolProvider.getAccountID().getService()
-                                , 399, "Encryption required!");
+                                , 399, reasonText);
                     }
                     catch(InvalidArgumentException e)
                     {
@@ -1772,15 +1777,15 @@ public class OperationSetBasicTelephonySipImpl
         OperationFailedException
     {
         // By default we hang up by indicating no failure has happened.
-        hangupCallPeer(peer, false, null);
+        hangupCallPeer(peer, HANGUP_REASON_NORMAL_CLEARING, null);
     }
 
     /**
      * Ends the call with the specified <tt>peer</tt>.
      *
      * @param peer the peer that we'd like to hang up on.
-     * @param failed indicates if the hangup is following to a call failure or
-     * simply a disconnect
+     * @param reasonCode indicates if the hangup is following to a call failure
+     * or simply a disconnect indicate by the reason.
      * @param reason the reason of the hangup. If the hangup is due to a call
      * failure, then this string could indicate the reason of the failure
      *
@@ -1789,13 +1794,13 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException if we fail to terminate the call.
      */
     public synchronized void hangupCallPeer(CallPeer peer,
-                                            boolean failed,
+                                            int reasonCode,
                                             String reason)
         throws ClassCastException,
         OperationFailedException
     {
         CallPeerSipImpl peerSipImpl = (CallPeerSipImpl)peer;
-        peerSipImpl.hangup(failed, reason);
+        peerSipImpl.hangup(reasonCode, reason);
     }
 
     /**
