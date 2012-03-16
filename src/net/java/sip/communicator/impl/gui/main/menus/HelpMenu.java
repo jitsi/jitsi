@@ -25,8 +25,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class HelpMenu 
     extends SIPCommMenu
-    implements ActionListener,
-               PluginComponentListener
+    implements ActionListener
 {
     /**
      * The <tt>PluginContainer</tt> which implements the logic related to
@@ -59,15 +58,5 @@ public class HelpMenu
      */
     public void actionPerformed(ActionEvent e)
     {
-    }
-
-    public void pluginComponentAdded(PluginComponentEvent event)
-    {
-        pluginContainer.pluginComponentAdded(event);
-    }
-
-    public void pluginComponentRemoved(PluginComponentEvent event)
-    {
-        pluginContainer.pluginComponentRemoved(event);
     }
 }

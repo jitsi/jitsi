@@ -100,6 +100,18 @@ public class AccountStatusPanel
     private String currentLastName;
 
     /**
+     * Keep reference to plugin container or it will loose its
+     * listener.
+     */
+    private final PluginContainer southPluginContainer;
+
+    /**
+     * Keep reference to plugin container or it will loose its
+     * listener.
+     */
+    private final PluginContainer mainToolbarPluginContainer;
+
+    /**
      * Creates an instance of <tt>AccountStatusPanel</tt> by specifying the
      * main window, where this panel is added.
      * @param mainFrame the main window, where this panel is added
@@ -140,7 +152,7 @@ public class AccountStatusPanel
         toolbarPluginPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 
-        new PluginContainer(toolbarPluginPanel,
+        mainToolbarPluginContainer = new PluginContainer(toolbarPluginPanel,
                             Container.CONTAINER_MAIN_TOOL_BAR);
 
         statusToolsPanel.add(toolbarPluginPanel, BorderLayout.EAST);
@@ -155,7 +167,7 @@ public class AccountStatusPanel
 
         southPluginPanel = new TransparentPanel(new BorderLayout());
 
-        new PluginContainer(
+        southPluginContainer = new PluginContainer(
             southPluginPanel,
             Container.CONTAINER_ACCOUNT_SOUTH);
 
@@ -465,19 +477,18 @@ public class AccountStatusPanel
     public void pluginComponentAdded(PluginComponentEvent event)
     {
         PluginComponent pluginComponent = event.getPluginComponent();
-        String containerID = pluginComponent.getContainer().getID();
+        Container containerID = pluginComponent.getContainer();
         Object component = pluginComponent.getComponent();
 
         if (!(component instanceof Component))
             return;
 
-        if (containerID.equals(Container.CONTAINER_MAIN_TOOL_BAR))
-            toolbarPluginPanel.add((Component) component);
-        else if (containerID.equals(Container.CONTAINER_ACCOUNT_SOUTH))
-            southPluginPanel.add((Component) component);
-
-        this.revalidate();
-        this.repaint();
+        if (containerID.equals(Container.CONTAINER_MAIN_TOOL_BAR)
+           || containerID.equals(Container.CONTAINER_ACCOUNT_SOUTH))
+        {
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     /**
@@ -495,13 +506,12 @@ public class AccountStatusPanel
         if (!(component instanceof Component))
             return;
 
-        if (pluginContainer.equals(Container.CONTAINER_MAIN_TOOL_BAR))
-            toolbarPluginPanel.remove((Component) component);
-        else if (pluginContainer.equals(Container.CONTAINER_ACCOUNT_SOUTH))
-            southPluginPanel.remove((Component) component);
-
-        this.revalidate();
-        this.repaint();
+        if (pluginContainer.equals(Container.CONTAINER_MAIN_TOOL_BAR)
+            || pluginContainer.equals(Container.CONTAINER_ACCOUNT_SOUTH))
+        {
+            this.revalidate();
+            this.repaint();
+        }
     }
 
     /**
