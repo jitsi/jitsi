@@ -549,7 +549,8 @@ public class AutoAnswerMenu
                 if(noneRadio.isSelected())
                 {
                     opset.clear();
-                    opSetAdvanced.clear();
+                    if(opSetAdvanced != null)
+                        opSetAdvanced.clear();
                 }
                 else if(alwaysAnswerRadio.isSelected())
                 {
