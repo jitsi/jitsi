@@ -1409,6 +1409,16 @@ public class OperationSetPersistentPresenceJabberImpl
             = StringUtils.parseBareAddress(packet.getFrom());
         ContactJabberImpl sourceContact
             = ssContactList.findContactById(userID);
+
+        /**
+         * If this contact is not yet in our contact list, then there is no need
+         * to manage this photo update.
+         */
+        if(sourceContact == null)
+        {
+            return;
+        }
+
         byte[] currentAvatar = sourceContact.getImage(false);
 
         // Get the packet extension which contains the photo tag.
@@ -1416,50 +1426,53 @@ public class OperationSetPersistentPresenceJabberImpl
             (DefaultPacketExtension) packet.getExtension(
                     VCardTempXUpdatePresenceExtension.ELEMENT_NAME,
                     VCardTempXUpdatePresenceExtension.NAMESPACE);
-        try
+        if(defaultPacketExtension != null)
         {
-            String packetPhotoSHA1 = defaultPacketExtension.getValue("photo");
-            // If this presence packet has a photo tag with a SHA-1 hash which
-            // differs from the current avatar SHA-1 hash, then Jitsi retreives
-            // the new avatar image and updates this contact image in the
-            // contact list.
-            if(defaultPacketExtension != null
-                    && packetPhotoSHA1 != null
-                    && !packetPhotoSHA1.equals(
-                        VCardTempXUpdatePresenceExtension.getImageSha1(
-                            currentAvatar))
-              )
+            try
             {
-                byte[] newAvatar = null;
-
-                // If there is an avatar image, retreives it. 
-                if(packetPhotoSHA1.length() != 0)
+                String packetPhotoSHA1 =
+                    defaultPacketExtension.getValue("photo");
+                // If this presence packet has a photo tag with a SHA-1 hash
+                // which differs from the current avatar SHA-1 hash, then Jitsi
+                // retreives the new avatar image and updates this contact image
+                // in the contact list.
+                if(packetPhotoSHA1 != null
+                        && !packetPhotoSHA1.equals(
+                            VCardTempXUpdatePresenceExtension.getImageSha1(
+                                currentAvatar))
+                  )
                 {
-                    // Retrieves the new contact avatar image.
-                    VCard vCard = new VCard();
-                    vCard.load(parentProvider.getConnection(), userID);
-                    newAvatar = vCard.getAvatar();
-                }
-                // Else removes the current avatar image, since the contact has
-                // removed it from the server.
-                else
-                {
-                    newAvatar = new byte[0];
-                }
+                    byte[] newAvatar = null;
 
-                // Sets the new avatar image to the Jitsi contact.
-                sourceContact.setImage(newAvatar);
-                // Fires a property change event to update the contact list.
-                this.fireContactPropertyChangeEvent(
-                    ContactPropertyChangeEvent.PROPERTY_IMAGE,
-                    sourceContact,
-                    currentAvatar,
-                    newAvatar);
+                    // If there is an avatar image, retreives it. 
+                    if(packetPhotoSHA1.length() != 0)
+                    {
+                        // Retrieves the new contact avatar image.
+                        VCard vCard = new VCard();
+                        vCard.load(parentProvider.getConnection(), userID);
+                        newAvatar = vCard.getAvatar();
+                    }
+                    // Else removes the current avatar image, since the contact
+                    // has removed it from the server.
+                    else
+                    {
+                        newAvatar = new byte[0];
+                    }
+
+                    // Sets the new avatar image to the Jitsi contact.
+                    sourceContact.setImage(newAvatar);
+                    // Fires a property change event to update the contact list.
+                    this.fireContactPropertyChangeEvent(
+                        ContactPropertyChangeEvent.PROPERTY_IMAGE,
+                        sourceContact,
+                        currentAvatar,
+                        newAvatar);
+                }
             }
-        }
-        catch(XMPPException ex)
-        {
-            logger.info("Can not retrieve vCard from: " + packet.getFrom(), ex);
+            catch(XMPPException ex)
+            {
+                logger.info("Can not retrieve vCard from: " + packet.getFrom(), ex);
+            }
         }
     }
 }
