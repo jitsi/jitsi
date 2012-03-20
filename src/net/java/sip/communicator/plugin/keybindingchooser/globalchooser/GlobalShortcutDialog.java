@@ -390,7 +390,7 @@ public class GlobalShortcutDialog
 
             this.setPreferredSize(new Dimension(200, 23));
             this.setUI(textFieldUI);
-            this.setBorder(null);
+            this.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
             this.setOpaque(false);
 
             this.setDragEnabled(true);
