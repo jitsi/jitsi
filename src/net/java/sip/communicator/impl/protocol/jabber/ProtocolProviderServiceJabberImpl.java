@@ -36,7 +36,6 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.bytestreams.socks5.*;
 import org.jivesoftware.smackx.packet.*;
 
 import org.osgi.framework.*;
@@ -1903,13 +1902,26 @@ public class ProtocolProviderServiceJabberImpl
          */
         public void connectionClosed()
         {
-            OperationSetPersistentPresenceJabberImpl opSetPersPresence =
-                (OperationSetPersistentPresenceJabberImpl)
-                    getOperationSet(OperationSetPersistentPresence.class);
-
-            opSetPersPresence.fireProviderStatusChangeEvent(
-                opSetPersPresence.getPresenceStatus(),
-                getJabberStatusEnum().getStatus(JabberStatusEnum.OFFLINE));
+            // if we are in the middle of connecting process
+            // do not fire events, will do it later when the method
+            // connectAndLogin finishes its work
+            synchronized(connectAndLoginLock)
+            {
+                if(inConnectAndLogin)
+                {
+                    eventDuringLogin = new RegistrationStateChangeEvent(
+                        ProtocolProviderServiceJabberImpl.this,
+                        getRegistrationState(),
+                        RegistrationState.CONNECTION_FAILED,
+                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                        null);
+                     return;
+                }
+            }
+            // if we are already unregistered, there will not be a new fire
+            // if not we will clean and provider will fire its
+            // provider state change
+            unregister(true);
         }
 
         /**
