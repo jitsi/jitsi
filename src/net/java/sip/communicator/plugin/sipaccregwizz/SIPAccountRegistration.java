@@ -97,6 +97,11 @@ public class SIPAccountRegistration
      */
     private String voicemailURI;
 
+    /**
+     * Whether message waiting indications is enabled.
+     */
+    private boolean messageWaitingIndications = true;
+
     public String getPreferredTransport()
     {
         return preferredTransport;
@@ -747,5 +752,25 @@ public class SIPAccountRegistration
     public void setVoicemailURI(String voicemailURI)
     {
         this.voicemailURI = voicemailURI;
+    }
+
+    /**
+     * Check if messageWaitingIndications is enabled
+     *
+     * @return if messageWaitingIndications is enabled
+     */
+    public boolean isMessageWaitingIndicationsEnabled()
+    {
+        return messageWaitingIndications;
+    }
+
+    /**
+     * Sets message waiting indications.
+     *
+     * @param messageWaitingIndications
+     */
+    public void setMessageWaitingIndications(boolean messageWaitingIndications)
+    {
+        this.messageWaitingIndications = messageWaitingIndications;
     }
 }

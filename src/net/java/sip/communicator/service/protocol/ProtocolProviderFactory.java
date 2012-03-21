@@ -371,6 +371,11 @@ public abstract class ProtocolProviderFactory
     public static final String IS_ALLOW_NON_SECURE = "ALLOW_NON_SECURE";
 
     /**
+     * Enable notifications for new voicemail messages.
+     */
+    public static final String VOICEMAIL_ENABLED = "VOICEMAIL_ENABLED";
+
+    /**
      * Address used to reach voicemail box, by services able to
      * subscribe for voicemail new messages notifications.
      */

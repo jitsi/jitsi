@@ -534,9 +534,15 @@ public class ProtocolProviderServiceSipImpl
                     new OperationSetAvatarSipImpl(this, opSetSSAccountInfo));
             }
 
-            addSupportedOperationSet(
-                OperationSetMessageWaiting.class,
-                new OperationSetMessageWaitingSipImpl(this));
+            // MWI is enabled by default
+            if(accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.VOICEMAIL_ENABLED,
+                    true))
+            {
+                addSupportedOperationSet(
+                    OperationSetMessageWaiting.class,
+                    new OperationSetMessageWaitingSipImpl(this));
+            }
 
             //initialize our OPTIONS handler
             new ClientCapabilities(this);

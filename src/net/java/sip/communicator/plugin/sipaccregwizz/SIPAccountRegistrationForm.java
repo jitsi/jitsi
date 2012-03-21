@@ -7,6 +7,7 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -308,7 +309,9 @@ public class SIPAccountRegistrationForm
                 presencePanel.isClistOptionUseSipCredentials());
         registration.setClistOptionUser(presencePanel.getClistOptionUser());
         registration.setClistOptionPassword(
-                new String(presencePanel.getClistOptionPassword()));
+            new String(presencePanel.getClistOptionPassword()));
+        registration.setMessageWaitingIndications(
+            connectionPanel.isMessageWaitingEnabled());
         registration.setVoicemailURI(connectionPanel.getVoicemailURI());
 
         return true;
@@ -437,7 +440,11 @@ public class SIPAccountRegistrationForm
 
         connectionPanel.setDTMFMethod(dtmfMethod);
 
-        if (voicemailURI != null && voicemailURI.length() > 0)
+        boolean mwiEnabled = accountID.getAccountPropertyBoolean(
+            ProtocolProviderFactory.VOICEMAIL_ENABLED, true);
+        connectionPanel.setMessageWaitingIndications(mwiEnabled);
+
+        if(!StringUtils.isNullOrEmpty(voicemailURI))
             connectionPanel.setVoicemailURI(voicemailURI);
 
         if(xCapEnable)

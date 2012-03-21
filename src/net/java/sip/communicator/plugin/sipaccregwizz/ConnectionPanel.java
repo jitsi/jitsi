@@ -72,6 +72,8 @@ public class ConnectionPanel
                                         "plugin.sipaccregwizz.DTMF_INBAND")
                                 });
 
+    private final JCheckBox mwiCheckBox;
+
     private boolean isServerOverridden = false;
 
     private SIPAccountRegistrationForm regform;
@@ -205,12 +207,20 @@ public class ConnectionPanel
 
         JPanel voicemailPanel
                 = new TransparentPanel(new BorderLayout(10, 10));
-        voicemailPanel.add(new JLabel(
+        JPanel voicemailUriPanel
+                = new TransparentPanel(new BorderLayout(10, 10));
+        mwiCheckBox = new SIPCommCheckBox(
+            Resources.getString("plugin.sipaccregwizz.MWI"),
+            regform.getRegistration().isMessageWaitingIndicationsEnabled());
+        voicemailUriPanel.add(new JLabel(
                 Resources.getString("plugin.sipaccregwizz.VOICEMAIL_URI")),
                 BorderLayout.WEST);
-        voicemailPanel.add(voicemailField, BorderLayout.CENTER);
+        voicemailUriPanel.add(voicemailField, BorderLayout.CENTER);
 
         voicemailField.setText(regform.getRegistration().getVoicemailURI());
+
+        voicemailPanel.add(mwiCheckBox, BorderLayout.WEST);
+        voicemailPanel.add(voicemailUriPanel, BorderLayout.CENTER);
 
         mainPanel.add(Box.createVerticalStrut(5));
         mainPanel.add(createDTMFPanel());
@@ -620,6 +630,24 @@ public class ConnectionPanel
     void setVoicemailURI(String voicemailURI)
     {
         voicemailField.setText(voicemailURI);
+    }
+
+    /**
+     * Returns is message waiting indications is enabled.
+     * @return is message waiting indications is enabled.
+     */
+    boolean isMessageWaitingEnabled()
+    {
+        return mwiCheckBox.isSelected();
+    }
+
+    /**
+     * Sets is message waiting indications is enabled.
+     * @param enabled is message waiting indications is enabled.
+     */
+    void setMessageWaitingIndications(boolean enabled)
+    {
+        mwiCheckBox.setSelected(enabled);
     }
 
     /**
