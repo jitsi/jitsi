@@ -449,14 +449,14 @@ public class TestOperationSetPresence
         authEventCollector2.waitForAuthRequest(10000);
 
         assertTrue("Error authorization request not received from " +
-                        fixture.userID2,
-                       authEventCollector2.isAuthorizationRequestReceived);
+                fixture.userID2,
+                authEventCollector2.isAuthorizationRequestReceived);
 
         authEventCollector1.waitForAuthResponse(10000);
 
         assertTrue("Error authorization reply not received from " +
-                        fixture.userID1,
-                       authEventCollector1.isAuthorizationResponseReceived);
+                fixture.userID1,
+                authEventCollector1.isAuthorizationResponseReceived);
 
         assertEquals("Error received authorization reply not as expected",
              authEventCollector2.responseToRequest.getResponseCode(),
@@ -503,18 +503,17 @@ public class TestOperationSetPresence
 
 
         assertTrue("Subscription event dispatching failed."
-                     , subEvtCollector.collectedEvents.size() > 0);
+                     , subEvtCollector.collectedSubscriptionEvents.size() > 0);
 
         SubscriptionEvent subEvt = null;
 
-        Iterator<EventObject> events
-            = subEvtCollector.collectedEvents.iterator();
-        while (events.hasNext())
+        synchronized(subEvtCollector)
         {
-            EventObject event = events.next();
-            if(event instanceof SubscriptionEvent)
+            Iterator<SubscriptionEvent> events
+                = subEvtCollector.collectedSubscriptionEvents.iterator();
+            while (events.hasNext())
             {
-                SubscriptionEvent elem = (SubscriptionEvent) event;
+                SubscriptionEvent elem = events.next();
                 if(elem.getEventID() == SubscriptionEvent.SUBSCRIPTION_CREATED)
                     subEvt = elem;
             }
@@ -535,7 +534,9 @@ public class TestOperationSetPresence
                      fixture.provider1,
                      subEvt.getSourceProvider());
 
-        subEvtCollector.collectedEvents.clear();
+        subEvtCollector.collectedSubscriptionEvents.clear();
+        subEvtCollector.collectedSubscriptionMovedEvents.clear();
+        subEvtCollector.collectedContactPropertyChangeEvents.clear();
 
         // make the user agent tester change its states and make sure we are
         // notified
@@ -569,8 +570,10 @@ public class TestOperationSetPresence
                 .removeContactPresenceStatusListener(contactPresEvtCollector);
         }
 
-        assertEquals("Presence Notif. event dispatching failed."
-                     , 1, contactPresEvtCollector.collectedEvents.size());
+        assertEquals(
+                "Presence Notif. event dispatching failed.",
+                1,
+                contactPresEvtCollector.collectedEvents.size());
         ContactPresenceStatusChangeEvent presEvt = contactPresEvtCollector.collectedEvents.get(0);
 
         assertEquals("Presence Notif. event  Source:",
@@ -622,15 +625,17 @@ public class TestOperationSetPresence
 
         synchronized(subEvtCollector){
             operationSetPresence1.unsubscribe(jabberTesterAgentContact);
-            subEvtCollector.waitForEvent(10000);
+            subEvtCollector.waitForSubscriptionEvent(10000);
             //don't want any more events
             operationSetPresence1.removeSubscriptionListener(subEvtCollector);
         }
 
-        assertEquals("Subscription event dispatching failed."
-                     , 1, subEvtCollector.collectedEvents.size());
+        assertEquals(
+                "Subscription event dispatching failed.",
+                1,
+                subEvtCollector.collectedSubscriptionEvents.size());
         SubscriptionEvent subEvt =
-            (SubscriptionEvent)subEvtCollector.collectedEvents.get(0);
+            subEvtCollector.collectedSubscriptionEvents.get(0);
 
         assertEquals("SubscriptionEvent Source:",
                      jabberTesterAgentContact, subEvt.getSource());
@@ -642,7 +647,9 @@ public class TestOperationSetPresence
                      fixture.provider1,
                      subEvt.getSourceProvider());
 
-        subEvtCollector.collectedEvents.clear();
+        subEvtCollector.collectedSubscriptionEvents.clear();
+        subEvtCollector.collectedSubscriptionMovedEvents.clear();
+        subEvtCollector.collectedContactPropertyChangeEvents.clear();
 
         // make the user agent tester change its states and make sure we don't
         // get notifications as we're now unsubscribed.
@@ -739,26 +746,10 @@ public class TestOperationSetPresence
         public void waitForPresEvent(long waitFor)
         {
             logger.trace("Waiting for a change in provider status.");
-            synchronized(this)
-            {
-                if(collectedPresEvents.size() > 0){
-                    logger.trace("Change already received. "
-                                    + collectedPresEvents);
-                    return;
-                }
-
-                try{
-                    wait(waitFor);
-                    if(collectedPresEvents.size() > 0)
-                        logger.trace("Received a change in provider status.");
-                    else
-                        logger.trace("No change received for "+waitFor+"ms.");
-                }
-                catch (InterruptedException ex){
-                    logger.debug("Interrupted while waiting for a provider evt"
-                        , ex);
-                }
-            }
+            TestOperationSetPresence.waitForEvent(
+                    this,
+                    waitFor,
+                    collectedPresEvents);
         }
 
         /**
@@ -771,27 +762,10 @@ public class TestOperationSetPresence
         public void waitForStatMsgEvent(long waitFor)
         {
             logger.trace("Waiting for a provider status message event.");
-            synchronized(this)
-            {
-                if(collectedStatMsgEvents.size() > 0){
-                    logger.trace("Stat msg. evt already received. "
-                                 + collectedStatMsgEvents);
-                    return;
-                }
-
-                try{
-                    wait(waitFor);
-                    if(collectedStatMsgEvents.size() > 0)
-                        logger.trace("Received a prov. stat. msg. evt.");
-                    else
-                        logger.trace("No prov. stat msg. received for "
-                                     +waitFor+"ms.");
-                }
-                catch (InterruptedException ex){
-                    logger.debug(
-                        "Interrupted while waiting for a status msg evt", ex);
-                }
-            }
+            TestOperationSetPresence.waitForEvent(
+                    this,
+                    waitFor,
+                    collectedStatMsgEvents);
         }
     }
 
@@ -801,31 +775,87 @@ public class TestOperationSetPresence
      */
     private class SubscriptionEventCollector implements SubscriptionListener
     {
-        public ArrayList<EventObject> collectedEvents
-            = new ArrayList<EventObject>();
+        /**
+         * Collects all SubscriptionEvent generated.
+         */
+        public ArrayList<SubscriptionEvent> collectedSubscriptionEvents
+            = new ArrayList<SubscriptionEvent>();
 
         /**
-         * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * Collects all SubscriptionMovedEvent generated.
+         */
+        public ArrayList<SubscriptionMovedEvent>
+            collectedSubscriptionMovedEvents
+            = new ArrayList<SubscriptionMovedEvent>();
+
+        /**
+         * Collects all ContactPropertyChangeEvent generated.
+         */
+        public ArrayList<ContactPropertyChangeEvent>
+            collectedContactPropertyChangeEvents
+            = new ArrayList<ContactPropertyChangeEvent>();
+
+        /**
+         * Blocks until at least one SubscriptionEvent is received or until
+         * waitFor miliseconds pass (whicever happens first).
          *
          * @param waitFor the number of miliseconds that we should be waiting
-         * for an event before simply bailing out.
+         * for an SubscriptionEvent before simply bailing out.
          */
-        public void waitForEvent(long waitFor)
+        public void waitForSubscriptionEvent(long waitFor)
+        {
+            TestOperationSetPresence.waitForEvent(
+                    this,
+                    waitFor,
+                    collectedSubscriptionEvents);
+        }
+
+        /**
+         * Blocks until at least one SubscriptionMovedEvent is received or until
+         * waitFor miliseconds pass (whicever happens first).
+         *
+         * @param waitFor the number of miliseconds that we should be waiting
+         * for an SubscriptionMovedEvent before simply bailing out.
+         */
+        public void waitForSubscriptionMovedEvent(long waitFor)
+        {
+            TestOperationSetPresence.waitForEvent(
+                    this,
+                    waitFor,
+                    collectedSubscriptionMovedEvents);
+        }
+
+        /**
+         * Blocks until at least one ContactPropertyChangeEvent is received or
+         * until waitFor miliseconds pass (whicever happens first).
+         *
+         * @param waitFor the number of miliseconds that we should be waiting
+         * for an ContactPropertyChangeEvent before simply bailing out.
+         */
+        public void waitForContactPropertyChangeEvent(long waitFor)
+        {
+            TestOperationSetPresence.waitForEvent(
+                    this,
+                    waitFor,
+                    collectedContactPropertyChangeEvents);
+        }
+
+        /**
+         * Stores the received subsctiption and notifies all waiting on this
+         * object
+         * @param evt the SubscriptionEvent containing the corresponding contact
+         */
+        public void receivedSubscriptionEvent(SubscriptionEvent evt)
         {
             synchronized(this)
             {
-                if(collectedEvents.size() > 0)
-                    return;
-
-                try{
-                    wait(waitFor);
-                }
-                catch (InterruptedException ex)
-                {
-                    logger.debug(
-                        "Interrupted while waiting for a subscription evt", ex);
-                }
+                logger.debug(
+                        "Collected SubscriptionEvnet("
+                        + collectedSubscriptionEvents.size()
+                        + ")= "
+                        + evt);
+                collectedSubscriptionEvents.add(evt);
+                notifyAll();
             }
         }
 
@@ -836,12 +866,7 @@ public class TestOperationSetPresence
          */
         public void subscriptionCreated(SubscriptionEvent evt)
         {
-            synchronized(this)
-            {
-                logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
-                collectedEvents.add(evt);
-                notifyAll();
-            }
+            receivedSubscriptionEvent(evt);
         }
 
         /**
@@ -851,12 +876,7 @@ public class TestOperationSetPresence
          */
         public void subscriptionRemoved(SubscriptionEvent evt)
         {
-            synchronized(this)
-            {
-                logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
-                collectedEvents.add(evt);
-                notifyAll();
-            }
+            receivedSubscriptionEvent(evt);
         }
 
         /**
@@ -868,8 +888,12 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
-                collectedEvents.add(evt);
+                logger.debug(
+                        "Collected ContactPropertyChangeEvent("
+                        + collectedContactPropertyChangeEvents.size()
+                        + ")= "
+                        + evt);
+                collectedContactPropertyChangeEvents.add(evt);
                 notifyAll();
             }
         }
@@ -884,8 +908,12 @@ public class TestOperationSetPresence
         {
             synchronized(this)
             {
-                logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
-                collectedEvents.add(evt);
+                logger.debug(
+                        "Collected evt("
+                        + collectedSubscriptionMovedEvents.size()
+                        + ")= "
+                        + evt);
+                collectedSubscriptionMovedEvents.add(evt);
                 notifyAll();
             }
         }
@@ -897,12 +925,7 @@ public class TestOperationSetPresence
          */
         public void subscriptionFailed(SubscriptionEvent evt)
         {
-            synchronized(this)
-            {
-                logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
-                collectedEvents.add(evt);
-                notifyAll();
-            }
+            receivedSubscriptionEvent(evt);
         }
 
         /**
@@ -912,12 +935,7 @@ public class TestOperationSetPresence
          */
         public void subscriptionResolved(SubscriptionEvent evt)
         {
-            synchronized(this)
-            {
-                logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
-                collectedEvents.add(evt);
-                notifyAll();
-            }
+            receivedSubscriptionEvent(evt);
         }
 
     }
@@ -950,20 +968,10 @@ public class TestOperationSetPresence
          */
         public void waitForEvent(long waitFor)
         {
-            synchronized(this)
-            {
-                if(collectedEvents.size() > 0)
-                    return;
-
-                try{
-                    wait(waitFor);
-                }
-                catch (InterruptedException ex)
-                {
-                    logger.debug(
-                        "Interrupted while waiting for a subscription evt", ex);
-                }
-            }
+            TestOperationSetPresence.waitForEvent(
+                    this,
+                    waitFor,
+                    collectedEvents);
         }
 
         /**
@@ -992,6 +1000,47 @@ public class TestOperationSetPresence
                 logger.debug("Collected evt("+collectedEvents.size()+")= "+evt);
                 collectedEvents.add(evt);
                 notifyAll();
+            }
+        }
+    }
+
+    /**
+     * Blocks until at least one event is received or until waitFor
+     * miliseconds pass (whicever happens first).
+     * Must be called by with a synchronized collectedEvents Object.
+     *
+     * @param waitFor the number of miliseconds that we should be waiting
+     * for an event before simply bailing out.
+     * @param collectedEvents the array used to collect the events. Must be
+     * synchronized before calling this function.
+     */
+    public static void waitForEvent(
+            Object eventCollector,
+            long waitFor,
+            List collectedEvents)
+    {
+        long startTime = System.currentTimeMillis();
+        long elapsedTime = 0;
+
+        synchronized(eventCollector)
+        {
+            try
+            {
+                while(collectedEvents.size() == 0
+                        && elapsedTime < waitFor)
+                {
+                    // Wait may be awake by a notifyAll generated by Events
+                    // different from those collected by collectedEvents.
+                    eventCollector.wait(waitFor - elapsedTime);
+                    // Recomputes the time elapsed since the start of this
+                    // waitForEvent.
+                    elapsedTime = System.currentTimeMillis() - startTime;
+                }
+            }
+            catch (InterruptedException ex)
+            {
+                logger.debug(
+                    "Interrupted while waiting for a subscription evt", ex);
             }
         }
     }
