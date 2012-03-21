@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.neomedia.portaudio;
 import java.io.*;
 import java.lang.reflect.*;
 import java.nio.charset.*;
-import java.util.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
@@ -29,12 +28,6 @@ public final class PortAudio
      * output.
      */
     private static final Logger logger = Logger.getLogger(PortAudio.class);
-
-    /**
-     * List of device changed callbacks.
-     */
-    public static final List<PortAudioDeviceChangedCallback> callbacks =
-        new Vector<PortAudioDeviceChangedCallback>();
 
     /**
      * Synchronization object.
@@ -769,31 +762,6 @@ public final class PortAudio
     private static native void updateAvailableDeviceList();
 
     /**
-     * Adds a device changed callback.
-     *
-     * @param cb callback that will be called if device are added/removed
-     */
-    public static void addDeviceChangedCallback(
-        PortAudioDeviceChangedCallback cb)
-    {
-        if(!callbacks.contains(cb))
-            callbacks.add(cb);
-    }
-
-    /**
-     * Removes a device changed callback.
-     *
-     * @param cb callback that will be called if device are added/removed
-     */
-    public static void removeDeviceChangedCallback(
-        PortAudioDeviceChangedCallback cb)
-    {
-        if(callbacks.contains(cb))
-            callbacks.remove(cb);
-    }
-
-
-    /**
      * Callback called from native PortAudio side that notify device changed.
      */
     public static void deviceChanged()
@@ -801,11 +769,7 @@ public final class PortAudio
         synchronized(syncRoot)
         {
             updateAvailableDeviceList();
-
-            for(PortAudioDeviceChangedCallback cb : callbacks)
-            {
-                cb.deviceChanged();
-            }
+            PortAudioDeviceChangedCallbacks.deviceChanged();
         }
     }
 

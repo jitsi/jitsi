@@ -275,19 +275,13 @@ public class CallPeerMediaHandlerGTalkImpl
                         getDynamicPayloadTypes());
                     description.addPayloadType(ext);
 
-                    if(format == null)
-                    {
-                        continue;
-                    }
-
-                    break;
+                    if(format != null)
+                        break;
                 }
             }
 
             if(format == null)
-            {
                 continue;
-            }
 
             if(!initStream)
                 continue;
@@ -383,19 +377,13 @@ public class CallPeerMediaHandlerGTalkImpl
                     format = JingleUtils.payloadTypeToMediaFormat(
                             ext,
                             getDynamicPayloadTypes());
-
-                    if(format == null)
-                    {
-                        continue;
-                    }
-                    break;
+                    if(format != null)
+                        break;
                 }
             }
 
             if(format == null)
-            {
                 continue;
-            }
 
             // stream connector
             StreamConnector connector

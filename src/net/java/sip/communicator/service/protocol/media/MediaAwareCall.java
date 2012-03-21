@@ -421,8 +421,9 @@ public abstract class MediaAwareCall<
 
     /**
      * Sets the indicator which determines whether the local peer represented by
-     * this <tt>Call</tt> is acting as a conference focus and thus may need to
-     * send the corresponding parameters in its outgoing signaling.
+     * this <tt>Call</tt> is acting as a conference focus (and thus may, for
+     * example, need to send the corresponding parameters in its outgoing
+     * signaling).
      *
      * @param conferenceFocus <tt>true</tt> if the local peer represented by
      * this <tt>Call</tt> is to act as a conference focus; otherwise,
@@ -449,7 +450,10 @@ public abstract class MediaAwareCall<
                 }
             }
 
-            // fire that the focus property has changed
+            /*
+             * Notify the registered CallChangeListeners that the value of the
+             * conferenceFocus property of this Call has changed.
+             */
             fireCallChangeEvent(
                     CallChangeEvent.CALL_FOCUS_CHANGE,
                     !this.conferenceFocus, this.conferenceFocus);
@@ -1067,9 +1071,12 @@ public abstract class MediaAwareCall<
     }
 
     /**
-     * Notified when a call are added to a <tt>CallGroup</tt>.
+     * Notifies this instance that a specific <tt>Call</tt> has been added to a
+     * <tt>CallGroup</tt>.
      *
-     * @param evt event
+     * @param evt a <tt>CallGroupEvent</tt> which specifies the <tt>Call</tt>
+     * which has been added to a <tt>CallGroup</tt>
+     * @see CallGroupListener#callAdded(CallGroupEvent)
      */
     public void callAdded(CallGroupEvent evt)
     {
@@ -1080,12 +1087,13 @@ public abstract class MediaAwareCall<
 
         // sets the right MediaDevice for the added peer if we are the first
         // Call of the CallGroup
-        if(c instanceof MediaAwareCall && this ==
-            getCallGroup().getCalls().get(0))
+        if ((c instanceof MediaAwareCall)
+                && (this == getCallGroup().getCalls().get(0)))
         {
-            ((MediaAwareCall<?,?,?>)c).conferenceAudioMixer = null;
-            ((MediaAwareCall<?,?,?>)c).getDefaultDevice(
-                MediaType.AUDIO);
+            MediaAwareCall<?,?,?> mac = (MediaAwareCall<?,?,?>) c;
+
+            mac.conferenceAudioMixer = null;
+            mac.getDefaultDevice(MediaType.AUDIO);
         }
 
         while(peers.hasNext())
@@ -1096,8 +1104,8 @@ public abstract class MediaAwareCall<
             {
                 CallPeerMediaHandler<?> mediaHandler =
                     ((MediaAwareCallPeer<?,?,?>)p).getMediaHandler();
-
                 MediaStream stream = mediaHandler.getStream(MediaType.AUDIO);
+
                 if(stream != null)
                 {
                     if(this == getCallGroup().getCalls().get(0))
@@ -1110,6 +1118,7 @@ public abstract class MediaAwareCall<
                             (AudioMediaStream)stream);
                     }
                 }
+
                 // TODO video
             }
 

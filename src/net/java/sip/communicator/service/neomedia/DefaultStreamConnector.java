@@ -136,7 +136,10 @@ public class DefaultStreamConnector
 
             try
             {
-                return new DatagramSocket(port, bindAddr);
+                return
+                    (bindAddr == null)
+                        ? new DatagramSocket(port)
+                        : new DatagramSocket(port, bindAddr);
             }
             catch (SocketException se)
             {

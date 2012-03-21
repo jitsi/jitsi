@@ -136,10 +136,8 @@ public class DeviceConfigurationComboBoxModel
         this.deviceConfiguration = deviceConfiguration;
         this.type = type;
         
-        if(type == AUDIO)
-        {
-            PortAudio.addDeviceChangedCallback(this);
-        }
+        if (type == AUDIO)
+            PortAudioDeviceChangedCallbacks.addDeviceChangedCallback(this);
     }
 
     public void addListDataListener(ListDataListener listener)

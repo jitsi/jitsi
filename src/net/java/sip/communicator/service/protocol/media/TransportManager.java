@@ -215,9 +215,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     {
         NetworkAddressManagerService nam
             = ProtocolMediaActivator.getNetworkAddressManagerService();
-
         InetAddress intendedDestination = getIntendedDestination(getCallPeer());
-
         InetAddress localHostForPeer = nam.getLocalHost(intendedDestination);
 
         //make sure our port numbers reflect the configuration service settings

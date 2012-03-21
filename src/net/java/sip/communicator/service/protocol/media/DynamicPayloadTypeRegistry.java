@@ -211,7 +211,6 @@ public class DynamicPayloadTypeRegistry
      */
     private Byte getPreferredDynamicPayloadType(MediaFormat format)
     {
-
         return getDynamicPayloadTypePreferences().get(format);
     }
 

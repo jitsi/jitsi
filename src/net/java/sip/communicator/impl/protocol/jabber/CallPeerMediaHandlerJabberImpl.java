@@ -325,8 +325,10 @@ public class CallPeerMediaHandlerJabberImpl
             // according to XEP-176, transport element in session-initiate
             // "MAY instead be empty (with each candidate to be sent as the
             // payload of a transport-info message)".
-            int targetDataPort = (target == null && transport != null) ? -1 :
-                (target != null) ? target.getDataAddress().getPort() : 0;
+            int targetDataPort
+                = (target == null && transport != null)
+                    ? -1
+                    : (target != null) ? target.getDataAddress().getPort() : 0;
 
             /*
              * TODO If the offered transport is not supported, attempt to
@@ -1559,9 +1561,10 @@ public class CallPeerMediaHandlerJabberImpl
              * We'll be harvesting candidates in order to make an offer so it
              * doesn't make sense to send them in transport-info.
              */
-            if (!transportManager.getXmlNamespace().equals(
-                ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P) &&
-                transportInfoSender != null)
+            if (!ProtocolProviderServiceJabberImpl
+                        .URN_GOOGLE_TRANSPORT_P2P
+                            .equals(transportManager.getXmlNamespace())
+                    && (transportInfoSender != null))
                 throw new IllegalArgumentException("transportInfoSender");
 
             transportManager.startCandidateHarvest(local, transportInfoSender);
@@ -1575,7 +1578,7 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         /*
-         * XXX Ideally, we wouldn't wrap up that quickly. We need to revisit
+         * TODO Ideally, we wouldn't wrap up that quickly. We need to revisit
          * this.
          */
         return transportManager.wrapupCandidateHarvest();

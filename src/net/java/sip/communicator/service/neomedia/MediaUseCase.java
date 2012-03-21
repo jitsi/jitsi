@@ -72,10 +72,8 @@ public enum MediaUseCase
     {
         if(CALL.toString().equals(mediaUseCase))
             return CALL;
-
         if(ANY.toString().equals(mediaUseCase))
             return ANY;
-
         if(DESKTOP.toString().equals(mediaUseCase))
             return DESKTOP;
 

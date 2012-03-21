@@ -166,6 +166,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             calleeAddresses.add(parseAddressString(callee));
 
         MediaAwareCallT call = createOutgoingCall();
+
         if(group.getCalls().size() > 0)
         {
             group.addCall(call);
@@ -185,19 +186,16 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 wasConferenceFocus = false;
                 call.setConferenceFocus(true);
             }
-            CallPeer p =
-                inviteCalleeToCall(calleeAddress, call, wasConferenceFocus);
+
+            CallPeer peer
+                = inviteCalleeToCall(calleeAddress, call, wasConferenceFocus);
 
             // GTalk case
-            if(p.getCall() != call)
-            {
-                group.addCall(p.getCall());
-            }
+            if (peer.getCall() != call)
+                group.addCall(peer.getCall());
 
-            if(call.getCallGroup() == null)
-            {
+            if (call.getCallGroup() == null)
                 group.addCall(call);
-            }
         }
         return call;
     }

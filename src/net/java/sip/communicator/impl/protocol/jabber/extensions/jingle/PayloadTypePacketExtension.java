@@ -217,7 +217,6 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
     @SuppressWarnings("unchecked") // nothing we could do here.
     public List<ParameterPacketExtension> getParameters()
     {
-
         return (List<ParameterPacketExtension>)super.getChildExtensions();
     }
 }

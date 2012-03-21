@@ -256,16 +256,13 @@ public class JingleIQProvider implements IQProvider
                         jingleIQ.setSessionInfo(
                                         new SessionInfoPacketExtension(type));
                     }
-
                 }
             }
 
-            if (eventType == XmlPullParser.END_TAG)
+            if ((eventType == XmlPullParser.END_TAG)
+                    && parser.getName().equals(JingleIQ.ELEMENT_NAME))
             {
-                if (parser.getName().equals(JingleIQ.ELEMENT_NAME))
-                {
                     done = true;
-                }
             }
         }
         return jingleIQ;

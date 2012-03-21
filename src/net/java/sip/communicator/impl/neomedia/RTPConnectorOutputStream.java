@@ -78,7 +78,11 @@ public abstract class RTPConnectorOutputStream
      */
     public void addTarget(InetAddress remoteAddr, int remotePort)
     {
-        targets.add(new InetSocketAddress(remoteAddr, remotePort));
+        InetSocketAddress target
+            = new InetSocketAddress(remoteAddr, remotePort);
+
+        if (!targets.contains(target))
+            targets.add(target);
     }
 
     /**

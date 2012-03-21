@@ -620,8 +620,8 @@ public class IceUdpTransportManager
      * @throws OperationFailedException in case we fail allocating ports
      */
     public void startCandidateHarvest(
-                            List<ContentPacketExtension>   ourOffer,
-                            TransportInfoSender transportInfoSender)
+            List<ContentPacketExtension> ourOffer,
+            TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
         for(ContentPacketExtension ourContent : ourOffer)

@@ -8,31 +8,16 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-
 import org.xmlpull.v1.*;
 
 /**
- * An implementation of a InputEvt IQ provider that parses incoming Input IQs.
+ * Implements an <tt>IQProvider</tt> which parses incoming <tt>InputEvtIQ</tt>s.
  *
  * @author Sebastien Vincent
  */
-public class InputEvtIQProvider implements IQProvider
+public class InputEvtIQProvider
+    implements IQProvider
 {
-    /**
-     * Constructs a new InputEvtIQ provider.
-     */
-    public InputEvtIQProvider()
-    {
-/*
-        ProviderManager providerManager = ProviderManager.getInstance();
-
-        providerManager.addExtensionProvider(
-                InputExtensionProvider.ELEMENT_REMOTE_CONTROL,
-                InputExtensionProvider.NAMESPACE,
-                new InputExtensionProvider());
-*/
-    }
-
     /**
      * Parse the Input IQ sub-document and returns the corresponding
      * <tt>InputEvtIQ</tt>.
@@ -43,44 +28,41 @@ public class InputEvtIQProvider implements IQProvider
      */
     public IQ parseIQ(XmlPullParser parser) throws Exception
     {
-        InputEvtIQ inputIQ = new InputEvtIQ();
+        InputEvtIQ inputEvtIQ = new InputEvtIQ();
+        InputEvtAction action
+            = InputEvtAction.parseString(
+                    parser.getAttributeValue("", InputEvtIQ.ACTION_ATTR_NAME));
+
+        inputEvtIQ.setAction(action);
+
         boolean done = false;
-        RemoteControlExtensionProvider provider =
-            new RemoteControlExtensionProvider();
-        InputEvtAction action = InputEvtAction.parseString(parser
-                        .getAttributeValue("", InputEvtIQ.ACTION_ATTR_NAME));
-
-        inputIQ.setAction(action);
-
-        int eventType;
-        String elementName;
 
         while (!done)
         {
-            eventType = parser.next();
-            elementName = parser.getName();
-
-            if (eventType == XmlPullParser.START_TAG)
+            switch (parser.next())
             {
-                // <remote-control/>
-                if (elementName.equals(
-                        RemoteControlExtensionProvider.ELEMENT_REMOTE_CONTROL))
+            case XmlPullParser.START_TAG:
+                // <remote-control>
+                if (RemoteControlExtensionProvider.ELEMENT_REMOTE_CONTROL
+                        .equals(parser.getName()))
                 {
-                    RemoteControlExtension item =
-                        (RemoteControlExtension)provider.parseExtension(parser);
-                    inputIQ.addRemoteControl(item);
+                    RemoteControlExtensionProvider provider
+                        = new RemoteControlExtensionProvider();
+                    RemoteControlExtension item
+                        = (RemoteControlExtension)
+                            provider.parseExtension(parser);
+
+                    inputEvtIQ.addRemoteControl(item);
                 }
-            }
+                break;
 
-            if (eventType == XmlPullParser.END_TAG)
-            {
-                if (parser.getName().equals(InputEvtIQ.ELEMENT_NAME))
-                {
+            case XmlPullParser.END_TAG:
+                if (InputEvtIQ.ELEMENT_NAME.equals(parser.getName()))
                     done = true;
-                }
+                break;
             }
         }
 
-        return inputIQ;
+        return inputEvtIQ;
     }
 }

@@ -10,10 +10,10 @@ import java.net.*;
 
 /**
  * The <tt>MediaStreamTarget</tt> contains a pair of host:port couples
- * indicating a data (RTP) and control (RTCP) locations.
+ * indicating data (RTP) and control (RTCP) locations.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class MediaStreamTarget
 {

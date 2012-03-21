@@ -17,7 +17,7 @@ import javax.media.control.*;
  * {@link FormatControl#getSupportedFormats()} and
  * {@link FormatControl#getFormat()}.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractFormatControl
     implements FormatControl
@@ -132,6 +132,6 @@ public abstract class AbstractFormatControl
          * We do not actually support setFormat so we have to return the
          * currently set format if the specified format is supported.
          */
-        return (formatIsSupported) ? formatControl.getFormat() : null;
+        return formatIsSupported ? formatControl.getFormat() : null;
     }
 }

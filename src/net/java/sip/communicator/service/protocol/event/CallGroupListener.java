@@ -18,9 +18,11 @@ public interface CallGroupListener
     extends EventListener
 {
     /**
-     * Notified when a call are added to a <tt>CallGroup</tt>.
+     * Notifies this instance that a specific <tt>Call</tt> has been added to a
+     * <tt>CallGroup</tt>.
      *
-     * @param evt event
+     * @param evt a <tt>CallGroupEvent</tt> which specifies the <tt>Call</tt>
+     * which has been added to a <tt>CallGroup</tt>
      */
     public void callAdded(CallGroupEvent evt);
 

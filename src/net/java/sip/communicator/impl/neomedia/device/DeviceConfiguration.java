@@ -328,7 +328,7 @@ public class DeviceConfiguration
         }
 
         registerCustomRenderers();
-        PortAudio.addDeviceChangedCallback(this);
+        PortAudioDeviceChangedCallbacks.addDeviceChangedCallback(this);
     }
 
     /**

@@ -26,8 +26,8 @@ public class P2PTransportManager
     extends IceUdpTransportManager
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>P2PTransportManager</tt>
-     * class and its instances for logging output.
+     * The <tt>Logger</tt> used by the <tt>P2PTransportManager</tt> class and
+     * its instances for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(P2PTransportManager.class);

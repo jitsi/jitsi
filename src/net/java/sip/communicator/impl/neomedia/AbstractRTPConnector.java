@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia;
 
 import java.io.*;
+import java.net.*;
 
 import javax.media.rtp.*;
 
@@ -78,10 +79,16 @@ public abstract class AbstractRTPConnector
     public void addTarget(SessionAddress target)
         throws IOException
     {
-        getControlOutputStream()
-            .addTarget(
-                target.getControlAddress(),
-                target.getControlPort());
+        InetAddress controlAddress = target.getControlAddress();
+
+        if (controlAddress != null)
+        {
+            getControlOutputStream()
+                .addTarget(
+                    controlAddress,
+                    target.getControlPort());
+        }
+
         getDataOutputStream()
             .addTarget(
                 target.getDataAddress(),

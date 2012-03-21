@@ -138,24 +138,23 @@ public class JingleUtils
         }
 
         //now create the format.
+        MediaFormatFactory formatFactory
+            = JabberActivator.getMediaService().getFormatFactory();
         MediaFormat format
-            = JabberActivator.getMediaService().getFormatFactory()
-                    .createMediaFormat(
-                            pt,
-                            payloadType.getName(),
-                            (double)payloadType.getClockrate(),
-                            payloadType.getChannels(),
-                            -1,
-                            paramsMap,
-                            advancedMap);
+            = formatFactory.createMediaFormat(
+                    pt,
+                    payloadType.getName(),
+                    (double)payloadType.getClockrate(),
+                    payloadType.getChannels(),
+                    -1,
+                    paramsMap,
+                    advancedMap);
 
         //we don't seem to know anything about this format
         if(format == null)
         {
             unknown = true;
-            format
-                = JabberActivator.getMediaService().getFormatFactory()
-                        .createUnknownMediaFormat(MediaType.AUDIO);
+            format = formatFactory.createUnknownMediaFormat(MediaType.AUDIO);
         }
 
         /*

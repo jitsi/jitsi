@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
-import java.security.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -17,7 +16,7 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.util.StringUtils; // disambiguation
 import org.jivesoftware.smackx.packet.*;
 
 /**
@@ -27,7 +26,7 @@ import org.jivesoftware.smackx.packet.*;
  * the buddy contact list and adding listeners for changes in its layout.
  *
  * @author Damian Minkov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class OperationSetPersistentPresenceJabberImpl
     extends AbstractOperationSetPersistentPresence<

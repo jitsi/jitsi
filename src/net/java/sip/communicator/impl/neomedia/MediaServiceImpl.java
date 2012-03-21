@@ -677,7 +677,7 @@ public class MediaServiceImpl
                 audioConfigDialog.validate();
                 audioConfigDialog.pack();
 
-                PortAudio.addDeviceChangedCallback(this);
+                PortAudioDeviceChangedCallbacks.addDeviceChangedCallback(this);
             }
             catch(Throwable e)
             {
@@ -694,7 +694,7 @@ public class MediaServiceImpl
     {
         deviceConfiguration.removePropertyChangeListener(
                 deviceConfigurationPropertyChangeListener);
-        PortAudio.removeDeviceChangedCallback(this);
+        PortAudioDeviceChangedCallbacks.removeDeviceChangedCallback(this);
     }
 
     /**

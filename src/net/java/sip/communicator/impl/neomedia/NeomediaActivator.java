@@ -192,8 +192,7 @@ public class NeomediaActivator
         mediaServiceImpl.start();
 
         mediaServiceRegistration
-            = bundleContext
-                .registerService(
+            = bundleContext.registerService(
                     MediaService.class.getName(),
                     mediaServiceImpl,
                     null);

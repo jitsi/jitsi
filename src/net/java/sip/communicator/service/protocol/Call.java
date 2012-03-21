@@ -228,7 +228,7 @@ public abstract class Call
                                         Object oldValue,
                                         Object newValue)
     {
-        this.fireCallChangeEvent(type, oldValue, newValue, null);
+        fireCallChangeEvent(type, oldValue, newValue, null);
     }
 
     /**

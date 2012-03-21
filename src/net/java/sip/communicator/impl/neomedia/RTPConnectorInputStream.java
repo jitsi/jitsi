@@ -6,16 +6,18 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import net.java.sip.communicator.service.packetlogging.*;
-
 import java.io.*;
 import java.net.*;
 
 import javax.media.protocol.*;
 
+import org.ice4j.socket.*;
+
+import net.java.sip.communicator.service.packetlogging.*;
+
 /**
  * @author Bing SU (nova.su@gmail.com)
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class RTPConnectorInputStream
     implements PushSourceStream,
@@ -70,6 +72,13 @@ public abstract class RTPConnectorInputStream
      * we must count them and decide which to log.
      */
     private long numberOfPackets = 0;
+
+    /**
+     * The <tt>DatagramPacketFilter</tt> which allows dropping
+     * <tt>DatagramPacket</tt>s before they are converted into
+     * <tt>RawPacket</tt>s.
+     */
+    private DatagramPacketFilter datagramPacketFilter;
 
     /**
      * Initializes a new <tt>RTPConnectorInputStream</tt> which is to receive
@@ -262,7 +271,7 @@ public abstract class RTPConnectorInputStream
                 break;
             }
 
-            if(RTPConnectorOutputStream.logPacket(numberOfPackets))
+            if (RTPConnectorOutputStream.logPacket(numberOfPackets))
             {
                 PacketLoggingService packetLogging
                     = NeomediaActivator.getPacketLogging();
@@ -273,14 +282,21 @@ public abstract class RTPConnectorInputStream
                     doLogPacket(p);
             }
 
-            pkt = createRawPacket(p);
+            DatagramPacketFilter datagramPacketFilter
+                = getDatagramPacketFilter();
 
-            /*
-             * If we got extended, the delivery of the packet may have been
-             * canceled.
-             */
-            if ((pkt != null) && (transferHandler != null) && !closed)
-                transferHandler.transferData(this);
+            if ((datagramPacketFilter == null)
+                    || datagramPacketFilter.accept(p))
+            {
+                pkt = createRawPacket(p);
+
+                /*
+                 * If we got extended, the delivery of the packet may have been
+                 * canceled.
+                 */
+                if ((pkt != null) && (transferHandler != null) && !closed)
+                    transferHandler.transferData(this);
+            }
         }
     }
 
@@ -304,9 +320,36 @@ public abstract class RTPConnectorInputStream
     public void setPriority(int priority)
     {
         // currently no priority is set
-//        if(receiverThread != null)
-//        {
+//        if (receiverThread != null)
 //            receiverThread.setPriority(priority);
-//        }
+    }
+
+    /**
+     * Gets the <tt>DatagramPacketFilter</tt> which allows dropping
+     * <tt>DatagramPacket</tt>s before they are converted into
+     * <tt>RawPacket</tt>s.
+     *
+     * @return the <tt>DatagramPacketFilter</tt> which allows dropping
+     * <tt>DatagramPacket</tt>s before they are converted into
+     * <tt>RawPacket</tt>s.
+     */
+    public DatagramPacketFilter getDatagramPacketFilter()
+    {
+        return datagramPacketFilter;
+    }
+
+    /**
+     * Sets the <tt>DatagramPacketFilter</tt> which allows dropping
+     * <tt>DatagramPacket</tt>s before they are converted into
+     * <tt>RawPacket</tt>s.
+     *
+     * @param datagramPacketFilter the <tt>DatagramPacketFilter</tt> which
+     * allows dropping <tt>DatagramPacket</tt>s before they are converted into
+     * <tt>RawPacket</tt>s
+     */
+    public void setDatagramPacketFilter(
+            DatagramPacketFilter datagramPacketFilter)
+    {
+        this.datagramPacketFilter = datagramPacketFilter;
     }
 }

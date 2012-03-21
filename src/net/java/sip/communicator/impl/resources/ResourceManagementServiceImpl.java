@@ -169,7 +169,8 @@ public class ResourceManagementServiceImpl
         if (skinPack != null)
         {
             skinResources = getResources(skinPack);
-            imageResources.putAll(skinPack.getImageResources());
+            if (imageResources != null)
+                imageResources.putAll(skinPack.getImageResources());
             colorResources.putAll(skinPack.getColorResources());
             settingsResources.putAll(skinPack.getSettingsResources());
         }
@@ -322,23 +323,18 @@ public class ResourceManagementServiceImpl
             {
                 skinPack = (SkinPack) resourcePack;
 
-                if(imagePack!=null)
-                {
+                if (imagePack!=null)
                     imageResources = getResources(imagePack);
-                }
 
-                if(colorPack!=null)
-                {
+                if (colorPack!=null)
                     colorResources = getResources(colorPack);
-                }
 
-                if(settingsPack != null)
-                {
+                if (settingsPack != null)
                     settingsResources = getResources(settingsPack);
-                }
 
                 skinResources = resources;
-                imageResources.putAll(skinPack.getImageResources());
+                if (imageResources != null)
+                    imageResources.putAll(skinPack.getImageResources());
                 colorResources.putAll(skinPack.getColorResources());
                 settingsResources.putAll(skinPack.getSettingsResources());
 
@@ -520,7 +516,7 @@ public class ResourceManagementServiceImpl
      */
     public InputStream getImageInputStream(String streamKey)
     {
-        String path = imageResources.get(streamKey);
+        String path = getImagePath(streamKey);
 
         if (path == null || path.length() == 0)
         {
@@ -539,7 +535,7 @@ public class ResourceManagementServiceImpl
      */
     public URL getImageURL(String urlKey)
     {
-        String path = imageResources.get(urlKey);
+        String path = getImagePath(urlKey);
 
         if (path == null || path.length() == 0)
         {
@@ -558,7 +554,7 @@ public class ResourceManagementServiceImpl
      */
     public String getImagePath(String key)
     {
-        return imageResources.get(key);
+        return (imageResources == null) ? null : imageResources.get(key);
     }
 
     /**
