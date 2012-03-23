@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.service.configuration;
 
+import java.beans.*;
 import java.io.*;
 import java.util.*;
-import java.beans.*;
 
 import net.java.sip.communicator.util.xml.*;
 
@@ -17,7 +17,7 @@ import net.java.sip.communicator.util.xml.*;
  * persistent configuration data.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Dmitri Melnikov
  */
 public interface ConfigurationService
@@ -38,6 +38,15 @@ public interface ConfigurationService
      */
     public static final String PNAME_SC_HOME_DIR_LOCATION
         = "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
+
+    /**
+     * The name of the boolean system property  which indicates whether the
+     * configuration file is to be considered read-only. The default value is
+     * <tt>false</tt> which means that the configuration file is considered
+     * writable.
+     */
+    public static final String PNAME_CONFIGURATION_FILE_IS_READ_ONLY
+        = "net.java.sip.communicator.CONFIGURATION_FILE_IS_READ_ONLY";
 
     /**
      * The name of the system property that stores the name of the configuration

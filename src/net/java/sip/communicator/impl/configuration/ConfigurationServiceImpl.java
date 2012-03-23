@@ -615,13 +615,21 @@ public class ConfigurationServiceImpl
     {
         if (!started)
             throw new IllegalStateException(
-                "Service is stopped or has not been started");
+                    "Service is stopped or has not been started");
+
+        /*
+         * If the configuration file is forcibly considered read-only, do not
+         * write it.
+         */
+        String readOnly
+            = System.getProperty(PNAME_CONFIGURATION_FILE_IS_READ_ONLY);
+
+        if ((readOnly != null) && Boolean.parseBoolean(readOnly))
+            return;
 
         // write the file.
         FailSafeTransaction trans
-            = (file == null)
-                ? null
-                : this.faService.createFailSafeTransaction(file);
+            = (file == null) ? null : faService.createFailSafeTransaction(file);
         Throwable exception = null;
 
         try

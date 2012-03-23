@@ -92,12 +92,11 @@ public class MediaUtils
         }
 
         addMediaFormats(
-                    (byte) SdpConstants.GSM,
-                    "GSM",
-                    MediaType.AUDIO,
-                    AudioFormat.GSM_RTP,
-                    8000);
-
+            (byte) SdpConstants.GSM,
+            "GSM",
+            MediaType.AUDIO,
+            AudioFormat.GSM_RTP,
+            8000);
         addMediaFormats(
             (byte) SdpConstants.DVI4_8000,
             "DVI4",
@@ -135,12 +134,14 @@ public class MediaUtils
             Constants.G722_RTP,
             8000);
         if (EncodingConfiguration.G729)
+        {
             addMediaFormats(
                 (byte) SdpConstants.G729,
                 "G729",
                 MediaType.AUDIO,
                 AudioFormat.G729_RTP,
                 8000);
+        }
         addMediaFormats(
             MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN,
             "SILK",
@@ -154,11 +155,14 @@ public class MediaUtils
             Constants.TELEPHONE_EVENT,
             8000);
 
-        /* We don't really support these.
-        addMediaFormats((byte) SdpConstants.JPEG,
-                        "JPEG",
-                        MediaType.VIDEO,
-                        VideoFormat.JPEG_RTP);
+        /*
+         * We don't really support these.
+         *
+        addMediaFormats(
+            (byte) SdpConstants.JPEG,
+            "JPEG",
+            MediaType.VIDEO,
+            VideoFormat.JPEG_RTP);
         addMediaFormats(
             (byte) SdpConstants.H263,
             "H263",
@@ -193,10 +197,11 @@ public class MediaUtils
         // packetization-mode=1
         h264FormatParams.put(packetizationMode, "1");
 
-        if(NeomediaActivator.getConfigurationService().getString(
-            "net.java.sip.communicator.impl.neomedia.codec.video.h264." +
-                    "defaultProfile",
-                JNIEncoder.MAIN_PROFILE).equals(JNIEncoder.MAIN_PROFILE))
+        if (NeomediaActivator.getConfigurationService().getString(
+                    "net.java.sip.communicator.impl.neomedia.codec.video.h264"
+                        + ".defaultProfile",
+                    JNIEncoder.MAIN_PROFILE)
+                .equals(JNIEncoder.MAIN_PROFILE))
         {
             // indicates main profile, common features and HD capable level 3.1
             h264FormatParams.put("profile-level-id", "4DE01f");
@@ -248,8 +253,11 @@ public class MediaUtils
         Map<String, String> h263AdvancedAttributes
             = new LinkedHashMap<String, String>();
 
-        // maximum resolution we can receive is the size of our screen device
-        if(res != null)
+        /*
+         * The maximum resolution we can receive is the size of our screen
+         * device.
+         */
+        if (res != null)
             h263FormatParams.put("CUSTOM", res.width + "," + res.height + ",2");
         h263FormatParams.put("VGA", "2");
         h263FormatParams.put("CIF", "1");

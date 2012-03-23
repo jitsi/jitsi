@@ -34,36 +34,40 @@ public class ScreenDeviceImpl implements ScreenDevice
      */
     public static ScreenDevice[] getAvailableScreenDevice()
     {
-        ScreenDevice screens[] = null;
-        GraphicsDevice devices[] = null;
-        GraphicsEnvironment ge = null;
-        int i = 0;
+        GraphicsEnvironment ge;
 
         try
         {
-            ge = GraphicsEnvironment.
-                getLocalGraphicsEnvironment();
+            ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         }
-        catch(NoClassDefFoundError e)
+        catch(NoClassDefFoundError ncdfe)
         {
             ge = null;
         }
 
-        if(ge == null)
-            return null;
+        ScreenDevice[] screens = null;
 
-        devices = ge.getScreenDevices();
-
-        if(devices == null || devices.length == 0)
-            return null;
-
-        screens = new ScreenDevice[devices.length];
-
-        for(GraphicsDevice dev : devices)
+        /*
+         * Make sure the GraphicsEnvironment is not headless in order to avoid a
+         * HeadlessException.
+         */
+        if ((ge != null) && !ge.isHeadlessInstance())
         {
-            /* we know that GraphicsDevice type is TYPE_RASTER_SCREEN */
-            screens[i] = new ScreenDeviceImpl(i, dev);
-            i++;
+            GraphicsDevice[] devices = ge.getScreenDevices();
+
+            if ((devices != null) && (devices.length != 0))
+            {
+                screens = new ScreenDevice[devices.length];
+
+                int i = 0;
+
+                for (GraphicsDevice dev : devices)
+                {
+                    // We know that GraphicsDevice type is TYPE_RASTER_SCREEN.
+                    screens[i] = new ScreenDeviceImpl(i, dev);
+                    i++;
+                }
+            }
         }
 
         return screens;
