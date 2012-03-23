@@ -43,6 +43,8 @@ public class JabberAccountRegistration
      */
     public static final boolean DEFAULT_RESOURCE_AUTOGEN = true;
 
+    private String defaultDTMFMethod = "AUTO_DTMF";
+
     /**
      * The user identifier.
      */
@@ -191,6 +193,11 @@ public class JabberAccountRegistration
      * The sms default server.
      */
     private String smsServerAddress;
+
+    /**
+     * DTMF method.
+     */
+    private String dtmfMethod = null;
 
     /**
      * Returns the password of the jabber registration account.
@@ -772,5 +779,41 @@ public class JabberAccountRegistration
     public void setSmsServerAddress(String serverAddress)
     {
         this.smsServerAddress = serverAddress;
+    }
+
+    /**
+     * Returns the DTMF method.
+     *
+     * @return the DTMF method.
+     */
+    public String getDTMFMethod()
+    {
+        return dtmfMethod;
+    }
+
+    /**
+     * Sets the DTMF method.
+     *
+     * @param dtmfMethod the DTMF method to set
+     */
+    public void setDTMFMethod(String dtmfMethod)
+    {
+        this.dtmfMethod = dtmfMethod;
+    }
+
+    /**
+     * @return the defaultDTMFMethod
+     */
+    public String getDefaultDTMFMethod()
+    {
+        return defaultDTMFMethod;
+    }
+
+    /**
+     * @param defaultDTMFMethod the defaultDTMFMethod to set
+     */
+    public void setDefaultDTMFMethod(String defaultDTMFMethod)
+    {
+        this.defaultDTMFMethod = defaultDTMFMethod;
     }
 }

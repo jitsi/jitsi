@@ -284,6 +284,8 @@ public class JabberAccountRegistrationForm
         if (priority != null)
             registration.setPriority(Integer.parseInt(priority));
 
+        registration.setDTMFMethod(connectionPanel.getDTMFMethod());
+
         registration.setUseIce(iceConfigPanel.isUseIce());
         registration.setUseGoogleIce(iceConfigPanel.isUseGoogleIce());
         registration.setAutoDiscoverStun(iceConfigPanel.isAutoDiscoverStun());
@@ -396,6 +398,9 @@ public class JabberAccountRegistrationForm
             = accountProperties.get(ProtocolProviderFactory.RESOURCE_PRIORITY);
 
         connectionPanel.setPriority(priority);
+
+        connectionPanel.setDTMFMethod(
+            accountID.getAccountPropertyString("DTMF_METHOD"));
 
         String useIce =
             accountProperties.get(ProtocolProviderFactory.IS_USE_ICE);

@@ -192,6 +192,10 @@ public class JabberAccountRegistrationWizard
             Resources.getString("plugin.jabberaccregwizz.PRIORITY"),
             String.valueOf(registration.getPriority()));
 
+        summaryTable.put(
+            Resources.getString("plugin.sipaccregwizz.DTMF_METHOD"),
+            registration.getDTMFMethod());
+
         return summaryTable.entrySet().iterator();
     }
 
@@ -420,6 +424,14 @@ public class JabberAccountRegistrationWizard
 
         accountProperties.put(ProtocolProviderFactory.IS_ALLOW_NON_SECURE,
             String.valueOf(registration.isAllowNonSecure()));
+
+        if(registration.getDTMFMethod() != null)
+            accountProperties.put("DTMF_METHOD",
+                registration.getDTMFMethod());
+        else
+            accountProperties.put("DTMF_METHOD",
+                registration.getDefaultDTMFMethod());
+
 
         if (isModification())
         {

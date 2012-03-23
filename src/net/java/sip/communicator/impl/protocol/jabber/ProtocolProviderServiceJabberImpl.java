@@ -1645,6 +1645,12 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetBasicAutoAnswer.class,
                     new OperationSetAutoAnswerJabberImpl(basicTelephony));
 
+                // init DTMF
+                OperationSetDTMFJabberImpl operationSetDTMFSip
+                    = new OperationSetDTMFJabberImpl(this);
+                addSupportedOperationSet(
+                    OperationSetDTMF.class, operationSetDTMFSip);
+
                 addJingleFeatures();
 
                 // Check if desktop streaming is enabled.

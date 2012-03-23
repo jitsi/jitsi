@@ -80,6 +80,16 @@ public class ConnectionPanel
             Resources.getString("plugin.jabberaccregwizz.ALLOW_NON_SECURE"),
             false);
 
+    private JComboBox dtmfMethodBox = new JComboBox(new Object []
+    {
+        Resources.getString(
+            "plugin.jabberaccregwizz.DTMF_AUTO"),
+        Resources.getString(
+            "plugin.sipaccregwizz.DTMF_RTP"),
+        Resources.getString(
+            "plugin.sipaccregwizz.DTMF_INBAND")
+    });
+
     private final JabberAccountRegistrationForm parentForm;
 
     /**
@@ -180,11 +190,31 @@ public class ConnectionPanel
 
         mainPanel.add(advancedOpPanel);
 
+        mainPanel.add(createDTMFPanel());
+
         String serverAddress = parentForm.getServerAddress();
         if (serverAddress != null)
             serverField.setText(serverAddress);
 
         add(mainPanel, BorderLayout.NORTH);
+    }
+
+    /**
+     * Creates the DTMF panel.
+     * @return the created DTMF panel
+     */
+    private Component createDTMFPanel()
+    {
+        JPanel dtmfPanel = new TransparentPanel(new BorderLayout(10, 10));
+        JLabel dtmfMethodLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.DTMF_METHOD"));
+        dtmfPanel.add(dtmfMethodLabel, BorderLayout.WEST);
+
+        dtmfMethodBox.setSelectedItem(
+            parentForm.getRegistration().getDefaultDTMFMethod());
+        dtmfPanel.add(dtmfMethodBox, BorderLayout.CENTER);
+
+        return dtmfPanel;
     }
 
     /**
@@ -391,5 +421,68 @@ public class ConnectionPanel
     boolean isAllowNonSecure()
     {
         return allowNonSecureBox.isSelected();
+    }
+
+    /**
+     * Returns the DTMF method.
+     * @return the DTMF method
+     */
+    String getDTMFMethod()
+    {
+        Object selItem = dtmfMethodBox.getSelectedItem();
+
+        // By default sets DTMF mezthod to auto.
+        if(selItem == null)
+        {
+            return null;
+        }
+
+        String selString = selItem.toString();
+        if(selString.equals(
+                    Resources.getString("plugin.sipaccregwizz.DTMF_RTP")))
+        {
+            return "RTP_DTMF";
+        }
+        else if(selString.equals(
+                    Resources.getString("plugin.sipaccregwizz.DTMF_INBAND")))
+        {
+            return "INBAND_DTMF";
+        }
+        else
+        {
+            return "AUTO_DTMF";
+        }
+    }
+
+    /**
+     * Sets the DTMF method.
+     * @param dtmfMethod the DTMF method
+     */
+    void setDTMFMethod(String dtmfMethod)
+    {
+        if(dtmfMethod == null)
+        {
+            dtmfMethodBox.setSelectedItem(0);
+        }
+        else
+        {
+            String selString;
+            if(dtmfMethod.equals("RTP_DTMF"))
+            {
+                selString =
+                    Resources.getString("plugin.sipaccregwizz.DTMF_RTP");
+            }
+            else if(dtmfMethod.equals("INBAND_DTMF"))
+            {
+                selString =
+                    Resources.getString("plugin.sipaccregwizz.DTMF_INBAND");
+            }
+            else
+            {
+                selString =
+                    Resources.getString("plugin.jabberaccregwizz.DTMF_AUTO");
+            }
+            dtmfMethodBox.setSelectedItem(selString);
+        }
     }
 }
