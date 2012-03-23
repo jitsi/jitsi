@@ -15,6 +15,8 @@ import java.util.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -209,7 +211,7 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Used to connect to a XMPP server.
      */
-    private XMPPConnection connection = null;
+    private XMPPConnection connection;
 
     /**
      * Indicates whether or not the provider is initialized and ready for use.
@@ -449,9 +451,9 @@ public class ProtocolProviderServiceJabberImpl
             {
                 // Checks if an error has occurred during login, if so we fire
                 // it here in order to avoid a deadlock which occurs in
-                // reconnect plugin. The deadlock is cause we fired an event during
-                // login process and have locked initializationLock and we cannot
-                // unregister from reconnect, cause unregister method
+                // reconnect plugin. The deadlock is cause we fired an event
+                // during login process and have locked initializationLock and
+                // we cannot unregister from reconnect, cause unregister method
                 // also needs this lock.
                 if(eventDuringLogin != null)
                 {
@@ -1578,9 +1580,9 @@ public class ProtocolProviderServiceJabberImpl
             // RTP HDR extension
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_HDREXT);
 
-            //register our jingle provider
-            //register our home grown Jingle Provider.
             ProviderManager providerManager = ProviderManager.getInstance();
+
+            //register our jingle provider
             providerManager.addIQProvider( JingleIQ.ELEMENT_NAME,
                                            JingleIQ.NAMESPACE,
                                            new JingleIQProvider());
@@ -1605,6 +1607,24 @@ public class ProtocolProviderServiceJabberImpl
             providerManager.addIQProvider(JingleInfoQueryIQ.ELEMENT_NAME,
                                           JingleInfoQueryIQ.NAMESPACE,
                                           new JingleInfoQueryIQProvider());
+
+            // Jitsi VideoBridge IQProvider and PacketExtensionProvider
+            providerManager.addIQProvider(
+                    CobriConferenceIQ.ELEMENT_NAME,
+                    CobriConferenceIQ.NAMESPACE,
+                    new CobriIQProvider());
+            providerManager.addExtensionProvider(
+                    PayloadTypePacketExtension.ELEMENT_NAME,
+                    CobriConferenceIQ.NAMESPACE,
+                    new DefaultPacketExtensionProvider<
+                                PayloadTypePacketExtension>(
+                            PayloadTypePacketExtension.class));
+            providerManager.addExtensionProvider(
+                    ParameterPacketExtension.ELEMENT_NAME,
+                    CobriConferenceIQ.NAMESPACE,
+                    new DefaultPacketExtensionProvider<
+                                ParameterPacketExtension>(
+                            ParameterPacketExtension.class));
 
             //initialize the telephony operation set
             boolean isCallingDisabled
@@ -2179,16 +2199,7 @@ public class ProtocolProviderServiceJabberImpl
      */
     public String getFullJid(Contact contact)
     {
-        XMPPConnection connection = getConnection();
-        if (connection == null)
-            return null;
-
-        Roster roster = getConnection().getRoster();
-
-        if (roster == null)
-            return null;
-
-        return roster.getPresence(contact.getAddress()).getFrom();
+        return getFullJid(contact.getAddress());
     }
 
     /**
@@ -2203,13 +2214,15 @@ public class ProtocolProviderServiceJabberImpl
     public String getFullJid(String bareJid)
     {
         XMPPConnection connection = getConnection();
-        if (connection == null)
-            return null;
 
-        Roster roster = getConnection().getRoster();
-        Presence presence = roster.getPresence(bareJid);
+        if (connection != null)
+        {
+            Roster roster = connection.getRoster();
 
-        return presence.getFrom();
+            if (roster != null)
+                return roster.getPresence(bareJid).getFrom();
+        }
+        return null;
     }
 
     /**
@@ -2325,17 +2338,16 @@ public class ProtocolProviderServiceJabberImpl
     {
         String jid = null;
 
-        if( connection != null && connection.getUser() != null)
-            return connection.getUser();
+        if (connection != null)
+            jid = connection.getUser();
 
         if (jid == null)
         {
-            //seems like the connection is not yet initialized so lets try
-            //to construct our jid ourselves.
-            String userID =
-                StringUtils.parseName(getAccountID().getUserID());
-            String serviceName =
-                StringUtils.parseServer(getAccountID().getUserID());
+            // seems like the connection is not yet initialized so lets try to
+            // construct our jid ourselves.
+            String accountIDUserID = getAccountID().getUserID();
+            String userID = StringUtils.parseName(accountIDUserID);
+            String serviceName = StringUtils.parseServer(accountIDUserID);
 
             jid = userID + "@" + serviceName;
         }
@@ -2605,5 +2617,61 @@ public class ProtocolProviderServiceJabberImpl
                 }
             }
         }
+    }
+
+    /**
+     * Gets the entity ID of the first Jitsi VideoBridge associated with
+     * {@link #connection} i.e. provided by the <tt>serviceName</tt> of
+     * <tt>connection</tt>.
+     *
+     * @return the entity ID of the first Jitsi VideoBridge associated with
+     * <tt>connection</tt>
+     */
+    public String getJitsiVideoBridge()
+    {
+        XMPPConnection connection = getConnection();
+
+        if (connection != null)
+        {
+            ScServiceDiscoveryManager discoveryManager = getDiscoveryManager();
+            String serviceName = connection.getServiceName();
+            DiscoverItems discoverItems = null;
+
+            try
+            {
+                discoverItems = discoveryManager.discoverItems(serviceName);
+            }
+            catch (XMPPException xmppe)
+            {
+            }
+            if (discoverItems != null)
+            {
+                Iterator<DiscoverItems.Item> discoverItemIter
+                    = discoverItems.getItems();
+
+                while (discoverItemIter.hasNext())
+                {
+                    DiscoverItems.Item discoverItem = discoverItemIter.next();
+                    String entityID = discoverItem.getEntityID();
+                    DiscoverInfo discoverInfo = null;
+
+                    try
+                    {
+                        discoverInfo = discoveryManager.discoverInfo(entityID);
+                    }
+                    catch (XMPPException xmppe)
+                    {
+                    }
+                    if ((discoverInfo != null)
+                            && discoverInfo.containsFeature(
+                                    CobriConferenceIQ.NAMESPACE))
+                    {
+                        return entityID;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }
