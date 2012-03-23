@@ -114,50 +114,68 @@ public class JmfDeviceDetector
     }
 
     /**
-     * Reinitialize video capture devices.
+     * Reinitializes the video capture devices.
      */
-    @SuppressWarnings("unchecked")
-    public void reinitializeVideo()
+    private void reinitializeVideo()
     {
-        Vector<CaptureDeviceInfo> devInfos =
-            (Vector<CaptureDeviceInfo>)CaptureDeviceManager.getDeviceList(null);
-        Vector<CaptureDeviceInfo> copyDevInfos =
-            new Vector<CaptureDeviceInfo>(devInfos.size());
+        // Determine which devices are to be reinitialized.
+        @SuppressWarnings("unchecked")
+        Vector<CaptureDeviceInfo> devices
+            = (Vector<CaptureDeviceInfo>)
+                CaptureDeviceManager.getDeviceList(null);
+        List<CaptureDeviceInfo> devicesToRemove
+            = new ArrayList<CaptureDeviceInfo>(devices.size());
 
-        for(CaptureDeviceInfo dev : devInfos)
+        for (CaptureDeviceInfo device : devices)
         {
-            Format fmts[] = dev.getFormats();
+            Format formats[] = device.getFormats();
 
-            if(fmts.length > 0 && fmts[0] instanceof VideoFormat)
+            if ((formats.length > 0) && (formats[0] instanceof VideoFormat))
             {
-                // XXX it seems that some problems appears when we reload
-                // the webcam devices, so for the moment just reinitialize
-                // desktop streaming ones.
-                if(dev.getName().startsWith("Desktop Streaming"))
+                /*
+                 * XXX It seems that problems arise when we reload the webcam
+                 * devices so reinitialize the desktop streaming ones for now.
+                 */
+                MediaLocator locator = device.getLocator();
+
+                if ((locator != null)
+                        && ImageStreamingAuto.LOCATOR_PROTOCOL.equals(
+                                locator.getProtocol()))
                 {
-                    copyDevInfos.add(dev);
+                    devicesToRemove.add(device);
                 }
             }
         }
 
-        /* remove video devices */
-        for(CaptureDeviceInfo dev : copyDevInfos)
-            CaptureDeviceManager.removeDevice(dev);
+        // Remove the devices which are to be reinitialized.
+        for(CaptureDeviceInfo deviceToRemove : devicesToRemove)
+            CaptureDeviceManager.removeDevice(deviceToRemove);
 
-        // XXX repopulates only the desktop streaming devices for the moment
-        try
+        /*
+         * Detect the video capture devices unless the configuration explicitly
+         * states that they are to not be detected.
+         */
+        if (!NeomediaActivator.getConfigurationService().getBoolean(
+                MediaServiceImpl.DISABLE_VIDEO_SUPPORT_PNAME,
+                false))
         {
-            new ImageStreamingAuto();
+            /*
+             * As stated above, we're reinitializing only the desktop streaming
+             * devices for now.
+             */
+            try
+            {
+                new ImageStreamingAuto();
+            }
+            catch(Throwable t)
+            {
+                logger.debug(
+                        "No desktop streaming available: " + t.getMessage(),
+                        t);
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+            }
         }
-        catch(Throwable exc)
-        {
-            logger
-                .debug(
-                    "No desktop streaming available: " + exc.getMessage(),
-                    exc);
-        }
-        // repopulates video capture devices
-        //initializeVideo();
     }
 
     /**
@@ -165,6 +183,41 @@ public class JmfDeviceDetector
      * repository.
      */
     private void detectCaptureDevices()
+    {
+        /*
+         * Detect the audio capture devices unless the configuration explicitly
+         * states that they are to not be detected.
+         */
+        if (!NeomediaActivator.getConfigurationService().getBoolean(
+                MediaServiceImpl.DISABLE_AUDIO_SUPPORT_PNAME,
+                false))
+        {
+            initializeAudio();
+        }
+
+        /*
+         * After all audio systems have been added during their respective
+         * detection routine, add the option None which allows the disabling of
+         * audio.
+         */
+        DeviceConfiguration.addAudioSystem(DeviceConfiguration.AUDIO_NONE);
+
+        /*
+         * Detect the video capture devices unless the configuration explicitly
+         * states that they are to not be detected.
+         */
+        if (!NeomediaActivator.getConfigurationService().getBoolean(
+                MediaServiceImpl.DISABLE_VIDEO_SUPPORT_PNAME,
+                false))
+        {
+            initializeVideo();
+        }
+    }
+
+    /**
+     * Initializes the audio capture devices.
+     */
+    private void initializeAudio()
     {
         if (logger.isInfoEnabled())
             logger.info("Looking for Audio capturer");
@@ -199,29 +252,12 @@ public class JmfDeviceDetector
             if (logger.isInfoEnabled())
                 logger.info("No portaudio detected: " + exc.getMessage());
         }
-
-        // after javasound and portaudio eventually add them to available
-        // audio systems, lets add option None, in order to be able to
-        // disable audio
-        DeviceConfiguration.addAudioSystem(
-            DeviceConfiguration.AUDIO_NONE);
-
-        // video is enabled by default
-        // if video is disabled skip device detection
-        if (NeomediaActivator
-                .getConfigurationService()
-                    .getBoolean(
-                        MediaServiceImpl.DISABLE_VIDEO_SUPPORT_PROPERTY_NAME,
-                        false))
-            return;
-
-        initializeVideo();
     }
 
     /**
-     * Initialize video devices.
+     * Initializes the video capture devices.
      */
-    public void initializeVideo()
+    private void initializeVideo()
     {
         // Try to configure capture devices for any operating system.
         // those that do not apply will silently fail.
@@ -346,7 +382,7 @@ public class JmfDeviceDetector
     }
 
     /**
-     * Reinitialize video capture devices.
+     * Reinitializes the video capture devices.
      */
     public static void reinitializeVideoCaptureDevices()
     {

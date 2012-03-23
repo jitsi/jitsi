@@ -52,9 +52,21 @@ public class MediaServiceImpl
         = Logger.getLogger(MediaServiceImpl.class);
 
     /**
-     * With this property video support can be disabled (enabled by default).
+     * The name of the <tt>boolean</tt> <tt>ConfigurationService</tt> property
+     * which indicates whether the detection of audio <tt>CaptureDevice</tt>s is
+     * to be disabled. The default value is <tt>false</tt> i.e. the audio
+     * <tt>CaptureDevice</tt>s are detected.
      */
-    public static final String DISABLE_VIDEO_SUPPORT_PROPERTY_NAME
+    public static final String DISABLE_AUDIO_SUPPORT_PNAME
+        = "net.java.sip.communicator.service.media.DISABLE_AUDIO_SUPPORT";
+
+    /**
+     * The name of the <tt>boolean</tt> <tt>ConfigurationService</tt> property
+     * which indicates whether the detection of video <tt>CaptureDevice</tt>s is
+     * to be disabled. The default value is <tt>false</tt> i.e. the video
+     * <tt>CaptureDevice</tt>s are detected.
+     */
+    public static final String DISABLE_VIDEO_SUPPORT_PNAME
         = "net.java.sip.communicator.service.media.DISABLE_VIDEO_SUPPORT";
 
     /**
