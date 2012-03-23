@@ -1275,6 +1275,7 @@ public class TestOperationSetMultiUserChat2
 
         MUCEventCollector roomUser1Collector =
             new MUCEventCollector(roomUser1, MUCEventCollector.EVENT_PRESENCE);
+        roomUser1Collector.waitForEvent(10000); // wait for user1
 
         // User1 who just created the room is supposed to be the owner:
         assertEquals("Unexpected role for user1", 
