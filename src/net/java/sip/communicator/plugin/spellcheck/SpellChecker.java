@@ -144,7 +144,13 @@ class SpellChecker
             throw new Exception("No dictionary resources defined for locale: "
                 + localeIso);
         this.locale = tmp; // needed for synchronization lock
-        setLocale(tmp); // initializes dictionary and saves locale config
+
+        // initializes dictionary and saves locale config
+        // use the worker to set the locale if it fails
+        // will still show spellcheck and will not fail
+        // starting spell check plugin
+        LanguageMenuBar.makeSelectionField(this)
+            .createSpellCheckerWorker(locale).start();
 
         // attaches to uiService so this'll be attached to future chats
         synchronized (this.attachedChats)
@@ -203,7 +209,8 @@ class SpellChecker
     {
         synchronized (attachedChats)
         {
-            if (getChatAttachments(chat) == null)
+            if (getChatAttachments(chat) == null
+                && this.dict != null)
             {
                 ChatAttachments wrapper = new ChatAttachments(chat, this.dict);
 

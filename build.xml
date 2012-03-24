@@ -2202,7 +2202,7 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${resources}/colors"
                     prefix="resources/colors"/>
             <zipfileset dir="${resources}/config"
-                    prefix="resources/config"/>
+                    prefix="resources/config" excludes="**/spellcheck/**"/>
             <zipfileset dir="${resources}/images"
                     prefix="resources/images" excludes="**/*.svg"/>
             <zipfileset dir="${resources}/languages"

@@ -75,6 +75,8 @@ public class LanguageMenuBar
     private final SIPCommTextButton removeItem = new SIPCommTextButton(
         Resources.getString("plugin.spellcheck.UNINSTALL_DICTIONARY"));
 
+    public final JList list;
+
     /**
      * Provides instance of this class associated with a spell checker. If ones
      * already been created then this instance is used.
@@ -121,7 +123,7 @@ public class LanguageMenuBar
         this.setOpaque(false);
 
         final DefaultListModel model = new DefaultListModel();
-        final JList list = new JList(model);
+        list = new JList(model);
 
         this.languageSelectionRenderer = new LanguageListRenderer();
 
@@ -491,7 +493,20 @@ public class LanguageMenuBar
         }
     }
 
-    private class SetSpellChecker extends SwingWorker
+    /**
+     * SpellChecker worker, sets specified locale.
+     * @param locale the locale to set.
+     * @return
+     */
+    public SetSpellChecker createSpellCheckerWorker(Parameters.Locale locale)
+    {
+        return new SetSpellChecker(locale, list);
+    }
+
+    /**
+     * The worker.
+     */
+    public class SetSpellChecker extends SwingWorker
     {
         private final Parameters.Locale locale;
 

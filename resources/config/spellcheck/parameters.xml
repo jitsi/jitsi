@@ -49,6 +49,7 @@
         <locale label="Khmer (Cambodia)" isoCode="km,kh" dictionaryUrl=""/>
         <locale label="Oriya (India)" isoCode="or,in" dictionaryUrl="or_IN.zip"/>
         <locale label="Uzbek (Uzbekistan)" isoCode="uz,uz" dictionaryUrl="uz_UZ.zip"/>
+        <locale label="Latin" isoCode="la,va" dictionaryUrl="http://www.drouizig.org/oo/la_VA.zip"/>
     -->
     
     <!--
@@ -71,72 +72,71 @@
     <locale label="Northern Sami" isoCode="xx,xx" dictionaryUrl="http://divvun.no/static_files/se.zip"/>
     -->
 
-    <locale label="Afrikaans (South Africa)" isoCode="af,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/af_ZA.zip"/>
-    <locale label="Armenian (Eastern and Western)" isoCode="hy,xx" dictionaryUrl="http://dictionaries.jitsi.org/hy_xx.zip"/>
-    <locale label="Basque" isoCode="eu,xx" dictionaryUrl="http://www.euskara.euskadi.net/r59-738/es/contenidos/informacion/euskarazko_softwarea/es_9568/adjuntos/xuxen/eu-ES-hunspell.zip"/>
-    <locale label="Bulgarian (Bulgaria)" isoCode="bg,bg" dictionaryUrl="http://ftp.osuosl.org/pub/openoffice/contrib/dictionaries/bg_BG.zip"/>
-    <locale label="Catalan" isoCode="ca,es" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ca_ES.zip"/>
-    <locale label="Croatian (Croatia)" isoCode="hr,hr" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/hr_HR.zip"/>
-    <locale label="Czech (Czech Republic)" isoCode="cs,cz" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/cs_CZ.zip"/>
-    <locale label="Dutch (Netherlands)" isoCode="nl,nl" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/nl_NL.zip"/>
-    <locale label="English (United Kingdom)" isoCode="en,gb" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/en_GB.zip"/>
-    <locale label="English (United States)" isoCode="en,us" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/en_US.zip"/>
-    <locale label="English (Australia)" isoCode="en,au" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/en_AU.zip"/>
-    <locale label="English (Canada)" isoCode="en,ca" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/en_CA.zip"/>
-    <locale label="English (New Zealand)" isoCode="en,nz" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/en_NZ.zip"/>
-    <locale label="English (South Africa)" isoCode="en,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/en_ZA.zip"/>
-    <locale label="Esperanto" isoCode="eo,xx" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/eo.zip"/>
-    <locale label="Faroese (Faroe Islands)" isoCode="fo,fo" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/fo_FO.zip"/>
+    <locale label="Afrikaans (South Africa)" isoCode="af,za" dictionaryUrl="http://dictionaries.jitsi.net/af_ZA.zip"/>
+    <locale label="Armenian (Eastern and Western)" isoCode="hy,xx" dictionaryUrl="http://dictionaries.jitsi.net/hy_xx.zip"/>
+    <locale label="Basque" isoCode="eu,xx" dictionaryUrl="http://dictionaries.jitsi.net/eu-ES-hunspell.zip"/>
+    <locale label="Bulgarian (Bulgaria)" isoCode="bg,bg" dictionaryUrl="http://dictionaries.jitsi.net/bg_BG.zip"/>
+    <locale label="Catalan" isoCode="ca,es" dictionaryUrl="http://dictionaries.jitsi.net/ca_ES.zip"/>
+    <locale label="Croatian (Croatia)" isoCode="hr,hr" dictionaryUrl="http://dictionaries.jitsi.net/hr_HR.zip"/>
+    <locale label="Czech (Czech Republic)" isoCode="cs,cz" dictionaryUrl="http://dictionaries.jitsi.net/cs_CZ.zip"/>
+    <locale label="Dutch (Netherlands)" isoCode="nl,nl" dictionaryUrl="http://dictionaries.jitsi.net/nl_NL.zip"/>
+    <locale label="English (United Kingdom)" isoCode="en,gb" dictionaryUrl="http://dictionaries.jitsi.net/en_GB.zip"/>
+    <locale label="English (United States)" isoCode="en,us" dictionaryUrl="http://dictionaries.jitsi.net/en_US.zip"/>
+    <locale label="English (Australia)" isoCode="en,au" dictionaryUrl="http://dictionaries.jitsi.net/en_AU.zip"/>
+    <locale label="English (Canada)" isoCode="en,ca" dictionaryUrl="http://dictionaries.jitsi.net/en_CA.zip"/>
+    <locale label="English (New Zealand)" isoCode="en,nz" dictionaryUrl="http://dictionaries.jitsi.net/en_NZ.zip"/>
+    <locale label="English (South Africa)" isoCode="en,za" dictionaryUrl="http://dictionaries.jitsi.net/en_ZA.zip"/>
+    <locale label="Esperanto" isoCode="eo,xx" dictionaryUrl="http://dictionaries.jitsi.net/eo.zip"/>
+    <locale label="Faroese (Faroe Islands)" isoCode="fo,fo" dictionaryUrl="http://dictionaries.jitsi.net/fo_FO.zip"/>
     <locale label="French (France)" isoCode="fr,fr" dictionaryUrl="http://dictionaries.jitsi.org/fr_FR.zip"/>
-    <locale label="Frisian (Netherlands)" isoCode="fy,nl" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/fy_NL.zip"/>
-    <locale label="Galician (Spain)" isoCode="gl,es" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/gl_ES.zip"/>
-    <locale label="German (Germany)" isoCode="de,de" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/de_DE_frami.zip"/>
-    <locale label="Hebrew (Israel)" isoCode="he,il" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/he_IL.zip"/>
-    <locale label="Hindi (India)" isoCode="hi,in" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/hi_IN.zip"/>
-    <locale label="Indonesian (Indonesia)" isoCode="id,id" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/id_ID.zip"/>
-    <locale label="Interlingua" isoCode="ia,xx" dictionaryUrl="http://download.savannah.nongnu.org/releases/interlingua/ia_myspell.zip"/>
-    <locale label="Irish (Ireland)" isoCode="ga,ie" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ga_IE.zip"/>
-    <locale label="Italian (Italy)" isoCode="it,it" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/it_IT.zip"/>
-    <locale label="Kinyarwanda (Rwanda)" isoCode="rw,rw" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/rw_RW.zip"/>
-    <locale label="Kurdish (Turkey, Syria, Iran, Iraq)" isoCode="ku,tr" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ku_TR.zip"/>
-    <locale label="Kiswahili (East Africa)" isoCode="xx,xx" dictionaryUrl="http://dictionaries.jitsi.org/xx_XX.zip"/>
-    <locale label="Latin" isoCode="la,va" dictionaryUrl="http://www.drouizig.org/oo/la_VA.zip"/>
-    <locale label="Latvian (Latvia)" isoCode="lv,lv" dictionaryUrl="http://ftp.stardiv.de/pub/OpenOffice.org/contrib/dictionaries/lv_LV.zip"/>
-    <locale label="Lithuanian (Lithuania)" isoCode="lt,lt" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/lt_LT.zip"/>
-    <locale label="Malagasy (Madagascar)" isoCode="mg,mg" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/mg_MG.zip"/>
-    <locale label="Malay (Malaysia)" isoCode="ms,my" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ms_MY.zip"/>
-    <locale label="Marathi (India)" isoCode="mr,in" dictionaryUrl="http://ftp.stardiv.de/pub/OpenOffice.org/contrib/dictionaries/mr_IN.zip"/>
-    <locale label="Mongolian (Mongolia)" isoCode="mn,mn" dictionaryUrl="http://dictionaries.jitsi.org/mn_MN.zip"/>
-    <locale label="Ndebele (South Africa)" isoCode="nr,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/nr_ZA.zip"/>
-    <locale label="Nepali (Nepal)" isoCode="ne,np" dictionaryUrl="http://nepalinux.org/downloads/ne_NP_dict.zip"/>
-    <locale label="Northern Sotho (South Africa)" isoCode="ns,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ns_ZA.zip"/>
-    <locale label="Norwegian (Norway)" isoCode="nb,no" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/nb_NO.zip"/>
-    <locale label="Norwegian, Nynorsk (Norway)" isoCode="nn,no" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/nn_NO.zip"/>
-    <locale label="Occitan (France)" isoCode="oc,fr" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/oc_FR.zip"/>
-    <locale label="Persian (Iran)" isoCode="fa,ir" dictionaryUrl="http://dictionaries.jitsi.org/fa_IR.zip"/>
-    <locale label="Polish (Poland)" isoCode="pl,pl" dictionaryUrl="http://pl.openoffice.org/pliki/pl_PL.zip"/>
-    <locale label="Portuguese (Portugal)" isoCode="pt,pt" dictionaryUrl="http://dictionaries.jitsi.org/pt_PT.zip"/>
-    <locale label="Punjabi (India)" isoCode="xx,in" dictionaryUrl="http://dictionaries.jitsi.org/xx_IN.zip"/>
-    <locale label="Romanian (Romania)" isoCode="ro,ro" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ro_RO.zip"/>
-    <locale label="Russian (Russia)" isoCode="ru,ru" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ru_RU.zip"/>
-    <locale label="Scottish Gaelic (Scotland)" isoCode="gd,gb" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/gd_GB.zip"/>
-    <locale label="Setswana (Africa)" isoCode="tn,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/tn_ZA.zip"/>
-    <locale label="Slovak (Slovakia)" isoCode="sk,sk" dictionaryUrl="http://www.sk-spell.sk.cx/file_download/20/myspell-sk_SK-0.5.6.zip"/>
-    <locale label="Slovenian (Slovenia)" isoCode="sl,sl" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/sl_SI.zip"/>
-    <locale label="Southern Sotho (South Africa)" isoCode="st,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/st_ZA.zip"/>
-    <locale label="Spanish (Spain)" isoCode="es,es" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/es_ES.zip"/>
-    <locale label="Spanish (Mexico)" isoCode="es,mx" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/es_MX.zip"/>
-    <locale label="Swazi/Swati (South Africa)" isoCode="ss,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ss_ZA.zip"/>
-    <locale label="Swedish (Sweden)" isoCode="sv,se" dictionaryUrl="http://hem.bredband.net/dsso1/sv_SE.zip"/>
-    <locale label="Tagalog (Philippines)" isoCode="tl,ph" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/tl_PH.zip"/>
-    <locale label="Tamil (India)" isoCode="ta,in" dictionaryUrl="http://dictionaries.jitsi.org/ta_IN.zip"/>
-    <locale label="Tetum (Indonesia)" isoCode="xx,id" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/tet_ID.zip"/>
-    <locale label="Tsonga (South Africa)" isoCode="ts,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ts_ZA.zip"/>
-    <locale label="Ukrainian (Ukraine)" isoCode="uk,ua" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/uk_UA.zip"/>
-    <locale label="Venda (South Africa)" isoCode="ve,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/ve_ZA.zip"/>
-    <locale label="Vietnamese (Vietnam)" isoCode="vi,vn" dictionaryUrl="http://hunspell-spellcheck-vi.googlecode.com/files/vi_VN.zip"/>
-    <locale label="Xhosa (South Africa)" isoCode="xh,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/xh_ZA.zip"/>
-    <locale label="Zulu (Africa)" isoCode="zu,za" dictionaryUrl="http://ftp.services.openoffice.org/pub/OpenOffice.org/contrib/dictionaries/zu_ZA.zip"/>
+    <locale label="Frisian (Netherlands)" isoCode="fy,nl" dictionaryUrl="http://dictionaries.jitsi.net/fy_NL.zip"/>
+    <locale label="Galician (Spain)" isoCode="gl,es" dictionaryUrl="http://dictionaries.jitsi.net/gl_ES.zip"/>
+    <locale label="German (Germany)" isoCode="de,de" dictionaryUrl="http://dictionaries.jitsi.net/de_DE_frami.zip"/>
+    <locale label="Hebrew (Israel)" isoCode="he,il" dictionaryUrl="http://dictionaries.jitsi.net/he_IL.zip"/>
+    <locale label="Hindi (India)" isoCode="hi,in" dictionaryUrl="http://dictionaries.jitsi.net/hi_IN.zip"/>
+    <locale label="Indonesian (Indonesia)" isoCode="id,id" dictionaryUrl="http://dictionaries.jitsi.net/id_ID.zip"/>
+    <locale label="Interlingua" isoCode="ia,xx" dictionaryUrl="http://dictionaries.jitsi.net/ia_myspell.zip"/>
+    <locale label="Irish (Ireland)" isoCode="ga,ie" dictionaryUrl="http://dictionaries.jitsi.net/ga_IE.zip"/>
+    <locale label="Italian (Italy)" isoCode="it,it" dictionaryUrl="http://dictionaries.jitsi.net/it_IT.zip"/>
+    <locale label="Kinyarwanda (Rwanda)" isoCode="rw,rw" dictionaryUrl="http://dictionaries.jitsi.net/rw_RW.zip"/>
+    <locale label="Kurdish (Turkey, Syria, Iran, Iraq)" isoCode="ku,tr" dictionaryUrl="http://dictionaries.jitsi.net/ku_TR.zip"/>
+    <locale label="Kiswahili (East Africa)" isoCode="xx,xx" dictionaryUrl="http://dictionaries.jitsi.net/xx_XX.zip"/>
+    <locale label="Latvian (Latvia)" isoCode="lv,lv" dictionaryUrl="http://dictionaries.jitsi.net/lv_LV.zip"/>
+    <locale label="Lithuanian (Lithuania)" isoCode="lt,lt" dictionaryUrl="http://dictionaries.jitsi.net/lt_LT.zip"/>
+    <locale label="Malagasy (Madagascar)" isoCode="mg,mg" dictionaryUrl="http://dictionaries.jitsi.net/mg_MG.zip"/>
+    <locale label="Malay (Malaysia)" isoCode="ms,my" dictionaryUrl="http://dictionaries.jitsi.net/ms_MY.zip"/>
+    <locale label="Marathi (India)" isoCode="mr,in" dictionaryUrl="http://dictionaries.jitsi.net/mr_IN.zip"/>
+    <locale label="Mongolian (Mongolia)" isoCode="mn,mn" dictionaryUrl="http://dictionaries.jitsi.net/mn_MN.zip"/>
+    <locale label="Ndebele (South Africa)" isoCode="nr,za" dictionaryUrl="http://dictionaries.jitsi.net/nr_ZA.zip"/>
+    <locale label="Nepali (Nepal)" isoCode="ne,np" dictionaryUrl="http://dictionaries.jitsi.net/ne_NP_dict.zip"/>
+    <locale label="Northern Sotho (South Africa)" isoCode="ns,za" dictionaryUrl="http://dictionaries.jitsi.net/ns_ZA.zip"/>
+    <locale label="Norwegian (Norway)" isoCode="nb,no" dictionaryUrl="http://dictionaries.jitsi.net/nb_NO.zip"/>
+    <locale label="Norwegian, Nynorsk (Norway)" isoCode="nn,no" dictionaryUrl="http://dictionaries.jitsi.net/nn_NO.zip"/>
+    <locale label="Occitan (France)" isoCode="oc,fr" dictionaryUrl="http://dictionaries.jitsi.net/oc_FR.zip"/>
+    <locale label="Persian (Iran)" isoCode="fa,ir" dictionaryUrl="http://dictionaries.jitsi.net/fa_IR.zip"/>
+    <locale label="Polish (Poland)" isoCode="pl,pl" dictionaryUrl="http://dictionaries.jitsi.net/pl_PL.zip"/>
+    <locale label="Portuguese (Portugal)" isoCode="pt,pt" dictionaryUrl="http://dictionaries.jitsi.net/pt_PT.zip"/>
+    <locale label="Punjabi (India)" isoCode="xx,in" dictionaryUrl="http://dictionaries.jitsi.net/xx_IN.zip"/>
+    <locale label="Romanian (Romania)" isoCode="ro,ro" dictionaryUrl="http://dictionaries.jitsi.net/ro_RO.zip"/>
+    <locale label="Russian (Russia)" isoCode="ru,ru" dictionaryUrl="http://dictionaries.jitsi.net/ru_RU.zip"/>
+    <locale label="Scottish Gaelic (Scotland)" isoCode="gd,gb" dictionaryUrl="http://dictionaries.jitsi.net/gd_GB.zip"/>
+    <locale label="Setswana (Africa)" isoCode="tn,za" dictionaryUrl="http://dictionaries.jitsi.net/tn_ZA.zip"/>
+    <locale label="Slovak (Slovakia)" isoCode="sk,sk" dictionaryUrl="http://dictionaries.jitsi.net/myspell-sk_SK-0.5.6.zip"/>
+    <locale label="Slovenian (Slovenia)" isoCode="sl,sl" dictionaryUrl="http://dictionaries.jitsi.net/sl_SI.zip"/>
+    <locale label="Southern Sotho (South Africa)" isoCode="st,za" dictionaryUrl="http://dictionaries.jitsi.net/st_ZA.zip"/>
+    <locale label="Spanish (Spain)" isoCode="es,es" dictionaryUrl="http://dictionaries.jitsi.net/es_ES.zip"/>
+    <locale label="Spanish (Mexico)" isoCode="es,mx" dictionaryUrl="http://dictionaries.jitsi.net/es_MX.zip"/>
+    <locale label="Swazi/Swati (South Africa)" isoCode="ss,za" dictionaryUrl="http://dictionaries.jitsi.net/ss_ZA.zip"/>
+    <locale label="Swedish (Sweden)" isoCode="sv,se" dictionaryUrl="http://dictionaries.jitsi.net/sv_SE.zip"/>
+    <locale label="Tagalog (Philippines)" isoCode="tl,ph" dictionaryUrl="http://dictionaries.jitsi.net/tl_PH.zip"/>
+    <locale label="Tamil (India)" isoCode="ta,in" dictionaryUrl="http://dictionaries.jitsi.net/ta_IN.zip"/>
+    <locale label="Tetum (Indonesia)" isoCode="xx,id" dictionaryUrl="http://dictionaries.jitsi.net/tet_ID.zip"/>
+    <locale label="Tsonga (South Africa)" isoCode="ts,za" dictionaryUrl="http://dictionaries.jitsi.net/ts_ZA.zip"/>
+    <locale label="Ukrainian (Ukraine)" isoCode="uk,ua" dictionaryUrl="http://dictionaries.jitsi.net/uk_UA.zip"/>
+    <locale label="Venda (South Africa)" isoCode="ve,za" dictionaryUrl="http://dictionaries.jitsi.net/ve_ZA.zip"/>
+    <locale label="Vietnamese (Vietnam)" isoCode="vi,vn" dictionaryUrl="http://dictionaries.jitsi.net/vi_VN.zip"/>
+    <locale label="Xhosa (South Africa)" isoCode="xh,za" dictionaryUrl="http://dictionaries.jitsi.net/xh_ZA.zip"/>
+    <locale label="Zulu (Africa)" isoCode="zu,za" dictionaryUrl="http://dictionaries.jitsi.net/zu_ZA.zip"/>
   </locales>
 </spellCheckerParameters>
 
