@@ -424,12 +424,17 @@ public class OperationSetMessageWaitingSipImpl
                 BufferedReader input = new BufferedReader(new InputStreamReader(
                         new ByteArrayInputStream(rawContent)));
                 String line;
+                boolean messageWaiting = false;
+                boolean eventFired = false;
                 while((line = input.readLine()) != null)
                 {
                     String lcaseLine = line.toLowerCase();
                     if(lcaseLine.startsWith("messages-waiting"))
                     {
-                        // we fire event for every message notification
+                        String messageWaitingStr  =
+                            line.substring(line.indexOf(":") + 1).trim();
+                        if(messageWaitingStr.equalsIgnoreCase("yes"))
+                            messageWaiting = true;
                     }
                     else if(lcaseLine.startsWith("message-account"))
                     {
@@ -460,8 +465,28 @@ public class OperationSetMessageWaitingSipImpl
                                     Integer.valueOf(matcher.group(2)),
                                     Integer.valueOf(matcher.group(3)),
                                     Integer.valueOf(matcher.group(4)));
+                            eventFired = true;
                         }
                     }
+                }
+
+                // as defined in rfc3842
+                //'In some cases, detailed message summaries are not available.'
+                // this is a simple workaround that will trigger a notification
+                // for one message so we can inform the user that there are
+                // messages waiting
+                // FIXME: account is null, UI will throw NPE when trying to
+                // call account mailbox, account is also not mandatory
+                if(messageWaiting && !eventFired)
+                {
+                    // what is the account to call for retrieving messages?
+                    fireVoicemailNotificationEvent(
+                        MessageType.VOICE.toString(),
+                        null,
+                        1,
+                        0,
+                        0,
+                        0);
                 }
             }
             catch(IOException ex)
