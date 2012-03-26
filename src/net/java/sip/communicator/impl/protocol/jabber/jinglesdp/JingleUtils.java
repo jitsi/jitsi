@@ -24,6 +24,7 @@ import static net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.C
  * transports.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public class JingleUtils
 {
@@ -99,16 +100,46 @@ public class JingleUtils
      * Returns the {@link MediaFormat} described in the <tt>payloadType</tt>
      * extension or <tt>null</tt> if we don't recognize the format.
      *
-     * @param payloadType the {@link PayloadTypePacketExtension} that we'd like
-     * to parse into a {@link MediaFormat}.
+     * @param payloadType the {@link PayloadTypePacketExtension} which is to be
+     * parsed into a {@link MediaFormat}.
      * @param ptRegistry the {@link DynamicPayloadTypeRegistry} that we would
-     * use for the registration of possible dynamic payload types.
+     * use for the registration of possible dynamic payload types or
+     * <tt>null</tt> the returned <tt>MediaFormat</tt> is to not be registered
+     * into a <tt>DynamicPayloadTypeRegistry</tt>.
+     *
+     * @return the {@link MediaFormat} described in the <tt>payloadType</tt>
+     * extension or <tt>null</tt> if we don't recognize the format.
+     */
+    public static MediaFormat payloadTypeToMediaFormat(
+            PayloadTypePacketExtension payloadType,
+            DynamicPayloadTypeRegistry ptRegistry)
+    {
+        return
+            payloadTypeToMediaFormat(
+                    payloadType,
+                    JabberActivator.getMediaService(),
+                    ptRegistry);
+    }
+
+    /**
+     * Returns the {@link MediaFormat} described in the <tt>payloadType</tt>
+     * extension or <tt>null</tt> if we don't recognize the format.
+     *
+     * @param payloadType the {@link PayloadTypePacketExtension} which is to be
+     * parsed into a {@link MediaFormat}.
+     * @param mediaService the <tt>MediaService</tt> implementation which is to
+     * be used for <tt>MediaFormat</tt>-related factory methods
+     * @param ptRegistry the {@link DynamicPayloadTypeRegistry} that we would
+     * use for the registration of possible dynamic payload types or
+     * <tt>null</tt> the returned <tt>MediaFormat</tt> is to not be registered
+     * into a <tt>DynamicPayloadTypeRegistry</tt>.
      *
      * @return the {@link MediaFormat} described in the <tt>payloadType</tt>
      * extension or <tt>null</tt> if we don't recognize the format.
      */
     public static MediaFormat payloadTypeToMediaFormat(
                     PayloadTypePacketExtension payloadType,
+                    MediaService mediaService,
                     DynamicPayloadTypeRegistry ptRegistry)
     {
         byte pt = (byte)payloadType.getID();
@@ -127,19 +158,15 @@ public class JingleUtils
                 paramsMap.put(param.getName(), param.getValue());
         }
 
-        // video related attribute in payload type element
+        // video-related attributes in payload-type element
         for(String attr : payloadType.getAttributeNames())
         {
             if(attr.equals("width") || attr.equals("height"))
-            {
-                paramsMap.put(attr, payloadType.getAttributeAsString(
-                    attr));
-            }
+                paramsMap.put(attr, payloadType.getAttributeAsString(attr));
         }
 
         //now create the format.
-        MediaFormatFactory formatFactory
-            = JabberActivator.getMediaService().getFormatFactory();
+        MediaFormatFactory formatFactory = mediaService.getFormatFactory();
         MediaFormat format
             = formatFactory.createMediaFormat(
                     pt,
@@ -169,14 +196,15 @@ public class JingleUtils
          * re-map a payloadType in its answer to a different MediaFormat
          * than the one we've specified in our offer?
          */
-        if ((pt >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
+        if ((ptRegistry != null)
+                && (pt >= MediaFormat.MIN_DYNAMIC_PAYLOAD_TYPE)
                 && (pt <= MediaFormat.MAX_DYNAMIC_PAYLOAD_TYPE)
                 && (ptRegistry.findFormat(pt) == null))
         {
             ptRegistry.addMapping(format, pt);
         }
 
-        return (unknown == false) ? format : null;
+        return unknown ? null : format;
     }
 
     /**
@@ -527,18 +555,19 @@ public class JingleUtils
     }
 
     /**
-     * Converts <tt>format</tt> into a {@link PayloadTypePacketExtension} instance.
+     * Converts a specific {@link MediaFormat} into a new
+     * {@link PayloadTypePacketExtension} instance.
      *
-     * @param format the {@link MediaFormat} we'd like to convert.
+     * @param format the <tt>MediaFormat</tt> we'd like to convert.
      * @param ptRegistry the {@link DynamicPayloadTypeRegistry} to use for
      * formats that don't have a static pt number.
      *
-     * @return the newly created {@link PayloadTypePacketExtension} that
-     * contains <tt>format</tt>'s parameters.
+     * @return the new <tt>PayloadTypePacketExtension</tt> which contains
+     * <tt>format</tt>'s parameters.
      */
     public static PayloadTypePacketExtension formatToPayloadType(
-                                        MediaFormat               format,
-                                        DynamicPayloadTypeRegistry ptRegistry)
+            MediaFormat format,
+            DynamicPayloadTypeRegistry ptRegistry)
     {
         PayloadTypePacketExtension ptExt = new PayloadTypePacketExtension();
 
@@ -555,7 +584,10 @@ public class JingleUtils
 
         ptExt.setClockrate((int)format.getClockRate());
 
-        /* add parameters */
+        /*
+         * Add the format parameters and the advanced attributes (as parameter
+         * packet extensions).
+         */
         for(Map.Entry<String, String> entry :
             format.getFormatParameters().entrySet())
         {
@@ -564,7 +596,6 @@ public class JingleUtils
             ext.setValue(entry.getValue());
             ptExt.addParameter(ext);
         }
-
         for(Map.Entry<String, String> entry :
             format.getAdvancedAttributes().entrySet())
         {

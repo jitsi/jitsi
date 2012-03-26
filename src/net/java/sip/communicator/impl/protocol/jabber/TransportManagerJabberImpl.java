@@ -306,7 +306,8 @@ public abstract class TransportManagerJabberImpl
     }
 
     /**
-     * Close this transport manager and release resources.
+     * Releases the resources acquired by this <tt>TransportManager</tt> and
+     * prepares it for garbage collection.
      */
     public void close()
     {

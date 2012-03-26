@@ -129,11 +129,15 @@ public class NetworkAddressManagerServiceImpl
             InetAddress intendedDestination)
     {
         InetAddress localHost = null;
-        String osVersion = System.getProperty("os.version");
 
         if(logger.isTraceEnabled())
+        {
             logger.trace(
-                    "Querying a localhost addr for dst=" + intendedDestination);
+                    "Querying for a localhost address"
+                        + " for intended destination '"
+                        + intendedDestination
+                        + "'");
+        }
 
         /* use native code (JNI) to find source address for a specific
          * destination address on Windows XP SP1 and over.
@@ -143,14 +147,18 @@ public class NetworkAddressManagerServiceImpl
          * on Windows is because its socket implementation returns the any
          * address...
          */
-        if(OSUtils.IS_WINDOWS &&
-           !osVersion.startsWith("4") && /* 95/98/Me/NT */
-           !osVersion.startsWith("5.0")) /* 2000 */
-        {
-            byte[] src = Win32LocalhostRetriever.getSourceForDestination(
-                    intendedDestination.getAddress());
+        String osVersion;
 
-            if(src == null)
+        if (OSUtils.IS_WINDOWS
+                && !(osVersion = System.getProperty("os.version")).startsWith(
+                        "4") /* 95/98/Me/NT */
+                && !osVersion.startsWith("5.0")) /* 2000 */
+        {
+            byte[] src
+                = Win32LocalhostRetriever.getSourceForDestination(
+                        intendedDestination.getAddress());
+
+            if (src == null)
             {
                 logger.warn("Failed to get localhost ");
             }
@@ -160,9 +168,9 @@ public class NetworkAddressManagerServiceImpl
                 {
                     localHost = InetAddress.getByAddress(src);
                 }
-                catch(UnknownHostException e)
+                catch(UnknownHostException uhe)
                 {
-                    logger.warn("Failed to get localhost ", e);
+                    logger.warn("Failed to get localhost", uhe);
                 }
             }
         }
@@ -176,10 +184,10 @@ public class NetworkAddressManagerServiceImpl
             localHost = localHostFinderSocket.getLocalAddress();
             localHostFinderSocket.disconnect();
         }
+
         //windows socket implementations return the any address so we need to
         //find something else here ... InetAddress.getLocalHost seems to work
-        //better on windows so lets hope it'll do the trick.
-
+        //better on windows so let's hope it'll do the trick.
         if (localHost == null)
         {
             try
@@ -191,11 +199,14 @@ public class NetworkAddressManagerServiceImpl
                 logger.warn("Failed to get localhost ", e);
             }
         }
-        if( localHost.isAnyLocalAddress())
+        if (localHost.isAnyLocalAddress())
         {
             if (logger.isTraceEnabled())
-                logger.trace("Socket returned the AnyLocalAddress. "+
-                            "Trying a workaround.");
+            {
+                logger.trace(
+                        "Socket returned the ANY local address."
+                            + " Trying a workaround.");
+            }
             try
             {
                 //all that's inside the if is an ugly IPv6 hack
@@ -204,32 +215,28 @@ public class NetworkAddressManagerServiceImpl
                 {
                     //return the first globally routable ipv6 address we find
                     //on the machine (and hope it's a good one)
-                    Enumeration<NetworkInterface> interfaces
+                    boolean done = false;
+                    Enumeration<NetworkInterface> ifaces
                         = NetworkInterface.getNetworkInterfaces();
 
-                    while (interfaces.hasMoreElements())
+                    while (!done && ifaces.hasMoreElements())
                     {
-                        NetworkInterface iface = interfaces.nextElement();
-                        Enumeration<InetAddress> addresses =
-                            iface.getInetAddresses();
-                        while(addresses.hasMoreElements())
+                        Enumeration<InetAddress> addresses
+                            = ifaces.nextElement().getInetAddresses();
+
+                        while (addresses.hasMoreElements())
                         {
-                            InetAddress address
-                                = addresses.nextElement();
-                            if(address instanceof Inet6Address)
-                            {
-                                if(!address.isAnyLocalAddress()
+                            InetAddress address = addresses.nextElement();
+
+                            if ((address instanceof Inet6Address)
+                                    && !address.isAnyLocalAddress()
                                     && !address.isLinkLocalAddress()
-                                    && !address.isSiteLocalAddress()
-                                    && !address.isLoopbackAddress())
-                                {
-                                    if(logger.isTraceEnabled())
-                                    {
-                                        logger.trace("will return ipv6 addr "
-                                                    + address);
-                                    }
-                                    return address;
-                                }
+                                    && !address.isLoopbackAddress()
+                                    && !address.isSiteLocalAddress())
+                            {
+                                localHost = address;
+                                done = true;
+                                break;
                             }
                         }
                     }
@@ -243,47 +250,41 @@ public class NetworkAddressManagerServiceImpl
                     // Make sure we got an IPv4 address.
                     if (!(localHost instanceof Inet4Address))
                     {
-                        // return the first non localhost interface we find.
-                        Enumeration<NetworkInterface> interfaces =
-                            NetworkInterface.getNetworkInterfaces();
+                        // return the first non-loopback interface we find.
+                        boolean done = false;
+                        Enumeration<NetworkInterface> ifaces
+                            = NetworkInterface.getNetworkInterfaces();
 
-                        while (interfaces.hasMoreElements())
+                        while (!done && ifaces.hasMoreElements())
                         {
-                            NetworkInterface iface = interfaces.nextElement();
-                            Enumeration<InetAddress> addresses = iface
-                                            .getInetAddresses();
+                            Enumeration<InetAddress> addresses
+                                = ifaces.nextElement().getInetAddresses();
+
                             while (addresses.hasMoreElements())
                             {
                                 InetAddress address = addresses.nextElement();
-                                if (address instanceof Inet4Address)
+
+                                if ((address instanceof Inet4Address)
+                                        && !address.isLoopbackAddress())
                                 {
-                                    if (!address.isLoopbackAddress())
-                                    {
-                                        if (logger.isTraceEnabled())
-                                        {
-                                            logger.trace(
-                                                "will return ipv6 addr "
-                                                + address);
-                                        }
-                                        return address;
-                                    }
+                                    localHost = address;
+                                    done = true;
+                                    break;
                                 }
                             }
                         }
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 //sigh ... ok return 0.0.0.0
-                logger.warn("Failed to get localhost ", ex);
+                logger.warn("Failed to get localhost", e);
             }
         }
-        if(logger.isTraceEnabled())
-        {
-            logger.trace("Will return the following localhost address: "
-                        + localHost);
-        }
+
+        if (logger.isTraceEnabled())
+            logger.trace("Returning the localhost address '" + localHost + "'");
         return localHost;
     }
 

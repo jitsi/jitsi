@@ -121,6 +121,13 @@ public class CobriIQProvider
                         if ((rtcpPort != null) && (rtcpPort.length() != 0))
                             channel.setRTCPPort(Integer.parseInt(rtcpPort));
 
+                        String expire
+                            = parser.getAttributeValue(
+                                    "",
+                                    CobriConferenceIQ.Channel.EXPIRE_ATTR_NAME);
+
+                        if ((expire != null) && (expire.length() != 0))
+                            channel.setExpire(Integer.parseInt(expire));
                     }
                     else if (CobriConferenceIQ.Content.ELEMENT_NAME
                             .equals(name))

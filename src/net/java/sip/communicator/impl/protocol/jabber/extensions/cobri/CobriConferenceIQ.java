@@ -187,6 +187,21 @@ public class CobriConferenceIQ
         public static final String ELEMENT_NAME = "channel";
 
         /**
+         * The XML name of the <tt>expire</tt> attribute of a <tt>channel</tt>
+         * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
+         * the value of the <tt>expire</tt> property of
+         * <tt>CobriConferenceIQ.Channel</tt>.
+         */
+        public static final String EXPIRE_ATTR_NAME = "expire";
+
+        /**
+         * The value of the <tt>expire</tt> property of
+         * <tt>CobriConferenceIQ.Channel</tt> which indicates that no actual
+         * value has been specified for the property in question.
+         */
+        public static final int EXPIRE_NOT_SPECIFIED = -1;
+
+        /**
          * The XML name of the <tt>host</tt> attribute of a <tt>channel</tt> of
          * a <tt>content</tt> of a <tt>conference</tt> IQ which represents the
          * value of the <tt>host</tt> property of
@@ -217,6 +232,12 @@ public class CobriConferenceIQ
          * <tt>CobriConferenceIQ.Channel</tt>.
          */
         public static final String RTP_PORT_ATTR_NAME = "rtpport";
+
+        /**
+         * The number of seconds of inactivity after which the <tt>channel</tt>
+         * represented by this instance expires.
+         */
+        private int expire = EXPIRE_NOT_SPECIFIED;
 
         /**
          * The host of the <tt>channel</tt> represented by this instance.
@@ -268,6 +289,18 @@ public class CobriConferenceIQ
                     : payloadTypes.add(payloadType);
         }
 
+        /**
+         * Gets the number of seconds of inactivity after which the
+         * <tt>channel</tt> represented by this instance expires.
+         *
+         * @return the number of seconds of inactivity after which the
+         * <tt>channel</tt> represented by this instance expires
+         */
+        public int getExpire()
+        {
+            return expire;
+        }
+
         public String getHost()
         {
             return host;
@@ -311,6 +344,24 @@ public class CobriConferenceIQ
         public boolean removePayloadType(PayloadTypePacketExtension payloadType)
         {
             return payloadTypes.remove(payloadType);
+        }
+
+        /**
+         * Sets the number of seconds of inactivity after which the
+         * <tt>channel</tt> represented by this instance expires.
+         *
+         * @param expire the number of seconds of activity after which the
+         * <tt>channel</tt> represented by this instance expires
+         * @throws IllegalArgumentException if the value of the specified
+         * <tt>expire</tt> is other than {@link #EXPIRE_NOT_SPECIFIED} and
+         * negative
+         */
+        public void setExpire(int expire)
+        {
+            if ((expire != EXPIRE_NOT_SPECIFIED) && (expire < 0))
+                throw new IllegalArgumentException("expire");
+
+            this.expire = expire;
         }
 
         public void setHost(String host)
@@ -365,6 +416,12 @@ public class CobriConferenceIQ
             if (rtcpPort > 0)
                 xml.append(' ').append(RTCP_PORT_ATTR_NAME).append("='")
                         .append(rtcpPort).append('\'');
+
+            int expire = getExpire();
+
+            if (expire >= 0)
+                xml.append(' ').append(EXPIRE_ATTR_NAME).append("='")
+                        .append(expire).append('\'');
 
             List<PayloadTypePacketExtension> payloadTypes = getPayloadTypes();
 
