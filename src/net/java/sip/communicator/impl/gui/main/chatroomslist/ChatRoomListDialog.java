@@ -56,6 +56,8 @@ public class ChatRoomListDialog
      */
     private static ChatRoomListDialog chatRoomListDialog;
 
+    private ChatRoomListUI chatRoomsListUI;
+
     /**
      * Shows a <code>ChatRoomListDialog</code> creating it first if necessary.
      * The shown instance is shared in order to prevent displaying multiple
@@ -110,7 +112,7 @@ public class ChatRoomListDialog
      */
     private void init()
     {
-        ChatRoomListUI chatRoomsListUI = new ChatRoomListUI(this);
+        chatRoomsListUI = new ChatRoomListUI(this);
 
         JButton createChatRoomButton = new JButton(
             GuiActivator.getResources()
@@ -167,6 +169,7 @@ public class ChatRoomListDialog
     @Override
     protected void close(boolean isEscaped)
     {
+        chatRoomsListUI.dispose();
         this.dispose();
     }
 }

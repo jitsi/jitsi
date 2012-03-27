@@ -324,6 +324,7 @@ public class ChatPanel
     {
         writeMessagePanel.dispose();
         chatSession.dispose();
+        conversationPanel.dispose();
     }
 
     /**

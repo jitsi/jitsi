@@ -502,6 +502,7 @@ public class ChatRoomTableDialog
     @Override
     protected void close(boolean isEscaped)
     {
+        chatRoomsTableUI.dispose();
         chatRoomTableDialog = null;
 
         dispose();

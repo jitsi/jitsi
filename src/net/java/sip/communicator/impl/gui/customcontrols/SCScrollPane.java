@@ -8,11 +8,14 @@ package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.beans.*;
+import java.lang.reflect.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -188,6 +191,40 @@ public class SCScrollPane
                 texture = null;
                 color = null;
             }
+        }
+    }
+
+    /**
+     * Cleanup.
+     */
+    public void dispose()
+    {
+        if(OSUtils.IS_MAC)
+        {
+            // Apple introduced a memory leak in JViewport class -
+            // they add a PropertyChangeListeners to the CToolkit
+            try
+            {
+                PropertyChangeListener[] pcl =Toolkit.getDefaultToolkit()
+                    .getPropertyChangeListeners("apple.awt.contentScaleFactor");
+
+                for(PropertyChangeListener pc : pcl)
+                {
+                    // find the reference to the object created the listener
+                    Field f = pc.getClass().getDeclaredField("this$0");
+                    f.setAccessible(true);
+                    // if we are the parent cleanup
+                    if(f.get(pc).equals(this.getViewport()))
+                    {
+                        Toolkit.getDefaultToolkit()
+                            .removePropertyChangeListener(
+                                "apple.awt.contentScaleFactor", pc);
+                        break;
+                    }
+                }
+            }
+            catch(Throwable t)
+            {}
         }
     }
 }

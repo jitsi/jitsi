@@ -408,48 +408,55 @@ public class MetaContactRightButtonMenu
 
             if(infoOpSet != null)
             {
-                details = infoOpSet.getAllDetailsForContact(contact);
-
-                while(details.hasNext())
+                try
                 {
-                    GenericDetail d = details.next();
-                    if(d instanceof PhoneNumberDetail && 
-                        !(d instanceof PagerDetail) && 
-                        !(d instanceof FaxDetail))
+                    details = infoOpSet.getAllDetailsForContact(contact);
+
+                    while(details.hasNext())
                     {
-                        PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                        if(pnd.getNumber() != null &&
-                            pnd.getNumber().length() > 0)
+                        GenericDetail d = details.next();
+                        if(d instanceof PhoneNumberDetail &&
+                            !(d instanceof PagerDetail) &&
+                            !(d instanceof FaxDetail))
                         {
-                            String localizedType = null;
-                            
-                            if(d instanceof WorkPhoneDetail)
+                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                            if(pnd.getNumber() != null &&
+                                pnd.getNumber().length() > 0)
                             {
-                                localizedType = 
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.WORK_PHONE");
+                                String localizedType;
+
+                                if(d instanceof WorkPhoneDetail)
+                                {
+                                    localizedType =
+                                        GuiActivator.getResources().
+                                            getI18NString(
+                                                "service.gui.WORK_PHONE");
+                                }
+                                else if(d instanceof MobilePhoneDetail)
+                                {
+                                    localizedType =
+                                        GuiActivator.getResources().
+                                            getI18NString(
+                                                "service.gui.MOBILE_PHONE");
+                                }
+                                else
+                                {
+                                    localizedType =
+                                        GuiActivator.getResources().
+                                            getI18NString(
+                                                "service.gui.PHONE");
+                                }
+
+                                phones.add(pnd.getNumber()
+                                    + " (" + localizedType + ")");
+                                hasPhones = true;
                             }
-                            else if(d instanceof MobilePhoneDetail)
-                            {
-                                localizedType = 
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.MOBILE_PHONE");                                    
-                            }
-                            else
-                            {
-                                localizedType = 
-                                    GuiActivator.getResources().
-                                        getI18NString(
-                                            "service.gui.PHONE");                                    
-                            }
-                                
-                            phones.add(pnd.getNumber() 
-                                + " (" + localizedType + ")");
-                            hasPhones = true;
                         }
                     }
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error obtaining server stored contact info");
                 }
             }
 

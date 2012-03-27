@@ -365,6 +365,8 @@ public class ChatWritePanel
         stoppedTypingTimer.removeActionListener(this);
         if (typingState != OperationSetTypingNotifications.STATE_STOPPED)
             stopTypingTimer();
+
+        scrollPane.dispose();
     }
 
     /**

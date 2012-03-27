@@ -747,6 +747,9 @@ public class HistoryWindow
             GuiActivator.getUIService().getHistoryWindowManager()
                 .removeHistoryWindowForContact(historyContact);
 
+            datesPanel.dispose();
+            chatConvPanel.dispose();
+
             this.dispose();
         }
     }

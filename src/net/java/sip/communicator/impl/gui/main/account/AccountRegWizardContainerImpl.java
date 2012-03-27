@@ -319,4 +319,12 @@ public class AccountRegWizardContainerImpl
             break;
         }
     }
+
+    /**
+     * Implements the <tt>SIPCommDialog</tt> close method.
+     */
+    protected void close(boolean isEscaped)
+    {
+        summaryPage.dispose();
+    }
 }
