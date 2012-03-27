@@ -45,14 +45,31 @@ public class SRTPTransformEngine
                                SRTPPolicy srtpPolicy, SRTPPolicy srtcpPolicy)
     {
 
-        this.defaultContext = new SRTPCryptoContext(0, 0, 0,
-                                                    masterKey,
-                                                    masterSalt,
-                                                    srtpPolicy);
-        this.defaultContextControl = new SRTCPCryptoContext(0, 
-                                                    masterKey,
-                                                    masterSalt, 
-                                                    srtcpPolicy);
+        defaultContext = new SRTPCryptoContext(0, 0, 0,
+                                               masterKey,
+                                               masterSalt,
+                                               srtpPolicy);
+        defaultContextControl = new SRTCPCryptoContext(0, 
+                                                       masterKey,
+                                                       masterSalt, 
+                                                       srtcpPolicy);
+    }
+
+    /**
+     * Close the transformer engine.
+     * 
+     * The close functions closes all stored default crypto contexts. This deletes key data
+     * and forces a cleanup of the crypto contexts.
+     */
+    public void close()
+    {
+        if (defaultContext != null)
+            defaultContext.close();
+        if (defaultContextControl != null)
+            defaultContextControl.close();
+
+        defaultContext = null;
+        defaultContextControl = null;
     }
 
     /**

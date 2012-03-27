@@ -28,6 +28,25 @@ public class ZRTCPTransformer
     private PacketTransformer srtcpOut = null;
 
     /**
+     * Close the transformer engine.
+     * 
+     * The close functions closes all stored default crypto contexts. This deletes key data
+     * and forces a cleanup of the crypto contexts.
+     */
+    public void close() 
+    {
+        if (srtcpOut != null) 
+        {
+            srtcpOut.close();
+            srtcpOut = null;
+        }
+        if (srtcpIn != null) 
+        {
+            srtcpIn.close();
+            srtcpIn = null;
+        }
+    }
+    /**
      * Encrypt a SRTCP packet
      * 
      * Currently SRTCP packet encryption / decryption is not supported

@@ -135,4 +135,26 @@ public class SRTPTransformer
         }
         return pkt;
     }
+
+    /**
+     * Close the transformer and underlying transform engine.
+     * 
+     * The close functions closes all stored crypto contexts. This deletes key data 
+     * and forces a cleanup of the crypto contexts.
+     */
+    public void close() 
+    {
+        forwardEngine.close();
+        if (forwardEngine != reverseEngine)
+            reverseEngine.close();
+        for(Long ssrc : contexts.keySet()) 
+        {
+            SRTPCryptoContext context = contexts.get(ssrc);
+            if (context != null) 
+            {
+                context.close();
+                contexts.remove(ssrc);
+            }
+        }
+    }
 }

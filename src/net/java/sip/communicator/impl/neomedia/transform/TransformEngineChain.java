@@ -111,6 +111,27 @@ public class TransformEngineChain
         }
 
         /**
+         * Close the transformer and underlying transform engines.
+         * 
+         * Propagate the cloe to all transformes in chain. 
+         */
+        public void close() 
+        {
+            for (TransformEngine engine : engineChain)
+            {
+                PacketTransformer pTransformer
+                    = isRtp
+                        ? engine.getRTPTransformer()
+                        : engine.getRTCPTransformer();
+
+                //the packet transformer may be null if for example the engine
+                //only does RTP transformations and this is an RTCP transformer.
+                if( pTransformer != null)
+                    pTransformer.close();
+            }
+        }
+
+        /**
          * Transforms a specific packet.
          *
          * @param pkt the packet to be transformed

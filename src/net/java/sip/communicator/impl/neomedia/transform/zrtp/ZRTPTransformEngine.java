@@ -563,6 +563,17 @@ public class ZRTPTransformEngine
     }
 
     /**
+     * Close the transformer and underlying transform engine.
+     * 
+     * The close functions closes all stored crypto contexts. This deletes key data 
+     * and forces a cleanup of the crypto contexts.
+     */
+    public void close() 
+    {
+        stopZrtp();
+    }
+
+    /**
      * Stop ZRTP engine.
      */
     public void stopZrtp()
@@ -572,6 +583,20 @@ public class ZRTPTransformEngine
             zrtpEngine.stopZrtp();
             zrtpEngine = null;
             started = false;
+        }
+        // The SRTP transformer are usually already closed durin security-off
+        // processing. Check here again just in case ...
+        if (srtpOutTransformer != null) {
+            srtpOutTransformer.close();
+            srtpOutTransformer = null;
+        }
+        if (srtpInTransformer != null) {
+            srtpInTransformer.close();
+            srtpOutTransformer = null;
+        }
+        if (zrtcpTransformer != null) {
+            zrtcpTransformer.close();
+            zrtcpTransformer = null;
         }
     }
 
@@ -887,11 +912,15 @@ public class ZRTPTransformEngine
     {
         if (part == EnableSecurity.ForSender)
         {
+            if (srtpOutTransformer != null)
+                srtpOutTransformer.close();
             srtpOutTransformer = null;
         }
 
         if (part == EnableSecurity.ForReceiver)
         {
+            if (srtpInTransformer != null)
+                srtpInTransformer.close();
             srtpInTransformer = null;
         }
 

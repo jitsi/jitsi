@@ -131,6 +131,15 @@ public class DtmfTransformEngine
     }
 
     /**
+     * Close the transformer and underlying transform engine.
+     * 
+     * Nothing to do here. 
+     */
+    public void close() 
+    {
+    }
+
+    /**
      * Gets the current duration of every event we send.
      *
      * @return the current duration of every event we send

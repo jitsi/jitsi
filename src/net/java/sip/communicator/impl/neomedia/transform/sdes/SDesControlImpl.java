@@ -96,6 +96,11 @@ public class SDesControlImpl
 
     public void cleanup()
     {
+        if (engine != null) 
+        {
+            engine.close();
+            engine = null;
+        }
     }
 
     public void setSrtpListener(SrtpListener srtpListener)

@@ -27,6 +27,22 @@ public class AsymmetricSRTPTransformer
         this.reverseEngine = reverseEngine;
     }
 
+    /**
+     * Close the transformer engine.
+     * 
+     * The close functions closes all stored default crypto contexts. This deletes key data
+     * and forces a cleanup of the crypto contexts.
+     */
+    public void close()
+    {
+        if (forwardEngine != null)
+            forwardEngine.close();
+        if (reverseEngine != null)
+            reverseEngine.close();
+
+        forwardEngine = null;
+        reverseEngine = null;
+    }
     /*
      * (non-Javadoc)
      * 

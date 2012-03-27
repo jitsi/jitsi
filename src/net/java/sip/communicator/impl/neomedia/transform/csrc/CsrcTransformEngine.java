@@ -67,6 +67,15 @@ public class CsrcTransformEngine
     }
 
     /**
+     * Close the transformer and underlying transform engine.
+     * 
+     * Nothing to do here. 
+     */
+    public void close() 
+    {
+    }
+
+    /**
      * Always returns <tt>null</tt> since this engine does not require any
      * RTCP transformations.
      *

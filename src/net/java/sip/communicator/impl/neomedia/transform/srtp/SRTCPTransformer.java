@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.srtp;
 
+import gnu.java.zrtp.utils.ZrtpUtils;
+
 import java.util.Hashtable;
 
 import net.java.sip.communicator.impl.neomedia.*;
@@ -96,12 +98,32 @@ public class SRTCPTransformer
             context.deriveSrtcpKeys();
             contexts.put(new Long(ssrc), context);
         }
-
         boolean validPacket = context.reverseTransformPacket(pkt);
         if (!validPacket)
         {
             return null;
         }
         return pkt;
+    }
+    /**
+     * Close the transformer and underlying transform engine.
+     * 
+     * The close functions closes all stored crypto contexts. This deletes key data 
+     * and forces a cleanup of the crypto contexts.
+     */
+    public void close() 
+    {
+        forwardEngine.close();
+        if (forwardEngine != reverseEngine)
+            reverseEngine.close();
+        for(Long ssrc : contexts.keySet()) 
+        {
+            SRTCPCryptoContext context = contexts.get(ssrc);
+            if (context != null) 
+            {
+                context.close();
+                contexts.remove(ssrc);
+            }
+        }
     }
 }

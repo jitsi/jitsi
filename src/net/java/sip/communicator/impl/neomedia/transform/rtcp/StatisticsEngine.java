@@ -71,6 +71,15 @@ public class StatisticsEngine
     }
 
     /**
+     * Close the transformer and underlying transform engine.
+     * 
+     * Nothing to do here. 
+     */
+    public void close() 
+    {
+    }
+
+    /**
      * Transfers RTCP sender report feedback as new information about the
      * download stream for the MediaStreamStats.
      * Finds the info needed for statistics in the packet and stores it.
