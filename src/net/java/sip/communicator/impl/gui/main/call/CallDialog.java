@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -42,6 +42,27 @@ public class CallDialog
         super(false);
 
         setMinimumSize(new Dimension(360, 300));
+    }
+
+    /**
+     * Overrides getMinimumSize and checks the minimum size that
+     * is needed to display buttons and use it for minimum size if
+     * needed.
+     * @return minimum size.
+     */
+    public Dimension getMinimumSize()
+    {
+        Dimension minSize = super.getMinimumSize();
+        if(callPanel != null)
+        {
+            int minButtonWidth = callPanel.getMinimumButtonWidth();
+            if(minButtonWidth > minSize.getWidth())
+            {
+                return new Dimension(minButtonWidth, 300);
+            }
+        }
+
+        return minSize;
     }
 
     /**

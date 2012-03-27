@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
+import java.awt.Container;
 import java.awt.event.*;
 import java.util.*;
 
@@ -1709,5 +1710,42 @@ public class CallPanel
 
         if(cpt > 1)
             mergeButton.setVisible(true);
+    }
+
+    /**
+     * Returns the minimum width needed to show buttons.
+     * Used to calculate the minimum size of the call dialog.
+     * @return the minimum width for the buttons.
+     */
+    public int getMinimumButtonWidth()
+    {
+        int numberOfButtons = countButtons(settingsPanel.getComponents());
+        if(numberOfButtons > 0)
+        {
+            // +1 cause we had and a hangup button
+            // *32, a button is 28 pixels width and give some border
+            return (numberOfButtons + 1)*32;
+        }
+
+        return -1;
+    }
+
+    /**
+     * Count the number of the buttons in the supplied components.
+     * @param cs the components to search for buttons.
+     * @return number of buttons.
+     */
+    private int countButtons(Component[] cs)
+    {
+        int count = 0;
+        for(Component c : cs)
+        {
+            if(c instanceof SIPCommButton || c instanceof SIPCommToggleButton)
+                count++;
+            if(c instanceof Container)
+                count += countButtons(((Container)c).getComponents());
+        }
+
+        return count;
     }
 }
