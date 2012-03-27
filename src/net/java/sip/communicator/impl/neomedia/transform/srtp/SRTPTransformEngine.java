@@ -58,8 +58,8 @@ public class SRTPTransformEngine
     /**
      * Close the transformer engine.
      * 
-     * The close functions closes all stored default crypto contexts. This deletes key data
-     * and forces a cleanup of the crypto contexts.
+     * The close functions closes all stored default crypto contexts. This 
+     * deletes key data and forces a cleanup of the crypto contexts.
      */
     public void close()
     {

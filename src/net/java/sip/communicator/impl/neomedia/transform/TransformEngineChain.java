@@ -113,7 +113,7 @@ public class TransformEngineChain
         /**
          * Close the transformer and underlying transform engines.
          * 
-         * Propagate the cloe to all transformes in chain. 
+         * Propagate the close to all transformers in chain. 
          */
         public void close() 
         {

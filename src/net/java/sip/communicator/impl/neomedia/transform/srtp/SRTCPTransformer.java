@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.srtp;
 
-import gnu.java.zrtp.utils.ZrtpUtils;
-
 import java.util.Hashtable;
 
 import net.java.sip.communicator.impl.neomedia.*;
