@@ -1318,7 +1318,8 @@ public class MediaServiceImpl
         MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
         CaptureDeviceInfo devInfo = dev.getCaptureDeviceInfo();
 
-        return devInfo.getName().startsWith("Partial desktop streaming");
+        return (devInfo != null
+                && devInfo.getName().startsWith("Partial desktop streaming"));
     }
 
     /**

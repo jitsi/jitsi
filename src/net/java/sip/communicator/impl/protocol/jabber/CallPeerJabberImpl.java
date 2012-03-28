@@ -880,7 +880,9 @@ public class CallPeerJabberImpl
             return;
         }
 
-        content.setSenders(senders);
+        // if we are only receiving video senders is null
+        if(senders != null)
+            content.setSenders(senders);
 
         JingleIQ contentIQ = JinglePacketFactory
             .createContentModify(getProtocolProvider().getOurJID(),

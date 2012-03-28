@@ -194,10 +194,14 @@ public class OperationSetDesktopStreamingJabberImpl
         CallJabberImpl callJabberImpl = (CallJabberImpl) call;
 
         if (mediaDevice == null)
-            mediaDevice = callJabberImpl.getDefaultDevice(MediaType.VIDEO);
+        {
+            MediaService mediaService = ProtocolMediaActivator.getMediaService();
+            mediaDevice = mediaService.getDefaultDevice(MediaType.VIDEO,
+                getMediaUseCase());
+        }
 
-        callJabberImpl.setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
         callJabberImpl.setVideoDevice(mediaDevice);
+        callJabberImpl.setLocalVideoAllowed(allowed, getMediaUseCase());
 
         MediaFormat mediaDeviceFormat = mediaDevice.getFormat();
 
