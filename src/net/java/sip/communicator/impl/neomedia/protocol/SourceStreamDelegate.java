@@ -12,9 +12,10 @@ import javax.media.protocol.*;
  * Implements a <tt>SourceStream</tt> which wraps a specific
  * <tt>SourceStream</tt>.
  *
- * @author Lubomir Marinov
  * @param <T> the very type of the <tt>SourceStream</tt> wrapped by
  * <tt>SourceStreamDelegate</tt>
+ *
+ * @author Lyubomir Marinov
  */
 public class SourceStreamDelegate<T extends SourceStream>
     implements SourceStream

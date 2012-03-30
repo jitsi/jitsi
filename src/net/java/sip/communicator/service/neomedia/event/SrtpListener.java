@@ -6,20 +6,20 @@
  */
 package net.java.sip.communicator.service.neomedia.event;
 
-import net.java.sip.communicator.service.neomedia.SrtpControl;
+import net.java.sip.communicator.service.neomedia.*;
 
 /**
- * The <tt>ZrtpListener</tt> is meant to be used by the media stream
- * creator, as the name indicates in order to be notified when a security event
- * has occured that concerns zrt.
- * 
+ * The <tt>ZrtpListener</tt> is meant to be used by the media stream creator, as
+ * the name indicates in order to be notified when a security event has occurred
+ * that concerns ZRTP.
+ *
  * @author Yana Stamcheva
  */
 public interface SrtpListener
 {
     /**
      * Indicates that the security has been turned on. When we are in the case
-     * of using multistreams when the master stream zrtp is inited and
+     * of using multistreams when the master stream ZRTP is initialized and
      * established the param multiStreamData holds the data needed for the
      * slave streams to establish their sessions. If this is a securityTurnedOn
      * event on non master stream the multiStreamData is null.
@@ -52,7 +52,7 @@ public interface SrtpListener
                                 int severity);
 
     /**
-     * Indicates that the other party has timeouted replying to our
+     * Indicates that the other party has timed out replying to our
      * offer to secure the connection.
      *
      * @param sessionType the type of the call session - audio or video.

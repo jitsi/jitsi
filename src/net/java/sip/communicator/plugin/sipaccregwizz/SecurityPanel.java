@@ -29,7 +29,7 @@ public class SecurityPanel
      */
     private static final long serialVersionUID = 0L;
 
-    private SIPAccountRegistrationForm regform;
+    private final SIPAccountRegistrationForm regform;
 
     private JPanel pnlAdvancedSettings;
     private JCheckBox enableDefaultEncryption;
@@ -347,30 +347,36 @@ public class SecurityPanel
      */
     void loadAccount(AccountID accountID)
     {
-        enableDefaultEncryption.setSelected(accountID
-            .getAccountPropertyBoolean(
-                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true));
-        enableSipZrtpAttribute.setSelected(accountID.getAccountPropertyBoolean(
-            ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE, true));
-        cboSavpOption.setSelectedIndex(accountID.getAccountPropertyInt(
-            ProtocolProviderFactory.SAVP_OPTION,
-            ProtocolProviderFactory.SAVP_OFF));
-        enableSDesAttribute.setSelected(accountID.getAccountPropertyBoolean(
-            ProtocolProviderFactory.SDES_ENABLED, false));
-        cipherModel.loadData(accountID.getAccountPropertyString(
-                    ProtocolProviderFactory.SDES_CIPHER_SUITES));
+        enableDefaultEncryption.setSelected(
+                accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                        true));
+        enableSipZrtpAttribute.setSelected(
+                accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
+                        true));
+        cboSavpOption.setSelectedIndex(
+                accountID.getAccountPropertyInt(
+                        ProtocolProviderFactory.SAVP_OPTION,
+                        ProtocolProviderFactory.SAVP_OFF));
+        enableSDesAttribute.setSelected(
+                accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.SDES_ENABLED,
+                        false));
+        cipherModel.loadData(
+                accountID.getAccountPropertyString(
+                        ProtocolProviderFactory.SDES_CIPHER_SUITES));
         loadStates();
     }
 
     public void actionPerformed(ActionEvent e)
     {
-        if(e.getSource() == enableDefaultEncryption
-            || e.getSource() == enableSDesAttribute)
+        if((e.getSource() == enableDefaultEncryption)
+                || (e.getSource() == enableSDesAttribute))
         {
             loadStates();
         }
-
-        if(e.getSource() == cmdExpandAdvancedSettings)
+        else if(e.getSource() == cmdExpandAdvancedSettings)
         {
             pnlAdvancedSettings.setVisible(!pnlAdvancedSettings.isVisible());
         }

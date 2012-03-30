@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.protocol.*;
  * being kicked, join, left...
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class ChatRoomMemberPresenceChangeEvent
     extends EventObject
@@ -62,13 +62,6 @@ public class ChatRoomMemberPresenceChangeEvent
     private final ChatRoomMember sourceMember;
 
     /**
-     * The chat room member that participated as an actor in this event. In the
-     * case of MEMBER_KICKED event this would be the moderator that kicked the
-     * participant.
-     */
-    private final ChatRoomMember actorMember;
-
-    /**
      * The type of this event. Values can be any of the MEMBER_XXX fields.
      */
     private final String eventType;
@@ -103,9 +96,11 @@ public class ChatRoomMemberPresenceChangeEvent
      * Changes may include the participant being kicked, join, left, etc.
      *
      * @param sourceRoom the <tt>ChatRoom</tt> that produced this event
-     * @param sourceMember the <tt>ChatRoomMember</tt> that this event is about
-     * @param actorMember the <tt>ChatRoomMember</tt> that participated as an
-     * actor in this event
+     * @param sourceMember the <tt>ChatRoomMember</tt> who this event is about
+     * @param actorMember the <tt>ChatRoomMember</tt> who participated as an
+     * actor in the new event. For example, in the case of a
+     * <tt>MEMBER_KICKED</tt> event the <tt>actorMember</tt> is the moderator
+     * who kicked the <tt>sourceMember</tt>.
      * @param eventType the event type; one of the MEMBER_XXX constants
      * @param reason the reason explaining why this event might have occurred
      */
@@ -117,7 +112,7 @@ public class ChatRoomMemberPresenceChangeEvent
     {
         super(sourceRoom);
         this.sourceMember = sourceMember;
-        this.actorMember = actorMember;
+        // this.actorMember = actorMember;
         this.eventType = eventType;
         this.reason = reason;
     }

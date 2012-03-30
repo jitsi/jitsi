@@ -643,30 +643,33 @@ public class CallPeerMediaHandlerSipImpl
     private void updateMediaDescriptionForZrtp(
         MediaType mediaType, MediaDescription md)
     {
-        if(getPeer()
-            .getProtocolProvider()
-            .getAccountID()
-            .getAccountPropertyBoolean(
-                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true)
-            && getPeer().getCall().isSipZrtpAttribute())
+        MediaAwareCallPeer<?, ?, ?> peer = getPeer();
+
+        if(peer.getProtocolProvider().getAccountID().getAccountPropertyBoolean(
+                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                    true)
+                && peer.getCall().isSipZrtpAttribute())
         {
             try
             {
-                MediaTypeSrtpControl key =
-                    new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
-                SrtpControl scontrol = getSrtpControls().get(key);
+                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
+                    = getSrtpControls();
+                MediaTypeSrtpControl key
+                    = new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
+                SrtpControl scontrol = srtpControls.get(key);
+
                 if(scontrol == null)
                 {
-                    scontrol = SipActivator.getMediaService()
-                        .createZrtpControl();
-                    getSrtpControls().put(key, scontrol);
+                    scontrol
+                        = SipActivator.getMediaService().createZrtpControl();
+                    srtpControls.put(key, scontrol);
                 }
-                ZrtpControl zcontrol = (ZrtpControl) scontrol;
 
+                ZrtpControl zcontrol = (ZrtpControl) scontrol;
                 String helloHash = zcontrol.getHelloHash();
+
                 if(helloHash != null && helloHash.length() > 0)
                     md.setAttribute(SdpUtils.ZRTP_HASH_ATTR, helloHash);
-
             }
             catch (SdpException ex)
             {
@@ -680,46 +683,44 @@ public class CallPeerMediaHandlerSipImpl
      *
      * @param mediaType the media type.
      * @param localMd the description of the local peer.
-     * @param peerMd the description of the remote peer.
+     * @param remoteMd the description of the remote peer.
      */
-    @SuppressWarnings("unchecked") //jain-sip legacy
     private boolean updateMediaDescriptionForSDes(
-        MediaType mediaType, MediaDescription localMd, MediaDescription peerMd)
+            MediaType mediaType,
+            MediaDescription localMd,
+            MediaDescription remoteMd)
     {
+        AccountID accountID = getPeer().getProtocolProvider().getAccountID();
+
         // check if SDES and encryption is enabled at all
-        if (!getPeer()
-            .getProtocolProvider()
-            .getAccountID()
-            .getAccountPropertyBoolean(
-                ProtocolProviderFactory.SDES_ENABLED, false)
-            ||
-            !getPeer()
-            .getProtocolProvider()
-            .getAccountID()
-            .getAccountPropertyBoolean(
-                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true))
+        if (!accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.SDES_ENABLED,
+                    false)
+                || !accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                        true))
         {
             return false;
         }
 
         // get or create the control
-        MediaTypeSrtpControl key =
-            new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
-        SrtpControl scontrol = getSrtpControls().get(key);
+        Map<MediaTypeSrtpControl, SrtpControl> srtpControls = getSrtpControls();
+        MediaTypeSrtpControl key
+            = new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
+        SrtpControl scontrol = srtpControls.get(key);
+
         if (scontrol == null)
         {
             scontrol = SipActivator.getMediaService().createSDesControl();
-            getSrtpControls().put(key, scontrol);
+            srtpControls.put(key, scontrol);
         }
 
         // set the enabled ciphers suites
         SDesControl sdcontrol = (SDesControl) scontrol;
-        String ciphers =
-            getPeer()
-                .getProtocolProvider()
-                .getAccountID()
-                .getAccountPropertyString(
+        String ciphers
+            = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.SDES_CIPHER_SUITES);
+
         if (ciphers == null)
         {
             ciphers =
@@ -729,29 +730,29 @@ public class CallPeerMediaHandlerSipImpl
         sdcontrol.setEnabledCiphers(Arrays.asList(ciphers.split(",")));
 
         // act as initiator
-        if (peerMd == null)
+        if (remoteMd == null)
         {
+            @SuppressWarnings("unchecked")
             Vector<Attribute> atts = localMd.getAttributes(true);
+
             for (String ca : sdcontrol.getInitiatorCryptoAttributes())
-            {
-                Attribute a = SdpUtils.createAttribute("crypto", ca);
-                atts.add(a);
-            }
+                atts.add(SdpUtils.createAttribute("crypto", ca));
+
             return true;
         }
         // act as responder
         else
         {
-            Vector<Attribute> atts = peerMd.getAttributes(true);
+            @SuppressWarnings("unchecked")
+            Vector<Attribute> atts = remoteMd.getAttributes(true);
             List<String> peerAttributes = new LinkedList<String>();
+
             for (Attribute a : atts)
             {
                 try
                 {
                     if (a.getName().equals("crypto"))
-                    {
                         peerAttributes.add(a.getValue());
-                    }
                 }
                 catch (SdpParseException e)
                 {
@@ -760,8 +761,9 @@ public class CallPeerMediaHandlerSipImpl
             }
             if (peerAttributes.size() > 0)
             {
-                String localAttr =
-                    sdcontrol.responderSelectAttribute(peerAttributes);
+                String localAttr
+                    = sdcontrol.responderSelectAttribute(peerAttributes);
+
                 if (localAttr != null)
                 {
                     try
@@ -779,9 +781,10 @@ public class CallPeerMediaHandlerSipImpl
                     // none of the offered suites match, destroy the sdes
                     // control
                     sdcontrol.cleanup();
-                    getSrtpControls().remove(key);
-                    logger.warn("Received unsupported sdes crypto attribute "
-                        + peerAttributes.toString());
+                    srtpControls.remove(key);
+                    logger.warn(
+                            "Received unsupported sdes crypto attribute "
+                                + peerAttributes);
                 }
             }
             else
@@ -789,7 +792,7 @@ public class CallPeerMediaHandlerSipImpl
                 // peer doesn't offer any SDES attribute, destroy the sdes
                 // control
                 sdcontrol.cleanup();
-                getSrtpControls().remove(key);
+                srtpControls.remove(key);
             }
             return false;
         }
@@ -967,14 +970,18 @@ public class CallPeerMediaHandlerSipImpl
             }
 
             // select the crypto key the peer has chosen from our proposal
+            Map<MediaTypeSrtpControl, SrtpControl> srtpControls
+                = getSrtpControls();
             MediaTypeSrtpControl key =
                 new MediaTypeSrtpControl(mediaType, SrtpControlType.SDES);
-            SrtpControl scontrol = getSrtpControls().get(key);
+            SrtpControl scontrol = srtpControls.get(key);
+
             if(scontrol != null)
             {
                 List<String> peerAttributes = new LinkedList<String>();
                 @SuppressWarnings("unchecked")
                 Vector<Attribute> attrs = mediaDescription.getAttributes(true);
+
                 for (Attribute a : attrs)
                 {
                     try
@@ -989,11 +996,11 @@ public class CallPeerMediaHandlerSipImpl
                         logger.error("received an unparsable sdp attribute", e);
                     }
                 }
-                if(!((SDesControl) scontrol)
-                    .initiatorSelectAttribute(peerAttributes))
+                if(!((SDesControl) scontrol).initiatorSelectAttribute(
+                        peerAttributes))
                 {
                     scontrol.cleanup();
-                    getSrtpControls().remove(key);
+                    srtpControls.remove(key);
                     if(peerAttributes.size() > 0)
                         logger
                             .warn("Received unsupported sdes crypto attribute: "
@@ -1002,16 +1009,21 @@ public class CallPeerMediaHandlerSipImpl
                 else
                 {
                     //found an SDES answer, remove all other controls
-                    Iterator<MediaTypeSrtpControl> it =
-                        getSrtpControls().keySet().iterator();
-                    while (it.hasNext())
+                    Iterator<Map.Entry<MediaTypeSrtpControl, SrtpControl>> iter
+                        = srtpControls.entrySet().iterator();
+
+                    while (iter.hasNext())
                     {
-                        MediaTypeSrtpControl mtc = it.next();
-                        if (mtc.mediaType == mediaType
-                            && mtc.srtpControlType != SrtpControlType.SDES)
+                        Map.Entry<MediaTypeSrtpControl, SrtpControl> entry
+                            = iter.next();
+                        MediaTypeSrtpControl mtsc = entry.getKey();
+
+                        if ((mtsc.mediaType == mediaType)
+                                && (mtsc.srtpControlType
+                                        != SrtpControlType.SDES))
                         {
-                            getSrtpControls().get(mtc).cleanup();
-                            it.remove();
+                            entry.getValue().cleanup();
+                            iter.remove();
                         }
                     }
 

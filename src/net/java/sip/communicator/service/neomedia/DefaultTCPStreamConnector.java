@@ -88,9 +88,9 @@ public class DefaultTCPStreamConnector
             if (dataSocket != null)
                 dataSocket.close();
         }
-        catch(IOException e)
+        catch(IOException ioe)
         {
-            logger.debug("Error closing TCP socket", e);
+            logger.debug("Failed to close TCP socket", ioe);
         }
     }
 

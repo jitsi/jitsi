@@ -219,7 +219,7 @@ public class CallPeerMediaHandlerGTalkImpl
                 public void sendCandidates(
                         Iterable<GTalkCandidatePacketExtension> candidates)
                 {
-                            getPeer().sendCandidates(candidates);
+                    getPeer().sendCandidates(candidates);
                 }
             });
     }
@@ -435,11 +435,8 @@ public class CallPeerMediaHandlerGTalkImpl
     {
         if (transportManager == null)
         {
-            /* Google Talk assumes to use ICE */
-            CallPeerGTalkImpl peer = getPeer();
-
-            // support for Google Talk
-            transportManager = new TransportManagerGTalkImpl(peer);
+            // Google Talk assumes the use of ICE.
+            transportManager = new TransportManagerGTalkImpl(getPeer());
         }
         return transportManager;
     }

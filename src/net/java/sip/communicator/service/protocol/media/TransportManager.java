@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.service.protocol.media;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -163,40 +162,19 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     public void closeStreamConnector(MediaType mediaType)
     {
-        StreamConnector connector
-            = streamConnectors[mediaType.ordinal()];
+        int index = mediaType.ordinal();
+        StreamConnector connector = streamConnectors[index];
 
-        if(connector != null)
+        if (connector != null)
         {
-            synchronized(connector)
-            {
-                DatagramSocket dataSocket = connector.getDataSocket();
+            /*
+             * XXX The connected owns the sockets so it is important that it
+             * decides whether to close them i.e. this TransportManager is not
+             * allowed to explicitly close the sockets by itself.
+             */
+            connector.close();
 
-                if (dataSocket != null)
-                    dataSocket.close();
-
-                DatagramSocket controlSocket = connector.getControlSocket();
-
-                if (controlSocket != null)
-                    controlSocket.close();
-
-                try
-                {
-                    Socket dataTcpSocket = connector.getDataTCPSocket();
-                    if(dataTcpSocket != null)
-                        dataTcpSocket.close();
-
-                    Socket controlTcpSocket = connector.getDataTCPSocket();
-                    if(controlTcpSocket != null)
-                        controlTcpSocket.close();
-                }
-                catch(IOException e)
-                {
-                    logger.info("Failed to close TCP socket", e);
-                }
-
-                streamConnectors[mediaType.ordinal()] = null;
-            }
+            streamConnectors[index] = null;
         }
     }
 
@@ -208,7 +186,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * <tt>StreamConnector</tt> is to be created
      * @return a new <tt>StreamConnector</tt>.
      *
-     * @throws OperationFailedException if we fail binding the the sockets.
+     * @throws OperationFailedException if the binding of the sockets fails.
      */
     protected StreamConnector createStreamConnector(MediaType mediaType)
         throws OperationFailedException
@@ -441,9 +419,10 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
                 {
                     connector.getDataTCPSocket().setTrafficClass(trafficClass);
 
-                    if(connector.getControlTCPSocket() != null)
-                        connector.getControlTCPSocket().
-                            setTrafficClass(trafficClass);
+                    Socket controlTCPSocket = connector.getControlTCPSocket();
+
+                    if (controlTCPSocket != null)
+                        controlTCPSocket.setTrafficClass(trafficClass);
                 }
                 else
                 {
@@ -451,9 +430,10 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
                     connector.getDataSocket().setTrafficClass(trafficClass);
 
                     /* control port (RTCP) */
-                    if(connector.getControlSocket() != null)
-                        connector.getControlSocket().setTrafficClass(
-                            trafficClass);
+                    DatagramSocket controlSocket = connector.getControlSocket();
+
+                    if (controlSocket != null)
+                        controlSocket.setTrafficClass(trafficClass);
                 }
             }
         }

@@ -660,15 +660,13 @@ public abstract class MediaAwareCallPeer
      * Does nothing.
      * @param evt the event.
      */
-    public void callPeerAdded(CallPeerEvent evt)
-    {}
+    public void callPeerAdded(CallPeerEvent evt) {}
 
     /**
      * Does nothing.
      * @param evt the event.
      */
-    public void callPeerRemoved(CallPeerEvent evt)
-    {}
+    public void callPeerRemoved(CallPeerEvent evt) {}
 
     /**
      * Sets the security status to ON for this call peer.
@@ -681,9 +679,8 @@ public abstract class MediaAwareCallPeer
         SrtpControl sender)
     {
         getMediaHandler().startSrtpMultistream(sender);
-        CallPeerSecurityOnEvent evt =
-            new CallPeerSecurityOnEvent(this, sessionType, cipher, sender);
-        fireCallPeerSecurityOnEvent(evt);
+        fireCallPeerSecurityOnEvent(
+                new CallPeerSecurityOnEvent(this, sessionType, cipher, sender));
     }
 
     /**

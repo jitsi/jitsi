@@ -57,10 +57,7 @@ public class MediaStreamTarget
             InetSocketAddress addr1,
             InetSocketAddress addr2)
     {
-        if (addr1 == null)
-            return (addr2 == null);
-        else
-            return addr1.equals(addr2);
+        return (addr1 == null) ? (addr2 == null) : addr1.equals(addr2);
     }
 
     /**

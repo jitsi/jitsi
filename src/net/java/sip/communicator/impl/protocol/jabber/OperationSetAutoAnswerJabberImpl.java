@@ -13,8 +13,8 @@ import net.java.sip.communicator.util.*;
 import java.util.*;
 
 /**
- * An Operation Set defining option
- * to unconditional auto answer incoming calls.
+ * An Operation Set defining option to unconditionally auto answer incoming
+ * calls.
  *
  * @author Damian Minkov
  */
@@ -25,8 +25,8 @@ public class OperationSetAutoAnswerJabberImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetAutoAnswerJabberImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(OperationSetAutoAnswerJabberImpl.class);
 
     /**
      * Should we unconditionally answer.
@@ -36,7 +36,7 @@ public class OperationSetAutoAnswerJabberImpl
     /**
      * The parent operation set.
      */
-    private OperationSetBasicTelephonyJabberImpl telephonyJabber;
+    private final OperationSetBasicTelephonyJabberImpl telephonyJabber;
 
     /**
      * Creates this operation set, loads stored values, populating
@@ -45,7 +45,7 @@ public class OperationSetAutoAnswerJabberImpl
      * @param telephonyJabber the parent opset.
      */
     OperationSetAutoAnswerJabberImpl(
-        OperationSetBasicTelephonyJabberImpl telephonyJabber)
+            OperationSetBasicTelephonyJabberImpl telephonyJabber)
     {
         this.telephonyJabber = telephonyJabber;
 
@@ -60,8 +60,8 @@ public class OperationSetAutoAnswerJabberImpl
     {
         AccountID acc = telephonyJabber.getProtocolProvider().getAccountID();
 
-        answerUnconditional =
-            acc.getAccountPropertyBoolean(AUTO_ANSWER_UNCOND_PROP, false);
+        answerUnconditional
+            = acc.getAccountPropertyBoolean(AUTO_ANSWER_UNCOND_PROP, false);
     }
 
     /**
@@ -76,9 +76,7 @@ public class OperationSetAutoAnswerJabberImpl
         accProps.put(AUTO_ANSWER_UNCOND_PROP, null);
 
         if(answerUnconditional)
-        {
             accProps.put(AUTO_ANSWER_UNCOND_PROP, Boolean.TRUE.toString());
-        }
 
         acc.setAccountProperties(accProps);
         JabberActivator.getProtocolProviderFactory().storeAccount(acc);
@@ -130,22 +128,17 @@ public class OperationSetAutoAnswerJabberImpl
      * @return <tt>true</tt> if we have processed and no further processing is
      *          needed, <tt>false</tt> otherwise.
      */
-    boolean followCallCheck(AbstractCall call)
+    boolean followCallCheck(AbstractCall<?, ?> call)
     {
         if(!answerUnconditional)
             return false;
 
-        // we are here cause we satisfy the conditional,
-        // or unconditional is true
-        @SuppressWarnings("unchecked")
+        // We are here because we satisfy the conditional, or unconditional is
+        // true.
         Iterator<? extends CallPeer> peers = call.getCallPeers();
 
         while (peers.hasNext())
-        {
-            final CallPeer peer = peers.next();
-
-            answerPeer(peer);
-        }
+            answerPeer(peers.next());
 
         return true;
     }
@@ -160,8 +153,7 @@ public class OperationSetAutoAnswerJabberImpl
 
         if (state == CallPeerState.INCOMING_CALL)
         {
-            // answer in separate thread, don't block current
-            // processing
+            // answer in separate thread, don't block current processing
             new Thread(new Runnable()
             {
                 public void run()
@@ -190,7 +182,6 @@ public class OperationSetAutoAnswerJabberImpl
      */
     public void peerStateChanged(CallPeerChangeEvent evt)
     {
-
         CallPeerState newState = (CallPeerState) evt.getNewValue();
 
         if (newState == CallPeerState.INCOMING_CALL)

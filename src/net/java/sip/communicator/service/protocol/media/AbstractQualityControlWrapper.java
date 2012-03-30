@@ -23,7 +23,7 @@ public abstract class AbstractQualityControlWrapper<
     /**
      * The peer we are controlling.
      */
-    protected T peer;
+    protected final T peer;
 
     /**
      * The media quality control.
@@ -60,7 +60,7 @@ public abstract class AbstractQualityControlWrapper<
 
         MediaStream stream = peer.getMediaHandler().getStream(MediaType.VIDEO);
 
-        if(stream != null && stream instanceof VideoMediaStream)
+        if(stream instanceof VideoMediaStream)
             qualityControl = ((VideoMediaStream)stream).getQualityControl();
 
         return qualityControl;

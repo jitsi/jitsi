@@ -27,8 +27,8 @@ import net.java.sip.communicator.util.*;
  */
 public class CallSipImpl
     extends MediaAwareCall<CallPeerSipImpl,
-                                   OperationSetBasicTelephonySipImpl,
-                                   ProtocolProviderServiceSipImpl>
+                           OperationSetBasicTelephonySipImpl,
+                           ProtocolProviderServiceSipImpl>
     implements CallPeerListener
 {
     /**
@@ -97,7 +97,6 @@ public class CallSipImpl
             logger.trace("Looking for peer with dialog: " + dialog
                 + "among " + getCallPeerCount() + " calls");
         }
-
         while (callPeers.hasNext())
         {
             CallPeerSipImpl cp = callPeers.next();
@@ -237,29 +236,36 @@ public class CallSipImpl
     private CallPeerSipImpl createCallPeerFor(
         Transaction containingTransaction, SipProvider sourceProvider)
     {
-        CallPeerSipImpl callPeer = new CallPeerSipImpl(
-                containingTransaction.getDialog().getRemoteParty(),
-                this, containingTransaction, sourceProvider);
+        CallPeerSipImpl callPeer
+            = new CallPeerSipImpl(
+                    containingTransaction.getDialog().getRemoteParty(),
+                    this,
+                    containingTransaction,
+                    sourceProvider);
+
         addCallPeer(callPeer);
 
         boolean incomingCall
             = (containingTransaction instanceof ServerTransaction);
-        callPeer.setState( incomingCall
-                        ? CallPeerState.INCOMING_CALL
-                        : CallPeerState.INITIATING_CALL);
+
+        callPeer.setState(
+                incomingCall
+                    ? CallPeerState.INCOMING_CALL
+                    : CallPeerState.INITIATING_CALL);
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
-        if(this.getCallPeerCount() == 1)
+        if(getCallPeerCount() == 1)
         {
-            Map<MediaType, MediaDirection> mediaDirections = new
-                HashMap<MediaType, MediaDirection>();
+            Map<MediaType, MediaDirection> mediaDirections
+                = new HashMap<MediaType, MediaDirection>();
 
             mediaDirections.put(MediaType.AUDIO, MediaDirection.INACTIVE);
             mediaDirections.put(MediaType.VIDEO, MediaDirection.INACTIVE);
 
             boolean hasZrtp = false;
             boolean hasSdes = false;
+
             //this check is not mandatory catch all to skip if a problem exists
             try
             {
@@ -270,51 +276,51 @@ public class CallSipImpl
                 if(inviteReq != null && inviteReq.getRawContent() != null)
                 {
                     String sdpStr = SdpUtils.getContentAsString(inviteReq);
-
-                    SessionDescription sesDescr = SdpUtils.parseSdpString(sdpStr);
-
-                    List<MediaDescription> remoteDescriptions = SdpUtils
-                            .extractMediaDescriptions(sesDescr);
+                    SessionDescription sesDescr
+                        = SdpUtils.parseSdpString(sdpStr);
+                    List<MediaDescription> remoteDescriptions
+                        = SdpUtils.extractMediaDescriptions(sesDescr);
 
                     for (MediaDescription mediaDescription : remoteDescriptions)
                     {
-                        MediaType mediaType =
-                                SdpUtils.getMediaType(mediaDescription);
+                        MediaType mediaType
+                            = SdpUtils.getMediaType(mediaDescription);
 
-                        hasZrtp = hasZrtp || mediaDescription.getAttribute(
-                            SdpUtils.ZRTP_HASH_ATTR) != null;
+                        mediaDirections.put(
+                                mediaType,
+                                SdpUtils.getDirection(mediaDescription));
 
-                        if(mediaType.equals(MediaType.VIDEO))
+                        // hasZrtp?
+                        if (!hasZrtp)
                         {
-                            MediaDirection videoDirection =
-                                    SdpUtils.getDirection(mediaDescription);
-                            mediaDirections.put(MediaType.VIDEO,
-                                videoDirection);
+                            hasZrtp
+                                = (mediaDescription.getAttribute(
+                                        SdpUtils.ZRTP_HASH_ATTR)
+                                    != null);
                         }
-                        else if(mediaType.equals(MediaType.AUDIO))
+                        // hasSdes?
+                        if (!hasSdes)
                         {
-                            MediaDirection audioDirection =
-                                SdpUtils.getDirection(mediaDescription);
-                            mediaDirections.put(MediaType.AUDIO,
-                                audioDirection);
-                        }
+                            @SuppressWarnings("unchecked")
+                            Vector<Attribute> attrs
+                                = mediaDescription.getAttributes(true);
 
-                        @SuppressWarnings("unchecked")
-                        Vector<Attribute> attrs =
-                            mediaDescription.getAttributes(true);
-                        for (Attribute a : attrs)
-                        {
-                            try
+                            for (Attribute attr : attrs)
                             {
-                                if (a.getName().equals("crypto"))
+                                try
                                 {
-                                    hasSdes = true;
+                                    if ("crypto".equals(attr.getName()))
+                                    {
+                                        hasSdes = true;
+                                        break;
+                                    }
                                 }
-                            }
-                            catch (SdpParseException e)
-                            {
-                                logger.error(
-                                    "received an unparsable sdp attribute", e);
+                                catch (SdpParseException spe)
+                                {
+                                    logger.error(
+                                            "Failed to parse SDP attribute",
+                                            spe);
+                                }
                             }
                         }
                     }
@@ -325,25 +331,25 @@ public class CallSipImpl
                 logger.warn("Error getting media types", t);
             }
 
-            if(this.getCallGroup() == null)
+            if(getCallGroup() == null)
             {
-                getParentOperationSet().fireCallEvent( (incomingCall
-                                        ? CallEvent.CALL_RECEIVED
-                                        : CallEvent.CALL_INITIATED),
-                                        this,
-                                        mediaDirections);
+                getParentOperationSet().fireCallEvent(
+                        incomingCall
+                            ? CallEvent.CALL_RECEIVED
+                            : CallEvent.CALL_INITIATED,
+                        this,
+                        mediaDirections);
             }
 
             if(hasZrtp)
             {
                 callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
-                    SrtpControlType.ZRTP);
+                        SrtpControlType.ZRTP);
             }
-
             if(hasSdes)
             {
                 callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
-                    SrtpControlType.SDES);
+                        SrtpControlType.SDES);
             }
         }
 

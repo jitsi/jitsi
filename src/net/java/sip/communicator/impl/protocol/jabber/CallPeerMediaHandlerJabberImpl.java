@@ -45,7 +45,8 @@ public class CallPeerMediaHandlerJabberImpl
     private TransportManagerJabberImpl transportManager;
 
     /**
-     * Synchronization object for transportManager instance.
+     * The <tt>Object</tt> which is used for synchronization (e.g. <tt>wait</tt>
+     * and <tt>notify</tt>) related to {@link #transportManager}.
      */
     private final Object transportManagerSyncRoot = new Object();
 
@@ -365,14 +366,17 @@ public class CallPeerMediaHandlerJabberImpl
             // ZRTP
             if(getPeer().getCall().isSipZrtpAttribute())
             {
-                MediaTypeSrtpControl key =
-                    new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
-                SrtpControl control = getSrtpControls().get(key);
+                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
+                    = getSrtpControls();
+                MediaTypeSrtpControl key
+                    = new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
+                SrtpControl control = srtpControls.get(key);
+
                 if(control == null)
                 {
-                    control = JabberActivator.getMediaService()
-                        .createZrtpControl();
-                    getSrtpControls().put(key, control);
+                    control
+                        = JabberActivator.getMediaService().createZrtpControl();
+                    srtpControls.put(key, control);
                 }
 
                 String helloHash[] = ((ZrtpControl)control).getHelloHashSep();
@@ -658,15 +662,19 @@ public class CallPeerMediaHandlerJabberImpl
             //ZRTP
             if(getPeer().getCall().isSipZrtpAttribute())
             {
-                MediaTypeSrtpControl key =
-                    new MediaTypeSrtpControl(dev.getMediaType(),
-                        SrtpControlType.ZRTP);
-                SrtpControl control = getSrtpControls().get(key);
+                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
+                    = getSrtpControls();
+                MediaTypeSrtpControl key
+                    = new MediaTypeSrtpControl(
+                            dev.getMediaType(),
+                            SrtpControlType.ZRTP);
+                SrtpControl control = srtpControls.get(key);
+
                 if(control == null)
                 {
                     control
                         = JabberActivator.getMediaService().createZrtpControl();
-                    getSrtpControls().put(key, control);
+                    srtpControls.put(key, control);
                 }
 
                 String helloHash[] = ((ZrtpControl)control).getHelloHashSep();
@@ -702,20 +710,12 @@ public class CallPeerMediaHandlerJabberImpl
      * for reasons like - problems with device interaction, allocating ports,
      * etc.
      */
-    public ContentPacketExtension createContentForMedia(
-        MediaType mediaType)
+    public ContentPacketExtension createContentForMedia(MediaType mediaType)
         throws OperationFailedException
     {
         MediaDevice dev = getDefaultDevice(mediaType);
 
-        if (dev != null)
-        {
-            ContentPacketExtension content = createContent(dev);
-
-            return content;
-        }
-
-        return null;
+        return (dev == null) ? null : createContent(dev);
     }
 
     /**
@@ -799,8 +799,9 @@ public class CallPeerMediaHandlerJabberImpl
 
             if (dev != null)
             {
-                MediaDirection direction = dev.getDirection().and(
-                                getDirectionUserPreference(mediaType));
+                MediaDirection direction
+                    = dev.getDirection().and(
+                            getDirectionUserPreference(mediaType));
 
                 if(isLocallyOnHold())
                     direction = direction.and(MediaDirection.SENDONLY);
@@ -824,15 +825,20 @@ public class CallPeerMediaHandlerJabberImpl
                     //ZRTP
                     if(getPeer().getCall().isSipZrtpAttribute())
                     {
-                        MediaTypeSrtpControl key =
-                            new MediaTypeSrtpControl(mediaType,
-                                SrtpControlType.ZRTP);
-                        SrtpControl control = getSrtpControls().get(key);
+                        Map<MediaTypeSrtpControl, SrtpControl> srtpControls
+                            = getSrtpControls();
+                        MediaTypeSrtpControl key
+                            = new MediaTypeSrtpControl(
+                                    mediaType,
+                                    SrtpControlType.ZRTP);
+                        SrtpControl control = srtpControls.get(key);
+
                         if(control == null)
                         {
-                            control = JabberActivator.getMediaService()
-                                .createZrtpControl();
-                            getSrtpControls().put(key, control);
+                            control
+                                = JabberActivator.getMediaService()
+                                        .createZrtpControl();
+                            srtpControls.put(key, control);
                         }
 
                         String helloHash[] =
@@ -882,17 +888,17 @@ public class CallPeerMediaHandlerJabberImpl
                     logger);
         }
 
-        TransportInfoSender transportInfoSender =
-            getTransportManager().getXmlNamespace().equals(
-                ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P)
+        TransportInfoSender transportInfoSender
+            = getTransportManager().getXmlNamespace().equals(
+                    ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P)
                 ? new TransportInfoSender()
-                  {
-                      public void sendTransportInfo(
-                          Iterable<ContentPacketExtension> contents)
-                      {
-                          getPeer().sendTransportInfo(contents);
-                      }
-                  }
+                        {
+                            public void sendTransportInfo(
+                                    Iterable<ContentPacketExtension> contents)
+                            {
+                                getPeer().sendTransportInfo(contents);
+                            }
+                        }
                 : null;
 
         //now add the transport elements
@@ -1400,9 +1406,8 @@ public class CallPeerMediaHandlerJabberImpl
 
         CallPeerJabberImpl peer = getPeer();
 
-        if (!peer
-                .getProtocolProvider()
-                    .getDiscoveryManager().includesFeature(xmlns))
+        if (!peer.getProtocolProvider().getDiscoveryManager().includesFeature(
+                xmlns))
         {
             throw new IllegalArgumentException(
                     "Unsupported Jingle transport " + xmlns);
@@ -1561,9 +1566,8 @@ public class CallPeerMediaHandlerJabberImpl
              * We'll be harvesting candidates in order to make an offer so it
              * doesn't make sense to send them in transport-info.
              */
-            if (!ProtocolProviderServiceJabberImpl
-                        .URN_GOOGLE_TRANSPORT_P2P
-                            .equals(transportManager.getXmlNamespace())
+            if (!ProtocolProviderServiceJabberImpl.URN_GOOGLE_TRANSPORT_P2P
+                        .equals(transportManager.getXmlNamespace())
                     && (transportInfoSender != null))
                 throw new IllegalArgumentException("transportInfoSender");
 

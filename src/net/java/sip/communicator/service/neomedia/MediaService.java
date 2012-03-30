@@ -144,16 +144,20 @@ public interface MediaService
     public MediaFormatFactory getFormatFactory();
 
     /**
-     * Creates <tt>ZrtpControl</tt> used to control all zrtp options.
+     * Initializes a new <tt>ZrtpControl</tt> instance which is to control all
+     * ZRTP options.
      *
-     * @return ZrtpControl instance.
+     * @return a new <tt>ZrtpControl</tt> instance which is to control all ZRTP
+     * options
      */
     public ZrtpControl createZrtpControl();
 
     /**
-     * Creates <tt>SDesControl</tt> used to control all SDes options.
+     * Initializes a new <tt>SDesControl</tt> instance which is to control all
+     * SDes options.
      *
-     * @return SDesControl instance.
+     * @return a new <tt>SDesControl</tt> instance which is to control all SDes
+     * options
      */
     public SDesControl createSDesControl();
 

@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.neomedia.transform.srtp;
 
-import java.util.Hashtable;
+import java.util.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
@@ -103,6 +103,7 @@ public class SRTCPTransformer
         }
         return pkt;
     }
+
     /**
      * Close the transformer and underlying transform engine.
      * 
@@ -114,14 +115,18 @@ public class SRTCPTransformer
         forwardEngine.close();
         if (forwardEngine != reverseEngine)
             reverseEngine.close();
-        for(Long ssrc : contexts.keySet()) 
+
+        Iterator<Map.Entry<Long, SRTCPCryptoContext>> iter
+            = contexts.entrySet().iterator();
+
+        while (iter.hasNext()) 
         {
-            SRTCPCryptoContext context = contexts.get(ssrc);
-            if (context != null) 
-            {
+            Map.Entry<Long, SRTCPCryptoContext> entry = iter.next();
+            SRTCPCryptoContext context = entry.getValue();
+
+            iter.remove();
+            if (context != null)
                 context.close();
-                contexts.remove(ssrc);
-            }
         }
     }
 }

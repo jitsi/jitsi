@@ -274,9 +274,12 @@ public class MediaStreamImpl
         // TODO Add option to disable ZRTP, e.g. by implementing a NullControl.
         // If you change the default behavior (initiates a ZrtpControlImpl if
         // the srtpControl attribute is null), please accordingly modify the
-        // CallPeerMediaHandler.initStream fucntion.
+        // CallPeerMediaHandler.initStream function.
         this.srtpControl
-                = (srtpControl == null) ? new ZrtpControlImpl() : srtpControl;
+                = (srtpControl == null)
+                    ? NeomediaActivator.getMediaServiceImpl()
+                            .createZrtpControl()
+                    : srtpControl;
 
         if (connector != null)
             setConnector(connector);

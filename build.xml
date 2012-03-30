@@ -872,7 +872,6 @@
     <!-- we run this target before we run SC in order to copy os-specific
              bundles from sc-bundles/osname to its parent sc-bundles-->
     <target name="deploy-os-specific-bundles" if="bundles.dest.os">
-
         <copy todir="${bundles.dest}">
             <fileset dir="${bundles.dest.os}">
                 <include name="**/*.jar"/>

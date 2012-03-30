@@ -401,25 +401,27 @@ public class UriHandlerJabberImpl
      * Informs the user that they need to be registered before chatting and
      * asks them whether they would like us to do it for them.
      *
-     * @param uri the uri that the user would like us to chat with after registering.
+     * @param uri the uri that the user would like us to chat with after
+     * registering.
      * @param provider the provider that we may have to reregister.
      */
-    private void promptForRegistration(String uri,
-        ProtocolProviderService provider)
+    private void promptForRegistration(
+            String uri,
+            ProtocolProviderService provider)
     {
-        int answer =
-            JabberActivator
+        int answer
+            = JabberActivator
                 .getUIService()
-                .getPopupDialog()
-                .showConfirmPopupDialog(
-                    "You need to be online in order to chat and your "
-                        + "account is currently offline. Do want to connect now?",
-                    "Account is currently offline", PopupDialog.YES_NO_OPTION);
+                    .getPopupDialog()
+                        .showConfirmPopupDialog(
+                                "You need to be online in order to chat and"
+                                    + " your account is currently offline. Do"
+                                    + " you want to connect now?",
+                                "Account is currently offline",
+                                PopupDialog.YES_NO_OPTION);
 
         if (answer == PopupDialog.YES_OPTION)
-        {
             new ProtocolRegistrationThread(uri, provider).start();
-        }
     }
 
     /**

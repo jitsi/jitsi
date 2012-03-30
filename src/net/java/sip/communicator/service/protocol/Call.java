@@ -77,12 +77,16 @@ public abstract class Call
 
         this.protocolProvider = sourceProvider;
 
-        defaultEncryption =
-            protocolProvider.getAccountID().getAccountPropertyBoolean(
-                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
-        sipZrtpAttribute =
-            protocolProvider.getAccountID().getAccountPropertyBoolean(
-                ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE, true);
+        AccountID accountID = protocolProvider.getAccountID();
+
+        defaultEncryption
+            = accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                    true);
+        sipZrtpAttribute
+            = accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
+                    true);
     }
 
     /**

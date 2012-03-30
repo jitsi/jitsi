@@ -48,15 +48,18 @@ public class InfoRetreiver
      */
     private final long vcardTimeoutReply;
 
-    protected InfoRetreiver
-        (ProtocolProviderServiceJabberImpl jabberProvider, String ownerUin)
+    protected InfoRetreiver(
+            ProtocolProviderServiceJabberImpl jabberProvider,
+            String ownerUin)
     {
         this.jabberProvider = jabberProvider;
         this.ownerUin = ownerUin;
 
-        vcardTimeoutReply = JabberActivator.getConfigurationService().getLong(
-            ProtocolProviderServiceJabberImpl.VCARD_REPLY_TIMEOUT_PROPERTY,
-            -1);
+        vcardTimeoutReply
+            = JabberActivator.getConfigurationService().getLong(
+                    ProtocolProviderServiceJabberImpl
+                        .VCARD_REPLY_TIMEOUT_PROPERTY,
+                    -1);
     }
 
     /**
