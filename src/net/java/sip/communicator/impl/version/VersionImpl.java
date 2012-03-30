@@ -37,7 +37,7 @@ public class VersionImpl
      * Indicates whether this version represents a prerelease (i.e. a
      * non-complete release like an alpha, beta or release candidate version).
      */
-    public static final boolean IS_PRE_RELEASE_VERSION  = true;
+    public static final boolean IS_PRE_RELEASE_VERSION  = false;
 
     /**
      * Returns the version prerelease ID of the current SIP Communicator version
@@ -51,7 +51,7 @@ public class VersionImpl
      * Indicates if this SIP Communicator version corresponds to a nightly build
      * of a repository snapshot or to an official SIP Communicator release.
      */
-    public static final boolean IS_NIGHTLY_BUILD = true;
+    public static final boolean IS_NIGHTLY_BUILD = false;
 
     /**
      * The default name of this application.

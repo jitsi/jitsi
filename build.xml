@@ -49,7 +49,7 @@
 
     <!-- set the build label property and make it take the cc bild into account -->
     <condition property="build.label"
-               value="nightly.${label}">
+               value="${label}">
         <isset property="label"/>
     </condition>
 
