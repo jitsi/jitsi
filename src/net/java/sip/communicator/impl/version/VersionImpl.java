@@ -51,7 +51,7 @@ public class VersionImpl
      * Indicates if this SIP Communicator version corresponds to a nightly build
      * of a repository snapshot or to an official SIP Communicator release.
      */
-    public static final boolean IS_NIGHTLY_BUILD = false;
+    public static final boolean IS_NIGHTLY_BUILD = true;
 
     /**
      * The default name of this application.
