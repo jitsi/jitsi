@@ -30,7 +30,9 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.event.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -611,7 +613,11 @@ public class MediaServiceImpl
         encodingConfiguration.registerCustomPackages();
         encodingConfiguration.registerCustomCodecs();
 
-        if(!OSUtils.IS_ANDROID)
+        /*
+         * The neomedia bundle is generic enough to be used in a headless
+         * GraphicsEnvironment so prevent a HeadlessException.
+         */
+        if(!OSUtils.IS_ANDROID && !GraphicsEnvironment.isHeadless())
         {
             try
             {
@@ -620,55 +626,55 @@ public class MediaServiceImpl
                             DeviceConfigurationComboBoxModel.AUDIO,
                             false);
 
-                audioConfigDialog = new SIPCommDialog()
-                {
-                    /**
-                     * Serial version UID.
-                     */
-                    private static final long serialVersionUID = 0L;
-
-                    /**
-                     * {@inheritDoc}
-                     */
-                    @Override
-                    protected void close(boolean isEscaped)
+                audioConfigDialog
+                    = new SIPCommDialog()
                     {
-                        setVisible(false);
-                    }
-                };
+                        /** Serial version UID. */
+                        private static final long serialVersionUID = 0L;
+
+                        /** {@inheritDoc} */
+                        @Override
+                        protected void close(boolean escaped)
+                        {
+                            setVisible(false);
+                        }
+                    };
 
                 TransparentPanel mainPanel
                     = new TransparentPanel(new BorderLayout(20, 5));
-
                 TransparentPanel fieldsPanel
                     = new TransparentPanel(new BorderLayout(10, 5));
 
                 mainPanel.setBorder(
-                    BorderFactory.createEmptyBorder(20, 20, 20, 20));
+                        BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
                 TransparentPanel btnPanel
                     = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+                ResourceManagementService resources
+                    = NeomediaActivator.getResources();
+                JButton btn
+                    = new JButton(resources.getI18NString("service.gui.CLOSE"));
 
-                JButton btn = new JButton(NeomediaActivator.getResources().
-                    getI18NString("service.gui.CLOSE"));
-
-                btn.addActionListener(new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent evt)
-                    {
-                        audioConfigDialog.setVisible(false);
-                    }
-                });
+                btn.addActionListener(
+                        new ActionListener()
+                        {
+                            public void actionPerformed(ActionEvent evt)
+                            {
+                                audioConfigDialog.setVisible(false);
+                            }
+                        });
                 btnPanel.add(btn);
 
                 JTextArea infoTextArea = new JTextArea();
+
                 infoTextArea.setOpaque(false);
                 infoTextArea.setEditable(false);
                 infoTextArea.setWrapStyleWord(true);
                 infoTextArea.setLineWrap(true);
-                infoTextArea.setText(NeomediaActivator.getResources()
-                    .getI18NString(
-                        "impl.media.configform.AUDIO_DEVICE_CONNECTED_REMOVED"));
+                infoTextArea.setText(
+                        resources.getI18NString(
+                                "impl.media.configform"
+                                    + ".AUDIO_DEVICE_CONNECTED_REMOVED"));
 
                 fieldsPanel.add(infoTextArea, BorderLayout.NORTH);
                 fieldsPanel.add(panel, BorderLayout.CENTER);
@@ -676,24 +682,30 @@ public class MediaServiceImpl
 
                 TransparentPanel iconPanel
                     = new TransparentPanel(new BorderLayout());
-                iconPanel.add(new JLabel(NeomediaActivator.getResources()
-                    .getImage("plugin.mediaconfig.AUDIO_ICON_64x64")),
-                    BorderLayout.NORTH);
+
+                iconPanel.add(
+                        new JLabel(
+                                resources.getImage(
+                                        "plugin.mediaconfig.AUDIO_ICON_64x64")),
+                        BorderLayout.NORTH);
 
                 mainPanel.add(iconPanel,BorderLayout.WEST);
                 mainPanel.add(fieldsPanel, BorderLayout.CENTER);
 
-                audioConfigDialog.setTitle(NeomediaActivator.getResources()
-                    .getI18NString("impl.media.configform.AUDIO_DEVICE_CONFIG"));
+                audioConfigDialog.setTitle(
+                        resources.getI18NString(
+                                "impl.media.configform.AUDIO_DEVICE_CONFIG"));
                 audioConfigDialog.add(mainPanel);
                 audioConfigDialog.validate();
                 audioConfigDialog.pack();
 
                 PortAudioDeviceChangedCallbacks.addDeviceChangedCallback(this);
             }
-            catch(Throwable e)
+            catch(Throwable t)
             {
-                logger.info("Cannot create audio configuration panel", e);
+                logger.info("Failed to create audio configuration panel", t);
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
             }
         }
     }
@@ -710,10 +722,11 @@ public class MediaServiceImpl
     }
 
     /**
-     * Creates <tt>ZrtpControl</tt> used to control all zrtp options
-     * on particular stream.
+     * Initializes a new <tt>ZrtpControl</tt> instance which is to control all
+     * ZRTP options.
      *
-     * @return ZrtpControl instance.
+     * @return a new <tt>ZrtpControl</tt> instance which is to control all ZRTP
+     * options
      */
     public ZrtpControl createZrtpControl()
     {
@@ -721,9 +734,11 @@ public class MediaServiceImpl
     }
 
     /**
-     * Creates <tt>SDesControl</tt> used to control all SDes options.
+     * Initializes a new <tt>SDesControl</tt> instance which is to control all
+     * SDes options.
      *
-     * @return SDesControl instance.
+     * @return a new <tt>SDesControl</tt> instance which is to control all SDes
+     * options
      */
     public SDesControl createSDesControl()
     {
@@ -778,13 +793,10 @@ public class MediaServiceImpl
         ScreenDevice screens[] = ScreenDeviceImpl.getAvailableScreenDevice();
         List<ScreenDevice> screenList;
 
-        if (screens != null)
-        {
-            screenList = new ArrayList<ScreenDevice>(screens.length);
-            screenList.addAll(Arrays.asList(screens));
-        }
+        if ((screens != null) && (screens.length != 0))
+            screenList = new ArrayList<ScreenDevice>(Arrays.asList(screens));
         else
-            screenList = new ArrayList<ScreenDevice>();
+            screenList = Collections.emptyList();
         return screenList;
     }
 
@@ -800,16 +812,15 @@ public class MediaServiceImpl
         int height = 0;
         ScreenDevice best = null;
 
-        for (ScreenDevice sc : screens)
+        for (ScreenDevice screen : screens)
         {
-            java.awt.Dimension res = sc.getSize();
+            java.awt.Dimension res = screen.getSize();
 
-            if ((res != null)
-                    && ((width < res.width) || (height < res.height)))
+            if ((res != null) && ((width < res.width) || (height < res.height)))
             {
                 width = res.width;
                 height = res.height;
-                best = sc;
+                best = screen;
             }
         }
         return best;
@@ -1318,8 +1329,9 @@ public class MediaServiceImpl
         MediaDeviceImpl dev = (MediaDeviceImpl)mediaDevice;
         CaptureDeviceInfo devInfo = dev.getCaptureDeviceInfo();
 
-        return (devInfo != null
-                && devInfo.getName().startsWith("Partial desktop streaming"));
+        return
+            (devInfo != null)
+                && devInfo.getName().startsWith("Partial desktop streaming");
     }
 
     /**

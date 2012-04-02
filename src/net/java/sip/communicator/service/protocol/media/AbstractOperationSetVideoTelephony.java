@@ -13,7 +13,7 @@ import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.event.*;
 
 /**
  * Represents a default implementation of <tt>OperationSetVideoTelephony</tt> in

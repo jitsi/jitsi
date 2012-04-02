@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.event.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**

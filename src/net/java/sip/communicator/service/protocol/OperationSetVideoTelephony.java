@@ -12,7 +12,7 @@ import java.text.*;
 import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.event.*;
 
 /**
  * Represents an <tt>OperationSet</tt> giving access to video-specific

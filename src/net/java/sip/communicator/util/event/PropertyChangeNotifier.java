@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.util;
+package net.java.sip.communicator.util.event;
 
 import java.util.*;
 import java.beans.*;
@@ -13,7 +13,7 @@ import java.beans.*;
  * Represents a source of <tt>PropertyChangeEvent</tt>s which notifies
  * <tt>PropertyChangeListener</tt>s about changes in the values of properties.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class PropertyChangeNotifier
 {

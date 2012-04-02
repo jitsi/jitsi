@@ -155,27 +155,47 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     }
 
     /**
-     * Closes both the control and the data socket of the specified connector
-     * and releases its reference (if it wasn't the case already).
+     * Closes the existing <tt>StreamConnector</tt>, if any, associated with a
+     * specific <tt>MediaType</tt> and removes its reference from this
+     * <tt>TransportManager</tt>.
      *
-     * @param mediaType the type of the connector we'd like to close.
+     * @param mediaType the <tt>MediaType</tt> associated with the
+     * <tt>StreamConnector</tt> to close
      */
     public void closeStreamConnector(MediaType mediaType)
     {
         int index = mediaType.ordinal();
-        StreamConnector connector = streamConnectors[index];
+        StreamConnector streamConnector = streamConnectors[index];
 
-        if (connector != null)
+        if (streamConnector != null)
         {
-            /*
-             * XXX The connected owns the sockets so it is important that it
-             * decides whether to close them i.e. this TransportManager is not
-             * allowed to explicitly close the sockets by itself.
-             */
-            connector.close();
-
+            closeStreamConnector(mediaType, streamConnector);
             streamConnectors[index] = null;
         }
+    }
+
+    /**
+     * Closes a specific <tt>StreamConnector</tt> associated with a specific
+     * <tt>MediaType</tt>. If this <tt>TransportManager</tt> has a reference to
+     * the specified <tt>streamConnector</tt>, it remains. Allows extenders to
+     * override and perform additional customizations to the closing of the
+     * specified <tt>streamConnector</tt>.
+     *
+     * @param mediaType the <tt>MediaType</tt> associated with the specified
+     * <tt>streamConnector</tt>
+     * @param streamConnector the <tt>StreamConnector</tt> to be closed
+     * @see #closeStreamConnector(MediaType)
+     */
+    protected void closeStreamConnector(
+            MediaType mediaType,
+            StreamConnector streamConnector)
+    {
+        /*
+         * XXX The connected owns the sockets so it is important that it
+         * decides whether to close them i.e. this TransportManager is not
+         * allowed to explicitly close the sockets by itself.
+         */
+        streamConnector.close();
     }
 
     /**

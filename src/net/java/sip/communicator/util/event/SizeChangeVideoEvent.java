@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.protocol.event;
+package net.java.sip.communicator.util.event;
 
 import java.awt.*;
 
@@ -12,7 +12,7 @@ import java.awt.*;
  * Represents a <tt>VideoEvent</tt> which notifies about an update to the size
  * of a specific visual <tt>Component</tt> depicting video.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class SizeChangeVideoEvent
     extends VideoEvent
@@ -62,6 +62,16 @@ public class SizeChangeVideoEvent
 
         this.width = width;
         this.height = height;
+    }
+
+    @Override
+    public VideoEvent clone(Object source)
+    {
+        return
+            new SizeChangeVideoEvent(
+                    source,
+                    getVisualComponent(), getOrigin(),
+                    getWidth(), getHeight());
     }
 
     /**

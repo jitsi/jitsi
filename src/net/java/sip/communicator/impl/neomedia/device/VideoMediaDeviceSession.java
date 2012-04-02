@@ -26,10 +26,10 @@ import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.control.KeyFrameControl; // disambiguation
-import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.event.*;
 
 /**
  * Extends <tt>MediaDeviceSession</tt> to add video-specific functionality.

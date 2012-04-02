@@ -15,5 +15,6 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.service.netaddr,
  net.java.sip.communicator.util,
+ net.java.sip.communicator.util.event,
  org.ice4j.ice
 Export-Package: net.java.sip.communicator.service.protocol.media

@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.net.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -38,6 +40,15 @@ public class RawUdpTransportManager
         = new LinkedList<Iterable<ContentPacketExtension>>();
 
     /**
+     * The information pertaining to the Jisti VideoBridge conference which the
+     * local peer represented by this instance is a focus of. It gives a view of
+     * the whole Jitsi VideoBridge conference managed by the associated
+     * <tt>CallJabberImpl</tt> which provides information specific to this
+     * <tt>RawUdpTransportManager</tt> only.
+     */
+    private CobriConferenceIQ cobri;
+
+    /**
      * Creates a new instance of this transport manager, binding it to the
      * specified peer.
      *
@@ -50,9 +61,90 @@ public class RawUdpTransportManager
     }
 
     /**
+     * Closes a specific <tt>StreamConnector</tt> associated with a specific
+     * <tt>MediaType</tt>. If this <tt>TransportManager</tt> has a reference to
+     * the specified <tt>streamConnector</tt>, it remains.
+     *
+     * @param mediaType the <tt>MediaType</tt> associated with the specified
+     * <tt>streamConnector</tt>
+     * @param streamConnector the <tt>StreamConnector</tt> to be closed
+     */
+    @Override
+    protected void closeStreamConnector(
+            MediaType mediaType,
+            StreamConnector streamConnector)
+    {
+        if (streamConnector instanceof CobriStreamConnector)
+        {
+            CallPeerJabberImpl peer = getCallPeer();
+            CallJabberImpl call = peer.getCall();
+
+            call.closeCobriStreamConnector(
+                    peer,
+                    mediaType,
+                    (CobriStreamConnector) streamConnector);
+        }
+        else
+            super.closeStreamConnector(mediaType, streamConnector);
+    }
+
+    /**
+     * Creates a media <tt>StreamConnector</tt> for a stream of a specific
+     * <tt>MediaType</tt>.
+     *
+     * @param mediaType the <tt>MediaType</tt> of the stream for which a
+     * <tt>StreamConnector</tt> is to be created
+     * @return a <tt>StreamConnector</tt> for the stream of the specified
+     * <tt>mediaType</tt>
+     * @throws OperationFailedException if the binding of the sockets fails
+     */
+    @Override
+    protected StreamConnector createStreamConnector(final MediaType mediaType)
+        throws OperationFailedException
+    {
+        CobriConferenceIQ.Channel channel = getCobriChannel(mediaType, true);
+
+        if (channel != null)
+        {
+            CallPeerJabberImpl peer = getCallPeer();
+            CallJabberImpl call = peer.getCall();
+            StreamConnector streamConnector
+                = call.createCobriStreamConnector(
+                        peer,
+                        mediaType,
+                        channel,
+                        new StreamConnectorFactory()
+                        {
+                            public StreamConnector createStreamConnector()
+                            {
+                                try
+                                {
+                                    return
+                                        RawUdpTransportManager
+                                            .super
+                                                .createStreamConnector(
+                                                        mediaType);
+                                }
+                                catch (OperationFailedException ofe)
+                                {
+                                    return null;
+                                }
+                            }
+                        });
+
+            if (streamConnector != null)
+                return streamConnector;
+        }
+
+        return super.createStreamConnector(mediaType);
+    }
+
+    /**
      * Creates a raw UDP transport element according to the specified stream
      * <tt>connector</tt>.
      *
+     * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> which
+     * uses the specified <tt>connector</tt>
      * @param connector the connector that we'd like to describe within the
      * transport element.
      *
@@ -60,33 +152,59 @@ public class RawUdpTransportManager
      * RTCP candidates of the specified {@link StreamConnector}.
      */
     private RawUdpTransportPacketExtension createTransport(
-                                                StreamConnector connector)
+            MediaType mediaType,
+            StreamConnector connector)
     {
+        CobriConferenceIQ.Channel channel = getCobriChannel(mediaType, false);
+
         RawUdpTransportPacketExtension ourTransport
             = new RawUdpTransportPacketExtension();
+        int generation = getCurrentGeneration();
 
         // create and add candidates that correspond to the stream connector
         // RTP
         CandidatePacketExtension rtpCand = new CandidatePacketExtension();
+
         rtpCand.setComponent(CandidatePacketExtension.RTP_COMPONENT_ID);
-        rtpCand.setGeneration(getCurrentGeneration());
+        rtpCand.setGeneration(generation);
         rtpCand.setID(getNextID());
-        rtpCand.setIP(connector.getDataSocket().getLocalAddress()
-                        .getHostAddress());
-        rtpCand.setPort(connector.getDataSocket().getLocalPort());
         rtpCand.setType(CandidateType.host);
+
+        if (channel == null)
+        {
+            DatagramSocket dataSocket = connector.getDataSocket();
+
+            rtpCand.setIP(dataSocket.getLocalAddress().getHostAddress());
+            rtpCand.setPort(dataSocket.getLocalPort());
+        }
+        else
+        {
+            rtpCand.setIP(channel.getHost());
+            rtpCand.setPort(channel.getRTPPort());
+        }
 
         ourTransport.addCandidate(rtpCand);
 
         // RTCP
         CandidatePacketExtension rtcpCand = new CandidatePacketExtension();
+
         rtcpCand.setComponent(CandidatePacketExtension.RTCP_COMPONENT_ID);
-        rtcpCand.setGeneration(getCurrentGeneration());
+        rtcpCand.setGeneration(generation);
         rtcpCand.setID(getNextID());
-        rtcpCand.setIP(connector.getControlSocket().getLocalAddress()
-                        .getHostAddress());
-        rtcpCand.setPort(connector.getControlSocket().getLocalPort());
         rtcpCand.setType(CandidateType.host);
+
+        if (channel == null)
+        {
+            DatagramSocket controlSocket = connector.getControlSocket();
+
+            rtcpCand.setIP(controlSocket.getLocalAddress().getHostAddress());
+            rtcpCand.setPort(controlSocket.getLocalPort());
+        }
+        else
+        {
+            rtcpCand.setIP(channel.getHost());
+            rtcpCand.setPort(channel.getRTCPPort());
+        }
 
         ourTransport.addCandidate(rtcpCand);
 
@@ -121,12 +239,70 @@ public class RawUdpTransportManager
 
                 if (mediaType.equals(contentMediaType))
                 {
-                    streamTarget = JingleUtils.extractDefaultTarget(content);
+                    CobriConferenceIQ.Channel channel
+                        = getCobriChannel(mediaType, true);
+
+                    if (channel == null)
+                    {
+                        streamTarget
+                            = JingleUtils.extractDefaultTarget(content);
+                    }
+                    else
+                    {
+                        streamTarget
+                            = new MediaStreamTarget(
+                                    new InetSocketAddress(
+                                            channel.getHost(),
+                                            channel.getRTPPort()),
+                                    new InetSocketAddress(
+                                            channel.getHost(),
+                                            channel.getRTPPort()));
+                    }
+
                     break;
                 }
             }
         }
         return streamTarget;
+    }
+
+    /**
+     * Gets the {@link CobriConferenceIQ.Channel} which belongs to a content
+     * associated with a specific <tt>MediaType</tt> and is to be either locally
+     * or remotely used.
+     *
+     * @param mediaType the <tt>MediaType</tt> associated with the content which
+     * contains the <tt>CobriConferenceIQ.Channel</tt> to get
+     * @param local <tt>true</tt> if the <tt>CobriConferenceIQ.Channel</tt>
+     * which is to be used locally is to be returned or <tt>false</tt> for the
+     * one which is to be used remotely
+     * @return the <tt>CobriConferenceIQ.Channel</tt> which belongs to a content
+     * associated with the specified <tt>mediaType</tt> and which is to be used
+     * in accord with the specified <tt>local</tt> indicator if such a channel
+     * exists; otherwise, <tt>null</tt>
+     */
+    private CobriConferenceIQ.Channel getCobriChannel(
+            MediaType mediaType,
+            boolean local)
+    {
+        CobriConferenceIQ.Channel channel = null;
+
+        if (cobri != null)
+        {
+            CobriConferenceIQ.Content content
+                = cobri.getContent(mediaType.toString());
+
+            if (content != null)
+            {
+                List<CobriConferenceIQ.Channel> channels
+                    = content.getChannels();
+
+                if (channels.size() == 2)
+                    channel = channels.get(local ? 0 : 1);
+            }
+        }
+
+        return channel;
     }
 
     /**
@@ -210,31 +386,12 @@ public class RawUdpTransportManager
      * {@link #wrapupCandidateHarvest()}.
      * @throws OperationFailedException in case we fail allocating ports
      */
-    public void startCandidateHarvest(List<ContentPacketExtension> ourOffer,
-        TransportInfoSender transportInfoSender)
+    public void startCandidateHarvest(
+            List<ContentPacketExtension> ourOffer,
+            TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
-        for(ContentPacketExtension content : ourOffer)
-        {
-            RtpDescriptionPacketExtension rtpDesc
-                = content.getFirstChildOfType(
-                        RtpDescriptionPacketExtension.class);
-
-            StreamConnector connector
-                = getStreamConnector(
-                    MediaType.parseString( rtpDesc.getMedia()));
-
-            RawUdpTransportPacketExtension ourTransport
-                = createTransport(connector);
-
-            //now add our transport to our offer
-            ContentPacketExtension cpExt
-                = findContentByName(ourOffer, content.getName());
-
-            cpExt.addChildExtension(ourTransport);
-        }
-
-        this.local = ourOffer;
+        startCandidateHarvest(null, ourOffer, transportInfoSender);
     }
 
     /**
@@ -269,23 +426,106 @@ public class RawUdpTransportManager
             TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
-        for(ContentPacketExtension content : theirOffer)
+        CallPeerJabberImpl peer = getCallPeer();
+        CallJabberImpl call = peer.getCall();
+        List<ContentPacketExtension> cpes
+            = (theirOffer == null) ? ourAnswer : theirOffer;
+
+        /*
+         * If Jitsi VideoBridge is to be used, determine which channels are to
+         * be allocated and attempt to allocate them now.
+         */
+        if (call.isConferenceFocus())
+        {
+            List<MediaType> mediaTypes = new ArrayList<MediaType>();
+
+            for (ContentPacketExtension cpe : cpes)
+            {
+                RtpDescriptionPacketExtension rtpDesc
+                    = cpe.getFirstChildOfType(
+                            RtpDescriptionPacketExtension.class);
+                MediaType mediaType = MediaType.parseString(rtpDesc.getMedia());
+
+                /*
+                 * The existence of a content for the mediaType and regardless
+                 * of the existence of channels in it signals that a channel
+                 * allocation request has already been sent for that mediaType.
+                 */
+                if ((cobri == null)
+                        || (cobri.getContent(mediaType.toString()) == null))
+                {
+                    if (!mediaTypes.contains(mediaType))
+                        mediaTypes.add(mediaType);
+                }
+            }
+            if (mediaTypes.size() != 0)
+            {
+                /*
+                 * We are about to request the channel allocations for
+                 * mediaTypes. Regardless of the response, we do not want to
+                 * repeat these requests.
+                 */
+                if (cobri == null)
+                    cobri = new CobriConferenceIQ();
+                for (MediaType mediaType : mediaTypes)
+                    cobri.getOrCreateContent(mediaType.toString());
+
+                CobriConferenceIQ conferenceResult
+                    = call.createCobriChannels(peer, mediaTypes);
+
+                if (conferenceResult != null)
+                {
+                    String videoBridgeID = cobri.getID();
+                    String conferenceResultID = conferenceResult.getID();
+
+                    if (videoBridgeID == null)
+                        cobri.setID(conferenceResultID);
+                    else if (!videoBridgeID.equals(conferenceResultID))
+                        throw new IllegalStateException("conference.id");
+
+                    for (CobriConferenceIQ.Content contentResult
+                            : conferenceResult.getContents())
+                    {
+                        CobriConferenceIQ.Content content
+                            = cobri.getOrCreateContent(
+                                    contentResult.getName());
+
+                        for (CobriConferenceIQ.Channel channelResult
+                                : contentResult.getChannels())
+                        {
+                            if (content.getChannel(channelResult.getID())
+                                    == null)
+                                content.addChannel(channelResult);
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
+         * RawUdpTransportManager#startCandidateHarvest(
+         * List<ContentPacketExtension>, TransportInfoSender) delegates here
+         * because the implementations are pretty much identical and it's just
+         * that there's no theirOffer and ourAnswer is in fact our offer to
+         * which their answer is expected.
+         */
+        for (ContentPacketExtension cpe : cpes)
         {
             RtpDescriptionPacketExtension rtpDesc
-                = content.getFirstChildOfType(
+                = cpe.getFirstChildOfType(
                         RtpDescriptionPacketExtension.class);
-            StreamConnector connector
-                = getStreamConnector(MediaType.parseString(rtpDesc.getMedia()));
+            MediaType mediaType = MediaType.parseString(rtpDesc.getMedia());
+            StreamConnector connector = getStreamConnector(mediaType);
             RawUdpTransportPacketExtension ourTransport
-                = createTransport(connector);
+                = createTransport(mediaType, connector);
 
             //now add our transport to our answer
-            ContentPacketExtension cpExt
-                = findContentByName(ourAnswer, content.getName());
+            ContentPacketExtension ourCpe
+                = findContentByName(ourAnswer, cpe.getName());
 
             //it might be that we decided not to reply to this content
-            if(cpExt != null)
-                cpExt.addChildExtension(ourTransport);
+            if (ourCpe != null)
+                ourCpe.addChildExtension(ourTransport);
         }
 
         this.local = ourAnswer;

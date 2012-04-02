@@ -24,9 +24,9 @@ import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.neomedia.control.KeyFrameControl; // disambiguation
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
-import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.event.*;
 
 /**
  * Extends <tt>MediaStreamImpl</tt> in order to provide an implementation of

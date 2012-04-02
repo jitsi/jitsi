@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.event.*;
 
 /**
  * This class aims to provide a simple configuration interface for JMF. It
@@ -33,7 +34,6 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  * @author Lyubomir Marinov
  */
-@SuppressWarnings("unchecked")
 public class DeviceConfiguration
     extends PropertyChangeNotifier
     implements PropertyChangeListener,
@@ -365,6 +365,7 @@ public class DeviceConfiguration
      */
     private CaptureDeviceInfo extractConfiguredVideoCaptureDevice(Format format)
     {
+        @SuppressWarnings("unchecked")
         List<CaptureDeviceInfo> videoCaptureDevices
             = CaptureDeviceManager.getDeviceList(format);
         CaptureDeviceInfo videoCaptureDevice = null;
@@ -426,9 +427,10 @@ public class DeviceConfiguration
      */
     public CaptureDeviceInfo[] getAvailableAudioCaptureDevices()
     {
-        Vector<CaptureDeviceInfo> audioCaptureDevices =
-            CaptureDeviceManager.getDeviceList(new AudioFormat(
-                AudioFormat.LINEAR, -1, 16, -1));
+        @SuppressWarnings("unchecked")
+        Vector<CaptureDeviceInfo> audioCaptureDevices
+            = CaptureDeviceManager.getDeviceList(
+                    new AudioFormat(AudioFormat.LINEAR, -1, 16, -1));
 
         return audioCaptureDevices.toArray(NO_CAPTURE_DEVICES);
     }
@@ -508,8 +510,9 @@ public class DeviceConfiguration
 
         for (Format format : formats)
         {
-            Vector<CaptureDeviceInfo> captureDeviceInfos =
-                CaptureDeviceManager.getDeviceList(format);
+            @SuppressWarnings("unchecked")
+            Vector<CaptureDeviceInfo> captureDeviceInfos
+                = CaptureDeviceManager.getDeviceList(format);
 
             if(useCase != MediaUseCase.ANY)
             {
@@ -1080,6 +1083,7 @@ public class DeviceConfiguration
      */
     private void registerCustomRenderers()
     {
+        @SuppressWarnings("unchecked")
         Vector<String> renderers
             = PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
         boolean commit = false;
@@ -1116,6 +1120,7 @@ public class DeviceConfiguration
          * are considered preferred.
          */
         int pluginType = PlugInManager.RENDERER;
+        @SuppressWarnings("unchecked")
         Vector<String> plugins
             = PlugInManager.getPlugInList(null, null, pluginType);
 

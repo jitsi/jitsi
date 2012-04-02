@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.event.*;
 
 /**
  * Represents the use of a specific <tt>MediaDevice</tt> by a

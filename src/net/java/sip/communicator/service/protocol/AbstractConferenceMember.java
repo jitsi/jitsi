@@ -6,13 +6,13 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.event.*;
 
 /**
  * Provides the default implementation of the <tt>ConferenceMember</tt>
  * interface.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Yana Stamcheva
  * @author Emil Ivov
  */

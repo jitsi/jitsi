@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.service.neomedia.event;
+package net.java.sip.communicator.util.event;
 
 import java.awt.*;
 import java.util.*;
@@ -14,7 +14,7 @@ import java.util.*;
  * depicting video to notify about changes in the availability of such
  * <tt>Component</tt>s.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class VideoEvent
     extends EventObject
@@ -102,6 +102,14 @@ public class VideoEvent
         this.type = type;
         this.visualComponent = visualComponent;
         this.origin = origin;
+    }
+
+    public VideoEvent clone(Object source)
+    {
+        return
+            new VideoEvent(
+                    source,
+                    getType(), getVisualComponent(), getOrigin());
     }
 
     /**

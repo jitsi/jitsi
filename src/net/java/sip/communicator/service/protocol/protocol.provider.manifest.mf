@@ -8,8 +8,9 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.credentialsstorage,
  net.java.sip.communicator.service.neomedia,
+ net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
- net.java.sip.communicator.service.resources
+ net.java.sip.communicator.util.event
 Export-Package: net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.aimconstants,
  net.java.sip.communicator.service.protocol.event,

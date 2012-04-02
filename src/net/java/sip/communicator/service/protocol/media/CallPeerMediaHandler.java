@@ -17,16 +17,13 @@ import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.SizeChangeVideoEvent;
-import net.java.sip.communicator.service.protocol.event.VideoEvent;
-import net.java.sip.communicator.service.protocol.event.VideoListener;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.event.*;
 
 /**
  * A utility class implementing media control code shared between current
  * telephony implementations. This class is only meant for use by protocol
- * implementations and should/could not be accessed by bundles that are simply
- * using the telephony functionalities.
+ * implementations and should not be accessed by bundles that are simply using
+ * the telephony functionalities.
  *
  * @param <T> the peer extension class like for example <tt>CallPeerSipImpl</tt>
  * or <tt>CallPeerJabberImpl</tt>
@@ -34,17 +31,10 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  * @author Lyubomir Marinov
  */
-public abstract class CallPeerMediaHandler<
-                                        T extends MediaAwareCallPeer<?, ?, ?>>
+public abstract class CallPeerMediaHandler
+        <T extends MediaAwareCallPeer<?, ?, ?>>
     extends PropertyChangeNotifier
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>CallPeerMediaHandler</tt>
-     * class and its instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(CallPeerMediaHandler.class);
-
     /**
      * The name of the <tt>CallPeerMediaHandler</tt> property which specifies
      * the local SSRC of its audio <tt>MediaStream</tt>.
@@ -83,10 +73,22 @@ public abstract class CallPeerMediaHandler<
         = MediaDirection.RECVONLY;
 
     /**
+     * The <tt>VideoMediaStream</tt> which this instance uses to send and
+     * receive video.
+     */
+    private VideoMediaStream videoStream;
+
+    /**
      * Determines whether or not streaming local audio is currently enabled.
      */
     private MediaDirection audioDirectionUserPreference
         = MediaDirection.SENDRECV;
+
+    /**
+     * The <tt>AudioMediaStream</tt> which this instance uses to send and
+     * receive audio.
+     */
+    private AudioMediaStream audioStream;
 
     /**
      * List of advertised encryption methods. Indicated before establishing the
@@ -102,40 +104,10 @@ public abstract class CallPeerMediaHandler<
     private final T peer;
 
     /**
-     * A reference to the object that would be responsible for SRTP control
-     * and which most often would be the peer itself.
+     * The <tt>SrtpListener</tt> which is responsible for the SRTP control. Most
+     * often than not, it is the <tt>peer</tt> itself.
      */
     private final SrtpListener srtpListener;
-
-    /**
-     * The RTP stream that this media handler uses to send audio.
-     */
-    private AudioMediaStream audioStream = null;
-
-    /**
-     * The last-known local SSRC of {@link #audioStream}.
-     */
-    private long audioLocalSSRC = SSRC_UNKNOWN;
-
-    /**
-     * The last-known remote SSRC of {@link #audioStream}.
-     */
-    private long audioRemoteSSRC = SSRC_UNKNOWN;
-
-    /**
-     * The RTP stream that this media handler uses to send video.
-     */
-    private VideoMediaStream videoStream = null;
-
-    /**
-     * The last-known local SSRC of {@link #videoStream}.
-     */
-    private long videoLocalSSRC = SSRC_UNKNOWN;
-
-    /**
-     * The last-known remote SSRC of {@link #videoStream}.
-     */
-    private long videoRemoteSSRC = SSRC_UNKNOWN;
 
     /**
      * The listener that the <tt>CallPeer</tt> registered for local user audio
@@ -179,12 +151,6 @@ public abstract class CallPeerMediaHandler<
     private boolean locallyOnHold = false;
 
     /**
-     * Indicates whether this handler has already started at least one of its
-     * streams, at least once.
-     */
-    private boolean started = false;
-
-    /**
      * Contains all dynamic payload type mappings that have been made for this
      * call.
      */
@@ -199,22 +165,14 @@ public abstract class CallPeerMediaHandler<
         = new DynamicRTPExtensionsRegistry();
 
     /**
-     * Holds the SRTP controls used for the current call.
+     * The <tt>PropertyChangeListener</tt> which listens to changes in the
+     * values of the properties of the <tt>Call</tt> of {@link #peer}.
      */
-    private SortedMap<MediaTypeSrtpControl, SrtpControl> srtpControls =
-        new TreeMap<MediaTypeSrtpControl, SrtpControl>();
-
-    /**
-     * The <tt>KeyFrameControl</tt> currently known to this
-     * <tt>CallPeerMediaHandlerSipImpl</tt> and made available by
-     * {@link #videoStream}.
-     */
-    private KeyFrameControl keyFrameControl;
+    private final CallPropertyChangeListener callPropertyChangeListener;
 
     /**
      * The <tt>KeyFrameRequester</tt> implemented by this
-     * <tt>CallPeerMediaHandlerSipImpl</tt> and provided to
-     * {@link #keyFrameControl}.
+     * <tt>CallPeerMediaHandler</tt>.
      */
     private final KeyFrameControl.KeyFrameRequester keyFrameRequester
         = new KeyFrameControl.KeyFrameRequester()
@@ -226,117 +184,75 @@ public abstract class CallPeerMediaHandler<
         };
 
     /**
-     * The <tt>List</tt> of <tt>VideoListener</tt>s interested in
-     * <tt>VideoEvent</tt>s fired by this instance or rather its
-     * <tt>VideoMediaStream</tt>.
+     * The state of this instance which may be shared with multiple other
+     * <tt>CallPeerMediaHandler</tt>s.
      */
-    private final List<VideoListener> videoListeners
-        = new LinkedList<VideoListener>();
+    private MediaHandler mediaHandler;
 
     /**
      * The <tt>PropertyChangeListener</tt> which listens to changes in the
-     * values of the properties of {@link #audioStream} and
-     * {@link #videoStream}.
+     * values of the properties of the <tt>MediaStream</tt>s of this instance.
      */
     private final PropertyChangeListener streamPropertyChangeListener
         = new PropertyChangeListener()
-    {
-
-        /**
-         * Notifies this <tt>PropertyChangeListener</tt> that the value of
-         * a specific property of the notifier it is registered with has
-         * changed.
-         *
-         * @param evt a <tt>PropertyChangeEvent</tt> which describes the
-         * source of the event, the name of the property which has changed
-         * its value and the old and new values of the property
-         * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-         */
-        public void propertyChange(PropertyChangeEvent evt)
         {
-            String propertyName = evt.getPropertyName();
-
-            if (MediaStream.PNAME_LOCAL_SSRC.equals(propertyName))
+            /**
+             * Notifies this <tt>PropertyChangeListener</tt> that the value of
+             * a specific property of the notifier it is registered with has
+             * changed.
+             *
+             * @param evt a <tt>PropertyChangeEvent</tt> which describes the
+             * source of the event, the name of the property which has changed
+             * its value and the old and new values of the property
+             * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+             */
+            public void propertyChange(PropertyChangeEvent evt)
             {
-                Object source = evt.getSource();
-
-                if (source == audioStream)
-                    setAudioLocalSSRC(audioStream.getLocalSourceID());
-                else if (source == videoStream)
-                    setVideoLocalSSRC(videoStream.getLocalSourceID());
+                firePropertyChange(
+                        evt.getPropertyName(),
+                        evt.getOldValue(),
+                        evt.getNewValue());
             }
-            else if (MediaStream.PNAME_REMOTE_SSRC.equals(propertyName))
-            {
-                Object source = evt.getSource();
-
-                if (source == audioStream)
-                    setAudioRemoteSSRC(audioStream.getRemoteSourceID());
-                else if (source == videoStream)
-                    setVideoRemoteSSRC(videoStream.getRemoteSourceID());
-            }
-        }
-    };
+        };
 
     /**
-     * The neomedia <tt>VideoListener</tt> which listens to {@link #videoStream}
-     * for changes in the availability of visual <tt>Component</tt>s displaying
-     * remote video and re-fires them as
-     * <tt>net.java.sip.communicator.service.protocol.event.VideoEvent</tt>s
+     * The aid which implements the boilerplate related to adding and removing
+     * <tt>VideoListener</tt>s and firing <tt>VideoEvent</tt>s to them on behalf
+     * of this instance.
+     */
+    private final VideoNotifierSupport videoNotifierSupport
+        = new VideoNotifierSupport(this, true);
+
+    /**
+     * The <tt>VideoListener</tt> which listens to the video
+     * <tt>MediaStream</tt> of this instance for changes in the availability of
+     * visual <tt>Component</tt>s displaying remote video and re-fires them as
      * originating from this instance.
      */
-    private final net.java.sip.communicator.service.neomedia.event.VideoListener
-        videoStreamVideoListener = new net.java.sip.communicator.service
-            .neomedia.event.VideoListener()
-    {
-        /**
-         * Notifies this neomedia <tt>VideoListener</tt> that a new visual
-         * <tt>Component</tt> displaying remote video has been added in
-         * {@link CallPeerMediaHandler#videoStream}.
-         *
-         * @param event the neomedia <tt>VideoEvent</tt> which specifies the
-         * newly-added visual <tt>Component</tt> displaying remote video
-         */
-        public void videoAdded(
-                net.java.sip.communicator.service.neomedia.event.VideoEvent
-                    event)
+    private final VideoListener videoStreamVideoListener
+        = new VideoListener()
         {
-            if (fireVideoEvent(
-                    event.getType(),
-                    event.getVisualComponent(),
-                    event.getOrigin()))
-                event.consume();
-        }
+            public void videoAdded(VideoEvent event)
+            {
+                VideoEvent clone = event.clone(CallPeerMediaHandler.this);
 
-        /**
-         * Notifies this neomedia <tt>VideoListener</tt> that a visual
-         * <tt>Component</tt> displaying remote video has been removed from
-         * {@link CallPeerMediaHandler#videoStream}.
-         *
-         * @param event the neomedia <tt>VideoEvent</tt> which specifies the
-         * removed visual <tt>Component</tt> displaying remote video
-         */
-        public void videoRemoved(
-                net.java.sip.communicator.service.neomedia.event.VideoEvent
-                    event)
-        {
-            // VIDEO_REMOVED is forwarded the same way as VIDEO_ADDED is.
-            videoAdded(event);
-        }
+                fireVideoEvent(clone);
+                if (clone.isConsumed())
+                    event.consume();
+            }
 
-        public void videoUpdate(
-                net.java.sip.communicator.service.neomedia.event.VideoEvent
-                    event)
-        {
-            fireVideoEvent(
-                neomedia2protocol(event, CallPeerMediaHandler.this));
-        }
-    };
+            public void videoRemoved(VideoEvent event)
+            {
+                // Forwarded in the same way as VIDEO_ADDED.
+                videoAdded(event);
+            }
 
-    /**
-     * The <tt>PropertyChangeListener</tt> which listens to changes in the
-     * values of the properties of the <tt>Call</tt> of {@link #peer}.
-     */
-    private final CallPropertyChangeListener callPropertyChangeListener;
+            public void videoUpdate(VideoEvent event)
+            {
+                // Forwarded in the same way as VIDEO_ADDED.
+                videoAdded(event);
+            }
+        };
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -352,8 +268,10 @@ public abstract class CallPeerMediaHandler<
         this.peer = peer;
         this.srtpListener = srtpListener;
 
+        setMediaHandler(new MediaHandler());
+
         /*
-         * Listener to the call of peer in order to track the user's choice with
+         * Listen to the call of peer in order to track the user's choice with
          * respect to the default audio device.
          */
         MediaAwareCall<?, ?, ?> call = this.peer.getCall();
@@ -380,42 +298,51 @@ public abstract class CallPeerMediaHandler<
     {
         this.locallyOnHold = locallyOnHold;
 
+        // On hold.
         if(locallyOnHold)
         {
-            if(audioStream != null)
-            {
-                audioStream.setDirection(audioStream.getDirection()
-                            .and(MediaDirection.SENDONLY));
-                audioStream.setMute(locallyOnHold);
-            }
-            if(videoStream != null)
-            {
-                videoStream.setDirection(videoStream.getDirection()
-                            .and(MediaDirection.SENDONLY));
-                videoStream.setMute(locallyOnHold);
-            }
-        }
-        else
-        {
-            //off hold - make sure that we re-enable sending, only
-            // if other party is not on hold
-            if (CallPeerState.ON_HOLD_MUTUALLY.equals(
-                    getPeer().getState()))
-            {
-                return;
-            }
+            MediaStream audioStream = getStream(MediaType.AUDIO);
 
             if(audioStream != null)
             {
-                audioStream.setDirection(audioStream.getDirection()
-                            .or(MediaDirection.SENDONLY));
+                audioStream.setDirection(
+                        audioStream.getDirection().and(
+                                MediaDirection.SENDONLY));
                 audioStream.setMute(locallyOnHold);
             }
-            if(videoStream != null
-                && videoStream.getDirection() != MediaDirection.INACTIVE)
+
+            MediaStream videoStream = getStream(MediaType.VIDEO);
+
+            if(videoStream != null)
             {
-                videoStream.setDirection(videoStream.getDirection()
-                            .or(MediaDirection.SENDONLY));
+                videoStream.setDirection(
+                        videoStream.getDirection().and(
+                                MediaDirection.SENDONLY));
+                videoStream.setMute(locallyOnHold);
+            }
+        }
+        /*
+         * Off hold. Make sure that we re-enable sending only if other party is
+         * not on hold.
+         */
+        else if (!CallPeerState.ON_HOLD_MUTUALLY.equals(getPeer().getState()))
+        {
+            MediaStream audioStream = getStream(MediaType.AUDIO);
+
+            if(audioStream != null)
+            {
+                audioStream.setDirection(
+                        audioStream.getDirection().or(MediaDirection.SENDONLY));
+                audioStream.setMute(locallyOnHold);
+            }
+
+            MediaStream videoStream = getStream(MediaType.VIDEO);
+
+            if((videoStream != null)
+                && (videoStream.getDirection() != MediaDirection.INACTIVE))
+            {
+                videoStream.setDirection(
+                        videoStream.getDirection().or(MediaDirection.SENDONLY));
                 videoStream.setMute(locallyOnHold);
             }
         }
@@ -436,34 +363,45 @@ public abstract class CallPeerMediaHandler<
         if (callPropertyChangeListener != null)
             callPropertyChangeListener.call.removePropertyChangeListener(
                     callPropertyChangeListener);
+
+        setMediaHandler(null);
     }
 
     /**
-     * Closes the <tt>MediaStream</tt> that this <tt>MediaHandler</tt> uses for
-     * specified media <tt>type</tt> and prepares it for garbage collection.
+     * Closes the <tt>MediaStream</tt> that this instance uses for a specific
+     * <tt>MediaType</tt> and prepares it for garbage collection.
      *
      * @param type the <tt>MediaType</tt> that we'd like to stop a stream for.
      */
     protected void closeStream(MediaType type)
     {
-        if (type == MediaType.AUDIO)
-            setAudioStream(null);
-        else
-            setVideoStream(null);
+        /*
+         * This CallPeerMediaHandler releases its reference to the MediaStream
+         * it has initialized via #initStream().
+         */
+        boolean mediaHandlerCloseStream = false;
+
+        switch (type)
+        {
+        case AUDIO:
+            if (audioStream != null)
+            {
+                audioStream = null;
+                mediaHandlerCloseStream = true;
+            }
+            break;
+        case VIDEO:
+            if (videoStream != null)
+            {
+                videoStream = null;
+                mediaHandlerCloseStream = true;
+            }
+            break;
+        }
+        if (mediaHandlerCloseStream)
+            mediaHandler.closeStream(this, type);
 
         getTransportManager().closeStreamConnector(type);
-
-        // Clear the SRTP controls used for the associated Call.
-        Iterator<MediaTypeSrtpControl> it = srtpControls.keySet().iterator();
-        while (it.hasNext())
-        {
-            MediaTypeSrtpControl mct = it.next();
-            if (mct.mediaType == type)
-            {
-                srtpControls.get(mct).cleanup();
-                it.remove();
-            }
-        }
     }
 
     /**
@@ -491,50 +429,10 @@ public abstract class CallPeerMediaHandler<
      */
     public void setMute(boolean mute)
     {
+        MediaStream audioStream = getStream(MediaType.AUDIO);
+
         if (audioStream != null)
             audioStream.setMute(mute);
-    }
-
-    /**
-     * Creates a new
-     * <tt>net.java.sip.communicator.service.protocol.event.VideoEvent</tt>
-     * instance which represents the same notification/information as a specific
-     * <tt>net.java.sip.communicator.service.neomedia.event.VideoEvent</tt>.
-     *
-     * @param neomediaEvent the
-     * <tt>net.java.sip.communicator.service.neomedia.event.VideoEvent</tt> to
-     * represent as a
-     * <tt>net.java.sip.communicator.service.protocol.event.VideoEvent</tt>
-     * @param sender the <tt>Object</tt> to be reported as the source of the
-     * new <tt>VideoEvent</tt>
-     * @return a new
-     * <tt>net.java.sip.communicator.service.protocol.event.VideoEvent</tt>
-     * which represents the same notification/information as the specified
-     * <tt>neomediaEvent</tt>
-     */
-    private static VideoEvent neomedia2protocol(
-            net.java.sip.communicator.service.neomedia.event.VideoEvent
-                neomediaEvent,
-            Object sender)
-    {
-        if (neomediaEvent instanceof net.java.sip.communicator.service
-                                          .neomedia.event.SizeChangeVideoEvent)
-        {
-            net.java.sip.communicator.service.neomedia.event.SizeChangeVideoEvent
-                neomediaSizeChangeEvent
-                    = (net.java.sip.communicator.service.neomedia.event
-                                    .SizeChangeVideoEvent)neomediaEvent;
-
-            return
-                new SizeChangeVideoEvent(
-                        sender,
-                        neomediaEvent.getVisualComponent(),
-                        neomediaEvent.getOrigin(),
-                        neomediaSizeChangeEvent.getWidth(),
-                        neomediaSizeChangeEvent.getHeight());
-        }
-        else
-            throw new IllegalArgumentException("neomediaEvent");
     }
 
     /**
@@ -546,6 +444,8 @@ public abstract class CallPeerMediaHandler<
      */
     public boolean isMute()
     {
+        MediaStream audioStream = getStream(MediaType.AUDIO);
+
         return (audioStream != null) && audioStream.isMute();
     }
 
@@ -614,32 +514,6 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Sets the <tt>KeyFrameControl</tt> currently known to this
-     * <tt>CallPeerMediaHandlerSipImpl</tt> made available by a specific
-     * <tt>VideoMediaStream</tt>.
-     *
-     * @param videoStream the <tt>VideoMediaStream</tt> the
-     * <tt>KeyFrameControl</tt> of which is to be set as the currently known to
-     * this <tt>CallPeerMediaHandlerSipImpl</tt>
-     */
-    private void setKeyFrameControlFromVideoStream(VideoMediaStream videoStream)
-    {
-        KeyFrameControl keyFrameControl
-            = (videoStream == null) ? null : videoStream.getKeyFrameControl();
-
-        if (this.keyFrameControl != keyFrameControl)
-        {
-            if (this.keyFrameControl != null)
-                this.keyFrameControl.removeKeyFrameRequester(keyFrameRequester);
-
-            this.keyFrameControl = keyFrameControl;
-
-            if (this.keyFrameControl != null)
-                this.keyFrameControl.addKeyFrameRequester(-1, keyFrameRequester);
-        }
-    }
-
-    /**
      * Specifies whether this media handler should be allowed to transmit
      * local audio.
      *
@@ -665,67 +539,24 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Sets the last-known local SSRC of {@link #audioStream}.
-     *
-     * @param audioLocalSSRC the last-known local SSRC of {@link #audioStream}
-     */
-    private void setAudioLocalSSRC(long audioLocalSSRC)
-    {
-        if (this.audioLocalSSRC != audioLocalSSRC)
-        {
-            long oldValue = this.audioLocalSSRC;
-
-            this.audioLocalSSRC = audioLocalSSRC;
-
-            firePropertyChange(AUDIO_LOCAL_SSRC, oldValue, this.audioLocalSSRC);
-        }
-    }
-
-    /**
-     * Sets the last-known remote SSRC of {@link #audioStream}.
-     *
-     * @param audioRemoteSSRC the last-known remote SSRC of {@link #audioStream}
-     */
-    private void setAudioRemoteSSRC(long audioRemoteSSRC)
-    {
-        if (this.audioRemoteSSRC != audioRemoteSSRC)
-        {
-            long oldValue = this.audioRemoteSSRC;
-
-            this.audioRemoteSSRC = audioRemoteSSRC;
-
-            firePropertyChange(
-                AUDIO_REMOTE_SSRC,
-                oldValue,
-                this.audioRemoteSSRC);
-        }
-    }
-
-    /**
      * Returns the secure state of the call. If both audio and video is secured.
      *
      * @return the call secure state
      */
     public boolean isSecure()
     {
-        /*
-         * If a stream for a specific MediaType does not exist, it's said to be
-         * secure.
-         */
-        boolean isAudioSecured
-            = (audioStream == null)
-                || audioStream.getSrtpControl().getSecureCommunicationStatus();
+        for (MediaType mediaType : MediaType.values())
+        {
+            MediaStream stream = getStream(mediaType);
 
-        if (!isAudioSecured)
-            return false;
-
-        boolean isVideoSecured
-            = (videoStream == null)
-                || videoStream.getSrtpControl().getSecureCommunicationStatus();
-
-        if (!isVideoSecured)
-            return false;
-
+            /*
+             * If a stream for a specific MediaType does not exist, it's
+             * considered secure.
+             */
+            if ((stream != null)
+                    && !stream.getSrtpControl().getSecureCommunicationStatus())
+                return false;
+        }
         return true;
     }
 
@@ -738,8 +569,9 @@ public abstract class CallPeerMediaHandler<
      */
     public SrtpControlType[] getAdvertisedEncryptionMethods()
     {
-        return advertisedEncryptionMethods.toArray(
-            new SrtpControlType[advertisedEncryptionMethods.size()]);
+        return
+            advertisedEncryptionMethods.toArray(
+                    new SrtpControlType[advertisedEncryptionMethods.size()]);
     }
 
     /**
@@ -762,7 +594,9 @@ public abstract class CallPeerMediaHandler<
      */
     public void startSrtpMultistream(SrtpControl master)
     {
-        if(videoStream != null)
+        MediaStream videoStream = getStream(MediaType.VIDEO);
+
+        if (videoStream != null)
             videoStream.getSrtpControl().setMultistream(master);
     }
 
@@ -775,7 +609,7 @@ public abstract class CallPeerMediaHandler<
      */
     public long getAudioRemoteSSRC()
     {
-        return audioRemoteSSRC;
+        return mediaHandler.getRemoteSSRC(this, MediaType.AUDIO);
     }
 
     /**
@@ -814,196 +648,7 @@ public abstract class CallPeerMediaHandler<
      */
     public void addVideoListener(VideoListener listener)
     {
-        if (listener == null)
-            throw new NullPointerException("listener");
-
-        synchronized (videoListeners)
-        {
-            if (!videoListeners.contains(listener))
-                videoListeners.add(listener);
-        }
-    }
-
-    /**
-     * Sets the RTP media stream that this instance uses to stream audio to a
-     * specific <tt>AudioMediaStream</tt>.
-     *
-     * @param audioStream the <tt>AudioMediaStream</tt> to be set as the RTP
-     * media stream that this instance uses to stream audio
-     */
-    protected void setAudioStream(AudioMediaStream audioStream)
-    {
-        if (this.audioStream != audioStream)
-        {
-            if (this.audioStream != null)
-            {
-                this.audioStream
-                        .removePropertyChangeListener(
-                            streamPropertyChangeListener);
-
-                this.audioStream.close();
-            }
-
-            this.audioStream = audioStream;
-
-            long audioLocalSSRC;
-            long audioRemoteSSRC;
-
-            if (this.audioStream != null)
-            {
-                this.audioStream
-                        .addPropertyChangeListener(
-                            streamPropertyChangeListener);
-                audioLocalSSRC = this.audioStream.getLocalSourceID();
-                audioRemoteSSRC = this.audioStream.getRemoteSourceID();
-            }
-            else
-                audioLocalSSRC = audioRemoteSSRC = SSRC_UNKNOWN;
-
-            setAudioLocalSSRC(audioLocalSSRC);
-            setAudioRemoteSSRC(audioRemoteSSRC);
-        }
-    }
-
-    /**
-     * Sets the last-known local SSRC of {@link #videoStream}.
-     *
-     * @param videoLocalSSRC the last-known local SSRC of {@link #videoStream}
-     */
-    private void setVideoLocalSSRC(long videoLocalSSRC)
-    {
-        if (this.videoLocalSSRC != videoLocalSSRC)
-        {
-            long oldValue = this.videoLocalSSRC;
-
-            this.videoLocalSSRC = videoLocalSSRC;
-
-            firePropertyChange(VIDEO_LOCAL_SSRC, oldValue, this.videoLocalSSRC);
-        }
-    }
-
-    /**
-     * Sets the last-known remote SSRC of {@link #videoStream}.
-     *
-     * @param videoRemoteSSRC the last-known remote SSRC of {@link #videoStream}
-     */
-    private void setVideoRemoteSSRC(long videoRemoteSSRC)
-    {
-        if (this.videoRemoteSSRC != videoRemoteSSRC)
-        {
-            long oldValue = this.videoRemoteSSRC;
-
-            this.videoRemoteSSRC = videoRemoteSSRC;
-
-            firePropertyChange(
-                VIDEO_REMOTE_SSRC,
-                oldValue,
-                this.videoRemoteSSRC);
-        }
-    }
-
-    /**
-     * Sets the RTP media stream that this instance uses to stream video to a
-     * specific <tt>VideoMediaStream</tt>.
-     *
-     * @param videoStream the <tt>VideoMediaStream</tt> to be set as the RTP
-     * media stream that this instance uses to stream video
-     */
-    private void setVideoStream(VideoMediaStream videoStream)
-    {
-        if (this.videoStream != videoStream)
-        {
-            /*
-             * Make sure we will no longer notify the registered VideoListeners
-             * about changes in the availability of video in the old
-             * videoStream.
-             */
-            List<Component> oldVisualComponents = null;
-
-            if (this.videoStream != null)
-            {
-                this.videoStream.removePropertyChangeListener(
-                        streamPropertyChangeListener);
-
-                this.videoStream.removeVideoListener(videoStreamVideoListener);
-                oldVisualComponents = this.videoStream.getVisualComponents();
-
-                /*
-                 * The current videoStream is going away so this
-                 * CallPeerMediaHandlerSipImpl should no longer use its
-                 * KeyFrameControl.
-                 */
-                setKeyFrameControlFromVideoStream(null);
-
-                this.videoStream.close();
-            }
-
-            this.videoStream = videoStream;
-
-            /*
-             * The videoStream has just changed so this
-             * CallPeerMediaHandlerSipImpl should use its KeyFrameControl.
-             */
-            setKeyFrameControlFromVideoStream(this.videoStream);
-
-            long videoLocalSSRC;
-            long videoRemoteSSRC;
-            /*
-             * Make sure we will notify the registered VideoListeners about
-             * changes in the availability of video in the new videoStream.
-             */
-            List<Component> newVisualComponents = null;
-
-            if (this.videoStream != null)
-            {
-                this.videoStream.addPropertyChangeListener(
-                        streamPropertyChangeListener);
-                videoLocalSSRC = this.videoStream.getLocalSourceID();
-                videoRemoteSSRC = this.videoStream.getRemoteSourceID();
-
-                this.videoStream.addVideoListener(videoStreamVideoListener);
-                newVisualComponents = this.videoStream.getVisualComponents();
-            }
-            else
-                videoLocalSSRC = videoRemoteSSRC = SSRC_UNKNOWN;
-
-            setVideoLocalSSRC(videoLocalSSRC);
-            setVideoRemoteSSRC(videoRemoteSSRC);
-
-            /*
-             * Notify the VideoListeners in case there was a change in the
-             * availability of the visual Components displaying remote video.
-             */
-            if ((oldVisualComponents != null) && !oldVisualComponents.isEmpty())
-            {
-                /*
-                 * Discard Components which are present in the old and in the
-                 * new Lists.
-                 */
-                if (newVisualComponents == null)
-                    newVisualComponents = Collections.emptyList();
-                for (Component oldVisualComponent : oldVisualComponents)
-                {
-                    if (!newVisualComponents.remove(oldVisualComponent))
-                    {
-                        fireVideoEvent(
-                            VideoEvent.VIDEO_REMOVED,
-                            oldVisualComponent,
-                            VideoEvent.REMOTE);
-                    }
-                }
-            }
-            if ((newVisualComponents != null) && !newVisualComponents.isEmpty())
-            {
-                for (Component newVisualComponent : newVisualComponents)
-                {
-                    fireVideoEvent(
-                        VideoEvent.VIDEO_ADDED,
-                        newVisualComponent,
-                        VideoEvent.REMOTE);
-                }
-            }
-        }
+        videoNotifierSupport.addVideoListener(listener);
     }
 
     /**
@@ -1029,40 +674,10 @@ public abstract class CallPeerMediaHandler<
             Component visualComponent,
             int origin)
     {
-        VideoListener[] listeners;
-
-        synchronized (videoListeners)
-        {
-            listeners
-                = videoListeners
-                    .toArray(new VideoListener[videoListeners.size()]);
-        }
-
-        boolean consumed;
-
-        if (listeners.length > 0)
-        {
-            VideoEvent event
-                = new VideoEvent(this, type, visualComponent, origin);
-
-            for (VideoListener listener : listeners)
-                switch (type)
-                {
-                    case VideoEvent.VIDEO_ADDED:
-                        listener.videoAdded(event);
-                        break;
-                    case VideoEvent.VIDEO_REMOVED:
-                        listener.videoRemoved(event);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("type");
-                }
-
-            consumed = event.isConsumed();
-        }
-        else
-            consumed = false;
-        return consumed;
+        return
+            videoNotifierSupport.fireVideoEvent(
+                    type, visualComponent, origin,
+                    true);
     }
 
     /**
@@ -1075,28 +690,7 @@ public abstract class CallPeerMediaHandler<
      */
     public void fireVideoEvent(VideoEvent event)
     {
-        VideoListener[] listeners;
-
-        synchronized (videoListeners)
-        {
-            listeners
-                = videoListeners
-                    .toArray(new VideoListener[videoListeners.size()]);
-        }
-
-        for (VideoListener listener : listeners)
-            switch (event.getType())
-            {
-                case VideoEvent.VIDEO_ADDED:
-                    listener.videoAdded(event);
-                    break;
-                case VideoEvent.VIDEO_REMOVED:
-                    listener.videoRemoved(event);
-                    break;
-                default:
-                    listener.videoUpdate(event);
-                    break;
-            }
+        videoNotifierSupport.fireVideoEvent(event, true);
     }
 
     /**
@@ -1106,10 +700,12 @@ public abstract class CallPeerMediaHandler<
      */
     public Component createLocalVisualComponent()
     {
+        MediaStream videoStream = getStream(MediaType.VIDEO);
+
         return
             ((videoStream == null) || !isLocalVideoTransmissionEnabled())
                 ? null
-                : videoStream.createLocalVisualComponent();
+                : ((VideoMediaStream) videoStream).createLocalVisualComponent();
     }
 
     /**
@@ -1120,8 +716,13 @@ public abstract class CallPeerMediaHandler<
      */
     public void disposeLocalVisualComponent(Component component)
     {
+        MediaStream videoStream = getStream(MediaType.VIDEO);
+
         if (videoStream != null)
-            videoStream.disposeLocalVisualComponent(component);
+        {
+            ((VideoMediaStream) videoStream).disposeLocalVisualComponent(
+                    component);
+        }
     }
 
     /**
@@ -1150,12 +751,16 @@ public abstract class CallPeerMediaHandler<
      */
     public List<Component> getVisualComponents()
     {
+        MediaStream videoStream = getStream(MediaType.VIDEO);
         List<Component> visualComponents;
 
         if (videoStream == null)
             visualComponents = Collections.emptyList();
         else
-            visualComponents = videoStream.getVisualComponents();
+        {
+            visualComponents
+                = ((VideoMediaStream) videoStream).getVisualComponents();
+        }
         return visualComponents;
     }
 
@@ -1170,11 +775,7 @@ public abstract class CallPeerMediaHandler<
      */
     public void removeVideoListener(VideoListener listener)
     {
-        if (listener != null)
-            synchronized (videoListeners)
-            {
-                videoListeners.remove(listener);
-            }
+        videoNotifierSupport.removeVideoListener(listener);
     }
 
     /**
@@ -1193,8 +794,13 @@ public abstract class CallPeerMediaHandler<
         {
             this.localAudioLevelListener = listener;
 
-            if(audioStream != null)
-                audioStream.setLocalUserAudioLevelListener(listener);
+            MediaStream audioStream = getStream(MediaType.AUDIO);
+
+            if (audioStream != null)
+            {
+                ((AudioMediaStream) audioStream).setLocalUserAudioLevelListener(
+                        listener);
+            }
         }
     }
 
@@ -1214,8 +820,13 @@ public abstract class CallPeerMediaHandler<
         {
             this.streamAudioLevelListener = listener;
 
-            if(audioStream != null)
-                audioStream.setStreamAudioLevelListener(listener);
+            MediaStream audioStream = getStream(MediaType.AUDIO);
+
+            if (audioStream != null)
+            {
+                ((AudioMediaStream) audioStream).setStreamAudioLevelListener(
+                        listener);
+            }
         }
     }
 
@@ -1234,19 +845,26 @@ public abstract class CallPeerMediaHandler<
         {
             this.csrcAudioLevelListener = csrcAudioLevelListener;
 
-            if(audioStream != null)
-                audioStream.setCsrcAudioLevelListener(csrcAudioLevelListener);
+            MediaStream audioStream = getStream(MediaType.AUDIO);
+
+            if (audioStream != null)
+            {
+                ((AudioMediaStream) audioStream).setCsrcAudioLevelListener(
+                        csrcAudioLevelListener);
+            }
         }
     }
 
     /**
-     * Returns the currently valid <tt>SrtpControls</tt> map.
+     * Gets the <tt>SrtpControl</tt>s of the <tt>MediaStream</tt>s of this
+     * instance.
      *
-     * @return the currently valid <tt>SrtpControls</tt> map.
+     * @return the <tt>SrtpControl</tt>s of the <tt>MediaStream</tt>s of this
+     * instance
      */
     protected Map<MediaTypeSrtpControl, SrtpControl> getSrtpControls()
     {
-        return this.srtpControls;
+        return mediaHandler.getSrtpControls(this);
     }
 
     /**
@@ -1271,7 +889,7 @@ public abstract class CallPeerMediaHandler<
      * @return the newly created <tt>MediaStream</tt>.
      *
      * @throws OperationFailedException if creating the stream fails for any
-     * reason (like for example accessing the device or setting the format).
+     * reason (like, for example, accessing the device or setting the format).
      */
     protected MediaStream initStream(StreamConnector      connector,
                                      MediaDevice          device,
@@ -1282,128 +900,25 @@ public abstract class CallPeerMediaHandler<
                                      boolean masterStream)
         throws OperationFailedException
     {
-        MediaType mediaType = device.getMediaType();
-        MediaStream stream = getStream(mediaType);
-
-        if (stream == null)
-        {
-            if (logger.isTraceEnabled() && (mediaType != format.getMediaType()))
-                logger.trace("The media types of device and format differ.");
-
-            MediaService mediaService =
-                ProtocolMediaActivator.getMediaService();
-            // By default the SrtpControlType is ZRTP.
-            SrtpControlType srtpControlType = SrtpControlType.ZRTP;
-            // But if a SrtpControl exists already, we switch to this
-            // SrtpControlType.
-            if(srtpControls.size() > 0)
-            {
-                srtpControlType = srtpControls.firstKey().srtpControlType;
-            }
-            MediaTypeSrtpControl mediaTypeSrtpControl =
-                new MediaTypeSrtpControl(mediaType, srtpControlType);
-            // check whether a control already exists
-            SrtpControl control = srtpControls.get(mediaTypeSrtpControl);
-            if(control == null)
-            {
-                // this creates the default control, currently ZRTP without
-                // the hello-hash
-                // The creation of the SrtpControl is done in the
-                // MediaStreamImpl (which creates a new ZrtpControlImpl()), but
-                // this was done without linking to the srtpControls Map.
-                stream = mediaService.createMediaStream(connector, device);
-                srtpControls.put(mediaTypeSrtpControl, stream.getSrtpControl());
-            }
-            else
-            {
-                stream = mediaService.createMediaStream(
-                        connector, device, control);
-            }
-        }
-        else
-        {
-            //this is a reinit
-        }
-
-        return
-            configureStream(
-                    device, format, target, direction, rtpExtensions, stream,
+        MediaStream stream
+            = mediaHandler.initStream(
+                    this,
+                    connector,
+                    device,
+                    format,
+                    target,
+                    direction,
+                    rtpExtensions,
                     masterStream);
-    }
 
-    /**
-     * Configures <tt>stream</tt> to use the specified <tt>format</tt>,
-     * <tt>target</tt>, <tt>target</tt>, and <tt>direction</tt>.
-     *
-     * @param device the <tt>MediaDevice</tt> to be used by <tt>stream</tt>
-     * for capture and playback
-     * @param format the <tt>MediaFormat</tt> that we'd like the new stream
-     * to transmit in.
-     * @param target the <tt>MediaStreamTarget</tt> containing the RTP and
-     * RTCP address:port couples that the new stream would be sending
-     * packets to.
-     * @param direction the <tt>MediaDirection</tt> that we'd like the new
-     * stream to use (i.e. sendonly, sendrecv, recvonly, or inactive).
-     * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
-     * enabled for this stream.
-     * @param stream the <tt>MediaStream</tt> that we'd like to configure.
-     * @param masterStream whether the stream to be used as master if secured
-     *
-     * @return the <tt>MediaStream</tt> that we received as a parameter (for
-     * convenience reasons).
-     *
-     * @throws OperationFailedException if setting the <tt>MediaFormat</tt>
-     * or connecting to the specified <tt>MediaDevice</tt> fails for some
-     * reason.
-     */
-    protected MediaStream configureStream( MediaDevice          device,
-                                           MediaFormat          format,
-                                           MediaStreamTarget    target,
-                                           MediaDirection       direction,
-                                           List<RTPExtension>   rtpExtensions,
-                                           MediaStream          stream,
-                                           boolean masterStream)
-           throws OperationFailedException
-    {
-        registerDynamicPTsWithStream(stream);
-        registerRTPExtensionsWithStream(rtpExtensions, stream);
-
-        stream.setDevice(device);
-        stream.setTarget(target);
-        stream.setDirection(direction);
-        stream.setFormat(format);
-
-        MediaAwareCall<?, ?, ?> call = peer.getCall();
-        MediaType mediaType
-            = (stream instanceof AudioMediaStream)
-                ? MediaType.AUDIO
-                : MediaType.VIDEO;
-
-        stream.setRTPTranslator(call.getRTPTranslator(mediaType));
-
-        switch (mediaType)
+        switch (device.getMediaType())
         {
         case AUDIO:
-            setAudioStream((AudioMediaStream) stream);
-            registerAudioLevelListeners(audioStream);
+            audioStream = (AudioMediaStream) stream;
             break;
-
         case VIDEO:
-            setVideoStream((VideoMediaStream) stream);
+            videoStream = (VideoMediaStream) stream;
             break;
-        }
-
-        if (call.isDefaultEncrypted())
-        {
-            /*
-             * We'll use the audio stream as the master stream when using SRTP
-             * multistreams.
-             */
-            SrtpControl srtpControl = stream.getSrtpControl();
-
-            srtpControl.setMasterSession(masterStream);
-            srtpControl.setSrtpListener(srtpListener);
-            srtpControl.start(mediaType);
         }
 
         return stream;
@@ -1446,12 +961,7 @@ public abstract class CallPeerMediaHandler<
      */
     public boolean processKeyFrameRequest()
     {
-        KeyFrameControl keyFrameControl = this.keyFrameControl;
-
-        return
-            (keyFrameControl == null)
-                ? null
-                : keyFrameControl.keyFrameRequest();
+        return mediaHandler.processKeyFrameRequest(this);
     }
 
     /**
@@ -1467,7 +977,7 @@ public abstract class CallPeerMediaHandler<
         if (MediaAwareCall.DEFAULT_DEVICE.equals(event.getPropertyName()))
         {
             /*
-             * XXX We only support changing the default audio device at the time
+             * XXX We support changing the default audio device only at the time
              * of this writing.
              */
             MediaStream stream = getStream(MediaType.AUDIO);
@@ -1495,68 +1005,22 @@ public abstract class CallPeerMediaHandler<
      */
     void registerAudioLevelListeners(AudioMediaStream audioStream)
     {
-        // if we already have a local level listener - register it now.
         synchronized (localAudioLevelListenerLock)
         {
             if (localAudioLevelListener != null)
-                audioStream
-                    .setLocalUserAudioLevelListener(localAudioLevelListener);
+                audioStream.setLocalUserAudioLevelListener(
+                        localAudioLevelListener);
         }
-
-        // if we already have a stream level listener - register it now.
         synchronized (streamAudioLevelListenerLock)
         {
             if (streamAudioLevelListener != null)
                 audioStream
                     .setStreamAudioLevelListener(streamAudioLevelListener);
         }
-
-        // if we already have a csrc level listener - register it now.
         synchronized (csrcAudioLevelListenerLock)
         {
             if (csrcAudioLevelListener != null)
                 audioStream.setCsrcAudioLevelListener(csrcAudioLevelListener);
-        }
-    }
-
-    /**
-     * Registers all dynamic payload mappings known to this
-     * <tt>MediaHandler</tt> with the specified <tt>MediaStream</tt>.
-     *
-     * @param stream the <tt>MediaStream</tt> that we'd like to register our
-     * dynamic payload mappings with.
-     */
-    private void registerDynamicPTsWithStream(MediaStream stream)
-    {
-        for (Map.Entry<MediaFormat, Byte> mapEntry
-                : getDynamicPayloadTypes().getMappings().entrySet())
-        {
-            byte pt = mapEntry.getValue();
-            MediaFormat fmt = mapEntry.getKey();
-
-            stream.addDynamicRTPPayloadType(pt, fmt);
-        }
-    }
-
-    /**
-     * Registers with the specified <tt>MediaStream</tt> all RTP extensions
-     * negotiated by this <tt>MediaHandler</tt>.
-     *
-     * @param stream the <tt>MediaStream</tt> that we'd like to register our
-     * <tt>RTPExtension</tt>s with.
-     * @param rtpExtensions the list of <tt>RTPExtension</tt>s that should be
-     * enabled for <tt>stream</tt>.
-     */
-    private void registerRTPExtensionsWithStream(
-                                          List<RTPExtension> rtpExtensions,
-                                          MediaStream        stream)
-    {
-        for ( RTPExtension rtpExtension : rtpExtensions)
-        {
-            byte extensionID
-                = rtpExtensionsRegistry.getExtensionMapping(rtpExtension);
-
-            stream.addRTPExtension(extensionID, rtpExtension);
         }
     }
 
@@ -1592,12 +1056,13 @@ public abstract class CallPeerMediaHandler<
      */
     public boolean isRemotelyOnHold()
     {
-        if(audioStream != null && audioStream.getDirection().allowsSending())
-            return false;
+        for (MediaType mediaType : MediaType.values())
+        {
+            MediaStream stream = getStream(mediaType);
 
-        if(videoStream != null && videoStream.getDirection().allowsSending())
-            return false;
-
+            if ((stream != null) && stream.getDirection().allowsSending())
+                return false;
+        }
         return true;
     }
 
@@ -1783,18 +1248,6 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Returns <tt>true</tt> if this handler has already started at least one
-     * of its streams, at least once, and <tt>false</tt> otherwise.
-     *
-     * @return <tt>true</tt> if this handler has already started at least one
-     * of its streams, at least once, and <tt>false</tt> otherwise.
-     */
-    public boolean isStarted()
-    {
-        return started;
-    }
-
-    /**
      * Starts this <tt>CallPeerMediaHandler</tt>. If it has already been
      * started, does nothing.
      *
@@ -1805,34 +1258,37 @@ public abstract class CallPeerMediaHandler<
     public void start()
         throws IllegalStateException
     {
-        if(isStarted())
-            return;
+        MediaStream stream;
 
-        MediaStream stream = getStream(MediaType.AUDIO);
+        stream = getStream(MediaType.AUDIO);
         if ((stream != null)
                 && !stream.isStarted()
                 && isLocalAudioTransmissionEnabled())
         {
-            getTransportManager().setTrafficClass(stream.getTarget(),
-                MediaType.AUDIO);
+            getTransportManager().setTrafficClass(
+                    stream.getTarget(),
+                    MediaType.AUDIO);
             stream.start();
         }
 
         stream = getStream(MediaType.VIDEO);
-        if ((stream != null))
+        if (stream != null)
         {
-            /* Inform listener of LOCAL_VIDEO_STREAMING only once the video
-             * starts, so that VideoMediaDeviceSession has correct MediaDevice
+            /*
+             * Inform listener of LOCAL_VIDEO_STREAMING only once the video
+             * starts so that VideoMediaDeviceSession has correct MediaDevice
              * set (switch from desktop streaming to webcam video or vice-versa
              * issue)
              */
-            firePropertyChange(OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING,
+            firePropertyChange(
+                    OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING,
                     null, this.videoDirectionUserPreference);
 
             if(!stream.isStarted())
             {
-                getTransportManager().setTrafficClass(stream.getTarget(),
-                    MediaType.VIDEO);
+                getTransportManager().setTrafficClass(
+                        stream.getTarget(),
+                        MediaType.VIDEO);
                 stream.start();
 
                 // send empty packet to deblock some kind of RTP proxy to let
@@ -1927,35 +1383,16 @@ public abstract class CallPeerMediaHandler<
     }
 
     /**
-     * Returns the SRTP control type used for a given media type (AUDIO or
-     * VIDEO).
+     * Gets the SRTP control type used for a given media type.
      *
-     * @param mediaType The media type (AUDIO or VIDEO) which may use SRTP
-     * enabled thanks to a given SRTP control type.
-     *
-     * @return the SRTP control type used (MIKEY, SDES, ZRTP) for the given
-     * media, or null if SRTP is not enabled for this media type.
+     * @param mediaType the <tt>MediaType</tt> to get the SRTP control type for
+     * @return the SRTP control type (MIKEY, SDES, ZRTP) used for the given
+     * media type or <tt>null</tt> if SRTP is not enabled for the given media
+     * type
      */
     public SrtpControlType getEncryptionMethod(MediaType mediaType)
     {
-        SrtpControl srtpControl = null;
-
-        // Goes through the different SRTP control type and stops if we found
-        // the one used for this media stream.
-        for(SrtpControlType srtpControlType : SrtpControlType.values())
-        {
-            // If this SRTP control type exists and is activate to secure the
-            // communication.
-            if((srtpControl = srtpControls.get(new MediaTypeSrtpControl(
-                                mediaType, srtpControlType)))
-                    != null
-                    && srtpControl.getSecureCommunicationStatus())
-            {
-                return srtpControlType;
-            }
-        }
-
-        return null;
+        return mediaHandler.getEncryptionMethod(this, mediaType);
     }
 
     /**
@@ -1967,10 +1404,44 @@ public abstract class CallPeerMediaHandler<
      */
     public String getICECandidateExtendedType()
     {
-        if(getTransportManager() == null)
+        TransportManager<?> transportManager = getTransportManager();
+
+        return
+            (transportManager == null)
+                ? null
+                : transportManager.getICECandidateExtendedType();
+    }
+
+    public MediaHandler getMediaHandler()
+    {
+        return mediaHandler;
+    }
+
+    public void setMediaHandler(MediaHandler mediaHandler)
+    {
+        if (this.mediaHandler != mediaHandler)
         {
-            return null;
+            if (this.mediaHandler != null)
+            {
+                this.mediaHandler.removeKeyFrameRequester(keyFrameRequester);
+                this.mediaHandler.removePropertyChangeListener(
+                        streamPropertyChangeListener);
+                if (srtpListener != null)
+                    this.mediaHandler.removeSrtpListener(srtpListener);
+                this.mediaHandler.removeVideoListener(videoStreamVideoListener);
+            }
+
+            this.mediaHandler = mediaHandler;
+
+            if (this.mediaHandler != null)
+            {
+                this.mediaHandler.addKeyFrameRequester(-1, keyFrameRequester);
+                this.mediaHandler.addPropertyChangeListener(
+                        streamPropertyChangeListener);
+                if (srtpListener != null)
+                    this.mediaHandler.addSrtpListener(srtpListener);
+                this.mediaHandler.addVideoListener(videoStreamVideoListener);
+            }
         }
-        return getTransportManager().getICECandidateExtendedType();
     }
 }

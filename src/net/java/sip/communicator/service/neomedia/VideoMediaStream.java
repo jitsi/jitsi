@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.control.*;
-import net.java.sip.communicator.service.neomedia.event.*;
+import net.java.sip.communicator.util.event.*;
 
 /**
  * Extends the <tt>MediaStream</tt> interface and adds methods specific to
