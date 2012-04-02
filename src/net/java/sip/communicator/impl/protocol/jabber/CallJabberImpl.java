@@ -61,9 +61,7 @@ public class CallJabberImpl
     private MediaHandler cobriMediaHandler;
 
     private final List<WeakReference<CobriStreamConnector>>
-        cobriStreamConnectors
-            = new ArrayList<WeakReference<CobriStreamConnector>>(
-                    MediaType.values().length);
+        cobriStreamConnectors;
 
     /**
      * Initializes a new <tt>CallJabberImpl</tt> instance belonging to
@@ -79,6 +77,14 @@ public class CallJabberImpl
             OperationSetBasicTelephonyJabberImpl parentOpSet)
     {
         super(parentOpSet);
+
+        int mediaTypeValueCount = MediaType.values().length;
+
+        cobriStreamConnectors
+            = new ArrayList<WeakReference<CobriStreamConnector>>(
+                    mediaTypeValueCount);
+        for (int i = 0; i < mediaTypeValueCount; i++)
+            cobriStreamConnectors.add(null);
 
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.

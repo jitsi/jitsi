@@ -35,23 +35,27 @@ public class RTPConnectorUDPOutputStream
     }
 
     /**
-     * Send the packet from this <tt>OutputStream</tt>.
+     * Sends a specific <tt>RawPacket</tt> through this
+     * <tt>OutputDataStream</tt> to a specific <tt>InetSocketAddress</tt>.
      *
-     * @param packet packet to sent
-     * @param target the target
-     * @throws IOException if something goes wrong during sending
+     * @param packet the <tt>RawPacket</tt> to send through this
+     * <tt>OutputDataStream</tt> to the specified <tt>target</tt>
+     * @param target the <tt>InetSocketAddress</tt> to which the specified
+     * <tt>packet</tt> is to be sent through this <tt>OutputDataStream</tt>
+     * @throws IOException if anything goes wrong while sending the specified
+     * <tt>packet</tt> through this <tt>OutputDataStream</tt> to the specified
+     * <tt>target</tt>
      */
-    @Override
-    protected void sendToTarget(RawPacket packet,
-        InetSocketAddress target)
+    protected void sendToTarget(RawPacket packet, InetSocketAddress target)
         throws IOException
     {
-        socket.send(new DatagramPacket(
-            packet.getBuffer(),
-            packet.getOffset(),
-            packet.getLength(),
-            target.getAddress(),
-            target.getPort()));
+        socket.send(
+                new DatagramPacket(
+                        packet.getBuffer(),
+                        packet.getOffset(),
+                        packet.getLength(),
+                        target.getAddress(),
+                        target.getPort()));
     }
 
     /**
@@ -59,7 +63,6 @@ public class RTPConnectorUDPOutputStream
      *
      * @param packet packet to log
      */
-    @Override
     protected void doLogPacket(RawPacket packet, InetSocketAddress target)
     {
         PacketLoggingService packetLogging

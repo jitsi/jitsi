@@ -31,14 +31,15 @@ public abstract class RTPConnectorInputStream
     private static final Object[] EMPTY_CONTROLS = new Object[0];
 
     /**
-     * The size of the buffers receiving packets coming from network.
+     * The length in bytes of the buffers of <tt>RTPConnectorInputStream</tt>
+     * receiving packets from the network.
      */
-    private static final int PACKET_RECEIVE_BUFFER = 4000;
+    private static final int PACKET_RECEIVE_BUFFER_LENGTH = 4 * 1024;
 
     /**
      * Packet receive buffer
      */
-    private final byte[] buffer = new byte[PACKET_RECEIVE_BUFFER];
+    private final byte[] buffer = new byte[PACKET_RECEIVE_BUFFER_LENGTH];
 
     /**
      * Whether this stream is closed. Used to control the termination of worker
@@ -68,17 +69,11 @@ public abstract class RTPConnectorInputStream
     protected Thread receiverThread = null;
 
     /**
-     * Used for debugging. As we don't log every packet
-     * we must count them and decide which to log.
-     */
-    private long numberOfPackets = 0;
-
-    /**
-     * The <tt>DatagramPacketFilter</tt> which allows dropping
+     * The <tt>DatagramPacketFilter</tt>s which allow dropping
      * <tt>DatagramPacket</tt>s before they are converted into
      * <tt>RawPacket</tt>s.
      */
-    private DatagramPacketFilter datagramPacketFilter;
+    private DatagramPacketFilter[] datagramPacketFilters;
 
     /**
      * Initializes a new <tt>RTPConnectorInputStream</tt> which is to receive
@@ -86,6 +81,34 @@ public abstract class RTPConnectorInputStream
      */
     public RTPConnectorInputStream()
     {
+        // PacketLoggingService
+        addDatagramPacketFilter(
+                new DatagramPacketFilter()
+                {
+                    /**
+                     * Used for debugging. As we don't log every packet, we must
+                     * count them and decide which to log.
+                     */
+                    private long numberOfPackets = 0;
+
+                    public boolean accept(DatagramPacket p)
+                    {
+                        numberOfPackets++;
+                        if (RTPConnectorOutputStream.logPacket(numberOfPackets))
+                        {
+                            PacketLoggingService packetLogging
+                                = NeomediaActivator.getPacketLogging();
+
+                            if ((packetLogging != null)
+                                    && packetLogging.isLoggingEnabled(
+                                            PacketLoggingService.ProtocolName
+                                                    .RTP))
+                                doLogPacket(p);
+                        }
+
+                        return true;
+                    }
+                });
     }
 
     /**
@@ -113,10 +136,11 @@ public abstract class RTPConnectorInputStream
     {
         if (pkt == null)
         {
-            return new RawPacket(
-                    datagramPacket.getData(),
-                    datagramPacket.getOffset(),
-                    datagramPacket.getLength());
+            return
+                new RawPacket(
+                        datagramPacket.getData(),
+                        datagramPacket.getOffset(),
+                        datagramPacket.getLength());
         }
         pkt.setBuffer(datagramPacket.getData());
         pkt.setLength(datagramPacket.getLength());
@@ -200,21 +224,21 @@ public abstract class RTPConnectorInputStream
 
     /**
      * Copies the content of the most recently received packet into
-     * <tt>inBuffer</tt>.
+     * <tt>buffer</tt>.
      *
-     * @param inBuffer the <tt>byte[]</tt> that we'd like to copy the content
-     * of the packet to.
+     * @param buffer the <tt>byte[]</tt> that we'd like to copy the content of
+     * the packet to.
      * @param offset the position where we are supposed to start writing in
-     * <tt>inBuffer</tt>.
+     * <tt>buffer</tt>.
      * @param length the number of <tt>byte</tt>s available for writing in
-     * <tt>inBuffer</tt>.
+     * <tt>buffer</tt>.
      *
      * @return the number of bytes read
      *
      * @throws IOException if <tt>length</tt> is less than the size of the
      * packet.
      */
-    public int read(byte[] inBuffer, int offset, int length)
+    public int read(byte[] buffer, int offset, int length)
         throws IOException
     {
         if (ioError)
@@ -227,7 +251,7 @@ public abstract class RTPConnectorInputStream
                 new IOException("Input buffer not big enough for " + pktLength);
 
         System.arraycopy(
-                pkt.getBuffer(), pkt.getOffset(), inBuffer, offset, pktLength);
+                pkt.getBuffer(), pkt.getOffset(), buffer, offset, pktLength);
 
         return pktLength;
     }
@@ -255,15 +279,14 @@ public abstract class RTPConnectorInputStream
      */
     public void run()
     {
+        DatagramPacket p
+            = new DatagramPacket(buffer, 0, PACKET_RECEIVE_BUFFER_LENGTH);
+
         while (!closed)
         {
-            DatagramPacket p = new DatagramPacket(
-                buffer, 0, PACKET_RECEIVE_BUFFER);
-
             try
             {
                 receivePacket(p);
-                numberOfPackets++;
             }
             catch (IOException e)
             {
@@ -271,22 +294,37 @@ public abstract class RTPConnectorInputStream
                 break;
             }
 
-            if (RTPConnectorOutputStream.logPacket(numberOfPackets))
-            {
-                PacketLoggingService packetLogging
-                    = NeomediaActivator.getPacketLogging();
+            /*
+             * Do the DatagramPacketFilters accept the received DatagramPacket?
+             */
+            DatagramPacketFilter[] datagramPacketFilters
+                = getDatagramPacketFilters();
+            boolean accept;
 
-                if ((packetLogging != null)
-                        && packetLogging.isLoggingEnabled(
-                                PacketLoggingService.ProtocolName.RTP))
-                    doLogPacket(p);
+            if (datagramPacketFilters == null)
+                accept = true;
+            else
+            {
+                accept = true;
+                for (int i = 0; i < datagramPacketFilters.length; i++)
+                {
+                    try
+                    {
+                        if (!datagramPacketFilters[i].accept(p))
+                        {
+                            accept = false;
+                            break;
+                        }
+                    }
+                    catch (Throwable t)
+                    {
+                        if (t instanceof ThreadDeath)
+                            throw (ThreadDeath) t;
+                    }
+                }
             }
 
-            DatagramPacketFilter datagramPacketFilter
-                = getDatagramPacketFilter();
-
-            if ((datagramPacketFilter == null)
-                    || datagramPacketFilter.accept(p))
+            if (accept)
             {
                 pkt = createRawPacket(p);
 
@@ -325,21 +363,21 @@ public abstract class RTPConnectorInputStream
     }
 
     /**
-     * Gets the <tt>DatagramPacketFilter</tt> which allows dropping
+     * Gets the <tt>DatagramPacketFilter</tt>s which allow dropping
      * <tt>DatagramPacket</tt>s before they are converted into
      * <tt>RawPacket</tt>s.
      *
-     * @return the <tt>DatagramPacketFilter</tt> which allows dropping
+     * @return the <tt>DatagramPacketFilter</tt>s which allow dropping
      * <tt>DatagramPacket</tt>s before they are converted into
      * <tt>RawPacket</tt>s.
      */
-    public DatagramPacketFilter getDatagramPacketFilter()
+    public synchronized DatagramPacketFilter[] getDatagramPacketFilters()
     {
-        return datagramPacketFilter;
+        return datagramPacketFilters;
     }
 
     /**
-     * Sets the <tt>DatagramPacketFilter</tt> which allows dropping
+     * Adds a <tt>DatagramPacketFilter</tt> which allows dropping
      * <tt>DatagramPacket</tt>s before they are converted into
      * <tt>RawPacket</tt>s.
      *
@@ -347,9 +385,34 @@ public abstract class RTPConnectorInputStream
      * allows dropping <tt>DatagramPacket</tt>s before they are converted into
      * <tt>RawPacket</tt>s
      */
-    public void setDatagramPacketFilter(
+    public synchronized void addDatagramPacketFilter(
             DatagramPacketFilter datagramPacketFilter)
     {
-        this.datagramPacketFilter = datagramPacketFilter;
+        if (datagramPacketFilter == null)
+            throw new NullPointerException("datagramPacketFilter");
+
+        if (datagramPacketFilters == null)
+        {
+            datagramPacketFilters
+                = new DatagramPacketFilter[] { datagramPacketFilter };
+        }
+        else
+        {
+            final int length = datagramPacketFilters.length;
+
+            for (int i = 0; i < length; i++)
+                if (datagramPacketFilter.equals(datagramPacketFilters[i]))
+                    return;
+
+            DatagramPacketFilter[] newDatagramPacketFilters
+                = new DatagramPacketFilter[length + 1];
+
+            System.arraycopy(
+                    datagramPacketFilters, 0,
+                    newDatagramPacketFilters, 0,
+                    length);
+            newDatagramPacketFilters[length] = datagramPacketFilter;
+            datagramPacketFilters = newDatagramPacketFilters;
+        }
     }
 }

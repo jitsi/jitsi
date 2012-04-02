@@ -120,8 +120,7 @@ public class RTPConnectorTCPInputStream
         try
         {
             data = p.getData();
-            InputStream stream = socket.getInputStream();
-            len = stream.read(data);
+            len = socket.getInputStream().read(data);
         }
         catch(Exception e)
         {

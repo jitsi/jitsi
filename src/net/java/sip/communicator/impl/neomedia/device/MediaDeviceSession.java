@@ -1469,22 +1469,16 @@ public class MediaDeviceSession
             case AUDIO:
                 if (supportedFormats[0] instanceof AudioFormat)
                 {
-                    if (FMJConditionals.FORCE_AUDIO_FORMAT != null)
-                        trackControl.setFormat(
-                                FMJConditionals.FORCE_AUDIO_FORMAT);
-                    else
-                    {
-                        supportedFormat
-                            = findFirstMatchingFormat(supportedFormats, format);
+                    supportedFormat
+                        = findFirstMatchingFormat(supportedFormats, format);
 
-                        /*
-                         * We've failed to find a supported format so try to use
-                         * whatever we've been told and, if it fails, the caller
-                         * will at least know why.
-                         */
-                        if (supportedFormat == null)
-                            supportedFormat = format;
-                    }
+                    /*
+                     * We've failed to find a supported format so try to use
+                     * whatever we've been told and, if it fails, the caller
+                     * will at least know why.
+                     */
+                    if (supportedFormat == null)
+                        supportedFormat = format;
                 }
                 break;
             case VIDEO:

@@ -371,9 +371,10 @@ public abstract class CallPeerMediaHandler
      * Closes the <tt>MediaStream</tt> that this instance uses for a specific
      * <tt>MediaType</tt> and prepares it for garbage collection.
      *
-     * @param type the <tt>MediaType</tt> that we'd like to stop a stream for.
+     * @param mediaType the <tt>MediaType</tt> that we'd like to stop a stream
+     * for.
      */
-    protected void closeStream(MediaType type)
+    protected void closeStream(MediaType mediaType)
     {
         /*
          * This CallPeerMediaHandler releases its reference to the MediaStream
@@ -381,7 +382,7 @@ public abstract class CallPeerMediaHandler
          */
         boolean mediaHandlerCloseStream = false;
 
-        switch (type)
+        switch (mediaType)
         {
         case AUDIO:
             if (audioStream != null)
@@ -399,9 +400,9 @@ public abstract class CallPeerMediaHandler
             break;
         }
         if (mediaHandlerCloseStream)
-            mediaHandler.closeStream(this, type);
+            mediaHandler.closeStream(this, mediaType);
 
-        getTransportManager().closeStreamConnector(type);
+        getTransportManager().closeStreamConnector(mediaType);
     }
 
     /**

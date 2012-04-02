@@ -14,8 +14,6 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.util.*;
 
-import com.sun.media.util.*;
-
 /**
  * Probes for available capture and playback devices and initializes the
  * jmf.properties accordingly.
@@ -34,34 +32,6 @@ public class JmfDeviceDetector
         = Logger.getLogger(JmfDeviceDetector.class);
 
     /**
-     * The JMF property that specifies whether we'd have the right to capture
-     * when run from webstart or an applet.
-     */
-    private static final String PROP_ALLOW_CAPTURE_FROM_APPLETS
-        = "secure.allowCaptureFromApplets";
-
-    /**
-     * The JMF property that specifies whether we'd have the right to save
-     * files when run from webstart or an applet.
-     */
-    private static final String PROP_ALLOW_SAVE_FILE_FROM_APPLETS
-        = "secure.allowSaveFileFromApplets";
-
-    /**
-     * The JMF registry property that specifies that have initialized the
-     * currently valid repository.
-     */
-    private static final String PROP_REGISTRY_AUTHOR
-        = "registry.author";
-
-    /**
-     * The value of the JMF registry property that determines whether we have
-     * initialized the current repository.
-     */
-    private static final String PROP_REGISTRY_AUTHOR_VALUE
-        = "sip-communicator.org";
-
-    /**
      * PortAudioAuto reference.
      */
     private static PortAudioAuto portaudioAuto = null;
@@ -78,38 +48,6 @@ public class JmfDeviceDetector
      */
     private void initialize()
     {
-        if (FMJConditionals.USE_JMF_INTERNAL_REGISTRY)
-        {
-            // This uses JMF internals:
-            // see if the registry has already been "tagged" by us,
-            // skip auto-detection if it has.
-            // This was probably done because JMF auto-detection is very slow,
-            // especially for video devices.  FMJ does this quickly,
-            // so there is no need for this kind of workaround
-            // (besides the fact that these internal functions are not
-            // implemented in FMJ).
-            String author = (String)Registry.get(PROP_REGISTRY_AUTHOR);
-
-            if(author != null)
-                return;
-
-            Registry.set(PROP_ALLOW_CAPTURE_FROM_APPLETS, new Boolean(true));
-            Registry.set(PROP_ALLOW_SAVE_FILE_FROM_APPLETS, new Boolean(true));
-
-            Registry.set(PROP_REGISTRY_AUTHOR, PROP_REGISTRY_AUTHOR_VALUE);
-
-            try
-            {
-                Registry.commit();
-            }
-            catch (Exception exc)
-            {
-                logger.error(
-                    "Failed to initially commit JMFRegistry. Ignoring err."
-                    , exc);
-            }
-        }
-
         detectCaptureDevices();
     }
 

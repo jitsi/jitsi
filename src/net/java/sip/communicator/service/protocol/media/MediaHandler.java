@@ -165,6 +165,14 @@ public class MediaHandler
         }
     };
 
+    /**
+     * The number of references to the <tt>MediaStream</tt>s of this instance
+     * returned by {@link #configureStream(CallPeerMediaHandler, MediaDevice,
+     * MediaFormat, MediaStreamTarget, MediaDirection, List, MediaStream,
+     * boolean)} to {@link CallPeerMediaHandler}s as new instances.
+     */
+    private final int[] streamReferenceCounts;
+
     private final VideoNotifierSupport videoNotifierSupport
         = new VideoNotifierSupport(this, true);
 
@@ -212,6 +220,8 @@ public class MediaHandler
         Arrays.fill(localSSRCs, CallPeerMediaHandler.SSRC_UNKNOWN);
         remoteSSRCs = new long[mediaTypeValueCount];
         Arrays.fill(remoteSSRCs, CallPeerMediaHandler.SSRC_UNKNOWN);
+
+        streamReferenceCounts = new int[mediaTypeValueCount];
     }
 
     boolean addKeyFrameRequester(
@@ -271,16 +281,42 @@ public class MediaHandler
      * Closes the <tt>MediaStream</tt> that this instance uses for a specific
      * <tt>MediaType</tt> and prepares it for garbage collection.
      *
-     * @param type the <tt>MediaType</tt> that we'd like to stop a stream for.
+     * @param mediaType the <tt>MediaType</tt> that we'd like to stop a stream
+     * for.
      */
     protected void closeStream(
             CallPeerMediaHandler<?> callPeerMediaHandler,
-            MediaType type)
+            MediaType mediaType)
     {
-        if (type == MediaType.AUDIO)
+        int index = mediaType.ordinal();
+        int streamReferenceCount = streamReferenceCounts[index];
+
+        /*
+         * The streamReferenceCounts should not fall into an invalid state but
+         * anyway...
+         */
+        if (streamReferenceCount <= 0)
+            return;
+
+        streamReferenceCount--;
+        streamReferenceCounts[index] = streamReferenceCount;
+
+        /*
+         * The MediaStream of the specified mediaType is still referenced by
+         * other CallPeerMediaHandlers so it is not to be closed yet.
+         */
+        if (streamReferenceCount > 0)
+            return;
+
+        switch (mediaType)
+        {
+        case AUDIO:
             setAudioStream(null);
-        else
+            break;
+        case VIDEO:
             setVideoStream(null);
+            break;
+        }
 
         // Clean up the SRTP controls used for the associated Call.
         Iterator<Map.Entry<MediaTypeSrtpControl, SrtpControl>> iter
@@ -290,7 +326,7 @@ public class MediaHandler
         {
             Map.Entry<MediaTypeSrtpControl, SrtpControl> entry = iter.next();
 
-            if (entry.getKey().mediaType == type)
+            if (entry.getKey().mediaType == mediaType)
             {
                 entry.getValue().cleanup();
                 iter.remove();
@@ -376,6 +412,15 @@ public class MediaHandler
             srtpControl.setSrtpListener(srtpListener);
             srtpControl.start(mediaType);
         }
+
+        /*
+         * If the specified callPeerMediaHandler is going to see the stream as
+         * a new instance, count a new reference to it so that this MediaHandler
+         * knows when it really needs to close the stream later on upon calls to
+         * #closeStream(CallPeerMediaHandler<?>, MediaType).
+         */
+        if (stream != callPeerMediaHandler.getStream(mediaType))
+            streamReferenceCounts[mediaType.ordinal()]++;
 
         return stream;
     }

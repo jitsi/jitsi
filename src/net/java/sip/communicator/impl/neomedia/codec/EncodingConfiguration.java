@@ -53,24 +53,12 @@ public class EncodingConfiguration
      */
     private static final String[] CUSTOM_CODECS =
         {
-            FMJConditionals.FMJ_CODECS
-                ? "net.sf.fmj.media.codec.audio.alaw.DePacketizer"
-                : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.DePacketizer",
-            FMJConditionals.FMJ_CODECS
-                ? "net.sf.fmj.media.codec.audio.alaw.Encoder"
-                : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.JavaEncoder",
-            FMJConditionals.FMJ_CODECS
-                ? "net.sf.fmj.media.codec.audio.alaw.Packetizer"
-                : "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.Packetizer",
-            FMJConditionals.FMJ_CODECS
-                ? "net.sf.fmj.media.codec.audio.ulaw.Decoder"
-                : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.JavaDecoder",
-            FMJConditionals.FMJ_CODECS
-                ? "net.sf.fmj.media.codec.audio.ulaw.Encoder"
-                : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.JavaEncoder",
-            FMJConditionals.FMJ_CODECS
-                ? "net.sf.fmj.media.codec.audio.ulaw.Packetizer"
-                : "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.Packetizer",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.DePacketizer",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.JavaEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.alaw.Packetizer",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.JavaDecoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.JavaEncoder",
+            "net.java.sip.communicator.impl.neomedia.codec.audio.ulaw.Packetizer",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIDecoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.JNIEncoder",
             "net.java.sip.communicator.impl.neomedia.codec.audio.speex.SpeexResampler",

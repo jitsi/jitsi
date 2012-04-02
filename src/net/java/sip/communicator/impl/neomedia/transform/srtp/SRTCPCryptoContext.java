@@ -441,7 +441,7 @@ public class SRTCPCryptoContext
      */
     public void processPacketAESCM(RawPacket pkt, int index)
     {
-        long ssrc = pkt.GetRTCPSSRC();
+        long ssrc = pkt.getRTCPSSRC();
 
         /* Compute the CM IV (refer to chapter 4.1.1 in RFC 3711):
         *

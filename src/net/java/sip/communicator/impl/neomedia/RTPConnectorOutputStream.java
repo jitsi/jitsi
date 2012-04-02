@@ -17,9 +17,8 @@ import java.util.concurrent.locks.*;
 import javax.media.rtp.*;
 
 /**
- *
  * @author Bing SU (nova.su@gmail.com)
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class RTPConnectorOutputStream
     implements OutputDataStream
@@ -51,10 +50,11 @@ public abstract class RTPConnectorOutputStream
         = new LinkedList<InetSocketAddress>();
 
     /**
-     * List of available raw packets.
+     * The pool of <tt>RawPacket</tt> instances which reduces the number of
+     * allocations performed by {@link #createRawPacket(byte[], int, int)}.
      */
-    private final LinkedBlockingQueue<RawPacket> availRawPackets
-    = new LinkedBlockingQueue<RawPacket>();
+    private final LinkedBlockingQueue<RawPacket> rawPacketPool
+        = new LinkedBlockingQueue<RawPacket>();
 
     /**
      * Used for debugging. As we don't log every packet
@@ -93,8 +93,8 @@ public abstract class RTPConnectorOutputStream
         if (maxPacketsPerMillisPolicy != null)
         {
             maxPacketsPerMillisPolicy.close();
+            maxPacketsPerMillisPolicy = null;
         }
-        maxPacketsPerMillisPolicy = null;
         removeTargets();
     }
 
@@ -115,13 +115,11 @@ public abstract class RTPConnectorOutputStream
      */
     protected RawPacket createRawPacket(byte[] buffer, int offset, int length)
     {
-        RawPacket pkt = availRawPackets.poll();
-        if (pkt == null || pkt.getBuffer().length < length)
-        {
-            byte[] buf = new byte[length];
-            pkt = new RawPacket();
-            pkt.setBuffer(buf);
-        }
+        RawPacket pkt = rawPacketPool.poll();
+
+        if ((pkt == null) || (pkt.getBuffer().length < length))
+            pkt = new RawPacket(new byte[length], 0, 0);
+
         System.arraycopy(buffer, offset, pkt.getBuffer(), 0, length);
         pkt.setLength(length);
         pkt.setOffset(0);
@@ -162,36 +160,42 @@ public abstract class RTPConnectorOutputStream
     }
 
     /**
-     * We don't log every rtp traffic.
-     * We log only first then 300,500 and 1000 packets and
-     * then every 5000 packet.
+     * Determines whether a <tt>RawPacket</tt> which has a specific number in
+     * the total number of sent <tt>RawPacket</tt>s is to be logged by
+     * {@link PacketLoggingService}.
      *
-     * @param numOfPacket current packet number.
-     * @return wether we should log the current packet.
+     * @param numOfPacket the number of the <tt>RawPacket</tt> in the total
+     * number of sent <tt>RawPacket</tt>s
+     * @return <tt>true</tt> if the <tt>RawPacket</tt> with the specified
+     * <tt>numOfPacket</tt> is to be logged by <tt>PacketLoggingService</tt>;
+     * otherwise, <tt>false</tt>
      */
     static boolean logPacket(long numOfPacket)
     {
-        if(numOfPacket == 1
-            || numOfPacket == 300
-            || numOfPacket == 500
-            || numOfPacket == 1000
-            || numOfPacket%5000 == 0)
-            return true;
-        else
-            return false;
+        return
+            (numOfPacket == 1)
+                || (numOfPacket == 300)
+                || (numOfPacket == 500)
+                || (numOfPacket == 1000)
+                || ((numOfPacket % 5000) == 0);
     }
 
     /**
-     * Send the packet from this <tt>OutputStream</tt>.
+     * Sends a specific <tt>RawPacket</tt> through this
+     * <tt>OutputDataStream</tt> to a specific <tt>InetSocketAddress</tt>.
      *
-     * @param packet packet to sent
-     * @param target the target
-     * @throws IOException if something goes wrong during sending
+     * @param packet the <tt>RawPacket</tt> to send through this
+     * <tt>OutputDataStream</tt> to the specified <tt>target</tt>
+     * @param target the <tt>InetSocketAddress</tt> to which the specified
+     * <tt>packet</tt> is to be sent through this <tt>OutputDataStream</tt>
+     * @throws IOException if anything goes wrong while sending the specified
+     * <tt>packet</tt> through this <tt>OutputDataStream</tt> to the specified
+     * <tt>target</tt>
      */
     protected abstract void sendToTarget(
-        RawPacket packet,
-        InetSocketAddress target)
-            throws IOException;
+            RawPacket packet,
+            InetSocketAddress target)
+        throws IOException;
 
     /**
      * Logs a specific <tt>RawPacket</tt> associated with a specific remote
@@ -245,14 +249,14 @@ public abstract class RTPConnectorOutputStream
                         doLogPacket(packet, target);
                 }
             }
-            catch (IOException ex)
+            catch (IOException ioe)
             {
-                availRawPackets.offer(packet);
+                rawPacketPool.offer(packet);
                 // TODO error handling
                 return false;
             }
         }
-        availRawPackets.offer(packet);
+        rawPacketPool.offer(packet);
         return true;
     }
 
@@ -548,7 +552,6 @@ public abstract class RTPConnectorOutputStream
                 }
                 catch (InterruptedException iex)
                 {
-                    continue;
                 }
             }
         }

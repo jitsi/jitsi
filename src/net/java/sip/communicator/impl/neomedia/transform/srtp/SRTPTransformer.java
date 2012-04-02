@@ -44,19 +44,19 @@ import net.java.sip.communicator.impl.neomedia.transform.*;
 public class SRTPTransformer
     implements PacketTransformer
 {
-    private SRTPTransformEngine forwardEngine;
-    private SRTPTransformEngine reverseEngine;
+    private final SRTPTransformEngine forwardEngine;
+    private final SRTPTransformEngine reverseEngine;
 
     /**
      * All the known SSRC's corresponding SRTPCryptoContexts
      */
-    private Hashtable<Long, SRTPCryptoContext> contexts;
+    private final Hashtable<Long, SRTPCryptoContext> contexts;
 
     /**
-     * Constructs a SRTPTransformer object.
+     * Initializes a new <tt>SRTPTransformer</tt> instance.
      * 
-     * @param engine The associated SRTPTransformEngine object for both
-     *            transform directions.
+     * @param engine the <tt>SRTPTransformEngine</tt> to be used by the new
+     * instance for both directions
      */
     public SRTPTransformer(SRTPTransformEngine engine)
     {
@@ -71,35 +71,66 @@ public class SRTPTransformer
      * @param reverseEngine The associated SRTPTransformEngine object for
      *            reverse transformations.
      */
-    public SRTPTransformer(SRTPTransformEngine forwardEngine,
-        SRTPTransformEngine reverseEngine)
+    public SRTPTransformer(
+            SRTPTransformEngine forwardEngine,
+            SRTPTransformEngine reverseEngine)
     {
         this.forwardEngine = forwardEngine;
         this.reverseEngine = reverseEngine;
-        this.contexts = new Hashtable<Long,SRTPCryptoContext>();
+        this.contexts = new Hashtable<Long, SRTPCryptoContext>();
     }
 
     /**
-     * Transforms a specific packet.
-     *
-     * @param pkt the packet to be transformed
-     * @return the transformed packet
+     * Closes this <tt>SRTPTransformer</tt> and the underlying transform
+     * engines.It closes all stored crypto contexts. It deletes key data and
+     * forces a cleanup of the crypto contexts.
      */
-    public RawPacket transform(RawPacket pkt)
+    public void close()
     {
-        long ssrc = pkt.getSSRC();
-        SRTPCryptoContext context = contexts.get(ssrc);
-
-        if (context == null)
+        synchronized (contexts)
         {
-            context =
-                forwardEngine.getDefaultContext().deriveContext(ssrc, 0, 0);
-            context.deriveSrtpKeys(0);
-            contexts.put(ssrc, context);
+            forwardEngine.close();
+            if (reverseEngine != forwardEngine)
+                reverseEngine.close();
+
+            Iterator<Map.Entry<Long, SRTPCryptoContext>> iter
+                = contexts.entrySet().iterator();
+
+            while (iter.hasNext())
+            {
+                Map.Entry<Long, SRTPCryptoContext> entry = iter.next();
+                SRTPCryptoContext context = entry.getValue();
+
+                iter.remove();
+                if (context != null)
+                    context.close();
+            }
+        }
+    }
+
+    private SRTPCryptoContext getContext(
+            long ssrc,
+            SRTPTransformEngine engine,
+            int deriveSrtpKeysIndex)
+    {
+        SRTPCryptoContext context;
+
+        synchronized (contexts)
+        {
+            context = contexts.get(ssrc);
+            if (context == null)
+            {
+                context = engine.getDefaultContext();
+                if (context != null)
+                {
+                    context = context.deriveContext(ssrc, 0, 0);
+                    context.deriveSrtpKeys(deriveSrtpKeysIndex);
+                    contexts.put(ssrc, context);
+                }
+            }
         }
 
-        context.transformPacket(pkt);
-        return pkt;
+        return context;
     }
 
     /**
@@ -116,45 +147,26 @@ public class SRTPTransformer
         if((pkt.readByte(0) & 0xC0) != 0x80)
             return null;
 
-        long ssrc = pkt.getSSRC();
-        int seqNum = pkt.getSequenceNumber();
-        SRTPCryptoContext context = contexts.get(ssrc);
+        SRTPCryptoContext context
+            = getContext(pkt.getSSRC(), reverseEngine, pkt.getSequenceNumber());
 
-        if (context == null)
-        {
-            context =
-                reverseEngine.getDefaultContext().deriveContext(ssrc, 0, 0);
-            context.deriveSrtpKeys(seqNum);
-            contexts.put(ssrc, context);
-        }
-
-        boolean validPacket = context.reverseTransformPacket(pkt);
-        if (!validPacket)
-        {
-            return null;
-        }
-        return pkt;
+        return
+            ((context != null) && context.reverseTransformPacket(pkt))
+                ? pkt
+                : null;
     }
 
     /**
-     * Close the transformer and underlying transform engine.
-     * 
-     * The close functions closes all stored crypto contexts. This deletes key data 
-     * and forces a cleanup of the crypto contexts.
+     * Transforms a specific packet.
+     *
+     * @param pkt the packet to be transformed
+     * @return the transformed packet
      */
-    public void close()
+    public RawPacket transform(RawPacket pkt)
     {
-        forwardEngine.close();
-        if (forwardEngine != reverseEngine)
-            reverseEngine.close();
-        for(Long ssrc : contexts.keySet()) 
-        {
-            SRTPCryptoContext context = contexts.get(ssrc);
-            if (context != null) 
-            {
-                context.close();
-                contexts.remove(ssrc);
-            }
-        }
+        SRTPCryptoContext context = getContext(pkt.getSSRC(), forwardEngine, 0);
+
+        context.transformPacket(pkt);
+        return pkt;
     }
 }

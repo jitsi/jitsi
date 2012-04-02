@@ -515,10 +515,11 @@ public class RawPacket
      *
      * @return RTP SSRC from source RTP packet
      */
-    public long GetRTCPSSRC()
+    public long getRTCPSSRC()
     {
         return (int)(readUnsignedIntAsLong(4) & 0xffffffff);
     }
+
     /**
      * Get RTP sequence number from a RTP packet
      *
