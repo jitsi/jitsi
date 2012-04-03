@@ -40,7 +40,6 @@ import net.java.sip.communicator.util.event.*;
 public class VideoMediaDeviceSession
     extends MediaDeviceSession
 {
-
     /**
      * The <tt>Logger</tt> used by the <tt>VideoMediaDeviceSession</tt> class
      * and its instances for logging output.
@@ -239,12 +238,7 @@ public class VideoMediaDeviceSession
                 }
             }
 
-            /*
-             * FIXME PullBufferDataSource does not seem to be correctly cloned
-             * by JMF.
-             */
-            if (!(captureDevice instanceof SourceCloneable)
-                    && !(captureDevice instanceof PullBufferDataSource))
+            if (!(captureDevice instanceof SourceCloneable))
             {
                 DataSource cloneableDataSource
                     = Manager.createCloneableDataSource(captureDevice);
