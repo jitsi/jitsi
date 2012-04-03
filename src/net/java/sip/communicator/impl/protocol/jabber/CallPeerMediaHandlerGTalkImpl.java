@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * An Google Talk specific extension of the generic media handler.
+ * A Google Talk-specific extension of the generic media handler.
  *
  * @author Sebastien Vincent
  */

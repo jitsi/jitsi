@@ -74,18 +74,84 @@ public class RawUdpTransportManager
             MediaType mediaType,
             StreamConnector streamConnector)
     {
-        if (streamConnector instanceof CobriStreamConnector)
+        try
         {
-            CallPeerJabberImpl peer = getCallPeer();
-            CallJabberImpl call = peer.getCall();
+            boolean superCloseStreamConnector = true;
 
-            call.closeCobriStreamConnector(
-                    peer,
-                    mediaType,
-                    (CobriStreamConnector) streamConnector);
+            if (streamConnector instanceof CobriStreamConnector)
+            {
+                CallPeerJabberImpl peer = getCallPeer();
+
+                if (peer != null)
+                {
+                    CallJabberImpl call = peer.getCall();
+    
+                    if (call != null)
+                    {
+                        superCloseStreamConnector = false;
+                        call.closeCobriStreamConnector(
+                                peer,
+                                mediaType,
+                                (CobriStreamConnector) streamConnector);
+                    }
+                }
+            }
+            if (superCloseStreamConnector)
+                super.closeStreamConnector(mediaType, streamConnector);
         }
-        else
-            super.closeStreamConnector(mediaType, streamConnector);
+        finally
+        {
+            /*
+             * Expire the CobriConferenceIQ.Channel associated with the closed
+             * StreamConnector.
+             */
+            if (cobri != null)
+            {
+                CobriConferenceIQ.Content content
+                    = cobri.getContent(mediaType.toString());
+
+                if (content != null)
+                {
+                    List<CobriConferenceIQ.Channel> channels
+                        = content.getChannels();
+
+                    if (channels.size() == 2)
+                    {
+                        CobriConferenceIQ requestConferenceIQ
+                            = new CobriConferenceIQ();
+
+                        requestConferenceIQ.setID(cobri.getID());
+
+                        CobriConferenceIQ.Content requestContent
+                            = requestConferenceIQ.getOrCreateContent(
+                                    content.getName());
+
+                        requestContent.addChannel(channels.get(1 /* remote */));
+
+                        /*
+                         * Regardless of whether the request to expire the
+                         * Channel associated with mediaType succeeds, consider
+                         * the Channel in question expired. Since
+                         * RawUdpTransportManager allocates a single channel per
+                         * MediaType, consider the whole Content expired.
+                         */
+                        cobri.removeContent(content);
+
+                        CallPeerJabberImpl peer = getCallPeer();
+
+                        if (peer != null)
+                        {
+                            CallJabberImpl call = peer.getCall();
+
+                            if (call != null)
+                                call.expireCobriChannels(
+                                        peer,
+                                        requestConferenceIQ);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -437,7 +503,8 @@ public class RawUdpTransportManager
          */
         if (call.isConferenceFocus())
         {
-            List<MediaType> mediaTypes = new ArrayList<MediaType>();
+            List<RtpDescriptionPacketExtension> mediaTypes
+                = new ArrayList<RtpDescriptionPacketExtension>();
 
             for (ContentPacketExtension cpe : cpes)
             {
@@ -454,8 +521,8 @@ public class RawUdpTransportManager
                 if ((cobri == null)
                         || (cobri.getContent(mediaType.toString()) == null))
                 {
-                    if (!mediaTypes.contains(mediaType))
-                        mediaTypes.add(mediaType);
+                    if (!mediaTypes.contains(rtpDesc))
+                        mediaTypes.add(rtpDesc);
                 }
             }
             if (mediaTypes.size() != 0)
@@ -467,8 +534,8 @@ public class RawUdpTransportManager
                  */
                 if (cobri == null)
                     cobri = new CobriConferenceIQ();
-                for (MediaType mediaType : mediaTypes)
-                    cobri.getOrCreateContent(mediaType.toString());
+                for (RtpDescriptionPacketExtension mediaType : mediaTypes)
+                    cobri.getOrCreateContent(mediaType.getMedia());
 
                 CobriConferenceIQ conferenceResult
                     = call.createCobriChannels(peer, mediaTypes);

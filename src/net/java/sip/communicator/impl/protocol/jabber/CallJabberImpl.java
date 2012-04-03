@@ -510,20 +510,21 @@ public class CallJabberImpl
     }
 
     /**
-     * Allocates cobri (conference) channels for asp ecific <tt>MediaType</tt>
+     * Allocates cobri (conference) channels for a specific <tt>MediaType</tt>
      * to be used by a specific <tt>CallPeer</tt>.
      *
      * @param peer the <tt>CallPeer</tt> which is to use the allocated cobri
      * (conference) channels
-     * @param mediaTypes the <tt>MediaType</tt>s for which cobri (conference)
-     * channels are to be allocated
+     * @param rdpes the <tt>RtpDescriptionPacketExtension</tt>s which specify
+     * the <tt>MediaType</tt>s for which cobri (conference) channels are to be
+     * allocated
      * @return a <tt>CobriConferenceIQ</tt> which describes the allocated cobri
      * (conference) channels for the specified <tt>mediaTypes</tt> which are to
      * be used by the specified <tt>peer</tt>; otherwise, <tt>null</tt>
      */
     public CobriConferenceIQ createCobriChannels(
             CallPeerJabberImpl peer,
-            Iterable<MediaType> mediaTypes)
+            Iterable<RtpDescriptionPacketExtension> rdpes)
     {
         if (!isConferenceFocus())
             return null;
@@ -558,8 +559,9 @@ public class CallJabberImpl
         if (cobri != null)
             conferenceRequest.setID(cobri.getID());
 
-        for (MediaType mediaType : mediaTypes)
+        for (RtpDescriptionPacketExtension rdpe : rdpes)
         {
+            MediaType mediaType = MediaType.parseString(rdpe.getMedia());
             String contentName = mediaType.toString();
             CobriConferenceIQ.Content contentRequest
                 = new CobriConferenceIQ.Content(contentName);
@@ -581,12 +583,16 @@ public class CallJabberImpl
                 CobriConferenceIQ.Channel localChannelRequest
                     = new CobriConferenceIQ.Channel();
 
+                for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
+                    localChannelRequest.addPayloadType(ptpe);
                 contentRequest.addChannel(localChannelRequest);
             }
 
             CobriConferenceIQ.Channel remoteChannelRequest
                 = new CobriConferenceIQ.Channel();
 
+            for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
+                remoteChannelRequest.addPayloadType(ptpe);
             contentRequest.addChannel(remoteChannelRequest);
         }
 
@@ -614,9 +620,8 @@ public class CallJabberImpl
         String conferenceResponseID = conferenceResponse.getID();
 
         /*
-         * Update the complete VideoBridgeConferenceIQ
-         * representation maintained by this instance with the
-         * information given by the (current) response.
+         * Update the complete CobriConferenceIQ representation maintained by
+         * this instance with the information given by the (current) response.
          */
         if (cobri == null)
         {
@@ -654,8 +659,9 @@ public class CallJabberImpl
 
         conferenceResult.setID(conferenceResponseID);
 
-        for (MediaType mediaType : mediaTypes)
+        for (RtpDescriptionPacketExtension rdpe : rdpes)
         {
+            MediaType mediaType = MediaType.parseString(rdpe.getMedia());
             CobriConferenceIQ.Content contentResponse
                 = conferenceResponse.getContent(mediaType.toString());
 
@@ -668,11 +674,10 @@ public class CallJabberImpl
                 conferenceResult.addContent(contentResult);
 
                 /*
-                 * The local channel may have been allocated in a
-                 * previous method call as part of the allocation of
-                 * the first remote channel in the respective
-                 * content. Anyway, the current method caller still
-                 * needs to know about it.
+                 * The local channel may have been allocated in a previous
+                 * method call as part of the allocation of the first remote
+                 * channel in the respective content. Anyway, the current method
+                 * caller still needs to know about it.
                  */
                 CobriConferenceIQ.Content content
                     = cobri.getContent(contentName);
@@ -777,5 +782,110 @@ public class CallJabberImpl
         }
 
         return cobriStreamConnector;
+    }
+
+    /**
+     * Expires specific (cobri) conference channels used by a specific
+     * <tt>CallPeer</tt>.
+     *
+     * @param peer the <tt>CallPeer</tt> which uses the specified (cobri)
+     * conference channels to be expired
+     * @param conference a <tt>CobriConferenceIQ</tt> which specifies the
+     * (cobri) conference channels to be expired
+     */
+    public void expireCobriChannels(
+            CallPeerJabberImpl peer,
+            CobriConferenceIQ conference)
+    {
+        // Formulate the CobriConferenceIQ request which is to be sent.
+        if (cobri != null)
+        {
+            String conferenceID = cobri.getID();
+
+            if (conferenceID.equals(conference.getID()))
+            {
+                CobriConferenceIQ conferenceRequest = new CobriConferenceIQ();
+
+                conferenceRequest.setID(conferenceID);
+
+                for (CobriConferenceIQ.Content content
+                        : conference.getContents())
+                {
+                    CobriConferenceIQ.Content cobriContent
+                        = cobri.getContent(content.getName());
+
+                    if (cobriContent != null)
+                    {
+                        CobriConferenceIQ.Content contentRequest
+                            = conferenceRequest.getOrCreateContent(
+                                    cobriContent.getName());
+
+                        for (CobriConferenceIQ.Channel channel
+                                : content.getChannels())
+                        {
+                            CobriConferenceIQ.Channel cobriChannel
+                                = cobriContent.getChannel(channel.getID());
+
+                            if (cobriChannel != null)
+                            {
+                                CobriConferenceIQ.Channel channelRequest
+                                    = new CobriConferenceIQ.Channel();
+
+                                channelRequest.setExpire(0);
+                                channelRequest.setID(cobriChannel.getID());
+                                contentRequest.addChannel(channelRequest);
+                            }
+                        }
+                    }
+                }
+
+                /*
+                 * Remove the channels which are to be expired from the internal
+                 * state of the conference managed by this CallJabberImpl.
+                 */
+                for (CobriConferenceIQ.Content contentRequest
+                        : conferenceRequest.getContents())
+                {
+                    CobriConferenceIQ.Content cobriContent
+                        = cobri.getContent(contentRequest.getName());
+
+                    for (CobriConferenceIQ.Channel channelRequest
+                            : contentRequest.getChannels())
+                    {
+                        CobriConferenceIQ.Channel cobriChannel
+                            = cobriContent.getChannel(channelRequest.getID());
+
+                        cobriContent.removeChannel(cobriChannel);
+
+                        /*
+                         * If the last remote channel is to be expired, expire
+                         * the local channel as well.
+                         */
+                        if (cobriContent.getChannelCount() == 1)
+                        {
+                            cobriChannel = cobriContent.getChannel(0);
+
+                            channelRequest = new CobriConferenceIQ.Channel();
+                            channelRequest.setExpire(0);
+                            channelRequest.setID(cobriChannel.getID());
+                            contentRequest.addChannel(channelRequest);
+
+                            cobriContent.removeChannel(cobriChannel);
+
+                            break;
+                        }
+                    }
+                }
+
+                /*
+                 * At long last, send the CobriConferenceIQ request to expire
+                 * the channels.
+                 */
+                conferenceRequest.setTo(cobri.getFrom());
+                conferenceRequest.setType(IQ.Type.SET);
+                getProtocolProvider().getConnection().sendPacket(
+                        conferenceRequest);
+            }
+        }
     }
 }

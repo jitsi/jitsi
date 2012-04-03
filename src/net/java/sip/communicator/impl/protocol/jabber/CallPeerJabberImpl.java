@@ -400,7 +400,6 @@ public class CallPeerJabberImpl
                         Reason.GENERAL_ERROR,
                         reasonText);
 
-            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -439,12 +438,10 @@ public class CallPeerJabberImpl
         }
 
         CallPeerState prevPeerState = getState();
-        getMediaHandler().getTransportManager().close();
 
-        if (failed)
-            setState(CallPeerState.FAILED, reasonText);
-        else
-            setState(CallPeerState.DISCONNECTED, reasonText);
+        setState(
+                failed ? CallPeerState.FAILED : CallPeerState.DISCONNECTED,
+                reasonText);
 
         JingleIQ responseIQ = null;
 
@@ -574,7 +571,6 @@ public class CallPeerJabberImpl
                 reasonStr += " " + text;
         }
 
-        getMediaHandler().getTransportManager().close();
         setState(CallPeerState.DISCONNECTED, reasonStr);
     }
 
@@ -610,7 +606,6 @@ public class CallPeerJabberImpl
                 sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
                 exc.getClass().getName() + ": " + exc.getMessage());
 
-            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -1113,7 +1108,6 @@ public class CallPeerJabberImpl
                     sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
                     "Error: " + exc.getMessage());
 
-            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -1152,7 +1146,6 @@ public class CallPeerJabberImpl
                     sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
                     "Error: " + exc.getMessage());
 
-            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -1201,7 +1194,6 @@ public class CallPeerJabberImpl
                 sessionInitIQ.getSID(), Reason.INCOMPATIBLE_PARAMETERS,
                 "Error: content rejected");
 
-            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, "Error: content rejected");
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
@@ -1255,7 +1247,6 @@ public class CallPeerJabberImpl
                         Reason.GENERAL_ERROR,
                         reasonText);
 
-            getMediaHandler().getTransportManager().close();
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
 
@@ -1297,13 +1288,28 @@ public class CallPeerJabberImpl
         transportInfo.setTo(getAddress());
         transportInfo.setType(IQ.Type.SET);
 
-        PacketCollector collector = protocolProvider.getConnection()
-              .createPacketCollector(
-                  new PacketIDFilter(transportInfo.getPacketID()));
+        PacketCollector collector
+            = protocolProvider.getConnection().createPacketCollector(
+                    new PacketIDFilter(transportInfo.getPacketID()));
 
         protocolProvider.getConnection().sendPacket(transportInfo);
         collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
         collector.cancel();
+    }
+
+    @Override
+    public void setState(CallPeerState newState, String reason, int reasonCode)
+    {
+        try
+        {
+            if (CallPeerState.DISCONNECTED.equals(newState)
+                    || CallPeerState.FAILED.equals(newState))
+                getMediaHandler().getTransportManager().close();
+        }
+        finally
+        {
+            super.setState(newState, reason, reasonCode);
+        }
     }
 
     /**

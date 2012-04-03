@@ -481,10 +481,8 @@ public abstract class MediaAwareCallPeer
             {
                 // make sure whatever happens to close the media
                 if (CallPeerState.DISCONNECTED.equals(newState)
-                    || CallPeerState.FAILED.equals(newState))
-                {
+                        || CallPeerState.FAILED.equals(newState))
                     mediaHandler.close();
-                }
             }
         }
     }

@@ -456,7 +456,7 @@ public abstract class AbstractCallPeer<T extends Call,
      */
     public void setState(CallPeerState newState, String reason)
     {
-        this.setState(newState, reason, -1);
+        setState(newState, reason, -1);
     }
 
     /**
