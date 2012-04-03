@@ -51,4 +51,13 @@ public interface ZrtpControl
      * @param verified the new SAS verification status
      */
     public void setSASVerification(boolean verified);
+
+    /**
+     * Returns the timeout value that will we will wait
+     * and fire timeout secure event if call is not secured.
+     * The value is in milliseconds.
+     * @return the timeout value that will we will wait
+     *  and fire timeout secure event if call is not secured.
+     */
+    public long getTimeoutValue();
 }

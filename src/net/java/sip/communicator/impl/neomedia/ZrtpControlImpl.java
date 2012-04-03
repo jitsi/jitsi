@@ -310,4 +310,18 @@ public class ZrtpControlImpl
     {
         return false;
     }
+
+    /**
+     * Returns the timeout value that will we will wait
+     * and fire timeout secure event if call is not secured.
+     * The value is in milliseconds.
+     * @return the timeout value that will we will wait
+     *  and fire timeout secure event if call is not secured.
+     */
+    public long getTimeoutValue()
+    {
+        // this is the default value as mentioned in rfc6189
+        // we will later grab this setting from zrtp
+        return 3750;
+    }
 }
