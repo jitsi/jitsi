@@ -14,6 +14,7 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.generalconfig.*;
 import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -108,12 +109,28 @@ public class AutoAwayConfigurationPanel
     {
         ConfigurationService configService
             = GeneralConfigPluginActivator.getConfigurationService();
+        ResourceManagementService resources
+            = GeneralConfigPluginActivator.getResources();
 
-        boolean e = configService.getBoolean(Preferences.ENABLE, false);
+        String enabledDefault = resources.getSettingsString(Preferences.ENABLE);
+        String timerDefaultStr = resources.getSettingsString(Preferences.TIMER);
+        int timerDefault = DEFAULT_TIMER;
+
+        if(timerDefaultStr != null)
+        {
+            try
+            {
+                timerDefault = Integer.parseInt(timerDefaultStr);
+            }
+            catch(NumberFormatException r){}
+        }
+
+        boolean e = configService.getBoolean(Preferences.ENABLE,
+            Boolean.parseBoolean(enabledDefault));
         this.enable.setSelected(e);
         this.timer.setEnabled(e);
 
-        int t = configService.getInt(Preferences.TIMER, DEFAULT_TIMER);
+        int t = configService.getInt(Preferences.TIMER, timerDefault);
         this.timer.setValue(t);
     }
 
