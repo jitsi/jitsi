@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -15,6 +16,7 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter; // disambiguation
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.skin.*;
@@ -153,6 +155,8 @@ public class ConferencePeerPanel
         this.callPeer = callPeer;
         this.videoHandler = videoHandler;
 
+        this.securityPanel = SecurityPanel.create(this, callPeer, null);
+
         this.setMute(callPeer.isMute());
 
         this.setPeerImage(CallManager.getPeerImage(callPeer));
@@ -192,6 +196,23 @@ public class ConferencePeerPanel
 
             securityOn(securityOnEvt);
         }
+
+        securityStatusLabel.setBorder(
+            BorderFactory.createEmptyBorder(2, 5, 2, 5));
+
+        securityStatusLabel.setSecurityOff();
+
+        securityStatusLabel.addMouseListener(new MouseAdapter()
+        {
+            /**
+             * Invoked when a mouse button has been pressed on a component.
+             */
+            public void mousePressed(MouseEvent e)
+            {
+                setSecurityPanelVisible(!callRenderer.getCallContainer()
+                    .getCallWindow().getFrame().getGlassPane().isVisible());
+            }
+        });
     }
 
     /**
@@ -207,13 +228,33 @@ public class ConferencePeerPanel
     {
         super.securityOn(evt);
 
+        // If the securityOn is called without a specific event, we'll just call
+        // the super and we'll return.
+        if (evt == null)
+            return;
+
+        SrtpControl srtpControl = evt.getSecurityController();
+
+        // In case this is the local peer.
         if (securityPanel == null)
+            return;
+
+        // if we have some other panel, using other control
+        if (securityPanel.getSecurityControl() == null
+            || !srtpControl.getClass().isInstance(
+                securityPanel.getSecurityControl()))
         {
-            securityPanel = SecurityPanel.create(evt.getSecurityController());
-            securityPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-            this.addToCenter(securityPanel);
+            setSecurityPanelVisible(false);
+
+            securityPanel
+                = SecurityPanel.create(this, callPeer, srtpControl);
         }
-        securityPanel.refreshStates();
+
+        securityPanel.securityOn(evt);
+
+        if (srtpControl instanceof ZrtpControl
+            && !((ZrtpControl) srtpControl).isSecurityVerified())
+            setSecurityPanelVisible(true);
 
         callPanel.refreshContainer();
     }
@@ -227,13 +268,19 @@ public class ConferencePeerPanel
     public void securityOff(CallPeerSecurityOffEvent evt)
     {
         super.securityOff(evt);
-        if(securityPanel != null
-            && !securityStatusLabel.isAudioSecurityOn()
-            && !securityStatusLabel.isVideoSecurityOn())
+
+        if(securityPanel != null)
         {
-            securityPanel.getParent().remove(securityPanel);
-            securityPanel = null;
+            securityPanel.securityOff(evt);
         }
+    }
+
+    /**
+     * Indicates that the security status is pending confirmation.
+     */
+    public void securityPending()
+    {
+        super.securityPending();
     }
 
     /**
@@ -306,7 +353,7 @@ public class ConferencePeerPanel
      *
      * @param state the state of the contained call peer
      */
-    public void setPeerState(String state)
+    public void setPeerState(CallPeerState peerState, String state)
     {
         this.setParticipantState(state);
     }
@@ -496,5 +543,147 @@ public class ConferencePeerPanel
     public String getCallPeerContactAddress()
     {
         return callPeer.getURI();
+    }
+
+    /**
+     * Shows/hides the security panel.
+     *
+     * @param isVisible <tt>true</tt> to show the security panel, <tt>false</tt>
+     * to hide it
+     */
+    public void setSecurityPanelVisible(boolean isVisible)
+    {
+        final JFrame callFrame = callRenderer.getCallContainer()
+            .getCallWindow().getFrame();
+
+        final JPanel glassPane = (JPanel) callFrame.getGlassPane();
+
+        if (!isVisible)
+        {
+            // Need to hide the security panel explicitly in order to keep the
+            // fade effect.
+            securityPanel.setVisible(false);
+            glassPane.setVisible(false);
+            glassPane.removeAll();
+        }
+        else
+        {
+            glassPane.setLayout(null);
+            glassPane.addMouseListener(new MouseListener()
+            {
+                public void mouseReleased(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mousePressed(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mouseExited(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mouseEntered(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mouseClicked(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+            });
+
+            Point securityLabelPoint = securityStatusLabel.getLocation();
+
+            Point newPoint
+                = SwingUtilities.convertPoint(securityStatusLabel.getParent(),
+                securityLabelPoint.x, securityLabelPoint.y,
+                callFrame);
+
+            securityPanel.setBeginPoint(
+                new Point((int) newPoint.getX() + 15, 0));
+            securityPanel.setBounds(
+                0, (int) newPoint.getY() - 5, callFrame.getWidth(), 110);
+
+            glassPane.add(securityPanel);
+            // Need to show the security panel explicitly in order to keep the
+            // fade effect.
+            securityPanel.setVisible(true);
+            glassPane.setVisible(true);
+
+            glassPane.addComponentListener(new ComponentAdapter()
+            {
+                /**
+                 * Invoked when the component's size changes.
+                 */
+                public void componentResized(ComponentEvent e)
+                {
+                    if (glassPane.isVisible())
+                    {
+                        glassPane.setVisible(false);
+                        callFrame.removeComponentListener(this);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Re-dispatches glass pane mouse events only in case they occur on the
+     * security panel.
+     *
+     * @param glassPane the glass pane
+     * @param e the mouse event in question
+     */
+    private void redispatchMouseEvent(Component glassPane, MouseEvent e)
+    {
+        Point glassPanePoint = e.getPoint();
+
+        Point securityPanelPoint = SwingUtilities.convertPoint(
+                                        glassPane,
+                                        glassPanePoint,
+                                        securityPanel);
+
+        Component component;
+        Point componentPoint;
+
+        if (securityPanelPoint.y > 0)
+        {
+            component = securityPanel;
+            componentPoint = securityPanelPoint;
+        }
+        else
+        {
+            Container contentPane
+                = callRenderer.getCallContainer().getCallWindow()
+                                    .getFrame().getContentPane();
+
+            Point containerPoint = SwingUtilities.convertPoint(
+                                                    glassPane,
+                                                    glassPanePoint,
+                                                    contentPane);
+
+            component = SwingUtilities.getDeepestComponentAt(contentPane,
+                    containerPoint.x, containerPoint.y);
+
+            componentPoint = SwingUtilities.convertPoint(contentPane,
+                glassPanePoint, component);
+        }
+
+        if (component != null)
+            component.dispatchEvent(new MouseEvent( component,
+                                                    e.getID(),
+                                                    e.getWhen(),
+                                                    e.getModifiers(),
+                                                    componentPoint.x,
+                                                    componentPoint.y,
+                                                    e.getClickCount(),
+                                                    e.isPopupTrigger()));
+
+        e.consume();
     }
 }

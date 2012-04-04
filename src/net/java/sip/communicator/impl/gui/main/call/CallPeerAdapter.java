@@ -104,7 +104,7 @@ public class CallPeerAdapter
             renderer.getCallPanel().updateHoldButtonState();
         }
 
-        renderer.setPeerState(newStateString);
+        renderer.setPeerState(newState, newStateString);
 
         String reasonString = evt.getReasonString();
         if (reasonString != null)

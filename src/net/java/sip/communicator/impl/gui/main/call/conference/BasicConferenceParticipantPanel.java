@@ -13,6 +13,7 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -161,10 +162,8 @@ public abstract class BasicConferenceParticipantPanel
                                         SoundLevelChangeEvent.MIN_LEVEL,
                                         SoundLevelChangeEvent.MAX_LEVEL);
 
-        securityStatusLabel = new SecurityStatusLabel(
-            renderer.getCallContainer().getCallWindow().getFrame(),
-            new ImageIcon(
-                ImageLoader.getImage(ImageLoader.SECURE_OFF_CONF_CALL)));
+        securityStatusLabel = new SecurityStatusLabel();
+        securityStatusLabel.setSecurityOff();
 
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
@@ -270,6 +269,8 @@ public abstract class BasicConferenceParticipantPanel
     {
         statusBarConstraints.gridx = statusBarConstraints.gridx + 1;
         statusBarConstraints.weightx = 0f;
+        statusBarConstraints.insets = new Insets(0, 5, 0, 5);
+
         this.statusBar.add(component, statusBarConstraints);
     }
 
@@ -439,25 +440,32 @@ public abstract class BasicConferenceParticipantPanel
      */
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        if ((evt.getSecurityController().requiresSecureSignalingTransport()
-            && renderer.getCall().getProtocolProvider()
-                .isSignalingTransportSecure())
-            || !evt.getSecurityController().requiresSecureSignalingTransport())
+        // If the securityOn is called without a specific event, we'll just set
+        // the security label status to on.
+        if (evt == null)
         {
-            securityImageID = ImageLoader.SECURE_ON_CONF_CALL;
-            securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-                .getImage(securityImageID)));
+            securityStatusLabel.setSecurityOn();
+            return;
         }
 
-        securityStatusLabel.setEncryptionCipher(evt.getCipher());
-        switch (evt.getSessionType())
+        SrtpControl srtpControl = evt.getSecurityController();
+
+        if ((srtpControl.requiresSecureSignalingTransport()
+            && renderer.getCall().getProtocolProvider()
+                .isSignalingTransportSecure())
+            || !srtpControl.requiresSecureSignalingTransport())
         {
-            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
-                securityStatusLabel.setAudioSecurityOn(true);
-                break;
-            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
-                securityStatusLabel.setVideoSecurityOn(true);
-                break;
+            if (srtpControl instanceof ZrtpControl)
+            {
+                securityStatusLabel.setText("zrtp");
+
+                if (!((ZrtpControl) srtpControl).isSecurityVerified())
+                    securityStatusLabel.setSecurityPending();
+                else
+                    securityStatusLabel.setSecurityOn();
+            }
+            else
+                securityStatusLabel.setSecurityOn();
         }
     }
 
@@ -468,19 +476,18 @@ public abstract class BasicConferenceParticipantPanel
      */
     public void securityOff(CallPeerSecurityOffEvent evt)
     {
-        securityImageID = ImageLoader.SECURE_OFF_CONF_CALL;
-        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(securityImageID)));
+        securityStatusLabel.setText("");
+        securityStatusLabel.setSecurityOff();
+        if (securityStatusLabel.getBorder() == null)
+            securityStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 5, 2, 3));
+    }
 
-        securityStatusLabel.setEncryptionCipher(null);
-        switch (evt.getSessionType())
-        {
-            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
-                securityStatusLabel.setAudioSecurityOn(false);
-                break;
-            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
-                securityStatusLabel.setVideoSecurityOn(false);
-                break;
-        }
+    /**
+     * Indicates that the security status is pending confirmation.
+     */
+    public void securityPending()
+    {
+        securityStatusLabel.setSecurityPending();
     }
 }

@@ -300,7 +300,7 @@ public class SIPCommTextFieldUI
         }
 
         JTextComponent c = getComponent();
-        
+
         if(c == null)
             return null;
 

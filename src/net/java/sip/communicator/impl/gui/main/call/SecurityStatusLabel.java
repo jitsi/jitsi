@@ -10,8 +10,10 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.skin.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>SecurityStatusLabel</tt> is meant to be used to visualize the audio
@@ -22,7 +24,7 @@ import net.java.sip.communicator.util.skin.*;
  */
 public class SecurityStatusLabel
     extends JLabel
-    implements Skinnable
+    implements  Skinnable
 {
     /**
      * Serial version UID.
@@ -30,157 +32,135 @@ public class SecurityStatusLabel
     private static final long serialVersionUID = 0L;
 
     /**
-     * Indicates the state of the audio security (on or off).
+     * The icon used for the not secured state.
      */
-    private boolean isAudioSecurityOn = false;
+    private static Icon securityOffIcon;
 
     /**
-     * Indicates the state of the video security (on or off).
+     * The icon used for the secured state.
      */
-    private boolean isVideoSecurityOn = false;
+    private static Icon securityOnIcon;
 
     /**
-     * The encryption cipher.
+     * The background used to indicate that the call is secured.
      */
-    private String encryptionCipher;
+    private final static Color securityOnBackground
+        = new Color(GuiActivator.getResources()
+            .getColor("service.gui.SECURITY_ON"));
 
     /**
-     * The default security status icon.
+     * The background used to indicate that the call is not secured.
      */
-    private final Icon defaultIcon;
+    private final static Color securityOffBackground
+        = new Color(GuiActivator.getResources()
+            .getColor("service.gui.SECURITY_OFF"));
 
     /**
-     * The parent window, where this component will be contained.
+     * The background used to indicate that the call is not secured.
      */
-    private final Window parentWindow;
+    private final static Color goingSecureBackground
+        = new Color(GuiActivator.getResources()
+            .getColor("service.gui.GOING_SECURE"));
+
+    /**
+     * Indicates security status.
+     */
+    private boolean isSecure = false;
 
     /**
      * Creates an instance of <tt>SecurityStatusLabel</tt> by specifying the
      * <tt>GuiCallPeer</tt>, the icon and the alignment to use for the label.
      */
-    public SecurityStatusLabel(Window parentWindow, Icon securityIcon)
+    public SecurityStatusLabel()
     {
-        this.parentWindow = parentWindow;
-        this.defaultIcon = securityIcon;
-
         loadSkin();
 
-        this.setHorizontalAlignment(JLabel.CENTER);
+        setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 3));
+        setForeground(Color.WHITE);
 
-        this.setToolTipText("Security status");
+        setHorizontalAlignment(JLabel.CENTER);
+        setHorizontalTextPosition(JLabel.LEFT);
     }
 
     /**
-     * Create an extended tooltip showing some more security details.
-     * @return the created tooltip
+     * Paints a custom background to better indicate security state.
+     *
+     * @param g the <tt>Graphics</tt> object
      */
-    public JToolTip createToolTip()
+    public void paintComponent(Graphics g)
     {
-        ExtendedTooltip tip = new ExtendedTooltip(parentWindow, true);
+        g = g.create();
 
-        tip.setTitle("Security status");
-
-        ImageIcon audioStatusIcon;
-        String audioStatusString;
-        if (isAudioSecurityOn)
+        try
         {
-            audioStatusIcon = new ImageIcon(
-                ImageLoader.getImage(ImageLoader.SECURE_AUDIO_ON));
-            audioStatusString = "Audio security on.";
+            AntialiasingManager.activateAntialiasing(g);
+            g.setColor(getBackground());
+
+            if (getIcon() != null)
+            {
+                if (isSecure)
+                    g.fillRoundRect(
+                        0, 0, this.getWidth(), this.getHeight(), 20, 20);
+                else
+                    g.fillRoundRect(
+                        0, 0, this.getWidth(), this.getHeight(), 20, 20);
+            }
+
+            g.setColor(getForeground());
+
+            super.paintComponent(g);
         }
-        else
+        finally
         {
-            audioStatusIcon = new ImageIcon(
-                ImageLoader.getImage(ImageLoader.SECURE_AUDIO_OFF));
-            audioStatusString = "Audio security off.";
+            g.dispose();
         }
-
-        ImageIcon videoStatusIcon;
-        String videoStatusString;
-        if (isVideoSecurityOn)
-        {
-            videoStatusIcon = new ImageIcon(
-                ImageLoader.getImage(ImageLoader.SECURE_VIDEO_ON));
-            videoStatusString = "Video security on.";
-        }
-        else
-        {
-            videoStatusIcon = new ImageIcon(
-                ImageLoader.getImage(ImageLoader.SECURE_VIDEO_OFF));
-            videoStatusString = "Video security off.";
-        }
-
-        String cipher = "Cipher: " + encryptionCipher;
-
-        tip.addLine(audioStatusIcon,
-                    audioStatusString);
-
-        tip.addLine(videoStatusIcon,
-                    videoStatusString);
-
-        tip.addLine(null, cipher);
-
-        tip.setComponent(this);
-
-        return tip;
-    }
-
-    /**
-     * Gets the audio security status.
-     * @return the audio security status.
-     */
-    public boolean isAudioSecurityOn()
-    {
-        return isAudioSecurityOn;
     }
 
     /**
      * Sets the audio security on or off.
-     *
-     * @param isAudioSecurityOn indicates if the audio security is turned on or
-     * off.
      */
-    public void setAudioSecurityOn(boolean isAudioSecurityOn)
+    public void setSecurityOn()
     {
-        this.isAudioSecurityOn = isAudioSecurityOn;
+        isSecure = true;
+        setIcon(securityOnIcon);
+        setBackground(securityOnBackground);
+        setToolTipText(GuiActivator.getResources().getI18NString(
+            "service.gui.security.CALL_SECURED_TOOLTIP"));
     }
 
     /**
-     * Gets the video security status.
-     * @return the video security status.
+     * Sets the audio security on or off.
      */
-    public boolean isVideoSecurityOn()
+    public void setSecurityOff()
     {
-        return isVideoSecurityOn;
+        isSecure = false;
+        setIcon(securityOffIcon);
+        setBackground(securityOffBackground);
+        this.setToolTipText(GuiActivator.getResources().getI18NString(
+            "service.gui.security.CALL_NOT_SECURED_TOOLTIP"));
     }
 
     /**
-     * Sets the video security on or off.
-     *
-     * @param isVideoSecurityOn indicates if the video security is turned on or
-     * off.
+     * Sets the audio security on or off.
      */
-    public void setVideoSecurityOn(boolean isVideoSecurityOn)
+    public void setSecurityPending()
     {
-        this.isVideoSecurityOn = isVideoSecurityOn;
+        isSecure = false;
+        setIcon(securityOnIcon);
+        setBackground(goingSecureBackground);
+        this.setToolTipText(GuiActivator.getResources().getI18NString(
+            "service.gui.security.CALL_SECURED_COMPARE_TOOLTIP"));
     }
 
     /**
-     * Sets the cipher used for the encryption of the current call.
-     *
-     * @param encryptionCipher the cipher used for the encryption of the
-     * current call.
-     */
-    public void setEncryptionCipher(String encryptionCipher)
-    {
-        this.encryptionCipher = encryptionCipher;
-    }
-
-    /**
-     * Reloads icon.
+     * Reloads icons.
      */
     public void loadSkin()
     {
-        this.setIcon(defaultIcon);
+        securityOffIcon = new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SECURE_BUTTON_OFF));
+
+        securityOnIcon = new ImageIcon(ImageLoader
+            .getImage(ImageLoader.SECURE_BUTTON_ON));
     }
 }

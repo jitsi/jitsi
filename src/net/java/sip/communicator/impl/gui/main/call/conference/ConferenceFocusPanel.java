@@ -276,9 +276,9 @@ public class ConferenceFocusPanel
      *
      * @param state the state of the contained call peer
      */
-    public void setPeerState(String state)
+    public void setPeerState(CallPeerState peerState, String state)
     {
-        focusPeerPanel.setPeerState(state);
+        focusPeerPanel.setPeerState(peerState, state);
     }
 
     /**
@@ -321,6 +321,7 @@ public class ConferenceFocusPanel
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
         focusPeerPanel.securityOn(evt);
+
         for (ConferenceMemberPanel member : conferenceMembersPanels.values())
         {
             member.securityOn(evt);
@@ -339,6 +340,14 @@ public class ConferenceFocusPanel
         {
             member.securityOff(evt);
         }
+    }
+
+    /**
+     * Indicates that the security status is pending confirmation.
+     */
+    public void securityPending()
+    {
+        focusPeerPanel.securityPending();
     }
 
     /**
@@ -645,5 +654,16 @@ public class ConferenceFocusPanel
                 entry.getValue().updateSoundBar(memberSoundLevel);
             }
         }
+    }
+
+    /**
+     * Shows/hides the security panel.
+     *
+     * @param isVisible <tt>true</tt> to show the security panel, <tt>false</tt>
+     * to hide it
+     */
+    public void setSecurityPanelVisible(boolean isVisible)
+    {
+        
     }
 }

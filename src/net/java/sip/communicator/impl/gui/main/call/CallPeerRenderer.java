@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
@@ -37,9 +38,10 @@ public interface CallPeerRenderer
      * Sets the state of the contained call peer by specifying the
      * state name.
      *
+     * @param peerState the peer state
      * @param state the state of the contained call peer
      */
-    public void setPeerState(String state);
+    public void setPeerState(CallPeerState peerState, String state);
 
     /**
      * Sets the reason of a call failure if one occurs. The renderer should
@@ -76,6 +78,11 @@ public interface CallPeerRenderer
      * @param evt Details about the event that caused this message.
      */
     public void securityOff(CallPeerSecurityOffEvent evt);
+
+    /**
+     * Indicates that the security status is pending confirmation.
+     */
+    public void securityPending();
 
     /**
      * Indicates that the security is timeouted, is not supported by the
@@ -148,4 +155,12 @@ public interface CallPeerRenderer
      * @return the video handler associated with this call peer renderer
      */
     public UIVideoHandler getVideoHandler();
+
+    /**
+     * Shows/hides the security panel.
+     *
+     * @param isVisible <tt>true</tt> to show the security panel, <tt>false</tt>
+     * to hide it
+     */
+    public void setSecurityPanelVisible(boolean isVisible);
 }

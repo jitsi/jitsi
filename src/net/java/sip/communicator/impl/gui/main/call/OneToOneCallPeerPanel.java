@@ -14,9 +14,11 @@ import java.util.List; // disambiguation
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
@@ -65,7 +67,7 @@ public class OneToOneCallPeerPanel
     /**
      * The security status of the peer
      */
-    private SecurityStatusLabel securityStatusLabel;
+    private SecurityStatusLabel securityStatusLabel = new SecurityStatusLabel();
 
     /**
      * The label showing whether the voice has been set to mute.
@@ -199,6 +201,7 @@ public class OneToOneCallPeerPanel
         this.callPeer = callPeer;
         this.peerName = callPeer.getDisplayName();
         this.videoContainers = videoContainers;
+        this.securityPanel = SecurityPanel.create(this, callPeer, null);
 
         if (vHandler == null)
             videoHandler
@@ -211,11 +214,6 @@ public class OneToOneCallPeerPanel
 
         videoHandler.addVideoListener();
         videoHandler.addRemoteControlListener();
-
-        securityStatusLabel = new SecurityStatusLabel(
-            callRenderer.getCallContainer().getCallWindow().getFrame(),
-            new ImageIcon(
-                ImageLoader.getImage(ImageLoader.SECURE_BUTTON_OFF)));
 
         photoLabel = new JLabel(getPhotoLabelIcon());
         center = createCenter(videoContainers);
@@ -382,6 +380,8 @@ public class OneToOneCallPeerPanel
         statusPanel.add(muteStatusLabel, constraints);
 
         constraints.gridx++;
+        callStatusLabel.setBorder(
+            BorderFactory.createEmptyBorder(2, 3, 2, 5));
         statusPanel.add(callStatusLabel, constraints);
 
         constraints.gridx++;
@@ -509,7 +509,6 @@ public class OneToOneCallPeerPanel
         public PeerStatusPanel(LayoutManager layout)
         {
             super(layout);
-            this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
         }
 
         /**
@@ -600,11 +599,25 @@ public class OneToOneCallPeerPanel
      * Sets the state of the contained call peer by specifying the
      * state name and icon.
      *
+     * @param peerState the peer state
      * @param state the state of the contained call peer
      */
-    public void setPeerState(String state)
+    public void setPeerState(CallPeerState peerState, String state)
     {
         this.callStatusLabel.setText(state);
+
+        if (peerState == CallPeerState.CONNECTED)
+        {
+            initSecurityStatusLabel();
+
+            if(Boolean.parseBoolean(GuiActivator.getResources()
+                    .getSettingsString("impl.gui.PARANOIA_UI")))
+            {
+                securityPanel = new ParanoiaTimerSecurityPanel();
+
+                setSecurityPanelVisible(true);
+            }
+        }
     }
 
     /**
@@ -616,10 +629,18 @@ public class OneToOneCallPeerPanel
     public void setMute(boolean isMute)
     {
         if(isMute)
+        {
             muteStatusLabel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.MUTE_STATUS_ICON)));
+            muteStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 3, 2, 3));
+        }
         else
+        {
             muteStatusLabel.setIcon(null);
+            muteStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        }
 
         this.revalidate();
         this.repaint();
@@ -632,10 +653,18 @@ public class OneToOneCallPeerPanel
     public void setOnHold(boolean isOnHold)
     {
         if(isOnHold)
+        {
             holdStatusLabel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.HOLD_STATUS_ICON)));
+            holdStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 3, 2, 3));
+        }
         else
+        {
             holdStatusLabel.setIcon(null);
+            holdStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        }
 
         this.revalidate();
         this.repaint();
@@ -650,43 +679,48 @@ public class OneToOneCallPeerPanel
      */
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        if((evt.getSecurityController().requiresSecureSignalingTransport()
+        // If the securityOn is called without a specific event, we'll just set
+        // the security label status to on.
+        if (evt == null)
+        {
+            securityStatusLabel.setSecurityOn();
+            return;
+        }
+
+        SrtpControl srtpControl = evt.getSecurityController();
+
+        if ((srtpControl.requiresSecureSignalingTransport()
             && callPeer.getProtocolProvider().isSignalingTransportSecure())
-            || !evt.getSecurityController().requiresSecureSignalingTransport())
+            || !srtpControl.requiresSecureSignalingTransport())
         {
-            securityImageID = ImageLoader.SECURE_BUTTON_ON;
-            securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-                .getImage(securityImageID)));
+            if (srtpControl instanceof ZrtpControl)
+            {
+                securityStatusLabel.setText("zrtp");
+
+                if (!((ZrtpControl) srtpControl).isSecurityVerified())
+                    securityStatusLabel.setSecurityPending();
+                else
+                    securityStatusLabel.setSecurityOn();
+            }
+            else
+                securityStatusLabel.setSecurityOn();
         }
 
-        //set common encryption properties
-        securityStatusLabel.setEncryptionCipher(evt.getCipher());
-        switch (evt.getSessionType())
+        // if we have some other panel, using other control
+        if(!srtpControl.getClass().isInstance(
+                securityPanel.getSecurityControl()))
         {
-            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
-                securityStatusLabel.setAudioSecurityOn(true);
-                break;
-            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
-                securityStatusLabel.setVideoSecurityOn(true);
-                break;
+            setSecurityPanelVisible(false);
+
+            securityPanel
+                = SecurityPanel.create(this, callPeer, srtpControl);
         }
 
-        //set encryption specific options
-        if (securityPanel == null)
-        {
-            securityPanel = SecurityPanel.create(evt.getSecurityController());
+        securityPanel.securityOn(evt);
 
-            GridBagConstraints constraints = new GridBagConstraints();
-
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 0;
-            constraints.gridy = 2;
-            constraints.weightx = 0;
-            constraints.weighty = 0;
-            constraints.insets = new Insets(5, 0, 0, 0);
-            this.add(securityPanel, constraints);
-        }
-        securityPanel.refreshStates();
+        if (srtpControl instanceof ZrtpControl
+            && !((ZrtpControl) srtpControl).isSecurityVerified())
+            setSecurityPanelVisible(true);
 
         this.revalidate();
     }
@@ -696,27 +730,21 @@ public class OneToOneCallPeerPanel
      */
     public void securityOff(CallPeerSecurityOffEvent evt)
     {
-        securityImageID = ImageLoader.SECURE_BUTTON_OFF;
-        securityStatusLabel.setIcon(new ImageIcon(ImageLoader
-            .getImage(securityImageID)));
+        securityStatusLabel.setText("");
+        securityStatusLabel.setSecurityOff();
+        if (securityStatusLabel.getBorder() == null)
+            securityStatusLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 5, 2, 3));
 
-        switch (evt.getSessionType())
-        {
-            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
-                securityStatusLabel.setAudioSecurityOn(false);
-                break;
-            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
-                securityStatusLabel.setVideoSecurityOn(false);
-                break;
-        }
+        securityPanel.securityOff(evt);
+    }
 
-        if (securityPanel != null
-            && !securityStatusLabel.isAudioSecurityOn()
-            && !securityStatusLabel.isVideoSecurityOn())
-        {
-            securityPanel.getParent().remove(securityPanel);
-            securityPanel = null;
-        }
+    /**
+     * Indicates that the security status is pending confirmation.
+     */
+    public void securityPending()
+    {
+        securityStatusLabel.setSecurityPending();
     }
 
     /**
@@ -726,7 +754,8 @@ public class OneToOneCallPeerPanel
      */
     public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
     {
-
+        if (securityPanel != null)
+            securityPanel.securityTimeout(evt);
     }
 
     /**
@@ -763,6 +792,9 @@ public class OneToOneCallPeerPanel
     public void printDTMFTone(char dtmfChar)
     {
         dtmfLabel.setText(dtmfLabel.getText() + dtmfChar);
+        if (dtmfLabel.getBorder() == null)
+            dtmfLabel.setBorder(
+                BorderFactory.createEmptyBorder(2, 1, 2, 5));
     }
 
     /**
@@ -1042,175 +1074,6 @@ public class OneToOneCallPeerPanel
     }
 
     /**
-     * The Mouse listener for local video. It is responsible for dragging local
-     * video.
-     */
-//    private class LocalVideoMouseListener
-//        implements  MouseListener,
-//                    MouseMotionListener
-//    {
-//        /**
-//         * Indicates if we're currently during a drag operation.
-//         */
-//        private boolean inDrag = false;
-//
-//        /**
-//         * The previous x coordinate of the drag.
-//         */
-//        private int previousX = 0;
-//
-//        /**
-//         * The previous y coordinate of the drag.
-//         */
-//        private int previousY = 0;
-//
-//        /**
-//         * Indicates that the mouse has been dragged.
-//         *
-//         * @param event the <tt>MouseEvent</tt> that notified us
-//         */
-//        public void mouseDragged(MouseEvent event)
-//        {
-//            Point p = event.getPoint();
-//
-//            if (inDrag)
-//            {
-//                Component c = (Component) event.getSource();
-//
-//                int newX = c.getX() + p.x - previousX;
-//                int newY = c.getY() + p.y - previousY;
-//
-//                Component remoteContainer;
-//                if (remoteVideo != null)
-//                    remoteContainer = remoteVideo;
-//                else
-//                    synchronized (videoContainers)
-//                    {
-//                        // If there's no remote video we limit the drag to the
-//                        // parent video container.
-//                        if (videoContainers != null
-//                                && videoContainers.size() > 0)
-//                            remoteContainer = videoContainers.get(
-//                                videoContainers.size() - 1);
-//                        else
-//                            // In the case no video container is available
-//                            // we just limit the drag to this panel.
-//                            remoteContainer = OneToOneCallPeerPanel.this;
-//                    }
-//
-//                int minX = remoteContainer.getX();
-//                int maxX = remoteContainer.getX() + remoteContainer.getWidth();
-//                int minY = remoteContainer.getY();
-//                int maxY = remoteContainer.getY() + remoteContainer.getHeight();
-//
-//                if (newX < minX)
-//                    newX = minX;
-//
-//                if (newX + c.getWidth() > maxX)
-//                    newX = maxX - c.getWidth();
-//
-//                if (newY < minY)
-//                    newY = minY;
-//
-//                if (newY + c.getHeight() > maxY)
-//                    newY = maxY - c.getHeight();
-//
-//                c.setLocation(newX, newY);
-//                if (closeButton.isVisible())
-//                    closeButton.setVisible(false);
-//            }
-//        }
-//
-//        public void mouseMoved(MouseEvent event) {}
-//
-//        public void mouseClicked(MouseEvent event) {}
-//
-//        public void mouseEntered(MouseEvent event) {}
-//
-//        public void mouseExited(MouseEvent event) {}
-//
-//        /**
-//         * Indicates that the mouse has been pressed.
-//         *
-//         * @param event the <tt>MouseEvent</tt> that notified us
-//         */
-//        public void mousePressed(MouseEvent event)
-//        {
-//            Point p = event.getPoint();
-//
-//            previousX = p.x;
-//            previousY = p.y;
-//            inDrag = true;
-//        }
-//
-//        /**
-//         * Indicates that the mouse has been released.
-//         *
-//         * @param event the <tt>MouseEvent</tt> that notified us
-//         */
-//        public void mouseReleased(MouseEvent event)
-//        {
-//            inDrag = false;
-//            previousX = 0;
-//            previousY = 0;
-//
-//            if (!closeButton.isVisible())
-//            {
-//                Component c = (Component) event.getSource();
-//                closeButton.setLocation(
-//                    c.getX() + c.getWidth() - closeButton.getWidth() - 3,
-//                    c.getY() + 3);
-//                closeButton.setVisible(true);
-//            }
-//        }
-//    }
-
-//    private class CloseButton
-//        extends Label
-//        implements MouseListener
-//    {
-//        private static final long serialVersionUID = 0L;
-//
-//        Image image = ImageLoader.getImage(ImageLoader.CLOSE_VIDEO);
-//
-//        public CloseButton()
-//        {
-//            int buttonWidth = image.getWidth(this) + 5;
-//            int buttonHeight = image.getHeight(this) + 5;
-//
-//            setPreferredSize(new Dimension(buttonWidth, buttonHeight));
-//            setSize(new Dimension(buttonWidth, buttonHeight));
-//
-//            this.addMouseListener(this);
-//        }
-//
-//        public void paint(Graphics g)
-//        {
-//            g.setColor(Color.GRAY);
-//            g.fillRect(0, 0, getWidth(), getHeight());
-//            g.drawImage(image,
-//                getWidth()/2 - image.getWidth(this)/2,
-//                getHeight()/2 - image.getHeight(this)/2, this);
-//        }
-//
-//        public void mouseClicked(MouseEvent event)
-//        {
-//            setLocalVideoVisible(false);
-//
-//            callRenderer.getCallContainer()
-//                .setShowHideVideoButtonSelected(false);
-//        }
-//
-//        public void mouseEntered(MouseEvent event) {}
-//
-//        public void mouseExited(MouseEvent event) {}
-//
-//        public void mousePressed(MouseEvent event) {}
-//
-//        public void mouseReleased(MouseEvent event) {}
-//    }
-
-    /**
      * Reloads all icons.
      */
     public void loadSkin()
@@ -1254,63 +1117,6 @@ public class OneToOneCallPeerPanel
     public void setLocalVideoVisible(boolean isVisible)
     {
         videoHandler.setLocalVideoVisible(isVisible);
-//        synchronized (videoContainers)
-//        {
-//            this.localVideoVisible = isVisible;
-//
-//            if (isVisible
-//                != callRenderer.getCallContainer()
-//                    .isShowHideVideoButtonSelected())
-//            {
-//                callRenderer.getCallContainer()
-//                    .setShowHideVideoButtonSelected(isVisible);
-//            }
-//
-//            int videoContainerCount;
-//
-//            if ((videoTelephony != null)
-//                    && ((videoContainerCount = videoContainers.size()) > 0))
-//            {
-//                Container videoContainer
-//                    = videoContainers.get(videoContainerCount - 1);
-//
-//                if (localVideo != null)
-//                {
-//                    if (isVisible)
-//                    {
-//                        Container localVideoParent = localVideo.getParent();
-//
-//                        if (localVideoParent != null)
-//                            localVideoParent.remove(localVideo);
-//
-//                        Container closeButtonParent
-//                            = closeButton.getParent();
-//
-//                        if (closeButtonParent != null)
-//                            closeButtonParent.remove(closeButton);
-//
-//                        videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
-//                        videoContainer.add(
-//                                closeButton,
-//                                VideoLayout.CLOSE_LOCAL_BUTTON,
-//                                0);
-//                    }
-//                    else
-//                    {
-//                        videoContainer.remove(localVideo);
-//                        videoContainer.remove(closeButton);
-//                    }
-//
-//                    /*
-//                     * Just like #handleVideoEvent(VideoEvent, Container) says,
-//                     * we have to be explicit in order to achieve a proper
-//                     * layout and an up-to-date painting.
-//                     */
-//                    videoContainer.validate();
-//                    videoContainer.repaint();
-//                }
-//            }
-//        }
     }
 
     /**
@@ -1352,5 +1158,175 @@ public class OneToOneCallPeerPanel
     public UIVideoHandler getVideoHandler()
     {
         return videoHandler;
+    }
+
+    /**
+     * Initializes the security status label, shown in the call status bar.
+     */
+    private void initSecurityStatusLabel()
+    {
+        securityStatusLabel.setBorder(
+            BorderFactory.createEmptyBorder(2, 5, 2, 5));
+
+        securityStatusLabel.setSecurityOff();
+
+        securityStatusLabel.addMouseListener(new MouseAdapter()
+        {
+            /**
+             * Invoked when a mouse button has been pressed on a component.
+             */
+            public void mousePressed(MouseEvent e)
+            {
+                // Only show the security details if the security is on.
+                if (callPeer.getCurrentSecuritySettings()
+                        instanceof CallPeerSecurityOnEvent)
+                {
+                    setSecurityPanelVisible(!callRenderer.getCallContainer()
+                        .getCallWindow().getFrame().getGlassPane().isVisible());
+                }
+            }
+        });
+    }
+
+    /**
+     * Shows/hides the security panel.
+     *
+     * @param isVisible <tt>true</tt> to show the security panel, <tt>false</tt>
+     * to hide it
+     */
+    public void setSecurityPanelVisible(boolean isVisible)
+    {
+        final JFrame callFrame = callRenderer.getCallContainer()
+            .getCallWindow().getFrame();
+
+        final JPanel glassPane = (JPanel) callFrame.getGlassPane();
+
+        if (!isVisible)
+        {
+            // Need to hide the security panel explicitly in order to keep the
+            // fade effect.
+            securityPanel.setVisible(false);
+            glassPane.setVisible(false);
+            glassPane.removeAll();
+        }
+        else
+        {
+            glassPane.setLayout(null);
+            glassPane.addMouseListener(new MouseListener()
+            {
+                public void mouseReleased(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mousePressed(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mouseExited(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mouseEntered(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+
+                public void mouseClicked(MouseEvent e)
+                {
+                    redispatchMouseEvent(glassPane, e);
+                }
+            });
+
+            Point securityLabelPoint = securityStatusLabel.getLocation();
+
+            Point newPoint
+                = SwingUtilities.convertPoint(securityStatusLabel.getParent(),
+                securityLabelPoint.x, securityLabelPoint.y,
+                callFrame);
+
+            securityPanel.setBeginPoint(
+                new Point((int) newPoint.getX() + 15, 0));
+            securityPanel.setBounds(
+                0, (int) newPoint.getY() - 5, callFrame.getWidth(), 110);
+
+            glassPane.add(securityPanel);
+            // Need to show the security panel explicitly in order to keep the
+            // fade effect.
+            securityPanel.setVisible(true);
+            glassPane.setVisible(true);
+
+            glassPane.addComponentListener(new ComponentAdapter()
+            {
+                /**
+                 * Invoked when the component's size changes.
+                 */
+                public void componentResized(ComponentEvent e)
+                {
+                    if (glassPane.isVisible())
+                    {
+                        glassPane.setVisible(false);
+                        callFrame.removeComponentListener(this);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Re-dispatches glass pane mouse events only in case they occur on the
+     * security panel.
+     *
+     * @param glassPane the glass pane
+     * @param e the mouse event in question
+     */
+    private void redispatchMouseEvent(Component glassPane, MouseEvent e)
+    {
+        Point glassPanePoint = e.getPoint();
+
+        Point securityPanelPoint = SwingUtilities.convertPoint(
+                                        glassPane,
+                                        glassPanePoint,
+                                        securityPanel);
+
+        Component component;
+        Point componentPoint;
+
+        if (securityPanelPoint.y > 0)
+        {
+            component = securityPanel;
+            componentPoint = securityPanelPoint;
+        }
+        else
+        {
+            Container contentPane
+                = callRenderer.getCallContainer().getCallWindow()
+                                    .getFrame().getContentPane();
+
+            Point containerPoint = SwingUtilities.convertPoint(
+                                                    glassPane,
+                                                    glassPanePoint,
+                                                    contentPane);
+
+            component = SwingUtilities.getDeepestComponentAt(contentPane,
+                    containerPoint.x, containerPoint.y);
+
+            componentPoint = SwingUtilities.convertPoint(contentPane,
+                glassPanePoint, component);
+        }
+
+        if (component != null)
+            component.dispatchEvent(new MouseEvent( component,
+                                                    e.getID(),
+                                                    e.getWhen(),
+                                                    e.getModifiers(),
+                                                    componentPoint.x,
+                                                    componentPoint.y,
+                                                    e.getClickCount(),
+                                                    e.isPopupTrigger()));
+
+        e.consume();
     }
 }
