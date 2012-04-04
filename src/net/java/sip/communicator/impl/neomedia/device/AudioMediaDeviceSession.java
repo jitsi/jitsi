@@ -112,9 +112,7 @@ public class AudioMediaDeviceSession
             Processor processor = (Processor) event.getSourceController();
 
             if (processor != null)
-            {
                 registerLocalUserAudioLevelEffect(processor);
-            }
         }
     }
 
@@ -194,7 +192,7 @@ public class AudioMediaDeviceSession
      * @param listener the <tt>SimpleAudioLevelListener</tt> to add
      */
     public void setLocalUserAudioLevelListener(
-                                            SimpleAudioLevelListener listener)
+            SimpleAudioLevelListener listener)
     {
         this.localUserAudioLevelEffect.setAudioLevelListener(listener);
     }

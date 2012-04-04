@@ -417,7 +417,7 @@ public class AudioMediaStreamImpl
      * @param audioLevels a array mapping CSRC IDs to audio levels in
      * consecutive elements.
      */
-    public void fireConferenceAudioLevelEvent(final long[] audioLevels)
+    public void fireConferenceAudioLevelEvent(long[] audioLevels)
     {
         CsrcAudioLevelListener csrcAudioLevelListener
             = this.csrcAudioLevelListener;

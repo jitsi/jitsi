@@ -22,9 +22,9 @@ public interface CsrcAudioLevelListener
      * levels for the various participants (Contributing SouRCes) that are
      * taking part in a conference call.
      *
-     * @param audioLevels the new set of levels for the various contributing
-     * sources in the conference call
+     * @param audioLevels a <tt>long</tt> array in which the elements at the
+     * even indices specify the CSRC IDs and the elements at the odd indices
+     * specify the respective audio levels
      */
-    public void audioLevelsReceived(final long[] audioLevels);
-
+    public void audioLevelsReceived(long[] audioLevels);
 }

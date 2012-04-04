@@ -155,7 +155,7 @@ public class MediaStreamImpl
     /**
      * The SSRC identifiers of the party that we are exchanging media with.
      */
-    private Vector<Long> remoteSourceIDs = new Vector<Long>(1, 1);
+    private final Vector<Long> remoteSourceIDs = new Vector<Long>(1, 1);
 
     /**
      * Our own SSRC identifier.
@@ -189,19 +189,13 @@ public class MediaStreamImpl
     private CsrcTransformEngine csrcEngine;
 
     /**
-     * Map of advanced attributes.
-     */
-    protected Map<String, String> advancedAttributes =
-        new Hashtable<String, String>();
-
-    /**
-     * The current <tt>SrtpControl</tt>.
+     * The <tt>SrtpControl</tt> which controls the SRTP functionality of this
+     * <tt>MediaStream</tt>.
      */
     private final SrtpControl srtpControl;
 
     /**
-     * Number of received sender reports.
-     * Used only for logging and debug purposes.
+     * Number of received sender reports. Used for logging and debugging only.
      */
     private long numberOfReceivedSenderReports = 0;
 
@@ -491,20 +485,6 @@ public class MediaStreamImpl
     }
 
     /**
-     * Set list of advanced attributes.
-     *
-     * @param attrs advanced attributes map
-     */
-    public void setAdvancedAttributes(Map<String, String> attrs)
-    {
-        if(attrs != null)
-        {
-            advancedAttributes.clear();
-            advancedAttributes.putAll(attrs);
-        }
-    }
-
-    /**
      * Releases the resources allocated by this instance in the course of its
      * execution and prepares it to be garbage collected.
      *
@@ -519,7 +499,7 @@ public class MediaStreamImpl
 
         if (csrcEngine != null)
         {
-            csrcEngine.stop();
+            csrcEngine.close();
             csrcEngine = null;
         }
 
@@ -751,7 +731,6 @@ public class MediaStreamImpl
      *
      * @param evt the <tt>PropetyChangeEvent</tt> containing the list of SSRC
      * identifiers handled by our device session before and after it changed.
-     *
      */
     private void deviceSessionSsrcListChanged(PropertyChangeEvent evt)
     {
@@ -765,19 +744,15 @@ public class MediaStreamImpl
         }
 
         int elementsToRemove = 0;
-        Vector<Long> remoteSrcID = this.remoteSourceIDs;
+        Vector<Long> remoteSourceIDs = this.remoteSourceIDs;
 
         //in case of a conf call the mixer would return all SSRC IDs that are
         //currently contributing including this stream's counterpart. We need
         //to remove that last one since that's where we will be sending our
         //csrc list
         for(long csrc : ssrcArray)
-        {
-            if (remoteSrcID.contains(csrc))
-            {
+            if (remoteSourceIDs.contains(csrc))
                 elementsToRemove ++;
-            }
-        }
 
         //we don't seem to be in a conf call since the list only contains the
         //SSRC id of the party that we are directly interacting with.
@@ -795,12 +770,12 @@ public class MediaStreamImpl
         long[] csrcArray = new long[cc];
 
         for (int i = 0,j = 0;
-                i < ssrcArray.length
-             && j < csrcArray.length - 1;
-             i++)
+                (i < ssrcArray.length) && (j < csrcArray.length - 1);
+                i++)
         {
             long ssrc = ssrcArray[i];
-            if (!remoteSrcID.contains(ssrc))
+
+            if (!remoteSourceIDs.contains(ssrc))
             {
                 csrcArray[j] = ssrc;
                 j++;
@@ -1138,11 +1113,7 @@ public class MediaStreamImpl
      */
     public long getRemoteSourceID()
     {
-        if(this.remoteSourceIDs.isEmpty())
-        {
-            return -1;
-        }
-        return this.remoteSourceIDs.lastElement();
+        return remoteSourceIDs.isEmpty() ? -1 : remoteSourceIDs.lastElement();
     }
 
     /**
@@ -1596,7 +1567,6 @@ public class MediaStreamImpl
                         + " from: " + deviceSessionFormat
                         + " to: " + format);
 
-        setAdvancedAttributes(format.getAdvancedAttributes());
         handleAttributes(format, format.getAdvancedAttributes());
         handleAttributes(format, format.getFormatParameters());
         deviceSession.setFormat(format);
@@ -2298,18 +2268,17 @@ public class MediaStreamImpl
      * Sets the remote SSRC identifier and fires the corresponding
      * <tt>PropertyChangeEvent</tt>.
      *
-     * @param ssrc the SSRC identifier that this stream will be using in
-     * outgoing RTP packets from now on.
+     * @param remoteSourceID the SSRC identifier that this stream will be using
+     * in outgoing RTP packets from now on.
      */
-    protected void setRemoteSourceID(long ssrc)
+    protected void setRemoteSourceID(long remoteSourceID)
     {
-        Long oldValue = this.getRemoteSourceID();
-        if(!this.remoteSourceIDs.contains(ssrc))
-        {
-            this.remoteSourceIDs.add(ssrc);
-        }
+        Long oldValue = getRemoteSourceID();
 
-        firePropertyChange(PNAME_REMOTE_SSRC, oldValue, ssrc);
+        if(!remoteSourceIDs.contains(remoteSourceID))
+            remoteSourceIDs.add(remoteSourceID);
+
+        firePropertyChange(PNAME_REMOTE_SSRC, oldValue, remoteSourceID);
     }
 
     /**

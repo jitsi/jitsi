@@ -35,10 +35,8 @@ public interface PacketTransformer
     public RawPacket reverseTransform(RawPacket pkt);
 
     /**
-     * Close the transformer and underlying transform engine.
-     * 
-     * The close functions closes all stored crypto contexts. This deletes key data 
-     * and forces a cleanup of the crypto contexts.
+     * Closes this <tt>PacketTransformer</tt> i.e. releases the resources
+     * allocated by it and prepares it for garbage collection.
      */
     public void close();
 }

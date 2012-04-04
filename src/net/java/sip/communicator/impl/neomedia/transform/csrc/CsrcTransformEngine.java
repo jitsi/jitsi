@@ -67,12 +67,13 @@ public class CsrcTransformEngine
     }
 
     /**
-     * Close the transformer and underlying transform engine.
-     * 
-     * Nothing to do here. 
+     * Closes this <tt>PacketTransformer</tt> i.e. releases the resources
+     * allocated by it and prepares it for garbage collection.
      */
     public void close()
     {
+        if (csrcLevelDispatcher != null)
+            csrcLevelDispatcher.stop();
     }
 
     /**
@@ -114,7 +115,7 @@ public class CsrcTransformEngine
      */
     public RawPacket reverseTransform(RawPacket pkt)
     {
-        if (csrcAudioLevelExtID > 0 && audioLevelDirection.allowsReceiving())
+        if ((csrcAudioLevelExtID > 0) && audioLevelDirection.allowsReceiving())
         {
             //extract the audio levels and send them to the dispatcher.
             long[] levels = pkt.extractCsrcLevels(csrcAudioLevelExtID);
@@ -147,8 +148,8 @@ public class CsrcTransformEngine
     public synchronized RawPacket transform(RawPacket pkt)
     {
         // if somebody has modified the packet and added an extension
-        // don't process it. As ZRTP creates special rtp packets carring no
-        // rtp data and those packets are used only by zrtp we don't use them.
+        // don't process it. As ZRTP creates special RTP packets carrying no
+        // RTP data and those packets are used only by ZRTP we don't use them.
         if(pkt.getExtensionBit())
             return pkt;
 
@@ -163,9 +164,9 @@ public class CsrcTransformEngine
         pkt.setCsrcList( csrcList);
 
         //attach audio levels if we are expected to do so.
-        if(this.csrcAudioLevelExtID > 0
-           && audioLevelDirection.allowsSending()
-           && mediaStream instanceof AudioMediaStreamImpl)
+        if ((this.csrcAudioLevelExtID > 0)
+                && audioLevelDirection.allowsSending()
+                && (mediaStream instanceof AudioMediaStreamImpl))
         {
             byte[] levelsExt = createLevelExtensionBuffer(csrcList);
 
@@ -173,15 +174,6 @@ public class CsrcTransformEngine
         }
 
         return pkt;
-    }
-
-    /**
-     * Stops threads that this transform engine is using for even delivery.
-     */
-    public void stop()
-    {
-        if(csrcLevelDispatcher != null)
-            csrcLevelDispatcher.stop();
     }
 
     /**
@@ -257,7 +249,7 @@ public class CsrcTransformEngine
      */
     private byte[] getExtensionBuff(int ensureCapacity)
     {
-        if (extensionBuff == null || extensionBuff.length < ensureCapacity)
+        if ((extensionBuff == null) || (extensionBuff.length < ensureCapacity))
             extensionBuff = new byte[ensureCapacity];
 
         extensionBuffLen = ensureCapacity;
@@ -268,7 +260,7 @@ public class CsrcTransformEngine
      * A simple thread that waits for new levels to be reported from incoming
      * RTP packets and then delivers them to the <tt>AudioMediaStream</tt>
      * associated with this engine. The reason we need to do this in a separate
-     * thread is of course the time sensitive nature of incoming RTP packets.
+     * thread is, of course, the time sensitive nature of incoming RTP packets.
      */
     private class CsrcAudioLevelDispatcher
         implements Runnable
@@ -356,5 +348,4 @@ public class CsrcTransformEngine
             }
         }
     }
-
 }

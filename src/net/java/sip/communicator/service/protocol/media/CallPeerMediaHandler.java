@@ -1015,8 +1015,8 @@ public abstract class CallPeerMediaHandler
         synchronized (streamAudioLevelListenerLock)
         {
             if (streamAudioLevelListener != null)
-                audioStream
-                    .setStreamAudioLevelListener(streamAudioLevelListener);
+                audioStream.setStreamAudioLevelListener(
+                        streamAudioLevelListener);
         }
         synchronized (csrcAudioLevelListenerLock)
         {

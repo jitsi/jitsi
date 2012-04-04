@@ -614,10 +614,10 @@ public abstract class MediaAwareCallPeer
     }
 
     /**
-     * Implements {@link CsrcAudioLevelListener#audioLevelsReceived(long[])}
-     * so that we could deliver to {@link ConferenceMembersSoundLevelListener}s
-     * the events corresponding to the audio level changes that are being
-     * reported here.
+     * Implements {@link CsrcAudioLevelListener#audioLevelsReceived(long[])}.
+     * Delivers the received audio levels to the
+     * {@link ConferenceMembersSoundLevelListener}s registered with this
+     * <tt>MediaAwareCallPeer</tt>..
      *
      * @param audioLevels the levels that we need to dispatch to all registered
      * <tt>ConferenceMemberSoundLevelListeners</tt>.
@@ -634,23 +634,21 @@ public abstract class MediaAwareCallPeer
         {
             ConferenceMember mmbr = findConferenceMember(audioLevels[i]);
 
-            if (mmbr == null)
-                continue;
-            else
+            if (mmbr != null)
                 levelsMap.put(mmbr, (int)audioLevels[i + 1]);
         }
 
         ConferenceMembersSoundLevelEvent evt
             = new ConferenceMembersSoundLevelEvent(this, levelsMap);
 
-        synchronized( conferenceMemberAudioLevelListeners)
+        synchronized (conferenceMemberAudioLevelListeners)
         {
             int conferenceMemberAudioLevelListenerCount
                 = conferenceMemberAudioLevelListeners.size();
 
             for (int i = 0; i < conferenceMemberAudioLevelListenerCount; i++)
-                conferenceMemberAudioLevelListeners
-                    .get(i).soundLevelChanged(evt);
+                conferenceMemberAudioLevelListeners.get(i).soundLevelChanged(
+                        evt);
         }
     }
 

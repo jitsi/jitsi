@@ -103,14 +103,12 @@ public class AudioMediaDeviceImpl
          */
         if(!OSUtils.IS_LINUX)
         {
-            Control bufferControl
-                = (Control)
-                    captureDevice
-                        .getControl(BufferControl.class.getName());
+            BufferControl bufferControl
+                = (BufferControl)
+                    captureDevice.getControl(BufferControl.class.getName());
 
             if (bufferControl != null)
-                ((BufferControl) bufferControl)
-                    .setBufferLength(60); // in milliseconds
+                bufferControl.setBufferLength(60 /* millis */);
         }
     }
 

@@ -13,7 +13,6 @@ import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.*;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
@@ -530,7 +529,7 @@ public class CallPeerMediaHandlerJabberImpl
                 && dev.getDirection().allowsSending())
             {
                direction = MediaDirection.SENDRECV;
-               ourContent.setSenders(SendersEnum.both);
+               ourContent.setSenders(ContentPacketExtension.SendersEnum.both);
             }
 
             //let's now see what was the format we announced as first and
@@ -927,7 +926,7 @@ public class CallPeerMediaHandlerJabberImpl
     {
         ContentPacketExtension content
             = JingleUtils.createDescription(
-                    CreatorEnum.initiator,
+                    ContentPacketExtension.CreatorEnum.initiator,
                     supportedFormats.get(0).getMediaType().toString(),
                     JingleUtils.getSenders(direction, !getPeer().isInitiator()),
                     supportedFormats,
@@ -1322,66 +1321,157 @@ public class CallPeerMediaHandlerJabberImpl
             }
             else
             {
+                ProtocolProviderServiceJabberImpl protocolProvider
+                    = peer.getProtocolProvider();
                 ScServiceDiscoveryManager discoveryManager
-                    = peer.getProtocolProvider().getDiscoveryManager();
+                    = protocolProvider.getDiscoveryManager();
                 DiscoverInfo peerDiscoverInfo = peer.getDiscoverInfo();
-
-                String domain = StringUtils.parseServer(
-                    peer.getAddress());
 
                 // We use Google P2P transport if both conditions are satisfied:
                 // - both peers have Google P2P transport in their features;
                 // - at least one peer is a Gmail or Google Apps account.
                 //
                 // Otherwise we go for an ICE-UDP transport
-                boolean isGoogle =
-                    peer.getProtocolProvider().isGmailOrGoogleAppsAccount() ||
-                        ProtocolProviderServiceJabberImpl.
-                            isGmailOrGoogleAppsAccount(domain);
+                boolean google
+                    = protocolProvider.isGmailOrGoogleAppsAccount()
+                        || ProtocolProviderServiceJabberImpl
+                            .isGmailOrGoogleAppsAccount(
+                                    StringUtils.parseServer(peer.getAddress()));
 
                 // Put Google P2P transport first. We will take it
                 // for a node that support both ICE-UDP and Google P2P to use
                 // Google relay.
-                if (discoveryManager.includesFeature(
-                    ProtocolProviderServiceJabberImpl
-                            .URN_GOOGLE_TRANSPORT_P2P)
-                        && ((peerDiscoverInfo == null)
-                                || peerDiscoverInfo.containsFeature(
+                if (google
+                        && isFeatureSupported(
+                                discoveryManager,
+                                peerDiscoverInfo,
                                 ProtocolProviderServiceJabberImpl
-                                    .URN_GOOGLE_TRANSPORT_P2P)) && isGoogle)
+                                    .URN_GOOGLE_TRANSPORT_P2P))
                 {
                     transportManager = new P2PTransportManager(peer);
                 }
-                else if (discoveryManager.includesFeature(
+                else
+                {
+                    /*
+                     * The list of possible transports ordered by decreasing
+                     * preference.
+                     */
+                    String[] transports
+                        = new String[]
+                        {
                             ProtocolProviderServiceJabberImpl
-                                .URN_XMPP_JINGLE_ICE_UDP_1)
-                        && ((peerDiscoverInfo == null)
-                                || peerDiscoverInfo.containsFeature(
-                                        ProtocolProviderServiceJabberImpl
-                                            .URN_XMPP_JINGLE_ICE_UDP_1)))
-                {
-                    transportManager = new IceUdpTransportManager(peer);
-                }
-                else if (discoveryManager.includesFeature(
+                                .URN_XMPP_JINGLE_ICE_UDP_1,
                             ProtocolProviderServiceJabberImpl
-                                .URN_XMPP_JINGLE_RAW_UDP_0)
-                        && ((peerDiscoverInfo == null)
-                                || peerDiscoverInfo.containsFeature(
-                                        ProtocolProviderServiceJabberImpl
-                                            .URN_XMPP_JINGLE_RAW_UDP_0)))
-                {
-                    transportManager = new RawUdpTransportManager(peer);
-                }
-                else if (logger.isDebugEnabled())
-                {
-                    logger.debug(
-                            "No known Jingle transport supported"
-                                + " by Jabber call peer "
-                                + peer);
+                                .URN_XMPP_JINGLE_RAW_UDP_0
+                        };
+
+                    /*
+                     * If the local peer is a conference focus and there is a
+                     * Jitsi VideoBridge working on the server, prefer a
+                     * transport which will route the conference through there.
+                     */
+                    CallJabberImpl call = peer.getCall();
+
+                    if (call.isConferenceFocus())
+                    {
+                        String jitsiVideoBridge
+                            = protocolProvider.getJitsiVideoBridge();
+
+                        if ((jitsiVideoBridge != null)
+                                && (jitsiVideoBridge.length() != 0))
+                        {
+                            /*
+                             * Make the transport of the Jitsi VideoBridge the
+                             * most preferred.
+                             */
+                            String jitsiVideoBridgeTransport
+                                = ProtocolProviderServiceJabberImpl
+                                    .URN_XMPP_JINGLE_RAW_UDP_0;
+
+                            for (int i = 1; i < transports.length; i++)
+                            {
+                                if (jitsiVideoBridgeTransport.equals(
+                                        transports[i]))
+                                {
+                                    transports[i] = transports[0];
+                                    transports[0] = jitsiVideoBridgeTransport;
+                                }
+                            }
+                        }
+                    }
+
+                    /*
+                     * Select the first transport from the list of possible
+                     * transports ordered by decreasing preference which is
+                     * supported by the local and the remote peers.
+                     */
+                    for (String transport : transports)
+                    {
+                        if (isFeatureSupported(
+                                discoveryManager,
+                                peerDiscoverInfo,
+                                transport))
+                        {
+                            if (ProtocolProviderServiceJabberImpl
+                                    .URN_XMPP_JINGLE_ICE_UDP_1
+                                        .equals(transport))
+                            {
+                                transportManager
+                                    = new IceUdpTransportManager(peer);
+                            }
+                            else if (ProtocolProviderServiceJabberImpl
+                                    .URN_XMPP_JINGLE_RAW_UDP_0
+                                        .equals(transport))
+                            {
+                                transportManager
+                                    = new RawUdpTransportManager(peer);
+                            }
+
+                            if (transportManager != null)
+                                break;
+                        }
+                    }
+
+                    if ((transportManager == null) && logger.isDebugEnabled())
+                    {
+                        logger.debug(
+                                "No known Jingle transport supported"
+                                    + " by Jabber call peer "
+                                    + peer);
+                    }
                 }
             }
         }
         return transportManager;
+    }
+
+    /**
+     * Determines whether a specific XMPP feature is supported by both a
+     * specific <tt>ScServiceDiscoveryManager</tt> (may be referred to as the
+     * local peer) and a specific <tt>DiscoverInfo</tt> (may be thought of as
+     * the remote peer).
+     *
+     * @param discoveryManager the <tt>ScServiceDiscoveryManager</tt> to be
+     * checked whether it includes the specified feature
+     * @param discoverInfo the <tt>DiscoveryInfo</tt> which is to be checked
+     * whether it contains the specified feature. If <tt>discoverInfo</tt> is
+     * <tt>null</tt>, it is considered to contain the specified feature.
+     * @param feature the feature to be determined whether it is supported by
+     * both the specified <tt>discoveryManager</tt> and the specified
+     * <tt>discoverInfo</tt>
+     * @return <tt>true</tt> if the specified <tt>feature</tt> is supported by
+     * both the specified <tt>discoveryManager</tt> and the specified
+     * <tt>discoverInfo</tt>; otherwise, <tt>false</tt>
+     */
+    private static boolean isFeatureSupported(
+            ScServiceDiscoveryManager discoveryManager,
+            DiscoverInfo discoverInfo,
+            String feature)
+    {
+        return
+            discoveryManager.includesFeature(feature)
+                && ((discoverInfo == null)
+                    || discoverInfo.containsFeature(feature));
     }
 
     /**

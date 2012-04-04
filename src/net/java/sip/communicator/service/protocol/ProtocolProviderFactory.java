@@ -313,8 +313,16 @@ public abstract class ProtocolProviderFactory
      * Indicates if default STUN server would be used if no other STUN/TURN
      * server are available.
      */
-    public static final String USE_DEFAULT_STUN_SERVER =
-        "USE_DEFAULT_STUN_SERVER";
+    public static final String USE_DEFAULT_STUN_SERVER
+        = "USE_DEFAULT_STUN_SERVER";
+
+    /**
+     * The name of the boolean account property which indicates whether Jitsi
+     * VideoBridge is to be used, if available and supported, for conference
+     * calls.
+     */
+    public static final String USE_JITSI_VIDEO_BRIDGE
+        = "USE_JITSI_VIDEO_BRIDGE";
 
     /**
      * The property name prefix for all stun server properties. We generally use

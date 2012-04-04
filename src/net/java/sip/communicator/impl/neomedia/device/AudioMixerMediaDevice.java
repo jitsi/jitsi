@@ -62,19 +62,20 @@ public class AudioMixerMediaDevice
     private AudioMixerMediaDeviceSession deviceSession;
 
     /**
-     * The listener that we'll register with the level dispatcher of the local
-     * stream and that will notify all the listeners (if any) registered in
-     * <tt>localUserAudioLevelListeners</tt>.
+     * The <tt>SimpleAudioLevelListener</tt> which is registered (or is to be
+     * registered) with {@link #localUserAudioLevelDispatcher} and which
+     * delivers each of the audio level changes to
+     * {@link #localUserAudioLevelListeners}.
      */
-    private final SimpleAudioLevelListener localUserAudioLevelDelegator
+    private final SimpleAudioLevelListener localUserAudioLevelDelegate
         = new SimpleAudioLevelListener()
+        {
+            public void audioLevelChanged(int level)
             {
-                public void audioLevelChanged(int level)
-                {
-                    lastMeasuredLocalUserAudioLevel = level;
-                    fireLocalUserAudioLevelException(level);
-                }
-            };
+                lastMeasuredLocalUserAudioLevel = level;
+                fireLocalUserAudioLevelChanged(level);
+            }
+        };
 
     /**
      * The dispatcher that delivers to listeners calculations of the local
@@ -219,32 +220,34 @@ public class AudioMixerMediaDevice
     }
 
     /**
-     * Notifies all currently registered <tt>SimpleAudioLevelListener</tt>s
-     * that our local media now has audio level <tt>level</tt>.
+     * Notifies the <tt>SimpleAudioLevelListener</tt>s registered with this
+     * instance about the new/current audio level of the local media stream.
      *
-     * @param level the new audio level of the local media stream.
+     * @param level the new/current audio level of the local media stream.
      */
-    private void fireLocalUserAudioLevelException(int level)
+    private void fireLocalUserAudioLevelChanged(int level)
     {
         List<SimpleAudioLevelListenerWrapper> localUserAudioLevelListeners;
 
         synchronized(localUserAudioLevelListenersSyncRoot)
         {
+            /*
+             * It is safe to not copy the localUserAudioLevelListeners of this
+             * instance here because it is a copy-on-write storage.
+             */
             localUserAudioLevelListeners = this.localUserAudioLevelListeners;
         }
 
-        {
-            /*
-             * XXX These events are going to happen veeery often (~50 times per
-             * sec) and we'd like to avoid creating an iterator every time.
-             */
-            int localUserAudioLevelListenerCount
-                = localUserAudioLevelListeners.size();
+        /*
+         * XXX These events are going to happen veeery often (~50 times per sec)
+         * and we'd like to avoid creating an iterator every time.
+         */
+        int localUserAudioLevelListenerCount
+            = localUserAudioLevelListeners.size();
 
-            for(int i = 0; i < localUserAudioLevelListenerCount; i++)
-                localUserAudioLevelListeners.get(i).listener.audioLevelChanged(
-                        level);
-        }
+        for(int i = 0; i < localUserAudioLevelListenerCount; i++)
+            localUserAudioLevelListeners.get(i).listener.audioLevelChanged(
+                    level);
     }
 
     /**
@@ -501,8 +504,8 @@ public class AudioMixerMediaDevice
                 //need to create the dispatcher.
                 if (localUserAudioLevelListeners.isEmpty())
                 {
-                    localUserAudioLevelDispatcher
-                        .setAudioLevelListener(localUserAudioLevelDelegator);
+                    localUserAudioLevelDispatcher.setAudioLevelListener(
+                            localUserAudioLevelDelegate);
                 }
 
                 //check if this listener has already been added.
@@ -1041,13 +1044,12 @@ public class AudioMixerMediaDevice
         {
             if (localUserAudioLevelListener != null)
             {
-                    audioMixerMediaDeviceSession
-                        .removeLocalUserAudioLevelListener(
-                                        localUserAudioLevelListener);
-                    localUserAudioLevelListener = null;
+                audioMixerMediaDeviceSession.removeLocalUserAudioLevelListener(
+                        localUserAudioLevelListener);
+                localUserAudioLevelListener = null;
             }
 
-            if( l != null)
+            if (l != null)
             {
                 this.localUserAudioLevelListener = l;
 
@@ -1055,8 +1057,8 @@ public class AudioMixerMediaDevice
                 // this happens when holding a conversation, stream is muted
                 // and when recreated listener is again set
                 if(!isMute())
-                    audioMixerMediaDeviceSession
-                            .addLocalUserAudioLevelListener(l);
+                    audioMixerMediaDeviceSession.addLocalUserAudioLevelListener(
+                            l);
             }
         }
 
@@ -1139,20 +1141,26 @@ public class AudioMixerMediaDevice
         @Override
         public void setMute(boolean mute)
         {
-            if(super.isMute() == mute)
-                return;
+            boolean oldValue = isMute();
 
             super.setMute(mute);
 
-            if(mute)
+            boolean newValue = isMute();
+
+            if (oldValue != newValue)
             {
-                audioMixerMediaDeviceSession.removeLocalUserAudioLevelListener(
-                        this.localUserAudioLevelListener);
-            }
-            else
-            {
-                audioMixerMediaDeviceSession.addLocalUserAudioLevelListener(
-                        this.localUserAudioLevelListener);
+                if (newValue)
+                {
+                    audioMixerMediaDeviceSession
+                        .removeLocalUserAudioLevelListener(
+                            localUserAudioLevelListener);
+                }
+                else
+                {
+                    audioMixerMediaDeviceSession
+                        .addLocalUserAudioLevelListener(
+                            localUserAudioLevelListener);
+                }
             }
         }
     }

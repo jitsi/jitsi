@@ -2629,6 +2629,15 @@ public class ProtocolProviderServiceJabberImpl
      */
     public String getJitsiVideoBridge()
     {
+        /*
+         * Make sure that the account properties allow the use of Jitsi
+         * VideoBridge.
+         */
+        if (!getAccountID().getAccountPropertyBoolean(
+                ProtocolProviderFactory.USE_JITSI_VIDEO_BRIDGE,
+                false))
+            return null;
+
         XMPPConnection connection = getConnection();
 
         if (connection != null)
