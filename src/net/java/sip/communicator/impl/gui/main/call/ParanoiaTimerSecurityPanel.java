@@ -21,7 +21,7 @@ import java.util.Timer;
  * @author Damian Minkov
  * @author Yana Stamcheva
  */
-public class ParanoiaTimerSecurityPanel
+public class ParanoiaTimerSecurityPanel<T extends SrtpControl>
     extends SecurityPanel<SrtpControl>
 {
     /**
@@ -32,9 +32,9 @@ public class ParanoiaTimerSecurityPanel
     /**
      * Creates an instance of this <tt>ParanoiaTimerSecurityPanel</tt>.
      */
-    ParanoiaTimerSecurityPanel()
+    ParanoiaTimerSecurityPanel(T securityControl)
     {
-        super(null);
+        super(securityControl);
 
         initComponents();
     }
@@ -79,14 +79,12 @@ public class ParanoiaTimerSecurityPanel
         if (securityControl instanceof ZrtpControl)
             zrtpControl = (ZrtpControl) securityControl;
 
-        int initialSeconds = 0;
+        long initialSeconds = 0;
 
         if (zrtpControl != null)
-            initialSeconds = (int) zrtpControl.getTimeoutValue()/1000;
+            initialSeconds = zrtpControl.getTimeoutValue();
 
-        c.set(Calendar.HOUR, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, initialSeconds);
+        c.setTimeInMillis(initialSeconds);
 
         counter.setText(format.format(c.getTime()));
 
@@ -96,10 +94,13 @@ public class ParanoiaTimerSecurityPanel
                 @Override
                 public void run()
                 {
-                    c.add(Calendar.SECOND, -1);
-                    counter.setText(format.format(c.getTime()));
+                    if (c.getTimeInMillis() - 1000 > 0)
+                    {
+                        c.add(Calendar.SECOND, -1);
+                        counter.setText(format.format(c.getTime()));
+                    }
                 }
-            }, 0, 1000);
+            }, 1000, 1000);
     }
 
     /**

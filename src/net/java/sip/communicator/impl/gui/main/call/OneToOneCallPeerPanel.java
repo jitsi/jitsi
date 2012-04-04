@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -613,7 +614,14 @@ public class OneToOneCallPeerPanel
             if(Boolean.parseBoolean(GuiActivator.getResources()
                     .getSettingsString("impl.gui.PARANOIA_UI")))
             {
-                securityPanel = new ParanoiaTimerSecurityPanel();
+                SrtpControl srtpControl = null;
+                if (callPeer instanceof MediaAwareCallPeer)
+                    srtpControl = ((MediaAwareCallPeer<?, ?, ?>) callPeer)
+                        .getMediaHandler().getStream(MediaType.AUDIO)
+                            .getSrtpControl();
+
+                securityPanel
+                    = new ParanoiaTimerSecurityPanel<SrtpControl>(srtpControl);
 
                 setSecurityPanelVisible(true);
             }
@@ -708,7 +716,8 @@ public class OneToOneCallPeerPanel
 
         // if we have some other panel, using other control
         if(!srtpControl.getClass().isInstance(
-                securityPanel.getSecurityControl()))
+                securityPanel.getSecurityControl())
+            || (securityPanel instanceof ParanoiaTimerSecurityPanel))
         {
             setSecurityPanelVisible(false);
 
