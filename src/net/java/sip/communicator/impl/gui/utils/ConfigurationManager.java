@@ -204,6 +204,11 @@ public class ConfigurationManager
     private static int defaultFontColor = -1;
 
     /**
+     * whether to show the status changed message in chat history area.
+     */
+    private static boolean showStatusChangedInChat = true;
+
+    /**
      * Loads all user interface configurations.
      */
     public static void loadGuiConfigurations()
@@ -572,6 +577,20 @@ public class ConfigurationManager
             if(colorSetting != -1)
                 defaultFontColor = colorSetting;
         }
+
+        String showStatusChangedInChatProperty
+                = "impl.gui.SHOW_STATUS_CHANGED_IN_CHAT";
+        String showStatusChangedInChatDefault = GuiActivator.getResources().
+            getSettingsString(showStatusChangedInChatProperty);
+
+        // if there is a default value use it
+        if(showStatusChangedInChatDefault != null)
+            showStatusChangedInChat = Boolean.parseBoolean(
+                showStatusChangedInChatDefault);
+
+        showStatusChangedInChat = configService.getBoolean(
+            showStatusChangedInChatProperty,
+            showStatusChangedInChat);
     }
 
     /**
@@ -1043,6 +1062,18 @@ public class ConfigurationManager
     {
         return configService.getBoolean(
             "impl.gui.NORMALIZE_PHONE_NUMBER", true);
+    }
+
+    /**
+     * Returns <code>true</code> if status changed should be shown in
+     * chat history area, <code>false</code> otherwise.
+     *
+     * @return <code>true</code> if status changed should be shown in
+     * chat history area, <code>false</code> otherwise.
+     */
+    public static boolean isShowStatusChangedInChat()
+    {
+        return showStatusChangedInChat;
     }
 
     /**
@@ -1806,6 +1837,11 @@ public class ConfigurationManager
             "net.java.sip.communicator.impl.gui.call.lastCallConferenceProvider"))
             {
                 lastCallConferenceProvider = findProviderFromAccountId(newValue);
+            }
+            else if (evt.getPropertyName().equals(
+                "impl.gui.SHOW_STATUS_CHANGED_IN_CHAT"))
+            {
+                showStatusChangedInChat = Boolean.parseBoolean(newValue);
             }
         }
     }

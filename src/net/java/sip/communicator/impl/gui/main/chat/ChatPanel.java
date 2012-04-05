@@ -1723,15 +1723,18 @@ public class ChatPanel
     {
         writeMessagePanel.updateChatTransportStatus(chatTransport);
 
-        // Show a status message to the user.
-        this.addMessage(
-            chatTransport.getName(),
-            System.currentTimeMillis(),
-            Chat.STATUS_MESSAGE,
-            GuiActivator.getResources().getI18NString(
-                "service.gui.STATUS_CHANGED_CHAT_MESSAGE",
-                new String[]{chatTransport.getStatus().getStatusName()}),
-                "text/plain");
+        if(ConfigurationManager.isShowStatusChangedInChat())
+        {
+            // Show a status message to the user.
+            this.addMessage(
+                chatTransport.getName(),
+                System.currentTimeMillis(),
+                Chat.STATUS_MESSAGE,
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.STATUS_CHANGED_CHAT_MESSAGE",
+                    new String[]{chatTransport.getStatus().getStatusName()}),
+                    "text/plain");
+        }
 
         if(ConfigurationManager.isMultiChatWindowEnabled())
         {
