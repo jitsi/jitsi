@@ -10,6 +10,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -132,8 +133,22 @@ public class ParanoiaTimerSecurityPanel<T extends SrtpControl>
         // fail peer, call
         if(evt.getSource() instanceof AbstractCallPeer)
         {
-            AbstractCallPeer peer = (AbstractCallPeer)evt.getSource();
-            peer.setState(CallPeerState.FAILED, "Encryption Required!");
+            try
+            {
+                AbstractCallPeer peer = (AbstractCallPeer)evt.getSource();
+                OperationSetBasicTelephony<?> telephony
+                    = peer.getProtocolProvider().getOperationSet(
+                            OperationSetBasicTelephony.class);
+
+                telephony.hangupCallPeer(
+                    peer,
+                    OperationSetBasicTelephony.HANGUP_REASON_ENCRYPTION_REQUIRED,
+                    "Encryption Required!");
+            }
+            catch(OperationFailedException ex)
+            {
+                Logger.getLogger(getClass()).error("Failed to hangup peer", ex);
+            }
         }
     }
 

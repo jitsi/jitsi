@@ -167,7 +167,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
         MediaAwareCallT call = createOutgoingCall();
 
-        if(group.getCalls().size() > 0)
+        if(group != null && group.getCalls().size() > 0)
         {
             group.addCall(call);
             call.setCallGroup(group);
@@ -191,10 +191,10 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 = inviteCalleeToCall(calleeAddress, call, wasConferenceFocus);
 
             // GTalk case
-            if (peer.getCall() != call)
+            if (group != null && peer.getCall() != call)
                 group.addCall(peer.getCall());
 
-            if (call.getCallGroup() == null)
+            if (group != null && call.getCallGroup() == null)
                 group.addCall(call);
         }
         return call;

@@ -1856,21 +1856,23 @@ public class CallManager
                 for(Call c : calls)
                 {
                     peers = c.getCallPeers();
-                    if(!peers.hasNext())
-                        return;
-                    CallPeer peer = peers.next();
-                    OperationSetBasicTelephony<?> telephony
-                        = peer.getCall().getProtocolProvider().
+
+                    while(peers.hasNext())
+                    {
+                        CallPeer peer = peers.next();
+                        OperationSetBasicTelephony<?> telephony
+                            = peer.getCall().getProtocolProvider().
                             getOperationSet(OperationSetBasicTelephony.class);
 
-                    try
-                    {
-                        telephony.hangupCallPeer(peer);
-                    }
-                    catch (OperationFailedException e)
-                    {
-                        logger.error("Could not hang up : " + peer
-                            + " caused by the following exception: " + e);
+                        try
+                        {
+                            telephony.hangupCallPeer(peer);
+                        }
+                        catch (OperationFailedException e)
+                        {
+                            logger.error("Could not hang up : " + peer
+                                + " caused by the following exception: " + e);
+                        }
                     }
                 }
             }

@@ -319,13 +319,40 @@ public class ConferenceInviteDialog
 
         if(call != null)
         {
-            CallManager.inviteToCrossProtocolConferenceCall(
-                selectedProviderCallees, call);
+            Map.Entry<ProtocolProviderService, List<String>> entry;
+            if(selectedProviderCallees.size() == 1
+                && (entry = selectedProviderCallees.entrySet().iterator().next())
+                        != null
+                && call.getProtocolProvider().equals(entry.getKey()))
+            {
+                CallManager.inviteToConferenceCall(
+                    entry.getValue().toArray(
+                                        new String[entry.getValue().size()]),
+                    call);
+            }
+            else
+            {
+                CallManager.inviteToCrossProtocolConferenceCall(
+                    selectedProviderCallees, call);
+            }
         }
         else
         {
-            CallManager.createCrossProtocolConferenceCall(
-                selectedProviderCallees);
+            if(selectedProviderCallees.size() == 1)
+            {
+                // one provider, normal conf call
+                Map.Entry<ProtocolProviderService, List<String>> entry =
+                    selectedProviderCallees.entrySet().iterator().next();
+                CallManager.createConferenceCall(
+                    entry.getValue().toArray(
+                                        new String[entry.getValue().size()]),
+                    entry.getKey());
+            }
+            else
+            {
+                CallManager.createCrossProtocolConferenceCall(
+                    selectedProviderCallees);
+            }
         }
     }
 

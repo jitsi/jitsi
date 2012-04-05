@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -290,7 +291,27 @@ public class ConferencePeerPanel
      */
     public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
     {
+        if(Boolean.parseBoolean(GuiActivator.getResources()
+                .getSettingsString("impl.gui.PARANOIA_UI")))
+        {
+            try
+            {
+                AbstractCallPeer peer = (AbstractCallPeer)evt.getSource();
+                OperationSetBasicTelephony<?> telephony
+                    = peer.getProtocolProvider().getOperationSet(
+                            OperationSetBasicTelephony.class);
 
+                telephony.hangupCallPeer(
+                    peer,
+                    OperationSetBasicTelephony.HANGUP_REASON_ENCRYPTION_REQUIRED,
+                    "Encryption Required!");
+            }
+            catch(OperationFailedException ex)
+            {
+                Logger.getLogger(getClass())
+                    .error("Failed to hangup peer", ex);
+            }
+        }
     }
 
     /**
