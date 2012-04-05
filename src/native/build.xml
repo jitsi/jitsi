@@ -349,10 +349,10 @@
       -->
       <linkerarg value="-o" location="end" if="is.running.macos" />
       <linkerarg value="libjnffmpeg.jnilib" location="end" if="is.running.macos" />
-      <linkerarg value="-arch" if="cross_32" unless="is.running.linux" />
-      <linkerarg value="i386" if="cross_32" unless="is.running.linux" />
-      <linkerarg value="-arch" if="cross_64" unless="is.running.linux" />
-      <linkerarg value="x86_64" if="cross_64" unless="is.running.linux" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="i386" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="x86_64" if="is.running.macos" />
       <linkerarg value="-dynamiclib" if="is.running.macos" />
       <linkerarg value="-Wl,-read_only_relocs,suppress" if="is.running.macos" />
       
