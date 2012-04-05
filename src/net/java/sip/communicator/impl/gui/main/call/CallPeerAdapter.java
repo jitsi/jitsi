@@ -177,6 +177,23 @@ public class CallPeerAdapter
     }
 
     /**
+     * The handler for the security event received. The security event
+     * for starting establish a secure connection.
+     *
+     * @param evt the security started event received
+     */
+    public void securityStarted(
+        CallPeerSecurityStartedEvent evt)
+    {
+        CallPeer peer = (CallPeer) evt.getSource();
+
+        if (!peer.equals(callPeer))
+            return;
+
+        renderer.securityStarted(evt);
+    }
+
+    /**
      * Indicates the new state through the security indicator components.
      * @param securityOffEvent the event we received
      */

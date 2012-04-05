@@ -315,6 +315,19 @@ public class ConferencePeerPanel
     }
 
     /**
+     * The handler for the security event received. The security event
+     * for starting establish a secure connection.
+     *
+     * @param securityStartedEvent
+     *            the security started event received
+     */
+    public void securityStarted(
+        CallPeerSecurityStartedEvent securityStartedEvent)
+    {
+
+    }
+
+    /**
      * Sets the mute status icon to the status panel.
      *
      * @param isMute indicates if the call with this peer is

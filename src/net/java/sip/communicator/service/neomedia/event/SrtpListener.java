@@ -58,4 +58,11 @@ public interface SrtpListener
      * @param sessionType the type of the call session - audio or video.
      */
     public void securityTimeout(int sessionType);
+
+    /**
+     * Indicates that we started the process of securing the the connection.
+     *
+     * @param sessionType the type of the call session - audio or video.
+     */
+    public void securityStarted(int sessionType);
 }

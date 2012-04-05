@@ -1213,6 +1213,17 @@ public class NotificationManager
     {}
 
     /**
+     * The handler for the security event received. The security event
+     * for starting establish a secure connection.
+     *
+     * @param securityStartedEvent
+     *            the security started event received
+     */
+    public void securityStarted(
+        CallPeerSecurityStartedEvent securityStartedEvent)
+    {}
+
+    /**
      * Processes the received security message.
      * @param event the event we received
      */

@@ -559,6 +559,8 @@ public class ZRTPTransformEngine
         {
             zrtpEngine.startZrtpEngine();
             started = true;
+
+            securityEventManager.securityStarted();
         }
     }
 

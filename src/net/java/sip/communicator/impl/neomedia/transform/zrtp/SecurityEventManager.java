@@ -432,4 +432,20 @@ public class SecurityEventManager extends ZrtpUserCallback
     {
         return isSasVerified;
     }
+
+    /**
+     * Indicates that we started the process of securing the the connection.
+     */
+    public void securityStarted()
+    {
+        // make sure we don't throw any exception
+        try
+        {
+            this.securityListener.securityStarted(sessionType);
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error processing security started.");
+        }
+    }
 }

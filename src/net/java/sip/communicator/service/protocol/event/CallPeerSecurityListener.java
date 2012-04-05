@@ -61,4 +61,14 @@ public interface CallPeerSecurityListener
      */
     public void securityMessageRecieved(
         CallPeerSecurityMessageEvent event);
+
+    /**
+     * The handler for the security event received. The security event
+     * for starting establish a secure connection.
+     *
+     * @param securityStartedEvent
+     *            the security started event received
+     */
+    public void securityStarted(
+        CallPeerSecurityStartedEvent securityStartedEvent);
 }

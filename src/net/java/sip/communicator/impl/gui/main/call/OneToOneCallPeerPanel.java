@@ -768,6 +768,19 @@ public class OneToOneCallPeerPanel
     }
 
     /**
+     * The handler for the security event received. The security event
+     * for starting establish a secure connection.
+     *
+     * @param securityStartedEvent
+     *            the security started event received
+     */
+    public void securityStarted(
+        CallPeerSecurityStartedEvent securityStartedEvent)
+    {
+
+    }
+
+    /**
      * Sets the call peer adapter managing all related listeners.
      * @param adapter the adapter to set
      */

@@ -110,6 +110,12 @@ public class MediaHandler
                 for (SrtpListener listener : getSrtpListeners())
                     listener.securityTurnedOn(sessionType, cipher, sender);
             }
+
+            public void securityStarted(int sessionType)
+            {
+                for (SrtpListener listener : getSrtpListeners())
+                    listener.securityStarted(sessionType);
+            }
         };
 
     private final List<SrtpListener> srtpListeners
@@ -889,8 +895,8 @@ public class MediaHandler
      *
      * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> to
      * set the last-known local SSRC of
-     * @param localSSRC the last-known local SSRC of the <tt>MediaStream</tt> of
-     * the specified <tt>mediaType</tt>
+     * @param remoteSSRC the last-known remote SSRC of the <tt>MediaStream</tt>
+     * of the specified <tt>mediaType</tt>
      */
     private void setRemoteSSRC(MediaType mediaType, long remoteSSRC)
     {

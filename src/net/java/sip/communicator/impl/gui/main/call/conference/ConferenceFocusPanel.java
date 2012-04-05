@@ -361,6 +361,17 @@ public class ConferenceFocusPanel
     }
 
     /**
+     * The handler for the security event received. The security event
+     * for starting establish a secure connection.
+     *
+     * @param securityStartedEvent
+     *            the security started event received
+     */
+    public void securityStarted(
+        CallPeerSecurityStartedEvent securityStartedEvent)
+    {}
+
+    /**
      * Sets the call peer adapter that manages all related listeners.
      *
      * @param adapter the call peer adapter

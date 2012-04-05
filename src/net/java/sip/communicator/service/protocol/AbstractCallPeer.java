@@ -370,6 +370,36 @@ public abstract class AbstractCallPeer<T extends Call,
      * source, setting it to be of type <tt>eventType</tt> and the corresponding
      * <tt>oldValue</tt> and <tt>newValue</tt>.
      *
+     * @param evt the event object with details to pass on to the consumers
+     */
+    protected void fireCallPeerSecurityStartedEvent(
+        CallPeerSecurityStartedEvent evt)
+    {
+        lastSecurityEvent = evt;
+
+        if (logger.isDebugEnabled())
+            logger.debug("Dispatching a CallPeerSecurityStatusEvent event to "
+                     + callPeerSecurityListeners.size()
+                     +" listeners. event is: " + evt.toString());
+
+        List<CallPeerSecurityListener> listeners = null;
+        synchronized (callPeerSecurityListeners)
+        {
+            listeners = new ArrayList<CallPeerSecurityListener>(
+                                callPeerSecurityListeners);
+        }
+
+        for(CallPeerSecurityListener listener : listeners)
+        {
+            listener.securityStarted(evt);
+        }
+    }
+
+    /**
+     * Constructs a <tt>CallPeerSecurityStatusEvent</tt> using this call peer as
+     * source, setting it to be of type <tt>eventType</tt> and the corresponding
+     * <tt>oldValue</tt> and <tt>newValue</tt>.
+     *
      * @param messageType the type of the message
      * @param i18nMessage message
      * @param severity severity level
