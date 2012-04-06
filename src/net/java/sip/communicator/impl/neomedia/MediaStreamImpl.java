@@ -1692,6 +1692,14 @@ public class MediaStreamImpl
                 startedDirection = MediaDirection.SENDRECV;
             else if (startedDirection == null)
                 startedDirection = MediaDirection.SENDONLY;
+
+            logger.info(getFormat().getMediaType().toString() + " codec/freq: "
+                + getMediaStreamStats().getEncoding()
+                + "/" + getMediaStreamStats().getEncodingClockRate() + " Hz");
+            logger.info(getFormat().getMediaType().toString()
+                + " remote IP/port: "
+                + getMediaStreamStats().getRemoteIPAddress()
+                + "/" + String.valueOf(getMediaStreamStats().getRemotePort()));
         }
 
         if (direction.allowsReceiving()
