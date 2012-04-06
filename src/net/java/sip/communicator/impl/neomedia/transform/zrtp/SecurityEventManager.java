@@ -436,12 +436,12 @@ public class SecurityEventManager extends ZrtpUserCallback
     /**
      * Indicates that we started the process of securing the the connection.
      */
-    public void securityStarted()
+    public void securityNegotiationStarted()
     {
         // make sure we don't throw any exception
         try
         {
-            this.securityListener.securityStarted(sessionType);
+            this.securityListener.securityNegotiationStarted(sessionType);
         }
         catch(Throwable t)
         {

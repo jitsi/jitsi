@@ -64,5 +64,5 @@ public interface SrtpListener
      *
      * @param sessionType the type of the call session - audio or video.
      */
-    public void securityStarted(int sessionType);
+    public void securityNegotiationStarted(int sessionType);
 }

@@ -372,8 +372,8 @@ public abstract class AbstractCallPeer<T extends Call,
      *
      * @param evt the event object with details to pass on to the consumers
      */
-    protected void fireCallPeerSecurityStartedEvent(
-        CallPeerSecurityStartedEvent evt)
+    protected void fireCallPeerSecurityNegotiationStartedEvent(
+        CallPeerSecurityNegotiationStartedEvent evt)
     {
         lastSecurityEvent = evt;
 
@@ -391,7 +391,7 @@ public abstract class AbstractCallPeer<T extends Call,
 
         for(CallPeerSecurityListener listener : listeners)
         {
-            listener.securityStarted(evt);
+            listener.securityNegotiationStarted(evt);
         }
     }
 

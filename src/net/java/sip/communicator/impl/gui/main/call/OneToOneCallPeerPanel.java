@@ -771,11 +771,11 @@ public class OneToOneCallPeerPanel
      * The handler for the security event received. The security event
      * for starting establish a secure connection.
      *
-     * @param securityStartedEvent
+     * @param securityNegotiationStartedEvent
      *            the security started event received
      */
-    public void securityStarted(
-        CallPeerSecurityStartedEvent securityStartedEvent)
+    public void securityNegotiationStarted(
+        CallPeerSecurityNegotiationStartedEvent securityNegotiationStartedEvent)
     {
 
     }

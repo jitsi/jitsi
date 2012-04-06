@@ -130,7 +130,7 @@ public class SDesControlImpl
         // in srtp the started and security event is one after another
         // in some other security mechanisms (e.g. zrtp) there can be started
         // and no security one or security timeout event
-        srtpListener.securityStarted(
+        srtpListener.securityNegotiationStarted(
             type.equals(MediaType.AUDIO) ?
                 SecurityEventManager.AUDIO_SESSION
                 : SecurityEventManager.VIDEO_SESSION);

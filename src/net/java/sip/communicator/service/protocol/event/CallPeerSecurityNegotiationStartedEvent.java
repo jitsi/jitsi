@@ -9,13 +9,13 @@ package net.java.sip.communicator.service.protocol.event;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The <tt>CallPeerSecurityStartedEvent</tt> is triggered whenever a
+ * The <tt>CallPeerSecurityNegotiationStartedEvent</tt> is triggered whenever a
  * communication with a given peer is established,
  * we started securing the connection.
  *
  * @author Damian Minkov
  */
-public class CallPeerSecurityStartedEvent
+public class CallPeerSecurityNegotiationStartedEvent
     extends CallPeerSecurityStatusEvent
 {
     /**
@@ -31,8 +31,8 @@ public class CallPeerSecurityStartedEvent
      *            {@link net.java.sip.communicator.service.protocol.event.CallPeerSecurityStatusEvent#AUDIO_SESSION} or
      *            {@link net.java.sip.communicator.service.protocol.event.CallPeerSecurityStatusEvent#VIDEO_SESSION}
      */
-    public CallPeerSecurityStartedEvent(CallPeer callPeer,
-                                        int sessionType)
+    public CallPeerSecurityNegotiationStartedEvent(CallPeer callPeer,
+                                                   int sessionType)
     {
         super(callPeer, sessionType);
     }

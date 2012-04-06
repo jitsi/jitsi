@@ -98,8 +98,8 @@ public interface CallPeerRenderer
      * @param securityStartedEvent
      *            the security started event received
      */
-    public void securityStarted(
-        CallPeerSecurityStartedEvent securityStartedEvent);
+    public void securityNegotiationStarted(
+        CallPeerSecurityNegotiationStartedEvent securityStartedEvent);
 
     /**
      * Sets the call peer adapter that manages all related listeners.

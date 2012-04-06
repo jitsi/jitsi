@@ -8,10 +8,8 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.beans.*;
 
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.protocol.media.*;
 
 /**
  * The <tt>CallPeerAdapter</tt> is an adapter that implements all common
@@ -180,17 +178,17 @@ public class CallPeerAdapter
      * The handler for the security event received. The security event
      * for starting establish a secure connection.
      *
-     * @param evt the security started event received
+     * @param evt the security negotiation started event received
      */
-    public void securityStarted(
-        CallPeerSecurityStartedEvent evt)
+    public void securityNegotiationStarted(
+        CallPeerSecurityNegotiationStartedEvent evt)
     {
         CallPeer peer = (CallPeer) evt.getSource();
 
         if (!peer.equals(callPeer))
             return;
 
-        renderer.securityStarted(evt);
+        renderer.securityNegotiationStarted(evt);
     }
 
     /**

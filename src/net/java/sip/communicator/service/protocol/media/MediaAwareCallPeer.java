@@ -698,11 +698,11 @@ public abstract class MediaAwareCallPeer
      *
      * @param sessionType the type of the call session - audio or video.
      */
-    public void securityStarted(int sessionType)
+    public void securityNegotiationStarted(int sessionType)
     {
-        CallPeerSecurityStartedEvent evt =
-            new CallPeerSecurityStartedEvent(this, sessionType);
-        fireCallPeerSecurityStartedEvent(evt);
+        CallPeerSecurityNegotiationStartedEvent evt =
+            new CallPeerSecurityNegotiationStartedEvent(this, sessionType);
+        fireCallPeerSecurityNegotiationStartedEvent(evt);
     }
 
     /**
