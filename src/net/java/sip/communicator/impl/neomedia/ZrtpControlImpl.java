@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia;
 
 import gnu.java.zrtp.*;
+import gnu.java.zrtp.utils.*;
 
 import java.util.*;
 
@@ -299,6 +300,32 @@ public class ZrtpControlImpl
     public boolean isSecurityVerified()
     {
         return getTransformEngine().getUserCallback().isSecurityVerified();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * net.java.sip.communicator.service.neomedia.ZrtpControl#getPeerZid
+     * ()
+     */
+    public byte[] getPeerZid()
+    {
+        return getTransformEngine().getPeerZid();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * net.java.sip.communicator.service.neomedia.ZrtpControl#getPeerZidString
+     * ()
+     */
+    public String getPeerZidString()
+    {
+        byte[] zid = getPeerZid();
+        String s = new String(ZrtpUtils.bytesToHexString(zid, zid.length));
+        return s;
     }
 
     /**

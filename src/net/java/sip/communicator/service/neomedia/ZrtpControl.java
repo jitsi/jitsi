@@ -60,4 +60,30 @@ public interface ZrtpControl
      *  and fire timeout secure event if call is not secured.
      */
     public long getTimeoutValue();
+    
+    /**
+     * Get other party's ZID (ZRTP Identifier) data
+     * 
+     * This functions returns the other party's ZID that was receivied during
+     * ZRTP processing.
+     *
+     * The ZID data can be retrieved after ZRTP receive the first Hello packet
+     * from the other party.
+     * 
+     * @return the ZID data as byte array.
+     */
+    public byte[] getPeerZid();
+
+    /**
+     * Get other party's ZID (ZRTP Identifier) data as String
+     * 
+     * This functions returns the other party's ZID that was receivied during
+     * ZRTP processing.
+     *
+     * The ZID data can be retrieved after ZRTP receive the first Hello packet
+     * from the other party.
+     *
+     * @return the ZID data as String.
+     */
+    public String getPeerZidString();
 }

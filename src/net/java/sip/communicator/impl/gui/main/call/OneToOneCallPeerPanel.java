@@ -723,6 +723,9 @@ public class OneToOneCallPeerPanel
 
             securityPanel
                 = SecurityPanel.create(this, callPeer, srtpControl);
+
+            if (srtpControl instanceof ZrtpControl)
+                ((ZrtpSecurityPanel)securityPanel).setSecurityStatusLabel(securityStatusLabel);
         }
 
         securityPanel.securityOn(evt);
