@@ -1044,11 +1044,11 @@ public class ZRTPTransformEngine
      * @param sas
      * @see gnu.java.zrtp.ZrtpCallback#signSAS(java.lang.String)
      */
-    public void signSAS(String sas)
+    public void signSAS(byte[] sasHash)
     {
         if (securityEventManager != null)
         {
-            securityEventManager.signSAS(sas);
+            securityEventManager.signSAS(sasHash);
         }
     }
 
@@ -1058,10 +1058,10 @@ public class ZRTPTransformEngine
      * @return false if signature check fails, true otherwise
      * @see gnu.java.zrtp.ZrtpCallback#checkSASSignature(java.lang.String)
      */
-    public boolean checkSASSignature(String sas)
+    public boolean checkSASSignature(byte[] sasHash)
     {
         return ((securityEventManager != null)
-                        ? securityEventManager.checkSASSignature(sas)
+                        ? securityEventManager.checkSASSignature(sasHash)
                         : false);
     }
 
