@@ -197,6 +197,15 @@ public class KeepAliveManager
                     logger.trace("provider not registered. "
                         +"won't send keep alive for "
                         + parentProvider.getAccountID().getDisplayName());
+
+                parentProvider.unregister(false);
+
+                parentProvider.fireRegistrationStateChanged(
+                    parentProvider.getRegistrationState(),
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                    null);
+
                 return;
             }
 

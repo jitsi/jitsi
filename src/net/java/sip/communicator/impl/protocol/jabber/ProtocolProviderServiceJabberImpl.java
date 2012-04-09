@@ -1944,10 +1944,15 @@ public class ProtocolProviderServiceJabberImpl
                      return;
                 }
             }
-            // if we are already unregistered, there will not be a new fire
-            // if not we will clean and provider will fire its
-            // provider state change
-            unregister(true);
+            // fire that a connection failed, the reconnection mechanism
+            // will look after us and will clean us, other wise we can do
+            // a dead lock (connection closed is called
+            // within xmppConneciton and calling disconnect again can lock it)
+            fireRegistrationStateChanged(
+                getRegistrationState(),
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                null);
         }
 
         /**

@@ -1416,7 +1416,14 @@ public class NetworkUtils
     {
         // reread system dns configuration
         ResolverConfig.refresh();
-        DnsUtilActivator.refreshResolver();
+        try
+        {
+            DnsUtilActivator.refreshResolver();
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error reloading dns util activator");
+        }
         if(parallelResolver instanceof ParallelResolver)
         {
             //needs a separate lock object because the parallelResolver could
