@@ -173,9 +173,8 @@ public class TransportManagerGTalkImpl
         boolean jingleInfoIsSupported
             = provider.isFeatureSupported(accountIDService,
                     JingleInfoQueryIQ.NAMESPACE);
-        final List<StunServerDescriptor> servers =
+        List<StunServerDescriptor> servers =
             new ArrayList<StunServerDescriptor>();
-        final Object syncRoot = new Object();
 
         // check for google:jingleinfo support
         if(!jingleInfoIsSupported)
@@ -193,147 +192,114 @@ public class TransportManagerGTalkImpl
         iq.setType(Type.GET);
 
         XMPPConnection connection = provider.getConnection();
-        PacketListener pl = new PacketListener()
-        {
-            public void processPacket(Packet p)
-            {
-                JingleInfoQueryIQ iq = (JingleInfoQueryIQ)p;
-                Iterator<PacketExtension> it = iq.getExtensions().iterator();
-
-                while(it.hasNext())
-                {
-                    AbstractPacketExtension ext =
-                        (AbstractPacketExtension)it.next();
-
-                    if(ext.getElementName().equals(
-                        StunPacketExtension.ELEMENT_NAME))
-                    {
-                        for(ServerPacketExtension e :
-                            ext.getChildExtensionsOfType(
-                                    ServerPacketExtension.class))
-                        {
-                            StunServerDescriptor dsc =
-                                new StunServerDescriptor(e.getHost(),
-                                        e.getUdp(), false, null, null);
-                            synchronized(servers)
-                            {
-                                servers.add(dsc);
-                            }
-                        }
-                    }
-                    else if(ext.getElementName().equals(
-                        RelayPacketExtension.ELEMENT_NAME))
-                    {
-                        String token = ((RelayPacketExtension)ext).getToken();
-                        for(ServerPacketExtension e :
-                            ext.getChildExtensionsOfType(
-                                    ServerPacketExtension.class))
-                        {
-                            String headerNames[] = new String[2];
-                            String headerValues[] = new String[2];
-                            String addr = "http://" + e.getHost() +
-                                "/create_session";
-
-                            headerNames[0] = "X-Talk-Google-Relay-Auth";
-                            headerNames[1] = "X-Google-Relay-Auth";
-                            headerValues[0] = token;
-                            headerValues[1] = token;
-
-                            HTTPResponseResult res =
-                                HttpUtils.openURLConnection(addr,
-                                    headerNames, headerValues);
-                            Hashtable<String, String> relayData = null;
-
-                            try
-                            {
-                                relayData =
-                                    parseGoogleRelay(res.getContentString());
-                            }
-                            catch (IOException excpt)
-                            {
-                                logger.info("HTTP query to " + e.getHost() +
-                                        "failed", excpt);
-                                break;
-                            }
-
-                            String user = relayData.get("username");
-                            String password = relayData.get("passsword");
-                            StunServerDescriptor dsc =
-                                new StunServerDescriptor(
-                                        relayData.get("relay"),
-                                        Integer.parseInt(
-                                                relayData.get("udpport")),
-                                        true,
-                                        user, password);
-                            // not the RFC5766 TURN support
-                            dsc.setOldTurn(true);
-                            synchronized(servers)
-                            {
-                                servers.add(dsc);
-                            }
-
-                            dsc = new StunServerDescriptor(
-                                    relayData.get("relay"),
-                                    Integer.parseInt(relayData.get("tcpport")),
-                                    true,
-                                    user,
-                                    password);
-                            dsc.setOldTurn(true);
-                            dsc.setProtocol("tcp");
-                            synchronized(servers)
-                            {
-                                servers.add(dsc);
-                            }
-
-                            dsc = new StunServerDescriptor(
-                                    relayData.get("relay"),
-                                    Integer.parseInt(
-                                    relayData.get("ssltcpport")),
-                                    true,
-                                    user,
-                                    password);
-                            dsc.setOldTurn(true);
-                            dsc.setProtocol("ssltcp");
-                            synchronized(servers)
-                            {
-                                servers.add(dsc);
-                            }
-                        }
-                    }
-                }
-                synchronized(syncRoot)
-                {
-                    syncRoot.notify();
-                }
-            }
-        };
-
-        connection.addPacketListener(pl,
-            new PacketFilter()
-            {
-                public boolean accept(Packet p)
-                {
-                    if(p instanceof JingleInfoQueryIQ)
-                        return true;
-
-                    return false;
-                }
-            });
-
+        PacketCollector collector = connection.createPacketCollector(
+                new PacketIDFilter(iq.getPacketID()));
         provider.getConnection().sendPacket(iq);
-
-        synchronized(syncRoot)
+        Packet p = collector.nextResult(
+                SmackConfiguration.getPacketReplyTimeout());
+        if(p != null)
         {
-            try
+            JingleInfoQueryIQ response_iq = (JingleInfoQueryIQ)p;
+            Iterator<PacketExtension> it =
+                response_iq.getExtensions().iterator();
+
+            while(it.hasNext())
             {
-                syncRoot.wait(3000);
-            }
-            catch(InterruptedException e)
-            {
+                AbstractPacketExtension ext =
+                    (AbstractPacketExtension)it.next();
+
+                if(ext.getElementName().equals(
+                            StunPacketExtension.ELEMENT_NAME))
+                {
+                    for(ServerPacketExtension e :
+                            ext.getChildExtensionsOfType(
+                                ServerPacketExtension.class))
+                    {
+                        StunServerDescriptor dsc = new StunServerDescriptor(
+                                e.getHost(),
+                                e.getUdp(),
+                                false,
+                                null,
+                                null);
+                        servers.add(dsc);
+                    }
+                }
+                else if(ext.getElementName().equals(
+                            RelayPacketExtension.ELEMENT_NAME))
+                {
+                    String token = ((RelayPacketExtension)ext).getToken();
+                    for(ServerPacketExtension e :
+                            ext.getChildExtensionsOfType(
+                                ServerPacketExtension.class))
+                    {
+                        String headerNames[] = new String[2];
+                        String headerValues[] = new String[2];
+                        String addr = "http://"
+                            + e.getHost()
+                            + "/create_session";
+
+                        headerNames[0] = "X-Talk-Google-Relay-Auth";
+                        headerNames[1] = "X-Google-Relay-Auth";
+                        headerValues[0] = token;
+                        headerValues[1] = token;
+
+                        HTTPResponseResult res = HttpUtils.openURLConnection(
+                                addr,
+                                headerNames,
+                                headerValues);
+                        Hashtable<String, String> relayData = null;
+
+                        try
+                        {
+                            relayData =
+                                parseGoogleRelay(res.getContentString());
+                        }
+                        catch (IOException excpt)
+                        {
+                            logger.info("HTTP query to " + e.getHost() +
+                                    "failed", excpt);
+                            break;
+                        }
+
+                        String user = relayData.get("username");
+                        String password = relayData.get("passsword");
+                        StunServerDescriptor dsc =
+                            new StunServerDescriptor(
+                                    relayData.get("relay"),
+                                    Integer.parseInt(relayData.get("udpport")),
+                                    true,
+                                    user,
+                                    password);
+                        // not the RFC5766 TURN support
+                        dsc.setOldTurn(true);
+                        servers.add(dsc);
+
+                        dsc = new StunServerDescriptor(
+                                relayData.get("relay"),
+                                Integer.parseInt(relayData.get("tcpport")),
+                                true,
+                                user,
+                                password);
+                        dsc.setOldTurn(true);
+                        dsc.setProtocol("tcp");
+                        servers.add(dsc);
+
+                        dsc = new StunServerDescriptor(
+                                relayData.get("relay"),
+                                Integer.parseInt(relayData.get("ssltcpport")),
+                                true,
+                                user,
+                                password);
+                        dsc.setOldTurn(true);
+                        dsc.setProtocol("ssltcp");
+                        servers.add(dsc);
+                    }
+                }
             }
         }
 
-        connection.removePacketListener(pl);
+        collector.cancel();
+
         return servers;
     }
 
@@ -406,76 +372,75 @@ public class TransportManagerGTalkImpl
 
         //servers.addAll(accID.getStunServers());
 
-        synchronized(servers)
+        for(StunServerDescriptor desc : servers)
         {
-            for(StunServerDescriptor desc : servers)
+            Transport transport;
+
+            /* Google ssltcp mode is in fact pseudo-SSL (just the
+             * client/server hello)
+             */
+            if(desc.getProtocol().equals("ssltcp"))
             {
-                Transport transport;
+                transport = Transport.TCP;
+            }
+            else
+            {
+                transport = Transport.parse(desc.getProtocol());
+            }
 
-                /* Google ssltcp mode is in fact pseudo-SSL (just the
-                 * client/server hello)
+            TransportAddress addr = new TransportAddress(
+                            desc.getAddress(),
+                            desc.getPort(),
+                            transport);
+
+            // if we get STUN server from automatic discovery, it may just
+            // be server name (i.e. stun.domain.org) and it may be possible
+            // that it cannot be resolved
+            if(addr.getAddress() == null)
+            {
+                logger.info("Unresolved address for " + addr);
+                continue;
+            }
+
+            StunCandidateHarvester harvester = null;
+
+            if(desc.isTurnSupported())
+            {
+                logger.info("Google TURN descriptor");
+                /* Google relay server used a special way to allocate
+                 * address (token + HTTP request, ...) and they don't
+                 * support long-term authentication
                  */
-                if(desc.getProtocol().equals("ssltcp"))
+                if(desc.isOldTurn())
                 {
-                    transport = Transport.TCP;
-                }
-                else
-                {
-                    transport = Transport.parse(desc.getProtocol());
-                }
-
-                TransportAddress addr = new TransportAddress(
-                                desc.getAddress(),
-                                desc.getPort(),
-                                transport);
-
-                // if we get STUN server from automatic discovery, it may just
-                // be server name (i.e. stun.domain.org) and it may be possible
-                // that it cannot be resolved
-                if(addr.getAddress() == null)
-                {
-                    logger.info("Unresolved address for " + addr);
-                    continue;
-                }
-
-                StunCandidateHarvester harvester = null;
-
-                if(desc.isTurnSupported())
-                {
-                    logger.info("Google TURN descriptor");
-                    /* Google relay server used a special way to allocate
-                     * address (token + HTTP request, ...) and they don't
-                     * support long-term authentication
-                     */
-                    if(desc.isOldTurn())
+                    logger.info("new Google TURN harvester");
+                    if(desc.getProtocol().equals("ssltcp"))
                     {
-                        logger.info("new Google TURN harvester");
-                        if(desc.getProtocol().equals("ssltcp"))
-                        {
-                            harvester = new GoogleTurnSSLCandidateHarvester(
-                                addr, new String(desc.getUsername()));
-                        }
-                        else
-                            harvester = new GoogleTurnCandidateHarvester(
-                                addr, new String(desc.getUsername()));
+                        harvester = new GoogleTurnSSLCandidateHarvester(
+                            addr,
+                            new String(desc.getUsername()));
                     }
+                    else
+                        harvester = new GoogleTurnCandidateHarvester(
+                            addr,
+                            new String(desc.getUsername()));
                 }
-                else
-                {
-                    // take only the first STUN server for now
-                    if(atLeastOneStunServer)
-                        continue;
+            }
+            else
+            {
+                // take only the first STUN server for now
+                if(atLeastOneStunServer)
+                    continue;
 
-                    //this is a STUN only server
-                    harvester = new StunCandidateHarvester(addr);
-                    atLeastOneStunServer = true;
-                    logger.info("Found Google STUN server " + harvester);
-                }
+                //this is a STUN only server
+                harvester = new StunCandidateHarvester(addr);
+                atLeastOneStunServer = true;
+                logger.info("Found Google STUN server " + harvester);
+            }
 
-                if(harvester != null)
-                {
-                    agent.addCandidateHarvester(harvester);
-                }
+            if(harvester != null)
+            {
+                agent.addCandidateHarvester(harvester);
             }
         }
 
