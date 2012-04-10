@@ -174,8 +174,16 @@ public class GlobalShortcutDialog
                     GlobalShortcutEntry en = entry;
                     List<AWTKeyStroke> kss = new ArrayList<AWTKeyStroke>();
 
-                    kss.add(input);
-                    kss.add(en.getShortcut2());
+                    if(field == fldShortcut)
+                    {
+                        kss.add(input);
+                        kss.add(en.getShortcut2());
+                    }
+                    else if(field == fldShortcut2)
+                    {
+                        kss.add(en.getShortcut());
+                        kss.add(input);
+                    }
 
                     en.setShortcuts(kss);
                     en.setEditShortcut1(false);
