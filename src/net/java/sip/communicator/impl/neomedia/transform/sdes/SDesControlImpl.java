@@ -133,7 +133,8 @@ public class SDesControlImpl
         srtpListener.securityNegotiationStarted(
             type.equals(MediaType.AUDIO) ?
                 SecurityEventManager.AUDIO_SESSION
-                : SecurityEventManager.VIDEO_SESSION);
+                : SecurityEventManager.VIDEO_SESSION,
+                this);
 
         srtpListener.securityTurnedOn(
             type.equals(MediaType.AUDIO) ?

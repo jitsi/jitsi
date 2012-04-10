@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.event;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -24,16 +25,34 @@ public class CallPeerSecurityNegotiationStartedEvent
     private static final long serialVersionUID = 0L;
 
     /**
+     * The sender of this event.
+     */
+    private final SrtpControl srtpControl;
+
+    /**
      * The event constructor
      *
      * @param callPeer the call peer associated with this event
      * @param sessionType the type of the session, either
      *            {@link net.java.sip.communicator.service.protocol.event.CallPeerSecurityStatusEvent#AUDIO_SESSION} or
      *            {@link net.java.sip.communicator.service.protocol.event.CallPeerSecurityStatusEvent#VIDEO_SESSION}
+     * @param srtpControl the security controller that caused this event
      */
     public CallPeerSecurityNegotiationStartedEvent(CallPeer callPeer,
-                                                   int sessionType)
+                                                   int sessionType,
+                                                   SrtpControl srtpControl)
     {
         super(callPeer, sessionType);
+        this.srtpControl = srtpControl;
+    }
+
+    /**
+     * Gets the security controller that caused this event.
+     *
+     * @return the security controller that caused this event.
+     */
+    public SrtpControl getSecurityController()
+    {
+        return srtpControl;
     }
 }

@@ -1024,14 +1024,14 @@ public class ContactListTreeCellRenderer
                                     localizedType = 
                                         GuiActivator.getResources().
                                             getI18NString(
-                                                "service.gui.MOBILE_PHONE");                                    
+                                                "service.gui.MOBILE_PHONE");
                                 }
                                 else
                                 {
                                     localizedType = 
                                         GuiActivator.getResources().
                                             getI18NString(
-                                                "service.gui.PHONE");                                    
+                                                "service.gui.PHONE");
                                 }
                                     
                                 phones.add(pnd.getNumber());

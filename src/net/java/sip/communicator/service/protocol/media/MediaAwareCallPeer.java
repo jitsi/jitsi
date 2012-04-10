@@ -697,11 +697,12 @@ public abstract class MediaAwareCallPeer
      * offer to secure the connection.
      *
      * @param sessionType the type of the call session - audio or video.
+     * @param sender the security controller that caused the event
      */
-    public void securityNegotiationStarted(int sessionType)
+    public void securityNegotiationStarted(int sessionType, SrtpControl sender)
     {
         CallPeerSecurityNegotiationStartedEvent evt =
-            new CallPeerSecurityNegotiationStartedEvent(this, sessionType);
+            new CallPeerSecurityNegotiationStartedEvent(this, sessionType, sender);
         fireCallPeerSecurityNegotiationStartedEvent(evt);
     }
 

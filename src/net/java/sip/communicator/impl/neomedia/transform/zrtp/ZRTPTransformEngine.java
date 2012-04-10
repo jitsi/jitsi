@@ -901,7 +901,7 @@ public class ZRTPTransformEngine
             securityEventManager.secureOn(c);
         }
 
-        if (securityEventManager != null && s != null)
+        if (securityEventManager != null && (s != null || verified))
         {
             securityEventManager.showSAS(s, verified);
         }

@@ -63,6 +63,7 @@ public interface SrtpListener
      * Indicates that we started the process of securing the the connection.
      *
      * @param sessionType the type of the call session - audio or video.
+     * @param sender the control that initiated the event.
      */
-    public void securityNegotiationStarted(int sessionType);
+    public void securityNegotiationStarted(int sessionType, SrtpControl sender);
 }

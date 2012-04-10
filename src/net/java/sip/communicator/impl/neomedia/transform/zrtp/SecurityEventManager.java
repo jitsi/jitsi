@@ -441,7 +441,8 @@ public class SecurityEventManager extends ZrtpUserCallback
         // make sure we don't throw any exception
         try
         {
-            this.securityListener.securityNegotiationStarted(sessionType);
+            this.securityListener
+                    .securityNegotiationStarted(sessionType, zrtpControl);
         }
         catch(Throwable t)
         {

@@ -111,10 +111,11 @@ public class MediaHandler
                     listener.securityTurnedOn(sessionType, cipher, sender);
             }
 
-            public void securityNegotiationStarted(int sessionType)
+            public void securityNegotiationStarted(int sessionType,
+                                                    SrtpControl sender)
             {
                 for (SrtpListener listener : getSrtpListeners())
-                    listener.securityNegotiationStarted(sessionType);
+                    listener.securityNegotiationStarted(sessionType, sender);
             }
         };
 

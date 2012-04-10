@@ -610,21 +610,6 @@ public class OneToOneCallPeerPanel
         if (peerState == CallPeerState.CONNECTED)
         {
             initSecurityStatusLabel();
-
-            if(Boolean.parseBoolean(GuiActivator.getResources()
-                    .getSettingsString("impl.gui.PARANOIA_UI")))
-            {
-                SrtpControl srtpControl = null;
-                if (callPeer instanceof MediaAwareCallPeer)
-                    srtpControl = ((MediaAwareCallPeer<?, ?, ?>) callPeer)
-                        .getMediaHandler().getStream(MediaType.AUDIO)
-                            .getSrtpControl();
-
-                securityPanel
-                    = new ParanoiaTimerSecurityPanel<SrtpControl>(srtpControl);
-
-                setSecurityPanelVisible(true);
-            }
         }
     }
 
@@ -774,13 +759,23 @@ public class OneToOneCallPeerPanel
      * The handler for the security event received. The security event
      * for starting establish a secure connection.
      *
-     * @param securityNegotiationStartedEvent
-     *            the security started event received
+     * @param evt the security started event received
      */
     public void securityNegotiationStarted(
-        CallPeerSecurityNegotiationStartedEvent securityNegotiationStartedEvent)
+        CallPeerSecurityNegotiationStartedEvent evt)
     {
+        if(Boolean.parseBoolean(GuiActivator.getResources()
+                .getSettingsString("impl.gui.PARANOIA_UI")))
+        {
+            SrtpControl srtpControl = null;
+            if (callPeer instanceof MediaAwareCallPeer)
+                srtpControl = evt.getSecurityController();
 
+            securityPanel
+                = new ParanoiaTimerSecurityPanel<SrtpControl>(srtpControl);
+
+            setSecurityPanelVisible(true);
+        }
     }
 
     /**
