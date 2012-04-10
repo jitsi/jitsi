@@ -274,11 +274,15 @@ public class ConferenceFocusPanel
      * Sets the state of the contained call peer by specifying the
      * state name.
      *
-     * @param state the state of the contained call peer
+     * @param oldState the previous state of the peer
+     * @param newState the new state of the peer
+     * @param stateString the state of the contained call peer
      */
-    public void setPeerState(CallPeerState peerState, String state)
+    public void setPeerState(   CallPeerState oldState,
+                                CallPeerState newState,
+                                String stateString)
     {
-        focusPeerPanel.setPeerState(peerState, state);
+        focusPeerPanel.setPeerState(oldState, newState, stateString);
     }
 
     /**

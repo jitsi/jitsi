@@ -598,16 +598,20 @@ public class OneToOneCallPeerPanel
 
     /**
      * Sets the state of the contained call peer by specifying the
-     * state name and icon.
+     * state name.
      *
-     * @param peerState the peer state
-     * @param state the state of the contained call peer
+     * @param oldState the previous state of the peer
+     * @param newState the new state of the peer
+     * @param stateString the state of the contained call peer
      */
-    public void setPeerState(CallPeerState peerState, String state)
+    public void setPeerState(   CallPeerState oldState,
+                                CallPeerState newState,
+                                String stateString)
     {
-        this.callStatusLabel.setText(state);
+        this.callStatusLabel.setText(stateString);
 
-        if (peerState == CallPeerState.CONNECTED)
+        if (newState == CallPeerState.CONNECTED
+            && !CallPeerState.isOnHold(oldState))
         {
             initSecurityStatusLabel();
         }
