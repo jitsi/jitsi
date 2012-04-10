@@ -153,6 +153,17 @@ public class SecurityStatusLabel
     }
 
     /**
+     * Indicates if the security status has been already set.
+     *
+     * @return <tt>true</tt> to indicate that security status is set,
+     * <tt>false</tt> - otherwise
+     */
+    public boolean isSecurityStatusSet()
+    {
+        return (getIcon() != null) ? true : false;
+    }
+
+    /**
      * Reloads icons.
      */
     public void loadSkin()

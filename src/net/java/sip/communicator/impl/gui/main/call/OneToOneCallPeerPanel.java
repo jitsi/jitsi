@@ -373,6 +373,7 @@ public class OneToOneCallPeerPanel
         constraints.gridx = 0;
         constraints.gridy = 0;
         statusPanel.add(securityStatusLabel, constraints);
+        initSecurityStatusLabel();
 
         constraints.gridx++;
         statusPanel.add(holdStatusLabel, constraints);
@@ -382,7 +383,7 @@ public class OneToOneCallPeerPanel
 
         constraints.gridx++;
         callStatusLabel.setBorder(
-            BorderFactory.createEmptyBorder(2, 3, 2, 5));
+            BorderFactory.createEmptyBorder(2, 3, 2, 12));
         statusPanel.add(callStatusLabel, constraints);
 
         constraints.gridx++;
@@ -611,9 +612,10 @@ public class OneToOneCallPeerPanel
         this.callStatusLabel.setText(stateString);
 
         if (newState == CallPeerState.CONNECTED
-            && !CallPeerState.isOnHold(oldState))
+            && !CallPeerState.isOnHold(oldState)
+            && !securityStatusLabel.isSecurityStatusSet())
         {
-            initSecurityStatusLabel();
+            securityStatusLabel.setSecurityOff();
         }
     }
 
@@ -1191,8 +1193,6 @@ public class OneToOneCallPeerPanel
     {
         securityStatusLabel.setBorder(
             BorderFactory.createEmptyBorder(2, 5, 2, 5));
-
-        securityStatusLabel.setSecurityOff();
 
         securityStatusLabel.addMouseListener(new MouseAdapter()
         {
