@@ -40,7 +40,9 @@ public class ConnectionPanel
 
     private final JTextField proxyPortField = new JTextField(4);
 
-    private final JTextField voicemailField = new JTextField(4);
+    private final JTextField voicemailAliasField = new JTextField(4);
+
+    private final JTextField voicemailCheckField = new JTextField(4);
 
     private final JCheckBox proxyAutoCheckBox;
 
@@ -205,29 +207,37 @@ public class ConnectionPanel
         mainPanel.add(Box.createVerticalStrut(5));
         mainPanel.add(encryptionPanel);
 
-        JPanel voicemailPanel
-                = new TransparentPanel(new BorderLayout(10, 10));
-        JPanel voicemailUriPanel
-                = new TransparentPanel(new BorderLayout(10, 10));
+        JPanel voicemailPanel = new TransparentPanel(new BorderLayout(10, 10));
+        JPanel voicemailUriPanelLabels
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+        JPanel voicemailUriPanelValues
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+
         mwiCheckBox = new SIPCommCheckBox(
             Resources.getString("plugin.sipaccregwizz.MWI"),
             regform.getRegistration().isMessageWaitingIndicationsEnabled());
-        voicemailUriPanel.add(new JLabel(
-                Resources.getString("plugin.sipaccregwizz.VOICEMAIL_URI")),
-                BorderLayout.WEST);
-        voicemailUriPanel.add(voicemailField, BorderLayout.CENTER);
 
-        voicemailField.setText(regform.getRegistration().getVoicemailURI());
+        voicemailUriPanelLabels.add(new JLabel(
+                    Resources.getString("plugin.sipaccregwizz.VOICEMAIL_URI")));
+        voicemailUriPanelLabels.add(new JLabel(
+            Resources.getString("plugin.sipaccregwizz.VOICEMAIL_CHECK_URI")));
+        voicemailUriPanelValues.add(voicemailAliasField);
+        voicemailUriPanelValues.add(voicemailCheckField);
+        voicemailPanel.setBorder(BorderFactory.createTitledBorder(
+                    Resources.getString("plugin.sipaccregwizz.VOICEMAIL")));
 
-        voicemailPanel.add(mwiCheckBox, BorderLayout.WEST);
-        voicemailPanel.add(voicemailUriPanel, BorderLayout.CENTER);
+        voicemailAliasField.setText(regform.getRegistration().getVoicemailURI());
+        voicemailCheckField.setText(regform.getRegistration().getVoicemailCheckURI());
 
-        mainPanel.add(Box.createVerticalStrut(5));
-        mainPanel.add(createDTMFPanel());
+        voicemailPanel.add(mwiCheckBox, BorderLayout.NORTH);
+        voicemailPanel.add(voicemailUriPanelLabels, BorderLayout.WEST);
+        voicemailPanel.add(voicemailUriPanelValues, BorderLayout.CENTER);
 
         mainPanel.add(Box.createVerticalStrut(5));
         mainPanel.add(voicemailPanel);
 
+        mainPanel.add(Box.createVerticalStrut(5));
+        mainPanel.add(createDTMFPanel());
 
         this.add(mainPanel, BorderLayout.NORTH);
     }
@@ -620,7 +630,7 @@ public class ConnectionPanel
      */
     String getVoicemailURI()
     {
-        return voicemailField.getText();
+        return voicemailAliasField.getText();
     }
 
     /**
@@ -629,7 +639,25 @@ public class ConnectionPanel
      */
     void setVoicemailURI(String voicemailURI)
     {
-        voicemailField.setText(voicemailURI);
+        voicemailAliasField.setText(voicemailURI);
+    }
+
+    /**
+     * Returns the voicemail check URI.
+     * @return the voicemail URI.
+     */
+    String getVoicemailCheckURI()
+    {
+        return voicemailCheckField.getText();
+    }
+
+    /**
+     * Sets the voicemail check URI.
+     * @param voicemailCheckURI the voicemail URI.
+     */
+    void setVoicemailCheckURI(String voicemailCheckURI)
+    {
+        voicemailCheckField.setText(voicemailCheckURI);
     }
 
     /**

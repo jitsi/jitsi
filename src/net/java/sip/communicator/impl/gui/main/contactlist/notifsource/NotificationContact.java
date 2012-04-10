@@ -39,6 +39,13 @@ public class NotificationContact
             .getI18NString("service.gui.VOICEMAIL_TIP");
 
     /**
+     * Tooltip for missing account.
+     */
+    private static final String VOICEMAIL_TIP_NO_ACCOUNT
+        = GuiActivator.getResources()
+            .getI18NString("service.gui.VOICEMAIL_TIP_NO_ACCOUNT");
+
+    /**
      * The parent contact list group.
      */
     private NotificationGroup parentGroup;
@@ -235,7 +242,10 @@ public class NotificationContact
         tip.addLine(new JLabel[]{new JLabel(getDisplayDetails())});
         tip.addLine(null, " ");
 
-        tip.setBottomText(VOICEMAIL_TIP);
+        if(notificationDetail != null && notificationDetail.getAddress() != null)
+            tip.setBottomText(VOICEMAIL_TIP);
+        else
+            tip.setBottomText(VOICEMAIL_TIP_NO_ACCOUNT);
 
         return tip;
     }

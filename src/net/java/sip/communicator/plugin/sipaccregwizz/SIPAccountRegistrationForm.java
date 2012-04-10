@@ -313,6 +313,7 @@ public class SIPAccountRegistrationForm
         registration.setMessageWaitingIndications(
             connectionPanel.isMessageWaitingEnabled());
         registration.setVoicemailURI(connectionPanel.getVoicemailURI());
+        registration.setVoicemailCheckURI(connectionPanel.getVoicemailCheckURI());
 
         return true;
     }
@@ -378,6 +379,8 @@ public class SIPAccountRegistrationForm
 
         String voicemailURI = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.VOICEMAIL_URI);
+        String voicemailCheckURI = accountID.getAccountPropertyString(
+                    ProtocolProviderFactory.VOICEMAIL_CHECK_URI);
 
         boolean xCapEnable = accountID
                 .getAccountPropertyBoolean("XCAP_ENABLE", false);
@@ -446,6 +449,9 @@ public class SIPAccountRegistrationForm
 
         if(!StringUtils.isNullOrEmpty(voicemailURI))
             connectionPanel.setVoicemailURI(voicemailURI);
+
+        if(!StringUtils.isNullOrEmpty(voicemailCheckURI))
+            connectionPanel.setVoicemailCheckURI(voicemailCheckURI);
 
         if(xCapEnable)
         {

@@ -799,7 +799,7 @@ public class ContactListTreeCellRenderer
                 null,
                 null);
 
-        if (telephonyContact != null ||
+        if ((telephonyContact != null && telephonyContact.getAddress() != null) ||
             uiContact.getDescriptor() instanceof SourceContact ||
             (hasPhone && providers.size() > 0))
         {

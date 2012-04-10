@@ -287,10 +287,17 @@ public class SIPAccountRegistrationWizard
         }
 
         if(registration.isMessageWaitingIndicationsEnabled())
+        {
             if(!StringUtils.isNullOrEmpty(registration.getVoicemailURI(), true))
                 summaryTable.put(
                     Resources.getString("plugin.sipaccregwizz.VOICEMAIL_URI"),
                     registration.getVoicemailURI());
+            if(!StringUtils.isNullOrEmpty(
+                    registration.getVoicemailCheckURI(), true))
+                summaryTable.put(
+                    Resources.getString("plugin.sipaccregwizz.VOICEMAIL_CHECK_URI"),
+                    registration.getVoicemailURI());
+        }
 
         return summaryTable.entrySet().iterator();
     }
@@ -553,6 +560,15 @@ public class SIPAccountRegistrationWizard
                     registration.getVoicemailURI());
             else if(isModification())
                 accountProperties.put(ProtocolProviderFactory.VOICEMAIL_URI, "");
+
+            if(!StringUtils.isNullOrEmpty(
+                    registration.getVoicemailCheckURI(), true))
+                accountProperties.put(
+                    ProtocolProviderFactory.VOICEMAIL_CHECK_URI,
+                    registration.getVoicemailCheckURI());
+            else if(isModification())
+                accountProperties.put(
+                    ProtocolProviderFactory.VOICEMAIL_CHECK_URI, "");
 
             if(isModification())
             {

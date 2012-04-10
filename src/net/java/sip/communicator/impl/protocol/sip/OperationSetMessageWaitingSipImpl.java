@@ -419,7 +419,9 @@ public class OperationSetMessageWaitingSipImpl
 
             try
             {
-                String messageAccount = null;
+                String messageAccount =
+                    provider.getAccountID().getAccountPropertyString(
+                                ProtocolProviderFactory.VOICEMAIL_CHECK_URI);
 
                 BufferedReader input = new BufferedReader(new InputStreamReader(
                         new ByteArrayInputStream(rawContent)));
@@ -482,7 +484,7 @@ public class OperationSetMessageWaitingSipImpl
                     // what is the account to call for retrieving messages?
                     fireVoicemailNotificationEvent(
                         MessageType.VOICE.toString(),
-                        null,
+                        messageAccount,
                         1,
                         0,
                         0,

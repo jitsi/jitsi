@@ -390,6 +390,12 @@ public abstract class ProtocolProviderFactory
     public static final String VOICEMAIL_URI = "VOICEMAIL_URI";
 
     /**
+     * Address used to call to hear your messages stored on the server
+     * for your voicemail.
+     */
+    public static final String VOICEMAIL_CHECK_URI = "VOICEMAIL_CHECK_URI";
+
+    /**
      * Indicates if calling is disabled for a certain account.
      */
     public static final String IS_CALLING_DISABLED_FOR_ACCOUNT

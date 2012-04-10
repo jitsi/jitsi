@@ -98,6 +98,11 @@ public class SIPAccountRegistration
     private String voicemailURI;
 
     /**
+     * The voicemail check uri if any.
+     */
+    private String voicemailCheckURI;
+
+    /**
      * Whether message waiting indications is enabled.
      */
     private boolean messageWaitingIndications = true;
@@ -752,6 +757,24 @@ public class SIPAccountRegistration
     public void setVoicemailURI(String voicemailURI)
     {
         this.voicemailURI = voicemailURI;
+    }
+
+    /**
+     * The voicemail check URI.
+     * @return the voicemail URI.
+     */
+    public String getVoicemailCheckURI()
+    {
+        return voicemailCheckURI;
+    }
+
+    /**
+     * Sets voicemail check URI.
+     * @param voicemailCheckURI new URI.
+     */
+    public void setVoicemailCheckURI(String voicemailCheckURI)
+    {
+        this.voicemailCheckURI = voicemailCheckURI;
     }
 
     /**
