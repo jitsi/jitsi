@@ -2472,7 +2472,10 @@ public class ProtocolProviderServiceJabberImpl
      */
     public SmackServiceNode getJingleNodesServiceNode()
     {
-        return jingleNodesServiceNode;
+        synchronized(jingleNodesSyncRoot)
+        {
+            return jingleNodesServiceNode;
+        }
     }
 
     /**
