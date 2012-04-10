@@ -179,7 +179,7 @@ public class ZrtpSecurityPanel
         zidPropertyName = "net.java.sip.communicator.zrtp.ZIDNAME" + zidString;
         configService = GuiActivator.getConfigurationService();
         zidPropertyValue = configService.getString(zidPropertyName);
-       
+
         loadSkin();
     }
 
@@ -431,7 +431,8 @@ public class ZrtpSecurityPanel
     private void initZidNameButton()
     {
         zidNameButton = new SIPCommButton(
-            ImageLoader.getImage(new ImageID("service.gui.icons.ACCOUNT_ICON")));
+            ImageLoader.getImage(
+                new ImageID("service.gui.buttons.ZRTP_ID_BUTTON")));
         zidNameButton.setToolTipText(GuiActivator.getResources().getI18NString(
             "service.gui.ZID_NAME_BUTTON"));
 
@@ -450,8 +451,8 @@ public class ZrtpSecurityPanel
                     zidNameDialogThread = new ZidToNameThread();
                     zidNameDialogThread.start();
                 }
-            }            
-        });        
+            }
+        });
     }
 
     /**
