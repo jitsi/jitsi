@@ -95,11 +95,6 @@ public class ZrtpSecurityPanel
     private final JButton confirmButton = new JButton("");
 
     /**
-     * The label showing the cipher.
-     */
-    private JLabel cipherLabel;
-
-    /**
      * Indicates if the security authentication string has been verified.
      */
     private boolean sasVerified = false;
@@ -113,11 +108,6 @@ public class ZrtpSecurityPanel
      * Indicates the state of the video security (on or off).
      */
     private boolean isVideoSecurityOn = false;
-
-    /**
-     * The encryption cipher.
-     */
-    private String encryptionCipher;
 
     /**
      * The corresponding call peer.
@@ -220,25 +210,6 @@ public class ZrtpSecurityPanel
         constraints.weighty = 0f;
         constraints.insets = new Insets(5, 0, 0, 0);
         this.add(videoSecurityLabel, constraints);
-
-        String cipher = "";
-        if (encryptionCipher != null && encryptionCipher.length() > 0)
-        {
-            cipher = GuiActivator.getResources().getI18NString(
-                "service.gui.CIPHER", new String[]{encryptionCipher});
-        }
-
-        cipherLabel = createSecurityLabel(cipher, null);
-
-        constraints.anchor = GridBagConstraints.NORTHEAST;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        constraints.gridheight = 1;
-        constraints.weightx = 0.5f;
-        constraints.weighty = 0f;
-        constraints.insets = new Insets(5, 0, 0, 0);
-        this.add(cipherLabel, constraints);
 
         constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.NONE;
@@ -462,12 +433,6 @@ public class ZrtpSecurityPanel
      */
     public void securityOn(CallPeerSecurityOnEvent evt)
     {
-        encryptionCipher = evt.getCipher();
-
-        if (encryptionCipher != null)
-            cipherLabel.setText(GuiActivator.getResources().getI18NString(
-                "service.gui.security.CIPHER", new String[]{encryptionCipher}));
-
         switch (evt.getSessionType())
         {
             case CallPeerSecurityStatusEvent.AUDIO_SESSION:
