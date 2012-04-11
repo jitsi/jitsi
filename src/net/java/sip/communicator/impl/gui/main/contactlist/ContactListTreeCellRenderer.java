@@ -500,10 +500,7 @@ public class ContactListTreeCellRenderer
 
         try
         {
-            if (OSUtils.IS_MAC)
-                internalPaintComponentMacOS(g2);
-            else
-                internalPaintComponent(g2);
+            internalPaintComponent(g2);
         }
         finally
         {
@@ -518,62 +515,6 @@ public class ContactListTreeCellRenderer
      * @param g2 the <tt>Graphics2D</tt> object through which we paint
      */
     private void internalPaintComponent(Graphics2D g2)
-    {
-        Shape clipShape
-            = GraphicUtils.createRoundedClipShape(
-                getWidth(), getHeight(), 20, 20);
-
-        // Clear the background to white
-        g2.setColor(Color.WHITE);
-        g2.fillRect(1, 1, getWidth(), getHeight());
-
-        // Set the clip shape
-        BufferedImage clipImage = GraphicUtils.createClipImage(g2, clipShape);
-        Graphics2D clipG = clipImage.createGraphics();
-
-        // Fill the shape with a gradient
-        clipG.setRenderingHint( RenderingHints.KEY_ANTIALIASING,
-                                RenderingHints.VALUE_ANTIALIAS_ON);
-        clipG.setComposite(AlphaComposite.SrcAtop);
-
-        if (isSelected)
-        {
-            clipG.setPaint(new GradientPaint(0, 0,
-                Color.WHITE, 0, getHeight(), Constants.SELECTED_COLOR));
-            clipG.fill(clipShape);
-
-            // Apply the border glow effect
-            GraphicUtils.paintBorderGlow(
-                clipG, 6, clipShape, glowOuterLow, glowOuterHigh);
-        }
-        else if (treeNode instanceof GroupNode)
-        {
-            clipG.setPaint(new GradientPaint(0, 0,
-                Constants.CONTACT_LIST_GROUP_BG_GRADIENT_COLOR,
-                0, getHeight(),
-                Constants.CONTACT_LIST_GROUP_BG_COLOR));
-            clipG.fill(clipShape);
-
-            // Apply the border glow effect
-            GraphicUtils.paintBorderGlow(
-                clipG, 1, clipShape, Color.WHITE, Color.DARK_GRAY);
-        }
-
-        clipG.dispose();
-
-        g2.drawImage(clipImage, 0, 0, null);
-
-        g2.setColor(Color.LIGHT_GRAY);
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 20, 20);
-    }
-
-    /**
-     * Paint a background for all groups and a round blue border and background
-     * when a cell is selected.
-     *
-     * @param g2 the <tt>Graphics2D</tt> object through which we paint
-     */
-    private void internalPaintComponentMacOS(Graphics2D g2)
     {
         Color borderColor = Color.GRAY;
 
