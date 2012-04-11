@@ -1201,9 +1201,13 @@ public class OneToOneCallPeerPanel
              */
             public void mousePressed(MouseEvent e)
             {
+                CallPeerSecurityStatusEvent securityEvt
+                    = callPeer.getCurrentSecuritySettings();
+
                 // Only show the security details if the security is on.
-                if (callPeer.getCurrentSecuritySettings()
-                        instanceof CallPeerSecurityOnEvent)
+                if (securityEvt instanceof CallPeerSecurityOnEvent
+                    && ((CallPeerSecurityOnEvent) securityEvt)
+                        .getSecurityController() instanceof ZrtpControl)
                 {
                     setSecurityPanelVisible(!callRenderer.getCallContainer()
                         .getCallWindow().getFrame().getGlassPane().isVisible());
@@ -1274,7 +1278,7 @@ public class OneToOneCallPeerPanel
             securityPanel.setBeginPoint(
                 new Point((int) newPoint.getX() + 15, 0));
             securityPanel.setBounds(
-                0, (int) newPoint.getY() - 5, callFrame.getWidth(), 110);
+                0, (int) newPoint.getY() - 5, this.getWidth(), 110);
 
             glassPane.add(securityPanel);
             // Need to show the security panel explicitly in order to keep the
