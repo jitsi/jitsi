@@ -782,4 +782,21 @@ public class CallPeerMediaHandlerGTalkImpl
 
         return registry;
     }
+
+    /**
+     * Overrides to give access to the transport manager to send events
+     * about ICE state changes.
+     * @param property the name of the property of this
+     * <tt>PropertyChangeNotifier</tt> which had its value changed
+     * @param oldValue the value of the property with the specified name before
+     * the change
+     * @param newValue the value of the property with the specified name after
+     */
+    protected void firePropertyChange(
+                String property,
+                Object oldValue,
+                Object newValue)
+    {
+        super.firePropertyChange(property, oldValue, newValue);
+    }
 }

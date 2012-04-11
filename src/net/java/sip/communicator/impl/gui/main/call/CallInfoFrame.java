@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
+import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -20,6 +21,7 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import org.ice4j.ice.*;
 
 /**
  * The frame displaying the statistical information for a call.
@@ -28,7 +30,8 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class CallInfoFrame
-    implements CallTitleListener
+    implements CallTitleListener,
+               PropertyChangeListener
 {
     /**
      * The Call from which are computed the statisics displayed.
@@ -215,8 +218,12 @@ public class CallInfoFrame
 
         while(callPeers.hasNext())
         {
-            CallPeer callPeer = (CallPeer) callPeers.next();
-
+            CallPeer callPeer = callPeers.next();
+            if(callPeer instanceof MediaAwareCallPeer)
+            {
+                ((MediaAwareCallPeer)callPeer).getMediaHandler()
+                    .addPropertyChangeListener(this);
+            }
             stringBuffer.append("<br/>");
             constructPeerInfo(callPeer, stringBuffer);
         }
@@ -257,6 +264,16 @@ public class CallInfoFrame
                     stringBuffer.append(getLineString(resources.getI18NString(
                             "service.gui.callinfo.ICE_CANDIDATE_EXTENDED_TYPE"),
                                 iceCandidateExtendedType));
+                }
+
+                String iceState = callPeerMediaHandler.getICEState();
+                if(iceState != null && !iceState.equals("Terminated"))
+                {
+                    stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                            "service.gui.callinfo.ICE_STATE"),
+                        resources.getI18NString(
+                            "service.gui.callinfo.ICE_STATE." + iceState)));
                 }
 
                 MediaStream mediaStream =
@@ -471,5 +488,17 @@ public class CallInfoFrame
                         "service.gui.callinfo.MEDIA_STREAM_TRANSPORT_PROTOCOL"),
                     transportProtocolString + " / " + rtpType));
 
+    }
+
+    /**
+     * Listen for ice property change to trigger call info update.
+     * @param evt the event for state change.
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if(evt.getPropertyName().equals(Agent.PROPERTY_ICE_PROCESSING_STATE))
+        {
+            callTitleChanged(null);
+        }
     }
 }

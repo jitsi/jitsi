@@ -660,4 +660,14 @@ public class RawUdpTransportManager
     {
         return null;
     }
+
+    /**
+     * Returns the current state of ICE processing.
+     *
+     * @return the current state of ICE processing.
+     */
+    public String getICEState()
+    {
+        return null;
+    }
 }

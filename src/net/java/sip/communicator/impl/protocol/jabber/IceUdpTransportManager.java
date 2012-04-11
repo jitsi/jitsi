@@ -36,6 +36,7 @@ import org.xmpp.jnodes.smack.*;
  */
 public class IceUdpTransportManager
     extends TransportManagerJabberImpl
+    implements PropertyChangeListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>IceUdpTransportManager</tt>
@@ -84,6 +85,7 @@ public class IceUdpTransportManager
     {
         super(callPeer);
         iceAgent = createIceAgent();
+        iceAgent.addStateChangeListener(this);
     }
 
     /**
@@ -1174,6 +1176,7 @@ public class IceUdpTransportManager
     {
         if(iceAgent != null)
         {
+            iceAgent.removeStateChangeListener(this);
             iceAgent.free();
         }
     }
@@ -1189,5 +1192,25 @@ public class IceUdpTransportManager
     {
         return TransportManager.getICECandidateExtendedType(
                 this.iceAgent);
+    }
+
+    /**
+     * Returns the current state of ICE processing.
+     *
+     * @return the current state of ICE processing.
+     */
+    public String getICEState()
+    {
+        return iceAgent.getState().toString();
+    }
+
+    /**
+     * Retransmit state change events from the Agent to the media handler.
+     * @param evt the event for state change.
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        getCallPeer().getMediaHandler().firePropertyChange(
+            evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
     }
 }

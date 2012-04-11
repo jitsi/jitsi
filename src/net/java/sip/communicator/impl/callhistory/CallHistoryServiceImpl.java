@@ -665,7 +665,7 @@ public class CallHistoryServiceImpl
                     .getStartTime().getTime()));
                 callPeerEndTime.append(String.valueOf(item.getEndTime()
                     .getTime()));
-                callPeerStates.append(item.getState().getLocalizedStateString());
+                callPeerStates.append(item.getState().getStateString());
             }
 
             historyWriter.addRecord(new String[] {

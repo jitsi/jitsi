@@ -566,6 +566,14 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     public abstract String getICECandidateExtendedType();
 
     /**
+     * Returns the current state of ICE processing.
+     *
+     * @return the current state of ICE processing if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public abstract String getICEState();
+
+    /**
      * Returns the ICE candidate extended type selected by the given agent.
      *
      * @param iceAgent The ICE agent managing the ICE offer/answer exchange,

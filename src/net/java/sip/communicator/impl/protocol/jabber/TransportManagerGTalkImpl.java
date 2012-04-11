@@ -45,6 +45,7 @@ import net.java.sip.communicator.util.*;
  */
 public class TransportManagerGTalkImpl
     extends TransportManager<CallPeerGTalkImpl>
+    implements PropertyChangeListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>IceUdpTransportManager</tt>
@@ -105,6 +106,7 @@ public class TransportManagerGTalkImpl
     {
         super(callPeer);
         iceAgent = createIceAgent();
+        iceAgent.addStateChangeListener(this);
     }
 
     /**
@@ -1305,6 +1307,7 @@ public class TransportManagerGTalkImpl
         if(iceAgent != null)
         {
             logger.info("Close transport manager agent");
+            iceAgent.removeStateChangeListener(this);
             iceAgent.free();
         }
     }
@@ -1320,5 +1323,25 @@ public class TransportManagerGTalkImpl
     {
         return TransportManager.getICECandidateExtendedType(
                 this.iceAgent);
+    }
+
+    /**
+     * Retransmit state change events from the Agent.
+     * @param evt the event for state change.
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        getCallPeer().getMediaHandler().firePropertyChange(
+            evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+    }
+
+    /**
+     * Returns the current state of ICE processing.
+     *
+     * @return the current state of ICE processing.
+     */
+    public String getICEState()
+    {
+        return iceAgent.getState().name();
     }
 }

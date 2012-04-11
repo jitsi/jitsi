@@ -1413,6 +1413,22 @@ public abstract class CallPeerMediaHandler
                 : transportManager.getICECandidateExtendedType();
     }
 
+    /**
+     * Returns the current state of ICE processing.
+     *
+     * @return the current state of ICE processing if this transport
+     * manager is using ICE. Otherwise, returns null.
+     */
+    public String getICEState()
+    {
+        TransportManager<?> transportManager = getTransportManager();
+
+        return
+            (transportManager == null)
+                ? null
+                : transportManager.getICEState();
+    }
+
     public MediaHandler getMediaHandler()
     {
         return mediaHandler;

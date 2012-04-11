@@ -634,7 +634,7 @@ public class CallPeerMediaHandlerJabberImpl
     {
         MediaDirection direction
             = dev.getDirection().and(
-                    getDirectionUserPreference(dev.getMediaType()));
+            getDirectionUserPreference(dev.getMediaType()));
 
         if(isLocallyOnHold())
             direction = direction.and(MediaDirection.SENDONLY);
@@ -1293,7 +1293,7 @@ public class CallPeerMediaHandlerJabberImpl
      * management
      * @see CallPeerMediaHandler#getTransportManager()
      */
-    protected TransportManagerJabberImpl getTransportManager()
+    protected synchronized TransportManagerJabberImpl getTransportManager()
     {
         if (transportManager == null)
         {
@@ -1793,5 +1793,22 @@ public class CallPeerMediaHandlerJabberImpl
 
         if (client != null)
             client.fireRemoteControlRevoked(getPeer());
+    }
+
+    /**
+     * Overrides to give access to the transport manager to send events
+     * about ICE state changes.
+     * @param property the name of the property of this
+     * <tt>PropertyChangeNotifier</tt> which had its value changed
+     * @param oldValue the value of the property with the specified name before
+     * the change
+     * @param newValue the value of the property with the specified name after
+     */
+    protected void firePropertyChange(
+            String property,
+            Object oldValue,
+            Object newValue)
+    {
+        super.firePropertyChange(property, oldValue, newValue);
     }
 }
