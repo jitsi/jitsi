@@ -677,7 +677,7 @@ public class ZrtpSecurityPanel
         if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
                 .equals(event.getPropertyName()))
         {
-            setVideoSecurityOn(isAudioSecurityOn);
+            setVideoSecurityOn(isVideoSecurityOn);
         }
     }
 
@@ -686,7 +686,7 @@ public class ZrtpSecurityPanel
      */
     public void videoAdded(VideoEvent event)
     {
-        setVideoSecurityOn(isAudioSecurityOn);
+        setVideoSecurityOn(isVideoSecurityOn);
     }
 
     /**
@@ -694,7 +694,7 @@ public class ZrtpSecurityPanel
      */
     public void videoRemoved(VideoEvent event)
     {
-        setVideoSecurityOn(isAudioSecurityOn);
+        setVideoSecurityOn(isVideoSecurityOn);
     }
 
     /**
@@ -702,9 +702,9 @@ public class ZrtpSecurityPanel
      */
     public void videoUpdate(VideoEvent event)
     {
-        setVideoSecurityOn(isAudioSecurityOn);
+        setVideoSecurityOn(isVideoSecurityOn);
     }
-    
+
     /**
      * @return the zidPropertyValue
      */
