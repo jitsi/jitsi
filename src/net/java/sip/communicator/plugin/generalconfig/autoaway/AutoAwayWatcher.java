@@ -36,7 +36,11 @@ public class AutoAwayWatcher
     public AutoAwayWatcher(ConfigurationService configurationService)
     {
         // if enabled start
-        if(configurationService.getBoolean(Preferences.ENABLE, false))
+        String enabledDefault = GeneralConfigPluginActivator.getResources()
+            .getSettingsString(Preferences.ENABLE);
+
+        if(configurationService.getBoolean(Preferences.ENABLE,
+                                           Boolean.valueOf(enabledDefault)))
             start();
 
         // listens for changes in configuration enable/disable

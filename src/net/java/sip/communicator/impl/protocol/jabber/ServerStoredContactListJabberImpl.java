@@ -1472,7 +1472,7 @@ public class ServerStoredContactListJabberImpl
                 {
                     logger.debug(
                             "Cannot load image for contact "
-                                + this
+                                + contact
                                 + ": "
                                 + ex.getMessage(),
                             ex);

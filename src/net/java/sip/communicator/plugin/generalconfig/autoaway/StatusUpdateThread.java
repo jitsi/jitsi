@@ -12,6 +12,7 @@ import java.util.*;
 import net.java.sip.communicator.plugin.generalconfig.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * A Runnable, which permanently looks at the mouse position. If the mouse is
@@ -170,10 +171,29 @@ public class StatusUpdateThread
     {
         ConfigurationService configService
             = GeneralConfigPluginActivator.getConfigurationService();
+        ResourceManagementService resources
+            = GeneralConfigPluginActivator.getResources();
+
+        String enabledDefault =
+            resources.getSettingsString(Preferences.ENABLE);
+
+        String timerDefaultStr =
+            resources.getSettingsString(Preferences.TIMER);
+        int timerDefault = 0;
+
+        if(timerDefaultStr != null)
+        {
+            try
+            {
+                timerDefault = Integer.parseInt(timerDefaultStr);
+            }
+            catch(NumberFormatException r){}
+        }
 
         return
-            configService.getBoolean(Preferences.ENABLE, false)
-                ? configService.getInt(Preferences.TIMER, 0)
+            configService.getBoolean(Preferences.ENABLE,
+                                     Boolean.valueOf(enabledDefault))
+                ? configService.getInt(Preferences.TIMER, timerDefault)
                 : 0;
     }
 
