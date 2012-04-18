@@ -14,6 +14,7 @@ import javax.media.protocol.*;
 import org.ice4j.socket.*;
 
 import net.java.sip.communicator.service.packetlogging.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * @author Bing SU (nova.su@gmail.com)
@@ -286,6 +287,12 @@ public abstract class RTPConnectorInputStream
         {
             try
             {
+                if (OSUtils.IS_ANDROID)
+                {
+                    // http://code.google.com/p/android/issues/detail?id=24765
+                    p.setLength(PACKET_RECEIVE_BUFFER_LENGTH);
+                }
+
                 receivePacket(p);
             }
             catch (IOException e)
