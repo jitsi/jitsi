@@ -1425,8 +1425,6 @@ public class ZRTPTransformEngine
 
     /**
      * Sets the RTP connector using this ZRTP engine
-     * (This method should be changed to an addConnector to a connector array
-     *  managed by the engine for implementing multistream mode)
      *
      * @param connector the connector to set
      */

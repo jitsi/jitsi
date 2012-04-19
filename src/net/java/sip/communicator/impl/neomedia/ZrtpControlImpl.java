@@ -135,6 +135,9 @@ public class ZrtpControlImpl
         if(zrtpEngine == null)
         {
             zrtpEngine = new ZRTPTransformEngine();
+            
+            // NOTE: set paranoid mode before initializing
+            // zrtpEngine.setParanoidMode(paranoidMode);
             zrtpEngine.initialize(
                     "GNUZRTP4J.zid",
                     false,
@@ -204,15 +207,14 @@ public class ZrtpControlImpl
                     SecurityEventManager.AUDIO_SESSION
                     : SecurityEventManager.VIDEO_SESSION);
         }
+        engine.setConnector(zrtpConnector);
+
+        securityEventManager.setSrtpListener(zrtpListener);
 
         // tells the engine whether to autostart(enable)
         // zrtp communication, if false it just passes packets without
         // transformation
         engine.setEnableZrtp(zrtpAutoStart);
-
-        engine.setConnector(zrtpConnector);
-
-        securityEventManager.setSrtpListener(zrtpListener);
 
         engine.sendInfo(
             ZrtpCodes.MessageSeverity.Info,
