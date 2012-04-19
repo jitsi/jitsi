@@ -831,6 +831,23 @@ public class ServerStoredContactListJabberImpl
                     //resolved
                     fireContactResolved(rootGroup, contact);
                 }
+
+                try
+                {
+                    // process status if any that was received
+                    // while the roaster reply packet was received and
+                    // added our presence listener
+                    // Fixes a problem where Presence packets can be received
+                    // before the roaster items packet, and we miss it,
+                    // cause we add our listener after roaster is received
+                    // and smack don't allow to add our listener earlier
+                    parentOperationSet.firePresenceStatusChanged(
+                        roster.getPresence(item.getUser()));
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error processing presence", t);
+                }
             }
         }
 
