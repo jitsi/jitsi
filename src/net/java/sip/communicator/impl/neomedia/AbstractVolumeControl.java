@@ -39,19 +39,34 @@ public class AbstractVolumeControl
         = Logger.getLogger(AbstractVolumeControl.class);
 
     /**
-     * The minimum volume level we can handle.
+     * The minimum volume level accepted by <tt>AbstractVolumeControl</tt>.
      */
     private static final float MIN_VOLUME_LEVEL = 0.0F;
 
     /**
-     * The maximum volume level we can handle.
+     * The minimum volume level expressed in percent accepted by
+     * <tt>AbstractVolumeControl</tt>.
+     */
+    private static final int MIN_VOLUME_PERCENT = 0;
+
+    /**
+     * The maximum volume level accepted by <tt>AbstractVolumeControl</tt>.
      */
     private static final float MAX_VOLUME_LEVEL = 1.0F;
 
     /**
+     * The maximum volume level expressed in percent accepted by
+     * <tt>AbstractVolumeControl</tt>.
+     */
+    private static final int MAX_VOLUME_PERCENT = 200;
+
+    /**
      * The default volume level.
      */
-    private static final float DEFAULT_VOLUME_LEVEL = 0.5F;
+    private static final float DEFAULT_VOLUME_LEVEL
+        = MIN_VOLUME_LEVEL
+            + (MAX_VOLUME_LEVEL - MIN_VOLUME_LEVEL)
+                / ((MAX_VOLUME_PERCENT - MIN_VOLUME_PERCENT) / 100);
 
     /**
      * The <tt>VolumeChangeListener</tt>s interested in volume change events
@@ -159,8 +174,8 @@ public class AbstractVolumeControl
             Arrays.fill(buffer, offset, offset + length, (byte) 0);
         else
         {
-            // Assign the maximum of 200% to the volume scale.
-            float level = gainControl.getLevel() * 2;
+            // Assign a maximum of MAX_VOLUME_PERCENT to the volume scale.
+            float level = gainControl.getLevel() * (MAX_VOLUME_PERCENT / 100);
 
             if (level != 1)
             {
@@ -278,16 +293,15 @@ public class AbstractVolumeControl
      */
     private float setVolumeLevel(float value)
     {
+        if (value < MIN_VOLUME_LEVEL)
+            value = MIN_VOLUME_LEVEL;
+        else if (value > MAX_VOLUME_LEVEL)
+            value = MAX_VOLUME_LEVEL;
+
         if (volumeLevel == value)
             return value;
 
-        if(value < MIN_VOLUME_LEVEL)
-            volumeLevel = MIN_VOLUME_LEVEL;
-        else if(value > MAX_VOLUME_LEVEL)
-            volumeLevel = MAX_VOLUME_LEVEL;
-        else
-            volumeLevel = value;
-
+        volumeLevel = value;
         fireVolumeChange();
 
         // save the level change, so we can restore it on next run
@@ -296,10 +310,12 @@ public class AbstractVolumeControl
                 String.valueOf(volumeLevel));
 
         float f1 = value / initialVolumeLevel;
-        db = (float)((Math.log((double)f1 != 0.0D ?
-                f1
-                : 0.0001D) / Math.log(10D)) * 20D);
 
+        db
+            = (float)
+                ((Math.log(((double)f1 != 0.0D) ? f1 : 0.0001D)
+                        / Math.log(10D))
+                    * 20D);
         fireGainEvents();
 
         return volumeLevel;
@@ -351,11 +367,6 @@ public class AbstractVolumeControl
 
             float f1 = (float)Math.pow(10D, (double)this.db / 20D);
             float volumeLevel = f1 * this.initialVolumeLevel;
-
-            if(volumeLevel < 0.0F)
-                volumeLevel = 0.0F;
-            else if(volumeLevel > 1.0F)
-                volumeLevel = 1.0F;
 
             setVolumeLevel(volumeLevel);
         }
