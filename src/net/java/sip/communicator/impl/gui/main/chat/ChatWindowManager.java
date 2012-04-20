@@ -151,12 +151,17 @@ public class ChatWindowManager
                     SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
                         GuiActivator.getResources().getI18NString(
                             "service.gui.NON_EMPTY_CHAT_WINDOW_CLOSE"));
-                    JScrollPane jScrollPane = new JScrollPane(msgText);
-                    jScrollPane.setBorder(null);
+                    JComponent textComponent = msgText;
+                    if(OSUtils.IS_LINUX)
+                    {
+                        JScrollPane jScrollPane = new JScrollPane(msgText);
+                        jScrollPane.setBorder(null);
+                        textComponent = jScrollPane;
+                    }
 
                     int answer = JOptionPane.showConfirmDialog(
                         null,
-                        jScrollPane,
+                        textComponent,
                         GuiActivator.getResources().getI18NString(
                             "service.gui.WARNING"),
                         JOptionPane.OK_CANCEL_OPTION,
@@ -172,12 +177,17 @@ public class ChatWindowManager
                         = new SIPCommMsgTextArea(GuiActivator.getResources()
                             .getI18NString(
                                 "service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE"));
-                    JScrollPane jScrollPane = new JScrollPane(msgText);
-                    jScrollPane.setBorder(null);
+                    JComponent textComponent = msgText;
+                    if(OSUtils.IS_LINUX)
+                    {
+                        JScrollPane jScrollPane = new JScrollPane(msgText);
+                        jScrollPane.setBorder(null);
+                        textComponent = jScrollPane;
+                    }
 
                     int answer = JOptionPane.showConfirmDialog(
                         null,
-                        jScrollPane,
+                        textComponent,
                         GuiActivator.getResources()
                             .getI18NString("service.gui.WARNING"),
                         JOptionPane.OK_CANCEL_OPTION,
@@ -192,12 +202,17 @@ public class ChatWindowManager
                         = new SIPCommMsgTextArea(GuiActivator.getResources()
                             .getI18NString(
                                 "service.gui.CLOSE_CHAT_ACTIVE_FILE_TRANSFER"));
-                    JScrollPane jScrollPane = new JScrollPane(msgText);
-                    jScrollPane.setBorder(null);
+                    JComponent textComponent = msgText;
+                    if(OSUtils.IS_LINUX)
+                    {
+                        JScrollPane jScrollPane = new JScrollPane(msgText);
+                        jScrollPane.setBorder(null);
+                        textComponent = jScrollPane;
+                    }
 
                     int answer = JOptionPane.showConfirmDialog(
                         null,
-                        jScrollPane,
+                        textComponent,
                         GuiActivator.getResources()
                             .getI18NString("service.gui.WARNING"),
                         JOptionPane.OK_CANCEL_OPTION,
