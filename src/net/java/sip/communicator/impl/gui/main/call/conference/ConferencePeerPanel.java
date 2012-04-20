@@ -253,9 +253,16 @@ public class ConferencePeerPanel
 
         securityPanel.securityOn(evt);
 
+        boolean isSecurityLowPriority = Boolean.parseBoolean(
+            GuiActivator.getResources().getSettingsString(
+                "impl.gui.I_DONT_CARE_THAT_MUCH_ABOUT_SECURITY"));
+
         if (srtpControl instanceof ZrtpControl
-            && !((ZrtpControl) srtpControl).isSecurityVerified())
+            && !((ZrtpControl) srtpControl).isSecurityVerified()
+            && !isSecurityLowPriority)
+        {
             setSecurityPanelVisible(true);
+        }
 
         callPanel.refreshContainer();
     }
