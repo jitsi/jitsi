@@ -143,7 +143,7 @@ public class RenameContactDialog
         }
         else if (name.equals("clear"))
         {
-            clist.clearDisplayNameUserDefined(metaContact);
+            clist.clearUserDefinedDisplayName(metaContact);
         }
         this.dispose();
     }
