@@ -168,6 +168,20 @@ public class MediaDeviceImpl
     }
 
     /**
+     * Initializes a new <tt>Renderer</tt> instance which is to play back media
+     * on this <tt>MediaDevice</tt>.
+     *
+     * @return a new <tt>Renderer</tt> instance which is to play back media on
+     * this <tt>MediaDevice</tt> or <tt>null</tt> if a suitable
+     * <tt>Renderer</tt> is to be chosen irrespective of this
+     * <tt>MediaDevice</tt>
+     */
+    Renderer createRenderer()
+    {
+        return null;
+    }
+
+    /**
      * Creates a new <tt>CaptureDevice</tt> which traces calls to a specific
      * <tt>CaptureDevice</tt> for debugging purposes.
      *

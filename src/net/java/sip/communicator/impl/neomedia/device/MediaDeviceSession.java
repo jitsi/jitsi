@@ -17,6 +17,7 @@ import javax.media.protocol.*;
 import javax.media.rtp.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -768,6 +769,24 @@ public class MediaDeviceSession
 
         if ((captureDevice != null) && !captureDeviceIsConnected)
         {
+            /*
+             * Give this instance a chance to set up an optimized media codec
+             * chain by setting the output Format on the input CaptureDevice.
+             */
+            try
+            {
+                if (this.format != null)
+                    setCaptureDeviceFormat(captureDevice, this.format);
+            }
+            catch (Throwable t)
+            {
+                logger.warn(
+                        "Failed to setup an optimized media codec chain"
+                            + " by setting the output Format"
+                            + " on the input CaptureDevice",
+                        t);
+            }
+
             Throwable exception = null;
 
             try
@@ -783,8 +802,7 @@ public class MediaDeviceSession
                 captureDeviceIsConnected = true;
             else
             {
-                logger
-                    .error(
+                logger.error(
                         "Failed to connect to "
                             + MediaStreamImpl.toString(captureDevice),
                         exception);
@@ -1150,6 +1168,33 @@ public class MediaDeviceSession
      */
     protected void playerConfigureComplete(Processor player)
     {
+        TrackControl[] tcs = player.getTrackControls();
+
+        if ((tcs != null) && (tcs.length != 0))
+        {
+            AbstractMediaDevice device = getDevice();
+
+            for (int i = 0; i < tcs.length; i++)
+            {
+                TrackControl tc = tcs[i];
+                Renderer renderer = device.createRenderer();
+
+                if (renderer != null)
+                    try
+                    {
+                        tc.setRenderer(renderer);
+                    }
+                    catch (UnsupportedPlugInException upie)
+                    {
+                        logger.warn(
+                                "Failed to set "
+                                    + renderer.getClass().getName()
+                                    + " renderer on track "
+                                    + i,
+                                upie);
+                    }
+            }
+        }
     }
 
     /**
@@ -1186,8 +1231,7 @@ public class MediaDeviceSession
                 }
                 catch (NotConfiguredError nce)
                 {
-                    logger
-                        .error(
+                    logger.error(
                             "Failed to set ContentDescriptor to Player.",
                             nce);
                     return;
@@ -1354,6 +1398,86 @@ public class MediaDeviceSession
      */
     protected void receiveStreamRemoved(ReceiveStream receiveStream)
     {
+    }
+
+    protected void setCaptureDeviceFormat(
+            DataSource captureDevice,
+            MediaFormatImpl<? extends Format> mediaFormat)
+    {
+        Format format = mediaFormat.getFormat();
+
+        if (format instanceof AudioFormat)
+        {
+            AudioFormat audioFormat = (AudioFormat) format;
+            int channels = Format.NOT_SPECIFIED; // audioFormat.getChannels();
+            double sampleRate
+                = OSUtils.IS_ANDROID
+                    ? audioFormat.getSampleRate()
+                    : Format.NOT_SPECIFIED;
+
+            if ((channels != Format.NOT_SPECIFIED)
+                    || (sampleRate != Format.NOT_SPECIFIED))
+            {
+                FormatControl formatControl
+                    = (FormatControl)
+                        captureDevice.getControl(
+                                FormatControl.class.getName());
+
+                if (formatControl != null)
+                {
+                    Format[] supportedFormats
+                        = formatControl.getSupportedFormats();
+
+                    if ((supportedFormats != null)
+                            && (supportedFormats.length != 0))
+                    {
+                        if (sampleRate != Format.NOT_SPECIFIED)
+                        {
+                            /*
+                             * As per RFC 3551.4.5.2, because of a mistake in
+                             * RFC 1890 and for backward compatibility, G.722
+                             * should always be announced as 8000 even though it
+                             * is wideband.
+                             */
+                            String encoding = audioFormat.getEncoding();
+
+                            if ((Constants.G722.equalsIgnoreCase(encoding)
+                                        || Constants.G722_RTP.equalsIgnoreCase(
+                                                encoding))
+                                    && (sampleRate == 8000))
+                            {
+                                sampleRate = 16000;
+                            }
+                        }
+
+                        Format supportedAudioFormat = null;
+
+                        for (int i = 0; i < supportedFormats.length; i++)
+                        {
+                            Format sf = supportedFormats[i];
+
+                            if (sf instanceof AudioFormat)
+                            {
+                                AudioFormat saf = (AudioFormat) sf;
+
+                                if ((Format.NOT_SPECIFIED != channels)
+                                        && (saf.getChannels() != channels))
+                                    continue;
+                                if ((Format.NOT_SPECIFIED != sampleRate)
+                                        && (saf.getSampleRate() != sampleRate))
+                                    continue;
+
+                                supportedAudioFormat = saf;
+                                break;
+                            }
+                        }
+
+                        if (supportedAudioFormat != null)
+                            formatControl.setFormat(supportedAudioFormat);
+                    }
+                }
+            }
+        }
     }
 
     /**

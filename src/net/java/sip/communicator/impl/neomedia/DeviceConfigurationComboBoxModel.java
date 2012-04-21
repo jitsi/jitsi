@@ -345,12 +345,13 @@ public class DeviceConfigurationComboBoxModel
         {
             devices = null;
             // only for PortAudio
-            if(deviceConfiguration.getAudioSystem().equals(
-                DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+            if(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO.equals(
+                deviceConfiguration.getAudioSystem()))
             {
-                String systemName = DeviceConfiguration.AUDIO_NONE;
-                
-                deviceConfiguration.setAudioSystem(systemName, null, false);
+                deviceConfiguration.setAudioSystem(
+                        DeviceConfiguration.AUDIO_NONE,
+                        null,
+                        false);
                 fireContentsChanged(-1, -1);
                 setSelectedItem(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
                 fireContentsChanged(-1, -1);

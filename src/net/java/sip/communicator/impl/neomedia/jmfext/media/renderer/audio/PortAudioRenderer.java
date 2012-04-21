@@ -372,6 +372,44 @@ public class PortAudioRenderer
     public synchronized void open()
         throws ResourceUnavailableException
     {
+        try
+        {
+            doOpen();
+        }
+        catch (Throwable t)
+        {
+            /*
+             * Log the problem because FMJ may swallow it and thus make
+             * debugging harder than necessary.
+             */
+            if (logger.isDebugEnabled())
+                logger.debug("Failed to open PortAudioRenderer", t);
+
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else if (t instanceof ResourceUnavailableException)
+                throw (ResourceUnavailableException) t;
+            else
+            {
+                ResourceUnavailableException rue
+                    = new ResourceUnavailableException();
+
+                rue.initCause(t);
+                throw rue;
+            }
+        }
+    }
+
+    /**
+     * Opens the PortAudio device and output stream represented by this instance
+     * which are to be used to render audio.
+     *
+     * @throws ResourceUnavailableException if the PortAudio device or output
+     * stream cannot be created or opened
+     */
+    private void doOpen()
+        throws ResourceUnavailableException
+    {
         if (stream == 0)
         {
             MediaLocator locator = getLocator();

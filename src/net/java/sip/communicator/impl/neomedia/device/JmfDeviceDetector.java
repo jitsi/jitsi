@@ -256,56 +256,66 @@ public class JmfDeviceDetector
     }
 
     /**
-     * Sets the renderers appropriate for the current platform.
+     * Sets the <tt>Renderer</tt>s appropriate for the current platform.
      */
-    @SuppressWarnings("unchecked") //legacy JMF code.
     private static void setupRenderers()
     {
-        Vector<String> renderers =
-            PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
+        @SuppressWarnings("unchecked")
+        Vector<String> renderers
+            = PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
 
-        if(OSUtils.IS_WINDOWS)
+        /*
+         * JMF is no longer in use, FMJ is used in its place. FMJ has its own
+         * JavaSoundRenderer which is also extended into a JMF-compatible one.
+         */
+        PlugInManager.removePlugIn(
+                "com.sun.media.renderer.audio.JavaSoundRenderer",
+                PlugInManager.RENDERER);
+
+        if (OSUtils.IS_WINDOWS)
         {
             if (OSUtils.IS_WINDOWS32 &&
                     (OSUtils.IS_WINDOWS_VISTA || OSUtils.IS_WINDOWS_7))
             {
                 /*
-                 * DDRenderer will cause Windows Vista/7 32-bit to switch its
+                 * DDRenderer will cause 32-bit Windows Vista/7 to switch its
                  * theme from Aero to Vista Basic so try to pick up a different
                  * Renderer.
                  */
-                if (renderers
-                        .contains("com.sun.media.renderer.video.GDIRenderer"))
+                if (renderers.contains(
+                        "com.sun.media.renderer.video.GDIRenderer"))
                 {
                     PlugInManager.removePlugIn(
-                        "com.sun.media.renderer.video.DDRenderer",
-                        PlugInManager.RENDERER);
+                            "com.sun.media.renderer.video.DDRenderer",
+                            PlugInManager.RENDERER);
                 }
             }
             else if (OSUtils.IS_WINDOWS64)
             {
                 /*
-                 * Remove native renderers for Windows x64 because native JMF libs
-                 * are not available for 64 bit machines
+                 * Remove the native Renderers for 64-bit Windows because native
+                 * JMF libs are not available for 64-bit machines.
                  */
                 PlugInManager.removePlugIn(
-                    "com.sun.media.renderer.video.GDIRenderer",
-                    PlugInManager.RENDERER);
+                        "com.sun.media.renderer.video.GDIRenderer",
+                        PlugInManager.RENDERER);
                 PlugInManager.removePlugIn(
-                    "com.sun.media.renderer.video.DDRenderer",
-                    PlugInManager.RENDERER);
+                        "com.sun.media.renderer.video.DDRenderer",
+                        PlugInManager.RENDERER);
             }
         }
-        else if(!OSUtils.IS_LINUX32)
+        else if (!OSUtils.IS_LINUX32)
         {
-            if (renderers.contains("com.sun.media.renderer.video.LightWeightRenderer") ||
-                renderers.contains("com.sun.media.renderer.video.AWTRenderer"))
+            if (renderers.contains(
+                        "com.sun.media.renderer.video.LightWeightRenderer")
+                    || renderers.contains(
+                            "com.sun.media.renderer.video.AWTRenderer"))
             {
-                // remove xlib renderer cause its native one and jmf is supported
-                // only on 32bit machines
+                // Remove XLibRenderer because it is native and JMF is supported
+                // on 32-bit machines only.
                 PlugInManager.removePlugIn(
-                    "com.sun.media.renderer.video.XLibRenderer",
-                    PlugInManager.RENDERER);
+                        "com.sun.media.renderer.video.XLibRenderer",
+                        PlugInManager.RENDERER);
             }
         }
     }

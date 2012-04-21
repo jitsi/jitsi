@@ -129,28 +129,21 @@ public class AudioMediaDeviceImpl
         {
             if (captureDeviceSharing == null)
             {
-                CaptureDeviceInfo captureDeviceInfo = getCaptureDeviceInfo();
+                String protocol = getCaptureDeviceInfoLocatorProtocol();
                 boolean createCaptureDeviceIfNull = true;
 
-                if (captureDeviceInfo != null)
+                if ("javasound".equalsIgnoreCase(protocol)
+                        || PortAudioAuto.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                                protocol))
                 {
-                    MediaLocator locator = captureDeviceInfo.getLocator();
-                    String locatorProtocol
-                        = (locator == null) ? null : locator.getProtocol();
-
-                    if ("javasound".equalsIgnoreCase(locatorProtocol)
-                            || PortAudioAuto.LOCATOR_PROTOCOL
-                                    .equalsIgnoreCase(locatorProtocol))
+                    captureDevice = super.createCaptureDevice();
+                    createCaptureDeviceIfNull = false;
+                    if (captureDevice != null)
                     {
-                        captureDevice = super.createCaptureDevice();
-                        createCaptureDeviceIfNull = false;
-                        if (captureDevice != null)
-                        {
-                            captureDeviceSharing
-                                = createCaptureDeviceSharing(captureDevice);
-                            captureDevice
-                                = captureDeviceSharing.createOutputDataSource();
-                        }
+                        captureDeviceSharing
+                            = createCaptureDeviceSharing(captureDevice);
+                        captureDevice
+                            = captureDeviceSharing.createOutputDataSource();
                     }
                 }
                 if ((captureDevice == null) && createCaptureDeviceIfNull)
@@ -194,6 +187,68 @@ public class AudioMediaDeviceImpl
             };
     }
 
+    /**
+     * Initializes a new <tt>Renderer</tt> instance which is to play back media
+     * on this <tt>MediaDevice</tt>.
+     *
+     * @return a new <tt>Renderer</tt> instance which is to play back media on
+     * this <tt>MediaDevice</tt> or <tt>null</tt> if a suitable
+     * <tt>Renderer</tt> is to be chosen irrespective of this
+     * <tt>MediaDevice</tt>
+     */
+    @Override
+    Renderer createRenderer()
+    {
+        String protocol = getCaptureDeviceInfoLocatorProtocol();
+        String className;
+
+        if ("javasound".equalsIgnoreCase(protocol))
+            className = "net.sf.fmj.media.renderer.audio.JavaSoundRenderer";
+        else if (PortAudioAuto.LOCATOR_PROTOCOL.equalsIgnoreCase(protocol))
+        {
+            className
+                = "net.java.sip.communicator.impl.neomedia.jmfext.media"
+                    + ".renderer.audio.PortAudioRenderer";
+        }
+        else
+            className = null;
+
+        if (className != null)
+        {
+            try
+            {
+                return (Renderer) Class.forName(className).newInstance();
+            }
+            catch (Throwable t)
+            {
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+                else
+                    logger.warn(
+                            "Failed to initialize a new "
+                                + className
+                                + " instance",
+                            t);
+            }
+        }
+
+        return super.createRenderer();
+    }
+
+    private String getCaptureDeviceInfoLocatorProtocol()
+    {
+        CaptureDeviceInfo cdi = getCaptureDeviceInfo();
+
+        if (cdi != null)
+        {
+            MediaLocator locator = cdi.getLocator();
+
+            if (locator != null)
+                return locator.getProtocol();
+        }
+
+        return null;
+    }
     /**
      * Returns a <tt>List</tt> containing (at the time of writing) a single
      * extension descriptor indicating <tt>RECVONLY</tt> support for

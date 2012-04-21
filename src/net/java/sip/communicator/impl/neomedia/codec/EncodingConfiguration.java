@@ -573,19 +573,6 @@ public class EncodingConfiguration
             {
                 logger.error("Cannot commit to PlugInManager", ex);
             }
-
-        // Register the custom codec formats with the RTP manager once at
-        // initialization. This is needed for the Sun JMF implementation. It
-        // causes the registration of the formats with the static FormatInfo
-        // instance of com.sun.media.rtp.RTPSessionMgr, which in turn makes the
-        // formats available when the supported encodings arrays are generated
-        // in initProcessor(). In other JMF implementations this might not be
-        // needed, but should do no harm.
-
-        // Commented as it fails to load alaw codec
-        // RTPManager rtpManager = RTPManager.newInstance();
-        // CallSessionImpl.registerCustomCodecFormats(rtpManager);
-        // rtpManager.dispose();
     }
 
     /**

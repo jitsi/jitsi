@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 import java.io.*;
 import java.util.*;
 
+import javax.media.*;
 import javax.media.protocol.*;
 
 import net.java.sip.communicator.service.neomedia.*;
@@ -64,6 +65,17 @@ public abstract class AbstractMediaDevice
      * captured by this <tt>MediaDevice</tt>
      */
     abstract DataSource createOutputDataSource();
+
+    /**
+     * Initializes a new <tt>Renderer</tt> instance which is to play back media
+     * on this <tt>MediaDevice</tt>.
+     *
+     * @return a new <tt>Renderer</tt> instance which is to play back media on
+     * this <tt>MediaDevice</tt> or <tt>null</tt> if a suitable
+     * <tt>Renderer</tt> is to be chosen irrespective of this
+     * <tt>MediaDevice</tt>
+     */
+    abstract Renderer createRenderer();
 
     /**
      * Creates a new <tt>MediaDeviceSession</tt> instance which is to represent

@@ -24,13 +24,15 @@ public class AudioMediaDeviceSession
     extends MediaDeviceSession
 {
     /**
-     * Our class logger.
+     * The <tt>Logger</tt> used by the <tt>AudioMediaDeviceSession</tt> class
+     * and its instances for logging output.
      */
-    private Logger logger = Logger.getLogger(AudioMediaDeviceSession.class);
+    private static final Logger logger
+        = Logger.getLogger(AudioMediaDeviceSession.class);
 
     /**
-     * The effect that we will register with our datasource in order to measure
-     * audio levels of the local user audio.
+     * The <tt>Effect</tt> that we will register with our <tt>DataSource</tt> in
+     * order to measure the audio levels of the local user.
      */
     private final AudioLevelEffect localUserAudioLevelEffect
         = new AudioLevelEffect();
@@ -70,25 +72,28 @@ public class AudioMediaDeviceSession
     {
         super.playerConfigureComplete(player);
 
-        try
+        TrackControl tcs[] = player.getTrackControls();
+
+        if (tcs != null)
         {
-            TrackControl tcs[] = player.getTrackControls();
-            if (tcs != null)
+            for (TrackControl tc : tcs)
             {
-                for (TrackControl tc : tcs)
+                if (tc.getFormat() instanceof AudioFormat)
                 {
-                    if (tc.getFormat() instanceof AudioFormat)
+                    // Assume there is only one audio track.
+                    try
                     {
-                        // Assume there is only one audio track
                         registerStreamAudioLevelJMFEffect(tc);
-                        break;
                     }
+                    catch (UnsupportedPlugInException upie)
+                    {
+                        logger.error(
+                                "Failed to register stream audio level Effect",
+                                upie);
+                    }
+                    break;
                 }
             }
-        }
-        catch (UnsupportedPlugInException ex)
-        {
-            logger.error("The processor does not support effects", ex);
         }
     }
 

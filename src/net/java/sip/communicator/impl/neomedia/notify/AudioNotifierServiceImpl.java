@@ -87,21 +87,26 @@ public class AudioNotifierServiceImpl
 
                 try
                 {
-                    if(getDeviceConfiguration().getAudioSystem().equals(
-                        DeviceConfiguration.AUDIO_SYSTEM_JAVASOUND))
+                    String audioSystem
+                        = getDeviceConfiguration().getAudioSystem();
+
+                    if(DeviceConfiguration.AUDIO_SYSTEM_JAVASOUND.equals(
+                            audioSystem))
                     {
                         audioClip = new JMFAudioClipImpl(url, this);
                     }
-                    else if(getDeviceConfiguration().getAudioSystem().equals(
-                        DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO))
+                    else if(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO.equals(
+                            audioSystem))
                     {
                         audioClip = new PortAudioClipImpl(url, this);
                     }
                     else
                         return null;
                 }
-                catch (Throwable e)
+                catch (Throwable t)
                 {
+                    if (t instanceof ThreadDeath)
+                        throw (ThreadDeath) t;
                     // Cannot create audio to play
                     return null;
                 }

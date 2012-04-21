@@ -123,6 +123,20 @@ public class VideoTranslatorMediaDevice
     }
 
     /**
+     * Initializes a new <tt>Renderer</tt> instance which is to play back media
+     * on this <tt>MediaDevice</tt>.
+     *
+     * @return a new <tt>Renderer</tt> instance which is to play back media on
+     * this <tt>MediaDevice</tt> or <tt>null</tt> if a suitable
+     * <tt>Renderer</tt> is to be chosen irrespective of this
+     * <tt>MediaDevice</tt>
+     */
+    Renderer createRenderer()
+    {
+        return null;
+    }
+
+    /**
      * Creates a new <tt>MediaDeviceSession</tt> instance which is to represent
      * the use of this <tt>MediaDevice</tt> by a <tt>MediaStream</tt>.
      *
