@@ -35,6 +35,10 @@ public class RenameContactDialog
     private JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
+    private JButton clearButton = new JButton(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.RENAME_CLEAR_USER_DEFINED"));
+
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -79,6 +83,7 @@ public class RenameContactDialog
         this.getRootPane().setDefaultButton(renameButton);
         this.renameButton.setName("rename");
         this.cancelButton.setName("cancel");
+        this.clearButton.setName("clear");
 
         this.renameButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.RENAME"));
@@ -87,14 +92,27 @@ public class RenameContactDialog
 
         this.renameButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
+        this.clearButton.addActionListener(this);
 
         this.buttonsPanel.add(renameButton);
         this.buttonsPanel.add(cancelButton);
 
+        TransparentPanel allButtonsPanel
+                = new TransparentPanel(new BorderLayout());
+        TransparentPanel firstButonPanel =
+                    new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
+        firstButonPanel.add(clearButton);
+
+        // add it only if we have one MetaContact
+        if(metaContact.getContactCount() == 1)
+            allButtonsPanel.add(firstButonPanel, BorderLayout.WEST);
+
+        allButtonsPanel.add(buttonsPanel, BorderLayout.CENTER);
+
         this.mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 10));
 
         this.mainPanel.add(renameContactPanel, BorderLayout.NORTH);
-        this.mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+        this.mainPanel.add(allButtonsPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
     }
@@ -122,6 +140,10 @@ public class RenameContactDialog
                     }
                 }.start();
             }
+        }
+        else if (name.equals("clear"))
+        {
+            clist.clearDisplayNameUserDefined(metaContact);
         }
         this.dispose();
     }

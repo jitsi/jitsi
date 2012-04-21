@@ -64,6 +64,11 @@ public class ContactJabberImpl
     private String statusMessage = null;
 
     /**
+     * The display name of the roster entry.
+     */
+    private String serverDisplayName = null;
+
+    /**
      * Creates an JabberContactImpl
      * @param rosterEntry the RosterEntry object that we will be encapsulating.
      * @param ssclCallback a reference to the ServerStoredContactListImpl
@@ -79,7 +84,10 @@ public class ContactJabberImpl
     {
         // rosterEntry can be null when creating volatile contact
         if(rosterEntry != null)
+        {
             this.jid = rosterEntry.getUser();
+            this.serverDisplayName = rosterEntry.getName();
+        }
 
         this.tempId = null;
         this.ssclCallback = ssclCallback;
@@ -299,6 +307,25 @@ public class ContactJabberImpl
     }
 
     /**
+     * Returns the display name used when the contact was resolved.
+     * Used to detect renames.
+     * @return the display name.
+     */
+    String getServerDisplayName()
+    {
+        return serverDisplayName;
+    }
+
+    /**
+     * Changes locally stored server display name.
+     * @param newValue
+     */
+    void setServerDisplayName(String newValue)
+    {
+        this.serverDisplayName = newValue;
+    }
+
+    /**
      * Returns a reference to the contact group that this contact is currently
      * a child of or null if the underlying protocol does not support persistent
      * presence.
@@ -361,6 +388,7 @@ public class ContactJabberImpl
         this.isResolved = true;
         this.isPersistent = true;
         this.jid = entry.getUser();
+        this.serverDisplayName = entry.getName();
     }
 
     /**

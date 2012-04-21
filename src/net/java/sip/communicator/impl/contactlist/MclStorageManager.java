@@ -173,6 +173,13 @@ public class MclStorageManager
         "display-name";
 
     /**
+     * The name of the XML attribute that contains true/false, whether
+     * this meta contact was renamed by user.
+     */
+    private static final String USER_DEFINED_DISPLAY_NAME_ATTR_NAME =
+        "user-defined";
+
+    /**
      * The name of the XML node that contains meta contact detail.
      */
     private static final String META_CONTACT_DETAIL_NAME_NODE_NAME = "detail";
@@ -777,6 +784,10 @@ public class MclStorageManager
 
                 String displayName = XMLUtils.getText(displayNameNode);
 
+                boolean isDisplayNameUserDefined =
+                    Boolean.valueOf(displayNameNode
+                            .getAttribute(USER_DEFINED_DISPLAY_NAME_ATTR_NAME));
+
                 // extract a map of all encapsulated proto contacts
                 List<MclStorageManager.StoredProtoContactDescriptor> protoContacts =
                     extractProtoContacts((Element) currentMetaContactNode,
@@ -825,8 +836,12 @@ public class MclStorageManager
                 }
 
                 // pass the parsed proto contacts to the mcl service
-                mclServImpl.loadStoredMetaContact(currentMetaGroup, uid,
+                MetaContactImpl mc = mclServImpl.loadStoredMetaContact(
+                    currentMetaGroup, uid,
                     displayName, details, protoContacts, accountID);
+
+                if(isDisplayNameUserDefined)
+                    mc.setDisplayNameUserDefined(true);
             }
             catch (Throwable thr)
             {
@@ -1115,6 +1130,10 @@ public class MclStorageManager
 
         displayNameNode.appendChild(contactListDocument
             .createTextNode(metaContact.getDisplayName()));
+
+        if(((MetaContactImpl)metaContact).isDisplayNameUserDefined())
+            displayNameNode.setAttribute(USER_DEFINED_DISPLAY_NAME_ATTR_NAME,
+                                         Boolean.TRUE.toString());
 
         metaContactElement.appendChild(displayNameNode);
 
@@ -1509,6 +1528,18 @@ public class MclStorageManager
         Element displayNameNode =
             XMLUtils.findChild(metaContactNode,
                 META_CONTACT_DISPLAY_NAME_NODE_NAME);
+
+        if(((MetaContactImpl)evt.getSourceMetaContact())
+                .isDisplayNameUserDefined())
+        {
+            displayNameNode.setAttribute(USER_DEFINED_DISPLAY_NAME_ATTR_NAME,
+                                         Boolean.TRUE.toString());
+        }
+        else
+        {
+            displayNameNode.removeAttribute(
+                USER_DEFINED_DISPLAY_NAME_ATTR_NAME);
+        }
 
         XMLUtils.setText(displayNameNode, evt.getNewDisplayName());
 

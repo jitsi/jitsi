@@ -824,6 +824,23 @@ public class MetaContactListServiceImpl
     public void renameMetaContact(MetaContact metaContact, String newDisplayName)
         throws IllegalArgumentException
     {
+        renameMetaContact(metaContact, newDisplayName, true);
+    }
+
+    /**
+     * Sets the display name for <tt>metaContact</tt> to be <tt>newName</tt>.
+     * <p>
+     * @param metaContact the <tt>MetaContact</tt> that we are renaming
+     * @param newDisplayName a <tt>String</tt> containing the new display name
+     * for <tt>metaContact</tt>.
+     * @throws IllegalArgumentException if <tt>metaContact</tt> is not an
+     * instance that belongs to the underlying implementation.
+     */
+    private void renameMetaContact(MetaContact metaContact,
+                                   String newDisplayName,
+                                   boolean isUserDefined)
+        throws IllegalArgumentException
+    {
         if (! (metaContact instanceof MetaContactImpl))
         {
             throw new IllegalArgumentException(
@@ -833,6 +850,8 @@ public class MetaContactListServiceImpl
         String oldDisplayName = metaContact.getDisplayName();
 
         ((MetaContactImpl)metaContact).setDisplayName(newDisplayName);
+        if(isUserDefined)
+            ((MetaContactImpl)metaContact).setDisplayNameUserDefined(true);
 
         Iterator<Contact> contacts = metaContact.getContacts();
 
@@ -871,6 +890,40 @@ public class MetaContactListServiceImpl
                     , null
                     , null
                     , MetaContactGroupEvent.CHILD_CONTACTS_REORDERED);
+    }
+
+    /**
+     * Resets display name of the MetaContact to show the value from
+     * the underlying contacts.
+     * @param metaContact the <tt>MetaContact</tt> that we are operating on
+     * @throws IllegalArgumentException if <tt>metaContact</tt> is not an
+     * instance that belongs to the underlying implementation.
+     */
+    public void clearUserDefinedDisplayName(MetaContact metaContact)
+        throws IllegalArgumentException
+    {
+        if (! (metaContact instanceof MetaContactImpl))
+        {
+            throw new IllegalArgumentException(
+                metaContact + " is not a MetaContactImpl instance.");
+        }
+
+        // set display name
+        ((MetaContactImpl)metaContact).setDisplayNameUserDefined(false);
+
+        if(metaContact.getContactCount() == 1)
+        {
+            renameMetaContact(metaContact,
+                metaContact.getDefaultContact().getDisplayName(), false);
+        }
+        else
+        {
+            // just fire event so the modification is stored
+            fireMetaContactEvent(new MetaContactRenamedEvent(
+                        metaContact,
+                        metaContact.getDisplayName(),
+                        metaContact.getDisplayName()));
+        }
     }
 
     /**
@@ -2358,6 +2411,35 @@ public class MetaContactListServiceImpl
             if(mc != null)
             {
                 mc.getAvatar();
+
+                if(mc.getContactCount() == 1
+                        && !mc.isDisplayNameUserDefined())
+                {
+                    String oldDisplayName = mc.getDisplayName();
+
+                    // if we have one contact, display name of metacontact
+                    // haven't been changed by user
+                    // and contact display name is different from
+                    // metacontact's one let's change it
+                    Contact c = mc.getDefaultContact();
+                    String newDisplayName = c.getDisplayName();
+                    if(newDisplayName != null
+                       && !newDisplayName.equals(oldDisplayName))
+                    {
+                        mc.setDisplayName(newDisplayName);
+
+                        fireMetaContactEvent(new MetaContactRenamedEvent(
+                            mc, oldDisplayName, newDisplayName));
+
+                        //changing the display name has surely brought a change in the order as
+                        //well so let's tell the others
+                        fireMetaContactGroupEvent(
+                            findParentMetaContactGroup( mc )
+                            , null
+                            , null
+                            , MetaContactGroupEvent.CHILD_CONTACTS_REORDERED);
+                    }
+                }
             }
         }
 
@@ -2385,7 +2467,7 @@ public class MetaContactListServiceImpl
                 if( evt.getOldValue() != null
                     && evt.getOldValue().equals(mc.getDisplayName()))
                 {
-                    renameMetaContact(mc, (String)evt.getNewValue());
+                    renameMetaContact(mc, (String)evt.getNewValue(), false);
                 }
                 else
                 {
@@ -2925,8 +3007,9 @@ public class MetaContactListServiceImpl
      * encapsulated by the meta contact that we're about to create.
      * @param accountID the identifier of the account that the contacts
      * originate from.
+     * @return the loaded meta contact.
      */
-    void loadStoredMetaContact(
+    MetaContactImpl loadStoredMetaContact(
             MetaContactGroupImpl parentGroup,
             String metaUID,
             String displayName,
@@ -2999,6 +3082,8 @@ public class MetaContactListServiceImpl
 
         if (logger.isTraceEnabled())
             logger.trace("Created meta contact: " + newMetaContact);
+
+        return newMetaContact;
     }
 
     /**

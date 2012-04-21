@@ -98,6 +98,11 @@ public class MetaContactImpl
     private final static String AVATAR_DIR = "avatarcache";
 
     /**
+     * Whether user has renamed this meta contact.
+     */
+    private boolean isDisplayNameUserDefined = false;
+
+    /**
      *  Characters and their replacement in created folder names
      */
     private final static String[][] ESCAPE_SEQUENCES = new String[][]
@@ -544,6 +549,26 @@ public class MetaContactImpl
     public String getDisplayName()
     {
         return displayName;
+    }
+
+    /**
+     * Determines if display name was changed for
+     * this <tt>MetaContact</tt> in user interface.
+     * @return whether display name was changed by user.
+     */
+    boolean isDisplayNameUserDefined()
+    {
+        return isDisplayNameUserDefined;
+    }
+
+    /**
+     * Changes that display name was changed for
+     * this <tt>MetaContact</tt> in user interface.
+     * @param value control whether display name is user defined
+     */
+    void setDisplayNameUserDefined(boolean value)
+    {
+        this.isDisplayNameUserDefined = value;
     }
 
     /**

@@ -1220,6 +1220,12 @@ public class ServerStoredContactListJabberImpl
 
                 ContactJabberImpl contact = addEntryToContactList(contactID);
 
+                if(entry.getGroups().size() == 0)
+                {
+                    // check for change in display name
+                    checkForRename(entry.getName(), contact);
+                }
+
                 for (RosterGroup gr : entry.getGroups())
                 {
                     if(findContactGroup(gr.getName()) == null)
@@ -1250,7 +1256,7 @@ public class ServerStoredContactListJabberImpl
 
                         if(!gr.getName().equals(contactGroup.getGroupName()))
                         {
-                            // the contact is moved to onether group
+                            // the contact is moved to another group
                             // first remove it from the original one
                             if(contactGroup instanceof ContactGroupJabberImpl)
                                 ((ContactGroupJabberImpl)contactGroup).
@@ -1269,8 +1275,35 @@ public class ServerStoredContactListJabberImpl
                                              newParentGroup,
                                              contact);
                         }
+                        else
+                        {
+                            // check for change in display name
+
+                            checkForRename(entry.getName(), contact);
+                        }
                     }
                 }
+            }
+        }
+
+        /**
+         * Checks the entry and the contact whether the display name has changed.
+         * @param newValue new display name value
+         * @param contact the contact to check
+         */
+        private void checkForRename(String newValue,
+                                    ContactJabberImpl contact)
+        {
+            // check for change in display name
+            if(newValue != null
+               && !newValue.equals(
+                    contact.getServerDisplayName()))
+            {
+                String oldValue = contact.getServerDisplayName();
+                contact.setServerDisplayName(newValue);
+                parentOperationSet.fireContactPropertyChangeEvent(
+                    ContactPropertyChangeEvent.PROPERTY_DISPLAY_NAME,
+                    contact, oldValue, newValue);
             }
         }
 

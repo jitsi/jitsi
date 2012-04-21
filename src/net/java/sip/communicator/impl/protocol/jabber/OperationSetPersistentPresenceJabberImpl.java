@@ -1163,29 +1163,45 @@ public class OperationSetPersistentPresenceJabberImpl
                     ContactJabberImpl srcContact
                         = ssContactList.findContactById(fromID);
 
-                    if(srcContact == null)
-                        srcContact = createVolatileContact(fromID);
-
-                    AuthorizationRequest req = new AuthorizationRequest();
-                    AuthorizationResponse response
-                        = handler.processAuthorisationRequest(req, srcContact);
                     Presence.Type responsePresenceType = null;
 
-                    if(response != null)
+                    if(srcContact == null)
                     {
-                        if(response.getResponseCode()
-                               .equals(AuthorizationResponse.ACCEPT))
-                        {
+                        srcContact = createVolatileContact(fromID);
+                    }
+                    else
+                    {
+                        if(srcContact.isPersistent())
                             responsePresenceType = Presence.Type.subscribed;
-                            if (logger.isInfoEnabled())
-                                logger.info("Sending Accepted Subscription");
-                        }
-                        else if(response.getResponseCode()
-                                .equals(AuthorizationResponse.REJECT))
+                    }
+
+                    if(responsePresenceType == null)
+                    {
+                        AuthorizationRequest req = new AuthorizationRequest();
+                        AuthorizationResponse response
+                            = handler.processAuthorisationRequest(
+                                            req, srcContact);
+
+                        if(response != null)
                         {
-                            responsePresenceType = Presence.Type.unsubscribed;
-                            if (logger.isInfoEnabled())
-                                logger.info("Sending Rejected Subscription");
+                            if(response.getResponseCode()
+                                   .equals(AuthorizationResponse.ACCEPT))
+                            {
+                                responsePresenceType
+                                    = Presence.Type.subscribed;
+                                if (logger.isInfoEnabled())
+                                    logger.info(
+                                        "Sending Accepted Subscription");
+                            }
+                            else if(response.getResponseCode()
+                                    .equals(AuthorizationResponse.REJECT))
+                            {
+                                responsePresenceType
+                                    = Presence.Type.unsubscribed;
+                                if (logger.isInfoEnabled())
+                                    logger.info(
+                                        "Sending Rejected Subscription");
+                            }
                         }
                     }
 

@@ -310,6 +310,16 @@ public interface MetaContactListService
         throws IllegalArgumentException;
 
     /**
+     * Resets display name of the MetaContact to show the value from
+     * the underlying contacts.
+     * @param metaContact the <tt>MetaContact</tt> that we are operating on
+     * @throws IllegalArgumentException if <tt>metaContact</tt> is not an
+     * instance that belongs to the underlying implementation.
+     */
+    public void clearUserDefinedDisplayName(MetaContact metaContact)
+        throws IllegalArgumentException;
+
+    /**
      * Removes the specified <tt>metaContact</tt> as well as all of its
      * underlying contacts.
      * <p>
