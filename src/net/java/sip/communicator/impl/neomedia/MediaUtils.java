@@ -36,9 +36,22 @@ public class MediaUtils
     public static final MediaFormat[] EMPTY_MEDIA_FORMATS = new MediaFormat[0];
 
     /**
-     * The maximum sample rate for audio that we advertise.
+     * The maximum number of channels for audio that is available through
+     * <tt>MediaUtils</tt>.
      */
-    public static final double MAX_AUDIO_SAMPLE_RATE = 32000;
+    public static final int MAX_AUDIO_CHANNELS;
+
+    /**
+     * The maximum sample rate for audio that is available through
+     * <tt>MediaUtils</tt>.
+     */
+    public static final double MAX_AUDIO_SAMPLE_RATE;
+
+    /**
+     * The maximum sample size in bits for audio that is available through
+     * <tt>MediaUtils</tt>.
+     */
+    public static final int MAX_AUDIO_SAMPLE_SIZE_IN_BITS;
 
     /**
      * The <tt>Map</tt> of JMF-specific encodings to well-known encodings as
@@ -270,6 +283,46 @@ public class MediaUtils
                 Constants.H263P_RTP,
                 h263FormatParams,
                 h263AdvancedAttributes);
+
+        // Calculate the values of the MAX_AUDIO_* static fields of MediaUtils.
+        List<MediaFormat> audioMediaFormats
+            = new ArrayList<MediaFormat>(
+                    rtpPayloadTypeStrToMediaFormats.size()
+                        + rtpPayloadTypelessMediaFormats.size());
+
+        for (MediaFormat[] mediaFormats
+                : rtpPayloadTypeStrToMediaFormats.values())
+            for (MediaFormat mediaFormat : mediaFormats)
+                if (MediaType.AUDIO.equals(mediaFormat.getMediaType()))
+                    audioMediaFormats.add(mediaFormat);
+        for (MediaFormat mediaFormat : rtpPayloadTypelessMediaFormats)
+            if (MediaType.AUDIO.equals(mediaFormat.getMediaType()))
+                audioMediaFormats.add(mediaFormat);
+
+        int maxAudioChannels = Format.NOT_SPECIFIED;
+        double maxAudioSampleRate = Format.NOT_SPECIFIED;
+        int maxAudioSampleSizeInBits = Format.NOT_SPECIFIED;
+
+        for (MediaFormat mediaFormat : audioMediaFormats)
+        {
+            AudioMediaFormatImpl audioMediaFormat
+                = (AudioMediaFormatImpl) mediaFormat;
+            int channels = audioMediaFormat.getChannels();
+            double sampleRate = audioMediaFormat.getClockRate();
+            int sampleSizeInBits
+                = audioMediaFormat.getFormat().getSampleSizeInBits();
+
+            if (maxAudioChannels < channels)
+                maxAudioChannels = channels;
+            if (maxAudioSampleRate < sampleRate)
+                maxAudioSampleRate = sampleRate;
+            if (maxAudioSampleSizeInBits < sampleSizeInBits)
+                maxAudioSampleSizeInBits = sampleSizeInBits;
+        }
+
+        MAX_AUDIO_CHANNELS = maxAudioChannels;
+        MAX_AUDIO_SAMPLE_RATE = maxAudioSampleRate;
+        MAX_AUDIO_SAMPLE_SIZE_IN_BITS = maxAudioSampleSizeInBits;
     }
 
     /**

@@ -12,8 +12,10 @@ import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
+import javax.media.format.*;
 import javax.media.protocol.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.conference.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
@@ -21,7 +23,7 @@ import net.java.sip.communicator.util.*;
 /**
  * Extends <tt>MediaDeviceImpl</tt> with audio-specific functionality.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class AudioMediaDeviceImpl
     extends MediaDeviceImpl
@@ -136,7 +138,7 @@ public class AudioMediaDeviceImpl
                         || PortAudioAuto.LOCATOR_PROTOCOL.equalsIgnoreCase(
                                 protocol))
                 {
-                    captureDevice = super.createCaptureDevice();
+                    captureDevice = superCreateCaptureDevice();
                     createCaptureDeviceIfNull = false;
                     if (captureDevice != null)
                     {
@@ -147,7 +149,9 @@ public class AudioMediaDeviceImpl
                     }
                 }
                 if ((captureDevice == null) && createCaptureDeviceIfNull)
-                    captureDevice = super.createCaptureDevice();
+                {
+                    captureDevice = superCreateCaptureDevice();
+                }
             }
             else
                 captureDevice = captureDeviceSharing.createOutputDataSource();
@@ -235,6 +239,13 @@ public class AudioMediaDeviceImpl
         return super.createRenderer();
     }
 
+    /**
+     * Gets the protocol of the <tt>MediaLocator</tt> of the
+     * <tt>CaptureDeviceInfo</tt> represented by this instance.
+     *
+     * @return the protocol of the <tt>MediaLocator</tt> of the
+     * <tt>CaptureDeviceInfo</tt> represented by this instance
+     */
     private String getCaptureDeviceInfoLocatorProtocol()
     {
         CaptureDeviceInfo cdi = getCaptureDeviceInfo();
@@ -249,6 +260,7 @@ public class AudioMediaDeviceImpl
 
         return null;
     }
+
     /**
      * Returns a <tt>List</tt> containing (at the time of writing) a single
      * extension descriptor indicating <tt>RECVONLY</tt> support for
@@ -260,11 +272,12 @@ public class AudioMediaDeviceImpl
     @Override
     public List<RTPExtension> getSupportedExtensions()
     {
-        if ( rtpExtensions == null)
+        if (rtpExtensions == null)
         {
             rtpExtensions = new ArrayList<RTPExtension>(1);
 
             URI csrcAudioLevelURN;
+
             try
             {
                 csrcAudioLevelURN = new URI(RTPExtension.CSRC_AUDIO_LEVEL_URN);
@@ -275,13 +288,166 @@ public class AudioMediaDeviceImpl
                 // never changes.
                 if (logger.isInfoEnabled())
                     logger.info("Aha! Someone messed with the source!", e);
-                return null;
+                csrcAudioLevelURN = null;
             }
-
-            rtpExtensions.add(new RTPExtension(
-                               csrcAudioLevelURN, MediaDirection.RECVONLY));
+            if (csrcAudioLevelURN != null)
+                rtpExtensions.add(
+                        new RTPExtension(
+                                csrcAudioLevelURN,
+                                MediaDirection.RECVONLY));
         }
 
         return rtpExtensions;
+    }
+
+    private boolean isLessThanOrEqualToMaxAudioFormat(Format format)
+    {
+        if (format instanceof AudioFormat)
+        {
+            AudioFormat audioFormat = (AudioFormat) format;
+            int channels = audioFormat.getChannels();
+
+            if ((channels == Format.NOT_SPECIFIED)
+                    || (MediaUtils.MAX_AUDIO_CHANNELS == Format.NOT_SPECIFIED)
+                    || (channels <= MediaUtils.MAX_AUDIO_CHANNELS))
+            {
+                double sampleRate = audioFormat.getSampleRate();
+
+                if ((sampleRate == Format.NOT_SPECIFIED)
+                        || (MediaUtils.MAX_AUDIO_SAMPLE_RATE
+                                == Format.NOT_SPECIFIED)
+                        || (sampleRate <= MediaUtils.MAX_AUDIO_SAMPLE_RATE))
+                {
+                    int sampleSizeInBits
+                        = audioFormat.getSampleSizeInBits();
+
+                    if ((sampleSizeInBits == Format.NOT_SPECIFIED)
+                            || (MediaUtils.MAX_AUDIO_SAMPLE_SIZE_IN_BITS
+                                    == Format.NOT_SPECIFIED)
+                            || (sampleSizeInBits
+                                    <= MediaUtils
+                                            .MAX_AUDIO_SAMPLE_SIZE_IN_BITS))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Invokes the super (with respect to the <tt>AudioMediaDeviceImpl</tt>
+     * class) implementation of {@link MediaDeviceImpl#createCaptureDevice()}.
+     * Allows this instance to customize the very <tt>CaptureDevice</tt> which
+     * is to be possibly further wrapped by this instance.
+     *
+     * @return the <tt>CaptureDevice</tt> returned by the call to the super
+     * implementation of <tt>MediaDeviceImpl#createCaptureDevice</tt>.
+     */
+    protected CaptureDevice superCreateCaptureDevice()
+    {
+        CaptureDevice captureDevice = super.createCaptureDevice();
+
+        if (captureDevice != null)
+        {
+            /*
+             * Try to default the captureDevice to a Format which does not
+             * exceed the maximum quality known to MediaUtils.
+             */
+            try
+            {
+                FormatControl[] formatControls
+                    = captureDevice.getFormatControls();
+
+                if ((formatControls != null) && (formatControls.length != 0))
+                {
+                    for (FormatControl formatControl : formatControls)
+                    {
+                        Format format = formatControl.getFormat();
+
+                        if ((format != null)
+                                && isLessThanOrEqualToMaxAudioFormat(format))
+                            continue;
+
+                        Format[] supportedFormats
+                            = formatControl.getSupportedFormats();
+                        AudioFormat supportedFormatToSet = null;
+
+                        if ((supportedFormats != null)
+                                && (supportedFormats.length != 0))
+                        {
+                            for (Format supportedFormat : supportedFormats)
+                            {
+                                if (isLessThanOrEqualToMaxAudioFormat(
+                                        supportedFormat))
+                                {
+                                    supportedFormatToSet
+                                        = (AudioFormat) supportedFormat;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!supportedFormatToSet.matches(format))
+                        {
+                            int channels = supportedFormatToSet.getChannels();
+                            double sampleRate
+                                = supportedFormatToSet.getSampleRate();
+                            int sampleSizeInBits
+                                = supportedFormatToSet.getSampleSizeInBits();
+
+                            if (channels == Format.NOT_SPECIFIED)
+                                channels = MediaUtils.MAX_AUDIO_CHANNELS;
+                            if (sampleRate == Format.NOT_SPECIFIED)
+                                sampleRate = MediaUtils.MAX_AUDIO_SAMPLE_RATE;
+                            if (sampleSizeInBits == Format.NOT_SPECIFIED)
+                            {
+                                sampleSizeInBits
+                                    = MediaUtils.MAX_AUDIO_SAMPLE_SIZE_IN_BITS;
+                                /*
+                                 * TODO A great deal of the neomedia-contributed
+                                 * audio Codecs, CaptureDevices, DataSources and
+                                 * Renderers deal with 16-bit samples.
+                                 */
+                                if (sampleSizeInBits == Format.NOT_SPECIFIED)
+                                    sampleSizeInBits = 16;
+                            }
+
+                            if ((channels != Format.NOT_SPECIFIED)
+                                    && (sampleRate != Format.NOT_SPECIFIED)
+                                    && (sampleSizeInBits
+                                            != Format.NOT_SPECIFIED))
+                            {
+                                AudioFormat formatToSet
+                                    = new AudioFormat(
+                                            supportedFormatToSet.getEncoding(),
+                                            sampleRate,
+                                            sampleSizeInBits,
+                                            channels);
+
+                                if (supportedFormatToSet.matches(formatToSet))
+                                    formatControl.setFormat(
+                                            supportedFormatToSet.intersects(
+                                                    formatToSet));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Throwable t)
+            {
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+                /*
+                 * We tried to default the captureDevice to a Format which does
+                 * not exceed the maximum quality known to MediaUtils and we
+                 * failed but it does not mean that the captureDevice will not
+                 * be successfully used.
+                 */
+            }
+        }
+
+        return captureDevice;
     }
 }

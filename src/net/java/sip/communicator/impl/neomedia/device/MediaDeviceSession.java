@@ -1409,7 +1409,7 @@ public class MediaDeviceSession
         if (format instanceof AudioFormat)
         {
             AudioFormat audioFormat = (AudioFormat) format;
-            int channels = Format.NOT_SPECIFIED; // audioFormat.getChannels();
+            int channels = Format.NOT_SPECIFIED;
             double sampleRate
                 = OSUtils.IS_ANDROID
                     ? audioFormat.getSampleRate()

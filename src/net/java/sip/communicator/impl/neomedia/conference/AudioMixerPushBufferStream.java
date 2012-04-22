@@ -712,7 +712,7 @@ class AudioMixerPushBufferStream
                 logger.trace(
                         "Read inputFormat with sampleSizeInBits "
                             + inputSampleSizeInBits
-                            + ". Will convert to sampleSizeInBits"
+                            + ". Will convert to sampleSizeInBits "
                             + outputSampleSizeInBits);
 
             byte[] inputSamples = (byte[]) inputData;
