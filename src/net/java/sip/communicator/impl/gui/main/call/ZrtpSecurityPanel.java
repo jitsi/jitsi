@@ -132,9 +132,12 @@ public class ZrtpSecurityPanel
     private ZidToNameThread zidNameDialogThread;
 
     private String zidString;
-    private String zidPropertyName;
+    private String zidNameKey;
     private ConfigurationService configService; 
-    private String zidPropertyValue;
+    private String zidNameValue;
+    private String zidAorKey;
+    private String zidAorValue;
+    private boolean zidAorMismatch = false;
 
     /**
      * Creates an instance of <tt>SecurityPanel</tt> by specifying the
@@ -166,10 +169,23 @@ public class ZrtpSecurityPanel
         videoSecurityLabel = createSecurityLabel("", null);
 
         zidString = zrtpControl.getPeerZidString();
-        zidPropertyName = "net.java.sip.communicator.zrtp.ZIDNAME" + zidString;
-        configService = GuiActivator.getConfigurationService();
-        zidPropertyValue = configService.getString(zidPropertyName);
+        zidNameKey = "net.java.sip.communicator.zrtp.ZIDNAME" + zidString;
+        zidAorKey = "net.java.sip.communicator.zrtp.ZIDAOR" + zidString;
 
+        configService = GuiActivator.getConfigurationService();
+        zidNameValue = configService.getString(zidNameKey);
+        zidAorValue = configService.getString(zidAorKey);
+
+        if (zidAorValue != null && 
+            !zidAorValue.equalsIgnoreCase(callPeer.getAddress()))
+        {
+            zidAorMismatch = true;
+            if (zidNameDialogThread == null)
+            {
+                zidNameDialogThread = new ZidToNameThread();
+                zidNameDialogThread.start();
+            }
+        }
         loadSkin();
     }
 
@@ -349,34 +365,36 @@ public class ZrtpSecurityPanel
             compareLabel.setText(GuiActivator.getResources().getI18NString(
                 "service.gui.security.COMPARE_WITH_PARTNER_SHORT"));
             confirmButton.setText(GuiActivator.getResources().getI18NString(
-                "servoce.gui.CONFIRM"));
+                "service.gui.CONFIRM"));
 
-            zidPropertyValue = null;
-            configService.setProperty(zidPropertyName, zidPropertyValue);
+            zidNameValue = null;
+            zidAorValue = null;
+            configService.setProperty(zidNameKey, zidNameValue);
+            configService.setProperty(zidAorKey, zidAorValue);
         }
         else
         {
             compareLabel.setText(GuiActivator.getResources().getI18NString(
                 "service.gui.security.STRING_COMPARED"));
             confirmButton.setText(GuiActivator.getResources().getI18NString(
-                "servoce.gui.CLEAR"));
+                "service.gui.CLEAR"));
 
-            if (zidPropertyValue != null)
+            if (zidNameValue != null)
             {
                 /*
                  * Reduce length of ZID name to fit the security status label. 
                  * The security status label's tooltip contains the full name
                  * including an explanatory text. 
                  */
-                String label = zidPropertyValue;
-                if (zidPropertyValue.length() > 6)
+                String label = zidNameValue;
+                if (zidNameValue.length() > 6)
                 {
-                    label = zidPropertyValue.substring(0, 6) + "...";
+                    label = zidNameValue.substring(0, 6) + "...";
                 }
                 statusLabel = "zrtp - " + label;
 
                 longNamelabel = GuiActivator.getResources().getI18NString(
-                        "service.gui.ZID_NAME_SET") + " '" + zidPropertyValue + "'";
+                        "service.gui.ZID_NAME_SET") + " '" + zidNameValue + "'";
             }
         }
         
@@ -679,6 +697,14 @@ public class ZrtpSecurityPanel
     }
 
     /**
+     * @return the zidAorMismatch
+     */
+    public boolean isZidAorMismatch()
+    {
+        return zidAorMismatch;
+    }
+
+    /**
      * Handle the ZID name dialog in an own thread
      */
     private class ZidToNameThread
@@ -691,37 +717,47 @@ public class ZrtpSecurityPanel
         @Override
         public void run()
         {
-            String message = GuiActivator.getResources().getI18NString("service.gui.ZID_NAME_SET");
-            if (zidPropertyValue == null)   // No name for ZID found, ask for a name
+            String message = zidAorMismatch ? 
+                GuiActivator.getResources().getI18NString("service.gui.ZID_NAME_UNEXPECTED") :
+                GuiActivator.getResources().getI18NString("service.gui.ZID_NAME_SET");
+
+            if (zidNameValue == null) // No name for ZID found, ask for a name
             {
-                message = GuiActivator.getResources().getI18NString("service.gui.ZID_NAME_NOT_SET");
-                zidPropertyValue = callPeer.getDisplayName();
+                message =
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.ZID_NAME_NOT_SET");
+                zidNameValue = callPeer.getDisplayName();
             }
 
             PopupDialog dialog = GuiActivator.getUIService().getPopupDialog();
-            String name = (String)dialog.showInputPopupDialog(message, 
-                GuiActivator.getResources().getI18NString("service.gui.ZID_NAME_DIALOG"), 
-                PopupDialog.INFORMATION_MESSAGE, null, zidPropertyValue);
+            String name =
+                (String) dialog.showInputPopupDialog(message, GuiActivator
+                    .getResources()
+                    .getI18NString("service.gui.ZID_NAME_DIALOG"),
+                    PopupDialog.INFORMATION_MESSAGE, null, zidNameValue);
 
             if (name != null)
             {
-                zidPropertyValue = name;
-                configService.setProperty(zidPropertyName, zidPropertyValue);
+                zidNameValue = name;
+                configService.setProperty(zidNameKey, zidNameValue);
+                configService.setProperty(zidAorKey, callPeer.getAddress());
                 /*
-                 * Reduce length of ZID name to fit the security status label. 
+                 * Reduce length of ZID name to fit the security status label.
                  * The security status label's tooltip contains the full name
-                 * including an explanatory text. 
+                 * including an explanatory text.
                  */
-                String label = zidPropertyValue;
-                if (zidPropertyValue.length() > 6)
+                String label = zidNameValue;
+                if (zidNameValue.length() > 6)
                 {
-                    label = zidPropertyValue.substring(0, 6) + "...";
+                    label = zidNameValue.substring(0, 6) + "...";
                 }
                 securityStatusLabel.setText("zrtp - " + label);
-                securityStatusLabel.setToolTipText(GuiActivator.getResources().getI18NString(
-                        "service.gui.ZID_NAME_SET") + " '" + zidPropertyValue + "'");
+                securityStatusLabel.setToolTipText(GuiActivator.getResources()
+                    .getI18NString("service.gui.ZID_NAME_SET")
+                    + " '"
+                    + zidNameValue + "'");
             }
-            else 
+            else
                 securityStatusLabel.setText("zrtp");
 
             zidNameDialogThread = null;

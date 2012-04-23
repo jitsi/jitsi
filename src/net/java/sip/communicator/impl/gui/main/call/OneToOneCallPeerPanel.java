@@ -726,10 +726,14 @@ public class OneToOneCallPeerPanel
             GuiActivator.getResources().getSettingsString(
                 "impl.gui.I_DONT_CARE_THAT_MUCH_ABOUT_SECURITY"));
 
+        // Display ZRTP panel in case SAS was not verified or a AOR mismtach
+        // was detected during creation of ZrtpSecurityPanel.
+	// Don't show panel if user does not care about security at all.
         if (srtpControl instanceof ZrtpControl
-            && !((ZrtpControl) srtpControl).isSecurityVerified()
-            && !isSecurityLowPriority)
-        {
+            && !isSecurityLowPriority
+            && (!((ZrtpControl) srtpControl).isSecurityVerified() 
+                || ((ZrtpSecurityPanel) securityPanel).isZidAorMismatch()))
+
             setSecurityPanelVisible(true);
         }
 
