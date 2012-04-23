@@ -733,7 +733,7 @@ public class OneToOneCallPeerPanel
             && !isSecurityLowPriority
             && (!((ZrtpControl) srtpControl).isSecurityVerified() 
                 || ((ZrtpSecurityPanel) securityPanel).isZidAorMismatch()))
-
+        {
             setSecurityPanelVisible(true);
         }
 
