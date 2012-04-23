@@ -93,6 +93,7 @@ public class VersionManager
 
         versionIQ.setName(appName);
         versionIQ.setVersion(ver.toString());
+        versionIQ.setOs(System.getProperty("os.name"));
 
         parentProvider.getConnection().sendPacket(versionIQ);
     }
