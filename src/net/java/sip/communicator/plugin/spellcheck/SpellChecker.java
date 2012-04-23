@@ -153,12 +153,9 @@ class SpellChecker
             .createSpellCheckerWorker(locale).start();
 
         // attaches to uiService so this'll be attached to future chats
-        synchronized (this.attachedChats)
-        {
-            SpellCheckActivator.getUIService().addChatListener(this);
-            for (Chat chat : SpellCheckActivator.getUIService().getAllChats())
-                chatCreated(chat);
-        }
+        SpellCheckActivator.getUIService().addChatListener(this);
+        for (Chat chat : SpellCheckActivator.getUIService().getAllChats())
+            chatCreated(chat);
 
         if (logger.isInfoEnabled())
             logger.info("Spell Checker loaded.");
@@ -213,6 +210,10 @@ class SpellChecker
                 && this.dict != null)
             {
                 ChatAttachments wrapper = new ChatAttachments(chat, this.dict);
+
+                // if it contains wrapper for the same chat, don't add it
+                if(attachedChats.contains(wrapper))
+                    return;
 
                 wrapper.setEnabled(enabled);
                 wrapper.attachListeners();

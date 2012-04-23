@@ -7,9 +7,11 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.core.*;
+import gov.nist.javax.sip.*;
 import gov.nist.javax.sip.message.*;
 import javax.sip.*;
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.packetlogging.*;
@@ -30,6 +32,11 @@ public class SipLogger
      */
     private static final Logger logger
         = Logger.getLogger(SipLogger.class);
+
+    /**
+     * SipStack to use.
+     */
+    private SipStack sipStack;
 
     /*
      * Implementation of StackLogger
@@ -265,8 +272,8 @@ public class SipLogger
                         PacketLoggingService.ProtocolName.SIP))
                 return;
 
-            boolean isTransportUDP = message.getTopmostVia().getTransport()
-                .equalsIgnoreCase("UDP");
+            String transport = message.getTopmostVia().getTransport();
+            boolean isTransportUDP = transport.equalsIgnoreCase("UDP");
 
             byte[] srcAddr;
             int srcPort;
@@ -278,14 +285,28 @@ public class SipLogger
             // byte array with length 4 (ipv4 0.0.0.0)
             if(sender)
             {
-                srcPort = message.getLocalPort();
-                if(message.getLocalAddress() != null)
-                    srcAddr = message.getLocalAddress().getAddress();
-                else if(message.getRemoteAddress() != null)
-                    srcAddr = new byte[
-                            message.getRemoteAddress().getAddress().length];
+                if(!isTransportUDP)
+                {
+                    InetSocketAddress localAddress =
+                        getLocalAddressForDestination(
+                            message.getRemoteAddress(),
+                            message.getRemotePort(),
+                            message.getLocalAddress(),
+                            transport);
+                    srcPort = localAddress.getPort();
+                    srcAddr = localAddress.getAddress().getAddress();
+                }
                 else
-                    srcAddr = new byte[4];
+                {
+                    srcPort = message.getLocalPort();
+                    if(message.getLocalAddress() != null)
+                        srcAddr = message.getLocalAddress().getAddress();
+                    else if(message.getRemoteAddress() != null)
+                        srcAddr = new byte[
+                                message.getRemoteAddress().getAddress().length];
+                    else
+                        srcAddr = new byte[4];
+                }
 
                 dstPort = message.getRemotePort();
                 if(message.getRemoteAddress() != null)
@@ -295,14 +316,28 @@ public class SipLogger
             }
             else
             {
-                dstPort = message.getLocalPort();
-                if(message.getLocalAddress() != null)
-                    dstAddr = message.getLocalAddress().getAddress();
-                else if(message.getRemoteAddress() != null)
-                    dstAddr = new byte[
-                            message.getRemoteAddress().getAddress().length];
+                if(!isTransportUDP)
+                {
+                    InetSocketAddress dstAddress =
+                        getLocalAddressForDestination(
+                            message.getRemoteAddress(),
+                            message.getRemotePort(),
+                            message.getLocalAddress(),
+                            transport);
+                    dstPort = dstAddress.getPort();
+                    dstAddr = dstAddress.getAddress().getAddress();
+                }
                 else
-                    dstAddr = new byte[4];
+                {
+                    dstPort = message.getLocalPort();
+                    if(message.getLocalAddress() != null)
+                        dstAddr = message.getLocalAddress().getAddress();
+                    else if(message.getRemoteAddress() != null)
+                        dstAddr = new byte[
+                                message.getRemoteAddress().getAddress().length];
+                    else
+                        dstAddr = new byte[4];
+                }
 
                 srcPort = message.getRemotePort();
                 if(message.getRemoteAddress() != null)
@@ -311,7 +346,34 @@ public class SipLogger
                     srcAddr = new byte[dstAddr.length];
             }
 
-            byte[] msg = message.toString().getBytes("UTF-8");
+            byte[] msg = null;
+            if(message instanceof SIPRequest)
+            {
+                SIPRequest req = (SIPRequest)message;
+                if(req.getMethod().equals(SIPRequest.MESSAGE)
+                    && message.getContentTypeHeader() != null
+                    && message.getContentTypeHeader()
+                        .getContentType().equalsIgnoreCase("text"))
+                {
+                    int len = req.getContentLength().getContentLength();
+
+                    if(len > 0)
+                    {
+                        SIPRequest newReq = (SIPRequest)req.clone();
+
+                        byte[] newContent =  new byte[len];
+                        Arrays.fill(newContent, (byte)'.');
+                        newReq.setMessageContent(newContent);
+                        msg = newReq.toString().getBytes("UTF-8");
+                    }
+                }
+            }
+
+            if(msg == null)
+            {
+                msg = message.toString().getBytes("UTF-8");
+            }
+
             packetLogging.logPacket(
                     PacketLoggingService.ProtocolName.SIP,
                     srcAddr, srcPort,
@@ -320,7 +382,7 @@ public class SipLogger
                             PacketLoggingService.TransportName.TCP,
                     sender, msg);
         }
-        catch(UnsupportedEncodingException e)
+        catch(Throwable e)
         {
             logger.error("Cannot obtain message body", e);
         }
@@ -369,7 +431,10 @@ public class SipLogger
      *
      * @param sipStack ignored;
      */
-    public void setSipStack(SipStack sipStack) {}
+    public void setSipStack(SipStack sipStack)
+    {
+        this.sipStack = sipStack;
+    }
 
     /**
      * Returns a logger name.
@@ -391,5 +456,40 @@ public class SipLogger
         if (logger.isDebugEnabled())
             logger.debug(message);
 
+    }
+
+    /**
+     * Returns a local address to use with the specified TCP destination.
+     * The method forces the JAIN-SIP stack to create
+     * s and binds (if necessary)
+     * and return a socket connected to the specified destination address and
+     * port and then return its local address.
+     *
+     * @param dst the destination address that the socket would need to connect
+     *            to.
+     * @param dstPort the port number that the connection would be established
+     * with.
+     * @param localAddress the address that we would like to bind on
+     * (null for the "any" address).
+     * @param transport the transport that will be used TCP ot TLS
+     *
+     * @return the SocketAddress that this handler would use when connecting to
+     * the specified destination address and port.
+     *
+     * @throws IOException  if we fail binding the local socket
+     */
+    public java.net.InetSocketAddress getLocalAddressForDestination(
+                    java.net.InetAddress dst,
+                    int                  dstPort,
+                    java.net.InetAddress localAddress,
+                    String transport)
+        throws IOException
+    {
+        if(ListeningPoint.TLS.equalsIgnoreCase(transport))
+            return (java.net.InetSocketAddress)(((SipStackImpl)this.sipStack)
+                .getLocalAddressForTlsDst(dst, dstPort, localAddress));
+        else
+            return (java.net.InetSocketAddress)(((SipStackImpl)this.sipStack)
+            .getLocalAddressForTcpDst(dst, dstPort, localAddress, 0));
     }
 }

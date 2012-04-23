@@ -271,6 +271,21 @@ class ChatAttachments
 
     }
 
+    @Override
+    public boolean equals(Object obj)
+    {
+        if(obj instanceof ChatAttachments)
+            return this.chat.equals(((ChatAttachments)obj).chat);
+        else
+            return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return this.chat.hashCode();
+    }
+
     // Applies corrections from popup menu to chat
     private class CorrectionListener
         implements ActionListener

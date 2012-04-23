@@ -83,6 +83,18 @@ public class SmackPacketDebugger
                         .getLocalAddress().getAddress();
                 }
 
+                byte[] packetBytes;
+
+                if(packet instanceof Message)
+                {
+                    packetBytes = cloneAnonyMessage(packet)
+                        .toXML().getBytes("UTF-8");
+                }
+                else
+                {
+                    packetBytes = packet.toXML().getBytes("UTF-8");
+                }
+
                 packetLogging.logPacket(
                         PacketLoggingService.ProtocolName.JABBER,
                         localAddress,
@@ -91,7 +103,7 @@ public class SmackPacketDebugger
                         connection.getPort(),
                         PacketLoggingService.TransportName.TCP,
                         true,
-                        packet.toXML().getBytes("UTF-8")
+                        packetBytes
                     );
             }
         }
@@ -99,6 +111,64 @@ public class SmackPacketDebugger
         {
             t.printStackTrace();
         }
+    }
+
+    /**
+     * Clones if messages and process subject and bodies.
+     * @param packet
+     * @return
+     */
+    private Message cloneAnonyMessage(Packet packet)
+    {
+        Message oldMsg = (Message)packet;
+
+        // if the message has no body, or the bodies list is empty
+        if(oldMsg.getBody() == null
+            && (oldMsg.getBodies() == null || oldMsg.getBodies().size() == 0))
+        {
+            return oldMsg;
+        }
+
+        Message newMsg = new Message();
+
+        newMsg.setPacketID(packet.getPacketID());
+        newMsg.setTo(packet.getTo());
+        newMsg.setFrom(packet.getFrom());
+
+        // we don't modify them, just use existing
+        for(PacketExtension pex : packet.getExtensions())
+            newMsg.addExtension(pex);
+
+        for(String propName : packet.getPropertyNames())
+            newMsg.setProperty(propName, packet.getProperty(propName));
+
+        newMsg.setError(packet.getError());
+
+        newMsg.setType(oldMsg.getType());
+        newMsg.setThread(oldMsg.getThread());
+        newMsg.setLanguage(oldMsg.getLanguage());
+
+        for(Message.Subject sub : oldMsg.getSubjects())
+        {
+            if(sub.getSubject() != null)
+                newMsg.addSubject(sub.getLanguage(),
+                    new String(new char[sub.getSubject().length()])
+                            .replace('\0', '.'));
+            else
+                newMsg.addSubject(sub.getLanguage(), sub.getSubject());
+        }
+
+        for(Message.Body b : oldMsg.getBodies())
+        {
+            if(b.getMessage() != null)
+                newMsg.addBody(b.getLanguage(),
+                    new String(new char[b.getMessage().length()])
+                            .replace('\0', '.'));
+            else
+                newMsg.addSubject(b.getLanguage(), b.getMessage());
+        }
+
+        return newMsg;
     }
 
     /**
@@ -118,6 +188,18 @@ public class SmackPacketDebugger
                     PacketLoggingService.ProtocolName.JABBER)
                 && packet != null && connection.getSocket() != null)
             {
+                byte[] packetBytes;
+
+                if(packet instanceof Message)
+                {
+                    packetBytes = cloneAnonyMessage(packet)
+                        .toXML().getBytes("UTF-8");
+                }
+                else
+                {
+                    packetBytes = packet.toXML().getBytes("UTF-8");
+                }
+
                 packetLogging.logPacket(
                     PacketLoggingService.ProtocolName.JABBER,
                     remoteAddress,
@@ -126,7 +208,7 @@ public class SmackPacketDebugger
                     connection.getSocket().getLocalPort(),
                     PacketLoggingService.TransportName.TCP,
                     false,
-                    packet.toXML().getBytes("UTF-8")
+                    packetBytes
                 );
             }
         }
