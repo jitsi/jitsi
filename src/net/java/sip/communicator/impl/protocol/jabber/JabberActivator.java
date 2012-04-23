@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.googlecontacts.*;
+import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -103,6 +104,12 @@ public class JabberActivator
      * instance.
      */
     private static GoogleContactsService googleService  = null;
+
+    /**
+     * A reference to the currently valid <tt>VersionService</tt>
+     * instance.
+     */
+    private static VersionService versionService        = null;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -386,5 +393,27 @@ public class JabberActivator
                         bundleContext, GoogleContactsService.class);
         }
         return googleService;
+    }
+
+    /**
+     * Returns a reference to a VersionService implementation currently
+     * registered in the bundle context or null if no such implementation
+     * was found.
+     *
+     * @return a reference to a VersionService implementation currently
+     * registered in the bundle context or null if no such implementation
+     * was found.
+     */
+    public static VersionService getVersionService()
+    {
+        if(versionService == null)
+        {
+            ServiceReference versionServiceReference
+                = bundleContext.getServiceReference(
+                    VersionService.class.getName());
+            versionService = (VersionService)bundleContext
+                .getService(versionServiceReference);
+        }
+        return versionService;
     }
 }

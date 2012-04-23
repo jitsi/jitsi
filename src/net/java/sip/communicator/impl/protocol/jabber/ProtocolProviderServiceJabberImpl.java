@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
@@ -365,6 +366,11 @@ public class ProtocolProviderServiceJabberImpl
      * The currently running keepAliveManager if enabled.
      */
     private KeepAliveManager keepAliveManager = null;
+
+    /**
+     * The version manager.
+     */
+    private VersionManager versionManager = null;
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -1718,6 +1724,10 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(
                 OperationSetGenericNotifications.class,
                 new OperationSetGenericNotificationsJabberImpl(this));
+
+            supportedFeatures.add("jabber:iq:version");
+            if(versionManager == null)
+                versionManager = new VersionManager(this);
 
             isInitialized = true;
         }
