@@ -149,8 +149,14 @@ class NotificationServiceImpl
 
         if (actionType.equals(ACTION_SOUND))
         {
-            registerNotificationForEvent (eventType,
-                new SoundNotificationAction(actionDescriptor, -1));
+            Notification notification = defaultNotifications.get(eventType);
+            SoundNotificationAction action =
+                (SoundNotificationAction) notification.getAction(ACTION_SOUND);
+            registerNotificationForEvent (
+                    eventType,
+                    new SoundNotificationAction(
+                        actionDescriptor,
+                        action.getLoopInterval()));
         }
         else if (actionType.equals(ACTION_LOG_MESSAGE))
         {
