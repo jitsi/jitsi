@@ -13,7 +13,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.provider.*;
 
 /**
  * XEP-0092: Software Version.
@@ -39,11 +38,6 @@ public class VersionManager
         this.parentProvider = parentProvider;
 
         this.parentProvider.addRegistrationStateChangeListener(this);
-
-        ProviderManager.getInstance().addIQProvider(
-            "query",
-            "jabber:iq:version",
-            new VersionIQProvider());
     }
 
     /**
