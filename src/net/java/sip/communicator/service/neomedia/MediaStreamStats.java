@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.neomedia;
 
+import java.awt.*;
 import net.sf.fmj.media.rtp.*;
 
 /**
@@ -33,6 +34,24 @@ public interface MediaStreamStats
      * @return the encoding rate used by the stream.
      */
     public String getEncodingClockRate();
+
+    /**
+     * Returns the upload video size if this stream uploads a video, or null if
+     * not.
+     *
+     * @return the upload video size if this stream uploads a video, or null if
+     * not.
+     */
+    public Dimension getUploadVideoSize();
+
+    /**
+     * Returns the download video size if this stream downloads a video, or
+     * null if not.
+     *
+     * @return the download video size if this stream downloads a video, or null
+     * if not.
+     */
+    public Dimension getDownloadVideoSize();
 
     /**
      * Returns the local IP address of the MediaStream.

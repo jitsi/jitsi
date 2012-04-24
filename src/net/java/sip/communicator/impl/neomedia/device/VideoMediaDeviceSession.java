@@ -1741,4 +1741,49 @@ public class VideoMediaDeviceSession
             return inputFormat;
         }
     }
+
+    /**
+     * Returns the format of the video we are receiving from the remote peer.
+     *
+     * @return The video format of the received video. Null, if no video is
+     * received.
+     */
+    public VideoFormat getReceivedVideoFormat()
+    {
+        if(this.playerScaler != null)
+        {
+            Format format = this.playerScaler.getInputFormat();
+
+            if (format instanceof VideoFormat)
+            {
+                return ((VideoFormat) format);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the format of the video we are streaming to the remote peer.
+     *
+     * @return The video format of the sent video. Null, if no video is sent.
+     */
+    public VideoFormat getSentVideoFormat()
+    {
+        DataSource capture = this.getCaptureDevice();
+        if(capture instanceof PullBufferDataSource)
+        {
+            PullBufferStream[] streams =
+                ((PullBufferDataSource) capture).getStreams();
+            for(int i = 0; i < streams.length; ++i)
+            {
+                VideoFormat format = (VideoFormat) streams[i].getFormat();
+                if(format != null)
+                {
+                    return format;
+                }
+            }
+        }
+        return null;
+    }
 }

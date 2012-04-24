@@ -6,11 +6,14 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
 
+import java.awt.*;
 import java.io.*;
 import java.net.*;
+import javax.media.format.*;
 import javax.media.rtp.*;
 import net.sf.fmj.media.rtp.*;
 
@@ -259,6 +262,82 @@ public class MediaStreamStatsImpl
     {
         // Gets this stream encoding clock rate.
         return mediaStreamImpl.getFormat().getRealUsedClockRateString();
+    }
+
+    /**
+     * Returns the upload video format if this stream uploads a video, or null
+     * if not.
+     *
+     * @return the upload video format if this stream uploads a video, or null
+     * if not.
+     */
+    private VideoFormat getUploadVideoFormat()
+    {
+        Dimension videoSize = null;
+        MediaDeviceSession mediaDeviceSession =
+            this.mediaStreamImpl.getDeviceSession();
+        if(mediaDeviceSession instanceof VideoMediaDeviceSession)
+        {
+            return ((VideoMediaDeviceSession) mediaDeviceSession)
+                .getSentVideoFormat();
+        }
+        return null;
+    }
+
+    /**
+     * Returns the download video format if this stream downloads a video, or
+     * null if not.
+     *
+     * @return the download video format if this stream downloads a video, or
+     * null if not.
+     */
+    private VideoFormat getDownloadVideoFormat()
+    {
+        Dimension videoSize = null;
+        MediaDeviceSession mediaDeviceSession =
+            this.mediaStreamImpl.getDeviceSession();
+        if(mediaDeviceSession instanceof VideoMediaDeviceSession)
+        {
+            return ((VideoMediaDeviceSession) mediaDeviceSession)
+                .getReceivedVideoFormat();
+        }
+        return null;
+    }
+
+    /**
+     * Returns the upload video size if this stream uploads a video, or null if
+     * not.
+     *
+     * @return the upload video size if this stream uploads a video, or null if
+     * not.
+     */
+    public Dimension getUploadVideoSize()
+    {
+        Dimension videoSize = null;
+        VideoFormat format = this.getUploadVideoFormat();
+        if(format != null)
+        {
+            videoSize = format.getSize();
+        }
+        return videoSize;
+    }
+
+    /**
+     * Returns the download video size if this stream downloads a video, or
+     * null if not.
+     *
+     * @return the download video size if this stream downloads a video, or null
+     * if not.
+     */
+    public Dimension getDownloadVideoSize()
+    {
+        Dimension videoSize = null;
+        VideoFormat format = this.getDownloadVideoFormat();
+        if(format != null)
+        {
+            videoSize = format.getSize();
+        }
+        return videoSize;
     }
 
     /**

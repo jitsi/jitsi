@@ -291,7 +291,10 @@ public class CallInfoFrame
                             mediaStream,
                             MediaType.AUDIO);
 
-                    constructAudioVideoInfo(mediaStream, stringBuffer);
+                    constructAudioVideoInfo(
+                            mediaStream,
+                            stringBuffer,
+                            MediaType.AUDIO);
                 }
 
                 mediaStream = callPeerMediaHandler.getStream(MediaType.VIDEO);
@@ -308,7 +311,10 @@ public class CallInfoFrame
                             mediaStream,
                             MediaType.VIDEO);
 
-                    constructAudioVideoInfo(mediaStream, stringBuffer);
+                    constructAudioVideoInfo(
+                            mediaStream,
+                            stringBuffer,
+                            MediaType.VIDEO);
                 }
             }
         }
@@ -321,9 +327,13 @@ public class CallInfoFrame
      * audio video info
      * @param stringBuffer the <tt>StringBuffer</tt>, where call peer info will
      * be added
+     * @param mediaType The media type used to determine which stream of the
+     * media handler must returns it encryption method.
      */
-    private void constructAudioVideoInfo(   MediaStream mediaStream,
-                                            StringBuffer stringBuffer)
+    private void constructAudioVideoInfo(
+            MediaStream mediaStream,
+            StringBuffer stringBuffer,
+            MediaType mediaType)
     {
         MediaStreamStats mediaStreamStats
             = mediaStream.getMediaStreamStats();
@@ -332,6 +342,29 @@ public class CallInfoFrame
             return;
 
         mediaStreamStats.updateStats();
+
+        if(mediaType == MediaType.VIDEO)
+        {
+            Dimension downloadVideoSize =
+                mediaStreamStats.getDownloadVideoSize();
+            Dimension uploadVideoSize = mediaStreamStats.getUploadVideoSize();
+            // Checks that at least one video stream is active.
+            if(downloadVideoSize != null || uploadVideoSize != null)
+            {
+                stringBuffer.append(
+                        getLineString(resources.getI18NString(
+                                "service.gui.callinfo.VIDEO_SIZE"),
+                            "&darr; "
+                            + this.videoSizeToString(downloadVideoSize)
+                            + " &uarr; "
+                            + this.videoSizeToString(uploadVideoSize)));
+            }
+            // Otherwise, quit the stats for this video stream.
+            else
+            {
+                return;
+            }
+        }
 
         stringBuffer.append(
             getLineString(
@@ -500,5 +533,23 @@ public class CallInfoFrame
         {
             callTitleChanged(null);
         }
+    }
+
+    /**
+     * Converts a video size Dimension into its String representation.
+     *
+     * @param videoSize The video size Dimension, containing the width and the
+     * hieght of the video.
+     *
+     * @return The String representation of the video width and height, or a
+     * String with "Not Available (N.A.)" if the videoSize is null.
+     */
+    private String videoSizeToString(Dimension videoSize)
+    {
+        if(videoSize == null)
+        {
+            return resources.getI18NString("service.gui.callinfo.NA");
+        }
+        return ((int) videoSize.getWidth()) + " x " + ((int) videoSize.getHeight());
     }
 }
