@@ -7,6 +7,7 @@
 package net.java.sip.communicator.util.launchutils;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 
@@ -14,11 +15,11 @@ import net.java.sip.communicator.launcher.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * This class is used to prevent from running multiple instances of SIP
- * Communicator. The class binds a socket somewhere on the localhost domain and
- * records its socket address in the SIP Communicator configuration directory.
+ * This class is used to prevent from running multiple instances of Jitsi.
+ * The class binds a socket somewhere on the localhost domain and
+ * records its socket address in the Jitsi configuration directory.
  *
- * All following instances of SIP Communicator (and hence this class) will look
+ * All following instances of Jitsi (and hence this class) will look
  * for this record in the configuration directory and try to connect to the
  * original instance through the socket address in there.
  *
@@ -42,8 +43,8 @@ public class SipCommunicatorLock extends Thread
     public static final int SUCCESS = 0;
 
     /**
-     * Returned by the soft start method to indicate that an instance of SIP
-     * Communicator has been already started and we should exit. This return
+     * Returned by the soft start method to indicate that an instance of Jitsi
+     * has been already started and we should exit. This return
      * code also indicates that all arguments were passed to that new instance.
      */
     public static final int ALREADY_STARTED = 301;
@@ -68,7 +69,7 @@ public class SipCommunicatorLock extends Thread
 
     /**
      * The header preceding each of the arguments that we toss around between
-     * instances of SIP Communicator
+     * instances of Jitsi
      */
     private static final String ARGUMENT = "Argument";
 
@@ -93,7 +94,7 @@ public class SipCommunicatorLock extends Thread
      * The number of milliseconds that we should wait for a remote SC instance
      * to come back to us.
      */
-    private long LOCK_COMMUNICATION_DELAY = 50;
+    private long LOCK_COMMUNICATION_DELAY = 1000;
 
     /**
      * The socket that we use for cross instance lock and communication.
@@ -101,19 +102,36 @@ public class SipCommunicatorLock extends Thread
     private ServerSocket instanceServerSocket = null;
 
     /**
+     * Retry times reading the lock file.
+     */
+    private static final int LOCK_FILE_READ_RETRY = 8;
+
+    /**
+     * Time between retires reading lock file in milliseconds.
+     */
+    private static final long LOCK_FILE_READ_WAIT = 500;
+
+    /**
+     * An address that is reported not local on macosx and is
+     * assigned as default on loopback interface.
+     */
+    private static final String WEIRD_MACOSX_LOOPBACK_ADDRESS =
+        "fe80:0:0:0:0:0:0:1";
+
+    /**
      * Tries to lock the configuration directory. If lock-ing is not possible
      * because a previous instance is already running, then it transmits the
      * list of args to that running instance.
      * <p>
      * There are three possible outcomes of this method. 1. We lock
-     * successfully; 2. We fail to lock because another instance of SIP
-     * Communicator is already running; 3. We fail to lock for some unknown
+     * successfully; 2. We fail to lock because another instance of Jitsi
+     * is already running; 3. We fail to lock for some unknown
      * error. Each of these cases is represented by an error code returned as a
      * result.
      *
      * @param args
      *            the array of arguments that we are to submit in case an
-     *            instance of SIP Communicator has already been started.
+     *            instance of Jitsi has already been started.
      *
      * @return an error or success code indicating the outcome of the lock
      *         operation.
@@ -125,7 +143,7 @@ public class SipCommunicatorLock extends Thread
 
         if (lockFile.exists())
         {
-            InetSocketAddress lockAddress = readLockFile(lockFile);
+            InetSocketAddress lockAddress = readLockFileRetrying(lockFile);
 
             if (lockAddress != null)
             {
@@ -144,20 +162,6 @@ public class SipCommunicatorLock extends Thread
 
         // if we get here then this means that we should go for a real lock
         // initialization
-        // create a new socket,
-        // right the bind address in the file
-        try
-        {
-            lockFile.getParentFile().mkdirs();
-            lockFile.createNewFile();
-        }
-        catch (IOException e)
-        {
-            logger.error("Failed to create lock file" + lockFile, e);
-        }
-
-        lockFile.deleteOnExit();
-
         return lock(lockFile);
     }
 
@@ -183,14 +187,36 @@ public class SipCommunicatorLock extends Thread
             return LOCK_ERROR;
         }
 
+        // create a new socket
+        // seven time retry binding to port
+        int retries = 7;
         int port = getRandomPortNumber();
+        InetSocketAddress serverSocketAddress;
 
-        InetSocketAddress serverSocketAddress = new InetSocketAddress(
-                        lockAddress, port);
+        while(startLockServer(
+            serverSocketAddress = new InetSocketAddress(lockAddress, port))
+                != SUCCESS
+            && retries > 0)
+        {
+            // port possibly taken, change it
+            port = getRandomPortNumber();
+            retries--;
+        }
+
+        // right the bind address in the file
+        try
+        {
+            lockFile.getParentFile().mkdirs();
+            lockFile.createNewFile();
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to create lock file" + lockFile, e);
+        }
+
+        lockFile.deleteOnExit();
 
         writeLockFile(lockFile, serverSocketAddress);
-
-        startLockServer(serverSocketAddress);
 
         return SUCCESS;
     }
@@ -198,7 +224,7 @@ public class SipCommunicatorLock extends Thread
     /**
      * Creates and binds a socket on <tt>lockAddress</tt> and then starts a
      * <tt>LockServer</tt> instance so that we would start interacting with
-     * other instances of SIP Communicator that are trying to start.
+     * other instances of Jitsi that are trying to start.
      *
      * @return the <tt>ERROR</tt> code if something goes wrong and
      *         <tt>SUCCESS</tt> otherwise.
@@ -308,6 +334,39 @@ public class SipCommunicatorLock extends Thread
     }
 
     /**
+     * Calls reading of the lock file, retrying if there is
+     * nothing written in it.
+     *
+     * @param lockFile the file that we are to parse.
+     *
+     * @return the <tt>SocketAddress</tt> that we should use to communicate with
+     *         a possibly already running version of Jitsi.
+     */
+    private InetSocketAddress readLockFileRetrying(File lockFile)
+    {
+        int retries = LOCK_FILE_READ_RETRY;
+        InetSocketAddress res = null;
+
+        while(res == null && retries > 0)
+        {
+            res = readLockFile(lockFile);
+
+            if(res == null)
+            {
+                try
+                {
+                    Thread.sleep(LOCK_FILE_READ_WAIT);
+                }
+                catch(InterruptedException e){}
+            }
+
+            retries--;
+        }
+
+        return res;
+    }
+
+    /**
      * Parses the <tt>lockFile</tt> into a standard Properties Object and
      * verifies it for completeness. The method also tries to validate the
      * contents of <tt>lockFile</tt> and asserts presence of all properties
@@ -317,7 +376,7 @@ public class SipCommunicatorLock extends Thread
      *            the file that we are to parse.
      *
      * @return the <tt>SocketAddress</tt> that we should use to communicate with
-     *         a possibly already running version of SIP Communicator.
+     *         a possibly already running version of Jitsi.
      */
     private InetSocketAddress readLockFile(File lockFile)
     {
@@ -397,8 +456,8 @@ public class SipCommunicatorLock extends Thread
         try
         {
             lockProperties.store(new FileOutputStream(lockFile),
-                "SIP Communicator lock file. This file will be automatically"
-                + "removed when execution of SIP Communicator terminates.");
+                "Jitsi lock file. This file will be automatically"
+                + "removed when execution of Jitsi terminates.");
         }
         catch (FileNotFoundException e)
         {
@@ -415,11 +474,11 @@ public class SipCommunicatorLock extends Thread
     }
 
     /**
-     * Returns a reference to the file that we should be using to lock SIP
-     * Communicator's home directory, whether it exists or not.
+     * Returns a reference to the file that we should be using to lock Jitsi's
+     * home directory, whether it exists or not.
      *
-     * @return a reference to the file that we should be using to lock SIP
-     *         Communicator's home directory.
+     * @return a reference to the file that we should be using to lock Jitsi's
+     * home directory.
      */
     private File getLockFile()
     {
@@ -544,8 +603,8 @@ public class SipCommunicatorLock extends Thread
     }
 
     /**
-     * We use this thread to communicate with an already running instance of SIP
-     * Communicator. This thread will listen for a reply to a message that we've
+     * We use this thread to communicate with an already running instance of
+     * Jitsi. This thread will listen for a reply to a message that we've
      * sent to the other instance. We will wait for this message for a maximum
      * of <tt>runDuration</tt> milliseconds and then consider the remote
      * instance dead.
@@ -640,7 +699,7 @@ public class SipCommunicatorLock extends Thread
     }
 
     /**
-     * We start this thread when running SIP Communicator as a means of
+     * We start this thread when running Jitsi as a means of
      * notifying others that this is
      */
     private class LockServer extends Thread
@@ -693,8 +752,8 @@ public class SipCommunicatorLock extends Thread
     private static class LockServerConnectionProcessor extends Thread
     {
         /**
-         * The socket that we will be using to communicate with the fellow SIP
-         * Communicator instance..
+         * The socket that we will be using to communicate with the fellow Jitsi
+         * instance.
          */
         private final Socket connectionSocket;
 
@@ -705,7 +764,7 @@ public class SipCommunicatorLock extends Thread
          *
          * @param connectionSocket
          *            the socket that we will be using to read arguments from
-         *            the remote SIP Communicator instance.
+         *            the remote Jitsi instance.
          */
         public LockServerConnectionProcessor(Socket connectionSocket)
         {
@@ -805,9 +864,30 @@ public class SipCommunicatorLock extends Thread
      */
     private boolean isLoopbackInterface(NetworkInterface iface)
     {
+        try
+        {
+            Method method = iface.getClass().getMethod("isLoopback");
+
+            return ((Boolean)method.invoke(iface, new Object[]{}))
+                        .booleanValue();
+        }
+        catch(Throwable t)
+        {
+            //apparently we are not running in a JVM that supports the
+            //is Loopback method. we'll try another approach.
+        }
+
         Enumeration<InetAddress> addresses = iface.getInetAddresses();
 
-        return addresses.hasMoreElements()
-            && addresses.nextElement().isLoopbackAddress();
+        if(addresses.hasMoreElements())
+        {
+            InetAddress address = addresses.nextElement();
+            if(address.isLoopbackAddress()
+                || address.getHostAddress()
+                        .startsWith(WEIRD_MACOSX_LOOPBACK_ADDRESS))
+                return true;
+        }
+
+        return false;
     }
 }
