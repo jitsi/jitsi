@@ -83,12 +83,20 @@ public class Constants
             getColor("service.gui.CALL_HISTORY_EVEN_ROW_COLOR"));
 
     /**
-     * The end color used to paint a gradient selected background of some
+     * The start color used to paint a gradient selected background of some
      * components.
      */
     public static Color SELECTED_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.LIST_SELECTION_COLOR"));
+
+    /**
+     * The end color used to paint a gradient selected background of some
+     * components.
+     */
+    public static Color SELECTED_GRADIENT_COLOR
+        = new Color(GuiActivator.getResources()
+            .getColor("service.gui.LIST_SELECTION_COLOR_GRADIENT"));
 
     /**
      * The start color used to paint a gradient mouse over background of some

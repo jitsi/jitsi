@@ -51,10 +51,6 @@ public class ContactListTreeCellRenderer
      */
     private static final long serialVersionUID = 0L;
 
-    private static final Color glowOuterHigh = new Color(223, 238, 249, 100);
-
-    private static final Color glowOuterLow = new Color(219, 233, 243, 100);
-
     /**
      * The default height of the avatar.
      */
@@ -521,7 +517,8 @@ public class ContactListTreeCellRenderer
         if (isSelected)
         {
             g2.setPaint(new GradientPaint(0, 0,
-                Color.WHITE, 0, getHeight(), Constants.SELECTED_COLOR));
+                Constants.SELECTED_COLOR, 0, getHeight(),
+                Constants.SELECTED_GRADIENT_COLOR));
 
             borderColor = Constants.SELECTED_COLOR;
         }
