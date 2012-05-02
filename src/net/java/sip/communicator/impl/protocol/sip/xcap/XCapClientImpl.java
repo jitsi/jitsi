@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap;
 
+import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
@@ -621,8 +622,14 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
                 if (httpCode == HttpStatus.SC_UNAUTHORIZED
                     || httpCode == HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED)
                 {
+                    String displayName = userAddress.getDisplayName();
+                    if(StringUtils.isNullOrEmpty(displayName))
+                        displayName = userAddress.toString();
+
                     showError(null, null,
-                        "Unauthorized. Wrong username or password");
+                        SipActivator.getResources().getI18NString(
+                            "impl.protocol.sip.XCAP_ERROR_UNAUTHORIZED",
+                            new String[]{displayName}));
                 }
                 throw new XCapException(errorMessage);
             }

@@ -234,9 +234,11 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
         }
         catch (IOException e)
         {
-            String errorMessage = String.format(
-                    "%1s resource cannot be read",
-                    uri.toString());
+            String errorMessage =
+                SipActivator.getResources().getI18NString(
+                    "impl.protocol.sip.XCAP_ERROR_RESOURCE_ERR",
+                    new String[]{uri.toString(),
+                                userAddress.getDisplayName()});
             showError(e, null, errorMessage);
             throw new XCapException(errorMessage, e);
         }
@@ -255,7 +257,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
         try
         {
             if(title == null)
-                title = "Error in SIP contactlist storage";
+                title = SipActivator.getResources().getI18NString(
+                    "impl.protocol.sip.XCAP_ERROR_TITLE");
 
             if(message == null)
                 message = title + "\n" +
