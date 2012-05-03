@@ -36,7 +36,7 @@ public class FileMenu
 
     private JMenuItem historyItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.HISTORY"),
-        new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_ICON)));
+        new ImageIcon(ImageLoader.getImage(ImageLoader.HISTORY_16x16_ICON)));
 
     private JMenuItem closeMenuItem = new JMenuItem(
         GuiActivator.getResources().getI18NString("service.gui.CLOSE"),
