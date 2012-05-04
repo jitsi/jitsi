@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
@@ -48,7 +49,7 @@ import com.sun.jna.examples.*;
  * bundles to this particular swing ui implementation.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Dmitri Melnikov
  * @author Adam Netocny
  */
@@ -860,6 +861,43 @@ public class UIServiceImpl
          */
         if (laf != null)
         {
+            /*
+             * Swing does not have a LookAndFeel which integrates with KDE and
+             * the cross-platform LookAndFeel is plain ugly. KDE integrates with
+             * GTK+ so try to use the GTKLookAndFeel when running in KDE.
+             */
+            String gtkLookAndFeel
+                = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+
+            if ((OSUtils.IS_FREEBSD || OSUtils.IS_LINUX)
+                    && laf.equals(
+                            UIManager.getCrossPlatformLookAndFeelClassName()))
+            {
+                try
+                {
+                    String kdeFullSession = System.getenv("KDE_FULL_SESSION");
+
+                    if ((kdeFullSession != null)
+                            && (kdeFullSession.length() != 0))
+                    {
+                        for (LookAndFeelInfo lafi
+                                : UIManager.getInstalledLookAndFeels())
+                        {
+                            if (gtkLookAndFeel.equals(lafi.getClassName()))
+                            {
+                                laf = gtkLookAndFeel;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Throwable t)
+                {
+                    if (t instanceof ThreadDeath)
+                        throw (ThreadDeath) t;
+                }
+            }
+
             try
             {
                 UIManager.setLookAndFeel(laf);
@@ -870,7 +908,7 @@ public class UIServiceImpl
                     fixWindowsUIDefaults(uiDefaults);
                 // Workaround for SC issue #516
                 // "GNOME SCScrollPane has rounded and rectangular borders"
-                if (laf.equals("com.sun.java.swing.plaf.gtk.GTKLookAndFeel")
+                if (laf.equals(gtkLookAndFeel)
                         || laf.equals("com.sun.java.swing.plaf.motif.MotifLookAndFeel"))
                 {
                     uiDefaults.put(
