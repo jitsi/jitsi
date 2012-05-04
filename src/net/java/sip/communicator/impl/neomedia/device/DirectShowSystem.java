@@ -12,6 +12,7 @@ import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.directshow.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.directshow.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -19,12 +20,15 @@ import net.java.sip.communicator.util.*;
  *
  * @author Sebastien Vincent
  */
-public class DirectShowAuto
+public class DirectShowSystem
+    extends DeviceSystem
 {
     /**
-     * The <tt>Logger</tt>.
+     * The <tt>Logger</tt> used by the <tt>DirectShowSystem</tt> class and its
+     * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(DirectShowAuto.class);
+    private static final Logger logger
+        = Logger.getLogger(DirectShowSystem.class);
 
     /**
      * The protocol of the <tt>MediaLocator</tt>s identifying QuickTime/QTKit
@@ -39,33 +43,29 @@ public class DirectShowAuto
      * @throws Exception if anything goes wrong while discovering and
      * registering DirectShow capture defines with JMF
      */
-    public DirectShowAuto() throws Exception
+    public DirectShowSystem()
+        throws Exception
     {
-        if(logger.isInfoEnabled())
-            logger.info("Start detecting DirectShow capture devices");
+        super(MediaType.VIDEO, LOCATOR_PROTOCOL);
+    }
 
-        DSManager manager = DSManager.getInstance();
-        DSCaptureDevice devices[] = null;
+    protected void doInitialize()
+        throws Exception
+    {
+        DSCaptureDevice devices[] = DSManager.getInstance().getCaptureDevices();
         boolean captureDeviceInfoIsAdded = false;
 
-        /* get devices */
-        devices = manager.getCaptureDevices();
-
-        if(devices == null || devices.length == 0)
+        for(int i = 0, count = (devices == null) ? 0 : devices.length;
+                i < count;
+                i++)
         {
-            throw new Exception("no devices!");
-        }
-
-        for(int i = 0 ; i < devices.length ; i++)
-        {
-            DSFormat fmt = devices[i].getFormat();
-            long pixelFormat = fmt.getPixelFormat();
-            Format format = null;
+            long pixelFormat = devices[i].getFormat().getPixelFormat();
             int ffmpegPixFmt = (int)DataSource.getFFmpegPixFmt(pixelFormat);
+            Format format = null;
 
             if(ffmpegPixFmt != FFmpeg.PIX_FMT_NONE)
             {
-                format = new AVFrameFormat(ffmpegPixFmt, (int)pixelFormat);
+                format = new AVFrameFormat(ffmpegPixFmt, (int) pixelFormat);
             }
             else
             {
@@ -77,24 +77,25 @@ public class DirectShowAuto
 
             if(logger.isInfoEnabled())
             {
-                DSFormat[] fs = devices[i].getSupportedFormats();
-                for(DSFormat f : fs)
+                for(DSFormat f : devices[i].getSupportedFormats())
                 {
                     if(f.getWidth() != 0 && f.getHeight() != 0)
-                        logger.info("Webcam available resolution for " +
-                            devices[i].getName()
-                                + ":" + f.getWidth() + "x" + f.getHeight());
+                        logger.info(
+                                "Webcam available resolution for "
+                                    + devices[i].getName()
+                                    + ":"
+                                    + f.getWidth()
+                                    + "x"
+                                    + f.getHeight());
                 }
             }
 
             CaptureDeviceInfo device
-                = new CaptureDeviceInfo(devices[i].getName(),
-                        new MediaLocator(LOCATOR_PROTOCOL + ':' + devices[i].
-                            getName()),
-                        new Format[]
-                        {
-                            format,
-                        });
+                = new CaptureDeviceInfo(
+                        devices[i].getName(),
+                        new MediaLocator(
+                                LOCATOR_PROTOCOL + ':' + devices[i].getName()),
+                        new Format[] { format });
 
             if(logger.isInfoEnabled())
                 logger.info("Found[" + i + "]: " + device.getName());
@@ -106,11 +107,6 @@ public class DirectShowAuto
         if (captureDeviceInfoIsAdded)
             CaptureDeviceManager.commit();
 
-        devices = null;
         DSManager.dispose();
-
-        if(logger.isInfoEnabled())
-            logger.info("Finish detecting DirectShow capture devices");
     }
 }
-

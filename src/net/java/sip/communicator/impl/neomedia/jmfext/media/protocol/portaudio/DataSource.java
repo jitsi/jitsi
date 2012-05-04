@@ -208,7 +208,7 @@ public class DataSource
      */
     public static int getDeviceIndex(MediaLocator locator)
     {
-        if (PortAudioAuto.LOCATOR_PROTOCOL.equalsIgnoreCase(
+        if (PortAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
                 locator.getProtocol()))
         {
             return Integer.parseInt(locator.getRemainder().replace("#", ""));

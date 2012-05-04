@@ -497,8 +497,8 @@ public class DataSource
         QTCaptureDevice device;
 
         if ((locator != null)
-                && QuickTimeAuto.LOCATOR_PROTOCOL
-                        .equalsIgnoreCase(locator.getProtocol()))
+                && QuickTimeSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                        locator.getProtocol()))
         {
             String deviceUID = locator.getRemainder();
 

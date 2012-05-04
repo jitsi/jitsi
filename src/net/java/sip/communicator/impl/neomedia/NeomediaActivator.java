@@ -6,10 +6,14 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
+import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.notify.*;
 import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -113,6 +117,8 @@ public class NeomediaActivator
      */
     private static UIService uiService = null;
 
+    private PropertyChangeListener deviceConfigurationPropertyChangeListener;
+
     /**
      * Sets up FMJ for execution. For example, sets properties which instruct
      * FMJ whether it is to create a log, where the log is to be created.
@@ -207,15 +213,65 @@ public class NeomediaActivator
         if (!getConfigurationService().getBoolean(
                 AUDIO_CONFIG_DISABLED_PROP, false))
         {
+            final ConfigurationForm audioConfigurationForm
+                = new LazyConfigurationForm(
+                        AudioConfigurationPanel.class.getName(),
+                        getClass().getClassLoader(),
+                        "plugin.mediaconfig.AUDIO_ICON",
+                        "impl.neomedia.configform.AUDIO",
+                        3);
+
             bundleContext.registerService(
                     ConfigurationForm.class.getName(),
-                    new LazyConfigurationForm(
-                            AudioConfigurationPanel.class.getName(),
-                            getClass().getClassLoader(),
-                            "plugin.mediaconfig.AUDIO_ICON",
-                            "impl.neomedia.configform.AUDIO",
-                            3),
+                    audioConfigurationForm,
                     mediaProps);
+
+            if (deviceConfigurationPropertyChangeListener == null)
+            {
+                deviceConfigurationPropertyChangeListener
+                    = new PropertyChangeListener()
+                    {
+                        public void propertyChange(
+                                final PropertyChangeEvent event)
+                        {
+                            if (DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
+                                    .equals(event.getPropertyName()))
+                            {
+                                if (!SwingUtilities.isEventDispatchThread())
+                                {
+                                    SwingUtilities.invokeLater(
+                                            new Runnable()
+                                            {
+                                                public void run()
+                                                {
+                                                    propertyChange(event);
+                                                }
+                                            });
+                                    return;
+                                }
+
+                                UIService uiService = getUIService();
+
+                                if (uiService == null)
+                                    return;
+
+                                ConfigurationContainer configurationContainer
+                                    = uiService.getConfigurationContainer();
+
+                                if (configurationContainer == null)
+                                    return;
+
+                                configurationContainer.setSelected(
+                                        audioConfigurationForm);
+                                configurationContainer.setVisible(true);
+                            }
+                        }
+                    };
+                mediaServiceImpl
+                    .getDeviceConfiguration()
+                        .addPropertyChangeListener(
+                                deviceConfigurationPropertyChangeListener);
+            }
         }
 
         // If the video configuration form is disabled don't register it.
@@ -323,14 +379,28 @@ public class NeomediaActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
-        mediaServiceImpl.stop();
-        mediaServiceRegistration.unregister();
+        try
+        {
+            if (deviceConfigurationPropertyChangeListener != null)
+            {
+                mediaServiceImpl
+                    .getDeviceConfiguration()
+                        .removePropertyChangeListener(
+                                deviceConfigurationPropertyChangeListener);
+                deviceConfigurationPropertyChangeListener = null;
+            }
+        }
+        finally
+        {
+            mediaServiceImpl.stop();
+            mediaServiceRegistration.unregister();
 
-        configurationService = null;
-        fileAccessService = null;
-        networkAddressManagerService = null;
-        resources = null;
-        uiService = null;
+            configurationService = null;
+            fileAccessService = null;
+            networkAddressManagerService = null;
+            resources = null;
+            uiService = null;
+        }
     }
 
     /**

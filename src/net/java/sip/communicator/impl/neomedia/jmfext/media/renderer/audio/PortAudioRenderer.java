@@ -12,6 +12,7 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
@@ -79,19 +80,6 @@ public class PortAudioRenderer
                         Format.byteArray);
         }
     }
-
-    /**
-     * The <tt>MediaLocator</tt> which specifies the device index of the
-     * PortAudio device to be used by <tt>PortAudioRenderer</tt> instances which
-     * are to be opened later on and which don't have a specified
-     * <tt>MediaLocator</tt> at the time of opening.
-     */
-    private static MediaLocator defaultLocator;
-
-    /**
-     * Value to indicate if default locator has changed.
-     */
-    private static boolean changeDefaultLocator = false;
 
     /**
      * The audio samples left unwritten by a previous call to
@@ -234,7 +222,23 @@ public class PortAudioRenderer
      */
     public MediaLocator getLocator()
     {
-        return (this.locator == null) ? defaultLocator : this.locator;
+        MediaLocator locator = this.locator;
+
+        if (locator == null)
+        {
+            AudioSystem portAudioSystem
+                = AudioSystem.getAudioSystem(PortAudioSystem.LOCATOR_PROTOCOL);
+
+            if (portAudioSystem != null)
+            {
+                CaptureDeviceInfo playbackDevice
+                    = portAudioSystem.getPlaybackDevice();
+
+                if (playbackDevice != null)
+                    locator = playbackDevice.getLocator();
+            }
+        }
+        return locator;
     }
 
     /**
@@ -480,24 +484,6 @@ public class PortAudioRenderer
     }
 
     /**
-     * Update default locator.
-     */
-    private void updateDefaultLocator()
-    {
-        try
-        {
-            stop();
-            close();
-            open();
-            start();
-        }
-        catch(ResourceUnavailableException e)
-        {
-            logger.info("Error reinit default portaudio locator", e);
-        }
-    }
-
-    /**
      * Renders the audio data contained in a specific <tt>Buffer</tt> onto the
      * PortAudio device represented by this <tt>Renderer</tt>.
      *
@@ -508,12 +494,6 @@ public class PortAudioRenderer
      */
     public int process(Buffer buffer)
     {
-        if(changeDefaultLocator && locator == null)
-        {
-            updateDefaultLocator();
-            changeDefaultLocator = false;
-        }
-
         synchronized (this)
         {
             if (!started || (stream == 0))
@@ -611,32 +591,6 @@ public class PortAudioRenderer
             System.arraycopy(buffer, offset, bufferLeft, 0, length);
             bufferLeftLength = length;
         }
-    }
-
-    /**
-     * Sets the <tt>MediaLocator</tt> which specifies the device index of the
-     * PortAudio device to be used by <tt>PortAudioRenderer</tt> instances which
-     * are to be opened later on and which don't have a specified
-     * <tt>MediaLocator</tt> at the time of opening.
-     *
-     * @param defaultLocator the <tt>MediaLocator</tt> which specifies the
-     * device index of the PortAudio device to be used by
-     * <tt>PortAudioRenderer</tt> instances which are to be opened later on and
-     * which don't have a specified <tt>MediaLocator</tt> at the time of opening
-     */
-    public static void setDefaultLocator(MediaLocator defaultLocator)
-    {
-        if (PortAudioRenderer.defaultLocator == null)
-        {
-            if (defaultLocator == null)
-                return;
-        }
-        else if (PortAudioRenderer.defaultLocator.equals(defaultLocator))
-            return;
-
-        PortAudioRenderer.defaultLocator = defaultLocator;
-
-        changeDefaultLocator = true;
     }
 
     /**

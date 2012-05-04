@@ -11,6 +11,7 @@ import javax.media.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.video4linux2.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -19,14 +20,15 @@ import net.java.sip.communicator.util.*;
  *
  * @author Lyubomir Marinov
  */
-public class Video4Linux2Auto
+public class Video4Linux2System
+    extends DeviceSystem
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>Video4Linux2Auto</tt> class and its
+     * The <tt>Logger</tt> used by the <tt>Video4Linux2System</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger =
-            Logger.getLogger(Video4Linux2Auto.class);
+    private static final Logger logger
+        = Logger.getLogger(Video4Linux2System.class);
 
     /**
      * The protocol of the <tt>MediaLocator</tt>s identifying
@@ -36,7 +38,7 @@ public class Video4Linux2Auto
     public static final String LOCATOR_PROTOCOL = "video4linux2";
 
     /**
-     * Initializes a new <tt>Video4Linux2Auto</tt> instance which discovers and
+     * Initializes a new <tt>Video4Linux2System</tt> instance which discovers and
      * registers <tt>CaptureDevice</tt>s which implement the Video for Linux Two
      * API Specification with JMF.
      *
@@ -44,22 +46,10 @@ public class Video4Linux2Auto
      * registering <tt>CaptureDevice</tt>s which implement the Video for Linux
      * Two API Specification with JMF
      */
-    public Video4Linux2Auto()
+    public Video4Linux2System()
         throws Exception
     {
-        String baseDeviceName = "/dev/video";
-        boolean captureDeviceInfoIsAdded = discoverAndRegister(baseDeviceName);
-
-        for (int deviceMinorNumber = 0;
-                deviceMinorNumber <= 63;
-                deviceMinorNumber++)
-        {
-            captureDeviceInfoIsAdded
-                = discoverAndRegister(baseDeviceName + deviceMinorNumber)
-                    || captureDeviceInfoIsAdded;
-        }
-        if (captureDeviceInfoIsAdded)
-            CaptureDeviceManager.commit();
+        super(MediaType.VIDEO, LOCATOR_PROTOCOL);
     }
 
     /**
@@ -118,6 +108,24 @@ public class Video4Linux2Auto
             }
         }
         return captureDeviceInfoIsAdded;
+    }
+
+    protected void doInitialize()
+        throws Exception
+    {
+        String baseDeviceName = "/dev/video";
+        boolean captureDeviceInfoIsAdded = discoverAndRegister(baseDeviceName);
+
+        for (int deviceMinorNumber = 0;
+                deviceMinorNumber <= 63;
+                deviceMinorNumber++)
+        {
+            captureDeviceInfoIsAdded
+                = discoverAndRegister(baseDeviceName + deviceMinorNumber)
+                    || captureDeviceInfoIsAdded;
+        }
+        if (captureDeviceInfoIsAdded)
+            CaptureDeviceManager.commit();
     }
 
     /**

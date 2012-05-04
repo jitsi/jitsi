@@ -29,11 +29,6 @@ public final class PortAudio
      */
     private static final Logger logger = Logger.getLogger(PortAudio.class);
 
-    /**
-     * Synchronization object.
-     */
-    private static final Object syncRoot = new Object();
-
     static
     {
         System.loadLibrary("jnportaudio");
@@ -61,6 +56,8 @@ public final class PortAudio
      * <tt>PortAudioRenderer</tt> that they represent.
      */
     public static final double DEFAULT_SAMPLE_RATE = 44100;
+
+    private static Runnable devicesChangedCallback;
 
     /**
      * Can be passed as the framesPerBuffer parameter to
@@ -463,6 +460,11 @@ public final class PortAudio
     public static native void Pa_StopStream(long stream)
         throws PortAudioException;
 
+    public static void Pa_UpdateAvailableDeviceList()
+    {
+        updateAvailableDeviceList();
+    }
+
     /**
      * Write samples to an output stream. This function doesn't return until
      * the entire buffer has been consumed - this may involve waiting for the
@@ -762,19 +764,36 @@ public final class PortAudio
     private static native void updateAvailableDeviceList();
 
     /**
-     * Callback called from native PortAudio side that notify device changed.
+     * Implements a (legacy) callback which gets called by the native PortAudio
+     * counterpart to notify the Java counterpart that the list of PortAudio
+     * devices has changed.
      */
     public static void deviceChanged()
     {
-        synchronized(syncRoot)
-        {
-            updateAvailableDeviceList();
-            PortAudioDeviceChangedCallbacks.deviceChanged();
-        }
+        devicesChangedCallback();
     }
 
     /**
-     * Prevents the creation of <tt>PortAudio</tt> instances.
+     * Implements a callback which gets called by the native PortAudio
+     * counterpart to notify the Java counterpart that the list of PortAudio
+     * devices has changed.
+     */
+    public static void devicesChangedCallback()
+    {
+        Runnable devicesChangedCallback = PortAudio.devicesChangedCallback;
+
+        if (devicesChangedCallback != null)
+            devicesChangedCallback.run();
+    }
+
+    public static void setDevicesChangedCallback(
+            Runnable devicesChangedCallback)
+    {
+        PortAudio.devicesChangedCallback = devicesChangedCallback;
+    }
+
+    /**
+     * Prevents the initialization of <tt>PortAudio</tt> instances.
      */
     private PortAudio()
     {

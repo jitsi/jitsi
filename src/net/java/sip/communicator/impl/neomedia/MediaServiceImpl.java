@@ -10,7 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
-import java.util.List; // disambiguation
+import java.util.List;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -18,22 +18,20 @@ import javax.media.format.*;
 import javax.media.protocol.*;
 import javax.swing.*;
 
-import org.json.*;
-
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
-import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.impl.neomedia.transform.sdes.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.event.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.json.*;
 
 /**
  * Implements <tt>MediaService</tt> for JMF.
@@ -43,8 +41,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class MediaServiceImpl
     extends PropertyChangeNotifier
-    implements MediaService,
-               PortAudioDeviceChangedCallback
+    implements MediaService
 {
     /**
      * The <tt>Logger</tt> used by the <tt>MediaServiceImpl</tt> class and its
@@ -174,21 +171,11 @@ public class MediaServiceImpl
     private static VolumeControl inputVolumeControl;
 
     /**
-     * Lock to protected reinitialization of video devices.
-     */
-    private final Object reinitVideoLock = new Object();
-
-    /**
      * Listeners interested in Recorder events without the need to
      * have access to their instances.
      */
     private final List<Recorder.Listener> recorderListeners =
             new ArrayList<Recorder.Listener>();
-
-    /**
-     * Audio configuration panel.
-     */
-    private SIPCommDialog audioConfigDialog = null;
 
     /**
      * Initializes a new <tt>MediaServiceImpl</tt> instance.
@@ -411,32 +398,31 @@ public class MediaServiceImpl
      * still known to this <tt>MediaService</tt> to be available.
      * @see MediaService#getDevices(MediaType, MediaUseCase)
      */
-    public List<MediaDevice> getDevices(MediaType mediaType,
+    public List<MediaDevice> getDevices(
+            MediaType mediaType,
             MediaUseCase useCase)
     {
-        CaptureDeviceInfo[] captureDeviceInfos;
+        List<CaptureDeviceInfo> cdis;
         List<MediaDeviceImpl> privateDevices;
 
-        if(mediaType == MediaType.VIDEO)
+        if (MediaType.VIDEO.equals(mediaType))
         {
-            /* in case a video capture device has been removed from system
-             * (i.e. webcam, monitors, ...), rescan video capture devices
+            /*
+             * In case a video capture device has been added to or removed from
+             * system (i.e. webcam, monitor, etc.), rescan the video capture
+             * devices.
              */
-            synchronized(reinitVideoLock)
-            {
-                getDeviceConfiguration().reinitializeVideo();
-            }
+            DeviceSystem.initializeDeviceSystems(MediaType.VIDEO);
         }
 
         switch (mediaType)
         {
         case AUDIO:
-            captureDeviceInfos
-                = getDeviceConfiguration().getAvailableAudioCaptureDevices();
+            cdis = getDeviceConfiguration().getAvailableAudioCaptureDevices();
             privateDevices = audioDevices;
             break;
         case VIDEO:
-            captureDeviceInfos
+            cdis
                 = getDeviceConfiguration().getAvailableVideoCaptureDevices(
                         useCase);
             privateDevices = videoDevices;
@@ -453,8 +439,8 @@ public class MediaServiceImpl
 
         synchronized (privateDevices)
         {
-            if ((captureDeviceInfos == null)
-                    || (captureDeviceInfos.length == 0))
+            if ((cdis == null)
+                    || (cdis.size() <= 0))
                 privateDevices.clear();
             else
             {
@@ -463,24 +449,27 @@ public class MediaServiceImpl
 
                 while (deviceIter.hasNext())
                 {
+                    Iterator<CaptureDeviceInfo> cdiIter = cdis.iterator();
                     CaptureDeviceInfo captureDeviceInfo
                         = deviceIter.next().getCaptureDeviceInfo();
                     boolean deviceIsFound = false;
 
-                    for (int i = 0; i < captureDeviceInfos.length; i++)
-                        if (captureDeviceInfo.equals(captureDeviceInfos[i]))
+                    while (cdiIter.hasNext())
+                    {
+                        if (captureDeviceInfo.equals(cdiIter.next()))
                         {
                             deviceIsFound = true;
-                            captureDeviceInfos[i] = null;
+                            cdiIter.remove();
                             break;
                         }
+                    }
                     if (!deviceIsFound)
                         deviceIter.remove();
                 }
 
-                for (CaptureDeviceInfo captureDeviceInfo : captureDeviceInfos)
+                for (CaptureDeviceInfo cdi : cdis)
                 {
-                    if (captureDeviceInfo == null)
+                    if (cdi == null)
                         continue;
 
                     MediaDeviceImpl device;
@@ -488,11 +477,11 @@ public class MediaServiceImpl
                     switch (mediaType)
                     {
                     case AUDIO:
-                        device = new AudioMediaDeviceImpl(captureDeviceInfo);
+                        device = new AudioMediaDeviceImpl(cdi);
                         break;
                     case VIDEO:
                         device
-                            = new MediaDeviceImpl(captureDeviceInfo, mediaType);
+                            = new MediaDeviceImpl(cdi, mediaType);
                         break;
                     default:
                         device = null;
@@ -609,105 +598,7 @@ public class MediaServiceImpl
         deviceConfiguration.addPropertyChangeListener(
                 deviceConfigurationPropertyChangeListener);
 
-        encodingConfiguration.initializeFormatPreferences();
-        encodingConfiguration.registerCustomPackages();
-        encodingConfiguration.registerCustomCodecs();
-
-        /*
-         * The neomedia bundle is generic enough to be used in a headless
-         * GraphicsEnvironment so prevent a HeadlessException.
-         */
-        if(!OSUtils.IS_ANDROID && !GraphicsEnvironment.isHeadless())
-        {
-            try
-            {
-                final Component panel
-                    = MediaConfiguration.createBasicControls(
-                            DeviceConfigurationComboBoxModel.AUDIO,
-                            false);
-
-                audioConfigDialog
-                    = new SIPCommDialog()
-                    {
-                        /** Serial version UID. */
-                        private static final long serialVersionUID = 0L;
-
-                        /** {@inheritDoc} */
-                        @Override
-                        protected void close(boolean escaped)
-                        {
-                            setVisible(false);
-                        }
-                    };
-
-                TransparentPanel mainPanel
-                    = new TransparentPanel(new BorderLayout(20, 5));
-                TransparentPanel fieldsPanel
-                    = new TransparentPanel(new BorderLayout(10, 5));
-
-                mainPanel.setBorder(
-                        BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-                TransparentPanel btnPanel
-                    = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-                ResourceManagementService resources
-                    = NeomediaActivator.getResources();
-                JButton btn
-                    = new JButton(resources.getI18NString("service.gui.CLOSE"));
-
-                btn.addActionListener(
-                        new ActionListener()
-                        {
-                            public void actionPerformed(ActionEvent evt)
-                            {
-                                audioConfigDialog.setVisible(false);
-                            }
-                        });
-                btnPanel.add(btn);
-
-                JTextArea infoTextArea = new JTextArea();
-
-                infoTextArea.setOpaque(false);
-                infoTextArea.setEditable(false);
-                infoTextArea.setWrapStyleWord(true);
-                infoTextArea.setLineWrap(true);
-                infoTextArea.setText(
-                        resources.getI18NString(
-                                "impl.media.configform"
-                                    + ".AUDIO_DEVICE_CONNECTED_REMOVED"));
-
-                fieldsPanel.add(infoTextArea, BorderLayout.NORTH);
-                fieldsPanel.add(panel, BorderLayout.CENTER);
-                fieldsPanel.add(btnPanel, BorderLayout.SOUTH);
-
-                TransparentPanel iconPanel
-                    = new TransparentPanel(new BorderLayout());
-
-                iconPanel.add(
-                        new JLabel(
-                                resources.getImage(
-                                        "plugin.mediaconfig.AUDIO_ICON_64x64")),
-                        BorderLayout.NORTH);
-
-                mainPanel.add(iconPanel,BorderLayout.WEST);
-                mainPanel.add(fieldsPanel, BorderLayout.CENTER);
-
-                audioConfigDialog.setTitle(
-                        resources.getI18NString(
-                                "impl.media.configform.AUDIO_DEVICE_CONFIG"));
-                audioConfigDialog.add(mainPanel);
-                audioConfigDialog.validate();
-                audioConfigDialog.pack();
-
-                PortAudioDeviceChangedCallbacks.addDeviceChangedCallback(this);
-            }
-            catch(Throwable t)
-            {
-                logger.info("Failed to create audio configuration panel", t);
-                if (t instanceof ThreadDeath)
-                    throw (ThreadDeath) t;
-            }
-        }
+        encodingConfiguration.initialize();
     }
 
     /**
@@ -718,7 +609,6 @@ public class MediaServiceImpl
     {
         deviceConfiguration.removePropertyChangeListener(
                 deviceConfigurationPropertyChangeListener);
-        PortAudioDeviceChangedCallbacks.removeDeviceChangedCallback(this);
     }
 
     /**
@@ -993,69 +883,74 @@ public class MediaServiceImpl
             MediaDevice device,
             int preferredWidth, int preferredHeight)
     {
-        JLabel noPreview =
-        new JLabel(NeomediaActivator.getResources().getI18NString(
-                "impl.media.configform.NO_PREVIEW"));
+        JLabel noPreview
+            = new JLabel(
+                    NeomediaActivator.getResources().getI18NString(
+                            "impl.media.configform.NO_PREVIEW"));
+
         noPreview.setHorizontalAlignment(SwingConstants.CENTER);
         noPreview.setVerticalAlignment(SwingConstants.CENTER);
-        final JComponent videoContainer
-                = new VideoContainer(noPreview);
 
-        videoContainer.setPreferredSize(
-                new Dimension(preferredWidth, preferredHeight));
-        videoContainer.setMaximumSize(
-                new Dimension(preferredWidth, preferredHeight));
+        final JComponent videoContainer = new VideoContainer(noPreview);
+
+        if ((preferredWidth > 0) && (preferredHeight > 0))
+            videoContainer.setPreferredSize(
+                    new Dimension(preferredWidth, preferredHeight));
 
         try
         {
             CaptureDeviceInfo captureDeviceInfo;
 
-            if ((device == null) ||
+            if ((device != null) &&
                     ((captureDeviceInfo
                                 = ((MediaDeviceImpl)device)
                                     .getCaptureDeviceInfo())
-                            == null))
-                return videoContainer;
-
-            DataSource dataSource
-                = Manager.createDataSource(captureDeviceInfo.getLocator());
-
-            /*
-             * Don't let the size be uselessly small just because the
-             * videoContainer has too small a preferred size.
-             */
-            if ((preferredWidth < 128) || (preferredHeight < 96))
+                            != null))
             {
-                preferredHeight = 128;
-                preferredWidth = 96;
-            }
-            VideoMediaStreamImpl.selectVideoSize(
-                    dataSource,
-                    preferredWidth, preferredHeight);
+                DataSource dataSource
+                    = Manager.createDataSource(captureDeviceInfo.getLocator());
 
-            // A Player is documented to be created on a connected DataSource.
-            dataSource.connect();
-
-            Processor player = Manager.createProcessor(dataSource);
-            final MediaLocator locator = dataSource.getLocator();
-
-            player.addControllerListener(new ControllerListener()
-            {
-                public void controllerUpdate(ControllerEvent event)
+                /*
+                 * Don't let the size be uselessly small just because the
+                 * videoContainer has too small a preferred size.
+                 */
+                if ((preferredWidth < 128) || (preferredHeight < 96))
                 {
-                    controllerUpdateForPreview(event, videoContainer, locator);
+                    preferredHeight = 128;
+                    preferredWidth = 96;
                 }
-            });
-            player.configure();
+                VideoMediaStreamImpl.selectVideoSize(
+                        dataSource,
+                        preferredWidth, preferredHeight);
 
-            return videoContainer;
+                // A Player is documented to be created on a connected
+                // DataSource.
+                dataSource.connect();
+
+                Processor player = Manager.createProcessor(dataSource);
+                final MediaLocator locator = dataSource.getLocator();
+
+                player.addControllerListener(new ControllerListener()
+                {
+                    public void controllerUpdate(ControllerEvent event)
+                    {
+                        controllerUpdateForPreview(
+                                event,
+                                videoContainer,
+                                locator);
+                    }
+                });
+                player.configure();
+            }
         }
-        catch(Exception e)
+        catch (Throwable t)
         {
-            logger.error("Failed to create video preview component", e);
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            logger.error("Failed to create video preview", t);
         }
 
-        return null;
+        return videoContainer;
     }
 
     /**
@@ -1064,8 +959,10 @@ public class MediaServiceImpl
      * @param videoContainer the container.
      * @param locator input DataSource locator
      */
-    private static void controllerUpdateForPreview(ControllerEvent event,
-        JComponent videoContainer, MediaLocator locator)
+    private static void controllerUpdateForPreview(
+            ControllerEvent event,
+            JComponent videoContainer,
+            MediaLocator locator)
     {
         if (event instanceof ConfigureCompleteEvent)
         {
@@ -1086,7 +983,7 @@ public class MediaServiceImpl
                         SwScaler scaler = new SwScaler();
 
                         // do not flip desktop
-                        if (ImageStreamingAuto.LOCATOR_PROTOCOL.equals(
+                        if (ImgStreamingSystem.LOCATOR_PROTOCOL.equals(
                                 locator.getProtocol()))
                             codecs = new Codec[] { scaler };
                         else
@@ -1132,8 +1029,10 @@ public class MediaServiceImpl
      * @param preview the preview component.
      * @param player the player.
      */
-    private static void showPreview(final JComponent previewContainer,
-        final Component preview, final Player player)
+    private static void showPreview(
+            final JComponent previewContainer,
+            final Component preview,
+            final Player player)
     {
         if (!SwingUtilities.isEventDispatchThread())
         {
@@ -1308,7 +1207,7 @@ public class MediaServiceImpl
         CaptureDeviceInfo devInfo
             = new CaptureDeviceInfo(
                 name + " " + display,
-                new MediaLocator(ImageStreamingAuto.LOCATOR_PROTOCOL +
+                new MediaLocator(ImgStreamingSystem.LOCATOR_PROTOCOL +
                         ":" + display + "," + x + "," + y),
                 formats);
 
@@ -1362,7 +1261,7 @@ public class MediaServiceImpl
             return null;
         MediaLocator locator = devInfo.getLocator();
 
-        if(!ImageStreamingAuto.LOCATOR_PROTOCOL.equals(locator.getProtocol()))
+        if(!ImgStreamingSystem.LOCATOR_PROTOCOL.equals(locator.getProtocol()))
             return null;
 
         String remainder = locator.getRemainder();
@@ -1428,14 +1327,6 @@ public class MediaServiceImpl
     }
 
     /**
-     * Callback called from native PortAudio side that notify device changed.
-     */
-    public void deviceChanged()
-    {
-        showAudioConfiguration();
-    }
-
-    /**
      * Notifies this instance that the value of a property of
      * {@link #deviceConfiguration} has changed.
      *
@@ -1448,7 +1339,8 @@ public class MediaServiceImpl
         String propertyName = event.getPropertyName();
 
         if (DeviceConfiguration.AUDIO_CAPTURE_DEVICE.equals(propertyName)
-                || DeviceConfiguration.VIDEO_CAPTURE_DEVICE.equals(propertyName))
+                || DeviceConfiguration.VIDEO_CAPTURE_DEVICE.equals(
+                        propertyName))
         {
             /*
              * We do not know the old value of the property at the time of this
@@ -1456,36 +1348,6 @@ public class MediaServiceImpl
              * know the MediaType and the MediaUseCase.
              */
             firePropertyChange(DEFAULT_DEVICE, null, null);
-        }
-    }
-
-    /**
-     * Show audio configuration panel when media devices change.
-     */
-    private void showAudioConfiguration()
-    {
-        if (audioConfigDialog != null)
-        {
-            if (!SwingUtilities.isEventDispatchThread())
-            {
-                SwingUtilities.invokeLater(
-                        new Runnable()
-                                {
-                                    public void run()
-                                    {
-                                        showAudioConfiguration();
-                                    }
-                                });
-                return;
-            }
-
-            SwingUtilities.updateComponentTreeUI(
-                audioConfigDialog.getComponent(0));
-            audioConfigDialog.pack();
-            audioConfigDialog.repaint();
-
-            if (!audioConfigDialog.isVisible())
-                audioConfigDialog.setVisible(true);
         }
     }
 

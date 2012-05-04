@@ -184,7 +184,7 @@ public class VideoMediaDeviceSession
                         .getDeviceConfiguration();
 
             // Apply the video size and the frame rate configured by the user.
-            if (ImageStreamingAuto.LOCATOR_PROTOCOL.equals(protocol))
+            if (ImgStreamingSystem.LOCATOR_PROTOCOL.equals(protocol))
             {
                 /*
                  * It is not clear at this time what the default frame rate for
@@ -580,8 +580,8 @@ public class VideoMediaDeviceSession
             MediaLocator locator = captureDevice.getLocator();
 
             if ((locator != null)
-                    && ImageStreamingAuto.LOCATOR_PROTOCOL
-                            .equals(locator.getProtocol()))
+                    && ImgStreamingSystem.LOCATOR_PROTOCOL.equals(
+                            locator.getProtocol()))
                 return createLocalVisualComponentForDesktopStreaming();
         }
 

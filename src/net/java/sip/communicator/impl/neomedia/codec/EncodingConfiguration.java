@@ -145,12 +145,19 @@ public class EncodingConfiguration
     {
     }
 
+    public void initialize()
+    {
+        initializeFormatPreferences();
+        registerCustomPackages();
+        registerCustomCodecs();
+    }
+
     /**
      * Retrieves (from the configuration service) preferences specified for
      * various formats and assigns default ones to those that haven't been
      * mentioned.
      */
-    public void initializeFormatPreferences()
+    private void initializeFormatPreferences()
     {
         // first init default preferences
         // video
@@ -411,7 +418,7 @@ public class EncodingConfiguration
     /**
      * Register in JMF the custom codecs we provide
      */
-    public void registerCustomCodecs()
+    private void registerCustomCodecs()
     {
         // Register the custom codec which haven't already been registered.
         @SuppressWarnings("unchecked")
@@ -578,7 +585,7 @@ public class EncodingConfiguration
     /**
      * Register in JMF the custom packages we provide
      */
-    public void registerCustomPackages()
+    private void registerCustomPackages()
     {
         @SuppressWarnings("unchecked")
         Vector<String> packages = PackageManager.getProtocolPrefixList();

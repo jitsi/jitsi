@@ -373,11 +373,11 @@ public class MediaDeviceImpl
 
                     // change send size only for video calls
                     if ((captureDeviceInfo != null)
-                        && ((captureDeviceInfoLocator
-                                    = captureDeviceInfo.getLocator())
-                                != null)
-                        && !ImageStreamingAuto.LOCATOR_PROTOCOL.equals(
-                                captureDeviceInfoLocator.getProtocol()))
+                            && ((captureDeviceInfoLocator
+                                        = captureDeviceInfo.getLocator())
+                                    != null)
+                            && !ImgStreamingSystem.LOCATOR_PROTOCOL.equals(
+                                    captureDeviceInfoLocator.getProtocol()))
                     {
                         if (sendPreset != null)
                             sendSize = sendPreset.getResolution();

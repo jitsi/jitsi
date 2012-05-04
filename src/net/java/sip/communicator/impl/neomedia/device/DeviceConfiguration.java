@@ -18,8 +18,6 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
-import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
-import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
@@ -36,114 +34,52 @@ import net.java.sip.communicator.util.event.*;
  */
 public class DeviceConfiguration
     extends PropertyChangeNotifier
-    implements PropertyChangeListener,
-               PortAudioDeviceChangedCallback
+    implements PropertyChangeListener
 {
 
     /**
-     * The name of the <code>DeviceConfiguration</code> property which
-     * represents the device used by <code>DeviceConfiguration</code> for audio
-     * capture.
+     * The name of the <tt>DeviceConfiguration</tt> property which represents
+     * the device used by <tt>DeviceConfiguration</tt> for audio capture.
      */
-    public static final String AUDIO_CAPTURE_DEVICE = "AUDIO_CAPTURE_DEVICE";
+    public static final String AUDIO_CAPTURE_DEVICE
+        = AudioSystem.PROP_CAPTURE_DEVICE;
 
     /**
-     * The name of the <code>DeviceConfiguration</code> property which
-     * represents the device used by <code>DeviceConfiguration</code> for audio
-     * playback.
+     * The name of the <tt>DeviceConfiguration</tt> property which represents
+     * the device used by <tt>DeviceConfiguration</tt> for audio notify.
      */
-    public static final String AUDIO_PLAYBACK_DEVICE = "AUDIO_PLAYBACK_DEVICE";
+    public static final String AUDIO_NOTIFY_DEVICE
+        = AudioSystem.PROP_NOTIFY_DEVICE;
 
     /**
-     * The name of the <code>DeviceConfiguration</code> property which
-     * represents the device used by <code>DeviceConfiguration</code> for audio
-     * notify.
+     * The name of the <tt>DeviceConfiguration</tt> property which represents
+     * the device used by <tt>DeviceConfiguration</tt> for audio playback.
      */
-    public static final String AUDIO_NOTIFY_DEVICE = "AUDIO_NOTIFY_DEVICE";
+    public static final String AUDIO_PLAYBACK_DEVICE
+        = AudioSystem.PROP_PLAYBACK_DEVICE;
 
     /**
-     * The name of the <code>DeviceConfiguration</code> property which
-     * represents the device used by <code>DeviceConfiguration</code> for video
-     * capture.
+     * The list of class names of custom <tt>Renderer</tt> implementations to be
+     * registered with JMF.
      */
-    public static final String VIDEO_CAPTURE_DEVICE = "VIDEO_CAPTURE_DEVICE";
+    private static final String[] CUSTOM_RENDERERS
+        = new String[]
+        {
+            ".audio.PortAudioRenderer",
+            ".video.JAWTRenderer"
+        };
 
     /**
-     * When audio is disabled the selected audio system is with name None.
-     * Used and for audio devices, when disabled are set in configuration to
-     * None.
+     * The default value to be used for the {@link #PROP_AUDIO_DENOISE} property
+     * when it does not have a value.
      */
-    public static final String AUDIO_NONE = "None";
-
-    /**
-     * JavaSound sound system.
-     */
-    public static final String AUDIO_SYSTEM_JAVASOUND = "JavaSound";
-
-    /**
-     * PortAudio sound system.
-     */
-    public static final String AUDIO_SYSTEM_PORTAUDIO = "PortAudio";
-
-    /**
-     * Property used to store the capture device.
-     */
-    private static final String PROP_AUDIO_DEVICE =
-        "net.java.sip.communicator.impl.neomedia.capturedev";
-
-    /**
-     * Property used to store the playback device.
-     */
-    private static final String PROP_AUDIO_PLAYBACK_DEVICE =
-        "net.java.sip.communicator.impl.neomedia.playbackdev";
-
-    /**
-     * Property used to store the notify device.
-     */
-    private static final String PROP_AUDIO_NOTIFY_DEVICE =
-        "net.java.sip.communicator.impl.neomedia.notifydev";
-
-    /**
-     * Property used to store is audio enabled or disabled.
-     */
-    private static final String PROP_AUDIO_DEVICE_IS_DISABLED =
-        "net.java.sip.communicator.impl.neomedia.audiodevIsDisabled";
-
-    /**
-     * Property used to store the video device we use.
-     */
-    private static final String PROP_VIDEO_DEVICE =
-        "net.java.sip.communicator.impl.neomedia.videodev";
-
-    /**
-     * Property used to store is video enabled or disabled.
-     */
-    private static final String PROP_VIDEO_DEVICE_IS_DISABLED =
-        "net.java.sip.communicator.impl.neomedia.videodevIsDisabled";
-
-    /**
-     * The name of the <tt>boolean</tt> property which determines whether echo
-     * cancellation is to be performed for captured audio.
-     */
-    static final String PROP_AUDIO_ECHOCANCEL
-        = "net.java.sip.communicator.impl.neomedia.echocancel";
+    private static final boolean DEFAULT_AUDIO_DENOISE = true;
 
     /**
      * The default value to be used for the {@link #PROP_AUDIO_ECHOCANCEL}
      * property when it does not have a value.
      */
     private static final boolean DEFAULT_AUDIO_ECHOCANCEL = true;
-
-    /**
-     * The name of the <tt>long</tt> property which determines the filter length
-     * in milliseconds to be used by the echo cancellation implementation. The
-     * recommended filter length is approximately the third of the room
-     * reverberation time. For example, in a small room, reverberation time is
-     * in the order of 300 ms, so a filter length of 100 ms is a good choice
-     * (800 samples at 8000 Hz sampling rate).
-     */
-    static final String PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
-        = "net.java.sip.communicator.impl.neomedia.echocancel.filterLengthInMillis";
 
     /**
      * The default value to be used for the
@@ -157,108 +93,9 @@ public class DeviceConfiguration
         = 100;
 
     /**
-     * The name of the <tt>boolean</tt> property which determines whether noise
-     * suppression is to be performed for captured audio.
-     */
-    static final String PROP_AUDIO_DENOISE
-        = "net.java.sip.communicator.impl.neomedia.denoise";
-
-    /**
-     * The default value to be used for the {@link #PROP_AUDIO_DENOISE} property
-     * when it does not have a value.
-     */
-    private static final boolean DEFAULT_AUDIO_DENOISE = true;
-
-    /**
-     * The list of class names of custom <tt>Renderer</tt> implementations to be
-     * registered with JMF.
-     */
-    private static final String[] CUSTOM_RENDERERS
-        = new String[]
-                {
-                    "net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.PortAudioRenderer",
-                    "net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.video.JAWTRenderer"
-                };
-
-    /**
-     * An empty array with <tt>CaptureDeviceInfo</tt> element type. Explicitly
-     * defined to reduce unnecessary allocations.
-     */
-    private static final CaptureDeviceInfo[] NO_CAPTURE_DEVICES
-        = new CaptureDeviceInfo[0];
-
-    /**
-     * The <tt>Logger</tt> used by this instance for logging output.
-     */
-    private Logger logger = Logger.getLogger(DeviceConfiguration.class);
-
-    /**
-     * The device that we'll be using for audio capture.
-     */
-    private CaptureDeviceInfo audioCaptureDevice = null;
-
-    /**
-     * The device that we'll be using for audio playback.
-     */
-    private CaptureDeviceInfo audioPlaybackDevice = null;
-
-    /**
-     * The device that we'll be using for audio notifications.
-     */
-    private CaptureDeviceInfo audioNotifyDevice = null;
-
-    /**
-     * The device that we'll be using for video capture.
-     */
-    private CaptureDeviceInfo videoCaptureDevice;
-
-    /**
-     * The currently available audio systems.(JavaSoubnd or PortAudio).
-     */
-    private static Vector<String> audioSystems = new Vector<String>();
-
-    /**
-     * The audio system we use.
-     */
-    private String audioSystem = null;
-
-    /**
-     * The property we use to store the video framerate settings.
-     */
-    private static final String PROP_VIDEO_FRAMERATE =
-        "net.java.sip.communicator.impl.neomedia.video.framerate";
-
-    /**
      * The default frame rate, <tt>-1</tt> unlimited.
      */
-    public static final int DEFAULT_FRAME_RATE = -1;
-
-    /**
-     * The frame rate.
-     */
-    private int frameRate = DEFAULT_FRAME_RATE;
-
-    /**
-     * The property we use to store the settings for maximum allowed video
-     * bandwidth.
-     */
-    private static final String PROP_VIDEO_MAX_BANDWIDTH =
-        "net.java.sip.communicator.impl.neomedia.video.maxbandwidth";
-
-    /**
-     * The default value for video maximum bandwidth.
-     */
-    public static final int DEFAULT_VIDEO_MAX_BANDWIDTH = 100;
-
-    /**
-     * Current setting for video maximum bandwidth.
-     */
-    private int videoMaxBandwidth = -1;
-
-    /**
-     * The default video width.
-     */
-    public static final int DEFAULT_VIDEO_WIDTH = 640;
+    public static final int DEFAULT_VIDEO_FRAMERATE = -1;
 
     /**
      * The default video height.
@@ -266,28 +103,84 @@ public class DeviceConfiguration
     public static final int DEFAULT_VIDEO_HEIGHT = 480;
 
     /**
+     * The default value for video maximum bandwidth.
+     */
+    public static final int DEFAULT_VIDEO_MAX_BANDWIDTH = 100;
+
+    /**
+     * The default video width.
+     */
+    public static final int DEFAULT_VIDEO_WIDTH = 640;
+
+    /**
+     * The name of the <tt>boolean</tt> property which determines whether noise
+     * suppression is to be performed for captured audio.
+     */
+    static final String PROP_AUDIO_DENOISE
+        = "net.java.sip.communicator.impl.neomedia.denoise";
+
+    /**
+     * The name of the <tt>boolean</tt> property which determines whether echo
+     * cancellation is to be performed for captured audio.
+     */
+    static final String PROP_AUDIO_ECHOCANCEL
+        = "net.java.sip.communicator.impl.neomedia.echocancel";
+
+    /**
+     * The name of the <tt>long</tt> property which determines the filter length
+     * in milliseconds to be used by the echo cancellation implementation. The
+     * recommended filter length is approximately the third of the room
+     * reverberation time. For example, in a small room, reverberation time is
+     * in the order of 300 ms, so a filter length of 100 ms is a good choice
+     * (800 samples at 8000 Hz sampling rate).
+     */
+    static final String PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
+        = "net.java.sip.communicator.impl.neomedia.echocancel.filterLengthInMillis";
+
+    public static final String PROP_AUDIO_SYSTEM
+        = "net.java.sip.communicator.impl.neomedia.audioSystem";
+
+    public static final String PROP_AUDIO_SYSTEM_DEVICES
+        = PROP_AUDIO_SYSTEM + "." + DeviceSystem.PROP_DEVICES;
+
+    /**
+     * The <tt>ConfigurationService</tt> property which stores the device used
+     * by <tt>DeviceConfiguration</tt> for video capture.
+     */
+    private static final String PROP_VIDEO_DEVICE
+        = "net.java.sip.communicator.impl.neomedia.videoDevice";
+
+    /**
+     * The property we use to store the video framerate settings.
+     */
+    private static final String PROP_VIDEO_FRAMERATE
+        = "net.java.sip.communicator.impl.neomedia.video.framerate";
+
+    /**
      * The name of the property which specifies the height of the video.
      */
-    private static final String PROP_VIDEO_HEIGHT =
-        "net.java.sip.communicator.impl.neomedia.video.height";
+    private static final String PROP_VIDEO_HEIGHT
+        = "net.java.sip.communicator.impl.neomedia.video.height";
+
+    /**
+     * The property we use to store the settings for maximum allowed video
+     * bandwidth.
+     */
+    private static final String PROP_VIDEO_MAX_BANDWIDTH
+        = "net.java.sip.communicator.impl.neomedia.video.maxbandwidth";
 
     /**
      * The name of the property which specifies the width of the video.
      */
-    private static final String PROP_VIDEO_WIDTH =
-        "net.java.sip.communicator.impl.neomedia.video.width";
-
-    /**
-     * The current resolution settings.
-     */
-    private Dimension videoSize;
+    private static final String PROP_VIDEO_WIDTH
+        = "net.java.sip.communicator.impl.neomedia.video.width";
 
     /**
      * The currently supported resolutions we will show as option
      * and user can select.
      */
-    public static final Dimension[] SUPPORTED_RESOLUTIONS =
-        new Dimension[]
+    public static final Dimension[] SUPPORTED_RESOLUTIONS
+        = new Dimension[]
             {
                 // QVGA
                 new Dimension(160, 100),
@@ -306,6 +199,106 @@ public class DeviceConfiguration
             };
 
     /**
+     * The name of the <tt>DeviceConfiguration</tt> property which
+     * represents the device used by <tt>DeviceConfiguration</tt> for video
+     * capture.
+     */
+    public static final String VIDEO_CAPTURE_DEVICE = "VIDEO_CAPTURE_DEVICE";
+
+    private AudioSystem audioSystem;
+
+    /**
+     * The frame rate.
+     */
+    private int frameRate = DEFAULT_VIDEO_FRAMERATE;
+
+    /**
+     * The <tt>Logger</tt> used by this instance for logging output.
+     */
+    private Logger logger = Logger.getLogger(DeviceConfiguration.class);
+
+    /**
+     * The device that we'll be using for video capture.
+     */
+    private CaptureDeviceInfo videoCaptureDevice;
+
+    /**
+     * Current setting for video maximum bandwidth.
+     */
+    private int videoMaxBandwidth = -1;
+
+    /**
+     * The current resolution settings.
+     */
+    private Dimension videoSize;
+
+    /**
+     * Fixes the list of <tt>Renderer</tt>s registered with FMJ in order to
+     * resolve operating system-specific issues.
+     */
+    private static void fixRenderers()
+    {
+        @SuppressWarnings("unchecked")
+        Vector<String> renderers
+            = PlugInManager.getPlugInList(null, null, PlugInManager.RENDERER);
+
+        /*
+         * JMF is no longer in use, FMJ is used in its place. FMJ has its own
+         * JavaSoundRenderer which is also extended into a JMF-compatible one.
+         */
+        PlugInManager.removePlugIn(
+                "com.sun.media.renderer.audio.JavaSoundRenderer",
+                PlugInManager.RENDERER);
+
+        if (OSUtils.IS_WINDOWS)
+        {
+            if (OSUtils.IS_WINDOWS32 &&
+                    (OSUtils.IS_WINDOWS_VISTA || OSUtils.IS_WINDOWS_7))
+            {
+                /*
+                 * DDRenderer will cause 32-bit Windows Vista/7 to switch its
+                 * theme from Aero to Vista Basic so try to pick up a different
+                 * Renderer.
+                 */
+                if (renderers.contains(
+                        "com.sun.media.renderer.video.GDIRenderer"))
+                {
+                    PlugInManager.removePlugIn(
+                            "com.sun.media.renderer.video.DDRenderer",
+                            PlugInManager.RENDERER);
+                }
+            }
+            else if (OSUtils.IS_WINDOWS64)
+            {
+                /*
+                 * Remove the native Renderers for 64-bit Windows because native
+                 * JMF libs are not available for 64-bit machines.
+                 */
+                PlugInManager.removePlugIn(
+                        "com.sun.media.renderer.video.GDIRenderer",
+                        PlugInManager.RENDERER);
+                PlugInManager.removePlugIn(
+                        "com.sun.media.renderer.video.DDRenderer",
+                        PlugInManager.RENDERER);
+            }
+        }
+        else if (!OSUtils.IS_LINUX32)
+        {
+            if (renderers.contains(
+                        "com.sun.media.renderer.video.LightWeightRenderer")
+                    || renderers.contains(
+                            "com.sun.media.renderer.video.AWTRenderer"))
+            {
+                // Remove XLibRenderer because it is native and JMF is supported
+                // on 32-bit machines only.
+                PlugInManager.removePlugIn(
+                        "com.sun.media.renderer.video.XLibRenderer",
+                        PlugInManager.RENDERER);
+            }
+        }
+    }
+
+    /**
      * Initializes capture devices.
      */
     public void initialize()
@@ -314,7 +307,7 @@ public class DeviceConfiguration
         // blindly catch them for now
         try
         {
-            JmfDeviceDetector.detectAndConfigureCaptureDevices();
+            DeviceSystem.initializeDeviceSystems();
             extractConfiguredCaptureDevices();
 
             ConfigurationService cfg
@@ -331,23 +324,7 @@ public class DeviceConfiguration
         }
 
         registerCustomRenderers();
-        PortAudioDeviceChangedCallbacks.addDeviceChangedCallback(this);
-    }
-
-    /**
-     * Reinitialize video capture devices.
-     */
-    public void reinitializeVideo()
-    {
-        try
-        {
-            JmfDeviceDetector.reinitializeVideoCaptureDevices();
-            //extractConfiguredCaptureDevices();
-        }
-        catch (Exception ex)
-        {
-            logger.error("Failed to initialize media.", ex);
-        }
+        fixRenderers();
     }
 
     /**
@@ -376,8 +353,8 @@ public class DeviceConfiguration
         if (videoCaptureDevices.size() > 0)
         {
             String videoDevName
-                = NeomediaActivator.getConfigurationService()
-                        .getString(PROP_VIDEO_DEVICE);
+                = NeomediaActivator.getConfigurationService().getString(
+                        PROP_VIDEO_DEVICE);
 
             if (videoDevName == null)
                 videoCaptureDevice = videoCaptureDevices.get(0);
@@ -393,15 +370,14 @@ public class DeviceConfiguration
                 }
             }
 
-            if (videoCaptureDevice != null)
+            if ((videoCaptureDevice != null) && logger.isInfoEnabled())
             {
-                if (logger.isInfoEnabled())
-                    logger.info(
+                logger.info(
                         "Found "
                             + videoCaptureDevice.getName()
                             + " as a "
                             + format
-                            + " Video Device.");
+                            + " video capture device.");
             }
         }
         return videoCaptureDevice;
@@ -415,88 +391,144 @@ public class DeviceConfiguration
      */
     public CaptureDeviceInfo getAudioCaptureDevice()
     {
-        return audioCaptureDevice;
+        AudioSystem audioSystem = getAudioSystem();
+
+        return (audioSystem == null) ? null : audioSystem.getCaptureDevice();
     }
 
     /**
      * Gets the list of audio capture devices which are available through this
-     * <code>DeviceConfiguration</code>, amongst which is
+     * <tt>DeviceConfiguration</tt>, amongst which is
      * {@link #getAudioCaptureDevice()} and represent acceptable values
      * for {@link #setAudioCaptureDevice(CaptureDeviceInfo, boolean)}
      *
-     * @return an array of <code>CaptureDeviceInfo</code> describing the audio
+     * @return an array of <tt>CaptureDeviceInfo</tt> describing the audio
      *         capture devices available through this
-     *         <code>DeviceConfiguration</code>
+     *         <tt>DeviceConfiguration</tt>
      */
-    public CaptureDeviceInfo[] getAvailableAudioCaptureDevices()
+    public List<CaptureDeviceInfo> getAvailableAudioCaptureDevices()
     {
         @SuppressWarnings("unchecked")
         Vector<CaptureDeviceInfo> audioCaptureDevices
             = CaptureDeviceManager.getDeviceList(
                     new AudioFormat(AudioFormat.LINEAR, -1, 16, -1));
 
-        return audioCaptureDevices.toArray(NO_CAPTURE_DEVICES);
+        return audioCaptureDevices;
     }
 
-    /**
-     * Gets the list of audio capture devices which are available through this
-     * <code>DeviceConfiguration</code>, amongst which is
-     * {@link #getAudioCaptureDevice()} and represent acceptable values
-     * for {@link #setAudioCaptureDevice(CaptureDeviceInfo, boolean)}
-     *
-     * @param soundSystem
-     *         filter capture devices only from the supplied audio system.
-     * @return an array of <code>CaptureDeviceInfo</code> describing the audio
-     *         capture devices available through this
-     *         <code>DeviceConfiguration</code>
-     */
-    public CaptureDeviceInfo[] getAvailableAudioCaptureDevices(
-            String soundSystem)
+    public AudioSystem getAudioSystem()
     {
-        String protocol;
+        return audioSystem;
+    }
 
-        if (soundSystem.equals(AUDIO_SYSTEM_JAVASOUND))
-            protocol = "javasound";
-        else if (soundSystem.equals(AUDIO_SYSTEM_PORTAUDIO))
-            protocol = "portaudio";
+    public AudioSystem[] getAvailableAudioSystems()
+    {
+        AudioSystem[] audioSystems =  AudioSystem.getAudioSystems();
+
+        if ((audioSystems == null) || (audioSystems.length == 0))
+            return audioSystems;
         else
-            return NO_CAPTURE_DEVICES;
+        {
+            List<AudioSystem> audioSystemsWithDevices
+                = new ArrayList<AudioSystem>();
 
-        CaptureDeviceInfo[] cdis = getAvailableAudioCaptureDevices();
-        List<CaptureDeviceInfo> ret
-            = new ArrayList<CaptureDeviceInfo>(cdis.length);
+            for (AudioSystem audioSystem : audioSystems)
+            {
+                if (!NoneAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                        audioSystem.getLocatorProtocol()))
+                {
+                    List<CaptureDeviceInfo> captureDevices
+                        = audioSystem.getCaptureDevices();
 
-        for (CaptureDeviceInfo cdi : cdis)
-            if(protocol.equals(cdi.getLocator().getProtocol()))
-                ret.add(cdi);
+                    if ((captureDevices == null)
+                            || (captureDevices.size() <= 0))
+                    {
+                        if ((AudioSystem.FEATURE_NOTIFY_AND_PLAYBACK_DEVICES
+                                    & audioSystem.getFeatures())
+                                == 0)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            List<CaptureDeviceInfo> notifyDevices
+                                = audioSystem.getNotifyDevices();
 
-        return ret.toArray(NO_CAPTURE_DEVICES);
+                            if ((notifyDevices == null)
+                                    || (notifyDevices.size() <= 0))
+                            {
+                                List<CaptureDeviceInfo> playbackDevices
+                                    = audioSystem.getPlaybackDevices();
+    
+                                if ((playbackDevices == null)
+                                        || (playbackDevices.size() <= 0))
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+                audioSystemsWithDevices.add(audioSystem);
+            }
+
+            int audioSystemsWithDevicesCount = audioSystemsWithDevices.size();
+
+            return
+                (audioSystemsWithDevicesCount == audioSystems.length)
+                    ? audioSystems
+                    : audioSystemsWithDevices.toArray(
+                            new AudioSystem[audioSystemsWithDevicesCount]);
+        }
     }
 
-    /**
-     * Lists all the playback devices. These are only portaudio devices
-     * as we can only set particular device for playback when using portaudio.
-     *
-     * @return the devices that can be used for playback.
-     */
-    public CaptureDeviceInfo[] getAvailableAudioPlaybackDevices()
+    public void setAudioSystem(AudioSystem audioSystem, boolean save)
     {
-        return PortAudioAuto.playbackDevices;
+        if (this.audioSystem != audioSystem)
+        {
+            if (this.audioSystem != null)
+                this.audioSystem.removePropertyChangeListener(this);
+
+            AudioSystem oldValue = this.audioSystem;
+
+            this.audioSystem = audioSystem;
+
+            if (this.audioSystem != null)
+                this.audioSystem.addPropertyChangeListener(this);
+
+            if (save)
+            {
+                ConfigurationService cfg
+                    = NeomediaActivator.getConfigurationService();
+
+                if (cfg != null)
+                {
+                    if (this.audioSystem == null)
+                        cfg.removeProperty(PROP_AUDIO_SYSTEM);
+                    else
+                        cfg.setProperty(
+                                PROP_AUDIO_SYSTEM,
+                                this.audioSystem.getLocatorProtocol());
+                }
+            }
+
+            firePropertyChange(PROP_AUDIO_SYSTEM, oldValue, this.audioSystem);
+        }
     }
 
     /**
      * Gets the list of video capture devices which are available through this
-     * <code>DeviceConfiguration</code>, amongst which is
+     * <tt>DeviceConfiguration</tt>, amongst which is
      * {@link #getVideoCaptureDevice(MediaUseCase)} and represent acceptable
      * values for {@link #setVideoCaptureDevice(CaptureDeviceInfo, boolean)}
      *
      * @param useCase extract video capture devices that correspond to this
      * <tt>MediaUseCase</tt>
-     * @return an array of <code>CaptureDeviceInfo</code> describing the video
+     * @return an array of <tt>CaptureDeviceInfo</tt> describing the video
      *         capture devices available through this
-     *         <code>DeviceConfiguration</code>
+     *         <tt>DeviceConfiguration</tt>
      */
-    public CaptureDeviceInfo[] getAvailableVideoCaptureDevices(
+    public List<CaptureDeviceInfo> getAvailableVideoCaptureDevices(
             MediaUseCase useCase)
     {
         Format[] formats
@@ -507,42 +539,36 @@ public class DeviceConfiguration
                         new VideoFormat(VideoFormat.YUV),
                         new VideoFormat(Constants.H264)
                     };
-        Set<CaptureDeviceInfo> videoCaptureDevices =
-            new HashSet<CaptureDeviceInfo>();
+        Set<CaptureDeviceInfo> videoCaptureDevices
+            = new HashSet<CaptureDeviceInfo>();
 
         for (Format format : formats)
         {
             @SuppressWarnings("unchecked")
-            Vector<CaptureDeviceInfo> captureDeviceInfos
+            Vector<CaptureDeviceInfo> cdis
                 = CaptureDeviceManager.getDeviceList(format);
 
-            if(useCase != MediaUseCase.ANY)
+            if (useCase != MediaUseCase.ANY)
             {
-                for(CaptureDeviceInfo dev : captureDeviceInfos)
+                for (CaptureDeviceInfo cdi : cdis)
                 {
-                    if(useCase == MediaUseCase.CALL &&
-                            !dev.getLocator().getProtocol().equals(
-                                    ImageStreamingAuto.LOCATOR_PROTOCOL))
-                    {
-                        // add only non-desktop capture device
-                        videoCaptureDevices.add(dev);
-                    }
-                    else if(useCase == MediaUseCase.DESKTOP &&
-                            dev.getLocator().getProtocol().equals(
-                                    ImageStreamingAuto.LOCATOR_PROTOCOL))
-                    {
-                        // add only desktop streaming devices
-                        videoCaptureDevices.add(dev);
-                    }
+                    MediaUseCase cdiUseCase
+                        = ImgStreamingSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                                    cdi.getLocator().getProtocol())
+                            ? MediaUseCase.DESKTOP
+                            : MediaUseCase.CALL;
+
+                    if (cdiUseCase.equals(useCase))
+                        videoCaptureDevices.add(cdi);
                 }
             }
             else
             {
-                videoCaptureDevices.addAll(captureDeviceInfos);
+                videoCaptureDevices.addAll(cdis);
             }
         }
 
-        return videoCaptureDevices.toArray(NO_CAPTURE_DEVICES);
+        return new ArrayList<CaptureDeviceInfo>(videoCaptureDevices);
     }
 
     /**
@@ -557,18 +583,18 @@ public class DeviceConfiguration
     {
         CaptureDeviceInfo dev = null;
 
-        switch(useCase)
+        switch (useCase)
         {
         case ANY:
         case CALL:
             dev = videoCaptureDevice;
             break;
         case DESKTOP:
-            CaptureDeviceInfo devs[]
+            List<CaptureDeviceInfo> devs
                 = getAvailableVideoCaptureDevices(MediaUseCase.DESKTOP);
 
-            if (devs.length > 0)
-                dev = devs[0];
+            if (devs.size() > 0)
+                dev = devs.get(0);
             break;
         default:
             break;
@@ -579,10 +605,10 @@ public class DeviceConfiguration
 
     /**
      * Sets the device which is to be used by this
-     * <code>DeviceConfiguration</code> for video capture.
+     * <tt>DeviceConfiguration</tt> for video capture.
      *
-     * @param device a <code>CaptureDeviceInfo</code> describing device to be
-     *            used by this <code>DeviceConfiguration</code> for video
+     * @param device a <tt>CaptureDeviceInfo</tt> describing device to be
+     *            used by this <tt>DeviceConfiguration</tt> for video
      *            capture.
      * @param save whether we will save this option or not.
      */
@@ -594,15 +620,16 @@ public class DeviceConfiguration
 
             videoCaptureDevice = device;
 
-            if(save)
+            if (save)
             {
-                ConfigurationService config
+                ConfigurationService cfg
                     = NeomediaActivator.getConfigurationService();
-                config.setProperty(PROP_VIDEO_DEVICE_IS_DISABLED,
-                    videoCaptureDevice == null);
-                if (videoCaptureDevice != null)
-                    config.setProperty(PROP_VIDEO_DEVICE, videoCaptureDevice
-                        .getName());
+
+                cfg.setProperty(
+                        PROP_VIDEO_DEVICE,
+                        (videoCaptureDevice == null)
+                            ? NoneAudioSystem.LOCATOR_PROTOCOL
+                            : videoCaptureDevice.getName());
             }
 
             firePropertyChange(VIDEO_CAPTURE_DEVICE, oldDevice, device);
@@ -610,332 +637,13 @@ public class DeviceConfiguration
     }
 
     /**
-     * Sets the device which is to be used by this
-     * <code>DeviceConfiguration</code> for audio capture.
-     *
-     * @param device a <code>CaptureDeviceInfo</code> describing the device to
-     *            be used by this <code>DeviceConfiguration</code> for audio
-     *            capture
-     * @param save whether we will save this option or not.
-     */
-    public void setAudioCaptureDevice(CaptureDeviceInfo device, boolean save)
-    {
-        if (audioCaptureDevice != device)
-        {
-            CaptureDeviceInfo oldDevice = audioCaptureDevice;
-
-            audioCaptureDevice = device;
-
-            if(save)
-            {
-                NeomediaActivator.getConfigurationService().setProperty(
-                        PROP_AUDIO_DEVICE,
-                        (audioCaptureDevice == null)
-                                ? AUDIO_NONE
-                                : audioCaptureDevice.getName());
-            }
-
-            firePropertyChange(AUDIO_CAPTURE_DEVICE, oldDevice, device);
-        }
-    }
-
-    /**
-     * Enable or disable Audio stream transmission.
-     *
-     * @return true if audio capture is supported and false otherwise.
-     */
-    public boolean isAudioCaptureSupported()
-    {
-        return this.audioCaptureDevice != null;
-    }
-
-    /**
-     * Enable or disable Video stream transmission.
-     *
-     * @return true if audio capture is supported and false otherwise.
-     */
-    public boolean isVideoCaptureSupported()
-    {
-        return this.videoCaptureDevice != null;
-    }
-
-    /**
-     * Return the installed Audio Systems.
-     * @return the audio systems names.
-     */
-    public String[] getAvailableAudioSystems()
-    {
-        return audioSystems.toArray(new String[0]);
-    }
-
-    /**
-     * Adds audio system.
-     * @param audioSystemName the name of the audio system.
-     */
-    public static void addAudioSystem(String audioSystemName)
-    {
-        audioSystems.add(audioSystemName);
-    }
-
-    /**
-     * The current selected audio system.
-     * @return the name of the current audio system.
-     */
-    public String getAudioSystem()
-    {
-        return audioSystem;
-    }
-
-    /**
-     * Extracts the audio system for the given device info.
-     * @param cdi the device
-     * @return the audio system used by the device.
-     */
-    private String getAudioSystem(CaptureDeviceInfo cdi)
-    {
-        String res = null;
-        // Here we iterate over the available audio systems
-        // to be sure that the audio system
-        // is available and enabled on the system we are running on
-        if(cdi.getLocator().getProtocol().equals("javasound"))
-        {
-            Iterator<String> iter = audioSystems.iterator();
-            while (iter.hasNext())
-            {
-                String asName = iter.next();
-                if(asName.equals(AUDIO_SYSTEM_JAVASOUND))
-                    res = asName;
-            }
-        }
-        else if(cdi.getLocator().getProtocol().equals("portaudio"))
-        {
-            Iterator<String> iter = audioSystems.iterator();
-            while (iter.hasNext())
-            {
-                String asName = iter.next();
-                if(asName.equals(AUDIO_SYSTEM_PORTAUDIO))
-                    res = asName;
-            }
-        }
-        return (res == null) ? AUDIO_NONE : res;
-    }
-
-    /**
-     * Changes the current audio system.
-     * When javasound is selected we also change the capture device.
-     *
-     * @param name the name of the audio system.
-     * @param captureDevice the selected capture device, if is null we will
-     *        choose a default one. Param used when first time initing and
-     *        extracting config.
-     * @param save whether we will save this new option or not.
-     */
-    public void setAudioSystem(String name, CaptureDeviceInfo captureDevice,
-        boolean save)
-    {
-        ConfigurationService config
-            = NeomediaActivator.getConfigurationService();
-
-        audioSystem = name;
-
-        if(name.equals(AUDIO_NONE))
-        {
-            setAudioCaptureDevice(null, save);
-            setAudioNotifyDevice(null, save);
-            setAudioPlaybackDevice(null, save);
-        }
-        else if(name.equals(AUDIO_SYSTEM_JAVASOUND))
-        {
-            // There is only one device for JavaSound. Locate it.
-            if(captureDevice != null)
-                setAudioCaptureDevice(captureDevice, save);
-            else
-            {
-                for (CaptureDeviceInfo captureDeviceInfo
-                        : getAvailableAudioCaptureDevices())
-                {
-                    if(captureDeviceInfo.getLocator().getProtocol().equals(
-                            "javasound"))
-                    {
-                        setAudioCaptureDevice(captureDeviceInfo, save);
-                        break;
-                    }
-                }
-            }
-        }
-        else if(name.equals(AUDIO_SYSTEM_PORTAUDIO))
-        {
-            // first get any config before we change it
-            String audioNotifyDevName
-                = config.getString(PROP_AUDIO_NOTIFY_DEVICE);
-            String audioPlaybackDevName
-                = config.getString(PROP_AUDIO_PLAYBACK_DEVICE);
-
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("Portaudio: Found stored notify device: ["
-                        + audioNotifyDevName + "]");
-                logger.debug("Portaudio: Found stored playback device: ["
-                        + audioPlaybackDevName + "]");
-            }
-
-            // changed to PortAudio, so lets first set the default devices
-            setAudioPlaybackDevice(PortAudioAuto.defaultPlaybackDevice, save);
-            setAudioNotifyDevice(PortAudioAuto.defaultPlaybackDevice, save);
-
-            // capture device is not null when we are called for the
-            // first time, we will also extract playback devices here
-            if(captureDevice != null)
-                this.audioCaptureDevice = captureDevice;
-            else // no capture device specified save default
-                setAudioCaptureDevice(PortAudioAuto.defaultCaptureDevice, save);
-
-            if(audioNotifyDevName != null)
-            {
-                if(audioNotifyDevName.equals(AUDIO_NONE))
-                    setAudioNotifyDevice(null, save);
-                else
-                {
-                    for (CaptureDeviceInfo captureDeviceInfo :
-                            PortAudioAuto.playbackDevices)
-                    {
-                        if (audioNotifyDevName.equals(
-                                captureDeviceInfo.getName()))
-                        {
-                            setAudioNotifyDevice(captureDeviceInfo, save);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if(audioPlaybackDevName != null)
-            {
-                if(audioPlaybackDevName.equals(AUDIO_NONE))
-                    setAudioPlaybackDevice(null, save);
-                else
-                {
-                    for (CaptureDeviceInfo captureDeviceInfo
-                            : PortAudioAuto.playbackDevices)
-                    {
-                        if (audioPlaybackDevName.equals(
-                                captureDeviceInfo.getName()))
-                        {
-                            setAudioPlaybackDevice(captureDeviceInfo, save);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // return here to prevent clearing the last config that was saved
-            return;
-        }
-        else
-        {
-            // not expected behavior
-            logger.error("Unknown audio system! Name:" + name);
-            audioSystem = null;
-        }
-
-        if(save)
-        {
-            config.setProperty(
-                    PROP_AUDIO_DEVICE_IS_DISABLED,
-                    audioCaptureDevice == null);
-        }
-    }
-
-    /**
-     * @return the audioPlaybackDevice
-     */
-    public CaptureDeviceInfo getAudioPlaybackDevice()
-    {
-        return audioPlaybackDevice;
-    }
-
-    /**
      * @return the audioNotifyDevice
      */
     public CaptureDeviceInfo getAudioNotifyDevice()
     {
-        return audioNotifyDevice;
-    }
+        AudioSystem audioSystem = getAudioSystem();
 
-    /**
-     * Set audio playback device.
-     * @param audioPlaybackDevice the audioPlaybackDevice to set.
-     * @param save whether we will save this option or not.
-     */
-    public void setAudioPlaybackDevice(CaptureDeviceInfo audioPlaybackDevice,
-                                       boolean save)
-    {
-        if(this.audioPlaybackDevice != audioPlaybackDevice)
-        {
-            CaptureDeviceInfo oldDev = this.audioPlaybackDevice;
-
-            this.audioPlaybackDevice = audioPlaybackDevice;
-
-            if (this.audioPlaybackDevice != null)
-            {
-                PortAudioRenderer.setDefaultLocator(
-                        this.audioPlaybackDevice.getLocator());
-            }
-
-            if(save)
-            {
-                ConfigurationService config
-                    = NeomediaActivator.getConfigurationService();
-
-                if (audioPlaybackDevice != null)
-                {
-                    config.setProperty(
-                            PROP_AUDIO_PLAYBACK_DEVICE,
-                            audioPlaybackDevice.getName());
-                    config.setProperty(PROP_AUDIO_DEVICE_IS_DISABLED, false);
-                }
-                else
-                    config.setProperty(PROP_AUDIO_PLAYBACK_DEVICE, AUDIO_NONE);
-            }
-
-            firePropertyChange(
-                    AUDIO_PLAYBACK_DEVICE,
-                    oldDev, audioPlaybackDevice);
-        }
-    }
-
-    /**
-     * Sets the notify device.
-     * @param audioNotifyDevice the audioNotifyDevice to set
-     * @param save whether we will save this option or not.
-     */
-    public void setAudioNotifyDevice(CaptureDeviceInfo audioNotifyDevice,
-                                    boolean save)
-    {
-        if(this.audioNotifyDevice != audioNotifyDevice)
-        {
-            CaptureDeviceInfo oldDev = this.audioNotifyDevice;
-
-            this.audioNotifyDevice = audioNotifyDevice;
-
-            if(save)
-            {
-                ConfigurationService config
-                    = NeomediaActivator.getConfigurationService();
-
-                if (audioNotifyDevice != null)
-                {
-                    config.setProperty(
-                            PROP_AUDIO_NOTIFY_DEVICE,
-                            audioNotifyDevice.getName());
-                    config.setProperty(PROP_AUDIO_DEVICE_IS_DISABLED, false);
-                }
-                else
-                    config.setProperty(PROP_AUDIO_NOTIFY_DEVICE, AUDIO_NONE);
-            }
-
-            firePropertyChange(AUDIO_NOTIFY_DEVICE, oldDev, audioNotifyDevice);
-        }
+        return (audioSystem == null) ? null : audioSystem.getNotifyDevice();
     }
 
     /**
@@ -1022,6 +730,13 @@ public class DeviceConfiguration
 
         for (String customRenderer : CUSTOM_RENDERERS)
         {
+            if (customRenderer.startsWith("."))
+            {
+                customRenderer
+                    = "net.java.sip.communicator.impl.neomedia"
+                        + ".jmfext.media.renderer"
+                        + customRenderer;
+            }
             if ((renderers == null) || !renderers.contains(customRenderer))
             {
                 try
@@ -1144,7 +859,7 @@ public class DeviceConfiguration
             frameRate
                 = NeomediaActivator.getConfigurationService().getInt(
                         PROP_VIDEO_FRAMERATE,
-                        DEFAULT_FRAME_RATE);
+                        DEFAULT_VIDEO_FRAMERATE);
         }
         return frameRate;
     }
@@ -1161,7 +876,7 @@ public class DeviceConfiguration
 
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();
 
-        if(frameRate != DEFAULT_FRAME_RATE)
+        if(frameRate != DEFAULT_VIDEO_FRAMERATE)
             cfg.setProperty(PROP_VIDEO_FRAMERATE, frameRate);
         else
             cfg.removeProperty(PROP_VIDEO_FRAMERATE);
@@ -1219,20 +934,40 @@ public class DeviceConfiguration
      * Listens for changes in the configuration and if such happen
      * we reset local values so next time we will update from
      * the configuration.
-     * @param evt the property change event
+     *
+     * @param event the property change event
      */
-    public void propertyChange(PropertyChangeEvent evt)
+    public void propertyChange(PropertyChangeEvent event)
     {
-        if(evt.getPropertyName().equals(PROP_VIDEO_HEIGHT)
-            || evt.getPropertyName().equals(PROP_VIDEO_WIDTH))
+        String propertyName = event.getPropertyName();
+
+        if (AudioSystem.PROP_CAPTURE_DEVICE.equals(propertyName)
+                || AudioSystem.PROP_NOTIFY_DEVICE.equals(propertyName)
+                || AudioSystem.PROP_PLAYBACK_DEVICE.equals(propertyName))
         {
-            videoSize = null;
+            firePropertyChange(
+                    propertyName,
+                    event.getOldValue(),
+                    event.getNewValue());
         }
-        else if(evt.getPropertyName().equals(PROP_VIDEO_FRAMERATE))
+        else if (DeviceSystem.PROP_DEVICES.equals(propertyName))
+        {
+            if (event.getSource() instanceof AudioSystem)
+                firePropertyChange(
+                        PROP_AUDIO_SYSTEM_DEVICES,
+                        event.getOldValue(),
+                        event.getNewValue());
+        }
+        else if (PROP_VIDEO_FRAMERATE.equals(propertyName))
         {
             frameRate = -1;
         }
-        else if(evt.getPropertyName().equals(PROP_VIDEO_MAX_BANDWIDTH))
+        else if (PROP_VIDEO_HEIGHT.equals(propertyName)
+                || PROP_VIDEO_WIDTH.equals(propertyName))
+        {
+            videoSize = null;
+        }
+        else if (PROP_VIDEO_MAX_BANDWIDTH.equals(propertyName))
         {
             videoMaxBandwidth = -1;
         }
@@ -1244,83 +979,61 @@ public class DeviceConfiguration
      */
     private void extractConfiguredAudioCaptureDevices()
     {
-        ConfigurationService config
-            = NeomediaActivator.getConfigurationService();
-
         if (logger.isInfoEnabled())
-            logger.info("Scanning for configured Audio Devices.");
+            logger.info("Looking for configured audio devices.");
 
-        CaptureDeviceInfo[] audioCaptureDevices =
-            getAvailableAudioCaptureDevices();
-        if (config.getBoolean(PROP_AUDIO_DEVICE_IS_DISABLED, false))
-        {
-            audioCaptureDevice = null;
-            audioSystem = AUDIO_NONE;
-        }
-        else if (audioCaptureDevices.length < 1)
-        {
-            logger.warn("No Audio Device was found.");
-            audioCaptureDevice = null;
-            audioSystem = AUDIO_NONE;
-        }
-        else
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("Found " + audioCaptureDevices.length
-                + " capture devices: " + audioCaptureDevices);
+        AudioSystem[] availableAudioSystems = getAvailableAudioSystems();
 
-            String audioDevName = config.getString(PROP_AUDIO_DEVICE);
+        if ((availableAudioSystems != null)
+                && (availableAudioSystems.length != 0))
+        {
+            AudioSystem audioSystem = getAudioSystem();
 
-            if(audioDevName == null || audioDevName.equals(AUDIO_NONE))
+            if (audioSystem != null)
             {
-                // the default behavior if nothing set is to use PortAudio
-                // this will also choose the capture device
-                if(PortAudioAuto.isSupported())
+                boolean audioSystemIsAvailable = false;
+
+                for (AudioSystem availableAudioSystem : availableAudioSystems)
                 {
-                    setAudioSystem(AUDIO_SYSTEM_PORTAUDIO, null, false);
-                    if(AUDIO_NONE.equals(audioDevName))
-                        setAudioCaptureDevice(null, false);
-                }
-                else
-                {
-                    setAudioPlaybackDevice(null, false);
-                    setAudioNotifyDevice(null, false);
-                    if (OSUtils.IS_ANDROID)
-                        setAudioCaptureDevice(audioCaptureDevices[0], false);
-                    else
+                    if (availableAudioSystem.equals(audioSystem))
                     {
-                        setAudioCaptureDevice(null, false);
-                        setAudioSystem(AUDIO_SYSTEM_JAVASOUND, null, false);
-                    }
-                }
-            }
-            else
-            {
-                for (CaptureDeviceInfo captureDeviceInfo : audioCaptureDevices)
-                {
-                    if (audioDevName.equals(captureDeviceInfo.getName()))
-                    {
-                        setAudioSystem(getAudioSystem(captureDeviceInfo),
-                            captureDeviceInfo, false);
+                        audioSystemIsAvailable = true;
                         break;
                     }
                 }
-
-                if(getAudioSystem() == null || !PortAudioAuto.isSupported())
-                {
-                    logger.warn("Computer sound config changed or " +
-                        "there is a problem since last config was saved, " +
-                        "will back to default");
-                    setAudioPlaybackDevice(null, false);
-                    setAudioNotifyDevice(null, false);
-                    setAudioCaptureDevice(null, false);
-                    setAudioSystem(AUDIO_SYSTEM_PORTAUDIO, null, false);
-                }
+                if (!audioSystemIsAvailable)
+                    audioSystem = null;
             }
-            if (audioCaptureDevice != null)
-                if (logger.isInfoEnabled())
-                    logger.info("Found " + audioCaptureDevice.getName()
-                    + " as an audio capture device.");
+
+            if (audioSystem == null)
+            {
+                ConfigurationService cfg
+                    = NeomediaActivator.getConfigurationService();
+
+                if (cfg != null)
+                {
+                    String locatorProtocol = cfg.getString(PROP_AUDIO_SYSTEM);
+
+                    if (locatorProtocol != null)
+                    {
+                        for (AudioSystem availableAudioSystem
+                                : availableAudioSystems)
+                        {
+                            if (locatorProtocol.equalsIgnoreCase(
+                                    availableAudioSystem.getLocatorProtocol()))
+                            {
+                                audioSystem = availableAudioSystem;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (audioSystem == null)
+                    audioSystem = availableAudioSystems[0];
+
+                setAudioSystem(audioSystem, false);
+            }
         }
     }
 
@@ -1330,11 +1043,12 @@ public class DeviceConfiguration
      */
     private void extractConfiguredVideoCaptureDevices()
     {
-        ConfigurationService config
-            = NeomediaActivator.getConfigurationService();
-
-        if (config.getBoolean(PROP_VIDEO_DEVICE_IS_DISABLED, false))
+        if (NoneAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                NeomediaActivator.getConfigurationService().getString(
+                        PROP_VIDEO_DEVICE)))
+        {
             videoCaptureDevice = null;
+        }
         else
         {
             if (logger.isInfoEnabled())
@@ -1356,18 +1070,8 @@ public class DeviceConfiguration
                 if (videoCaptureDevice != null)
                     break;
             }
-            if (videoCaptureDevice == null)
-                if (logger.isInfoEnabled())
-                    logger.info("No Video Device was found.");
+            if ((videoCaptureDevice == null) && logger.isInfoEnabled())
+                logger.info("No Video Device was found.");
         }
-    }
-
-    /**
-     * Callback when PortAudio device changed.
-     */
-    public void deviceChanged()
-    {
-        JmfDeviceDetector.reinitializePortAudio();
-        extractConfiguredAudioCaptureDevices();
     }
 }

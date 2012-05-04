@@ -134,8 +134,8 @@ public class AudioMediaDeviceImpl
                 String protocol = getCaptureDeviceInfoLocatorProtocol();
                 boolean createCaptureDeviceIfNull = true;
 
-                if ("javasound".equalsIgnoreCase(protocol)
-                        || PortAudioAuto.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                if (JavaSoundSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(protocol)
+                        || PortAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
                                 protocol))
                 {
                     captureDevice = superCreateCaptureDevice();
@@ -206,9 +206,9 @@ public class AudioMediaDeviceImpl
         String protocol = getCaptureDeviceInfoLocatorProtocol();
         String className;
 
-        if ("javasound".equalsIgnoreCase(protocol))
+        if (JavaSoundSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(protocol))
             className = "net.sf.fmj.media.renderer.audio.JavaSoundRenderer";
-        else if (PortAudioAuto.LOCATOR_PROTOCOL.equalsIgnoreCase(protocol))
+        else if (PortAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(protocol))
         {
             className
                 = "net.java.sip.communicator.impl.neomedia.jmfext.media"

@@ -12,6 +12,7 @@ import java.awt.*;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
@@ -23,7 +24,8 @@ import net.java.sip.communicator.impl.neomedia.*;
  *
  * @author Sebastien Vincent
  */
-public class ImageStreamingAuto
+public class ImgStreamingSystem
+    extends DeviceSystem
 {
     /**
      * The locator protocol used when creating or parsing
@@ -36,17 +38,26 @@ public class ImageStreamingAuto
      *
      * @throws Exception if problem when adding capture devices
      */
-    public ImageStreamingAuto() throws Exception
+    public ImgStreamingSystem()
+        throws Exception
+    {
+        super(MediaType.VIDEO, LOCATOR_PROTOCOL, FEATURE_REINITIALIZE);
+    }
+
+    protected void doInitialize()
+        throws Exception
     {
         String name = "Desktop Streaming";
-        List<ScreenDevice> screens = NeomediaActivator.getMediaServiceImpl().
-            getAvailableScreenDevices();
+        List<ScreenDevice> screens
+            = NeomediaActivator.getMediaServiceImpl()
+                    .getAvailableScreenDevices();
         int i = 0;
         boolean multipleMonitorOneScreen = false;
         Dimension screenSize = null;
 
-        /* on Linux, multiple monitors may result in only one
-         * X display (:0.0) that combine those monitors
+        /*
+         * On Linux, multiple monitors may result in a single X display (:0.0)
+         * which combines them.
          */
         if(OSUtils.IS_LINUX)
         {
@@ -54,8 +65,10 @@ public class ImageStreamingAuto
 
             for(ScreenDevice screen : screens)
             {
-                size.width += screen.getSize().width;
-                size.height += screen.getSize().height;
+                Dimension s = screen.getSize();
+
+                size.width += s.width;
+                size.height += s.height;
             }
 
             try

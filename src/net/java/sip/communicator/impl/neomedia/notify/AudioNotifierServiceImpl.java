@@ -87,16 +87,18 @@ public class AudioNotifierServiceImpl
 
                 try
                 {
-                    String audioSystem
+                    AudioSystem audioSystem
                         = getDeviceConfiguration().getAudioSystem();
+                    String locatorProtocol
+                        = (audioSystem == null)
+                            ? null
+                            : audioSystem.getLocatorProtocol();
 
-                    if(DeviceConfiguration.AUDIO_SYSTEM_JAVASOUND.equals(
-                            audioSystem))
+                    if("javasound".equals(locatorProtocol))
                     {
                         audioClip = new JMFAudioClipImpl(url, this);
                     }
-                    else if(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO.equals(
-                            audioSystem))
+                    else if("portaudio".equals(locatorProtocol))
                     {
                         audioClip = new PortAudioClipImpl(url, this);
                     }
@@ -175,12 +177,12 @@ public class AudioNotifierServiceImpl
 
     /**
      * Listens for changes in notify device
-     * @param evt the event that notify device has changed.
+     * @param event the event that notify device has changed.
      */
-    public void propertyChange(PropertyChangeEvent evt)
+    public void propertyChange(PropertyChangeEvent event)
     {
-        if(evt.getPropertyName().equals(
-                    DeviceConfiguration.AUDIO_NOTIFY_DEVICE))
+        if (DeviceConfiguration.AUDIO_NOTIFY_DEVICE.equals(
+                event.getPropertyName()))
         {
             audioClips.clear();
         }

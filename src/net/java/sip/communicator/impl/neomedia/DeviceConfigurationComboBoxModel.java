@@ -12,16 +12,14 @@ import javax.media.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.impl.neomedia.portaudio.*;
+import net.java.sip.communicator.service.neomedia.*;
 
 /**
  * @author Lubomir Marinov
  */
 public class DeviceConfigurationComboBoxModel
-    implements ComboBoxModel,
-               PortAudioDeviceChangedCallback
+    implements ComboBoxModel
 {
     /**
      * Encapsulates CaptureDeviceInfo
@@ -65,9 +63,8 @@ public class DeviceConfigurationComboBoxModel
         {
             return
                 (info == null)
-                    ? NeomediaActivator
-                        .getResources()
-                            .getI18NString("impl.media.configform.NO_DEVICE")
+                    ? NeomediaActivator.getResources().getI18NString(
+                            "impl.media.configform.NO_DEVICE")
                     : info.getName();
         }
     }
@@ -97,6 +94,8 @@ public class DeviceConfigurationComboBoxModel
      */
     public static final int AUDIO_NOTIFY = 5;
 
+    private AudioSystem[] audioSystems;
+
     /**
      * The current device configuration.
      */
@@ -108,10 +107,10 @@ public class DeviceConfigurationComboBoxModel
     private CaptureDevice[] devices;
 
     /**
-     * Listener for data changes.
+     * The <tt>ListDataListener</tt>s registered with this instance.
      */
-    private final List<ListDataListener> listeners =
-        new ArrayList<ListDataListener>();
+    private final List<ListDataListener> listeners
+        = new ArrayList<ListDataListener>();
 
     /**
      * The type of the media for this combo.
@@ -124,20 +123,20 @@ public class DeviceConfigurationComboBoxModel
      * @param type the device - audio/video
      */
     public DeviceConfigurationComboBoxModel(
-        DeviceConfiguration deviceConfiguration, int type)
+            DeviceConfiguration deviceConfiguration,
+            int type)
     {
         if (deviceConfiguration == null)
             throw new IllegalArgumentException("deviceConfiguration");
-        if ((type != AUDIO_CAPTURE) && (type != AUDIO_NOTIFY) &&
-            (type != AUDIO_PLAYBACK) &&
-            (type != AUDIO) && (type != VIDEO))
+        if ((type != AUDIO)
+                && (type != AUDIO_CAPTURE)
+                && (type != AUDIO_NOTIFY)
+                && (type != AUDIO_PLAYBACK)
+                && (type != VIDEO))
             throw new IllegalArgumentException("type");
 
         this.deviceConfiguration = deviceConfiguration;
         this.type = type;
-        
-        if (type == AUDIO)
-            PortAudioDeviceChangedCallbacks.addDeviceChangedCallback(this);
     }
 
     public void addListDataListener(ListDataListener listener)
@@ -156,16 +155,28 @@ public class DeviceConfigurationComboBoxModel
      */
     protected void fireContentsChanged(int index0, int index1)
     {
-        ListDataListener[] listeners =
-            this.listeners.toArray(new ListDataListener[this.listeners.size()]);
-        ListDataEvent event =
-            new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, index0,
-                index1);
+        ListDataListener[] listeners
+            = this.listeners.toArray(
+                    new ListDataListener[this.listeners.size()]);
+        ListDataEvent event
+            = new ListDataEvent(
+                    this,
+                    ListDataEvent.CONTENTS_CHANGED,
+                    index0,
+                    index1);
 
         for (ListDataListener listener : listeners)
-        {
             listener.contentsChanged(event);
-        }
+    }
+
+    private AudioSystem[] getAudioSystems()
+    {
+        if (type != AUDIO)
+            throw new IllegalStateException("type");
+
+        if (audioSystems == null)
+            audioSystems = deviceConfiguration.getAvailableAudioSystems();
+        return audioSystems;
     }
 
     /**
@@ -174,37 +185,53 @@ public class DeviceConfigurationComboBoxModel
      */
     private CaptureDevice[] getDevices()
     {
-        if (type != AUDIO && devices != null)
+        if (type == AUDIO)
+            throw new IllegalStateException("type");
+
+        if (devices != null)
             return devices;
 
-        CaptureDeviceInfo[] infos;
+        AudioSystem audioSystem;
+        List<CaptureDeviceInfo> infos;
+
         switch (type)
         {
         case AUDIO_CAPTURE:
-            // supply only portaudio devices, as we are in case specifying
-            // capture devices available only for portaudio
-            infos = deviceConfiguration.getAvailableAudioCaptureDevices(
-                DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
+            audioSystem = deviceConfiguration.getAudioSystem();
+            infos
+                = (audioSystem == null)
+                    ? null
+                    : audioSystem.getCaptureDevices();
             break;
         case AUDIO_NOTIFY:
+            audioSystem = deviceConfiguration.getAudioSystem();
+            infos
+                = (audioSystem == null) ? null : audioSystem.getNotifyDevices();
+            break;
         case AUDIO_PLAYBACK:
-            infos = deviceConfiguration.getAvailableAudioPlaybackDevices();
+            audioSystem = deviceConfiguration.getAudioSystem();
+            infos
+                = (audioSystem == null)
+                    ? null
+                    : audioSystem.getPlaybackDevices();
             break;
         case VIDEO:
-            infos = deviceConfiguration.getAvailableVideoCaptureDevices(
-                    MediaUseCase.CALL);
+            infos
+                = deviceConfiguration.getAvailableVideoCaptureDevices(
+                        MediaUseCase.CALL);
             break;
         default:
             throw new IllegalStateException("type");
         }
 
-        final int deviceCount = infos.length;
+        final int deviceCount = (infos == null) ? 0 : infos.size();
         devices = new CaptureDevice[deviceCount + 1];
-        for (int i = 0; i < deviceCount; i++)
-        {
-            devices[i] = new CaptureDevice(infos[i]);
-        }
+
+        if (deviceCount > 0)
+            for (int i = 0; i < deviceCount; i++)
+                devices[i] = new CaptureDevice(infos.get(i));
         devices[deviceCount] = new CaptureDevice(null);
+
         return devices;
     }
 
@@ -214,17 +241,27 @@ public class DeviceConfigurationComboBoxModel
      */
     private CaptureDevice getSelectedDevice()
     {
+        AudioSystem audioSystem;
         CaptureDeviceInfo info;
+
         switch (type)
         {
         case AUDIO_CAPTURE:
-            info = deviceConfiguration.getAudioCaptureDevice();
+            audioSystem = deviceConfiguration.getAudioSystem();
+            info
+                = (audioSystem == null) ? null : audioSystem.getCaptureDevice();
             break;
         case AUDIO_NOTIFY:
-            info = deviceConfiguration.getAudioNotifyDevice();
+            audioSystem = deviceConfiguration.getAudioSystem();
+            info
+                = (audioSystem == null) ? null : audioSystem.getNotifyDevice();
             break;
         case AUDIO_PLAYBACK:
-            info = deviceConfiguration.getAudioPlaybackDevice();
+            audioSystem = deviceConfiguration.getAudioSystem();
+            info
+                = (audioSystem == null)
+                    ? null
+                    : audioSystem.getPlaybackDevice();
             break;
         case VIDEO:
             info = deviceConfiguration.getVideoCaptureDevice(MediaUseCase.ANY);
@@ -234,36 +271,31 @@ public class DeviceConfigurationComboBoxModel
         }
 
         for (CaptureDevice device : getDevices())
-        {
             if (CaptureDevice.equals(device.info, info))
                 return device;
-        }
-
         return null;
     }
 
     public Object getElementAt(int index)
     {
-        if(type == AUDIO)
-            return deviceConfiguration.getAvailableAudioSystems()[index];
+        if (type == AUDIO)
+            return getAudioSystems()[index];
         else
             return getDevices()[index];
     }
 
     public Object getSelectedItem()
     {
-        if(type == AUDIO)
+        if (type == AUDIO)
             return deviceConfiguration.getAudioSystem();
         else
-        {
             return getSelectedDevice();
-        }
     }
 
     public int getSize()
     {
-        if(type == AUDIO)
-            return deviceConfiguration.getAvailableAudioSystems().length;
+        if (type == AUDIO)
+            return getAudioSystems().length;
         else
             return getDevices().length;
     }
@@ -287,18 +319,27 @@ public class DeviceConfigurationComboBoxModel
             return;
 
         CaptureDevice selectedDevice = getSelectedDevice();
+
         if (selectedDevice != device)
         {
+            AudioSystem audioSystem;
+
             switch (type)
             {
             case AUDIO_CAPTURE:
-                deviceConfiguration.setAudioCaptureDevice(device.info, true);
+                audioSystem = deviceConfiguration.getAudioSystem();
+                if (audioSystem != null)
+                    audioSystem.setCaptureDevice(device.info, true);
                 break;
             case AUDIO_NOTIFY:
-                deviceConfiguration.setAudioNotifyDevice(device.info, true);
+                audioSystem = deviceConfiguration.getAudioSystem();
+                if (audioSystem != null)
+                    audioSystem.setNotifyDevice(device.info, true);
                 break;
             case AUDIO_PLAYBACK:
-                deviceConfiguration.setAudioPlaybackDevice(device.info, true);
+                audioSystem = deviceConfiguration.getAudioSystem();
+                if (audioSystem != null)
+                    audioSystem.setPlaybackDevice(device.info, true);
                 break;
             case VIDEO:
                 deviceConfiguration.setVideoCaptureDevice(device.info, true);
@@ -311,70 +352,17 @@ public class DeviceConfigurationComboBoxModel
 
     public void setSelectedItem(Object item)
     {
-        if(type == AUDIO)
+        if (type == AUDIO)
         {
-            String systemName = (String)item;
+            AudioSystem audioSystem = (AudioSystem) item;
 
-            if(!systemName.equals(deviceConfiguration.getAudioSystem()))
+            if(!audioSystem.equals(deviceConfiguration.getAudioSystem()))
             {
-                deviceConfiguration.setAudioSystem(systemName, null, true);
+                deviceConfiguration.setAudioSystem(audioSystem, true);
                 fireContentsChanged(-1, -1);
             }
         }
         else
             setSelectedDevice((CaptureDevice) item);
-    }
-
-    /**
-     * Reinitialize video devices.
-     */
-    public void reinitVideo()
-    {
-        if(type == VIDEO)
-        {
-            devices = null;
-        }
-    }
-    
-    /**
-     * Reinitializes audio devices.
-     */
-    public void reinitAudio()
-    {
-        if(type == AUDIO)
-        {
-            devices = null;
-            // only for PortAudio
-            if(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO.equals(
-                deviceConfiguration.getAudioSystem()))
-            {
-                deviceConfiguration.setAudioSystem(
-                        DeviceConfiguration.AUDIO_NONE,
-                        null,
-                        false);
-                fireContentsChanged(-1, -1);
-                setSelectedItem(DeviceConfiguration.AUDIO_SYSTEM_PORTAUDIO);
-                fireContentsChanged(-1, -1);
-            }
-        }
-    }
-    
-    /**
-     * Callback when PortAudio device changed.
-     */
-    public void deviceChanged()
-    {
-        if(!SwingUtilities.isEventDispatchThread())
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    deviceChanged();
-                }
-            });
-            return;
-        }   
-        reinitAudio();
     }
 }

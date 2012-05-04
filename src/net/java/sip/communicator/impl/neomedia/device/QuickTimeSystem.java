@@ -12,6 +12,7 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.quicktime.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -19,14 +20,15 @@ import net.java.sip.communicator.util.*;
  *
  * @author Lyubomir Marinov
  */
-public class QuickTimeAuto
+public class QuickTimeSystem
+    extends DeviceSystem
 {
 
     /**
-     * The <tt>Logger</tt> used by the <tt>QuickTimeAuto</tt> class and its
+     * The <tt>Logger</tt> used by the <tt>QuickTimeSystem</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(QuickTimeAuto.class);
+    private static final Logger logger = Logger.getLogger(QuickTimeSystem.class);
 
     /**
      * The protocol of the <tt>MediaLocator</tt>s identifying QuickTime/QTKit
@@ -35,13 +37,19 @@ public class QuickTimeAuto
     public static final String LOCATOR_PROTOCOL = "quicktime";
 
     /**
-     * Initializes a new <tt>QuickTimeAuto</tt> instance which discovers and
+     * Initializes a new <tt>QuickTimeSystem</tt> instance which discovers and
      * registers QuickTime/QTKit capture devices with JMF.
      *
      * @throws Exception if anything goes wrong while discovering and
      * registering QuickTime/QTKit capture defines with JMF
      */
-    public QuickTimeAuto()
+    public QuickTimeSystem()
+        throws Exception
+    {
+        super(MediaType.VIDEO, LOCATOR_PROTOCOL);
+    }
+
+    protected void doInitialize()
         throws Exception
     {
         QTCaptureDevice[] inputDevices
@@ -65,13 +73,15 @@ public class QuickTimeAuto
 
             if(logger.isInfoEnabled())
             {
-                QTFormatDescription[] fs = inputDevice.formatDescriptions();
-                for(QTFormatDescription f : fs)
+                for(QTFormatDescription f : inputDevice.formatDescriptions())
                 {
-                    logger.info("Webcam available resolution for " +
-                        inputDevice.localizedDisplayName()
-                        + ":" + f.sizeForKey(
-                        QTFormatDescription.VideoEncodedPixelsSizeAttribute));
+                    logger.info(
+                            "Webcam available resolution for "
+                                + inputDevice.localizedDisplayName()
+                                + ":"
+                                + f.sizeForKey(
+                                        QTFormatDescription
+                                            .VideoEncodedPixelsSizeAttribute));
                 }
             }
 
