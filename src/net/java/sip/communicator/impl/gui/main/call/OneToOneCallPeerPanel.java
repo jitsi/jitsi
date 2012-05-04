@@ -9,13 +9,12 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List; // disambiguation
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -408,19 +407,17 @@ public class OneToOneCallPeerPanel
                 ImageLoader.MICROPHONE,
                 ImageLoader.MUTE_BUTTON,
                 false, false, false);
-
         remoteLevel = new OutputVolumeControlButton(
                 ImageLoader.HEADPHONE, false, false);
 
         final SoundLevelIndicator localLevelIndicator
-            = new SoundLevelIndicator(  callRenderer,
-                                        SoundLevelChangeEvent.MIN_LEVEL,
-                                        SoundLevelChangeEvent.MAX_LEVEL);
-
+            = new SoundLevelIndicator(
+                    SoundLevelChangeEvent.MIN_LEVEL,
+                    SoundLevelChangeEvent.MAX_LEVEL);
         final SoundLevelIndicator remoteLevelIndicator
-            = new SoundLevelIndicator(  callRenderer,
-                                        SoundLevelChangeEvent.MIN_LEVEL,
-                                        SoundLevelChangeEvent.MAX_LEVEL);
+            = new SoundLevelIndicator(
+                    SoundLevelChangeEvent.MIN_LEVEL,
+                    SoundLevelChangeEvent.MAX_LEVEL);
 
         localLevelPanel.add(localLevel, BorderLayout.WEST);
         localLevelPanel.add(localLevelIndicator, BorderLayout.CENTER);

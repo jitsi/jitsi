@@ -158,9 +158,10 @@ public abstract class BasicConferenceParticipantPanel
         this.renderer = renderer;
         this.isLocalPeer = isLocalPeer;
 
-        soundIndicator = new SoundLevelIndicator(  renderer,
-                                        SoundLevelChangeEvent.MIN_LEVEL,
-                                        SoundLevelChangeEvent.MAX_LEVEL);
+        soundIndicator
+            = new SoundLevelIndicator(
+                    SoundLevelChangeEvent.MIN_LEVEL,
+                    SoundLevelChangeEvent.MAX_LEVEL);
 
         securityStatusLabel = new SecurityStatusLabel();
         securityStatusLabel.setSecurityOff();
