@@ -154,8 +154,9 @@ public class AudioMixer
         if (logger.isTraceEnabled())
         {
             captureDevice
-                = MediaDeviceImpl
-                    .createTracingCaptureDevice(captureDevice, logger);
+                = MediaDeviceImpl.createTracingCaptureDevice(
+                        captureDevice,
+                        logger);
         }
 
         this.captureDevice = captureDevice;
@@ -215,10 +216,11 @@ public class AudioMixer
             if (added)
             {
                 if (logger.isTraceEnabled())
-                    logger
-                        .trace(
+                {
+                    logger.trace(
                             "Added input DataSource with hashCode "
                                 + inputDataSource.hashCode());
+                }
 
                 /*
                  * If the other inputDataSources have already been connected,
@@ -875,11 +877,12 @@ public class AudioMixer
             outputFormat = DEFAULT_OUTPUT_FORMAT;
 
         if (logger.isTraceEnabled())
-            logger
-                .trace(
+        {
+            logger.trace(
                     "Determined outputFormat of AudioMixer"
                         + " from inputDataSources to be "
                         + outputFormat);
+        }
         return outputFormat;
     }
 

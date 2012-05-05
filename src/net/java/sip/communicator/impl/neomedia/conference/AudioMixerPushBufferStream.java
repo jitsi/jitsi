@@ -614,10 +614,9 @@ class AudioMixerPushBufferStream
                 inputBuffer.setOffset(0);
             }
             else
-                throw
-                    new UnsupportedFormatException(
-                            "!Format.getDataType().equals(byte[].class)",
-                            inputStreamFormat);
+                throw new UnsupportedFormatException(
+                        "!Format.getDataType().equals(byte[].class)",
+                        inputStreamFormat);
         }
 
         audioMixer.read(
@@ -679,10 +678,9 @@ class AudioMixerPushBufferStream
                         + inputChannels
                         + " while expected outputFormat channels is "
                         + outputChannels);
-            throw
-                new UnsupportedFormatException(
-                        "AudioFormat.getChannels()",
-                        inputFormat);
+            throw new UnsupportedFormatException(
+                    "AudioFormat.getChannels()",
+                    inputFormat);
         }
 
         // Warn about different sampleRates.
@@ -690,11 +688,13 @@ class AudioMixerPushBufferStream
         double outputSampleRate = outputFormat.getSampleRate();
 
         if (inputSampleRate != outputSampleRate)
+        {
             logger.warn(
                     "Read inputFormat with sampleRate "
                         + inputSampleRate
                         + " while expected outputFormat sampleRate is "
                         + outputSampleRate);
+        }
 
         Object inputData = inputBuffer.getData();
 
@@ -709,11 +709,13 @@ class AudioMixerPushBufferStream
 
             if (logger.isTraceEnabled()
                     && (inputSampleSizeInBits != outputSampleSizeInBits))
+            {
                 logger.trace(
                         "Read inputFormat with sampleSizeInBits "
                             + inputSampleSizeInBits
                             + ". Will convert to sampleSizeInBits "
                             + outputSampleSizeInBits);
+            }
 
             byte[] inputSamples = (byte[]) inputData;
             int outputLength;
@@ -739,10 +741,9 @@ class AudioMixerPushBufferStream
                     case 8:
                     case 24:
                     default:
-                        throw
-                            new UnsupportedFormatException(
-                                    "AudioFormat.getSampleSizeInBits()",
-                                    outputFormat);
+                        throw new UnsupportedFormatException(
+                                "AudioFormat.getSampleSizeInBits()",
+                                outputFormat);
                     }
 
                     outputSamples[i] = sample;
@@ -766,10 +767,9 @@ class AudioMixerPushBufferStream
                     case 8:
                     case 24:
                     default:
-                        throw
-                            new UnsupportedFormatException(
-                                    "AudioFormat.getSampleSizeInBits()",
-                                    outputFormat);
+                        throw new UnsupportedFormatException(
+                                "AudioFormat.getSampleSizeInBits()",
+                                outputFormat);
                     }
 
                     outputSamples[i] = sample;
@@ -778,10 +778,9 @@ class AudioMixerPushBufferStream
             case 8:
             case 24:
             default:
-                throw
-                    new UnsupportedFormatException(
-                            "AudioFormat.getSampleSizeInBits()",
-                            inputFormat);
+                throw new UnsupportedFormatException(
+                        "AudioFormat.getSampleSizeInBits()",
+                        inputFormat);
             }
 
             outputBuffer.setFlags(inputBuffer.getFlags());
@@ -792,12 +791,9 @@ class AudioMixerPushBufferStream
         }
         else
         {
-            throw
-                new UnsupportedFormatException(
-                        "Format.getDataType().equals("
-                            + inputData.getClass()
-                            + ")",
-                        inputFormat);
+            throw new UnsupportedFormatException(
+                    "Format.getDataType().equals(" + inputData.getClass() + ")",
+                    inputFormat);
         }
     }
 
@@ -901,8 +897,8 @@ class AudioMixerPushBufferStream
 
                     inputSamples[i] = samples;
 
-                    if (maxInputSampleCount < sampleCount)
-                        maxInputSampleCount = sampleCount;
+                    if (maxInputSampleCount < samples.length)
+                        maxInputSampleCount = samples.length;
 
                     /*
                      * Convey the timeStamp so that it can be set to the Buffers
@@ -911,8 +907,7 @@ class AudioMixerPushBufferStream
                      * timeStamps, only use the first meaningful timestamp for
                      * now.
                      */
-                    if (inputSampleDesc.getTimeStamp()
-                            == Buffer.TIME_UNKNOWN)
+                    if (inputSampleDesc.getTimeStamp() == Buffer.TIME_UNKNOWN)
                         inputSampleDesc.setTimeStamp(buffer.getTimeStamp());
 
                     continue;
@@ -993,45 +988,47 @@ class AudioMixerPushBufferStream
 
         inputSamples = inputSamples.clone();
 
+        CaptureDevice captureDevice = audioMixer.captureDevice;
         AudioMixingPushBufferDataSource outputDataSource
             = outputStream.getDataSource();
+        boolean outputDataSourceIsSendingDTMF
+            = (captureDevice instanceof AudioMixingPushBufferDataSource)
+                ? outputDataSource.isSendingDTMF()
+                : false;
         boolean outputDataSourceIsMute = outputDataSource.isMute();
 
         for (int i = 0; i < inputSamples.length; i++)
         {
             InputStreamDesc inputStreamDesc = inputStreams[i];
+            DataSource inputDataSource
+                = inputStreamDesc.inputDataSourceDesc.inputDataSource;
 
-            if(audioMixer.captureDevice instanceof
-                    AudioMixingPushBufferDataSource
-                    && inputStreamDesc.inputDataSourceDesc.inputDataSource ==
-                    audioMixer.captureDevice
-                    && outputDataSource.isSendingDTMF())
+            if (outputDataSourceIsSendingDTMF
+                    && (inputDataSource == captureDevice))
             {
                 PushBufferStream inputStream
                     = (PushBufferStream) inputStreamDesc.getInputStream();
                 AudioFormat inputStreamFormat
                     = (AudioFormat) inputStream.getFormat();
 
-                double samplingFrequency = inputStreamFormat.getSampleRate();
+                double sampleRate = inputStreamFormat.getSampleRate();
                 int sampleSizeInBits = inputStreamFormat.getSampleSizeInBits();
 
-                // Generates the inband DTMF signal.
-                inputSamples[i] = outputDataSource.getNextToneSignal(
-                        samplingFrequency,
-                        sampleSizeInBits);
-                if(maxInputSampleCount < inputSamples[i].length)
-                {
+                // Generate the inband DTMF signal.
+                inputSamples[i]
+                    = outputDataSource.getNextToneSignal(
+                            sampleRate,
+                            sampleSizeInBits);
+                if (maxInputSampleCount < inputSamples[i].length)
                     maxInputSampleCount = inputSamples[i].length;
-                }
             }
             else if (outputDataSource.equals(
                         inputStreamDesc.getOutputDataSource())
                     || (outputDataSourceIsMute
-                            && (inputStreamDesc
-                                        .inputDataSourceDesc
-                                            .inputDataSource
-                                    == audioMixer.captureDevice)))
+                            && (inputDataSource == captureDevice)))
+            {
                 inputSamples[i] = null;
+            }
         }
 
         outputStream.setInputSamples(

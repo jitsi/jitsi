@@ -232,10 +232,12 @@ public class AudioMixingPushBufferStream
             int[] inputStreamSamples = inputSamples[0];
 
             if (inputStreamSamples != null)
+            {
                 System.arraycopy(
                         inputStreamSamples, 0,
                         outputSamples, 0,
                         inputStreamSamples.length);
+            }
             return outputSamples;
         }
 
@@ -252,7 +254,6 @@ public class AudioMixingPushBufferStream
 
         for (int[] inputStreamSamples : inputSamples)
         {
-
             if (inputStreamSamples == null)
                 continue;
 
