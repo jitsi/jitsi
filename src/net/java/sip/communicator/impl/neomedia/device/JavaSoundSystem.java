@@ -38,6 +38,12 @@ public class JavaSoundSystem
     }
 
     @Override
+    protected String getRendererClassName()
+    {
+        return "net.sf.fmj.media.renderer.audio.JavaSoundRenderer";
+    }
+
+    @Override
     public String toString()
     {
         return "JavaSound";

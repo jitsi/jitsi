@@ -12,6 +12,7 @@ import javax.media.*;
 import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
+import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
 import net.java.sip.communicator.impl.neomedia.portaudio.*;
 import net.java.sip.communicator.util.*;
 
@@ -56,6 +57,31 @@ public class PortAudioSystem
                     | FEATURE_ECHO_CANCELLATION
                     | FEATURE_NOTIFY_AND_PLAYBACK_DEVICES
                     | FEATURE_REINITIALIZE);
+    }
+
+    @Override
+    public Renderer createRenderer(boolean playback)
+    {
+        MediaLocator locator;
+
+        if (playback)
+            locator = null;
+        else
+        {
+            CaptureDeviceInfo notifyDevice = getNotifyDevice();
+
+            if (notifyDevice == null)
+                return null;
+            else
+                locator = notifyDevice.getLocator();
+        }
+
+        PortAudioRenderer renderer = new PortAudioRenderer(playback);
+
+        if ((renderer != null) && (locator != null))
+            renderer.setLocator(locator);
+
+        return renderer;
     }
 
     protected void doInitialize()

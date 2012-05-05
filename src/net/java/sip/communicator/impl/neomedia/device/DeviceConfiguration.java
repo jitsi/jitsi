@@ -65,6 +65,7 @@ public class DeviceConfiguration
     private static final String[] CUSTOM_RENDERERS
         = new String[]
         {
+            ".audio.PulseAudioRenderer",
             ".audio.PortAudioRenderer",
             ".video.JAWTRenderer"
         };
@@ -757,7 +758,8 @@ public class DeviceConfiguration
                     logger.error(
                             "Failed to register custom Renderer "
                                  + customRenderer
-                                 + " with JMF.");
+                                 + " with JMF.",
+                             t);
                 }
             }
         }

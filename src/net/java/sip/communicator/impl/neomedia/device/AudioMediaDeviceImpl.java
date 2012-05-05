@@ -149,9 +149,7 @@ public class AudioMediaDeviceImpl
                     }
                 }
                 if ((captureDevice == null) && createCaptureDeviceIfNull)
-                {
                     captureDevice = superCreateCaptureDevice();
-                }
             }
             else
                 captureDevice = captureDeviceSharing.createOutputDataSource();
@@ -203,40 +201,27 @@ public class AudioMediaDeviceImpl
     @Override
     Renderer createRenderer()
     {
-        String protocol = getCaptureDeviceInfoLocatorProtocol();
-        String className;
+        Renderer renderer = null;
 
-        if (JavaSoundSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(protocol))
-            className = "net.sf.fmj.media.renderer.audio.JavaSoundRenderer";
-        else if (PortAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(protocol))
+        try
         {
-            className
-                = "net.java.sip.communicator.impl.neomedia.jmfext.media"
-                    + ".renderer.audio.PortAudioRenderer";
-        }
-        else
-            className = null;
+            String locatorProtocol = getCaptureDeviceInfoLocatorProtocol();
 
-        if (className != null)
-        {
-            try
+            if (locatorProtocol != null)
             {
-                return (Renderer) Class.forName(className).newInstance();
-            }
-            catch (Throwable t)
-            {
-                if (t instanceof ThreadDeath)
-                    throw (ThreadDeath) t;
-                else
-                    logger.warn(
-                            "Failed to initialize a new "
-                                + className
-                                + " instance",
-                            t);
+                AudioSystem audioSystem
+                    = AudioSystem.getAudioSystem(locatorProtocol);
+
+                if (audioSystem != null)
+                    renderer = audioSystem.createRenderer(true);
             }
         }
-
-        return super.createRenderer();
+        finally
+        {
+            if (renderer == null)
+                renderer = super.createRenderer();
+        }
+        return renderer;
     }
 
     /**

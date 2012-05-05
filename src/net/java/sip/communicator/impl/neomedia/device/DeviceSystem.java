@@ -110,6 +110,7 @@ public abstract class DeviceSystem
             classNames
                 = new String[]
                 {
+                    ".PulseAudioSystem",
                     ".PortAudioSystem",
                     ".NoneAudioSystem"
                 };
@@ -239,6 +240,34 @@ public abstract class DeviceSystem
         initialize();
     }
 
+    public Renderer createRenderer(boolean playback)
+    {
+        String className = getRendererClassName();
+
+        if (className != null)
+        {
+            try
+            {
+                return (Renderer) Class.forName(className).newInstance();
+            }
+            catch (Throwable t)
+            {
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+                else
+                    logger.warn(
+                            "Failed to initialize a new "
+                                + className
+                                + " instance",
+                            t);
+            }
+        }
+        return null;
+    }
+
+    protected abstract void doInitialize()
+        throws Exception;
+
     public final int getFeatures()
     {
         return features;
@@ -254,8 +283,10 @@ public abstract class DeviceSystem
         return mediaType;
     }
 
-    protected abstract void doInitialize()
-        throws Exception;
+    protected String getRendererClassName()
+    {
+        return null;
+    }
 
     protected final void initialize()
         throws Exception

@@ -22,7 +22,7 @@ import net.java.sip.communicator.service.audionotifier.*;
  *
  * @author Yana Stamcheva
  */
-public class JMFAudioClipImpl
+public class JavaSoundClipImpl
     extends SCAudioClipImpl
     implements ActionListener
                
@@ -43,7 +43,7 @@ public class JMFAudioClipImpl
      * @param audioNotifier the audio notify service
      * @throws IOException cannot audio clip with supplied url.
      */
-    public JMFAudioClipImpl(URL url, AudioNotifierService audioNotifier)
+    public JavaSoundClipImpl(URL url, AudioNotifierService audioNotifier)
         throws IOException
     {
         this.audioClip = createAppletAudioClip(url.openStream());

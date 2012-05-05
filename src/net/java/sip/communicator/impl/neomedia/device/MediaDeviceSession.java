@@ -876,13 +876,20 @@ public class MediaDeviceSession
             Format processorFormat = getProcessorFormat();
             Format format
                 = (this.format == null) ? null : this.format.getFormat();
-            boolean processorFormatEqualsFormat
+            boolean processorFormatMatchesFormat
                 = (processorFormat == null)
                     ? (format == null)
-                    : processorFormat.equals(format);
+                    : processorFormat.matches(format);
 
-            if (!processorFormatEqualsFormat)
-                logger.debug("processorFormat != format");
+            if (!processorFormatMatchesFormat)
+            {
+                logger.debug(
+                        "processorFormat != format; processorFormat= `"
+                            + processorFormat
+                            + "`; format= `"
+                            + format
+                            + "`");
+            }
         }
 
         return format;

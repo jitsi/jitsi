@@ -89,21 +89,17 @@ public class AudioNotifierServiceImpl
                 {
                     AudioSystem audioSystem
                         = getDeviceConfiguration().getAudioSystem();
-                    String locatorProtocol
-                        = (audioSystem == null)
-                            ? null
-                            : audioSystem.getLocatorProtocol();
 
-                    if("javasound".equals(locatorProtocol))
-                    {
-                        audioClip = new JMFAudioClipImpl(url, this);
-                    }
-                    else if("portaudio".equals(locatorProtocol))
-                    {
-                        audioClip = new PortAudioClipImpl(url, this);
-                    }
+                    if (audioSystem == null)
+                        audioClip = new JavaSoundClipImpl(url, this);
+                    else if (NoneAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                            audioSystem.getLocatorProtocol()))
+                        audioClip = null;
                     else
-                        return null;
+                    {
+                        audioClip
+                            = new AudioSystemClipImpl(url, this, audioSystem);
+                    }
                 }
                 catch (Throwable t)
                 {

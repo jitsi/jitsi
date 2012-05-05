@@ -13,32 +13,34 @@ import javax.media.*;
 import javax.sound.sampled.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.audio.speex.*;
-import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
 import net.java.sip.communicator.util.*;
 
 /**
  * Implementation of SCAudioClip using PortAudio.
  *
- * @author Damian Minkov
+ * @author Damyian Minkov
  * @author Lubomir Marinov
  */
-public class PortAudioClipImpl
+public class AudioSystemClipImpl
     extends SCAudioClipImpl
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>PortAudioClipImpl</tt> class and its
-     * instances for logging output.
+     * The <tt>Logger</tt> used by the <tt>AudioSystemClipImpl</tt> class and
+     * its instances for logging output.
      */
     private static final Logger logger
-        = Logger.getLogger(PortAudioClipImpl.class);
+        = Logger.getLogger(AudioSystemClipImpl.class);
 
     private final AudioNotifierServiceImpl audioNotifier;
 
-    private boolean started = false;
+    private final net.java.sip.communicator.impl.neomedia.device.AudioSystem
+        audioSystem;
 
-    private final URL url;
+    private boolean started = false;
     
     private final Object syncObject = new Object();
+
+    private final URL url;
 
     /**
      * Creates the audio clip and initializes the listener used from the
@@ -48,11 +50,16 @@ public class PortAudioClipImpl
      * @param audioNotifier the audio notify service
      * @throws IOException cannot audio clip with supplied URL.
      */
-    public PortAudioClipImpl(URL url, AudioNotifierServiceImpl audioNotifier)
+    public AudioSystemClipImpl(
+            URL url,
+            AudioNotifierServiceImpl audioNotifier,
+            net.java.sip.communicator.impl.neomedia.device.AudioSystem
+                audioSystem)
         throws IOException
     {
-        this.audioNotifier = audioNotifier;
         this.url = url;
+        this.audioNotifier = audioNotifier;
+        this.audioSystem = audioSystem;
     }
 
     /**
@@ -123,7 +130,7 @@ public class PortAudioClipImpl
         Buffer buffer = new Buffer();
         byte[] bufferData = new byte[1024];
         // don't enable volume control for notifications
-        PortAudioRenderer renderer = new PortAudioRenderer(false);
+        Renderer renderer = audioSystem.createRenderer(false);
 
         buffer.setData(bufferData);
         while (started)
@@ -185,26 +192,10 @@ public class PortAudioClipImpl
      * this <tt>SCAudioClipImpl</tt>; otherwise, <tt>false</tt>
      */
     private boolean runOnceInPlayThread(
-            PortAudioRenderer renderer,
+            Renderer renderer,
             Buffer buffer,
             byte[] bufferData)
     {
-        /*
-         * If the user has configured PortAudio to use no notification device,
-         * don't try to play this clip.
-         */
-        CaptureDeviceInfo audioNotifyDeviceInfo
-            = audioNotifier
-                .getDeviceConfiguration().getAudioNotifyDevice();
-        if(audioNotifyDeviceInfo == null)
-            return false;
-
-        MediaLocator rendererLocator = audioNotifyDeviceInfo.getLocator();
-        if (rendererLocator == null)
-            return false;
-
-        renderer.setLocator(rendererLocator);
-
         AudioInputStream audioStream = null;
 
         try

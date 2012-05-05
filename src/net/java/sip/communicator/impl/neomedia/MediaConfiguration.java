@@ -112,7 +112,10 @@ public class MediaConfiguration
 
                     if (comboBox == null)
                     {
-                        cdi = audioSystem.getCaptureDevice();
+                        cdi
+                            = soundLevelIndicator.isShowing()
+                                ? audioSystem.getCaptureDevice()
+                                : null;
                     }
                     else
                     {
