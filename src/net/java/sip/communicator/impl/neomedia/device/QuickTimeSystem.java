@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 import javax.media.*;
 import javax.media.format.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.quicktime.*;
@@ -90,7 +91,8 @@ public class QuickTimeSystem
             if (logger.isDebugEnabled())
                 logger.debug("Added CaptureDeviceInfo " + device);
         }
-        if (captureDeviceInfoIsAdded)
+        if (captureDeviceInfoIsAdded
+                && !NeomediaActivator.isJmfRegistryDisableLoad())
             CaptureDeviceManager.commit();
     }
 }

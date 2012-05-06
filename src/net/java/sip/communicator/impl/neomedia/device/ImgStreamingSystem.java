@@ -118,6 +118,7 @@ public class ImgStreamingSystem
                 break;
         }
 
-        CaptureDeviceManager.commit();
+        if (!NeomediaActivator.isJmfRegistryDisableLoad())
+            CaptureDeviceManager.commit();
     }
 }

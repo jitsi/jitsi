@@ -342,7 +342,7 @@ public abstract class DeviceSystem
                     CaptureDeviceManager.removeDevice(cdi);
                     commit = true;
                 }
-                if (commit)
+                if (commit && !NeomediaActivator.isJmfRegistryDisableLoad())
                 {
                     try
                     {

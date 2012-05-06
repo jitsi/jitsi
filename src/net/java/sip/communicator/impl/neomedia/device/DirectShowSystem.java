@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 
 import javax.media.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.directshow.*;
@@ -104,7 +105,8 @@ public class DirectShowSystem
             captureDeviceInfoIsAdded = true;
         }
 
-        if (captureDeviceInfoIsAdded)
+        if (captureDeviceInfoIsAdded
+                && !NeomediaActivator.isJmfRegistryDisableLoad())
             CaptureDeviceManager.commit();
 
         DSManager.dispose();

@@ -571,7 +571,8 @@ public class EncodingConfiguration
                 PlugInManager.setPlugInList(codecs, PlugInManager.CODEC);
         }
 
-        if (commit)
+        if (commit && !NeomediaActivator.isJmfRegistryDisableLoad())
+        {
             try
             {
                 PlugInManager.commit();
@@ -580,6 +581,7 @@ public class EncodingConfiguration
             {
                 logger.error("Cannot commit to PlugInManager", ex);
             }
+        }
     }
 
     /**

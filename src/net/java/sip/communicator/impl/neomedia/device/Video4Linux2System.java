@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia.device;
 
 import javax.media.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.video4linux2.*;
@@ -124,7 +125,8 @@ public class Video4Linux2System
                 = discoverAndRegister(baseDeviceName + deviceMinorNumber)
                     || captureDeviceInfoIsAdded;
         }
-        if (captureDeviceInfoIsAdded)
+        if (captureDeviceInfoIsAdded
+                && !NeomediaActivator.isJmfRegistryDisableLoad())
             CaptureDeviceManager.commit();
     }
 

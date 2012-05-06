@@ -54,6 +54,13 @@ public class NeomediaActivator
         = "net.java.sip.communicator.impl.neomedia.AUDIO_CONFIG_DISABLED";
 
     /**
+     * The name of the <tt>System</tt> boolean property which specifies whether
+     * the loading of the JMF/FMJ <tt>Registry</tt> is to be disabled. 
+     */
+    private static final String JMF_REGISTRY_DISABLE_LOAD
+        = "net.sf.fmj.utility.JmfRegistry.disableLoad";
+
+    /**
      * Indicates if the video configuration form should be disabled, i.e.
      * not visible to the user.
      */
@@ -120,6 +127,12 @@ public class NeomediaActivator
     private PropertyChangeListener deviceConfigurationPropertyChangeListener;
 
     /**
+     * The indicator which determines whether the loading of the JMF/FMJ
+     * <tt>Registry</tt> is disabled.
+     */
+    private static boolean jmfRegistryDisableLoad;
+
+    /**
      * Sets up FMJ for execution. For example, sets properties which instruct
      * FMJ whether it is to create a log, where the log is to be created.
      */
@@ -136,11 +149,11 @@ public class NeomediaActivator
          * reported that audio input devices duplicate after restarting Jitsi.
          * Besides, Jitsi does not really need .fmj.registry on startup.
          */
-        String jmfRegistryDisableLoad
-            = "net.sf.fmj.utility.JmfRegistry.disableLoad";
-
-        if (System.getProperty(jmfRegistryDisableLoad) == null)
-            System.setProperty(jmfRegistryDisableLoad, "true");
+        if (System.getProperty(JMF_REGISTRY_DISABLE_LOAD) == null)
+            System.setProperty(JMF_REGISTRY_DISABLE_LOAD, "true");
+        jmfRegistryDisableLoad
+            = "true".equalsIgnoreCase(System.getProperty(
+                    JMF_REGISTRY_DISABLE_LOAD));
 
         String scHomeDirLocation
             = System.getProperty(
@@ -544,5 +557,17 @@ public class NeomediaActivator
         if(uiService == null)
             uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
+    }
+
+    /**
+     * Gets the indicator which determines whether the loading of the JMF/FMJ
+     * <tt>Registry</tt> has been disabled.
+     *
+     * @return <tt>true</tt> if the loading of the JMF/FMJ <tt>Registry</tt> has
+     * been disabled; otherwise, <tt>false</tt>
+     */
+    public static boolean isJmfRegistryDisableLoad()
+    {
+        return jmfRegistryDisableLoad;
     }
 }

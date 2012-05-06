@@ -322,7 +322,7 @@ public abstract class AudioSystem
                 CaptureDeviceManager.addDevice(captureDevice);
                 commit = true;
             }
-            if (commit)
+            if (commit && !NeomediaActivator.isJmfRegistryDisableLoad())
             {
                 try
                 {

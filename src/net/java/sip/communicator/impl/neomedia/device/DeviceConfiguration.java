@@ -799,7 +799,7 @@ public class DeviceConfiguration
                 logger.trace("Reordered plug-in list:" + plugins);
         }
 
-        if (commit)
+        if (commit && !NeomediaActivator.isJmfRegistryDisableLoad())
         {
             try
             {
