@@ -180,8 +180,6 @@ public class OneToOneCallPeerPanel
      */
     private final JLabel photoLabel;
 
-    private boolean localVideoVisible = true;
-
     private final UIVideoHandler videoHandler;
 
     /**
@@ -1162,7 +1160,7 @@ public class OneToOneCallPeerPanel
      */
     public boolean isLocalVideoVisible()
     {
-        return localVideoVisible;
+        return videoHandler.isLocalVideoVisible();
     }
 
     /**
