@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.notification;
 
+import java.util.Map;
+
 /**
  * Object to cache fired notifications before all handler implementations are
  * ready registered.
@@ -17,6 +19,7 @@ public class NotificationData
     private final String eventType;
     private final String title;
     private final String message;
+    private final Map<String,String> extra;
     private final byte[] icon;
     private final Object tag;
 
@@ -28,15 +31,17 @@ public class NotificationData
      * @param title the title of the given message
      * @param message the message to use if and where appropriate (e.g. with
      *            systray or log notification.)
+     * @param extra additional data (such as caller information)
      * @param icon the icon to show in the notification if and where appropriate
      * @param tag additional info to be used by the notification handler
      */
     NotificationData(String eventType, String title, String message,
-        byte[] icon, Object tag)
+        Map<String,String> extra, byte[] icon, Object tag)
     {
         this.eventType = eventType;
         this.title = title;
         this.message = message;
+        this.extra = extra;
         this.icon = icon;
         this.tag = tag;
     }
@@ -46,7 +51,7 @@ public class NotificationData
      * 
      * @return the eventType
      */
-    String getEventType()
+    public String getEventType()
     {
         return eventType;
     }
@@ -70,6 +75,16 @@ public class NotificationData
     String getMessage()
     {
         return message;
+    }
+
+    /**
+     * Gets additional data (such as caller information).
+     * 
+     * @return the extra data
+     */
+    public Map<String,String> getExtra()
+    {
+        return extra;
     }
 
     /**

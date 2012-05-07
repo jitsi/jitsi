@@ -574,6 +574,35 @@ public class NotificationManager
     }
 
     /**
+     * Fires a message notification for the given event type through the
+     * <tt>NotificationService</tt>.
+     *
+     * @param eventType the event type for which we fire a notification
+     * @param messageTitle the title of the message
+     * @param message the content of the message
+     * @param extra additional event data for external processing
+     * @return A reference to the fired notification to stop it.
+     */
+    public static NotificationData fireNotification(String eventType,
+                                        String messageTitle,
+                                        String message,
+                                        Map<String,String> extra)
+    {
+        NotificationService notificationService
+            = NotificationWiringActivator.getNotificationService();
+
+        if(notificationService == null)
+            return null;
+
+        return notificationService.fireNotification(eventType,
+                                                    messageTitle,
+                                                    message,
+                                                    extra,
+                                                    null,
+                                                    null);
+    }
+
+    /**
      * Fires a chat message notification for the given event type through the
      * <tt>NotificationService</tt>.
      *
@@ -641,6 +670,7 @@ public class NotificationManager
         notificationService.fireNotification(   eventType,
                                                 messageTitle,
                                                 message,
+                                                null,
                                                 contactIcon,
                                                 chatContact);
 
@@ -969,7 +999,8 @@ public class NotificationManager
 
     /**
      * Implements CallListener.incomingCallReceived. When a call is received
-     * plays the ring phone sound to the user.
+     * plays the ring phone sound to the user and gathers caller information
+     * that may be used by a user-specified command (incomingCall event trigger).
      * @param event the <tt>CallEvent</tt>
      */
     public void incomingCallReceived(CallEvent event)
@@ -977,8 +1008,14 @@ public class NotificationManager
         try
         {
             Call call = event.getSourceCall();
-            String peerName = event.getSourceCall()
-                .getCallPeers().next().getDisplayName();
+            CallPeer firstPeer = call.getCallPeers().next();
+            String peerName = firstPeer.getDisplayName();
+
+            Map<String,String> peerInfo = new HashMap<String, String>();
+            peerInfo.put("caller.uri", firstPeer.getURI());
+            peerInfo.put("caller.address", firstPeer.getAddress());
+            peerInfo.put("caller.name", firstPeer.getDisplayName());
+            peerInfo.put("caller.id", firstPeer.getPeerID());
 
             callNotifications.put(event.getSourceCall(),
                 fireNotification(
@@ -986,7 +1023,8 @@ public class NotificationManager
                     "",
                     NotificationWiringActivator.getResources()
                             .getI18NString("service.gui.INCOMING_CALL",
-                                    new String[]{peerName})));
+                                    new String[]{peerName}),
+                    peerInfo));
 
             call.addCallChangeListener(this);
 

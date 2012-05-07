@@ -386,7 +386,9 @@ class NotificationServiceImpl
             else if (actionType.equals(ACTION_COMMAND))
             {
                 ((CommandNotificationHandler) handler)
-                    .execute((CommandNotificationAction) action);
+                    .execute(
+                        (CommandNotificationAction)action,
+                        data.getExtra());
             }
         }
     }
@@ -415,12 +417,46 @@ class NotificationServiceImpl
         byte[] icon,
         Object tag)
     {
+        return fireNotification(eventType,
+                                title,
+                                message,
+                                null,
+                                icon,
+                                tag);
+    }
+
+    /**
+     * If there is a registered event notification of the given
+     * <tt>eventType</tt> and the event notification is currently activated, the
+     * list of registered actions is executed.
+     * 
+     * @param eventType the type of the event that we'd like to fire a
+     *            notification for.
+     * @param title the title of the given message
+     * @param message the message to use if and where appropriate (e.g. with
+     *            systray or log notification.)
+     * @param extra the extra data to pass (especially for Command execution)
+     * @param icon the icon to show in the notification if and where appropriate
+     * @param tag additional info to be used by the notification handler
+     * 
+     * @return An object referencing the notification. It may be used to stop a
+     *         still running notification. Can be null if the eventType is
+     *         unknown or the notification is not active.
+     */
+    public NotificationData fireNotification(
+        String eventType,
+        String title,
+        String message,
+        Map<String,String> extra,
+        byte[] icon,
+        Object tag)
+    {
         Notification notification = notifications.get(eventType);
         if(notification == null || !notification.isActive())
             return null;
 
         NotificationData data = new NotificationData(eventType, title,
-            message, icon, tag);
+            message, extra, icon, tag);
 
         //cache the notification when the handlers are not yet ready
         if (notificationCache != null)
@@ -445,7 +481,7 @@ class NotificationServiceImpl
      */
     public NotificationData fireNotification(String eventType)
     {
-        return this.fireNotification(eventType, null, null, null, null);
+        return this.fireNotification(eventType, null, null, null, null, null);
     }
 
     /**

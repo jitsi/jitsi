@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.notification;
 
 import java.io.*;
+import java.util.*;
 
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.*;
@@ -35,15 +36,32 @@ public class CommandNotificationHandlerImpl
      * action.
      * 
      * @param action the action to act upon.
+     * @param cmdargs command-line arguments.
      */
-    public void execute(CommandNotificationAction action)
+    public void execute(CommandNotificationAction action,
+        Map<String,String> cmdargs)
     {
         if(StringUtils.isNullOrEmpty(action.getDescriptor(), true))
             return;
 
+        String actionDescriptor = action.getDescriptor();
+        if (cmdargs != null)
+        {
+            for (Map.Entry<String, String> entry : cmdargs.entrySet())
+            {
+                if(actionDescriptor.indexOf("${" + entry.getKey() + "}") != -1)
+                {
+                    actionDescriptor = actionDescriptor.replace(
+                        "${" + entry.getKey() + "}",
+                        entry.getValue()
+                    );
+                }
+            }
+        }
+
         try
         {
-            Runtime.getRuntime().exec(action.getDescriptor());
+            Runtime.getRuntime().exec(actionDescriptor);
         }
         catch (IOException e)
         {

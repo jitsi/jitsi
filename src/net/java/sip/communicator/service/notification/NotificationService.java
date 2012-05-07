@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.notification;
 
+import java.util.*;
+
 /**
  * This service is previewed for use by bundles that implement some kind of
  * user notification (e.g. playing sounds, poping systray tooltips, or
@@ -249,6 +251,34 @@ public interface NotificationService
     public NotificationData fireNotification(   String eventType,
                                     String messageTitle,
                                     String message,
+                                    byte[] icon,
+                                    Object tag);
+
+    /**
+     * Fires all notifications registered for the specified <tt>eventType</tt>
+     * using <tt>message</tt> as a notification message wherever appropriate
+     * (e.g. systray notifications, logs, etc.)
+     * <p>
+     * This method does nothing if the given <tt>eventType</tt> is not contained
+     * in the list of registered event types.
+     *
+     * @param eventType the type of the event that we'd like to fire a
+     *            notification for.
+     * @param messageTitle the message title to use if and where appropriate
+     *            (e.g. with systray)
+     * @param message the message to use if and where appropriate (e.g. with
+     *            systray or log notification.)
+     * @param extra the extra data to pass (especially for Command execution)
+     * @param icon the icon to show in the notification if and where appropriate
+     * @param tag additional info to be used by the notification handler
+     * @return An object referencing the notification. It may be used to stop a
+     *         still running notification. Can be null if the eventType is
+     *         unknown or the notification is not active.
+     */
+    public NotificationData fireNotification(   String eventType,
+                                    String messageTitle,
+                                    String message,
+                                    Map<String,String> extra,
                                     byte[] icon,
                                     Object tag);
 
