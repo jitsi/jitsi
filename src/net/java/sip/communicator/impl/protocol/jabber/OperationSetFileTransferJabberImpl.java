@@ -124,10 +124,13 @@ public class OperationSetFileTransferJabberImpl
 
             // Find the jid of the contact which support file transfer
             // and is with highest priority if more than one found
+            // if we have equals priorities
+            // choose the one that is more available
             Iterator<Presence> iter = jabberProvider.getConnection().getRoster()
                 .getPresences(toContact.getAddress());
             int bestPriority = -1;
             String fullJid = null;
+            PresenceStatus jabberStatus = null;
 
             while(iter.hasNext())
             {
@@ -146,6 +149,21 @@ public class OperationSetFileTransferJabberImpl
                     {
                         bestPriority = priority;
                         fullJid = presence.getFrom();
+                        jabberStatus = OperationSetPersistentPresenceJabberImpl
+                            .jabberStatusToPresenceStatus(
+                                presence, jabberProvider);
+                    }
+                    else if(priority == bestPriority && jabberStatus != null)
+                    {
+                        PresenceStatus tempStatus =
+                            OperationSetPersistentPresenceJabberImpl
+                               .jabberStatusToPresenceStatus(
+                                   presence, jabberProvider);
+                        if(tempStatus.compareTo(jabberStatus) > 0)
+                        {
+                            fullJid = presence.getFrom();
+                            jabberStatus = tempStatus;
+                        }
                     }
                 }
             }

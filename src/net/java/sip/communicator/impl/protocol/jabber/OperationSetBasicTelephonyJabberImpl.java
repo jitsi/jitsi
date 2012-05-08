@@ -343,9 +343,11 @@ public class OperationSetBasicTelephonyJabberImpl
         String calleeURI = null;
         boolean isGingle = false;
         String gingleURI = null;
+        PresenceStatus jabberStatus = null;
 
         // Choose the resource which has the highest priority AND supports
-        // Jingle.
+        // Jingle, if we have two resources with same priority take
+        // the most available.
         while(it.hasNext())
         {
             Presence presence = it.next();
@@ -380,16 +382,52 @@ public class OperationSetBasicTelephonyJabberImpl
                     di = discoverInfo;
                     fullCalleeURI = calleeURI;
                     isGingle = false;
+                    jabberStatus = OperationSetPersistentPresenceJabberImpl
+                        .jabberStatusToPresenceStatus(
+                                presence, protocolProvider);
+                }
+                else if(priority == bestPriority && jabberStatus != null)
+                {
+                    PresenceStatus tempStatus =
+                        OperationSetPersistentPresenceJabberImpl
+                           .jabberStatusToPresenceStatus(
+                               presence, protocolProvider);
+                    if(tempStatus.compareTo(jabberStatus) > 0)
+                    {
+                        di = discoverInfo;
+                        fullCalleeURI = calleeURI;
+                        isGingle = false;
+                        jabberStatus = tempStatus;
+                    }
                 }
             }
             else if (protocolProvider.isGTalkTesting() /* test GTALK property */
                     /* see if peer supports Google Talk voice */
-                    && (hasGtalkCaps || alwaysCallGtalk)
-                    && (priority > bestPriority))
+                    && (hasGtalkCaps || alwaysCallGtalk))
             {
-                bestPriority = priority;
-                isGingle = true;
-                gingleURI = calleeURI;
+                if(priority > bestPriority)
+                {
+                    bestPriority = priority;
+                    isGingle = true;
+                    gingleURI = calleeURI;
+                    jabberStatus =OperationSetPersistentPresenceJabberImpl
+                        .jabberStatusToPresenceStatus(presence, protocolProvider);
+                }
+                else if(priority == bestPriority && jabberStatus != null)
+                {
+                    PresenceStatus tempStatus =
+                        OperationSetPersistentPresenceJabberImpl
+                           .jabberStatusToPresenceStatus(
+                               presence, protocolProvider);
+                    if(tempStatus.compareTo(jabberStatus) > 0)
+                    {
+                        isGingle = true;
+                        gingleURI = calleeURI;
+                        jabberStatus =OperationSetPersistentPresenceJabberImpl
+                            .jabberStatusToPresenceStatus(
+                                presence, protocolProvider);
+                    }
+                }
             }
         }
 
