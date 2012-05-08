@@ -26,6 +26,8 @@ public class PulseAudioRenderer
      */
     private static final String PLUGIN_NAME = "PulseAudio Renderer";
 
+    private static final boolean SOFTWARE_GAIN = false;
+
     private static final Format[] SUPPORTED_INPUT_FORMATS
         = new Format[]
         {
@@ -41,7 +43,17 @@ public class PulseAudioRenderer
                     Format.byteArray)
         };
 
+    private int channels;
+
     private boolean corked = true;
+
+    private long cvolume;
+
+    private final GainControl gainControl;
+
+    private float gainControlLevel;
+
+    private MediaLocator locator;
 
     private final String mediaRole;
 
@@ -72,7 +84,18 @@ public class PulseAudioRenderer
         if (pulseAudioSystem == null)
             throw new IllegalStateException("pulseAudioSystem");
 
-        this.mediaRole = (mediaRole == null) ? "phone" : mediaRole;
+        this.mediaRole
+            = (mediaRole == null)
+                ? PulseAudioSystem.MEDIA_ROLE_PHONE
+                : mediaRole;
+
+        gainControl
+            = PulseAudioSystem.MEDIA_ROLE_PHONE.equals(this.mediaRole)
+                ? (GainControl)
+                    NeomediaActivator
+                        .getMediaServiceImpl()
+                            .getOutputVolumeControl()
+                : null;
     }
 
     public void close()
@@ -90,10 +113,17 @@ public class PulseAudioRenderer
                 }
                 finally
                 {
+                    long cvolume = this.cvolume;
+
+                    this.cvolume = 0;
                     this.stream = 0;
+
                     corked = true;
+
                     pulseAudioSystem.signalMainloop(false);
-    
+
+                    if (cvolume != 0)
+                        PA.cvolume_free(cvolume);
                     PA.stream_disconnect(stream);
                     PA.stream_unref(stream);
                 }
@@ -120,6 +150,37 @@ public class PulseAudioRenderer
         {
             pulseAudioSystem.signalMainloop(false);
         }
+    }
+
+    public MediaLocator getLocator()
+    {
+        MediaLocator locator = this.locator;
+
+        if (locator == null)
+        {
+            CaptureDeviceInfo playbackDevice
+                = pulseAudioSystem.getPlaybackDevice();
+
+            if (playbackDevice != null)
+                locator = playbackDevice.getLocator();
+        }
+        return locator;
+    }
+
+    private String getLocatorDev()
+    {
+        MediaLocator locator = getLocator();
+        String locatorDev;
+
+        if (locator == null)
+            locatorDev = null;
+        else
+        {
+            locatorDev = locator.getRemainder();
+            if ((locatorDev != null) && (locatorDev.length() <= 0))
+                locatorDev = null;
+        }
+        return locatorDev;
     }
 
     public String getName()
@@ -177,6 +238,7 @@ public class PulseAudioRenderer
                         channels,
                         getClass().getName(),
                         mediaRole);
+            this.channels = channels;
         }
         catch (IllegalStateException ise)
         {
@@ -229,7 +291,7 @@ public class PulseAudioRenderer
                         stateCallback);
                 PA.stream_connect_playback(
                         stream,
-                        null,
+                        getLocatorDev(),
                         attr,
                         PA.STREAM_ADJUST_LATENCY
                             | PA.STREAM_START_CORKED,
@@ -255,6 +317,30 @@ public class PulseAudioRenderer
                     PA.stream_set_write_callback(
                             stream,
                             writeCallback);
+
+                    if (!SOFTWARE_GAIN && (gainControl != null))
+                    {
+                        cvolume = PA.cvolume_new();
+
+                        boolean freeCvolume = true;
+
+                        try
+                        {
+                            float gainControlLevel = gainControl.getLevel();
+
+                            setStreamVolume(stream, gainControlLevel);
+                            this.gainControlLevel = gainControlLevel;
+                            freeCvolume = false;
+                        }
+                        finally
+                        {
+                            if (freeCvolume)
+                            {
+                                PA.cvolume_free(cvolume);
+                                cvolume = 0;
+                            }
+                        }
+                    }
 
                     this.stream = stream;
                 }
@@ -316,14 +402,40 @@ public class PulseAudioRenderer
         }
         else
         {
+            byte[] data = (byte[]) buffer.getData();
             int offset = buffer.getOffset();
             int length = buffer.getLength();
+
+            if (length < writableSize)
+                writableSize = length;
+
+            if (gainControl != null)
+            {
+                if (SOFTWARE_GAIN || (cvolume == 0))
+                {
+                    if (length > 0)
+                    {
+                        AbstractVolumeControl.applyGain(
+                                gainControl,
+                                data, offset, writableSize);
+                    }
+                }
+                else
+                {
+                    float gainControlLevel = gainControl.getLevel();
+
+                    if (this.gainControlLevel != gainControlLevel)
+                    {
+                        this.gainControlLevel = gainControlLevel;
+                        setStreamVolume(stream, gainControlLevel);
+                    }
+                }
+            }
+
             int writtenSize
                 = PA.stream_write(
                         stream,
-                        (byte[]) buffer.getData(),
-                        offset,
-                        (length < writableSize) ? length : writableSize,
+                        data, offset, writableSize,
                         null,
                         0,
                         PA.SEEK_RELATIVE);
@@ -339,6 +451,38 @@ public class PulseAudioRenderer
         }
 
         return ret;
+    }
+
+    public void setLocator(MediaLocator locator)
+    {
+        if (this.locator == null)
+        {
+            if (locator == null)
+                return;
+        }
+        else if (this.locator.equals(locator))
+            return;
+
+        this.locator = locator;
+    }
+
+    private void setStreamVolume(long stream, float level)
+    {
+        int volume
+            = PA.sw_volume_from_linear(
+                    level * (AbstractVolumeControl.MAX_VOLUME_PERCENT / 100));
+
+        PA.cvolume_set(cvolume, channels, volume);
+
+        long o
+            = PA.context_set_sink_input_volume(
+                    pulseAudioSystem.getContext(),
+                    PA.stream_get_index(stream),
+                    cvolume,
+                    null);
+
+        if (o != 0)
+            PA.operation_unref(o);
     }
 
     public void start()

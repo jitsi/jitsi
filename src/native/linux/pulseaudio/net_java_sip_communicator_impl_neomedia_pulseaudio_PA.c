@@ -10,6 +10,9 @@
 #include <stdint.h>
 
 static void PulseAudio_contextStateCallback(pa_context *c, void *userdata);
+static jlongArray PulseAudio_getFormatInfos(JNIEnv *env, jclass clazz, jsize length, pa_format_info **formats);
+static void PulseAudio_infoCallback(pa_context *c, jlong i, int eol, void *userdata, jmethodID methodID);
+static void PulseAudio_sinkInfoCallback(pa_context *c, const pa_sink_info *i, int eol, void *userdata);
 static void PulseAudio_sourceInfoCallback(pa_context *c, const pa_source_info *i, int eol, void *userdata);
 static void PulseAudio_stateCallback(void *userdata);
 static void PulseAudio_streamRequestCallback(pa_stream *s, size_t nbytes, void *userdata);
@@ -17,6 +20,8 @@ static void PulseAudio_streamStateCallback(pa_stream *s, void *userdata);
 
 static jclass PulseAudio_runnableClass = NULL;
 static jmethodID PulseAudio_runnableMethodID = 0;
+static jclass PulseAudio_sinkInfoCbClass = NULL;
+static jmethodID PulseAudio_sinkInfoCbMethodID = 0;
 static jclass PulseAudio_sourceInfoCbClass = NULL;
 static jmethodID PulseAudio_sourceInfoCbMethodID = 0;
 static jclass PulseAudio_streamRequestCbClass = NULL;
@@ -81,6 +86,27 @@ Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1disconnect
 }
 
 JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1get_1sink_1info_1list
+    (JNIEnv *env, jclass clazz, jlong c, jobject cb)
+{
+    jweak weakCb = cb ? (*env)->NewWeakGlobalRef(env, cb) : NULL;
+    pa_operation *o;
+
+    if ((*env)->ExceptionCheck(env))
+        o = NULL;
+    else
+    {
+        o
+            = pa_context_get_sink_info_list(
+                    (pa_context *) (intptr_t) c,
+                    weakCb ? PulseAudio_sinkInfoCallback : NULL,
+                    (void *) weakCb);
+    }
+
+    return (intptr_t) o;
+}
+
+JNIEXPORT jlong JNICALL
 Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1get_1source_1info_1list
     (JNIEnv *env, jclass clazz, jlong c, jobject cb)
 {
@@ -133,6 +159,34 @@ Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1new_1with_1p
     return (intptr_t) ret;
 }
 
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1set_1sink_1input_1volume
+    (JNIEnv *env, jclass clazz, jlong c, jint idx, jlong volume, jobject cb)
+{
+    return
+        (intptr_t)
+            pa_context_set_sink_input_volume(
+                    (pa_context *) (intptr_t) c,
+                    (uint32_t) idx,
+                    (const pa_cvolume *) (intptr_t) volume,
+                    NULL,
+                    NULL);
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1set_1source_1output_1volume
+    (JNIEnv *env, jclass clazz, jlong c, jint idx, jlong volume, jobject cb)
+{
+    return
+        (intptr_t)
+            pa_context_set_source_output_volume(
+                    (pa_context *) (intptr_t) c,
+                    (uint32_t) idx,
+                    (const pa_cvolume *) (intptr_t) volume,
+                    NULL,
+                    NULL);
+}
+
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1set_1state_1callback
     (JNIEnv *env, jclass clazz, jlong c, jobject cb)
@@ -150,6 +204,36 @@ Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1unref
     (JNIEnv *env, jclass clazz, jlong c)
 {
     pa_context_unref((pa_context *) (intptr_t) c);
+}
+
+JNIEXPORT void JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_cvolume_1free
+    (JNIEnv *env, jclass clazz, jlong cv)
+{
+    pa_xfree((void *) (intptr_t) cv);
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_cvolume_1new
+    (JNIEnv *env, jclass clazz)
+{
+    pa_cvolume *cv = pa_xmalloc(sizeof(pa_cvolume));
+
+    if (cv)
+        cv = pa_cvolume_init(cv);
+    return (intptr_t) cv;
+}
+
+JNIEXPORT jlong JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_cvolume_1set
+    (JNIEnv *env, jclass clazz, jlong cv, jint channels, jint v)
+{
+    return
+        (intptr_t)
+            pa_cvolume_set(
+                    (pa_cvolume *) (intptr_t) cv,
+                    (unsigned) channels,
+                    (pa_volume_t) v);
 }
 
 JNIEXPORT jint JNICALL
@@ -284,6 +368,82 @@ Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sample_1spec_1new
 }
 
 JNIEXPORT jstring JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1description
+    (JNIEnv *env, jclass clazz, jlong i)
+{
+    const char *description = ((pa_sink_info *) (intptr_t) i)->description;
+
+    return description ? (*env)->NewStringUTF(env, description) : NULL;
+}
+
+JNIEXPORT jlongArray JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1formats
+    (JNIEnv *env, jclass clazz, jlong i)
+{
+    pa_sink_info *sinkInfo = (pa_sink_info *) (intptr_t) i;
+
+    return
+        PulseAudio_getFormatInfos(
+                env, clazz,
+                sinkInfo->n_formats, sinkInfo->formats);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1index
+    (JNIEnv *env, jclass clazz, jlong i)
+{
+    return ((pa_sink_info *) (intptr_t) i)->index;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1monitor_1source
+    (JNIEnv *env, jclass clazz, jlong i)
+{
+    return ((pa_sink_info *) (intptr_t) i)->monitor_source;
+}
+
+JNIEXPORT jstring JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1monitor_1source_1name
+    (JNIEnv *env, jclass clazz, jlong i)
+{
+    const char *monitorSourceName
+        = ((pa_sink_info *) (intptr_t) i)->monitor_source_name;
+
+    return
+        monitorSourceName ? (*env)->NewStringUTF(env, monitorSourceName) : NULL;
+}
+
+JNIEXPORT jstring JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1name
+    (JNIEnv *env, jclass clazz, jlong i)
+{
+    const char *name = ((pa_sink_info *) (intptr_t) i)->name;
+
+    return name ? (*env)->NewStringUTF(env, name) : NULL;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1sample_1spec_1channels
+    (JNIEnv *env, jclass clazz, jlong i)
+{
+    return ((pa_sink_info *) (intptr_t) i)->sample_spec.channels;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1sample_1spec_1format
+    (JNIEnv *env, jclass clazz, jlong i)
+{
+    return ((pa_sink_info *) (intptr_t) i)->sample_spec.format;
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1sample_1spec_1rate
+    (JNIEnv *env, jclass clazz, jlong i)
+{
+    return ((pa_sink_info *) (intptr_t) i)->sample_spec.rate;
+}
+
+JNIEXPORT jstring JNICALL
 Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_source_1info_1get_1description
     (JNIEnv *env, jclass clazz, jlong i)
 {
@@ -297,22 +457,11 @@ Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_source_1info_1get_1fo
     (JNIEnv *env, jclass clazz, jlong i)
 {
     pa_source_info *sourceInfo = (pa_source_info *) (intptr_t) i;
-    jsize length = sourceInfo->n_formats;
-    jlongArray ret = (*env)->NewLongArray(env, length);
 
-    if (ret)
-    {
-        jsize i;
-        pa_format_info **formats = sourceInfo->formats;
-
-        for (i = 0; i < length; i++, formats++)
-        {
-            jlong format = (intptr_t) (*formats);
-
-            (*env)->SetLongArrayRegion(env, ret, i, 1, &format);
-        }
-    }
-    return ret;
+    return
+        PulseAudio_getFormatInfos(
+                env, clazz,
+                sourceInfo->n_formats, sourceInfo->formats);
 }
 
 JNIEXPORT jint JNICALL
@@ -340,23 +489,23 @@ Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_source_1info_1get_1na
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_source_1info_1get_1sample_1spec_1channels
-    (JNIEnv *env, jclass clazz, jlong f)
+    (JNIEnv *env, jclass clazz, jlong i)
 {
-    return ((pa_source_info *) (intptr_t) f)->sample_spec.channels;
+    return ((pa_source_info *) (intptr_t) i)->sample_spec.channels;
 }
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_source_1info_1get_1sample_1spec_1format
-    (JNIEnv *env, jclass clazz, jlong f)
+    (JNIEnv *env, jclass clazz, jlong i)
 {
-    return ((pa_source_info *) (intptr_t) f)->sample_spec.format;
+    return ((pa_source_info *) (intptr_t) i)->sample_spec.format;
 }
 
 JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_source_1info_1get_1sample_1spec_1rate
-    (JNIEnv *env, jclass clazz, jlong f)
+    (JNIEnv *env, jclass clazz, jlong i)
 {
-    return ((pa_source_info *) (intptr_t) f)->sample_spec.rate;
+    return ((pa_source_info *) (intptr_t) i)->sample_spec.rate;
 }
 
 JNIEXPORT jint
@@ -426,6 +575,13 @@ Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_stream_1drop
     (JNIEnv *env, jclass clazz, jlong s)
 {
     return pa_stream_drop((pa_stream *) (intptr_t) s);
+}
+
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_stream_1get_1index
+    (JNIEnv *env, jclass clazz, jlong s)
+{
+    return pa_stream_get_index((pa_stream *) (intptr_t) s);
 }
 
 JNIEXPORT jint JNICALL
@@ -589,6 +745,13 @@ Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_stream_1write
     return ret;
 }
 
+JNIEXPORT jint JNICALL
+Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sw_1volume_1from_1linear
+    (JNIEnv *env, jclass clazz, jdouble v)
+{
+    return pa_sw_volume_from_linear(v);
+}
+
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_threaded_1mainloop_1free
     (JNIEnv *env, jclass clazz, jlong m)
@@ -686,6 +849,29 @@ JNI_OnLoad(JavaVM *vm, void *reserved)
             clazz
                 = (*env)->FindClass(
                         env,
+                        "net/java/sip/communicator/impl/neomedia/pulseaudio/PA$sink_info_cb_t");
+
+            if (clazz)
+            {
+                jmethodID methodID
+                    = (*env)->GetMethodID(env, clazz, "callback", "(JJI)V");
+
+                if (methodID)
+                {
+                    clazz = (*env)->NewGlobalRef(env, clazz);
+                    if (clazz)
+                    {
+                        PulseAudio_sinkInfoCbClass = clazz;
+                        PulseAudio_sinkInfoCbMethodID = methodID;
+                    }
+                }
+            }
+        }
+        if (PulseAudio_sinkInfoCbMethodID)
+        {
+            clazz
+                = (*env)->FindClass(
+                        env,
                         "net/java/sip/communicator/impl/neomedia/pulseaudio/PA$source_info_cb_t");
 
             if (clazz)
@@ -735,17 +921,23 @@ JNIEXPORT void JNICALL
 JNI_OnUnload(JavaVM *vm, void *reserved)
 {
     jclass runnableClass = PulseAudio_runnableClass;
+    jclass sinkInfoCbClass = PulseAudio_sinkInfoCbClass;
     jclass sourceInfoCbClass = PulseAudio_sourceInfoCbClass;
     jclass streamRequestCbClass = PulseAudio_streamRequestCbClass;
 
     PulseAudio_runnableClass = NULL;
     PulseAudio_runnableMethodID = 0;
+    PulseAudio_sinkInfoCbClass = NULL;
+    PulseAudio_sinkInfoCbMethodID = 0;
     PulseAudio_sourceInfoCbClass = NULL;
     PulseAudio_sourceInfoCbMethodID = 0;
     PulseAudio_streamRequestCbClass = NULL;
     PulseAudio_streamRequestCbMethodID = 0;
     PulseAudio_vm = NULL;
-    if (runnableClass || sourceInfoCbClass || streamRequestCbClass)
+    if (runnableClass
+            || sinkInfoCbClass
+            || sourceInfoCbClass
+            || streamRequestCbClass)
     {
         JNIEnv *env;
         jint version = JNI_VERSION_1_4;
@@ -754,6 +946,8 @@ JNI_OnUnload(JavaVM *vm, void *reserved)
         {
             if (runnableClass)
                 (*env)->DeleteGlobalRef(env, runnableClass);
+            if (sinkInfoCbClass)
+                (*env)->DeleteGlobalRef(env, sinkInfoCbClass);
             if (sourceInfoCbClass)
                 (*env)->DeleteGlobalRef(env, sourceInfoCbClass);
             if (streamRequestCbClass)
@@ -768,9 +962,29 @@ PulseAudio_contextStateCallback(pa_context *c, void *userdata)
     PulseAudio_stateCallback(userdata);
 }
 
+static jlongArray
+PulseAudio_getFormatInfos
+    (JNIEnv *env, jclass clazz, jsize length, pa_format_info **formats)
+{
+    jlongArray ret = (*env)->NewLongArray(env, length);
+
+    if (ret)
+    {
+        jsize i;
+
+        for (i = 0; i < length; i++, formats++)
+        {
+            jlong format = (intptr_t) (*formats);
+
+            (*env)->SetLongArrayRegion(env, ret, i, 1, &format);
+        }
+    }
+    return ret;
+}
+
 static void
-PulseAudio_sourceInfoCallback
-    (pa_context *c, const pa_source_info *i, int eol, void *userdata)
+PulseAudio_infoCallback
+    (pa_context *c, jlong i, int eol, void *userdata, jmethodID methodID)
 {
     jweak weakCb = (jweak) userdata;
 
@@ -792,15 +1006,39 @@ PulseAudio_sourceInfoCallback
                     (*env)->CallVoidMethod(
                             env,
                             cb,
-                            PulseAudio_sourceInfoCbMethodID,
+                            methodID,
                             (jlong) (intptr_t) c,
-                            (jlong) (intptr_t) i,
+                            i,
                             (jint) eol);
                     (*env)->DeleteLocalRef(env, cb);
                 }
             }
         }
     }
+}
+
+static void
+PulseAudio_sinkInfoCallback
+    (pa_context *c, const pa_sink_info *i, int eol, void *userdata)
+{
+    PulseAudio_infoCallback(
+            c,
+            (intptr_t) i,
+            eol,
+            userdata,
+            PulseAudio_sinkInfoCbMethodID);
+}
+
+static void
+PulseAudio_sourceInfoCallback
+    (pa_context *c, const pa_source_info *i, int eol, void *userdata)
+{
+    PulseAudio_infoCallback(
+            c,
+            (intptr_t) i,
+            eol,
+            userdata,
+            PulseAudio_sourceInfoCbMethodID);
 }
 
 static void

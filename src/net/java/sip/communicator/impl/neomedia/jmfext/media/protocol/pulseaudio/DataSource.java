@@ -33,14 +33,24 @@ public class DataSource
 
     private static final int FRAGSIZE_IN_TENS_OF_MILLIS = 2;
 
+    private static final boolean SOFTWARE_GAIN = false;
+
     private class PulseAudioStream
         extends AbstractPullBufferStream
     {
         private byte[] buffer;
 
+        private int channels;
+
         private boolean corked = true;
 
+        private long cvolume;
+
         private int fragsize;
+
+        private final GainControl gainControl;
+
+        private float gainControlLevel;
 
         private int length;
 
@@ -66,6 +76,11 @@ public class DataSource
             pulseAudioSystem = PulseAudioSystem.getPulseAudioSystem();
             if (pulseAudioSystem == null)
                 throw new IllegalStateException("pulseAudioSystem");
+
+            gainControl
+                = (GainControl)
+                    NeomediaActivator.getMediaServiceImpl()
+                            .getInputVolumeControl();
         }
 
         public void read(Buffer buffer)
@@ -134,6 +149,29 @@ public class DataSource
                 buffer.setLength(length);
                 buffer.setOffset(0);
                 buffer.setTimeStamp(System.nanoTime());
+
+                if (gainControl != null)
+                {
+                    if (SOFTWARE_GAIN || (cvolume == 0))
+                    {
+                        if (length > 0)
+                        {
+                            AbstractVolumeControl.applyGain(
+                                    gainControl,
+                                    bytes, 0, length);
+                        }
+                    }
+                    else
+                    {
+                        float gainControlLevel = gainControl.getLevel();
+
+                        if (this.gainControlLevel != gainControlLevel)
+                        {
+                            this.gainControlLevel = gainControlLevel;
+                            setStreamVolume(stream, gainControlLevel);
+                        }
+                    }
+                }
             }
             finally
             {
@@ -266,7 +304,8 @@ public class DataSource
                             sampleRate,
                             channels,
                             getClass().getName(),
-                            "phone");
+                            PulseAudioSystem.MEDIA_ROLE_PHONE);
+                this.channels = channels;
             }
             catch (IllegalStateException ise)
             {
@@ -321,7 +360,7 @@ public class DataSource
                             stateCallback);
                     PA.stream_connect_record(
                             stream,
-                            null,
+                            getLocatorDev(),
                             attr,
                             PA.STREAM_ADJUST_LATENCY
                                 | PA.STREAM_START_CORKED);
@@ -345,6 +384,30 @@ public class DataSource
                         PA.stream_set_read_callback(
                                 stream,
                                 readCallback);
+
+                        if (!SOFTWARE_GAIN && (gainControl != null))
+                        {
+                            cvolume = PA.cvolume_new();
+
+                            boolean freeCvolume = true;
+
+                            try
+                            {
+                                float gainControlLevel = gainControl.getLevel();
+
+                                setStreamVolume(stream, gainControlLevel);
+                                this.gainControlLevel = gainControlLevel;
+                                freeCvolume = false;
+                            }
+                            finally
+                            {
+                                if (freeCvolume)
+                                {
+                                    PA.cvolume_free(cvolume);
+                                    cvolume = 0;
+                                }
+                            }
+                        }
 
                         this.stream = stream;
                     }
@@ -397,6 +460,9 @@ public class DataSource
                     }
                     finally
                     {
+                        long cvolume = this.cvolume;
+
+                        this.cvolume = 0;
                         this.stream = 0;
 
                         buffer = null;
@@ -407,6 +473,8 @@ public class DataSource
 
                         pulseAudioSystem.signalMainloop(false);
 
+                        if (cvolume != 0)
+                            PA.cvolume_free(cvolume);
                         PA.stream_disconnect(stream);
                         PA.stream_unref(stream);
                     }
@@ -416,6 +484,26 @@ public class DataSource
             {
                 pulseAudioSystem.unlockMainloop();
             }
+        }
+
+        private void setStreamVolume(long stream, float level)
+        {
+            int volume
+                = PA.sw_volume_from_linear(
+                        level
+                            * (AbstractVolumeControl.MAX_VOLUME_PERCENT / 100));
+
+            PA.cvolume_set(cvolume, channels, volume);
+
+            long o
+                = PA.context_set_source_output_volume(
+                        pulseAudioSystem.getContext(),
+                        PA.stream_get_index(stream),
+                        cvolume,
+                        null);
+
+            if (o != 0)
+                PA.operation_unref(o);
         }
 
         @Override
@@ -504,5 +592,21 @@ public class DataSource
         }
 
         super.doDisconnect();
+    }
+
+    private String getLocatorDev()
+    {
+        MediaLocator locator = getLocator();
+        String locatorDev;
+
+        if (locator == null)
+            locatorDev = null;
+        else
+        {
+            locatorDev = locator.getRemainder();
+            if ((locatorDev != null) && (locatorDev.length() <= 0))
+                locatorDev = null;
+        }
+        return locatorDev;
     }
 }

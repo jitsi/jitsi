@@ -159,14 +159,13 @@ public class PortAudioRenderer
      */
     public PortAudioRenderer(boolean enableVolumeControl)
     {
-        if (enableVolumeControl)
-            gainControl
-                = (GainControl)
+        gainControl
+            = enableVolumeControl
+                ? (GainControl)
                     NeomediaActivator
                         .getMediaServiceImpl()
-                            .getOutputVolumeControl();
-        else
-            gainControl = null;
+                            .getOutputVolumeControl()
+                : null;
     }
 
     /**

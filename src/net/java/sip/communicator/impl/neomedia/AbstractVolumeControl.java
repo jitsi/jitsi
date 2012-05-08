@@ -47,7 +47,7 @@ public class AbstractVolumeControl
      * The minimum volume level expressed in percent accepted by
      * <tt>AbstractVolumeControl</tt>.
      */
-    private static final int MIN_VOLUME_PERCENT = 0;
+    public static final int MIN_VOLUME_PERCENT = 0;
 
     /**
      * The maximum volume level accepted by <tt>AbstractVolumeControl</tt>.
@@ -58,7 +58,7 @@ public class AbstractVolumeControl
      * The maximum volume level expressed in percent accepted by
      * <tt>AbstractVolumeControl</tt>.
      */
-    private static final int MAX_VOLUME_PERCENT = 200;
+    public static final int MAX_VOLUME_PERCENT = 200;
 
     /**
      * The default volume level.

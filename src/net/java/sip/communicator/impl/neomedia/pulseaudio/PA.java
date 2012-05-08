@@ -8,10 +8,20 @@ package net.java.sip.communicator.impl.neomedia.pulseaudio;
 
 public final class PA
 {
+    public interface context_success_cb_t
+    {
+        void callback(long c, boolean success);
+    }
+
+    public interface sink_info_cb_t
+    {
+        void callback(long c, long i, int eol);
+    }
+
     public interface source_info_cb_t
     {
         void callback(long c, long i, int eol);
-    };
+    }
 
     public interface stream_request_cb_t
     {
@@ -105,6 +115,10 @@ public final class PA
 
     public static native void context_disconnect(long c);
 
+    public static native long context_get_sink_info_list(
+            long c,
+            sink_info_cb_t cb);
+
     public static native long context_get_source_info_list(
             long c,
             source_info_cb_t cb);
@@ -116,9 +130,27 @@ public final class PA
             String name,
             long proplist);
 
+    public static native long context_set_sink_input_volume(
+            long c,
+            int idx,
+            long volume,
+            context_success_cb_t cb);
+
+    public static native long context_set_source_output_volume(
+            long c,
+            int idx,
+            long volume,
+            context_success_cb_t cb);
+
     public static native void context_set_state_callback(long c, Runnable cb);
 
     public static native void context_unref(long c);
+
+    public static native void cvolume_free(long cv);
+
+    public static native long cvolume_new();
+
+    public static native long cvolume_set(long cv, int channels, int v);
 
     public static native int format_info_get_encoding(long f);
 
@@ -142,6 +174,24 @@ public final class PA
             int format,
             int rate,
             int channels);
+
+    public static native String sink_info_get_description(long i);
+
+    public static native long[] sink_info_get_formats(long i);
+
+    public static native int sink_info_get_index(long i);
+
+    public static native int sink_info_get_monitor_source(long i);
+
+    public static native String sink_info_get_monitor_source_name(long i);
+
+    public static native String sink_info_get_name(long i);
+
+    public static native int sink_info_get_sample_spec_channels(long i);
+
+    public static native int sink_info_get_sample_spec_format(long i);
+
+    public static native int sink_info_get_sample_spec_rate(long i);
 
     public static native String source_info_get_description(long i);
 
@@ -182,6 +232,8 @@ public final class PA
 
     public static native int stream_drop(long s);
 
+    public static native int stream_get_index(long s);
+
     public static native int stream_get_state(long s);
 
     public static native long stream_new_with_proplist(
@@ -217,6 +269,8 @@ public final class PA
             Runnable freeCb,
             long offset,
             int seek);
+
+    public static native int sw_volume_from_linear(double v);
 
     public static native void threaded_mainloop_free(long m);
 

@@ -23,6 +23,12 @@ public class PulseAudioSystem
 {
     public static final String LOCATOR_PROTOCOL = "pulseaudio";
 
+    public static final String MEDIA_ROLE_EVENT = "event";
+
+    public static final String MEDIA_ROLE_PHONE = "phone";
+
+    private static final String NULL_DEV_CAPTURE_DEVICE_INFO_NAME = "Default";
+
     public static void corkStream(long stream, boolean b)
         throws IOException
     {
@@ -57,7 +63,7 @@ public class PulseAudioSystem
     public PulseAudioSystem()
         throws Exception
     {
-        super(LOCATOR_PROTOCOL);
+        super(LOCATOR_PROTOCOL, FEATURE_NOTIFY_AND_PLAYBACK_DEVICES);
     }
 
     private void createContext()
@@ -159,7 +165,28 @@ public class PulseAudioSystem
     @Override
     public Renderer createRenderer(boolean playback)
     {
-        return new PulseAudioRenderer(playback ? "phone" : "event");
+        MediaLocator locator;
+
+        if (playback)
+            locator = null;
+        else
+        {
+            CaptureDeviceInfo notifyDevice = getNotifyDevice();
+
+            if (notifyDevice == null)
+                return null;
+            else
+                locator = notifyDevice.getLocator();
+        }
+
+        PulseAudioRenderer renderer
+            = new PulseAudioRenderer(
+                    playback ? MEDIA_ROLE_PHONE : MEDIA_ROLE_EVENT);
+
+        if ((renderer != null) && (locator != null))
+            renderer.setLocator(locator);
+
+        return renderer;
     }
 
     public long createStream(
@@ -239,16 +266,53 @@ public class PulseAudioSystem
 
         final List<CaptureDeviceInfo> captureDevices
             = new LinkedList<CaptureDeviceInfo>();
-        final List<Format> formats = new LinkedList<Format>();
+        final List<Format> captureDeviceFormats = new LinkedList<Format>();
         PA.source_info_cb_t sourceInfoListCallback
             = new PA.source_info_cb_t()
             {
                 public void callback(long c, long i, int eol)
                 {
-                    if (eol != 0)
+                    try
+                    {
+                        if ((eol == 0) && (i != 0))
+                        {
+                            sourceInfoListCallback(
+                                    c,
+                                    i,
+                                    captureDevices,
+                                    captureDeviceFormats);
+                        }
+                    }
+                    finally
+                    {
                         signalMainloop(false);
-                    else if (i != 0)
-                        sourceInfoListCallback(c, i, captureDevices, formats);
+                    }
+                }
+            };
+
+        final List<CaptureDeviceInfo> playbackDevices
+            = new LinkedList<CaptureDeviceInfo>();
+        final List<Format> playbackDeviceFormats = new LinkedList<Format>();
+        PA.sink_info_cb_t sinkInfoListCallback
+            = new PA.sink_info_cb_t()
+            {
+                public void callback(long c, long i, int eol)
+                {
+                    try
+                    {
+                        if ((eol == 0) && (i != 0))
+                        {
+                            sinkInfoListCallback(
+                                    c,
+                                    i,
+                                    playbackDevices,
+                                    playbackDeviceFormats);
+                        }
+                    }
+                    finally
+                    {
+                        signalMainloop(false);
+                    }
                 }
             };
 
@@ -272,31 +336,51 @@ public class PulseAudioSystem
             {
                 PA.operation_unref(o);
             }
+
+            o
+                = PA.context_get_sink_info_list(
+                        context,
+                        sinkInfoListCallback);
+
+            if (o == 0)
+                throw new RuntimeException("pa_context_get_sink_info_list");
+
+            try
+            {
+                while (PA.operation_get_state(o) == PA.OPERATION_RUNNING)
+                    waitMainloop();
+            }
+            finally
+            {
+                PA.operation_unref(o);
+            }
         }
         finally
         {
             unlockMainloop();
         }
 
-        if (!formats.isEmpty())
+        if (!captureDeviceFormats.isEmpty())
         {
-            String name = null;
-
-            if (captureDevices.size() == 1)
-                name = captureDevices.get(0).getName();
-            if (name == null)
-                name = "Automatic";
-
-            captureDevices.clear();
             captureDevices.add(
                     0,
                     new CaptureDeviceInfo(
-                            name,
+                            NULL_DEV_CAPTURE_DEVICE_INFO_NAME,
                             new MediaLocator(LOCATOR_PROTOCOL + ":"),
-                            formats.toArray(new Format[formats.size()])));
+                            captureDeviceFormats.toArray(new Format[captureDeviceFormats.size()])));
+        }
+        if (!playbackDevices.isEmpty())
+        {
+            playbackDevices.add(
+                    0,
+                    new CaptureDeviceInfo(
+                            NULL_DEV_CAPTURE_DEVICE_INFO_NAME,
+                            new MediaLocator(LOCATOR_PROTOCOL + ":"),
+                            null));
         }
 
         setCaptureDevices(captureDevices);
+        setPlaybackDevices(playbackDevices);
     }
 
     public synchronized long getContext()
@@ -365,6 +449,32 @@ public class PulseAudioSystem
         PA.threaded_mainloop_signal(mainloop, waitForAccept);
     }
 
+    private void sinkInfoListCallback(
+            long context,
+            long sinkInfo,
+            List<CaptureDeviceInfo> deviceList,
+            List<Format> formatList)
+    {
+        int sampleSpecFormat = PA.sink_info_get_sample_spec_format(sinkInfo);
+
+        if (sampleSpecFormat != PA.SAMPLE_S16LE)
+            return;
+
+        String description = PA.sink_info_get_description(sinkInfo);
+        String name = PA.sink_info_get_name(sinkInfo);
+
+        if (description == null)
+            description = name;
+        deviceList.add(
+                new CaptureDeviceInfo(
+                        description,
+                        new MediaLocator(
+                                LOCATOR_PROTOCOL
+                                    + ":"
+                                    + name),
+                        null));
+    }
+
     private void sourceInfoListCallback(
             long context,
             long sourceInfo,
@@ -424,51 +534,47 @@ public class PulseAudioSystem
                         continue;
                 }
 
-                sourceInfoFormatList.add(
-                        new AudioFormat(
-                                AudioFormat.LINEAR,
-                                rate,
-                                16,
-                                channels,
-                                AudioFormat.LITTLE_ENDIAN,
-                                AudioFormat.SIGNED,
-                                Format.NOT_SPECIFIED /* frameSizeInBits */,
-                                Format.NOT_SPECIFIED /* frameRate */,
-                                Format.byteArray));
-
                 if ((MediaUtils.MAX_AUDIO_CHANNELS != Format.NOT_SPECIFIED)
                         && (MediaUtils.MAX_AUDIO_CHANNELS < channels))
                     channels = MediaUtils.MAX_AUDIO_CHANNELS;
                 if ((MediaUtils.MAX_AUDIO_SAMPLE_RATE != Format.NOT_SPECIFIED)
                         && (MediaUtils.MAX_AUDIO_SAMPLE_RATE < rate))
                     rate = (int) MediaUtils.MAX_AUDIO_SAMPLE_RATE;
-                formatList.add(
-                        new AudioFormat(
-                                AudioFormat.LINEAR,
-                                rate,
-                                16,
-                                channels,
-                                AudioFormat.LITTLE_ENDIAN,
-                                AudioFormat.SIGNED,
-                                Format.NOT_SPECIFIED /* frameSizeInBits */,
-                                Format.NOT_SPECIFIED /* frameRate */,
-                                Format.byteArray));
+
+                AudioFormat audioFormat
+                    = new AudioFormat(
+                        AudioFormat.LINEAR,
+                        rate,
+                        16,
+                        channels,
+                        AudioFormat.LITTLE_ENDIAN,
+                        AudioFormat.SIGNED,
+                        Format.NOT_SPECIFIED /* frameSizeInBits */,
+                        Format.NOT_SPECIFIED /* frameRate */,
+                        Format.byteArray);
+
+                if (!sourceInfoFormatList.contains(audioFormat))
+                {
+                    sourceInfoFormatList.add(audioFormat);
+                    if (!formatList.contains(audioFormat))
+                        formatList.add(audioFormat);
+                }
             }
 
             if (!formatList.isEmpty())
             {
-                String name = PA.source_info_get_description(sourceInfo);
+                String description = PA.source_info_get_description(sourceInfo);
+                String name = PA.source_info_get_name(sourceInfo);
 
-                if (name == null)
-                    name = PA.source_info_get_name(sourceInfo);
+                if (description == null)
+                    description = name;
                 deviceList.add(
                         new CaptureDeviceInfo(
-                                name,
+                                description,
                                 new MediaLocator(
                                         LOCATOR_PROTOCOL
                                             + ":"
-                                            + PA.source_info_get_index(
-                                                    sourceInfo)),
+                                            + name),
                                 sourceInfoFormatList.toArray(
                                         new Format[
                                                    sourceInfoFormatList

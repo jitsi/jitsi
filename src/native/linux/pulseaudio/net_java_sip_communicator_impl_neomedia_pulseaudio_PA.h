@@ -41,6 +41,14 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_P
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    context_get_sink_info_list
+ * Signature: (JLnet/java/sip/communicator/impl/neomedia/pulseaudio/PA/sink_info_cb_t;)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1get_1sink_1info_1list
+  (JNIEnv *, jclass, jlong, jobject);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
  * Method:    context_get_source_info_list
  * Signature: (JLnet/java/sip/communicator/impl/neomedia/pulseaudio/PA/source_info_cb_t;)J
  */
@@ -65,6 +73,22 @@ JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    context_set_sink_input_volume
+ * Signature: (JIJLnet/java/sip/communicator/impl/neomedia/pulseaudio/PA/context_success_cb_t;)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1set_1sink_1input_1volume
+  (JNIEnv *, jclass, jlong, jint, jlong, jobject);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    context_set_source_output_volume
+ * Signature: (JIJLnet/java/sip/communicator/impl/neomedia/pulseaudio/PA/context_success_cb_t;)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1set_1source_1output_1volume
+  (JNIEnv *, jclass, jlong, jint, jlong, jobject);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
  * Method:    context_set_state_callback
  * Signature: (JLjava/lang/Runnable;)V
  */
@@ -78,6 +102,30 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_P
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_context_1unref
   (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    cvolume_free
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_cvolume_1free
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    cvolume_new
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_cvolume_1new
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    cvolume_set
+ * Signature: (JII)J
+ */
+JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_cvolume_1set
+  (JNIEnv *, jclass, jlong, jint, jint);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
@@ -158,6 +206,78 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_P
  */
 JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sample_1spec_1new
   (JNIEnv *, jclass, jint, jint, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sink_info_get_description
+ * Signature: (J)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1description
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sink_info_get_formats
+ * Signature: (J)[J
+ */
+JNIEXPORT jlongArray JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1formats
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sink_info_get_index
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1index
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sink_info_get_monitor_source
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1monitor_1source
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sink_info_get_monitor_source_name
+ * Signature: (J)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1monitor_1source_1name
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sink_info_get_name
+ * Signature: (J)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1name
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sink_info_get_sample_spec_channels
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1sample_1spec_1channels
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sink_info_get_sample_spec_format
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1sample_1spec_1format
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sink_info_get_sample_spec_rate
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sink_1info_1get_1sample_1spec_1rate
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
@@ -265,6 +385,14 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_P
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    stream_get_index
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_stream_1get_1index
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
  * Method:    stream_get_state
  * Signature: (J)I
  */
@@ -342,6 +470,14 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_P
  */
 JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_stream_1write
   (JNIEnv *, jclass, jlong, jbyteArray, jint, jint, jobject, jlong, jint);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    sw_volume_from_linear
+ * Signature: (D)I
+ */
+JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_sw_1volume_1from_1linear
+  (JNIEnv *, jclass, jdouble);
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
