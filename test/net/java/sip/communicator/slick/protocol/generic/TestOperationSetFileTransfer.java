@@ -185,26 +185,40 @@ public abstract class TestOperationSetFileTransfer
                          ,receiveFile);
 
             receiverStatusListener.waitForEvent(30000, 3);
-            assertEquals("A file transfer status changed - " +
+
+            // Some times we can receive only two events,
+            // when connection is quickly established the preparing event
+            // is missing.
+
+            assertTrue("A file transfer status changed - " +
                 "preparing, inprogress and completed received on receiver side"
-                         , 3, receiverStatusListener.collectedEvents.size());
+                         , 3 == receiverStatusListener.collectedEvents.size()
+                            ||
+                           2 == receiverStatusListener.collectedEvents.size());
 
             fileTransferStatusEvent
                 = receiverStatusListener.collectedEvents.get(0);
 
-            assertEquals("Event must be preparing"
-                         ,FileTransferStatusChangeEvent.PREPARING
-                         ,fileTransferStatusEvent.getNewStatus());
+            if(receiverStatusListener.collectedEvents.size() == 3)
+            {
+                assertEquals("Event must be preparing"
+                             ,FileTransferStatusChangeEvent.PREPARING
+                             ,fileTransferStatusEvent.getNewStatus());
 
-            fileTransferStatusEvent
-                = receiverStatusListener.collectedEvents.get(1);
+                fileTransferStatusEvent
+                    = receiverStatusListener.collectedEvents.get(1);
+            }
 
-            assertEquals("Event must be completed"
+            assertEquals("Event must be in_progress"
                          ,FileTransferStatusChangeEvent.IN_PROGRESS
                          ,fileTransferStatusEvent.getNewStatus());
 
-            fileTransferStatusEvent
-                = receiverStatusListener.collectedEvents.get(2);
+            if(receiverStatusListener.collectedEvents.size() == 3)
+                fileTransferStatusEvent
+                    = receiverStatusListener.collectedEvents.get(2);
+            else
+                fileTransferStatusEvent
+                    = receiverStatusListener.collectedEvents.get(1);
 
             assertEquals("Event must be completed"
                          ,FileTransferStatusChangeEvent.COMPLETED
