@@ -65,7 +65,7 @@ public class DeviceConfiguration
     private static final String[] CUSTOM_RENDERERS
         = new String[]
         {
-            ".audio.PulseAudioRenderer",
+            OSUtils.IS_LINUX ? ".audio.PulseAudioRenderer" : null,
             ".audio.PortAudioRenderer",
             ".video.JAWTRenderer"
         };
@@ -731,6 +731,8 @@ public class DeviceConfiguration
 
         for (String customRenderer : CUSTOM_RENDERERS)
         {
+            if (customRenderer == null)
+                continue;
             if (customRenderer.startsWith("."))
             {
                 customRenderer

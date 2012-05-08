@@ -152,7 +152,6 @@ public abstract class DeviceSystem
 
                 // Initialize a single instance per className.
                 DeviceSystem deviceSystem = null;
-                boolean reinitialize = true;
 
                 for (DeviceSystem aDeviceSystem : deviceSystems)
                     if (aDeviceSystem.getClass().getName().equals(className))
@@ -161,8 +160,12 @@ public abstract class DeviceSystem
                         break;
                     }
 
+                boolean reinitialize;
+
                 if (deviceSystem == null)
                 {
+                    reinitialize = false;
+
                     Object o = null;
 
                     try
@@ -181,11 +184,12 @@ public abstract class DeviceSystem
                     if (o instanceof DeviceSystem)
                     {
                         deviceSystem = (DeviceSystem) o;
-                        if (!deviceSystems.contains(deviceSystem)
-                                && deviceSystems.add(deviceSystem))
-                            reinitialize = false;
+                        if (!deviceSystems.contains(deviceSystem))
+                            deviceSystems.add(deviceSystem);
                     }
                 }
+                else
+                    reinitialize = true;
 
                 // Reinitializing is an optional feature.
                 if (reinitialize
