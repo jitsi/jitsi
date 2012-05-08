@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.pulseaudio;
 
 import java.io.*;
+import java.util.*;
 
 import javax.media.*;
 import javax.media.control.*;
@@ -33,7 +34,40 @@ public class DataSource
 
     private static final int FRAGSIZE_IN_TENS_OF_MILLIS = 2;
 
-    private static final boolean SOFTWARE_GAIN = false;
+    private static final boolean SOFTWARE_GAIN;
+
+    static {
+        boolean softwareGain = true;
+
+        try
+        {
+            String libraryVersion = PA.get_library_version();
+
+            if (libraryVersion != null)
+            {
+                StringTokenizer st = new StringTokenizer(libraryVersion, ".");
+                int major = Integer.parseInt(st.nextToken());
+                int minor = Integer.parseInt(st.nextToken());
+
+                if ((major >= 1) && (minor >= 0))
+                {
+                    softwareGain = false;
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug(
+                                "Will control the volume"
+                                    + " through the native PulseAudio API.");
+                    }
+                }
+            }
+        }
+        catch (Throwable t)
+        {
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+        }
+        SOFTWARE_GAIN = softwareGain;
+    }
 
     private class PulseAudioStream
         extends AbstractPullBufferStream

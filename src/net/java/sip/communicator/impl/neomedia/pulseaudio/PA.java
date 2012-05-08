@@ -158,6 +158,8 @@ public final class PA
 
     public static native int format_info_get_prop_int(long f, String key);
 
+    public static native String get_library_version();
+
     public static native int operation_get_state(long o);
 
     public static native void operation_unref(long o);

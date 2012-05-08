@@ -153,6 +153,14 @@ JNIEXPORT jint JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_P
 
 /*
  * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
+ * Method:    get_library_version
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_impl_neomedia_pulseaudio_PA_get_1library_1version
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     net_java_sip_communicator_impl_neomedia_pulseaudio_PA
  * Method:    operation_get_state
  * Signature: (J)I
  */

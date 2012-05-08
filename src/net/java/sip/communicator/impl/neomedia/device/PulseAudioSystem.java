@@ -367,7 +367,8 @@ public class PulseAudioSystem
                     new CaptureDeviceInfo(
                             NULL_DEV_CAPTURE_DEVICE_INFO_NAME,
                             new MediaLocator(LOCATOR_PROTOCOL + ":"),
-                            captureDeviceFormats.toArray(new Format[captureDeviceFormats.size()])));
+                            captureDeviceFormats.toArray(
+                                    new Format[captureDeviceFormats.size()])));
         }
         if (!playbackDevices.isEmpty())
         {
@@ -492,94 +493,51 @@ public class PulseAudioSystem
         if (sampleSpecFormat != PA.SAMPLE_S16LE)
             return;
 
-        long[] formats = PA.source_info_get_formats(sourceInfo);
+        int channels = PA.source_info_get_sample_spec_channels(sourceInfo);
+        int rate = PA.source_info_get_sample_spec_rate(sourceInfo);
+        List<Format> sourceInfoFormatList = new LinkedList<Format>();
 
-        if ((formats != null) && (formats.length > 0))
+        if ((MediaUtils.MAX_AUDIO_CHANNELS != Format.NOT_SPECIFIED)
+                && (MediaUtils.MAX_AUDIO_CHANNELS < channels))
+            channels = MediaUtils.MAX_AUDIO_CHANNELS;
+        if ((MediaUtils.MAX_AUDIO_SAMPLE_RATE != Format.NOT_SPECIFIED)
+                && (MediaUtils.MAX_AUDIO_SAMPLE_RATE < rate))
+            rate = (int) MediaUtils.MAX_AUDIO_SAMPLE_RATE;
+
+        AudioFormat audioFormat
+            = new AudioFormat(
+                AudioFormat.LINEAR,
+                rate,
+                16,
+                channels,
+                AudioFormat.LITTLE_ENDIAN,
+                AudioFormat.SIGNED,
+                Format.NOT_SPECIFIED /* frameSizeInBits */,
+                Format.NOT_SPECIFIED /* frameRate */,
+                Format.byteArray);
+
+        if (!sourceInfoFormatList.contains(audioFormat))
         {
-            int sampleSpecChannels
-                = PA.source_info_get_sample_spec_channels(sourceInfo);
-            int sampleSpecRate
-                = PA.source_info_get_sample_spec_rate(sourceInfo);
-            List<Format> sourceInfoFormatList = new LinkedList<Format>();
+            sourceInfoFormatList.add(audioFormat);
+            if (!formatList.contains(audioFormat))
+                formatList.add(audioFormat);
+        }
+        if (!formatList.isEmpty())
+        {
+            String description = PA.source_info_get_description(sourceInfo);
+            String name = PA.source_info_get_name(sourceInfo);
 
-            for (long format : formats)
-            {
-                int encoding = PA.format_info_get_encoding(format);
-
-                if ((encoding != PA.ENCODING_ANY)
-                        && (encoding != PA.ENCODING_PCM))
-                    continue;
-
-                int channels
-                    = PA.format_info_get_prop_int(
-                            format,
-                            PA.PROP_FORMAT_CHANNELS);
-
-                if (channels <= 0)
-                {
-                    channels = sampleSpecChannels;
-                    if (channels <= 0)
-                        continue;
-                }
-
-                int rate
-                    = PA.format_info_get_prop_int(
-                            format,
-                            PA.PROP_FORMAT_RATE);
-
-                if (rate <= 0)
-                {
-                    rate = sampleSpecRate;
-                    if (rate <= 0)
-                        continue;
-                }
-
-                if ((MediaUtils.MAX_AUDIO_CHANNELS != Format.NOT_SPECIFIED)
-                        && (MediaUtils.MAX_AUDIO_CHANNELS < channels))
-                    channels = MediaUtils.MAX_AUDIO_CHANNELS;
-                if ((MediaUtils.MAX_AUDIO_SAMPLE_RATE != Format.NOT_SPECIFIED)
-                        && (MediaUtils.MAX_AUDIO_SAMPLE_RATE < rate))
-                    rate = (int) MediaUtils.MAX_AUDIO_SAMPLE_RATE;
-
-                AudioFormat audioFormat
-                    = new AudioFormat(
-                        AudioFormat.LINEAR,
-                        rate,
-                        16,
-                        channels,
-                        AudioFormat.LITTLE_ENDIAN,
-                        AudioFormat.SIGNED,
-                        Format.NOT_SPECIFIED /* frameSizeInBits */,
-                        Format.NOT_SPECIFIED /* frameRate */,
-                        Format.byteArray);
-
-                if (!sourceInfoFormatList.contains(audioFormat))
-                {
-                    sourceInfoFormatList.add(audioFormat);
-                    if (!formatList.contains(audioFormat))
-                        formatList.add(audioFormat);
-                }
-            }
-
-            if (!formatList.isEmpty())
-            {
-                String description = PA.source_info_get_description(sourceInfo);
-                String name = PA.source_info_get_name(sourceInfo);
-
-                if (description == null)
-                    description = name;
-                deviceList.add(
-                        new CaptureDeviceInfo(
-                                description,
-                                new MediaLocator(
-                                        LOCATOR_PROTOCOL
-                                            + ":"
-                                            + name),
-                                sourceInfoFormatList.toArray(
-                                        new Format[
-                                                   sourceInfoFormatList
-                                                       .size()])));
-            }
+            if (description == null)
+                description = name;
+            deviceList.add(
+                    new CaptureDeviceInfo(
+                            description,
+                            new MediaLocator(
+                                    LOCATOR_PROTOCOL
+                                        + ":"
+                                        + name),
+                            sourceInfoFormatList.toArray(
+                                    new Format[sourceInfoFormatList.size()])));
         }
     }
 
