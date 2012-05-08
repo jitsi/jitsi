@@ -120,7 +120,11 @@ public abstract class AudioSystem
             if (captureDevices == null)
                 captureDevices = getCaptureDevices();
             if ((captureDevices != null) && (captureDevices.size() > 0))
-                captureDevice = captureDevices.get(0);
+            {
+                captureDevice = loadDevice(PROP_CAPTURE_DEVICE, captureDevices);
+                if (captureDevice == null)
+                    captureDevice = captureDevices.get(0);
+            }
         }
         return captureDevice;
     }
@@ -157,7 +161,11 @@ public abstract class AudioSystem
             if (notifyDevices == null)
                 notifyDevices = getNotifyDevices();
             if ((notifyDevices != null) && (notifyDevices.size() > 0))
-                notifyDevice = notifyDevices.get(0);
+            {
+                notifyDevice = loadDevice(PROP_NOTIFY_DEVICE, notifyDevices);
+                if (notifyDevice == null)
+                    notifyDevice = notifyDevices.get(0);
+            }
         }
         return notifyDevice;
     }
@@ -188,7 +196,12 @@ public abstract class AudioSystem
             if (playbackDevices == null)
                 playbackDevices = getPlaybackDevices();
             if ((playbackDevices != null) && (playbackDevices.size() > 0))
-                playbackDevice = playbackDevices.get(0);
+            {
+                playbackDevice
+                    = loadDevice(PROP_PLAYBACK_DEVICE, playbackDevices);
+                if (playbackDevice == null)
+                    playbackDevice = playbackDevices.get(0);
+            }
         }
         return playbackDevice;
     }
@@ -201,6 +214,49 @@ public abstract class AudioSystem
             (playbackDevices == null)
                 ? null
                 : new ArrayList<CaptureDeviceInfo>(playbackDevices);
+    }
+
+    /**
+     * Loads the user's preference with respect to a <tt>CaptureDeviceInfo</tt>
+     * among a specific list of <tt>CaptureDeviceInfo</tt>s from the
+     * <tt>ConfigurationService</tt>.
+     *
+     * @param property the name of the <tt>ConfigurationService</tt> property
+     * which specifies the user's preference with respect to a
+     * <tt>CaptureDeviceInfo</tt> among the specified list of
+     * <tt>CaptureDeviceInfo</tt>s 
+     * @param devices the list of <tt>CaptureDeviceInfo</tt>s which are valid
+     * selections for the user's preference
+     * @return a <tt>CaptureDeviceInfo</tt> among the specified <tt>devices</tt>
+     * which represents the user's preference stored in the
+     * <tt>ConfigurationService</tt>
+     */
+    private CaptureDeviceInfo loadDevice(
+            String property,
+            List<CaptureDeviceInfo> devices)
+    {
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+
+        if (cfg != null)
+        {
+            property
+                = DeviceConfiguration.PROP_AUDIO_SYSTEM
+                    + "."
+                    + getLocatorProtocol()
+                    + "."
+                    + property;
+
+            String name = cfg.getString(property);
+
+            if ((name != null)
+                    && !NoneAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(name))
+            {
+                for (CaptureDeviceInfo device : devices)
+                    if (name.equals(device.getName()))
+                        return device;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -257,6 +313,18 @@ public abstract class AudioSystem
         }
     }
 
+    /**
+     * Saves the user's preference with respect to a specific
+     * <tt>CaptureDeviceInfo</tt> in the <tt>ConfigurationService</tt>.
+     *
+     * @param property the name of the <tt>ConfigurationService</tt> property
+     * into which the user's preference with respect to the specified
+     * <tt>CaptureDeviceInfo</tt> is to be saved
+     * @param device the <tt>CaptureDeviceInfo</tt> which is the user's
+     * preference
+     * @param isNull <tt>true</tt> if the user's preference with respect to the
+     * specified <tt>device</tt> is <tt>null</tt>; otherwise, <tt>false</tt>
+     */
     private void saveDevice(
             String property,
             CaptureDeviceInfo device,
