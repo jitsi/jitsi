@@ -21,7 +21,7 @@ import net.java.sip.communicator.util.*;
 public class PulseAudioSystem
     extends AudioSystem
 {
-    public static final String LOCATOR_PROTOCOL = "pulseaudio";
+    private static final String LOCATOR_PROTOCOL = LOCATOR_PROTOCOL_PULSEAUDIO;
 
     public static final String MEDIA_ROLE_EVENT = "event";
 

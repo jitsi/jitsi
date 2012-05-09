@@ -134,9 +134,10 @@ public class AudioMediaDeviceImpl
                 String protocol = getCaptureDeviceInfoLocatorProtocol();
                 boolean createCaptureDeviceIfNull = true;
 
-                if (JavaSoundSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(protocol)
-                        || PortAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
-                                protocol))
+                if (AudioSystem.LOCATOR_PROTOCOL_JAVASOUND.equalsIgnoreCase(
+                            protocol)
+                        || AudioSystem.LOCATOR_PROTOCOL_PORTAUDIO
+                                .equalsIgnoreCase(protocol))
                 {
                     captureDevice = superCreateCaptureDevice();
                     createCaptureDeviceIfNull = false;

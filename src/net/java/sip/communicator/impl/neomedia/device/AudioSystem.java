@@ -30,6 +30,16 @@ public abstract class AudioSystem
 
     private static final int FLAG_PLAYBACK_DEVICE_IS_NULL = 4;
 
+    public static final String LOCATOR_PROTOCOL_AUDIORECORD = "audiorecord";
+    
+    public static final String LOCATOR_PROTOCOL_JAVASOUND = "javasound";
+
+    public static final String LOCATOR_PROTOCOL_OPENSLES = "opensles";
+
+    public static final String LOCATOR_PROTOCOL_PORTAUDIO = "portaudio";
+
+    public static final String LOCATOR_PROTOCOL_PULSEAUDIO = "pulseaudio";
+
     public static final String PROP_CAPTURE_DEVICE = "captureDevice";
 
     public static final String PROP_NOTIFY_DEVICE = "notifyDevice";

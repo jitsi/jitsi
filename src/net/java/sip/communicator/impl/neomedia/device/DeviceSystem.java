@@ -25,6 +25,18 @@ public abstract class DeviceSystem
 
     public static final int FEATURE_REINITIALIZE = 1;
 
+    public static final String LOCATOR_PROTOCOL_CIVIL = "civil";
+
+    public static final String LOCATOR_PROTOCOL_DIRECTSHOW = "directshow";
+
+    public static final String LOCATOR_PROTOCOL_IMGSTREAMING = "imgstreaming";
+
+    public static final String LOCATOR_PROTOCOL_MEDIARECORDER = "mediarecorder";
+
+    public static final String LOCATOR_PROTOCOL_QUICKTIME = "quicktime";
+
+    public static final String LOCATOR_PROTOCOL_VIDEO4LINUX2 = "video4linux2";
+
     public static final String PROP_DEVICES = "devices";
 
     private static List<DeviceSystem> deviceSystems
@@ -110,8 +122,10 @@ public abstract class DeviceSystem
             classNames
                 = new String[]
                 {
-                    ".PulseAudioSystem",
-                    ".PortAudioSystem",
+                    OSUtils.IS_ANDROID ? ".AudioRecordSystem" : null,
+                    OSUtils.IS_ANDROID ? ".OpenSLESSystem" : null,
+                    OSUtils.IS_LINUX ? ".PulseAudioSystem" : null,
+                    OSUtils.IS_ANDROID ? null : ".PortAudioSystem",
                     ".NoneAudioSystem"
                 };
             break;
@@ -119,6 +133,7 @@ public abstract class DeviceSystem
             classNames
                 = new String[]
                 {
+                    OSUtils.IS_ANDROID ? ".MediaRecorderSystem" : null,
                     OSUtils.IS_LINUX ? ".Video4Linux2System" : null,
                     OSUtils.IS_MAC ? ".QuickTimeSystem" : null,
                     OSUtils.IS_WINDOWS ? ".DirectShowSystem" : null,

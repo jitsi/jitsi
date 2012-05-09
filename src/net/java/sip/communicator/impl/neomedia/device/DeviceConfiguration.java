@@ -65,8 +65,10 @@ public class DeviceConfiguration
     private static final String[] CUSTOM_RENDERERS
         = new String[]
         {
+            OSUtils.IS_ANDROID ? ".audio.AudioTrackRenderer" : null,
+            OSUtils.IS_ANDROID ? ".audio.OpenSLESRenderer" : null,
             OSUtils.IS_LINUX ? ".audio.PulseAudioRenderer" : null,
-            ".audio.PortAudioRenderer",
+            OSUtils.IS_ANDROID ? null : ".audio.PortAudioRenderer",
             ".video.JAWTRenderer"
         };
 
@@ -554,8 +556,9 @@ public class DeviceConfiguration
                 for (CaptureDeviceInfo cdi : cdis)
                 {
                     MediaUseCase cdiUseCase
-                        = ImgStreamingSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
-                                    cdi.getLocator().getProtocol())
+                        = DeviceSystem.LOCATOR_PROTOCOL_IMGSTREAMING
+                                .equalsIgnoreCase(
+                                        cdi.getLocator().getProtocol())
                             ? MediaUseCase.DESKTOP
                             : MediaUseCase.CALL;
 

@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.neomedia.*;
 public class LtiCivilSystem
     extends DeviceSystem
 {
-    public static final String LOCATOR_PROTOCOL = "civil";
+    private static final String LOCATOR_PROTOCOL = LOCATOR_PROTOCOL_CIVIL;
 
     /**
      * Creates an instance of LtiCivilSystem and auto-detects CIVIL video 

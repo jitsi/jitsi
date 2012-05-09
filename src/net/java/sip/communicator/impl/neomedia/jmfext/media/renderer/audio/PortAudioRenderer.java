@@ -226,7 +226,8 @@ public class PortAudioRenderer
         if (locator == null)
         {
             AudioSystem portAudioSystem
-                = AudioSystem.getAudioSystem(PortAudioSystem.LOCATOR_PROTOCOL);
+                = AudioSystem.getAudioSystem(
+                        AudioSystem.LOCATOR_PROTOCOL_PORTAUDIO);
 
             if (portAudioSystem != null)
             {

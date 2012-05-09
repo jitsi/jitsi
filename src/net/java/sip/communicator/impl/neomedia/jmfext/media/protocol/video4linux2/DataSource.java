@@ -197,8 +197,8 @@ public class DataSource
 
         return
             ((locator != null)
-                    && Video4Linux2System.LOCATOR_PROTOCOL.equalsIgnoreCase(
-                            locator.getProtocol()))
+                    && DeviceSystem.LOCATOR_PROTOCOL_VIDEO4LINUX2
+                            .equalsIgnoreCase(locator.getProtocol()))
                 ? locator.getRemainder()
                 : null;
     }

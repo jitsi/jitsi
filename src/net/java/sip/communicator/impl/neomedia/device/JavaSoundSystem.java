@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 public class JavaSoundSystem
     extends AudioSystem
 {
-    public static final String LOCATOR_PROTOCOL = "javasound";
+    private static final String LOCATOR_PROTOCOL = LOCATOR_PROTOCOL_JAVASOUND;
 
     public JavaSoundSystem()
         throws Exception

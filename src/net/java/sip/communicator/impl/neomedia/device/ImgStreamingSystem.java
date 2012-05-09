@@ -31,7 +31,8 @@ public class ImgStreamingSystem
      * The locator protocol used when creating or parsing
      * <tt>MediaLocator</tt>s.
      */
-    public static final String LOCATOR_PROTOCOL = "imgstreaming";
+    private static final String LOCATOR_PROTOCOL
+        = LOCATOR_PROTOCOL_IMGSTREAMING;
 
     /**
      * Add capture devices.

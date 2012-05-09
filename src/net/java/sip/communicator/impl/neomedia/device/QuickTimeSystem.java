@@ -35,7 +35,7 @@ public class QuickTimeSystem
      * The protocol of the <tt>MediaLocator</tt>s identifying QuickTime/QTKit
      * capture devices.
      */
-    public static final String LOCATOR_PROTOCOL = "quicktime";
+    private static final String LOCATOR_PROTOCOL = LOCATOR_PROTOCOL_QUICKTIME;
 
     /**
      * Initializes a new <tt>QuickTimeSystem</tt> instance which discovers and

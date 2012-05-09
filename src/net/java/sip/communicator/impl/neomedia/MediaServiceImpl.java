@@ -983,7 +983,7 @@ public class MediaServiceImpl
                         SwScaler scaler = new SwScaler();
 
                         // do not flip desktop
-                        if (ImgStreamingSystem.LOCATOR_PROTOCOL.equals(
+                        if (DeviceSystem.LOCATOR_PROTOCOL_IMGSTREAMING.equals(
                                 locator.getProtocol()))
                             codecs = new Codec[] { scaler };
                         else
@@ -1207,8 +1207,14 @@ public class MediaServiceImpl
         CaptureDeviceInfo devInfo
             = new CaptureDeviceInfo(
                 name + " " + display,
-                new MediaLocator(ImgStreamingSystem.LOCATOR_PROTOCOL +
-                        ":" + display + "," + x + "," + y),
+                new MediaLocator(
+                        DeviceSystem.LOCATOR_PROTOCOL_IMGSTREAMING
+                            + ":"
+                            + display
+                            + ","
+                            + x
+                            + ","
+                            + y),
                 formats);
 
         device = new MediaDeviceImpl(devInfo, MediaType.VIDEO);
@@ -1261,7 +1267,8 @@ public class MediaServiceImpl
             return null;
         MediaLocator locator = devInfo.getLocator();
 
-        if(!ImgStreamingSystem.LOCATOR_PROTOCOL.equals(locator.getProtocol()))
+        if(!DeviceSystem.LOCATOR_PROTOCOL_IMGSTREAMING.equals(
+                locator.getProtocol()))
             return null;
 
         String remainder = locator.getRemainder();

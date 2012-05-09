@@ -36,7 +36,8 @@ public class Video4Linux2System
      * <tt>CaptureDevice</tt> which implement the Video for Linux Two API
      * Specification.
      */
-    public static final String LOCATOR_PROTOCOL = "video4linux2";
+    private static final String LOCATOR_PROTOCOL
+        = LOCATOR_PROTOCOL_VIDEO4LINUX2;
 
     /**
      * Initializes a new <tt>Video4Linux2System</tt> instance which discovers and

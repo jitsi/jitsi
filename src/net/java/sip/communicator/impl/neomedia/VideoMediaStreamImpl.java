@@ -995,7 +995,7 @@ public class VideoMediaStreamImpl
         MediaDeviceImpl dev = (MediaDeviceImpl)getDevice();
 
         if(!dev.getCaptureDeviceInfo().getLocator().getProtocol().equals(
-                ImgStreamingSystem.LOCATOR_PROTOCOL))
+                DeviceSystem.LOCATOR_PROTOCOL_IMGSTREAMING))
             return;
 
         /* To move origin of the desktop capture, we need to access the

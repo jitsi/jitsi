@@ -127,7 +127,7 @@ public class DataSource
         logger.info("getLocator() returns " + locator);
 
         if((locator != null) &&
-                DirectShowSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
+                DeviceSystem.LOCATOR_PROTOCOL_DIRECTSHOW.equalsIgnoreCase(
                         locator.getProtocol()))
         {
             DSCaptureDevice[] devices = manager.getCaptureDevices();

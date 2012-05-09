@@ -376,8 +376,8 @@ public class MediaDeviceImpl
                             && ((captureDeviceInfoLocator
                                         = captureDeviceInfo.getLocator())
                                     != null)
-                            && !ImgStreamingSystem.LOCATOR_PROTOCOL.equals(
-                                    captureDeviceInfoLocator.getProtocol()))
+                            && !DeviceSystem.LOCATOR_PROTOCOL_IMGSTREAMING
+                                .equals(captureDeviceInfoLocator.getProtocol()))
                     {
                         if (sendPreset != null)
                             sendSize = sendPreset.getResolution();

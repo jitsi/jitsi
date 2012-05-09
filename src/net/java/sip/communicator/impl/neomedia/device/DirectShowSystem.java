@@ -35,7 +35,7 @@ public class DirectShowSystem
      * The protocol of the <tt>MediaLocator</tt>s identifying QuickTime/QTKit
      * capture devices.
      */
-    public static final String LOCATOR_PROTOCOL = "directshow";
+    private static final String LOCATOR_PROTOCOL = LOCATOR_PROTOCOL_DIRECTSHOW;
 
     /**
      * Constructor. Discover and register DirectShow capture devices

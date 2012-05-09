@@ -37,7 +37,7 @@ public class PortAudioSystem
      * The protocol of the <tt>MediaLocator</tt>s identifying PortAudio
      * <tt>CaptureDevice</tt>s
      */
-    public static final String LOCATOR_PROTOCOL = "portaudio";
+    private static final String LOCATOR_PROTOCOL = LOCATOR_PROTOCOL_PORTAUDIO;
 
     private Runnable devicesChangedCallback;
 
