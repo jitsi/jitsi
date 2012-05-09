@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -80,7 +81,8 @@ public class ChatInviteDialog
         {
             MetaContact metaContact = contactListIter.next();
 
-            this.addMetaContact(metaContact);
+            if(TreeContactList.presenceFilter.isMatching(metaContact))
+                this.addMetaContact(metaContact);
         }
     }
 

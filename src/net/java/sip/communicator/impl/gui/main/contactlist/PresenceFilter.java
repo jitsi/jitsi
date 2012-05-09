@@ -132,7 +132,7 @@ public class PresenceFilter
      * @return <tt>true</tt> if the given <tt>MetaContact</tt> is matching this
      * filter
      */
-    private boolean isMatching(MetaContact metaContact)
+    public boolean isMatching(MetaContact metaContact)
     {
         return isShowOffline || isContactOnline(metaContact);
     }
