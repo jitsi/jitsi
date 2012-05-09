@@ -22,6 +22,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Emil Ivov
  */
 public interface MetaContactGroup
+    extends Comparable<MetaContactGroup>
 {
     /**
      * Returns an iterator over all the protocol specific groups that this

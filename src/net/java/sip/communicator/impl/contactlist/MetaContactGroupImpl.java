@@ -33,8 +33,8 @@ public class MetaContactGroupImpl
     /**
      * All the subgroups that this group contains.
      */
-    private Vector<MetaContactGroupImpl> subgroups
-                                        = new Vector<MetaContactGroupImpl>();
+    private Set<MetaContactGroupImpl> subgroups
+                                        = new TreeSet<MetaContactGroupImpl>();
 
     /**
      * A list containing all child contacts.
@@ -64,6 +64,14 @@ public class MetaContactGroupImpl
      */
     private List<MetaContact> childContactsOrderedCopy
                                             = new LinkedList<MetaContact>();
+
+    /**
+     * We use this copy for returning iterators and searching over the list
+     * in order to avoid creating it upon each query. The copy is updated upon
+     * each modification
+     */
+    private List<MetaContactGroup> subgroupsOrderedCopy
+                                        = new LinkedList<MetaContactGroup>();
 
     /**
      * The meta contact group that is currently containing us.
@@ -316,7 +324,23 @@ public class MetaContactGroupImpl
      */
     public int indexOf(MetaContactGroup metaContactGroup)
     {
-        return subgroups.indexOf(metaContactGroup);
+        int i = 0;
+
+        Iterator<MetaContactGroup> childrenIter = getSubgroups();
+
+        while (childrenIter.hasNext())
+        {
+            MetaContactGroup current = childrenIter.next();
+
+            if (current == metaContactGroup)
+            {
+                return i;
+            }
+            i++;
+        }
+
+        //if we got here then metaContactGroup is not in this list
+        return -1;
     }
 
     /**
@@ -661,7 +685,7 @@ public class MetaContactGroupImpl
     public MetaContact getMetaContact(int index) throws
         IndexOutOfBoundsException
     {
-            return this.childContactsOrderedCopy.get(index);
+        return this.childContactsOrderedCopy.get(index);
     }
 
     /**
@@ -745,7 +769,7 @@ public class MetaContactGroupImpl
     public MetaContactGroup getMetaContactSubgroup(int index) throws
         IndexOutOfBoundsException
     {
-        return subgroups.get(index);
+        return subgroupsOrderedCopy.get(index);
     }
 
     /**
@@ -835,7 +859,7 @@ public class MetaContactGroupImpl
      */
     public Iterator<MetaContactGroup> getSubgroups()
     {
-        return new LinkedList<MetaContactGroup>( subgroups ).iterator();
+        return subgroupsOrderedCopy.iterator();
     }
 
     /**
@@ -938,6 +962,9 @@ public class MetaContactGroupImpl
                      + " to" + getGroupName());
         this.subgroups.add((MetaContactGroupImpl)subgroup);
         ((MetaContactGroupImpl)subgroup).parentMetaContactGroup = this;
+
+        this.subgroupsOrderedCopy =
+            new LinkedList<MetaContactGroup>(subgroups);
     }
 
     /**
@@ -947,10 +974,13 @@ public class MetaContactGroupImpl
      */
     MetaContactGroupImpl removeSubgroup(int index)
     {
-        MetaContactGroupImpl subgroup = subgroups.remove(index);
+        MetaContactGroupImpl subgroup =
+            (MetaContactGroupImpl)subgroupsOrderedCopy.get(index);
 
-        if (subgroup != null)
+        if (subgroups.remove(subgroup))
             subgroup.parentMetaContactGroup = null;
+
+        subgroupsOrderedCopy = new LinkedList<MetaContactGroup>(subgroups);
 
         return subgroup;
     }
@@ -1085,5 +1115,31 @@ public class MetaContactGroupImpl
                 if (key.equals(data[index]))
                     return index;
         return -1;
+    }
+
+    /**
+     * Compares this meta contact group with the specified object for order.
+     * Returns a negative integer, zero, or a positive integer as this
+     * meta contact group is less than, equal to, or greater than the specified
+     * object.
+     * <p>
+     * The result of this method is calculated the following way:
+     * <p>
+     * + getGroupName().compareTo(o.getGroupName()) * 10 000
+     * + getMetaUID().compareTo(o.getMetaUID())<br>
+     * <p>
+     * Or in other words ordering of meta groups would be first done by
+     * display name, and finally (in order to avoid
+     * equalities) be the fairly random meta contact group metaUID.
+     * <p>
+     * @param   target the <code>MetaContactGroup</code> to be compared.
+     * @return  a negative integer, zero, or a positive integer as this object
+     *      is less than, equal to, or greater than the specified object.
+     */
+    public int compareTo(MetaContactGroup target)
+    {
+        return getGroupName().compareToIgnoreCase(target.getGroupName())
+            * 10000
+            + getMetaUID().compareTo(target.getMetaUID());
     }
 }
