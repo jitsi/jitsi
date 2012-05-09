@@ -622,6 +622,16 @@ public class OperationSetFileTransferJabberImpl
                 logger.error("An exception occured while transfering file: ",
                     jabberTransfer.getException());
 
+                if(jabberTransfer.getException() instanceof XMPPException)
+                {
+                    XMPPError error =
+                        ((XMPPException)jabberTransfer.getException())
+                            .getXMPPError();
+                    if(error.getCode() == 406
+                       || error.getCode() == 403)
+                        status = FileTransferStatusChangeEvent.REFUSED;
+                }
+
                 statusReason = jabberTransfer.getException().getMessage();
             }
 
