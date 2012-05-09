@@ -89,7 +89,8 @@ public abstract class DeviceSystem
          */
         if (!cfg.getBoolean(
                 MediaServiceImpl.DISABLE_AUDIO_SUPPORT_PNAME,
-                false))
+                false)
+            && !Boolean.getBoolean(MediaServiceImpl.DISABLE_AUDIO_SUPPORT_PNAME))
         {
             if (logger.isInfoEnabled())
                 logger.info("Initializing audio devices");

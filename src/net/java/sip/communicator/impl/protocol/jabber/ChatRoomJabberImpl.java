@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.*;
@@ -131,6 +132,12 @@ public class ChatRoomJabberImpl
     private ChatRoomConfigurationFormJabberImpl configForm;
 
     /**
+     * Packet listener waits for rejection of invitations to join room.
+     */
+    private InvitationRejectionListeners invitationRejectionListeners
+        = new InvitationRejectionListeners();
+
+    /**
      * Creates an instance of a chat room that has been.
      *
      * @param multiUserChat MultiUserChat
@@ -153,6 +160,27 @@ public class ChatRoomJabberImpl
         multiUserChat.addMessageListener(new SmackMessageListener());
         multiUserChat.addParticipantStatusListener(new MemberListener());
         multiUserChat.addUserStatusListener(new UserListener());
+
+        this.provider.getConnection().addPacketListener(
+            invitationRejectionListeners,
+            new PacketTypeFilter(org.jivesoftware.smack.packet.Message.class));
+    }
+
+    /**
+     * Returns the MUCUser packet extension included in the packet or <tt>null</tt> if none.
+     *
+     * @param packet the packet that may include the MUCUser extension.
+     * @return the MUCUser found in the packet.
+     */
+    private MUCUser getMUCUserExtension(Packet packet)
+    {
+        if (packet != null)
+        {
+            // Get the MUC User extension
+            return (MUCUser) packet.getExtension("x",
+                "http://jabber.org/protocol/muc#user");
+        }
+        return null;
     }
 
     /**
@@ -701,6 +729,9 @@ public class ChatRoomJabberImpl
 
         // Delete the list of members
         members.clear();
+
+        this.provider.getConnection().removePacketListener(
+            invitationRejectionListeners);
     }
 
     /**
@@ -2292,5 +2323,64 @@ public class ChatRoomJabberImpl
     MultiUserChat getMultiUserChat()
     {
         return multiUserChat;
+    }
+
+    /**
+     * Listens for rejection message and delivers system message when received.
+     */
+    private class InvitationRejectionListeners
+        implements PacketListener
+    {
+        /**
+         * Process incoming packet, checking for muc extension.
+         * @param packet the incoming packet.
+         */
+        public void processPacket(Packet packet)
+        {
+            MUCUser mucUser = getMUCUserExtension(packet);
+
+            // Check if the MUCUser informs that the invitee
+            // has declined the invitation
+            if (mucUser.getDecline() != null
+                && ((org.jivesoftware.smack.packet.Message) packet).getType()
+                    != org.jivesoftware.smack.packet.Message.Type.error)
+            {
+                int messageReceivedEventType =
+                    ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED;
+                ChatRoomMemberJabberImpl member = new ChatRoomMemberJabberImpl(
+                    ChatRoomJabberImpl.this, getName(), getName());
+
+                String from = mucUser.getDecline().getFrom();
+
+                OperationSetPersistentPresenceJabberImpl presenceOpSet
+                    = (OperationSetPersistentPresenceJabberImpl) provider
+                        .getOperationSet(OperationSetPersistentPresence.class);
+                if(presenceOpSet != null)
+                {
+                    Contact c = presenceOpSet.findContactByID(
+                        StringUtils.parseBareAddress(from));
+                    if(c != null)
+                    {
+                        if(!from.contains(c.getDisplayName()))
+                            from = c.getDisplayName() + " (" + from + ")";
+                    }
+                }
+
+                String msgBody =
+                    JabberActivator.getResources().getI18NString(
+                        "service.gui.INVITATION_REJECTED",
+                        new String[]{from, mucUser.getDecline().getReason()});
+
+                ChatRoomMessageReceivedEvent msgReceivedEvt
+                    = new ChatRoomMessageReceivedEvent(
+                        ChatRoomJabberImpl.this,
+                        member,
+                        System.currentTimeMillis(),
+                        createMessage(msgBody),
+                        messageReceivedEventType);
+
+                fireMessageEvent(msgReceivedEvt);
+            }
+        }
     }
 }
