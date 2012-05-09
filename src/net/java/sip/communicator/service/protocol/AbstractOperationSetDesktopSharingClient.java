@@ -26,6 +26,12 @@ public abstract class AbstractOperationSetDesktopSharingClient
         <T extends ProtocolProviderService>
     implements OperationSetDesktopSharingClient
 {
+    /**
+     * List of the granted remote control peers for this client. Used to
+     * remember granted remote control peers, when the granted event is fired
+     * before the corresponding UI listener registration.
+     */
+    private Vector<CallPeer> grantedRemoteControlPeers = new Vector<CallPeer>();
 
     /**
      * The list of <tt>RemoteControlListener</tt>s to be notified when a change
@@ -91,6 +97,19 @@ public abstract class AbstractOperationSetDesktopSharingClient
                         new WeakReference<RemoteControlListener>(listener));
             }
         }
+
+        // Removes the null peers from the granted remote control peer list.
+        this.removesNullAndRevokedControlPeer(null);
+        // Notifies the new listener about the already granted remote control
+        // peers.
+        CallPeer peer;
+        for(int i = 0; i < this.grantedRemoteControlPeers.size(); ++i)
+        {
+            peer = this.grantedRemoteControlPeers.get(i);
+            RemoteControlGrantedEvent event =
+                new RemoteControlGrantedEvent(peer);
+            listener.remoteControlGranted(event);
+        }
     }
 
     /**
@@ -100,6 +119,9 @@ public abstract class AbstractOperationSetDesktopSharingClient
      */
     public void fireRemoteControlGranted(CallPeer peer)
     {
+        // Adds the peer to the granted remote control peer list.
+        this.grantedRemoteControlPeers.add(peer);
+
         List<RemoteControlListener> listeners = getListeners();
 
         if (!listeners.isEmpty())
@@ -108,7 +130,9 @@ public abstract class AbstractOperationSetDesktopSharingClient
                 = new RemoteControlGrantedEvent(peer);
 
             for(RemoteControlListener l : listeners)
+            {
                 l.remoteControlGranted(event);
+            }
         }
     }
 
@@ -129,6 +153,9 @@ public abstract class AbstractOperationSetDesktopSharingClient
             for(RemoteControlListener l : listeners)
                 l.remoteControlRevoked(event);
         }
+
+        // Removes the peer from the granted remote control peer list.
+        this.removesNullAndRevokedControlPeer(peer.getPeerID());
     }
 
     /**
@@ -181,6 +208,27 @@ public abstract class AbstractOperationSetDesktopSharingClient
 
                 if ((l == null) || l.equals(listener))
                     i.remove();
+            }
+        }
+    }
+
+    /**
+     * Removes null and the peer corresponding to the revokedPeerID from the
+     * granted control peer list.
+     *
+     * @param revokedPeerID The ID of the revoked peer. May be null to only
+     * clear null instances from the granted control peer list.
+     */
+    private void removesNullAndRevokedControlPeer(String revokedPeerID)
+    {
+        CallPeer peer;
+        for(int i = 0; i < this.grantedRemoteControlPeers.size(); ++i)
+        {
+            peer = this.grantedRemoteControlPeers.get(i);
+            if(peer == null || peer.getPeerID().equals(revokedPeerID))
+            {
+                this.grantedRemoteControlPeers.remove(i);
+                --i;
             }
         }
     }
