@@ -432,7 +432,7 @@ public class ChatRoomJabberImpl
     public void join(byte[] password)
         throws OperationFailedException
     {
-        joinAs(provider.getAccountID().getUserID(), password);
+        joinAs(getOurDisplayName(), password);
     }
 
     /**
@@ -445,7 +445,7 @@ public class ChatRoomJabberImpl
     public void join()
         throws OperationFailedException
     {
-        joinAs(provider.getAccountID().getUserID());
+        joinAs(getOurDisplayName());
     }
 
     /**
@@ -592,6 +592,38 @@ public class ChatRoomJabberImpl
     }
 
     /**
+     * Returns the display name of our account
+     *
+     * @return the display name of our account.
+     */
+    private String getOurDisplayName()
+    {
+        OperationSetServerStoredAccountInfo accountInfoOpSet
+            = provider.getOperationSet(
+                OperationSetServerStoredAccountInfo.class);
+
+        if(accountInfoOpSet == null)
+            return provider.getAccountID().getUserID();
+
+        ServerStoredDetails.DisplayNameDetail displayName = null;
+        Iterator<ServerStoredDetails.GenericDetail> displayNameDetails
+            =  accountInfoOpSet.getDetails(ServerStoredDetails.DisplayNameDetail.class);
+
+        if (displayNameDetails.hasNext())
+            displayName = (ServerStoredDetails.DisplayNameDetail) displayNameDetails.next();
+
+        if(displayName == null)
+            return provider.getAccountID().getUserID();
+
+        String result = displayName.getString();
+
+        if(result == null || result.length() == 0)
+            return provider.getAccountID().getUserID();
+        else
+            return result;
+    }
+
+    /**
      * Returns that <tt>ChatRoomJabberRole</tt> instance corresponding to the
      * <tt>smackRole</tt> string.
      *
@@ -636,7 +668,8 @@ public class ChatRoomJabberImpl
             ChatRoomMemberJabberImpl member = chatRoomMembers.next();
 
             if(participantName.equals(member.getName())
-                || participant.equals(member.getContactAddress()))
+                || participant.equals(member.getContactAddress())
+                || participantName.equals(member.getContactAddress()))
                 return member;
         }
         return null;
