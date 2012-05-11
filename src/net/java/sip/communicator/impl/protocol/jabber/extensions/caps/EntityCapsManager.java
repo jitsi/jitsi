@@ -997,13 +997,28 @@ public class EntityCapsManager
          */
         public boolean isValid(DiscoverInfo discoverInfo)
         {
-            return
-                (discoverInfo != null)
+            if(discoverInfo != null)
+            {
+                // The "node" attribute is not necessary in the query element.
+                // For example, Swift does not send back the "node" attribute in
+                // the Disco#info response. Thus, if the node of the IQ response
+                // is null, then we set it to the request one.
+                if(discoverInfo.getNode() == null)
+                {
+                    discoverInfo.setNode(getNodeVer());
+                }
+
+                if(getNodeVer().equals(discoverInfo.getNode())
                     && !hash.equals("")
                     && ver.equals(
                             capsToHash(
                                 hash,
-                                calculateEntityCapsString(discoverInfo)));
+                                calculateEntityCapsString(discoverInfo))))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
