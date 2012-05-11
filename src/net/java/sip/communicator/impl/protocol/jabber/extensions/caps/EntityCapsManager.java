@@ -999,7 +999,6 @@ public class EntityCapsManager
         {
             return
                 (discoverInfo != null)
-                    && getNodeVer().equals(discoverInfo.getNode())
                     && !hash.equals("")
                     && ver.equals(
                             capsToHash(
