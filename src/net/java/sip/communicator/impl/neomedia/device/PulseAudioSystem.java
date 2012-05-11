@@ -116,7 +116,7 @@ public class PulseAudioSystem
                         PA.context_connect(
                                 context,
                                 null,
-                                PA.CONTEXT_NOFAIL,
+                                PA.CONTEXT_NOFLAGS,
                                 0);
 
                         try
