@@ -494,6 +494,9 @@
 <?endif?>
 <Binary Id="CleanSweepExe" SourceFile="cleansweep.exe" />
 
+<!-- Includes any default translated Error or ProgressText elements -->
+<UIRef Id="WixUI_ErrorProgressText" />
+
 </Product>
 
     <!-- Modified ProgressDlg to not include InstallUISequence -->
