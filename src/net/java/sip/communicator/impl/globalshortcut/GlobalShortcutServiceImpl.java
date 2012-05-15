@@ -374,6 +374,7 @@ public class GlobalShortcutServiceImpl
         {
             if(entry.getKey().equals("answer") ||
                 entry.getKey().equals("hangup") ||
+                entry.getKey().equals("answer_hangup") ||
                 entry.getKey().equals("mute"))
             {
                 for(AWTKeyStroke e : entry.getValue())

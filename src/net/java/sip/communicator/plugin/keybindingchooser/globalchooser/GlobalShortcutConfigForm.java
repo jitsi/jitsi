@@ -197,6 +197,11 @@ public class GlobalShortcutConfigForm
                 desc = Resources.getString(
                     "plugin.keybindings.globalchooser.HANGUP_CALL");
             }
+            else if(key.equals("answer_hangup"))
+            {
+                desc = Resources.getString(
+                    "plugin.keybindings.globalchooser.ANSWER_HANGUP_CALL");
+            }
             else if(key.equals("contactlist"))
             {
                 desc = Resources.getString(
@@ -246,6 +251,11 @@ public class GlobalShortcutConfigForm
                 "plugin.keybindings.globalchooser.HANGUP_CALL")))
             {
                 desc = "hangup";
+            }
+            else if(entry.getAction().equals(Resources.getString(
+                "plugin.keybindings.globalchooser.ANSWER_HANGUP_CALL")))
+            {
+                desc = "answer_hangup";
             }
             else if(entry.getAction().equals(Resources.getString(
                 "plugin.keybindings.globalchooser.SHOW_CONTACTLIST")))

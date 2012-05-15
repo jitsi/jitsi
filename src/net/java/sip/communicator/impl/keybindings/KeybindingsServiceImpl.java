@@ -336,8 +336,8 @@ class KeybindingsServiceImpl
         String shortcut2 = null;
         String propName = null;
         String propName2 = null;
-        String names[] = new String[]{"answer", "hangup", "contactlist",
-            "mute"};
+        String names[] = new String[]{"answer", "hangup", "answer_hangup",
+            "contactlist", "mute"};
         Object configured = configService.getProperty(
             "net.java.sip.communicator.impl.keybinding.global.configured");
 
