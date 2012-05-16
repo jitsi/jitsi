@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.plaf.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -29,7 +30,9 @@ import net.java.sip.communicator.util.swing.plaf.*;
  */
 public class SearchFieldUI
     extends SIPCommTextFieldUI
-    implements Skinnable
+    implements Skinnable,
+               MouseMotionListener,
+               MouseListener
 {
     /**
      * The icon indicating that this is a search field.
@@ -98,12 +101,21 @@ public class SearchFieldUI
 
         if (isCallButtonEnabled)
         {
-            getComponent().addMouseListener(
-                new TextFieldMouseListener());
+            getComponent().addMouseListener(this);
 
-            getComponent().addMouseMotionListener(
-                new TextFieldMouseMotionListener());
+            getComponent().addMouseMotionListener(this);
         }
+    }
+
+    /**
+     * Uninstalls listeners for the UI.
+     */
+    protected void uninstallListeners()
+    {
+        super.uninstallListeners();
+
+        getComponent().removeMouseListener(this);
+        getComponent().removeMouseMotionListener(this);
     }
 
     /**
@@ -193,66 +205,52 @@ public class SearchFieldUI
     }
 
     /**
-     * The <tt>MouseListener</tt> that listens for mouse events in order to
-     * update the delete icon.
+     * Updates the call button when the mouse was clicked.
+     * @param e the <tt>MouseEvent</tt> that notified us of the click
      */
-    protected class TextFieldMouseListener implements MouseListener
+    public void mouseClicked(MouseEvent e)
     {
-        /**
-         * Updates the call button when the mouse was clicked.
-         * @param e the <tt>MouseEvent</tt> that notified us of the click
-         */
-        public void mouseClicked(MouseEvent e)
-        {
-            updateCallIcon(e);
-        }
-
-        /**
-         * Updates the call button when the mouse is enters the component area.
-         * @param e the <tt>MouseEvent</tt> that notified us
-         */
-        public void mouseEntered(MouseEvent e)
-        {
-            updateCallIcon(e);
-        }
-
-        /**
-         * Updates the call button when the mouse exits the component area.
-         * @param e the <tt>MouseEvent</tt> that notified us
-         */
-        public void mouseExited(MouseEvent e)
-        {
-            updateCallIcon(e);
-        }
-
-        public void mousePressed(MouseEvent e) {}
-
-        public void mouseReleased(MouseEvent e) {}
+        updateCallIcon(e);
     }
 
     /**
-     * The <tt>MouseMotionListener</tt> that listens for mouse events in order
-     * to update the delete icon.
+     * Updates the call button when the mouse is enters the component area.
+     * @param e the <tt>MouseEvent</tt> that notified us
      */
-    protected class TextFieldMouseMotionListener implements MouseMotionListener
+    public void mouseEntered(MouseEvent e)
     {
-        /**
-         * Updates the delete icon when the mouse is dragged over.
-         * @param e the <tt>MouseEvent</tt> that notified us
-         */
-        public void mouseDragged(MouseEvent e)
-        {
-            updateCallIcon(e);
-        }
+        updateCallIcon(e);
+    }
 
-        /**
-         * Updates the delete icon when the mouse is moved over.
-         * @param e the <tt>MouseEvent</tt> that notified us
-         */
-        public void mouseMoved(MouseEvent e)
-        {
-            updateCallIcon(e);
-        }
+    /**
+     * Updates the call button when the mouse exits the component area.
+     * @param e the <tt>MouseEvent</tt> that notified us
+     */
+    public void mouseExited(MouseEvent e)
+    {
+        updateCallIcon(e);
+    }
+
+    public void mousePressed(MouseEvent e) {}
+
+    public void mouseReleased(MouseEvent e) {}
+
+    /**
+     * Updates the delete icon when the mouse is dragged over.
+     * @param e the <tt>MouseEvent</tt> that notified us
+     */
+    public void mouseDragged(MouseEvent e)
+    {
+        updateCallIcon(e);
+    }
+
+    /**
+     * Updates the delete icon when the mouse is moved over.
+     * @param e the <tt>MouseEvent</tt> that notified us
+     */
+    public void mouseMoved(MouseEvent e)
+    {
+        updateCallIcon(e);
     }
 
     /**
@@ -349,5 +347,16 @@ public class SearchFieldUI
                 .getImage("service.gui.buttons.SEARCH_CALL_ROLLOVER_ICON")
                     .getImage();
         }
+    }
+
+    /**
+     * Creates a UI for a SearchFieldUI.
+     *
+     * @param c the text field
+     * @return the UI
+     */
+    public static ComponentUI createUI(JComponent c)
+    {
+        return new SearchFieldUI();
     }
 }

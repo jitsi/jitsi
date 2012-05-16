@@ -44,6 +44,21 @@ public class GlobalStatusSelectorBox
     implements ActionListener
 {
     /**
+     * Class id key used in UIDefaults.
+     */
+    private static final String uiClassID =
+        GlobalStatusSelectorBox.class.getName() +  "StatusMenuUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(uiClassID,
+            SIPCommStatusMenuUI.class.getName());
+    }
+
+    /**
      * The indent of the image.
      */
     private static final int IMAGE_INDENT = 10;
@@ -150,8 +165,6 @@ public class GlobalStatusSelectorBox
                 Constants.OFFLINE_STATUS);
 
         this.addSeparator();
-
-        this.setUI(new SIPCommStatusMenuUI());
 
         this.setFont(titleLabel.getFont().deriveFont(Font.PLAIN, 11f));
         this.setIcon(offlineItem.getIcon());
@@ -1006,5 +1019,17 @@ public class GlobalStatusSelectorBox
                 ImageLoader.USER_OFFLINE_ICON)));
 
         updateGlobalStatus();
+    }
+
+    /**
+     * Returns the name of the L&F class that renders this component.
+     *
+     * @return the string "TreeUI"
+     * @see JComponent#getUIClassID
+     * @see UIDefaults#getUI
+     */
+    public String getUIClassID()
+    {
+        return uiClassID;
     }
 }

@@ -158,6 +158,21 @@ public class SmileysSelectorBox
         extends JMenuItem
     {
         /**
+         * Class id key used in UIDefaults.
+         */
+        private static final String uiClassID =
+            SmileyMenuItem.class.getName() +  "TreeUI";
+
+        /**
+         * Adds the ui class to UIDefaults.
+         */
+        static
+        {
+            UIManager.getDefaults().put(uiClassID,
+                SIPCommMenuItemUI.class.getName());
+        }
+
+        /**
          * The <tt>Smiley</tt> depicted by this instance.
          */
         public final Smiley smiley;
@@ -172,9 +187,19 @@ public class SmileysSelectorBox
         {
             super(GuiActivator.getResources().getImage(smiley.getImageID()));
 
-            this.setUI(new SIPCommMenuItemUI());
-
             this.smiley = smiley;
+        }
+
+        /**
+         * Returns the name of the L&F class that renders this component.
+         *
+         * @return the string "TreeUI"
+         * @see JComponent#getUIClassID
+         * @see UIDefaults#getUI
+         */
+        public String getUIClassID()
+        {
+            return uiClassID;
         }
     }
 

@@ -30,6 +30,21 @@ public class SIPCommToolBar
     private static final long serialVersionUID = 0L;
 
     /**
+     * Class id key used in UIDefaults.
+     */
+    private static final String uiClassID =
+        SIPCommToolBar.class.getName() +  "ToolBarSeparatorUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(uiClassID,
+            SIPCommToolBarSeparatorUI.class.getName());
+    }
+
+    /**
      * Creates an instance of <tt>SIPCommToolBar</tt>.
      */
     public SIPCommToolBar() {
@@ -40,9 +55,9 @@ public class SIPCommToolBar
      * Adds a separator to this toolbar. The separator is added after
      * the last component in the toolbar.
      */
-    public void addSeparator() {
+    public void addSeparator()
+    {
         JToolBar.Separator s = new JToolBar.Separator(new Dimension(8, 22));
-        s.setUI(new SIPCommToolBarSeparatorUI());
 
         if (getOrientation() == VERTICAL) {
             s.setOrientation(JSeparator.HORIZONTAL);
@@ -66,5 +81,17 @@ public class SIPCommToolBar
 
         g2.drawImage(dragImage, 0, (this.getHeight() - dragImage
                 .getHeight(null)) / 2 - 2, null);
+    }
+
+    /**
+     * Returns the name of the L&F class that renders this component.
+     *
+     * @return the string "TreeUI"
+     * @see JComponent#getUIClassID
+     * @see UIDefaults#getUI
+     */
+    public String getUIClassID()
+    {
+        return uiClassID;
     }
 }

@@ -12,6 +12,9 @@ import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.plaf.*;
 
+import javax.swing.*;
+import javax.swing.plaf.*;
+
 /**
  * The <tt>SearchTextFieldUI</tt> is the one responsible for the search field
  * look & feel. It draws a search icon inside the field and adjusts the bounds
@@ -88,5 +91,16 @@ public class DialPadFieldUI
             return rect;
         }
         return null;
+    }
+
+    /**
+     * Creates a UI.
+     *
+     * @param c the text field
+     * @return the UI
+     */
+    public static ComponentUI createUI(JComponent c)
+    {
+        return new DialPadFieldUI();
     }
 }

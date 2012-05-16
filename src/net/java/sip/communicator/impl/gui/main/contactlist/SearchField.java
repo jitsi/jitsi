@@ -31,14 +31,24 @@ public class SearchField
                 Skinnable
 {
     /**
+     * Class id key used in UIDefaults.
+     */
+    private static final String uiClassID =
+        SearchField.class.getName() +  "FieldUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(uiClassID,
+            SearchFieldUI.class.getName());
+    }
+
+    /**
      * The main application window.
      */
     private final MainFrame mainFrame;
-
-    /**
-     * SearchFieldUI defs.
-     */
-    private final SearchFieldUI textFieldUI;
 
     /**
      * Creates the <tt>SearchField</tt>.
@@ -51,9 +61,9 @@ public class SearchField
 
         this.mainFrame = frame;
 
-        textFieldUI = new SearchFieldUI();
-        textFieldUI.setDeleteButtonEnabled(true);
-        this.setUI(textFieldUI);
+        if(getUI() instanceof  SearchFieldUI)
+            ((SearchFieldUI)getUI()).setDeleteButtonEnabled(true);
+
         this.setBorder(null);
         this.setOpaque(false);
 
@@ -200,6 +210,19 @@ public class SearchField
      */
     public void loadSkin()
     {
-        textFieldUI.loadSkin();
+        if(getUI() instanceof  SearchFieldUI)
+            ((SearchFieldUI)getUI()).loadSkin();
+    }
+
+    /**
+     * Returns the name of the L&F class that renders this component.
+     *
+     * @return the string "TreeUI"
+     * @see JComponent#getUIClassID
+     * @see UIDefaults#getUI
+     */
+    public String getUIClassID()
+    {
+        return uiClassID;
     }
 }

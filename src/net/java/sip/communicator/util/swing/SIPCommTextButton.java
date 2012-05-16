@@ -29,6 +29,20 @@ public class SIPCommTextButton extends JButton
      */
     private static final long serialVersionUID = 0L;
 
+    /**
+     * Class id key used in UIDefaults.
+     */
+    private static final String UIClassID = "BasicButtonUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(UIClassID,
+            BasicButtonUI.class.getName());
+    }
+
     private final float[] borderColor
         = Color.DARK_GRAY.getRGBComponents(null);
 
@@ -70,7 +84,6 @@ public class SIPCommTextButton extends JButton
          * and feel.
          */
         this.setContentAreaFilled(false);
-        this.setUI(new BasicButtonUI());
     }
 
     public void setBgImage(Image image)
@@ -151,6 +164,18 @@ public class SIPCommTextButton extends JButton
         }
 
     }
+
+    /**
+    * Returns the name of the L&F class that renders this component.
+    *
+    * @return the string "TreeUI"
+    * @see JComponent#getUIClassID
+    * @see UIDefaults#getUI
+    */
+   public String getUIClassID()
+   {
+       return UIClassID;
+   }
 
     /**
      * The <tt>ButtonRepaintCallback</tt> is charged to repaint this button

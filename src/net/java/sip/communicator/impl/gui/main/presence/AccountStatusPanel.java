@@ -41,6 +41,21 @@ public class AccountStatusPanel
                 Skinnable
 {
     /**
+     * Class id key used in UIDefaults.
+     */
+    private static final String uiClassID =
+        AccountStatusPanel.class.getName() +  "OpaquePanelUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(uiClassID,
+            SIPCommOpaquePanelUI.class.getName());
+    }
+
+    /**
      * The desired height of the avatar.
      */
     private static final int AVATAR_ICON_HEIGHT = 40;
@@ -119,9 +134,6 @@ public class AccountStatusPanel
     public AccountStatusPanel(MainFrame mainFrame)
     {
         super(new BorderLayout(10, 0));
-
-        if (ConfigurationManager.isTransparentWindowEnabled())
-            this.setUI(new SIPCommOpaquePanelUI());
 
         FramedImageWithMenu imageWithMenu
             = new FramedImageWithMenu(
@@ -595,5 +607,20 @@ public class AccountStatusPanel
             if (accountName != null && accountName.length() > 0)
                 accountNameLabel.setText(accountName);
         }
+    }
+
+    /**
+     * Returns the name of the L&F class that renders this component.
+     *
+     * @return the string "TreeUI"
+     * @see JComponent#getUIClassID
+     * @see UIDefaults#getUI
+     */
+    public String getUIClassID()
+    {
+        if(ConfigurationManager.isTransparentWindowEnabled())
+            return uiClassID;
+        else
+            return super.getUIClassID();
     }
 }

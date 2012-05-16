@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
 import net.java.sip.communicator.util.*;
@@ -25,6 +26,21 @@ public class ExtendedTooltip
 {
     private static final Logger logger
         = Logger.getLogger(ExtendedTooltip.class);
+
+    /**
+     * Class id key used in UIDefaults.
+     */
+    private static final String uiClassID =
+        ExtendedTooltip.class.getName() +  "ToolTipUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(uiClassID,
+            ImageToolTipUI.class.getName());
+    }
 
     private final JLabel imageLabel = new JLabel();
 
@@ -47,8 +63,6 @@ public class ExtendedTooltip
     public ExtendedTooltip(final Window parentWindow, boolean isListViewEnabled)
     {
         this.isListViewEnabled = isListViewEnabled;
-
-        this.setUI(new ImageToolTipUI());
 
         this.setLayout(new BorderLayout());
 
@@ -289,8 +303,20 @@ public class ExtendedTooltip
     /**
      * Customized UI for this MetaContactTooltip.
      */
-    private class ImageToolTipUI extends MetalToolTipUI
+    public static class ImageToolTipUI extends MetalToolTipUI
     {
+        static ImageToolTipUI sharedInstance = new ImageToolTipUI();
+
+        /**
+         * Creates the UI.
+         * @param c
+         * @return
+         */
+        public static ComponentUI createUI(JComponent c)
+        {
+            return sharedInstance;
+        }
+
         /**
          * Overwrite the UI paint method to do nothing in order fix double
          * painting of the tooltip text.
@@ -309,6 +335,9 @@ public class ExtendedTooltip
         @Override
         public void update(Graphics g, JComponent c)
         {
+            JTextArea bottomTextArea =
+                ((ExtendedTooltip)c).bottomTextArea;
+
             String bottomText = bottomTextArea.getText();
             if(bottomText == null || bottomText.length() <= 0)
                 bottomTextArea.setVisible(false);
@@ -325,40 +354,56 @@ public class ExtendedTooltip
         @Override
         public Dimension getPreferredSize(JComponent c)
         {
-            Icon icon = imageLabel.getIcon();
+            ExtendedTooltip tooltip = (ExtendedTooltip)c;
+
+            Icon icon = tooltip.imageLabel.getIcon();
             int width = 0;
             if (icon != null)
                 width += icon.getIconWidth();
 
-            if (isListViewEnabled)
-                width += textWidth + 15;
+            if (tooltip.isListViewEnabled)
+                width += tooltip.textWidth + 15;
             else
-                width = textWidth > width ? textWidth : width;
+                width = tooltip.textWidth > width ? tooltip.textWidth : width;
 
             int imageHeight = 0;
             if (icon != null)
                 imageHeight = icon.getIconHeight();
 
             int height = 0;
-            if (isListViewEnabled)
+            if (tooltip.isListViewEnabled)
             {
-                height = imageHeight > textHeight ? imageHeight : textHeight;
+                height = imageHeight > tooltip.textHeight
+                    ? imageHeight : tooltip.textHeight;
             }
             else
-                height = imageHeight + textHeight;
+                height = imageHeight + tooltip.textHeight;
 
-            String bottomText = bottomTextArea.getText();
+            String bottomText = tooltip.bottomTextArea.getText();
             if(bottomText != null && bottomText.length() > 0)
             {
                 // Seems a little messy, but sets the proper size.
-                bottomTextArea.setColumns(5);
-                bottomTextArea.setSize(0,0);
-                bottomTextArea.setSize(bottomTextArea.getPreferredSize());
+                tooltip.bottomTextArea.setColumns(5);
+                tooltip.bottomTextArea.setSize(0,0);
+                tooltip.bottomTextArea.setSize(
+                    tooltip.bottomTextArea.getPreferredSize());
 
-                height += bottomTextArea.getPreferredSize().height;
+                height += tooltip.bottomTextArea.getPreferredSize().height;
             }
 
             return new Dimension(width, height);
         }
+    }
+
+    /**
+     * Returns the name of the L&F class that renders this component.
+     *
+     * @return the string "TreeUI"
+     * @see JComponent#getUIClassID
+     * @see UIDefaults#getUI
+     */
+    public String getUIClassID()
+    {
+        return uiClassID;
     }
 }

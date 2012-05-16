@@ -49,7 +49,22 @@ public class AboutWindow
      */
     private static AboutWindow aboutWindow;
 
-    private final SIPCommTextFieldUI textFieldUI;
+    /**
+     * Class id key used in UIDefaults for the version label.
+     */
+    private static final String uiClassID =
+        AboutWindow.class.getName() +  "$VersionTextFieldUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(uiClassID,
+            SIPCommTextFieldUI.class.getName());
+    }
+
+    private final JTextField versionLabel;
 
     /**
      * Shows a <code>AboutWindow</code> creating it first if necessary. The
@@ -122,13 +137,24 @@ public class AboutWindow
             titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
         }
 
-        JTextField versionLabel
-            = new JTextField(" "
-                    + System.getProperty("sip-communicator.version"));
         // Force the use of the custom text field UI in order to fix an
         // incorrect rendering on Ubuntu.
-        textFieldUI = new SIPCommTextFieldUI();
-        versionLabel.setUI(textFieldUI);
+        versionLabel
+            = new JTextField(" "
+                    + System.getProperty("sip-communicator.version"))
+        {
+            /**
+             * Returns the name of the L&F class that renders this component.
+             *
+             * @return the string "TreeUI"
+             * @see JComponent#getUIClassID
+             * @see UIDefaults#getUI
+             */
+            public String getUIClassID()
+            {
+                return uiClassID;
+            }
+        };
 
         versionLabel.setBorder(null);
         versionLabel.setOpaque(false);
@@ -246,7 +272,8 @@ public class AboutWindow
      */
     public void loadSkin()
     {
-        textFieldUI.loadSkin();
+        if(versionLabel.getUI() instanceof Skinnable)
+            ((Skinnable)versionLabel.getUI()).loadSkin();
     }
 
     /**

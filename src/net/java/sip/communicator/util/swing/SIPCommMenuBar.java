@@ -28,6 +28,20 @@ public class SIPCommMenuBar
     private static final long serialVersionUID = 0L;
 
     /**
+     * Class id key used in UIDefaults.
+     */
+    private static final String UIClassID = "SIPCommMenuBarUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(UIClassID,
+            SIPCommMenuBarUI.class.getName());
+    }
+
+    /**
      * Creates an instance of <tt>SIPCommMenuBar</tt>.
      */
     public SIPCommMenuBar()
@@ -41,6 +55,17 @@ public class SIPCommMenuBar
     public void loadSkin()
     {
         this.setBorder(BorderFactory.createEmptyBorder());
-        this.setUI(new SIPCommMenuBarUI());
     }
+
+    /**
+    * Returns the name of the L&F class that renders this component.
+    *
+    * @return the string "TreeUI"
+    * @see JComponent#getUIClassID
+    * @see UIDefaults#getUI
+    */
+   public String getUIClassID()
+   {
+       return UIClassID;
+   }
 }

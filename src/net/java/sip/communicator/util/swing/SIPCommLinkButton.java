@@ -21,7 +21,19 @@ public class SIPCommLinkButton
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Class id key used in UIDefaults.
+     */
     private static final String UIClassID = "LinkButtonUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(UIClassID,
+            SIPCommLinkButtonUI.class.getName());
+    }
     
     public static final int ALWAYS_UNDERLINE = 0;
 
@@ -77,10 +89,7 @@ public class SIPCommLinkButton
     public SIPCommLinkButton(String text, URL url)
     {
         super(text);
-        
-        // Define UI
-        this.setUI(SIPCommLinkButtonUI.createUI(this));
-        UIManager.getDefaults().put("LinkButtonUI", "SIPCommLinkButtonUI");
+
         linkBehavior = SIPCommLinkButton.HOVER_UNDERLINE;
         
         linkColor = Color.blue;
@@ -95,12 +104,6 @@ public class SIPCommLinkButton
         this.setContentAreaFilled(false);
         this.setRolloverEnabled(true);
         this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    }
-    
-    @Override
-    public void updateUI()
-    {
-        this.setUI(SIPCommLinkButtonUI.createUI(this));
     }
 
     public String getUIClassID()

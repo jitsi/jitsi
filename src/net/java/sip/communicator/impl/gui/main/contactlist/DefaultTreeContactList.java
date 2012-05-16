@@ -36,6 +36,21 @@ public class DefaultTreeContactList
     private static final long serialVersionUID = 0L;
 
     /**
+     * Class id key used in UIDefaults.
+     */
+    private static final String uiClassID =
+        DefaultTreeContactList.class.getName() +  "TreeUI";
+
+    /**
+     * Adds the ui class to UIDefaults.
+     */
+    static
+    {
+        UIManager.getDefaults().put(uiClassID,
+            SIPCommTreeUI.class.getName());
+    }
+
+    /**
      * The cached selection event.
      */
     private TreeSelectionEvent myCachedSelectionEvent;
@@ -50,7 +65,6 @@ public class DefaultTreeContactList
      */
     public DefaultTreeContactList()
     {
-        this.setUI(new SIPCommTreeUI());
         this.setBackground(Color.WHITE);
         this.setDragEnabled(true);
         this.setTransferHandler(new ContactListTransferHandler(this));
@@ -235,5 +249,17 @@ public class DefaultTreeContactList
     public void loadSkin()
     {
         renderer.loadSkin();
+    }
+
+    /**
+     * Returns the name of the L&F class that renders this component.
+     *
+     * @return the string "TreeUI"
+     * @see JComponent#getUIClassID
+     * @see UIDefaults#getUI
+     */
+    public String getUIClassID()
+    {
+        return uiClassID;
     }
 }

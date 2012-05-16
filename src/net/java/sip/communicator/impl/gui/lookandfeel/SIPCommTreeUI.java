@@ -25,6 +25,8 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
  */
 public class SIPCommTreeUI
     extends BasicTreeUI
+    implements HierarchyListener,
+               TreeSelectionListener
 {
     private static JTree tree;
 
@@ -59,31 +61,69 @@ public class SIPCommTreeUI
 
         tree = (JTree)c;
 
-        tree.getSelectionModel().addTreeSelectionListener(
-            new TreeSelectionListener()
-        {
-            public void valueChanged(TreeSelectionEvent e)
-            {
-                // Update cell size.
-                selectionChanged(   e.getOldLeadSelectionPath(),
-                                    e.getNewLeadSelectionPath());
-            }
-        });
+        JViewport v = getFirstParentViewport(tree);
+        if(v != null)
+            this.parentViewport = v;
+        else
+            tree.addHierarchyListener(this);
 
-        tree.addHierarchyListener(new HierarchyListener()
-        {
-            public void hierarchyChanged(HierarchyEvent e)
-            {
-                if (e.getID() == HierarchyEvent.HIERARCHY_CHANGED
-                    && (e.getChangeFlags() & HierarchyEvent.PARENT_CHANGED) != 0
-                    && e.getChangedParent() instanceof JViewport)
-                {
-                    parentViewport = (JViewport) e.getChangedParent();
-                }
-            }
-        });
+        tree.getSelectionModel().addTreeSelectionListener(this);
 
         super.installUI(c);
+    }
+
+    /**
+     * Returns the first parent view port found.
+     * @param c the component parents we search
+     * @return the first parent view port found.
+     */
+    private JViewport getFirstParentViewport(Container c)
+    {
+        if(c == null)
+            return null;
+        else
+            if(c instanceof JViewport)
+                return (JViewport)c;
+            else
+                return getFirstParentViewport(c.getParent());
+    }
+
+    /**
+     * On uninstalling the ui remove the listeners.
+     * @param c
+     */
+    public void uninstallUI(JComponent c)
+    {
+        tree.getSelectionModel().clearSelection();
+        tree.getSelectionModel().removeTreeSelectionListener(this);
+        tree.removeHierarchyListener(this);
+
+        super.uninstallUI(c);
+    }
+
+    /**
+     * HierarchyListener's method.
+     * @param e the event.
+     */
+    public void hierarchyChanged(HierarchyEvent e)
+    {
+        if (e.getID() == HierarchyEvent.HIERARCHY_CHANGED
+            && (e.getChangeFlags() & HierarchyEvent.PARENT_CHANGED) != 0
+            && e.getChangedParent() instanceof JViewport)
+        {
+            parentViewport = (JViewport) e.getChangedParent();
+        }
+    }
+
+    /**
+     * The TreeSelectionListener's method.
+     * @param e the event.
+     */
+    public void valueChanged(TreeSelectionEvent e)
+    {
+        // Update cell size.
+        selectionChanged(   e.getOldLeadSelectionPath(),
+                            e.getNewLeadSelectionPath());
     }
 
     /**

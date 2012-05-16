@@ -8,6 +8,8 @@ package net.java.sip.communicator.util.swing.plaf;
 import java.awt.*;
 import java.awt.event.*;
 
+import javax.swing.*;
+import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 import javax.swing.text.*;
 
@@ -23,7 +25,9 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class SIPCommTextFieldUI
     extends MetalTextFieldUI
-    implements Skinnable
+    implements Skinnable,
+               MouseMotionListener,
+               MouseListener
 {
     /**
      * Indicates if the mouse is currently over the delete button.
@@ -127,11 +131,20 @@ public class SIPCommTextFieldUI
     {
         super.installListeners();
 
-        getComponent().addMouseListener(
-            new TextFieldMouseListener());
+        getComponent().addMouseListener(this);
 
-        getComponent().addMouseMotionListener(
-            new TextFieldMouseMotionListener());
+        getComponent().addMouseMotionListener(this);
+    }
+
+    /**
+     * Uninstalls listeners for the UI.
+     */
+    protected void uninstallListeners()
+    {
+        super.uninstallListeners();
+
+        getComponent().removeMouseListener(this);
+        getComponent().removeMouseMotionListener(this);
     }
 
     /**
@@ -381,71 +394,58 @@ public class SIPCommTextFieldUI
     }
 
     /**
-     * The <tt>MouseListener</tt> that listens for mouse events in order to
-     * update the delete icon.
+     * Updates the delete icon when the mouse was clicked.
+     * @param e the <tt>MouseEvent</tt> that notified us of the click
      */
-    protected class TextFieldMouseListener implements MouseListener
+    public void mouseClicked(MouseEvent e)
     {
-        /**
-         * Updates the delete icon when the mouse was clicked.
-         * @param e the <tt>MouseEvent</tt> that notified us of the click
-         */
-        public void mouseClicked(MouseEvent e)
-        {
-            updateDeleteIcon(e);
-            updateCursor(e);
-        }
-
-        /**
-         * Updates the delete icon when the mouse is enters the component area.
-         * @param e the <tt>MouseEvent</tt> that notified us
-         */
-        public void mouseEntered(MouseEvent e)
-        {
-            updateDeleteIcon(e);
-            updateCursor(e);
-        }
-
-        /**
-         * Updates the delete icon when the mouse exits the component area.
-         * @param e the <tt>MouseEvent</tt> that notified us
-         */
-        public void mouseExited(MouseEvent e)
-        {
-            updateDeleteIcon(e);
-            updateCursor(e);
-        }
-
-        public void mousePressed(MouseEvent e) {}
-
-        public void mouseReleased(MouseEvent e) {}
+        updateDeleteIcon(e);
+        updateCursor(e);
     }
 
     /**
-     * The <tt>MouseMotionListener</tt> that listens for mouse events in order
-     * to update the delete icon.
+     * Updates the delete icon when the mouse is enters the component area.
+     * @param e the <tt>MouseEvent</tt> that notified us
      */
-    protected class TextFieldMouseMotionListener implements MouseMotionListener
+    public void mouseEntered(MouseEvent e)
     {
-        /**
-         * Updates the delete icon when the mouse is dragged over.
-         * @param e the <tt>MouseEvent</tt> that notified us
-         */
-        public void mouseDragged(MouseEvent e)
-        {
-            updateDeleteIcon(e);
-            updateCursor(e);
-        }
+        updateDeleteIcon(e);
+        updateCursor(e);
+    }
 
-        /**
-         * Updates the delete icon when the mouse is moved over.
-         * @param e the <tt>MouseEvent</tt> that notified us
-         */
-        public void mouseMoved(MouseEvent e)
-        {
-            updateDeleteIcon(e);
-            updateCursor(e);
-        }
+    /**
+     * Updates the delete icon when the mouse exits the component area.
+     * @param e the <tt>MouseEvent</tt> that notified us
+     */
+    public void mouseExited(MouseEvent e)
+    {
+        updateDeleteIcon(e);
+        updateCursor(e);
+    }
+
+    public void mousePressed(MouseEvent e) {}
+
+    public void mouseReleased(MouseEvent e) {}
+
+
+    /**
+     * Updates the delete icon when the mouse is dragged over.
+     * @param e the <tt>MouseEvent</tt> that notified us
+     */
+    public void mouseDragged(MouseEvent e)
+    {
+        updateDeleteIcon(e);
+        updateCursor(e);
+    }
+
+    /**
+     * Updates the delete icon when the mouse is moved over.
+     * @param e the <tt>MouseEvent</tt> that notified us
+     */
+    public void mouseMoved(MouseEvent e)
+    {
+        updateDeleteIcon(e);
+        updateCursor(e);
     }
 
     private void updateCursor(MouseEvent mouseEvent)
@@ -456,5 +456,16 @@ public class SIPCommTextFieldUI
             getComponent().setCursor(
                 Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
         }
+    }
+
+    /**
+     * Creates a UI for a SIPCommTextFieldUI.
+     *
+     * @param c the text field
+     * @return the UI
+     */
+    public static ComponentUI createUI(JComponent c)
+    {
+        return new SIPCommTextFieldUI();
     }
 }

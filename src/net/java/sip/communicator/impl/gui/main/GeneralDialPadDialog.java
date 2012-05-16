@@ -315,10 +315,25 @@ public class GeneralDialPadDialog
     /**
      * A custom call field.
      */
-    private class CallField
+    private static class CallField
         extends SIPCommTextField
         implements Skinnable
     {
+        /**
+         * Class id key used in UIDefaults.
+         */
+        private static final String uiClassID =
+            CallField.class.getName() +  "FieldUI";
+
+        /**
+         * Adds the ui class to UIDefaults.
+         */
+        static
+        {
+            UIManager.getDefaults().put(uiClassID,
+                DialPadFieldUI.class.getName());
+        }
+
         /**
          * The text field ui.
          */
@@ -333,11 +348,12 @@ public class GeneralDialPadDialog
         {
             super(text);
 
-            textFieldUI = new DialPadFieldUI();
-            textFieldUI.setDeleteButtonEnabled(true);
+            if(getUI() instanceof DialPadFieldUI)
+            {
+                ((DialPadFieldUI)getUI()).setDeleteButtonEnabled(true);
+            }
 
             this.setPreferredSize(new Dimension(200, 23));
-            this.setUI(textFieldUI);
             this.setBorder(null);
             this.setOpaque(false);
 
@@ -351,6 +367,11 @@ public class GeneralDialPadDialog
          */
         public void loadSkin()
         {
+            if(getUI() instanceof SIPCommTextFieldUI)
+                textFieldUI = (SIPCommTextFieldUI)getUI();
+            else
+                return;
+
             textFieldUI.loadSkin();
 
             if (OSUtils.IS_MAC)
@@ -365,6 +386,18 @@ public class GeneralDialPadDialog
 
                 setCaretColor(Color.WHITE);
             }
+        }
+
+        /**
+         * Returns the name of the L&F class that renders this component.
+         *
+         * @return the string "TreeUI"
+         * @see JComponent#getUIClassID
+         * @see UIDefaults#getUI
+         */
+        public String getUIClassID()
+        {
+            return uiClassID;
         }
     }
 }
