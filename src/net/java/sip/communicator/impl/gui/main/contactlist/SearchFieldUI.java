@@ -30,9 +30,7 @@ import net.java.sip.communicator.util.swing.plaf.*;
  */
 public class SearchFieldUI
     extends SIPCommTextFieldUI
-    implements Skinnable,
-               MouseMotionListener,
-               MouseListener
+    implements Skinnable
 {
     /**
      * The icon indicating that this is a search field.
@@ -89,33 +87,6 @@ public class SearchFieldUI
         }
 
         loadSkin();
-    }
-
-    /**
-     * Adds the custom mouse listeners defined in this class to the installed
-     * listeners.
-     */
-    protected void installListeners()
-    {
-        super.installListeners();
-
-        if (isCallButtonEnabled)
-        {
-            getComponent().addMouseListener(this);
-
-            getComponent().addMouseMotionListener(this);
-        }
-    }
-
-    /**
-     * Uninstalls listeners for the UI.
-     */
-    protected void uninstallListeners()
-    {
-        super.uninstallListeners();
-
-        getComponent().removeMouseListener(this);
-        getComponent().removeMouseMotionListener(this);
     }
 
     /**
@@ -210,7 +181,10 @@ public class SearchFieldUI
      */
     public void mouseClicked(MouseEvent e)
     {
-        updateCallIcon(e);
+        super.mouseClicked(e);
+
+        if(isCallButtonEnabled)
+            updateCallIcon(e);
     }
 
     /**
@@ -219,7 +193,10 @@ public class SearchFieldUI
      */
     public void mouseEntered(MouseEvent e)
     {
-        updateCallIcon(e);
+        super.mouseEntered(e);
+
+        if(isCallButtonEnabled)
+            updateCallIcon(e);
     }
 
     /**
@@ -228,12 +205,21 @@ public class SearchFieldUI
      */
     public void mouseExited(MouseEvent e)
     {
-        updateCallIcon(e);
+        super.mouseExited(e);
+
+        if(isCallButtonEnabled)
+            updateCallIcon(e);
     }
 
-    public void mousePressed(MouseEvent e) {}
+    public void mousePressed(MouseEvent e)
+    {
+        super.mousePressed(e);
+    }
 
-    public void mouseReleased(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e)
+    {
+        super.mouseReleased(e);
+    }
 
     /**
      * Updates the delete icon when the mouse is dragged over.
@@ -241,7 +227,10 @@ public class SearchFieldUI
      */
     public void mouseDragged(MouseEvent e)
     {
-        updateCallIcon(e);
+        super.mouseDragged(e);
+
+        if(isCallButtonEnabled)
+            updateCallIcon(e);
     }
 
     /**
@@ -250,7 +239,10 @@ public class SearchFieldUI
      */
     public void mouseMoved(MouseEvent e)
     {
-        updateCallIcon(e);
+        super.mouseMoved(e);
+
+        if(isCallButtonEnabled)
+            updateCallIcon(e);
     }
 
     /**

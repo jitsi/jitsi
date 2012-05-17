@@ -159,13 +159,17 @@ public class HttpUtils
         int redirects = 0;
         while(response == null
               || response.getStatusLine().getStatusCode()
-                    == HttpStatus.SC_UNAUTHORIZED)
+                    == HttpStatus.SC_UNAUTHORIZED
+              || response.getStatusLine().getStatusCode()
+                            == HttpStatus.SC_FORBIDDEN)
         {
             // if we were unauthorized, lets clear the method and recreate it
             // for new connection with new credentials.
             if(response != null
-               && response.getStatusLine().getStatusCode()
-                    == HttpStatus.SC_UNAUTHORIZED)
+               && (response.getStatusLine().getStatusCode()
+                    == HttpStatus.SC_UNAUTHORIZED
+                    || response.getStatusLine().getStatusCode()
+                                        == HttpStatus.SC_FORBIDDEN))
             {
                 if(logger.isDebugEnabled())
                     logger.debug("Will retry http connect and " +
@@ -455,13 +459,20 @@ public class HttpUtils
             HTTPCredentialsProvider prov = (HTTPCredentialsProvider)
                     httpClient.getCredentialsProvider();
 
-            creds =  prov.getCredentials(
-                    new AuthScope(url.getHost(), url.getPort()));
-
-            // it was user canceled lets stop processing
-            if(creds == null && !prov.retry())
+            // don't allow empty username
+            while(creds == null
+                  || creds.getUserPrincipal() == null
+                  || StringUtils.isNullOrEmpty(
+                        creds.getUserPrincipal().getName()))
             {
-                return null;
+                creds =  prov.getCredentials(
+                        new AuthScope(url.getHost(), url.getPort()));
+
+                // it was user canceled lets stop processing
+                if(creds == null && !prov.retry())
+                {
+                    return null;
+                }
             }
         }
 
