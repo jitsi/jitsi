@@ -42,20 +42,6 @@ public class SIPCommTabbedPane
      */
     private static final long serialVersionUID = 0L;
 
-    /**
-     * Class id key used in UIDefaults.
-     */
-    private static final String UIClassID = "SIPCommTabbedPaneEnhancedUI";
-
-    /**
-     * Adds the ui class to UIDefaults.
-     */
-    static
-    {
-        UIManager.getDefaults().put(UIClassID,
-            SIPCommTabbedPaneEnhancedUI.class.getName());
-    }
-
     private int overTabIndex = -1;
 
     private int lastSelectedIndex;
@@ -85,6 +71,8 @@ public class SIPCommTabbedPane
         this.setForeground(
             new Color(UtilActivator.getResources()
                 .getColor("service.gui.TAB_TITLE")));
+
+        this.setUI(new SIPCommTabbedPaneEnhancedUI());
 
         if(closingTabs)
             this.setCloseIcon(true);
@@ -521,17 +509,5 @@ public class SIPCommTabbedPane
                 .getColor("service.gui.TAB_TITLE")));
 
         ((SIPCommTabbedPaneEnhancedUI)this.getUI()).loadSkin();
-    }
-
-    /**
-     * Returns the name of the L&F class that renders this component.
-     *
-     * @return the string "TreeUI"
-     * @see JComponent#getUIClassID
-     * @see UIDefaults#getUI
-     */
-    public String getUIClassID()
-    {
-        return UIClassID;
     }
 }
