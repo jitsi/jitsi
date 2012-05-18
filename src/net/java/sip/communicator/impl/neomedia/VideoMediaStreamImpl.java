@@ -119,12 +119,28 @@ public class VideoMediaStreamImpl
 
                 public final double difference;
 
+                public final Dimension dimension;
+
                 public FormatInfo(VideoFormat format)
                 {
                     this.format = format;
 
-                    Dimension size = format.getSize();
+                    this.dimension = format.getSize();
 
+                    this.difference = getDifference(this.dimension);
+                }
+
+                public FormatInfo(Dimension size)
+                {
+                    this.format = null;
+
+                    this.dimension = size;
+
+                    this.difference = getDifference(this.dimension);
+                }
+
+                private double getDifference(Dimension size)
+                {
                     int width = (size == null) ? 0 : size.width;
                     double xScale;
 
@@ -145,7 +161,7 @@ public class VideoMediaStreamImpl
                     else
                         yScale = (preferredHeight / (double) height);
 
-                    difference = Math.abs(1 - Math.min(xScale, yScale));
+                    return Math.abs(1 - Math.min(xScale, yScale));
                 }
             }
 
@@ -193,14 +209,48 @@ public class VideoMediaStreamImpl
                 if (currentFormat != null)
                     currentSize = currentFormat.getSize();
 
-                // lets choose the closest size to the preferred one
-                for(Dimension supported :
-                        DeviceConfiguration.SUPPORTED_RESOLUTIONS)
+                // sort supported resolutions by aspect
+                FormatInfo[] supportedInfos
+                    = new FormatInfo[
+                            DeviceConfiguration.SUPPORTED_RESOLUTIONS.length];
+                for (int i = 0; i < supportedInfos.length; i++)
                 {
-                    if(supported.height <= preferredHeight
-                       && supported.width <= preferredWidth)
-                        currentSize = supported;
+                    supportedInfos[i]
+                        = new FormatInfo(
+                            DeviceConfiguration.SUPPORTED_RESOLUTIONS[i]);
                 }
+                Arrays.sort(infos, new Comparator<FormatInfo>()
+                {
+                    public int compare(FormatInfo info0, FormatInfo info1)
+                    {
+                        return
+                            Double.compare(info0.difference, info1.difference);
+                    }
+                });
+
+                FormatInfo preferredFormat =
+                    new FormatInfo(new Dimension(preferredWidth, preferredHeight));
+
+                Dimension closestAspect = null;
+                // lets choose the closest size to the preferred one,
+                // finding the first sutable aspect
+                for(FormatInfo supported : supportedInfos)
+                {
+                    // find the first matching aspect
+                    if(preferredFormat.difference > supported.difference)
+                        continue;
+                    else if(closestAspect == null)
+                        closestAspect = supported.dimension;
+
+                    if(supported.dimension.height <= preferredHeight
+                       && supported.dimension.width <= preferredWidth)
+                    {
+                        currentSize = supported.dimension;
+                    }
+                }
+
+                if(currentSize == null)
+                    currentSize = closestAspect;
 
                 if ((currentSize.width > 0) && (currentSize.height > 0))
                 {

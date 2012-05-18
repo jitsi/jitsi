@@ -916,8 +916,8 @@ public class MediaServiceImpl
                  */
                 if ((preferredWidth < 128) || (preferredHeight < 96))
                 {
-                    preferredHeight = 128;
-                    preferredWidth = 96;
+                    preferredWidth = 128;
+                    preferredHeight = 96;
                 }
                 VideoMediaStreamImpl.selectVideoSize(
                         dataSource,

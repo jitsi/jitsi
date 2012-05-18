@@ -491,7 +491,11 @@ public class MediaConfiguration
 
                     if ((deviceComboBox.getSelectedItem() != null)
                             && deviceComboBox.isShowing())
-                        preview = createPreview(type, deviceComboBox);
+                    {
+                        preview = createPreview(type, deviceComboBox,
+                            deviceAndPreviewPanel.getPreferredSize());
+                    }
+
                     if (preview != null)
                     {
                         deviceAndPreviewPanel.add(preview, BorderLayout.CENTER);
@@ -697,7 +701,7 @@ public class MediaConfiguration
             if(((MediaDeviceImpl) mediaDevice).getCaptureDeviceInfo().equals(
                     device))
             {
-                Dimension videoContainerSize = videoContainer.getSize();
+                Dimension videoContainerSize = videoContainer.getPreferredSize();
                 Component preview
                     = (Component)
                         mediaService.getVideoPreviewComponent(
@@ -716,9 +720,11 @@ public class MediaConfiguration
      * Create preview component.
      * @param type type
      * @param comboBox the options.
+     * @param prefSize the preferred size
      * @return the component.
      */
-    private static Component createPreview(int type, final JComboBox comboBox)
+    private static Component createPreview(int type, final JComboBox comboBox,
+                                           Dimension prefSize)
     {
         JComponent preview = null;
 
@@ -749,6 +755,7 @@ public class MediaConfiguration
             noPreview.setVerticalAlignment(SwingConstants.CENTER);
 
             preview = createVideoContainer(noPreview);
+            preview.setPreferredSize(prefSize);
 
             Object selectedItem = comboBox.getSelectedItem();
             CaptureDeviceInfo device = null;
