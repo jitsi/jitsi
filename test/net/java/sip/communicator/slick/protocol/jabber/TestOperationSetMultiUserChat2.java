@@ -318,9 +318,9 @@ public class TestOperationSetMultiUserChat2
 //
 //        suite.addTest(
 //            new TestOperationSetMultiUserChat2("testRoomSubject"));
-
-        suite.addTest(
-            new TestOperationSetMultiUserChat2("testConferenceChat"));
+//
+//        suite.addTest(
+//            new TestOperationSetMultiUserChat2("testConferenceChat"));
 
         suite.addTest(
             new TestOperationSetMultiUserChat2("testMemberBan"));
