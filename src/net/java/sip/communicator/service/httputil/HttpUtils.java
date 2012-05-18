@@ -112,7 +112,7 @@ public class HttpUtils
             HttpGet httpGet = new HttpGet(address);
             DefaultHttpClient httpClient = getHttpClient(
                 usernamePropertyName, passwordPropertyName,
-                httpGet.getURI().getHost());
+                httpGet.getURI().getHost(), null);
 
             /* add additional HTTP header */
             if(headerParamNames != null && headerParamValues != null)
@@ -175,28 +175,7 @@ public class HttpUtils
                     logger.debug("Will retry http connect and " +
                         "credentials input as latest are not correct!");
 
-                URI uri = req.getURI();
-                req.abort();
-                req = req.getClass().newInstance();
-                req.setURI(uri);
-
-                httpClient.getCredentialsProvider().clear();
-
-                if(!((HTTPCredentialsProvider)httpClient
-                    .getCredentialsProvider()).isChallengedForCredentials())
-                {
-                    // we were not challenged for credentials
-                    // something other is happening and we are un-authorized
-                    // lets rise an exception and stop current execution.
-                    // and will clear any credentials if any
-                    throw new AuthenticationException("Unauthorized");
-                }
-                else
-                {
-                    // well we were challenged but user entered wrong pass
-                    // lets challenge again
-                    response = httpClient.execute(req);
-                }
+                throw new AuthenticationException("Authorization needed");
             }
             else
                 response = httpClient.execute(req);
@@ -302,7 +281,7 @@ public class HttpUtils
 
             httpClient = getHttpClient(
                 usernamePropertyName, passwordPropertyName,
-                postMethod.getURI().getHost());
+                postMethod.getURI().getHost(), null);
 
             String mimeType = URLConnection.guessContentTypeFromName(
                 file.getPath());
@@ -368,12 +347,13 @@ public class HttpUtils
             // if any authentication exception rise while executing
             // will retry
             AuthenticationException authEx;
+            HTTPCredentialsProvider credentialsProvider = null;
             do
             {
                 postMethod = new HttpPost(address);
                 httpClient = getHttpClient(
                     usernamePropertyName, passwordPropertyName,
-                    postMethod.getURI().getHost());
+                    postMethod.getURI().getHost(), credentialsProvider);
 
                 try
                 {
@@ -394,6 +374,22 @@ public class HttpUtils
                 catch(AuthenticationException ex)
                 {
                     authEx = ex;
+
+                    // lets reuse credentialsProvider
+                    credentialsProvider = (HTTPCredentialsProvider)
+                        httpClient.getCredentialsProvider();
+                    String userName = credentialsProvider.authUsername;
+
+                    // clear
+                    credentialsProvider.clear();
+
+                    // lets show the same username
+                    credentialsProvider.authUsername = userName;
+                    credentialsProvider.errorMessage =
+                        HttpUtilActivator.getResources().getI18NString(
+                        "service.gui.AUTHENTICATION_FAILED",
+                        new String[]
+                                {credentialsProvider.usedScope.getHost()});
                 }
             }
             while(authEx != null);
@@ -526,12 +522,15 @@ public class HttpUtils
      * @param passwordPropertyName the property to use to retrieve/store
      * password value if protected site is hit, for password
      * CredentialsStorageService service is used.
+     * @param credentialsProvider if not null provider will bre reused
+     * in the new client
      * @param address the address we will be connecting to
      */
     private static DefaultHttpClient getHttpClient(
         String usernamePropertyName,
         String passwordPropertyName,
-        final String address)
+        final String address,
+        HTTPCredentialsProvider credentialsProvider)
         throws IOException
     {
         HttpParams params = new BasicHttpParams();
@@ -572,9 +571,10 @@ public class HttpUtils
         ProxySelector.getDefault());
         httpClient.setRoutePlanner(routePlanner);
 
-        HTTPCredentialsProvider credentialsProvider =
-            new HTTPCredentialsProvider(
-                    usernamePropertyName, passwordPropertyName);
+        if(credentialsProvider == null)
+            credentialsProvider =
+                new HTTPCredentialsProvider(
+                        usernamePropertyName, passwordPropertyName);
         httpClient.setCredentialsProvider(credentialsProvider);
 
         return httpClient;
@@ -613,12 +613,6 @@ public class HttpUtils
         private String passwordPropertyName = null;
 
         /**
-         * Was this credentials provider challenged for credentials
-         * since its creation or since last call of clear method.
-         */
-        private boolean challengedForCredentials = false;
-
-        /**
          * Authentication username if any.
          */
         private String authUsername = null;
@@ -627,6 +621,11 @@ public class HttpUtils
          * Authentication password if any.
          */
         private String authPassword = null;
+
+        /**
+         * Error message.
+         */
+        private String errorMessage = null;
 
         /**
          * Creates HTTPCredentialsProvider.
@@ -663,7 +662,6 @@ public class HttpUtils
         public Credentials getCredentials(AuthScope authscope)
         {
             this.usedScope = authscope;
-            this.challengedForCredentials = true;
 
             // if we have specified password and username property will use them
             // if not create one from the scope/site we are connecting to.
@@ -681,7 +679,9 @@ public class HttpUtils
             if(pass == null)
             {
                 AuthenticationWindow authWindow =
-                    new AuthenticationWindow(authscope.getHost(), true, null);
+                    new AuthenticationWindow(
+                        authUsername, null,
+                        authscope.getHost(), true, null, errorMessage);
                 authWindow.setVisible(true);
 
                 if(!authWindow.isCanceled())
@@ -749,9 +749,9 @@ public class HttpUtils
                 HttpUtilActivator.getCredentialsService().removePassword(
                     passwordPropertyName);
             }
-            this.challengedForCredentials = false;
             authUsername = null;
             authPassword = null;
+            errorMessage = null;
         }
 
         /**
@@ -780,16 +780,6 @@ public class HttpUtils
         boolean retry()
         {
             return retry;
-        }
-
-        /**
-         * Was this provider challenged for credentials since creation or
-         * last clear.
-         * @return
-         */
-        boolean isChallengedForCredentials()
-        {
-            return this.challengedForCredentials;
         }
 
         /**
