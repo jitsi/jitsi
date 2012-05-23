@@ -270,6 +270,11 @@ public class CallPanel
         = new Vector<CallTitleListener>();
 
     /**
+     * Indicates if the video interface is enabled.
+     */
+    private boolean isVideoInterfaceEnabled = false;
+
+    /**
      * Creates an empty constructor allowing to extend this panel.
      */
     public CallPanel() {}
@@ -299,7 +304,12 @@ public class CallPanel
 
         if (isLastConference)
         {
-            this.callPanel = new ConferenceCallPanel(this, call);
+            if (CallManager.isVideoStreaming(call))
+                callPanel = new VideoConferenceCallPanel(
+                    CallPanel.this, call);
+            else
+                callPanel = new ConferenceCallPanel(
+                    CallPanel.this, call);
         }
         else
         {
@@ -864,7 +874,7 @@ public class CallPanel
                 if (isLastConference)
                 {
                     ((ConferenceCallPanel) callPanel)
-                        .addCallPeerPanel(callPeer);
+                            .addCallPeerPanel(callPeer);
                 }
                 else
                 {
@@ -875,8 +885,16 @@ public class CallPanel
                     if (isLastConference)
                     {
                         remove(callPanel);
-                        updateCurrentCallPanel(
-                            new ConferenceCallPanel(CallPanel.this, call));
+
+                        ConferenceCallPanel callPanel;
+                        if (CallManager.isVideoStreaming(call))
+                            callPanel = new VideoConferenceCallPanel(
+                                CallPanel.this, call);
+                        else
+                            callPanel = new ConferenceCallPanel(
+                                CallPanel.this, call);
+
+                        updateCurrentCallPanel(callPanel);
                         add(callPanel, BorderLayout.CENTER);
                     }
                     // We're still in one-to-one call and we receive the
@@ -945,8 +963,16 @@ public class CallPanel
                     {
                         removeOneToOneSpecificComponents();
                         remove(callPanel);
-                        updateCurrentCallPanel(
-                            new ConferenceCallPanel(CallPanel.this, call));
+
+                        ConferenceCallPanel callPanel;
+                        if (CallManager.isVideoStreaming(call))
+                            callPanel = new VideoConferenceCallPanel(
+                                CallPanel.this, call);
+                        else
+                            callPanel = new ConferenceCallPanel(
+                                CallPanel.this, call);
+
+                        updateCurrentCallPanel(callPanel);
                         add(callPanel, BorderLayout.CENTER);
                     }
                 }
@@ -1295,6 +1321,10 @@ public class CallPanel
 
         if (callPanel instanceof OneToOneCallPanel)
         {
+            // If we have been in a video conference interface
+            if (isVideoInterfaceEnabled)
+                isVideoInterfaceEnabled = false;
+
             removeConferenceSpecificComponents();
             addOneToOneSpecificComponents();
         }
@@ -1303,6 +1333,53 @@ public class CallPanel
             removeOneToOneSpecificComponents();
             addConferenceSpecificComponents();
         }
+    }
+
+    /**
+     * Enables or disables the video conference interface.
+     *
+     * @param enable <tt>true</tt> to enable conference interface,
+     * <tt>false</tt> to disable it
+     */
+    public void enableVideoConferenceInterface(final boolean enable)
+    {
+        isVideoInterfaceEnabled = enable;
+
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                // We've been in one-to-one call and we're now in a
+                // conference.
+                if (enable)
+                {
+                    remove(callPanel);
+                    updateCurrentCallPanel(new VideoConferenceCallPanel(
+                                            CallPanel.this, call));
+                    add(callPanel, BorderLayout.CENTER);
+                }
+                else
+                {
+                    remove(callPanel);
+                    updateCurrentCallPanel(new ConferenceCallPanel(
+                                            CallPanel.this, call));
+                    add(callPanel, BorderLayout.CENTER);
+                }
+
+                refreshContainer();
+            }
+        });
+    }
+
+    /**
+     * Indicates if the conference interface is enabled.
+     *
+     * @return <tt>true</tt> if the conference interface is enabled, otherwise
+     * returns <tt>false</tt>
+     */
+    public boolean isVideoConferenceInterfaceEnabled()
+    {
+        return isVideoInterfaceEnabled;
     }
 
     /**

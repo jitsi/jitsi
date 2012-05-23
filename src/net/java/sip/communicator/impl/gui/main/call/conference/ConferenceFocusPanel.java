@@ -109,7 +109,7 @@ public class ConferenceFocusPanel
     {
         focusPeerPanel
             = new ConferencePeerPanel(
-                callRenderer, callPanel, focusPeer, videoHandler);
+                callRenderer, callPanel, focusPeer, videoHandler, false);
 
         GridBagConstraints constraints = new GridBagConstraints();
 

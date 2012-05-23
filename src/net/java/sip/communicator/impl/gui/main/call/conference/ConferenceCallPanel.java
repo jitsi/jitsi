@@ -35,7 +35,7 @@ public class ConferenceCallPanel
      * The <tt>preferredSize</tt> to be set on {@link #scrollPane} if there is
      * video displayed.
      */
-    private static final Dimension SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO
+    protected static final Dimension SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO
         = new Dimension(
                 400 /* It sounds reasonable without being justified. */,
                 100 /* It is arbitrary and, hopefully, unnecessary. */);
@@ -53,7 +53,7 @@ public class ConferenceCallPanel
     /**
      * The scroll pane.
      */
-    private final JScrollPane scrollPane = new JScrollPane();
+    private JScrollPane scrollPane;
 
     /**
      * The panel which contains ConferencePeerPanels.
@@ -68,18 +68,19 @@ public class ConferenceCallPanel
     /**
      * Maps a <tt>CallPeer</tt> to its renderer.
      */
-    private final Hashtable<CallPeer, ConferenceCallPeerRenderer> callPeerPanels
-        = new Hashtable<CallPeer, ConferenceCallPeerRenderer>();
+    protected final Hashtable<CallPeer, ConferenceCallPeerRenderer>
+        callPeerPanels
+            = new Hashtable<CallPeer, ConferenceCallPeerRenderer>();
 
     /**
      * The CallPanel which contains this panel.
      */
-    private final CallPanel callPanel;
+    protected final CallPanel callPanel;
 
     /**
      * The list containing all video containers.
      */
-    private final List<Container> videoContainers
+    protected final List<Container> videoContainers
         = new LinkedList<Container>();
 
     /**
@@ -109,13 +110,31 @@ public class ConferenceCallPanel
      */
     public ConferenceCallPanel(CallPanel callPanel, Call c)
     {
+        this(callPanel, c, false);
+    }
+
+    /**
+     * Creates an instance of <tt>ConferenceCallPanel</tt>.
+     *
+     * @param callPanel the call panel which contains this panel
+     * @param c the conference call object
+     */
+    public ConferenceCallPanel(CallPanel callPanel, Call c, boolean isVideo)
+    {
         super(new GridBagLayout());
 
         this.callPanel = callPanel;
         this.call = c;
 
         mainPanel = new TransparentPanel();
+
+        // If we're in a video view we have nothing more to do here.
+        if (isVideo)
+            return;
+
         mainPanel.setLayout(new GridBagLayout());
+
+        scrollPane = new JScrollPane();
 
         scrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -136,6 +155,13 @@ public class ConferenceCallPanel
 
         mainPanel.setTransferHandler(new CallTransferHandler(call));
 
+        addVideoContainer();
+
+        /*
+         * XXX Call addCallPeerPanel(CallPeer) after calling addVideoContainer()
+         * because the video may already be flowing between the CallPeers.
+         * Otherwise, the videos of the remote CallPeers will not be shown.
+         */
         GridBagConstraints scrollPaneGridBagConstraints
             = new GridBagConstraints();
 
@@ -146,13 +172,6 @@ public class ConferenceCallPanel
         scrollPaneGridBagConstraints.weighty = 1;
         add(scrollPane, scrollPaneGridBagConstraints);
 
-        addVideoContainer();
-
-        /*
-         * XXX Call addCallPeerPanel(CallPeer) after calling addVideoContainer()
-         * because the video may already be flowing between the CallPeers.
-         * Otherwise, the videos of the remote CallPeers will not be shown.
-         */
         addLocalCallPeer();
 
         Iterator<? extends CallPeer> iterator;
@@ -169,7 +188,7 @@ public class ConferenceCallPanel
      * Initializes a new <tt>VideoContainer</tt> instance which is to contain
      * the visual/video <tt>Component</tt>s of {@link #call}.
      */
-    private void addVideoContainer()
+    protected void addVideoContainer()
     {
         final VideoContainer videoContainer = new VideoContainer(null);
 
@@ -290,7 +309,8 @@ public class ConferenceCallPanel
         final ConferencePeerPanel localPeerPanel
             = new ConferencePeerPanel(  this,
                                         callPanel,
-                                        call.getProtocolProvider());
+                                        call.getProtocolProvider(),
+                                        false);
 
         constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 0;
@@ -325,10 +345,10 @@ public class ConferenceCallPanel
         ConferenceCallPeerRenderer confPeerRenderer;
 
         UIVideoHandler videoHandler
-            = new UIVideoHandler(peer, this, videoContainers);
+            = new UIVideoHandler(this, videoContainers);
 
-        videoHandler.addVideoListener();
-        videoHandler.addRemoteControlListener();
+        videoHandler.addVideoListener(peer);
+        videoHandler.addRemoteControlListener(peer);
 
         if (peer.getConferenceMemberCount() > 0)
         {
@@ -342,7 +362,8 @@ public class ConferenceCallPanel
         else
         {
             confPeerRenderer
-                = new ConferencePeerPanel(this, callPanel, peer, videoHandler);
+                = new ConferencePeerPanel(
+                    this, callPanel, peer, videoHandler, false);
 
             //peer.addConferenceMembersSoundLevelListener(
             //    confPeerRenderer.getConferenceMembersSoundLevelListener());
@@ -389,7 +410,7 @@ public class ConferenceCallPanel
         if (confPeerRenderer == null)
             return;
 
-        confPeerRenderer.getVideoHandler().removeRemoteControlListener();
+        confPeerRenderer.getVideoHandler().removeRemoteControlListener(peer);
 
         // first remove the listeners as after removing the panel
         // we may still receive sound level indicators and there are
@@ -706,9 +727,8 @@ public class ConferenceCallPanel
                     newFrameHeight = frameSize.height;
                 }
 
-                frame.setBounds(
-                        newFrameX, newFrameY,
-                        newFrameWidth, newFrameHeight);
+                frame.setBounds(newFrameX, newFrameY,
+                    newFrameWidth, newFrameHeight);
             }
 
             /*

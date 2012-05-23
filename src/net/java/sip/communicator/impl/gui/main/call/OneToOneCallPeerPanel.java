@@ -186,15 +186,15 @@ public class OneToOneCallPeerPanel
 
         if (vHandler == null)
             videoHandler
-                = new UIVideoHandler(callPeer, callRenderer, videoContainers);
+                = new UIVideoHandler(callRenderer, videoContainers);
         else
         {
             videoHandler = vHandler;
             videoHandler.setVideoContainersList(videoContainers);
         }
 
-        videoHandler.addVideoListener();
-        videoHandler.addRemoteControlListener();
+        videoHandler.addVideoListener(callPeer);
+        videoHandler.addRemoteControlListener(callPeer);
 
         photoLabel = new JLabel(getPhotoLabelIcon());
         center = createCenter(videoContainers);
@@ -295,7 +295,7 @@ public class OneToOneCallPeerPanel
                             photoLabels.remove(photoLabel);
                         }
                         if (changed)
-                            videoHandler.handleVideoEvent(null);
+                            videoHandler.handleVideoEvent(callPeer, null);
                     }
                 }
             }

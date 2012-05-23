@@ -114,7 +114,7 @@ public abstract class BasicConferenceParticipantPanel
     /**
      * The component showing the sound level of the participant.
      */
-    private final SoundLevelIndicator soundIndicator;
+    private SoundLevelIndicator soundIndicator;
 
     /**
      * Main panel constraints.
@@ -147,10 +147,37 @@ public abstract class BasicConferenceParticipantPanel
     private CallRenderer renderer = null;
 
     /**
+     * Indicates if we're in a video interface.
+     */
+    private boolean isVideo = false;
+
+    /**
      * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
      *
      * @param renderer the renderer for the call
      * @param isLocalPeer if the peer is the local ones
+     * @param isVideo indicates if we're in a video interface
+     */
+    public BasicConferenceParticipantPanel( CallRenderer renderer,
+                                            boolean isLocalPeer,
+                                            boolean isVideo)
+    {
+        this.renderer = renderer;
+        this.isLocalPeer = isLocalPeer;
+        this.isVideo = isVideo;
+
+        if (isVideo)
+            initVideoConferencePanel();
+        else
+            initAudioConferencePanel();
+    }
+
+    /**
+     * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
+     *
+     * @param renderer the renderer for the call
+     * @param isLocalPeer if the peer is the local ones
+     * @param isVideo indicates if we're in a video interface
      */
     public BasicConferenceParticipantPanel( CallRenderer renderer,
                                             boolean isLocalPeer)
@@ -158,6 +185,33 @@ public abstract class BasicConferenceParticipantPanel
         this.renderer = renderer;
         this.isLocalPeer = isLocalPeer;
 
+        initAudioConferencePanel();
+    }
+
+    /**
+     * Initializes video conference specific panel.
+     */
+    private void initVideoConferencePanel()
+    {
+        securityStatusLabel = new SecurityStatusLabel();
+        securityStatusLabel.setSecurityOff();
+
+        this.setLayout(new GridBagLayout());
+        this.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
+
+        this.initTitleBar();
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 1;
+        constraints.weighty = 0;
+        constraints.insets = new Insets(0, 0, 0, 0);
+        this.add(titleBar, constraints);
+    }
+
+    private void initAudioConferencePanel()
+    {
         soundIndicator
             = new SoundLevelIndicator(
                     SoundLevelChangeEvent.MIN_LEVEL,
@@ -352,6 +406,10 @@ public abstract class BasicConferenceParticipantPanel
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
+
+        // If we're in a video interface, we have nothing more to do here.
+        if (isVideo)
+            return;
 
         g = g.create();
 

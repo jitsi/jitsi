@@ -66,8 +66,9 @@ public class UIVideoHandler
      */
     private boolean allowRemoteControl = false;
 
-    private final CallPeer callPeer;
-
+    /**
+     * The renderer of the call.
+     */
     private final CallRenderer callRenderer;
 
     /**
@@ -75,11 +76,15 @@ public class UIVideoHandler
      */
     private Component closeButton;
 
+    /**
+     * The list of video containers.
+     */
     private List<Container> videoContainers;
 
+    /**
+     * The video telephony listener.
+     */
     private VideoTelephonyListener videoTelephonyListener;
-
-    private boolean videoListenerIsAdded;
 
     /**
      * The operation set through which we do all video operations.
@@ -87,19 +92,48 @@ public class UIVideoHandler
     private OperationSetVideoTelephony videoTelephony;
 
     /**
+     * A list of peer, video tool bar pair.
+     */
+    private final Map<CallPeer, Component> videoToolbars;
+
+    /**
+     * The local video tool bar.
+     */
+    private Component localVideoToolbar;
+
+    /**
+     * Indicates if the local video listener is added.
+     */
+    private boolean isLocalVideoListenerAdded = false;
+
+    /**
      * Constructor.
      *
-     * @param callPeer the <tt>CallPeer</tt>
      * @param callRenderer ther <tt>CallRenderer</tt>
      * @param videoContainers the video <tt>Container</tt>
      */
-    public UIVideoHandler(  CallPeer callPeer,
-                            CallRenderer callRenderer,
+    public UIVideoHandler(  CallRenderer callRenderer,
                             List<Container> videoContainers)
     {
-        this.callPeer = callPeer;
         this.callRenderer = callRenderer;
         this.videoContainers = videoContainers;
+        this.videoToolbars = new Hashtable<CallPeer, Component>();
+    }
+
+    /**
+     * Gets the <tt>Icon</tt> to be displayed in {@link #photoLabels}.
+     *
+     * @return the <tt>Icon</tt> to be displayed in {@link #photoLabels}
+     */
+    private ImageIcon getPhotoLabelIcon(CallPeer callPeer)
+    {
+        byte[] peerImage = CallManager.getPeerImage(callPeer);
+
+        return
+            (peerImage == null)
+                ? new ImageIcon(
+                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO))
+                : new ImageIcon(peerImage);
     }
 
     /**
@@ -112,6 +146,16 @@ public class UIVideoHandler
         this.videoContainers = videoContainers;
     }
 
+    public void addVideoToolbar(CallPeer callPeer, Component videoToolbar)
+    {
+        videoToolbars.put(callPeer, videoToolbar);
+    }
+
+    public void setLocalVideoToolbar(Component videoToolbar)
+    {
+        localVideoToolbar = videoToolbar;
+    }
+
     /**
      * Sets up listening to notifications about adding or removing video for the
      * <code>CallPeer</code> this panel depicts and displays the video in
@@ -122,7 +166,7 @@ public class UIVideoHandler
      * @return the video telephony operation set, where the video listener was
      * added
      */
-    public OperationSetVideoTelephony addVideoListener()
+    public OperationSetVideoTelephony addVideoListener(final CallPeer callPeer)
     {
         final Call call = callPeer.getCall();
         if (call == null)
@@ -134,7 +178,7 @@ public class UIVideoHandler
         if (telephony == null)
             return null;
 
-        videoTelephonyListener = new VideoTelephonyListener();
+        videoTelephonyListener = new VideoTelephonyListener(callPeer);
 
         /**
          * The video is only available while the #callPeer is in a Call
@@ -143,22 +187,27 @@ public class UIVideoHandler
          */
         CallChangeListener callListener = new CallChangeListener()
         {
-            private void addVideoListener()
+            private void addVideoListener(CallPeer callPeer)
             {
                 telephony.addVideoListener(
                         callPeer, videoTelephonyListener);
-                telephony.addPropertyChangeListener(
-                        call, videoTelephonyListener);
-                videoListenerIsAdded = true;
+
+                if (!isLocalVideoListenerAdded)
+                {
+                    telephony.addPropertyChangeListener(
+                            call, videoTelephonyListener);
+
+                    isLocalVideoListenerAdded = true;
+                }
 
                 synchronized (videoContainers)
                 {
                     videoTelephony = telephony;
 
-                    handleVideoEvent(null);
+                    handleVideoEvent(callPeer, null);
 
                     handleLocalVideoStreamingChange(
-                            videoTelephonyListener);
+                            callPeer, videoTelephonyListener);
                 }
             }
 
@@ -172,15 +221,14 @@ public class UIVideoHandler
             public synchronized void callPeerAdded(
                 CallPeerEvent event)
             {
-                if (callPeer.equals(event.getSourceCallPeer())
-                        && !videoListenerIsAdded)
+                if (callPeer.equals(event.getSourceCallPeer()))
                 {
                     Call call = callPeer.getCall();
 
                     if ((call != null)
                             && CallState.CALL_IN_PROGRESS.equals(
                                     call.getCallState()))
-                        addVideoListener();
+                        addVideoListener(event.getSourceCallPeer());
                 }
             }
 
@@ -194,11 +242,10 @@ public class UIVideoHandler
             public synchronized void callPeerRemoved(
                 CallPeerEvent event)
             {
-                if (callPeer.equals(event.getSourceCallPeer())
-                        && videoListenerIsAdded)
+                if (callPeer.equals(event.getSourceCallPeer()))
                 {
                     if (callPeer.getCall() != null)
-                        removeVideoListener();
+                        removeVideoListener(event.getSourceCallPeer());
                 }
             }
 
@@ -222,8 +269,7 @@ public class UIVideoHandler
 
                 if (CallState.CALL_ENDED.equals(newCallState))
                 {
-                    if (videoListenerIsAdded)
-                        removeVideoListener();
+                    removeVideoListener(callPeer);
                     call.removeCallChangeListener(this);
 
                     if(allowRemoteControl)
@@ -234,8 +280,7 @@ public class UIVideoHandler
                 }
                 else if (CallState.CALL_IN_PROGRESS.equals(newCallState))
                 {
-                    if (!videoListenerIsAdded)
-                        addVideoListener();
+                    addVideoListener(callPeer);
                 }
             }
         };
@@ -249,7 +294,7 @@ public class UIVideoHandler
     /**
      * Removes the video listener
      */
-    public void removeVideoListener()
+    public void removeVideoListener(CallPeer callPeer)
     {
         final Call call = callPeer.getCall();
         if (call == null)
@@ -266,22 +311,40 @@ public class UIVideoHandler
 
         telephony.removeVideoListener(
                 callPeer, videoTelephonyListener);
-        telephony.removePropertyChangeListener(
-                call, videoTelephonyListener);
-        videoListenerIsAdded = false;
 
-        if (localVideo != null)
+        if (!CallManager.isVideoStreaming(call) && isLocalVideoListenerAdded)
         {
-            telephony.disposeLocalVisualComponent(
-                    callPeer, localVideo);
-            localVideo = null;
+            telephony.removePropertyChangeListener(
+                    call, videoTelephonyListener);
+            isLocalVideoListenerAdded = false;
+
+            if (localVideo != null)
+            {
+                telephony.disposeLocalVisualComponent(
+                        callPeer, localVideo);
+                localVideo = null;
+            }
         }
 
         synchronized (videoContainers)
         {
-            if (telephony.equals(videoTelephony))
+            if (!CallManager.isVideoStreaming(call)
+                && telephony.equals(videoTelephony))
                 videoTelephony = null;
+
+            int videoContainerCount;
+
+            if ((videoTelephony != null)
+                    && ((videoContainerCount = videoContainers.size()) > 0))
+            {
+                Container videoContainer
+                    = videoContainers.get(videoContainerCount - 1);
+
+                handleVideoEvent(callPeer, null, videoContainer);
+            }
         }
+
+        videoToolbars.remove(callPeer);
 
         callRenderer.exitFullScreen();
     }
@@ -295,6 +358,20 @@ public class UIVideoHandler
         implements PropertyChangeListener,
                    VideoListener
     {
+        private final CallPeer callPeer;
+
+        /**
+         * Creates an instance of <tt>VideoTelephonyListener</tt> by specifying
+         * the corresponding <tt>Call</tt>.
+         *
+         * @param callPeer the <tt>CallPeer</tt> to which the listener would be
+         * added
+         */
+        public VideoTelephonyListener(CallPeer callPeer)
+        {
+            this.callPeer = callPeer;
+        }
+
         /**
          * {@inheritDoc}
          */
@@ -351,7 +428,7 @@ public class UIVideoHandler
                     }
                 }
 
-                handleLocalVideoStreamingChange(this);
+                handleLocalVideoStreamingChange(callPeer, this);
             }
         }
 
@@ -360,7 +437,15 @@ public class UIVideoHandler
          */
         public void videoAdded(VideoEvent event)
         {
-            handleVideoEvent(event);
+            CallPanel callContainer = callRenderer.getCallContainer();
+
+            if (callContainer.isConference()
+                && !callContainer.isVideoConferenceInterfaceEnabled())
+            {
+                callContainer.enableVideoConferenceInterface(true);
+            }
+
+            handleVideoEvent(callPeer, event);
         }
 
         /**
@@ -368,7 +453,15 @@ public class UIVideoHandler
          */
         public void videoRemoved(VideoEvent event)
         {
-            handleVideoEvent(event);
+            CallPanel callContainer = callRenderer.getCallContainer();
+            if (callContainer.isConference()
+                && !CallManager.isVideoStreaming(callPeer.getCall())
+                && callContainer.isVideoConferenceInterfaceEnabled())
+            {
+                callContainer.enableVideoConferenceInterface(false);
+            }
+
+            handleVideoEvent(callPeer, event);
         }
 
         /**
@@ -376,7 +469,7 @@ public class UIVideoHandler
          */
         public void videoUpdate(VideoEvent event)
         {
-            handleVideoEvent(event);
+            handleVideoEvent(callPeer, event);
         }
     }
 
@@ -388,7 +481,8 @@ public class UIVideoHandler
      * <tt>Component</tt> representing video and the provider it was added into
      * or <tt>null</tt> if such information is not available
      */
-    public void handleVideoEvent(final VideoEvent event)
+    public void handleVideoEvent(   final CallPeer callPeer,
+                                    final VideoEvent event)
     {
         if (event != null && logger.isTraceEnabled())
             logger.trace("UI video event received originated in: "
@@ -450,7 +544,7 @@ public class UIVideoHandler
             {
                 public void run()
                 {
-                    handleVideoEvent(event);
+                    handleVideoEvent(callPeer, event);
                 }
             });
             return;
@@ -466,7 +560,7 @@ public class UIVideoHandler
                 Container videoContainer
                     = videoContainers.get(videoContainerCount - 1);
 
-                handleVideoEvent(event, videoContainer);
+                handleVideoEvent(callPeer, event, videoContainer);
             }
         }
     }
@@ -483,6 +577,7 @@ public class UIVideoHandler
      * <tt>videoEvent</tt>
      */
     private void handleVideoEvent(
+            CallPeer callPeer,
             VideoEvent videoEvent,
             Container videoContainer)
     {
@@ -501,7 +596,7 @@ public class UIVideoHandler
                 if (visualComponent.getParent() == null)
                 {
                     visualComponent.setPreferredSize(
-                            new Dimension(width, height));
+                            new Dimension(width, height + 30));
                 }
                 else if (isAncestor(videoContainer, visualComponent))
                 {
@@ -555,10 +650,57 @@ public class UIVideoHandler
 
         while (callPeerIter.hasNext())
         {
-            remoteVideos.addAll(
-                    videoTelephony.getVisualComponents(
-                            callPeerIter.next()));
+            CallPeer peer = callPeerIter.next();
+
+            List<Component> visualComponents
+                = videoTelephony.getVisualComponents(peer);
+
+            Component videoToolbar = videoToolbars.get(peer);
+
+            if (videoToolbar != null)
+            {
+                Container toolbarParent = videoToolbar.getParent();
+
+                if (toolbarParent != null)
+                    toolbarParent.remove(videoToolbar);
+            }
+
+            if (visualComponents != null && visualComponents.size() > 0)
+            {
+                for (int i = 0; i < visualComponents.size(); i++)
+                {
+                    Component visualComponent = visualComponents.get(i);
+ 
+                    if (videoToolbar != null
+                        && callRenderer.getCallContainer()
+                            .isVideoConferenceInterfaceEnabled())
+                    {
+                        Container remoteVideoParent
+                            = visualComponent.getParent();
+
+                        if (remoteVideoParent != null)
+                            remoteVideoParent.remove(visualComponent);
+
+                        JPanel remoteVideoPanel
+                            = new TransparentPanel(new BorderLayout());
+                        remoteVideoPanel.add(visualComponent);
+                        remoteVideoPanel.add(videoToolbar, BorderLayout.SOUTH);
+                        remoteVideos.add(remoteVideoPanel);
+                    }
+                    else
+                        remoteVideos.add(visualComponent);
+                }
+            }
+            else if (videoToolbar != null && callRenderer.getCallContainer()
+                        .isVideoConferenceInterfaceEnabled())
+            {
+                Component defaultPhotoPanel
+                    = createDefaultPhotoPanel(callPeer, videoToolbar);
+
+                remoteVideos.add(defaultPhotoPanel);
+            }
         }
+
         if (remoteVideos.isEmpty())
         {
             callRenderer
@@ -572,8 +714,16 @@ public class UIVideoHandler
                 Container remoteVideoParent = remoteVideo.getParent();
 
                 if (remoteVideoParent != null)
+                {
                     remoteVideoParent.remove(remoteVideo);
-                videoContainer.add(remoteVideo, VideoLayout.CENTER_REMOTE, 0);
+                    Container parent = remoteVideoParent.getParent();
+
+                    if (parent != null)
+                        parent.remove(remoteVideoParent);
+                }
+
+                videoContainer.add(
+                    remoteVideo, VideoLayout.CENTER_REMOTE, 0);
             }
 
             callRenderer.getCallContainer().addRemoteVideoSpecificComponents(
@@ -593,14 +743,36 @@ public class UIVideoHandler
             if (closeButtonParent != null)
                 closeButtonParent.remove(closeButton);
 
+            if (localVideoToolbar != null)
+            {
+                Container toolbarParent = localVideoToolbar.getParent();
+                if (toolbarParent != null)
+                    toolbarParent.remove(localVideoToolbar);
+            }
+
             if (localVideoVisible)
             {
-                videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
+                if (localVideoToolbar != null && callRenderer.getCallContainer()
+                        .isVideoConferenceInterfaceEnabled())
+                {
+                    JPanel localVideoPanel
+                        = new TransparentPanel(new BorderLayout());
+
+                    localVideoPanel.add(localVideo);
+                    localVideoPanel.add(localVideoToolbar, BorderLayout.SOUTH);
+
+                    videoContainer.add(localVideoPanel, VideoLayout.LOCAL, 0);
+                }
+                else
+                    videoContainer.add(localVideo, VideoLayout.LOCAL, 0);
+
                 if (!CallManager.isDesktopSharingEnabled(call))
+                {
                     videoContainer.add(
                             closeButton,
                             VideoLayout.CLOSE_LOCAL_BUTTON,
                             0);
+                }
             }
         }
 
@@ -622,6 +794,7 @@ public class UIVideoHandler
      * @param listener Listener that will be called back
      */
     private void handleLocalVideoStreamingChange(
+            CallPeer callPeer,
             VideoTelephonyListener listener)
     {
         synchronized (videoContainers)
@@ -1039,7 +1212,8 @@ public class UIVideoHandler
      *
      * @return reference to <tt>OperationSetDesktopSharingClient</tt>
      */
-    public OperationSetDesktopSharingClient addRemoteControlListener()
+    public OperationSetDesktopSharingClient addRemoteControlListener(
+            CallPeer callPeer)
     {
         Call call = callPeer.getCall();
 
@@ -1063,7 +1237,7 @@ public class UIVideoHandler
      * Removes the setup for listening to remote-control notifications (granted
      * or revoked).
      */
-    public void removeRemoteControlListener()
+    public void removeRemoteControlListener(CallPeer callPeer)
     {
         if (mouseAndKeyListener != null)
         {
@@ -1198,7 +1372,7 @@ public class UIVideoHandler
     }
 
     private class CloseButton
-        extends Label
+        extends Button
         implements MouseListener
     {
         private static final long serialVersionUID = 0L;
@@ -1261,5 +1435,54 @@ public class UIVideoHandler
     public Component getRemoteVideoComponent()
     {
         return remoteVideo;
+    }
+
+    /**
+     * Creates the default photo panel.
+     *
+     * @param callPeer the corresponding call peer
+     * @param videoToolbar the corresponding video tool bar
+     * @return 
+     */
+    private Component createDefaultPhotoPanel(  CallPeer callPeer,
+                                                Component videoToolbar)
+    {
+        JPanel defaultPanel = new TransparentPanel(new BorderLayout());
+
+        JPanel photoPanel = new TransparentPanel(new BorderLayout())
+        {
+            /**
+             * @{inheritDoc}
+             */
+            @Override
+            public void paintComponent(Graphics g)
+            {
+                super.paintComponent(g);
+
+                g = g.create();
+
+                try
+                {
+                    AntialiasingManager.activateAntialiasing(g);
+
+                    g.setColor(Color.GRAY);
+                    g.fillRoundRect(
+                        0, 0, this.getWidth(), this.getHeight(), 6, 6);
+                }
+                finally
+                {
+                    g.dispose();
+                }
+            }
+        };
+
+        JLabel photoLabel = new JLabel(getPhotoLabelIcon(callPeer));
+        photoPanel.add(photoLabel);
+        photoPanel.setPreferredSize(new Dimension(320, 240));
+
+        defaultPanel.add(photoPanel, BorderLayout.CENTER);
+        defaultPanel.add(videoToolbar, BorderLayout.SOUTH);
+
+        return defaultPanel;
     }
 }

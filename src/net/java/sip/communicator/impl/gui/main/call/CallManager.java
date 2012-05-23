@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import java.awt.*;
 import java.text.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -1131,6 +1133,37 @@ public class CallManager
                 }
             }).start();
         }
+    }
+
+    /**
+     * Indicates if we have video streams to show in this interface.
+     *
+     * @return <tt>true</tt> if we have video streams to show in this interface,
+     * otherwise we return <tt>false</tt>.
+     */
+    public static boolean isVideoStreaming(Call call)
+    {
+        OperationSetVideoTelephony videoOpSet
+            = call.getProtocolProvider()
+                .getOperationSet(OperationSetVideoTelephony.class);
+
+        if (videoOpSet == null)
+            return false;
+
+        if (videoOpSet.isLocalVideoStreaming(call))
+            return true;
+
+        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
+        while (callPeers.hasNext())
+        {
+            List<Component> remoteVideos
+                = videoOpSet.getVisualComponents(callPeers.next());
+
+            if (remoteVideos != null && remoteVideos.size() > 0)
+                return true;
+        }
+
+        return false;
     }
 
     /**

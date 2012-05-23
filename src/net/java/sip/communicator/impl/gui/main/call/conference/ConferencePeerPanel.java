@@ -106,12 +106,14 @@ public class ConferencePeerPanel
      * @param callPanel the call panel containing this peer panel
      * @param protocolProvider the <tt>ProtocolProviderService</tt> for the
      * call
+     * @param isVideo indicates if the video interface is enabled
      */
     public ConferencePeerPanel( ConferenceCallPanel callRenderer,
                                 CallPanel callPanel,
-                                ProtocolProviderService protocolProvider)
+                                ProtocolProviderService protocolProvider,
+                                boolean isVideo)
     {
-        super(callRenderer, true);
+        super(callRenderer, true, isVideo);
 
         this.callRenderer = callRenderer;
         this.callPanel = callPanel;
@@ -129,9 +131,12 @@ public class ConferencePeerPanel
             + " (" + GuiActivator.getResources()
                 .getI18NString("service.gui.ACCOUNT_ME").toLowerCase() + ")");
 
-        this.setTitleBackground(
-            new Color(GuiActivator.getResources().getColor(
-                "service.gui.CALL_LOCAL_USER_BACKGROUND")));
+        if (isVideo)
+            this.setTitleBackground(Color.DARK_GRAY);
+        else
+            this.setTitleBackground(
+                new Color(GuiActivator.getResources().getColor(
+                    "service.gui.CALL_LOCAL_USER_BACKGROUND")));
     }
 
     /**
@@ -143,13 +148,15 @@ public class ConferencePeerPanel
      * @param callContainer the container, in which this panel is shown
      * @param callPeer The peer who own this UI
      * @param videoHandler the video handler
+     * @param isVideo indicates if the video interface is enabled
      */
     public ConferencePeerPanel( ConferenceCallPanel callRenderer,
                                 CallPanel callContainer,
                                 CallPeer callPeer,
-                                UIVideoHandler videoHandler)
+                                UIVideoHandler videoHandler,
+                                boolean isVideo)
     {
-        super(callRenderer, false);
+        super(callRenderer, false, isVideo);
 
         this.callRenderer = callRenderer;
         this.callPanel = callContainer;
@@ -174,9 +181,12 @@ public class ConferencePeerPanel
         menuBar.add(callPeerMenu);
         this.addToNameBar(menuBar);
 
-        this.setTitleBackground(
-            new Color(GuiActivator.getResources().getColor(
-                "service.gui.CALL_PEER_NAME_BACKGROUND")));
+        if (isVideo)
+            this.setTitleBackground(Color.DARK_GRAY);
+        else
+            this.setTitleBackground(
+                new Color(GuiActivator.getResources().getColor(
+                    "service.gui.CALL_PEER_NAME_BACKGROUND")));
 
         initSecuritySettings();
     }

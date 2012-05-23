@@ -129,7 +129,14 @@ public class VideoLayout extends FitLayout
      */
     private int calculateColumnCount(List<Component> remotes)
     {
-        return (remotes.size() > 4) ? 3 : 2;
+        int remotesCount = remotes.size();
+
+        if (remotesCount == 1)
+            return 1;
+        else if (remotesCount == 2 || remotesCount == 4)
+            return 2;
+        else
+            return 3;
     }
 
     /**
@@ -203,7 +210,11 @@ public class VideoLayout extends FitLayout
             remotes = this.remotes;
 
         int remoteCount = remotes.size();
+
+        // We need to reduce parent size in order to fit also the space we've
+        // left between videos.
         Dimension parentSize = parent.getSize();
+        parentSize.width -= remoteCount*10;
 
         if (remoteCount == 1)
         {
@@ -233,6 +244,10 @@ public class VideoLayout extends FitLayout
                  */
                 bounds.x = (columnsMinus1 - (i % columns)) * bounds.width;
                 bounds.y = (i / columns) * bounds.height;
+
+                if (bounds.x > 0)
+                    bounds.x += ((columns - (i%columns))*10);
+
                 super.layoutComponent(
                         remote,
                         bounds,
@@ -280,6 +295,7 @@ public class VideoLayout extends FitLayout
                 {
                     localX = ((remote0 == null) ? 0 : remote0.getX()) + 5;
                     localY = parentSize.height - height - 5;
+
                     super.layoutComponent(
                             local,
                             new Rectangle(localX, localY, width, height),
@@ -405,6 +421,8 @@ public class VideoLayout extends FitLayout
                 int columns = calculateColumnCount(remotes);
                 int rows = (remoteCount + columns - 1) / columns;
 
+System.out.println("EHIIIIII WIDTH=========" + maxWidth * columns
+    + "EHIIIIIIIII HEIGHT========" + maxHeight * rows);
                 return new Dimension(maxWidth * columns, maxHeight * rows);
             }
         }
