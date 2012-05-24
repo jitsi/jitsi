@@ -807,7 +807,6 @@ public class CallPanel
         // Buttons would be enabled once the call has entered in state
         // connected.
         dialButton.setEnabled(enable);
-        conferenceButton.setEnabled(enable);
         holdButton.setEnabled(enable);
         recordButton.setEnabled(enable);
         localLevel.setEnabled(enable);
@@ -818,6 +817,12 @@ public class CallPanel
         // connected.
         ProtocolProviderService protocolProvider
             = call.getProtocolProvider();
+
+        if (protocolProvider.getOperationSet(
+            OperationSetTelephonyConferencing.class) != null)
+        {
+            conferenceButton.setEnabled(enable);
+        }
 
         if (protocolProvider.getOperationSet(OperationSetVideoTelephony.class)
                 != null)

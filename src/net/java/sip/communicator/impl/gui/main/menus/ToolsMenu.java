@@ -12,14 +12,17 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -145,10 +148,24 @@ public class ToolsMenu
         }
         else if (itemName.equals("conference"))
         {
-            ConferenceInviteDialog confInviteDialog
-                = new ConferenceInviteDialog();
+            java.util.List<ProtocolProviderService> confProviders
+                = CallManager.getTelephonyConferencingProviders();
 
-            confInviteDialog.setVisible(true);
+            if (confProviders != null && confProviders.size() > 0)
+            {
+                ConferenceInviteDialog confInviteDialog
+                    = new ConferenceInviteDialog();
+
+                confInviteDialog.setVisible(true);
+            }
+            else
+                new ErrorDialog(
+                    null,
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.WARNING"),
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.NO_ONLINE_CONFERENCING_ACCOUNT"))
+                .showDialog();
         }
         else if (itemName.equals("showHideOffline"))
         {

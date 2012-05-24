@@ -967,6 +967,20 @@ public class CallManager
     }
 
     /**
+     * Returns a list of all currently registered telephony providers supporting
+     * conferencing.
+     *
+     * @return a list of all currently registered telephony providers supporting
+     * conferencing
+     */
+    public static List<ProtocolProviderService>
+                                            getTelephonyConferencingProviders()
+    {
+        return GuiActivator
+            .getRegisteredProviders(OperationSetTelephonyConferencing.class);
+    }
+
+    /**
      * Returns a collection of all currently active calls.
      *
      * @return a collection of all currently active calls
