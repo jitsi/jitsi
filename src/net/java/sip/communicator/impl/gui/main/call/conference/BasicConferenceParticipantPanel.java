@@ -270,10 +270,10 @@ public abstract class BasicConferenceParticipantPanel
 
         peerDetailsPanel.add(imageLabel, constraints);
 
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.fill = GridBagConstraints.BOTH;
         constraints.gridx = 1;
         constraints.gridy = 0;
-        constraints.weightx = 1;
+        constraints.weightx = 1f;
         constraints.weighty = 0;
         constraints.insets = new Insets(5, 20, 5, 20);
 
