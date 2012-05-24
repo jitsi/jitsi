@@ -298,7 +298,11 @@ public class ConferenceCallPanel
      */
     public JScrollBar getVerticalScrollBar()
     {
-        return scrollPane.getVerticalScrollBar();
+        // If this is a video conference we may not have a scrollpane.
+        if (scrollPane != null)
+            return scrollPane.getVerticalScrollBar();
+
+        return null;
     }
 
     /**

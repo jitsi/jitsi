@@ -455,6 +455,7 @@ public class UIVideoHandler
         {
             CallPanel callContainer = callRenderer.getCallContainer();
             if (callContainer.isConference()
+                && callPeer.getCall() != null
                 && !CallManager.isVideoStreaming(callPeer.getCall())
                 && callContainer.isVideoConferenceInterfaceEnabled())
             {
