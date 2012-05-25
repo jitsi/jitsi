@@ -303,6 +303,18 @@ public class CallJabberImpl
             parentOpSet.fireCallEvent(CallEvent.CALL_RECEIVED, this,
                 directions);
 
+        // Manages auto answer with "audio only", or "audio / video" answer.
+        OperationSetAutoAnswerJabberImpl autoAnswerOpSet
+            = (OperationSetAutoAnswerJabberImpl)
+            this.getProtocolProvider()
+            .getOperationSet(OperationSetBasicAutoAnswer.class);
+
+        if(autoAnswerOpSet != null)
+        {
+            autoAnswerOpSet.autoAnswer(this, directions);
+        }
+
+
         return callPeer;
     }
 

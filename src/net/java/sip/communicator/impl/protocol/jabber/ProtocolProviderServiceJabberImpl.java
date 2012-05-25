@@ -1697,7 +1697,7 @@ public class ProtocolProviderServiceJabberImpl
 
                 addSupportedOperationSet(
                     OperationSetBasicAutoAnswer.class,
-                    new OperationSetAutoAnswerJabberImpl(basicTelephony));
+                    new OperationSetAutoAnswerJabberImpl(this));
 
                 // init DTMF
                 OperationSetDTMFJabberImpl operationSetDTMFSip

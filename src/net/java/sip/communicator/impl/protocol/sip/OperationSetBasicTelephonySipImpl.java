@@ -1051,9 +1051,9 @@ public class OperationSetBasicTelephonySipImpl
         CallPeerSipImpl existingPeer
                                 = activeCallsRepository.findCallPeer(dialog);
 
-        OperationSetAutoAnswerSipImpl autoAnswerOpSet =
-            (OperationSetAutoAnswerSipImpl)
-                protocolProvider.getOperationSet(OperationSetBasicAutoAnswer.class);
+        OperationSetAutoAnswerSipImpl autoAnswerOpSet
+            = (OperationSetAutoAnswerSipImpl) protocolProvider.getOperationSet(
+                    OperationSetBasicAutoAnswer.class);
 
         if(existingPeer == null)
         {
@@ -1067,7 +1067,7 @@ public class OperationSetBasicTelephonySipImpl
                 // checks for forward of call, if no further processing
                 // is needed return
                 if(autoAnswerOpSet != null
-                    && autoAnswerOpSet.preCallCheck(invite, serverTransaction))
+                    && autoAnswerOpSet.forwardCall(invite, serverTransaction))
                     return;
 
                 //this is a brand new call (not a transferred one)
@@ -1125,12 +1125,12 @@ public class OperationSetBasicTelephonySipImpl
 
                     return;
                 }
-
-                // checks for auto answering of call, if no further processing
-                // is needed return
-                if(autoAnswerOpSet != null
-                    && autoAnswerOpSet.followCallCheck(invite, call))
-                    return;
+                // Manages auto answer with "audio only", or "audio / video"
+                // answer.
+                if(autoAnswerOpSet != null)
+                {
+                    autoAnswerOpSet.autoAnswer(call);
+                }
             }
             else
             {

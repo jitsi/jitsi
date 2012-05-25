@@ -162,6 +162,21 @@ public class CallGTalkImpl
         if(this.getCallPeerCount() == 1 && this.getCallGroup() == null)
             parentOpSet.fireCallEvent( CallEvent.CALL_RECEIVED, this);
 
+        // Manages auto answer with "audio only", or "audio / video" answer.
+        OperationSetAutoAnswerJabberImpl autoAnswerOpSet
+            = (OperationSetAutoAnswerJabberImpl)
+            this.getProtocolProvider()
+            .getOperationSet(OperationSetBasicAutoAnswer.class);
+
+        if(autoAnswerOpSet != null)
+        {
+            // With Gtalk, we do not actually supports the detection if the
+            // incoming call is a video call (cf. the fireCallEvent above with
+            // only 2 arguments). Thus, we set the auto-answer video
+            // parameter to false.
+            autoAnswerOpSet.autoAnswer(this, false);
+        }
+
         return callPeer;
     }
 

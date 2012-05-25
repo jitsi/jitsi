@@ -7,14 +7,17 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.header.*;
+import net.java.sip.communicator.impl.protocol.sip.sdp.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
-import javax.sip.header.*;
+import javax.sip.header.ContactHeader; // Disambiguation.
 import javax.sip.message.*;
+import javax.sdp.*;
 import java.util.*;
 
 /**
@@ -24,27 +27,17 @@ import java.util.*;
  * on existence of specified header name and value.
  *
  * @author Damian Minkov
+ * @author Vincent Lucas
  */
 public class OperationSetAutoAnswerSipImpl
-    extends CallPeerAdapter
-    implements OperationSetBasicAutoAnswer,
-               OperationSetAdvancedAutoAnswer
+    extends AbstractOperationSetBasicAutoAnswer
+    implements OperationSetAdvancedAutoAnswer
 {
     /**
      * Our class logger.
      */
     private static final Logger logger =
         Logger.getLogger(OperationSetBasicTelephonySipImpl.class);
-
-    /**
-     * The parent operation set.
-     */
-    private OperationSetBasicTelephonySipImpl telephonySip;
-
-    /**
-     * Should we unconditionally answer.
-     */
-    private boolean answerUnconditional = false;
 
     /**
      * Should we answer on existence of some header and/or name.
@@ -70,26 +63,22 @@ public class OperationSetAutoAnswerSipImpl
      * Creates this operation set, loads stored values, populating
      * local variable settings.
      *
-     * @param telephonySip the parent opset.
+     * @param protocolProvider the parent Protocol Provider.
      */
-    OperationSetAutoAnswerSipImpl(
-        OperationSetBasicTelephonySipImpl telephonySip)
+    public OperationSetAutoAnswerSipImpl(
+            ProtocolProviderServiceSipImpl protocolProvider)
     {
-        this.telephonySip = telephonySip;
-
-        // init values from account props
-        load();
+        super(protocolProvider);
     }
 
     /**
      * Load values from account properties.
      */
-    private void load()
+    protected void load()
     {
-        AccountID acc = telephonySip.getProtocolProvider().getAccountID();
+        super.load();
 
-        answerUnconditional =
-            acc.getAccountPropertyBoolean(AUTO_ANSWER_UNCOND_PROP, false);
+        AccountID acc = protocolProvider.getAccountID();
 
         headerName =
             acc.getAccountPropertyString(AUTO_ANSWER_COND_NAME_PROP);
@@ -105,9 +94,9 @@ public class OperationSetAutoAnswerSipImpl
     /**
      * Saves values to account properties.
      */
-    private void save()
+    protected void save()
     {
-        AccountID acc = telephonySip.getProtocolProvider().getAccountID();
+        AccountID acc = protocolProvider.getAccountID();
         Map<String, String> accProps = acc.getAccountProperties();
 
         // lets clear anything before saving :)
@@ -131,31 +120,12 @@ public class OperationSetAutoAnswerSipImpl
         {
             accProps.put(AUTO_ANSWER_FWD_NUM_PROP, callFwdTo);
         }
+        accProps.put(
+                AUTO_ANSWER_WITH_VIDEO_PROP,
+                Boolean.toString(answerWithVideo));
 
         acc.setAccountProperties(accProps);
         SipActivator.getProtocolProviderFactory().storeAccount(acc);
-    }
-
-    /**
-     * Sets the auto answer option to unconditionally answer all incoming calls.
-     */
-    public void setAutoAnswerUnconditional()
-    {
-        clearLocal();
-
-        this.answerUnconditional = true;
-
-        save();
-    }
-
-    /**
-     * Is the auto answer option set to unconditionally
-     * answer all incoming calls.
-     * @return is auto answer set to unconditional.
-     */
-    public boolean isAutoAnswerUnconditionalSet()
-    {
-        return answerUnconditional;
     }
 
     /**
@@ -163,6 +133,7 @@ public class OperationSetAutoAnswerSipImpl
      * call packet this will activate auto answer.
      * If value is empty or null it will be considered as any (will search
      * only for a header with that name and ignore the value)
+     *
      * @param headerName the name of the header to search
      * @param value the value for the header, can be null.
      */
@@ -180,6 +151,7 @@ public class OperationSetAutoAnswerSipImpl
     /**
      * Is the auto answer option set to conditionally
      * answer all incoming calls.
+     *
      * @return is auto answer set to conditional.
      */
     public boolean isAutoAnswerConditionSet()
@@ -190,6 +162,7 @@ public class OperationSetAutoAnswerSipImpl
     /**
      * Set to automatically forward all calls to the specified
      * number using the same provider.
+     *
      * @param numberTo number to use for forwarding
      */
     public void setCallForward(String numberTo)
@@ -203,7 +176,8 @@ public class OperationSetAutoAnswerSipImpl
 
     /**
      * Get the value for automatically forward all calls to the specified
-     * number using the same provider..
+     * number using the same provider.
+     *
      * @return numberTo number to use for forwarding
      */
     public String getCallForward()
@@ -214,9 +188,10 @@ public class OperationSetAutoAnswerSipImpl
     /**
      * Clear local settings.
      */
-    private void clearLocal()
+    protected void clearLocal()
     {
-        this.answerUnconditional = false;
+        super.clearLocal();
+
         this.answerConditional = false;
         this.headerName = null;
         this.headerValue = null;
@@ -224,17 +199,8 @@ public class OperationSetAutoAnswerSipImpl
     }
 
     /**
-     * Clear any previous settings.
-     */
-    public void clear()
-    {
-        clearLocal();
-
-        save();
-    }
-
-    /**
      * Returns the name of the header if conditional auto answer is set.
+     *
      * @return the name of the header if conditional auto answer is set.
      */
     public String getAutoAnswerHeaderName()
@@ -244,6 +210,7 @@ public class OperationSetAutoAnswerSipImpl
 
     /**
      * Returns the value of the header for the conditional auto answer.
+     *
      * @return the value of the header for the conditional auto answer.
      */
     public String getAutoAnswerHeaderValue()
@@ -253,13 +220,16 @@ public class OperationSetAutoAnswerSipImpl
 
     /**
      * Makes a check before locally creating call, should we just forward it.
+     *
      * @param invite the current invite to check.
      * @param serverTransaction the transaction.
+     *
      * @return <tt>true</tt> if we have processed and no further processing is
      *          needed, <tt>false</tt> otherwise.
      */
-    boolean preCallCheck(Request invite,
-                         ServerTransaction serverTransaction)
+    public boolean forwardCall(
+            Request invite,
+            ServerTransaction serverTransaction)
     {
         if(StringUtils.isNullOrEmpty(callFwdTo))
             return false;
@@ -270,13 +240,15 @@ public class OperationSetAutoAnswerSipImpl
             if (logger.isTraceEnabled())
                 logger.trace("will send moved temporally response: ");
 
-            response = telephonySip.getProtocolProvider().getMessageFactory()
+            response = ((ProtocolProviderServiceSipImpl) protocolProvider)
+                .getMessageFactory()
                 .createResponse(Response.MOVED_TEMPORARILY, invite);
 
             ContactHeader contactHeader =
-                    (ContactHeader)response.getHeader(ContactHeader.NAME);
+                (ContactHeader)response.getHeader(ContactHeader.NAME);
             AddressFactory addressFactory =
-                telephonySip.getProtocolProvider().getAddressFactory();
+                ((ProtocolProviderServiceSipImpl) protocolProvider)
+                .getAddressFactory();
 
             String destination = getCallForward();
             if(!destination.startsWith("sip"))
@@ -300,105 +272,117 @@ public class OperationSetAutoAnswerSipImpl
     }
 
     /**
-     * Makes a check after creating call locally, should we answer it.
-     * @param invite the current invite to check.
-     * @param call the created call to answer if needed.
-     * @return <tt>true</tt> if we have processed and no further processing is
-     *          needed, <tt>false</tt> otherwise.
+     * Checks if the call satisfy the auto answer conditions.
+     *
+     * @param call The new incoming call to auto-answer if needed.
+     *
+     * @return <tt>true</tt> if the call satisfy the auto answer conditions.
+     * <tt>False</tt> otherwise.
      */
-    boolean followCallCheck(Request invite,
-                            CallSipImpl call)
+    protected boolean satisfyAutoAnswerConditions(Call call)
     {
-        if(!(answerConditional || answerUnconditional))
-            return false;
+        Iterator<? extends CallPeer> peers = call.getCallPeers();
+        CallPeer peer;
 
         // lets check for headers
         if(answerConditional)
         {
-            SIPHeader callAnswerHeader =
-                (SIPHeader)invite.getHeader(headerName);
-
-            if(callAnswerHeader == null)
-                return false;
-
-            if(!StringUtils.isNullOrEmpty(headerValue))
+            while(peers.hasNext())
             {
-                String value = callAnswerHeader.getHeaderValue();
+                peer = peers.next();
+                Transaction transaction = ((CallPeerSipImpl) peer)
+                    .getLatestInviteTransaction();
+                if(transaction != null)
+                {
+                    Request invite = transaction.getRequest();
+                    SIPHeader callAnswerHeader = (SIPHeader)
+                        invite.getHeader(headerName);
 
-                if(value == null || !headerValue.equals(value))
-                    return false;
+                    if(callAnswerHeader != null)
+                    {
+                        if(!StringUtils.isNullOrEmpty(headerValue))
+                        {
+                            String value = callAnswerHeader.getHeaderValue();
+
+                            if(value != null && headerValue.equals(value))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Makes a check after creating call locally, should we answer it.
+     *
+     * @param call The new incoming call to auto-answer if needed.
+     * @param isVideoCall Indicates if the remote peer which has created this
+     * call wish to have a video call.
+     *
+     * @return <tt>true</tt> if we have processed and no further processing is
+     *          needed, <tt>false</tt> otherwise.
+     */
+    public boolean autoAnswer(Call call)
+    {
+        if(answerUnconditional || satisfyAutoAnswerConditions(call))
+        {
+            boolean isVideoCall = doesRequestContainsActiveVideoMediaType(call);
+            this.answerCall(call, isVideoCall);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Detects if the incoming call is a video call. Parses the SDP from the SIP
+     * request to determine if the video is active.
+     *
+     * @param call The new incoming call to auto-answer if needed.
+     *
+     * @return True if the incoming call is a video call. False, otherwise.
+     */
+    private boolean doesRequestContainsActiveVideoMediaType(Call call)
+    {
+        Iterator<? extends CallPeer> peers = call.getCallPeers();
+
+        while(peers.hasNext())
+        {
+            Transaction transaction = ((CallPeerSipImpl) peers.next())
+                .getLatestInviteTransaction();
+            if(transaction != null)
+            {
+                Request inviteReq = transaction.getRequest();
+
+                if(inviteReq != null && inviteReq.getRawContent() != null)
+                {
+                    String sdpStr = SdpUtils.getContentAsString(inviteReq);
+                    SessionDescription sesDescr
+                        = SdpUtils.parseSdpString(sdpStr);
+                    List<MediaDescription> remoteDescriptions
+                        = SdpUtils.extractMediaDescriptions(sesDescr);
+
+                    for (MediaDescription mediaDescription :
+                            remoteDescriptions)
+                    {
+                        if(SdpUtils.getMediaType(mediaDescription)
+                                == MediaType.VIDEO)
+                        {
+                            if(SdpUtils.getDirection(mediaDescription)
+                                    == MediaDirection.SENDRECV)
+                            {
+                                return true;
+                            }
+
+                        }
+                    }
+                }
             }
         }
 
-        // we are here cause we satisfy the conditional,
-        // or unconditional is true
-        Iterator<? extends CallPeer> peers = call.getCallPeers();
-
-        while (peers.hasNext())
-        {
-            final CallPeer peer = peers.next();
-
-            answerPeer(peer);
-        }
-
-        return true;
-    }
-
-    /**
-     * Answers call if peer in correct state or wait for it.
-     * @param peer the peer to check and answer.
-     */
-    private void answerPeer(final CallPeer peer)
-    {
-        CallPeerState state = peer.getState();
-
-        if (state == CallPeerState.INCOMING_CALL)
-        {
-            // answer in separate thread, don't block current
-            // processing
-            new Thread(new Runnable()
-            {
-                public void run()
-                {
-                    try
-                    {
-                        telephonySip.answerCallPeer(peer);
-                    }
-                    catch (OperationFailedException e)
-                    {
-                        logger.error("Could not answer to : " + peer
-                            + " caused by the following exception: " + e);
-                    }
-                }
-            }, getClass().getName()).start();
-        }
-        else
-        {
-            peer.addCallPeerListener(this);
-        }
-    }
-
-    /**
-     * If we peer was not in proper state wait for it and then answer.
-     * @param evt the <tt>CallPeerChangeEvent</tt> instance containing the
-     */
-    public void peerStateChanged(CallPeerChangeEvent evt)
-    {
-
-        CallPeerState newState = (CallPeerState) evt.getNewValue();
-
-        if (newState == CallPeerState.INCOMING_CALL)
-        {
-            CallPeer peer = evt.getSourceCallPeer();
-
-            peer.removeCallPeerListener(this);
-
-            answerPeer(peer);
-        }
-        else if (newState == CallPeerState.DISCONNECTED
-                || newState == CallPeerState.FAILED)
-        {
-            evt.getSourceCallPeer().removeCallPeerListener(this);
-        }
+        return false;
     }
 }

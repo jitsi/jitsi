@@ -328,6 +328,11 @@ public class AutoAnswerMenu
         private JRadioButton customValueRadio;
 
         /**
+         * Check box to active the video answer for wideo calls.
+         */
+        private SIPCommCheckBox answerWithVideoCheckBox;
+
+        /**
          * Custom field name text field.
          */
         private JTextField headerNameField = new JTextField();
@@ -469,6 +474,17 @@ public class AutoAnswerMenu
                 c.insets = new Insets(10, 0, 0, 0);
             }
 
+            c.gridy = currentRow++;
+            mainPanel.add(
+                    getTitlePanel(
+                        R.getI18NString("service.gui.AUTO_ANSWER_VIDEO")),
+                    c);
+            c.gridy = currentRow++;
+            answerWithVideoCheckBox = new SIPCommCheckBox(
+                R.getI18NString(
+                    "service.gui.AUTO_ANSWER_VIDEO_CALLS_WITH_VIDEO"));
+            mainPanel.add(answerWithVideoCheckBox, c);
+
             TransparentPanel buttonsPanel
                 = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
@@ -580,6 +596,9 @@ public class AutoAnswerMenu
                         opSetAdvanced.setCallForward(
                             callFwdNumberField.getText());
                 }
+
+                opset.setAutoAnswerWithVideo(
+                        answerWithVideoCheckBox.isSelected());
             }
 
             dispose();
@@ -641,6 +660,9 @@ public class AutoAnswerMenu
                     callFwdNumberField.setText(opSetAdvanced.getCallForward());
                 }
             }
+
+            answerWithVideoCheckBox.setSelected(
+                    opset.isAutoAnswerWithVideoSet());
         }
     }
 }

@@ -419,9 +419,8 @@ public class ProtocolProviderServiceSipImpl
                     OperationSetAdvancedTelephony.class,
                     opSetBasicTelephonySipImpl);
 
-                OperationSetAutoAnswerSipImpl autoAnswerOpSet =
-                    new OperationSetAutoAnswerSipImpl(
-                            opSetBasicTelephonySipImpl);
+                OperationSetAutoAnswerSipImpl autoAnswerOpSet
+                    = new OperationSetAutoAnswerSipImpl(this);
                 addSupportedOperationSet(
                     OperationSetBasicAutoAnswer.class, autoAnswerOpSet);
                 addSupportedOperationSet(

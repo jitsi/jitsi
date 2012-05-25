@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -17,59 +18,29 @@ import java.util.*;
  * calls.
  *
  * @author Damian Minkov
+ * @author Vincent Lucas
  */
 public class OperationSetAutoAnswerJabberImpl
-    extends CallPeerAdapter
-    implements OperationSetBasicAutoAnswer
+    extends AbstractOperationSetBasicAutoAnswer
 {
-    /**
-     * Our class logger.
-     */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetAutoAnswerJabberImpl.class);
-
-    /**
-     * Should we unconditionally answer.
-     */
-    private boolean answerUnconditional = false;
-
-    /**
-     * The parent operation set.
-     */
-    private final OperationSetBasicTelephonyJabberImpl telephonyJabber;
-
     /**
      * Creates this operation set, loads stored values, populating
      * local variable settings.
      *
-     * @param telephonyJabber the parent opset.
+     * @param protocolProvider the parent Protocol Provider.
      */
-    OperationSetAutoAnswerJabberImpl(
-            OperationSetBasicTelephonyJabberImpl telephonyJabber)
+    public OperationSetAutoAnswerJabberImpl(
+            ProtocolProviderServiceJabberImpl protocolProvider)
     {
-        this.telephonyJabber = telephonyJabber;
-
-        // init values from account props
-        load();
-    }
-
-    /**
-     * Load values from account properties.
-     */
-    private void load()
-    {
-        AccountID acc = telephonyJabber.getProtocolProvider().getAccountID();
-
-        answerUnconditional
-            = acc.getAccountPropertyBoolean(AUTO_ANSWER_UNCOND_PROP, false);
+        super(protocolProvider);
     }
 
     /**
      * Saves values to account properties.
      */
-    private void save()
+    protected void save()
     {
-        AccountID acc = telephonyJabber.getProtocolProvider().getAccountID();
+        AccountID acc = protocolProvider.getAccountID();
         Map<String, String> accProps = acc.getAccountProperties();
 
         // lets clear anything before saving :)
@@ -78,124 +49,50 @@ public class OperationSetAutoAnswerJabberImpl
         if(answerUnconditional)
             accProps.put(AUTO_ANSWER_UNCOND_PROP, Boolean.TRUE.toString());
 
+        accProps.put(AUTO_ANSWER_WITH_VIDEO_PROP,
+                Boolean.toString(this.answerWithVideo));
+
         acc.setAccountProperties(accProps);
         JabberActivator.getProtocolProviderFactory().storeAccount(acc);
     }
 
     /**
-     * Sets the auto answer option to unconditionally answer all incoming calls.
+     * Checks if the call satisfy the auto answer conditions.
+     *
+     * @param call The new incoming call to auto-answer if needed.
+     *
+     * @return <tt>true</tt> if the call satisfy the auto answer conditions.
+     * <tt>False</tt> otherwise.
      */
-    public void setAutoAnswerUnconditional()
+    protected boolean satisfyAutoAnswerConditions(Call call)
     {
-        clearLocal();
-
-        this.answerUnconditional = true;
-
-        save();
+        // Nothing to do here, as long as the jabber account does not implements
+        // advanced auto answer functionnalities.
+        return false;
     }
 
     /**
-     * Is the auto answer option set to unconditionally
-     * answer all incoming calls.
-     * @return is auto answer set to unconditional.
-     */
-    public boolean isAutoAnswerUnconditionalSet()
-    {
-        return answerUnconditional;
-    }
-
-    /**
-     * Clear local settings.
-     */
-    private void clearLocal()
-    {
-        this.answerUnconditional = false;
-    }
-
-    /**
-     * Clear any previous settings.
-     */
-    public void clear()
-    {
-        clearLocal();
-
-        save();
-    }
-
-    /**
-     * Makes a check after creating call locally, should we answer it.
-     * @param call the created call to answer if needed.
+     * Auto-answers to a call with "audio only" or "audio/video" if the incoming
+     * call is a video call.
+     *
+     * @param call The new incoming call to auto-answer if needed.
+     * @param directions The media type (audio / video) stream directions.
+     *
      * @return <tt>true</tt> if we have processed and no further processing is
      *          needed, <tt>false</tt> otherwise.
      */
-    boolean followCallCheck(AbstractCall<?, ?> call)
+    public boolean autoAnswer(
+            Call call,
+            Map<MediaType, MediaDirection> directions)
     {
-        if(!answerUnconditional)
-            return false;
+        boolean isVideoCall = false;
+        MediaDirection direction = directions.get(MediaType.VIDEO);
 
-        // We are here because we satisfy the conditional, or unconditional is
-        // true.
-        Iterator<? extends CallPeer> peers = call.getCallPeers();
-
-        while (peers.hasNext())
-            answerPeer(peers.next());
-
-        return true;
-    }
-
-    /**
-     * Answers call if peer in correct state or wait for it.
-     * @param peer the peer to check and answer.
-     */
-    private void answerPeer(final CallPeer peer)
-    {
-        CallPeerState state = peer.getState();
-
-        if (state == CallPeerState.INCOMING_CALL)
+        if(direction != null)
         {
-            // answer in separate thread, don't block current processing
-            new Thread(new Runnable()
-            {
-                public void run()
-                {
-                    try
-                    {
-                        telephonyJabber.answerCallPeer(peer);
-                    }
-                    catch (OperationFailedException e)
-                    {
-                        logger.error("Could not answer to : " + peer
-                            + " caused by the following exception: " + e);
-                    }
-                }
-            }, getClass().getName()).start();
+            isVideoCall = (direction == MediaDirection.SENDRECV);
         }
-        else
-        {
-            peer.addCallPeerListener(this);
-        }
-    }
 
-    /**
-     * If we peer was not in proper state wait for it and then answer.
-     * @param evt the <tt>CallPeerChangeEvent</tt> instance containing the
-     */
-    public void peerStateChanged(CallPeerChangeEvent evt)
-    {
-        CallPeerState newState = (CallPeerState) evt.getNewValue();
-
-        if (newState == CallPeerState.INCOMING_CALL)
-        {
-            CallPeer peer = evt.getSourceCallPeer();
-
-            peer.removeCallPeerListener(this);
-
-            answerPeer(peer);
-        }
-        else if (newState == CallPeerState.DISCONNECTED
-                || newState == CallPeerState.FAILED)
-        {
-            evt.getSourceCallPeer().removeCallPeerListener(this);
-        }
+        return super.autoAnswer(call, isVideoCall);
     }
 }
