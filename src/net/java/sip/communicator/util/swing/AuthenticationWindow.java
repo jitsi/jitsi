@@ -60,6 +60,13 @@ public class AuthenticationWindow
             .getI18NString("service.gui.REMEMBER_PASSWORD"));
 
     /**
+     * Property to disable/enable allow save password option
+     * in authentication window. By default it is enabled.
+     */
+    private static final String PNAME_ALLOW_SAVE_PASSWORD =
+        "net.java.sip.communicator.util.swing.auth.ALLOW_SAVE_PASSWORD";
+
+    /**
      * The name of the server, for which this authentication window is about.
      */
     private String server;
@@ -402,6 +409,19 @@ public class AuthenticationWindow
         textFieldsPanel.add(uinValue);
         textFieldsPanel.add(passwdField);
         textFieldsPanel.add(rememberPassCheckBox);
+
+        boolean allowRememberPassword = true;
+
+        String allowRemPassStr = UtilActivator.getResources().getSettingsString(
+                PNAME_ALLOW_SAVE_PASSWORD);
+        if(allowRemPassStr != null)
+        {
+            allowRememberPassword = Boolean.parseBoolean(allowRemPassStr);
+        }
+        allowRememberPassword = UtilActivator.getConfigurationService()
+            .getBoolean(PNAME_ALLOW_SAVE_PASSWORD, allowRememberPassword);
+
+        setAllowSavePassword(allowRememberPassword);
 
         JPanel buttonPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
