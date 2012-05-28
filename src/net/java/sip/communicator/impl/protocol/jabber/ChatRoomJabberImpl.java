@@ -2341,7 +2341,8 @@ public class ChatRoomJabberImpl
 
             // Check if the MUCUser informs that the invitee
             // has declined the invitation
-            if (mucUser.getDecline() != null
+            if (mucUser != null
+                && mucUser.getDecline() != null
                 && ((org.jivesoftware.smack.packet.Message) packet).getType()
                     != org.jivesoftware.smack.packet.Message.Type.error)
             {
