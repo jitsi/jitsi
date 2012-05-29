@@ -856,8 +856,8 @@ public class ChatConversationPanel
         }
 
         Matcher m
-            = Pattern
-                .compile(keyword, Pattern.CASE_INSENSITIVE).matcher(message);
+            = Pattern.compile(Pattern.quote(keyword), Pattern.CASE_INSENSITIVE)
+                .matcher(message);
         StringBuffer msgBuffer = new StringBuffer();
         int prevEnd = 0;
 

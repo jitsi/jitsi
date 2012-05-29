@@ -828,10 +828,17 @@ public class ChatPanel
                     ((ChatRoomWrapper) chatSession.getDescriptor())
                         .getChatRoom().getUserNickname();
 
-                processedMessage =
-                    this.conversationPanel
-                        .processChatRoomHighlight(processedMessage,
-                            chatMessage.getContentType(), keyWord);
+                try
+                {
+                    processedMessage =
+                        this.conversationPanel
+                            .processChatRoomHighlight(processedMessage,
+                                chatMessage.getContentType(), keyWord);
+                }
+                catch(Throwable t)
+                {
+                    logger.error("Error processing highlight", t);
+                }
             }
 
             String meCommandMsg
