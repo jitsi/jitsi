@@ -851,7 +851,7 @@ public class Update
 
             Version ver = getCurrentVersion();
 
-            if(ver.isPreRelease())
+            if(ver.isNightly())
                 deltaTarget = ver.getNightlyBuildID();
             else
                 deltaTarget = String.valueOf(ver.getVersionRevision());
