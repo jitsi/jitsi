@@ -486,21 +486,21 @@ public class ProtocolProviderServiceSipImpl
                 }
             }
 
-            //init presence op set.
-            OperationSetPersistentPresence opSetPersPresence
-                = new OperationSetPresenceSipImpl(this, enablePresence,
-                        forceP2P, pollingValue, subscriptionExpiration);
-
-            addSupportedOperationSet(
-                OperationSetPersistentPresence.class,
-                opSetPersPresence);
-            //also register with standard presence
-            addSupportedOperationSet(
-                OperationSetPresence.class,
-                opSetPersPresence);
-
             if (enablePresence)
             {
+                //init presence op set.
+                OperationSetPersistentPresence opSetPersPresence
+                    = new OperationSetPresenceSipImpl(this, enablePresence,
+                            forceP2P, pollingValue, subscriptionExpiration);
+
+                addSupportedOperationSet(
+                    OperationSetPersistentPresence.class,
+                    opSetPersPresence);
+                //also register with standard presence
+                addSupportedOperationSet(
+                    OperationSetPresence.class,
+                    opSetPersPresence);
+
                 // init instant messaging
                 OperationSetBasicInstantMessagingSipImpl opSetBasicIM =
                     new OperationSetBasicInstantMessagingSipImpl(this);

@@ -177,11 +177,15 @@ public class SimpleStatusMenu
         setIcon(new ImageIcon(ImageUtils.getBytesInImage(
                 protocolProvider.getProtocolIcon().getIcon(
                     ProtocolIcon.ICON_SIZE_16x16))));
-        onlineItem.setIcon(getIcon());
-        offlineItem.setIcon(
-            new ImageIcon(LightGrayFilter.createDisabledImage(
-                ImageUtils.getBytesInImage(
-                    protocolProvider.getProtocolIcon().getIcon(
-                        ProtocolIcon.ICON_SIZE_16x16)))));
+
+        if(onlineItem != null)
+            onlineItem.setIcon(getIcon());
+
+        if(offlineItem != null)
+            offlineItem.setIcon(
+                new ImageIcon(LightGrayFilter.createDisabledImage(
+                    ImageUtils.getBytesInImage(
+                        protocolProvider.getProtocolIcon().getIcon(
+                            ProtocolIcon.ICON_SIZE_16x16)))));
     }
 }
