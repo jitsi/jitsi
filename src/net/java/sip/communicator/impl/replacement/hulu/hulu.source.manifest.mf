@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.replacement.hulu.HuluActivator
 Bundle-Name: Hulu Preview Replacement Source
 Bundle-Description: A bundle providing processing for Hulu previews.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 1.0.0
 System-Bundle: yes
 Import-Package: org.osgi.framework,

@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.replacement.flickr.FlickrActivator
 Bundle-Name: Flickr Preview Replacement Source
 Bundle-Description: A bundle providing processing for flickr previews.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 1.0.0
 System-Bundle: yes
 Import-Package: org.osgi.framework,

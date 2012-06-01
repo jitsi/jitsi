@@ -772,6 +772,54 @@ public class ChatWindowManager
             metaContact, protocolContact, isSmsMessage));
     }
 
+    public void startChat(String contactString)
+    {
+        List<ProtocolProviderService> imProviders
+            = GuiActivator.getRegisteredProviders(
+                    OperationSetBasicInstantMessaging.class);
+
+        if (imProviders.size() < 1)
+            throw new IllegalStateException("imProviders");
+
+        Contact contact = null;
+        MetaContactListService metaContactListService
+            = GuiActivator.getContactListService();
+        MetaContact metaContact = null;
+        boolean startChat = false;
+
+        for (ProtocolProviderService imProvider : imProviders)
+        {
+            try
+            {
+                OperationSetPresence presenceOpSet
+                    = imProvider.getOperationSet(OperationSetPresence.class);
+
+                if (presenceOpSet != null)
+                {
+                    contact = presenceOpSet.findContactByID(contactString);
+                    if (contact != null)
+                    {
+                        metaContact
+                            = metaContactListService.findMetaContactByContact(
+                                    contact);
+                        if (metaContact != null)
+                        {
+                            startChat = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (Throwable t)
+            {
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+            }
+        }
+        if (startChat)
+            startChat(metaContact, contact, false);
+    }
+
     /**
      * Removes the non read state of the currently selected chat session. This
      * will result in removal of all icons representing the non read state (like

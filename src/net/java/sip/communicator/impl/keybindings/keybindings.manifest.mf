@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.keybindings.KeybindingsActivator
 Bundle-Name: Keybindings
 Bundle-Description: Provides management and persistence of keyboard shortcuts.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

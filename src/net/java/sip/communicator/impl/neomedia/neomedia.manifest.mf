@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.neomedia.NeomediaActivator
 Bundle-Name: Neomedia Service Implementation
 Bundle-Description: A bundle that offers Media capture and presentation capabilities.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.bouncycastle.crypto,

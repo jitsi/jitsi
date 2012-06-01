@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.protocol.jabber.JabberActivator
 Bundle-Name: Jabber Protocol Provider Implementation
 Bundle-Description: An Jabber implementation of the Protocol Provider Service.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

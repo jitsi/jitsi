@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.replacement.dailymotion.DailymotionActivator
 Bundle-Name: Dailymotion Replacement Source
 Bundle-Description: A bundle providing replacement for dailymotion links.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 1.0.0
 System-Bundle: yes
 Import-Package: org.osgi.framework,

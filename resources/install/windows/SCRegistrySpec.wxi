@@ -67,6 +67,33 @@
     </RegistryKey>
   </Component>
 
+  <Component
+      Id="Component_MsOfficeCommRegistryEntries_X86"
+      Directory="TARGETDIR"
+      Guid="9a590be3-d2c6-48e6-8d6a-a8ca71ad0aac"
+      Win64="no">
+    <Condition><![CDATA[CREATE_MSOFFICECOMM_REGISTRY_ENTRIES = 1]]></Condition>
+    <RegistryKey Action="createAndRemoveOnUninstall"
+        Key="SOFTWARE\Microsoft\Office\Outlook\Call Integration"
+        Root="HKLM">
+      <RegistryValue Name="IMApplication" Type="string" Value="run.exe" />
+    </RegistryKey>
+  </Component>
+<?if $(var.Platform) = x64 ?>
+  <Component
+      Id="Component_MsOfficeCommRegistryEntries_X64"
+      Directory="TARGETDIR"
+      Guid="ce3c9a0f-1876-470e-823c-a29d7b7fcb26"
+      Win64="yes">
+    <Condition><![CDATA[CREATE_MSOFFICECOMM_REGISTRY_ENTRIES = 1]]></Condition>
+    <RegistryKey Action="createAndRemoveOnUninstall"
+        Key="SOFTWARE\Microsoft\Office\Outlook\Call Integration"
+        Root="HKLM">
+      <RegistryValue Name="IMApplication" Type="string" Value="run.exe" />
+    </RegistryKey>
+  </Component>
+<?endif ?>
+
 </ComponentGroup>
 </Fragment>
 </Include>

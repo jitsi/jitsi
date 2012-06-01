@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.netaddr.NetaddrActivator
 Bundle-Name: Network Address Management service
 Bundle-Description: A bundle that provides local address selection and negotiation via ice4j.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: net.java.sip.communicator.service.configuration,

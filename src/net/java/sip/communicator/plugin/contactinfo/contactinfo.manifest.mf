@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.contactinfo.ContactInfoActivator
 Bundle-Name: Contact Info
 Bundle-Description: A plug-in that can show cross protocol user info.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.spellcheck.SpellCheckActivator
 Bundle-Name: Spell Checker
 Bundle-Description: Provides interactive spell checking of messages being composed.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,

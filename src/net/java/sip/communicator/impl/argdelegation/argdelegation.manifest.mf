@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.argdelegation.ArgDelegationActivator
 Bundle-Name: Argument Delegation
 Bundle-Description: A bundle that delegates invocation arguments to register handler services
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

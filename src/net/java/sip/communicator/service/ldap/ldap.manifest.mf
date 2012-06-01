@@ -1,6 +1,6 @@
 Bundle-Name: LDAP Service Implementation
 Bundle-Description: LDAP Service Implementation.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,
  javax.naming.directory,

@@ -1,6 +1,6 @@
 Bundle-Name: Contact Event Handler service
 Bundle-Description: Contact Event Handler service
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

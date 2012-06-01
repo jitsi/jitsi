@@ -1,6 +1,6 @@
 Bundle-Name: Argument Delegation Service
 Bundle-Description: A service that allows bundles to register as handlers for specific command line arguments
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.argdelegation

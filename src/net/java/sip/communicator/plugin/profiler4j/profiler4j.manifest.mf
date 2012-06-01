@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.profiler4j.ProfilerActivator
 Bundle-Name: Integrated profiler plugin
 Bundle-Description: A bundle that provides profile cpu and memory of the running app.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.apache.commons.logging,

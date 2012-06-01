@@ -473,6 +473,7 @@
   sense to associate SIP Communicator with the FEED protocol.
 -->
 <Property Id="CREATE_FEED_REGISTRY_ENTRIES" Value="0" />
+<Property Id="CREATE_MSOFFICECOMM_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_SIP_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_XMPP_REGISTRY_ENTRIES" Value="1" />
 <Property Id="IS_AUTOUPDATE" Value="0" Hidden="yes" />

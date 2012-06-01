@@ -194,7 +194,7 @@ public class PresenceStatus
      */
     public int compareTo(PresenceStatus target)
         throws ClassCastException,
-        NullPointerException
+               NullPointerException
     {
         return (getStatus() - target.getStatus());
     }

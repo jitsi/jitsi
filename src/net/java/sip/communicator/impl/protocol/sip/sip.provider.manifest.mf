@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.protocol.sip.SipActivator
 Bundle-Name: SIP Communicator SIP Protocol Provider
 Bundle-Description: A bundle that implements the Protocol Provider package over SIP.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.apache.log4j,

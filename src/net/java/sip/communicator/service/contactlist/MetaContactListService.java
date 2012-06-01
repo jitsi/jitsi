@@ -16,7 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
  * list including contacts from all implemented protocols.
  * <p>
  * An implementation of the <tt>MetaContactListService</tt> would take care
- * of synchronizing the local copy ot the contact list with the  versions stored
+ * of synchronizing the local copy of the contact list with the  versions stored
  * on the various server protocols.
  * <p>
  * All modules that would for some reason like to query or modify the contact
@@ -27,7 +27,7 @@ import net.java.sip.communicator.service.protocol.*;
  * protocol specific contacts so that they represent a single person or identity.
  * Every protocol specific <tt>Contact</tt> would therefore automatically
  * be assigned to a corresponding <tt>MetaContact</tt>. A single
- * MetaContact may containg multiple contacts (e.g. a single person often
+ * MetaContact may containing multiple contacts (e.g. a single person often
  * has accounts in different protocols) while a single protocol specific
  * Contact may only be assigned to a exactly one MetaContact.
  * <p>
@@ -78,7 +78,7 @@ public interface MetaContactListService
     /**
      * Returns the meta contact group that is a direct parent of the specified
      * <tt>child</tt>.
-     * @param child the <tt>MetaContactGroup</tt> whose paret group we're
+     * @param child the <tt>MetaContactGroup</tt> whose parent group we're
      * looking for. If no parent is found <tt>null</tt> is returned.
      *
      * @return the <tt>MetaContactGroup</tt> that contains <tt>child</tt> or
@@ -89,7 +89,7 @@ public interface MetaContactListService
     /**
      * Returns the meta contact group that is a direct parent of the specified
      * <tt>child</tt>. If no parent is found <tt>null</tt> is returned.
-     * @param child the <tt>MetaContact</tt> whose paret group we're looking
+     * @param child the <tt>MetaContact</tt> whose parent group we're looking
      * for.
      *
      * @return the <tt>MetaContactGroup</tt> that contains <tt>child</tt> or
@@ -107,7 +107,7 @@ public interface MetaContactListService
      *
      * @param contact the contact whose encapsulating meta contact we're looking
      * for.
-     * @return the MetaContact containing the speicified contact or null
+     * @return the MetaContact containing the specified contact or <tt>null</tt>
      * if no such contact is present in this contact list.
      */
     public MetaContact findMetaContactByContact(Contact contact);
@@ -117,7 +117,7 @@ public interface MetaContactListService
      * group or null if no such MetaContactGroup was found.
      *
      * @param group the group whose encapsulating meta group we're looking for.
-     * @return the MetaContact containing the speicified contact or null
+     * @return the MetaContact containing the specified contact or <tt>null</tt>
      * if no such contact is present in this contact list.
      */
     public MetaContactGroup findMetaContactGroupByContactGroup(
@@ -128,8 +128,8 @@ public interface MetaContactListService
      * Returns the MetaContact that corresponds to the specified metaContactID.
      *
      * @param metaContactID a String identifier of a meta contact.
-     * @return the MetaContact with the speicified string identifier or null
-     * if no such meta contact was found.
+     * @return the MetaContact with the specified string identifier or
+     * <tt>null</tt> if no such meta contact was found.
      */
     public MetaContact findMetaContactByMetaUID(String metaContactID);
 
@@ -258,7 +258,7 @@ public interface MetaContactListService
     /**
      * First makes the specified protocol provider create a contact
      * corresponding to the specified <tt>contactID</tt>, then creates a new
-     * MetaContact which will encapsulate the newly crated protocol specific
+     * MetaContact which will encapsulate the newly-created protocol specific
      * contact. Depending on implementations the method may sometimes need
      * time to complete as it may be necessary for an underlying protocol to
      * wait for a server to acknowledge addition of the contact.

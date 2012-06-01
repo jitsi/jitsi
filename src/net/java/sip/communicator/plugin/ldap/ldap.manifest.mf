@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.ldap.LdapActivator
 Bundle-Description: LDAP support
 Bundle-Name: LDAP support
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Import-Package: net.java.sip.communicator.service.contactsource,
  net.java.sip.communicator.service.resources,

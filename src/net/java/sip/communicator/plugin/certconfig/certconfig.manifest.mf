@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.certconfig.CertConfigActivator
 Bundle-Name: Certificate Configuration Plugin
 Bundle-Description: Allows the configuration of general X.509 certificate settings.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: no
 Import-Package: org.osgi.framework,

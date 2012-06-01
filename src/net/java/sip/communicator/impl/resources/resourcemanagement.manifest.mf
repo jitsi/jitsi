@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.resources.ResourceManagementActivator
 Bundle-Name: Resource Management Service
 Bundle-Description: The plugin managing images and languages resource packs.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.resources

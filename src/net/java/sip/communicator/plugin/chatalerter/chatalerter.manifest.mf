@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.chatalerter.ChatAlerterActivator
 Bundle-Name: Chat Alerter
 Bundle-Description: A plug-in that alerts for new messages by flashing the window in the taskbar.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

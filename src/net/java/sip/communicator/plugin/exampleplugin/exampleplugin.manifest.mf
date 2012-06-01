@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.exampleplugin.ExamplePluginActivator
 Bundle-Name: Example plugin
 Bundle-Description: An example showing how to make plugins for the ui.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

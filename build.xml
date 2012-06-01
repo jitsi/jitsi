@@ -935,7 +935,7 @@
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
-        bundle-globalshortcut"/>
+        bundle-globalshortcut,bundle-plugin-msofficecomm"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2717,7 +2717,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-
     <target name="bundle-plugin-certconfig">
         <jar compress="false" destfile="${bundles.dest}/plugin-certconfig.jar"
             manifest="${src}/net/java/sip/communicator/plugin/certconfig/certconfig.manifest.mf">
@@ -2733,6 +2732,14 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/impl/globalshortcut" />
             <zipfileset dir="${dest}/net/java/sip/communicator/service/globalshortcut"
                 prefix="net/java/sip/communicator/service/globalshortcut"/>
+        </jar>
+    </target>
+
+    <target name="bundle-plugin-msofficecomm">
+        <jar compress="false" destfile="${bundles.dest}/plugin-msofficecomm.jar"
+                manifest="${src}/net/java/sip/communicator/plugin/msofficecomm/msofficecomm.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msofficecomm"
+                    prefix="net/java/sip/communicator/plugin/msofficecomm" />
         </jar>
     </target>
 </project>

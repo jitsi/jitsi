@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.service.protocol.media.ProtocolMediaActivator
 Bundle-Name: Media Utilities for the Protocol Provider Service
 Bundle-Description: Media Utilities for the Protocol Provider Service.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.whiteboard.WhiteboardActivator
 Bundle-Name: Whiteboard plugin
 Bundle-Description: A whiteboard for SIP-Communicator.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

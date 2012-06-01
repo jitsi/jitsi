@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.protocol.irc.IrcActivator
 Bundle-Name: Irc Protocol Provider
 Bundle-Description: A bundle providing support for the Irc protocol.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

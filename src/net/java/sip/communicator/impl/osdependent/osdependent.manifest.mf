@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.osdependent.OsDependentActivator
 Bundle-Name: OS dependent
 Bundle-Description: OS dependent.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Export-Package: net.java.sip.communicator.service.systray,

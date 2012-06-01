@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.account.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
@@ -1471,5 +1472,25 @@ public class UIServiceImpl
     public CreateAccountWindow getCreateAccountWindow()
     {
         return new NewAccountDialog();
+    }
+
+    public void createCall(String[] participants)
+    {
+        if (participants.length == 1)
+        {
+            CallManager.createCall(participants[0], null);
+        }
+        else
+            throw new IllegalArgumentException("participants");
+    }
+
+    public void startChat(String[] participants)
+    {
+        if (participants.length == 1)
+        {
+            getChatWindowManager().startChat(participants[0]);
+        }
+        else
+            throw new IllegalArgumentException("participants");
     }
 }

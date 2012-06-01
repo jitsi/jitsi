@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.loggingutils.LoggingUtilsActivator
 Bundle-Name: Logging utils
 Bundle-Description: A bundle that provides packet logging utils as config and saving archived logs
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.gui.GuiActivator
 Bundle-Name: UI Service Provider Implementation
 Bundle-Description: An implementation of the UI service.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

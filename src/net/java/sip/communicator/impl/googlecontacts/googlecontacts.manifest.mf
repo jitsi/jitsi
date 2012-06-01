@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.googlecontacts.GoogleContactsActivator
 Bundle-Name: Google Contacts Service Implementation
 Bundle-Description: A bundle that offers access to Google Contacts
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

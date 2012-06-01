@@ -795,25 +795,66 @@ public class CallManager
         }
         else if (telephonyProviders.size() > 1)
         {
-            ChooseCallAccountPopupMenu chooseAccountDialog
-                = new ChooseCallAccountPopupMenu(
-                    c,
-                    callString,
-                    telephonyProviders,
-                    l);
+            /*
+             * Allow plugins which do not have a (Jitsi) UI to create calls by
+             * automagically picking up a telephony provider.
+             */
+            if (c == null)
+            {
+                ProtocolProviderService preferredTelephonyProvider = null;
 
-            chooseAccountDialog
-                .setLocation(c.getLocation());
-            chooseAccountDialog.showPopupMenu();
+                for (ProtocolProviderService telephonyProvider
+                        : telephonyProviders)
+                {
+                    try
+                    {
+                        OperationSetPresence presenceOpSet
+                            = telephonyProvider.getOperationSet(
+                                    OperationSetPresence.class);
+
+                        if ((presenceOpSet != null)
+                                && (presenceOpSet.findContactByID(callString)
+                                        != null))
+                        {
+                            preferredTelephonyProvider = telephonyProvider;
+                            break;
+                        }
+                    }
+                    catch (Throwable t)
+                    {
+                        if (t instanceof ThreadDeath)
+                            throw (ThreadDeath) t;
+                    }
+                }
+                if (preferredTelephonyProvider == null)
+                    preferredTelephonyProvider = telephonyProviders.get(0);
+
+                CallManager.createCall(preferredTelephonyProvider, callString);
+                if (l != null)
+                    l.callInterfaceStarted();
+            }
+            else
+            {
+                ChooseCallAccountPopupMenu chooseAccountDialog
+                    = new ChooseCallAccountPopupMenu(
+                            c,
+                            callString,
+                            telephonyProviders,
+                            l);
+
+                chooseAccountDialog.setLocation(c.getLocation());
+                chooseAccountDialog.showPopupMenu();
+            }
         }
         else
         {
             new ErrorDialog(
-                null,
-                GuiActivator.getResources().getI18NString("service.gui.WARNING"),
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
-            .showDialog();
+                    null,
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.WARNING"),
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.NO_ONLINE_TELEPHONY_ACCOUNT"))
+                .showDialog();
         }
     }
 

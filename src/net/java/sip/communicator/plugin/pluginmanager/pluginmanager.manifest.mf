@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.plugin.pluginmanager.PluginManagerActivator
 Bundle-Name: Plugin Manager plugin
 Bundle-Description: Manage all SIP Communicator plugins.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

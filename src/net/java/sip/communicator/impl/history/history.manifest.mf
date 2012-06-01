@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.history.HistoryActivator
 Bundle-Name: History Service Provider
 Bundle-Description: A bundle that implements the history package.
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,

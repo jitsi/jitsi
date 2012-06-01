@@ -47,6 +47,7 @@ import net.java.sip.communicator.service.gui.event.*;
  * @author Yana Stamcheva
  * @author Dmitri Melnikov
  * @author Adam Netocny
+ * @author Lyubomir Marinov
  */
 public interface UIService
 {
@@ -438,4 +439,8 @@ public interface UIService
      * to runtime apply a skin and refresh automatically the user interface.
      */
     public void repaintUI();
+
+    public void createCall(String[] participants);
+
+    public void startChat(String[] participants);
 }

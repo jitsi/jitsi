@@ -1,7 +1,7 @@
 Bundle-Activator: net.java.sip.communicator.impl.globalshortcut.GlobalShortcutActivator
 Bundle-Name: Global shortcut
 Bundle-Description: A bundle which implements global shortcut
-Bundle-Vendor: sip-communicator.org
+Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
