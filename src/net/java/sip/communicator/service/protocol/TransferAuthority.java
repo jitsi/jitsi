@@ -23,4 +23,15 @@ public interface TransferAuthority
      * otherwise.
      */
     public boolean processTransfer(Contact fromContact, String transferTo);
+
+    /**
+     * Checks with user for unknown transfer. Returns <tt>true</tt> if user
+     * accepts and we must process the transfer, <tt>false</tt> otherwise.
+     *
+     * @param fromAddress the address initiating the transfer.
+     * @param transferTo the address we will be transferred to.
+     * @return <tt>true</tt> if transfer is allowed to process, <tt>false</tt>
+     * otherwise.
+     */
+    public boolean processTransfer(String fromAddress, String transferTo);
 }

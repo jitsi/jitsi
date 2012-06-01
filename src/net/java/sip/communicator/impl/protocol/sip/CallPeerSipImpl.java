@@ -360,7 +360,10 @@ public class CallPeerSipImpl
             = (OperationSetPresenceSipImpl) pps
                 .getOperationSet(OperationSetPresence.class);
 
-        return opSetPresence.resolveContactID(getAddress());
+        if(opSetPresence != null)
+            return opSetPresence.resolveContactID(getAddress());
+        else
+            return null;
     }
 
     /**

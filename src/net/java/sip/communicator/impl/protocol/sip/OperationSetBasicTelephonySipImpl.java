@@ -1298,10 +1298,12 @@ public class OperationSetBasicTelephonySipImpl
                     (OperationSetPresenceSipImpl) protocolProvider
                         .getOperationSet(OperationSetPersistentPresence.class);
 
-            Contact from = opSetPersPresence.resolveContactID(
-                fromHeader.getAddress().getURI().toString());
+            Contact from = null;
+            if(opSetPersPresence != null)
+                from = opSetPersPresence.resolveContactID(
+                    fromHeader.getAddress().getURI().toString());
 
-            if (from == null)
+            if (from == null && opSetPersPresence != null)
             {
                 if (logger.isDebugEnabled())
                     logger.debug("received a message from an unknown contact: "
@@ -1313,8 +1315,17 @@ public class OperationSetBasicTelephonySipImpl
 
             // found no call we must authorise this with user
             // if user don't want it, decline it.
-            if(!transferAuthority.processTransfer(
-                    from, referToAddress.getURI().toString()))
+            boolean allowTransfer;
+
+            if(from != null)
+                allowTransfer = transferAuthority.processTransfer(
+                                    from, referToAddress.getURI().toString());
+            else
+                allowTransfer = transferAuthority.processTransfer(
+                                    fromHeader.getAddress().getURI().toString(),
+                                    referToAddress.getURI().toString());
+
+            if(!allowTransfer)
             {
                 // send decline
                 Response declineResponse;
