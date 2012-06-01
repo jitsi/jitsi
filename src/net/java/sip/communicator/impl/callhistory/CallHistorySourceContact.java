@@ -129,7 +129,9 @@ public class CallHistorySourceContact implements SourceContact
                         preferredProvider.getOperationSet(
                                 OperationSetPresence.class);
 
-                    Contact contact = opSetPres.findContactByID(peerAddress);
+                    Contact contact = null;
+                    if(opSetPres != null)
+                        contact = opSetPres.findContactByID(peerAddress);
 
                     OperationSetContactCapabilities opSetCaps =
                         preferredProvider.getOperationSet(
