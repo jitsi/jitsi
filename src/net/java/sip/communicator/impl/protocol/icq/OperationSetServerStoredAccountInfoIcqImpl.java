@@ -161,16 +161,21 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      * @return a java.util.Iterator over all details that are instances or
      *   descendants of the specified class.
      */
-    public Iterator<GenericDetail> getDetailsAndDescendants(
-        Class<? extends GenericDetail> detailClass)
+    public <T extends GenericDetail> Iterator<T> getDetailsAndDescendants(
+        Class<T> detailClass)
     {
         assertConnected();
 
         if(ImageDetail.class.isAssignableFrom(detailClass))
         {
-            List<GenericDetail> res = new Vector<GenericDetail>();
+            List<ImageDetail> res = new Vector<ImageDetail>();
+
             res.add(getImage());
-            return res.iterator();
+
+            @SuppressWarnings("unchecked")
+            Iterator<T> tIt = (Iterator<T>) res.iterator();
+
+            return tIt;
         }
         
         return infoRetreiver.getDetailsAndDescendants(uin, detailClass);

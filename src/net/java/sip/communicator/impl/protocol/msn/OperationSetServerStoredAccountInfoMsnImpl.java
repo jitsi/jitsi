@@ -81,13 +81,13 @@ public class OperationSetServerStoredAccountInfoMsnImpl
      * @return a java.util.Iterator over all details that are instances or
      * descendants of the specified class.
      */
-    public Iterator<GenericDetail> getDetailsAndDescendants(
-            Class<? extends GenericDetail> detailClass)
+    public <T extends GenericDetail> Iterator<T> getDetailsAndDescendants(
+            Class<T> detailClass)
     {
         assertConnected();
 
         List<GenericDetail> details = getContactDetails(uin);
-        List<GenericDetail> result = new LinkedList<GenericDetail>();
+        List<T> result = new LinkedList<T>();
 
         Iterator<GenericDetail> iter = details.iterator();
         while (iter.hasNext())
@@ -95,7 +95,10 @@ public class OperationSetServerStoredAccountInfoMsnImpl
             GenericDetail item = iter.next();
             if (detailClass.isInstance(item))
             {
-                result.add(item);
+                @SuppressWarnings("unchecked")
+                T t = (T) item;
+
+                result.add(t);
             }
         }
 

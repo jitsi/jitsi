@@ -66,16 +66,21 @@ public class InfoRetreiver
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator<GenericDetail> getDetailsAndDescendants(
+    public <T extends GenericDetail> Iterator<T> getDetailsAndDescendants(
         String uin,
-        Class<? extends GenericDetail> detailClass)
+        Class<T> detailClass)
     {
         List<GenericDetail> details = getContactDetails(uin);
-        List<GenericDetail> result = new LinkedList<GenericDetail>();
+        List<T> result = new LinkedList<T>();
 
         for (GenericDetail item : details)
             if (detailClass.isInstance(item))
-                result.add(item);
+            {
+                @SuppressWarnings("unchecked")
+                T t = (T) item;
+
+                result.add(t);
+            }
 
         return result.iterator();
     }

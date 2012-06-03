@@ -50,20 +50,25 @@ public class OperationSetServerStoredContactInfoJabberImpl
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator<GenericDetail> getDetailsAndDescendants(
+    public <T extends GenericDetail> Iterator<T> getDetailsAndDescendants(
         Contact contact,
-        Class<? extends GenericDetail> detailClass)
+        Class<T> detailClass)
     {
         List<GenericDetail> details
             = infoRetreiver.getContactDetails(contact.getAddress());
-        List<GenericDetail> result = new LinkedList<GenericDetail>();
+        List<T> result = new LinkedList<T>();
 
         if(details == null)
             return result.iterator();
 
         for (GenericDetail item : details)
             if(detailClass.isInstance(item))
-                result.add(item);
+            {
+                @SuppressWarnings("unchecked")
+                T t = (T) item;
+
+                result.add(t);
+            }
 
         return result.iterator();
     }

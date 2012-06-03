@@ -69,23 +69,30 @@ public class OperationSetServerStoredAccountInfoSipImpl
      * @return a java.util.Iterator over all details that are instances or
      *         descendants of the specified class.
      */
-    public Iterator<GenericDetail> getDetailsAndDescendants(
-            Class<? extends GenericDetail> detailClass)
+    public <T extends GenericDetail> Iterator<T> getDetailsAndDescendants(
+            Class<T> detailClass)
     {
-        List<GenericDetail> result = new Vector<GenericDetail>();
+        List<T> result = new Vector<T>();
+
         if (ImageDetail.class.isAssignableFrom(detailClass) &&
                 isImageDetailSupported())
         {
             ImageDetail imageDetail = getAccountImage();
             if (imageDetail != null)
             {
-                result.add(getAccountImage());
+                @SuppressWarnings("unchecked")
+                T t = (T) getAccountImage();
+
+                result.add(t);
             }
         }
         else if(DisplayNameDetail.class.isAssignableFrom(detailClass)
                 && displayNameDetail != null)
         {
-            result.add(displayNameDetail);
+            @SuppressWarnings("unchecked")
+            T t = (T) displayNameDetail;
+
+            result.add(t);
         }
 
         return result.iterator();

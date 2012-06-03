@@ -416,7 +416,7 @@ public class ContactGroupSipImpl
                 return mContact;
         }
 
-        //if we didn't find it here, let's try in the subougroups
+        //if we didn't find it here, let's try in the subgroups
         Iterator<ContactGroup> groupsIter = subgroups();
 
         while( groupsIter.hasNext() )

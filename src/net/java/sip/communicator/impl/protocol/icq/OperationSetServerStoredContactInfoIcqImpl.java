@@ -55,25 +55,28 @@ public class OperationSetServerStoredContactInfoIcqImpl
      * @param detailClass Class
      * @return Iterator
      */
-    public Iterator<GenericDetail> getDetailsAndDescendants(
+    public <T extends GenericDetail> Iterator<T> getDetailsAndDescendants(
         Contact contact,
-        Class<? extends GenericDetail> detailClass)
+        Class<T> detailClass)
     {
         assertConnected();
         
-        if(detailClass.equals(ServerStoredDetails.ImageDetail.class) && 
-            contact.getImage() != null)
+        if(detailClass.equals(ImageDetail.class)
+                && (contact.getImage() != null))
         {
-            List<GenericDetail> res = new Vector<GenericDetail>();
-            res.add(
-                new ServerStoredDetails.ImageDetail(
-                        "Image",
-                        contact.getImage()));
-            return res.iterator();    
+            List<ImageDetail> res = new Vector<ImageDetail>();
+
+            res.add(new ImageDetail("Image", contact.getImage()));
+
+            @SuppressWarnings("unchecked")
+            Iterator<T> tIt = (Iterator<T>) res.iterator();
+
+            return tIt;
         }
         return
-            infoRetreiver
-                .getDetailsAndDescendants(contact.getAddress(), detailClass);
+            infoRetreiver.getDetailsAndDescendants(
+                    contact.getAddress(),
+                    detailClass);
     }
 
     /**

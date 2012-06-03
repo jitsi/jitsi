@@ -640,7 +640,12 @@ public class ServerStoredDetails
     {
         public EmailAddressDetail(String value)
         {
-            super("e-mail", value);
+            this("e-mail", value);
+        }
+
+        protected EmailAddressDetail(String detailDisplayName, String value)
+        {
+            super(detailDisplayName, value);
         }
 
         public String getEMailAddress()
@@ -652,7 +657,7 @@ public class ServerStoredDetails
     /**
      * Represents a (personal) email address.
      */
-    public static class WorkEmailAddressDetail extends StringDetail
+    public static class WorkEmailAddressDetail extends EmailAddressDetail
     {
         public WorkEmailAddressDetail(String value)
         {

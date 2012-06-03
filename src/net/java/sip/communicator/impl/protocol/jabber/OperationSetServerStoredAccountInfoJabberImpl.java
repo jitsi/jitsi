@@ -60,8 +60,8 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * @return a java.util.Iterator over all details that are instances or
      * descendants of the specified class.
      */
-    public Iterator<GenericDetail> getDetailsAndDescendants(
-        Class<? extends GenericDetail> detailClass)
+    public <T extends GenericDetail> Iterator<T> getDetailsAndDescendants(
+        Class<T> detailClass)
     {
         assertConnected();
 
