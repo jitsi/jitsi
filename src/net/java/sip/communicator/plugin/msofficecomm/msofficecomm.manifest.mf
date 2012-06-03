@@ -4,6 +4,7 @@ Bundle-Name: Microsoft Office Communicator
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Import-Package: javax.swing,
+ net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.gui,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,

@@ -30,7 +30,7 @@ public class MsOfficeCommActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
-        // This plugin is only available o Windows systems.
+        // The msofficecomm bundle is available on Windows only.
         if (!OSUtils.IS_WINDOWS)
             return;
 
@@ -66,7 +66,7 @@ public class MsOfficeCommActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
-        // This plugin is only available o Windows systems.
+        // The msofficecomm bundle is available on Windows only.
         if (!OSUtils.IS_WINDOWS)
             return;
 

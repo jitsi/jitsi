@@ -11,6 +11,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -54,6 +55,18 @@ public class Messenger
      */
     private static BundleContext bundleContext;
 
+    /**
+     * The <tt>MetaContactListService</tt> which the <tt>Messenger</tt> class
+     * looks through in order to locate <tt>Contact</tt>s associated with a
+     * specific sign-in name.
+     */
+    private static MetaContactListService metaContactListService;
+
+    /**
+     * The list of (local) accounts by sign-in name which correspond to
+     * <tt>IMessengerContact</tt> implementations having <tt>true</tt> as the
+     * value of their <tt>self</tt> boolean property.
+     */
     private static final Map<String, Self> selves = new HashMap<String, Self>();
 
     /**
@@ -75,7 +88,7 @@ public class Messenger
         System.loadLibrary("jmsofficecomm");
     }
 
-    private static void addSelf(
+    private static synchronized void addSelf(
             String signinName,
             ProtocolProviderService pps,
             OperationSetPresence presenceOpSet)
@@ -90,6 +103,129 @@ public class Messenger
         self.addProtocolProviderService(pps, presenceOpSet);
     }
 
+    /**
+     * Finds the <tt>Contact</tt> instances which are associated with a specific
+     * <tt>IMessengerContact</tt> sign-in name and which originate from a
+     * specific <tt>ProtocolProviderService</tt> instance.
+     *
+     * @param pps the <tt>ProtocolProviderService</tt> from which possibly
+     * found <tt>Contact</tt> instances are to originate
+     * @param presenceOpSet the <tt>OperationSetPresence</tt> associated with
+     * the specified <tt>pps</tt>
+     * @param signinName the <tt>IMessengerContact</tt> sign-in name for which
+     * the associated <tt>Contact</tt> instances are to be found
+     * @return a list of <tt>Contact</tt> instances which are associated with
+     * the specified <tt>signinName</tt> and which originate from the specified
+     * <tt>pps</tt> if such <tt>Contact</tt> instances have been found;
+     * otherwise, an empty list
+     */
+    private static Iterable<Contact> findContactsBySigninName(
+            ProtocolProviderService pps,
+            OperationSetPresence presenceOpSet,
+            String signinName)
+    {
+        List<Contact> contacts = new ArrayList<Contact>();
+
+        for (Iterator<MetaContact> metaContactIt
+                    = metaContactListService.findAllMetaContactsForProvider(
+                            pps);
+                metaContactIt.hasNext();)
+        {
+            MetaContact metaContact = metaContactIt.next();
+
+            for (Iterator<Contact> contactIt = metaContact.getContacts();
+                    contactIt.hasNext();)
+            {
+                Contact contact = contactIt.next();
+
+                if (signinName.equalsIgnoreCase(getSigninName(contact, pps)))
+                {
+                    /*
+                     * Prefer matches by Contact address over
+                     * EmailAddressDetail.
+                     */
+                    contacts.add(0, contact);
+                    continue;
+                }
+
+                OperationSetServerStoredContactInfo serverStoredContactInfoOpSet
+                    = pps.getOperationSet(
+                            OperationSetServerStoredContactInfo.class);
+
+                if (serverStoredContactInfoOpSet != null)
+                {
+                    for (Iterator<ServerStoredDetails.EmailAddressDetail>
+                                emailAddressDetailIt
+                                    =  serverStoredContactInfoOpSet
+                                        .getDetailsAndDescendants(
+                                                contact,
+                                                ServerStoredDetails
+                                                    .EmailAddressDetail.class);
+                            emailAddressDetailIt.hasNext();)
+                    {
+                        ServerStoredDetails.EmailAddressDetail emailAddressDetail
+                            = emailAddressDetailIt.next();
+
+                        if (signinName.equalsIgnoreCase(
+                                emailAddressDetail.getEMailAddress()))
+                        {
+                            contacts.add(contact);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return contacts;
+    }
+
+    /**
+     * Gets the (local) account associated with a specific sign-in name in the
+     * form of a <tt>Self</tt> instance if the specified sign-in name is
+     * associated with such a (local) account.
+     *
+     * @param signinName the sign-in name associated with the (local) account to
+     * be retrieved
+     * @return a <tt>Self</tt> instance describing a (local) account associated
+     * with the specified <tt>signinName</tt> if such a <tt>Self</tt> instance
+     * exists; otherwise, <tt>null</tt>
+     */
+    private static Self getSelf(String signinName)
+    {
+        Self self = selves.get(signinName);
+
+        if (self == null)
+        {
+            for (Self aSelf : selves.values())
+            {
+                if (aSelf.isSelf(signinName))
+                {
+                    self = aSelf;
+                    break;
+                }
+            }
+        }
+        return self;
+    }
+
+    /**
+     * Gets the <tt>IMessengerContact</tt> sign-in name associated with a
+     * specific <tt>Contact</tt> from a specific
+     * <tt>ProtocolProviderService</tt>. If no <tt>Contact</tt> is specified,
+     * gets the sign-in name associated with the <tt>AccountID</tt> of the
+     * specified <tt>ProtocolProviderService</tt>.
+     *
+     * @param contact the <tt>Contact</tt> to retrieve the sign-in name of or
+     * <tt>null</tt> to retrieve the sign-in name associated with the
+     * <tt>AccountID</tt> of the specified <tt>pps</tt>
+     * @param pps the <tt>ProtocolProviderService</tt> of <tt>contact</tt> if
+     * <tt>contact</tt> is other than <tt>null</tt> or of the <tt>AccountID</tt>
+     * to get the sign-in name of if <tt>contact</tt> is <tt>null</tt>
+     * @return the sign-in name associated with the specified <tt>contact</tt>
+     * from the specified <tt>pps</tt> if <tt>contact</tt> is other than
+     * <tt>null</tt> or with the <tt>AccountID</tt> of the specified
+     * <tt>pps</tt> if <tt>contact</tt> is <tt>null</tt>
+     */
     private static String getSigninName(
             Contact contact,
             ProtocolProviderService pps)
@@ -114,6 +250,18 @@ public class Messenger
         return signinName;
     }
 
+    /**
+     * Gets the connection/presence status of the contact associated with a
+     * specific <tt>MessengerContact</tt> instance in the form of a
+     * <tt>MISTATUS</tt> value.
+     *
+     * @param messengerContact a <tt>MessengerContact</tt> instance which
+     * specifies the contact for which the connection/presence status is to be
+     * retrieved
+     * @return a <tt>MISTATUS</tt> value which represents the
+     * connection/presence status of the contact associated with the specified
+     * <tt>messengerContact</tt>
+     */
     static int getStatus(MessengerContact messengerContact)
     {
         String signinName = messengerContact.signinName;
@@ -123,7 +271,7 @@ public class Messenger
             presenceStatus = Integer.MIN_VALUE;
         else
         {
-            Self self = selves.get(signinName);
+            Self self = getSelf(signinName);
 
             if (self == null)
             {
@@ -147,11 +295,20 @@ public class Messenger
         return presenceStatusToMISTATUS(presenceStatus);
     }
 
+    /**
+     * Gets the indicator which determines whether a specific
+     * <tt>MessengerContact</tt> is the same user as the current client user.
+     *
+     * @param messengerContact the <tt>MessengerContact</tt> which is to be
+     * determined whether it is the same user as the current client user
+     * @return <tt>true</tt> if the specified <tt>messengerContact</tt> is the
+     * same user as the current client user; otherwise, <tt>false</tt>
+     */
     static boolean isSelf(MessengerContact messengerContact)
     {
         String signinName = messengerContact.signinName;
 
-        return (signinName == null) ? false : selves.containsKey(signinName);
+        return (signinName == null) ? false : (getSelf(signinName) != null);
     }
 
     private static native void onContactStatusChange(
@@ -178,16 +335,32 @@ public class Messenger
         return mistatus;
     }
 
-    private static void removeSelf(
+    private static synchronized void removeSelf(
             String signinName,
             ProtocolProviderService pps)
     {
         Self self = selves.get(signinName);
 
         if ((self != null) && (self.removeProtocolProviderService(pps) < 1))
-            selves.remove(signinName);
+        {
+            for (Iterator<Self> it = selves.values().iterator(); it.hasNext();)
+            {
+                if (it.next() == self)
+                    it.remove();
+            }
+            self.dispose();
+        }
     }
 
+    /**
+     * Notifies the <tt>Messenger</tt> class about a service change in the
+     * <tt>BundleContext</tt> in which the <tt>msofficecomm</tt> bundle has been
+     * started
+     *
+     * @param event a <tt>ServiceEvent</tt> describing the service change in the
+     * <tt>BundleContext</tt> in which the <tt>msofficecomm</tt> bundle has been
+     * started
+     */
     private static void serviceChanged(ServiceEvent event)
     {
         Object service = bundleContext.getService(event.getServiceReference());
@@ -223,10 +396,24 @@ public class Messenger
         }
     }
 
-    static void start(BundleContext bundleContext)
+    /**
+     * Starts the <tt>Messenger</tt> class and instance functionality in a
+     * specific <tt>BundleContext</tt>.
+     *
+     * @param bundleContext the <tt>BundleContext</tt> in which the
+     * <tt>Messenger</tt> class and instance functionality is to be started
+     * @throws Exception if anything goes wrong while starting the
+     * <tt>Messenger</tt> class and instance functionality in the specified
+     * <tt>BundleContext</tt>
+     */
+    static synchronized void start(BundleContext bundleContext)
         throws Exception
     {
         Messenger.bundleContext = bundleContext;
+        metaContactListService
+            = ServiceUtils.getService(
+                    bundleContext,
+                    MetaContactListService.class);
 
         bundleContext.addServiceListener(serviceListener);
         for (ServiceReference reference
@@ -239,12 +426,30 @@ public class Messenger
         }
     }
 
-    static void stop(BundleContext bundleContext)
+    /**
+     * Stops the <tt>Messenger</tt> class and instance functionality in a
+     * specific <tt>BundleContext</tt>.
+     *
+     * @param bundleContext the <tt>BundleContext</tt> in which the
+     * <tt>Messenger</tt> class and instance functionality is to be stopped
+     * @throws Exception if anything goes wrong while stopping the
+     * <tt>Messenger</tt> class and instance functionality in the specified
+     * <tt>BundleContext</tt>
+     */
+    static synchronized void stop(BundleContext bundleContext)
         throws Exception
     {
         bundleContext.removeServiceListener(serviceListener);
 
         Messenger.bundleContext = null;
+        metaContactListService = null;
+
+        // selves
+        for (Iterator<Self> it = selves.values().iterator(); it.hasNext();)
+        {
+            it.next().dispose();
+            it.remove();
+        }
     }
 
     /**
@@ -292,6 +497,11 @@ public class Messenger
                 });
     }
 
+    /**
+     * Describes a (local) account which corresponds to an
+     * <tt>IMessengerContact</tt> implementation having <tt>true</tt> as the
+     * value of its <tt>self</tt> boolean property.
+     */
     private static class Self
         implements ContactPresenceStatusListener,
                    ProviderPresenceStatusListener
@@ -301,8 +511,18 @@ public class Messenger
 
         private int presenceStatus = Integer.MIN_VALUE;
 
+        /**
+         * The sign-in name associated with this (local) account.
+         */
         public final String signinName;
 
+        /**
+         * Initializes a new <tt>Self</tt> instance which is to describe a
+         * (local) account associated with a specific sign-in name.
+         *
+         * @param signinName the sign-in name to be associated with the new
+         * instance
+         */
         public Self(String signinName)
         {
             this.signinName = signinName;
@@ -343,6 +563,29 @@ public class Messenger
             }
         }
 
+        /**
+         * Disposes this instance by releasing the resources it has acquired by
+         * now. Removes this instance as a listener from the associated
+         * <tt>OperationSetPresence</tt> instances.
+         */
+        void dispose()
+        {
+            Iterator<Map.Entry<ProtocolProviderService, OperationSetPresence>>
+                it
+                    = ppss.entrySet().iterator();
+
+            while (it.hasNext())
+            {
+                Map.Entry<ProtocolProviderService, OperationSetPresence> e
+                    = it.next();
+                OperationSetPresence presenceOpSet = e.getValue();
+
+                presenceOpSet.removeContactPresenceStatusListener(this);
+                presenceOpSet.removeProviderPresenceStatusListener(this);
+                it.remove();
+            }
+        }
+
         int getPresenceStatus()
         {
             return presenceStatus;
@@ -352,19 +595,23 @@ public class Messenger
         {
             int presenceStatus;
 
-            if (this.signinName.equals(signinName))
+            if (this.signinName.equalsIgnoreCase(signinName))
                 presenceStatus = getPresenceStatus();
             else
             {
                 presenceStatus = Integer.MIN_VALUE;
-                for (OperationSetPresence presenceOpSet : ppss.values())
+                for (Map.Entry<ProtocolProviderService, OperationSetPresence> e
+                        : ppss.entrySet())
                 {
                     try
                     {
-                        Contact contact
-                            = presenceOpSet.findContactByID(signinName);
+                        Iterable<Contact> contacts
+                            = findContactsBySigninName(
+                                    e.getKey(),
+                                    e.getValue(),
+                                    signinName);
 
-                        if (contact != null)
+                        for (Contact contact : contacts)
                         {
                             PresenceStatus contactPresenceStatus
                                 = contact.getPresenceStatus();
@@ -383,6 +630,9 @@ public class Messenger
                                 }
                             }
                         }
+                        if (presenceStatus
+                                >= PresenceStatus.MAX_STATUS_VALUE)
+                            break;
                     }
                     catch (Throwable t)
                     {
@@ -402,6 +652,62 @@ public class Messenger
                 }
             }
             return presenceStatus;
+        }
+
+        /**
+         * Gets an indicator which determines whether the (local) account
+         * described by this <tt>Self</tt> instance is associated with a
+         * specific sign-in name.
+         *
+         * @param signinName the sign-in name to be determined whether it is
+         * associated with this <tt>Self</tt> instance
+         * @return <tt>true</tt> if the specified <tt>signinName</tt> is
+         * associated with the (local) account described by this <tt>Self</tt>
+         * instance
+         */
+        boolean isSelf(String signinName)
+        {
+            boolean self;
+
+            if (this.signinName.equalsIgnoreCase(signinName))
+                self = true;
+            else
+            {
+                self = false;
+                for (ProtocolProviderService pps : ppss.keySet())
+                {
+                    OperationSetServerStoredAccountInfo
+                        serverStoredAccountInfoOpSet
+                            = pps.getOperationSet(
+                                    OperationSetServerStoredAccountInfo.class);
+
+                    if (serverStoredAccountInfoOpSet != null)
+                    {
+                        for (Iterator<ServerStoredDetails.EmailAddressDetail>
+                                    emailAddressDetailIt
+                                        = serverStoredAccountInfoOpSet
+                                            .getDetailsAndDescendants(
+                                                    ServerStoredDetails
+                                                        .EmailAddressDetail
+                                                            .class);
+                                emailAddressDetailIt.hasNext();)
+                        {
+                            ServerStoredDetails.EmailAddressDetail emailAddressDetail
+                                = emailAddressDetailIt.next();
+
+                            if (signinName.equalsIgnoreCase(
+                                    emailAddressDetail.getEMailAddress()))
+                            {
+                                self = true;
+                                break;
+                            }
+                        }
+                        if (self)
+                            break;
+                    }
+                }
+            }
+            return self;
         }
 
         public void providerStatusChanged(

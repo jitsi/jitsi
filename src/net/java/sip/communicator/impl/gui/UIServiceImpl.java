@@ -1474,6 +1474,17 @@ public class UIServiceImpl
         return new NewAccountDialog();
     }
 
+    /**
+     * Creates a new <tt>Call</tt> with a specific set of participants.
+     * <p>
+     * The current implementation provided by <tt>UIServiceImpl</tt> supports a
+     * single participant at the time of this writing.
+     * </p>
+     *
+     * @param participants an array of <tt>String</tt> values specifying the
+     * participants to be included into the newly created <tt>Call</tt>
+     * @see UIService#createCall(String[])
+     */
     public void createCall(String[] participants)
     {
         if (participants.length == 1)
@@ -1484,6 +1495,17 @@ public class UIServiceImpl
             throw new IllegalArgumentException("participants");
     }
 
+    /**
+     * Starts a new <tt>Chat</tt> with a specific set of participants.
+     * <p>
+     * The current implementation provided by <tt>UIServiceImpl</tt> supports a
+     * single participant at the time of this writing.
+     * </p>
+     *
+     * @param participants an array of <tt>String</tt> values specifying the
+     * participants to be included into the newly created <tt>Chat</tt>
+     * @see UIService#startChat(String[])
+     */
     public void startChat(String[] participants)
     {
         if (participants.length == 1)

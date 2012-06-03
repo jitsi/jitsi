@@ -6,6 +6,12 @@
  */
 package net.java.sip.communicator.plugin.msofficecomm;
 
+/**
+ * Defines the public interface of the out-of-process COM server which
+ * integrates Jitsi's presence, IM and VoIP with Microsoft Office/Outlook.
+ *
+ * @author Lyubomir Marinov
+ */
 class OutOfProcessServer
 {
     static

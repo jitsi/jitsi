@@ -440,7 +440,19 @@ public interface UIService
      */
     public void repaintUI();
 
+    /**
+     * Creates a new <tt>Call</tt> with a specific set of participants.
+     *
+     * @param participants an array of <tt>String</tt> values specifying the
+     * participants to be included into the newly created <tt>Call</tt>
+     */
     public void createCall(String[] participants);
 
+    /**
+     * Starts a new <tt>Chat</tt> with a specific set of participants.
+     *
+     * @param participants an array of <tt>String</tt> values specifying the
+     * participants to be included into the newly created <tt>Chat</tt>
+     */
     public void startChat(String[] participants);
 }
