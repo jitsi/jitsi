@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.msofficecomm;
 
+import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**
@@ -28,6 +30,10 @@ public class MsOfficeCommActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
+        // This plugin is only available o Windows systems.
+        if (!OSUtils.IS_WINDOWS)
+            return;
+
         Messenger.start(bundleContext);
 
         boolean stopMessenger = true;
