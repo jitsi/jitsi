@@ -66,6 +66,10 @@ public class MsOfficeCommActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
+        // This plugin is only available o Windows systems.
+        if (!OSUtils.IS_WINDOWS)
+            return;
+
         try
         {
             int hresult = OutOfProcessServer.stop();
