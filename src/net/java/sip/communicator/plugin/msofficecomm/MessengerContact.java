@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.plugin.msofficecomm;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * Represents the Java counterpart of a native <tt>IMessengerContact</tt>
  * implementation.
@@ -14,6 +16,13 @@ package net.java.sip.communicator.plugin.msofficecomm;
  */
 public class MessengerContact
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>MessengerContact</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(MessengerContact.class);
+
     /**
      * The sign-in name associated with the native <tt>IMessengerContact</tt>
      * implementation represented by this instance.
@@ -43,7 +52,31 @@ public class MessengerContact
      */
     public int getStatus()
     {
-        return Messenger.getStatus(this);
+        try
+        {
+            return Messenger.getStatus(this);
+        }
+        catch (Throwable t)
+        {
+            /*
+             * The native counterpart will swallow any exception. Even if it
+             * didn't, it would still not use a Logger instance to describe the
+             * exception. So describe it on the Java side and rethrow it.
+             */
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else if (t instanceof OutOfMemoryError)
+                throw (OutOfMemoryError) t;
+            else
+            {
+                logger.error(
+                        "Failed to determine the status of an IMessengerContact"
+                            + " with sign-in name: "
+                            + signinName,
+                        t);
+                throw new RuntimeException(t);
+            }
+        }
     }
 
     /**

@@ -15,6 +15,9 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.jabberconstants.*;
+import net.java.sip.communicator.service.protocol.msnconstants.*;
+import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -44,6 +47,12 @@ public class Messenger
     static final int MISTATUS_MAY_BE_AVAILABLE = 0x00A2;
 
     static final int MISTATUS_OFFLINE = 0x0001;
+
+    /**
+     * The <tt>MISTATUS</tt> value which indicates that the local or remote
+     * client user is on the phone.
+     */
+    static final int MISTATUS_ON_THE_PHONE = 0x0032;
 
     static final int MISTATUS_ONLINE = 0x0002;
 
@@ -293,25 +302,30 @@ public class Messenger
     static int getStatus(MessengerContact messengerContact)
     {
         String signinName = messengerContact.signinName;
-        int presenceStatus;
+        ProtocolPresenceStatus presenceStatus;
 
         if (signinName == null)
-            presenceStatus = Integer.MIN_VALUE;
+            presenceStatus = null;
         else
         {
             Self self = getSelf(signinName);
 
             if (self == null)
             {
-                presenceStatus = Integer.MIN_VALUE;
+                presenceStatus = null;
                 for (Self aSelf : selves.values())
                 {
-                    int aPresenceStatus = aSelf.getPresenceStatus(signinName);
+                    ProtocolPresenceStatus aPresenceStatus
+                        = aSelf.getPresenceStatus(signinName);
 
-                    if (presenceStatus < aPresenceStatus)
+                    if (aPresenceStatus != null)
                     {
-                        presenceStatus = aPresenceStatus;
-                        if (presenceStatus >= PresenceStatus.MAX_STATUS_VALUE)
+                        if (presenceStatus == null)
+                            presenceStatus = aPresenceStatus;
+                        else if (presenceStatus.compareTo(aPresenceStatus) < 0)
+                            presenceStatus = aPresenceStatus;
+                        if (presenceStatus.toInt()
+                                >= PresenceStatus.MAX_STATUS_VALUE)
                             break;
                     }
                 }
@@ -320,7 +334,7 @@ public class Messenger
                 presenceStatus = self.getPresenceStatus();
         }
 
-        return presenceStatusToMISTATUS(presenceStatus);
+        return ProtocolPresenceStatus.toMISTATUS(presenceStatus);
     }
 
     /**
@@ -342,26 +356,6 @@ public class Messenger
     private static native void onContactStatusChange(
             String signinName,
             int status);
-
-    private static int presenceStatusToMISTATUS(int presenceStatus)
-    {
-        int mistatus;
-
-        if (presenceStatus == Integer.MIN_VALUE)
-            mistatus = MISTATUS_UNKNOWN;
-        else
-        {
-            if (presenceStatus < PresenceStatus.ONLINE_THRESHOLD)
-                mistatus = MISTATUS_OFFLINE;
-            else if (presenceStatus < PresenceStatus.AWAY_THRESHOLD)
-                mistatus = MISTATUS_MAY_BE_AVAILABLE;
-            else if (presenceStatus < PresenceStatus.AVAILABLE_THRESHOLD)
-                mistatus = MISTATUS_AWAY;
-            else
-                mistatus = MISTATUS_ONLINE;
-        }
-        return mistatus;
-    }
 
     private static synchronized void removeSelf(
             String signinName,
@@ -576,6 +570,199 @@ public class Messenger
     }
 
     /**
+     * Represents a presence status reported by a specific protocol. Allows
+     * distinguishing statuses more specific than the ranges defined by the
+     * <tt>PresenceStatus</tt> class.
+     */
+    private static class ProtocolPresenceStatus
+    {
+        /**
+         * The <tt>PresenceStatus</tt> instance represented by this instance.
+         */
+        private PresenceStatus presenceStatus;
+
+        /**
+         * The name of the protocol from which {@link #presenceStatus} has
+         * originated. Allows translating <tt>presenceStatus</tt> to a
+         * <tt>MISTATUS</tt> value which is equivalent to a protocol-specific
+         * status not defined in the generic <tt>PresenceStatus</tt> class.
+         */
+        private String protocolName;
+
+        /**
+         * Initializes a new <tt>ProtocolPresenceStatus</tt> instance which is
+         * to represent a specific <tt>PresenceStatus</tt> originating from a
+         * specific protocol.
+         *
+         * @param protocolName the name of the protocol from which the specified
+         * <tt>PresenceStatus</tt> has originated
+         * @param presenceStatus the <tt>PresenceStatus</tt> to be represented
+         * by the new instance
+         */
+        public ProtocolPresenceStatus(
+                String protocolName,
+                PresenceStatus presenceStatus)
+        {
+            setPresenceStatus(protocolName, presenceStatus);
+        }
+
+        /**
+         * Returns <tt>-1</tt>, <tt>0</tt> or <tt>1</tt> if the
+         * <tt>PresenceStatus</tt> represented by this instance is,
+         * respectively, less than, equal to or greater than a specific
+         * <tt>PresenceStatus</tt>.
+         *
+         * @param presenceStatus the <tt>PresenceStatus</tt> this instance is to
+         * be compared to
+         * @return <tt>-1</tt>, <tt>0</tt> or <tt>1</tt> if the
+         * <tt>PresenceStatus</tt> represented by this instance is, respectively,
+         * less than, equal to or greater than the specified
+         * <tt>presenceStatus</tt>
+         */
+        public int compareTo(PresenceStatus presenceStatus)
+        {
+            return this.presenceStatus.compareTo(presenceStatus);
+        }
+
+        /**
+         * Returns <tt>-1</tt>, <tt>0</tt> or <tt>1</tt> if the
+         * <tt>PresenceStatus</tt> represented by this instance is,
+         * respectively, less than, equal to or greater than the
+         * <tt>PresenceStatus</tt> represented by a specific
+         * <tt>ProtocolPresenceStatus</tt> instance.
+         *
+         * @param protocolPresenceStatus the <tt>ProtocolPresenceStatus</tt>
+         * this instance is to be compared to
+         * @return <tt>-1</tt>, <tt>0</tt> or <tt>1</tt> if the
+         * <tt>PresenceStatus</tt> represented by this instance is, respectively,
+         * less than, equal to or greater than the specified
+         * <tt>protocolPresenceStatus</tt>
+         */
+        public int compareTo(ProtocolPresenceStatus protocolPresenceStatus)
+        {
+            return compareTo(protocolPresenceStatus.presenceStatus);
+        }
+
+        /**
+         * Sets the <tt>PresenceStatus</tt> to be represented by this instance.
+         *
+         * @param protocolName the name of the protocol from which the
+         * <tt>PresenceStatus</tt> to be set on this instance has originated
+         * @param presenceStatus the <tt>PresenceStatus</tt> to be represented
+         * by this instance
+         */
+        public void setPresenceStatus(
+                String protocolName,
+                PresenceStatus presenceStatus)
+        {
+            this.protocolName = protocolName;
+            this.presenceStatus = presenceStatus;
+        }
+
+        /**
+         * Gets an <tt>int</tt> value in the terms of <tt>PresenceStatus</tt>
+         * which is equivalent to the <tt>PresenceStatus</tt> represented by
+         * this instance.
+         *
+         * @return an <tt>int</tt> value in the terms of <tt>PresenceStatus</tt>
+         * which is equivalent to the <tt>PresenceStatus</tt> represented by
+         * this instance
+         */
+        public int toInt()
+        {
+            return presenceStatus.getStatus();
+        }
+
+        /**
+         * Gets a <tt>MISTATUS</tt> value which is equivalent to the
+         * <tt>PresenceStatus</tt> represented by this instance.
+         *
+         * @return a <tt>MISTATUS</tt> value which is equivalent to the
+         * <tt>PresenceStatus</tt> represented by this instance
+         */
+        public int toMISTATUS()
+        {
+            return toMISTATUS(protocolName, presenceStatus);
+        }
+
+        /**
+         * Gets a <tt>MISTATUS</tt> value which is equivalent to the
+         * <tt>PresenceStatus</tt> represented by a specific
+         * <tt>ProtocolPresenceStatus</tt> instance.
+         *
+         * @param protocolPresenceStatus the <tt>ProtocolPresenceStatus</tt> to
+         * get an equivalent <tt>MISTATUS</tt> value for
+         * @return a <tt>MISTATUS</tt> value which is equivalent to the
+         * <tt>PresenceStatus</tt> represented by the specified
+         * <tt>protocolPresenceStatus</tt>
+         */
+        public static int toMISTATUS(
+                ProtocolPresenceStatus protocolPresenceStatus)
+        {
+            return
+                (protocolPresenceStatus == null)
+                    ? MISTATUS_UNKNOWN
+                    : protocolPresenceStatus.toMISTATUS();
+        }
+
+        /**
+         * Gets a <tt>MISTATUS</tt> value which is equivalent to a specific
+         * <tt>PresenceStatus</tt> which has originated from a protocol with a
+         * specific name.
+         *
+         * @param protocolName the name of the protocol from which the specified
+         * <tt>PresenceStatus</tt> has originated
+         * @param presenceStatus the <tt>PresenceStatus</tt> for which an
+         * equivalent <tt>MISTATUS</tt> value is to be retrieved
+         * @return a <tt>MISTATUS</tt> value which is equivalent to the
+         * specified <tt>presenceStatus</tt> in the context of the protocol with
+         * the specified <tt>protocolName</tt>
+         */
+        public static int toMISTATUS(
+                String protocolName,
+                PresenceStatus presenceStatus)
+        {
+            int i
+                = (presenceStatus == null)
+                    ? Integer.MIN_VALUE
+                    : presenceStatus.getStatus();
+            int mistatus;
+
+            if (i == Integer.MIN_VALUE)
+                mistatus = MISTATUS_UNKNOWN;
+            else
+            {
+                if ((i == 31 /* FIXME */)
+                        && ProtocolNames.JABBER.equalsIgnoreCase(protocolName)
+                        && JabberStatusEnum.ON_THE_PHONE.equalsIgnoreCase(
+                                presenceStatus.getStatusName()))
+                {
+                    mistatus = MISTATUS_ON_THE_PHONE;
+                }
+                else if (ProtocolNames.MSN.equalsIgnoreCase(protocolName)
+                        && MsnStatusEnum.ON_THE_PHONE.equals(presenceStatus))
+                {
+                    mistatus = MISTATUS_ON_THE_PHONE;
+                }
+                else if (ProtocolNames.YAHOO.equalsIgnoreCase(protocolName)
+                        && YahooStatusEnum.ON_THE_PHONE.equals(presenceStatus))
+                {
+                    mistatus = MISTATUS_ON_THE_PHONE;
+                }
+                else if (i < PresenceStatus.ONLINE_THRESHOLD)
+                    mistatus = MISTATUS_OFFLINE;
+                else if (i < PresenceStatus.AWAY_THRESHOLD)
+                    mistatus = MISTATUS_MAY_BE_AVAILABLE;
+                else if (i < PresenceStatus.AVAILABLE_THRESHOLD)
+                    mistatus = MISTATUS_AWAY;
+                else
+                    mistatus = MISTATUS_ONLINE;
+            }
+            return mistatus;
+        }
+    }
+
+    /**
      * Describes a (local) account which corresponds to an
      * <tt>IMessengerContact</tt> implementation having <tt>true</tt> as the
      * value of its <tt>self</tt> boolean property.
@@ -587,7 +774,11 @@ public class Messenger
         private final Map<ProtocolProviderService, OperationSetPresence> ppss
             = new HashMap<ProtocolProviderService, OperationSetPresence>();
 
-        private int presenceStatus = Integer.MIN_VALUE;
+        /**
+         * The <tt>PresenceStatus</tt> of this (local) account and the name of
+         * the protocol from which it has originated.
+         */
+        private ProtocolPresenceStatus presenceStatus;
 
         /**
          * The sign-in name associated with this (local) account.
@@ -630,14 +821,15 @@ public class Messenger
 
             if (signinName != null)
             {
+                String oldProtocolName
+                    = event.getSourceProvider().getProtocolName();
                 PresenceStatus oldStatus = event.getOldStatus();
 
                 Messenger.onContactStatusChange(
                         signinName,
-                        presenceStatusToMISTATUS(
-                                (oldStatus == null)
-                                    ? Integer.MIN_VALUE
-                                    : oldStatus.getStatus()));
+                        ProtocolPresenceStatus.toMISTATUS(
+                                oldProtocolName,
+                                oldStatus));
             }
         }
 
@@ -705,30 +897,52 @@ public class Messenger
             }
         }
 
-        int getPresenceStatus()
+        /**
+         * Gets the <tt>PresenceStatus</tt> of this instance and the name of the
+         * protocol from which it has originated.
+         *
+         * @return the <tt>PresenceStatus</tt> of this instance and the name of
+         * the protocol from which it has originated
+         */
+        ProtocolPresenceStatus getPresenceStatus()
         {
             return presenceStatus;
         }
 
-        int getPresenceStatus(String signinName)
+        /**
+         * Gets the <tt>PresenceStatus</tt> of a <tt>Contact</tt> known to this
+         * instance to be associated with a specific <tt>IMessengerContact</tt>
+         * sign-in name.
+         *
+         * @param signinName the sign-in name associated with the
+         * <tt>IMessengerContact</tt> whose <tt>PresenceStatus</tt> is to be
+         * retrieved
+         * @return the <tt>PresenceStatus</tt> and the name of the protocol from
+         * which it has originated of a <tt>Contact</tt> known to this instance
+         * to be associated with the specified <tt>signinName</tt> or
+         * <tt>null</tt> if no such association is known to this instance
+         */
+        ProtocolPresenceStatus getPresenceStatus(String signinName)
         {
-            int presenceStatus;
+            ProtocolPresenceStatus presenceStatus;
 
             if (this.signinName.equalsIgnoreCase(signinName))
                 presenceStatus = getPresenceStatus();
             else
             {
-                presenceStatus = Integer.MIN_VALUE;
+                presenceStatus = null;
                 for (Map.Entry<ProtocolProviderService, OperationSetPresence> e
                         : ppss.entrySet())
                 {
                     try
                     {
+                        ProtocolProviderService pps = e.getKey();
                         Iterable<Contact> contacts
                             = Messenger.findContactsBySigninName(
-                                    e.getKey(),
+                                    pps,
                                     e.getValue(),
                                     signinName);
+                        String protocolName = pps.getProtocolName();
 
                         for (Contact contact : contacts)
                         {
@@ -737,20 +951,29 @@ public class Messenger
 
                             if (contactPresenceStatus != null)
                             {
-                                int contactStatus
-                                    = contactPresenceStatus.getStatus();
-
-                                if (presenceStatus < contactStatus)
+                                if (presenceStatus == null)
                                 {
-                                    presenceStatus = contactStatus;
-                                    if (presenceStatus
-                                            >= PresenceStatus.MAX_STATUS_VALUE)
-                                        break;
+                                    presenceStatus
+                                        = new ProtocolPresenceStatus(
+                                                protocolName,
+                                                contactPresenceStatus);
                                 }
+                                else if (presenceStatus.compareTo(
+                                            contactPresenceStatus)
+                                        < 0)
+                                {
+                                    presenceStatus.setPresenceStatus(
+                                            protocolName,
+                                            contactPresenceStatus);
+                                }
+                                if (presenceStatus.toInt()
+                                        >= PresenceStatus.MAX_STATUS_VALUE)
+                                    break;
                             }
                         }
-                        if (presenceStatus
-                                >= PresenceStatus.MAX_STATUS_VALUE)
+                        if ((presenceStatus != null)
+                                && (presenceStatus.toInt()
+                                        >= PresenceStatus.MAX_STATUS_VALUE))
                             break;
                     }
                     catch (Throwable t)
@@ -832,23 +1055,39 @@ public class Messenger
         public void providerStatusChanged(
                 ProviderPresenceStatusChangeEvent event)
         {
-            PresenceStatus presenceStatus = null;
+            ProtocolPresenceStatus protocolPresenceStatus = null;
 
-            for (OperationSetPresence presenceOpSet : ppss.values())
+            for (Map.Entry<ProtocolProviderService, OperationSetPresence> e
+                    : ppss.entrySet())
             {
+                OperationSetPresence presenceOpSet = e.getValue();
                 PresenceStatus presenceOpSetStatus
                     = presenceOpSet.getPresenceStatus();
 
                 if (presenceOpSetStatus != null)
                 {
-                    if ((presenceStatus == null)
-                            || (presenceStatus.compareTo(presenceOpSetStatus)
-                                    < 0))
-                        presenceStatus = presenceOpSetStatus;
+                    if (protocolPresenceStatus == null)
+                    {
+                        protocolPresenceStatus
+                            = new ProtocolPresenceStatus(
+                                    e.getKey().getProtocolName(),
+                                    presenceOpSetStatus);
+                    }
+                    else if (protocolPresenceStatus.compareTo(
+                                presenceOpSetStatus)
+                            < 0)
+                    {
+                        protocolPresenceStatus.setPresenceStatus(
+                                e.getKey().getProtocolName(),
+                                presenceOpSetStatus);
+                    }
+                    if (protocolPresenceStatus.toInt()
+                            >= PresenceStatus.MAX_STATUS_VALUE)
+                        break;
                 }
             }
 
-            setPresenceStatus(presenceStatus);
+            setPresenceStatus(protocolPresenceStatus);
         }
 
         public void providerStatusMessageChanged(PropertyChangeEvent event) {}
@@ -867,22 +1106,25 @@ public class Messenger
             return ppss.size();
         }
 
-        private void setPresenceStatus(PresenceStatus presenceStatus)
+        /**
+         * Sets the <tt>PresenceStatus</tt> of this instance.
+         *
+         * @param presenceStatus the <tt>PresenceStatus</tt> and the name of the
+         * protocol from which it has originated
+         */
+        private void setPresenceStatus(ProtocolPresenceStatus presenceStatus)
         {
-            int status
-                = (presenceStatus == null)
-                    ? Integer.MIN_VALUE
-                    : presenceStatus.getStatus();
+            int oldMISTATUS
+                = ProtocolPresenceStatus.toMISTATUS(this.presenceStatus);
+            int newMISTATUS = ProtocolPresenceStatus.toMISTATUS(presenceStatus);
 
-            if (this.presenceStatus != status)
+            if (oldMISTATUS != newMISTATUS)
             {
-                int oldValue = this.presenceStatus;
-
-                this.presenceStatus = status;
+                this.presenceStatus = presenceStatus;
 
                 Messenger.onContactStatusChange(
                         signinName,
-                        presenceStatusToMISTATUS(oldValue));
+                        oldMISTATUS);
             }
         }
     }

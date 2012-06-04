@@ -8,5 +8,8 @@ Import-Package: javax.swing,
  net.java.sip.communicator.service.gui,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.service.protocol.jabberconstants,
+ net.java.sip.communicator.service.protocol.msnconstants,
+ net.java.sip.communicator.service.protocol.yahooconstants,
  net.java.sip.communicator.util,
  org.osgi.framework
