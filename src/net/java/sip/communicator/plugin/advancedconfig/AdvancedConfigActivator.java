@@ -94,8 +94,11 @@ public class AdvancedConfigActivator
      */
     public void stop(BundleContext bc) throws Exception
     {
-        bc.removeServiceListener(panel);
-        panelRegistration.unregister();
+        if(panel != null)
+            bc.removeServiceListener(panel);
+
+        if(panelRegistration != null)
+            panelRegistration.unregister();
     }
 
     /**

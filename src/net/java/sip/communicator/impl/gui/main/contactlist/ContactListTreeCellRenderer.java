@@ -763,7 +763,14 @@ public class ContactListTreeCellRenderer
             = uiContact.getDefaultContactDetail(
                 OperationSetVideoTelephony.class);
 
-        if (videoContact != null)
+        if (videoContact != null
+            || (ConfigurationManager
+                    .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
+                    && hasPhone
+                    && GuiActivator.getOpSetRegisteredProviders(
+                                    OperationSetVideoTelephony.class,
+                                    null,
+                                    null).size() > 0))
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
@@ -786,7 +793,14 @@ public class ContactListTreeCellRenderer
             = uiContact.getDefaultContactDetail(
                 OperationSetDesktopSharingServer.class);
 
-        if (desktopContact != null)
+        if (desktopContact != null
+            || (ConfigurationManager
+                    .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
+                    && hasPhone
+                    && GuiActivator.getOpSetRegisteredProviders(
+                            OperationSetDesktopSharingServer.class,
+                            null,
+                            null).size() > 0))
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
@@ -915,88 +929,7 @@ public class ContactListTreeCellRenderer
                 .getContactDetailsForOperationSet(
                     OperationSetBasicTelephony.class);
 
-        // Adds additional phone numbers found in contact information
-        ContactNode n = (ContactNode)treeNode;
-        MetaContact metaContact = null;
-
-        if(n.getContactDescriptor().getDescriptor() instanceof MetaContact)
-        {
-            metaContact = (MetaContact)n.getContactDescriptor().getDescriptor();
-            Iterator<Contact> contacts = metaContact.getContacts();
-
-            while(contacts.hasNext())
-            {
-                Contact contact = contacts.next();
-                OperationSetServerStoredContactInfo infoOpSet =
-                    contact.getProtocolProvider().getOperationSet(
-                        OperationSetServerStoredContactInfo.class);
-                Iterator<GenericDetail> details = null;
-                ArrayList<String> phones = new ArrayList<String>();
-
-                if(infoOpSet != null)
-                {
-                    details = infoOpSet.getAllDetailsForContact(contact);
-
-                    while(details.hasNext())
-                    {
-                        GenericDetail d = details.next();
-                        if(d instanceof PhoneNumberDetail && 
-                            !(d instanceof PagerDetail) && 
-                            !(d instanceof FaxDetail))
-                        {
-                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                            if(pnd.getNumber() != null &&
-                                pnd.getNumber().length() > 0)
-                            {
-                                String localizedType = null;
-                                
-                                if(d instanceof WorkPhoneDetail)
-                                {
-                                    localizedType = 
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.WORK_PHONE");
-                                }
-                                else if(d instanceof MobilePhoneDetail)
-                                {
-                                    localizedType = 
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.MOBILE_PHONE");
-                                }
-                                else
-                                {
-                                    localizedType = 
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.PHONE");
-                                }
-                                    
-                                phones.add(pnd.getNumber());
-
-                                UIContactDetail cd =
-                                    new UIContactDetail(
-                                        pnd.getNumber(),
-                                        pnd.getNumber() + 
-                                        " (" + localizedType + ")",
-                                        null,
-                                        new ArrayList<String>(),
-                                        null,
-                                        null,
-                                        null)
-                                {
-                                    public PresenceStatus getPresenceStatus()
-                                    {
-                                        return null;
-                                    }
-                                };
-                                telephonyContacts.add(cd);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        telephonyContacts.addAll(getAdditionalNumbers());
 
         ChooseCallAccountPopupMenu chooseAccountDialog = null;
 
@@ -1069,6 +1002,9 @@ public class ContactListTreeCellRenderer
             = ((ContactNode) treeNode).getContactDescriptor()
                 .getContactDetailsForOperationSet(
                     OperationSetVideoTelephony.class);
+
+        if(ConfigurationManager.isRouteVideoAndDesktopUsingPhoneNumberEnabled())
+            videoContacts.addAll(getAdditionalNumbers());
 
         ChooseCallAccountPopupMenu chooseAccountDialog = null;
 
@@ -1177,6 +1113,9 @@ public class ContactListTreeCellRenderer
                 .getContactDetailsForOperationSet(
                     OperationSetDesktopSharingServer.class);
 
+        if(ConfigurationManager.isRouteVideoAndDesktopUsingPhoneNumberEnabled())
+            desktopContacts.addAll(getAdditionalNumbers());
+
         ChooseCallAccountPopupMenu chooseAccountDialog = null;
 
         if (desktopContacts.size() == 1)
@@ -1269,6 +1208,101 @@ public class ContactListTreeCellRenderer
 
             chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
         }
+    }
+
+    /**
+     * Searches for additional phone numbers found in contact information
+     * @return additional phone numbers found in contact information;
+     */
+    private List<UIContactDetail> getAdditionalNumbers()
+    {
+        List<UIContactDetail> telephonyContacts
+            = new ArrayList<UIContactDetail>();
+
+        // Adds additional phone numbers found in contact information
+        ContactNode n = (ContactNode)treeNode;
+        MetaContact metaContact = null;
+
+        if(n.getContactDescriptor().getDescriptor() instanceof MetaContact)
+        {
+            metaContact = (MetaContact)n.getContactDescriptor().getDescriptor();
+            Iterator<Contact> contacts = metaContact.getContacts();
+
+            while(contacts.hasNext())
+            {
+                Contact contact = contacts.next();
+                OperationSetServerStoredContactInfo infoOpSet =
+                    contact.getProtocolProvider().getOperationSet(
+                        OperationSetServerStoredContactInfo.class);
+                Iterator<GenericDetail> details;
+                ArrayList<String> phones = new ArrayList<String>();
+
+                if(infoOpSet != null)
+                {
+                    details = infoOpSet.getAllDetailsForContact(contact);
+
+                    while(details.hasNext())
+                    {
+                        GenericDetail d = details.next();
+                        if(d instanceof PhoneNumberDetail &&
+                            !(d instanceof PagerDetail) &&
+                            !(d instanceof FaxDetail))
+                        {
+                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                            if(pnd.getNumber() != null &&
+                                pnd.getNumber().length() > 0)
+                            {
+                                String localizedType = null;
+
+                                if(d instanceof WorkPhoneDetail)
+                                {
+                                    localizedType =
+                                        GuiActivator.getResources().
+                                            getI18NString(
+                                                "service.gui.WORK_PHONE");
+                                }
+                                else if(d instanceof MobilePhoneDetail)
+                                {
+                                    localizedType =
+                                        GuiActivator.getResources().
+                                            getI18NString(
+                                                "service.gui.MOBILE_PHONE");
+                                }
+                                else
+                                {
+                                    localizedType =
+                                        GuiActivator.getResources().
+                                            getI18NString(
+                                                "service.gui.PHONE");
+                                }
+
+                                phones.add(pnd.getNumber());
+
+                                UIContactDetail cd =
+                                    new UIContactDetail(
+                                        pnd.getNumber(),
+                                        pnd.getNumber() +
+                                        " (" + localizedType + ")",
+                                        null,
+                                        new ArrayList<String>(),
+                                        null,
+                                        null,
+                                        null)
+                                {
+                                    public PresenceStatus getPresenceStatus()
+                                    {
+                                        return null;
+                                    }
+                                };
+                                telephonyContacts.add(cd);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return telephonyContacts;
     }
 
     /**

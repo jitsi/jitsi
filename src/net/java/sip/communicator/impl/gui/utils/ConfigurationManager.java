@@ -209,6 +209,12 @@ public class ConfigurationManager
     private static boolean showStatusChangedInChat = true;
 
     /**
+     * When enabled, allow to use the additional phone numbers
+     * to route video calls and desktop sharing through it if possible.
+     */
+    private static boolean routeVideoAndDesktopUsingPhoneNumber = false;
+
+    /**
      * Loads all user interface configurations.
      */
     public static void loadGuiConfigurations()
@@ -591,6 +597,16 @@ public class ConfigurationManager
         showStatusChangedInChat = configService.getBoolean(
             showStatusChangedInChatProperty,
             showStatusChangedInChat);
+
+        String routeVideoAndDesktopUsingPhoneNumberProperty
+            = "impl.gui.ROUTE_VIDEO_AND_DESKTOP_TO_PNONENUMBER";
+        String routeVideoAndDesktopUsingPhoneNumberDefault =
+            GuiActivator.getResources()
+                .getSettingsString(routeVideoAndDesktopUsingPhoneNumberProperty);
+
+        if(routeVideoAndDesktopUsingPhoneNumberDefault != null)
+            routeVideoAndDesktopUsingPhoneNumber = Boolean.parseBoolean(
+                routeVideoAndDesktopUsingPhoneNumberDefault);
     }
 
     /**
@@ -1074,6 +1090,17 @@ public class ConfigurationManager
     public static boolean isShowStatusChangedInChat()
     {
         return showStatusChangedInChat;
+    }
+
+    /**
+     * Whether allow to use additional phone numbers
+     * to route video calls and desktop sharing through it.
+     * @return whether allow to use additional phone numbers
+     * to route video calls and desktop sharing through it.
+     */
+    public static boolean isRouteVideoAndDesktopUsingPhoneNumberEnabled()
+    {
+        return routeVideoAndDesktopUsingPhoneNumber;
     }
 
     /**
