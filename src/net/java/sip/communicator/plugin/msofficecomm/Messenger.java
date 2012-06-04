@@ -119,7 +119,7 @@ public class Messenger
      * <tt>pps</tt> if such <tt>Contact</tt> instances have been found;
      * otherwise, an empty list
      */
-    private static Iterable<Contact> findContactsBySigninName(
+    private static List<Contact> findContactsBySigninName(
             ProtocolProviderService pps,
             OperationSetPresence presenceOpSet,
             String signinName)
@@ -176,6 +176,31 @@ public class Messenger
                 }
             }
         }
+        return contacts;
+    }
+
+    /**
+     * Gets the <tt>Contact</tt> instances which are associated with a specific
+     * <tt>IMessengerContact</tt> sign-in name and which support a specific
+     * <tt>OperationSet</tt>.
+     *
+     * @param signinName the <tt>IMessengerContact</tt> sign-in name for which
+     * the associated <tt>Contact</tt> instances are to be found
+     * @param opSetClass the <tt>OperationSet</tt> class to be supported by the
+     * possibly found <tt>Contact</tt> instances
+     * @return a list of <tt>Contact</tt> instances which are associated with
+     * the specified <tt>signinName</tt> and which support the specified
+     * <tt>opSetClass</tt> if such <tt>Contact</tt> instances have been found;
+     * otherwise, an empty list
+     */
+    private static List<Contact> findContactsBySigninName(
+            String signinName,
+            Class<? extends OperationSet> opSetClass)
+    {
+        List<Contact> contacts = new ArrayList<Contact>();
+
+        for (Self self : selves.values())
+            self.findContactsBySigninName(signinName, opSetClass, contacts);
         return contacts;
     }
 
@@ -238,7 +263,10 @@ public class Messenger
 
         if (address.contains("@"))
         {
-            String protocol = pps.getProtocolName() + ":";
+            String protocol
+                = ((pps == null) ? contact.getProtocolProvider() : pps)
+                        .getProtocolName()
+                    + ":";
 
             if (address.toLowerCase().startsWith(protocol.toLowerCase()))
                 signinName = address.substring(protocol.length());
@@ -460,10 +488,60 @@ public class Messenger
     {
     }
 
+    /**
+     * Starts a conversation with one or more other users using text, voice,
+     * video, or data.
+     *
+     * @param conversationType a <tt>CONVERSATION_TYPE</tt> value specifying the
+     * type of the conversation to be started
+     * @param participants an array of <tt>String</tt> values specifying the
+     * other users to start a conversation with
+     */
     public void startConversation(
             final int conversationType,
-            final String[] participants)
+            String[] participants)
     {
+        /*
+         * Firstly, resolve the participants into Contacts which may include
+         * looking up their vCards.
+         */
+        Class<? extends OperationSet> opSetClass;
+
+        switch (conversationType)
+        {
+        case CONVERSATION_TYPE_AUDIO:
+        case CONVERSATION_TYPE_PHONE:
+        case CONVERSATION_TYPE_PSTN:
+            opSetClass = OperationSetBasicTelephony.class;
+            break;
+        case CONVERSATION_TYPE_IM:
+            opSetClass = OperationSetBasicInstantMessaging.class;
+            break;
+        default:
+            throw new UnsupportedOperationException();
+        }
+
+        List<String> contactList = new ArrayList<String>();
+
+        for (String participant : participants)
+        {
+            List<Contact> participantContacts
+                = findContactsBySigninName(participant, opSetClass);
+
+            if (participantContacts.size() > 0)
+            {
+                contactList.add(
+                        getSigninName(participantContacts.get(0), null));
+            }
+        }
+
+        final String[] contactArray
+            = contactList.toArray(new String[contactList.size()]);
+
+        /*
+         * Secondly, start the conversation of the specified type with the
+         * resolved Contacts.
+         */
         SwingUtilities.invokeLater(
                 new Runnable()
                 {
@@ -485,10 +563,10 @@ public class Messenger
                                 case CONVERSATION_TYPE_AUDIO:
                                 case CONVERSATION_TYPE_PHONE:
                                 case CONVERSATION_TYPE_PSTN:
-                                    uiService.createCall(participants);
+                                    uiService.createCall(contactArray);
                                     break;
                                 case CONVERSATION_TYPE_IM:
-                                    uiService.startChat(participants);
+                                    uiService.startChat(contactArray);
                                     break;
                                 }
                             }
@@ -586,6 +664,47 @@ public class Messenger
             }
         }
 
+        /**
+         * Gets the <tt>Contact</tt> instances which are associated with a
+         * specific <tt>IMessengerContact</tt> sign-in name and which support a
+         * specific <tt>OperationSet</tt>.
+         *
+         * @param signinName the <tt>IMessengerContact</tt> sign-in name for
+         * which the associated <tt>Contact</tt> instances are to be found
+         * @param opSetClass the <tt>OperationSet</tt> class to be supported by
+         * the possibly found <tt>Contact</tt> instances
+         * @param contacts a list with <tt>Contact</tt> element type which is to
+         * receive the possibly found <tt>Contact</tt> instances
+         */
+        void findContactsBySigninName(
+                String signinName,
+                Class<? extends OperationSet> opSetClass,
+                List<Contact> contacts)
+        {
+            for (Map.Entry<ProtocolProviderService, OperationSetPresence> e
+                    : ppss.entrySet())
+            {
+                ProtocolProviderService pps = e.getKey();
+                OperationSetContactCapabilities contactCapabilitiesOpSet
+                    = pps.getOperationSet(
+                            OperationSetContactCapabilities.class);
+
+                for (Contact contact
+                        : Messenger.findContactsBySigninName(
+                                pps,
+                                e.getValue(),
+                                signinName))
+                {
+                    if ((contactCapabilitiesOpSet == null)
+                            || (contactCapabilitiesOpSet.getOperationSet(
+                                        contact,
+                                        opSetClass)
+                                    != null))
+                        contacts.add(contact);
+                }
+            }
+        }
+
         int getPresenceStatus()
         {
             return presenceStatus;
@@ -606,7 +725,7 @@ public class Messenger
                     try
                     {
                         Iterable<Contact> contacts
-                            = findContactsBySigninName(
+                            = Messenger.findContactsBySigninName(
                                     e.getKey(),
                                     e.getValue(),
                                     signinName);
