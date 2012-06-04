@@ -334,8 +334,8 @@ public class HttpUtils
     public static HTTPResponseResult postForm(String address,
                                    String usernamePropertyName,
                                    String passwordPropertyName,
-                                   String[] formParamNames,
-                                   String[] formParamValues,
+                                   ArrayList<String> formParamNames,
+                                   ArrayList<String> formParamValues,
                                    int usernameParamIx,
                                    int passwordParamIx)
     {
@@ -437,8 +437,8 @@ public class HttpUtils
                                    String address,
                                    String usernamePropertyName,
                                    String passwordPropertyName,
-                                   String[] formParamNames,
-                                   String[] formParamValues,
+                                   ArrayList<String> formParamNames,
+                                   ArrayList<String> formParamValues,
                                    int usernameParamIx,
                                    int passwordParamIx)
         throws Throwable
@@ -447,9 +447,9 @@ public class HttpUtils
         // retrieve their values
         Credentials creds = null;
         if(usernameParamIx != -1
-            && usernameParamIx < formParamNames.length
+            && usernameParamIx < formParamNames.size()
             && passwordParamIx != -1
-            && passwordParamIx < formParamNames.length)
+            && passwordParamIx < formParamNames.size())
         {
             URL url = new URL(address);
             HTTPCredentialsProvider prov = (HTTPCredentialsProvider)
@@ -477,23 +477,23 @@ public class HttpUtils
         // there can be no params
         if(formParamNames != null)
         {
-            for(int i = 0; i < formParamNames.length; i++)
+            for(int i = 0; i < formParamNames.size(); i++)
             {
                 // we are on the username index, insert retrieved username value
                 if(i == usernameParamIx && creds != null)
                 {
                     parameters.add(new BasicNameValuePair(
-                        formParamNames[i], creds.getUserPrincipal().getName()));
+                        formParamNames.get(i), creds.getUserPrincipal().getName()));
                 }// we are on the password index, insert retrieved password val
                 else if(i == passwordParamIx && creds != null)
                 {
                     parameters.add(new BasicNameValuePair(
-                        formParamNames[i], creds.getPassword()));
+                        formParamNames.get(i), creds.getPassword()));
                 }
                 else // common name value pair, all info is present
                 {
                     parameters.add(new BasicNameValuePair(
-                        formParamNames[i], formParamValues[i]));
+                        formParamNames.get(i), formParamValues.get(i)));
                 }
             }
         }

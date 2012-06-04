@@ -376,15 +376,15 @@ public class ProvisioningServiceImpl
                 url = url.substring(0, url.indexOf('?'));
             }
 
-            String[] paramNames = null;
-            String[] paramValues = null;
+            ArrayList<String> paramNames = null;
+            ArrayList<String> paramValues = null;
             int usernameIx = -1;
             int passwordIx = -1;
 
             if(args != null && args.length > 0)
             {
-                paramNames = new String[args.length];
-                paramValues = new String[args.length];
+                paramNames = new ArrayList<String>(args.length);
+                paramValues = new ArrayList<String>(args.length);
 
                 for(int i = 0; i < args.length; i++)
                 {
@@ -398,19 +398,30 @@ public class ProvisioningServiceImpl
                     if(s.indexOf(usernameParam) != -1)
                     {
                         s = s.replace(usernameParam, "");
-                        usernameIx = i;
+                        usernameIx = paramNames.size();
                     }
                     else if(s.indexOf(passwordParam) != -1)
                     {
                         s = s.replace(passwordParam, "");
-                        passwordIx = i;
+                        passwordIx = paramNames.size();
                     }
 
                     int equalsIndex = s.indexOf("=");
-                    if (equalsIndex > 0)
+                    if (equalsIndex > -1)
                     {
-                        paramNames[i] = s.substring(0, equalsIndex);
-                        paramValues[i] = s.substring(equalsIndex + 1);
+                        paramNames.add(s.substring(0, equalsIndex));
+                        paramValues.add(s.substring(equalsIndex + 1));
+                    }
+                    else
+                    {
+                        if(logger.isInfoEnabled())
+                        {
+                            logger.info(
+                                    "Invalid provisioning request parameter: \""
+                                    + s + "\", is replaced by \"" + s + "=\"");
+                        }
+                        paramNames.add(s);
+                        paramValues.add("");
                     }
                 }
             }
