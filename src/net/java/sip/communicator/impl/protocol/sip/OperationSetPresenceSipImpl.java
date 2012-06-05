@@ -1380,11 +1380,17 @@ public class OperationSetPresenceSipImpl
                     logger.error("can't send the PUBLISH request", e);
                     return false;
                 }
-
+            }
+            // PROVISIONAL RESPONSE (1XX)
+            else if (response.getStatusCode() >= 100
+                    && response.getStatusCode() < 200)
+            {
+                // Ignore provisional response: simply wait for a next response
+                // with a SUCCESS (2XX) code.
+            }
             // with every other error, we consider that we have to start a new
             // communication.
             // Enter p2p mode if the distant PA mode fails
-            }
             else
             {
                 if (logger.isDebugEnabled())
