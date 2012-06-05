@@ -948,7 +948,7 @@ public class CallPeerJabberImpl
         }
         else
         {
-            if(senders == SendersEnum.both)
+            if(senders == SendersEnum.both || senders == null)
             {
                 senders
                     = isInitiator
