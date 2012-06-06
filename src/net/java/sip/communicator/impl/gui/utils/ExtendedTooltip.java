@@ -101,6 +101,11 @@ public class ExtendedTooltip
         mainPanel.add(bottomTextArea, BorderLayout.SOUTH);
 
         // Hide the tooltip when the parent window hides.
+        /*
+         * FIXME The parentWindow will surely outlive this ExtendedTooltip so
+         * adding a WindowFocusListener without removing the same
+         * WindowFocusListener later on is guaranteed to cause a memory leak.
+         */
         parentWindow.addWindowFocusListener(new WindowFocusListener()
         {
             public void windowLostFocus(WindowEvent e)
@@ -108,7 +113,7 @@ public class ExtendedTooltip
                 Window popupWindow
                     = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
 
-                if (popupWindow != null
+                if ((popupWindow != null)
                     && popupWindow.isVisible()
                     // The popup window should normally be a JWindow, so we
                     // check here explicitly if for some reason we didn't get
@@ -134,7 +139,8 @@ public class ExtendedTooltip
                 if (!parentWindow.isActive())
                 {
                     Window popupWindow
-                        = SwingUtilities.getWindowAncestor(ExtendedTooltip.this);
+                        = SwingUtilities.getWindowAncestor(
+                                ExtendedTooltip.this);
 
                     if (popupWindow != null
                         && popupWindow.isVisible()
