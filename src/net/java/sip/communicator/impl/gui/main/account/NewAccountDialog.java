@@ -18,6 +18,7 @@ import net.java.sip.communicator.impl.gui.customcontrols.wizard.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -28,12 +29,13 @@ import org.osgi.framework.*;
  * create a new account.
  * 
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class NewAccountDialog
     extends SIPCommDialog
-    implements  CreateAccountWindow,
-                ActionListener,
-                PropertyChangeListener
+    implements CreateAccountWindow,
+               ActionListener,
+               PropertyChangeListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>NewAccountDialog</tt> class and its
@@ -42,17 +44,8 @@ public class NewAccountDialog
     private static final Logger logger
         = Logger.getLogger(NewAccountDialog.class);
 
-    private final TransparentPanel mainPanel
-        = new TransparentPanel(new BorderLayout(5, 5));
-
     private final TransparentPanel accountPanel
         = new TransparentPanel(new BorderLayout());
-
-    private final TransparentPanel networkPanel
-        = new TransparentPanel(new BorderLayout());
-
-    private final JLabel networkLabel = new JLabel(
-        GuiActivator.getResources().getI18NString("service.gui.NETWORK"));
 
     private final JComboBox networkComboBox = new JComboBox();
 
@@ -65,16 +58,8 @@ public class NewAccountDialog
     private final JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-    private final TransparentPanel rightButtonPanel
-        = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-
-    private final TransparentPanel buttonPanel
-        = new TransparentPanel(new BorderLayout());
-
     private final EmptyAccountRegistrationWizard emptyWizard
             = new EmptyAccountRegistrationWizard();
-
-    private String preferredWizardName;
 
     private static NewAccountDialog newAccountDialog;
 
@@ -88,7 +73,12 @@ public class NewAccountDialog
     /**
      * Status label, show when connecting.
      */
-    private JLabel statusLabel = new JLabel();
+    private final JLabel statusLabel = new JLabel();
+
+    /**
+     * The container of the wizard.
+     */
+    private final AccountRegWizardContainerImpl wizardContainer;
 
     /**
      * Creates the dialog and initializes the UI.
@@ -97,44 +87,53 @@ public class NewAccountDialog
     {
         super(GuiActivator.getUIService().getMainFrame(), false);
 
-        String title
-            = GuiActivator.getResources().getI18NString(
-                    "service.gui.NEW_ACCOUNT");
+        ResourceManagementService resources = GuiActivator.getResources();
+
+        TransparentPanel mainPanel
+            = new TransparentPanel(new BorderLayout(5, 5));
+        TransparentPanel networkPanel
+            = new TransparentPanel(new BorderLayout());
+        JLabel networkLabel
+            = new JLabel(resources.getI18NString("service.gui.NETWORK"));
+        TransparentPanel rightButtonPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        TransparentPanel buttonPanel
+            = new TransparentPanel(new BorderLayout());
+
+        String title = resources.getI18NString("service.gui.NEW_ACCOUNT");
         if ((title != null) && title.endsWith("..."))
             title = title.substring(0, title.length() - 3);
         this.setTitle(title);
 
         this.getContentPane().add(mainPanel);
 
-        this.mainPanel.setBorder(
-            BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        this.networkPanel.setBorder(
-            BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        networkPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         JPanel statusPanel = new TransparentPanel(
                 new FlowLayout(FlowLayout.CENTER));
         statusPanel.add(statusLabel);
 
-        this.mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         if (!ConfigurationManager.isAdvancedAccountConfigDisabled())
         {
-            this.buttonPanel.add(advancedButton, BorderLayout.WEST);
+            buttonPanel.add(advancedButton, BorderLayout.WEST);
             this.advancedButton.addActionListener(this);
         }
 
-        this.buttonPanel.add(rightButtonPanel, BorderLayout.EAST);
-        this.buttonPanel.add(statusPanel, BorderLayout.CENTER);
+        buttonPanel.add(rightButtonPanel, BorderLayout.EAST);
+        buttonPanel.add(statusPanel, BorderLayout.CENTER);
 
-        this.rightButtonPanel.add(addAccountButton);
-        this.rightButtonPanel.add(cancelButton);
+        rightButtonPanel.add(addAccountButton);
+        rightButtonPanel.add(cancelButton);
         this.addAccountButton.addActionListener(this);
         this.cancelButton.addActionListener(this);
 
-        this.mainPanel.add(networkPanel, BorderLayout.NORTH);
-        this.networkPanel.add(networkLabel, BorderLayout.WEST);
-        this.networkPanel.add(networkComboBox, BorderLayout.CENTER);
+        mainPanel.add(networkPanel, BorderLayout.NORTH);
+        networkPanel.add(networkLabel, BorderLayout.WEST);
+        networkPanel.add(networkComboBox, BorderLayout.CENTER);
 
         this.getRootPane().setDefaultButton(addAccountButton);
 
@@ -144,20 +143,26 @@ public class NewAccountDialog
             public void actionPerformed(ActionEvent e)
             {
                 AccountRegistrationWizard wizard
-                    = (AccountRegistrationWizard) networkComboBox
-                        .getSelectedItem();
+                    = (AccountRegistrationWizard)
+                        networkComboBox.getSelectedItem();
 
                 loadSelectedWizard(wizard);
             }
         });
 
-        this.mainPanel.add(accountPanel, BorderLayout.CENTER);
+        mainPanel.add(accountPanel, BorderLayout.CENTER);
 
         this.initNetworkList();
 
-        ((AccountRegWizardContainerImpl)GuiActivator.getUIService()
-            .getAccountRegWizardContainer()).getModel()
-                .addPropertyChangeListener(this);
+        wizardContainer
+            = (AccountRegWizardContainerImpl)
+                GuiActivator.getUIService().getAccountRegWizardContainer();
+        /*
+         * XXX The wizardContainer will outlive this instance so it is essential
+         * to call removePropertyChangeListener on its model in order to prevent
+         * a leak of this instance.
+         */
+        wizardContainer.getModel().addPropertyChangeListener(this);
     }
 
     /**
@@ -167,10 +172,11 @@ public class NewAccountDialog
     private void initNetworkList()
     {
         // check for preferred wizard
-        String prefWName = GuiActivator.getResources().
-            getSettingsString("impl.gui.PREFERRED_ACCOUNT_WIZARD");
-        if(prefWName != null && prefWName.length() > 0)
-            preferredWizardName = prefWName;
+        String prefWName
+            = GuiActivator.getResources().getSettingsString(
+                    "impl.gui.PREFERRED_ACCOUNT_WIZARD");
+        String preferredWizardName
+            = (prefWName != null && prefWName.length() > 0) ? prefWName : null;
 
         ServiceReference[] accountWizardRefs = null;
         try
@@ -293,9 +299,8 @@ public class NewAccountDialog
 
         public NetworkListCellRenderer()
         {
-            this.setOpaque(true);
-
-            this.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+            setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+            setOpaque(true);
         }
 
         public Component getListCellRendererComponent(JList list, Object value,
@@ -315,17 +320,14 @@ public class NewAccountDialog
                 setForeground(list.getForeground());
             }
 
-            this.setText(wizard.getProtocolName());
+            setText(wizard.getProtocolName());
+
             byte[] icon = wizard.getIcon();
 
-            if( icon != null && icon.length > 0)
-            {
-                this.setIcon(new ImageIcon(icon));
-            }
-            else
-            {
-                this.setIcon(null);
-            }
+            setIcon(
+                    ((icon != null) && (icon.length > 0))
+                        ? new ImageIcon(icon)
+                        : null);
 
             return this;
         }
@@ -341,11 +343,12 @@ public class NewAccountDialog
         accountPanel.removeAll();
 
         TransparentPanel fixedWidthPanel = new TransparentPanel();
+        Dimension fixedWidthSize = new Dimension(430, 3);
 
+        fixedWidthPanel.setPreferredSize(fixedWidthSize);
+        fixedWidthPanel.setMinimumSize(fixedWidthSize);
+        fixedWidthPanel.setMaximumSize(fixedWidthSize);
         this.accountPanel.add(fixedWidthPanel, BorderLayout.SOUTH);
-        fixedWidthPanel.setPreferredSize(new Dimension(430, 3));
-        fixedWidthPanel.setMinimumSize(new Dimension(430, 3));
-        fixedWidthPanel.setMaximumSize(new Dimension(430, 3));
 
         JComponent simpleWizardForm = (JComponent) wizard.getSimpleForm(false);
         simpleWizardForm.setOpaque(false);
@@ -353,10 +356,11 @@ public class NewAccountDialog
         accountPanel.add(simpleWizardForm);
 
         //enable the add and advanced buttons if this is a real protocol
-        addAccountButton.setEnabled(
-                        !(wizard instanceof EmptyAccountRegistrationWizard));
-        advancedButton.setEnabled(
-                !(wizard instanceof EmptyAccountRegistrationWizard));
+        boolean isEmptyAccountRegistrationWizard
+            = (wizard instanceof EmptyAccountRegistrationWizard);
+
+        addAccountButton.setEnabled(!isEmptyAccountRegistrationWizard);
+        advancedButton.setEnabled(!isEmptyAccountRegistrationWizard);
 
         accountPanel.revalidate();
         accountPanel.repaint();
@@ -407,13 +411,8 @@ public class NewAccountDialog
     public void actionPerformed(ActionEvent event)
     {
         JButton sourceButton = (JButton) event.getSource();
-
         AccountRegistrationWizard wizard
             = (AccountRegistrationWizard) networkComboBox.getSelectedItem();
-
-        AccountRegWizardContainerImpl wizardContainer
-            = ((AccountRegWizardContainerImpl) GuiActivator.getUIService()
-                .getAccountRegWizardContainer());
 
         if (sourceButton.equals(advancedButton))
         {
@@ -422,9 +421,7 @@ public class NewAccountDialog
             wizardContainer.setTitle(
                 GuiActivator.getResources().getI18NString(
                 "service.gui.ACCOUNT_REGISTRATION_WIZARD"));
-
             wizardContainer.setCurrentWizard(wizard);
-
             wizardContainer.showDialog(false);
 
             this.dispose();
@@ -433,8 +430,7 @@ public class NewAccountDialog
         {
             startConnecting(wizardContainer);
 
-            new Thread(new ProtocolSignInThread(
-                    wizard, wizardContainer)).start();
+            new Thread(new ProtocolSignInThread(wizard)).start();
         }
         else if (sourceButton.equals(cancelButton))
         {
@@ -474,7 +470,10 @@ public class NewAccountDialog
         if(isCurrentlySigningIn)
             return;
 
-        newAccountDialog = null;
+        if (newAccountDialog == this)
+            newAccountDialog = null;
+
+        wizardContainer.getModel().removePropertyChangeListener(this);
 
         super.dispose();
     }
@@ -530,24 +529,17 @@ public class NewAccountDialog
         /**
          * The wizard to use.
          */
-        AccountRegistrationWizard wizard;
-
-        /**
-         * The container of the wizard.
-         */
-        AccountRegWizardContainerImpl wizardContainer;
+        private final AccountRegistrationWizard wizard;
 
         /**
          * Creates <tt>ProtocolSignInThread</tt>.
          * @param wizard the wizard to use.
-         * @param wizardContainer the container of the wizard.
          */
-        ProtocolSignInThread(AccountRegistrationWizard wizard,
-                             AccountRegWizardContainerImpl wizardContainer)
+        ProtocolSignInThread(AccountRegistrationWizard wizard)
         {
             this.wizard = wizard;
-            this.wizardContainer = wizardContainer;
         }
+
         /**
          * When an object implementing interface <code>Runnable</code> is used
          * to create a thread, starting the thread causes the object's
@@ -670,6 +662,5 @@ public class NewAccountDialog
                                     boolean isCreateAccount)
     {
         networkComboBox.setSelectedItem(wizard);
-
     }
 }
