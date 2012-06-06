@@ -38,7 +38,7 @@ public class ChatRoomList
     /**
      * All ChatRoomProviderWrapperListener change listeners registered so far.
      */
-    private List<ChatRoomProviderWrapperListener> providerChangeListeners
+    private final List<ChatRoomProviderWrapperListener> providerChangeListeners
         = new ArrayList<ChatRoomProviderWrapperListener>();
 
     /**
@@ -372,7 +372,7 @@ public class ChatRoomList
     public synchronized void removeChatRoomProviderWrapperListener(
         ChatRoomProviderWrapperListener listener)
     {
-        providerChangeListeners.add(listener);
+        providerChangeListeners.remove(listener);
     }
 
     /**

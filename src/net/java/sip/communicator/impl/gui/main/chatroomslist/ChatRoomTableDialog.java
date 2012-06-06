@@ -30,7 +30,7 @@ import net.java.sip.communicator.util.swing.*;
  * chat rooms, etc.
  * 
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Damian Minkov
  */
 public class ChatRoomTableDialog
@@ -56,24 +56,27 @@ public class ChatRoomTableDialog
     /**
      * The add chat room button.
      */
-    private JButton addButton = new JButton("+");
+    private final JButton addButton = new JButton("+");
 
     /**
      * The remove chat room button.
      */
-    private JButton removeButton = new JButton("-");
+    private final JButton removeButton = new JButton("-");
 
     /**
      * The ok button.
      */
-    private JButton okButton = new JButton(GuiActivator.getResources()
-            .getI18NString("service.gui.OK"));
+    private final JButton okButton
+        = new JButton(
+                GuiActivator.getResources().getI18NString("service.gui.OK"));
 
     /**
      * The cancel button.
      */
-    private JButton cancelButton = new JButton(GuiActivator.getResources()
-            .getI18NString("service.gui.CANCEL"));
+    private final JButton cancelButton
+        = new JButton(
+                GuiActivator.getResources().getI18NString(
+                        "service.gui.CANCEL"));
 
     /**
      * The editor for the chat room name.
@@ -84,6 +87,33 @@ public class ChatRoomTableDialog
      * The available chat rooms list.
      */
     private ChatRoomTableUI chatRoomsTableUI = null;
+
+    private final ChatRoomList chatRoomList
+        = GuiActivator.getUIService().getConferenceChatManager()
+                .getChatRoomList();
+
+    /**
+     * The <tt>ChatRoomList.ChatRoomProviderWrapperListener</tt> instance which
+     * has been registered with {@link #chatRoomList} and which is to be
+     * unregistered when this instance is disposed in order to prevent this
+     * instance from leaking.
+     */
+    private final ChatRoomList.ChatRoomProviderWrapperListener
+        chatRoomProviderWrapperListener
+            = new ChatRoomList.ChatRoomProviderWrapperListener()
+            {
+                public void chatRoomProviderWrapperAdded(
+                    ChatRoomProviderWrapper provider)
+                {
+                    providersCombo.addItem(provider);
+                }
+
+                public void chatRoomProviderWrapperRemoved(
+                    ChatRoomProviderWrapper provider)
+                {
+                    providersCombo.removeItem(provider);
+                }
+            };
 
     /**
      * Shows a <code>ChatRoomTableDialog</code> creating it first if necessary.
@@ -272,23 +302,8 @@ public class ChatRoomTableDialog
 
         //register listener to listen for newly added chat room providers
         // and for removed ones
-        GuiActivator.getUIService().getConferenceChatManager()
-                .getChatRoomList().addChatRoomProviderWrapperListener(
-            new ChatRoomList.ChatRoomProviderWrapperListener()
-        {
-
-            public void chatRoomProviderWrapperAdded(
-                ChatRoomProviderWrapper provider)
-            {
-                providersCombo.addItem(provider);
-            }
-
-            public void chatRoomProviderWrapperRemoved(
-                ChatRoomProviderWrapper provider)
-            {
-                providersCombo.removeItem(provider);
-            }
-        });
+        chatRoomList.addChatRoomProviderWrapperListener(
+                chatRoomProviderWrapperListener);
     }
 
     /**
@@ -297,17 +312,13 @@ public class ChatRoomTableDialog
      */
     private JComboBox createProvidersCombobox()
     {
-        Iterator<ChatRoomProviderWrapper> providers =
-            GuiActivator.getUIService().getConferenceChatManager()
-                .getChatRoomList().getChatRoomProviders();
-
+        Iterator<ChatRoomProviderWrapper> providers
+            = chatRoomList.getChatRoomProviders();
         JComboBox chatRoomProvidersCombobox = new JComboBox();
 
-        while(providers.hasNext())
-        {
+        while (providers.hasNext())
             chatRoomProvidersCombobox.addItem(providers.next());
-        }
-        
+
         chatRoomProvidersCombobox.setRenderer(new ChatRoomProviderRenderer());
 
         return chatRoomProvidersCombobox;
@@ -502,10 +513,24 @@ public class ChatRoomTableDialog
     @Override
     protected void close(boolean isEscaped)
     {
-        chatRoomsTableUI.dispose();
-        chatRoomTableDialog = null;
-
         dispose();
+    }
+
+    /**
+     * Releases the resources allocated by this instance throughout its
+     * lifetime.
+     */
+    @Override
+    public void dispose()
+    {
+        if (chatRoomTableDialog == this)
+            chatRoomTableDialog = null;
+
+        chatRoomList.removeChatRoomProviderWrapperListener(
+                chatRoomProviderWrapperListener);
+        chatRoomsTableUI.dispose();
+
+        super.dispose();
     }
 
     /**

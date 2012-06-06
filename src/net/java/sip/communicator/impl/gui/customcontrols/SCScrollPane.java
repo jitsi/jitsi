@@ -195,7 +195,8 @@ public class SCScrollPane
     }
 
     /**
-     * Cleanup.
+     * Releases the resources allocated by this instance throughout its lifetime
+     * and prepares it for garbage collection.
      */
     public void dispose()
     {
@@ -205,26 +206,32 @@ public class SCScrollPane
             // they add a PropertyChangeListeners to the CToolkit
             try
             {
-                PropertyChangeListener[] pcl =Toolkit.getDefaultToolkit()
-                    .getPropertyChangeListeners("apple.awt.contentScaleFactor");
+                Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+                PropertyChangeListener[] pcl
+                    = defaultToolkit.getPropertyChangeListeners(
+                            "apple.awt.contentScaleFactor");
 
                 for(PropertyChangeListener pc : pcl)
                 {
                     // find the reference to the object created the listener
                     Field f = pc.getClass().getDeclaredField("this$0");
+
                     f.setAccessible(true);
-                    // if we are the parent cleanup
+                    // If we are the parent, clean up.
                     if(f.get(pc).equals(this.getViewport()))
                     {
-                        Toolkit.getDefaultToolkit()
-                            .removePropertyChangeListener(
-                                "apple.awt.contentScaleFactor", pc);
+                        defaultToolkit.removePropertyChangeListener(
+                                "apple.awt.contentScaleFactor",
+                                pc);
                         break;
                     }
                 }
             }
             catch(Throwable t)
-            {}
+            {
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+            }
         }
     }
 }

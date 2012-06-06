@@ -27,6 +27,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
  * <tt>ChatRoomsList</tt>.
  *
  * @author Damian Minkov
+ * @author Lyubomir Marinov
  */
 public class ChatRoomTableUI
     extends SCScrollPane
@@ -35,7 +36,7 @@ public class ChatRoomTableUI
     /**
      * The table with available rooms.
      */
-    private JTable chatRoomList = new JTable();
+    private final JTable chatRoomList = new JTable();
 
     /**
      * The model of the table with the available rooms.
@@ -75,10 +76,14 @@ public class ChatRoomTableUI
         this.chatRoomList.setOpaque(false);
         this.chatRoomList.setModel(chatRoomsTableModel);
 
-        ConferenceChatManager confChatManager
-            = GuiActivator.getUIService().getConferenceChatManager();
-
-        confChatManager.addChatRoomListChangeListener(chatRoomsTableModel);
+        /*
+         * XXX The ConferenceChatManager instance will surely outlive
+         * chatRoomsTableModel so it is essential to call the
+         * removeChatRoomListChangeListener method on it in order to prevent the
+         * leaking of memory.
+         */
+        GuiActivator.getUIService().getConferenceChatManager()
+                .addChatRoomListChangeListener(chatRoomsTableModel);
 
 //        this.chatRoomList.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 //        this.chatRoomList.getColumnModel().getColumn(0).setMinWidth(250);
@@ -280,10 +285,25 @@ public class ChatRoomTableUI
     }
 
     /**
+     * Releases the resources allocated by this instance throughout its lifetime
+     * and prepares it for garbage collection.
+     */
+    @Override
+    public void dispose()
+    {
+        GuiActivator.getUIService().getConferenceChatManager()
+                .removeChatRoomListChangeListener(chatRoomsTableModel);
+        chatRoomsTableModel.dispose();
+
+        super.dispose();
+    }
+
+    /**
      * Renders the chat room with an icon corresponding its status in the table.
      */
-    private class ChatRoomTableCellRenderer
-        extends JLabel implements TableCellRenderer
+    private static class ChatRoomTableCellRenderer
+        extends JLabel
+        implements TableCellRenderer
     {
         /**
          * Creates the renderer.
@@ -331,8 +351,9 @@ public class ChatRoomTableUI
      * Renders in the table the account with its protocol icon, which
      * is corresponding the current status of the protocol.
      */
-    private class ProtocolProviderTableCellRenderer
-        extends JLabel implements TableCellRenderer
+    private static class ProtocolProviderTableCellRenderer
+        extends JLabel
+        implements TableCellRenderer
     {
         /**
          * Creates the Renderer.

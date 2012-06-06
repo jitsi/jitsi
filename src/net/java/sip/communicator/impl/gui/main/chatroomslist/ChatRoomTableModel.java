@@ -22,6 +22,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * The model for the table with saved rooms.
  *
  * @author Damian Minkov
+ * @author Lyubomir Marinov
  */
 public class ChatRoomTableModel
     extends AbstractTableModel
@@ -63,22 +64,24 @@ public class ChatRoomTableModel
     {
         this.parentTable = parentTable;
 
-        chatRoomList = GuiActivator.getUIService()
-            .getConferenceChatManager().getChatRoomList();
-
+        chatRoomList
+            = GuiActivator.getUIService().getConferenceChatManager()
+                    .getChatRoomList();
+        /*
+         * XXX The chatRoomList instance will surely outlive this instance so it
+         * is essential to call the removeChatRoomProviderWrapperListener method
+         * on it in order to prevent this instance from leaking. 
+         */
         chatRoomList.addChatRoomProviderWrapperListener(this);
 
-        Iterator<ChatRoomProviderWrapper> iter =
-            chatRoomList.getChatRoomProviders();
-        while (iter.hasNext())
+        for (Iterator<ChatRoomProviderWrapper> iter
+                    = chatRoomList.getChatRoomProviders();
+                iter.hasNext();)
         {
             ChatRoomProviderWrapper provider = iter.next();
-            if(!provider.getProtocolProvider().getAccountID().isEnabled())
-            {
-                continue;
-            }
 
-            handleProviderAdded(provider);
+            if (provider.getProtocolProvider().getAccountID().isEnabled())
+                handleProviderAdded(provider);
         }
     }
 
@@ -92,9 +95,7 @@ public class ChatRoomTableModel
             ChatRoomProviderWrapper chatProviderWrapper)
     {
         for (int i = 0; i < chatProviderWrapper.countChatRooms(); i++)
-        {
             addChatRoom(chatProviderWrapper.getChatRoom(i), false);
-        }
 
         OperationSetPresence presence =
                 chatProviderWrapper.getProtocolProvider()
@@ -121,10 +122,7 @@ public class ChatRoomTableModel
             presence.removeProviderPresenceStatusListener(this);
 
         for (int i = 0; i < chatProviderWrapper.countChatRooms(); i++)
-        {
-            ChatRoomWrapper room = chatProviderWrapper.getChatRoom(i);
-            removeChatRoom(room);
-        }
+            removeChatRoom(chatProviderWrapper.getChatRoom(i));
     }
 
     /**
@@ -281,18 +279,42 @@ public class ChatRoomTableModel
     }
 
     /**
+     * Releases the resources allocated by this instance throughout its lifetime
+     * and prepares it for garbage collection.
+     */
+    void dispose()
+    {
+        chatRoomList.removeChatRoomProviderWrapperListener(this);
+
+        for (Iterator<ChatRoomProviderWrapper> iter
+                    = chatRoomList.getChatRoomProviders();
+                iter.hasNext();)
+        {
+            ChatRoomProviderWrapper provider = iter.next();
+
+            try
+            {
+                handleProviderRemoved(provider);
+            }
+            catch (Throwable t)
+            {
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+            }
+        }
+    }
+
+    /**
      * Remove chat room from the ui.
      * @param chatRoomWrapper the room wrapper.
      */
     private void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
         int ix = rooms.indexOf(chatRoomWrapper);
-        rooms.remove(chatRoomWrapper);
 
+        rooms.remove(chatRoomWrapper);
         if (ix != -1)
-        {
             fireTableRowsDeleted(ix, ix);
-        }
     }
 
     /**

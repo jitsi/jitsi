@@ -106,15 +106,15 @@ public class UIServiceImpl
 
     private LoginManager loginManager;
 
-    private ChatWindowManager chatWindowManager
+    private final ChatWindowManager chatWindowManager
         = new ChatWindowManager();
 
-    private ConferenceChatManager conferenceChatManager
+    private final ConferenceChatManager conferenceChatManager
         = new ConferenceChatManager();
 
     private ConfigurationFrame configurationFrame;
 
-    private HistoryWindowManager historyWindowManager
+    private final HistoryWindowManager historyWindowManager
         = new HistoryWindowManager();
 
     private SingleWindowContainer singleWindowContainer;
