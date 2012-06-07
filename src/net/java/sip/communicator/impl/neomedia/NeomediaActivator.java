@@ -68,6 +68,27 @@ public class NeomediaActivator
         = "net.java.sip.communicator.impl.neomedia.VIDEO_CONFIG_DISABLED";
 
     /**
+     * Indicates if the H.264 configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String H264_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.H264_CONFIG_DISABLED";
+
+    /**
+     * Indicates if the ZRTP configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String ZRTP_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.ZRTP_CONFIG_DISABLED";
+
+    /**
+     * Indicates if the call recording config form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String CALL_RECORDING_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.CALL_RECORDING_CONFIG_DISABLED";
+
+    /**
      * The context in which the one and only <tt>NeomediaActivator</tt> instance
      * has started executing.
      */
@@ -303,36 +324,46 @@ public class NeomediaActivator
         }
 
         // H.264
-        Dictionary<String, String> h264Props
-            = new Hashtable<String, String>();
-        h264Props.put(
-                ConfigurationForm.FORM_TYPE,
-                ConfigurationForm.ADVANCED_TYPE);
-        bundleContext.registerService(
-                ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                        ConfigurationPanel.class.getName(),
-                        getClass().getClassLoader(),
-                        "plugin.mediaconfig.VIDEO_ICON",
-                        "impl.neomedia.configform.H264",
-                        -1,
-                        true),
-                h264Props);
+        // If the H.264 configuration form is disabled don't register it.
+        if(!getConfigurationService()
+                .getBoolean(H264_CONFIG_DISABLED_PROP, false))
+        {
+            Dictionary<String, String> h264Props
+                = new Hashtable<String, String>();
+            h264Props.put(
+                    ConfigurationForm.FORM_TYPE,
+                    ConfigurationForm.ADVANCED_TYPE);
+            bundleContext.registerService(
+                    ConfigurationForm.class.getName(),
+                    new LazyConfigurationForm(
+                            ConfigurationPanel.class.getName(),
+                            getClass().getClassLoader(),
+                            "plugin.mediaconfig.VIDEO_ICON",
+                            "impl.neomedia.configform.H264",
+                            -1,
+                            true),
+                    h264Props);
+        }
 
         // ZRTP
-        Dictionary<String, String> securityProps
-            = new Hashtable<String, String>();
-        securityProps.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.SECURITY_TYPE);
-        bundleContext.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                SecurityConfigForm.class.getName(),
-                getClass().getClassLoader(),
-                "impl.media.security.zrtp.CONF_ICON",
-                "impl.media.security.zrtp.TITLE",
-                0),
-            securityProps);
+        // If the ZRTP configuration form is disabled don't register it.
+        if (!getConfigurationService()
+                .getBoolean(ZRTP_CONFIG_DISABLED_PROP, false))
+        {
+            Dictionary<String, String> securityProps
+                = new Hashtable<String, String>();
+            securityProps.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.SECURITY_TYPE);
+            bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    SecurityConfigForm.class.getName(),
+                    getClass().getClassLoader(),
+                    "impl.media.security.zrtp.CONF_ICON",
+                    "impl.media.security.zrtp.TITLE",
+                    0),
+                securityProps);
+        }
 
         GatherEntropy entropy
             = new GatherEntropy(mediaServiceImpl.getDeviceConfiguration());
@@ -364,21 +395,26 @@ public class NeomediaActivator
             logger.info("Audio Notifier Service ...[REGISTERED]");
 
         // Call Recording
-        Dictionary<String, String> callRecordingProps
-            = new Hashtable<String, String>();
-        callRecordingProps.put(
-                ConfigurationForm.FORM_TYPE,
-                ConfigurationForm.ADVANCED_TYPE);
-        bundleContext.registerService(
-                ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                        CallRecordingConfigForm.class.getName(),
-                        getClass().getClassLoader(),
-                        null,
-                        "plugin.callrecordingconfig.CALL_RECORDING_CONFIG", 
-                        1100,
-                        true), 
-                callRecordingProps);
+        // If the call recording configuration form is disabled don't continue.
+        if (!getConfigurationService()
+                .getBoolean(CALL_RECORDING_CONFIG_DISABLED_PROP, false))
+        {
+            Dictionary<String, String> callRecordingProps
+                = new Hashtable<String, String>();
+            callRecordingProps.put(
+                    ConfigurationForm.FORM_TYPE,
+                    ConfigurationForm.ADVANCED_TYPE);
+            bundleContext.registerService(
+                    ConfigurationForm.class.getName(),
+                    new LazyConfigurationForm(
+                            CallRecordingConfigForm.class.getName(),
+                            getClass().getClassLoader(),
+                            null,
+                            "plugin.callrecordingconfig.CALL_RECORDING_CONFIG", 
+                            1100,
+                            true), 
+                    callRecordingProps);
+        }
     }
 
     /**

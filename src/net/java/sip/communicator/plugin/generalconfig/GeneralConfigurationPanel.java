@@ -42,6 +42,54 @@ public class GeneralConfigurationPanel
     private final Logger logger
         = Logger.getLogger(GeneralConfigurationPanel.class);
 
+     /**
+      * Indicates if the Startup configuration panel should be disabled, i.e.
+      * not visible to the user.
+      */
+    private static final String STARTUP_CONFIG_DISABLED_PROP
+        =
+        "net.java.sip.communicator.plugin.generalconfig.STARTUP_CONFIG_DISABLED";
+
+     /**
+      * Indicates if the Message configuration panel should be disabled, i.e.
+      * not visible to the user.
+      */
+    private static final String MESSAGE_CONFIG_DISABLED_PROP
+        =
+        "net.java.sip.communicator.plugin.generalconfig.MESSAGE_CONFIG_DISABLED";
+
+     /**
+      * Indicates if the AutoAway configuration panel should be disabled, i.e.
+      * not visible to the user.
+      */
+    private static final String AUTO_AWAY_CONFIG_DISABLED_PROP
+        =
+        "net.java.sip.communicator.plugin.generalconfig.AUTOAWAY_CONFIG_DISABLED";
+
+     /**
+      * Indicates if the Notification configuration panel should be disabled,
+      * i.e.  not visible to the user.
+      */
+    private static final String NOTIFICATION_CONFIG_DISABLED_PROP
+        =
+        "net.java.sip.communicator.plugin.generalconfig.NOTIFICATION_CONFIG_DISABLED";
+
+     /**
+      * Indicates if the Locale configuration panel should be disabled, i.e.
+      * not visible to the user.
+      */
+    private static final String LOCALE_CONFIG_DISABLED_PROP
+        =
+        "net.java.sip.communicator.plugin.generalconfig.LOCALE_CONFIG_DISABLED";
+
+     /**
+      * Indicates if the Call configuration panel should be disabled, i.e.
+      * not visible to the user.
+      */
+    private static final String CALL_CONFIG_DISABLED_PROP
+        =
+        "net.java.sip.communicator.plugin.generalconfig.CALL_CONFIG_DISABLED";
+
     /**
      * Creates the general configuration panel.
      */
@@ -61,31 +109,55 @@ public class GeneralConfigurationPanel
         scroller.setBorder(new EmptyBorder(0, 0, 0, 0));
         this.add(scroller, BorderLayout.CENTER);
 
-        Component startupConfigPanel = createStartupConfigPanel();
-        if (startupConfigPanel != null)
+        if(!GeneralConfigPluginActivator.getConfigurationService()
+                .getBoolean(STARTUP_CONFIG_DISABLED_PROP, false))
         {
-            mainPanel.add(startupConfigPanel);
+            Component startupConfigPanel = createStartupConfigPanel();
+            if (startupConfigPanel != null)
+            {
+                mainPanel.add(startupConfigPanel);
+                mainPanel.add(Box.createVerticalStrut(10));
+            }
+        }
+
+        if(!GeneralConfigPluginActivator.getConfigurationService()
+                .getBoolean(MESSAGE_CONFIG_DISABLED_PROP, false))
+        {
+            mainPanel.add(createMessageConfigPanel());
             mainPanel.add(Box.createVerticalStrut(10));
         }
 
-        mainPanel.add(createMessageConfigPanel());
-        mainPanel.add(Box.createVerticalStrut(10));
-
-        mainPanel.add(new AutoAwayConfigurationPanel());
-        mainPanel.add(Box.createVerticalStrut(10));
-
-        Component notifConfigPanel = createNotificationConfigPanel();
-        if (notifConfigPanel != null)
+        if(!GeneralConfigPluginActivator.getConfigurationService()
+                .getBoolean(AUTO_AWAY_CONFIG_DISABLED_PROP, false))
         {
-            mainPanel.add(notifConfigPanel);
+            mainPanel.add(new AutoAwayConfigurationPanel());
             mainPanel.add(Box.createVerticalStrut(10));
         }
 
-        mainPanel.add(createLocaleConfigPanel());
-        mainPanel.add(Box.createVerticalStrut(10));
+        if(!GeneralConfigPluginActivator.getConfigurationService()
+                .getBoolean(NOTIFICATION_CONFIG_DISABLED_PROP, false))
+        {
+            Component notifConfigPanel = createNotificationConfigPanel();
+            if (notifConfigPanel != null)
+            {
+                mainPanel.add(notifConfigPanel);
+                mainPanel.add(Box.createVerticalStrut(10));
+            }
+        }
 
-        mainPanel.add(createCallConfigPanel());
-        mainPanel.add(Box.createVerticalStrut(10));
+        if(!GeneralConfigPluginActivator.getConfigurationService()
+                .getBoolean(LOCALE_CONFIG_DISABLED_PROP, false))
+        {
+            mainPanel.add(createLocaleConfigPanel());
+            mainPanel.add(Box.createVerticalStrut(10));
+        }
+
+        if(!GeneralConfigPluginActivator.getConfigurationService()
+                .getBoolean(CALL_CONFIG_DISABLED_PROP, false))
+        {
+            mainPanel.add(createCallConfigPanel());
+            mainPanel.add(Box.createVerticalStrut(10));
+        }
 
         SwingUtilities.invokeLater(new Runnable()
         {

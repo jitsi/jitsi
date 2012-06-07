@@ -25,6 +25,13 @@ import org.osgi.framework.*;
 public class CertConfigActivator
     implements BundleActivator
 {
+    /**
+     * Indicates if the cert configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.certconfig.DISABLED";
+
     private static BundleContext bundleContext;
     static ResourceManagementService R;
 
@@ -37,16 +44,20 @@ public class CertConfigActivator
 
         R = ServiceUtils.getService(bc, ResourceManagementService.class);
 
-        bc.registerService(ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                CertConfigPanel.class.getName(),
-                getClass().getClassLoader(),
-                null,
-                "plugin.certconfig.TITLE",
-                2000,
-                true),
-            properties
-        );
+        // Checks if the cert configuration form is disabled.
+        if(!getConfigService().getBoolean(DISABLED_PROP, false))
+        {
+            bc.registerService(ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    CertConfigPanel.class.getName(),
+                    getClass().getClassLoader(),
+                    null,
+                    "plugin.certconfig.TITLE",
+                    2000,
+                    true),
+                properties
+            );
+        }
     }
 
     public void stop(BundleContext arg0) throws Exception

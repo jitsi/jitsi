@@ -72,6 +72,13 @@ public class ProvisioningActivator
     private static ProvisioningServiceImpl provisioningService = null;
 
     /**
+     * Indicates if the provisioning configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.provisionconfig.DISABLED";
+
+    /**
      * Starts this bundle
      *
      * @param bundleContext BundleContext
@@ -87,19 +94,24 @@ public class ProvisioningActivator
         
         provisioningService = new ProvisioningServiceImpl();
 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.ADVANCED_TYPE);
+        // Show/hide provisioning configuration form.
+        if(!getConfigurationService().getBoolean(DISABLED_PROP, false))
+        {
+            Dictionary<String, String> properties
+                = new Hashtable<String, String>();
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.ADVANCED_TYPE);
 
-        bundleContext.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.plugin.provisioning.ProvisioningForm",
-                getClass().getClassLoader(),
-                "plugin.provisioning.PLUGIN_ICON",
-                "plugin.provisioning.PROVISIONING",
-                2000, true),
-            properties);
+            bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.provisioning.ProvisioningForm",
+                    getClass().getClassLoader(),
+                    "plugin.provisioning.PLUGIN_ICON",
+                    "plugin.provisioning.PROVISIONING",
+                    2000, true),
+                properties);
+        }
 
         String method = provisioningService.getProvisioningMethod();
 

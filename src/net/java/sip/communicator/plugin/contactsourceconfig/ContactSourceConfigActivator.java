@@ -20,6 +20,13 @@ import org.osgi.framework.*;
 public class ContactSourceConfigActivator
     implements BundleActivator
 {
+     /**
+     * Indicates if the contact source config form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.contactsourceconfig.DISABLED";
+
     /**
      * The {@link BundleContext} of the {@link ContactSourceConfigActivator}.
      */
@@ -61,15 +68,20 @@ public class ContactSourceConfigActivator
         properties.put( ConfigurationForm.FORM_TYPE,
                         ConfigurationForm.ADVANCED_TYPE);
 
-        bundleContext.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                ContactSourceConfigForm.class.getName(),
-                getClass().getClassLoader(),
-                null,
-                "plugin.contactsourceconfig.CONTACT_SOURCE_TITLE",
-                101, true),
-                properties);
+
+        // Checks if the context source configuration form is disabled.
+        if(!getConfigurationService().getBoolean(DISABLED_PROP, false))
+        {
+            bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    ContactSourceConfigForm.class.getName(),
+                    getClass().getClassLoader(),
+                    null,
+                    "plugin.contactsourceconfig.CONTACT_SOURCE_TITLE",
+                    101, true),
+                    properties);
+        }
     }
 
     /**

@@ -7,7 +7,9 @@ package net.java.sip.communicator.plugin.skinmanager;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -31,6 +33,13 @@ public class SkinManagerActivator
     private static UIService uiService;
 
     /**
+     * Indicates if the skin manager configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.skinconfig.DISABLED";
+
+    /**
      * Starts this bundle and adds the
      * <td>SkinManagerConfigForm</tt> contained in it to the configuration
      * window obtained from the <tt>UIService</tt>.
@@ -42,18 +51,23 @@ public class SkinManagerActivator
     {
         bundleContext = bc;
 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.ADVANCED_TYPE);
-        bundleContext.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.plugin.skinmanager.SkinManagerPanel",
-                getClass().getClassLoader(),
-                "plugin.skinmanager.PLUGIN_ICON",
-                "plugin.skinmanager.SKINS",
-                1001, true),
-            properties);
+        // If the skin manager configuration form is disabled don't continue.
+        if(!getConfigService().getBoolean(DISABLED_PROP, false))
+        {
+            Dictionary<String, String> properties 
+                = new Hashtable<String, String>();
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.ADVANCED_TYPE);
+            bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.skinmanager.SkinManagerPanel",
+                    getClass().getClassLoader(),
+                    "plugin.skinmanager.PLUGIN_ICON",
+                    "plugin.skinmanager.SKINS",
+                    1001, true),
+                properties);
+        }
     }
 
     /**
@@ -82,5 +96,19 @@ public class SkinManagerActivator
         }
 
         return uiService;
+    }
+
+    /**
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     * 
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigService()
+    {
+        return ServiceUtils.getService(
+                bundleContext,
+                ConfigurationService.class);
     }
 }

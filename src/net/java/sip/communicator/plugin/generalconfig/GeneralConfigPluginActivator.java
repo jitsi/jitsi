@@ -82,6 +82,14 @@ public class GeneralConfigPluginActivator
         = "net.java.sip.communicator.plugin.generalconfig.DISABLED";
 
     /**
+     * Indicates if the SIP configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String SIP_CONFIG_DISABLED_PROP
+        =
+        "net.java.sip.communicator.plugin.generalconfig.SIP_CONFIG_DISABLED";
+
+    /**
      * Starts this bundle.
      * @param bc the bundle context
      * @throws Exception if something goes wrong
@@ -119,18 +127,23 @@ public class GeneralConfigPluginActivator
                     properties);
         }
 
-        // Registers the sip config panel as advanced configuration form.
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.ADVANCED_TYPE);
-        bundleContext.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                SIPConfigForm.class.getName(),
-                getClass().getClassLoader(),
-                null,
-                "plugin.generalconfig.SIP_CALL_CONFIG",
-                52, true),
-            properties);
+        // Checks if the SIP configuration form is disabled.
+        if (!getConfigurationService()
+                .getBoolean(SIP_CONFIG_DISABLED_PROP, false))
+        {
+            // Registers the sip config panel as advanced configuration form.
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.ADVANCED_TYPE);
+            bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    SIPConfigForm.class.getName(),
+                    getClass().getClassLoader(),
+                    null,
+                    "plugin.generalconfig.SIP_CALL_CONFIG",
+                    52, true),
+                properties);
+        }
 
         /*
          * Wait for the first ProtocolProviderService to register in order to

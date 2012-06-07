@@ -41,6 +41,13 @@ public class UpdateActivator
         = "net.java.sip.communicator.plugin.updatechecker.ENABLED";
 
     /**
+     * The name of the configuration property which indicates whether the
+     * "checking for updates" menu entry is disabled.
+     */
+    private static final String CHECK_FOR_UPDATES_MENU_DISABLED_PROP
+        = "net.java.sip.communicator.plugin.update.CHECK_FOR_UPDATES_MENU_DISABLED";
+
+    /**
      * Reference to the <tt>BrowserLauncherService</tt>.
      */
     private static BrowserLauncherService browserLauncher;
@@ -157,24 +164,31 @@ public class UpdateActivator
                 updateService,
                 null);
 
-            // Register the "Check for Updates" menu item.
-            CheckForUpdatesMenuItemComponent checkForUpdatesMenuItemComponent
-                = new CheckForUpdatesMenuItemComponent(
-                        Container.CONTAINER_HELP_MENU);
+            ConfigurationService cfg = getConfiguration();
 
-            Hashtable<String, String> toolsMenuFilter
-                = new Hashtable<String, String>();
-            toolsMenuFilter.put(
-                    Container.CONTAINER_ID,
-                    Container.CONTAINER_HELP_MENU.getID());
+            // Register the "Check for Updates" menu item if
+            // the "Check for Updates" property isn't disabled.
+            if(!cfg.getBoolean(CHECK_FOR_UPDATES_MENU_DISABLED_PROP, false))
+            {
+                // Register the "Check for Updates" menu item.
+                CheckForUpdatesMenuItemComponent
+                    checkForUpdatesMenuItemComponent
+                    = new CheckForUpdatesMenuItemComponent(
+                            Container.CONTAINER_HELP_MENU);
 
-            bundleContext.registerService(
-                    PluginComponent.class.getName(),
-                    checkForUpdatesMenuItemComponent,
-                    toolsMenuFilter);
+                Hashtable<String, String> toolsMenuFilter
+                    = new Hashtable<String, String>();
+                toolsMenuFilter.put(
+                        Container.CONTAINER_ID,
+                        Container.CONTAINER_HELP_MENU.getID());
+
+                bundleContext.registerService(
+                        PluginComponent.class.getName(),
+                        checkForUpdatesMenuItemComponent,
+                        toolsMenuFilter);
+            }
 
             // Check for software update upon startup if enabled.
-            ConfigurationService cfg = getConfiguration();
             if(cfg.getBoolean(UPDATE_ENABLED, true))
                 updateService.checkForUpdates(false);
         }

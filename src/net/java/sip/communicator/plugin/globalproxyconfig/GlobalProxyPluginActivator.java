@@ -39,6 +39,13 @@ public class GlobalProxyPluginActivator implements BundleActivator
      */
     protected static BundleContext bundleContext;
 
+     /**
+      * Indicates if the global proxy config form should be disabled, i.e.
+      * not visible to the user.
+      */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.globalproxyconfig.DISABLED";
+
     /**
      * Starts the bundle.
      * @param bc the context
@@ -48,18 +55,23 @@ public class GlobalProxyPluginActivator implements BundleActivator
     {
         bundleContext = bc;
 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.ADVANCED_TYPE);
-        bundleContext.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                GlobalProxyConfigForm.class.getName(),
-                getClass().getClassLoader(),
-                "plugin.globalproxy.PLUGIN_ICON",
-                "plugin.globalproxy.GLOBAL_PROXY_CONFIG",
-                51, true),
-            properties);
+        // Show/hide global proxy configuration form.
+        if(!getConfigurationService().getBoolean(DISABLED_PROP, false))
+        {
+            Dictionary<String, String> properties
+                = new Hashtable<String, String>();
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.ADVANCED_TYPE);
+            bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    GlobalProxyConfigForm.class.getName(),
+                    getClass().getClassLoader(),
+                    "plugin.globalproxy.PLUGIN_ICON",
+                    "plugin.globalproxy.GLOBAL_PROXY_CONFIG",
+                    51, true),
+                properties);
+        }
 
         initProperties();
 

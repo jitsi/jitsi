@@ -29,6 +29,13 @@ public class OtrActivator
         "net.java.sip.communicator.plugin.otr.DISABLED";
 
     /**
+     * Indicates if the security/chat config form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String OTR_CHAT_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.OTR_CHAT_CONFIG_DISABLED";
+
+    /**
      * The {@link BundleContext} of the {@link OtrActivator}.
      */
     public static BundleContext bundleContext;
@@ -170,17 +177,22 @@ public class OtrActivator
             new OtrMetaContactButton(Container.CONTAINER_CHAT_TOOL_BAR),
             containerFilter);
 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.SECURITY_TYPE);
-        // Register the configuration form.
-        bundleContext.registerService(ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.plugin.otr.OtrConfigurationPanel",
-                getClass().getClassLoader(),
-                "plugin.otr.configform.ICON",
-                "service.gui.CHAT", 1),
-                properties);
+        // If the general configuration form is disabled don't register it.
+        if (!configService.getBoolean(OTR_CHAT_CONFIG_DISABLED_PROP, false))
+        {
+            Dictionary<String, String> properties
+                = new Hashtable<String, String>();
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.SECURITY_TYPE);
+            // Register the configuration form.
+            bundleContext.registerService(ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.otr.OtrConfigurationPanel",
+                    getClass().getClassLoader(),
+                    "plugin.otr.configform.ICON",
+                    "service.gui.CHAT", 1),
+                    properties);
+        }
     }
 
     private ServiceRegistration regRightClickMenu;

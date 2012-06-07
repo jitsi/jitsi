@@ -35,6 +35,13 @@ public class PluginManagerActivator
      */
     private static ConfigurationService configService;
 
+     /**
+     * Indicates if the plug-in configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.pluginconfig.DISABLED";
+
     /**
      * Starts this bundle and adds the
      * <td>PluginManagerConfigForm</tt> contained in it to the configuration
@@ -47,18 +54,23 @@ public class PluginManagerActivator
     {
         bundleContext = bc;
 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.ADVANCED_TYPE);
-        bundleContext.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.plugin.pluginmanager.PluginManagerPanel",
-                getClass().getClassLoader(),
-                "plugin.pluginmanager.PLUGIN_ICON",
-                "plugin.pluginmanager.PLUGINS",
-                1000, true),
-            properties);
+        // If the plug-in manager configuration form is disabled don't continue.
+        if(!getConfigurationService().getBoolean(DISABLED_PROP, false))
+        {
+            Dictionary<String, String> properties
+                = new Hashtable<String, String>();
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.ADVANCED_TYPE);
+            bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.pluginmanager.PluginManagerPanel",
+                    getClass().getClassLoader(),
+                    "plugin.pluginmanager.PLUGIN_ICON",
+                    "plugin.pluginmanager.PLUGINS",
+                    1000, true),
+                properties);
+        }
     }
 
     /**

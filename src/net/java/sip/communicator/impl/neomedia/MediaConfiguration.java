@@ -17,12 +17,14 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.neomedia.device.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import org.osgi.framework.*;
 
 /**
  * @author Lyubomir Marinov
@@ -49,6 +51,61 @@ public class MediaConfiguration
      * The preferred width of all panels.
      */
     private final static int WIDTH = 350;
+
+    /**
+     * Indicates if the Devices settings configuration tab
+     * should be disabled, i.e. not visible to the user.
+     */
+    private static final String DEVICES_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.DEVICES_CONFIG_DISABLED";
+
+    /**
+     * Indicates if the Audio/Video encodings configuration tab
+     * should be disabled, i.e. not visible to the user.
+     */
+    private static final String ENCODINGS_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.ENCODINGS_CONFIG_DISABLED";
+
+     /**
+     * Indicates if the Video/More Settings configuration tab
+     * should be disabled, i.e. not visible to the user.
+     */
+    private static final String VIDEO_MORE_SETTINGS_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.VIDEO_MORE_SETTINGS_CONFIG_DISABLED";
+
+    /**
+     * The bundle context.
+     */
+    private static BundleContext bundleContext;
+
+    /**
+     * The <tt>ConfigurationService</tt> registered in {@link #bundleContext}
+     * and used by the <tt>MediaConfiguration</tt> instance to read and
+     * write configuration properties.
+     */
+    private static ConfigurationService configurationService;
+
+    /**
+     * Returns a reference to the ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (bundleContext == null)
+            bundleContext = NeomediaActivator.getBundleContext();
+
+        if (configurationService == null)
+        {
+            configurationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
+        }
+        return configurationService;
+    }
 
     /**
      * Returns the audio configuration panel.
@@ -555,25 +612,36 @@ public class MediaConfiguration
         SIPCommTabbedPane container = new SIPCommTabbedPane();
         ResourceManagementService R = NeomediaActivator.getResources();
 
-        container.insertTab(
-            R.getI18NString("impl.media.configform.DEVICES"),
-            null,
-            createBasicControls(type),
-            null,
-            0);
-        container.insertTab(
-            R.getI18NString("impl.media.configform.ENCODINGS"),
-            null,
-            createEncodingControls(type),
-            null,
-            1);
-        if (type == DeviceConfigurationComboBoxModel.VIDEO)
+        if(!getConfigurationService().getBoolean(DEVICES_DISABLED_PROP, false))
+        {
+            container.insertTab(
+                R.getI18NString("impl.media.configform.DEVICES"),
+                null,
+                createBasicControls(type),
+                null,
+                0);
+        }
+        if(!getConfigurationService()
+                .getBoolean(ENCODINGS_DISABLED_PROP, false))
+        {
+            container.insertTab(
+                R.getI18NString("impl.media.configform.ENCODINGS"),
+                null,
+                createEncodingControls(type),
+                null,
+                1);
+        }
+        if (type == DeviceConfigurationComboBoxModel.VIDEO
+                && !getConfigurationService()
+                    .getBoolean(VIDEO_MORE_SETTINGS_DISABLED_PROP, false))
+        {
             container.insertTab(
                 R.getI18NString("impl.media.configform.VIDEO_MORE_SETTINGS"),
                 null,
                 createVideoAdvancedSettings(),
                 null,
                 2);
+        }
         return container;
     }
 

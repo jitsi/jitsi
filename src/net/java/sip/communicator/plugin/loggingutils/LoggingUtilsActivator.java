@@ -55,6 +55,13 @@ public class LoggingUtilsActivator
     private static NotificationService notificationService;
 
     /**
+     * Indicates if the logging configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.loggingconfig.DISABLED";
+
+    /**
      * Creates and register logging configuration.
      *
      * @param bundleContext  OSGI bundle context
@@ -66,22 +73,26 @@ public class LoggingUtilsActivator
     {
         LoggingUtilsActivator.bundleContext = bundleContext;
 
-        // Config Form
-        Dictionary<String, String> packetLoggingProps
-            = new Hashtable<String, String>();
-        packetLoggingProps.put(
-                ConfigurationForm.FORM_TYPE,
-                ConfigurationForm.ADVANCED_TYPE);
-        bundleContext.registerService(
-                ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                        LoggingConfigForm.class.getName(),
-                        getClass().getClassLoader(),
-                        null,
-                        "plugin.loggingutils.PACKET_LOGGING_CONFIG",
-                        1200,
-                        true),
-                packetLoggingProps);
+        // If the logging configuration form is disabled don't continue.
+        if (!getConfigurationService().getBoolean(DISABLED_PROP, false))
+        {
+            // Config Form
+            Dictionary<String, String> packetLoggingProps
+                = new Hashtable<String, String>();
+            packetLoggingProps.put(
+                    ConfigurationForm.FORM_TYPE,
+                    ConfigurationForm.ADVANCED_TYPE);
+            bundleContext.registerService(
+                    ConfigurationForm.class.getName(),
+                    new LazyConfigurationForm(
+                            LoggingConfigForm.class.getName(),
+                            getClass().getClassLoader(),
+                            null,
+                            "plugin.loggingutils.PACKET_LOGGING_CONFIG",
+                            1200,
+                            true),
+                    packetLoggingProps);
+        }
     }
 
     /**

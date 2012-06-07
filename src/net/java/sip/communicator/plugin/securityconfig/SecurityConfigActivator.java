@@ -68,6 +68,13 @@ public class SecurityConfigActivator
         = "net.java.sip.communicator.plugin.securityconfig.DISABLED";
 
     /**
+     * Indicates if the master password config form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String MASTER_PASSWORD_DISABLED_PROP
+        = "net.java.sip.communicator.plugin.securityconfig.MASTER_PASSWORD_DISABLED";
+
+    /**
      * Starts this plugin.
      * @param bc the BundleContext
      * @throws Exception if some of the operations executed in the start method
@@ -97,18 +104,23 @@ public class SecurityConfigActivator
                 20),
             properties);
 
-        properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.SECURITY_TYPE);
-        bundleContext.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.plugin.securityconfig.masterpassword.ConfigurationPanel",
-                getClass().getClassLoader(),
-                null /* iconID */,
-                "plugin.securityconfig.masterpassword.TITLE",
-                3),
-            properties);
+        // If the master password config form is disabled don't register it.
+        if(!getConfigurationService()
+                .getBoolean(MASTER_PASSWORD_DISABLED_PROP, false))
+        {
+            properties = new Hashtable<String, String>();
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.SECURITY_TYPE);
+            bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.securityconfig.masterpassword.ConfigurationPanel",
+                    getClass().getClassLoader(),
+                    null /* iconID */,
+                    "plugin.securityconfig.masterpassword.TITLE",
+                    3),
+                properties);
+        }
     }
 
     /**

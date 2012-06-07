@@ -57,6 +57,13 @@ public class KeybindingChooserActivator
     private static GlobalShortcutService globalShortcutService = null;
 
     /**
+     * Indicates if the keybindings configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.keybindingsconfig.DISABLED";
+
+    /**
      * Starts this bundle and adds the
      * <td>KeybindingsConfigPanel</tt> contained in it to the configuration
      * window obtained from the <tt>UIService</tt>.
@@ -67,20 +74,26 @@ public class KeybindingChooserActivator
         bundleContext = bc;
 
         if (logger.isDebugEnabled())
-            logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
+            logger.debug(
+                    "Service Impl: " + getClass().getName() + " [  STARTED ]");
 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
-        properties.put( ConfigurationForm.FORM_TYPE,
-                        ConfigurationForm.ADVANCED_TYPE);
-        bc.registerService(
-            ConfigurationForm.class.getName(),
-            new LazyConfigurationForm(
-                "net.java.sip.communicator.plugin.keybindingchooser.KeybindingsConfigPanel",
-                getClass().getClassLoader(),
-                "plugin.keybinding.PLUGIN_ICON",
-                "plugin.keybindings.PLUGIN_NAME",
-                900, true),
-            properties);
+        // If the dns configuration form is disabled don't continue.
+        if(!getConfigService().getBoolean(DISABLED_PROP, false))
+        {
+            Dictionary<String, String> properties
+                = new Hashtable<String, String>();
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.ADVANCED_TYPE);
+            bc.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    "net.java.sip.communicator.plugin.keybindingchooser.KeybindingsConfigPanel",
+                    getClass().getClassLoader(),
+                    "plugin.keybinding.PLUGIN_ICON",
+                    "plugin.keybindings.PLUGIN_NAME",
+                    900, true),
+                properties);
+        }
     }
 
     /**

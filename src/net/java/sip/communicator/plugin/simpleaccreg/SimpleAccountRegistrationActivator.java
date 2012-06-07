@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.simpleaccreg;
 import java.awt.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -41,6 +42,13 @@ public class SimpleAccountRegistrationActivator
         = "net.java.sip.communicator.plugin.provisioning.ProvisioningForm";
 
     /**
+     * Indicates if the configuration wizard should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String DISABLED_PROP
+        = "net.java.sip.communicator.plugin.simpleaccreg.DISABLED";
+
+    /**
      * OSGi bundle context.
      */
     public static BundleContext bundleContext;
@@ -51,12 +59,16 @@ public class SimpleAccountRegistrationActivator
     {
         bundleContext = bc;
 
+
         /*
          * Because the stored accounts may be asynchronously loaded, relying
          * only on the registered accounts isn't possible. Instead, presume the
          * stored accounts are valid and will later successfully be registered.
+         *
+         * And if the account registration wizard is disabled don't continue.
          */
-        if (!hasStoredAccounts())
+        if (!hasStoredAccounts()
+                && !getConfigService().getBoolean(DISABLED_PROP, false))
         {
             // If no preferred wizard is specified we launch the default wizard.
             InitialAccountRegistrationFrame accountRegFrame =
@@ -312,5 +324,18 @@ public class SimpleAccountRegistrationActivator
         }
 
         return null;
+    }
+
+    /**
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     * 
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigService()
+    {
+        return ServiceUtils.getService(bundleContext,
+            ConfigurationService.class);
     }
 }
