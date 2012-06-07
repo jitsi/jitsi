@@ -542,22 +542,35 @@ public class AuthenticationWindow
      * window.
      */
     @Override
-    public void setVisible(boolean isVisible)
+    public void setVisible(final boolean isVisible)
     {
         this.setName("AUTHENTICATION");
 
         if(getOwner() != null)
             setModal(true);
+
+        if(isVisible)
+        {
+            addWindowFocusListener(new WindowAdapter() {
+                public void windowGainedFocus(WindowEvent e)
+                {
+                    removeWindowFocusListener(this);
+
+                    if (uinValue instanceof JTextField &&
+                        "".equals(((JTextField) uinValue).getText()))
+                    {
+                        uinValue.requestFocusInWindow();
+                    }
+                    else
+                        passwdField.requestFocusInWindow();
+                }
+            });
+        }
+
         super.setVisible(isVisible);
 
         if(isVisible)
         {
-            if (uinValue instanceof JTextField &&
-                "".equals(((JTextField) uinValue).getText()))
-                uinValue.requestFocus();
-            else
-                passwdField.requestFocus();
-
             if(getOwner() != null)
                 return;
 
