@@ -72,7 +72,7 @@ public class SecurityConfigActivator
      * not visible to the user.
      */
     private static final String MASTER_PASSWORD_DISABLED_PROP
-        = "net.java.sip.communicator.plugin.securityconfig.MASTER_PASSWORD_DISABLED";
+        = "net.java.sip.communicator.plugin.securityconfig.masterpasswordconfig.DISABLED";
 
     /**
      * Starts this plugin.

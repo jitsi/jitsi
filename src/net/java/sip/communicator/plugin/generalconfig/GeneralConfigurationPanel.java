@@ -48,7 +48,7 @@ public class GeneralConfigurationPanel
       */
     private static final String STARTUP_CONFIG_DISABLED_PROP
         =
-        "net.java.sip.communicator.plugin.generalconfig.STARTUP_CONFIG_DISABLED";
+        "net.java.sip.communicator.plugin.generalconfig.startupconfig.DISABLED";
 
      /**
       * Indicates if the Message configuration panel should be disabled, i.e.
@@ -56,7 +56,7 @@ public class GeneralConfigurationPanel
       */
     private static final String MESSAGE_CONFIG_DISABLED_PROP
         =
-        "net.java.sip.communicator.plugin.generalconfig.MESSAGE_CONFIG_DISABLED";
+        "net.java.sip.communicator.plugin.generalconfig.messageconfig.DISABLED";
 
      /**
       * Indicates if the AutoAway configuration panel should be disabled, i.e.
@@ -64,7 +64,7 @@ public class GeneralConfigurationPanel
       */
     private static final String AUTO_AWAY_CONFIG_DISABLED_PROP
         =
-        "net.java.sip.communicator.plugin.generalconfig.AUTOAWAY_CONFIG_DISABLED";
+        "net.java.sip.communicator.plugin.generalconfig.autoawayconfig.DISABLED";
 
      /**
       * Indicates if the Notification configuration panel should be disabled,
@@ -72,7 +72,7 @@ public class GeneralConfigurationPanel
       */
     private static final String NOTIFICATION_CONFIG_DISABLED_PROP
         =
-        "net.java.sip.communicator.plugin.generalconfig.NOTIFICATION_CONFIG_DISABLED";
+        "net.java.sip.communicator.plugin.generalconfig.notificationconfig.DISABLED";
 
      /**
       * Indicates if the Locale configuration panel should be disabled, i.e.
@@ -80,7 +80,7 @@ public class GeneralConfigurationPanel
       */
     private static final String LOCALE_CONFIG_DISABLED_PROP
         =
-        "net.java.sip.communicator.plugin.generalconfig.LOCALE_CONFIG_DISABLED";
+        "net.java.sip.communicator.plugin.generalconfig.localeconfig.DISABLED";
 
      /**
       * Indicates if the Call configuration panel should be disabled, i.e.
@@ -88,7 +88,7 @@ public class GeneralConfigurationPanel
       */
     private static final String CALL_CONFIG_DISABLED_PROP
         =
-        "net.java.sip.communicator.plugin.generalconfig.CALL_CONFIG_DISABLED";
+        "net.java.sip.communicator.plugin.generalconfig.callconfig.DISABLED";
 
     /**
      * Creates the general configuration panel.

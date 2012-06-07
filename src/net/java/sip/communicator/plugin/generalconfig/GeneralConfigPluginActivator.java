@@ -87,7 +87,7 @@ public class GeneralConfigPluginActivator
      */
     private static final String SIP_CONFIG_DISABLED_PROP
         =
-        "net.java.sip.communicator.plugin.generalconfig.SIP_CONFIG_DISABLED";
+        "net.java.sip.communicator.plugin.generalconfig.sipconfig.DISABLED";
 
     /**
      * Starts this bundle.

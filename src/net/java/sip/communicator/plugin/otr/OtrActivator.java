@@ -33,7 +33,7 @@ public class OtrActivator
      * not visible to the user.
      */
     private static final String OTR_CHAT_CONFIG_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.OTR_CHAT_CONFIG_DISABLED";
+        = "net.java.sip.communicator.plugin.otr.otrchatconfig.DISABLED";
 
     /**
      * The {@link BundleContext} of the {@link OtrActivator}.

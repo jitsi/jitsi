@@ -57,21 +57,21 @@ public class MediaConfiguration
      * should be disabled, i.e. not visible to the user.
      */
     private static final String DEVICES_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.DEVICES_CONFIG_DISABLED";
+        = "net.java.sip.communicator.impl.neomedia.devicesconfig.DISABLED";
 
     /**
      * Indicates if the Audio/Video encodings configuration tab
      * should be disabled, i.e. not visible to the user.
      */
     private static final String ENCODINGS_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.ENCODINGS_CONFIG_DISABLED";
+        = "net.java.sip.communicator.impl.neomedia.encodingsconfig.DISABLED";
 
      /**
      * Indicates if the Video/More Settings configuration tab
      * should be disabled, i.e. not visible to the user.
      */
     private static final String VIDEO_MORE_SETTINGS_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.VIDEO_MORE_SETTINGS_CONFIG_DISABLED";
+        = "net.java.sip.communicator.impl.neomedia.videomoresettingsconfig.DISABLED";
 
     /**
      * The bundle context.

@@ -72,21 +72,21 @@ public class NeomediaActivator
      * not visible to the user.
      */
     private static final String H264_CONFIG_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.H264_CONFIG_DISABLED";
+        = "net.java.sip.communicator.impl.neomedia.h264config.DISABLED";
 
     /**
      * Indicates if the ZRTP configuration form should be disabled, i.e.
      * not visible to the user.
      */
     private static final String ZRTP_CONFIG_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.ZRTP_CONFIG_DISABLED";
+        = "net.java.sip.communicator.impl.neomedia.zrtpconfig.DISABLED";
 
     /**
      * Indicates if the call recording config form should be disabled, i.e.
      * not visible to the user.
      */
     private static final String CALL_RECORDING_CONFIG_DISABLED_PROP
-        = "net.java.sip.communicator.impl.neomedia.CALL_RECORDING_CONFIG_DISABLED";
+        = "net.java.sip.communicator.impl.neomedia.callrecordingconfig.DISABLED";
 
     /**
      * The context in which the one and only <tt>NeomediaActivator</tt> instance

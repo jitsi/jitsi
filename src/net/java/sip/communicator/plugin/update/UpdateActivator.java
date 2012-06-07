@@ -45,7 +45,7 @@ public class UpdateActivator
      * "checking for updates" menu entry is disabled.
      */
     private static final String CHECK_FOR_UPDATES_MENU_DISABLED_PROP
-        = "net.java.sip.communicator.plugin.update.CHECK_FOR_UPDATES_MENU_DISABLED";
+        = "net.java.sip.communicator.plugin.update.checkforupdatesmenu.DISABLED";
 
     /**
      * Reference to the <tt>BrowserLauncherService</tt>.
