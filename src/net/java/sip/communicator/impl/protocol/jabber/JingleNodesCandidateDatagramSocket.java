@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.*;
 
 import org.ice4j.*;
+import org.ice4j.stack.*;
 
 /**
  * Represents an application-purposed (as opposed to an ICE-specific)
@@ -70,12 +71,56 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
         int dataOffset = p.getOffset();
 
         /* send to Jingle Nodes relay address on local port */
-        DatagramPacket packet = new DatagramPacket(data, dataOffset, dataLen,
-                new InetSocketAddress(localEndPoint.getAddress(),
-                        localEndPoint.getPort()));
+        DatagramPacket packet = new DatagramPacket(
+                data,
+                dataOffset,
+                dataLen,
+                new InetSocketAddress(
+                    localEndPoint.getAddress(),
+                    localEndPoint.getPort()));
 
         //XXX reuse an existing DatagramPacket ?
         super.send(packet);
+
+        // no exception packet is successfully sent, log it
+        if(StunStack.isPacketLoggerEnabled())
+        {
+            StunStack.getPacketLogger().logPacket(
+                    super.getLocalAddress().getAddress(),
+                    super.getLocalPort(),
+                    packet.getAddress().getAddress(),
+                    packet.getPort(),
+                    packet.getData(),
+                    true);
+        }
+    }
+
+    
+    /**
+     * Receives a <tt>DatagramPacket</tt> from this socket. The DatagramSocket
+     * is overridden to log the received packet into the "pcap" (packet capture)
+     * log.
+     *
+     * @param p <tt>DatagramPacket</tt>
+     * @throws IOException if something goes wrong
+     */
+    @Override
+    public void receive(DatagramPacket p)
+        throws IOException
+    {
+        super.receive(p);
+
+        // no exception packet is successfully received, log it
+        if(StunStack.isPacketLoggerEnabled())
+        {
+            StunStack.getPacketLogger().logPacket(
+                    p.getAddress().getAddress(),
+                    p.getPort(),
+                    super.getLocalAddress().getAddress(),
+                    super.getLocalPort(),
+                    p.getData(),
+                    false);
+        }
     }
 
     /**
