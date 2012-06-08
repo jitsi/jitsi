@@ -335,7 +335,7 @@ public class MediaConfiguration
      * are to control the details of the specified <tt>audioSystem</tt> are to
      * be added
      */
-    private static void createAudioSystemControls(
+    public static void createAudioSystemControls(
             AudioSystem audioSystem,
             JComponent container)
     {
@@ -380,6 +380,7 @@ public class MediaConfiguration
             captureCombo.setEditable(false);
             captureCombo.setModel(
                     new DeviceConfigurationComboBoxModel(
+                            captureCombo,
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_CAPTURE));
             constraints.gridy = 0;
@@ -406,6 +407,7 @@ public class MediaConfiguration
             playbackCombo.setEditable(false);
             playbackCombo.setModel(
                     new DeviceConfigurationComboBoxModel(
+                            captureCombo,
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK));
             container.add(playbackCombo, constraints);
@@ -415,6 +417,7 @@ public class MediaConfiguration
             notifyCombo.setEditable(false);
             notifyCombo.setModel(
                     new DeviceConfigurationComboBoxModel(
+                            captureCombo,
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_NOTIFY));
             container.add(notifyCombo, constraints);
@@ -488,6 +491,7 @@ public class MediaConfiguration
         deviceComboBox.setEditable(false);
         deviceComboBox.setModel(
                 new DeviceConfigurationComboBoxModel(
+                        deviceComboBox,
                         mediaService.getDeviceConfiguration(),
                         type));
 

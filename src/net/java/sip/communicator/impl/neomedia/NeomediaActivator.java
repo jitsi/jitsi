@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import java.awt.*;
+import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
@@ -24,6 +26,7 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 
@@ -154,6 +157,11 @@ public class NeomediaActivator
     private static boolean jmfRegistryDisableLoad;
 
     /**
+     * Audio configuration dialog.
+     */
+    private static SIPCommDialog audioConfigDialog = null;
+
+    /**
      * Sets up FMJ for execution. For example, sets properties which instruct
      * FMJ whether it is to create a log, where the log is to be created.
      */
@@ -265,39 +273,12 @@ public class NeomediaActivator
                 deviceConfigurationPropertyChangeListener
                     = new PropertyChangeListener()
                     {
-                        public void propertyChange(
-                                final PropertyChangeEvent event)
+                        public void propertyChange(PropertyChangeEvent event)
                         {
                             if (DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
                                     .equals(event.getPropertyName()))
                             {
-                                if (!SwingUtilities.isEventDispatchThread())
-                                {
-                                    SwingUtilities.invokeLater(
-                                            new Runnable()
-                                            {
-                                                public void run()
-                                                {
-                                                    propertyChange(event);
-                                                }
-                                            });
-                                    return;
-                                }
-
-                                UIService uiService = getUIService();
-
-                                if (uiService == null)
-                                    return;
-
-                                ConfigurationContainer configurationContainer
-                                    = uiService.getConfigurationContainer();
-
-                                if (configurationContainer == null)
-                                    return;
-
-                                configurationContainer.setSelected(
-                                        audioConfigurationForm);
-                                configurationContainer.setVisible(true);
+                                showAudioConfiguration();
                             }
                         }
                     };
@@ -415,6 +396,118 @@ public class NeomediaActivator
                             true), 
                     callRecordingProps);
         }
+    }
+
+    /**
+     * Show audio configuration panel when media devices change.
+     */
+    private void showAudioConfiguration()
+    {
+        if(audioConfigDialog != null && audioConfigDialog.isVisible())
+        {
+            // Because toFront() method gives us no guarantee that our dialog
+            // would go on top we'll try to also first request the focus and
+            // set our dialog always on top to put all the chances on our side.
+            audioConfigDialog.requestFocus();
+            audioConfigDialog.setAlwaysOnTop(true);
+            audioConfigDialog.toFront();
+            audioConfigDialog.setAlwaysOnTop(false);
+            return;
+        }
+
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            showAudioConfiguration();
+                        }
+                    });
+            return;
+        }
+
+        audioConfigDialog =
+            new SIPCommDialog()
+            {
+                /** Serial version UID. */
+                private static final long serialVersionUID = 0L;
+
+                /** {@inheritDoc} */
+                @Override
+                protected void close(boolean escaped)
+                {
+                    setVisible(false);
+                    audioConfigDialog = null;
+                }
+            };
+
+        TransparentPanel mainPanel
+            = new TransparentPanel(new BorderLayout(20, 5));
+        TransparentPanel fieldsPanel
+            = new TransparentPanel(new BorderLayout(10, 5));
+
+        mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        TransparentPanel btnPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+        ResourceManagementService resources
+            = NeomediaActivator.getResources();
+        JButton btn
+            = new JButton(resources.getI18NString("service.gui.CLOSE"));
+
+        btn.addActionListener(
+                new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent evt)
+                    {
+                        audioConfigDialog.setVisible(false);
+                    }
+                });
+        btnPanel.add(btn);
+
+        JTextArea infoTextArea = new JTextArea();
+
+        infoTextArea.setOpaque(false);
+        infoTextArea.setEditable(false);
+        infoTextArea.setWrapStyleWord(true);
+        infoTextArea.setLineWrap(true);
+        infoTextArea.setText(
+                resources.getI18NString(
+                        "impl.media.configform"
+                            + ".AUDIO_DEVICE_CONNECTED_REMOVED"));
+
+        JPanel preview = new TransparentPanel(new GridBagLayout());
+        MediaConfiguration.createAudioSystemControls(
+            mediaServiceImpl.getDeviceConfiguration().getAudioSystem(),
+            preview);
+
+        fieldsPanel.add(infoTextArea, BorderLayout.NORTH);
+        fieldsPanel.add(preview, BorderLayout.CENTER);
+        fieldsPanel.add(btnPanel, BorderLayout.SOUTH);
+
+        TransparentPanel iconPanel
+            = new TransparentPanel(new BorderLayout());
+
+        iconPanel.add(
+                new JLabel(
+                        resources.getImage(
+                                "plugin.mediaconfig.AUDIO_ICON_64x64")),
+                BorderLayout.NORTH);
+
+        mainPanel.add(iconPanel, BorderLayout.WEST);
+        mainPanel.add(fieldsPanel, BorderLayout.CENTER);
+
+        audioConfigDialog.setTitle(
+                resources.getI18NString(
+                        "impl.media.configform.AUDIO_DEVICE_CONFIG"));
+        audioConfigDialog.add(mainPanel);
+        audioConfigDialog.validate();
+        audioConfigDialog.pack();
+
+        audioConfigDialog.setVisible(true);
     }
 
     /**

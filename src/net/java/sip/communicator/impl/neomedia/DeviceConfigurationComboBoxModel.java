@@ -6,7 +6,11 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import java.awt.*;
+import java.awt.event.*;
+import java.beans.*;
 import java.util.*;
+import java.util.List;
 
 import javax.media.*;
 import javax.swing.*;
@@ -17,9 +21,12 @@ import net.java.sip.communicator.service.neomedia.*;
 
 /**
  * @author Lubomir Marinov
+ * @author Damian Minkov
  */
 public class DeviceConfigurationComboBoxModel
-    implements ComboBoxModel
+    implements ComboBoxModel,
+               PropertyChangeListener,
+               HierarchyListener
 {
     /**
      * Encapsulates CaptureDeviceInfo
@@ -118,11 +125,18 @@ public class DeviceConfigurationComboBoxModel
     private final int type;
 
     /**
+     * The parent component.
+     */
+    private Component parent;
+
+    /**
      * Creates device combobox model
+     * @param parent the parent component
      * @param deviceConfiguration the current device configuration
      * @param type the device - audio/video
      */
     public DeviceConfigurationComboBoxModel(
+            Component parent,
             DeviceConfiguration deviceConfiguration,
             int type)
     {
@@ -135,8 +149,19 @@ public class DeviceConfigurationComboBoxModel
                 && (type != VIDEO))
             throw new IllegalArgumentException("type");
 
+        this.parent = parent;
         this.deviceConfiguration = deviceConfiguration;
         this.type = type;
+
+        if (type == AUDIO
+            || type == AUDIO_CAPTURE
+            || type == AUDIO_NOTIFY
+            || type == AUDIO_PLAYBACK)
+        {
+            deviceConfiguration.addPropertyChangeListener(this);
+
+            parent.addHierarchyListener(this);
+        }
     }
 
     public void addListDataListener(ListDataListener listener)
@@ -365,4 +390,46 @@ public class DeviceConfigurationComboBoxModel
         else
             setSelectedDevice((CaptureDevice) item);
     }
+
+    /**
+     * We listen for changes in the devices in order to update the list
+     * of devices we show.
+     * @param event the event.
+     */
+    public void propertyChange(final PropertyChangeEvent event)
+    {
+        if(DeviceConfiguration.PROP_AUDIO_SYSTEM_DEVICES
+            .equals(event.getPropertyName()))
+        {
+            if(!SwingUtilities.isEventDispatchThread())
+            {
+                SwingUtilities.invokeLater(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            propertyChange(event);
+                        }
+                    });
+                return;
+            }
+
+            devices = null;
+            fireContentsChanged(0, getSize() - 1);
+        }
+    }
+
+    /**
+     * We listen when the component was hidden in order to release resources,
+     * remove listener to clean this instance.
+     * @param e the event.
+     */
+    public void hierarchyChanged(HierarchyEvent e)
+    {
+       if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0
+           && !parent.isShowing())
+       {
+           deviceConfiguration.removePropertyChangeListener(this);
+       }
+   }
 }
