@@ -12,6 +12,7 @@ import java.nio.charset.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -247,27 +248,31 @@ public final class PortAudio
      */
     public static double getSuggestedLatency()
     {
-        String suggestedLatencyString
-            = NeomediaActivator.getConfigurationService().getString(
-                    PROP_SUGGESTED_LATENCY);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
 
-        if (suggestedLatencyString != null)
+        if (cfg != null)
         {
-            try
-            {
-                double suggestedLatency
-                    = Double.parseDouble(suggestedLatencyString);
+            String suggestedLatencyString
+                = cfg.getString(PROP_SUGGESTED_LATENCY);
 
-                if (suggestedLatency != LATENCY_UNSPECIFIED)
-                    return suggestedLatency;
-            }
-            catch (NumberFormatException nfe)
+            if (suggestedLatencyString != null)
             {
-                logger.error(
-                        "Failed to parse configuration property "
-                            + PROP_SUGGESTED_LATENCY
-                            + " value as a double",
-                        nfe);
+                try
+                {
+                    double suggestedLatency
+                        = Double.parseDouble(suggestedLatencyString);
+    
+                    if (suggestedLatency != LATENCY_UNSPECIFIED)
+                        return suggestedLatency;
+                }
+                catch (NumberFormatException nfe)
+                {
+                    logger.error(
+                            "Failed to parse configuration property "
+                                + PROP_SUGGESTED_LATENCY
+                                + " value as a double",
+                            nfe);
+                }
             }
         }
 

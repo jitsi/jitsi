@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import net.java.sip.communicator.service.configuration.*;
 import gnu.java.zrtp.ZrtpConfigure;
 import gnu.java.zrtp.ZrtpConstants;
 
@@ -31,9 +32,15 @@ public class ZrtpConfigureUtils
     private static <T extends Enum<T>> void
         setupConfigure(T algo, ZrtpConfigure active)
     {
-        String id = ZrtpConfigureUtils.getPropertyID(algo);
-        String savedConf
-            = NeomediaActivator.getConfigurationService().getString(id);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+        String savedConf = null;
+
+        if (cfg != null)
+        {
+            String id = ZrtpConfigureUtils.getPropertyID(algo);
+
+            savedConf = cfg.getString(id);
+        }
         if (savedConf == null)
             savedConf = "";
 
@@ -46,12 +53,13 @@ public class ZrtpConfigureUtils
             try
             {
                 T algoEnum = Enum.valueOf(clazz, str);
+
                 if (algoEnum != null)
                     active.addAlgo(algoEnum);
             }
-            catch (IllegalArgumentException e)
+            catch (IllegalArgumentException iae)
             {
-                continue;
+                // Ignore it and continue the loop.
             }
         }
     }

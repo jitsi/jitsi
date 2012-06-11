@@ -466,14 +466,11 @@ public class JNIEncoder
          * many AVCodecContext properties we have set above, force the default
          * profile configuration.
          */
-        ConfigurationService configuration
-            = NeomediaActivator.getConfigurationService();
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
         String profile
-            = (configuration == null)
+            = (cfg == null)
                 ? null
-                : configuration.getString(
-                        DEFAULT_PROFILE_PNAME,
-                        DEFAULT_DEFAULT_PROFILE);
+                : cfg.getString(DEFAULT_PROFILE_PNAME, DEFAULT_DEFAULT_PROFILE);
 
         if(useCustomProfile)
         {

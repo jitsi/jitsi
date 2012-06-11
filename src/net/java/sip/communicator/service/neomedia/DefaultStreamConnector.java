@@ -119,18 +119,29 @@ public class DefaultStreamConnector
     private static synchronized DatagramSocket createDatagramSocket(
             InetAddress bindAddr)
     {
-        ConfigurationService config
-            = NeomediaActivator.getConfigurationService();
-        int bindRetries
-            = config
-                .getInt(BIND_RETRIES_PROPERTY_NAME, BIND_RETRIES_DEFAULT_VALUE);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+        int bindRetries = BIND_RETRIES_DEFAULT_VALUE;
+
+        if (cfg != null)
+            bindRetries = cfg.getInt(BIND_RETRIES_PROPERTY_NAME, bindRetries);
         if (maxPort < 0)
-            maxPort = config.getInt(MAX_PORT_NUMBER_PROPERTY_NAME, 6000);
+        {
+            maxPort = 6000;
+            if (cfg != null)
+                maxPort = cfg.getInt(MAX_PORT_NUMBER_PROPERTY_NAME, maxPort);
+        }
 
         for (int i = 0; i < bindRetries; i++)
         {
             if ((minPort < 0) || (minPort > maxPort))
-                minPort = config.getInt(MIN_PORT_NUMBER_PROPERTY_NAME, 5000);
+            {
+                minPort = 5000;
+                if (cfg != null)
+                {
+                    minPort
+                        = cfg.getInt(MIN_PORT_NUMBER_PROPERTY_NAME, minPort);
+                }
+            }
 
             int port = minPort++;
 

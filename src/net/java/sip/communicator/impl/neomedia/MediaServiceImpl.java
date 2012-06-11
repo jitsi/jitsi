@@ -776,93 +776,103 @@ public class MediaServiceImpl
              * Try to load dynamicPayloadTypePreferences from the
              * ConfigurationService.
              */
-            ConfigurationService config
+            ConfigurationService cfg
                 = NeomediaActivator.getConfigurationService();
-            String prefix = DYNAMIC_PAYLOAD_TYPE_PREFERENCES_PNAME_PREFIX;
-            List<String> propertyNames
-                = config.getPropertyNamesByPrefix(prefix, true);
 
-            for (String propertyName : propertyNames)
+            if (cfg != null)
             {
-                /*
-                 * The dynamic payload type is the name of the property name and
-                 * the format which prefers it is the property value.
-                 */
-                byte dynamicPayloadTypePreference = 0;
-                Throwable exception = null;
+                String prefix = DYNAMIC_PAYLOAD_TYPE_PREFERENCES_PNAME_PREFIX;
+                List<String> propertyNames
+                    = cfg.getPropertyNamesByPrefix(prefix, true);
 
-                try
+                for (String propertyName : propertyNames)
                 {
-                    dynamicPayloadTypePreference
-                        = Byte.parseByte(
-                                propertyName.substring(prefix.length() + 1));
-                }
-                catch (IndexOutOfBoundsException ioobe)
-                {
-                    exception = ioobe;
-                }
-                catch (NumberFormatException nfe)
-                {
-                    exception = nfe;
-                }
-                if (exception != null)
-                {
-                    logger.warn(
-                            "Ignoring dynamic payload type preference"
-                                + " which could not be parsed: "
-                                + propertyName,
-                            exception);
-                    continue;
-                }
+                    /*
+                     * The dynamic payload type is the name of the property name
+                     * and the format which prefers it is the property value.
+                     */
+                    byte dynamicPayloadTypePreference = 0;
+                    Throwable exception = null;
 
-                String source = config.getString(propertyName);
-
-                if ((source != null) && (source.length() != 0))
-                {
                     try
                     {
-                        JSONObject json = new JSONObject(source);
-                        String encoding
-                            = json.getString(MediaFormatImpl.ENCODING_PNAME);
-                        int clockRate
-                            = json.getInt(MediaFormatImpl.CLOCK_RATE_PNAME);
-                        Map<String, String> fmtps
-                            = new HashMap<String, String>();
-
-                        if (json.has(MediaFormatImpl.FORMAT_PARAMETERS_PNAME))
-                        {
-                            JSONObject jsonFmtps
-                                = json.getJSONObject(
-                                        MediaFormatImpl
-                                            .FORMAT_PARAMETERS_PNAME);
-                            Iterator<?> jsonFmtpsIter = jsonFmtps.keys();
-
-                            while (jsonFmtpsIter.hasNext())
-                            {
-                                String key = jsonFmtpsIter.next().toString();
-                                String value = jsonFmtps.getString(key);
-
-                                fmtps.put(key, value);
-                            }
-                        }
-
-                        MediaFormat mediaFormat
-                            = MediaUtils.getMediaFormat(
-                                    encoding, clockRate,
-                                    fmtps);
-
-                        if (mediaFormat != null)
-                            dynamicPayloadTypePreferences.put(
-                                    mediaFormat,
-                                    dynamicPayloadTypePreference);
+                        dynamicPayloadTypePreference
+                            = Byte.parseByte(
+                                    propertyName.substring(
+                                            prefix.length() + 1));
                     }
-                    catch (JSONException jsone)
+                    catch (IndexOutOfBoundsException ioobe)
+                    {
+                        exception = ioobe;
+                    }
+                    catch (NumberFormatException nfe)
+                    {
+                        exception = nfe;
+                    }
+                    if (exception != null)
                     {
                         logger.warn(
                                 "Ignoring dynamic payload type preference"
                                     + " which could not be parsed: "
-                                    + source,
-                                jsone);
+                                    + propertyName,
+                                exception);
+                        continue;
+                    }
+
+                    String source = cfg.getString(propertyName);
+
+                    if ((source != null) && (source.length() != 0))
+                    {
+                        try
+                        {
+                            JSONObject json = new JSONObject(source);
+                            String encoding
+                                = json.getString(
+                                        MediaFormatImpl.ENCODING_PNAME);
+                            int clockRate
+                                = json.getInt(MediaFormatImpl.CLOCK_RATE_PNAME);
+                            Map<String, String> fmtps
+                                = new HashMap<String, String>();
+
+                            if (json.has(
+                                    MediaFormatImpl.FORMAT_PARAMETERS_PNAME))
+                            {
+                                JSONObject jsonFmtps
+                                    = json.getJSONObject(
+                                            MediaFormatImpl
+                                                .FORMAT_PARAMETERS_PNAME);
+                                Iterator<?> jsonFmtpsIter = jsonFmtps.keys();
+
+                                while (jsonFmtpsIter.hasNext())
+                                {
+                                    String key
+                                        = jsonFmtpsIter.next().toString();
+                                    String value = jsonFmtps.getString(key);
+
+                                    fmtps.put(key, value);
+                                }
+                            }
+
+                            MediaFormat mediaFormat
+                                = MediaUtils.getMediaFormat(
+                                        encoding, clockRate,
+                                        fmtps);
+
+                            if (mediaFormat != null)
+                            {
+                                dynamicPayloadTypePreferences.put(
+                                        mediaFormat,
+                                        dynamicPayloadTypePreference);
+                            }
+                        }
+                        catch (JSONException jsone)
+                        {
+                            logger.warn(
+                                    "Ignoring dynamic payload type preference"
+                                        + " which could not be parsed: "
+                                        + source,
+                                    jsone);
+                        }
                     }
                 }
             }

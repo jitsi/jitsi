@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.media.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.util.*;
@@ -127,25 +128,32 @@ public class AbstractVolumeControl
         this.volumeLevelConfigurationPropertyName
             = volumeLevelConfigurationPropertyName;
 
-        // read initial level from config service if any
-        String initialVolumeLevelString
-            = NeomediaActivator.getConfigurationService().getString(
-                    this.volumeLevelConfigurationPropertyName);
+        // Read the initial volume level from the ConfigurationService.
         float initialVolumeLevel = DEFAULT_VOLUME_LEVEL;
 
         try
         {
-            if (initialVolumeLevelString != null)
+            ConfigurationService cfg
+                = NeomediaActivator.getConfigurationService();
+
+            if (cfg != null)
             {
-                initialVolumeLevel = Float.parseFloat(initialVolumeLevelString);
-                if(logger.isDebugEnabled())
+                String initialVolumeLevelString
+                    = cfg.getString(this.volumeLevelConfigurationPropertyName);
+
+                if (initialVolumeLevelString != null)
                 {
-                    logger.debug(
-                            "Restored volume: " + initialVolumeLevelString);
+                    initialVolumeLevel
+                        = Float.parseFloat(initialVolumeLevelString);
+                    if(logger.isDebugEnabled())
+                    {
+                        logger.debug(
+                                "Restored volume: " + initialVolumeLevelString);
+                    }
                 }
             }
         }
-        catch(Throwable t)
+        catch (Throwable t)
         {
             logger.warn("Error restoring volume", t);
         }
@@ -304,10 +312,18 @@ public class AbstractVolumeControl
         volumeLevel = value;
         fireVolumeChange();
 
-        // save the level change, so we can restore it on next run
-        NeomediaActivator.getConfigurationService().setProperty(
-                this.volumeLevelConfigurationPropertyName,
-                String.valueOf(volumeLevel));
+        /*
+         * Save the current volume level in the ConfigurationService so that we
+         * can restore it on the next application run.
+         */
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+
+        if (cfg != null)
+        {
+            cfg.setProperty(
+                    this.volumeLevelConfigurationPropertyName,
+                    String.valueOf(volumeLevel));
+        }
 
         float f1 = value / initialVolumeLevel;
 

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.neomedia;
 
 import java.util.*;
+
 import javax.media.*;
 import javax.media.control.*;
 import javax.media.format.*;
@@ -14,6 +15,7 @@ import javax.media.format.*;
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.transform.dtmf.*;
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
@@ -124,22 +126,26 @@ public class AudioMediaStreamImpl
          * It appears that if we don't do this managers don't play. You can try
          * some other buffer size to see if you can get better smoothness.
          */
-        String bufferLengthStr
-            = NeomediaActivator.getConfigurationService()
-                    .getString(PROPERTY_NAME_RECEIVE_BUFFER_LENGTH);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
         long bufferLength = 100;
 
-        try
+        if (cfg != null)
         {
-            if ((bufferLengthStr != null) && (bufferLengthStr.length() > 0))
-                bufferLength = Long.parseLong(bufferLengthStr);
-        }
-        catch (NumberFormatException nfe)
-        {
-            logger.warn(
-                    bufferLengthStr
-                        + " is not a valid receive buffer length/long value",
-                    nfe);
+            String bufferLengthStr
+                = cfg.getString(PROPERTY_NAME_RECEIVE_BUFFER_LENGTH);
+
+            try
+            {
+                if ((bufferLengthStr != null) && (bufferLengthStr.length() > 0))
+                    bufferLength = Long.parseLong(bufferLengthStr);
+            }
+            catch (NumberFormatException nfe)
+            {
+                logger.warn(
+                        bufferLengthStr
+                            + " is not a valid receive buffer length/long value",
+                        nfe);
+            }
         }
 
         bufferLength = bufferControl.setBufferLength(bufferLength);

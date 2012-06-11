@@ -9,16 +9,14 @@ package net.java.sip.communicator.impl.neomedia.transform.zrtp;
 import gnu.java.zrtp.*;
 import gnu.java.zrtp.zidfile.*;
 
-import org.osgi.framework.*;
+import java.io.*;
+import java.util.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.transform.*;
 import net.java.sip.communicator.impl.neomedia.transform.srtp.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * JMF extension/connector to support GNU ZRTP4J.
@@ -476,11 +474,7 @@ public class ZRTPTransformEngine
             boolean autoEnable, ZrtpConfigure config)
     {
         // Get a reference to the FileAccessService
-        BundleContext bc = NeomediaActivator.getBundleContext();
-        ServiceReference faServiceReference = bc.getServiceReference(
-                FileAccessService.class.getName());
-        FileAccessService faService = (FileAccessService)
-                bc.getService(faServiceReference);
+        FileAccessService faService = NeomediaActivator.getFileAccessService();
 
         File file = null;
         try

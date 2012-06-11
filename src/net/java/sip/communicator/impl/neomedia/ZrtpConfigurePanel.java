@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -79,12 +80,9 @@ public class ZrtpConfigurePanel
         buttonBar.add(Box.createHorizontalStrut(10));
         buttonBar.add(saveButton);
 
-        boolean trusted
-            = NeomediaActivator.getConfigurationService()
-                .getBoolean(TRUSTED_PROP, false);
-        boolean sasSign
-            = NeomediaActivator.getConfigurationService()
-                .getBoolean(SASSIGN_PROP, false);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+        boolean trusted = cfg.getBoolean(TRUSTED_PROP, false);
+        boolean sasSign = cfg.getBoolean(SASSIGN_PROP, false);
 
         JPanel checkBar = new TransparentPanel(new GridLayout(1,2));
         final JCheckBox trustedMitM
@@ -127,12 +125,15 @@ public class ZrtpConfigurePanel
                 }
                 else if (source == saveButton)
                 {
-                    Boolean t = Boolean.valueOf(active.isTrustedMitM());
-                    Boolean s = Boolean.valueOf(active.isSasSignature());
-                    NeomediaActivator.getConfigurationService()
-                        .setProperty(TRUSTED_PROP, t);
-                    NeomediaActivator.getConfigurationService()
-                        .setProperty(SASSIGN_PROP, s);
+                    ConfigurationService cfg
+                        = NeomediaActivator.getConfigurationService();
+
+                    cfg.setProperty(
+                            TRUSTED_PROP,
+                            String.valueOf(active.isTrustedMitM()));
+                    cfg.setProperty(
+                            SASSIGN_PROP,
+                            String.valueOf(active.isSasSignature()));
                     pkc.saveConfig();
                     hc.saveConfig();
                     sc.saveConfig();

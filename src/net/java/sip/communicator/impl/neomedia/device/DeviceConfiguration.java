@@ -316,10 +316,13 @@ public class DeviceConfiguration
             ConfigurationService cfg
                 = NeomediaActivator.getConfigurationService();
 
-            cfg.addPropertyChangeListener(PROP_VIDEO_HEIGHT, this);
-            cfg.addPropertyChangeListener(PROP_VIDEO_WIDTH, this);
-            cfg.addPropertyChangeListener(PROP_VIDEO_FRAMERATE, this);
-            cfg.addPropertyChangeListener(PROP_VIDEO_MAX_BANDWIDTH, this);
+            if (cfg != null)
+            {
+                cfg.addPropertyChangeListener(PROP_VIDEO_HEIGHT, this);
+                cfg.addPropertyChangeListener(PROP_VIDEO_WIDTH, this);
+                cfg.addPropertyChangeListener(PROP_VIDEO_FRAMERATE, this);
+                cfg.addPropertyChangeListener(PROP_VIDEO_MAX_BANDWIDTH, this);
+            }
         }
         catch (Exception ex)
         {
@@ -355,9 +358,10 @@ public class DeviceConfiguration
 
         if (videoCaptureDevices.size() > 0)
         {
+            ConfigurationService cfg
+                = NeomediaActivator.getConfigurationService();
             String videoDevName
-                = NeomediaActivator.getConfigurationService().getString(
-                        PROP_VIDEO_DEVICE);
+                = (cfg == null) ? null : cfg.getString(PROP_VIDEO_DEVICE);
 
             if (videoDevName == null)
                 videoCaptureDevice = videoCaptureDevices.get(0);
@@ -629,11 +633,14 @@ public class DeviceConfiguration
                 ConfigurationService cfg
                     = NeomediaActivator.getConfigurationService();
 
-                cfg.setProperty(
-                        PROP_VIDEO_DEVICE,
-                        (videoCaptureDevice == null)
-                            ? NoneAudioSystem.LOCATOR_PROTOCOL
-                            : videoCaptureDevice.getName());
+                if (cfg != null)
+                {
+                    cfg.setProperty(
+                            PROP_VIDEO_DEVICE,
+                            (videoCaptureDevice == null)
+                                ? NoneAudioSystem.LOCATOR_PROTOCOL
+                                : videoCaptureDevice.getName());
+                }
             }
 
             firePropertyChange(VIDEO_CAPTURE_DEVICE, oldDevice, device);
@@ -659,9 +666,10 @@ public class DeviceConfiguration
      */
     public void setEchoCancel(boolean echoCancel)
     {
-        NeomediaActivator.getConfigurationService().setProperty(
-                PROP_AUDIO_ECHOCANCEL,
-                echoCancel);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+
+        if (cfg != null)
+            cfg.setProperty(PROP_AUDIO_ECHOCANCEL, echoCancel);
     }
 
     /**
@@ -673,9 +681,10 @@ public class DeviceConfiguration
      */
     public void setDenoise(boolean denoise)
     {
-        NeomediaActivator.getConfigurationService().setProperty(
-                PROP_AUDIO_DENOISE,
-                denoise);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+
+        if (cfg != null)
+            cfg.setProperty(PROP_AUDIO_DENOISE, denoise);
     }
 
     /**
@@ -687,10 +696,12 @@ public class DeviceConfiguration
      */
     public boolean isEchoCancel()
     {
-        return
-            NeomediaActivator.getConfigurationService().getBoolean(
-                    PROP_AUDIO_ECHOCANCEL,
-                    DEFAULT_AUDIO_ECHOCANCEL);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+        boolean value = DEFAULT_AUDIO_ECHOCANCEL;
+
+        if (cfg != null)
+            value = cfg.getBoolean(PROP_AUDIO_ECHOCANCEL, value);
+        return value;
     }
 
     /**
@@ -700,10 +711,17 @@ public class DeviceConfiguration
      */
     public long getEchoCancelFilterLengthInMillis()
     {
-        return
-            NeomediaActivator.getConfigurationService().getLong(
-                    PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS,
-                    DEFAULT_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+        long value = DEFAULT_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS;
+
+        if (cfg != null)
+        {
+            value
+                = cfg.getLong(
+                        PROP_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS,
+                        value);
+        }
+        return value;
     }
 
     /**
@@ -715,10 +733,13 @@ public class DeviceConfiguration
      */
     public boolean isDenoise()
     {
-        return
-            NeomediaActivator.getConfigurationService().getBoolean(
-                    PROP_AUDIO_DENOISE,
-                    DEFAULT_AUDIO_DENOISE);
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+        boolean value = DEFAULT_AUDIO_DENOISE;
+
+        if (cfg != null)
+            value = cfg.getBoolean(PROP_AUDIO_DENOISE, value);
+
+        return value;
     }
 
     /**
@@ -826,12 +847,16 @@ public class DeviceConfiguration
      */
     public int getVideoMaxBandwidth()
     {
-        if(videoMaxBandwidth == -1)
+        if (videoMaxBandwidth == -1)
         {
-            videoMaxBandwidth
-                = NeomediaActivator.getConfigurationService().getInt(
-                        PROP_VIDEO_MAX_BANDWIDTH,
-                        DEFAULT_VIDEO_MAX_BANDWIDTH);
+            ConfigurationService cfg
+                = NeomediaActivator.getConfigurationService();
+            int value = DEFAULT_VIDEO_MAX_BANDWIDTH;
+
+            if (cfg != null)
+                value = cfg.getInt(PROP_VIDEO_MAX_BANDWIDTH, value);
+
+            videoMaxBandwidth = value;
         }
         return videoMaxBandwidth;
     }
@@ -847,10 +872,13 @@ public class DeviceConfiguration
 
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();
 
-        if(videoMaxBandwidth != DEFAULT_VIDEO_MAX_BANDWIDTH)
-            cfg.setProperty(PROP_VIDEO_MAX_BANDWIDTH, videoMaxBandwidth);
-        else
-            cfg.removeProperty(PROP_VIDEO_MAX_BANDWIDTH);
+        if (cfg != null)
+        {
+            if (videoMaxBandwidth != DEFAULT_VIDEO_MAX_BANDWIDTH)
+                cfg.setProperty(PROP_VIDEO_MAX_BANDWIDTH, videoMaxBandwidth);
+            else
+                cfg.removeProperty(PROP_VIDEO_MAX_BANDWIDTH);
+        }
     }
 
     /**
@@ -861,12 +889,16 @@ public class DeviceConfiguration
      */
     public int getFrameRate()
     {
-        if(frameRate == -1)
+        if (frameRate == -1)
         {
-            frameRate
-                = NeomediaActivator.getConfigurationService().getInt(
-                        PROP_VIDEO_FRAMERATE,
-                        DEFAULT_VIDEO_FRAMERATE);
+            ConfigurationService cfg
+                = NeomediaActivator.getConfigurationService();
+            int value = DEFAULT_VIDEO_FRAMERATE;
+
+            if (cfg != null)
+                value = cfg.getInt(PROP_VIDEO_FRAMERATE, value);
+
+            frameRate = value;
         }
         return frameRate;
     }
@@ -883,10 +915,13 @@ public class DeviceConfiguration
 
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();
 
-        if(frameRate != DEFAULT_VIDEO_FRAMERATE)
-            cfg.setProperty(PROP_VIDEO_FRAMERATE, frameRate);
-        else
-            cfg.removeProperty(PROP_VIDEO_FRAMERATE);
+        if (cfg != null)
+        {
+            if (frameRate != DEFAULT_VIDEO_FRAMERATE)
+                cfg.setProperty(PROP_VIDEO_FRAMERATE, frameRate);
+            else
+                cfg.removeProperty(PROP_VIDEO_FRAMERATE);
+        }
     }
 
     /**
@@ -900,8 +935,14 @@ public class DeviceConfiguration
         {
             ConfigurationService cfg
                 = NeomediaActivator.getConfigurationService();
-            int height = cfg.getInt(PROP_VIDEO_HEIGHT, DEFAULT_VIDEO_HEIGHT);
-            int width = cfg.getInt(PROP_VIDEO_WIDTH, DEFAULT_VIDEO_WIDTH);
+            int height = DEFAULT_VIDEO_HEIGHT;
+            int width = DEFAULT_VIDEO_WIDTH;
+
+            if (cfg != null)
+            {
+                height = cfg.getInt(PROP_VIDEO_HEIGHT, height);
+                width = cfg.getInt(PROP_VIDEO_WIDTH, width);
+            }
 
             videoSize = new Dimension(width, height);
         }
@@ -918,16 +959,19 @@ public class DeviceConfiguration
     {
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();
 
-        if((videoSize.getHeight() != DEFAULT_VIDEO_HEIGHT)
-                || (videoSize.getWidth() != DEFAULT_VIDEO_WIDTH))
+        if (cfg != null)
         {
-            cfg.setProperty(PROP_VIDEO_HEIGHT, videoSize.height);
-            cfg.setProperty(PROP_VIDEO_WIDTH, videoSize.width);
-        }
-        else
-        {
-            cfg.removeProperty(PROP_VIDEO_HEIGHT);
-            cfg.removeProperty(PROP_VIDEO_WIDTH);
+            if ((videoSize.getHeight() != DEFAULT_VIDEO_HEIGHT)
+                    || (videoSize.getWidth() != DEFAULT_VIDEO_WIDTH))
+            {
+                cfg.setProperty(PROP_VIDEO_HEIGHT, videoSize.height);
+                cfg.setProperty(PROP_VIDEO_WIDTH, videoSize.width);
+            }
+            else
+            {
+                cfg.removeProperty(PROP_VIDEO_HEIGHT);
+                cfg.removeProperty(PROP_VIDEO_WIDTH);
+            }
         }
 
         this.videoSize = videoSize;
@@ -1050,9 +1094,12 @@ public class DeviceConfiguration
      */
     private void extractConfiguredVideoCaptureDevices()
     {
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
+        String videoCaptureDeviceString
+            = (cfg == null) ? null : cfg.getString(PROP_VIDEO_DEVICE);
+
         if (NoneAudioSystem.LOCATOR_PROTOCOL.equalsIgnoreCase(
-                NeomediaActivator.getConfigurationService().getString(
-                        PROP_VIDEO_DEVICE)))
+                videoCaptureDeviceString))
         {
             videoCaptureDevice = null;
         }

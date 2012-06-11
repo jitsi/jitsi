@@ -87,10 +87,12 @@ public abstract class DeviceSystem
          * Detect the audio capture devices unless the configuration explicitly
          * states that they are to not be detected.
          */
-        if (!cfg.getBoolean(
-                MediaServiceImpl.DISABLE_AUDIO_SUPPORT_PNAME,
-                false)
-            && !Boolean.getBoolean(MediaServiceImpl.DISABLE_AUDIO_SUPPORT_PNAME))
+        if (((cfg == null)
+                || !cfg.getBoolean(
+                        MediaServiceImpl.DISABLE_AUDIO_SUPPORT_PNAME,
+                        false))
+            && !Boolean.getBoolean(
+                    MediaServiceImpl.DISABLE_AUDIO_SUPPORT_PNAME))
         {
             if (logger.isInfoEnabled())
                 logger.info("Initializing audio devices");
@@ -102,9 +104,10 @@ public abstract class DeviceSystem
          * Detect the video capture devices unless the configuration explicitly
          * states that they are to not be detected.
          */
-        if (!cfg.getBoolean(
-                MediaServiceImpl.DISABLE_VIDEO_SUPPORT_PNAME,
-                false))
+        if ((cfg == null)
+                || !cfg.getBoolean(
+                        MediaServiceImpl.DISABLE_VIDEO_SUPPORT_PNAME,
+                        false))
         {
             if (logger.isInfoEnabled())
                 logger.info("Initializing video devices");

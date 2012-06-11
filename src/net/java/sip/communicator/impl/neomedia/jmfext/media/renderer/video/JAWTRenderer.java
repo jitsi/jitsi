@@ -88,11 +88,11 @@ public class JAWTRenderer
          */
         if (OSUtils.IS_MAC)
         {
-            ConfigurationService conf
+            ConfigurationService cfg
                 = NeomediaActivator.getConfigurationService();
 
-            if ((conf == null)
-                    || conf.getBoolean(
+            if ((cfg == null)
+                    || cfg.getBoolean(
                             JAWTRenderer.class.getName()
                                 + ".USE_MACOSX_CALAYERS",
                             false))

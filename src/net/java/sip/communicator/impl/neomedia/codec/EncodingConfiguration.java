@@ -209,65 +209,69 @@ public class EncodingConfiguration
         setEncodingPreference(Constants.TELEPHONE_EVENT, 8000, 1);
 
         // now override with those that are specified by the user.
-        ConfigurationService config
-            = NeomediaActivator.getConfigurationService();
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
 
-        for (String pName
-                : config.getPropertyNamesByPrefix(PROP_SDP_PREFERENCE, false))
+        if (cfg != null)
         {
-            String prefStr = config.getString(pName);
-            String fmtName = pName.substring(pName.lastIndexOf('.') + 1);
-
-            // legacy
-            if (fmtName.contains("sdp"))
+            for (String pName
+                    : cfg.getPropertyNamesByPrefix(PROP_SDP_PREFERENCE, false))
             {
-                fmtName = fmtName.replaceAll("sdp", "");
-                /*
-                 * If the current version of the property name is also
-                 * associated with a value, ignore the value for the legacy one.
-                 */
-                if (config.getString(PROP_SDP_PREFERENCE + "." + fmtName)
-                        != null)
+                String prefStr = cfg.getString(pName);
+                String fmtName = pName.substring(pName.lastIndexOf('.') + 1);
+
+                // legacy
+                if (fmtName.contains("sdp"))
+                {
+                    fmtName = fmtName.replaceAll("sdp", "");
+                    /*
+                     * If the current version of the property name is also
+                     * associated with a value, ignore the value for the legacy
+                     * one.
+                     */
+                    if (cfg.getString(PROP_SDP_PREFERENCE + "." + fmtName)
+                            != null)
+                        continue;
+                }
+
+                int preference = -1;
+                String encoding;
+                double clockRate;
+
+                try
+                {
+                    preference = Integer.parseInt(prefStr);
+
+                    int encodingClockRateSeparator = fmtName.lastIndexOf('/');
+
+                    if (encodingClockRateSeparator > -1)
+                    {
+                        encoding
+                            = fmtName.substring(0, encodingClockRateSeparator);
+                        clockRate
+                            = Double.parseDouble(
+                                    fmtName.substring(
+                                            encodingClockRateSeparator + 1));
+                    }
+                    else
+                    {
+                        encoding = fmtName;
+                        clockRate = MediaFormatFactory.CLOCK_RATE_NOT_SPECIFIED;
+                    }
+                }
+                catch (NumberFormatException nfe)
+                {
+                    logger.warn(
+                            "Failed to parse format ("
+                                + fmtName
+                                + ") or preference ("
+                                + prefStr
+                                + ").",
+                            nfe);
                     continue;
-            }
-
-            int preference = -1;
-            String encoding;
-            double clockRate;
-            try
-            {
-                preference = Integer.parseInt(prefStr);
-
-                int encodingClockRateSeparator = fmtName.lastIndexOf('/');
-
-                if (encodingClockRateSeparator > -1)
-                {
-                    encoding = fmtName.substring(0, encodingClockRateSeparator);
-                    clockRate
-                        = Double.parseDouble(
-                                fmtName.substring(
-                                        encodingClockRateSeparator + 1));
                 }
-                else
-                {
-                    encoding = fmtName;
-                    clockRate = MediaFormatFactory.CLOCK_RATE_NOT_SPECIFIED;
-                }
-            }
-            catch (NumberFormatException nfe)
-            {
-                logger
-                    .warn(
-                        "Failed to parse format ("
-                            + fmtName
-                            + ") or preference ("
-                            + prefStr
-                            + ").",
-                        nfe);
-                continue;
-            }
 
-            setEncodingPreference(encoding, clockRate, preference);
+                setEncodingPreference(encoding, clockRate, preference);
+            }
         }
 
         // now update the arrays so that they are returned by order of

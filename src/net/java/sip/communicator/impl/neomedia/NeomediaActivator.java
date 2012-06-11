@@ -247,13 +247,14 @@ public class NeomediaActivator
         if (logger.isDebugEnabled())
             logger.debug("Media Service ... [REGISTERED]");
 
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
         Dictionary<String, String> mediaProps = new Hashtable<String, String>();
+
         mediaProps.put( ConfigurationForm.FORM_TYPE,
                         ConfigurationForm.GENERAL_TYPE);
 
         // If the audio configuration form is disabled don't register it.
-        if (!getConfigurationService().getBoolean(
-                AUDIO_CONFIG_DISABLED_PROP, false))
+        if ((cfg == null) || !cfg.getBoolean(AUDIO_CONFIG_DISABLED_PROP, false))
         {
             final ConfigurationForm audioConfigurationForm
                 = new LazyConfigurationForm(
@@ -290,8 +291,7 @@ public class NeomediaActivator
         }
 
         // If the video configuration form is disabled don't register it.
-        if (!getConfigurationService().getBoolean(
-                VIDEO_CONFIG_DISABLED_PROP, false))
+        if ((cfg == null) || !cfg.getBoolean(VIDEO_CONFIG_DISABLED_PROP, false))
         {
             bundleContext.registerService(
                     ConfigurationForm.class.getName(),
@@ -306,11 +306,11 @@ public class NeomediaActivator
 
         // H.264
         // If the H.264 configuration form is disabled don't register it.
-        if(!getConfigurationService()
-                .getBoolean(H264_CONFIG_DISABLED_PROP, false))
+        if ((cfg == null) || !cfg.getBoolean(H264_CONFIG_DISABLED_PROP, false))
         {
             Dictionary<String, String> h264Props
                 = new Hashtable<String, String>();
+
             h264Props.put(
                     ConfigurationForm.FORM_TYPE,
                     ConfigurationForm.ADVANCED_TYPE);
@@ -328,11 +328,11 @@ public class NeomediaActivator
 
         // ZRTP
         // If the ZRTP configuration form is disabled don't register it.
-        if (!getConfigurationService()
-                .getBoolean(ZRTP_CONFIG_DISABLED_PROP, false))
+        if ((cfg == null) || !cfg.getBoolean(ZRTP_CONFIG_DISABLED_PROP, false))
         {
             Dictionary<String, String> securityProps
                 = new Hashtable<String, String>();
+
             securityProps.put( ConfigurationForm.FORM_TYPE,
                             ConfigurationForm.SECURITY_TYPE);
             bundleContext.registerService(
@@ -361,13 +361,12 @@ public class NeomediaActivator
             mediaServiceImpl.getDeviceConfiguration());
 
         audioNotifier.setMute(
-                !getConfigurationService()
-                    .getBoolean(
-                        "net.java.sip.communicator.impl.sound.isSoundEnabled",
-                        true));
-
-        getBundleContext()
-            .registerService(
+                (cfg == null)
+                    || !cfg.getBoolean(
+                            "net.java.sip.communicator"
+                                + ".impl.sound.isSoundEnabled",
+                            true));
+        getBundleContext().registerService(
                 AudioNotifierService.class.getName(),
                 audioNotifier,
                 null);
@@ -377,11 +376,12 @@ public class NeomediaActivator
 
         // Call Recording
         // If the call recording configuration form is disabled don't continue.
-        if (!getConfigurationService()
-                .getBoolean(CALL_RECORDING_CONFIG_DISABLED_PROP, false))
+        if ((cfg == null)
+                || !cfg.getBoolean(CALL_RECORDING_CONFIG_DISABLED_PROP, false))
         {
             Dictionary<String, String> callRecordingProps
                 = new Hashtable<String, String>();
+
             callRecordingProps.put(
                     ConfigurationForm.FORM_TYPE,
                     ConfigurationForm.ADVANCED_TYPE);
@@ -567,13 +567,10 @@ public class NeomediaActivator
     {
         if (configurationService == null)
         {
-            ServiceReference confReference
-                = bundleContext
-                    .getServiceReference(ConfigurationService.class.getName());
-
             configurationService
-                = (ConfigurationService)
-                    bundleContext.getService(confReference);
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
         }
         return configurationService;
     }
@@ -588,14 +585,12 @@ public class NeomediaActivator
      */
     public static FileAccessService getFileAccessService()
     {
-        if (fileAccessService == null && bundleContext != null)
+        if (fileAccessService == null)
         {
-            ServiceReference faReference
-                = bundleContext
-                    .getServiceReference(FileAccessService.class.getName());
-
             fileAccessService
-                = (FileAccessService) bundleContext.getService(faReference);
+                = ServiceUtils.getService(
+                        bundleContext,
+                        FileAccessService.class);
         }
         return fileAccessService;
     }
@@ -624,14 +619,10 @@ public class NeomediaActivator
     {
         if (networkAddressManagerService == null)
         {
-            ServiceReference namReference
-                = bundleContext
-                    .getServiceReference(
-                        NetworkAddressManagerService.class.getName());
-
             networkAddressManagerService
-                = (NetworkAddressManagerService)
-                    bundleContext.getService(namReference);
+                = ServiceUtils.getService(
+                        bundleContext,
+                        NetworkAddressManagerService.class);
         }
         return networkAddressManagerService;
     }
@@ -648,8 +639,10 @@ public class NeomediaActivator
     public static ResourceManagementService getResources()
     {
         if (resources == null)
+        {
             resources
                 = ResourceManagementServiceUtils.getService(bundleContext);
+        }
         return resources;
     }
 
@@ -683,7 +676,7 @@ public class NeomediaActivator
      */
     public static UIService getUIService()
     {
-        if(uiService == null)
+        if (uiService == null)
             uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
     }
