@@ -114,6 +114,14 @@ public class AccountStatusPanel
 
     private String currentLastName;
 
+    private String globalDisplayName;
+
+    /**
+     * Property to disable auto answer menu.
+     */
+    private static final String GLOBAL_DISPLAY_NAME_PROP =
+        "net.java.sip.communicator.impl.gui.main.presence.GLOBAL_DISPLAY_NAME";
+
     /**
      * Keep reference to plugin container or it will loose its
      * listener.
@@ -188,6 +196,12 @@ public class AccountStatusPanel
         loadSkin();
 
         GuiActivator.getUIService().addPluginComponentListener(this);
+
+        globalDisplayName = GuiActivator.getConfigurationService().getString(
+            GLOBAL_DISPLAY_NAME_PROP, null);
+
+        if(!StringUtils.isNullOrEmpty(globalDisplayName))
+            accountNameLabel.setText(globalDisplayName);
     }
 
     /**
@@ -374,6 +388,9 @@ public class AccountStatusPanel
                                 accountImageLabel.setImageIcon(currentImage);
                             }
                         }
+
+                        if(!StringUtils.isNullOrEmpty(globalDisplayName))
+                            return;
 
                         String accountName = null;
                         if (currentFirstName == null)
@@ -594,6 +611,9 @@ public class AccountStatusPanel
      */
     public void serverStoredDetailsChanged(ServerStoredDetailsChangeEvent evt)
     {
+        if(!StringUtils.isNullOrEmpty(globalDisplayName))
+            return;
+
         if(evt.getNewValue() instanceof
                 ServerStoredDetails.DisplayNameDetail
             && (evt.getEventID() == ServerStoredDetailsChangeEvent.DETAIL_ADDED
