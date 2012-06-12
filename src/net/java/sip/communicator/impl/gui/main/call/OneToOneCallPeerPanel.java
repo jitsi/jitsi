@@ -706,7 +706,7 @@ public class OneToOneCallPeerPanel
 
         // Display ZRTP panel in case SAS was not verified or a AOR mismtach
         // was detected during creation of ZrtpSecurityPanel.
-	// Don't show panel if user does not care about security at all.
+	    // Don't show panel if user does not care about security at all.
         if (srtpControl instanceof ZrtpControl
             && !isSecurityLowPriority
             && (!((ZrtpControl) srtpControl).isSecurityVerified() 

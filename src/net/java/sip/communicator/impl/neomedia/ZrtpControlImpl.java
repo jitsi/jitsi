@@ -296,6 +296,18 @@ public class ZrtpControlImpl
      * (non-Javadoc)
      *
      * @see
+     * net.java.sip.communicator.service.neomedia.ZrtpControl#getCiperString
+     * ()
+     */
+    public String getCipherString()
+    {
+        return getTransformEngine().getUserCallback().getCipherString();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
      * net.java.sip.communicator.service.neomedia.ZrtpControl#isSecurityVerified
      * ()
      */

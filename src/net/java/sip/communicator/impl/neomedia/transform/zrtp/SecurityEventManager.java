@@ -424,6 +424,16 @@ public class SecurityEventManager extends ZrtpUserCallback
     }
 
     /**
+     * Gets the cipher information for the current media stream.
+     * 
+     * @return the cipher information string.
+     */
+    public String getCipherString()
+    {
+        return cipher;
+    }
+
+    /**
      * Gets the status of the SAS verification.
      * 
      * @return true when the SAS has been verified.
