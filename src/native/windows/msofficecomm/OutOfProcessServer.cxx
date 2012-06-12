@@ -493,11 +493,36 @@ DWORD OutOfProcessServer::setIMProvidersCommunicatorUpAndRunning(DWORD dw)
 
     if (dw)
     {
-        lastError
-            = regCreateKeyAndSetValue(
-                    _T("Software\\Microsoft\\Office\\12.0\\Common\\PersonaMenu"),
-                    _T("RTCApplication"),
-                    3);
+        /*
+         * Testing on various machines/setups has shown that the following may
+         * or may not succeed without affecting the presence integration so just
+         * try them and then go on with the rest regardless of their success.
+         */
+        lastError = ERROR_SUCCESS;
+        regCreateKeyAndSetValue(
+                _T("Software\\Microsoft\\Office\\11.0\\Common\\PersonaMenu"),
+                _T("RTCApplication"),
+                3);
+        regCreateKeyAndSetValue(
+                _T("Software\\Microsoft\\Office\\12.0\\Common\\PersonaMenu"),
+                _T("RTCApplication"),
+                3);
+        regCreateKeyAndSetValue(
+                _T("Software\\Microsoft\\Office\\11.0\\Common\\PersonaMenu"),
+                _T("QueryServiceForStatus"),
+                2);
+        regCreateKeyAndSetValue(
+                _T("Software\\Microsoft\\Office\\12.0\\Common\\PersonaMenu"),
+                _T("QueryServiceForStatus"),
+                2);
+        regCreateKeyAndSetValue(
+                _T("Software\\Microsoft\\Office\\11.0\\Outlook\\IM"),
+                _T("SetOnlineStatusLevel"),
+                3);
+        regCreateKeyAndSetValue(
+                _T("Software\\Microsoft\\Office\\12.0\\Outlook\\IM"),
+                _T("SetOnlineStatusLevel"),
+                3);
     }
     else
         lastError = ERROR_SUCCESS;

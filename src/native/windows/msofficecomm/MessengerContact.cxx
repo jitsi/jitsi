@@ -205,15 +205,19 @@ MessengerContact::get_PresenceProperties(VARIANT *pvPresenceProperties)
                         switch (status)
                         {
                         case MISTATUS_AWAY:
+                        case MISTATUS_OUT_OF_OFFICE:
                             availability = 15000;
                             break;
                         case MISTATUS_BE_RIGHT_BACK:
                             availability = 12000;
                             break;
                         case MISTATUS_BUSY:
+                        case MISTATUS_IN_A_CONFERENCE:
+                        case MISTATUS_ON_THE_PHONE:
                             availability = 6000;
                             break;
                         case MISTATUS_DO_NOT_DISTURB:
+                        case MISTATUS_ALLOW_URGENT_INTERRUPTIONS:
                             availability = 9000;
                             break;
                         case MISTATUS_INVISIBLE:
