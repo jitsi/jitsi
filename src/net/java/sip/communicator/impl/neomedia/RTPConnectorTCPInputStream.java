@@ -11,6 +11,7 @@ import java.net.*;
 
 import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.util.*;
+import org.ice4j.socket.*;
 
 /**
  * RTPConnectorInputStream implementation for TCP protocol.
@@ -84,6 +85,11 @@ public class RTPConnectorTCPInputStream
     protected void doLogPacket(DatagramPacket p)
     {
         if(socket.getLocalAddress() == null)
+            return;
+
+        // Do not log the packet if this one has been processed (and already
+        // logged) by the ice4j stack.
+        if(socket instanceof MultiplexingSocket)
             return;
 
         PacketLoggingService packetLogging

@@ -11,6 +11,7 @@ import java.net.*;
 
 import org.ice4j.*;
 import org.ice4j.stack.*;
+import org.ice4j.socket.*;
 
 /**
  * Represents an application-purposed (as opposed to an ICE-specific)
@@ -30,6 +31,31 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
      * The <tt>JingleNodesCandidate</tt>.
      */
     private JingleNodesCandidate jingleNodesCandidate;
+
+    /**
+     * The number of RTP packets received for this socket.
+     */
+    private long nbReceivedRtpPackets = 0;
+
+    /**
+     * The number of RTP packets sent for this socket.
+     */
+    private long nbSentRtpPackets = 0;
+
+    /**
+     * The number of RTP packets lost (not received) for this socket.
+     */
+    private long nbLostRtpPackets = 0;
+
+    /**
+     * The last RTP sequence number received for this socket.
+     */
+    private long lastRtpSequenceNumber = -1;
+
+    /**
+     * The last time an information about packet lost has been logged.
+     */
+    private long lastLostPacketLogTime = 0;
 
     /**
      * Initializes a new <tt>JingleNodesdCandidateDatagramSocket</tt> instance
@@ -82,19 +108,15 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
         //XXX reuse an existing DatagramPacket ?
         super.send(packet);
 
-        // no exception packet is successfully sent, log it
-        if(StunStack.isPacketLoggerEnabled())
-        {
-            StunStack.getPacketLogger().logPacket(
-                    super.getLocalAddress().getAddress(),
-                    super.getLocalPort(),
-                    packet.getAddress().getAddress(),
-                    packet.getPort(),
-                    packet.getData(),
-                    true);
-        }
+        // no exception packet is successfully sent, log it.
+        ++nbSentRtpPackets;
+        DelegatingDatagramSocket.logPacketToPcap(
+                packet,
+                this.nbSentRtpPackets,
+                true,
+                super.getLocalAddress(),
+                super.getLocalPort());
     }
-
     
     /**
      * Receives a <tt>DatagramPacket</tt> from this socket. The DatagramSocket
@@ -110,17 +132,16 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
     {
         super.receive(p);
 
-        // no exception packet is successfully received, log it
-        if(StunStack.isPacketLoggerEnabled())
-        {
-            StunStack.getPacketLogger().logPacket(
-                    p.getAddress().getAddress(),
-                    p.getPort(),
-                    super.getLocalAddress().getAddress(),
-                    super.getLocalPort(),
-                    p.getData(),
-                    false);
-        }
+        // no exception packet is successfully received, log it.
+        ++nbReceivedRtpPackets;
+        DelegatingDatagramSocket.logPacketToPcap(
+                p,
+                this.nbReceivedRtpPackets,
+                false,
+                super.getLocalAddress(),
+                super.getLocalPort());
+        // Log RTP losses if > 5%.
+        updateRtpLosses(p);
     }
 
     /**
@@ -177,5 +198,31 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
     public InetSocketAddress getLocalSocketAddress()
     {
         return jingleNodesCandidate.getTransportAddress();
+    }
+
+    /**
+     * Updates and Logs information about RTP losses if there is more then 5% of
+     * RTP packet lost (at most every 5 seconds).
+     *
+     * @param p The last packet received.
+     */
+    public void updateRtpLosses(DatagramPacket p)
+    {
+        // If this is not a STUN/TURN packet, then this is a RTP packet.
+        if(!StunDatagramPacketFilter.isStunPacket(p))
+        {
+            long newSeq = DelegatingDatagramSocket.getRtpSequenceNumber(p);
+            if(this.lastRtpSequenceNumber != -1)
+            {
+                nbLostRtpPackets += DelegatingDatagramSocket
+                    .getNbLost(this.lastRtpSequenceNumber, newSeq);
+            }
+            this.lastRtpSequenceNumber = newSeq;
+
+            this.lastLostPacketLogTime = DelegatingDatagramSocket.logRtpLosses(
+                    this.nbLostRtpPackets,
+                    this.nbReceivedRtpPackets,
+                    this.lastLostPacketLogTime);
+        }
     }
 }

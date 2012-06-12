@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.*;
 
 import net.java.sip.communicator.service.packetlogging.*;
+import org.ice4j.socket.*;
 
 /**
  * RTPConnectorInputStream implementation for UDP protocol.
@@ -68,6 +69,11 @@ public class RTPConnectorUDPInputStream
     protected void doLogPacket(DatagramPacket p)
     {
         if(socket.getLocalAddress() == null)
+            return;
+
+        // Do not log the packet if this one has been processed (and already
+        // logged) by the ice4j stack.
+        if(socket instanceof MultiplexingDatagramSocket)
             return;
 
         PacketLoggingService packetLogging

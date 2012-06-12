@@ -10,6 +10,7 @@ import java.io.*;
 import java.net.*;
 
 import net.java.sip.communicator.service.packetlogging.*;
+import org.ice4j.socket.*;
 
 /**
  * RTPConnectorOutputStream implementation for UDP protocol.
@@ -65,6 +66,11 @@ public class RTPConnectorUDPOutputStream
      */
     protected void doLogPacket(RawPacket packet, InetSocketAddress target)
     {
+        // Do not log the packet if this one has been processed (and already
+        // logged) by the ice4j stack.
+        if(socket instanceof MultiplexingDatagramSocket)
+            return;
+
         PacketLoggingService packetLogging
             = NeomediaActivator.getPacketLogging();
 
