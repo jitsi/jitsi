@@ -7,12 +7,14 @@
 package net.java.sip.communicator.util;
 
 import java.io.*;
+import java.util.*;
 
 /**
  * Defines the different permit extension file.
  *
  * @author Alexandre Maillard
  * @author Dmitri Melnikov
+ * @author Vincent Lucas
  */
 public class SoundFileUtils 
 {
@@ -60,6 +62,44 @@ public class SoundFileUtils
                     || ext.equals(mid)
                     || ext.equals(gsm)
                     || ext.equals(au);
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether this file is a sound file.
+     * 
+     * @param f <tt>File</tt> to check
+     * @param soundFormats The sound formats to restrict the file name
+     * extension. If soundFormats is null, then every sound format defined by
+     * SoundFileUtils is correct.
+     *
+     * @return <tt>true</tt> if it's a sound file conforming to the format given
+     * in parameters (if soundFormats is null, then every sound format defined
+     * by SoundFileUtils is correct), <tt>false</tt> otherwise.
+     */
+    public static boolean isSoundFile(File f, String[] soundFormats)
+    {
+        // If there is no specific filters, then compare the file to all sound
+        // extension available.
+        if(soundFormats == null)
+        {
+            return SoundFileUtils.isSoundFile(f);
+        }
+        // Compare the file extension to the sound formats provided in
+        // parameter.
+        else
+        {
+            String ext = getExtension(f);
+
+            // If the file has an extension
+            if (ext != null)
+            {
+                return (Arrays.binarySearch(
+                            soundFormats,
+                            ext,
+                            String.CASE_INSENSITIVE_ORDER) != -1);
+            }
         }
         return false;
     }

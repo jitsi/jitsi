@@ -129,6 +129,16 @@ public class SipCommFileChooserImpl
     }
 
     /**
+     * Sets a file filter to this dialog.
+     * 
+     * @param filter the filter to add
+     */
+    public void setFileFilter(SipCommFileFilter filter)
+    {
+        super.setFileFilter(filter);
+    }
+
+    /**
      * Returns the filter the user has chosen for saving a file.
      *
      * @return SipCommFileFilter the used filter when saving a file

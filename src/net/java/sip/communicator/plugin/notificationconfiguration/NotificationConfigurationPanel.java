@@ -143,7 +143,8 @@ public class NotificationConfigurationPanel
             GenericFileDialog.create(null,
                 Resources.getString("plugin.notificationconfig.BROWSE_PROGRAM"),
                 SipCommFileChooser.LOAD_FILE_OPERATION);
-        fileChooserSound.addFilter(new SoundFilter());
+        String[] soundFormats = {SoundFileUtils.wav};
+        fileChooserSound.setFileFilter(new SoundFilter(soundFormats));
     }
 
     /**
