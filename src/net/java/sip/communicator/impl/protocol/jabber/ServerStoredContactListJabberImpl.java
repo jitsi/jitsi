@@ -77,15 +77,22 @@ public class ServerStoredContactListJabberImpl
     private ChangeListener rosterChangeListener = null;
 
     /**
+     * Retrieve contact information.
+     */
+    private InfoRetreiver infoRetreiver = null;
+
+    /**
      * Creates a ServerStoredContactList wrapper for the specified BuddyList.
      *
      * @param parentOperationSet the operation set that created us and that
      * we could use for dispatching subscription events
      * @param provider the provider that has instantiated us.
+     * @param infoRetreiver retrieve contact information.
      */
     ServerStoredContactListJabberImpl(
         OperationSetPersistentPresenceJabberImpl parentOperationSet,
-        ProtocolProviderServiceJabberImpl        provider)
+        ProtocolProviderServiceJabberImpl        provider,
+        InfoRetreiver infoRetreiver)
     {
         //We need to init these as early as possible to ensure that the provider
         //and the operationsset would not be null in the incoming events.
@@ -93,6 +100,7 @@ public class ServerStoredContactListJabberImpl
 
         this.jabberProvider = provider;
         this.rootGroup = new RootContactGroupJabberImpl(this.jabberProvider);
+        this.infoRetreiver = infoRetreiver;
     }
 
     /**
@@ -1496,18 +1504,19 @@ public class ServerStoredContactListJabberImpl
          */
         private byte[] getAvatar(ContactJabberImpl contact)
         {
-            byte[] result;
+            byte[] result = null;
             try
             {
-                XMPPConnection connection = jabberProvider.getConnection();
+                Iterator<ServerStoredDetails.GenericDetail> iter =
+                    infoRetreiver.getDetails(contact.getAddress(),
+                    ServerStoredDetails.ImageDetail.class);
 
-                if(connection == null || !connection.isAuthenticated())
-                    return null;
-
-                VCard card = new VCard();
-
-                card.load(connection, contact.getAddress());
-                result = card.getAvatar();
+                if(iter.hasNext())
+                {
+                    ServerStoredDetails.ImageDetail imgDetail =
+                        (ServerStoredDetails.ImageDetail)iter.next();
+                    result = imgDetail.getBytes();
+                }
 
                 if(result == null)
                 {

@@ -194,6 +194,20 @@ public class JabberAccountID
     }
 
     /**
+     * Determines whether this account's provider is supposed to auto discover
+     * JingleNodes relay by searching our contacts.
+     *
+     * @return <tt>true</tt> if this provider would need to discover JingleNodes
+     * relay by searching buddies, <tt>false</tt> otherwise
+     */
+    public boolean isJingleNodesSearchBuddiesEnabled()
+    {
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.JINGLE_NODES_SEARCH_BUDDIES,
+                false);
+    }
+
+    /**
      * Determines whether this account's provider uses JingleNodes relay (if
      * available).
      *

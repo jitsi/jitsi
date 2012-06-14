@@ -1489,9 +1489,11 @@ public class ProtocolProviderServiceJabberImpl
                 = accountID.getAccountPropertyString(
                         ProtocolProviderFactory.RESOURCE_PRIORITY);
 
+            InfoRetreiver infoRetreiver = new InfoRetreiver(this, screenname);
+
             //initialize the presence operationset
             OperationSetPersistentPresenceJabberImpl persistentPresence =
-                new OperationSetPersistentPresenceJabberImpl(this);
+                new OperationSetPersistentPresenceJabberImpl(this, infoRetreiver);
 
             if(resourcePriority != null)
             {
@@ -1558,8 +1560,6 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(
                 OperationSetMultiUserChat.class,
                 new OperationSetMultiUserChatJabberImpl(this));
-
-            InfoRetreiver infoRetreiver = new InfoRetreiver(this, screenname);
 
             addSupportedOperationSet(
                 OperationSetServerStoredContactInfo.class,
@@ -2451,7 +2451,7 @@ public class ProtocolProviderServiceJabberImpl
     public void startJingleNodesDiscovery()
     {
         // Jingle Nodes Service Initialization
-        JabberAccountID accID = (JabberAccountID)getAccountID();
+        final JabberAccountID accID = (JabberAccountID)getAccountID();
         final SmackServiceNode service = new SmackServiceNode(connection,
                 60000);
         // make sure SmackServiceNode will clean up when connection is closed
@@ -2469,8 +2469,6 @@ public class ProtocolProviderServiceJabberImpl
             service.addTrackerEntry(entry);
         }
 
-        final boolean autoDiscover = accID.isJingleNodesAutoDiscoveryEnabled();
-
         new Thread()
         {
             public void run()
@@ -2485,7 +2483,8 @@ public class ProtocolProviderServiceJabberImpl
                     final SmackServiceNode.MappedNodes nodes =
                         service.searchServices(
                                 connection, 6, 3, 20, JingleChannelIQ.UDP,
-                                autoDiscover);
+                                accID.isJingleNodesAutoDiscoveryEnabled(),
+                                accID.isJingleNodesSearchBuddiesEnabled());
 
                     if(logger.isInfoEnabled())
                     {

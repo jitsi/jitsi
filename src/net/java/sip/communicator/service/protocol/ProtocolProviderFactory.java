@@ -369,6 +369,12 @@ public abstract class ProtocolProviderFactory
         = "AUTO_DISCOVER_JINGLE_NODES";
 
     /**
+     * Indicates if JingleNodes should use buddies to search for nodes.
+     */
+    public static final String JINGLE_NODES_SEARCH_BUDDIES
+        = "JINGLE_NODES_SEARCH_BUDDIES";
+
+    /**
      * Indicates if UPnP should be used with ICE.
      */
     public static final String IS_USE_UPNP = "UPNP_ENABLED";

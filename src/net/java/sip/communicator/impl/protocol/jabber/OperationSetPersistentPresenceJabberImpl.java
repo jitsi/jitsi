@@ -105,9 +105,11 @@ public class OperationSetPersistentPresenceJabberImpl
     /**
      * Creates the OperationSet.
      * @param provider the parent provider.
+     * @param infoRetreiver retrieve contact information.
      */
     public OperationSetPersistentPresenceJabberImpl(
-        ProtocolProviderServiceJabberImpl provider)
+        ProtocolProviderServiceJabberImpl provider,
+        InfoRetreiver infoRetreiver)
     {
         super(provider);
 
@@ -115,7 +117,8 @@ public class OperationSetPersistentPresenceJabberImpl
             parentProvider.getJabberStatusEnum().getStatus(
                 JabberStatusEnum.OFFLINE);
 
-        ssContactList = new ServerStoredContactListJabberImpl( this , provider);
+        ssContactList = new ServerStoredContactListJabberImpl(
+            this , provider, infoRetreiver);
 
         parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
