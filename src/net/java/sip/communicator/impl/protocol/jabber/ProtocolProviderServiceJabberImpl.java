@@ -2469,36 +2469,14 @@ public class ProtocolProviderServiceJabberImpl
             service.addTrackerEntry(entry);
         }
 
-        new Thread()
-        {
-            public void run()
-            {
-                synchronized(jingleNodesSyncRoot)
-                {
-                    if(logger.isInfoEnabled())
-                    {
-                        logger.info("Start Jingle Nodes discovery!");
-                    }
+        new Thread(new JingleNodesServiceDiscovery(
+                            service,
+                            connection,
+                            accID,
+                            jingleNodesSyncRoot))
+                .start();
 
-                    final SmackServiceNode.MappedNodes nodes =
-                        service.searchServices(
-                                connection, 6, 3, 20, JingleChannelIQ.UDP,
-                                accID.isJingleNodesAutoDiscoveryEnabled(),
-                                accID.isJingleNodesSearchBuddiesEnabled());
-
-                    if(logger.isInfoEnabled())
-                    {
-                        logger.info("Jingle Nodes discovery terminated!");
-                        logger.info("Found " + nodes.getRelayEntries().size() +
-                                " Jingle Nodes relay for account: " +
-                                accountID.getAccountAddress());
-                    }
-
-                    service.addEntries(nodes);
-                    jingleNodesServiceNode = service;
-                }
-            }
-        }.start();
+        jingleNodesServiceNode = service;
     }
 
     /**
