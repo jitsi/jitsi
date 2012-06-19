@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.impl.version;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.version.*;
+import net.java.sip.communicator.service.version.Version;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The entry point to the Version Service Implementation. We register the
@@ -22,24 +23,15 @@ public class VersionActivator
     implements BundleActivator
 {
     /**
-     * The logger.
+     * The <tt>Logger</tt> used by this <tt>VersionActivator</tt> instance for
+     * logging output.
      */
-    private Logger logger = Logger.getLogger(VersionActivator.class.getName());
-
-    /**
-     * The OSGi service registration.
-     */
-    private ServiceRegistration versionServReg = null;
+    private final Logger logger = Logger.getLogger(VersionActivator.class);
 
     /**
      * The OSGi <tt>BundleContext</tt>.
      */
-    static BundleContext bundleContext = null;
-
-    /**
-     * The configuration service.
-     */
-    private static ConfigurationService configurationService  = null;
+    private static BundleContext bundleContext;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -55,59 +47,55 @@ public class VersionActivator
     {
         if (logger.isDebugEnabled())
             logger.debug("Started.");
+
         VersionActivator.bundleContext = context;
 
-        VersionServiceImpl versionServiceImpl = new VersionServiceImpl();
+        context.registerService(
+                VersionService.class.getName(),
+                new VersionServiceImpl(),
+                null);
 
-        versionServReg =  context.registerService(
-                    VersionService.class.getName(),
-                    versionServiceImpl,
-                    null);
         if (logger.isDebugEnabled())
             logger.debug("Jitsi Version Service ... [REGISTERED]");
+
+        Version version = VersionImpl.currentVersion();
+        String applicationName = version.getApplicationName();
+        String versionString = version.toString();
+
         if (logger.isInfoEnabled())
-            logger.info("Jitsi Version: "
-                     + VersionImpl.currentVersion().getApplicationName()
-                     + " "
-                     + VersionImpl.currentVersion().toString());
+        {
+            logger.info(
+                    "Jitsi Version: " + applicationName + " " + versionString);
+        }
 
         //register properties for those that would like to use them
-        getConfigurationService().setProperty(
-            "sip-communicator.version"
-            , VersionImpl.currentVersion().toString()
-            , true);
+        ConfigurationService cfg = getConfigurationService();
 
-        getConfigurationService().setProperty(
-            "sip-communicator.application.name"
-            , VersionImpl.currentVersion().getApplicationName()
-            , true);
-
+        cfg.setProperty(Version.PNAME_APPLICATION_NAME, applicationName, true);
+        cfg.setProperty(Version.PNAME_APPLICATION_VERSION, versionString, true);
     }
 
     /**
-     * Returns a reference to a ConfigurationService implementation currently
-     * registered in the bundle context or null if no such implementation was
-     * found.
+     * Gets a <tt>ConfigurationService</tt> implementation currently
+     * registered in the <tt>BundleContext</tt> in which this bundle has been
+     * started or <tt>null</tt> if no such implementation was found.
      *
-     * @return a currently valid implementation of the ConfigurationService.
+     * @return a <tt>ConfigurationService</tt> implementation currently
+     * registered in the <tt>BundleContext</tt> in which this bundle has been
+     * started or <tt>null</tt> if no such implementation was found
      */
-    public static ConfigurationService getConfigurationService()
+    private static ConfigurationService getConfigurationService()
     {
-        if(configurationService == null)
-        {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                    ConfigurationService.class.getName());
-            configurationService
-                = (ConfigurationService) bundleContext.getService(confReference);
-        }
-        return configurationService;
+        return
+            ServiceUtils.getService(bundleContext, ConfigurationService.class);
     }
 
     /**
-     * Returns a reference to the bundle context that we were started with.
-     * @return a reference to the BundleContext instance that we were started
-     * witn.
+     * Gets the <tt>BundleContext</tt> instance within which this bundle has
+     * been started.
+     *
+     * @return the <tt>BundleContext</tt> instance within which this bundle has
+     * been started
      */
     public static BundleContext getBundleContext()
     {
@@ -126,8 +114,5 @@ public class VersionActivator
      */
     public void stop(BundleContext context) throws Exception
     {
-        versionServReg.unregister();
-
-        configurationService = null;
     }
 }

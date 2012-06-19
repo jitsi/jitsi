@@ -106,7 +106,7 @@ public class DirectShowSystem
         }
 
         if (captureDeviceInfoIsAdded
-                && !NeomediaActivator.isJmfRegistryDisableLoad())
+                && !MediaServiceImpl.isJmfRegistryDisableLoad())
             CaptureDeviceManager.commit();
 
         DSManager.dispose();

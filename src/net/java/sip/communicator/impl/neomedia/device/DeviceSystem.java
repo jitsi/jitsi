@@ -365,7 +365,7 @@ public abstract class DeviceSystem
                     CaptureDeviceManager.removeDevice(cdi);
                     commit = true;
                 }
-                if (commit && !NeomediaActivator.isJmfRegistryDisableLoad())
+                if (commit && !MediaServiceImpl.isJmfRegistryDisableLoad())
                 {
                     try
                     {

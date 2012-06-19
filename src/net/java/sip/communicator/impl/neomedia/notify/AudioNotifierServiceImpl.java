@@ -6,13 +6,14 @@
  */
 package net.java.sip.communicator.impl.neomedia.notify;
 
+import java.beans.*;
 import java.net.*;
 import java.util.*;
-import java.beans.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.service.audionotifier.*;
+import net.java.sip.communicator.service.resources.*;
 
 /**
  * The implementation of the AudioNotifierService.
@@ -37,7 +38,7 @@ public class AudioNotifierServiceImpl
     /**
      * Device config to look for notify device.
      */
-    private DeviceConfiguration deviceConfiguration;
+    private final DeviceConfiguration deviceConfiguration;
 
     /**
      * Creates audio notify service.
@@ -46,6 +47,7 @@ public class AudioNotifierServiceImpl
     public AudioNotifierServiceImpl(DeviceConfiguration deviceConfiguration)
     {
         this.deviceConfiguration = deviceConfiguration;
+
         deviceConfiguration.addPropertyChangeListener(this);
     }
 
@@ -68,8 +70,12 @@ public class AudioNotifierServiceImpl
             }
             else
             {
-                URL url =
-                    NeomediaActivator.getResources().getSoundURLForPath(uri);
+                ResourceManagementService resources
+                    = NeomediaActivator.getResources();
+                URL url
+                    = (resources == null)
+                        ? null
+                        : resources.getSoundURLForPath(uri);
 
                 if (url == null)
                 {

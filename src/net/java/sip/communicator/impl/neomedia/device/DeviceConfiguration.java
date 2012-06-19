@@ -236,6 +236,38 @@ public class DeviceConfiguration
     private Dimension videoSize;
 
     /**
+     * Initializes a new <tt>DeviceConfiguration</tt> instance.
+     */
+    public DeviceConfiguration()
+    {
+        // these seem to be throwing exceptions every now and then so we'll
+        // blindly catch them for now
+        try
+        {
+            DeviceSystem.initializeDeviceSystems();
+            extractConfiguredCaptureDevices();
+
+            ConfigurationService cfg
+                = NeomediaActivator.getConfigurationService();
+
+            if (cfg != null)
+            {
+                cfg.addPropertyChangeListener(PROP_VIDEO_HEIGHT, this);
+                cfg.addPropertyChangeListener(PROP_VIDEO_WIDTH, this);
+                cfg.addPropertyChangeListener(PROP_VIDEO_FRAMERATE, this);
+                cfg.addPropertyChangeListener(PROP_VIDEO_MAX_BANDWIDTH, this);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to initialize media.", ex);
+        }
+
+        registerCustomRenderers();
+        fixRenderers();
+    }
+
+    /**
      * Fixes the list of <tt>Renderer</tt>s registered with FMJ in order to
      * resolve operating system-specific issues.
      */
@@ -299,38 +331,6 @@ public class DeviceConfiguration
                         PlugInManager.RENDERER);
             }
         }
-    }
-
-    /**
-     * Initializes capture devices.
-     */
-    public void initialize()
-    {
-        // these seem to be throwing exceptions every now and then so we'll
-        // blindly catch them for now
-        try
-        {
-            DeviceSystem.initializeDeviceSystems();
-            extractConfiguredCaptureDevices();
-
-            ConfigurationService cfg
-                = NeomediaActivator.getConfigurationService();
-
-            if (cfg != null)
-            {
-                cfg.addPropertyChangeListener(PROP_VIDEO_HEIGHT, this);
-                cfg.addPropertyChangeListener(PROP_VIDEO_WIDTH, this);
-                cfg.addPropertyChangeListener(PROP_VIDEO_FRAMERATE, this);
-                cfg.addPropertyChangeListener(PROP_VIDEO_MAX_BANDWIDTH, this);
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.error("Failed to initialize media.", ex);
-        }
-
-        registerCustomRenderers();
-        fixRenderers();
     }
 
     /**
@@ -825,7 +825,7 @@ public class DeviceConfiguration
                 logger.trace("Reordered plug-in list:" + plugins);
         }
 
-        if (commit && !NeomediaActivator.isJmfRegistryDisableLoad())
+        if (commit && !MediaServiceImpl.isJmfRegistryDisableLoad())
         {
             try
             {

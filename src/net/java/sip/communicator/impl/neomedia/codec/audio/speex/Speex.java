@@ -31,7 +31,7 @@ public final class Speex
 
     static
     {
-        System.loadLibrary("jspeex");
+        System.loadLibrary("jnspeex");
     }
 
     static void assertSpeexIsFunctional()

@@ -4,10 +4,11 @@ ARCH=$(shell uname -m | sed -e s/x86_64/-64/ -e s/i.86//)
 TARGET=../../../../lib/native/linux$(ARCH)/libjvideo4linux2.so
 
 CC=gcc
-CPPFLAGS=-DJNI_IMPLEMENTATION \
+CPPFLAGS=-D_JNI_IMPLEMENTATION_ \
          -fPIC \
-         -Wall -Wreturn-type \
-         -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+         -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux \
+         -O2 \
+         -Wall
 LDFLAGS=-shared
 LIBS=
 

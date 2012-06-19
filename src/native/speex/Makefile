@@ -4,10 +4,11 @@ SPEEX_HOME?=/home/lubomir/src/speex-1.2rc1
 TARGET=../../../lib/native/linux/libjspeex.so
 
 CC=gcc
-CPPFLAGS=-DJNI_IMPLEMENTATION \
-         -Wall -Wreturn-type \
+CPPFLAGS=-D_JNI_IMPLEMENTATION_ \
          -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux \
-         -I$(SPEEX_HOME)/include
+         -I$(SPEEX_HOME)/include \
+         -O2 \
+         -Wall
 LDFLAGS=-shared -fPIC
 LIBS=-L$(SPEEX_HOME)/libspeex/.libs -Wl,-Bstatic -lspeex -lspeexdsp -Wl,-Bdynamic -lm
 

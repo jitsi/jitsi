@@ -343,7 +343,16 @@ class NotificationServiceImpl
     public Iterable<NotificationHandler> getActionHandlers(String actionType)
     {
         if (actionType != null)
-            return Collections.singleton(handlers.get(actionType));
+        {
+            NotificationHandler handler = handlers.get(actionType);
+            Set<NotificationHandler> ret;
+
+            if (handler == null)
+                ret = Collections.emptySet();
+            else
+                ret = Collections.singleton(handler);
+            return ret;
+        }
         else
             return handlers.values();
     }

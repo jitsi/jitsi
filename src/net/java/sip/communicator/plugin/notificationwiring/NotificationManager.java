@@ -711,14 +711,19 @@ public class NotificationManager
         if(notificationService == null)
             return;
 
-        Iterable<NotificationHandler> soundHandlers =
-            notificationService.getActionHandlers(
-                NotificationAction.ACTION_SOUND);
+        Iterable<NotificationHandler> soundHandlers
+            = notificationService.getActionHandlers(
+                    NotificationAction.ACTION_SOUND);
 
         // There could be no sound action handler for this event type
-        if(soundHandlers != null)
-            for(NotificationHandler handler : soundHandlers)
-                ((SoundNotificationHandler)handler).stop(data);
+        if (soundHandlers != null)
+        {
+            for (NotificationHandler handler : soundHandlers)
+            {
+                if (handler instanceof SoundNotificationHandler)
+                    ((SoundNotificationHandler) handler).stop(data);
+            }
+        }
     }
 
     /**

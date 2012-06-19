@@ -8,8 +8,7 @@ package net.java.sip.communicator.impl.version;
 
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.version.*;
-
-import org.osgi.framework.ServiceReference;
+import net.java.sip.communicator.util.*;
 
 /**
  * A static implementation of the Version interface.
@@ -61,18 +60,13 @@ public class VersionImpl
     /**
      * The name of this application.
      */
-    public static String applicationName = null;
+    private static String applicationName = null;
 
     /**
      * Returns the VersionImpl instance describing the current version of
      * SIP Communicator.
      */
     public static final VersionImpl CURRENT_VERSION = new VersionImpl();
-
-    /**
-     * The resource management service.
-     */
-    private static ResourceManagementService resourcesService;
 
     /**
      * Returns the version major of the current SIP Communicator version. In an
@@ -282,37 +276,38 @@ public class VersionImpl
      */
     public String getApplicationName()
     {
-        if(applicationName == null)
+        if (applicationName == null)
         {
             try
             {
-                if (resourcesService == null)
+                /*
+                 * XXX There is no need to have the ResourceManagementService
+                 * instance as a static field of the VersionImpl class because
+                 * it will be used once only anyway.
+                 */
+                ResourceManagementService resources
+                    = ServiceUtils.getService(
+                            VersionActivator.getBundleContext(),
+                            ResourceManagementService.class);
+
+                if (resources != null)
                 {
-                    ServiceReference serviceReference =
-                        VersionActivator.bundleContext
-                        .getServiceReference(
-                                ResourceManagementService.class.getName());
-
-                    if(serviceReference == null)
-                        return null;
-
-                    resourcesService =
-                        (ResourceManagementService)VersionActivator.
-                            bundleContext.getService(serviceReference);
+                    applicationName
+                        = resources.getSettingsString(
+                                "service.gui.APPLICATION_NAME");
                 }
-
-                applicationName =
-                    resourcesService.getSettingsString(
-                        "service.gui.APPLICATION_NAME");
             }
             catch (Exception e)
             {
                 // if resource bundle is not found or the key is missing
                 // return the default name
-                applicationName = DEFAULT_APPLICATION_NAME;
+            }
+            finally
+            {
+                if (applicationName == null)
+                    applicationName = DEFAULT_APPLICATION_NAME;
             }
         }
-
         return applicationName;
     }
 }

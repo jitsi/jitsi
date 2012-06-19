@@ -14,9 +14,13 @@ import net.java.sip.communicator.service.neomedia.device.*;
  * Implementation of <tt>ScreenDevice</tt>.
  *
  * @author Sebastien Vincent
+ * @author Lyubomir Marinov
  */
 public class ScreenDeviceImpl implements ScreenDevice
 {
+    private static final ScreenDevice[] EMPTY_SCREEN_DEVICE_ARRAY
+        = new ScreenDevice[0];
+
     /**
      * AWT <tt>GraphicsDevice</tt>.
      */
@@ -28,11 +32,11 @@ public class ScreenDeviceImpl implements ScreenDevice
     private final int index;
 
     /**
-     * Returns all available <tt>ScreenDevice</tt> device.
+     * Returns all available <tt>ScreenDevice</tt> instances.
      *
-     * @return array of <tt>ScreenDevice</tt> device
+     * @return array of <tt>ScreenDevice</tt> instances
      */
-    public static ScreenDevice[] getAvailableScreenDevice()
+    public static ScreenDevice[] getAvailableScreenDevices()
     {
         GraphicsEnvironment ge;
 
@@ -70,7 +74,28 @@ public class ScreenDeviceImpl implements ScreenDevice
             }
         }
 
-        return screens;
+        return (screens == null) ? EMPTY_SCREEN_DEVICE_ARRAY : screens;
+    }
+
+    public static ScreenDevice getDefaultScreenDevice()
+    {
+        ScreenDevice[] screens = getAvailableScreenDevices();
+        int width = 0;
+        int height = 0;
+        ScreenDevice best = null;
+
+        for (ScreenDevice screen : screens)
+        {
+            java.awt.Dimension res = screen.getSize();
+
+            if ((res != null) && ((width < res.width) || (height < res.height)))
+            {
+                width = res.width;
+                height = res.height;
+                best = screen;
+            }
+        }
+        return best;
     }
 
     /**

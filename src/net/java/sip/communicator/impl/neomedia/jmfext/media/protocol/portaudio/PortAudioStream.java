@@ -114,9 +114,13 @@ public class PortAudioStream
 
         this.audioQualityImprovement = audioQualityImprovement;
 
+        MediaServiceImpl mediaServiceImpl
+            = NeomediaActivator.getMediaServiceImpl();
+
         gainControl
-            = (GainControl)
-                NeomediaActivator.getMediaServiceImpl().getInputVolumeControl();
+            = (mediaServiceImpl == null)
+                ? null
+                : (GainControl) mediaServiceImpl.getInputVolumeControl();
     }
 
     /**

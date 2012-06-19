@@ -92,7 +92,7 @@ public class QuickTimeSystem
                 logger.debug("Added CaptureDeviceInfo " + device);
         }
         if (captureDeviceInfoIsAdded
-                && !NeomediaActivator.isJmfRegistryDisableLoad())
+                && !MediaServiceImpl.isJmfRegistryDisableLoad())
             CaptureDeviceManager.commit();
     }
 }

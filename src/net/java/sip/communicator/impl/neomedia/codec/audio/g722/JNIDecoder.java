@@ -45,7 +45,7 @@ public class JNIDecoder
 
     static
     {
-        System.loadLibrary("jg722");
+        System.loadLibrary("jng722");
     }
 
     private static native void g722_decoder_close(long decoder);

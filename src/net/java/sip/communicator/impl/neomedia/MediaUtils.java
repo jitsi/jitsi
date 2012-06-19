@@ -14,6 +14,7 @@ import javax.sdp.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
+import net.java.sip.communicator.impl.neomedia.device.*;
 import net.java.sip.communicator.impl.neomedia.format.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
@@ -29,7 +30,6 @@ import net.java.sip.communicator.util.*;
  */
 public class MediaUtils
 {
-
     /**
      * The constant which stands for an empty array of <tt>MediaFormat</tt>s.
      * Explicitly defined in order to reduce unnecessary allocations.
@@ -202,8 +202,11 @@ public class MediaUtils
          */
         //h264AdvancedAttributes.put("rtcp-fb", "nack pli");
 
-        ScreenDevice screen
-            = NeomediaActivator.getMediaServiceImpl().getDefaultScreenDevice();
+        /*
+         * XXX The initialization of MediaServiceImpl is very complex so it is
+         * wise to not reference it at the early stage of its initialization.
+         */
+        ScreenDevice screen = ScreenDeviceImpl.getDefaultScreenDevice();
         java.awt.Dimension res = (screen == null) ? null : screen.getSize();
 
         h264AdvancedAttributes.put("imageattr", createImageAttr(null, res));

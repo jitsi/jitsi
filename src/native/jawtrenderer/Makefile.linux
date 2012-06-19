@@ -3,11 +3,13 @@ JAVA_HOME?=/usr/lib/jvm/java-6-sun
 ARCH=$(shell uname -m | sed -e s/x86_64/-64/ -e s/i.86//)
 TARGET=../../../lib/native/linux$(ARCH)/libjawtrenderer.so
 
-CC=gcc -g -std=c99
-CPPFLAGS=-DJNI_IMPLEMENTATION \
+CC=gcc
+CPPFLAGS=-D_JNI_IMPLEMENTATION_ \
          -fPIC \
-         -Wall -Wreturn-type \
-         -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+         -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux \
+         -O2 \
+         -std=c99 \
+         -Wall
 LDFLAGS=-shared -Wl,--no-undefined
 LIBS=-L$(JAVA_HOME)/jre/lib/i386 -ljawt -lXv -lX11
 

@@ -16,7 +16,7 @@ public class DSFormat
 
     static
     {
-        System.loadLibrary("jdirectshow");
+        System.loadLibrary("jndirectshow");
 
         RGB24 = getRGB24PixelFormat();
         RGB32 = getRGB32PixelFormat();

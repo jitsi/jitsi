@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.neomedia;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 
@@ -27,11 +28,14 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.event.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.json.*;
+
+import com.sun.media.util.*;
 
 /**
  * Implements <tt>MediaService</tt> for JMF.
@@ -82,6 +86,27 @@ public class MediaServiceImpl
      */
     private static final List<MediaDevice> EMPTY_DEVICES
         = Collections.emptyList();
+
+    /**
+     * The name of the <tt>System</tt> boolean property which specifies whether
+     * the loading of the JMF/FMJ <tt>Registry</tt> is to be disabled. 
+     */
+    private static final String JMF_REGISTRY_DISABLE_LOAD
+        = "net.sf.fmj.utility.JmfRegistry.disableLoad";
+
+    /**
+     * The indicator which determines whether the loading of the JMF/FMJ
+     * <tt>Registry</tt> is disabled.
+     */
+    private static boolean jmfRegistryDisableLoad;
+
+    /**
+     * The indicator which determined whether
+     * {@link #postInitializeOnce(MediaServiceImpl)} has been executed in order
+     * to perform one-time initialization after initializing the first instance
+     * of <tt>MediaServiceImpl</tt>.
+     */
+    private static boolean postInitializeOnce;
 
     /**
      * The <tt>CaptureDevice</tt> user choices such as the default audio and
@@ -177,11 +202,36 @@ public class MediaServiceImpl
     private final List<Recorder.Listener> recorderListeners =
             new ArrayList<Recorder.Listener>();
 
+    static
+    {
+        setupFMJ();
+    }
+
     /**
      * Initializes a new <tt>MediaServiceImpl</tt> instance.
      */
     public MediaServiceImpl()
     {
+        /*
+         * XXX The deviceConfiguration is initialized and referenced by this
+         * instance so adding deviceConfigurationPropertyChangeListener does not
+         * need a matching removal.
+         */
+        deviceConfiguration.addPropertyChangeListener(
+                deviceConfigurationPropertyChangeListener);
+
+        /*
+         * Perform one-time initialization after initializing the first instance
+         * of MediaServiceImpl.
+         */
+        synchronized (MediaServiceImpl.class)
+        {
+            if (!postInitializeOnce)
+            {
+                postInitializeOnce = true;
+                postInitializeOnce(this);
+            }
+        }
     }
 
     /**
@@ -589,29 +639,6 @@ public class MediaServiceImpl
     }
 
     /**
-     * Starts this <tt>MediaService</tt> implementation and thus makes it
-     * operational.
-     */
-    void start()
-    {
-        deviceConfiguration.initialize();
-        deviceConfiguration.addPropertyChangeListener(
-                deviceConfigurationPropertyChangeListener);
-
-        encodingConfiguration.initialize();
-    }
-
-    /**
-     * Stops this <tt>MediaService</tt> implementation and thus signals that its
-     * utilization should cease.
-     */
-    void stop()
-    {
-        deviceConfiguration.removePropertyChangeListener(
-                deviceConfigurationPropertyChangeListener);
-    }
-
-    /**
      * Initializes a new <tt>ZrtpControl</tt> instance which is to control all
      * ZRTP options.
      *
@@ -680,7 +707,7 @@ public class MediaServiceImpl
      */
     public List<ScreenDevice> getAvailableScreenDevices()
     {
-        ScreenDevice screens[] = ScreenDeviceImpl.getAvailableScreenDevice();
+        ScreenDevice screens[] = ScreenDeviceImpl.getAvailableScreenDevices();
         List<ScreenDevice> screenList;
 
         if ((screens != null) && (screens.length != 0))
@@ -893,10 +920,12 @@ public class MediaServiceImpl
             MediaDevice device,
             int preferredWidth, int preferredHeight)
     {
-        JLabel noPreview
-            = new JLabel(
-                    NeomediaActivator.getResources().getI18NString(
-                            "impl.media.configform.NO_PREVIEW"));
+        ResourceManagementService resources = NeomediaActivator.getResources();
+        String noPreviewText
+            = (resources == null)
+                ? ""
+                : resources.getI18NString("impl.media.configform.NO_PREVIEW");
+        JLabel noPreview = new JLabel(noPreviewText);
 
         noPreview.setHorizontalAlignment(SwingConstants.CENTER);
         noPreview.setVerticalAlignment(SwingConstants.CENTER);
@@ -1289,11 +1318,11 @@ public class MediaServiceImpl
                         ? split[0]
                         : remainder);
 
-        ScreenDevice devs[] = ScreenDeviceImpl.getAvailableScreenDevice();
+        List<ScreenDevice> devs = getAvailableScreenDevices();
 
-        if (devs.length - 1 >= index)
+        if (devs.size() - 1 >= index)
         {
-            Rectangle r = ((ScreenDeviceImpl)devs[index]).getBounds();
+            Rectangle r = ((ScreenDeviceImpl) devs.get(index)).getBounds();
 
             return new Point(r.x, r.y);
         }
@@ -1379,5 +1408,87 @@ public class MediaServiceImpl
     public RTPTranslator createRTPTranslator()
     {
         return new RTPTranslatorImpl();
+    }
+
+    /**
+     * Gets the indicator which determines whether the loading of the JMF/FMJ
+     * <tt>Registry</tt> has been disabled.
+     *
+     * @return <tt>true</tt> if the loading of the JMF/FMJ <tt>Registry</tt> has
+     * been disabled; otherwise, <tt>false</tt>
+     */
+    public static boolean isJmfRegistryDisableLoad()
+    {
+        return jmfRegistryDisableLoad;
+    }
+
+    /**
+     * Performs one-time initialization after initializing the first instance of
+     * <tt>MediaServiceImpl</tt>.
+     *
+     * @param mediaServiceImpl the <tt>MediaServiceImpl</tt> instance which has
+     * caused the need to perform the one-time initialization
+     */
+    private static void postInitializeOnce(MediaServiceImpl mediaServiceImpl)
+    {
+        new ZrtpFortunaEntropyGatherer(
+                mediaServiceImpl.getDeviceConfiguration())
+            .setEntropy();
+    }
+
+    /**
+     * Sets up FMJ for execution. For example, sets properties which instruct
+     * FMJ whether it is to create a log, where the log is to be created.
+     */
+    private static void setupFMJ()
+    {
+        /*
+         * Since FMJ is part of neomedia, FMJ's log should be enabled when
+         * neomedia's log is enabled.
+         */
+        Registry.set("allowLogging", logger.isDebugEnabled());
+
+        /*
+         * Disable the loading of .fmj.registry because Kertesz Laszlo has
+         * reported that audio input devices duplicate after restarting Jitsi.
+         * Besides, Jitsi does not really need .fmj.registry on startup.
+         */
+        if (System.getProperty(JMF_REGISTRY_DISABLE_LOAD) == null)
+            System.setProperty(JMF_REGISTRY_DISABLE_LOAD, "true");
+        jmfRegistryDisableLoad
+            = "true".equalsIgnoreCase(System.getProperty(
+                    JMF_REGISTRY_DISABLE_LOAD));
+
+        String scHomeDirLocation
+            = System.getProperty(
+                ConfigurationService.PNAME_SC_HOME_DIR_LOCATION);
+
+        if (scHomeDirLocation != null)
+        {
+            String scHomeDirName
+                = System.getProperty(
+                    ConfigurationService.PNAME_SC_HOME_DIR_NAME);
+
+            if (scHomeDirName != null)
+            {
+                File scHomeDir = new File(scHomeDirLocation, scHomeDirName);
+
+                /* Write FMJ's log in Jitsi's log directory. */
+                Registry.set(
+                    "secure.logDir",
+                    new File(scHomeDir, "log").getPath());
+
+                /* Write FMJ's registry in Jitsi's user data directory. */
+                String jmfRegistryFilename
+                    = "net.sf.fmj.utility.JmfRegistry.filename";
+
+                if (System.getProperty(jmfRegistryFilename) == null)
+                {
+                    System.setProperty(
+                        jmfRegistryFilename,
+                        new File(scHomeDir, ".fmj.registry").getAbsolutePath());
+                }
+            }
+        }
     }
 }

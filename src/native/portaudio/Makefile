@@ -1,7 +1,7 @@
 PORTAUDIO_HOME?=../../../../portaudio-20101214
 SPEEX_HOME?=../../../../speex-1.2rc1
 
-CC=gcc -O2
+CC=gcc
 TARGET_BASENAME=jnportaudio
 
 OS=$(shell $(CC) -dumpmachine | sed -e s/.*-apple-.*/mac/ -e s/.*-linux-.*/linux/ -e s/.*-.*-mingw32/windows/)
@@ -37,8 +37,10 @@ else
   endif
 endif
 
-CPPFLAGS:=-Wall -Wreturn-type -DJNI_IMPLEMENTATION \
+CPPFLAGS:=-D_JNI_IMPLEMENTATION_ \
          -I$(SPEEX_HOME)/include  -I$(PORTAUDIO_HOME)/include \
+         -O2 \
+         -Wall \
          $(CPPFLAGS)
 LDFLAGS:=-fPIC $(LDFLAGS)
 LIBS:=-L$(PORTAUDIO_HOME)/lib/.libs -L$(SPEEX_HOME)/libspeex/.libs $(LIBS)

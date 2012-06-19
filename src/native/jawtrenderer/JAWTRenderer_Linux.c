@@ -8,6 +8,7 @@
 #include "JAWTRenderer.h"
 
 #include <jawt_md.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,9 +43,8 @@ void
 JAWTRenderer_close
     (JNIEnv *jniEnv, jclass clazz, jlong handle, jobject component)
 {
-    JAWTRenderer *renderer;
+    JAWTRenderer *renderer = (JAWTRenderer *) (intptr_t) handle;
 
-    renderer = (JAWTRenderer *) handle;
     if (-1 != renderer->port)
         _JAWTRenderer_ungrabPort(renderer);
     if (renderer->data)
@@ -86,7 +86,7 @@ JAWTRenderer_open(JNIEnv *jniEnv, jclass clazz, jobject component)
     }
     else
         renderer = NULL;
-    return (jlong) renderer;
+    return (jlong) (intptr_t) renderer;
 }
 
 jboolean
@@ -100,7 +100,7 @@ JAWTRenderer_paint
     XvPortID port;
 
     x11dsi = (JAWT_X11DrawingSurfaceInfo *) (dsi->platformInfo);
-    renderer = (JAWTRenderer *) handle;
+    renderer = (JAWTRenderer *) (intptr_t) handle;
 
     display = x11dsi->display;
     drawable = x11dsi->drawable;
@@ -173,7 +173,7 @@ JAWTRenderer_process
         char *rendererData;
         jint dataLength;
 
-        renderer = (JAWTRenderer *) handle;
+        renderer = (JAWTRenderer *) (intptr_t) handle;
         rendererData = renderer->data;
         dataLength = sizeof(jint) * length;
         if (!rendererData || (renderer->dataCapacity < dataLength))

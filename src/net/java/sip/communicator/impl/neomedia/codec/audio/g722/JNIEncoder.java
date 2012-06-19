@@ -19,7 +19,7 @@ public class JNIEncoder
 {
     static
     {
-        System.loadLibrary("jg722");
+        System.loadLibrary("jng722");
     }
 
     private static native void g722_encoder_close(long encoder);

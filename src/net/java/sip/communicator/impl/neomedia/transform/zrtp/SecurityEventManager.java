@@ -13,6 +13,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -396,12 +397,16 @@ public class SecurityEventManager extends ZrtpUserCallback
      */
     private static String getI18NString(String key, String param)
     {
-        String[] params = null;
+        ResourceManagementService resources = NeomediaActivator.getResources();
 
-        if(param != null)
-            params = new String[]{param};
+        if (resources == null)
+            return null;
+        else
+        {
+            String[] params = (param == null) ? null : new String[] { param };
 
-        return NeomediaActivator.getResources().getI18NString(key, params);
+            return resources.getI18NString(key, params);
+        }
     }
 
     /**

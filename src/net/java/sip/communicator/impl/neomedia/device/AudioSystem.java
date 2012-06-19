@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 
 import javax.media.*;
+import javax.media.format.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.configuration.*;
@@ -141,13 +142,37 @@ public abstract class AudioSystem
 
     public List<CaptureDeviceInfo> getCaptureDevices()
     {
+        MediaServiceImpl mediaServiceImpl
+            = NeomediaActivator.getMediaServiceImpl();
+        DeviceConfiguration deviceConfiguration
+            = (mediaServiceImpl == null)
+                ? null
+                : mediaServiceImpl.getDeviceConfiguration();
+        List<CaptureDeviceInfo> deviceList;
+
+        if (deviceConfiguration == null)
+        {
+            /*
+             * XXX The initialization of MediaServiceImpl is very complex so it
+             * is wise to not reference it at the early stage of its
+             * initialization. The same goes for DeviceConfiguration. If for
+             * some reason one of the two is not available at this time, just
+             * fall back go something that makes sense.
+             */
+            @SuppressWarnings("unchecked")
+            Vector<CaptureDeviceInfo> audioCaptureDeviceInfos
+                = CaptureDeviceManager.getDeviceList(
+                        new AudioFormat(AudioFormat.LINEAR, -1, 16, -1));
+
+            deviceList = audioCaptureDeviceInfos;
+        }
+        else
+        {
+            deviceList = deviceConfiguration.getAvailableAudioCaptureDevices();
+        }
+
         return
-            filterDeviceListByLocatorProtocol(
-                    NeomediaActivator
-                        .getMediaServiceImpl()
-                            .getDeviceConfiguration()
-                                .getAvailableAudioCaptureDevices(),
-                    getLocatorProtocol());
+            filterDeviceListByLocatorProtocol(deviceList, getLocatorProtocol());
     }
 
     public CaptureDeviceInfo getNotifyDevice()
@@ -400,7 +425,7 @@ public abstract class AudioSystem
                 CaptureDeviceManager.addDevice(captureDevice);
                 commit = true;
             }
-            if (commit && !NeomediaActivator.isJmfRegistryDisableLoad())
+            if (commit && !MediaServiceImpl.isJmfRegistryDisableLoad())
             {
                 try
                 {

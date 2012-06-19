@@ -18,7 +18,7 @@ public class NativeScreenCapture
 {
     static
     {
-        System.loadLibrary("screencapture");
+        System.loadLibrary("jnscreencapture");
     }
 
     /**

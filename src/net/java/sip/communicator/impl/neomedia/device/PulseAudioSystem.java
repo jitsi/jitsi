@@ -16,7 +16,6 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.impl.neomedia.jmfext.media.renderer.audio.*;
 import net.java.sip.communicator.impl.neomedia.pulseaudio.*;
 import net.java.sip.communicator.service.version.*;
-import net.java.sip.communicator.util.*;
 
 public class PulseAudioSystem
     extends AudioSystem
@@ -415,34 +414,28 @@ public class PulseAudioSystem
      */
     private void populateContextProplist(long proplist)
     {
-        VersionService versionService
-            = ServiceUtils.getService(
-                    NeomediaActivator.getBundleContext(),
-                    VersionService.class);
+        /*
+         * XXX For the sake of simplicity while working on libjitsi, get the
+         * version information in the form of System property values instead of
+         * going through the VersionService.
+         */
+        String applicationName
+            = System.getProperty(Version.PNAME_APPLICATION_NAME);
 
-        if (versionService != null)
-        {
-            Version version = versionService.getCurrentVersion();
+        if (applicationName != null)
+            PA.proplist_sets(
+                    proplist,
+                    PA.PROP_APPLICATION_NAME,
+                    applicationName);
 
-            if (version != null)
-            {
-                String applicationName = version.getApplicationName();
+        String applicationVersion
+            = System.getProperty(Version.PNAME_APPLICATION_VERSION);
 
-                if (applicationName != null)
-                    PA.proplist_sets(
-                            proplist,
-                            PA.PROP_APPLICATION_NAME,
-                            applicationName);
-
-                String applicationVersion = version.toString();
-
-                if (applicationVersion != null)
-                    PA.proplist_sets(
-                        proplist,
-                        PA.PROP_APPLICATION_VERSION,
-                        applicationVersion);
-            }
-        }
+        if (applicationVersion != null)
+            PA.proplist_sets(
+                    proplist,
+                    PA.PROP_APPLICATION_VERSION,
+                    applicationVersion);
     }
 
     public void signalMainloop(boolean waitForAccept)

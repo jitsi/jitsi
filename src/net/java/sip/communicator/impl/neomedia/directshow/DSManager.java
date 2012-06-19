@@ -34,7 +34,7 @@ public class DSManager
     static
     {
         /* load DLL */
-        System.loadLibrary("jdirectshow");
+        System.loadLibrary("jndirectshow");
     }
 
     /**

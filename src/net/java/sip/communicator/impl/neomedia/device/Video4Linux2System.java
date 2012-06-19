@@ -127,7 +127,7 @@ public class Video4Linux2System
                     || captureDeviceInfoIsAdded;
         }
         if (captureDeviceInfoIsAdded
-                && !NeomediaActivator.isJmfRegistryDisableLoad())
+                && !MediaServiceImpl.isJmfRegistryDisableLoad())
             CaptureDeviceManager.commit();
     }
 

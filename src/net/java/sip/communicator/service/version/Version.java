@@ -11,9 +11,29 @@ package net.java.sip.communicator.service.version;
  * currently running.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
-public interface Version extends Comparable<Version>
+public interface Version
+    extends Comparable<Version>
 {
+    /**
+     * The name of the <tt>System</tt> property the value of which is equal to
+     * the value of {@link #getApplicationName()}. Expected to be set by
+     * implementers of the <tt>VersionService</tt> and <tt>Version</tt>
+     * interfaces.
+     */
+    public static final String PNAME_APPLICATION_NAME
+        = "sip-communicator.application.name";
+
+    /**
+     * The name of the <tt>System</tt> property the value of which is equal to
+     * the value of {@link #toString()}. Expected to be set by
+     * implementers of the <tt>VersionService</tt> and <tt>Version</tt>
+     * interfaces.
+     */
+    public static final String PNAME_APPLICATION_VERSION
+        = "sip-communicator.version";
+
     /**
      * Returns the version major of the current SIP Communicator version. In an
      * example 2.3.1 version string 2 is the version major. The version major

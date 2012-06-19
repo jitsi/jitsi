@@ -627,7 +627,10 @@ public class VideoMediaDeviceSession
     private Component createLocalVisualComponentForDesktopStreaming()
     {
         ResourceManagementService resources = NeomediaActivator.getResources();
-        ImageIcon icon = resources.getImage(DESKTOP_STREAMING_ICON);
+        ImageIcon icon
+            = (resources == null)
+                ? null
+                : resources.getImage(DESKTOP_STREAMING_ICON);
         Canvas canvas;
 
         if (icon == null)

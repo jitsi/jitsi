@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.neomedia;
 
 import java.io.*;
@@ -10,34 +16,35 @@ import javax.media.protocol.*;
 import gnu.java.zrtp.utils.*;
 
 import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 /**
- * GatherEntropy initializes the Fortuna PRNG with entropy data.
+ * <tt>ZrtpFortunaEntropyGatherer</tt> initializes the Fortuna PRNG with entropy
+ * data.
  *
- * GatherEntropy gets the media device configuration and checks which media
- * systems are available. It then reads some data fom media input (capture)
- * devices and uses this data to seed the Fortuna PRNG. The ZrtpFortuna PRNG
- * is a singleton and all other methods that require random data shall use
- * this singleton.
+ * <tt>ZrtpFortunaEntropyGatherer</tt> gets the media device configuration and
+ * checks which media systems are available. It then reads some data from media
+ * input (capture) devices and uses this data to seed the Fortuna PRNG. The
+ * <tt>ZrtpFortuna</tt> PRNG is a singleton and all other methods that require
+ * random data shall use this singleton.
  *
- * Use GatherEntropy during startup and initialization phase of SIP
- * Communicator but after initialization of the media devices to get entropy
+ * Use <tt>ZrtpFortunaEntropyGatherer</tt> during startup and initialization
+ * phase of Jitsi but after initialization of the media devices to get entropy
  * data at the earliest point. Also make sure that entropy data is read from
  * local sources only and that entropy data is never send out (via networks
  * for example).
  *
  * @author Werner Dittmann <Werner.Dittmann@t-online.de>
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
-public class GatherEntropy
+public class ZrtpFortunaEntropyGatherer
 {
     /**
      * The <tt>Logger</tt> used by <tt>GatherEntropy</tt>
      * class for logging output.
      */
     private static final Logger logger
-        = Logger.getLogger(GatherEntropy.class);
+        = Logger.getLogger(ZrtpFortunaEntropyGatherer.class);
 
     /**
      * Device config to look for capture devices.
@@ -79,7 +86,7 @@ public class GatherEntropy
      * @param deviceConfiguration <tt>DeviceConfiguration</tt> needed to
      * initialize <tt>GatherEntropy</tt>
      */
-    public GatherEntropy(DeviceConfiguration deviceConfiguration)
+    public ZrtpFortunaEntropyGatherer(DeviceConfiguration deviceConfiguration)
     {
         this.deviceConfiguration = deviceConfiguration;
     }
@@ -120,7 +127,9 @@ public class GatherEntropy
         return retValue;
     }
 
-    private class GatherAudio extends Thread implements BufferTransferHandler
+    private class GatherAudio
+        extends Thread
+        implements BufferTransferHandler
     {
         /**
          * The PortAudio <tt>DataSource</tt> which provides

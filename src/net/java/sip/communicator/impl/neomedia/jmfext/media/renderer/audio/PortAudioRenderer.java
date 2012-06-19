@@ -159,13 +159,25 @@ public class PortAudioRenderer
      */
     public PortAudioRenderer(boolean enableVolumeControl)
     {
-        gainControl
-            = enableVolumeControl
-                ? (GainControl)
-                    NeomediaActivator
-                        .getMediaServiceImpl()
-                            .getOutputVolumeControl()
-                : null;
+        if (enableVolumeControl)
+        {
+            /*
+             * XXX The Renderer implementations are probed for their
+             * supportedInputFormats during the initialization of
+             * MediaServiceImpl so the latter may not be available at this time.
+             * Which is not much of a problem given than the GainControl is of
+             * no interest during the probing of the supportedInputFormats.
+             */
+            MediaServiceImpl mediaServiceImpl
+                = NeomediaActivator.getMediaServiceImpl();
+
+            gainControl
+                = (mediaServiceImpl == null)
+                    ? null
+                    : (GainControl) mediaServiceImpl.getOutputVolumeControl();
+        }
+        else
+            gainControl = null;
     }
 
     /**

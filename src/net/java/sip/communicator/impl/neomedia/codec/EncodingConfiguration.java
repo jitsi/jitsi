@@ -139,13 +139,9 @@ public class EncodingConfiguration
     private Set<MediaFormat> supportedVideoEncodings;
 
     /**
-     * Default constructor.
+     * Initializes a new <tt>EncodingConfiguration</tt> instance.
      */
     public EncodingConfiguration()
-    {
-    }
-
-    public void initialize()
     {
         initializeFormatPreferences();
         registerCustomPackages();
@@ -575,7 +571,7 @@ public class EncodingConfiguration
                 PlugInManager.setPlugInList(codecs, PlugInManager.CODEC);
         }
 
-        if (commit && !NeomediaActivator.isJmfRegistryDisableLoad())
+        if (commit && !MediaServiceImpl.isJmfRegistryDisableLoad())
         {
             try
             {

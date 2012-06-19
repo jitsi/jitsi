@@ -84,7 +84,7 @@ public class Video4Linux2
 
     static
     {
-        System.loadLibrary("jvideo4linux2");
+        System.loadLibrary("jnvideo4linux2");
 
         VIDIOC_DQBUF = VIDIOC_DQBUF();
         VIDIOC_G_FMT = VIDIOC_G_FMT();

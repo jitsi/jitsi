@@ -6,15 +6,14 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
-import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.util.*;
-
 import java.awt.*;
-import java.io.*;
 import java.net.*;
+
 import javax.media.format.*;
 import javax.media.rtp.*;
+
+import net.java.sip.communicator.impl.neomedia.device.*;
+import net.java.sip.communicator.service.neomedia.*;
 import net.sf.fmj.media.rtp.*;
 
 /**
@@ -273,15 +272,14 @@ public class MediaStreamStatsImpl
      */
     private VideoFormat getUploadVideoFormat()
     {
-        Dimension videoSize = null;
-        MediaDeviceSession mediaDeviceSession =
-            this.mediaStreamImpl.getDeviceSession();
-        if(mediaDeviceSession instanceof VideoMediaDeviceSession)
-        {
-            return ((VideoMediaDeviceSession) mediaDeviceSession)
-                .getSentVideoFormat();
-        }
-        return null;
+        MediaDeviceSession mediaDeviceSession
+            = mediaStreamImpl.getDeviceSession();
+
+        return
+            (mediaDeviceSession instanceof VideoMediaDeviceSession)
+                ? ((VideoMediaDeviceSession) mediaDeviceSession)
+                    .getSentVideoFormat()
+                : null;
     }
 
     /**
@@ -293,15 +291,14 @@ public class MediaStreamStatsImpl
      */
     private VideoFormat getDownloadVideoFormat()
     {
-        Dimension videoSize = null;
-        MediaDeviceSession mediaDeviceSession =
-            this.mediaStreamImpl.getDeviceSession();
-        if(mediaDeviceSession instanceof VideoMediaDeviceSession)
-        {
-            return ((VideoMediaDeviceSession) mediaDeviceSession)
-                .getReceivedVideoFormat();
-        }
-        return null;
+        MediaDeviceSession mediaDeviceSession
+            = mediaStreamImpl.getDeviceSession();
+
+        return
+            (mediaDeviceSession instanceof VideoMediaDeviceSession)
+                ? ((VideoMediaDeviceSession) mediaDeviceSession)
+                    .getReceivedVideoFormat()
+                : null;
     }
 
     /**

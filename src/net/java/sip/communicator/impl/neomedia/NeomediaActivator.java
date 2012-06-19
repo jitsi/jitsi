@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.neomedia;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
-import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -22,15 +21,12 @@ import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
-
-import com.sun.media.util.*;
 
 /**
  * Implements <tt>BundleActivator</tt> for the neomedia bundle.
@@ -55,13 +51,6 @@ public class NeomediaActivator
      */
     private static final String AUDIO_CONFIG_DISABLED_PROP
         = "net.java.sip.communicator.impl.neomedia.AUDIO_CONFIG_DISABLED";
-
-    /**
-     * The name of the <tt>System</tt> boolean property which specifies whether
-     * the loading of the JMF/FMJ <tt>Registry</tt> is to be disabled. 
-     */
-    private static final String JMF_REGISTRY_DISABLE_LOAD
-        = "net.sf.fmj.utility.JmfRegistry.disableLoad";
 
     /**
      * Indicates if the video configuration form should be disabled, i.e.
@@ -117,13 +106,6 @@ public class NeomediaActivator
     private static MediaServiceImpl mediaServiceImpl;
 
     /**
-     * The <tt>NetworkAddressManagerService</tt> registered in
-     * {@link #bundleContext} and used by the <tt>NeomediaActivator</tt>
-     * instance for network address resolution.
-     */
-    private static NetworkAddressManagerService networkAddressManagerService;
-
-    /**
      * The <tt>ResourceManagementService</tt> registered in
      * {@link #bundleContext} and representing the resources such as
      * internationalized and localized text and images used by the neomedia
@@ -132,90 +114,17 @@ public class NeomediaActivator
     private static ResourceManagementService resources;
 
     /**
-     * The OSGi <tt>ServiceRegistration</tt> of {@link #mediaServiceImpl} in
-     * {@link #bundleContext}.
-     */
-    private ServiceRegistration mediaServiceRegistration;
-
-    /**
      * The OSGi <tt>PacketLoggingService</tt> of {@link #mediaServiceImpl} in
      * {@link #bundleContext} and used for debugging.
      */
     private static PacketLoggingService packetLoggingService  = null;
 
-    /**
-     * A reference to the <tt>UIService</tt> currently in use.
-     */
-    private static UIService uiService = null;
-
     private PropertyChangeListener deviceConfigurationPropertyChangeListener;
-
-    /**
-     * The indicator which determines whether the loading of the JMF/FMJ
-     * <tt>Registry</tt> is disabled.
-     */
-    private static boolean jmfRegistryDisableLoad;
 
     /**
      * Audio configuration dialog.
      */
     private static SIPCommDialog audioConfigDialog = null;
-
-    /**
-     * Sets up FMJ for execution. For example, sets properties which instruct
-     * FMJ whether it is to create a log, where the log is to be created.
-     */
-    private void setupFMJ()
-    {
-        /*
-         * Since FMJ is part of neomedia, FMJ's log should be enabled when
-         * neomedia's log is enabled.
-         */
-        Registry.set("allowLogging", logger.isDebugEnabled());
-
-        /*
-         * Disable the loading of .fmj.registry because Kertesz Laszlo has
-         * reported that audio input devices duplicate after restarting Jitsi.
-         * Besides, Jitsi does not really need .fmj.registry on startup.
-         */
-        if (System.getProperty(JMF_REGISTRY_DISABLE_LOAD) == null)
-            System.setProperty(JMF_REGISTRY_DISABLE_LOAD, "true");
-        jmfRegistryDisableLoad
-            = "true".equalsIgnoreCase(System.getProperty(
-                    JMF_REGISTRY_DISABLE_LOAD));
-
-        String scHomeDirLocation
-            = System.getProperty(
-                ConfigurationService.PNAME_SC_HOME_DIR_LOCATION);
-
-        if (scHomeDirLocation != null)
-        {
-            String scHomeDirName
-                = System.getProperty(
-                    ConfigurationService.PNAME_SC_HOME_DIR_NAME);
-
-            if (scHomeDirName != null)
-            {
-                File scHomeDir = new File(scHomeDirLocation, scHomeDirName);
-
-                /* Write FMJ's log in Jitsi's log directory. */
-                Registry.set(
-                    "secure.logDir",
-                    new File(scHomeDir, "log").getPath());
-
-                /* Write FMJ's registry in Jitsi's user data directory. */
-                String jmfRegistryFilename
-                    = "net.sf.fmj.utility.JmfRegistry.filename";
-
-                if (System.getProperty(jmfRegistryFilename) == null)
-                {
-                    System.setProperty(
-                        jmfRegistryFilename,
-                        new File(scHomeDir, ".fmj.registry").getAbsolutePath());
-                }
-            }
-        }
-    }
 
     /**
      * Starts the execution of the neomedia bundle in the specified context.
@@ -233,17 +142,13 @@ public class NeomediaActivator
 
         NeomediaActivator.bundleContext = bundleContext;
 
-        setupFMJ();
-
         // MediaService
         mediaServiceImpl = new MediaServiceImpl();
-        mediaServiceImpl.start();
 
-        mediaServiceRegistration
-            = bundleContext.registerService(
-                    MediaService.class.getName(),
-                    mediaServiceImpl,
-                    null);
+        bundleContext.registerService(
+                MediaService.class.getName(),
+                mediaServiceImpl,
+                null);
         if (logger.isDebugEnabled())
             logger.debug("Media Service ... [REGISTERED]");
 
@@ -346,29 +251,25 @@ public class NeomediaActivator
                 securityProps);
         }
 
-        GatherEntropy entropy
-            = new GatherEntropy(mediaServiceImpl.getDeviceConfiguration());
-
-        entropy.setEntropy();
-
         //we use the nist-sdp stack to make parse sdp and we need to set the
         //following property to make sure that it would accept java generated
         //IPv6 addresses that contain address scope zones.
         System.setProperty("gov.nist.core.STRIP_ADDR_SCOPES", "true");
 
-        // AudioNotify Service
-        AudioNotifierServiceImpl audioNotifier = new AudioNotifierServiceImpl(
-            mediaServiceImpl.getDeviceConfiguration());
+        // AudioNotifierService
+        AudioNotifierService audioNotifierService
+            = new AudioNotifierServiceImpl(
+                    mediaServiceImpl.getDeviceConfiguration());
 
-        audioNotifier.setMute(
+        audioNotifierService.setMute(
                 (cfg == null)
                     || !cfg.getBoolean(
                             "net.java.sip.communicator"
                                 + ".impl.sound.isSoundEnabled",
                             true));
-        getBundleContext().registerService(
+        bundleContext.registerService(
                 AudioNotifierService.class.getName(),
-                audioNotifier,
+                audioNotifierService,
                 null);
 
         if (logger.isInfoEnabled())
@@ -534,26 +435,11 @@ public class NeomediaActivator
         }
         finally
         {
-            mediaServiceImpl.stop();
-            mediaServiceRegistration.unregister();
-
             configurationService = null;
             fileAccessService = null;
-            networkAddressManagerService = null;
+            mediaServiceImpl = null;
             resources = null;
-            uiService = null;
         }
-    }
-
-    /**
-     * Returns a reference to the bundle context that we were started with.
-     *
-     * @return a reference to the BundleContext instance that we were started
-     * with.
-     */
-    public static BundleContext getBundleContext()
-    {
-        return bundleContext;
     }
 
     /**
@@ -608,26 +494,6 @@ public class NeomediaActivator
     }
 
     /**
-     * Returns a reference to a NetworkAddressManagerService implementation
-     * currently registered in the bundle context or null if no such
-     * implementation was found.
-     *
-     * @return a currently valid implementation of the
-     * NetworkAddressManagerService .
-     */
-    public static NetworkAddressManagerService getNetworkAddressManagerService()
-    {
-        if (networkAddressManagerService == null)
-        {
-            networkAddressManagerService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        NetworkAddressManagerService.class);
-        }
-        return networkAddressManagerService;
-    }
-
-    /**
      * Gets the <tt>ResourceManagementService</tt> instance which represents the
      * resources such as internationalized and localized text and images used by
      * the neomedia bundle.
@@ -665,31 +531,5 @@ public class NeomediaActivator
                         PacketLoggingService.class);
         }
         return packetLoggingService;
-    }
-
-    /**
-     * Returns a reference to an UIService implementation currently registered
-     * in the bundle context or null if no such implementation was found.
-     *
-     * @return a reference to an UIService implementation currently registered
-     * in the bundle context or null if no such implementation was found.
-     */
-    public static UIService getUIService()
-    {
-        if (uiService == null)
-            uiService = ServiceUtils.getService(bundleContext, UIService.class);
-        return uiService;
-    }
-
-    /**
-     * Gets the indicator which determines whether the loading of the JMF/FMJ
-     * <tt>Registry</tt> has been disabled.
-     *
-     * @return <tt>true</tt> if the loading of the JMF/FMJ <tt>Registry</tt> has
-     * been disabled; otherwise, <tt>false</tt>
-     */
-    public static boolean isJmfRegistryDisableLoad()
-    {
-        return jmfRegistryDisableLoad;
     }
 }

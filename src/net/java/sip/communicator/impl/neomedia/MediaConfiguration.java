@@ -24,7 +24,6 @@ import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-import org.osgi.framework.*;
 
 /**
  * @author Lyubomir Marinov
@@ -72,40 +71,6 @@ public class MediaConfiguration
      */
     private static final String VIDEO_MORE_SETTINGS_DISABLED_PROP
         = "net.java.sip.communicator.impl.neomedia.videomoresettingsconfig.DISABLED";
-
-    /**
-     * The bundle context.
-     */
-    private static BundleContext bundleContext;
-
-    /**
-     * The <tt>ConfigurationService</tt> registered in {@link #bundleContext}
-     * and used by the <tt>MediaConfiguration</tt> instance to read and
-     * write configuration properties.
-     */
-    private static ConfigurationService configurationService;
-
-    /**
-     * Returns a reference to the ConfigurationService implementation currently
-     * registered in the bundle context or null if no such implementation was
-     * found.
-     *
-     * @return a currently valid implementation of the ConfigurationService.
-     */
-    public static ConfigurationService getConfigurationService()
-    {
-        if (bundleContext == null)
-            bundleContext = NeomediaActivator.getBundleContext();
-
-        if (configurationService == null)
-        {
-            configurationService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        ConfigurationService.class);
-        }
-        return configurationService;
-    }
 
     /**
      * Returns the audio configuration panel.
@@ -613,34 +578,36 @@ public class MediaConfiguration
      */
     private static Component createControls(int type)
     {
+        ConfigurationService cfg = NeomediaActivator.getConfigurationService();
         SIPCommTabbedPane container = new SIPCommTabbedPane();
-        ResourceManagementService R = NeomediaActivator.getResources();
+        ResourceManagementService res = NeomediaActivator.getResources();
 
-        if(!getConfigurationService().getBoolean(DEVICES_DISABLED_PROP, false))
+        if((cfg == null) || !cfg.getBoolean(DEVICES_DISABLED_PROP, false))
         {
             container.insertTab(
-                R.getI18NString("impl.media.configform.DEVICES"),
+                res.getI18NString("impl.media.configform.DEVICES"),
                 null,
                 createBasicControls(type),
                 null,
                 0);
         }
-        if(!getConfigurationService()
-                .getBoolean(ENCODINGS_DISABLED_PROP, false))
+        if((cfg == null) || !cfg.getBoolean(ENCODINGS_DISABLED_PROP, false))
         {
             container.insertTab(
-                R.getI18NString("impl.media.configform.ENCODINGS"),
+                res.getI18NString("impl.media.configform.ENCODINGS"),
                 null,
                 createEncodingControls(type),
                 null,
                 1);
         }
-        if (type == DeviceConfigurationComboBoxModel.VIDEO
-                && !getConfigurationService()
-                    .getBoolean(VIDEO_MORE_SETTINGS_DISABLED_PROP, false))
+        if ((type == DeviceConfigurationComboBoxModel.VIDEO)
+                && ((cfg == null)
+                        || !cfg.getBoolean(
+                                VIDEO_MORE_SETTINGS_DISABLED_PROP,
+                                false)))
         {
             container.insertTab(
-                R.getI18NString("impl.media.configform.VIDEO_MORE_SETTINGS"),
+                res.getI18NString("impl.media.configform.VIDEO_MORE_SETTINGS"),
                 null,
                 createVideoAdvancedSettings(),
                 null,

@@ -76,7 +76,7 @@ public class JAWTRenderer
 
     static
     {
-        System.loadLibrary("jawtrenderer");
+        System.loadLibrary("jnawtrenderer");
 
         /*
          * XXX The native JAWTRenderer implementation on Mac OS X which paints

@@ -90,10 +90,10 @@
     <mkdir dir="${obj}" />
   </target>
 
-  <!-- compile screencapture library -->
+  <!-- compile jnscreencapture library -->
   <target name="screencapture" description="Build screencapture shared library"
     depends="init-native">
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/screencapture" objdir="${obj}">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnscreencapture" objdir="${obj}">
       <!-- common compiler flags -->
       <compilerarg value="-std=c99" />
       <compilerarg value="-D_XOPEN_SOURCE=600" />
@@ -123,7 +123,7 @@
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
       
       <linkerarg value="-o" location="end" if="is.running.macos" />
-      <linkerarg value="libscreencapture.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="libjnscreencapture.jnilib" location="end" if="is.running.macos" />
       <linkerarg value="-arch" if="is.running.macos" />
       <linkerarg value="x86_64" if="is.running.macos" />
       <linkerarg value="-arch" if="is.running.macos" />
@@ -138,7 +138,7 @@
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
 
       <linkerarg value="-lgdi32" location="end" if="is.running.windows" />
-      <linkerarg value="-oscreencapture.dll" if="is.running.windows" />
+      <linkerarg value="-ojnscreencapture.dll" if="is.running.windows" />
       <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
 
       <fileset dir="${src}/native/screencapture" includes="*.c"/>
@@ -203,10 +203,10 @@
     </cc>
   </target>
 
-  <!-- compile jawtrenderer library -->
-  <target name="jawtrenderer" description="Build jawtrenderer shared library" depends="init-native,jawtrenderer-windows"
+  <!-- compile jnawtrenderer library -->
+  <target name="jawtrenderer" description="Build jnawtrenderer shared library" depends="init-native,jawtrenderer-windows"
     unless="is.running.windows">
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jawtrenderer" objdir="${obj}">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnawtrenderer" objdir="${obj}">
       <!-- common compiler flags -->
       <compilerarg value="-std=c99" />
       <compilerarg value="-Wall" />
@@ -238,7 +238,7 @@
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
 
       <linkerarg value="-o" location="end" if="is.running.macos" />
-      <linkerarg value="libjawtrenderer.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="libjnawtrenderer.jnilib" location="end" if="is.running.macos" />
       <linkerarg value="-arch" if="is.running.macos" />
       <linkerarg value="x86_64" if="is.running.macos" />
       <linkerarg value="-arch" if="is.running.macos" />
@@ -256,10 +256,10 @@
     </cc>
   </target>
 
-  <!-- compile jawtrenderer library for Windows -->
-  <target name="jawtrenderer-windows" description="Build jawtrenderer shared library for Windows" depends="init-native"
+  <!-- compile jnawtrenderer library for Windows -->
+  <target name="jawtrenderer-windows" description="Build jnawtrenderer shared library for Windows" depends="init-native"
     if="is.running.windows">
-    <cc outtype="shared" name="msvc" outfile="${native_install_dir}/jawtrenderer" objdir="${obj}">
+    <cc outtype="shared" name="msvc" outfile="${native_install_dir}/jnawtrenderer" objdir="${obj}">
       <compilerarg value="/O2" />
       <compilerarg value="/MT" location="end" />
       <compilerarg value="/IC:\Program Files\Microsoft DirectX SDK (February 2010)\Include" />
@@ -293,7 +293,7 @@
       <compilerarg value="-Wall" />
       <compilerarg value="-O2" />
       <compilerarg value="-I${ffmpeg}" />
-      <compilerarg value="-DJNI_IMPLEMENTATION" />
+      <compilerarg value="-D_JNI_IMPLEMENTATION_" />
 
       <linkerarg value="-L${ffmpeg}/libavformat" />
       <linkerarg value="-L${ffmpeg}/libavcodec" />
@@ -383,7 +383,7 @@
       <compilerarg value="-O2" />
       <compilerarg value="-I${portaudio}/include" />
       <compilerarg value="-I${speex}/include" />
-      <compilerarg value="-DJNI_IMPLEMENTATION" />
+      <compilerarg value="-D_JNI_IMPLEMENTATION_" />
 
       <linkerarg value="-L${speex}/libspeex/.libs" />
       <linkerarg value="-L${portaudio}/lib/.libs" />
@@ -473,7 +473,7 @@
       <compilerarg value="-Wall" />
       <compilerarg value="-O2" />
       <compilerarg value="-I${speex}/include" />
-      <compilerarg value="-DJNI_IMPLEMENTATION" />
+      <compilerarg value="-D_JNI_IMPLEMENTATION_" />
 
       <linkerarg value="-L${speex}/libspeex/.libs" />
 
@@ -533,15 +533,15 @@
     </cc>
   </target>
 
-  <!-- compile jg722 library -->
-  <target name="g722" description="Build jg722 shared library" depends="init-native">
+  <!-- compile jng722 library -->
+  <target name="g722" description="Build jng722 shared library" depends="init-native">
 
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jg722" objdir="${obj}">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jng722" objdir="${obj}">
       <!-- common compiler flags -->
       <compilerarg value="-std=c99" />
       <compilerarg value="-Wall" />
       <compilerarg value="-O2" />
-      <compilerarg value="-DJNI_IMPLEMENTATION" />
+      <compilerarg value="-D_JNI_IMPLEMENTATION_" />
 
       <!-- Linux specific flags -->
       <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
@@ -563,7 +563,7 @@
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
 
       <linkerarg value="-o" location="end" if="is.running.macos" />
-      <linkerarg value="libjg722.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="libjng722.jnilib" location="end" if="is.running.macos" />
       <linkerarg value="-dynamiclib" if="is.running.macos" />
       <linkerarg value="-arch" if="is.running.macos" />
       <linkerarg value="x86_64" if="is.running.macos" />
@@ -576,7 +576,7 @@
       <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
       <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
 
-      <linkerarg value="-ojg722.dll" if="is.running.windows" />
+      <linkerarg value="-ojng722.dll" if="is.running.windows" />
       <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
 
       <fileset dir="${src}/native/g722" includes="*.c"/>
@@ -638,10 +638,10 @@
     </cc>
   </target>
 
-  <!-- compile jvideo4linux2 library -->
-  <target name="video4linux2" description="Build jvideo4linux2 shared library" if="is.running.linux"
+  <!-- compile jnvideo4linux2 library -->
+  <target name="video4linux2" description="Build jnvideo4linux2 shared library" if="is.running.linux"
     depends="init-native">
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jvideo4linux2" objdir="${obj}">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnvideo4linux2" objdir="${obj}">
       <compilerarg value="-std=c99" />
       <compilerarg value="-Wall" />
       <compilerarg value="-O2" />
@@ -694,10 +694,10 @@
     </cc>
   </target>
 
-  <!-- compile jdirectshow library -->
-  <target name="directshow" description="Build jdirectshow shared library" if="is.running.windows"
+  <!-- compile jndirectshow library -->
+  <target name="directshow" description="Build jndirectshow shared library" if="is.running.windows"
     depends="init-native">
-    <cc outtype="shared" name="msvc" outfile="${native_install_dir}/jdirectshow" objdir="${obj}">
+    <cc outtype="shared" name="msvc" outfile="${native_install_dir}/jndirectshow" objdir="${obj}">
       <compilerarg value="/O2" />
       <compilerarg value="/W4" />
       <compilerarg value="/wd4996" />
@@ -1013,7 +1013,7 @@
     <echo message="'ant ffmpeg' to compile ffmpeg shared library" />
     <echo message="'ant portaudio' to compile jnportaudio shared library" />
     <echo message="'ant speex' to compile jspeex shared library" />
-    <echo message="'ant g722' to compile jg722 shared library" />
+    <echo message="'ant g722' to compile jng722 shared library" />
     <echo message="'ant hid' to compile hid shared library" />
     <echo message="'ant hwaddressretriever' to compile hwaddressretriever shared library" />
     <echo message="'ant video4linux2 (Linux only)' to compile jvideo4linux2 shared library" />
