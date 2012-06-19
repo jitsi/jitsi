@@ -86,24 +86,31 @@ public class RssAccRegWizzActivator
      */
     public static ProtocolProviderFactory getRssProtocolProviderFactory()
     {
-
         ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "=" + ProtocolNames.RSS + ")";
+        String osgiFilter
+            = "("
+                + ProtocolProviderFactory.PROTOCOL
+                + "="
+                + ProtocolNames.RSS
+                + ")";
 
         try
         {
-            serRefs = bundleContext.getServiceReferences(
-                ProtocolProviderFactory.class.getName(), osgiFilter);
+            serRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class.getName(),
+                        osgiFilter);
         }
         catch (InvalidSyntaxException ex)
         {
             logger.error(ex);
         }
 
-        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+        return
+            (serRefs == null)
+                ? null
+                : (ProtocolProviderFactory)
+                    bundleContext.getService(serRefs[0]);
     }
     
      /**

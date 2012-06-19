@@ -77,23 +77,31 @@ public class YahooAccRegWizzActivator implements BundleActivator
      * Returns the <tt>ProtocolProviderFactory</tt> for the Yahoo protocol.
      * @return the <tt>ProtocolProviderFactory</tt> for the Yahoo protocol
      */
-    public static ProtocolProviderFactory getYahooProtocolProviderFactory() {
-
+    public static ProtocolProviderFactory getYahooProtocolProviderFactory()
+    {
         ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "="+ProtocolNames.YAHOO+")";
+        String osgiFilter
+            = "("
+                + ProtocolProviderFactory.PROTOCOL
+                + "="
+                + ProtocolNames.YAHOO
+                + ")";
 
         try {
-            serRefs = bundleContext.getServiceReferences(
-                ProtocolProviderFactory.class.getName(), osgiFilter);
+            serRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class.getName(),
+                        osgiFilter);
         }
         catch (InvalidSyntaxException ex){
             logger.error("YahooAccRegWizzActivator : " + ex);
         }
 
-        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+        return
+            (serRefs == null)
+                ? null
+                : (ProtocolProviderFactory)
+                    bundleContext.getService(serRefs[0]);
     }
 
     /**

@@ -79,23 +79,32 @@ public class MsnAccRegWizzActivator
      * Returns the <tt>ProtocolProviderFactory</tt> for the Msn protocol.
      * @return the <tt>ProtocolProviderFactory</tt> for the Msn protocol
      */
-    public static ProtocolProviderFactory getMsnProtocolProviderFactory() {
-
+    public static ProtocolProviderFactory getMsnProtocolProviderFactory()
+    {
         ServiceReference[] serRefs = null;
+        String osgiFilter
+            = "("
+                + ProtocolProviderFactory.PROTOCOL
+                + "="
+                + ProtocolNames.MSN
+                + ")";
 
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "="+ProtocolNames.MSN+")";
-
-        try {
-            serRefs = bundleContext.getServiceReferences(
-                ProtocolProviderFactory.class.getName(), osgiFilter);
+        try
+        {
+            serRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class.getName(),
+                        osgiFilter);
         }
         catch (InvalidSyntaxException ex){
             logger.error("MsnAccRegWizzActivator : " + ex);
         }
 
-        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+        return
+            (serRefs == null)
+                ? null
+                : (ProtocolProviderFactory)
+                    bundleContext.getService(serRefs[0]);
     }
 
     /**

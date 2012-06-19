@@ -96,24 +96,26 @@ public class SSHAccRegWizzActivator
      */
     public static ProtocolProviderFactory getSSHProtocolProviderFactory()
     {
-
         ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "=" + "SSH" + ")";
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL + "=SSH)";
 
         try
         {
-            serRefs = bundleContext.getServiceReferences(
-                ProtocolProviderFactory.class.getName(), osgiFilter);
+            serRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class.getName(),
+                        osgiFilter);
         }
         catch (InvalidSyntaxException ex)
         {
             logger.error(ex);
         }
 
-        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+        return
+            (serRefs == null)
+                ? null
+                : (ProtocolProviderFactory)
+                    bundleContext.getService(serRefs[0]);
     }
 
     /**

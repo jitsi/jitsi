@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * associated protocol provider to be capabilities possessed by the
  * <tt>Contact</tt> in question.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public interface OperationSetContactCapabilities
     extends OperationSet

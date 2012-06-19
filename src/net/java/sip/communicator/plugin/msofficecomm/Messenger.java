@@ -438,13 +438,21 @@ public class Messenger
                     MetaContactListService.class);
 
         bundleContext.addServiceListener(serviceListener);
-        for (ServiceReference reference
-                : bundleContext.getServiceReferences(
-                        ProtocolProviderService.class.getName(),
-                        null))
+
+        ServiceReference[] serviceReferences
+            = bundleContext.getServiceReferences(
+                    ProtocolProviderService.class.getName(),
+                    null);
+
+        if ((serviceReferences != null) && (serviceReferences.length != 0))
         {
-            serviceListener.serviceChanged(
-                    new ServiceEvent(ServiceEvent.REGISTERED, reference));
+            for (ServiceReference serviceReference : serviceReferences)
+            {
+                serviceListener.serviceChanged(
+                        new ServiceEvent(
+                                ServiceEvent.REGISTERED,
+                                serviceReference));
+            }
         }
     }
 

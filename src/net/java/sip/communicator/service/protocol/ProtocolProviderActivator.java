@@ -116,18 +116,23 @@ public class ProtocolProviderActivator
     public static ProtocolProviderFactory getProtocolProviderFactory(
             String protocolName)
     {
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "="+protocolName+")";
-
+        String osgiFilter
+            = "(" + ProtocolProviderFactory.PROTOCOL + "=" + protocolName + ")";
         ProtocolProviderFactory protocolProviderFactory = null;
+
         try
         {
             ServiceReference[] serRefs
                 = bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), osgiFilter);
-            protocolProviderFactory = (ProtocolProviderFactory)
-                bundleContext.getService(serRefs[0]);
+                        ProtocolProviderFactory.class.getName(),
+                        osgiFilter);
+
+            if ((serRefs != null) && (serRefs.length != 0))
+            {
+                protocolProviderFactory
+                    = (ProtocolProviderFactory)
+                        bundleContext.getService(serRefs[0]);
+            }
         }
         catch (InvalidSyntaxException ex)
         {

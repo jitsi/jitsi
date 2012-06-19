@@ -92,18 +92,20 @@ public class SIPAccRegWizzActivator
      */
     public static ProtocolProviderFactory getSIPProtocolProviderFactory()
     {
-
         ServiceReference[] serRefs = null;
-
-        String osgiFilter =
-            "(" + ProtocolProviderFactory.PROTOCOL + "=" + ProtocolNames.SIP
+        String osgiFilter
+            = "("
+                + ProtocolProviderFactory.PROTOCOL
+                + "="
+                + ProtocolNames.SIP
                 + ")";
 
         try
         {
-            serRefs =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), osgiFilter);
+            serRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class.getName(),
+                        osgiFilter);
         }
         catch (InvalidSyntaxException ex)
         {
@@ -111,7 +113,11 @@ public class SIPAccRegWizzActivator
             return null;
         }
 
-        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+        return
+            (serRefs == null)
+                ? null
+                : (ProtocolProviderFactory)
+                    bundleContext.getService(serRefs[0]);
     }
 
     /**

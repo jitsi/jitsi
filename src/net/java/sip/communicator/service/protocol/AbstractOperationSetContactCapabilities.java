@@ -20,7 +20,7 @@ import net.java.sip.communicator.util.*;
  * @param <T> the type of the <tt>ProtocolProviderService</tt> implementation
  * providing the <tt>AbstractOperationSetContactCapabilities</tt> implementation
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public abstract class AbstractOperationSetContactCapabilities<
         T extends ProtocolProviderService>
@@ -152,7 +152,7 @@ public abstract class AbstractOperationSetContactCapabilities<
      * the specified <tt>opsetClass</tt> in the <tt>Map</tt> returned by
      * {@link #getSupportedOperationSets(Contact)} and returns the associated
      * <tt>OperationSet</tt>. Since the implementation is suboptimal due to the
-     * temporary <tt>Map</tt> allocations and loopups, extenders are advised to
+     * temporary <tt>Map</tt> allocations and lookups, extenders are advised to
      * override {@link #getOperationSet(Contact, Class, boolean)}.
      *
      * @param <U> the type extending <tt>OperationSet</tt> for which the
@@ -188,7 +188,7 @@ public abstract class AbstractOperationSetContactCapabilities<
      * the specified <tt>opsetClass</tt> in the <tt>Map</tt> returned by
      * {@link #getSupportedOperationSets(Contact)} and returns the associated
      * <tt>OperationSet</tt>. Since the implementation is suboptimal due to the
-     * temporary <tt>Map</tt> allocations and loopups, extenders are advised to
+     * temporary <tt>Map</tt> allocations and lookups, extenders are advised to
      * override.
      *
      * @param <U> the type extending <tt>OperationSet</tt> for which the

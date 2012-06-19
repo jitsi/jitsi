@@ -58,7 +58,7 @@ public class OperationSetContactCapabilitiesJabberImpl
             = new HashMap<Class<? extends OperationSet>, String[]>();
 
     /**
-     * The <tt>Map</tt> which associates specific additionnal
+     * The <tt>Map</tt> which associates specific additional
      * <tt>OperationSet</tt> class with the capabilities to be supported by a
      * <tt>Contact</tt> in order to consider the <tt>Contact</tt> to possess the
      * respective <tt>OperationSet</tt> capability.

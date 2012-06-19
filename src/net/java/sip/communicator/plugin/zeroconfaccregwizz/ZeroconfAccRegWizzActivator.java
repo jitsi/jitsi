@@ -87,26 +87,31 @@ public class ZeroconfAccRegWizzActivator
      */
     public static ProtocolProviderFactory getZeroconfProtocolProviderFactory()
     {
-
         ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "=" + ProtocolNames.ZEROCONF + ")";
+        String osgiFilter
+            = "("
+                + ProtocolProviderFactory.PROTOCOL
+                + "="
+                + ProtocolNames.ZEROCONF
+                + ")";
 
         try
         {
-            serRefs = bundleContext.getServiceReferences(
-                ProtocolProviderFactory.class.getName(), osgiFilter);
+            serRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class.getName(),
+                        osgiFilter);
         }
         catch (InvalidSyntaxException ex)
         {
             logger.error(ex);
         }
-        
-        //System.out.println(" SerRefs " +serRefs);
 
-        return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
+        return
+            (serRefs == null)
+                ? null
+                : (ProtocolProviderFactory)
+                    bundleContext.getService(serRefs[0]);
     }
 
     /**

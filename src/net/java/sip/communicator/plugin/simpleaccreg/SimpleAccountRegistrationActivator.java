@@ -100,9 +100,8 @@ public class SimpleAccountRegistrationActivator
      */
     private static boolean hasRegisteredAccounts()
     {
-        boolean hasRegisteredAccounts = false;
-
         ServiceReference[] serRefs = null;
+
         try
         {
             //get all registered provider factories
@@ -114,29 +113,37 @@ public class SimpleAccountRegistrationActivator
             logger.error("Unable to obtain service references. " + e);
         }
 
-        for (int serRefIndex = 0; serRefIndex < serRefs.length; serRefIndex++)
+        boolean hasRegisteredAccounts = false;
+
+        if (serRefs != null)
         {
-            ProtocolProviderFactory providerFactory =
-                (ProtocolProviderFactory) bundleContext
-                    .getService(serRefs[serRefIndex]);
-
-            for (Iterator<AccountID> registeredAccountIter =
-                providerFactory.getRegisteredAccounts().iterator();
-                registeredAccountIter.hasNext();)
+            for (ServiceReference serRef : serRefs)
             {
-                AccountID accountID = registeredAccountIter.next();
-                boolean isHidden = accountID.getAccountProperty(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+                ProtocolProviderFactory providerFactory
+                    = (ProtocolProviderFactory)
+                        bundleContext.getService(serRef);
 
-                if (!isHidden)
+                for (Iterator<AccountID> registeredAccountIter
+                            = providerFactory.getRegisteredAccounts()
+                                    .iterator();
+                        registeredAccountIter.hasNext();)
                 {
-                    hasRegisteredAccounts = true;
-                    break;
-                }
-            }
+                    AccountID accountID = registeredAccountIter.next();
+                    boolean isHidden
+                        = accountID.getAccountProperty(
+                                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
+                            != null;
 
-            if (hasRegisteredAccounts)
-                break;
+                    if (!isHidden)
+                    {
+                        hasRegisteredAccounts = true;
+                        break;
+                    }
+                }
+
+                if (hasRegisteredAccounts)
+                    break;
+            }
         }
 
         return hasRegisteredAccounts;
