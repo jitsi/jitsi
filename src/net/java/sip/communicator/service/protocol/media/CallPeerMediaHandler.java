@@ -1391,7 +1391,7 @@ public abstract class CallPeerMediaHandler
      * media type or <tt>null</tt> if SRTP is not enabled for the given media
      * type
      */
-    public SrtpControlType getEncryptionMethod(MediaType mediaType)
+    public SrtpControl getEncryptionMethod(MediaType mediaType)
     {
         return mediaHandler.getEncryptionMethod(this, mediaType);
     }

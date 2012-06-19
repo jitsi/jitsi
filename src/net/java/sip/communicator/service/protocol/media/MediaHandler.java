@@ -481,7 +481,7 @@ public class MediaHandler
      * media type or <tt>null</tt> if SRTP is not enabled for the given media
      * type
      */
-    SrtpControlType getEncryptionMethod(
+    SrtpControl getEncryptionMethod(
             CallPeerMediaHandler<?> callPeerMediaHandler,
             MediaType mediaType)
     {
@@ -498,7 +498,7 @@ public class MediaHandler
             if((srtpControl != null)
                     && srtpControl.getSecureCommunicationStatus())
             {
-                return srtpControlType;
+                return srtpControl;
             }
         }
 

@@ -495,18 +495,28 @@ public class CallInfoFrame
         }
 
         String rtpType;
-        SrtpControlType srtpControlType = callPeerMediaHandler
+        SrtpControl srtpControl = callPeerMediaHandler
             .getEncryptionMethod(mediaType);
         // If the stream is secured.
-        if(srtpControlType != null)
+        if(srtpControl != null)
         {
+            String info;
+            if (srtpControl instanceof ZrtpControl) 
+            {
+                info = "ZRTP " + ((ZrtpControl)srtpControl).getCipherString();
+            }
+            else
+            {
+                info = "SDES";
+            }
+
             rtpType = resources.getI18NString(
-                            "service.gui.callinfo.MEDIA_STREAM_SRTP")
-                + " (" +
-                resources.getI18NString(
-                        "service.gui.callinfo.KEY_EXCHANGE_PROTOCOL")
+                "service.gui.callinfo.MEDIA_STREAM_SRTP")
+                + " (" 
+                + resources.getI18NString(
+                    "service.gui.callinfo.KEY_EXCHANGE_PROTOCOL")
                 + ": "
-                + srtpControlType.toString()
+                + info
                 + ")";
         }
         // If the stream is not secured.

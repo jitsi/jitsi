@@ -572,9 +572,8 @@ public class ZrtpSecurityPanel
         if (isAudioSecurityOn)
         {
             statusIcon = audioSecuredIcon;
-            statusText = "<html>" + GuiActivator.getResources()
-                .getI18NString("service.gui.security.SECURE_AUDIO") + "<br>" 
-                + getSecurityControl().getCipherString() + "</html>";
+            statusText = GuiActivator.getResources()
+                .getI18NString("service.gui.security.SECURE_AUDIO");
         }
         else
         {
@@ -625,9 +624,8 @@ public class ZrtpSecurityPanel
             if (isVideoSecurityOn)
             {
                 statusIcon = videoSecuredIcon;
-                statusText = "<html>" + GuiActivator.getResources()
-                    .getI18NString("service.gui.security.SECURE_VIDEO") + "<br>"
-                    + getSecurityControl().getCipherString() + "</html>";
+                statusText = GuiActivator.getResources()
+                    .getI18NString("service.gui.security.SECURE_VIDEO");
             }
             else
             {
