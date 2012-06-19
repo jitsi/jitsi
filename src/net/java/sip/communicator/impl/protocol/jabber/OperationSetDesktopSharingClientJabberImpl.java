@@ -6,13 +6,18 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.awt.*;
+import java.awt.Dimension; // disambiguation
 import java.awt.event.*;
+import java.util.*;
 
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smackx.packet.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 
 /**
  * Implements all desktop sharing client-side related functions for Jabber
@@ -23,6 +28,9 @@ import net.java.sip.communicator.service.protocol.*;
 public class OperationSetDesktopSharingClientJabberImpl
     extends AbstractOperationSetDesktopSharingClient
                 <ProtocolProviderServiceJabberImpl>
+    implements RegistrationStateChangeListener,
+                PacketListener,
+                PacketFilter
 {
     /**
      * Initializes a new <tt>OperationSetDesktopSharingClientJabberImpl</tt>.
@@ -35,6 +43,7 @@ public class OperationSetDesktopSharingClientJabberImpl
             ProtocolProviderServiceJabberImpl parentProvider)
     {
         super(parentProvider);
+        parentProvider.addRegistrationStateChangeListener(this);
     }
 
     /**
@@ -47,15 +56,7 @@ public class OperationSetDesktopSharingClientJabberImpl
     public void sendKeyboardEvent(CallPeer callPeer, KeyEvent event)
     {
         RemoteControlExtension payload = new RemoteControlExtension(event);
-        InputEvtIQ inputIQ = new InputEvtIQ();
-
-        inputIQ.setAction(InputEvtAction.NOTIFY);
-        inputIQ.setType(IQ.Type.SET);
-        inputIQ.setFrom(parentProvider.getOurJID());
-        inputIQ.setTo(callPeer.getAddress());
-        inputIQ.addRemoteControl(payload);
-
-        parentProvider.getConnection().sendPacket(inputIQ);
+        this.sendRemoteControlExtension(callPeer, payload);
     }
 
     /**
@@ -68,14 +69,7 @@ public class OperationSetDesktopSharingClientJabberImpl
     public void sendMouseEvent(CallPeer callPeer, MouseEvent event)
     {
         RemoteControlExtension payload = new RemoteControlExtension(event);
-        InputEvtIQ inputIQ = new InputEvtIQ();
-
-        inputIQ.setAction(InputEvtAction.NOTIFY);
-        inputIQ.setType(IQ.Type.SET);
-        inputIQ.setFrom(parentProvider.getOurJID());
-        inputIQ.setTo(callPeer.getAddress());
-        inputIQ.addRemoteControl(payload);
-        parentProvider.getConnection().sendPacket(inputIQ);
+        this.sendRemoteControlExtension(callPeer, payload);
     }
 
     /**
@@ -91,15 +85,129 @@ public class OperationSetDesktopSharingClientJabberImpl
     public void sendMouseEvent(CallPeer callPeer, MouseEvent event,
             Dimension videoPanelSize)
     {
-        RemoteControlExtension payload = new RemoteControlExtension(event,
-                videoPanelSize);
-        InputEvtIQ inputIQ = new InputEvtIQ();
+        RemoteControlExtension payload
+            = new RemoteControlExtension(event, videoPanelSize);
+        this.sendRemoteControlExtension(callPeer, payload);
+    }
 
-        inputIQ.setAction(InputEvtAction.NOTIFY);
-        inputIQ.setType(IQ.Type.SET);
-        inputIQ.setFrom(parentProvider.getOurJID());
-        inputIQ.setTo(callPeer.getAddress());
-        inputIQ.addRemoteControl(payload);
-        parentProvider.getConnection().sendPacket(inputIQ);
+    /**
+     * Send a mouse/keyboard/videoPanelSize notification.
+     *
+     * @param callPeer <tt>CallPeer</tt> that will be notified
+     * @param payload  The packet payload containing the
+     * key/mouse/videoPanelSize event to send to remote peer
+     */
+    private void sendRemoteControlExtension(
+            CallPeer callPeer,
+            RemoteControlExtension payload)
+    {
+        DiscoverInfo discoverInfo
+            = ((CallPeerJabberImpl) callPeer).getDiscoverInfo();
+        if(this.parentProvider.getDiscoveryManager()
+                .includesFeature(InputEvtIQ.NAMESPACE_CLIENT)
+                && discoverInfo != null
+                && discoverInfo.containsFeature(InputEvtIQ.NAMESPACE_SERVER))
+        {
+            InputEvtIQ inputIQ = new InputEvtIQ();
+
+            inputIQ.setAction(InputEvtAction.NOTIFY);
+            inputIQ.setType(IQ.Type.SET);
+            inputIQ.setFrom(parentProvider.getOurJID());
+            inputIQ.setTo(callPeer.getAddress());
+            inputIQ.addRemoteControl(payload);
+
+            parentProvider.getConnection().sendPacket(inputIQ);
+        }
+    }
+
+    /**
+     * Implementation of method <tt>registrationStateChange</tt> from
+     * interface RegistrationStateChangeListener for setting up (or down)
+     * our <tt>InputEvtManager</tt> when an <tt>XMPPConnection</tt> is available
+     *
+     * @param evt the event received
+     */
+    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+    {
+        OperationSetDesktopSharingServerJabberImpl.registrationStateChanged(
+                    evt,
+                    this,
+                    this,
+                    this.parentProvider.getConnection());
+    }
+
+    /**
+     * Handles incoming inputevt packets and passes them to the corresponding
+     * method based on their action.
+     *
+     * @param packet the packet to process.
+     */
+    public void processPacket(Packet packet)
+    {
+        InputEvtIQ inputIQ = (InputEvtIQ)packet;
+
+        //first ack all "set" requests.
+        if(inputIQ.getType() == IQ.Type.SET
+                && inputIQ.getAction() != InputEvtAction.NOTIFY)
+        {
+            IQ ack = IQ.createResultIQ(inputIQ);
+            parentProvider.getConnection().sendPacket(ack);
+
+            String callPeerID = inputIQ.getFrom();
+            if(callPeerID != null)
+            {
+                CallPeer callPeer = getListenerCallPeer(callPeerID);
+                if(callPeer != null)
+                {
+                    if(inputIQ.getAction() == InputEvtAction.START)
+                    {
+                        fireRemoteControlGranted(callPeer);
+                    }
+                    else if(inputIQ.getAction() == InputEvtAction.STOP)
+                    {
+                        fireRemoteControlRevoked(callPeer);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Tests whether or not the specified packet should be handled by this
+     * operation set. This method is called by smack prior to packet delivery
+     * and it would only accept <tt>InputEvtIQ</tt>s.
+     *
+     * @param packet the packet to test.
+     * @return true if and only if <tt>packet</tt> passes the filter.
+     */
+    public boolean accept(Packet packet)
+    {
+        //we only handle InputEvtIQ-s
+        return (packet instanceof InputEvtIQ);
+    }
+
+    /**
+     * Returns the callPeer corresponding to the given callPeerAddress given in
+     * parameter, if this callPeer exists in the listener list.
+     *
+     * @param callPeerAddress The XMPP address of the call peer to seek.
+     *
+     * @return The callPeer corresponding to the given callPeerAddress given in
+     * parameter, if this callPeer exists in the listener list. null otherwise.
+     */
+    protected CallPeer getListenerCallPeer(String callPeerAddress)
+    {
+        CallPeerJabberImpl callPeer;
+        List<RemoteControlListener> listeners = getListeners();
+        for(int i = 0; i < listeners.size(); ++i)
+        {
+            callPeer = (CallPeerJabberImpl) listeners.get(i).getCallPeer();
+            if(callPeer.getAddress().equals(callPeerAddress))
+            {
+                return callPeer;
+            }
+        }
+        // If no peers corresponds, then return NULL.
+        return null;
     }
 }

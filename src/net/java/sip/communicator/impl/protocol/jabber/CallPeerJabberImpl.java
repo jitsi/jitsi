@@ -257,6 +257,27 @@ public class CallPeerJabberImpl
             return;
         }
 
+        // If we do not get the info about the remote peer yet. Get it right
+        // now.
+        if(this.getDiscoverInfo() == null)
+        {
+            String calleeURI = sessionInitIQ.getFrom();
+            DiscoverInfo discoverInfo = null;
+            try
+            {
+                discoverInfo = getCall().getProtocolProvider()
+                    .getDiscoveryManager().discoverInfo(calleeURI);
+                if(discoverInfo != null)
+                {
+                    this.setDiscoverInfo(discoverInfo);
+                }
+            }
+            catch (XMPPException ex)
+            {
+                logger.warn("could not retrieve info for " + calleeURI, ex);
+            }
+        }
+
         //send a ringing response
         if (logger.isTraceEnabled())
             logger.trace("will send ringing response: ");

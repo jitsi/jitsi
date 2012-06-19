@@ -600,21 +600,6 @@ public class CallPeerMediaHandlerJabberImpl
             // create the corresponding stream...
             initStream(ourContent.getName(), connector, dev, format, target,
                             direction, rtpExtensions, masterStream);
-
-            // if remote peer requires inputevt, notify UI to capture mouse
-            // and keyboard events
-            if(ourContent.getChildExtensionsOfType(
-                            InputEvtPacketExtension.class)
-                    != null)
-            {
-                OperationSetDesktopSharingClientJabberImpl client
-                    = (OperationSetDesktopSharingClientJabberImpl)
-                        peer.getProtocolProvider().getOperationSet(
-                                OperationSetDesktopSharingClient.class);
-
-                if (client != null)
-                    client.fireRemoteControlGranted(peer);
-            }
         }
         return sessAccept;
     }

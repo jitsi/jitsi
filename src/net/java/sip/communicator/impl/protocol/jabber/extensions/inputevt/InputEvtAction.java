@@ -16,7 +16,17 @@ public enum InputEvtAction
     /**
      * The <tt>notify</tt> action.
      */
-    NOTIFY("notify");
+    NOTIFY("notify"),
+
+    /**
+     * The <tt>start</tt> action.
+     */
+    START("start"),
+
+    /**
+     * The <tt>stop</tt> action.
+     */
+    STOP("stop");
 
     /**
      * The name of this direction.

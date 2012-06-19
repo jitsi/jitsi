@@ -27,6 +27,35 @@ public abstract class AbstractOperationSetDesktopSharingClient
     implements OperationSetDesktopSharingClient
 {
     /**
+     * The <tt>CallPeerListener</tt> which listens to modifications in the
+     * properties/state of <tt>CallPeer</tt>.
+     */
+    private final CallPeerListener callPeerListener = new CallPeerAdapter()
+    {
+        /**
+         * Indicates that a change has occurred in the status of the source
+         * <tt>CallPeer</tt>.
+         *
+         * @param evt the <tt>CallPeerChangeEvent</tt> instance containing the
+         * source event as well as its previous and its new status
+         */
+        @Override
+        public void peerStateChanged(CallPeerChangeEvent evt)
+        {
+            CallPeer peer = evt.getSourceCallPeer();
+            CallPeerState state = peer.getState();
+
+            if(state != null
+                    && (state.equals(CallPeerState.DISCONNECTED)
+                        || state.equals(CallPeerState.FAILED)))
+            {
+                removesNullAndRevokedControlPeer(peer.getPeerID());
+                removeRemoteControlListener(getListener(peer));
+            }
+        }
+    };
+
+    /**
      * List of the granted remote control peers for this client. Used to
      * remember granted remote control peers, when the granted event is fired
      * before the corresponding UI listener registration.
@@ -95,20 +124,20 @@ public abstract class AbstractOperationSetDesktopSharingClient
             {
                 listeners.add(
                         new WeakReference<RemoteControlListener>(listener));
+                listener.getCallPeer().addCallPeerListener(callPeerListener);
             }
         }
 
+        // Notifies the new listener if the corresponding peer has already been
+        // granted to remotely control the shared desktop.
+        CallPeer peer = listener.getCallPeer();
         // Removes the null peers from the granted remote control peer list.
-        this.removesNullAndRevokedControlPeer(null);
-        // Notifies the new listener about the already granted remote control
-        // peers.
-        CallPeer peer;
-        for(int i = 0; i < this.grantedRemoteControlPeers.size(); ++i)
+        // If the corresponding peer was in the granted list, then this peer has
+        // already been granted and we must call the remoteControlGranted
+        // function for this listener.
+        if(this.removesNullAndRevokedControlPeer(peer.getPeerID()) != -1)
         {
-            peer = this.grantedRemoteControlPeers.get(i);
-            RemoteControlGrantedEvent event =
-                new RemoteControlGrantedEvent(peer);
-            listener.remoteControlGranted(event);
+            listener.remoteControlGranted(new RemoteControlGrantedEvent(peer));
         }
     }
 
@@ -119,19 +148,22 @@ public abstract class AbstractOperationSetDesktopSharingClient
      */
     public void fireRemoteControlGranted(CallPeer peer)
     {
-        // Adds the peer to the granted remote control peer list.
-        this.grantedRemoteControlPeers.add(peer);
+        RemoteControlListener listener = getListener(peer);
 
-        List<RemoteControlListener> listeners = getListeners();
-
-        if (!listeners.isEmpty())
+        if(listener != null)
         {
-            RemoteControlGrantedEvent event
-                = new RemoteControlGrantedEvent(peer);
-
-            for(RemoteControlListener l : listeners)
+            listener.remoteControlGranted(new RemoteControlGrantedEvent(peer));
+        }
+        // The UI has not created the listenre yet, then we need to store the
+        // information taht this peer has alreayd been granted.
+        else
+        {
+            // Removes all previous instance of this peer.
+            this.removesNullAndRevokedControlPeer(peer.getPeerID());
+            // Adds the peer to the granted remote control peer list.
+            synchronized(this.grantedRemoteControlPeers)
             {
-                l.remoteControlGranted(event);
+                this.grantedRemoteControlPeers.add(peer);
             }
         }
     }
@@ -143,15 +175,11 @@ public abstract class AbstractOperationSetDesktopSharingClient
      */
     public void fireRemoteControlRevoked(CallPeer peer)
     {
-        List<RemoteControlListener> listeners = getListeners();
+        RemoteControlListener listener = getListener(peer);
 
-        if (!listeners.isEmpty())
+        if(listener != null)
         {
-            RemoteControlRevokedEvent event
-                = new RemoteControlRevokedEvent(peer);
-
-            for(RemoteControlListener l : listeners)
-                l.remoteControlRevoked(event);
+            listener.remoteControlRevoked(new RemoteControlRevokedEvent(peer));
         }
 
         // Removes the peer from the granted remote control peer list.
@@ -218,18 +246,54 @@ public abstract class AbstractOperationSetDesktopSharingClient
      *
      * @param revokedPeerID The ID of the revoked peer. May be null to only
      * clear null instances from the granted control peer list.
+     *
+     * @return The index corresponding to the revokedPeerID entry. -1 if the
+     * revoked PeerID is null, or if the revokedPeerID is not found and removed.
      */
-    private void removesNullAndRevokedControlPeer(String revokedPeerID)
+    private int removesNullAndRevokedControlPeer(String revokedPeerID)
     {
-        CallPeer peer;
-        for(int i = 0; i < this.grantedRemoteControlPeers.size(); ++i)
+        int index = -1;
+        synchronized(this.grantedRemoteControlPeers)
         {
-            peer = this.grantedRemoteControlPeers.get(i);
-            if(peer == null || peer.getPeerID().equals(revokedPeerID))
+            CallPeer peer;
+            for(int i = 0; i < this.grantedRemoteControlPeers.size(); ++i)
             {
-                this.grantedRemoteControlPeers.remove(i);
-                --i;
+                peer = this.grantedRemoteControlPeers.get(i);
+                if(peer == null || peer.getPeerID().equals(revokedPeerID))
+                {
+                    this.grantedRemoteControlPeers.remove(i);
+                    index = i;
+                    --i;
+                }
             }
         }
+        return index;
+    }
+
+    /**
+     * Returns the listener corresponding to the given callPeer given in
+     * parameter, if it exists.
+     *
+     * @param callPeer The call peer used to identified the seek listener.
+     *
+     * @return The listener corresponding to the given callPeer given in
+     * parameter, if it exists. Null, otherwise.
+     */
+    protected RemoteControlListener getListener(CallPeer callPeer)
+    {
+        String callPeerID = callPeer.getPeerID();
+        synchronized (listeners)
+        {
+            for(int i = 0; i < listeners.size(); ++i)
+            {
+                if(listeners.get(i).get().getCallPeer().getPeerID()
+                        .equals(callPeerID))
+                {
+                    return listeners.get(i).get();
+                }
+            }
+        }
+        // If no peers corresponds, then return null.
+        return null;
     }
 }

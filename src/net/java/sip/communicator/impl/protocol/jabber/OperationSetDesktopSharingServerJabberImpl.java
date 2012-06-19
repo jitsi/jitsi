@@ -63,19 +63,16 @@ public class OperationSetDesktopSharingServerJabberImpl
             CallPeer peer = evt.getSourceCallPeer();
             CallPeerState state = peer.getState();
 
-            if (remoteControlEnabled && state != null &&
-                    (state.equals(CallPeerState.DISCONNECTED) ||
-                            state.equals(CallPeerState.FAILED)))
+            if (state != null
+                    && callPeers.contains(peer.getAddress())
+                    && (state.equals(CallPeerState.DISCONNECTED)
+                        || state.equals(CallPeerState.FAILED)))
             {
-                disableRemoteControl(evt.getSourceCallPeer());
+                disableRemoteControl(peer);
+                peer.removeCallPeerListener(callPeerListener);
             }
         }
     };
-
-    /**
-     * If the remote control is authorized and thus enabled.
-     */
-    private boolean remoteControlEnabled = false;
 
     /**
      * HID service that will regenerates keyboard and mouse events received in
@@ -84,7 +81,8 @@ public class OperationSetDesktopSharingServerJabberImpl
     private HIDService hidService = null;
 
     /**
-     * List of callPeers for the desktop sharing session.
+     * List of callPeers for the desktop sharing session with remote control
+     * granted.
      */
     private List<String> callPeers = new ArrayList<String>();
 
@@ -123,13 +121,15 @@ public class OperationSetDesktopSharingServerJabberImpl
     public Call createVideoCall(String uri, MediaDevice device)
         throws OperationFailedException, ParseException
     {
-        CallJabberImpl call = (CallJabberImpl)super.createVideoCall(uri,
-                device);
+        CallJabberImpl call
+            = (CallJabberImpl) super.createVideoCall(uri, device);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
         callPeer.addCallPeerListener(callPeerListener);
 
-        size = (((VideoMediaFormat)call.getDefaultDevice(
-                MediaType.VIDEO).getFormat()).getSize());
+        size
+            = (((VideoMediaFormat)
+                        call.getDefaultDevice(MediaType.VIDEO).getFormat())
+                    .getSize());
         origin = getOriginForMediaDevice(device);
         return call;
     }
@@ -155,7 +155,6 @@ public class OperationSetDesktopSharingServerJabberImpl
         CallJabberImpl call
             = (CallJabberImpl) super.createVideoCall(callee, device);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
-
         callPeer.addCallPeerListener(callPeerListener);
 
         size
@@ -222,7 +221,7 @@ public class OperationSetDesktopSharingServerJabberImpl
             di = parentProvider.getDiscoveryManager()
                     .discoverInfo(fullCalleeURI);
 
-            if (di.containsFeature(InputEvtIQ.NAMESPACE))
+            if (di.containsFeature(InputEvtIQ.NAMESPACE_CLIENT))
             {
                 if (logger.isInfoEnabled())
                     logger.info(fullCalleeURI + ": remote-control supported");
@@ -267,6 +266,11 @@ public class OperationSetDesktopSharingServerJabberImpl
         call.setLocalInputEvtAware(supported);
 
         basicTelephony.createOutgoingCall(call, calleeAddress);
+
+        CallPeerJabberImpl callPeer
+            = new CallPeerJabberImpl(calleeAddress, call);
+        callPeer.addCallPeerListener(callPeerListener);
+
         return call;
     }
 
@@ -322,20 +326,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     public void enableRemoteControl(CallPeer callPeer)
     {
-        if(logger.isInfoEnabled())
-            logger.info("Enable remote control");
-
-        CallJabberImpl call = (CallJabberImpl)callPeer.getCall();
-
-        if(call.getLocalInputEvtAware())
-        {
-            remoteControlEnabled = true;
-
-            if(!callPeers.contains(callPeer.getAddress()))
-            {
-                callPeers.add(callPeer.getAddress());
-            }
-        }
+        this.modifyRemoteControl(callPeer, true);
     }
 
     /**
@@ -346,15 +337,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     public void disableRemoteControl(CallPeer callPeer)
     {
-        if(logger.isInfoEnabled())
-            logger.info("Disable remote control");
-
-        remoteControlEnabled = false;
-
-        if(callPeers.contains(callPeer.getAddress()))
-        {
-           callPeers.remove(callPeer.getAddress());
-        }
+        this.modifyRemoteControl(callPeer, false);
     }
 
     /**
@@ -366,10 +349,40 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
+        OperationSetDesktopSharingServerJabberImpl.registrationStateChanged(
+                    evt,
+                    this,
+                    this,
+                    this.parentProvider.getConnection());
+    }
+
+    /**
+     * Implementation of method <tt>registrationStateChange</tt> from
+     * interface RegistrationStateChangeListener for setting up (or down)
+     * our <tt>InputEvtManager</tt> when an <tt>XMPPConnection</tt> is available
+     *
+     * @param evt the event received
+     * @param packetListener the packet listener for InputEvtIQ of this
+     * connection.  (OperationSetDesktopSharingServerJabberImpl or
+     * OperationSetDesktopSharingClientJabberImpl).
+     * @param packetFilter the packet filter for InputEvtIQ of this connection.
+     * @param connection The XMPP connection.
+     */
+    public static void registrationStateChanged(
+            RegistrationStateChangeEvent evt,
+            PacketListener packetListener,
+            PacketFilter packetFilter,
+            Connection connection)
+    {
         if ((evt.getNewState() == RegistrationState.REGISTERING))
         {
             /* listen to specific inputevt IQ */
-            parentProvider.getConnection().addPacketListener(this, this);
+            connection.addPacketListener(packetListener, packetFilter);
+        }
+        else if ((evt.getNewState() == RegistrationState.UNREGISTERING))
+        {
+            /* listen to specific inputevt IQ */
+            connection.removePacketListener(packetListener);
         }
     }
 
@@ -381,39 +394,25 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     public void processPacket(Packet packet)
     {
-        //this is not supposed to happen because of the filter ... but still
-        if (!(packet instanceof InputEvtIQ))
-            return;
-
         InputEvtIQ inputIQ = (InputEvtIQ)packet;
 
-        if(inputIQ.getAction() != InputEvtAction.NOTIFY)
+        if(inputIQ.getType() == IQ.Type.SET
+                && inputIQ.getAction() == InputEvtAction.NOTIFY)
         {
-            return;
-        }
-
-        /* do not waste time to parse packet if remote control is not enabled */
-        if(!remoteControlEnabled)
-        {
-            return;
-        }
-
-        //first ack all "set" requests.
-        if(inputIQ.getType() == IQ.Type.SET)
-        {
+            //first ack all "set" requests.
             IQ ack = IQ.createResultIQ(inputIQ);
             parentProvider.getConnection().sendPacket(ack);
-        }
 
-        if(!callPeers.contains(inputIQ.getFrom()))
-        {
-            return;
-        }
-
-        for(RemoteControlExtension p : inputIQ.getRemoteControls())
-        {
-            ComponentEvent evt = p.getEvent();
-            processComponentEvent(evt);
+            // Apply NOTIFY action only to peers which ahve remote control
+            // granted.
+            if(callPeers.contains(inputIQ.getFrom()))
+            {
+                for(RemoteControlExtension p : inputIQ.getRemoteControls())
+                {
+                    ComponentEvent evt = p.getEvent();
+                    processComponentEvent(evt);
+                }
+            }
         }
     }
 
@@ -428,10 +427,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     public boolean accept(Packet packet)
     {
         //we only handle InputEvtIQ-s
-        if(!(packet instanceof InputEvtIQ))
-            return false;
-
-        return true;
+        return (packet instanceof InputEvtIQ);
     }
 
     /**
@@ -542,5 +538,116 @@ public class OperationSetDesktopSharingServerJabberImpl
                 break;
             }
         }
+    }
+
+    /**
+     * Sends IQ InputEvent START or STOP in order to enable/disable the remote
+     * peer to remotely control our PC.
+     *
+     * @param callPeer call peer that will stop controlling on local computer.
+     * @param enables True to enable remote peer to gain remote control on our
+     * PC. False Otherwise.
+     */
+    public void modifyRemoteControl(CallPeer callPeer, boolean enables)
+    {
+        DiscoverInfo discoverInfo
+            = ((CallPeerJabberImpl) callPeer).getDiscoverInfo();
+        if(this.parentProvider.getDiscoveryManager()
+                .includesFeature(InputEvtIQ.NAMESPACE_SERVER)
+                && discoverInfo != null
+                && discoverInfo.containsFeature(InputEvtIQ.NAMESPACE_CLIENT))
+        {
+            if(logger.isInfoEnabled())
+                logger.info("Enable remote control");
+
+            CallJabberImpl call = (CallJabberImpl)callPeer.getCall();
+
+            synchronized(callPeers)
+            {
+                if(callPeers.contains(callPeer.getAddress()) != enables)
+                {
+                    InputEvtIQ inputIQ = new InputEvtIQ();
+                    if(enables)
+                    {
+                        inputIQ.setAction(InputEvtAction.START);
+                    }
+                    else
+                    {
+                        inputIQ.setAction(InputEvtAction.STOP);
+                    }
+                    inputIQ.setType(IQ.Type.SET);
+                    inputIQ.setFrom(parentProvider.getOurJID());
+                    inputIQ.setTo(callPeer.getAddress());
+
+                    Connection connection = parentProvider.getConnection();
+                    PacketCollector collector
+                        = connection.createPacketCollector(
+                            new PacketIDFilter(inputIQ.getPacketID()));
+                    
+                    connection.sendPacket(inputIQ);
+                    Packet p = collector.nextResult(
+                            SmackConfiguration.getPacketReplyTimeout());
+                    if(enables)
+                    {
+                        receivedResponseToIqStart(callPeer, p);
+                    }
+                    else
+                    {
+                        receivedResponseToIqStop(callPeer, p);
+                    }
+                    collector.cancel();
+
+                }
+            }
+        }
+    }
+
+    /**
+     * Manages response to IQ InputEvent START.
+     *
+     * @param callPeer call peer that will stop controlling on local computer.
+     * @param p The response to our IQ InputEvent START sent.
+     */
+    private void receivedResponseToIqStart(CallPeer callPeer, Packet p)
+    {
+        // If the IQ has been correctly acknowledged, save the callPeer
+        // has a peer with remote control granted.
+        if(p != null && ((IQ) p).getType() == IQ.Type.RESULT)
+        {
+            callPeers.add(callPeer.getAddress());
+        }
+        else
+        {
+            String packetString = (p == null)
+                ? "\n\tPacket is null (IQ request timeout)."
+                : "\n\tPacket: " + p.toXML();
+            logger.info(
+                    "Remote peer has not received/accepted the START "
+                    + "action to grant the remote desktop control."
+                    + packetString);
+        }
+    }
+
+    /**
+     * Manages response to IQ InputEvent STOP.
+     *
+     * @param callPeer call peer that will stop controlling on local computer.
+     * @param p The response to our IQ InputEvent STOP sent.
+     */
+    private void receivedResponseToIqStop(CallPeer callPeer, Packet p)
+    {
+        if(p == null || ((IQ) p).getType() == IQ.Type.ERROR)
+        {
+            String packetString = (p == null)
+                ? "\n\tPacket is null (IQ request timeout)."
+                : "\n\tPacket: " + p.toXML();
+            logger.info(
+                    "Remote peer has not received/accepted the STOP "
+                    + "action to grant the remote desktop control."
+                    + packetString);
+        }
+        // Even if the IQ has not been correctly acknowledged, save the
+        // callPeer has a peer with remote control revoked.
+        callPeers.remove(callPeer.getAddress());
     }
 }

@@ -20,8 +20,24 @@ public class InputEvtIQ extends IQ
     /**
      * The namespace that input event belongs to.
      */
-    public static final String NAMESPACE =
-        "http://jitsi.org/protocol/inputevt";
+    public static final String NAMESPACE = "http://jitsi.org/protocol/inputevt";
+
+    /**
+     * The namespace for peer that supports input event as a sharing server
+     * (sharer):
+     * Sends to remote peer "start" or "stop" action to respectively allows or
+     * disables remote peer to send "notify" action about its mouse or keyboard
+     * events.
+     */
+    public static final String NAMESPACE_SERVER = NAMESPACE + "/sharer";
+
+    /**
+     * The namespace for peer that supports input event as a sharing clent
+     * (sharee):
+     * Sends "notify" action describing mouse or keyboard events to the remote
+     * peer which shares its desktop.
+     */
+    public static final String NAMESPACE_CLIENT = NAMESPACE + "/sharee";
 
     /**
      * The name of the element that contains the input event data.
