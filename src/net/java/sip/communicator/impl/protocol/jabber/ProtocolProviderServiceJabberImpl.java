@@ -905,7 +905,16 @@ public class ProtocolProviderServiceJabberImpl
             //socket could not be opened
             if (ex.getWrappedThrowable() instanceof ConnectException
                 || ex.getWrappedThrowable() instanceof NoRouteToHostException)
+            {
+                //as we got an exception not handled in connectAndLogin
+                //no state was set, so fire it here so we can continue
+                //with the re-register process
+                fireRegistrationStateChanged(getRegistrationState(),
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND, null);
+
                 throw ex;
+            }
 
             // don't attempt to append the service name if it's already there
             if (!qualifiedUserID)

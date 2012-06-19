@@ -9,9 +9,11 @@ package net.java.sip.communicator.plugin.generalconfig.autoaway;
 import net.java.sip.communicator.plugin.generalconfig.*;
 import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.sysactivity.*;
 import net.java.sip.communicator.service.sysactivity.event.*;
 import net.java.sip.communicator.util.*;
+import org.osgi.framework.*;
 
 import java.beans.*;
 import java.util.*;
@@ -21,13 +23,25 @@ import java.util.*;
  * @author Damian Minkov
  */
 public class AutoAwayWatcher
-    implements SystemActivityChangeListener
+    implements ServiceListener,
+               RegistrationStateChangeListener
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger
+        = Logger.getLogger(AutoAwayWatcher.class);
+
     /**
      * The states of providers before going to away.
      */
     private final Map<ProtocolProviderService, PresenceStatus> lastStates
         = new HashMap<ProtocolProviderService, PresenceStatus>();
+
+    /**
+     * Listens for idle events.
+     */
+    private IdleListener idleListener = null;
 
     /**
      * Creates AutoAway handler.
@@ -53,35 +67,73 @@ public class AutoAwayWatcher
                         if(Boolean.parseBoolean((String)evt.getNewValue()))
                             start();
                         else
-                            stop();
+                            stopInner();
                     }
                 }
         );
 
         // listens for changes in configured value.
         configurationService.addPropertyChangeListener(
-                Preferences.TIMER,
-                new PropertyChangeListener()
+            Preferences.TIMER,
+            new PropertyChangeListener()
+            {
+                public void propertyChange(PropertyChangeEvent evt)
                 {
-                    public void propertyChange(PropertyChangeEvent evt)
-                    {
-                        stop();
-                        start();
-                    }
+                    stopInner();
+                    start();
                 }
+            }
         );
+
+        // listen for new providers
+        GeneralConfigPluginActivator.bundleContext.addServiceListener(this);
+
+        // lets check current providers
+        ServiceReference[] protocolProviderRefs = null;
+        try
+        {
+            protocolProviderRefs = GeneralConfigPluginActivator.bundleContext
+                .getServiceReferences(ProtocolProviderService.class.getName(),
+                                      null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error(
+                "Error while retrieving service refs", ex);
+            return;
+        }
+
+        // in case we found any
+        if (protocolProviderRefs != null)
+        {
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider = (ProtocolProviderService)
+                    GeneralConfigPluginActivator.bundleContext
+                        .getService(protocolProviderRefs[i]);
+
+                this.handleProviderAdded(provider);
+            }
+        }
     }
 
     /**
      * Starts and add needed listeners.
      */
-    public void start()
+    private void start()
     {
-        getSystemActivityNotificationsService()
-            .addIdleSystemChangeListener(
-                StatusUpdateThread.getTimer()*60*1000, this);
-        getSystemActivityNotificationsService()
-            .addSystemActivityChangeListener(this);
+        if(idleListener == null)
+        {
+            idleListener = new IdleListener();
+
+            getSystemActivityNotificationsService()
+                .addIdleSystemChangeListener(
+                    StatusUpdateThread.getTimer()*60*1000, idleListener);
+            getSystemActivityNotificationsService()
+                .addSystemActivityChangeListener(idleListener);
+        }
     }
 
     /**
@@ -89,34 +141,23 @@ public class AutoAwayWatcher
      */
     public void stop()
     {
-        getSystemActivityNotificationsService()
-            .removeIdleSystemChangeListener(this);
-        getSystemActivityNotificationsService()
-            .removeSystemActivityChangeListener(this);
+        GeneralConfigPluginActivator.bundleContext.removeServiceListener(this);
+        stopInner();
     }
 
     /**
-     * Listens for activities and set corresponding statuses.
-     *
-     * @param event the <tt>NotificationActionTypeEvent</tt>, which is
+     * Stops and removes the listeners, without the global service listener.
      */
-    public void activityChanged(SystemActivityEvent event)
+    private void stopInner()
     {
-        switch(event.getEventID())
-        {
-            case SystemActivityEvent.EVENT_DISPLAY_SLEEP:
-            case SystemActivityEvent.EVENT_SCREEN_LOCKED:
-            case SystemActivityEvent.EVENT_SCREENSAVER_START:
-            case SystemActivityEvent.EVENT_SYSTEM_IDLE:
-                changeProtocolsToAway();
-                break;
-            case SystemActivityEvent.EVENT_DISPLAY_WAKE:
-            case SystemActivityEvent.EVENT_SCREEN_UNLOCKED:
-            case SystemActivityEvent.EVENT_SCREENSAVER_STOP:
-            case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
-                changeProtocolsToPreviousState();
-                break;
-        }
+        if(idleListener == null)
+            return;
+
+        getSystemActivityNotificationsService()
+            .removeIdleSystemChangeListener(idleListener);
+        getSystemActivityNotificationsService()
+            .removeSystemActivityChangeListener(idleListener);
+        idleListener = null;
     }
 
     /**
@@ -126,7 +167,7 @@ public class AutoAwayWatcher
     private void changeProtocolsToAway()
     {
         for (ProtocolProviderService protocolProviderService
-                                : GeneralConfigPluginActivator.getProtocolProviders())
+                : GeneralConfigPluginActivator.getProtocolProviders())
         {
             OperationSetPresence presence
                 = protocolProviderService
@@ -143,7 +184,7 @@ public class AutoAwayWatcher
                 continue;
             }
 
-            lastStates.put(protocolProviderService, status);
+            addProviderToLastStates(protocolProviderService, status);
 
             PresenceStatus newStatus =
                     StatusUpdateThread.findAwayStatus(presence);
@@ -173,14 +214,15 @@ public class AutoAwayWatcher
         for (ProtocolProviderService protocolProviderService
                 : GeneralConfigPluginActivator.getProtocolProviders())
         {
-            if (lastStates.get(protocolProviderService) != null)
+            PresenceStatus lastState
+                = lastStates.get(protocolProviderService);
+
+            if (lastState != null)
             {
-                PresenceStatus lastState
-                    = lastStates.get(protocolProviderService);
                 OperationSetPresence presence
                     = protocolProviderService
                         .getOperationSet(
-                                OperationSetPresence.class);
+                            OperationSetPresence.class);
                 try
                 {
                     presence
@@ -192,7 +234,7 @@ public class AutoAwayWatcher
                 } catch (OperationFailedException e)
                 {
                 }
-                lastStates.remove(protocolProviderService);
+                removeProviderFromLastStates(protocolProviderService);
             }
         }
     }
@@ -207,5 +249,144 @@ public class AutoAwayWatcher
         return  ServiceUtils.getService(
                     GeneralConfigPluginActivator.bundleContext,
                     SystemActivityNotificationsService.class);
+    }
+
+    /**
+     * When new protocol provider is registered we add our
+     * registration change listener.
+     * If unregistered remove reference to the provider and the
+     * registration change listener.
+     *
+     * @param serviceEvent ServiceEvent
+     */
+    public void serviceChanged(ServiceEvent serviceEvent)
+    {
+        Object sService = GeneralConfigPluginActivator.bundleContext
+            .getService(serviceEvent.getServiceReference());
+
+        // we don't care if the source service is not a protocol provider
+        if (! (sService instanceof ProtocolProviderService))
+        {
+            return;
+        }
+
+        if (serviceEvent.getType() == ServiceEvent.REGISTERED)
+        {
+            this.handleProviderAdded((ProtocolProviderService)sService);
+        }
+        else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
+        {
+            this.handleProviderRemoved( (ProtocolProviderService) sService);
+        }
+    }
+
+    /**
+     * Used to set registration state change listener.
+     *
+     * @param provider ProtocolProviderService
+     */
+    private synchronized void handleProviderAdded(
+        ProtocolProviderService provider)
+    {
+        provider.addRegistrationStateChangeListener(this);
+    }
+
+    /**
+     * Removes the registration change listener.
+     *
+     * @param provider the ProtocolProviderService that has been unregistered.
+     */
+    private void handleProviderRemoved(ProtocolProviderService provider)
+    {
+        provider.removeRegistrationStateChangeListener(this);
+    }
+
+    /**
+     * Remove provider from list with last statuses.
+     * If this is the last provider stop listening for idle events.
+     * @param provider
+     */
+    private synchronized void removeProviderFromLastStates(
+        ProtocolProviderService provider)
+    {
+        lastStates.remove(provider);
+
+        if(lastStates.size() == 0)
+        {
+            stopInner();
+        }
+    }
+
+    /**
+     * Remember provider's last status, normally before setting it to away.
+     * If needed start listening for idle events.
+     * @param provider the provider.
+     * @param status the status to save.
+     */
+    private synchronized void addProviderToLastStates(
+        ProtocolProviderService provider, PresenceStatus status)
+    {
+        if(lastStates.size() == 0)
+        {
+            start();
+        }
+
+        lastStates.put(provider, status);
+    }
+
+    /**
+     * Listens for provider states.
+     * @param evt
+     */
+    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+    {
+         if(evt.getSource() instanceof ProtocolProviderService)
+         {
+            if(evt.getNewState().equals(RegistrationState.UNREGISTERED)
+               || evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+            {
+                removeProviderFromLastStates(evt.getProvider());
+            }
+            else if(evt.getNewState().equals(
+                                RegistrationState.REGISTERED))
+            {
+                // we have at least one provider, so lets start listening
+                if(lastStates.size() == 0)
+                {
+                    start();
+                }
+            }
+         }
+    }
+
+    /**
+     * Listener waiting for idle state change.
+     */
+    private class IdleListener
+        implements SystemActivityChangeListener
+    {
+        /**
+         * Listens for activities and set corresponding statuses.
+         *
+         * @param event the <tt>NotificationActionTypeEvent</tt>, which is
+         */
+        public void activityChanged(SystemActivityEvent event)
+        {
+            switch(event.getEventID())
+            {
+                case SystemActivityEvent.EVENT_DISPLAY_SLEEP:
+                case SystemActivityEvent.EVENT_SCREEN_LOCKED:
+                case SystemActivityEvent.EVENT_SCREENSAVER_START:
+                case SystemActivityEvent.EVENT_SYSTEM_IDLE:
+                    changeProtocolsToAway();
+                    break;
+                case SystemActivityEvent.EVENT_DISPLAY_WAKE:
+                case SystemActivityEvent.EVENT_SCREEN_UNLOCKED:
+                case SystemActivityEvent.EVENT_SCREENSAVER_STOP:
+                case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
+                    changeProtocolsToPreviousState();
+                    break;
+            }
+        }
     }
 }

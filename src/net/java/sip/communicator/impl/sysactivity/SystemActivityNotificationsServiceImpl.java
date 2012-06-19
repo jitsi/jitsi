@@ -369,8 +369,12 @@ public class SystemActivityNotificationsServiceImpl
                 }
                 else if(idleTime != 0)
                 {
-                    long minIdleSetting =
-                        Collections.min(idleChangeListeners.values());
+                    long minIdleSetting = CHECK_FOR_IDLE_DEFAULT;
+
+                    if(!idleChangeListeners.isEmpty())
+                        minIdleSetting =
+                            Collections.min(idleChangeListeners.values());
+
                     int newSetting = (int)(minIdleSetting - idleTime) + 1000;
 
                     if(newSetting > 0)

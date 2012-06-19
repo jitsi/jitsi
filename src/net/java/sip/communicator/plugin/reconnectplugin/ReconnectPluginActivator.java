@@ -553,13 +553,17 @@ public class ReconnectPluginActivator
                             if(timer == null || task == null)
                                  return;
 
-                             currentlyReconnecting.put(pp, task);
+                            // cancel any existing task before overriding it
+                            if(currentlyReconnecting.containsKey(pp))
+                                currentlyReconnecting.remove(pp).cancel();
 
-                             if (logger.isTraceEnabled())
-                                 logger.trace("Reconnect " + pp +
-                                         " after " + task.delay + " ms.");
+                            currentlyReconnecting.put(pp, task);
 
-                             timer.schedule(task, task.delay);
+                            if (logger.isTraceEnabled())
+                                logger.trace("Reconnect " + pp +
+                                    " after " + task.delay + " ms.");
+
+                            timer.schedule(task, task.delay);
                         }
                         return;
                     }
@@ -800,6 +804,10 @@ public class ReconnectPluginActivator
 
                                  return;
                              }
+
+                             // cancel any existing task before overriding it
+                             if(currentlyReconnecting.containsKey(pp))
+                                 currentlyReconnecting.remove(pp).cancel();
 
                              currentlyReconnecting.put(pp, task);
 
