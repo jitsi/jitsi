@@ -123,14 +123,16 @@ public class JingleNodesServiceDiscovery
 
             if(logger.isInfoEnabled())
             {
-                logger.info("Jingle Nodes discovery terminated!");
-                logger.info("Found " + nodes.getRelayEntries().size() +
+                logger.info("Jingle Nodes discovery terminated! ");
+                logger.info("Found " + (nodes != null ?
+                                        nodes.getRelayEntries().size() : "0") +
                         " Jingle Nodes relay for account: " +
                         accountID.getAccountAddress()
                     + " in " + (System.currentTimeMillis() - start) + " ms.");
             }
 
-            service.addEntries(nodes);
+            if(nodes != null)
+                service.addEntries(nodes);
         }
     }
 
