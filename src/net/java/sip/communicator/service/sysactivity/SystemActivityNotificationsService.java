@@ -63,4 +63,12 @@ public interface SystemActivityNotificationsService
      * @return whether the supplied event id is supported.
      */
     public boolean isSupported(int eventID);
+
+    /**
+     * The time since last user input. The time the system has been idle.
+     * Or -1 if there is no such information or error has occured.
+     * @return time the system has been idle.
+     */
+    public long getTimeSinceLastInput();
+
 }

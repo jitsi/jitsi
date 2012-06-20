@@ -204,6 +204,18 @@ public class SystemActivityNotificationsServiceImpl
     }
 
     /**
+     * The time since last user input. The time the system has been idle.
+     * @return time the system has been idle.
+     */
+    public long getTimeSinceLastInput()
+    {
+        if(SystemActivityNotifications.isLoaded())
+            return SystemActivityNotifications.getLastInput();
+        else
+            return -1;
+    }
+
+    /**
      * Callback method when receiving notifications.
      *
      * @param type type of the notification.

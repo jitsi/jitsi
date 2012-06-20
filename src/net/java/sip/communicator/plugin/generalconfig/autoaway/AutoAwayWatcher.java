@@ -355,6 +355,30 @@ public class AutoAwayWatcher
                 {
                     start();
                 }
+                else
+                {
+                    // or check are we away
+                    if(getSystemActivityNotificationsService()
+                        .getTimeSinceLastInput()
+                            > StatusUpdateThread.getTimer()*60*1000)
+                    {
+                        // we are away, so update the newly registered provider
+                        // do it in new thread to give the provider
+                        // time dispatch his status
+                        new Thread(new Runnable()
+                        {
+                            public void run()
+                            {
+                                try{
+                                Thread.sleep(1000);
+                                }
+                                catch(Throwable t){}
+
+                                changeProtocolsToAway();
+                            }
+                        }).start();
+                    }
+                }
             }
          }
     }
