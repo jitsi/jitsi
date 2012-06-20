@@ -76,13 +76,13 @@ public class DeviceConfiguration
      * The default value to be used for the {@link #PROP_AUDIO_DENOISE} property
      * when it does not have a value.
      */
-    private static final boolean DEFAULT_AUDIO_DENOISE = true;
+    public static final boolean DEFAULT_AUDIO_DENOISE = true;
 
     /**
      * The default value to be used for the {@link #PROP_AUDIO_ECHOCANCEL}
      * property when it does not have a value.
      */
-    private static final boolean DEFAULT_AUDIO_ECHOCANCEL = true;
+    public static final boolean DEFAULT_AUDIO_ECHOCANCEL = true;
 
     /**
      * The default value to be used for the
@@ -92,7 +92,7 @@ public class DeviceConfiguration
      * reverberation time is in the order of 300 ms, so a filter length of 100
      * ms is a good choice (800 samples at 8000 Hz sampling rate).
      */
-    private static final long DEFAULT_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
+    public static final long DEFAULT_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS
         = 100;
 
     /**

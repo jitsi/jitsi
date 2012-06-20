@@ -353,18 +353,33 @@ public class PortAudioStream
                             Format.NOT_SPECIFIED /* frameRate */,
                             Format.byteArray);
 
-            DeviceConfiguration deviceConfig
-                = NeomediaActivator
-                    .getMediaServiceImpl()
-                        .getDeviceConfiguration();
+            MediaServiceImpl mediaServiceImpl
+                = NeomediaActivator.getMediaServiceImpl();
+            boolean denoise = DeviceConfiguration.DEFAULT_AUDIO_DENOISE;
+            boolean echoCancel = DeviceConfiguration.DEFAULT_AUDIO_ECHOCANCEL;
+            long echoCancelFilterLengthInMillis
+                = DeviceConfiguration
+                    .DEFAULT_AUDIO_ECHOCANCEL_FILTER_LENGTH_IN_MILLIS;
 
-            PortAudio.setDenoise(
-                    stream,
-                    audioQualityImprovement && deviceConfig.isDenoise());
+            if (mediaServiceImpl != null)
+            {
+                DeviceConfiguration devCfg
+                    = mediaServiceImpl.getDeviceConfiguration();
+
+                if (devCfg != null)
+                {
+                    denoise = devCfg.isDenoise();
+                    echoCancel = devCfg.isEchoCancel();
+                    echoCancelFilterLengthInMillis
+                        = devCfg.getEchoCancelFilterLengthInMillis();
+                }
+            }
+
+            PortAudio.setDenoise(stream, audioQualityImprovement && denoise);
             PortAudio.setEchoFilterLengthInMillis(
                     stream,
-                    (audioQualityImprovement && deviceConfig.isEchoCancel())
-                        ? deviceConfig.getEchoCancelFilterLengthInMillis()
+                    (audioQualityImprovement && echoCancel)
+                        ? echoCancelFilterLengthInMillis
                         : 0);
         }
     }
