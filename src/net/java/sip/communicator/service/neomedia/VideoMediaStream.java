@@ -26,9 +26,13 @@ public interface VideoMediaStream
     /**
      * Gets local visual <tt>Component</tt> of the local peer.
      *
+     * @param flipLocalVideoDisplay Tells to flip the local video display (true,
+     * in case of diplaying the webcam as a mirror), or not (false, for desktop
+     * streaming).
+     *
      * @return visual <tt>Component</tt>
      */
-    public Component createLocalVisualComponent();
+    public Component createLocalVisualComponent(boolean flipLocalVideoDisplay);
 
     /**
      * Disposes of a specific local visual <tt>Component</tt> of the local peer.

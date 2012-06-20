@@ -126,6 +126,12 @@ public class VideoMediaDeviceSession
         = new VideoNotifierSupport(this, false);
 
     /**
+     * Tells to flip the local video display (true, in case of diplaying the
+     * webcam as a mirror), or not (false, for desktop streaming).
+     */
+    private boolean flipLocalVideoDisplay = true;
+
+    /**
      * Initializes a new <tt>VideoMediaDeviceSession</tt> instance which is to
      * represent the work of a <tt>MediaStream</tt> with a specific video
      * <tt>MediaDevice</tt>.
@@ -494,8 +500,21 @@ public class VideoMediaDeviceSession
                 {
                     for (TrackControl trackControl : trackControls)
                     {
-                        trackControl.setCodecChain(
-                                new Codec[] { new HFlip(), new SwScaler() });
+                        // If the local video is a desktop sharing stream, then
+                        // we do not need to flip the video.
+                        if (!this.flipLocalVideoDisplay)
+                        {
+                            trackControl.setCodecChain(
+                                    new Codec[]{new SwScaler()});
+                        }
+                        // else the local video is a webcam stream, then
+                        // we need to flip the video in order to display it like
+                        // a mirror.
+                        else
+                        {
+                            trackControl.setCodecChain(
+                                    new Codec[]{new HFlip(), new SwScaler()});
+                        }
                         break;
                     }
                 }
@@ -559,6 +578,10 @@ public class VideoMediaDeviceSession
      * Creates the visual <tt>Component</tt> depicting the video being streamed
      * from the local peer to the remote peer.
      *
+     * @param flipLocalVideoDisplay Tells to flip the local video display (true,
+     * in case of diplaying the webcam as a mirror), or not (false, for desktop
+     * streaming).
+     *
      * @return the visual <tt>Component</tt> depicting the video being streamed
      * from the local peer to the remote peer if it was immediately created or
      * <tt>null</tt> if it was not immediately created and it is to be delivered
@@ -566,8 +589,10 @@ public class VideoMediaDeviceSession
      * <tt>VideoEvent</tt> with type {@link VideoEvent#VIDEO_ADDED} and origin
      * {@link VideoEvent#LOCAL}
      */
-    public Component createLocalVisualComponent()
+    public Component createLocalVisualComponent(boolean flipLocalVideoDisplay)
     {
+        this.flipLocalVideoDisplay = flipLocalVideoDisplay;
+
         /*
          * Displaying the currently streamed desktop is perceived as unnecessary
          * because the user sees the whole desktop anyway. Instead, a static

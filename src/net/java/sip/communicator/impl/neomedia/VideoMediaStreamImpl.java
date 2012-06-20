@@ -400,6 +400,10 @@ public class VideoMediaStreamImpl
      * Creates the visual <tt>Component</tt> depicting the video being streamed
      * from the local peer to the remote peer.
      *
+     * @param flipLocalVideoDisplay Tells to flip the local video display (true,
+     * in case of diplaying the webcam as a mirror), or not (false, for desktop
+     * streaming).
+     *
      * @return the visual <tt>Component</tt> depicting the video being streamed
      * from the local peer to the remote peer if it was immediately created or
      * <tt>null</tt> if it was not immediately created and it is to be delivered
@@ -407,14 +411,14 @@ public class VideoMediaStreamImpl
      * <tt>VideoEvent</tt> with type {@link VideoEvent#VIDEO_ADDED} and origin
      * {@link VideoEvent#LOCAL}
      */
-    public Component createLocalVisualComponent()
+    public Component createLocalVisualComponent(boolean flipLocalVideoDisplay)
     {
         MediaDeviceSession deviceSession = getDeviceSession();
 
         return
             (deviceSession instanceof VideoMediaDeviceSession)
                 ? ((VideoMediaDeviceSession) deviceSession)
-                    .createLocalVisualComponent()
+                    .createLocalVisualComponent(flipLocalVideoDisplay)
                 : null;
     }
 

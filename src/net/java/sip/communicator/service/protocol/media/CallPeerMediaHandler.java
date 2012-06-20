@@ -701,12 +701,25 @@ public abstract class CallPeerMediaHandler
      */
     public Component createLocalVisualComponent()
     {
+        boolean flipLocalVideoDisplay = true;
+        OperationSetDesktopSharingServer desktopOpSet
+            = peer.getCall().getProtocolProvider().getOperationSet(
+                    OperationSetDesktopSharingServer.class);
+        // If the call video is a desktop sharing stream, then do not flip the
+        // local video display.
+        if (desktopOpSet != null
+            && desktopOpSet.isLocalVideoAllowed(peer.getCall()))
+        {
+            flipLocalVideoDisplay = false;
+        }
+
         MediaStream videoStream = getStream(MediaType.VIDEO);
 
         return
             ((videoStream == null) || !isLocalVideoTransmissionEnabled())
                 ? null
-                : ((VideoMediaStream) videoStream).createLocalVisualComponent();
+                : ((VideoMediaStream) videoStream).createLocalVisualComponent(
+                        flipLocalVideoDisplay);
     }
 
     /**
