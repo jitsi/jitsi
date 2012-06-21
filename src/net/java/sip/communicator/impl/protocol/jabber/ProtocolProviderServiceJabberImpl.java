@@ -1353,7 +1353,22 @@ public class ProtocolProviderServiceJabberImpl
             // that maybe added even if its not connected
             try
             {
-                connection.disconnect();
+                OperationSetPersistentPresenceJabberImpl opSet =
+                    (OperationSetPersistentPresenceJabberImpl)
+                    this.getOperationSet(OperationSetPersistentPresence.class);
+
+                Presence unavailablePresence =
+                    new Presence(Presence.Type.unavailable);
+
+                if(opSet != null
+                    && !net.java.sip.communicator.util.StringUtils
+                        .isNullOrEmpty(opSet.getCurrentStatusMessage()))
+                {
+                    unavailablePresence.setStatus(
+                        opSet.getCurrentStatusMessage());
+                }
+
+                connection.disconnect(unavailablePresence);
             } catch (Exception e)
             {}
 
