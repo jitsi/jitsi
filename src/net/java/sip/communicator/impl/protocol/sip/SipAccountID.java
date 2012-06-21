@@ -88,9 +88,6 @@ public class SipAccountID
      */
     public String getDisplayName()
     {
-        String returnValue = super.getAccountPropertyString(
-                            ProtocolProviderFactory.USER_ID);
-
         String protocolName =
             getAccountPropertyString(ProtocolProviderFactory.PROTOCOL);
         String service = getService();
@@ -100,6 +97,18 @@ public class SipAccountID
             // this is apparently a no registrar account
             protocolName = "RegistrarLess " + protocolName;
         }
+
+        // If the ACCOUNT_DISPLAY_NAME property has been set for this account
+        // we'll be using it as a display name.
+        String key = ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME;
+        String accountDisplayName = accountProperties.get(key);
+        if (accountDisplayName != null && accountDisplayName.length() > 0)
+        {
+            return accountDisplayName + " (" + protocolName + ")";
+        }
+
+        String returnValue = super.getAccountPropertyString(
+                                        ProtocolProviderFactory.USER_ID);
 
         if (protocolName != null && protocolName.trim().length() > 0)
             returnValue += " (" + protocolName + ")";

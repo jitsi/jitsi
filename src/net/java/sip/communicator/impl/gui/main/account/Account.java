@@ -300,6 +300,6 @@ public class Account
      */
     public String toString()
     {
-        return protocolProvider.getAccountID().getAccountAddress();
+        return protocolProvider.getAccountID().getDisplayName();
     }
 }

@@ -70,7 +70,7 @@ public class ChooseCallAccountDialog
                 Account account = (Account) obj;
 
                 this.setText(account.getAccountID()
-                        .getAccountAddress());
+                    .getDisplayName());
 
                 byte[] protocolIcon
                     = account.getProtocolProvider().getProtocolIcon()
