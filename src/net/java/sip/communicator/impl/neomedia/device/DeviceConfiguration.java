@@ -108,7 +108,7 @@ public class DeviceConfiguration
     /**
      * The default value for video maximum bandwidth.
      */
-    public static final int DEFAULT_VIDEO_MAX_BANDWIDTH = 100;
+    public static final int DEFAULT_VIDEO_MAX_BANDWIDTH = 256;
 
     /**
      * The default video width.
@@ -885,7 +885,7 @@ public class DeviceConfiguration
      * Gets the frame rate set on this <tt>DeviceConfiguration</tt>.
      *
      * @return the frame rate set on this <tt>DeviceConfiguration</tt>. The
-     * default value is {@link #DEFAULT_FRAME_RATE}
+     * default value is {@link #DEFAULT_VIDEO_FRAMERATE}
      */
     public int getFrameRate()
     {

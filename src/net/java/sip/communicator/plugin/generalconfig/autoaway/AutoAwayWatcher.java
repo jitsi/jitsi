@@ -174,6 +174,9 @@ public class AutoAwayWatcher
                     .getOperationSet(
                             OperationSetPresence.class);
 
+            if(presence == null)
+                continue;
+
             PresenceStatus status = presence
                     .getPresenceStatus();
 

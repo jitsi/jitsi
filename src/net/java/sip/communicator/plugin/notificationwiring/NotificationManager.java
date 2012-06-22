@@ -940,6 +940,13 @@ public class NotificationManager
         {
             Contact contact = event.getSourceContact();
 
+            // we don't care for proactive notifications, different than typing
+            // sometimes after closing chat we can see someone is typing us
+            // its just server sanding that the chat is inactive (STATE_STOPPED)
+            if(event.getTypingState()
+                != OperationSetTypingNotifications.STATE_TYPING)
+                return;
+
             // check whether the current chat window shows the
             // chat we received a typing info for and in such case don't show
             // notifications
@@ -964,10 +971,10 @@ public class NotificationManager
 
             if (this.proactiveTimer.size() > 0)
             {
-                //first remove contacts that have been here longer than the timeout
-                //to avoid memory leaks
+                // first remove contacts that have been here longer than the
+                // timeout to avoid memory leaks
                 Iterator<Map.Entry<Contact, Long>> entries
-                                        = this.proactiveTimer.entrySet().iterator();
+                    = this.proactiveTimer.entrySet().iterator();
                 while (entries.hasNext())
                 {
                     Map.Entry<Contact, Long> entry = entries.next();
