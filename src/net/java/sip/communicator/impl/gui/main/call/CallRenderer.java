@@ -81,4 +81,11 @@ public interface CallRenderer
      */
     public void conferenceMemberRemoved(CallPeer callPeer,
                                         ConferenceMember conferenceMember);
+
+    /**
+     * Returns the video handler associated with this call peer renderer.
+     *
+     * @return the video handler associated with this call peer renderer
+     */
+    public UIVideoHandler getVideoHandler();
 }

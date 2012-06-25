@@ -93,6 +93,8 @@ public class OneToOneCallPanel
      */
     private JPanel southPanel;
 
+    private final UIVideoHandler videoHandler;
+
     /**
      * Creates a call panel for the corresponding call, by specifying the
      * call type (incoming or outgoing) and the parent dialog.
@@ -127,9 +129,18 @@ public class OneToOneCallPanel
         this.call = call;
         this.callPeer = callPeer;
 
+        if (videoHandler == null)
+            this.videoHandler = new UIVideoHandler(this, videoContainers);
+        else
+        {
+            this.videoHandler = videoHandler;
+            videoHandler.setVideoContainersList(videoContainers);
+            videoHandler.setCallRenderer(this);
+        }
+
         this.setTransferHandler(new CallTransferHandler(call));
 
-        this.addCallPeerPanel(callPeer, videoHandler);
+        this.addCallPeerPanel(callPeer);
 
         this.setPreferredSize(new Dimension(400, 400));
     }
@@ -139,15 +150,14 @@ public class OneToOneCallPanel
      *
      * @param peer the call peer
      */
-    public void addCallPeerPanel(CallPeer peer, UIVideoHandler videoHandler)
+    public void addCallPeerPanel(CallPeer peer)
     {
         if (peerPanel == null)
         {
-            if (videoHandler != null)
-                peerPanel = new OneToOneCallPeerPanel(
-                    this, peer, videoContainers, videoHandler);
-            else
-                peerPanel = new OneToOneCallPeerPanel(
+            videoHandler.addVideoListener(callPeer);
+            videoHandler.addRemoteControlListener(callPeer);
+
+            peerPanel = new OneToOneCallPeerPanel(
                     this, peer, videoContainers);
 
             /* Create the main Components of the UI. */
@@ -177,16 +187,6 @@ public class OneToOneCallPanel
                 this.repaint();
             }
         }
-    }
-
-    /**
-     * Creates and adds a panel for a call peer.
-     *
-     * @param peer the call peer
-     */
-    public void addCallPeerPanel(CallPeer peer)
-    {
-        addCallPeerPanel(peer, null);
     }
 
     /**
@@ -630,7 +630,21 @@ public class OneToOneCallPanel
      * @param conferenceMember the member that was added
      */
     public void conferenceMemberAdded(CallPeer callPeer,
-        ConferenceMember conferenceMember) {}
+        ConferenceMember conferenceMember)
+    {
+        // We don't want to add the local member to the list of members.
+        if (CallManager.isLocalUser(conferenceMember))
+            return;
+
+        if (CallManager.addressesAreEqual(
+            conferenceMember.getAddress(), callPeer.getAddress()))
+        {
+            return;
+        }
+
+        getCallContainer().enableConferenceInterface(
+            CallManager.isVideoStreaming(call));
+    }
 
     /**
      * Indicates that the given conference member has been removed from the
@@ -641,4 +655,14 @@ public class OneToOneCallPanel
      */
     public void conferenceMemberRemoved(CallPeer callPeer,
         ConferenceMember conferenceMember) {}
+
+    /**
+     * Returns the video handler associated with this call peer renderer.
+     *
+     * @return the video handler associated with this call peer renderer
+     */
+    public UIVideoHandler getVideoHandler()
+    {
+        return videoHandler;
+    }
 }

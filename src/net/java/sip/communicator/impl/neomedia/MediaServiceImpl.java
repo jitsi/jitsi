@@ -930,7 +930,7 @@ public class MediaServiceImpl
         noPreview.setHorizontalAlignment(SwingConstants.CENTER);
         noPreview.setVerticalAlignment(SwingConstants.CENTER);
 
-        final JComponent videoContainer = new VideoContainer(noPreview);
+        final JComponent videoContainer = new VideoContainer(noPreview, false);
 
         if ((preferredWidth > 0) && (preferredHeight > 0))
             videoContainer.setPreferredSize(

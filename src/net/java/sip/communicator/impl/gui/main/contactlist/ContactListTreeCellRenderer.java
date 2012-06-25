@@ -9,7 +9,6 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.*;
 
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 import java.util.List;
 
@@ -572,7 +571,7 @@ public class ContactListTreeCellRenderer
             if (contact instanceof ShowMoreContact)
                 preferredSize.height = 18;
             else if (isSelected)
-                preferredSize.height = 55;
+                preferredSize.height = 70;
             else
                 preferredSize.height = 30;
         }

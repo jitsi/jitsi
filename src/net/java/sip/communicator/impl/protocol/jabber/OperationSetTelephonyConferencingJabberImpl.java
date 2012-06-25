@@ -672,7 +672,8 @@ public class OperationSetTelephonyConferencingJabberImpl
                 List<EndpointPacketExtension> endpoints =
                     u.getChildExtensionsOfType(EndpointPacketExtension.class);
                 String endpointStatus = null;
-                String ssrc = null;
+                String audioSsrc = null;
+                String videoSsrc = null;
 
                 if(endpoints.size() > 0)
                 {
@@ -694,7 +695,13 @@ public class OperationSetTelephonyConferencingJabberImpl
                         if(media.getType().equalsIgnoreCase(
                                 MediaType.AUDIO.toString()))
                         {
-                            ssrc = media.getSrcID();
+                            audioSsrc = media.getSrcID();
+                        }
+
+                        if(media.getType().equalsIgnoreCase(
+                            MediaType.VIDEO.toString()))
+                        {
+                            videoSsrc = media.getSrcID();
                         }
                     }
                 }
@@ -702,13 +709,22 @@ public class OperationSetTelephonyConferencingJabberImpl
                 existingConferenceMember.setDisplayName(displayName);
                 existingConferenceMember.setEndpointStatus(endpointStatus);
 
-                if (ssrc != null)
+                if (audioSsrc != null)
                 {
-                    long newSsrc = Long.parseLong(ssrc);
-                    if(existingConferenceMember.getSSRC() != newSsrc)
+                    long newSsrc = Long.parseLong(audioSsrc);
+                    if(existingConferenceMember.getAudioSsrc() != newSsrc)
                         changed = true;
 
-                    existingConferenceMember.setSSRC(newSsrc);
+                    existingConferenceMember.setAudioSsrc(newSsrc);
+                }
+
+                if (videoSsrc != null)
+                {
+                    long newSsrc = Long.parseLong(videoSsrc);
+                    if(existingConferenceMember.getVideoSsrc() != newSsrc)
+                        changed = true;
+
+                    existingConferenceMember.setVideoSsrc(newSsrc);
                 }
 
                 if (addConferenceMember)

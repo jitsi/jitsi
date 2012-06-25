@@ -22,11 +22,6 @@ public class VideoConferenceCallPanel
     extends ConferenceCallPanel
 {
     /**
-     * Handles video events and components.
-     */
-    private final UIVideoHandler videoHandler;
-
-    /**
      * The contained call.
      */
     private final Call call;
@@ -38,22 +33,35 @@ public class VideoConferenceCallPanel
         callPeerPanels = new Hashtable<CallPeer, ConferenceCallPeerRenderer>();
 
     /**
+     * A mapping of a member and its renderer.
+     */
+    private final Map<ConferenceMember, ConferenceMemberPanel>
+        conferenceMembersPanels
+            = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
+
+    public VideoConferenceCallPanel(CallPanel callPanel,
+                                    Call call)
+    {
+        this(callPanel, call, null);
+    }
+
+    /**
      * Creates an instance of <tt>VideoConferenceCallPanel</tt>.
      *
      * @param callPanel the call panel which contains this panel
      * @param call the conference call object
      */
-    public VideoConferenceCallPanel(CallPanel callPanel, Call call)
+    public VideoConferenceCallPanel(CallPanel callPanel,
+                                    Call call,
+                                    UIVideoHandler videoHandler)
     {
-        super(callPanel, call, true);
+        super(callPanel, call, videoHandler, true);
 
         this.call = call;
 
         addVideoContainer();
 
-        videoHandler = new UIVideoHandler(this, videoContainers);
-
-        videoHandler.setLocalVideoToolbar(createLocalVideoToolBar());
+        getVideoHandler().setLocalVideoToolbar(createLocalVideoToolBar());
 
         Iterator<? extends CallPeer> iterator;
 
@@ -64,7 +72,12 @@ public class VideoConferenceCallPanel
 
             ConferenceCallPeerRenderer peerRenderer = createVideoToolBar(peer);
 
-            videoHandler.addVideoToolbar(peer, peerRenderer.getComponent());
+            getVideoHandler().addVideoToolbar(peer, peerRenderer.getComponent());
+
+            for (ConferenceMember member : peer.getConferenceMembers())
+            {
+                conferenceMemberAdded(peer, member, true);
+            }
 
             // Map the call peer to its renderer.
             callPeerPanels.put(peer, peerRenderer);
@@ -77,7 +90,12 @@ public class VideoConferenceCallPanel
 
             ConferenceCallPeerRenderer peerRenderer = createVideoToolBar(peer);
 
-            videoHandler.addVideoToolbar(peer, peerRenderer.getComponent());
+            getVideoHandler().addVideoToolbar(peer, peerRenderer.getComponent());
+
+            for (ConferenceMember member : peer.getConferenceMembers())
+            {
+                conferenceMemberAdded(peer, member, true);
+            }
 
             // Map the call peer to its renderer.
             callPeerPanels.put(peer, peerRenderer);
@@ -118,17 +136,73 @@ public class VideoConferenceCallPanel
         return callPeerPanels.get(callPeer);
     }
 
+    public void conferenceMemberAdded(  CallPeer callPeer,
+                                        ConferenceMember member)
+    {
+        // It's already there.
+        if (conferenceMembersPanels.containsKey(member))
+            return;
+
+        conferenceMemberAdded(callPeer, member, false);
+
+        getVideoHandler().handleVideoEvent(call, null);
+    }
+
     /**
      * 
      */
-    public void conferenceMemberAdded(CallPeer callPeer,
-        ConferenceMember conferenceMember) {}
+    public void conferenceMemberAdded(  CallPeer callPeer,
+                                        ConferenceMember member,
+                                        boolean isInitialAdd)
+    {
+        // We don't want to add the local member to the list of members.
+        if (CallManager.isLocalUser(member))
+            return;
+
+        if (CallManager.addressesAreEqual(
+            member.getAddress(), callPeer.getAddress()))
+        {
+            return;
+        }
+
+        // It's already there.
+        if (conferenceMembersPanels.containsKey(member))
+            return;
+
+        ConferenceMemberPanel memberVideoToolbar = createVideoToolBar(member);
+
+        member.addPropertyChangeListener(memberVideoToolbar);
+
+        getVideoHandler().addVideoToolbar(member, memberVideoToolbar);
+        conferenceMembersPanels.put(member, memberVideoToolbar);
+    }
 
     /**
      * 
      */
     public void conferenceMemberRemoved(CallPeer callPeer,
-        ConferenceMember conferenceMember) {}
+                                        ConferenceMember member)
+    {
+        // We don't want to add the local member to the list of members.
+        if (CallManager.isLocalUser(member))
+            return;
+
+        if (CallManager.addressesAreEqual(
+            member.getAddress(), callPeer.getAddress()))
+        {
+            return;
+        }
+
+        getVideoHandler().removeVideoToolbar(member);
+
+        ConferenceMemberPanel memberPanel = conferenceMembersPanels.get(member);
+
+        if (memberPanel != null)
+        {
+            member.removePropertyChangeListener(memberPanel);
+            conferenceMembersPanels.remove(member);
+        }
+    }
 
     /**
      * Creates and adds a <tt>CallPeerRenderer</tt> for the given <tt>peer</tt>.
@@ -139,12 +213,14 @@ public class VideoConferenceCallPanel
     {
         ConferenceCallPeerRenderer peerRenderer = createVideoToolBar(peer);
 
-        videoHandler.addVideoToolbar(peer, peerRenderer.getComponent());
+        getVideoHandler().addVideoToolbar(peer, peerRenderer.getComponent());
 
         // Map the call peer to its renderer.
         callPeerPanels.put(peer, peerRenderer);
 
         addCallPeerPanel(peer, peerRenderer);
+
+        getVideoHandler().handleVideoEvent(call, null);
     }
 
     /**
@@ -153,11 +229,11 @@ public class VideoConferenceCallPanel
      * @param peer the added peer
      * @param peer the peer for which to create a renderer
      */
-    private void addCallPeerPanel(   CallPeer peer,
+    private void addCallPeerPanel(  CallPeer peer,
                                     ConferenceCallPeerRenderer peerRenderer)
     {
-        videoHandler.addVideoListener(peer);
-        videoHandler.addRemoteControlListener(peer);
+        getVideoHandler().addVideoListener(peer);
+        getVideoHandler().addRemoteControlListener(peer);
 
         if (peer.getConferenceMemberCount() > 0)
         {
@@ -199,7 +275,13 @@ public class VideoConferenceCallPanel
         if (confPeerRenderer == null)
             return;
 
-        confPeerRenderer.getVideoHandler().removeRemoteControlListener(peer);
+        getVideoHandler().removeRemoteControlListener(peer);
+        getVideoHandler().removeVideoToolbar(peer);
+
+        for (ConferenceMember member : peer.getConferenceMembers())
+        {
+            getVideoHandler().removeVideoToolbar(member);
+        }
 
         // first remove the listeners as after removing the panel
         // we may still receive sound level indicators and there are
@@ -247,7 +329,20 @@ public class VideoConferenceCallPanel
     private ConferenceCallPeerRenderer createVideoToolBar(CallPeer callPeer)
     {
         return new ConferencePeerPanel(
-            this, getCallContainer(), callPeer, videoHandler, true);
+            this, getCallContainer(), callPeer, true);
+    }
+
+    /**
+     * Initializes the video tool bar.
+     *
+     * @param callPeer the <tt>CallPeer</tt> for which we create a video toolbar
+     * @return the created component
+     */
+    private ConferenceMemberPanel createVideoToolBar(
+                                            ConferenceMember conferenceMember)
+    {
+        return new ConferenceMemberPanel(
+            this, conferenceMember, true);
     }
 
     /**
@@ -268,7 +363,8 @@ public class VideoConferenceCallPanel
             return;
         }
 
-        final VideoContainer videoContainer = new VideoContainer(null);
+        final VideoContainer videoContainer
+            = new VideoContainer(new JLabel(), true);
 
         videoContainer.setPreferredSize(new Dimension(0, 0));
 

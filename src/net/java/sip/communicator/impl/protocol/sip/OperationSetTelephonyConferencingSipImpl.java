@@ -6,11 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.awt.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+import java.util.List;
 
 import javax.sip.*;
+import javax.sip.Dialog;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
@@ -1046,7 +1049,8 @@ public class OperationSetTelephonyConferencingSipImpl
                     int userChildCount = userChildList.getLength();
                     String displayName = null;
                     String endpointStatus = null;
-                    String ssrc = null;
+                    String audioSsrc = null;
+                    String videoSsrc = null;
 
                     for (int userChildIndex = 0;
                             userChildIndex < userChildCount;
@@ -1060,20 +1064,50 @@ public class OperationSetTelephonyConferencingSipImpl
                         else if (ELEMENT_ENDPOINT.equals(userChildName))
                         {
                             endpointStatus = getEndpointStatus(userChild);
-                            ssrc = getEndpointMediaSrcId(
-                                    userChild,
-                                    MediaType.AUDIO);
+                            audioSsrc = getEndpointMediaSrcId(
+                                            userChild,
+                                            MediaType.AUDIO);
+                            videoSsrc = getEndpointMediaSrcId(
+                                            userChild,
+                                            MediaType.VIDEO);
                         }
                     }
                     existingConferenceMember.setDisplayName(displayName);
                     existingConferenceMember.setEndpointStatus(endpointStatus);
 
-                    if (ssrc != null)
+                    if (audioSsrc != null)
                     {
-                        long newSsrc = Long.parseLong(ssrc);
-                        if(existingConferenceMember.getSSRC() != newSsrc)
+                        long newSsrc = Long.parseLong(audioSsrc);
+                        if(existingConferenceMember.getAudioSsrc() != newSsrc)
                             changed = true;
-                        existingConferenceMember.setSSRC(newSsrc);
+                        existingConferenceMember.setAudioSsrc(newSsrc);
+                    }
+
+                    if (videoSsrc != null)
+                    {
+                        long newSsrc = Long.parseLong(videoSsrc);
+                        long currentSsrc
+                            = existingConferenceMember.getVideoSsrc();
+
+                        if (currentSsrc != -1 && currentSsrc == newSsrc)
+                            continue;
+
+                        if(existingConferenceMember.getVideoSsrc() != newSsrc)
+                            changed = true;
+
+                        existingConferenceMember.setVideoSsrc(newSsrc);
+
+                        VideoMediaStream peerVideoStream
+                            = (VideoMediaStream) callPeer.getMediaHandler()
+                                .getStream(MediaType.VIDEO);
+
+                        Component visualComponent
+                            = peerVideoStream.getVisualComponent(newSsrc);
+
+                        if (visualComponent != null)
+                            callPeer.getMediaHandler()
+                                .fireVisualComponentResolveEvent(
+                                    visualComponent, existingConferenceMember);
                     }
 
                     if (addConferenceMember)

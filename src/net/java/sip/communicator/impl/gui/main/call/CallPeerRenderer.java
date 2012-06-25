@@ -163,13 +163,6 @@ public interface CallPeerRenderer
     public boolean isLocalVideoVisible();
 
     /**
-     * Returns the video handler associated with this call peer renderer.
-     *
-     * @return the video handler associated with this call peer renderer
-     */
-    public UIVideoHandler getVideoHandler();
-
-    /**
      * Shows/hides the security panel.
      *
      * @param isVisible <tt>true</tt> to show the security panel, <tt>false</tt>

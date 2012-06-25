@@ -856,6 +856,25 @@ public class VideoMediaDeviceSession
     }
 
     /**
+     * Gets the visual <tt>Component</tt>s rendering the <tt>ReceiveStream</tt>
+     * corresponding to the given ssrc.
+     *
+     * @param ssrc the src-id of the receive stream, which visual
+     * <tt>Component</tt> we're looking for
+     * @return the visual <tt>Component</tt> rendering the
+     * <tt>ReceiveStream</tt> corresponding to the given ssrc
+     */
+    public Component getVisualComponent(long ssrc)
+    {
+        Player player = getPlayer(ssrc);
+
+        if (player != null)
+            return player.getVisualComponent();
+
+        return null;
+    }
+
+    /**
      * Gets the visual <tt>Component</tt> of a specific <tt>Player</tt> if it
      * has one and ignores the failure to access it if the specified
      * <tt>Player</tt> is unrealized.

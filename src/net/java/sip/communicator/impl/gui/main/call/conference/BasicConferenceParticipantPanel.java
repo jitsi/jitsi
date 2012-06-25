@@ -291,6 +291,15 @@ public abstract class BasicConferenceParticipantPanel
     }
 
     /**
+     * Sets the name of the participant.
+     * @param participantName the name of the participant
+     */
+    public String getParticipantName()
+    {
+        return nameLabel.getText();
+    }
+
+    /**
      * Sets the state of the participant.
      * @param participantState the state of the participant
      */

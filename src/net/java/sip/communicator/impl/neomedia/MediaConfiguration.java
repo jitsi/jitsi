@@ -839,7 +839,7 @@ public class MediaConfiguration
      */
     private static JComponent createVideoContainer(Component noVideoComponent)
     {
-        return new VideoContainer(noVideoComponent);
+        return new VideoContainer(noVideoComponent, false);
     }
 
     /**

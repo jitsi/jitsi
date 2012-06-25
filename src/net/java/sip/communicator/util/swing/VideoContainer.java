@@ -72,10 +72,12 @@ public class VideoContainer
      *
      * @param noVideoComponent the component to be displayed when no remote
      * video is available
+     * @param isConference indicates if this <tt>VideoLayout</tt> is dedicated
+     * to a conference interface.
      */
-    public VideoContainer(Component noVideoComponent)
+    public VideoContainer(Component noVideoComponent, boolean isConference)
     {
-        setLayout(new VideoLayout());
+        setLayout(new VideoLayout(isConference));
 
         this.noVideoComponent = noVideoComponent;
 
@@ -162,7 +164,9 @@ public class VideoContainer
     {
         if (VideoLayout.CENTER_REMOTE.equals(constraints)
                 && (noVideoComponent != null)
-                && !noVideoComponent.equals(comp))
+                && !noVideoComponent.equals(comp)
+            || (comp.equals(noVideoComponent)
+                && noVideoComponent.getParent() != null))
         {
             remove(noVideoComponent);
             validate();

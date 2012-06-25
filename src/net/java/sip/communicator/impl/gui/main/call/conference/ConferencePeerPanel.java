@@ -93,30 +93,25 @@ public class ConferencePeerPanel
     private StreamSoundLevelListener streamSoundLevelListener = null;
 
     /**
-     * The video handler associated with this peer.
-     */
-    private UIVideoHandler videoHandler;
-
-    /**
      * Creates a <tt>ConferencePeerPanel</tt> by specifying the parent
      * <tt>callDialog</tt>, containing it and the corresponding
      * <tt>protocolProvider</tt>.
      *
      * @param callRenderer the renderer of the corresponding call
-     * @param callPanel the call panel containing this peer panel
+     * @param callContainer the call panel containing this peer panel
      * @param protocolProvider the <tt>ProtocolProviderService</tt> for the
      * call
      * @param isVideo indicates if the video interface is enabled
      */
     public ConferencePeerPanel( ConferenceCallPanel callRenderer,
-                                CallPanel callPanel,
+                                CallPanel callContainer,
                                 ProtocolProviderService protocolProvider,
                                 boolean isVideo)
     {
         super(callRenderer, true, isVideo);
 
         this.callRenderer = callRenderer;
-        this.callPanel = callPanel;
+        this.callPanel = callContainer;
         this.callPeer = null;
 
         // Try to set the same image as the one in the main window. This way
@@ -153,7 +148,6 @@ public class ConferencePeerPanel
     public ConferencePeerPanel( ConferenceCallPanel callRenderer,
                                 CallPanel callContainer,
                                 CallPeer callPeer,
-                                UIVideoHandler videoHandler,
                                 boolean isVideo)
     {
         super(callRenderer, false, isVideo);
@@ -161,7 +155,6 @@ public class ConferencePeerPanel
         this.callRenderer = callRenderer;
         this.callPanel = callContainer;
         this.callPeer = callPeer;
-        this.videoHandler = videoHandler;
 
         this.securityPanel = SecurityPanel.create(this, callPeer, null);
 
@@ -578,16 +571,6 @@ public class ConferencePeerPanel
     public Component getComponent()
     {
         return this;
-    }
-
-    /**
-     * Returns the video handler associated with this call peer renderer.
-     *
-     * @return the video handler associated with this call peer renderer
-     */
-    public UIVideoHandler getVideoHandler()
-    {
-        return videoHandler;
     }
 
     /**

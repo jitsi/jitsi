@@ -41,11 +41,13 @@ public class ConferenceMemberPanel
      *
      * @param callRenderer the parent call renderer
      * @param member the <tt>ConferenceMember</tt> shown in this panel
+     * @param isVideo indicates if the video conference interface is enabled.
      */
     public ConferenceMemberPanel(   CallRenderer callRenderer,
-                                    ConferenceMember member)
+                                    ConferenceMember member,
+                                    boolean isVideo)
     {
-        super(callRenderer, false);
+        super(callRenderer, false, isVideo);
 
         this.member = member;
 

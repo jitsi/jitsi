@@ -1013,6 +1013,26 @@ public class MediaDeviceSession
     }
 
     /**
+     * Gets the <tt>Player</tt>s rendering the <tt>ReceiveStream</tt>
+     * corresponding to the given ssrc.
+     *
+     * @param ssrc the src-id of the receive stream, which player we're
+     * looking for
+     * @return the <tt>Player</tt>s rendering the <tt>ReceiveStream</tt>
+     * corresponding to the given ssrc
+     */
+    protected Player getPlayer(long ssrc)
+    {
+        synchronized (playbacks)
+        {
+            for (Playback playback : playbacks)
+                if (playback.receiveStream.getSSRC() == ssrc)
+                    return playback.player;
+        }
+        return null;
+    }
+
+    /**
      * Gets the JMF <tt>Processor</tt> which transcodes the <tt>MediaDevice</tt>
      * of this instance into the format of this instance.
      *

@@ -640,6 +640,28 @@ public class VideoMediaStreamImpl
     }
 
     /**
+     * Gets the visual <tt>Component</tt>s rendering the <tt>ReceiveStream</tt>
+     * corresponding to the given ssrc.
+     *
+     * @param ssrc the src-id of the receive stream, which visual
+     * <tt>Component</tt> we're looking for
+     * @return the visual <tt>Component</tt> rendering the
+     * <tt>ReceiveStream</tt> corresponding to the given ssrc
+     */
+    public Component getVisualComponent(long ssrc)
+    {
+        MediaDeviceSession deviceSession = getDeviceSession();
+
+        if (deviceSession instanceof VideoMediaDeviceSession)
+        {
+            return ((VideoMediaDeviceSession) deviceSession)
+                    .getVisualComponent(ssrc);
+        }
+
+        return null;
+    }
+
+    /**
      * Removes a specific <tt>VideoListener</tt> from this
      * <tt>VideoMediaStream</tt> in order to have to no longer receive
      * notifications when visual/video <tt>Component</tt>s are being added and
@@ -968,9 +990,9 @@ public class VideoMediaStreamImpl
      * @param ssrc remote SSRC
      */
     @Override
-    protected void setRemoteSourceID(long ssrc)
+    protected void addRemoteSourceID(long ssrc)
     {
-        super.setRemoteSourceID(ssrc);
+        super.addRemoteSourceID(ssrc);
 
         ((VideoMediaDeviceSession) getDeviceSession()).setRemoteSSRC(ssrc);
     }

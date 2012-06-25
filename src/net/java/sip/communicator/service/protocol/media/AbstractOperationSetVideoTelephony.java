@@ -13,6 +13,7 @@ import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.event.*;
 
 /**
@@ -152,6 +153,41 @@ public abstract class AbstractOperationSetVideoTelephony<
     public List<Component> getVisualComponents(CallPeer peer)
     {
         return ((W)peer).getMediaHandler().getVisualComponents();
+    }
+
+    /**
+     * Returns the <tt>ConferenceMember</tt> corresponding to the given
+     * <tt>visualComponent</tt>.
+     * 
+     * @param peer the parent <tt>CallPeer</tt>
+     * @param visualComponent the visual <tt>Component</tt>, which corresponding
+     * <tt>ConferenceMember</tt> we're looking for
+     * @return the <tt>ConferenceMember</tt> corresponding to the given
+     * <tt>visualComponent</tt>.
+     */
+    @SuppressWarnings("unchecked") // work with MediaAware* in media package
+    public ConferenceMember getConferenceMember(CallPeer peer,
+                                                Component visualComponent)
+    {
+        VideoMediaStream peerVideoStream
+            = (VideoMediaStream) ((W)peer).getMediaHandler()
+                .getStream(MediaType.VIDEO);
+
+        if (peerVideoStream == null)
+            return null;
+
+        for (ConferenceMember member : peer.getConferenceMembers())
+        {
+            Component memberComponent = peerVideoStream
+                .getVisualComponent(member.getVideoSsrc());
+
+            if (memberComponent != null
+                && memberComponent.equals(visualComponent))
+            {
+                return member;
+            }
+        }
+        return null;
     }
 
     /**
@@ -502,5 +538,49 @@ public abstract class AbstractOperationSetVideoTelephony<
              */
             delegate.videoUpdate(event);
         }
+    }
+
+    /**
+     * Adds a specific <tt>VisualComponentResolveListener</tt> to this telephony
+     * in order to receive notifications when visual/video <tt>Component</tt>s
+     * are being resolved to correspond to a particular
+     * <tt>ConferenceMember</tt>.
+     *
+     * @param callPeer the <tt>CallPeer</tt>, which visual components we're
+     * listening to
+     * @param listener the <tt>VisualComponentResolveListener</tt> to be
+     * notified when visual/video <tt>Component</tt>s are being resolved to
+     * correspond to a particular <tt>ConferenceMember</tt>.
+     */
+    @SuppressWarnings("unchecked") // work with MediaAware* in media package
+    public void addVisualComponentResolveListener(
+        CallPeer callPeer,
+        VisualComponentResolveListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+
+        ((W)callPeer).getMediaHandler().addVisualComponentResolveListener(
+            listener);
+    }
+
+    /**
+     * Removes a <tt>VisualComponentResolveListener</tt> from this video
+     * telephony operation set, which was previously added in order to receive
+     * notifications when visual/video <tt>Component</tt>s are being resolved to
+     * be corresponding to a particular <tt>ConferenceMember</tt>.
+     *
+     * @param callPeer the <tt>CallPeer</tt>, which visual components we're
+     * listening to
+     * @param listener the <tt>VisualComponentResolveListener</tt> to be
+     * removed
+     */
+    @SuppressWarnings("unchecked") // work with MediaAware* in media package
+    public void removeVisualComponentResolveListener(
+        CallPeer callPeer,
+        VisualComponentResolveListener listener)
+    {
+        ((W)callPeer).getMediaHandler().removeVisualComponentResolveListener(
+            listener);
     }
 }

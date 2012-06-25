@@ -44,9 +44,14 @@ public class AbstractConferenceMember
     private ConferenceMemberState state = ConferenceMemberState.UNKNOWN;
 
     /**
-     * The SSRC value if transmitted by the focus of the conference.
+     * The audio SSRC value if transmitted by the focus of the conference.
      */
-    private long ssrc = -1;
+    private long audioSsrc = -1;
+
+    /**
+     * The video SSRC value if transmitted by the focus of the conference.
+     */
+    private long videoSsrc = -1;
 
     /**
      * Creates an instance of <tt>AbstractConferenceMember</tt> by specifying
@@ -157,20 +162,40 @@ public class AbstractConferenceMember
     /**
      * Returns the SSRC value associated with this participant;
      *
-     * @return the ssrc
+     * @return the audio ssrc id
      */
-    public long getSSRC()
+    public long getAudioSsrc()
     {
-        return ssrc;
+        return audioSsrc;
     }
 
     /**
-     * Sets the SSRC identifier of this member.
+     * Sets the audio SSRC identifier of this member.
      *
-     * @param ssrc the SSRC ID to set for this member.
+     * @param ssrc the audio SSRC ID to set for this member.
      */
-    public void setSSRC(long ssrc)
+    public void setAudioSsrc(long ssrc)
     {
-        this.ssrc = ssrc;
+        this.audioSsrc = ssrc;
+    }
+
+    /**
+     * Returns the SSRC value associated with this participant;
+     *
+     * @return the video ssrc id
+     */
+    public long getVideoSsrc()
+    {
+        return videoSsrc;
+    }
+
+    /**
+     * Sets the video SSRC identifier of this member.
+     *
+     * @param ssrc the video SSRC ID to set for this member.
+     */
+    public void setVideoSsrc(long ssrc)
+    {
+        this.videoSsrc = ssrc;
     }
 }

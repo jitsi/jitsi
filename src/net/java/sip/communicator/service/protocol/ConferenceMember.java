@@ -108,5 +108,14 @@ public interface ConferenceMember
      * @return the ssrc associated with the RTP stream that this participant
      * is transmitting or <tt>null</tt> if this value is not currently known.
      */
-    public long getSSRC();
+    public long getAudioSsrc();
+
+    /**
+     * Returns the SSRC value associated with this participant or <tt>null</tt>
+     * if the value is not currently known.;
+     *
+     * @return the ssrc associated with the RTP stream that this participant
+     * is transmitting or <tt>null</tt> if this value is not currently known.
+     */
+    public long getVideoSsrc();
 }

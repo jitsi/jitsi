@@ -83,6 +83,26 @@ public class VideoLayout extends FitLayout
     private float remoteAlignmentX = Component.CENTER_ALIGNMENT;
 
     /**
+     * Indicates if this <tt>VideoLayout</tt> is dedicated to a conference
+     * interface.
+     */
+    private final boolean isConference;
+
+    /**
+     * Creates an instance of <tt>VideoLayout</tt> by also indicating if this
+     * video layout is dedicated to a conference interface.
+     *
+     * @param isConference indicates if this <tt>VideoLayout</tt> is dedicated
+     * to a conference interface.
+     */
+    public VideoLayout(boolean isConference)
+    {
+        super();
+
+        this.isConference = isConference;
+    }
+
+    /**
      * Adds the given component in this layout on the specified by name
      * position.
      *
@@ -216,7 +236,7 @@ public class VideoLayout extends FitLayout
         Dimension parentSize = parent.getSize();
         parentSize.width -= remoteCount*10;
 
-        if (remoteCount == 1)
+        if (remoteCount == 1 && !isConference)
         {
             super.layoutContainer(parent,
                     (local == null)
@@ -266,7 +286,7 @@ public class VideoLayout extends FitLayout
              * If the local visual/video Component is not displayed as if it is
              * a remote one, it will be placed on top of a remote one.
              */
-            if (!remotes.contains(local))
+            if (!remotes.contains(local) && !isConference)
             {
                 Component remote0 = remotes.isEmpty() ? null : remotes.get(0);
                 int localX;
@@ -421,8 +441,6 @@ public class VideoLayout extends FitLayout
                 int columns = calculateColumnCount(remotes);
                 int rows = (remoteCount + columns - 1) / columns;
 
-System.out.println("EHIIIIII WIDTH=========" + maxWidth * columns
-    + "EHIIIIIIIII HEIGHT========" + maxHeight * rows);
                 return new Dimension(maxWidth * columns, maxHeight * rows);
             }
         }

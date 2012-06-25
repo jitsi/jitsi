@@ -12,6 +12,7 @@ import java.text.*;
 import java.util.List;
 
 import net.java.sip.communicator.service.neomedia.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.event.*;
 
 /**
@@ -287,4 +288,48 @@ public interface OperationSetVideoTelephony
      * @return the implemented quality control.
      */
     public QualityControl getQualityControl(CallPeer peer);
+
+    /**
+     * Adds a specific <tt>VisualComponentResolveListener</tt> to this telephony
+     * in order to receive notifications when visual/video <tt>Component</tt>s
+     * are being resolved to correspond to a particular
+     * <tt>ConferenceMember</tt>.
+     *
+     * @param callPeer the <tt>CallPeer</tt>, which visual components we're
+     * listening to
+     * @param listener the <tt>VisualComponentResolveListener</tt> to be
+     * notified when visual/video <tt>Component</tt>s are being resolved to
+     * correspond to a particular <tt>ConferenceMember</tt>.
+     */
+    public void addVisualComponentResolveListener(
+        CallPeer callPeer,
+        VisualComponentResolveListener listener);
+
+    /**
+     * Removes a <tt>VisualComponentResolveListener</tt> from this video
+     * telephony operation set, which was previously added in order to receive
+     * notifications when visual/video <tt>Component</tt>s are being resolved to
+     * be corresponding to a particular <tt>ConferenceMember</tt>.
+     *
+     * @param callPeer the <tt>CallPeer</tt>, which visual components we're
+     * listening to
+     * @param listener the <tt>VisualComponentResolveListener</tt> to be
+     * removed
+     */
+    public void removeVisualComponentResolveListener(
+        CallPeer callPeer,
+        VisualComponentResolveListener listener);
+
+    /**
+     * Returns the <tt>ConferenceMember</tt> corresponding to the given
+     * <tt>visualComponent</tt>.
+     * 
+     * @param peer the parent <tt>CallPeer</tt>
+     * @param visualComponent the visual <tt>Component</tt>, which corresponding
+     * <tt>ConferenceMember</tt> we're looking for
+     * @return the <tt>ConferenceMember</tt> corresponding to the given
+     * <tt>visualComponent</tt>.
+     */
+    public ConferenceMember getConferenceMember(CallPeer peer,
+                                                Component visualComponent);
 }

@@ -783,6 +783,7 @@ public class MediaStreamImpl
         }
 
         csrcArray[csrcArray.length - 1] = getLocalSourceID();
+
         this.localContributingSourceIDList = csrcArray;
     }
 
@@ -1114,6 +1115,17 @@ public class MediaStreamImpl
     public long getRemoteSourceID()
     {
         return remoteSourceIDs.isEmpty() ? -1 : remoteSourceIDs.lastElement();
+    }
+
+    /**
+     * Gets the synchronization source (SSRC) identifiers of the remote peers.
+     *
+     * @return the synchronization source (SSRC) identifiers of the remote peers
+     * @see MediaStream#getRemoteSourceIDs()
+     */
+    public List<Long> getRemoteSourceIDs()
+    {
+        return Collections.unmodifiableList(remoteSourceIDs);
     }
 
     /**
@@ -2097,7 +2109,7 @@ public class MediaStreamImpl
                                 + receiveStreamSSRC);
                 }
 
-                setRemoteSourceID(receiveStreamSSRC);
+                addRemoteSourceID(receiveStreamSSRC);
 
                 synchronized (receiveStreams)
                 {
@@ -2279,7 +2291,7 @@ public class MediaStreamImpl
      * @param remoteSourceID the SSRC identifier that this stream will be using
      * in outgoing RTP packets from now on.
      */
-    protected void setRemoteSourceID(long remoteSourceID)
+    protected void addRemoteSourceID(long remoteSourceID)
     {
         Long oldValue = getRemoteSourceID();
 

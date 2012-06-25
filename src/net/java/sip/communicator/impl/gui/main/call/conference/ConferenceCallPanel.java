@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.gui.main.call.conference;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -54,6 +53,11 @@ public class ConferenceCallPanel
      * The scroll pane.
      */
     private JScrollPane scrollPane;
+
+    /**
+     * Video handler for the conference call.
+     */
+    private UIVideoHandler videoHandler;
 
     /**
      * The panel which contains ConferencePeerPanels.
@@ -119,7 +123,25 @@ public class ConferenceCallPanel
      * @param callPanel the call panel which contains this panel
      * @param c the conference call object
      */
-    public ConferenceCallPanel(CallPanel callPanel, Call c, boolean isVideo)
+    public ConferenceCallPanel( CallPanel callPanel,
+                                Call c,
+                                boolean isVideo)
+    {
+        this(callPanel, c, null, isVideo);
+    }
+
+    /**
+     * Creates an instance of <tt>ConferenceCallPanel</tt>.
+     *
+     * @param callPanel the call panel which contains this panel
+     * @param c the conference call object
+     * @param videoHandler the UI video handler
+     * @param isVideo indicates if this is used as a video conference renderer
+     */
+    public ConferenceCallPanel( CallPanel callPanel,
+                                Call c,
+                                UIVideoHandler videoHandler,
+                                boolean isVideo)
     {
         super(new GridBagLayout());
 
@@ -127,6 +149,15 @@ public class ConferenceCallPanel
         this.call = c;
 
         mainPanel = new TransparentPanel();
+
+        if (videoHandler == null)
+            this.videoHandler = new UIVideoHandler(this, videoContainers);
+        else
+        {
+            this.videoHandler = videoHandler;
+            videoHandler.setVideoContainersList(videoContainers);
+            videoHandler.setCallRenderer(this);
+        }
 
         // If we're in a video view we have nothing more to do here.
         if (isVideo)
@@ -155,8 +186,6 @@ public class ConferenceCallPanel
 
         mainPanel.setTransferHandler(new CallTransferHandler(call));
 
-        addVideoContainer();
-
         /*
          * XXX Call addCallPeerPanel(CallPeer) after calling addVideoContainer()
          * because the video may already be flowing between the CallPeers.
@@ -182,113 +211,6 @@ public class ConferenceCallPanel
         iterator = this.call.getCrossProtocolCallPeers();
         while (iterator.hasNext())
             addCallPeerPanel(iterator.next());
-    }
-
-    /**
-     * Initializes a new <tt>VideoContainer</tt> instance which is to contain
-     * the visual/video <tt>Component</tt>s of {@link #call}.
-     */
-    protected void addVideoContainer()
-    {
-        final VideoContainer videoContainer = new VideoContainer(null);
-
-        videoContainer.setPreferredSize(new Dimension(0, 0));
-
-        GridBagConstraints videoContainerGridBagConstraints
-            = new GridBagConstraints();
-
-        videoContainerGridBagConstraints.fill = GridBagConstraints.BOTH;
-        videoContainerGridBagConstraints.gridx = 0;
-        videoContainerGridBagConstraints.gridy = 0;
-        videoContainerGridBagConstraints.weightx = 0;
-        videoContainerGridBagConstraints.weighty = 1;
-        add(videoContainer, videoContainerGridBagConstraints);
-        /*
-         * When the videoContainer is empty i.e. it has nothing to show, don't
-         * show it.
-         */
-        videoContainer.addContainerListener(
-            new ContainerListener()
-            {
-                public void componentAdded(ContainerEvent e)
-                {
-                    GridBagLayout layout = (GridBagLayout) getLayout();
-                    boolean videoContainerIsVisible
-                        = (videoContainer.getComponentCount() > 0);
-
-                    for (Component component : getComponents())
-                    {
-                        GridBagConstraints constraints
-                            = layout.getConstraints(component);
-
-                        if (videoContainerIsVisible)
-                        {
-                            constraints.weightx
-                                = (component == videoContainer) ? 1 : 0;
-                            scrollPane.setPreferredSize(
-                                    SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO);
-                        }
-                        else
-                        {
-                            constraints.weightx
-                                = (component == videoContainer) ? 0 : 1;
-
-                            if (SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO.equals(
-                                    scrollPane.getPreferredSize()))
-                                scrollPane.setPreferredSize(null);
-                        }
-                        layout.setConstraints(component, constraints);
-                    }
-
-                    /*
-                     * When the first visual/video Component gets added, this
-                     * videoContainer is still not accommodated by the frame
-                     * size because it has just become visible. So try to resize
-                     * the frame to accommodate this videoContainer.
-                     */
-                    if (e.getID() == ContainerEvent.COMPONENT_ADDED)
-                    {
-                        Component component = e.getComponent();
-                        Dimension preferredSize = component.getPreferredSize();
-
-                        if ((preferredSize != null)
-                                && (preferredSize.width > 0)
-                                && (preferredSize.height > 0))
-                        {
-                            ensureSize(
-                                    component,
-                                    preferredSize.width, preferredSize.height);
-                        }
-                        else
-                        {
-                            /*
-                             * XXX The method ensureSize is supposed to know
-                             * that it should not apply the specified size to
-                             * the videoContainer.
-                             */
-                            int s
-                                = Math.max(
-                                        SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO
-                                            .width,
-                                        SCROLL_PANE_PREFERRED_SIZE_IF_VIDEO
-                                            .height);
-
-                            ensureSize(videoContainer, s, s);
-                        }
-                    }
-                }
-
-                public void componentRemoved(ContainerEvent e)
-                {
-                    /*
-                     * It's all the same with respect to the purpose of this
-                     * ContainerListener.
-                     */
-                    componentAdded(e);
-                }
-            });
-
-        videoContainers.add(videoContainer);
     }
 
     /**
@@ -348,16 +270,13 @@ public class ConferenceCallPanel
 
         ConferenceCallPeerRenderer confPeerRenderer;
 
-        UIVideoHandler videoHandler
-            = new UIVideoHandler(this, videoContainers);
-
         videoHandler.addVideoListener(peer);
         videoHandler.addRemoteControlListener(peer);
 
         if (peer.getConferenceMemberCount() > 0)
         {
             confPeerRenderer = new ConferenceFocusPanel(
-                this, callPanel, peer, videoHandler);
+                this, callPanel, peer);
             peer.addConferenceMembersSoundLevelListener(confPeerRenderer.
                 getConferenceMembersSoundLevelListener());
             peer.addStreamSoundLevelListener(confPeerRenderer.
@@ -367,7 +286,7 @@ public class ConferenceCallPanel
         {
             confPeerRenderer
                 = new ConferencePeerPanel(
-                    this, callPanel, peer, videoHandler, false);
+                    this, callPanel, peer, false);
 
             //peer.addConferenceMembersSoundLevelListener(
             //    confPeerRenderer.getConferenceMembersSoundLevelListener());
@@ -414,7 +333,7 @@ public class ConferenceCallPanel
         if (confPeerRenderer == null)
             return;
 
-        confPeerRenderer.getVideoHandler().removeRemoteControlListener(peer);
+        getVideoHandler().removeRemoteControlListener(peer);
 
         // first remove the listeners as after removing the panel
         // we may still receive sound level indicators and there are
@@ -836,5 +755,15 @@ public class ConferenceCallPanel
             removeCallPeerPanel(callPeer);
             addCallPeerPanel(callPeer);
         }
+    }
+
+    /**
+     * Returns the video handler associated with this call peer renderer.
+     *
+     * @return the video handler associated with this call peer renderer
+     */
+    public UIVideoHandler getVideoHandler()
+    {
+        return videoHandler;
     }
 }

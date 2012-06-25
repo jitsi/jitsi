@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.event.*;
 
 /**
@@ -182,6 +183,18 @@ public abstract class CallPeerMediaHandler
                 return CallPeerMediaHandler.this.requestKeyFrame();
             }
         };
+
+    /**
+     * The <tt>Object</tt> to synchronize the access to
+     * {@link #localUserAudioLevelListeners}.
+     */
+    private final Object visualComponentResolveSyncRoot = new Object();
+
+    /**
+     * The list of <tt>VisualComponentResolveListener</tt>s interested in
+     * visual component resolve events.
+     */
+    private List<VisualComponentResolveListener> visualComponentResolveListeners;
 
     /**
      * The state of this instance which may be shared with multiple other
@@ -1472,6 +1485,102 @@ public abstract class CallPeerMediaHandler
                     this.mediaHandler.addSrtpListener(srtpListener);
                 this.mediaHandler.addVideoListener(videoStreamVideoListener);
             }
+        }
+    }
+
+    /**
+     * Adds a specific <tt>VisualComponentResolveListener</tt> to this telephony
+     * in order to receive notifications when visual/video <tt>Component</tt>s
+     * are being resolved to correspond to a particular
+     * <tt>ConferenceMember</tt>.
+     *
+     * @param listener the <tt>VisualComponentResolveListener</tt> to be
+     * notified when visual/video <tt>Component</tt>s are being resolved to
+     * correspond to a particular <tt>ConferenceMember</tt>.
+     */
+    public void addVisualComponentResolveListener(
+        VisualComponentResolveListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+
+        synchronized (visualComponentResolveSyncRoot)
+        {
+            if ((visualComponentResolveListeners == null)
+                    || visualComponentResolveListeners.isEmpty())
+            {
+                visualComponentResolveListeners
+                    = new ArrayList<VisualComponentResolveListener>();
+            }
+
+            visualComponentResolveListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes a <tt>VisualComponentResolveListener</tt> from this video
+     * telephony operation set, which was previously added in order to receive
+     * notifications when visual/video <tt>Component</tt>s are being resolved to
+     * be corresponding to a particular <tt>ConferenceMember</tt>.
+     *
+     * @param listener the <tt>VisualComponentResolveListener</tt> to be
+     * removed
+     */
+    public void removeVisualComponentResolveListener(
+        VisualComponentResolveListener listener)
+    {
+        synchronized (visualComponentResolveSyncRoot)
+        {
+            if ((visualComponentResolveListeners != null)
+                    && !visualComponentResolveListeners.isEmpty())
+            {
+                visualComponentResolveListeners.remove(listener);
+            }
+        }
+    }
+
+    /**
+     * Notifies all registered <tt>VisualComponentResolveListener</tt> that a
+     * visual <tt>Component</tt> has been resolved.
+     *
+     * @param visualComponent the visual <tt>Component</tt> that has been
+     * resolved
+     * @param conferenceMember the resolved <tt>ConferenceMember</tt>
+     */
+    public void fireVisualComponentResolveEvent(
+                                            Component visualComponent,
+                                            ConferenceMember conferenceMember)
+    {
+        List<VisualComponentResolveListener> visualComponentResolveListeners;
+
+        synchronized (visualComponentResolveSyncRoot)
+        {
+            /*
+            * Since the localUserAudioLevelListeners field of this
+            * MediaAwareCall is implemented as a copy-on-write storage, just
+            * get a reference to it and it should be safe to iterate over it
+            * without ConcurrentModificationExceptions.
+            */
+            visualComponentResolveListeners
+            = this.visualComponentResolveListeners;
+        }
+
+        if (visualComponentResolveListeners != null)
+        {
+        /*
+        * Iterate over localUserAudioLevelListeners using an index rather
+        * than an Iterator in order to try to reduce the number of
+        * allocations (as the number of audio level changes is expected to
+        * be very large).
+        */
+        int visualComponentResolveListenerCount
+        = visualComponentResolveListeners.size();
+
+        for(int i = 0; i < visualComponentResolveListenerCount; i++)
+        visualComponentResolveListeners.get(i).visualComponentResolved(
+        new VisualComponentResolveEvent(this,
+                        visualComponent,
+                        conferenceMember));
         }
     }
 }

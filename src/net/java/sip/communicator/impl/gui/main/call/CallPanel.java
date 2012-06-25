@@ -270,11 +270,6 @@ public class CallPanel
         = new Vector<CallTitleListener>();
 
     /**
-     * Indicates if the video interface is enabled.
-     */
-    private boolean isVideoInterfaceEnabled = false;
-
-    /**
      * Creates an empty constructor allowing to extend this panel.
      */
     public CallPanel() {}
@@ -292,6 +287,24 @@ public class CallPanel
         this.call = call;
         this.callWindow = callWindow;
 
+        holdButton = new HoldButton(call);
+        recordButton = new RecordButton(call);
+        videoButton = new LocalVideoButton(call);
+        showHideVideoButton = new ShowHideVideoButton(call);
+        desktopSharingButton = new DesktopSharingButton(call);
+        transferCallButton = new TransferCallButton(call);
+        fullScreenButton = new FullScreenButton(this);
+        chatButton = new SIPCommButton(
+            ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
+            ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE));
+        localLevel = new InputVolumeControlButton(
+            call,
+            ImageLoader.MICROPHONE,
+            ImageLoader.MUTE_BUTTON,
+            false, true, false);
+        remoteLevel = new OutputVolumeControlButton(
+                ImageLoader.VOLUME_CONTROL_BUTTON, false, true);
+
         this.callDurationTimer = new Timer(1000, new CallTimerListener());
         this.callDurationTimer.setRepeats(true);
 
@@ -304,12 +317,7 @@ public class CallPanel
 
         if (isLastConference)
         {
-            if (CallManager.isVideoStreaming(call))
-                callPanel = new VideoConferenceCallPanel(
-                    CallPanel.this, call);
-            else
-                callPanel = new ConferenceCallPanel(
-                    CallPanel.this, call);
+            enableConferenceInterface(CallManager.isVideoStreaming(call));
         }
         else
         {
@@ -347,10 +355,6 @@ public class CallPanel
         hangupButton = new SIPCommButton(
             ImageLoader.getImage(ImageLoader.HANGUP_BUTTON_BG));
 
-        holdButton = new HoldButton(call);
-        recordButton = new RecordButton(call);
-        videoButton = new LocalVideoButton(call);
-        showHideVideoButton = new ShowHideVideoButton(call);
         holdButton.setIndex(2);
         recordButton.setIndex(3);
         videoButton.setIndex(11);
@@ -381,29 +385,16 @@ public class CallPanel
             }
         });
 
-        desktopSharingButton = new DesktopSharingButton(call);
-        transferCallButton = new TransferCallButton(call);
-        fullScreenButton = new FullScreenButton(this);
         desktopSharingButton.setIndex(8);
         transferCallButton.setIndex(5);
         fullScreenButton.setIndex(10);
 
-        chatButton = new SIPCommButton(
-                ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG),
-                ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE));
         chatButton.setName(CHAT_BUTTON);
         chatButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.CHAT"));
         chatButton.addActionListener(this);
         chatButton.setIndex(19);
 
-        localLevel = new InputVolumeControlButton(
-            call,
-            ImageLoader.MICROPHONE,
-            ImageLoader.MUTE_BUTTON,
-            false, true, false);
-        remoteLevel = new OutputVolumeControlButton(
-                ImageLoader.VOLUME_CONTROL_BUTTON, false, true);
         localLevel.setIndex(6);
         remoteLevel.setIndex(7);
 
@@ -819,13 +810,15 @@ public class CallPanel
             = call.getProtocolProvider();
 
         if (protocolProvider.getOperationSet(
-            OperationSetTelephonyConferencing.class) != null)
+            OperationSetTelephonyConferencing.class) != null
+            && conferenceButton != null)
         {
             conferenceButton.setEnabled(enable);
         }
 
         if (protocolProvider.getOperationSet(OperationSetVideoTelephony.class)
-                != null)
+                != null
+                && videoButton != null)
         {
             videoButton.setEnabled(enable);
         }
@@ -843,13 +836,17 @@ public class CallPanel
 
             if (protocolProvider.getOperationSet(
                         OperationSetAdvancedTelephony.class)
-                    != null)
+                    != null
+                    && transferCallButton != null)
             {
                 transferCallButton.setEnabled(enable);
             }
 
             if (protocolProvider.getOperationSet(
-                    OperationSetVideoTelephony.class) != null)
+                    OperationSetVideoTelephony.class) != null
+                    && fullScreenButton != null
+                    && videoButton != null
+                    && desktopSharingButton != null)
             {
                 fullScreenButton.setEnabled(enable);
                 videoButton.setEnabled(enable);
@@ -878,8 +875,26 @@ public class CallPanel
             {
                 if (isLastConference)
                 {
-                    ((ConferenceCallPanel) callPanel)
-                            .addCallPeerPanel(callPeer);
+                    if (CallManager.isVideoStreaming(call))
+                    {
+                        if (!(callPanel instanceof VideoConferenceCallPanel))
+                        {
+                            enableConferenceInterface(true);
+                        }
+                        else
+                            ((VideoConferenceCallPanel) callPanel)
+                                .addCallPeerPanel(callPeer);
+                    }
+                    else
+                    {
+                        if(callPanel instanceof VideoConferenceCallPanel)
+                        {
+                            enableConferenceInterface(false);
+                        }
+                        else
+                            ((ConferenceCallPanel) callPanel)
+                                .addCallPeerPanel(callPeer);
+                    }
                 }
                 else
                 {
@@ -889,18 +904,8 @@ public class CallPanel
                     // conference.
                     if (isLastConference)
                     {
-                        remove(callPanel);
-
-                        ConferenceCallPanel callPanel;
-                        if (CallManager.isVideoStreaming(call))
-                            callPanel = new VideoConferenceCallPanel(
-                                CallPanel.this, call);
-                        else
-                            callPanel = new ConferenceCallPanel(
-                                CallPanel.this, call);
-
-                        updateCurrentCallPanel(callPanel);
-                        add(callPanel, BorderLayout.CENTER);
+                        enableConferenceInterface(
+                            CallManager.isVideoStreaming(call));
                     }
                     // We're still in one-to-one call and we receive the
                     // remote peer.
@@ -958,29 +963,19 @@ public class CallPanel
         {
             public void run()
             {
-                if (!isLastConference)
-                {
-                    isLastConference = isConference();
-
-                    // We've been in one-to-one call and we're now in a
-                    // conference.
-                    if (isLastConference)
-                    {
-                        removeOneToOneSpecificComponents();
-                        remove(callPanel);
-
-                        ConferenceCallPanel callPanel;
-                        if (CallManager.isVideoStreaming(call))
-                            callPanel = new VideoConferenceCallPanel(
-                                CallPanel.this, call);
-                        else
-                            callPanel = new ConferenceCallPanel(
-                                CallPanel.this, call);
-
-                        updateCurrentCallPanel(callPanel);
-                        add(callPanel, BorderLayout.CENTER);
-                    }
-                }
+//                if (!isLastConference)
+//                {
+//                    isLastConference = isConference();
+//
+//                    // We've been in one-to-one call and we're now in a
+//                    // conference.
+//                    if (isLastConference)
+//                    {
+//                        removeOneToOneSpecificComponents();
+//                        enableConferenceInterface(
+//                            CallManager.isVideoStreaming(call));
+//                    }
+//                }
 
                 refreshContainer();
             }
@@ -1161,12 +1156,8 @@ public class CallPanel
                                 CallRenderer callRenderer
                                     = (CallRenderer) callPanel;
 
-                                CallPeerRenderer currentPeerRenderer
-                                    = callRenderer
-                                        .getCallPeerRenderer(singlePeer);
-
                                 UIVideoHandler videoHandler
-                                    = currentPeerRenderer.getVideoHandler();
+                                    = callRenderer.getVideoHandler();
 
                                 // If we have already a video handler, try to
                                 // initiate the new UI with the current video
@@ -1326,10 +1317,6 @@ public class CallPanel
 
         if (callPanel instanceof OneToOneCallPanel)
         {
-            // If we have been in a video conference interface
-            if (isVideoInterfaceEnabled)
-                isVideoInterfaceEnabled = false;
-
             removeConferenceSpecificComponents();
             addOneToOneSpecificComponents();
         }
@@ -1343,48 +1330,46 @@ public class CallPanel
     /**
      * Enables or disables the video conference interface.
      *
-     * @param enable <tt>true</tt> to enable conference interface,
+     * @param isVideo <tt>true</tt> to enable conference interface,
      * <tt>false</tt> to disable it
      */
-    public void enableVideoConferenceInterface(final boolean enable)
+    public void enableConferenceInterface(final boolean isVideo)
     {
-        isVideoInterfaceEnabled = enable;
-
-        SwingUtilities.invokeLater(new Runnable()
+        if (!SwingUtilities.isEventDispatchThread())
         {
-            public void run()
+            SwingUtilities.invokeLater(new Runnable()
             {
-                // We've been in one-to-one call and we're now in a
-                // conference.
-                if (enable)
+                public void run()
                 {
-                    remove(callPanel);
-                    updateCurrentCallPanel(new VideoConferenceCallPanel(
-                                            CallPanel.this, call));
-                    add(callPanel, BorderLayout.CENTER);
+                    enableConferenceInterface(isVideo);
                 }
-                else
-                {
-                    remove(callPanel);
-                    updateCurrentCallPanel(new ConferenceCallPanel(
-                                            CallPanel.this, call));
-                    add(callPanel, BorderLayout.CENTER);
-                }
+            });
+            return;
+        }
 
-                refreshContainer();
-            }
-        });
-    }
+        UIVideoHandler videoHandler = null;
+        if (callPanel != null)
+            videoHandler = ((CallRenderer) callPanel).getVideoHandler();
 
-    /**
-     * Indicates if the conference interface is enabled.
-     *
-     * @return <tt>true</tt> if the conference interface is enabled, otherwise
-     * returns <tt>false</tt>
-     */
-    public boolean isVideoConferenceInterfaceEnabled()
-    {
-        return isVideoInterfaceEnabled;
+        if (callPanel != null)
+            remove(callPanel);
+
+        // We've been in one-to-one call and we're now in a
+        // conference.
+        if (isVideo)
+        {
+            updateCurrentCallPanel(new VideoConferenceCallPanel(
+                                    CallPanel.this, call, videoHandler));
+        }
+        else
+        {
+            updateCurrentCallPanel(new ConferenceCallPanel(
+                                    CallPanel.this, call, videoHandler, false));
+        }
+
+        add(callPanel, BorderLayout.CENTER);
+
+        refreshContainer();
     }
 
     /**
@@ -1393,22 +1378,28 @@ public class CallPanel
     private void removeOneToOneSpecificComponents()
     {
         // Disable desktop sharing.
-        if (desktopSharingButton.isSelected())
+        if (desktopSharingButton != null && desktopSharingButton.isSelected())
             desktopSharingButton.doClick();
 
         // Disable full screen.
-        if (fullScreenButton.isSelected())
+        if (fullScreenButton != null && fullScreenButton.isSelected())
             fullScreenButton.doClick();
 
-        settingsPanel.remove(videoButton);
-        settingsPanel.remove(showHideVideoButton);
+        if (videoButton != null)
+            settingsPanel.remove(videoButton);
+
+        if (showHideVideoButton != null)
+            settingsPanel.remove(showHideVideoButton);
 
         if(resizeVideoButton != null)
             settingsPanel.remove(resizeVideoButton);
 
-        settingsPanel.remove(desktopSharingButton);
-        settingsPanel.remove(transferCallButton);
-        settingsPanel.remove(fullScreenButton);
+        if (desktopSharingButton != null)
+        {
+            settingsPanel.remove(desktopSharingButton);
+            settingsPanel.remove(transferCallButton);
+            settingsPanel.remove(fullScreenButton);
+        }
     }
 
     /**

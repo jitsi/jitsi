@@ -1222,6 +1222,116 @@ public class CallManager
     }
 
     /**
+     * Determines whether two specific addresses refer to one and the same
+     * peer/resource/contact.
+     * <p>
+     * <b>Warning</b>: Use the functionality sparingly because it assumes that
+     * an unspecified service is equal to any service.
+     * </p>
+     *
+     * @param a one of the addresses to be compared
+     * @param b the other address to be compared to <tt>a</tt>
+     * @return <tt>true</tt> if <tt>a</tt> and <tt>b</tt> name one and the same
+     * peer/resource/contact; <tt>false</tt>, otherwise
+     */
+    public static boolean addressesAreEqual(String a, String b)
+    {
+        if (a.equals(b))
+            return true;
+
+        int aProtocolIndex = a.indexOf(':');
+        if(aProtocolIndex > -1)
+            a = a.substring(aProtocolIndex + 1);
+
+        int bProtocolIndex = b.indexOf(':');
+        if(bProtocolIndex > -1)
+            b = b.substring(bProtocolIndex + 1);
+
+        if (a.equals(b))
+            return true;
+
+        int aServiceBegin = a.indexOf('@');
+        String aUserID;
+        String aService;
+
+        if (aServiceBegin > -1)
+        {
+            aUserID = a.substring(0, aServiceBegin);
+
+            int slashIndex = a.indexOf("/");
+            if (slashIndex > 0)
+                aService = a.substring(aServiceBegin + 1, slashIndex);
+            else
+                aService = a.substring(aServiceBegin + 1);
+        }
+        else
+        {
+            aUserID = a;
+            aService = null;
+        }
+
+        int bServiceBegin = b.indexOf('@');
+        String bUserID;
+        String bService;
+
+        if (bServiceBegin > -1)
+        {
+            bUserID = b.substring(0, bServiceBegin);
+            int slashIndex = b.indexOf("/");
+
+            if (slashIndex > 0)
+                bService = b.substring(bServiceBegin + 1, slashIndex);
+            else
+                bService = b.substring(bServiceBegin + 1);
+        }
+        else
+        {
+            bUserID = b;
+            bService = null;
+        }
+
+        boolean userIDsAreEqual;
+
+        if ((aUserID == null) || (aUserID.length() < 1))
+            userIDsAreEqual = ((bUserID == null) || (bUserID.length() < 1));
+        else
+            userIDsAreEqual = aUserID.equals(bUserID);
+        if (!userIDsAreEqual)
+            return false;
+
+        boolean servicesAreEqual;
+
+        /*
+         * It's probably a veeery long shot but it's assumed here that an
+         * unspecified service is equal to any service. Such a case is, for
+         * example, RegistrarLess SIP.
+         */
+        if (((aService == null) || (aService.length() < 1))
+                || ((bService == null) || (bService.length() < 1)))
+            servicesAreEqual = true;
+        else
+            servicesAreEqual = aService.equals(bService);
+
+        return servicesAreEqual;
+    }
+
+    /**
+     * Indicates if the given <tt>ConferenceMember</tt> corresponds to the local
+     * user.
+     *
+     * @param conferenceMember the conference member to check
+     */
+    public static boolean isLocalUser(ConferenceMember conferenceMember)
+    {
+        String localUserAddress
+            = conferenceMember.getConferenceFocusCallPeer()
+                .getProtocolProvider().getAccountID().getAccountAddress();
+
+        return CallManager.addressesAreEqual(
+            conferenceMember.getAddress(), localUserAddress);
+    }
+
+    /**
      * Adds a missed call notification.
      *
      * @param peerName the name of the peer

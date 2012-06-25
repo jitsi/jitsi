@@ -163,38 +163,22 @@ public class OneToOneCallPeerPanel
      */
     private final JLabel photoLabel;
 
-    private final UIVideoHandler videoHandler;
-
     /**
      * Creates a <tt>CallPeerPanel</tt> for the given call peer.
      *
      * @param callRenderer the renderer of the call
      * @param callPeer the <tt>CallPeer</tt> represented in this panel
      * @param videoContainers the video <tt>Container</tt> list
-     * @param vHandler the <tt>UIVideoHandler</tt>
      */
     public OneToOneCallPeerPanel(   CallRenderer callRenderer,
                                     CallPeer callPeer,
-                                    List<Container> videoContainers,
-                                    UIVideoHandler vHandler)
+                                    List<Container> videoContainers)
     {
         this.callRenderer = callRenderer;
         this.callPeer = callPeer;
         this.peerName = callPeer.getDisplayName();
         this.videoContainers = videoContainers;
         this.securityPanel = SecurityPanel.create(this, callPeer, null);
-
-        if (vHandler == null)
-            videoHandler
-                = new UIVideoHandler(callRenderer, videoContainers);
-        else
-        {
-            videoHandler = vHandler;
-            videoHandler.setVideoContainersList(videoContainers);
-        }
-
-        videoHandler.addVideoListener(callPeer);
-        videoHandler.addRemoteControlListener(callPeer);
 
         photoLabel = new JLabel(getPhotoLabelIcon());
         center = createCenter(videoContainers);
@@ -242,20 +226,6 @@ public class OneToOneCallPeerPanel
     }
 
     /**
-     * Creates a <tt>CallPeerPanel</tt> for the given call peer.
-     *
-     * @param callRenderer the renderer of the call
-     * @param callPeer the <tt>CallPeer</tt> represented in this panel
-     * @param videoContainers the video <tt>Container</tt> list
-     */
-    public OneToOneCallPeerPanel(   CallRenderer callRenderer,
-                                    CallPeer callPeer,
-                                    List<Container> videoContainers)
-    {
-        this(callRenderer, callPeer, videoContainers, null);
-    }
-
-    /**
      * Creates the <code>Component</code> hierarchy of the central area of this
      * <code>CallPeerPanel</code> which displays the photo of the
      * <code>CallPeer</code> or the video if any.
@@ -295,7 +265,8 @@ public class OneToOneCallPeerPanel
                             photoLabels.remove(photoLabel);
                         }
                         if (changed)
-                            videoHandler.handleVideoEvent(callPeer, null);
+                            callRenderer.getVideoHandler()
+                                .handleVideoEvent(callPeer.getCall(), null);
                     }
                 }
             }
@@ -327,7 +298,7 @@ public class OneToOneCallPeerPanel
         if (oldParent != null)
             oldParent.remove(noVideoComponent);
 
-        return new VideoContainer(noVideoComponent);
+        return new VideoContainer(noVideoComponent, false);
     }
 
     /**
@@ -898,7 +869,7 @@ public class OneToOneCallPeerPanel
      */
     public void setLocalVideoVisible(boolean isVisible)
     {
-        videoHandler.setLocalVideoVisible(isVisible);
+        callRenderer.getVideoHandler().setLocalVideoVisible(isVisible);
     }
 
     /**
@@ -909,7 +880,7 @@ public class OneToOneCallPeerPanel
      */
     public boolean isLocalVideoVisible()
     {
-        return videoHandler.isLocalVideoVisible();
+        return callRenderer.getVideoHandler().isLocalVideoVisible();
     }
 
     /**
@@ -930,16 +901,6 @@ public class OneToOneCallPeerPanel
     public Component getComponent()
     {
         return this;
-    }
-
-    /**
-     * Returns the video handler associated with this call peer renderer.
-     *
-     * @return the video handler associated with this call peer renderer
-     */
-    public UIVideoHandler getVideoHandler()
-    {
-        return videoHandler;
     }
 
     /**

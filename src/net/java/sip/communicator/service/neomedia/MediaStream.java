@@ -116,6 +116,14 @@ public interface MediaStream
     public long getRemoteSourceID();
 
     /**
+     * Gets the synchronization source (SSRC) identifiers of the remote peers.
+     *
+     * @return the synchronization source (SSRC) identifiers of the remote peers
+     * @see MediaStream#getRemoteSourceIDs()
+     */
+    public List<Long> getRemoteSourceIDs();
+
+    /**
      * Returns the synchronization source (SSRC) identifier of the local
      * participant or <tt>-1</tt> if that identifier is not yet known at this
      * point.

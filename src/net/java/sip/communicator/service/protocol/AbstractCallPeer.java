@@ -829,7 +829,7 @@ public abstract class AbstractCallPeer<T extends Call,
             {
                 ConferenceMember mmbr = conferenceMembers.get(i);
 
-                if (mmbr.getSSRC() == ssrc)
+                if (mmbr.getAudioSsrc() == ssrc)
                     return mmbr;
             }
             return null;

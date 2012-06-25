@@ -62,6 +62,17 @@ public interface VideoMediaStream
     public List<Component> getVisualComponents();
 
     /**
+     * Gets the visual <tt>Component</tt>s rendering the <tt>ReceiveStream</tt>
+     * corresponding to the given ssrc.
+     *
+     * @param ssrc the src-id of the receive stream, which visual
+     * <tt>Component</tt> we're looking for
+     * @return the visual <tt>Component</tt> rendering the
+     * <tt>ReceiveStream</tt> corresponding to the given ssrc
+     */
+    public Component getVisualComponent(long ssrc);
+
+    /**
      * Adds a specific <tt>VideoListener</tt> to this <tt>VideoMediaStream</tt>
      * in order to receive notifications when visual/video <tt>Component</tt>s
      * are being added and removed.
