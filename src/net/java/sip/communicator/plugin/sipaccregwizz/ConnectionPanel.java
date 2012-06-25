@@ -12,6 +12,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -140,6 +141,15 @@ public class ConnectionPanel
         labelsPanel.add(authNameLabel);
         labelsPanel.add(certLabel);
 
+        if(!StringUtils.isNullOrEmpty(
+                regform.getRegistration().getDefaultServerAddress()))
+            serverField.setText(regform.getRegistration()
+                .getDefaultServerAddress());
+        if(!StringUtils.isNullOrEmpty(
+                regform.getRegistration().getDefaultServerPort()))
+            serverPortField.setText(regform.getRegistration()
+                .getDefaultServerPort());
+
         JPanel serverPanel = new TransparentPanel(new BorderLayout(5, 5));
         serverPanel.add(serverField, BorderLayout.CENTER);
         JPanel serverPortPanel = new TransparentPanel(
@@ -159,6 +169,17 @@ public class ConnectionPanel
                 BorderFactory.createEmptyBorder(10, 5, 10, 5));
 
         mainPanel.add(registrarMainPanel);
+
+        proxyAutoCheckBox.setSelected(
+            regform.getRegistration().isDefaultProxyAutoConfigure());
+        if(!StringUtils.isNullOrEmpty(
+                regform.getRegistration().getDefaultProxy()))
+            proxyField.setText(regform.getRegistration()
+                .getDefaultProxy());
+        if(!StringUtils.isNullOrEmpty(
+                regform.getRegistration().getDefaultProxyPort()))
+            proxyPortField.setText(regform.getRegistration()
+                .getDefaultProxyPort());
 
         JLabel proxyLabel
             = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));

@@ -36,17 +36,27 @@ public class SIPAccountRegistration
 
     private String tlsClientCertificate;
 
+    private String defaultServerAddress = null;
+
     private String serverAddress;
 
     private String displayName;
 
     private String authorizationName;
 
+    private String defaultServerPort = null;
+
     private String serverPort = null;
 
-    private boolean proxyAutoConfigure = true;
+    private boolean defaultProxyAutoConfigure = true;
+
+    private boolean proxyAutoConfigure = defaultProxyAutoConfigure;
+
+    private String defaultProxyPort = null;
 
     private String proxyPort = null;
+
+    private String defaultProxy = null;
 
     private String proxy;
 
@@ -115,6 +125,19 @@ public class SIPAccountRegistration
     public void setPreferredTransport(String preferredTransport)
     {
         this.preferredTransport = preferredTransport;
+    }
+
+    public String getDefaultProxy()
+    {
+        return defaultProxy;
+    }
+
+    public void setDefaultProxy(String proxy)
+    {
+        if(proxy != null && proxy.length() == 0)
+            this.defaultProxy = null;
+        else
+            this.defaultProxy = proxy;
     }
 
     public String getProxy()
@@ -200,6 +223,26 @@ public class SIPAccountRegistration
     }
 
     /**
+     * The default value of address of the server we will use for this account
+     *
+     * @return String
+     */
+    public String getDefaultServerAddress()
+    {
+        return defaultServerAddress;
+    }
+
+    /**
+     * The port on the specified server
+     *
+     * @return int
+     */
+    public String getDefaultServerPort()
+    {
+        return defaultServerPort;
+    }
+
+    /**
      * The address of the server we will use for this account
      *
      * @return String
@@ -250,6 +293,16 @@ public class SIPAccountRegistration
     }
 
     /**
+     * The default port on the specified proxy
+     *
+     * @return int
+     */
+    public String getDefaultProxyPort()
+    {
+        return defaultProxyPort;
+    }
+
+    /**
      * Sets the identifier of the sip registration account.
      *
      * @param id the identifier of the sip registration account.
@@ -257,6 +310,32 @@ public class SIPAccountRegistration
     public void setUserID(String id)
     {
         this.id = id;
+    }
+
+    /**
+     * Sets default the server
+     *
+     * @param serverAddress String
+     */
+    public void setDefaultServerAddress(String serverAddress)
+    {
+        if(serverAddress != null && serverAddress.length() == 0)
+            this.defaultServerAddress = null;
+        else
+            this.defaultServerAddress = serverAddress;
+    }
+
+    /**
+     * Sets the server port.
+     *
+     * @param port int
+     */
+    public void setDefaultServerPort(String port)
+    {
+        if(port != null && port.length() == 0)
+            this.defaultServerPort = null;
+        else
+            this.defaultServerPort = port;
     }
 
     /**
@@ -322,6 +401,19 @@ public class SIPAccountRegistration
             this.proxyPort = null;
         else
             this.proxyPort = port;
+    }
+
+    /**
+     * Sets the default proxy port.
+     *
+     * @param port int
+     */
+    public void setDefaultProxyPort(String port)
+    {
+        if(port != null && port.length() == 0)
+            this.defaultProxyPort = null;
+        else
+            this.defaultProxyPort = port;
     }
 
     /**
@@ -739,6 +831,24 @@ public class SIPAccountRegistration
     public void setProxyAutoConfigure(boolean proxyAutoConfigure)
     {
         this.proxyAutoConfigure = proxyAutoConfigure;
+    }
+
+    /**
+     * Is proxy auto configured by default.
+     * @return
+     */
+    public boolean isDefaultProxyAutoConfigure()
+    {
+        return defaultProxyAutoConfigure;
+    }
+
+    /**
+     * Sets default auto configuration of proxy enabled or disabled.
+     * @param proxyAutoConfigure
+     */
+    public void setDefaultProxyAutoConfigure(boolean proxyAutoConfigure)
+    {
+        this.defaultProxyAutoConfigure = proxyAutoConfigure;
     }
 
     /**

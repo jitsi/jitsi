@@ -92,6 +92,11 @@ public class IppiAccountRegistrationWizard
     private void setPredefinedProperties(SIPAccountRegistration reg)
     {
         // set properties common for ippi
+        reg.setDefaultServerAddress("ippi.fr");
+        reg.setDefaultServerPort("5060");
+        reg.setDefaultProxyAutoConfigure(false);
+        reg.setDefaultProxy("ippi.fr");
+        reg.setDefaultProxyPort("5060");
         reg.setDefaultTransport("TCP");
         reg.setDefaultDomain("ippi.fr");
     }
