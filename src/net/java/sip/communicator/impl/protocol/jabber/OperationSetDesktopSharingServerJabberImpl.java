@@ -30,6 +30,7 @@ import net.java.sip.communicator.util.*;
  * protocol.
  *
  * @author Sebastien Vincent
+ * @author Vincent Lucas
  */
 public class OperationSetDesktopSharingServerJabberImpl
     extends OperationSetDesktopStreamingJabberImpl
@@ -64,12 +65,10 @@ public class OperationSetDesktopSharingServerJabberImpl
             CallPeerState state = peer.getState();
 
             if (state != null
-                    && callPeers.contains(peer.getAddress())
                     && (state.equals(CallPeerState.DISCONNECTED)
                         || state.equals(CallPeerState.FAILED)))
             {
                 disableRemoteControl(peer);
-                peer.removeCallPeerListener(callPeerListener);
             }
         }
     };
@@ -124,7 +123,6 @@ public class OperationSetDesktopSharingServerJabberImpl
         CallJabberImpl call
             = (CallJabberImpl) super.createVideoCall(uri, device);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
-        callPeer.addCallPeerListener(callPeerListener);
 
         size
             = (((VideoMediaFormat)
@@ -155,7 +153,6 @@ public class OperationSetDesktopSharingServerJabberImpl
         CallJabberImpl call
             = (CallJabberImpl) super.createVideoCall(callee, device);
         CallPeerJabberImpl callPeer = call.getCallPeers().next();
-        callPeer.addCallPeerListener(callPeerListener);
 
         size
             = ((VideoMediaFormat)
@@ -269,7 +266,6 @@ public class OperationSetDesktopSharingServerJabberImpl
 
         CallPeerJabberImpl callPeer
             = new CallPeerJabberImpl(calleeAddress, call);
-        callPeer.addCallPeerListener(callPeerListener);
 
         return call;
     }
@@ -326,6 +322,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     public void enableRemoteControl(CallPeer callPeer)
     {
+        callPeer.addCallPeerListener(callPeerListener);
         this.modifyRemoteControl(callPeer, true);
     }
 
@@ -338,6 +335,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     public void disableRemoteControl(CallPeer callPeer)
     {
         this.modifyRemoteControl(callPeer, false);
+        callPeer.removeCallPeerListener(callPeerListener);
     }
 
     /**
@@ -550,22 +548,21 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     public void modifyRemoteControl(CallPeer callPeer, boolean enables)
     {
-        DiscoverInfo discoverInfo
-            = ((CallPeerJabberImpl) callPeer).getDiscoverInfo();
-        if(this.parentProvider.getDiscoveryManager()
-                .includesFeature(InputEvtIQ.NAMESPACE_SERVER)
-                && discoverInfo != null
-                && discoverInfo.containsFeature(InputEvtIQ.NAMESPACE_CLIENT))
+        synchronized(callPeers)
         {
-            if(logger.isInfoEnabled())
-                logger.info("Enable remote control");
-
-            CallJabberImpl call = (CallJabberImpl)callPeer.getCall();
-
-            synchronized(callPeers)
+            if(callPeers.contains(callPeer.getAddress()) != enables)
             {
-                if(callPeers.contains(callPeer.getAddress()) != enables)
+                DiscoverInfo discoverInfo
+                    = ((CallPeerJabberImpl) callPeer).getDiscoverInfo();
+                if(this.parentProvider.getDiscoveryManager()
+                        .includesFeature(InputEvtIQ.NAMESPACE_SERVER)
+                        && discoverInfo != null
+                        && discoverInfo.containsFeature(
+                            InputEvtIQ.NAMESPACE_CLIENT))
                 {
+                    if(logger.isInfoEnabled())
+                        logger.info("Enables remote control: " + enables);
+
                     InputEvtIQ inputIQ = new InputEvtIQ();
                     if(enables)
                     {
