@@ -497,62 +497,26 @@ public class DesktopSharingFrame
                 public void actionPerformed(ActionEvent e)
                 {
                     Point location = sharingRegion.getLocationOnScreen();
-
-                    // If the x or y location is < 0, the region sharing will
-                    // switch to full screen. Do not allows for a region desktop
-                    // sharing.
-                    int cropX = location.x < SHARING_REGION_INDENT ?
-                        location.x - SHARING_REGION_INDENT : 0;
-                    int cropY = location.y < SHARING_REGION_INDENT ?
-                        location.y - SHARING_REGION_INDENT : 0;
-
-                    // Checks that the region sharing does not go outside the
-                    // left border of the current screen.
-                    initialFrameX = frame.getX() - cropX;
-                    // As location.x is negative, this means to reduce the
-                    // width of the region desktop sharing.
-                    sharingRegionWidth = sharingRegion.getWidth() + cropX;
-                    int x = location.x - cropX;
-
-                    // Checks that the region sharing does not go outside the
-                    // top border of the current screen.
-                    initialFrameY = frame.getY() - cropY;
-                    // As location.y is negative, this means to reduce the
-                    // height of the region desktop sharing.
-                    sharingRegionHeight = sharingRegion.getHeight() + cropY;
-                    int y = location.y - cropY;
-
-                    Rectangle rectangle = ScreenInformation.getScreenBounds();
-                    int maxWidth = rectangle.width - x;
-                    int maxHeight = rectangle.height - y;
-                    // Checks that the region sharing does not go outside the
-                    // right border of the current screen.
-                    if(sharingRegionWidth > maxWidth)
-                    {
-                        sharingRegionWidth = maxWidth;
-                    }
-                    // Checks that the region sharing does not go outside the
-                    // bottom border of the current screen.
-                    if(sharingRegionHeight > maxHeight)
-                    {
-                        sharingRegionHeight = maxHeight;
-                    }
+                    sharingRegionWidth = sharingRegion.getWidth();
+                    sharingRegionHeight = sharingRegion.getHeight();
+                    initialFrameX = frame.getX();
+                    initialFrameY = frame.getY();
 
                     frame.dispose();
 
                     if (call != null)
                         CallManager.enableRegionDesktopSharing(
                                 call,
-                                x,
-                                y,
+                                location.x,
+                                location.y,
                                 sharingRegionWidth,
                                 sharingRegionHeight);
                     else
                         CallManager.createRegionDesktopSharing(
                                 protocolProvider,
                                 contact,
-                                x,
-                                y,
+                                location.x,
+                                location.y,
                                 sharingRegionWidth,
                                 sharingRegionHeight);
                 }

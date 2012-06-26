@@ -490,17 +490,16 @@ public class CallManager
 
         int deviceNumber = desktopDevices.size();
 
-        if (deviceNumber == 1)
+        if (deviceNumber > 0)
         {
-            createDesktopSharing(protocolProvider, contact,
-                mediaService.getMediaDeviceForPartialDesktopStreaming(
-                    width, height, x, y));
-        }
-        else if (deviceNumber > 1)
-        {
-            createDesktopSharing(protocolProvider, contact,
-                mediaService.getMediaDeviceForPartialDesktopStreaming(
-                    width, height, x, y));
+            createDesktopSharing(
+                    protocolProvider,
+                    contact,
+                    mediaService.getMediaDeviceForPartialDesktopStreaming(
+                        width,
+                        height,
+                        x,
+                        y));
         }
     }
 
@@ -606,17 +605,16 @@ public class CallManager
 
         int deviceNumber = desktopDevices.size();
 
-        if (deviceNumber == 1)
+        if (deviceNumber > 0)
         {
-            enableDesktopSharing(call,
-                mediaService.getMediaDeviceForPartialDesktopStreaming(
-                    width, height, x, y), true);
-        }
-        else if (deviceNumber > 1)
-        {
-            enableDesktopSharing(call,
-                mediaService.getMediaDeviceForPartialDesktopStreaming(
-                    width, height, x, y), true);
+            enableDesktopSharing(
+                    call,
+                    mediaService.getMediaDeviceForPartialDesktopStreaming(
+                        width,
+                        height,
+                        x,
+                        y),
+                    true);
         }
 
         // in case we switch to video, disable remote control if it was

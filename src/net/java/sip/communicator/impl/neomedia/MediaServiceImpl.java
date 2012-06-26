@@ -1193,7 +1193,9 @@ public class MediaServiceImpl
         String name = "Partial desktop streaming";
         Dimension size = null;
         int multiple = 0;
-        Point p = new Point(x, y);
+        int tmpX = (x < 0)? 0: x;
+        int tmpY = (y < 0)? 0: y;
+        Point p = new Point(tmpX, tmpY);
         ScreenDevice dev = getScreenForPoint(p);
         int display = -1;
 
