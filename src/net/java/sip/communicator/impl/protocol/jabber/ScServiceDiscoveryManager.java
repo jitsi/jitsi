@@ -767,8 +767,10 @@ public class ScServiceDiscoveryManager
             }
             catch(XMPPException ex)
             {
-                logger.error("Error requesting discover info for " + entityID,
-                            ex);
+                // print discovery info errors only when trace is enabled
+                if(logger.isTraceEnabled())
+                    logger.error("Error requesting discover info for "
+                        + entityID, ex);
             }
         }
 

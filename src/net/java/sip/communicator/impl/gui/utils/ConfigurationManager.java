@@ -215,6 +215,12 @@ public class ConfigurationManager
     private static boolean routeVideoAndDesktopUsingPhoneNumber = false;
 
     /**
+     * Indicates that when we have a single account we can hide the select
+     * account option when possible.
+     */
+    private static boolean hideAccountSelectionWhenPossible = false;
+
+    /**
      * Loads all user interface configurations.
      */
     public static void loadGuiConfigurations()
@@ -607,6 +613,19 @@ public class ConfigurationManager
         if(routeVideoAndDesktopUsingPhoneNumberDefault != null)
             routeVideoAndDesktopUsingPhoneNumber = Boolean.parseBoolean(
                 routeVideoAndDesktopUsingPhoneNumberDefault);
+
+        String hideAccountMenuProperty
+            = "impl.gui.HIDE_SELECTION_ON_SINGLE_ACCOUNT";
+        String hideAccountMenuDefaultValue = GuiActivator.getResources()
+            .getSettingsString(hideAccountMenuProperty);
+
+        if(hideAccountMenuDefaultValue != null)
+            hideAccountSelectionWhenPossible = Boolean.parseBoolean(
+                hideAccountMenuDefaultValue);
+
+        hideAccountSelectionWhenPossible = configService.getBoolean(
+            hideAccountMenuProperty,
+            hideAccountSelectionWhenPossible);
     }
 
     /**
@@ -1101,6 +1120,17 @@ public class ConfigurationManager
     public static boolean isRouteVideoAndDesktopUsingPhoneNumberEnabled()
     {
         return routeVideoAndDesktopUsingPhoneNumber;
+    }
+
+    /**
+     * Whether allow user to select account when only a single
+     * account is available.
+     * @return whether allow user to select account when only a single
+          * account is available.
+     */
+    public static boolean isHideAccountSelectionWhenPossibleEnabled()
+    {
+        return hideAccountSelectionWhenPossible;
     }
 
     /**

@@ -163,11 +163,18 @@ public class AddContactDialog
         TransparentPanel fieldsPanel
             = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
-        labelsPanel.add(accountLabel);
-        fieldsPanel.add(accountCombo);
-
         initAccountCombo();
         accountCombo.setRenderer(new AccountComboRenderer());
+
+        // we have an empty choice and one account
+        if(accountCombo.getItemCount() > 2
+            || (accountCombo.getItemCount() == 2
+                && !ConfigurationManager
+                        .isHideAccountSelectionWhenPossibleEnabled()))
+        {
+            labelsPanel.add(accountLabel);
+            fieldsPanel.add(accountCombo);
+        }
 
         labelsPanel.add(groupLabel);
         fieldsPanel.add(groupCombo);
@@ -210,7 +217,11 @@ public class AddContactDialog
 
         this.getContentPane().add(mainPanel, BorderLayout.CENTER);
 
-        this.setPreferredSize(new Dimension(450, 250));
+        if(ConfigurationManager.isHideAccountSelectionWhenPossibleEnabled())
+            this.setPreferredSize(new Dimension(450, 205));
+        else
+            this.setPreferredSize(new Dimension(450, 250));
+
         this.setResizable(false);
         this.addWindowFocusListener(this);
 

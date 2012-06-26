@@ -912,6 +912,10 @@ public class ChatWritePanel
                 chatPanel,
                 chatPanel.getChatSession(),
                 chatPanel.getChatSession().getCurrentChatTransport());
+
+            if(ConfigurationManager.isHideAccountSelectionWhenPossibleEnabled()
+                && transportSelectorBox.getMenu().getItemCount() <= 1)
+                transportSelectorBox.setVisible(false);
         }
 
         return transportSelectorBox;
@@ -956,7 +960,15 @@ public class ChatWritePanel
             }
             else
             {
-                transportSelectorBox.setVisible(true);
+                if( ConfigurationManager
+                        .isHideAccountSelectionWhenPossibleEnabled()
+                    && transportSelectorBox.getMenu().getItemCount() <= 1)
+                {
+                    transportSelectorBox.setVisible(false);
+                }
+                {
+                    transportSelectorBox.setVisible(true);
+                }
                 centerPanel.repaint();
             }
         }
@@ -1002,7 +1014,20 @@ public class ChatWritePanel
     public void addChatTransport(ChatTransport chatTransport)
     {
         if (transportSelectorBox != null)
+        {
             transportSelectorBox.addChatTransport(chatTransport);
+
+            // it was hidden cause we wanted to hide when there is only one
+            // provider
+            if(!transportSelectorBox.isVisible()
+                && ConfigurationManager
+                                    .isHideAccountSelectionWhenPossibleEnabled()
+                && transportSelectorBox.getMenu().getItemCount() > 1)
+            {
+                transportSelectorBox.setVisible(true);
+            }
+
+        }
     }
 
     /**
@@ -1035,6 +1060,12 @@ public class ChatWritePanel
     {
         if (transportSelectorBox != null)
             transportSelectorBox.removeChatTransport(chatTransport);
+
+        if(transportSelectorBox.getMenu().getItemCount() == 1
+            && ConfigurationManager.isHideAccountSelectionWhenPossibleEnabled())
+        {
+            transportSelectorBox.setVisible(false);
+        }
     }
 
     /**
