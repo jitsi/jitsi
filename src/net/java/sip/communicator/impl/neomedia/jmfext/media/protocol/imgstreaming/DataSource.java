@@ -8,8 +8,12 @@ package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreami
 
 import javax.media.*;
 import javax.media.control.*;
+import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
+import net.java.sip.communicator.impl.neomedia.protocol.*;
+
+import net.sf.fmj.media.protocol.*;
 
 /**
  * Implements <tt>CaptureDevice</tt> and <tt>DataSource</tt> for the purposes of
@@ -21,11 +25,19 @@ import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
  */
 public class DataSource
     extends AbstractVideoPullBufferCaptureDevice
+    implements MuteDataSource,
+            SourceCloneable
 {
     /**
      * Stream created.
      */
     private ImageStream stream = null;
+
+    /**
+     * The cloneable representation of this DataSource.
+     */
+    private CloneableCaptureDevicePullBufferDataSource cloneableDataSource
+        = null;
 
     /**
      * Initializes a new <tt>DataSource</tt> instance.
@@ -110,5 +122,47 @@ public class DataSource
 
         this.stream = stream;
         return stream;
+    }
+
+    /**
+     * Determines whether this <tt>DataSource</tt> is mute.
+     *
+     * An image / desktop sharing does not send any
+     * sounds. Thus it is always mute (returns always true).
+     *
+     * @return <tt>true</tt> since  this <tt>DataSource</tt> is always mute.
+     */
+    public boolean isMute()
+    {
+        return true;
+    }
+
+    /**
+     * Sets the mute state of this <tt>DataSource</tt>.
+     *
+     * Does not change anything, since image /
+     * desktop sharing does not send any sounds. Thus it is always mute.
+     *
+     * @param mute <tt>true</tt> to mute this <tt>DataSource</tt>; otherwise,
+     *            <tt>false</tt>
+     */
+    public void setMute(boolean mute)
+    {
+    }
+
+    /**
+     * Based on JMF testing, the clone is in the same state as the original
+     * (opened and connected if the original is), but at the beginning of the
+     * media, not whatever position the original is.
+     */
+    public javax.media.protocol.DataSource createClone()
+    {
+        if(this.cloneableDataSource == null)
+        {
+            this.cloneableDataSource
+                = new CloneableCaptureDevicePullBufferDataSource(this);
+        }
+
+        return this.cloneableDataSource.createClone();
     }
 }

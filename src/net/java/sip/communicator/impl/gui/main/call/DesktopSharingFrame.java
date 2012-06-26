@@ -522,12 +522,9 @@ public class DesktopSharingFrame
                     sharingRegionHeight = sharingRegion.getHeight() + cropY;
                     int y = location.y - cropY;
 
-                    DisplayMode dm = sharingRegion
-                        .getGraphicsConfiguration()
-                        .getDevice()
-                        .getDisplayMode();
-                    int maxWidth = dm.getWidth() - x;
-                    int maxHeight = dm.getHeight() - y;
+                    Rectangle rectangle = ScreenInformation.getScreenBounds();
+                    int maxWidth = rectangle.width - x;
+                    int maxHeight = rectangle.height - y;
                     // Checks that the region sharing does not go outside the
                     // right border of the current screen.
                     if(sharingRegionWidth > maxWidth)
@@ -541,18 +538,23 @@ public class DesktopSharingFrame
                         sharingRegionHeight = maxHeight;
                     }
 
-                    // Moves and resizes the sharing region to corresponds to
-                    // the true shared region.
-                    //sharingRegion.setBounds(x, y, sharingRegionWidth, sharingRegionHeight);
-
                     frame.dispose();
 
                     if (call != null)
                         CallManager.enableRegionDesktopSharing(
-                            call, x, y, sharingRegionWidth, sharingRegionHeight);
+                                call,
+                                x,
+                                y,
+                                sharingRegionWidth,
+                                sharingRegionHeight);
                     else
                         CallManager.createRegionDesktopSharing(
-                            protocolProvider, contact, x, y, sharingRegionWidth, sharingRegionHeight);
+                                protocolProvider,
+                                contact,
+                                x,
+                                y,
+                                sharingRegionWidth,
+                                sharingRegionHeight);
                 }
             });
         }

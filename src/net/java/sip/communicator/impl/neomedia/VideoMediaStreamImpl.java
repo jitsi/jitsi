@@ -1088,9 +1088,13 @@ public class VideoMediaStreamImpl
             ds = ds2.getWrappedDataSource();
         }
 
+        // Makes the screen detection with a point inside a real screen:
+        // (x and y > 0).
+        int tmpX = (x < 0)? 0: x;
+        int tmpY = (y < 0)? 0: y;
         ScreenDevice screen =
             NeomediaActivator.getMediaServiceImpl().getScreenForPoint(
-                new Point(x, y));
+                new Point(tmpX, tmpY));
         ScreenDevice currentScreen = screen;
 
         if(screen == null)

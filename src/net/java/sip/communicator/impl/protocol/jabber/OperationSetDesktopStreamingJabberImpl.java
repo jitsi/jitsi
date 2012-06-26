@@ -293,8 +293,7 @@ public class OperationSetDesktopStreamingJabberImpl
      * @param x new x coordinate origin
      * @param y new y coordinate origin
      */
-    public void movePartialDesktopStreaming(Call call, int x,
-            int y)
+    public void movePartialDesktopStreaming(Call call, int x, int y)
     {
         CallJabberImpl callImpl = (CallJabberImpl)call;
         VideoMediaStream videoStream = (VideoMediaStream)
