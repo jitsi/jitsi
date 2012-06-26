@@ -375,6 +375,8 @@ public class MetaContactRightButtonMenu
             CallManager.getTelephonyProviders();
         boolean hasPhones = false;
         boolean separator = false;
+        boolean routingForVideoEnabled = false;
+        boolean routingForDesktopEnabled = false;
 
         while (contacts.hasNext())
         {
@@ -460,6 +462,24 @@ public class MetaContactRightButtonMenu
                 }
             }
 
+            routingForVideoEnabled =
+                            ConfigurationManager
+                                .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
+                            && phones.size() > 0
+                            && GuiActivator.getOpSetRegisteredProviders(
+                                            OperationSetVideoTelephony.class,
+                                            null,
+                                            null).size() > 0;
+            routingForDesktopEnabled =
+                ConfigurationManager
+                    .isRouteVideoAndDesktopUsingPhoneNumberEnabled()
+                && phones.size() > 0
+                && GuiActivator.getOpSetRegisteredProviders(
+                        OperationSetDesktopSharingServer.class,
+                        null,
+                        null).size() > 0;
+
+
             // add all the contacts that support telephony to the call menu
             if (metaContact.getContactCount() > 1 || phones.size() > 0)
             {
@@ -479,7 +499,8 @@ public class MetaContactRightButtonMenu
                 if (protocolProvider.getOperationSet(
                         OperationSetVideoTelephony.class) != null &&
                         hasContactCapabilities(contact,
-                                OperationSetVideoTelephony.class))
+                                OperationSetVideoTelephony.class)
+                    || routingForVideoEnabled)
                 {
                     videoCallMenu.add(
                         createMenuItem( contactAddress,
@@ -491,7 +512,8 @@ public class MetaContactRightButtonMenu
                 if (protocolProvider.getOperationSet(
                         OperationSetDesktopSharingServer.class) != null &&
                         hasContactCapabilities(contact,
-                                OperationSetDesktopSharingServer.class))
+                                OperationSetDesktopSharingServer.class)
+                    || routingForDesktopEnabled)
                 {
                     multiContactFullShareMenu.add(
                         createMenuItem( contactAddress,
@@ -694,11 +716,15 @@ public class MetaContactRightButtonMenu
             this.callItem.setEnabled(false);
 
         if (metaContact.getDefaultContact(
-            OperationSetVideoTelephony.class) == null)
+            OperationSetVideoTelephony.class) == null
+            && !routingForVideoEnabled)
+        {
             this.videoCallItem.setEnabled(false);
+        }
 
         if (metaContact.getDefaultContact(
-            OperationSetDesktopSharingServer.class) == null)
+            OperationSetDesktopSharingServer.class) == null
+            && !routingForDesktopEnabled)
         {
             fullShareMenuItem.setEnabled(false);
             regionShareMenuItem.setEnabled(false);
