@@ -86,8 +86,12 @@ public class AutoAnswerMenu
         {
             AutoAnswerMenuItem item = getAutoAnswerItem(parentMenu, 0);
             if(item != null)
+            {
                 item.setText(GuiActivator.getResources().getI18NString(
                                 "service.gui.AUTO_ANSWER"));
+                item.setIcon(new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
+            }
         }
     }
 
@@ -152,8 +156,8 @@ public class AutoAnswerMenu
         if(ConfigurationManager.isAutoAnswerDisableSubmenu()
             && itemsCount != initialCount)
         {
-            // if initial count was 1, lets add provider name to the
-            // item (the first one have like global name)
+            // if initial count was 1, lets change provider name to the
+            // protocol one (the first one have like global name)
             if(initialCount == 1)
             {
                 for(int i = 0; i < parentMenu.getItemCount(); i++)
@@ -164,6 +168,10 @@ public class AutoAnswerMenu
                         item.setText(
                             AutoAnswerMenuItem.getItemDisplayName(
                                 ((AutoAnswerMenuItem)item).getProtocolProvider()));
+                        item.setIcon(new ImageIcon(
+                            ((AutoAnswerMenuItem)item).getProtocolProvider()
+                                .getProtocolIcon().getIcon(
+                                    ProtocolIcon.ICON_SIZE_16x16)));
                     }
                 }
             }
@@ -172,8 +180,12 @@ public class AutoAnswerMenu
                 // this is the first item set its name like global one
                 AutoAnswerMenuItem item = getAutoAnswerItem(parentMenu, 0);
                 if(item != null)
+                {
                     item.setText(GuiActivator.getResources().getI18NString(
                                         "service.gui.AUTO_ANSWER"));
+                    item.setIcon(new ImageIcon(
+                        ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
+                }
             }
         }
     }
@@ -311,8 +323,12 @@ public class AutoAnswerMenu
         {
             AutoAnswerMenuItem item = getAutoAnswerItem(parentMenu, 0);
             if(item != null)
+            {
                 item.setText(GuiActivator.getResources().getI18NString(
                     "service.gui.AUTO_ANSWER"));
+                item.setIcon(new ImageIcon(
+                    ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
+            }
         }
     }
 
