@@ -277,8 +277,16 @@ public class ToolsMenu
             AUTO_ANSWER_MENU_DISABLED_PROP,
             false))
         {
-            AutoAnswerMenu autoAnswerMenu = new AutoAnswerMenu();
-            this.add(autoAnswerMenu);
+            if(ConfigurationManager.isAutoAnswerDisableSubmenu())
+            {
+                this.addSeparator();
+                AutoAnswerMenu.registerMenuItems(this);
+            }
+            else
+            {
+                AutoAnswerMenu autoAnswerMenu = new AutoAnswerMenu();
+                this.add(autoAnswerMenu);
+            }
         }
 
         this.addSeparator();

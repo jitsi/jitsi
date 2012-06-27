@@ -164,7 +164,8 @@ public class GlobalStatusSelectorBox
                 ImageLoader.USER_OFFLINE_ICON,
                 Constants.OFFLINE_STATUS);
 
-        this.addSeparator();
+        if(!ConfigurationManager.isHideAccountStatusSelectorsEnabled())
+            this.addSeparator();
 
         this.setFont(titleLabel.getFont().deriveFont(Font.PLAIN, 11f));
         this.setIcon(offlineItem.getIcon());
@@ -228,6 +229,9 @@ public class GlobalStatusSelectorBox
             = (presenceOpSet != null)
                 ? new PresenceStatusMenu(protocolProvider)
                 : new SimpleStatusMenu(protocolProvider);
+
+        if(ConfigurationManager.isHideAccountStatusSelectorsEnabled())
+            statusSelectorMenu.setVisible(false);
 
         // If this is the first account in our menu.
         if (isFirstAccount)

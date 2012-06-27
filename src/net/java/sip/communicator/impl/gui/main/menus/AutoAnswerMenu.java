@@ -29,9 +29,13 @@ import javax.swing.border.*;
  */
 public class AutoAnswerMenu
     extends SIPCommMenu
-    implements Skinnable,
-               ServiceListener
+    implements Skinnable
 {
+    /**
+     * Listens for new protocol providers registered.
+     */
+    private static ProtocolProviderListener protocolProviderListener = null;
+
     /**
      * Creates the menu and load already registered providers.
      */
@@ -42,16 +46,21 @@ public class AutoAnswerMenu
 
         loadSkin();
 
-        GuiActivator.bundleContext.addServiceListener(this);
-
-        this.registerMenuItems();
+        this.registerMenuItems(this);
     }
 
     /**
      * Registers all menu items.
      */
-    private void registerMenuItems()
+    public static void registerMenuItems(SIPCommMenu parentMenu)
     {
+        if(protocolProviderListener == null)
+        {
+            protocolProviderListener = new ProtocolProviderListener(parentMenu);
+            GuiActivator.bundleContext
+                .addServiceListener(protocolProviderListener);
+        }
+
         for (ProtocolProviderFactory providerFactory : GuiActivator
                     .getProtocolProviderFactories().values())
         {
@@ -66,7 +75,105 @@ public class AutoAnswerMenu
                     (ProtocolProviderService) GuiActivator.bundleContext
                         .getService(serRef);
 
-                addAccount(protocolProvider);
+                addAccountInternal(protocolProvider, parentMenu);
+            }
+        }
+
+        // if we are in disabled menu mode and we have only one item
+        // change its name (like global autoanswer)
+        if( ConfigurationManager.isAutoAnswerDisableSubmenu()
+            && getAutoAnswerItemCount(parentMenu) == 1)
+        {
+            AutoAnswerMenuItem item = getAutoAnswerItem(parentMenu, 0);
+            if(item != null)
+                item.setText(GuiActivator.getResources().getI18NString(
+                                "service.gui.AUTO_ANSWER"));
+        }
+    }
+
+    /**
+     * Count number of Auto answer menu items.
+     * @param menu
+     * @return number of Auto answer menu items.
+     */
+    public static int getAutoAnswerItemCount(SIPCommMenu menu)
+    {
+        int count = 0;
+        for(int i = 0; i < menu.getItemCount(); i++)
+        {
+            if(menu.getItem(i) instanceof AutoAnswerMenuItem)
+                count++;
+        }
+
+        return count;
+    }
+
+    /**
+     * Return auto answer menu item at index.
+     * @param menu the menu.
+     * @param index the index to found.
+     * @return auto answer menu item at index.
+     */
+    public static AutoAnswerMenuItem getAutoAnswerItem(SIPCommMenu menu,
+                                                       int index)
+    {
+        int currentIx = 0;
+        for(int i = 0; i < menu.getItemCount(); i++)
+        {
+            if(menu.getItem(i) instanceof AutoAnswerMenuItem)
+            {
+                if(currentIx == index)
+                    return (AutoAnswerMenuItem)menu.getItem(i);
+
+                currentIx++;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Adds a menu item for the account given by <tt>protocolProvider</tt>.
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, for which
+     * to add a menu
+     */
+    private static void addAccount(ProtocolProviderService protocolProvider,
+                                  SIPCommMenu parentMenu)
+    {
+        // the initial number of autoanswer menu items
+        int initialCount = getAutoAnswerItemCount(parentMenu);
+
+        addAccountInternal(protocolProvider, parentMenu);
+
+        // current count
+        int itemsCount = getAutoAnswerItemCount(parentMenu);
+
+        // if menu is disabled for autoanswer and we have added an item
+        if(ConfigurationManager.isAutoAnswerDisableSubmenu()
+            && itemsCount != initialCount)
+        {
+            // if initial count was 1, lets add provider name to the
+            // item (the first one have like global name)
+            if(initialCount == 1)
+            {
+                for(int i = 0; i < parentMenu.getItemCount(); i++)
+                {
+                    JMenuItem item = parentMenu.getItem(i);
+                    if(item instanceof AutoAnswerMenuItem)
+                    {
+                        item.setText(
+                            AutoAnswerMenuItem.getItemDisplayName(
+                                ((AutoAnswerMenuItem)item).getProtocolProvider()));
+                    }
+                }
+            }
+            else if(initialCount == 0)
+            {
+                // this is the first item set its name like global one
+                AutoAnswerMenuItem item = getAutoAnswerItem(parentMenu, 0);
+                if(item != null)
+                    item.setText(GuiActivator.getResources().getI18NString(
+                                        "service.gui.AUTO_ANSWER"));
             }
         }
     }
@@ -76,7 +183,9 @@ public class AutoAnswerMenu
      * @param protocolProvider the <tt>ProtocolProviderService</tt>, for which
      * to add a menu
      */
-    public void addAccount(ProtocolProviderService protocolProvider)
+    private static void addAccountInternal(
+        ProtocolProviderService protocolProvider,
+        SIPCommMenu parentMenu)
     {
         OperationSetBasicAutoAnswer opSet = protocolProvider
             .getOperationSet(OperationSetBasicAutoAnswer.class);
@@ -99,17 +208,20 @@ public class AutoAnswerMenu
         AutoAnswerMenuItem providerMenu =
             new AutoAnswerMenuItem(protocolProvider);
 
+        int lastAutoAnswerIx = 0;
         boolean isMenuAdded = false;
         AccountID accountId = protocolProvider.getAccountID();
         // If we already have other accounts.
-        for(int i = 0; i < getItemCount(); i++)
+        for(int i = 0; i < parentMenu.getItemCount(); i++)
         {
-            JMenuItem c = getItem(i);
+            JMenuItem c = parentMenu.getItem(i);
             if (!(c instanceof AutoAnswerMenuItem))
                 continue;
 
             AutoAnswerMenuItem menu = (AutoAnswerMenuItem) c;
-            int menuIndex = getPopupMenu().getComponentIndex(menu);
+            int menuIndex = parentMenu.getPopupMenu().getComponentIndex(menu);
+
+            lastAutoAnswerIx = menuIndex;
 
             AccountID menuAccountID = menu.getProtocolProvider().getAccountID();
 
@@ -120,7 +232,7 @@ public class AutoAnswerMenu
             // we insert the new account before the given menu.
             if (protocolCompare < 0)
             {
-                insert(providerMenu, menuIndex);
+                parentMenu.insert(providerMenu, menuIndex);
                 isMenuAdded = true;
                 break;
             }
@@ -130,7 +242,7 @@ public class AutoAnswerMenu
                 if (accountId.getDisplayName()
                         .compareTo(menuAccountID.getDisplayName()) < 0)
                 {
-                    insert( providerMenu, menuIndex);
+                    parentMenu.insert( providerMenu, menuIndex);
                     isMenuAdded = true;
                     break;
                 }
@@ -138,7 +250,32 @@ public class AutoAnswerMenu
         }
 
         if (!isMenuAdded)
-            add(providerMenu);
+        {
+            // add it after last auto answer menu found
+            if(lastAutoAnswerIx != 0)
+                parentMenu.insert(providerMenu, lastAutoAnswerIx);
+            else
+            {
+                // as no items
+                // lets find the first separator and add it after it
+                // the place is between the separators
+                int lastMenuItemIx = 0;
+                for(int i = 0; i < parentMenu.getMenuComponentCount(); i++)
+                {
+                    if(parentMenu.getMenuComponent(i) instanceof JSeparator)
+                    {
+                        parentMenu.insert(providerMenu, lastMenuItemIx + 1);
+                        isMenuAdded = true;
+                        break;
+                    }
+                    else
+                        lastMenuItemIx++;
+                }
+
+                if(!isMenuAdded)
+                    parentMenu.add(providerMenu);
+            }
+        }
     }
 
     /**
@@ -146,11 +283,12 @@ public class AutoAnswerMenu
      * @param protocolProvider the <tt>ProtocolProviderService</tt>, for which
      * to remove the menu
      */
-    public void removeAccount(ProtocolProviderService protocolProvider)
+    public static void removeAccount(ProtocolProviderService protocolProvider,
+                                     SIPCommMenu parentMenu)
     {
-        for(int i = 0; i < getItemCount(); i++)
+        for(int i = 0; i < parentMenu.getItemCount(); i++)
         {
-            JMenuItem c = getItem(i);
+            JMenuItem c = parentMenu.getItem(i);
             
             if (!(c instanceof AutoAnswerMenuItem))
                 continue;
@@ -161,9 +299,20 @@ public class AutoAnswerMenu
 
             if(menuAccountID.equals(protocolProvider.getAccountID()))
             {
-                this.remove(menu);
-                return;
+                parentMenu.remove(menu);
+                break;
             }
+        }
+
+        // if menu is disabled for auto answer and we have left with one
+        // item set its name like a global one
+        if(ConfigurationManager.isAutoAnswerDisableSubmenu()
+            && getAutoAnswerItemCount(parentMenu) == 1)
+        {
+            AutoAnswerMenuItem item = getAutoAnswerItem(parentMenu, 0);
+            if(item != null)
+                item.setText(GuiActivator.getResources().getI18NString(
+                    "service.gui.AUTO_ANSWER"));
         }
     }
 
@@ -177,46 +326,67 @@ public class AutoAnswerMenu
     }
 
     /**
-     * Implements the <tt>ServiceListener</tt> method. Verifies whether the
-     * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
-     * corresponding UI controls in the menu.
-     *
-     * @param event The <tt>ServiceEvent</tt> object.
+     * Listens for new protocol providers.
      */
-    public void serviceChanged(ServiceEvent event)
+    private static class ProtocolProviderListener
+        implements ServiceListener
     {
-        ServiceReference serviceRef = event.getServiceReference();
+        /**
+         * The parent window.
+         */
+        SIPCommMenu parentMenu;
 
-        // if the event is caused by a bundle being stopped, we don't want to
-        // know
-        if (serviceRef.getBundle().getState() == Bundle.STOPPING)
+        /**
+         * Creates listener.
+         * @param parentMenu the parent menu.
+         */
+        ProtocolProviderListener(SIPCommMenu parentMenu)
         {
-            return;
+            this.parentMenu = parentMenu;
         }
 
-        Object service = GuiActivator.bundleContext.getService(serviceRef);
-
-        // we don't care if the source service is not a protocol provider
-        if (!(service instanceof ProtocolProviderService))
+        /**
+         * Implements the <tt>ServiceListener</tt> method. Verifies whether the
+         * passed event concerns a <tt>ProtocolProviderService</tt> and adds the
+         * corresponding UI controls in the menu.
+         *
+         * @param event The <tt>ServiceEvent</tt> object.
+         */
+        public void serviceChanged(ServiceEvent event)
         {
-            return;
-        }
+            ServiceReference serviceRef = event.getServiceReference();
 
-        switch (event.getType())
-        {
-            case ServiceEvent.REGISTERED:
-                this.addAccount((ProtocolProviderService) service);
-                break;
-            case ServiceEvent.UNREGISTERING:
-                this.removeAccount((ProtocolProviderService) service);
-                break;
+            // if the event is caused by a bundle being stopped, we don't want to
+            // know
+            if (serviceRef.getBundle().getState() == Bundle.STOPPING)
+            {
+                return;
+            }
+
+            Object service = GuiActivator.bundleContext.getService(serviceRef);
+
+            // we don't care if the source service is not a protocol provider
+            if (!(service instanceof ProtocolProviderService))
+            {
+                return;
+            }
+
+            switch (event.getType())
+            {
+                case ServiceEvent.REGISTERED:
+                    addAccount((ProtocolProviderService) service, parentMenu);
+                    break;
+                case ServiceEvent.UNREGISTERING:
+                    removeAccount((ProtocolProviderService) service, parentMenu);
+                    break;
+            }
         }
     }
 
     /**
      * Represent menu item for provider.
      */
-    private class AutoAnswerMenuItem
+    private static class AutoAnswerMenuItem
         extends JMenuItem
         implements ActionListener
     {
@@ -232,7 +402,7 @@ public class AutoAnswerMenu
         AutoAnswerMenuItem(ProtocolProviderService provider)
         {
             this(provider,
-                 provider.getAccountID().getDisplayName(),
+                 getItemDisplayName(provider),
                  ImageUtils.getBytesInImage(
                     provider.getProtocolIcon().getIcon(
                         ProtocolIcon.ICON_SIZE_16x16)));
@@ -271,12 +441,28 @@ public class AutoAnswerMenu
         {
             new AutoAnswerOptionsDialog(providerService).setVisible(true);
         }
+
+        /**
+         * Returns the display name to be used for this provider.
+         * @param provider the provider.
+         * @return the display name to be used for this provider.
+         */
+        private static String getItemDisplayName(
+            ProtocolProviderService provider)
+        {
+            if(ConfigurationManager.isAutoAnswerDisableSubmenu())
+                return GuiActivator.getResources()
+                            .getI18NString("service.gui.AUTO_ANSWER")
+                    + " - " + provider.getAccountID().getDisplayName();
+            else
+                return provider.getAccountID().getDisplayName();
+        }
     }
 
     /**
      * The dialog to config auto answer functionality for a provider.
      */
-    private class AutoAnswerOptionsDialog
+    private static class AutoAnswerOptionsDialog
         extends SIPCommDialog
         implements ActionListener
     {

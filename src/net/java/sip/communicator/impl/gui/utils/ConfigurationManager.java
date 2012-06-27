@@ -221,6 +221,16 @@ public class ConfigurationManager
     private static boolean hideAccountSelectionWhenPossible = false;
 
     /**
+     * Hide accounts from accounts status list.
+     */
+    private static boolean hideAccountStatusSelectors = false;
+
+    /**
+     * Whether to disable creation of auto answer submenu.
+     */
+    private static boolean autoAnswerDisableSubmenu = false;
+
+    /**
      * Loads all user interface configurations.
      */
     public static void loadGuiConfigurations()
@@ -626,6 +636,33 @@ public class ConfigurationManager
         hideAccountSelectionWhenPossible = configService.getBoolean(
             hideAccountMenuProperty,
             hideAccountSelectionWhenPossible);
+
+        String hideAccountStatusSelectorsProperty
+            = "impl.gui.HIDE_ACCOUNT_STATUS_SELECTORS";
+        String hideAccountsStatusDefaultValue = GuiActivator.getResources()
+            .getSettingsString(hideAccountStatusSelectorsProperty);
+
+        if(hideAccountsStatusDefaultValue != null)
+            hideAccountStatusSelectors = Boolean.parseBoolean(
+                hideAccountsStatusDefaultValue);
+
+        hideAccountStatusSelectors = configService.getBoolean(
+            hideAccountStatusSelectorsProperty,
+            hideAccountStatusSelectors);
+
+        String autoAnswerDisableSubmenuProperty
+            = "impl.gui.AUTO_ANSWER_DISABLE_SUBMENU";
+        String autoAnswerDisableSubmenuDefaultValue =
+            GuiActivator.getResources()
+                .getSettingsString(autoAnswerDisableSubmenuProperty);
+
+        if(autoAnswerDisableSubmenuDefaultValue != null)
+            autoAnswerDisableSubmenu = Boolean.parseBoolean(
+                autoAnswerDisableSubmenuDefaultValue);
+
+        autoAnswerDisableSubmenu = configService.getBoolean(
+            autoAnswerDisableSubmenuProperty,
+            autoAnswerDisableSubmenu);
     }
 
     /**
@@ -1126,11 +1163,30 @@ public class ConfigurationManager
      * Whether allow user to select account when only a single
      * account is available.
      * @return whether allow user to select account when only a single
-          * account is available.
+     * account is available.
      */
     public static boolean isHideAccountSelectionWhenPossibleEnabled()
     {
         return hideAccountSelectionWhenPossible;
+    }
+
+    /**
+     * Whether to hide account statuses from global menu.
+     * @return whether to hide account statuses.
+     */
+    public static boolean isHideAccountStatusSelectorsEnabled()
+    {
+        return hideAccountStatusSelectors;
+    }
+
+    /**
+     * Whether creation of separate submenu for auto answer is disabled.
+     * @return whether creation of separate submenu for auto answer
+     * is disabled.
+     */
+    public static boolean isAutoAnswerDisableSubmenu()
+    {
+        return autoAnswerDisableSubmenu;
     }
 
     /**
