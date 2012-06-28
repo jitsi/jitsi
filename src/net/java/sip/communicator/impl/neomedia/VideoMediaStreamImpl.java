@@ -1104,9 +1104,16 @@ public class VideoMediaStreamImpl
 
         x -= bounds.x;
         y -= bounds.y;
-        ((net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource)
-                ds)
-            .setOrigin(0, currentScreen.getIndex(), x, y);
+        /*((net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource)
+                ds)*/
+        Object imgStreamingDataSource = ds.getControl(
+                    net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource.class.getName());
+        if(imgStreamingDataSource != null)
+        {
+            ((net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreaming.DataSource)
+             imgStreamingDataSource)
+                .setOrigin(0, currentScreen.getIndex(), x, y);
+        }
     }
 
     /**

@@ -8,12 +8,9 @@ package net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.imgstreami
 
 import javax.media.*;
 import javax.media.control.*;
-import javax.media.protocol.*;
 
 import net.java.sip.communicator.impl.neomedia.jmfext.media.protocol.*;
 import net.java.sip.communicator.impl.neomedia.protocol.*;
-
-import net.sf.fmj.media.protocol.*;
 
 /**
  * Implements <tt>CaptureDevice</tt> and <tt>DataSource</tt> for the purposes of
@@ -25,19 +22,12 @@ import net.sf.fmj.media.protocol.*;
  */
 public class DataSource
     extends AbstractVideoPullBufferCaptureDevice
-    implements MuteDataSource,
-            SourceCloneable
+    implements Controls
 {
     /**
      * Stream created.
      */
     private ImageStream stream = null;
-
-    /**
-     * The cloneable representation of this DataSource.
-     */
-    private CloneableCaptureDevicePullBufferDataSource cloneableDataSource
-        = null;
 
     /**
      * Initializes a new <tt>DataSource</tt> instance.
@@ -125,44 +115,54 @@ public class DataSource
     }
 
     /**
-     * Determines whether this <tt>DataSource</tt> is mute.
+     * Implements {@link Controls#getControl(String)}. Invokes
+     * {@link #getControls()} and then looks for a control of the specified type
+     * in the returned array of controls.
      *
-     * An image / desktop sharing does not send any
-     * sounds. Thus it is always mute (returns always true).
-     *
-     * @return <tt>true</tt> since  this <tt>DataSource</tt> is always mute.
+     * @param controlType a <tt>String</tt> value naming the type of the control
+     * of this instance to be retrieved
+     * @return an <tt>Object</tt> which represents the control of this instance
+     * with the specified type
      */
-    public boolean isMute()
+    public Object getControl(String controlType)
     {
-        return true;
-    }
-
-    /**
-     * Sets the mute state of this <tt>DataSource</tt>.
-     *
-     * Does not change anything, since image /
-     * desktop sharing does not send any sounds. Thus it is always mute.
-     *
-     * @param mute <tt>true</tt> to mute this <tt>DataSource</tt>; otherwise,
-     *            <tt>false</tt>
-     */
-    public void setMute(boolean mute)
-    {
-    }
-
-    /**
-     * Based on JMF testing, the clone is in the same state as the original
-     * (opened and connected if the original is), but at the beginning of the
-     * media, not whatever position the original is.
-     */
-    public javax.media.protocol.DataSource createClone()
-    {
-        if(this.cloneableDataSource == null)
+        if(controlType == this.getClass().getName())
         {
-            this.cloneableDataSource
-                = new CloneableCaptureDevicePullBufferDataSource(this);
+            return this;
         }
+        else
+        {
+            return super.getControl(controlType);
+        }
+    }
 
-        return this.cloneableDataSource.createClone();
+    /**
+     * Implements {@link Controls#getControl(String)}. Invokes
+     * {@link #getControls()} and then looks for a control of the specified type
+     * in the returned array of controls.
+     *
+     * @param controlType a <tt>String</tt> value naming the type of the control
+     * of this instance to be retrieved
+     * @return an <tt>Object</tt> which represents the control of this instance
+     * with the specified type
+     */
+    public Object[] getControls()
+    {
+        Object[] thisControls;
+        Object[] superControls = super.getControls();
+        if(superControls != null)
+        {
+            thisControls = new Object[superControls.length + 1];
+            System.arraycopy(
+                    superControls, 0,
+                    thisControls, 0,
+                    superControls.length);
+            thisControls[superControls.length] = this;
+        }
+        else
+        {
+            thisControls = new Object[]{this};
+        }
+        return thisControls;
     }
 }
