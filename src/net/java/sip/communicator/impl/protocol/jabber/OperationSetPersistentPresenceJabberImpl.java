@@ -1344,7 +1344,8 @@ public class OperationSetPersistentPresenceJabberImpl
             }
             catch(XMPPException ex)
             {
-                logger.info("Can not retrieve account avatar", ex);
+                logger.info("Can not retrieve account avatar for "
+                    + parentProvider.getOurJID() + ": " + ex.getMessage());
             }
 
             // Creates the presence extension to generates the  the element

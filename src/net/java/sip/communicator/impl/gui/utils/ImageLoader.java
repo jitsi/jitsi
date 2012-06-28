@@ -1603,6 +1603,9 @@ public class ImageLoader
     public static final ImageID SOUND_SETTING_BUTTON_PRESSED
         = new ImageID("service.gui.soundlevel.SOUND_SETTING_BUTTON_PRESSED");
 
+    public static final ImageID AUTO_ANSWER_CHECK
+                = new ImageID("service.gui.icons.AUTO_ANSWER_CHECK");
+
     /**
      * Loads an image from a given image identifier.
      *

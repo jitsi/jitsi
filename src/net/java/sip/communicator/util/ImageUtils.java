@@ -390,4 +390,60 @@ public class ImageUtils
         }
         return image;
     }
+
+    /**
+     * Creates a composed image from two images. If one of the images
+     * is missing will add an empty space on its place.
+     * @param leftImage the left image.
+     * @param rightImage the right image
+     * @param imageObserver need to calculate image sizes.
+     * @return the composed image.
+     */
+    public static Image getComposedImage(
+                    Image leftImage, Image rightImage,
+                    ImageObserver imageObserver)
+    {
+        int height = 0;
+        if(leftImage == null && rightImage == null)
+            return null;
+        if(leftImage != null && rightImage != null)
+            height = Math.max(leftImage.getHeight(imageObserver),
+                              rightImage.getHeight(imageObserver));
+        else if(leftImage == null)
+            height = rightImage.getHeight(imageObserver);
+        else
+            height = leftImage.getHeight(imageObserver);
+
+        int width = 0;
+        int leftWidth = 0;
+        if(leftImage != null && rightImage != null)
+        {
+            leftWidth = leftImage.getWidth(imageObserver);
+            width = leftWidth +
+                     rightImage.getWidth(imageObserver);
+        }
+        else if(leftImage == null)
+        {
+            leftWidth = rightImage.getWidth(imageObserver);
+            width = leftWidth*2;
+        }
+        else
+        {
+            leftWidth = leftImage.getWidth(imageObserver);
+            width = leftWidth*2;
+        }
+
+        BufferedImage buffImage =
+            new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) buffImage.getGraphics();
+
+        AntialiasingManager.activateAntialiasing(g);
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
+        if(leftImage != null)
+            g.drawImage(leftImage, 0, 0, null);
+        if(rightImage != null)
+            g.drawImage(rightImage, leftWidth + 1, 0, null);
+
+        return buffImage;
+    }
 }

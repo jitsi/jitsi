@@ -12,8 +12,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 
+import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smackx.packet.*;
 
 /**
  * The Account Info Operation set is a means of accessing and modifying detailed
@@ -25,6 +25,15 @@ import org.jivesoftware.smackx.packet.*;
 public class OperationSetServerStoredAccountInfoJabberImpl
     extends AbstractOperationSetServerStoredAccountInfo
 {
+    /**
+     * The logger.
+     */
+    private static final Logger logger =
+        Logger.getLogger(OperationSetServerStoredAccountInfoJabberImpl.class);
+
+    /**
+     * The info retriever.
+     */
     private InfoRetreiver infoRetreiver = null;
 
     /**
@@ -387,7 +396,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
         }
         catch (XMPPException xmppe)
         {
-            xmppe.printStackTrace();
+            logger.error("Error loading/saving vcard: ", xmppe);
         }
 
         return isPhotoChanged;

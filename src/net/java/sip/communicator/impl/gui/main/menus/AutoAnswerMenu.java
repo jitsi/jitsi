@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.menus;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -80,18 +81,11 @@ public class AutoAnswerMenu
         }
 
         // if we are in disabled menu mode and we have only one item
-        // change its name (like global autoanswer)
+        // change its name (like global auto answer)
         if( ConfigurationManager.isAutoAnswerDisableSubmenu()
             && getAutoAnswerItemCount(parentMenu) == 1)
         {
-            AutoAnswerMenuItem item = getAutoAnswerItem(parentMenu, 0);
-            if(item != null)
-            {
-                item.setText(GuiActivator.getResources().getI18NString(
-                                "service.gui.AUTO_ANSWER"));
-                item.setIcon(new ImageIcon(
-                    ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
-            }
+            updateItem(getAutoAnswerItem(parentMenu, 0), true);
         }
     }
 
@@ -165,28 +159,47 @@ public class AutoAnswerMenu
                     JMenuItem item = parentMenu.getItem(i);
                     if(item instanceof AutoAnswerMenuItem)
                     {
-                        item.setText(
-                            AutoAnswerMenuItem.getItemDisplayName(
-                                ((AutoAnswerMenuItem)item).getProtocolProvider()));
-                        item.setIcon(new ImageIcon(
-                            ((AutoAnswerMenuItem)item).getProtocolProvider()
-                                .getProtocolIcon().getIcon(
-                                    ProtocolIcon.ICON_SIZE_16x16)));
+                        updateItem((AutoAnswerMenuItem)item, false);
                     }
                 }
             }
             else if(initialCount == 0)
             {
                 // this is the first item set its name like global one
-                AutoAnswerMenuItem item = getAutoAnswerItem(parentMenu, 0);
-                if(item != null)
-                {
-                    item.setText(GuiActivator.getResources().getI18NString(
-                                        "service.gui.AUTO_ANSWER"));
-                    item.setIcon(new ImageIcon(
-                        ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
-                }
+                updateItem(getAutoAnswerItem(parentMenu, 0), true);
             }
+        }
+    }
+
+    /**
+     * Updates item text and icon.
+     * @param item the item to update
+     * @param isGlobal whether to make a global item.
+     */
+    private static void updateItem(AutoAnswerMenuItem item, boolean isGlobal)
+    {
+        if(item == null)
+            return;
+
+        if(isGlobal)
+        {
+            item.setText(GuiActivator.getResources().getI18NString(
+                                    "service.gui.AUTO_ANSWER"));
+            item.setIcon(new ImageIcon(
+                getIconForProvider(item.getProtocolProvider(),
+                    ImageLoader.getImage(ImageLoader.CALL_16x16_ICON),
+                    item)));
+        }
+        else
+        {
+            item.setText(
+                AutoAnswerMenuItem.getItemDisplayName(
+                    item.getProtocolProvider()));
+            item.setIcon(new ImageIcon(
+                getIconForProvider(
+                    item.getProtocolProvider(),
+                    null,
+                    item)));
         }
     }
 
@@ -218,7 +231,7 @@ public class AutoAnswerMenu
             return;
 
         AutoAnswerMenuItem providerMenu =
-            new AutoAnswerMenuItem(protocolProvider);
+            new AutoAnswerMenuItem(protocolProvider, parentMenu);
 
         int lastAutoAnswerIx = 0;
         boolean isMenuAdded = false;
@@ -254,7 +267,7 @@ public class AutoAnswerMenu
                 if (accountId.getDisplayName()
                         .compareTo(menuAccountID.getDisplayName()) < 0)
                 {
-                    parentMenu.insert( providerMenu, menuIndex);
+                    parentMenu.insert(providerMenu, menuIndex);
                     isMenuAdded = true;
                     break;
                 }
@@ -321,14 +334,7 @@ public class AutoAnswerMenu
         if(ConfigurationManager.isAutoAnswerDisableSubmenu()
             && getAutoAnswerItemCount(parentMenu) == 1)
         {
-            AutoAnswerMenuItem item = getAutoAnswerItem(parentMenu, 0);
-            if(item != null)
-            {
-                item.setText(GuiActivator.getResources().getI18NString(
-                    "service.gui.AUTO_ANSWER"));
-                item.setIcon(new ImageIcon(
-                    ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
-            }
+            updateItem(getAutoAnswerItem(parentMenu, 0), true);
         }
     }
 
@@ -339,6 +345,62 @@ public class AutoAnswerMenu
     {
         this.setIcon(new ImageIcon(
             ImageLoader.getImage(ImageLoader.CALL_16x16_ICON)));
+    }
+
+    /**
+     * Check whether any auto answer option is enabled for a protocol.
+     * @param providerService the provider.
+     * @return whether any auto answer option is enabled for a protocol.
+     */
+    private static boolean isAutoAnswerEnabled(
+        ProtocolProviderService providerService)
+    {
+        OperationSetBasicAutoAnswer opset = providerService
+            .getOperationSet(OperationSetBasicAutoAnswer.class);
+        OperationSetAdvancedAutoAnswer opSetAdvanced = providerService
+            .getOperationSet(OperationSetAdvancedAutoAnswer.class);
+
+        if(opset == null)
+            return false;
+
+        if(opSetAdvanced != null)
+        {
+            if(opSetAdvanced.isAutoAnswerConditionSet())
+            {
+                return true;
+            }
+
+            if(!StringUtils.isNullOrEmpty(opSetAdvanced.getCallForward()))
+            {
+                return true;
+            }
+        }
+
+        return opset.isAutoAnswerWithVideoSet()
+            || opset.isAutoAnswerUnconditionalSet();
+    }
+
+    /**
+     * Returns the icon for the provider.
+     * @param providerService the provider
+     * @param customProviderImage set custom provider image
+     * @return the image.
+     */
+    private static Image getIconForProvider(
+        ProtocolProviderService providerService, Image customProviderImage,
+        ImageObserver imageObserver)
+    {
+        Image left = null;
+        if(isAutoAnswerEnabled(providerService))
+            left = ImageLoader.getImage(ImageLoader.AUTO_ANSWER_CHECK);
+
+        if(customProviderImage == null)
+            customProviderImage = ImageUtils.getBytesInImage(
+                providerService.getProtocolIcon().getIcon(
+                    ProtocolIcon.ICON_SIZE_16x16));
+
+        return ImageUtils.getComposedImage(
+            left, customProviderImage, imageObserver);
     }
 
     /**
@@ -412,16 +474,22 @@ public class AutoAnswerMenu
         private ProtocolProviderService providerService;
 
         /**
+         * The parent menu.
+         */
+        private final SIPCommMenu parentMenu;
+
+        /**
          * Init the menu item.
          * @param provider the provider.
+         * @param parentMenu the parent menu.
          */
-        AutoAnswerMenuItem(ProtocolProviderService provider)
+        AutoAnswerMenuItem(ProtocolProviderService provider,
+                           SIPCommMenu parentMenu)
         {
             this(provider,
-                 getItemDisplayName(provider),
-                 ImageUtils.getBytesInImage(
-                    provider.getProtocolIcon().getIcon(
-                        ProtocolIcon.ICON_SIZE_16x16)));
+                getItemDisplayName(provider),
+                getIconForProvider(provider, null, parentMenu),
+                parentMenu);
         }
 
         /**
@@ -429,13 +497,16 @@ public class AutoAnswerMenu
          * @param provider the provider.
          * @param displayName the display name of the item.
          * @param onlineImage the icon to display
+         * @param parentMenu the parent menu.
          */
         private AutoAnswerMenuItem(ProtocolProviderService provider,
                                    String displayName,
-                                   Image onlineImage)
+                                   Image onlineImage,
+                                   SIPCommMenu parentMenu)
         {
             super(displayName, new ImageIcon(onlineImage));
             this.providerService = provider;
+            this.parentMenu = parentMenu;
 
             this.addActionListener(this);
         }
@@ -455,7 +526,8 @@ public class AutoAnswerMenu
          */
         public void actionPerformed(ActionEvent e)
         {
-            new AutoAnswerOptionsDialog(providerService).setVisible(true);
+            new AutoAnswerOptionsDialog(providerService, parentMenu)
+                .setVisible(true);
         }
 
         /**
@@ -555,13 +627,21 @@ public class AutoAnswerMenu
         private JTextField callFwdNumberField = new JTextField();
 
         /**
+         * The parent menu.
+         */
+        private final SIPCommMenu parentMenu;
+
+        /**
          * Create dialog.
          * @param providerService provider.
+         * @param parentMenu the parent menu.
          */
-        AutoAnswerOptionsDialog(ProtocolProviderService providerService)
+        AutoAnswerOptionsDialog(ProtocolProviderService providerService,
+                                SIPCommMenu parentMenu)
         {
             super(false);
 
+            this.parentMenu = parentMenu;
             this.providerService = providerService;
 
             this.setTitle(GuiActivator.getResources()
@@ -801,6 +881,24 @@ public class AutoAnswerMenu
 
                 opset.setAutoAnswerWithVideo(
                         answerWithVideoCheckBox.isSelected());
+
+                // as settings changed lets update items
+                if( ConfigurationManager.isAutoAnswerDisableSubmenu()
+                    && getAutoAnswerItemCount(parentMenu) == 1)
+                {
+                    updateItem(getAutoAnswerItem(parentMenu, 0), true);
+                }
+                else
+                {
+                    for(int i = 0; i < parentMenu.getItemCount(); i++)
+                    {
+                        JMenuItem item = parentMenu.getItem(i);
+                        if(item instanceof AutoAnswerMenuItem)
+                        {
+                            updateItem((AutoAnswerMenuItem)item, false);
+                        }
+                    }
+                }
             }
 
             dispose();
