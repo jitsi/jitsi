@@ -8,9 +8,10 @@ package net.java.sip.communicator.slick.protocol.yahoo;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 public class TestAccountInstallation
     extends TestCase

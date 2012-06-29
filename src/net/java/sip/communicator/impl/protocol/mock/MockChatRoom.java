@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.mock;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 

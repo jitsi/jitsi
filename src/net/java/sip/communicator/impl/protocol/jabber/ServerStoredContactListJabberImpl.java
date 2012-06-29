@@ -14,9 +14,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smack.util.StringUtils;
 import org.osgi.framework.*;
 
 /**

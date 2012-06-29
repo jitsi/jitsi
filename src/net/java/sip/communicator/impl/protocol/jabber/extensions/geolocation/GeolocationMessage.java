@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.geolocation;
 
-import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.*;
 
 /**
  * This class extends the smack Message class and allows creating a

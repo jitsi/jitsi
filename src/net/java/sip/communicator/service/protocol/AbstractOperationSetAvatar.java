@@ -7,9 +7,10 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 /**
  * Represents a default implementation of {@link OperationSetAvatar} in order to

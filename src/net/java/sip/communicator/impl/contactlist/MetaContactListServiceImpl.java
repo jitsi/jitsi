@@ -8,14 +8,14 @@ package net.java.sip.communicator.impl.contactlist;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
+
+import org.osgi.framework.*;
 
 /**
  * An implementation of the MetaContactListService that would connect to

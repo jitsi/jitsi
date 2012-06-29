@@ -8,13 +8,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.StringUtils;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.StringUtils;
 
 /**
  * Represents an <tt>OperationSet</tt> to query the <tt>OperationSet</tt>s

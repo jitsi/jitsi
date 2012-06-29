@@ -8,10 +8,10 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import java.net.*;
 
-import org.jivesoftware.smack.packet.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
+
+import org.jivesoftware.smack.packet.*;
 
 /**
  * RTP header extension.

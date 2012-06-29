@@ -12,8 +12,9 @@
 
 package net.java.sip.communicator.impl.protocol.ssh;
 
-import com.jcraft.jsch.*;
 import javax.swing.*;
+
+import com.jcraft.jsch.*;
 
 /**
  * SSHUserInfo passes authentication details to JSch SSH Stack

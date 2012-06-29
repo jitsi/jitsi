@@ -15,13 +15,13 @@ import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**

@@ -6,17 +6,23 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent;
 
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
-import static net.java.sip.communicator.util.StringUtils.*;
-import static net.java.sip.communicator.util.xml.XMLUtils.*;
-import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.*;
+import static javax.xml.XMLConstants.XML_NS_PREFIX;
+import static javax.xml.XMLConstants.XML_NS_URI;
+import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAny;
+import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAnyAttributes;
+import static net.java.sip.communicator.util.StringUtils.isNullOrEmpty;
+import static net.java.sip.communicator.util.xml.XMLUtils.createDocument;
+import static net.java.sip.communicator.util.xml.XMLUtils.createXml;
+import static net.java.sip.communicator.util.xml.XMLUtils.getNamespaceUri;
+import static net.java.sip.communicator.util.xml.XMLUtils.isStandartXmlNamespace;
 
-import static javax.xml.XMLConstants.*;
-
-import org.w3c.dom.*;
+import java.util.*;
 
 import javax.xml.namespace.*;
-import java.util.*;
+
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
+
+import org.w3c.dom.*;
 
 /**
  * Utility class that helps to converts pres-content xml to the object model and

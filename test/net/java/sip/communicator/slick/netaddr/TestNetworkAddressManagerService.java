@@ -3,11 +3,12 @@ package net.java.sip.communicator.slick.netaddr;
 import java.net.*;
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
+import org.osgi.framework.*;
 
 /**
  * Tests basic Network Address Manager Service behaviour.

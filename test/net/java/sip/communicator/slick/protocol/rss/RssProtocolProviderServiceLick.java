@@ -7,6 +7,7 @@
 package net.java.sip.communicator.slick.protocol.rss;
 
 import java.util.*;
+
 import junit.framework.*;
 import net.java.sip.communicator.util.*;
 

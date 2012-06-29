@@ -9,11 +9,11 @@ package net.java.sip.communicator.plugin.zeroconfaccregwizz;
 import java.awt.*;
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>ZeroconfAccountRegistrationWizard</tt> is an implementation of the

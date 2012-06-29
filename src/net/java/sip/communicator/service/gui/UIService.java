@@ -11,9 +11,9 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>UIService</tt> offers generic access to the graphical user interface

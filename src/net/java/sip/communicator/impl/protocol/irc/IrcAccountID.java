@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import net.java.sip.communicator.service.protocol.*;
+import java.util.*;
 
-import java.util.Map;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The IRC implementation of a sip-communicator AccountID.

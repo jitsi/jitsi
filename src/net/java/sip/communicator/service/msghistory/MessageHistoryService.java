@@ -8,9 +8,9 @@ package net.java.sip.communicator.service.msghistory;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.msghistory.event.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The Message History Service stores messages exchanged through the various protocols

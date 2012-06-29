@@ -13,10 +13,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 
 /**

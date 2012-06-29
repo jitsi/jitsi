@@ -10,8 +10,9 @@ import java.util.*;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.plugin.chatconfig.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.replacement.*;
+
+import org.jitsi.service.configuration.*;
 
 /**
  * Table model for the table in <tt>ReplacementConfigPanel</tt> listing all

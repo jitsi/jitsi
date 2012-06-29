@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.configuration;
 
-import org.osgi.framework.*;
+import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
-import net.java.sip.communicator.util.*;
+import org.osgi.framework.*;
 
 /**
  * @author Emil Ivov

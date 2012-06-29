@@ -10,13 +10,13 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 

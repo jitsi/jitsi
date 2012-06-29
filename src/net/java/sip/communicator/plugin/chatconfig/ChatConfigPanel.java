@@ -6,6 +6,7 @@
 package net.java.sip.communicator.plugin.chatconfig;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.chatconfig.replacement.*;

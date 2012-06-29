@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules;
 
-import org.w3c.dom.*;
-
 import java.util.*;
+
+import org.w3c.dom.*;
 
 /**
  * The Presence Rules provide-devices element. Allows a watcher to see "device"

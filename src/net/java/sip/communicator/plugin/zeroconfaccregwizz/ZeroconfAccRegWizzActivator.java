@@ -8,10 +8,11 @@ package net.java.sip.communicator.plugin.zeroconfaccregwizz;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Registers the <tt>ZeroconfAccountRegistrationWizard</tt> in the UI Service.

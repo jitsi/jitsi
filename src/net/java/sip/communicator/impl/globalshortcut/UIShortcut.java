@@ -8,12 +8,13 @@ package net.java.sip.communicator.impl.globalshortcut;
 
 import java.awt.*;
 import java.util.*;
-import java.util.List; // disambiguation
+import java.util.List;
 
 import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
+// disambiguation
 
 /**
  * UI shortcut.

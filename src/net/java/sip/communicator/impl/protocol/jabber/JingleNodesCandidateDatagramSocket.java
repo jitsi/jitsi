@@ -6,11 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 
 import org.ice4j.*;
-import org.ice4j.stack.*;
 import org.ice4j.socket.*;
 
 /**

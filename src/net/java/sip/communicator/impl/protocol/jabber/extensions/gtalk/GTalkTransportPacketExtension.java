@@ -8,10 +8,10 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk;
 
 import java.util.*;
 
-import org.jivesoftware.smack.packet.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+
+import org.jivesoftware.smack.packet.*;
 
 /**
  * An {@link AbstractPacketExtension} implementation for transport elements.

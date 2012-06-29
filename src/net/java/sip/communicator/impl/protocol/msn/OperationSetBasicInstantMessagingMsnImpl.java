@@ -9,13 +9,13 @@ package net.java.sip.communicator.impl.protocol.msn;
 import java.text.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.msn.mail.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
 import net.sf.jml.event.*;
 import net.sf.jml.message.*;
-import net.java.sip.communicator.impl.protocol.msn.mail.utils.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation

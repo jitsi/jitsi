@@ -7,9 +7,9 @@
 
 package net.java.sip.communicator.impl.protocol.jabber.extensions.whiteboard;
 
-import org.jivesoftware.smack.packet.PacketExtension;
-import org.jivesoftware.smack.provider.PacketExtensionProvider;
-import org.xmlpull.v1.XmlPullParser;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.provider.*;
+import org.xmlpull.v1.*;
 
 /**
  * This class parses incoming messages and extracts the whiteboard parameters

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.metahistory;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.history.event.*;
 
 /**

@@ -2,10 +2,11 @@ package net.java.sip.communicator.slick.netaddr;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 /**
  * This class launche the bundle of which test the NetworkManagerBundle
  * this bundle is a set of (j)unit tests. It aim to be launch by the

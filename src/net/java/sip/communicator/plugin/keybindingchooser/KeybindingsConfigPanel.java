@@ -12,12 +12,12 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.plugin.keybindingchooser.chooser.*;
 import net.java.sip.communicator.plugin.keybindingchooser.globalchooser.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added to the settings

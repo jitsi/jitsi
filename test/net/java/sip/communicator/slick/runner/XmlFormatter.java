@@ -27,12 +27,14 @@ package net.java.sip.communicator.slick.runner;
 
 import java.io.*;
 import java.util.*;
+
 import javax.xml.parsers.*;
 
-import org.w3c.dom.*;
 import junit.framework.*;
 import junit.textui.*;
 import net.java.sip.communicator.util.xml.*;
+
+import org.w3c.dom.*;
 
 
 /**

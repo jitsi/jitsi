@@ -8,11 +8,11 @@ package net.java.sip.communicator.plugin.gibberishaccregwizz;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Registers the <tt>GibberishAccountRegistrationWizard</tt> in the UI Service.

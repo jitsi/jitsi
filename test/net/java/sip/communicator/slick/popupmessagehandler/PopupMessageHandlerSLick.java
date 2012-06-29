@@ -9,10 +9,9 @@ package net.java.sip.communicator.slick.popupmessagehandler;
 import java.util.*;
 
 import junit.framework.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
-
-import net.java.sip.communicator.util.*;
 
 /**
  *

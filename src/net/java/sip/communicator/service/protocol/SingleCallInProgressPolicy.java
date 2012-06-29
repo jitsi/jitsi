@@ -8,10 +8,10 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Imposes the policy to have one call in progress i.e. to put existing calls on

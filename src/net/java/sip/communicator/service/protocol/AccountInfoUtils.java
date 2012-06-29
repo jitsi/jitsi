@@ -8,7 +8,16 @@ package net.java.sip.communicator.service.protocol;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.AddressDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.BirthDateDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.DisplayNameDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.EmailAddressDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.FirstNameDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenderDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.LastNameDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkAddressDetail;
 
 /**
  * Utility class that would give to interested parties an easy access to some of

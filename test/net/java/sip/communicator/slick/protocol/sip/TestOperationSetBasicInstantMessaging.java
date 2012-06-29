@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.io.*;
 
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;

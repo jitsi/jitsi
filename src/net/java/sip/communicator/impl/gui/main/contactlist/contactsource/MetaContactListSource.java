@@ -9,6 +9,8 @@ package net.java.sip.communicator.impl.gui.main.contactlist.contactsource;
 import java.util.*;
 import java.util.regex.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -16,8 +18,6 @@ import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-
-import javax.swing.*;
 
 /**
  * The <tt>MetaContactListSource</tt> is an abstraction of the

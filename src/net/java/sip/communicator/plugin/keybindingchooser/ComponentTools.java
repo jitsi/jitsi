@@ -1,11 +1,10 @@
 package net.java.sip.communicator.plugin.keybindingchooser;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
+import javax.swing.border.*;
 
 /**
  * Common tools for Swing gui components.

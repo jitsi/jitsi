@@ -8,12 +8,12 @@ package net.java.sip.communicator.impl.argdelegation;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.launchutils.*;
+
+import org.osgi.framework.*;
 
 /**
  * Implements the <tt>UriDelegationPeer</tt> interface from our argument handler

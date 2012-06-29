@@ -11,8 +11,9 @@ import java.util.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 
 import com.google.gdata.data.*;
+import com.google.gdata.data.contacts.ContactEntry;
 import com.google.gdata.data.extensions.*;
-import com.google.gdata.data.contacts.ContactEntry; //disambiguation
+//disambiguation
 
 /**
  * Google Contacts entry implementation.

@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Tests whether accaounts are uninstalled properly. It is important that

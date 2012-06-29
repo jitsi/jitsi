@@ -29,11 +29,11 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.dns.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 

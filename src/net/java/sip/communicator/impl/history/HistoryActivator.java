@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.history;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.history.*;
+
+import org.osgi.framework.*;
 
 /**
  * Invoke "Service Binder" to parse the service XML and register all services.

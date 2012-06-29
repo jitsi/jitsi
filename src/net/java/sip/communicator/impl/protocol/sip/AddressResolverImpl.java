@@ -6,13 +6,13 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.core.net.*;
+import gov.nist.javax.sip.stack.*;
+
 import java.net.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
-
-import gov.nist.core.net.*;
-import gov.nist.javax.sip.stack.*;
 
 import net.java.sip.communicator.util.*;
 

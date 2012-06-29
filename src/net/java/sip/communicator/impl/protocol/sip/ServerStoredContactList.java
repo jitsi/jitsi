@@ -6,15 +6,16 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.net.URI;
+import java.text.*;
+import java.util.*;
+
+import javax.sip.address.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-
-import javax.sip.address.*;
-import java.net.URI;
-import java.text.*;
-import java.util.*;
 
 /**
  * The parent server stored contact list used in

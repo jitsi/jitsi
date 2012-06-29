@@ -8,13 +8,15 @@ package net.java.sip.communicator.impl.protocol.msn;
 
 import java.io.*;
 import java.util.*;
+
+import javax.imageio.*;
+
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
-
-import javax.imageio.*;
 
 /**
  * Saves account avatar image. If one is already saved we set it as initial one

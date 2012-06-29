@@ -8,9 +8,9 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 
 import java.util.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 

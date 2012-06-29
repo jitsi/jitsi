@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.gui.main;
 import java.awt.*;
 import java.awt.event.*;
 
-import javax.swing.BorderFactory;
+import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.util.swing.*;

@@ -8,11 +8,12 @@ package net.java.sip.communicator.impl.googlecontacts.configform;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
-import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.impl.googlecontacts.*;
 import net.java.sip.communicator.service.googlecontacts.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The page with hostname/port/encryption fields

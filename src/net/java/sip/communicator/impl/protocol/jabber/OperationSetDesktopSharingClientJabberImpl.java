@@ -6,18 +6,19 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.awt.Dimension; // disambiguation
+import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
+import java.util.List;
+
+import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
-
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
+// disambiguation
 
 /**
  * Implements all desktop sharing client-side related functions for Jabber

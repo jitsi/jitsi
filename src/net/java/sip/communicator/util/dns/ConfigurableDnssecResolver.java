@@ -12,11 +12,11 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.xbill.DNS.*;
 

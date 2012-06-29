@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
-import net.java.sip.communicator.service.protocol.*;
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The Rss implementation of a sip-communicator account id.

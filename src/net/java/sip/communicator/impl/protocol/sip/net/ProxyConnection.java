@@ -1,11 +1,12 @@
 package net.java.sip.communicator.impl.protocol.sip.net;
 
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.PROXY_AUTO_CONFIG;
+
 import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
-import net.java.sip.communicator.util.dns.DnssecException;
-import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.*;
+import net.java.sip.communicator.util.dns.*;
 
 /**
  * Abstract class for the determining the address for the SIP proxy.

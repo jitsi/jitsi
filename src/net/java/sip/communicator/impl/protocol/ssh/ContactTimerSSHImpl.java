@@ -11,9 +11,10 @@
 
 package net.java.sip.communicator.impl.protocol.ssh;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import net.java.sip.communicator.util.*;
 
 /**

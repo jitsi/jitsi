@@ -8,11 +8,11 @@ package net.java.sip.communicator.impl.credentialsstorage;
 
 import java.util.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**

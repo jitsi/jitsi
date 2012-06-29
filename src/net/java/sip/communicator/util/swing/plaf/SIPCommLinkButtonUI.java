@@ -6,13 +6,13 @@
  */
 package net.java.sip.communicator.util.swing.plaf;
 
-import net.java.sip.communicator.util.swing.*;
-
 import java.awt.*;
 
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
+
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The SIPCommLinkButtonUI implementation.

@@ -9,10 +9,10 @@ package net.java.sip.communicator.plugin.skinresourcepack;
 import java.net.*;
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The skin resource pack.

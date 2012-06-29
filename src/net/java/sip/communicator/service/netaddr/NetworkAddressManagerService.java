@@ -6,13 +6,13 @@
  */
 package net.java.sip.communicator.service.netaddr;
 
-import java.net.*;
 import java.io.*;
+import java.net.*;
+
+import net.java.sip.communicator.service.netaddr.event.*;
 
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
-
-import net.java.sip.communicator.service.netaddr.event.*;
 
 /**
  * The NetworkAddressManagerService takes care of problems such as

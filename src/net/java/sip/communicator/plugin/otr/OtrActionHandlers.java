@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.otr;
 
 import java.awt.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**

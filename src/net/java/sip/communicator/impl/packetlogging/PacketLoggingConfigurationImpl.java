@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.packetlogging;
 
 import org.jitsi.service.configuration.*;
-
 import org.jitsi.service.packetlogging.*;
 
 /**

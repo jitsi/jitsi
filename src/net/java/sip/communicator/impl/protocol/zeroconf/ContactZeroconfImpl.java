@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.zeroconf;
 
 import java.net.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 

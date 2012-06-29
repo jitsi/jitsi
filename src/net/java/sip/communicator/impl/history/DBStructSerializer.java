@@ -9,13 +9,15 @@ package net.java.sip.communicator.impl.history;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+
 import javax.xml.parsers.*;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.util.xml.XMLUtils;
+
+import org.w3c.dom.*;
+import org.xml.sax.*;
 
 /**
  *

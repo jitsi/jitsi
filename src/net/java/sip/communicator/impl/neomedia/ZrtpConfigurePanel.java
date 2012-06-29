@@ -14,9 +14,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 
 /**

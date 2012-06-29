@@ -9,11 +9,8 @@
  */
 package net.java.sip.communicator.util.swing.transparent;
 
-import java.awt.GraphicsConfiguration;
-import java.awt.Shape;
-import java.awt.Window;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.awt.*;
+import java.lang.reflect.*;
 
 import net.java.sip.communicator.util.*;
 

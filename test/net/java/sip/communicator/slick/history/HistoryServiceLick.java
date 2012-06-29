@@ -8,9 +8,10 @@ package net.java.sip.communicator.slick.history;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * This class launches the bundle of which test the history bundle. this bundle

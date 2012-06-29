@@ -8,9 +8,9 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.coin;
 
 import java.util.*;
 
-import org.jivesoftware.smack.packet.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+
+import org.jivesoftware.smack.packet.*;
 
 /**
  * State packet extension.

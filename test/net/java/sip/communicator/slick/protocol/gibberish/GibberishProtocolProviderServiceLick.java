@@ -8,8 +8,9 @@ package net.java.sip.communicator.slick.protocol.gibberish;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
+
+import org.osgi.framework.*;
 
 /**
  * Gibberish specific testing for a Gibberish Protocol Provider Service

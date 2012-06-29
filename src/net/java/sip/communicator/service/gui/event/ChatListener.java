@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.gui.event;
 
-import net.java.sip.communicator.service.gui.Chat;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * Listens to the creation and closing of <tt>Chat</tt>s.

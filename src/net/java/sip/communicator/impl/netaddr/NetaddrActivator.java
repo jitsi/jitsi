@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.packetlogging.*;
 import org.osgi.framework.*;
 

@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.service.notification;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**

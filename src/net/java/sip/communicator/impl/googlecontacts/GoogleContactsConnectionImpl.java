@@ -6,12 +6,12 @@
  */
 package net.java.sip.communicator.impl.googlecontacts;
 
+import net.java.sip.communicator.service.googlecontacts.*;
+import net.java.sip.communicator.util.*;
+
 import com.google.gdata.client.*;
 import com.google.gdata.client.contacts.*;
 import com.google.gdata.util.*;
-
-import net.java.sip.communicator.service.googlecontacts.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Google Contacts credentials to connect to the service.

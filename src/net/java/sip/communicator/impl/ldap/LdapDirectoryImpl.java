@@ -11,10 +11,9 @@ import java.util.*;
 import javax.naming.*;
 import javax.naming.directory.*;
 
-import net.java.sip.communicator.util.*;
-
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.ldap.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * An LdapDirectory stores settings for one directory server

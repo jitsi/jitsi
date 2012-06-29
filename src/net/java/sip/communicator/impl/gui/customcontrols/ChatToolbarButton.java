@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.customcontrols;
 
 import java.awt.*;
+
 import net.java.sip.communicator.util.swing.*;
 
 /**

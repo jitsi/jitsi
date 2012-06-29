@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.slick.protocol;
 
-import org.osgi.framework.*;
-
 import junit.framework.*;
+
+import org.osgi.framework.*;
 
 /**
  * The generic protocol provider SLICK implements a set of tests that any

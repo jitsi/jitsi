@@ -9,14 +9,14 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.lang.reflect.*;
 import java.util.*;
 
-import org.jivesoftware.smack.packet.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.packet.*;
 
 /**
  * Implements a Google Talk <tt>CallPeer</tt>.

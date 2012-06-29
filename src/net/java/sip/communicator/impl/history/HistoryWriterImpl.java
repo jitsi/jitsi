@@ -10,11 +10,11 @@ import java.io.*;
 import java.security.*;
 import java.util.*;
 
-import org.w3c.dom.*;
-
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
-import net.java.sip.communicator.util.xml.*;
+import net.java.sip.communicator.util.xml.XMLUtils;
+
+import org.w3c.dom.*;
 
 /**
  * @author Alexander Pelov

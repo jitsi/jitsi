@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists;
 
 import java.util.*;
+
 import javax.xml.namespace.*;
 
 import org.w3c.dom.*;

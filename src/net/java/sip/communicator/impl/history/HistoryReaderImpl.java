@@ -9,11 +9,11 @@ package net.java.sip.communicator.impl.history;
 import java.util.*;
 import java.util.regex.*;
 
-import org.w3c.dom.*;
-
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.history.records.*;
+
+import org.w3c.dom.*;
 
 /**
  * @author Alexander Pelov

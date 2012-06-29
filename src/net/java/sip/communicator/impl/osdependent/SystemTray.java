@@ -11,7 +11,9 @@ import java.lang.reflect.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.osdependent.TrayIcon.*;
+import net.java.sip.communicator.impl.osdependent.TrayIcon.AWTTrayIconPeer;
+import net.java.sip.communicator.impl.osdependent.TrayIcon.JdicTrayIconPeer;
+import net.java.sip.communicator.impl.osdependent.TrayIcon.TrayIconPeer;
 import net.java.sip.communicator.util.*;
 
 /**

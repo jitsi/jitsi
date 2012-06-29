@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;

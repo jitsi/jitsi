@@ -17,12 +17,12 @@ package net.java.sip.communicator.plugin.sshaccregwizz;
 import java.awt.*;
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.protocol.ssh.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>SSHAccountRegistrationWizard</tt> is an implementation of the

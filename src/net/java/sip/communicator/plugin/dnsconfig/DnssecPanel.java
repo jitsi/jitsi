@@ -15,11 +15,11 @@ import javax.swing.plaf.basic.*;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.dns.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 

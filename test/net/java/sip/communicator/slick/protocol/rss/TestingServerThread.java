@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.slick.protocol.rss;
 
-import java.net.*;
 import java.io.*;
-import java.util.*;
+import java.net.*;
 import java.text.*;
+import java.util.*;
 
 /**
  * This class represents the separate thread that a <code>TestingServer</code>

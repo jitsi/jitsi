@@ -6,13 +6,21 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap;
 
+import java.io.*;
+import java.net.*;
+import java.net.URI;
+
+import javax.net.ssl.*;
+import javax.sip.address.*;
+
 import net.java.sip.communicator.impl.protocol.sip.*;
-import net.java.sip.communicator.impl.protocol.sip.xcap.utils.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror.*;
+import net.java.sip.communicator.impl.protocol.sip.xcap.utils.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
+
 import org.apache.http.*;
 import org.apache.http.auth.*;
 import org.apache.http.client.methods.*;
@@ -23,12 +31,6 @@ import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
 import org.apache.http.params.*;
 import org.osgi.framework.*;
-
-import javax.net.ssl.*;
-import javax.sip.address.*;
-import java.io.*;
-import java.net.URI;
-import java.net.*;
 
 /**
  * Base HTTP XCAP client implementation.

@@ -6,15 +6,16 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.util.*;
+import java.util.concurrent.*;
+
 import net.java.sip.communicator.util.*;
+
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
 import org.xmpp.jnodes.smack.*;
-
-import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * Search for jingle nodes.

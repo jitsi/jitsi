@@ -16,7 +16,8 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.BinaryDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
 import net.java.sip.communicator.util.*;
 
 /**

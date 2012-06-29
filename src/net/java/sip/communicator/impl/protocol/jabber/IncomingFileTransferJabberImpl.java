@@ -8,9 +8,9 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.io.*;
 
-import org.jivesoftware.smackx.filetransfer.*;
-
 import net.java.sip.communicator.service.protocol.*;
+
+import org.jivesoftware.smackx.filetransfer.*;
 
 /**
  * The Jabber protocol extension of the <tt>AbstractFileTransfer</tt>.

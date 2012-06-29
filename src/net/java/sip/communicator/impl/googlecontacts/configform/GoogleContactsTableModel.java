@@ -10,8 +10,8 @@ import java.util.*;
 
 import javax.swing.table.*;
 
-import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.impl.googlecontacts.*;
+import net.java.sip.communicator.service.googlecontacts.*;
 
 
 /**

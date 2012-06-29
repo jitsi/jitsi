@@ -9,7 +9,7 @@ package net.java.sip.communicator.service.protocol;
 import java.awt.*;
 import java.awt.event.*;
 
-import net.java.sip.communicator.service.protocol.event.RemoteControlListener;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * Represents an <tt>OperationSet</tt> giving access to desktop sharing

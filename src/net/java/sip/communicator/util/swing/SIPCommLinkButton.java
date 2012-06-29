@@ -6,12 +6,12 @@
  */
 package net.java.sip.communicator.util.swing;
 
-import net.java.sip.communicator.util.swing.plaf.*;
-
 import java.awt.*;
 import java.net.*;
 
 import javax.swing.*;
+
+import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
  * A button which text is a link. The button looks like a link.

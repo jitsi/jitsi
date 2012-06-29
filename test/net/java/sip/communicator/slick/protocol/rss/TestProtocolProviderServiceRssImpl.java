@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.slick.protocol.rss;
 
+import java.util.*;
+
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import java.util.*;
 
 /**
  * This class performs testing on protocol provider methods. It verifies that

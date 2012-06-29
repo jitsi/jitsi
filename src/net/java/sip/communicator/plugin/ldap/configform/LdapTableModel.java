@@ -8,8 +8,8 @@ package net.java.sip.communicator.plugin.ldap.configform;
 
 import javax.swing.table.*;
 
-import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.plugin.ldap.*;
+import net.java.sip.communicator.service.ldap.*;
 
 /**
  * A table model suitable for the directories list in

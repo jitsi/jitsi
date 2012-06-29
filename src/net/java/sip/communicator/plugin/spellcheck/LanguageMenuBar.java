@@ -6,9 +6,8 @@
 package net.java.sip.communicator.plugin.spellcheck;
 
 import java.awt.*;
-import java.awt.image.*;
 import java.awt.event.*;
-
+import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 
@@ -20,7 +19,7 @@ import net.java.sip.communicator.plugin.spellcheck.Parameters.Locale;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.SwingWorker;

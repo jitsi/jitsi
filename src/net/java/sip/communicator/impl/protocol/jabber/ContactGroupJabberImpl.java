@@ -8,9 +8,9 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.*;
-
 import net.java.sip.communicator.service.protocol.*;
+
+import org.jivesoftware.smack.*;
 
 /**
  * The Jabber implementation of the ContactGroup interface. Instances of this class

@@ -19,15 +19,16 @@ import javax.swing.undo.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
+import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+
+import org.jitsi.service.configuration.*;
 
 /**
  * The <tt>ChatWritePanel</tt> is the panel, where user writes her messages.

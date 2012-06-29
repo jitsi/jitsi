@@ -7,15 +7,16 @@
 package net.java.sip.communicator.slick.protocol.sip;
 
 import gov.nist.javax.sip.address.*;
+
+import java.net.*;
+import java.util.*;
+
 import junit.framework.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
-
-import java.net.URI;
-import java.util.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Testing of the user and account info. Tests for reading, adding, removing,

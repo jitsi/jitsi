@@ -6,16 +6,20 @@
  */
 package net.java.sip.communicator.plugin.ldap.configform;
 
-import java.util.*;
-import java.util.List; //disambiguation
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
 
-import net.java.sip.communicator.util.swing.*;
-import net.java.sip.communicator.service.ldap.*;
-import net.java.sip.communicator.service.ldap.LdapConstants.*;
 import net.java.sip.communicator.plugin.ldap.*;
+import net.java.sip.communicator.service.ldap.*;
+import net.java.sip.communicator.service.ldap.LdapConstants.Auth;
+import net.java.sip.communicator.service.ldap.LdapConstants.Encryption;
+import net.java.sip.communicator.service.ldap.LdapConstants.Scope;
+import net.java.sip.communicator.util.swing.*;
+//disambiguation
 
 /**
  * The page with hostname/port/encryption fields

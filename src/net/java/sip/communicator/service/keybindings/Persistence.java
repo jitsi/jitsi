@@ -1,11 +1,10 @@
 package net.java.sip.communicator.service.keybindings;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
-import java.text.ParseException;
 
-import javax.swing.InputMap;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 
 /**
  * Convenience methods providing a quick means of loading and saving

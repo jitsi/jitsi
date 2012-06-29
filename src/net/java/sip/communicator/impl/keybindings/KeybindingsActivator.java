@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.keybindings;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 

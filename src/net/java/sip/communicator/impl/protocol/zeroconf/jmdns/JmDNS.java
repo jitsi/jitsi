@@ -7,6 +7,7 @@ package net.java.sip.communicator.impl.protocol.zeroconf.jmdns;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
 import net.java.sip.communicator.util.*;
 
 // REMIND: multiple IP addresses

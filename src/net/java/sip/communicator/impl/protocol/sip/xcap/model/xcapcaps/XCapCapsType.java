@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps;
 
 import java.util.*;
+
 import org.w3c.dom.*;
 
 /**

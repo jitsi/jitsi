@@ -1,14 +1,15 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive;
 
+import java.util.*;
+
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-
-import java.util.*;
 
 /**
  * XEP-0199: XMPP Ping. Tracks received packets and if for some interval

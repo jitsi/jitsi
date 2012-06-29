@@ -6,12 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
-import com.sun.syndication.feed.synd.*;
+import java.text.*;
+import java.util.*;
 
 import net.java.sip.communicator.util.*;
 
-import java.text.*;
-import java.util.*;
+import com.sun.syndication.feed.synd.*;
 
 /**
  * The <code>RssItemKey</code> is used to encapsulate information pertaining to

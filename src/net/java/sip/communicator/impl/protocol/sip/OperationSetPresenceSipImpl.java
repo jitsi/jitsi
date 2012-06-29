@@ -6,19 +6,19 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.net.*;
+import java.net.URI;
 import java.text.*;
 import java.util.*;
 
 import javax.sip.*;
-import javax.sip.address.Address;
+import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.xml.*;
+import net.java.sip.communicator.util.xml.XMLUtils;
 
 import org.w3c.dom.*;
 

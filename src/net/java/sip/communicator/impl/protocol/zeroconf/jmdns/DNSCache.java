@@ -4,6 +4,7 @@
 package net.java.sip.communicator.impl.protocol.zeroconf.jmdns;
 
 import java.util.*;
+
 import net.java.sip.communicator.util.*;
 
 /**

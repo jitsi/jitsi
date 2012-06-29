@@ -8,14 +8,14 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.browserlauncher.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
+import org.osgi.framework.*;
 
 /**
  * Registers the <tt>JabberAccountRegistrationWizard</tt> in the UI Service.

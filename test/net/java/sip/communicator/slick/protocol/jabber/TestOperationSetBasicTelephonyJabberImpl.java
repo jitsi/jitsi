@@ -6,12 +6,13 @@
  */
 package net.java.sip.communicator.slick.protocol.jabber;
 
-import junit.framework.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.protocol.*;
-import java.text.ParseException;
-import net.java.sip.communicator.service.protocol.event.*;
+import java.text.*;
 import java.util.*;
+
+import junit.framework.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Tests Basic telephony functionality by making one provider call the other.

@@ -7,7 +7,8 @@
 package net.java.sip.communicator.service.filehistory;
 
 import java.io.*;
-import net.java.sip.communicator.service.protocol.Contact;
+
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Structure used for encapsulating data when writing or reading

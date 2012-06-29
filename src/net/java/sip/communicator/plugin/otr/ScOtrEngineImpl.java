@@ -10,13 +10,13 @@ import java.net.*;
 import java.security.*;
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * @author George Politis

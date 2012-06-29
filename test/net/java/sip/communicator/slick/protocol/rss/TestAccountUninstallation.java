@@ -7,8 +7,9 @@
 package net.java.sip.communicator.slick.protocol.rss;
 
 import junit.framework.*;
-import org.osgi.framework.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * Tests whether accounts are uninstalled properly. It is important that

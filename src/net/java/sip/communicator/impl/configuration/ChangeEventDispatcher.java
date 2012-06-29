@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.impl.configuration;
 
-import java.util.*;
 import java.beans.*;
+import java.util.*;
 
 import org.jitsi.service.configuration.*;
 

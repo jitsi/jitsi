@@ -10,7 +10,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 
 import org.jivesoftware.smack.provider.*;
-import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.*;
 
 /**
  * An implementation of a Jingle IQ provider that parses incoming Jingle IQs.

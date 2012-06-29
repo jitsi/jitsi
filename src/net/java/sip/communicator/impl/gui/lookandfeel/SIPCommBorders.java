@@ -6,9 +6,9 @@
 package net.java.sip.communicator.impl.gui.lookandfeel;
 
 import java.awt.*;
+
 import javax.swing.border.*;
 import javax.swing.plaf.*;
-import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 

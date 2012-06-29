@@ -8,9 +8,9 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.whiteboard;
 
 
-import java.awt.Color;
+import java.awt.*;
 
-import net.java.sip.communicator.service.protocol.whiteboardobjects.WhiteboardObject;
+import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 /**
  * WhiteboardObjectJabberImpl

@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.globalshortcut;
 
 import java.awt.*;
 import java.util.*;
-import java.util.List; // disambiguation
+import java.util.List;
 
 import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.keybindings.*;
@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+// disambiguation
 
 /**
  * Shortcut for call (take the call, hang up, ...).
@@ -81,7 +82,6 @@ public class CallShortcut
     {
         AWTKeyStroke keystroke = evt.getKeyStroke();
         GlobalKeybindingSet set = keybindingsService.getGlobalBindings();
-        Call choosenCall = null;
 
         for(Map.Entry<String, List<AWTKeyStroke>> entry :
             set.getBindings().entrySet())

@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.slick.protocol.yahoo;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.slick.protocol.generic.*;
+
+import org.osgi.framework.*;
 
 /**
  * Contains fields and methods used by most or all tests in the yahoo slick.

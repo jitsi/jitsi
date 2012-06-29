@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.notification;
 
-import java.util.Map;
+import java.util.*;
 
 /**
  * Object to cache fired notifications before all handler implementations are

@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification;
 
+import net.java.sip.communicator.util.*;
+
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.xmlpull.v1.XmlPullParser;
-
-import net.java.sip.communicator.util.*;
+import org.xmlpull.v1.*;
 
 /**
  * A straightforward implementation of the IQProvider. Parses custom IQ packets.

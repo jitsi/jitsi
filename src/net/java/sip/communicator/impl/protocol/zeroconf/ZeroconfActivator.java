@@ -7,9 +7,11 @@
 package net.java.sip.communicator.impl.protocol.zeroconf;
 
 import java.util.*;
-import org.osgi.framework.*;
-import net.java.sip.communicator.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Loads the Zeroconf provider factory and registers its services in the OSGI

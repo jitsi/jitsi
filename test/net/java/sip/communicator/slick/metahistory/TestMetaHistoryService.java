@@ -6,23 +6,21 @@
  */
 package net.java.sip.communicator.slick.metahistory;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
-import net.java.sip.communicator.service.callhistory.CallHistoryService;
-import net.java.sip.communicator.service.callhistory.CallPeerRecord;
-import net.java.sip.communicator.service.callhistory.CallRecord;
+import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.filehistory.FileHistoryService;
-import net.java.sip.communicator.service.filehistory.FileRecord;
+import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Tests file message history.

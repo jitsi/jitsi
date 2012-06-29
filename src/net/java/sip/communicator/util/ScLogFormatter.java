@@ -7,9 +7,9 @@
 package net.java.sip.communicator.util;
 
 import java.io.*;
-import java.util.logging.*;
-import java.util.*;
 import java.text.*;
+import java.util.*;
+import java.util.logging.*;
 
 /**
  * Print a brief summary of the LogRecord in a human readable. The summary will

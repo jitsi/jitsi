@@ -6,14 +6,19 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
-import static net.java.sip.communicator.util.StringUtils.*;
-import static net.java.sip.communicator.util.xml.XMLUtils.*;
-import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.*;
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules.*;
-import org.w3c.dom.*;
+import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAny;
+import static net.java.sip.communicator.util.StringUtils.isNullOrEmpty;
+import static net.java.sip.communicator.util.xml.XMLUtils.createDocument;
+import static net.java.sip.communicator.util.xml.XMLUtils.createXml;
+import static net.java.sip.communicator.util.xml.XMLUtils.getNamespaceUri;
+import static net.java.sip.communicator.util.xml.XMLUtils.isStandartXmlNamespace;
 
 import java.util.*;
+
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules.*;
+
+import org.w3c.dom.*;
 
 /**
  * Utility class that helps to converts common-policy xml to the object model

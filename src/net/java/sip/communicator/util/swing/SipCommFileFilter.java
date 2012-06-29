@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.util.swing;
 
-import java.io.File;
+import java.io.*;
+
 import javax.swing.filechooser.FileFilter;
-import java.io.FilenameFilter;
 
 
 /**

@@ -4,16 +4,18 @@ import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.List; // disambiguation
+import java.util.List;
 
 import javax.swing.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.provisioning.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
+// disambiguation
 
 /**
  * Provisioning service.

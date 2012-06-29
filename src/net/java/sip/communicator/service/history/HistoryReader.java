@@ -7,8 +7,9 @@
 package net.java.sip.communicator.service.history;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.history.event.*;
-import net.java.sip.communicator.service.history.records.HistoryRecord;
+import net.java.sip.communicator.service.history.records.*;
 
 /**
  * Used to serach over the history records

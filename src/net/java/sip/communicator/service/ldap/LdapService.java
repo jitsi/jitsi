@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.ldap;
 
-import net.java.sip.communicator.service.contactsource.ContactSourceService;
+import net.java.sip.communicator.service.contactsource.*;
 
 /**
  * The Ldap Service allows other modules to query an LDAP server

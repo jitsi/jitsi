@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists;
 
-import org.w3c.dom.*;
+import java.util.*;
 
 import javax.xml.namespace.*;
-import java.util.*;
+
+import org.w3c.dom.*;
 
 /**
  * The XCAP list element.

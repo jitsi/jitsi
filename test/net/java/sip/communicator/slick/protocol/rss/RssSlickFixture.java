@@ -7,10 +7,11 @@
 package net.java.sip.communicator.slick.protocol.rss;
 
 import java.util.*;
-import junit.framework.*;
-import org.osgi.framework.*;
 
+import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * Contains constants and methods used by almost all of our tests.

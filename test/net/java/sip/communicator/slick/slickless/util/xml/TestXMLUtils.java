@@ -7,12 +7,14 @@
 package net.java.sip.communicator.slick.slickless.util.xml;
 
 import java.io.*;
+
 import javax.xml.parsers.*;
 import javax.xml.transform.stream.*;
 
-import org.w3c.dom.*;
 import junit.framework.*;
 import net.java.sip.communicator.util.xml.*;
+
+import org.w3c.dom.*;
 
 
 /**

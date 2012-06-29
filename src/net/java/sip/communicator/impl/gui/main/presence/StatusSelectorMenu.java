@@ -13,10 +13,11 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.configuration.*;
 
 /**
  * A parent class for all status selector boxes.

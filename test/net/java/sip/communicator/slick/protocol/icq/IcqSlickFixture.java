@@ -8,10 +8,11 @@ package net.java.sip.communicator.slick.protocol.icq;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+
+import org.osgi.framework.*;
 
 /**
  * Provides utility code, such as locating and obtaining references towards

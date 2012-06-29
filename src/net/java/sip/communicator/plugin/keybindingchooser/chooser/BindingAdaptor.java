@@ -8,7 +8,7 @@ package net.java.sip.communicator.plugin.keybindingchooser.chooser;
 
 import java.awt.event.*;
 
-import javax.swing.KeyStroke;
+import javax.swing.*;
 
 /**
  * Adaptor that uses keyboard input to set the selected shortcut field of a

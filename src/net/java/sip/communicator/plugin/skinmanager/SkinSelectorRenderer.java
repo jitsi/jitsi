@@ -13,7 +13,7 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.swing.TransparentPanel;
+import net.java.sip.communicator.util.swing.*;
 
 import org.osgi.framework.*;
 

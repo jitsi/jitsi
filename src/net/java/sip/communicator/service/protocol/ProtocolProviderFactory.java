@@ -9,10 +9,10 @@ package net.java.sip.communicator.service.protocol;
 import java.lang.reflect.*;
 import java.util.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**

@@ -8,9 +8,10 @@ package net.java.sip.communicator.slick.msghistory;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  *

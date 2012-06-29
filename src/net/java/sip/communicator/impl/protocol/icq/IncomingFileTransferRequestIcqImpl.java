@@ -6,14 +6,13 @@
  */
 package net.java.sip.communicator.impl.protocol.icq;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.FileTransfer;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-
 import net.kano.joscar.rvcmd.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.ft.*;
 

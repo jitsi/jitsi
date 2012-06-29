@@ -8,11 +8,12 @@ package net.java.sip.communicator.slick.protocol.jabber;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.certificate.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.jitsi.service.configuration.*;
+import org.osgi.framework.*;
 
 /**
  * Test for account installation.

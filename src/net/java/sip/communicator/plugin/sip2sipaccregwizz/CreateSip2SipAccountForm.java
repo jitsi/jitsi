@@ -14,12 +14,12 @@ import java.net.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import org.json.*;
-
 import net.java.sip.communicator.plugin.ippiaccregwizz.*;
 import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.json.*;
 
 /**
  * @author Yana Stamcheva

@@ -9,7 +9,6 @@ package net.java.sip.communicator.slick.credentialsstorage;
 import java.util.*;
 
 import junit.framework.*;
-
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.util.*;
 

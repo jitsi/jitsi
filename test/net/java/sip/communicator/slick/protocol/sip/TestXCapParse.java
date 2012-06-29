@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
-import junit.framework.*;
+import javax.xml.namespace.*;
 
+import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules.*;
@@ -15,9 +16,8 @@ import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror.*;
 import net.java.sip.communicator.util.xml.*;
-import org.w3c.dom.*;
 
-import javax.xml.namespace.*;
+import org.w3c.dom.*;
 
 /**
  * Contains tests of parsing xcap-caps, resource-lists, pres-content,

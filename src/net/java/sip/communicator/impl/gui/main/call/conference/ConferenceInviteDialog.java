@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.gui.main.call.conference;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List; // disambiguation
+import java.util.List;
 
 import javax.swing.*;
 
@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
+// disambiguation
 
 /**
  * The invite dialog is the one shown when the user clicks on the conference

@@ -9,6 +9,7 @@ package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.util.*;

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.otr;
 
 import java.util.*;
+
 import net.java.otr4j.session.*;
 
 /**

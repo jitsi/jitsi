@@ -8,9 +8,9 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * The IRC protocol provider factory creates instances of the IRC protocol

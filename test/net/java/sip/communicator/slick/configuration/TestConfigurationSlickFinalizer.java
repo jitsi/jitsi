@@ -9,8 +9,8 @@ package net.java.sip.communicator.slick.configuration;
 import java.util.*;
 
 import junit.framework.*;
-import org.jitsi.service.configuration.*;
 
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**

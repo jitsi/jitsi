@@ -14,10 +14,10 @@ import java.util.*;
 
 import javax.imageio.*;
 
-import com.ctreber.aclib.image.ico.*;
-
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import com.ctreber.aclib.image.ico.*;
 
 /**
  * A class that implements threaded retrieval for rss images. We launch from

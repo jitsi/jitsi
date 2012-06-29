@@ -1020,8 +1020,6 @@
         <jar compress="false" destfile="${bundles.dest}/fileaccess.jar"
             manifest="${src}/net/java/sip/communicator/impl/fileaccess/fileaccess.manifest.mf">
 
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/fileaccess"
-                prefix="net/java/sip/communicator/service/fileaccess"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/fileaccess"
                 prefix="net/java/sip/communicator/impl/fileaccess" />
         </jar>

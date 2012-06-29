@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification;
 
-import org.jivesoftware.smack.packet.*;
 import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.packet.*;
 
 /**
  * A straightforward IQ extension. A <tt>NewMailNotification</tt> object is

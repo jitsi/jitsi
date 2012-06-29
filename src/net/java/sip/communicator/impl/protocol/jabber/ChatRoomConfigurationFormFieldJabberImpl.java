@@ -8,9 +8,9 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smackx.*;
-
 import net.java.sip.communicator.service.protocol.*;
+
+import org.jivesoftware.smackx.*;
 
 /**
  * The Jabber protocol implementation of the

@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.msn;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;

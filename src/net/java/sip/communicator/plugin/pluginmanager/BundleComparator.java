@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.pluginmanager;
 
 import java.util.*;
+
 import org.osgi.framework.*;
 
 /**

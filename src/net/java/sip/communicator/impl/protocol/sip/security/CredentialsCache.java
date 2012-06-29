@@ -7,7 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip.security;
 
 import java.util.*;
-import java.util.Map.*;
+import java.util.Map.Entry;
 
 import javax.sip.header.*;
 

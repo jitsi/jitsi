@@ -7,13 +7,12 @@
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
-
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.JPopupMenu.*;
+import javax.swing.JPopupMenu.Separator;
 import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -21,10 +20,15 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.MobilePhoneDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;

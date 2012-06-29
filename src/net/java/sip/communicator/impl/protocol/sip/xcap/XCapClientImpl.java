@@ -6,6 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap;
 
+import java.io.*;
+import java.net.URI;
+
+import javax.sip.address.*;
+
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy.*;
@@ -13,11 +18,8 @@ import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps.*;
 import net.java.sip.communicator.util.*;
-import org.apache.http.*;
 
-import javax.sip.address.*;
-import java.io.*;
-import java.net.URI;
+import org.apache.http.*;
 
 /**
  * XCAP client implementation.

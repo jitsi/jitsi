@@ -12,8 +12,9 @@
 
 package net.java.sip.communicator.impl.protocol.ssh;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
-import java.util.Map;
 
 /**
  * The SSH implementation of a sip-communicator account id.

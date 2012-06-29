@@ -17,7 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.xml.*;
+import net.java.sip.communicator.util.xml.XMLUtils;
 
 import org.w3c.dom.*;
 

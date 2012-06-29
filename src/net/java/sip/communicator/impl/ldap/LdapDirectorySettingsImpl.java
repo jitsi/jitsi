@@ -8,9 +8,10 @@ package net.java.sip.communicator.impl.ldap;
 
 import java.util.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.ldap.*;
+
+import org.jitsi.service.configuration.*;
 
 /**
  * @author Sebastien Mazy

@@ -2,9 +2,10 @@ package net.java.sip.communicator.slick.protocol.icq;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * @author Emil Ivov

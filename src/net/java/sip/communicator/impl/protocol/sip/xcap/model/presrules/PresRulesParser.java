@@ -6,9 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules;
 
-import static net.java.sip.communicator.util.xml.XMLUtils.*;
-import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.*;
+import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAny;
+import static net.java.sip.communicator.util.xml.XMLUtils.getNamespaceUri;
+import static net.java.sip.communicator.util.xml.XMLUtils.hasChildElements;
+import static net.java.sip.communicator.util.xml.XMLUtils.isStandartXmlNamespace;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy.*;
+
 import org.w3c.dom.*;
 
 /**

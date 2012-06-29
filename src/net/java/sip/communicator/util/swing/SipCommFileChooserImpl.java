@@ -8,6 +8,7 @@ package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.io.*;
+
 import javax.swing.*;
 
 /**

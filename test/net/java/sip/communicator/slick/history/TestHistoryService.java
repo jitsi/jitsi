@@ -8,10 +8,11 @@ package net.java.sip.communicator.slick.history;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
+
+import org.osgi.framework.*;
 
 public class TestHistoryService extends TestCase {
 

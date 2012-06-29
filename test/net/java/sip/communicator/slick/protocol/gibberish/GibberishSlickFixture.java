@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.slick.protocol.gibberish;
 
-import org.osgi.framework.*;
+import java.util.*;
+
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import java.util.Map;
-import java.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Contains fields and methods used by most or all tests in the Gibberish slick.

@@ -7,14 +7,14 @@
 package net.java.sip.communicator.slick.protocol.icq;
 
 import java.util.*;
+
 import junit.framework.*;
-
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.slick.protocol.generic.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Implementation for generic file transfer.

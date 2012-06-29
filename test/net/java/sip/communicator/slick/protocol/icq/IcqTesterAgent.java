@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.slick.protocol.icq;
 
-import java.beans.PropertyChangeEvent;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 

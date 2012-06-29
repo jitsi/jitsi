@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.slick.protocol.rss;
 
-import java.net.*;
 import java.io.*;
+import java.net.*;
 
 /**
  * This classed is used in the automatic testing of the RSS protocol. It acts as

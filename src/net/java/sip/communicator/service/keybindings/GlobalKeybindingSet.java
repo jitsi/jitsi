@@ -6,9 +6,10 @@
  */
 package net.java.sip.communicator.service.keybindings;
 
-import java.util.*;
-import java.util.List; //disambiguation
 import java.awt.*;
+import java.util.*;
+import java.util.List;
+//disambiguation
 
 /**
  * Global keybinding set interface.

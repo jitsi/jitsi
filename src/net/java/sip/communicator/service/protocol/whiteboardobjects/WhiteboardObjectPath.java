@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol.whiteboardobjects;
 
-import java.util.List;
+import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 

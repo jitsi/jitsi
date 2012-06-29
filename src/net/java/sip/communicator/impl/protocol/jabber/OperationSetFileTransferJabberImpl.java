@@ -22,8 +22,8 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jivesoftware.smackx.filetransfer.*;
-import org.jivesoftware.smackx.filetransfer.FileTransfer.*;
 import org.jivesoftware.smackx.packet.*;
 
 /**

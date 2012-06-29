@@ -7,6 +7,7 @@ package net.java.sip.communicator.plugin.chatconfig.replacement;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -14,11 +15,10 @@ import javax.swing.table.*;
 
 import net.java.sip.communicator.impl.replacement.smiley.*;
 import net.java.sip.communicator.plugin.chatconfig.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.swing.*;
 
-import java.util.*;
+import org.jitsi.service.configuration.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added in the chat configuration

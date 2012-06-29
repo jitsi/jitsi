@@ -5,7 +5,7 @@
  */
 package net.java.sip.communicator.plugin.spellcheck;
 
-import java.text.BreakIterator;
+import java.text.*;
 
 /**
  * Immutable representation of a word in the context of a document, bundling the

@@ -14,7 +14,7 @@ package net.java.sip.communicator.plugin.sshaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.*;
 
 import javax.swing.*;
 import javax.swing.event.*;

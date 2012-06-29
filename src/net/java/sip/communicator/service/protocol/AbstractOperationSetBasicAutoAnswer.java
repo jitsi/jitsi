@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-
-import java.util.*;
 
 /**
  * An Abstract Operation Set defining option to unconditionally auto answer

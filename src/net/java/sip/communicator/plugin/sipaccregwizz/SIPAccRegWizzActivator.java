@@ -7,14 +7,14 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.certificate.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
+import org.osgi.framework.*;
 
 /**
  * Registers the <tt>SIPAccountRegistrationWizard</tt> in the UI Service.

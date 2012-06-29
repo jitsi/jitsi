@@ -12,7 +12,6 @@ import java.io.*;
 import javax.imageio.*;
 
 import net.java.sip.communicator.impl.gui.*;
-
 import net.java.sip.communicator.util.*;
 
 /**

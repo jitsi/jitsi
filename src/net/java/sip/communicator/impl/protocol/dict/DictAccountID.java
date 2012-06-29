@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.dict;
 
-import net.java.sip.communicator.service.protocol.*;
+import java.util.*;
 
-import java.util.Map;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The Dict implementation of a sip-communicator account id.

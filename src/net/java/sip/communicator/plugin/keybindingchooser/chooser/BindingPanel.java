@@ -8,9 +8,7 @@ package net.java.sip.communicator.plugin.keybindingchooser.chooser;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;

@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules.*;
-import org.w3c.dom.*;
-
 import java.util.*;
+
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules.*;
+
+import org.w3c.dom.*;
 
 /**
  * The Authorization Rules transformations element.

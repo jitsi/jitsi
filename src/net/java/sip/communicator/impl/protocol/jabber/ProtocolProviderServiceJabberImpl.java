@@ -12,35 +12,35 @@ import java.security.*;
 import java.security.cert.*;
 import java.text.*;
 import java.util.*;
+
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
+import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.dns.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
-import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
-import net.java.sip.communicator.service.certificate.*;
-import org.jitsi.service.configuration.*;
 
+import org.jitsi.service.configuration.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
-
 import org.osgi.framework.*;
 import org.xmpp.jnodes.smack.*;
 

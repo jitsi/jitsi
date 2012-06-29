@@ -7,14 +7,15 @@
 
 package net.java.sip.communicator.impl.protocol.jabber.extensions.whiteboard;
 
-import net.java.sip.communicator.util.*;
 import java.io.*;
-import javax.xml.parsers.*;
-import net.java.sip.communicator.util.Base64;
-import org.w3c.dom.*;
 
-import net.java.sip.communicator.service.protocol.WhiteboardPoint;
+import javax.xml.parsers.*;
+
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
+import net.java.sip.communicator.util.*;
+
+import org.w3c.dom.*;
 
 /**
  *  WhiteboardObjectImageJabberImpl

@@ -8,12 +8,12 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.*;
 
+import javax.swing.*;
+import javax.swing.plaf.*;
+
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.plaf.*;
-
-import javax.swing.*;
-import javax.swing.plaf.*;
 
 /**
  * The <tt>SearchTextFieldUI</tt> is the one responsible for the search field

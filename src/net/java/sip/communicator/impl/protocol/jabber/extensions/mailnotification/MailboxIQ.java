@@ -8,8 +8,9 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotificati
 
 import java.util.*;
 
-import org.jivesoftware.smack.packet.*;
 import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.packet.*;
 
 /**
  * A straightforward extension of the IQ. A Mailbox object is created via the

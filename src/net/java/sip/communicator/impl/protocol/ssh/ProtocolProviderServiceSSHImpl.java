@@ -15,10 +15,10 @@ import java.io.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.service.gui.*;
 
 import org.osgi.framework.*;
 

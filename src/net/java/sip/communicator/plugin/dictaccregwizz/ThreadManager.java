@@ -8,9 +8,8 @@ package net.java.sip.communicator.plugin.dictaccregwizz;
 
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
-
 import net.java.dict4j.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Class manager the thread called for searching the strategies' list

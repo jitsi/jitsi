@@ -11,9 +11,9 @@ import java.security.*;
 
 import javax.xml.parsers.*;
 
-import org.w3c.dom.*;
-
 import net.java.sip.communicator.util.*;
+
+import org.w3c.dom.*;
 
 /**
  * The <tt>ThumbnailElement</tt> represents a "thumbnail" XML element, that is

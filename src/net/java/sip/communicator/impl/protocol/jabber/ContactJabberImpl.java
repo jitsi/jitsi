@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import org.jivesoftware.smack.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
+
+import org.jivesoftware.smack.*;
 
 /**
  * The Jabber implementation of the service.protocol.Contact interface.

@@ -8,14 +8,14 @@ package net.java.sip.communicator.impl.ldap;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.service.certificate.CertificateService;
-import org.jitsi.service.configuration.*;
-import net.java.sip.communicator.service.contactsource.ContactSourceService;
+import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
+import org.osgi.framework.*;
 
 /**
  * The LDAP service allows other modules to query an LDAP server.

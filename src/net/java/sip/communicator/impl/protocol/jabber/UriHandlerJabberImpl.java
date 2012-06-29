@@ -8,13 +8,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 import java.util.regex.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The jabber implementation of the URI handler. This class handles xmpp URIs by

@@ -6,10 +6,12 @@
  */
 package net.java.sip.communicator.slick.protocol.rss;
 
-import org.osgi.framework.*;
-import net.java.sip.communicator.service.protocol.*;
-import junit.framework.*;
 import java.util.*;
+
+import junit.framework.*;
+import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * Installs a test account and verifies it is available after installation.

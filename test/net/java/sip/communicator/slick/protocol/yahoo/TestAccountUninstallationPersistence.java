@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.slick.protocol.yahoo;
 
-import org.osgi.framework.*;
 import junit.framework.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.jitsi.service.configuration.*;
+import org.osgi.framework.*;
 
 /**
  * Contains tests verifying persistence of account uninstallation. In other

@@ -3,9 +3,10 @@ package net.java.sip.communicator.slick.runner;
 import java.io.*;
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Detects and runs all Service Implementation Compatibility Kits (SLICKs)inside

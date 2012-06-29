@@ -6,7 +6,7 @@
 package net.java.sip.communicator.impl.protocol.icq;
 
 import java.util.*;
-import java.util.Map.*;
+import java.util.Map.Entry;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;

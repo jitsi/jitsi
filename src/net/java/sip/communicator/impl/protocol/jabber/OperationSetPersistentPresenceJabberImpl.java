@@ -16,8 +16,9 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.StringUtils; // disambiguation
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.*;
+// disambiguation
 
 /**
  * The Jabber implementation of a Persistent Presence Operation set. This class

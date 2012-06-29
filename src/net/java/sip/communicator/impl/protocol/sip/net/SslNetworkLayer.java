@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.net;
 
+import gov.nist.core.net.*;
+
 import java.io.*;
 import java.net.*;
 import java.security.*;
@@ -13,14 +15,12 @@ import java.util.*;
 
 import javax.net.ssl.*;
 
-import gov.nist.core.net.*;
-
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.certificate.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**

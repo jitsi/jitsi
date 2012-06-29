@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
+import net.java.sip.communicator.util.*;
+
 import org.w3c.dom.*;
-import net.java.sip.communicator.util.*;      
 
 /**
  * The Authorization Rules one element.

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.util.*;
+
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smackx.*;

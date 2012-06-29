@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.security;
 
-import java.util.Vector;
+import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 

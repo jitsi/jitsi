@@ -8,10 +8,10 @@ package net.java.sip.communicator.impl.gui.main.login;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.GuiActivator;
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.swing.AuthenticationWindow;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * Utility class that can be used in cases where components other than the main

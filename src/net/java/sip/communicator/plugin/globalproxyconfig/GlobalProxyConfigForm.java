@@ -9,10 +9,11 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import org.jitsi.service.configuration.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.configuration.*;
 
 /**
  * Implementation of the configuration form.

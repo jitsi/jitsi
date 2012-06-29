@@ -8,8 +8,9 @@ package net.java.sip.communicator.slick.protocol.msn;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
+
+import org.osgi.framework.*;
 
 /**
  * Msn specific testing for a Msn Protocol Provider Service implementation.

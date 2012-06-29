@@ -8,13 +8,14 @@ package net.java.sip.communicator.slick.callhistory;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Tests call history.

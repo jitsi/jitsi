@@ -6,21 +6,23 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.awt.*;
+import java.awt.event.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.util.Queue;
 
 import javax.sip.*;
+import javax.sip.Dialog;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
-import javax.sip.Dialog; // disambiguation
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+// disambiguation
 
 /**
  * Implements all desktop sharing client-side related functions for SIP

@@ -6,9 +6,11 @@
  */
 package net.java.sip.communicator.impl.notification;
 
+import static net.java.sip.communicator.service.notification.LogMessageNotificationAction.ERROR_LOG_TYPE;
+import static net.java.sip.communicator.service.notification.LogMessageNotificationAction.INFO_LOG_TYPE;
+import static net.java.sip.communicator.service.notification.LogMessageNotificationAction.TRACE_LOG_TYPE;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.*;
-import static net.java.sip.communicator.service.notification.LogMessageNotificationAction.*;
 
 /**
  * An implementation of the <tt>LogMessageNotificationHandler</tt> interface.

@@ -17,12 +17,12 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.plugin.securityconfig.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 // disambiguation
 

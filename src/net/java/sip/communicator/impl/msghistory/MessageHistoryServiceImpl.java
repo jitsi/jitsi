@@ -10,7 +10,6 @@ import java.beans.*;
 import java.io.*;
 import java.util.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
@@ -22,6 +21,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 

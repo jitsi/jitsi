@@ -9,8 +9,6 @@ package net.java.sip.communicator.impl.callhistory;
 import java.io.*;
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.callhistory.event.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -21,6 +19,8 @@ import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The Call History Service stores info about the calls made.

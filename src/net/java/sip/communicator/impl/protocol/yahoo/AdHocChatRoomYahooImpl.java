@@ -9,10 +9,10 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 import java.io.*;
 import java.util.*;
 
-import ymsg.network.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import ymsg.network.*;
 
 /**
  * Represents a Yahoo ad-hoc chat room, where multiple chat users could 

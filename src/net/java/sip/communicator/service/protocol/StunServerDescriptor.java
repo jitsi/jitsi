@@ -6,10 +6,15 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.STUN_ADDRESS;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.STUN_IS_TURN_SUPPORTED;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.STUN_PASSWORD;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.STUN_PORT;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.STUN_USERNAME;
+
 import java.util.*;
 
 import net.java.sip.communicator.util.*;
-import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.*;
 
 /**
  * A <tt>StunServerDescriptor</tt> stores information necessary to create a

@@ -8,12 +8,13 @@
 package net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes;
 
 import java.awt.*;
-import java.util.*;
-
-import javax.swing.ImageIcon;
-import net.java.sip.communicator.service.protocol.WhiteboardPoint;
 import java.awt.geom.*;
+import java.util.*;
 import java.util.List;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 /**

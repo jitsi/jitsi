@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.gibberishaccregwizz;
 
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 

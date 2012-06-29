@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.neomedia;
 
+import gnu.java.zrtp.*;
+
 import java.util.*;
 
 import javax.swing.table.*;
-
-import gnu.java.zrtp.*;
 
 /**
  * @author Werner Dittmann

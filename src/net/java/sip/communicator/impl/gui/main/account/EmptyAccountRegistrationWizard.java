@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.*;
 import java.util.*;
-import java.util.Map.*;
+import java.util.Map.Entry;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.gui.*;

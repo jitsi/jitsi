@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.gibberish;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
-import java.util.Map;
 
 /**
  * The Gibberish implementation of a sip-communicator account id.

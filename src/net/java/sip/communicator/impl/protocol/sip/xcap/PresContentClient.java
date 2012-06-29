@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap;
 
-import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
-
 import java.net.*;
+
+import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
 
 /**
  * XCAP pres-content client interface.

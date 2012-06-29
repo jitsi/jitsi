@@ -8,8 +8,9 @@ package net.java.sip.communicator.slick.protocol.sip;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
+
+import org.osgi.framework.*;
 
 /**
  * SIP specific testing for a SIP Protocol Provider Service implementation.

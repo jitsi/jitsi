@@ -27,11 +27,8 @@
 
 package net.java.sip.communicator.impl.protocol.msn.mail.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 /**
  * This is a utility class providing micellaneous MIME-related functionality.

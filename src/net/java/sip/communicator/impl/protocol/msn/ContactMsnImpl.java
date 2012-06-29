@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.protocol.msn;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.msnconstants.*;
-import net.sf.jml.MsnContact;
+import net.sf.jml.*;
 
 /**
  * The Msn implementation of the service.protocol.Contact interface.

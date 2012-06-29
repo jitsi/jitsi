@@ -12,6 +12,7 @@
 package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 
 /**

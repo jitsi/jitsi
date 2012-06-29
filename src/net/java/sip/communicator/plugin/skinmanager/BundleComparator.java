@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.skinmanager;
 
 import java.util.*;
+
 import org.osgi.framework.*;
 
 /**

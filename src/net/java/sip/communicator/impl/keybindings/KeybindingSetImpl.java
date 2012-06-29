@@ -5,12 +5,12 @@
  */
 package net.java.sip.communicator.impl.keybindings;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
-import javax.swing.KeyStroke;
+import javax.swing.*;
 
-import net.java.sip.communicator.service.keybindings.KeybindingSet;
+import net.java.sip.communicator.service.keybindings.*;
 
 /**
  * Default implementation for the wrapper of keybinding sets.

@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.plugin.generalconfig;
 
-import com.sun.jna.platform.win32.*;
+import java.io.*;
+
 import net.java.sip.communicator.util.*;
 
-import java.io.*;
+import com.sun.jna.platform.win32.*;
 
 /**
  * Take care of application auto startup. Reading and writing the registry.

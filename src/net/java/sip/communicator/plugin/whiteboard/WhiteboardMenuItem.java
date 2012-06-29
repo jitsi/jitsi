@@ -7,8 +7,8 @@
 package net.java.sip.communicator.plugin.whiteboard;
 
 import java.awt.event.*;
-
 import java.util.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.service.contactlist.*;

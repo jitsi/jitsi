@@ -13,19 +13,21 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger; // disambiguation
+import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smack.util.Base64;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
 import org.xmlpull.mxp1.*;
 import org.xmlpull.v1.*;
+// disambiguation
 
 /**
  * Keeps track of entity capabilities.

@@ -7,7 +7,7 @@
 package net.java.sip.communicator.impl.protocol.icq;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.kano.joustsim.Screenname;
+import net.kano.joustsim.*;
 
 /**
  * Contains methods that would allow service users to re-request authorizations

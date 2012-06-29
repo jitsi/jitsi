@@ -9,10 +9,10 @@ import java.io.*;
 import java.net.*;
 import java.util.regex.*;
 
-import org.json.*;
-
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.*;
+
+import org.json.*;
 
 /**
  * Implements the {@link ReplacementService} to provide previews for Flickr

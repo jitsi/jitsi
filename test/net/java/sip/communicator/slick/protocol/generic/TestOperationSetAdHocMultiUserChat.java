@@ -8,10 +8,10 @@ package net.java.sip.communicator.slick.protocol.generic;
 
 import java.util.*;
 
+import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import junit.framework.*;
 
 /**
  * Generic tests suite for the ad-hoc multi-user chat functionality.

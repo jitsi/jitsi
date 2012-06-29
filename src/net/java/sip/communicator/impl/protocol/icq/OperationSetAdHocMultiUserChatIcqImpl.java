@@ -9,7 +9,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
 import net.kano.joustsim.oscar.oscar.service.chatrooms.*;
 

@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo;
 
-import org.jivesoftware.smack.packet.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+
+import org.jivesoftware.smack.packet.*;
 
 /**
  * Relay packet extension.

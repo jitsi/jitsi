@@ -8,10 +8,11 @@ package net.java.sip.communicator.impl.ldap;
 
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.ldap.event.*;
+import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
 
 /**
  * A thread-safe implementation of LdapDirectorySet, backed by a TreeMap

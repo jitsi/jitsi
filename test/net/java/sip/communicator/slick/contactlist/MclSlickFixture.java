@@ -2,10 +2,11 @@ package net.java.sip.communicator.slick.contactlist;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * Fields, commonly used by the MetaContactListSlick.

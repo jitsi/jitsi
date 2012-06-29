@@ -14,6 +14,7 @@ import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.service.sysactivity.*;
 import net.java.sip.communicator.service.sysactivity.event.*;
 import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**

@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.geolocation;
 
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.Map.*;
+import java.util.Map.Entry;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;

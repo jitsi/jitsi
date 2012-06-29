@@ -9,10 +9,10 @@ package net.java.sip.communicator.impl.provdisc.mdns;
 import java.io.*;
 import java.util.*;
 
+import javax.jmdns.*;
+
 import net.java.sip.communicator.service.provdisc.event.*;
 import net.java.sip.communicator.util.*;
-
-import javax.jmdns.*;
 
 /**
  * Class that will perform mDNS provisioning discovery.

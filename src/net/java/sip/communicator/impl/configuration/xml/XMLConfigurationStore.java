@@ -11,12 +11,13 @@ import java.util.*;
 
 import javax.xml.parsers.*;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
-
 import net.java.sip.communicator.impl.configuration.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
+import net.java.sip.communicator.util.xml.XMLUtils;
+
+import org.w3c.dom.*;
+import org.xml.sax.*;
 
 /**
  * Implements a <code>ConfigurationStore</code> which serializes property

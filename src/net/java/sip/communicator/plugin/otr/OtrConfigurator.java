@@ -6,9 +6,8 @@
  */
 package net.java.sip.communicator.plugin.otr;
 
-import org.jitsi.service.configuration.*;
-
 import org.bouncycastle.util.encoders.*;
+import org.jitsi.service.configuration.*;
 
 /**
  * A class that gets/sets the OTR configuration values. Introduced to assure our

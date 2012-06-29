@@ -9,11 +9,11 @@ package net.java.sip.communicator.plugin.globalproxyconfig;
 import java.net.*;
 import java.util.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**

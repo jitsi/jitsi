@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent;
 
-import javax.xml.namespace.*;
 import java.util.*;
+
+import javax.xml.namespace.*;
 
 /**
  * The PRES-CONTENT description element.

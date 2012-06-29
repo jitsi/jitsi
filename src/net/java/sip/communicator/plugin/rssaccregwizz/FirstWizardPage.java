@@ -6,9 +6,8 @@
  */
 package net.java.sip.communicator.plugin.rssaccregwizz;
 
-import java.util.*;
-
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;

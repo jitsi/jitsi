@@ -7,7 +7,7 @@
 package net.java.sip.communicator.impl.osdependent.jdic;
 
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
+import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;

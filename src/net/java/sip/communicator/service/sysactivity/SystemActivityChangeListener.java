@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.service.sysactivity;
 
-import net.java.sip.communicator.service.sysactivity.event.*;
-
 import java.util.*;
+
+import net.java.sip.communicator.service.sysactivity.event.*;
 
 /**
  * The <tt>SystemActivityChangeListener</tt> is notified any time an event

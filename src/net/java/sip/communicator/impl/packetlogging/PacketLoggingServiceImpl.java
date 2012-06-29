@@ -12,8 +12,6 @@ import java.util.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.packetlogging.*;
-import org.jitsi.service.packetlogging.PacketLoggingService.ProtocolName;
-import org.jitsi.service.packetlogging.PacketLoggingService.TransportName;
 
 /**
  * Packet Logging Service implementation dumping logs in

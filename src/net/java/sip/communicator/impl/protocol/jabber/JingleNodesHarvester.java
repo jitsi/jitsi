@@ -8,15 +8,14 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.util.*;
+
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
 import org.ice4j.socket.*;
-
 import org.jivesoftware.smack.*;
 import org.xmpp.jnodes.smack.*;
-
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements a <tt>CandidateHarvester</tt> which gathers <tt>Candidate</tt>s

@@ -9,10 +9,10 @@ package net.java.sip.communicator.impl.ldap;
 import java.util.*;
 import java.util.regex.*;
 
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.ldap.event.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**

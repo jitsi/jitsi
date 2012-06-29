@@ -6,12 +6,13 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.util.*;
-import java.util.List; // disambiguation
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
 
 import org.w3c.dom.*;
+// disambiguation
 
 /**
  * Utility class to provide XML definition for the desktop sharing SIP

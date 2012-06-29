@@ -7,11 +7,11 @@
 package net.java.sip.communicator.service.gui.event;
 
 import java.awt.event.*;
-import java.util.List;
+import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.gui.Chat;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * Listens for the chat's right click menu becoming visible so menu items can

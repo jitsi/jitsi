@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.filehistory;
 
 import java.io.*;
 import java.util.*;
-import org.osgi.framework.*;
+
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.history.*;
@@ -16,6 +16,8 @@ import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * File History Service stores info for file transfers from various protocols.

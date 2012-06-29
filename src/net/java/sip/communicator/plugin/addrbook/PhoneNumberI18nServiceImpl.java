@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import com.google.i18n.phonenumbers.*;
-import com.google.i18n.phonenumbers.Phonenumber.*;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 /**
  * Implements <tt>PhoneNumberI18nService</tt> which aids the parsing, formatting

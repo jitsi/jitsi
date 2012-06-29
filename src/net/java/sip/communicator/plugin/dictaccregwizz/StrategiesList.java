@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.plugin.dictaccregwizz;
 
-import java.awt.Component;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 

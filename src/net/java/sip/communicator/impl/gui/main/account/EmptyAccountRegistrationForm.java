@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.gui.main.account;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;

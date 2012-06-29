@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip.security;
 
 import java.security.*;
+
 import net.java.sip.communicator.util.*;
 
 /**

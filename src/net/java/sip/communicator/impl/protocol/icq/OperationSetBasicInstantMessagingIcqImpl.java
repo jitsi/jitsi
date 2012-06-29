@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.icqconstants.*;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.*;
 import net.kano.joscar.flapcmd.*;
@@ -19,7 +20,6 @@ import net.kano.joscar.snaccmd.error.*;
 import net.kano.joscar.snaccmd.icq.*;
 import net.kano.joustsim.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.*;
-import net.java.sip.communicator.service.protocol.icqconstants.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation

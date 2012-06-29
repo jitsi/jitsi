@@ -6,13 +6,14 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
-import org.osgi.framework.*;
+import java.util.*;
+
 import junit.framework.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
-import java.util.List;
-import java.util.LinkedList;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Tests whether accaounts are uninstalled properly. It is important that

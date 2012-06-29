@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
+
 import javax.sip.*;
 
 /**

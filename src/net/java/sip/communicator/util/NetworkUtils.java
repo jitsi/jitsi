@@ -8,6 +8,7 @@ package net.java.sip.communicator.util;
 
 import java.beans.*;
 import java.net.*;
+import java.text.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -15,8 +16,6 @@ import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.util.dns.*;
 
 import org.xbill.DNS.*;
-
-import java.text.*;
 
 /**
  * Utility methods and fields to use when working with network addresses.

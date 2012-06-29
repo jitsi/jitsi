@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import gov.nist.javax.sip.header.HeaderFactoryImpl; // disambiguates Contact
+import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.header.extensions.*;
 
 import java.net.*;
@@ -19,9 +19,11 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+// disambiguates Contact
 
 /**
  * Implements all call management logic and exports basic telephony support by

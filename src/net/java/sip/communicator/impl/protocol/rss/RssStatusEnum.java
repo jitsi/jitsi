@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.rss;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import java.io.*;
 
 /**
  * An implementation of <tt>PresenceStatus</tt> that enumerates all states that

@@ -6,12 +6,13 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import org.jivesoftware.smack.*;
 
-import java.util.*;
+import org.jivesoftware.smack.*;
 
 /**
  * When provider registers, check whether we are connected

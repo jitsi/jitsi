@@ -8,9 +8,9 @@ package net.java.sip.communicator.impl.protocol.msn;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * The Msn implementation of the ProtocolProviderFactory.

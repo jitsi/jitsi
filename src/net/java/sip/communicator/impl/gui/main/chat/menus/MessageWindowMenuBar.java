@@ -15,8 +15,9 @@ import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.Container; // disambiguation
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.swing.*;
+// disambiguation
 
 /**
  * The <tt>MessageWindowMenuBar</tt> is the menu bar in the chat window where

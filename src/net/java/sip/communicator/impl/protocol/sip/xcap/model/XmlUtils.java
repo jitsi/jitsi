@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model;
 
-import org.w3c.dom.*;
-
 import java.util.*;
+
 import javax.xml.namespace.*;
+
+import org.w3c.dom.*;
 
 /**
  * Utility class that helps to convert classes into xml and from xml to the

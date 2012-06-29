@@ -8,12 +8,13 @@ package net.java.sip.communicator.slick.contactlist;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Performs testing of the MetaContactListService. This SLICK would register

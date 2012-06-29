@@ -7,7 +7,7 @@
 
 package net.java.sip.communicator.plugin.whiteboard.gui;
 
-import java.io.File;
+import java.io.*;
 
 import net.java.sip.communicator.util.swing.*;
 

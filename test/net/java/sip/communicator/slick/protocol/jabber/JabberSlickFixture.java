@@ -8,11 +8,10 @@ package net.java.sip.communicator.slick.protocol.jabber;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import junit.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * Contains fields and methods used by most or all tests in the Jabber slick.

@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.service.protocol.event;
 
-import net.java.sip.communicator.service.protocol.*;
-
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * <tt>MessageWaitingEvent<tt> indicates a message waiting event

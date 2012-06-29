@@ -8,8 +8,9 @@ package net.java.sip.communicator.slick.protocol.jabber;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
+
+import org.osgi.framework.*;
 
 /**
  * Jabber specific testing for a Jabber Protocol Provider Service implementation.

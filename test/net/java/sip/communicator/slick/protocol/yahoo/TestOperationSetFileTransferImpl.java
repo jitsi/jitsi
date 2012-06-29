@@ -7,9 +7,11 @@
 package net.java.sip.communicator.slick.protocol.yahoo;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.slick.protocol.generic.*;
 import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**

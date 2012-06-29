@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.yahoo;
 
 import java.io.*;
+
 import ymsg.network.*;
 
 /**

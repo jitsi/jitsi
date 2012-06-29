@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.plugin.nimbuzzavatars;
 
-import net.java.sip.communicator.service.customavatar.*;
-import org.osgi.framework.*;
-
 import java.io.*;
 import java.net.*;
+
+import net.java.sip.communicator.service.customavatar.*;
+
+import org.osgi.framework.*;
 
 /**
  * OSGi bundle activator for the Nimbuzz custom avatars service.

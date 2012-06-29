@@ -7,13 +7,15 @@
 package net.java.sip.communicator.slick.configuration;
 
 import java.io.*;
+
 import javax.xml.parsers.*;
 
+import junit.framework.*;
+import net.java.sip.communicator.util.xml.*;
+
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 import org.w3c.dom.*;
-import junit.framework.*;
-import org.jitsi.service.configuration.*;
-import net.java.sip.communicator.util.xml.*;
 
 /**
  * Tests ConfiguratioService persistency, which means that it makes the

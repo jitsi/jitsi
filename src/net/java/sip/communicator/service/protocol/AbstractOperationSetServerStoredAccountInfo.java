@@ -1,9 +1,9 @@
 package net.java.sip.communicator.service.protocol;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-
-import java.util.*;
 
 /**
  * Represents a default implementation of

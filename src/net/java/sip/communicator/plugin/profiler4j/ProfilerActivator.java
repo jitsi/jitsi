@@ -7,8 +7,10 @@
 package net.java.sip.communicator.plugin.profiler4j;
 
 import java.util.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**

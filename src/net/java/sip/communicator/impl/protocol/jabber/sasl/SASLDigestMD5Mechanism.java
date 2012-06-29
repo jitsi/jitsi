@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber.sasl;
 
 import java.io.*;
 import java.util.*;
+
 import javax.security.auth.callback.*;
 import javax.security.sasl.*;
 

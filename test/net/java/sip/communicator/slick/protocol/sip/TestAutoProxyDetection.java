@@ -6,19 +6,20 @@
  */
 package net.java.sip.communicator.slick.protocol.sip;
 
-import static org.easymock.EasyMock.*;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.USER_ID;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.text.ParseException;
+import java.net.*;
+import java.text.*;
 
-import net.java.sip.communicator.impl.protocol.sip.SipAccountID;
-import net.java.sip.communicator.impl.protocol.sip.net.AutoProxyConnection;
-import net.java.sip.communicator.util.SRVRecord;
-import net.java.sip.communicator.util.dns.DnssecException;
-import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.*;
-import junit.framework.TestCase;
+import junit.framework.*;
+import net.java.sip.communicator.impl.protocol.sip.*;
+import net.java.sip.communicator.impl.protocol.sip.net.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.dns.*;
 
 /**
  * Tests all variations of automatic proxy detection through (simulated) DNS.

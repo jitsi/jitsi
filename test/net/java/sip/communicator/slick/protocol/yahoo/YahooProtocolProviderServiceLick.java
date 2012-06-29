@@ -8,8 +8,9 @@ package net.java.sip.communicator.slick.protocol.yahoo;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
+
+import org.osgi.framework.*;
 
 /**
  * Yahoo specific testing for a Yahoo Protocol Provider Service implementation.

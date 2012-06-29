@@ -7,15 +7,14 @@ package net.java.sip.communicator.plugin.spellcheck;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 import javax.xml.parsers.*;
 
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 /**
  * Information provided via the spellchecer's xml parameters.

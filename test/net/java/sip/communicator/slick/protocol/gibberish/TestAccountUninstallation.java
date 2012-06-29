@@ -7,7 +7,6 @@
 package net.java.sip.communicator.slick.protocol.gibberish;
 
 import junit.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
 
 import org.osgi.framework.*;

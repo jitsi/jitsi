@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.hid;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * OSGi activator for the HID service.

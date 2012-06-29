@@ -8,12 +8,12 @@ package net.java.sip.communicator.impl.protocol.rss;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The RSS implementation of the URI handler. This class handles RSS feeds by

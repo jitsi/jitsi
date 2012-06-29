@@ -13,7 +13,7 @@ package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.text.ParseException;
+import java.text.*;
 
 import javax.swing.*;
 import javax.swing.text.*;

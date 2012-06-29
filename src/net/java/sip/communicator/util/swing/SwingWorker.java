@@ -16,9 +16,9 @@
  */
 package net.java.sip.communicator.util.swing;
 
-import java.lang.Thread.*;
+import java.lang.Thread.UncaughtExceptionHandler;
 
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 /**
  * Utility class based on the javax.swing.SwingWorker. <tt>SwingWorker</tt> is

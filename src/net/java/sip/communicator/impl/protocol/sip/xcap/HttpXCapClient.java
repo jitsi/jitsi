@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap;
 
-import javax.sip.address.*;
 import java.net.URI;
+
+import javax.sip.address.*;
 
 /**
  * HTTP XCAP client interface.

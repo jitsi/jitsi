@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.util.dns;
 
-import java.io.IOException;
+import java.io.*;
 
-import org.xbill.DNS.Message;
+import org.xbill.DNS.*;
 
 /**
  * DNS Message that adds DNSSEC validation information.

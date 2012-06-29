@@ -11,7 +11,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.protocol.Contact;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Toggle-able button that sets the spell checker to be either enabled or

@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.dict4j.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.Html2Text;
+import net.java.sip.communicator.util.*;
 
 /**
  * Instant messaging functionalities for the Dict protocol.

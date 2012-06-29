@@ -13,9 +13,9 @@ package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
+
+import org.osgi.framework.*;
 
 /**
  * The SSH protocol provider factory creates instances of the SSH

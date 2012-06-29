@@ -9,8 +9,8 @@ package net.java.sip.communicator.impl.provdisc.dhcp;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.provdisc.event.*;
 import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.provdisc.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.dhcp4java.*;

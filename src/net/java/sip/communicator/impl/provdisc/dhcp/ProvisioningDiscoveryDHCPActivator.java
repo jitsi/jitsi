@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.provdisc.dhcp;
 
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.service.provdisc.*;
 import net.java.sip.communicator.service.netaddr.*;
+import net.java.sip.communicator.service.provdisc.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Implements <tt>BundleActivator</tt> for the DHCP provisioning bundle.

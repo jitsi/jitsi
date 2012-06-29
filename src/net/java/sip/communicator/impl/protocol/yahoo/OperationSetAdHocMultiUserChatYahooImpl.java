@@ -9,12 +9,11 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 import java.io.*;
 import java.util.*;
 
-import ymsg.network.*;
-import ymsg.network.event.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import ymsg.network.*;
+import ymsg.network.event.*;
 
 /**
  * A Yahoo implementation of the ad-hoc multi user chat operation set.

@@ -7,13 +7,12 @@
 
 package net.java.sip.communicator.plugin.whiteboard.gui.whiteboardshapes;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;
-import net.java.sip.communicator.service.protocol.WhiteboardPoint;
+import java.util.List;
+
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 
 

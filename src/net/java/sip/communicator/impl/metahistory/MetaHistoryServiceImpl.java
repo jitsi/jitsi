@@ -8,19 +8,20 @@ package net.java.sip.communicator.impl.metahistory;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.callhistory.*;
+import net.java.sip.communicator.service.callhistory.event.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.filehistory.*;
+import net.java.sip.communicator.service.history.event.*;
+import net.java.sip.communicator.service.history.event.ProgressEvent;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.msghistory.*;
-import net.java.sip.communicator.service.history.event.*;
+import net.java.sip.communicator.service.msghistory.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.msghistory.event.MessageHistorySearchProgressListener;
-import net.java.sip.communicator.service.callhistory.event.CallHistorySearchProgressListener;
+
+import org.osgi.framework.*;
 
 /**
  * The Meta History Service is wrapper around the other known

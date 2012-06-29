@@ -8,13 +8,12 @@ package net.java.sip.communicator.slick.protocol.jabber;
 
 import java.util.*;
 
-import org.jivesoftware.smack.util.StringUtils;
-
 import junit.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.util.StringUtils;
 
 /**
  * Tests multi user chat functionalities.

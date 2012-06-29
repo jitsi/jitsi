@@ -7,6 +7,13 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.address.*;
+
+import java.net.URI;
+import java.text.*;
+import java.util.*;
+
+import javax.sip.address.*;
+
 import net.java.sip.communicator.impl.protocol.sip.xcap.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.prescontent.*;
@@ -16,13 +23,9 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.xml.*;
-import org.w3c.dom.*;
+import net.java.sip.communicator.util.xml.XMLUtils;
 
-import javax.sip.address.*;
-import java.net.URI;
-import java.text.*;
-import java.util.*;
+import org.w3c.dom.*;
 
 /**
  * Encapsulates XCapClient, it's responsible for generate corresponding

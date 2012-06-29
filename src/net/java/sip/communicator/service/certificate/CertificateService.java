@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.service.certificate;
 
-import java.security.GeneralSecurityException;
+import java.security.*;
 import java.security.cert.*;
+import java.security.cert.Certificate;
 import java.util.*;
 
 import javax.net.ssl.*;

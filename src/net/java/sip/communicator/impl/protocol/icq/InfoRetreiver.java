@@ -10,7 +10,7 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
 import net.java.sip.communicator.util.*;
 import net.kano.joscar.flapcmd.*;
 import net.kano.joscar.snac.*;

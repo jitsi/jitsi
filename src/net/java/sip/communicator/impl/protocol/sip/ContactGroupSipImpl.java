@@ -6,12 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.util.*;
+
+import javax.xml.namespace.*;
+
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.w3c.dom.*;
-import javax.xml.namespace.*;
-import java.util.*;
 
 /**
  * A simple, straightforward implementation of a SIP ContactGroup. Since

@@ -10,11 +10,11 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import com.sun.syndication.feed.synd.*;
-import com.sun.syndication.io.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import com.sun.syndication.feed.synd.*;
+import com.sun.syndication.io.*;
 
 /**
  * Wrapper class for the ROME functionality used in the RSS implementation in

@@ -6,9 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror;
 
+import static net.java.sip.communicator.util.StringUtils.isNullOrEmpty;
+import static net.java.sip.communicator.util.xml.XMLUtils.createDocument;
+import static net.java.sip.communicator.util.xml.XMLUtils.getNamespaceUri;
+import static net.java.sip.communicator.util.xml.XMLUtils.isStandartXmlNamespace;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
-import static net.java.sip.communicator.util.StringUtils.*;
-import static net.java.sip.communicator.util.xml.XMLUtils.*;
 
 import org.w3c.dom.*;
 

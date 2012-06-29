@@ -6,8 +6,16 @@
  */
 package net.java.sip.communicator.service.httputil;
 
+import java.io.*;
+import java.net.*;
+import java.security.*;
+import java.util.*;
+
+import javax.net.ssl.*;
+
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
 import org.apache.http.*;
 import org.apache.http.Header;
 import org.apache.http.auth.*;
@@ -26,12 +34,6 @@ import org.apache.http.message.*;
 import org.apache.http.params.*;
 import org.apache.http.protocol.*;
 import org.apache.http.util.*;
-
-import javax.net.ssl.*;
-import java.io.*;
-import java.net.*;
-import java.security.*;
-import java.util.*;
 
 /**
  * Common http utils querying http locations, handling redirects, self-signed

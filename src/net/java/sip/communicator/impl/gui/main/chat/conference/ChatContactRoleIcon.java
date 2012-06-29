@@ -7,7 +7,8 @@
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import javax.swing.*;
-import net.java.sip.communicator.impl.gui.utils.ImageLoader;
+
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**

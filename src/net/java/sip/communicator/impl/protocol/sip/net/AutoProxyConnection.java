@@ -6,7 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.net;
 
-import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.*;
+import static javax.sip.ListeningPoint.TCP;
+import static javax.sip.ListeningPoint.TLS;
+import static javax.sip.ListeningPoint.UDP;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.SERVER_ADDRESS;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.USER_ID;
 
 import java.net.*;
 import java.text.*;
@@ -16,7 +20,6 @@ import javax.sip.*;
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.dns.*;
-import static javax.sip.ListeningPoint.*;
 
 /**
  * Implementation of the autodetect proxy connection. Tries to resolve a SIP-

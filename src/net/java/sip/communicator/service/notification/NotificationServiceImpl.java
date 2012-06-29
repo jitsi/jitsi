@@ -6,14 +6,23 @@
  */
 package net.java.sip.communicator.service.notification;
 
+import static net.java.sip.communicator.service.notification.NotificationAction.ACTION_COMMAND;
+import static net.java.sip.communicator.service.notification.NotificationAction.ACTION_LOG_MESSAGE;
+import static net.java.sip.communicator.service.notification.NotificationAction.ACTION_POPUP_MESSAGE;
+import static net.java.sip.communicator.service.notification.NotificationAction.ACTION_SOUND;
+import static net.java.sip.communicator.service.notification.NotificationAction.NUM_ACTIONS;
+import static net.java.sip.communicator.service.notification.event.NotificationActionTypeEvent.ACTION_ADDED;
+import static net.java.sip.communicator.service.notification.event.NotificationActionTypeEvent.ACTION_CHANGED;
+import static net.java.sip.communicator.service.notification.event.NotificationActionTypeEvent.ACTION_REMOVED;
+import static net.java.sip.communicator.service.notification.event.NotificationEventTypeEvent.EVENT_TYPE_ADDED;
+import static net.java.sip.communicator.service.notification.event.NotificationEventTypeEvent.EVENT_TYPE_REMOVED;
+
 import java.util.*;
 
-import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.notification.event.*;
 import net.java.sip.communicator.util.*;
-import static net.java.sip.communicator.service.notification.NotificationAction.*;
-import static net.java.sip.communicator.service.notification.event.NotificationActionTypeEvent.*;
-import static net.java.sip.communicator.service.notification.event.NotificationEventTypeEvent.*;
+
+import org.jitsi.service.configuration.*;
 
 /**
  * The implementation of the <tt>NotificationService</tt>.

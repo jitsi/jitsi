@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.impl.configuration.xml;
 
-import org.w3c.dom.*;
-
 import net.java.sip.communicator.util.xml.*;
+
+import org.w3c.dom.*;
 
 /**
  * Common XML Tasks.

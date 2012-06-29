@@ -7,10 +7,10 @@
 package net.java.sip.communicator.impl.sparkle;
 
 import net.java.sip.communicator.service.resources.*;
-import org.osgi.framework.*;
+import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
-import net.java.sip.communicator.util.*;
+import org.osgi.framework.*;
 
 /**
  * Activates the Sparkle Framework

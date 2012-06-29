@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.AvatarListener;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * This interface is an extension of the operation set, meant to be implemented

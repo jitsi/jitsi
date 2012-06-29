@@ -12,10 +12,10 @@ import java.util.*;
 
 import javax.net.ssl.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The Rss protocol provider factory creates instances of the Rss

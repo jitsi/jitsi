@@ -11,17 +11,18 @@ import java.net.*;
 import java.util.*;
 import java.util.regex.*;
 
-import org.jitsi.service.configuration.*;
+import net.java.sip.communicator.impl.googlecontacts.configform.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.googlecontacts.*;
-import net.java.sip.communicator.impl.googlecontacts.configform.*;
 import net.java.sip.communicator.util.*;
 
-import com.google.gdata.client.Service.*;
+import org.jitsi.service.configuration.*;
+
+import com.google.gdata.client.Service.GDataRequest;
 import com.google.gdata.client.contacts.*;
 import com.google.gdata.data.*;
-import com.google.gdata.data.contacts.ContactFeed;
 import com.google.gdata.data.contacts.ContactEntry;
+import com.google.gdata.data.contacts.ContactFeed;
 import com.google.gdata.data.extensions.*;
 
 /**

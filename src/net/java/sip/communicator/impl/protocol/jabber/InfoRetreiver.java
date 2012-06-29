@@ -9,9 +9,10 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.lang.reflect.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.protocol.ServerStoredDetails;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
 import net.java.sip.communicator.util.*;
+
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;

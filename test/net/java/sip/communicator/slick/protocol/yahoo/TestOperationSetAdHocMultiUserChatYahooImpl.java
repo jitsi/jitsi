@@ -9,7 +9,6 @@ package net.java.sip.communicator.slick.protocol.yahoo;
 import java.util.*;
 
 import junit.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.slick.protocol.generic.*;
 

@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.message.*;
+
 import java.io.*;
 import java.net.*;
 import java.security.cert.*;
@@ -18,7 +20,6 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
-import gov.nist.javax.sip.message.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;

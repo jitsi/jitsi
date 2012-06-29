@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.net;
 
-import static javax.sip.ListeningPoint.*;
-import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.*;
+import static javax.sip.ListeningPoint.PORT_5060;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.PREFERRED_TRANSPORT;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.PROXY_ADDRESS;
+import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.PROXY_PORT;
 
 import java.net.*;
 import java.text.*;
