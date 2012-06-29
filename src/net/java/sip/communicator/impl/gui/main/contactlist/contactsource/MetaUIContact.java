@@ -414,6 +414,15 @@ public class MetaUIContact
         {
             protocolContact = i.next();
 
+            // Set the first found status message.
+            if (statusMessage == null
+                && protocolContact.getStatusMessage() != null
+                && protocolContact.getStatusMessage().length() > 0)
+                statusMessage = protocolContact.getStatusMessage();
+
+            if(ConfigurationManager.isHideAccountStatusSelectorsEnabled())
+                break;
+
             ImageIcon protocolStatusIcon
                 = ImageLoader.getIndexedProtocolIcon(
                         ImageUtils.getBytesInImage(
@@ -424,6 +433,7 @@ public class MetaUIContact
             //String statusMessage = protocolContact.getStatusMessage();
 
             tip.addLine(protocolStatusIcon, contactAddress);
+
             OperationSetServerStoredContactInfo infoOpSet =
                 protocolContact.getProtocolProvider().getOperationSet(
                     OperationSetServerStoredContactInfo.class);
@@ -453,12 +463,6 @@ public class MetaUIContact
                 else
                     isLoading = true;
             }
-
-            // Set the first found status message.
-            if (statusMessage == null
-                && protocolContact.getStatusMessage() != null
-                && protocolContact.getStatusMessage().length() > 0)
-                statusMessage = protocolContact.getStatusMessage();
         }
 
         if(isLoading)
