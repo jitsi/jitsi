@@ -289,9 +289,12 @@ public class InfoRetreiver
         }
         catch (Throwable exc)
         {
-            logger.error("Cannot load details for contact "
-                + this + " : " + exc.getMessage()
-                , exc);
+            String msg = "Cannot load details for contact "
+                + contactAddress + " : " + exc.getMessage();
+            if(logger.isTraceEnabled())
+                logger.error(msg, exc);
+            else
+                logger.error(msg);
         }
 
         retreivedDetails.put(contactAddress, result);

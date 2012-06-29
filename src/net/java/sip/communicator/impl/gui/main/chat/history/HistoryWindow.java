@@ -90,7 +90,7 @@ public class HistoryWindow
 
     private String searchKeyword;
 
-    private Vector<Date> datesVector = new Vector<Date>();
+    private Set<Date> datesDisplayed = new LinkedHashSet<Date>();
 
     private Date ignoreProgressDate;
 
@@ -395,11 +395,21 @@ public class HistoryWindow
      */
     public Date getNextDateFromHistory(Date date)
     {
-        int dateIndex = datesVector.indexOf(date);
-        if(dateIndex < datesVector.size() - 1)
-            return datesVector.get(dateIndex + 1);
-        else
-            return new Date(System.currentTimeMillis());
+        Iterator<Date> iterator = datesDisplayed.iterator();
+        while(iterator.hasNext())
+        {
+            Date curr = iterator.next();
+            if(curr.equals(date))
+            {
+                if(iterator.hasNext())
+                    return iterator.next();
+                else
+                    break;
+            }
+        }
+
+        long ts = System.currentTimeMillis();
+        return new Date(ts - ts % (24*60*60*1000));
     }
 
     /**
@@ -505,17 +515,22 @@ public class HistoryWindow
 
                 boolean containsDate = false;
                 long milisecondsPerDay = 24*60*60*1000;
-                for(int j = 0; !containsDate && j < datesVector.size(); j ++)
+                Iterator<Date> iterator = datesDisplayed.iterator();
+                while(iterator.hasNext())
                 {
-                    Date date1 = datesVector.get(j);
-
-                    containsDate = Math.floor(date1.getTime()/milisecondsPerDay)
+                    Date curr = iterator.next();
+                    containsDate =
+                        Math.floor(curr.getTime()/milisecondsPerDay)
                         == Math.floor(date/milisecondsPerDay);
+
+                    if(containsDate)
+                        break;
                 }
 
                 if(!containsDate)
                 {
-                    datesVector.add(new Date(date - date % milisecondsPerDay));
+                    datesDisplayed.add(
+                        new Date(date - date % milisecondsPerDay));
                 }
             }
 
@@ -524,9 +539,11 @@ public class HistoryWindow
                 Runnable updateDatesPanel = new Runnable() {
                     public void run() {
                         Date date = null;
-                        for(int i = 0; i < datesVector.size(); i++) {
-                            date = datesVector.get(i);
-                            datesPanel.addDate(date);
+                        for(Date curr : datesDisplayed)
+                        {
+                            date = curr;
+                            if(!datesPanel.containsDate(date))
+                                datesPanel.addDate(date);
                         }
                         if(date != null) {
                             ignoreProgressDate = date;
@@ -665,15 +682,12 @@ public class HistoryWindow
                 }
 
                 long milisecondsPerDay = 24*60*60*1000;
-                for(int j = 0; j < datesVector.size(); j ++)
+                for(Date date1 : datesDisplayed)
                 {
-                    Date date1 = datesVector.get(j);
-
                     if(Math.floor(date1.getTime()/milisecondsPerDay)
                         == Math.floor(date/milisecondsPerDay)
                         && !keywordDatesVector.contains(date1))
                     {
-
                         keywordDatesVector.add(date1);
                     }
                 }
@@ -706,7 +720,8 @@ public class HistoryWindow
                              *        datesPanel.addDate(date);
                              *    }
                             }*/
-                            datesPanel.addDate(date);
+                            if(!datesPanel.containsDate(date))
+                                datesPanel.addDate(date);
                         }
                         if(date != null)
                         {
@@ -865,8 +880,9 @@ public class HistoryWindow
 
                 Date date = new Date(timestamp - timestamp % milisecondsPerDay);
 
-                datesVector.add(date);
-                datesPanel.addDate(date);
+                datesDisplayed.add(date);
+                if(!datesPanel.containsDate(date))
+                    datesPanel.addDate(date);
             }
         }
     }
