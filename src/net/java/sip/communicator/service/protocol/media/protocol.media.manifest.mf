@@ -4,18 +4,19 @@ Bundle-Description: Media Utilities for the Protocol Provider Service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: org.osgi.framework,
+Import-Package: net.java.sip.communicator.service.netaddr,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.util,
+ org.ice4j.ice,
  org.jitsi.service.configuration,
  org.jitsi.service.neomedia,
  org.jitsi.service.neomedia.control,
  org.jitsi.service.neomedia.device,
  org.jitsi.service.neomedia.event,
  org.jitsi.service.neomedia.format,
- net.java.sip.communicator.service.protocol,
- net.java.sip.communicator.service.protocol.event,
- net.java.sip.communicator.service.netaddr,
+ org.jitsi.service.protocol,
  org.jitsi.util,
- net.java.sip.communicator.util,
  org.jitsi.util.event,
- org.ice4j.ice
+ org.osgi.framework
 Export-Package: net.java.sip.communicator.service.protocol.media

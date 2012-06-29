@@ -4,13 +4,15 @@ Bundle-Description: Protocol Provider Service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: org.osgi.framework,
- org.jitsi.service.configuration,
- net.java.sip.communicator.service.credentialsstorage,
- org.jitsi.service.neomedia,
- org.jitsi.service.resources, net.java.sip.communicator.service.resources,
+Import-Package: net.java.sip.communicator.service.credentialsstorage,
+ net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
- org.jitsi.util.event
+ org.jitsi.service.configuration,
+ org.jitsi.service.neomedia,
+ org.jitsi.service.protocol.event,
+ org.jitsi.service.resources,
+ org.jitsi.util.event,
+ org.osgi.framework
 Export-Package: net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.aimconstants,
  net.java.sip.communicator.service.protocol.event,

@@ -13,5 +13,5 @@ Import-Package: junit.framework,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.icqconstants,
  net.java.sip.communicator.service.protocol.aimconstants,
- net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.service.protocol.event,org.jitsi.service.protocol.event,
  org.jitsi.service.fileaccess

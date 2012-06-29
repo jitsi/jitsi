@@ -4,13 +4,16 @@ Bundle-Description: Wires events from various bundles to the notification servic
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: org.osgi.framework,
- javax.imageio,
- net.java.sip.communicator.util,
+Import-Package: javax.imageio,
  net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.gui,
- org.jitsi.service.neomedia,
  net.java.sip.communicator.service.notification,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
- org.jitsi.service.resources, net.java.sip.communicator.service.resources
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.util,
+ org.jitsi.service.neomedia,
+ org.jitsi.service.protocol.event,
+ org.jitsi.service.resources,
+ org.osgi.framework
+
