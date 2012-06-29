@@ -10,7 +10,7 @@ Import-Package: org.osgi.framework,
  org.jitsi.service.neomedia,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
- net.java.sip.communicator.util.event
+ org.jitsi.util.event
 Export-Package: net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.aimconstants,
  net.java.sip.communicator.service.protocol.event,
