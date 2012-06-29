@@ -10,16 +10,17 @@ import java.awt.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import java.util.List; //disambiguation
+import java.util.List;
 
 import javax.swing.*;
 
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.osgi.framework.*;
+//disambiguation
 
 /**
  * Service that concerns keybinding mappings used by various parts of the UI.

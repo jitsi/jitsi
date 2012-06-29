@@ -11,8 +11,11 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.util.*;
 
 /**
  * @author Yana Stamcheva

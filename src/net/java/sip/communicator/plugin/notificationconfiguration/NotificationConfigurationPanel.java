@@ -14,10 +14,12 @@ import java.net.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.audionotifier.*;
+import org.jitsi.util.*;
 
 /**
  * The UI of <tt>ConfigurationForm</tt> that would be added in the user

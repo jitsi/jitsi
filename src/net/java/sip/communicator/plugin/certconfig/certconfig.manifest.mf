@@ -6,10 +6,11 @@ Bundle-Version: 0.0.1
 System-Bundle: no
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.certificate,
- net.java.sip.communicator.service.configuration,
+ org.jitsi.service.configuration,
  net.java.sip.communicator.service.credentialsstorage,
  net.java.sip.communicator.service.gui,
- net.java.sip.communicator.service.resources,
+ org.jitsi.service.resources, net.java.sip.communicator.service.resources,
+ org.jitsi.util,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.swing,
  javax.swing,

@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.ldap;
 import java.util.*;
 
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.ldap.event.*;
 

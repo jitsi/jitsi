@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.notification;
 
-import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.audionotifier.*;
 import org.osgi.framework.*;
 
 /**

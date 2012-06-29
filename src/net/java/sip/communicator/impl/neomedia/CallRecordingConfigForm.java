@@ -12,11 +12,14 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.impl.neomedia.*;
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 
 /**
  * The saved calls management and configuration form.

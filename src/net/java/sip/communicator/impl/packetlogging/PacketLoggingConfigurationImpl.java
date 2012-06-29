@@ -6,8 +6,9 @@
  */
 package net.java.sip.communicator.impl.packetlogging;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.packetlogging.*;
+import org.jitsi.service.configuration.*;
+
+import org.jitsi.service.packetlogging.*;
 
 /**
  * Extends PacketLoggingConfiguration by storing and loading values from

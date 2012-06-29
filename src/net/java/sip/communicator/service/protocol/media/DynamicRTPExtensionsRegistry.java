@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.neomedia.*;
+import org.jitsi.service.neomedia.*;
 
 /**
  * RFC [RFC 5285] defines a mechanism for attaching multiple extensions to

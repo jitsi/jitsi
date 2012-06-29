@@ -5,6 +5,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
+ org.jitsi.util,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.media,
  net.java.sip.communicator.service.protocol.event,

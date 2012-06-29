@@ -7,7 +7,7 @@ package net.java.sip.communicator.plugin.skinmanager;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 

@@ -16,10 +16,11 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.event.*;
 
 /**
  * Represents an UI means to mute the audio stream sent in an associated

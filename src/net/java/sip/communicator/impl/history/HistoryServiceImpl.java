@@ -11,15 +11,15 @@ import java.util.*;
 
 import javax.xml.parsers.*;
 
-import org.osgi.framework.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
-
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.osgi.framework.*;
+import org.w3c.dom.*;
+import org.xml.sax.*;
 
 /**
  * @author Alexander Pelov

@@ -6,26 +6,36 @@
  */
 package net.java.sip.communicator.plugin.dnsconfig;
 
+import static net.java.sip.communicator.util.NetworkUtils.DEFAULT_BACKUP_RESOLVER;
+import static net.java.sip.communicator.util.NetworkUtils.PDEFAULT_BACKUP_RESOLVER_ENABLED;
+import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER;
+import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER_ENABLED;
+import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER_FALLBACK_IP;
+import static net.java.sip.communicator.util.NetworkUtils.PNAME_BACKUP_RESOLVER_PORT;
+import static net.java.sip.communicator.util.NetworkUtils.getDefaultDnsPort;
+import static net.java.sip.communicator.util.NetworkUtils.isIPv4Address;
+import static net.java.sip.communicator.util.NetworkUtils.isIPv6Address;
+import static net.java.sip.communicator.util.dns.ParallelResolver.DNS_PATIENCE;
+import static net.java.sip.communicator.util.dns.ParallelResolver.DNS_REDEMPTION;
+import static net.java.sip.communicator.util.dns.ParallelResolver.PNAME_DNS_PATIENCE;
+import static net.java.sip.communicator.util.dns.ParallelResolver.PNAME_DNS_REDEMPTION;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.text.*;
-import java.util.EventObject;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.resources.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.dns.*;
 import net.java.sip.communicator.util.swing.*;
 
-import static net.java.sip.communicator.util.NetworkUtils.*;
-import static net.java.sip.communicator.util.dns.ParallelResolver.*;
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * Page inside the advanced configuration options that allow the user to

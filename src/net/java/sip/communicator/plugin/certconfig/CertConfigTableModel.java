@@ -12,7 +12,8 @@ import java.util.*;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.service.resources.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * Backing data model for a JTable that displays the client certificate

@@ -10,7 +10,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 import net.java.sip.communicator.service.hid.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.util.*;
 
 /**
  * Implementation of the HID service to provide way of regenerate key press

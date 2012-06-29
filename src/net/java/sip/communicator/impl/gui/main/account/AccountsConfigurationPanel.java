@@ -14,10 +14,11 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.configuration.*;
 
 /**
  * The <tt>AccountsConfigurationPanel</tt> is the panel containing the accounts

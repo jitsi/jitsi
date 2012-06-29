@@ -11,18 +11,18 @@ import java.awt.event.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.security.*;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.util.*;
 
 import javax.security.auth.callback.*;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * Dialog window to add/edit client certificate configuration entries.

@@ -4,6 +4,6 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Import-Package: org.osgi.framework,
  javax.naming.directory,
- net.java.sip.communicator.service.configuration
+ org.jitsi.service.configuration
 Export-Package: net.java.sip.communicator.service.ldap,
  net.java.sip.communicator.service.ldap.event

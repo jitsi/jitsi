@@ -7,8 +7,7 @@
 
 package net.java.sip.communicator.plugin.globalproxyconfig;
 
-import net.java.sip.communicator.service.resources.*;
-
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**

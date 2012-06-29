@@ -10,7 +10,8 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.service.resources.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * The main menu bar. This is the menu bar that appears on top of the main

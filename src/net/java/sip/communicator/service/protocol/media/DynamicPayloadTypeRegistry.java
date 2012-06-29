@@ -8,8 +8,8 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.format.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.format.*;
 
 /**
  * The RTP Audio/Video Profile [RFC 3551] specifies a number of static payload

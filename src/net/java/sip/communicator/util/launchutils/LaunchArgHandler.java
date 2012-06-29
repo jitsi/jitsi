@@ -12,6 +12,8 @@ import java.util.logging.*;
 
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.util.*;
+
 /**
  * The <tt>LauncherArgHandler</tt> class handles invocation arguments that have
  * been passed to us when running SIP Communicator. The class supports a fixed

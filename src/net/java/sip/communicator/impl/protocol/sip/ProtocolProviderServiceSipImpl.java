@@ -9,23 +9,25 @@ package net.java.sip.communicator.impl.protocol.sip;
 import gov.nist.javax.sip.address.*;
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.message.*;
-import net.java.sip.communicator.impl.protocol.sip.net.*;
-import net.java.sip.communicator.impl.protocol.sip.security.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.version.Version;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.dns.*;
 
-import org.osgi.framework.*;
+import java.net.*;
+import java.text.*;
+import java.util.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
-import java.net.*;
-import java.text.*;
-import java.util.*;
+
+import net.java.sip.communicator.impl.protocol.sip.net.*;
+import net.java.sip.communicator.impl.protocol.sip.security.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.dns.*;
+
+import org.jitsi.service.version.Version;
+import org.osgi.framework.*;
 
 /**
  * A SIP implementation of the Protocol Provider Service.

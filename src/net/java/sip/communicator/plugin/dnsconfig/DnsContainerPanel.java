@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.plugin.dnsconfig;
 
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * Container for all DNS configuration panels.

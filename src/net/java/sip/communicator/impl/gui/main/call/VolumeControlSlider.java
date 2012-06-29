@@ -11,9 +11,10 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.event.*;
 
 /**
  * The volume control slider component.

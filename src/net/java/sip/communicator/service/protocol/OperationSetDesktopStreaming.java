@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.protocol;
 
 import java.text.*;
 
-import net.java.sip.communicator.service.neomedia.device.*;
+import org.jitsi.service.neomedia.device.*;
 
 /**
  * Represents an <tt>OperationSet</tt> giving access to desktop streaming

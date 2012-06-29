@@ -11,6 +11,8 @@ import java.beans.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
+import org.jitsi.service.protocol.event.*;
+
 /**
  * The <tt>CallPeerAdapter</tt> is an adapter that implements all common
  * <tt>CallPeer</tt> related listeners in order to facilitate the task of

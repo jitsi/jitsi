@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.gui.main;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
+import java.beans.*;
 import java.util.*;
 import java.util.List;
 
@@ -23,20 +23,22 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.menus.*;
 import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.*;
+import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 import com.explodingpixels.macwidgets.*;

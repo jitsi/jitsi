@@ -4,7 +4,7 @@ Bundle-Description: A Service Leveraging Implementation Compatibility Kit for th
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: net.java.sip.communicator.service.configuration,
+Import-Package: org.jitsi.service.configuration,
  net.java.sip.communicator.service.certificate,
  junit.framework,
  org.osgi.framework,
@@ -16,4 +16,4 @@ Import-Package: net.java.sip.communicator.service.configuration,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.jabberconstants,
  net.java.sip.communicator.service.protocol.event,
- net.java.sip.communicator.service.fileaccess
+ org.jitsi.service.fileaccess

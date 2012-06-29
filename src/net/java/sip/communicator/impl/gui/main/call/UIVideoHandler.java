@@ -16,12 +16,15 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.event.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.TransparentPanel;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.util.event.*;
+import org.jitsi.util.swing.*;
 
 /**
  * The <tt>UIVideoHandler</tt> is meant to handle all video related events.

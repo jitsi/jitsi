@@ -6,8 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol.media;
 
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.protocol.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.protocol.*;
 
 /**
  * A wrapper of media quality control.

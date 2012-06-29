@@ -14,8 +14,9 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>WelcomeWindow</tt> is actually the splash screen shown while the

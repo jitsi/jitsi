@@ -5,8 +5,8 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
- net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.fileaccess,
+ org.jitsi.service.configuration,
+ org.jitsi.service.fileaccess,
  net.java.sip.communicator.service.history,
  net.java.sip.communicator.service.history.records,
  org.w3c.dom,

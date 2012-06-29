@@ -8,10 +8,11 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * Represents a default implementation of <tt>OperationSetBasicTelephony</tt> in

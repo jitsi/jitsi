@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.plugin.otr;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 
 import org.bouncycastle.util.encoders.*;
 

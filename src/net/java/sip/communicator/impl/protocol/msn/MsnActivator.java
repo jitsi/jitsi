@@ -8,12 +8,13 @@ package net.java.sip.communicator.impl.protocol.msn;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
-
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**

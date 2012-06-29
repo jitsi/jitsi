@@ -32,7 +32,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
 import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;

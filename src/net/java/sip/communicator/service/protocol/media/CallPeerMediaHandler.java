@@ -11,14 +11,15 @@ import java.beans.*;
 import java.util.*;
 import java.util.List;
 
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.control.*;
-import net.java.sip.communicator.service.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.event.*;
-import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.event.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.control.*;
+import org.jitsi.service.neomedia.device.*;
+import org.jitsi.service.neomedia.event.*;
+import org.jitsi.service.neomedia.format.*;
+import org.jitsi.util.event.*;
 
 /**
  * A utility class implementing media control code shared between current

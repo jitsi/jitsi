@@ -10,9 +10,10 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * <tt>TransportManager</tt>s gather local candidates for incoming and outgoing

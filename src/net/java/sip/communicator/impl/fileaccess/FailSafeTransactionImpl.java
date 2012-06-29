@@ -8,7 +8,8 @@
 package net.java.sip.communicator.impl.fileaccess;
 
 import java.io.*;
-import net.java.sip.communicator.service.fileaccess.*;
+
+import org.jitsi.service.fileaccess.*;
 
 /**
  * A failsafe transaction class. By failsafe we mean here that the file

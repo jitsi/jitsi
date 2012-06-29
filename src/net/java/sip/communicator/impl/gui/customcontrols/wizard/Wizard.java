@@ -16,8 +16,9 @@ import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * This class implements a basic wizard dialog, where the programmer can insert

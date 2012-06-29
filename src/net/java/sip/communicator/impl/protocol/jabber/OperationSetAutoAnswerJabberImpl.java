@@ -6,12 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
-
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * An Operation Set defining option to unconditionally auto answer incoming

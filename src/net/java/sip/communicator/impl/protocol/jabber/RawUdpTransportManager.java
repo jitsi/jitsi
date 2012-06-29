@@ -12,8 +12,9 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.cobri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * A {@link TransportManagerJabberImpl} implementation that would only gather a

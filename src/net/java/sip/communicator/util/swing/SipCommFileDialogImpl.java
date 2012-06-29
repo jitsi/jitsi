@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.util.swing;
 
-import net.java.sip.communicator.util.*;
-
 import java.awt.*;
 import java.io.*;
+
+import org.jitsi.util.*;
 
 /**
  * Implements <tt>SipCommFileChooser</tt> for AWT's <tt>FileDialog</tt>.

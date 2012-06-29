@@ -12,10 +12,11 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.util.*;
 
 import com.explodingpixels.macwidgets.*;
 

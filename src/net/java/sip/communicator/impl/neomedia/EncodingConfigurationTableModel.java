@@ -10,10 +10,11 @@ import java.util.*;
 
 import javax.swing.table.*;
 
-import net.java.sip.communicator.impl.neomedia.codec.*;
-import net.java.sip.communicator.impl.neomedia.format.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.format.*;
+import org.jitsi.impl.neomedia.*;
+import org.jitsi.impl.neomedia.codec.*;
+import org.jitsi.impl.neomedia.format.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.format.*;
 
 /**
  * Implements {@link TableModel} for {@link EncodingConfiguration}.

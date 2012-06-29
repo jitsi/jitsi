@@ -15,8 +15,9 @@ import javax.swing.text.*;
 import net.java.sip.communicator.plugin.securityconfig.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * UI dialog to change the master password.

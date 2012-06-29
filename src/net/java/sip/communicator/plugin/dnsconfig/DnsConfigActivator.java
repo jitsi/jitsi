@@ -8,11 +8,11 @@ package net.java.sip.communicator.plugin.dnsconfig;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
 
 /**

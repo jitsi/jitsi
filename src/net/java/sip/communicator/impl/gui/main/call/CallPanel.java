@@ -16,22 +16,24 @@ import javax.swing.Timer;
 import javax.swing.border.*;
 import javax.swing.event.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.border.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.device.*;
+import org.jitsi.util.*;
+import org.osgi.framework.*;
 
 /**
  * The dialog created for a given call.

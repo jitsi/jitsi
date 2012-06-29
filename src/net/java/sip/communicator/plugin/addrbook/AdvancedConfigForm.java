@@ -10,10 +10,11 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.plugin.addrbook.macosx.MacOSXAddrBookContactSourceService;
-import net.java.sip.communicator.plugin.addrbook.msoutlook.MsOutlookAddrBookContactSourceService;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.plugin.addrbook.macosx.*;
+import net.java.sip.communicator.plugin.addrbook.msoutlook.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.util.*;
 
 /**
  * Implementation of the advanced address book configuration form.

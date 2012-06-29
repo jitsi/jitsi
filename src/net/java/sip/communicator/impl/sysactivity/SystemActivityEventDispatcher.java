@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.sysactivity;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.sysactivity.*;
 import net.java.sip.communicator.service.sysactivity.event.*;
 import net.java.sip.communicator.util.*;
-
-import java.util.*;
 
 /**
  * The class implements a dispatch event thread. The thread will

@@ -12,7 +12,7 @@ import javax.xml.parsers.*;
 import org.osgi.framework.*;
 import org.w3c.dom.*;
 import junit.framework.*;
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.xml.*;
 
 /**

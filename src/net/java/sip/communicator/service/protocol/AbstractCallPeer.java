@@ -11,7 +11,9 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.event.*;
+
+import org.jitsi.service.protocol.event.*;
+import org.jitsi.util.event.*;
 
 /**
  * Provides a default implementation for most of the <tt>CallPeer</tt> methods

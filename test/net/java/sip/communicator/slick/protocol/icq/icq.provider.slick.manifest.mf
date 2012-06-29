@@ -6,7 +6,7 @@ Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: junit.framework,
  javax.net,
- net.java.sip.communicator.service.configuration,
+ org.jitsi.service.configuration,
  org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.dns,
@@ -14,4 +14,4 @@ Import-Package: junit.framework,
  net.java.sip.communicator.service.protocol.icqconstants,
  net.java.sip.communicator.service.protocol.aimconstants,
  net.java.sip.communicator.service.protocol.event,
- net.java.sip.communicator.service.fileaccess
+ org.jitsi.service.fileaccess

@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger; // disambiguation
 

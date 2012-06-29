@@ -6,20 +6,23 @@
  */
 package net.java.sip.communicator.plugin.notificationwiring;
 
+import java.awt.image.*;
+import java.net.*;
+import java.util.*;
+
+import javax.imageio.*;
+
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
-import org.osgi.framework.*;
 
-import javax.imageio.*;
-import java.awt.image.*;
-import java.net.*;
-import java.util.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.protocol.event.*;
+import org.osgi.framework.*;
 
 /**
  * Listens for all kinds of events and triggers when needed a notification,

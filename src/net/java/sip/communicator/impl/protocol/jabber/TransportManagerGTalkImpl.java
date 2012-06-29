@@ -11,26 +11,26 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import org.ice4j.*;
-import org.ice4j.ice.*;
-import org.ice4j.ice.harvest.*;
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.*;
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.packet.IQ.*;
-import org.jivesoftware.smack.util.StringUtils;
-import org.xmpp.jnodes.smack.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.httputil.HttpUtils.HTTPResponseResult;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+
+import org.ice4j.*;
+import org.ice4j.ice.*;
+import org.ice4j.ice.harvest.*;
+import org.jitsi.service.neomedia.*;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.IQ.Type;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.StringUtils;
+import org.xmpp.jnodes.smack.*;
 
 /**
  * <tt>TransportManager</tt>s gather local candidates for incoming and outgoing

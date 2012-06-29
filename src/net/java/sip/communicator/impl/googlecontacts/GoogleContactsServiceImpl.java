@@ -11,7 +11,7 @@ import java.net.*;
 import java.util.*;
 import java.util.regex.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.impl.googlecontacts.configform.*;

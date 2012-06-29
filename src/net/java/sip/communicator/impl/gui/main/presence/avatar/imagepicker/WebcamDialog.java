@@ -13,10 +13,13 @@ import java.awt.image.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.TransparentPanel;
+
+import org.jitsi.service.audionotifier.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.util.swing.*;
 
 /**
  * A dialog showing the webcam and allowing the user to grap a snapshot 

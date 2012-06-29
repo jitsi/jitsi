@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.cobri;
 
-import net.java.sip.communicator.service.neomedia.*;
+import org.jitsi.service.neomedia.*;
 
 /**
  * Implements a <tt>StreamConnector</tt> which allows sharing a specific

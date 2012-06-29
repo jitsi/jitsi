@@ -9,8 +9,9 @@ package net.java.sip.communicator.service.protocol;
 import java.text.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.event.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * An Operation Set defining all basic telephony operations such as conducting

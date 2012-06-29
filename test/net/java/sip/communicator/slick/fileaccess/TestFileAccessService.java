@@ -3,9 +3,10 @@ package net.java.sip.communicator.slick.fileaccess;
 import java.io.*;
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
-import net.java.sip.communicator.service.fileaccess.*;
+
+import org.jitsi.service.fileaccess.*;
+import org.osgi.framework.*;
 
 public class TestFileAccessService extends TestCase {
 

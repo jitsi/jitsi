@@ -8,11 +8,14 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.neomedia.codec.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.impl.neomedia.codec.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.format.*;
+import org.jitsi.service.protocol.*;
 
 /**
  * Class responsible for sending a DTMF Tone using using rfc4733 or Inband.

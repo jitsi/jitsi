@@ -7,7 +7,7 @@ System-Bundle: yes
 Import-Package: net.java.sip.communicator.util,
  net.java.sip.communicator.util.dns,
  net.java.sip.communicator.service.netaddr,
- net.java.sip.communicator.service.configuration,
+ org.jitsi.service.configuration,
  junit,
  junit.framework,
  junit.textui,

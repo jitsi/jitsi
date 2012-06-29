@@ -8,6 +8,8 @@ package net.java.sip.communicator.plugin.zeroconfaccregwizz;
 
 import net.java.sip.communicator.service.resources.*;
 
+import org.jitsi.service.resources.*;
+
 /**
  * The Resources class manages the access to the internationalization
  * properties files and the images properties file.

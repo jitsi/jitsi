@@ -13,11 +13,12 @@ import java.util.List;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-
-import net.java.sip.communicator.service.audionotifier.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.audionotifier.*;
+import org.jitsi.service.protocol.*;
 
 /**
  * Handles DTMF sending and playing sound notifications for that.

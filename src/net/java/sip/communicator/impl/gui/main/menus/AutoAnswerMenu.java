@@ -10,17 +10,18 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 
+import javax.swing.*;
+import javax.swing.border.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
-import org.osgi.framework.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * The auto answer menu dynamically adds/removes menu items for enabled/disabled

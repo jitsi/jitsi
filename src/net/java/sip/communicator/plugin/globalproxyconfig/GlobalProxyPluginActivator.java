@@ -9,7 +9,7 @@ package net.java.sip.communicator.plugin.globalproxyconfig;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;

@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;

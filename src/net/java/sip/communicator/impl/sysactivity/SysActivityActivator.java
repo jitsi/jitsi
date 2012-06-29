@@ -7,9 +7,9 @@
 package net.java.sip.communicator.impl.sysactivity;
 
 import net.java.sip.communicator.service.sysactivity.*;
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * Listens for system activity changes like sleep, network change, inactivity
@@ -23,8 +23,7 @@ public class SysActivityActivator
     /**
      * The logger.
      */
-    private Logger logger = Logger.getLogger(
-        SysActivityActivator.class.getName());
+    private final Logger logger = Logger.getLogger(SysActivityActivator.class);
 
     /**
      * The OSGi service registration.

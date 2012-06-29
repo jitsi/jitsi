@@ -16,14 +16,18 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.event.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.TransparentPanel;
+
+import org.jitsi.impl.neomedia.*;
+import org.jitsi.impl.neomedia.device.*;
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.device.*;
+import org.jitsi.service.neomedia.event.*;
+import org.jitsi.service.resources.*;
+import org.jitsi.util.swing.*;
 
 /**
  * @author Lyubomir Marinov

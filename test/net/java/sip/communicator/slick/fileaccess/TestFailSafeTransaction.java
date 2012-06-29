@@ -9,11 +9,10 @@ package net.java.sip.communicator.slick.fileaccess;
 
 import java.io.*;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-
-import net.java.sip.communicator.service.fileaccess.*;
 import junit.framework.*;
+
+import org.jitsi.service.fileaccess.*;
+import org.osgi.framework.*;
 
 /**
  * Tests for the fail safe transactions

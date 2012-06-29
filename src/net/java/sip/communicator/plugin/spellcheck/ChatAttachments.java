@@ -14,10 +14,10 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.dts.spell.dictionary.*;
+import org.jitsi.service.resources.*;
 
 /**
  * Wrapper for handling the multiple listeners associated with chats for the

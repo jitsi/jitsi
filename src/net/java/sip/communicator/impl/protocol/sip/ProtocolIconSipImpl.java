@@ -10,8 +10,9 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * Represents the Sip protocol icon. Implements the <tt>ProtocolIcon</tt>

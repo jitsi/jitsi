@@ -14,9 +14,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.resources.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * @author Werner Dittmann

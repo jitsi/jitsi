@@ -6,9 +6,9 @@
  */
 package net.java.sip.communicator.launcher;
 
-import com.apple.eio.*;
+import org.jitsi.util.*;
 
-import net.java.sip.communicator.util.*;
+import com.apple.eio.*;
 
 /**
  * A simple implementation of the BrowserLauncherService. Checks the operating

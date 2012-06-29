@@ -11,9 +11,10 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
 
-import org.jdesktop.jdic.desktop.*;
+import net.java.sip.communicator.util.Logger;
 
-import net.java.sip.communicator.util.*;
+import org.jdesktop.jdic.desktop.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>Desktop</tt> class handles desktop operations through the default

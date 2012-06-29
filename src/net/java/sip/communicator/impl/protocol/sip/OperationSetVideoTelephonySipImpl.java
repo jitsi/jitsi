@@ -10,14 +10,15 @@ import java.io.*;
 import java.text.*;
 
 import javax.sip.*;
-import javax.sip.address.Address;
+import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * Implements <tt>OperationSetVideoTelephony</tt> in order to give access to

@@ -15,9 +15,10 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.util.*;
 
 /**
  * The SCScrollPane is a JScrollPane with a custom viewport that allows to

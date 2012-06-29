@@ -8,12 +8,12 @@ package net.java.sip.communicator.plugin.notificationconfiguration;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.audionotifier.*;
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**

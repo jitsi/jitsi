@@ -8,15 +8,15 @@ package net.java.sip.communicator.plugin.provisioning;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.provdisc.*;
 import net.java.sip.communicator.service.provisioning.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**

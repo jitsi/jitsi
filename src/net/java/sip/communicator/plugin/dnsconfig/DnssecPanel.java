@@ -8,20 +8,20 @@ package net.java.sip.communicator.plugin.dnsconfig;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.*;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.table.*;
 
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.impl.gui.customcontrols.ErrorDialog;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.dns.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * Configuration of the DNSSEC validating resolver.

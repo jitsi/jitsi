@@ -15,7 +15,7 @@ import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;

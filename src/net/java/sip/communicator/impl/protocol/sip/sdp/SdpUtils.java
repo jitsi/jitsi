@@ -12,14 +12,17 @@ import java.net.URI;
 import java.util.*;
 
 import javax.sdp.*;
-import javax.sip.header.ContentTypeHeader; // disambiguates MediaType
+import javax.sip.header.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.MediaType;
+import org.jitsi.service.neomedia.format.*;
+// disambiguates MediaType
 
 /**
  * The class contains a number of utility methods that are meant to facilitate

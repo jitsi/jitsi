@@ -2,10 +2,11 @@ package net.java.sip.communicator.slick.fileaccess;
 
 import java.util.*;
 
-import org.osgi.framework.*;
 import junit.framework.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.fileaccess.*;
+import org.osgi.framework.*;
 
 /**
  * This class launches the bundle which tests the fileaccess bundle. This bundle

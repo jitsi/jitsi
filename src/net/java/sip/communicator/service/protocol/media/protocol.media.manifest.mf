@@ -5,15 +5,16 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
- net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.neomedia,
- net.java.sip.communicator.service.neomedia.control,
- net.java.sip.communicator.service.neomedia.device,
- net.java.sip.communicator.service.neomedia.event,
- net.java.sip.communicator.service.neomedia.format,
+ org.jitsi.service.configuration,
+ org.jitsi.service.neomedia,
+ org.jitsi.service.neomedia.control,
+ org.jitsi.service.neomedia.device,
+ org.jitsi.service.neomedia.event,
+ org.jitsi.service.neomedia.format,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.service.netaddr,
+ org.jitsi.util,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.event,
  org.ice4j.ice

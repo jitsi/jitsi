@@ -6,10 +6,12 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.net.*;
 import java.beans.*;
+import java.net.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
+
+import org.jitsi.service.protocol.event.*;
 
 /**
  * The CallPeer is an interface that represents peers in a call.

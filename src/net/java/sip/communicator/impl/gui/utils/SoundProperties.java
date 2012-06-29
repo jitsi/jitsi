@@ -7,7 +7,8 @@
 package net.java.sip.communicator.impl.gui.utils;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.service.resources.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * Manages the access to the properties file containing all sounds paths.

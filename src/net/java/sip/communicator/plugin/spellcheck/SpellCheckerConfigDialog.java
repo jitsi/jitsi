@@ -13,12 +13,12 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-import org.dts.spell.dictionary.*;
-
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.dts.spell.dictionary.*;
+import org.jitsi.service.resources.*;
 
 /**
  * The spell check dialog that would be opened from the right click menu in the

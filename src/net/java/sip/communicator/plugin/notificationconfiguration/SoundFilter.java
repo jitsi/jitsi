@@ -9,8 +9,9 @@ package net.java.sip.communicator.plugin.notificationconfiguration;
 
 import java.io.*;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.util.*;
 
 /**
  * Filter to display only the sound files in the filechooser.

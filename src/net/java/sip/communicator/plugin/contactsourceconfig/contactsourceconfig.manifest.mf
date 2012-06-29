@@ -8,8 +8,8 @@ Import-Package: net.java.sip.communicator.service.contactsource,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.gui,
  net.java.sip.communicator.util.swing,
- net.java.sip.communicator.service.resources,
- net.java.sip.communicator.service.configuration,
+ org.jitsi.service.resources, net.java.sip.communicator.service.resources,
+ org.jitsi.service.configuration,
  org.osgi.framework,
  javax.swing
 System-Bundle: yes

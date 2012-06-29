@@ -11,17 +11,17 @@ import java.util.*;
 
 import javax.xml.parsers.*;
 
-import org.osgi.framework.*;
-import org.w3c.dom.*;
-
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
 import net.java.sip.communicator.util.xml.XMLUtils;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.osgi.framework.*;
+import org.w3c.dom.*;
 
 /**
  * The class handles read / write operations over the file where a persistent

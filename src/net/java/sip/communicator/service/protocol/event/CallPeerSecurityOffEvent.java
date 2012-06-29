@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.protocol.event;
 
 import net.java.sip.communicator.service.protocol.*;
 
+import org.jitsi.service.protocol.event.*;
+
 /**
  * The <tt>CallPeerSecurityAuthenticationEvent</tt> is triggered whenever
  * a the security strings are received in a secure call.

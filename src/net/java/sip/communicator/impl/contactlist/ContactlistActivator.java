@@ -7,10 +7,10 @@
 package net.java.sip.communicator.impl.contactlist;
 
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
 
 /**

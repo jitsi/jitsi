@@ -13,12 +13,13 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * The basic panel used to render any conference participant. Meant to be

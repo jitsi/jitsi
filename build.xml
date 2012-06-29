@@ -471,8 +471,15 @@
         </javac>
 
 
-        <taskdef name="sip-communicator-version" classpath="${dest}"
-                 classname="net.java.sip.communicator.impl.version.SipCommunicatorVersionTask"/>
+        <taskdef
+            name="sip-communicator-version"
+            classname="net.java.sip.communicator.impl.version.SipCommunicatorVersionTask">
+
+            <classpath>
+                <pathelement path="${dest}"/>
+            	<pathelement location="${lib.noinst}/libjitsi.jar"/>
+            </classpath>
+        </taskdef>
 
         <sip-communicator-version property="sip-communicator.version" />
 
@@ -905,7 +912,7 @@
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
         bundle-commons-codec,bundle-httputil,bundle-plugin-spellcheck,
-        bundle-version,bundle-version-impl,bundle-shutdown-timeout,
+        bundle-version-impl,bundle-shutdown-timeout,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
         bundle-systemactivitynotifications,
@@ -935,7 +942,7 @@
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
-        bundle-globalshortcut,bundle-plugin-msofficecomm"/>
+        bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1073,8 +1080,6 @@
             destfile="${bundles.dest}/configuration.jar"
             manifest="${src}/net/java/sip/communicator/impl/configuration/configuration.manifest.mf" >
 
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/configuration"
-                prefix="net/java/sip/communicator/service/configuration"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/configuration"
                 prefix="net/java/sip/communicator/impl/configuration" />
         </jar>
@@ -1120,24 +1125,33 @@
         </jar>
     </target>
 
+    <!--BUNDLE-LIBJITSI -->
+    <target name="bundle-libjitsi">
+        <jar
+            compress="false"
+            destfile="${bundles.dest}/libjitsi.jar"
+            manifest="${src}/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf">
+
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
+                prefix="net/java/sip/communicator/impl/libjitsi"/>
+            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/libjitsi.jar" prefix=""/>
+        </jar>
+    </target>
+
     <!--BUNDLE-NEOMEDIA-->
     <target name="bundle-neomedia">
         <!-- Creates a bundle containing the impl of the neomedia package and
             FMJ. -->
         <jar
-            compress="false" destfile="${bundles.dest}/neomedia.jar"
+            compress="false"
+            destfile="${bundles.dest}/neomedia.jar"
             manifest="${src}/net/java/sip/communicator/impl/neomedia/neomedia.manifest.mf">
 
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/neomedia"
-                prefix="net/java/sip/communicator/service/neomedia"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/neomedia"
                 prefix="net/java/sip/communicator/impl/neomedia"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/audionotifier"
-                prefix="net/java/sip/communicator/service/audionotifier"/>
             <zipfileset dir="${resources}/images/impl/media"
                 prefix="resources/images/impl/media"/>
-            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jspeex.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1697,16 +1711,6 @@ javax.swing.event, javax.swing.border"/>
                 manifest="${src}/net/java/sip/communicator/plugin/facebookaccregwizz/facebookaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/facebookaccregwizz"
                     prefix="net/java/sip/communicator/plugin/facebookaccregwizz" />
-        </jar>
-    </target>
-
-    <!-- BUNDLE-SERVICE-VERSION -->
-    <target name="bundle-version">
-        <!-- Creates a bundle for the version service.-->
-        <jar compress="false" destfile="${bundles.dest}/version.jar"
-            manifest="${src}/net/java/sip/communicator/service/version/version.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/version"
-                prefix="net/java/sip/communicator/service/version"/>
         </jar>
     </target>
 
@@ -2666,8 +2670,6 @@ javax.swing.event, javax.swing.border"/>
     <target name="bundle-packetlogging">
         <jar compress="false" destfile="${bundles.dest}/packetlogging.jar"
             manifest="${src}/net/java/sip/communicator/impl/packetlogging/packetlogging.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/packetlogging"
-                prefix="net/java/sip/communicator/service/packetlogging" />
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/packetlogging"
                 prefix="net/java/sip/communicator/impl/packetlogging" />
         </jar>

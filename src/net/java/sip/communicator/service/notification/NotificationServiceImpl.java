@@ -8,7 +8,7 @@ package net.java.sip.communicator.service.notification;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.notification.event.*;
 import net.java.sip.communicator.util.*;
 import static net.java.sip.communicator.service.notification.NotificationAction.*;

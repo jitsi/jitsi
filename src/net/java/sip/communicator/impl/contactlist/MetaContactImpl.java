@@ -11,9 +11,10 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.fileaccess.*;
 
 /**
  * A default implementation of the <code>MetaContact</code> interface.

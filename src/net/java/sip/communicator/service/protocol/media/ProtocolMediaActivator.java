@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.service.protocol.media;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.*;
 import org.osgi.framework.*;
 
 /**

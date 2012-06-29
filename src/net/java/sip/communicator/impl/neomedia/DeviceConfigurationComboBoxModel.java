@@ -16,8 +16,8 @@ import javax.media.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.*;
+import org.jitsi.impl.neomedia.device.*;
+import org.jitsi.service.neomedia.*;
 
 /**
  * @author Lubomir Marinov

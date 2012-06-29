@@ -6,6 +6,6 @@ Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: javax.imageio,
  net.java.sip.communicator.service.systray,
- net.java.sip.communicator.service.resources,
+ org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
  org.osgi.framework

@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.HANGUP_REASON_ENCRYPTION_REQUIRED;
+import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.HANGUP_REASON_NORMAL_CLEARING;
+import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.HANGUP_REASON_TIMEOUT;
 import gov.nist.javax.sip.header.*;
 
 import java.net.*;
@@ -19,14 +22,13 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
-import net.java.sip.communicator.service.neomedia.control.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
-import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.*;
+import org.jitsi.service.neomedia.control.*;
 
 /**
  * Our SIP implementation of the default CallPeer;

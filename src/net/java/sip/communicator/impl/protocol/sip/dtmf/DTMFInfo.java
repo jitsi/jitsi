@@ -18,8 +18,11 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.protocol.*;
 
 /**
  * Sending DTMFs with SIP INFO.

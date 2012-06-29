@@ -11,10 +11,11 @@ import java.text.*;
 
 import javax.sip.address.*;
 
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.format.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.device.*;
+import org.jitsi.service.neomedia.format.*;
 
 /**
  * Implements all desktop streaming related functions for SIP.

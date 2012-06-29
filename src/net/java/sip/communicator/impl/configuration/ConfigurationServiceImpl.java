@@ -11,11 +11,11 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.configuration.xml.*;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
 
 /**
@@ -556,18 +556,13 @@ public class ConfigurationServiceImpl
         {
             logger.error("Failed to load the configuration file", ex);
         }
-        catch (XMLException ex)
-        {
-            logger.error("Failed to parse the configuration file", ex);
-        }
     }
 
     /*
      * Implements ConfigurationService#reloadConfiguration().
      */
     public void reloadConfiguration()
-        throws IOException,
-               XMLException
+        throws IOException
     {
         this.configurationFile = null;
 
@@ -591,7 +586,17 @@ public class ConfigurationServiceImpl
             }
         }
 
-        store.reloadConfiguration(file);
+        try
+        {
+            store.reloadConfiguration(file);
+        }
+        catch (XMLException xmle)
+        {
+            IOException ioe = new IOException();
+
+            ioe.initCause(xmle);
+            throw ioe;
+        }
     }
 
     /*

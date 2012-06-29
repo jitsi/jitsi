@@ -8,9 +8,9 @@ package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 
-import javax.swing.JFileChooser;
+import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
+import org.jitsi.util.*;
 
 
 /**

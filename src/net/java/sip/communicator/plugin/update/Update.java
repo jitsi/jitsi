@@ -11,18 +11,22 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.List; // disambiguation
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.httputil.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.service.update.UpdateService;
-import net.java.sip.communicator.service.version.*;
+import net.java.sip.communicator.service.update.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
+import org.jitsi.service.version.*;
+import org.jitsi.util.*;
+// disambiguation
 
 /**
  * Implements checking for software updates, downloading and applying them i.e.

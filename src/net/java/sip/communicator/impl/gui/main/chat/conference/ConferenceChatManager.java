@@ -20,12 +20,12 @@ import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
-// Java 1.6 has javax.swing.SwingWorker so we have to disambiguate.
-import org.jdesktop.swingworker.SwingWorker;
+import org.jdesktop.swingworker.*;
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
+// Java 1.6 has javax.swing.SwingWorker so we have to disambiguate.
 
 /**
  * The <tt>ConferenceChatManager</tt> is the one that manages both chat room and

@@ -7,18 +7,22 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.header.*;
-import net.java.sip.communicator.impl.protocol.sip.sdp.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
+import java.util.*;
+
+import javax.sdp.*;
 import javax.sip.*;
 import javax.sip.address.*;
-import javax.sip.header.ContactHeader; // Disambiguation.
+import javax.sip.header.*;
 import javax.sip.message.*;
-import javax.sdp.*;
-import java.util.*;
+
+import net.java.sip.communicator.impl.protocol.sip.sdp.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.MediaType;
+// Disambiguation.
 
 /**
  * An Operation Set defining options to auto answer/forward incoming calls.

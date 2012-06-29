@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.protocol.*;
 
 /**
  * A wrapper of media quality control.
@@ -57,11 +58,17 @@ public class QualityControlWrapper
                 // re-invites the peer with the new settings
                 peer.sendModifyVideoResolutionContent();
             }
-            catch (Throwable ex)
+            catch (Throwable cause)
             {
-                ProtocolProviderServiceJabberImpl.throwOperationFailedException(
-                    "Failed to re-invite for video quality change.",
-                    OperationFailedException.INTERNAL_ERROR, ex, logger);
+                String message
+                    = "Failed to re-invite for video quality change.";
+
+                logger.error(message, cause);
+
+                throw new OperationFailedException(
+                        message,
+                        OperationFailedException.INTERNAL_ERROR,
+                        cause);
             }
         }
     }

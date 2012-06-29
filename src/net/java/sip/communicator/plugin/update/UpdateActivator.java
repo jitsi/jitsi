@@ -9,12 +9,14 @@ package net.java.sip.communicator.plugin.update;
 import java.util.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.shutdown.*;
-import net.java.sip.communicator.service.update.UpdateService;
+import net.java.sip.communicator.service.update.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**

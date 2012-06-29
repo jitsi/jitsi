@@ -6,9 +6,10 @@
  */
 package net.java.sip.communicator.impl.version;
 
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
+import org.jitsi.service.version.*;
 
 /**
  * A static implementation of the Version interface.

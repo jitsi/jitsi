@@ -1,6 +1,0 @@
-Bundle-Name: Version Service Implementation
-Bundle-Description: Version Service Implementation.
-Bundle-Vendor: jitsi.org
-Bundle-Version: 0.0.1
-System-Bundle: yes
-Export-Package: net.java.sip.communicator.service.version

@@ -12,16 +12,18 @@ import java.util.*;
 
 import javax.swing.*;
 
-import com.explodingpixels.macwidgets.*;
-
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
 import org.ice4j.ice.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
+
+import com.explodingpixels.macwidgets.*;
 
 /**
  * The frame displaying the statistical information for a call.
@@ -495,8 +497,8 @@ public class CallInfoFrame
         }
 
         String rtpType;
-        SrtpControl srtpControl = callPeerMediaHandler
-            .getEncryptionMethod(mediaType);
+        SrtpControl srtpControl
+            = callPeerMediaHandler.getEncryptionMethod(mediaType);
         // If the stream is secured.
         if(srtpControl != null)
         {

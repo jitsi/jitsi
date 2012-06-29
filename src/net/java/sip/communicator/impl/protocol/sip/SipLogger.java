@@ -9,13 +9,16 @@ package net.java.sip.communicator.impl.protocol.sip;
 import gov.nist.core.*;
 import gov.nist.javax.sip.*;
 import gov.nist.javax.sip.message.*;
-import javax.sip.*;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.packetlogging.*;
+import javax.sip.*;
+
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.packetlogging.*;
 
 /**
  * This class passes log calls from JAIN-SIP to log4j, so that it is possible

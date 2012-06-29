@@ -36,6 +36,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/junit.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/laf-widget.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/libphonenumber-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jain-sdp.jar">
 		<attributes>

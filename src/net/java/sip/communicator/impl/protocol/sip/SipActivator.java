@@ -8,20 +8,20 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.packetlogging.*;
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.packetlogging.*;
+import org.jitsi.service.resources.*;
+import org.jitsi.service.version.*;
+import org.osgi.framework.*;
 
 /**
  * Activates the SIP package

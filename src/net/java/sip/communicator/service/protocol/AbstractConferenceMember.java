@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.util.event.*;
+import org.jitsi.util.event.*;
 
 /**
  * Provides the default implementation of the <tt>ConferenceMember</tt>

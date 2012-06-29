@@ -12,11 +12,11 @@ import java.util.List;
 
 import javax.swing.table.*;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.resources.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.dns.*;
 
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**

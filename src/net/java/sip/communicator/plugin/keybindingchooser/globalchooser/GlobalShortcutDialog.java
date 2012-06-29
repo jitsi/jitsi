@@ -9,16 +9,18 @@ package net.java.sip.communicator.plugin.keybindingchooser.globalchooser;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List; // disambiguation
+import java.util.List;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.keybindingchooser.*;
 import net.java.sip.communicator.service.globalshortcut.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.plaf.*;
+
+import org.jitsi.util.*;
+// disambiguation
 
 /**
  * Dialog to choose the shortcut.

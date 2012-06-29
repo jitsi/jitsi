@@ -9,11 +9,11 @@ package net.java.sip.communicator.impl.protocol.yahoo;
 import java.io.*;
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * Represents the Yahoo protocol icon. Implements the <tt>ProtocolIcon</tt>

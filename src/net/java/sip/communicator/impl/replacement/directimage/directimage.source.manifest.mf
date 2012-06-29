@@ -5,8 +5,8 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 1.0.0
 System-Bundle: yes
 Import-Package: org.osgi.framework,
+ org.jitsi.service.version,
  net.java.sip.communicator.service.replacement,
- net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.resources,
- net.java.sip.communicator.util,
- net.java.sip.communicator.service.version
+ org.jitsi.service.configuration,
+ org.jitsi.service.resources, net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.util

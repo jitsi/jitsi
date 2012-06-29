@@ -18,8 +18,9 @@ import javax.naming.ldap.*;
 import javax.security.auth.x500.*;
 import javax.swing.*;
 
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * Panel that shows the content of an X509Certificate.

@@ -7,7 +7,9 @@
 package net.java.sip.communicator.impl.browserlauncher;
 
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.util.*;
 
 import com.apple.eio.*;
 

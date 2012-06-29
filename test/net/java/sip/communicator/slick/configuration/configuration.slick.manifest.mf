@@ -5,7 +5,7 @@ Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: junit.framework,
- net.java.sip.communicator.service.configuration,
+ org.jitsi.service.configuration,
  org.osgi.framework,
  org.w3c.dom,
  javax.xml.parsers,

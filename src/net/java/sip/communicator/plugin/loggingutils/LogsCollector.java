@@ -5,13 +5,15 @@
  */
 package net.java.sip.communicator.plugin.loggingutils;
 
-import net.java.sip.communicator.util.*;
-
 import java.io.*;
 import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 import java.util.zip.*;
+
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.util.*;
 
 /**
  * Collects logs and save them in compressed zip file.

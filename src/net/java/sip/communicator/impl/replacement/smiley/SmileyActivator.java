@@ -10,9 +10,9 @@ import java.util.*;
 
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**

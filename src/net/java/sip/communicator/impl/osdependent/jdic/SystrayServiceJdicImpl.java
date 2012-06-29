@@ -6,27 +6,29 @@
  */
 package net.java.sip.communicator.impl.osdependent.jdic;
 
-import com.apple.eawt.*;
-
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
-import net.java.sip.communicator.service.configuration.*;
+import net.java.sip.communicator.impl.osdependent.SystemTray;
+import net.java.sip.communicator.impl.osdependent.TrayIcon;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
+
+import com.apple.eawt.*;
 
 /**
  * The <tt>Systray</tt> provides a Icon and the associated <tt>TrayMenu</tt>

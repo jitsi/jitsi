@@ -8,7 +8,7 @@ package net.java.sip.communicator.util.swing;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
+import org.jitsi.util.*;
 
 /**
  * @author Ingo Bauersachs

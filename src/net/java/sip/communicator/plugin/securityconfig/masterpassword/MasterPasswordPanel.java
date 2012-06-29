@@ -12,11 +12,12 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.securityconfig.*;
-import net.java.sip.communicator.plugin.securityconfig.masterpassword.MasterPasswordChangeDialog.*;
+import net.java.sip.communicator.plugin.securityconfig.masterpassword.MasterPasswordChangeDialog.MasterPasswordExecutable;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * Panel containing the master password checkbox and change button.

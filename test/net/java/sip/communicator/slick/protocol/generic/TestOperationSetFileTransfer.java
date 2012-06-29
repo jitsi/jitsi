@@ -8,11 +8,13 @@ package net.java.sip.communicator.slick.protocol.generic;
 
 import java.io.*;
 import java.util.*;
+
 import junit.framework.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
 
 /**

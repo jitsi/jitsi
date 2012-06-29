@@ -14,6 +14,6 @@ Import-Package: org.osgi.framework,
  javax.swing.filechooser,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.xml,
- net.java.sip.communicator.service.fileaccess
-Export-Package: net.java.sip.communicator.service.fileaccess
+ org.jitsi.service.fileaccess,
+ org.jitsi.util
 Metadata-Location: /net/java/sip/communicator/impl/fileaccess/fileaccess.metadata.xml

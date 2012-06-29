@@ -6,29 +6,29 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
-import java.io.*;
-import java.util.List; // disambiguation
-import java.text.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.text.*;
+import java.util.List;
 
-import javax.sip.Dialog; // disambiguation
 import javax.sip.*;
+import javax.sip.Dialog;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 import javax.xml.parsers.*;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
-
-import net.java.sip.communicator.service.neomedia.MediaType; // disambiguation
-import net.java.sip.communicator.service.neomedia.format.*;
-import net.java.sip.communicator.service.neomedia.device.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.hid.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.MediaType;
+import org.jitsi.service.neomedia.device.*;
+import org.jitsi.service.neomedia.format.*;
+import org.w3c.dom.*;
+import org.xml.sax.*;
 
 /**
  * Implements all desktop sharing server-side related functions for SIP

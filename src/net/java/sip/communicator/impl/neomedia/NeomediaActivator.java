@@ -14,18 +14,20 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
-import net.java.sip.communicator.impl.neomedia.device.*;
-import net.java.sip.communicator.impl.neomedia.notify.*;
-import net.java.sip.communicator.service.audionotifier.*;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.impl.neomedia.*;
+import org.jitsi.impl.neomedia.device.*;
+import org.jitsi.service.audionotifier.*;
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.jitsi.service.libjitsi.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.packetlogging.*;
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
@@ -143,7 +145,7 @@ public class NeomediaActivator
         NeomediaActivator.bundleContext = bundleContext;
 
         // MediaService
-        mediaServiceImpl = new MediaServiceImpl();
+        mediaServiceImpl = (MediaServiceImpl) LibJitsi.getMediaService();
 
         bundleContext.registerService(
                 MediaService.class.getName(),
@@ -258,8 +260,7 @@ public class NeomediaActivator
 
         // AudioNotifierService
         AudioNotifierService audioNotifierService
-            = new AudioNotifierServiceImpl(
-                    mediaServiceImpl.getDeviceConfiguration());
+            = LibJitsi.getAudioNotifierService();
 
         audioNotifierService.setMute(
                 (cfg == null)

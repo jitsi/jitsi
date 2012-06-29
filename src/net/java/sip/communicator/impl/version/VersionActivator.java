@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.version;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.version.*;
-import net.java.sip.communicator.service.version.Version;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.version.*;
+import org.jitsi.service.version.Version;
 import org.osgi.framework.*;
 
 /**

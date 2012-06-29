@@ -8,14 +8,14 @@ package net.java.sip.communicator.impl.callhistory;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.service.history.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.history.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * Activates the <tt>CallHistoryService</tt>.

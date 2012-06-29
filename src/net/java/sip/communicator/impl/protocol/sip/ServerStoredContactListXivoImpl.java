@@ -7,17 +7,22 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.address.*;
-import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
-import org.json.*;
 
-import javax.sip.address.*;
 import java.io.*;
 import java.net.*;
 import java.net.URI;
 import java.util.*;
+
+import javax.sip.address.*;
+
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.util.*;
+import org.json.*;
 
 /**
  * Xivo server stored contact list. Currently no modifications are possible.

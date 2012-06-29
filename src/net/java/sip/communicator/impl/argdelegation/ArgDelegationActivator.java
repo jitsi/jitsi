@@ -6,15 +6,16 @@
  */
 package net.java.sip.communicator.impl.argdelegation;
 
+import java.lang.reflect.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.launchutils.*;
 
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 import com.apple.eawt.*;
-
-import java.lang.reflect.*;
 
 /**
  * Activates the <tt>ArgDelegationService</tt> and registers a URI delegation

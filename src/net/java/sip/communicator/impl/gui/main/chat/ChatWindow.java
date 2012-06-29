@@ -23,9 +23,11 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 import com.explodingpixels.macwidgets.*;

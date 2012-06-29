@@ -9,13 +9,13 @@ package net.java.sip.communicator.service.protocol.media;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.ice4j.ice.*;
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.*;
 
 /**
  * <tt>TransportManager</tt>s are responsible for allocating ports, gathering

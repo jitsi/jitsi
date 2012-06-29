@@ -17,18 +17,18 @@ import javax.sip.Dialog;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
-import javax.sip.message.Message; // disambiguation
+import javax.sip.message.Message;
 import javax.xml.parsers.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.MediaType; // disambiguation
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.xml.*;
 
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.MediaType;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 

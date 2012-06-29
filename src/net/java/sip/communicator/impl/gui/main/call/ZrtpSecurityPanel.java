@@ -14,15 +14,17 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.protocol.event.*;
+import org.jitsi.util.event.*;
 
 /**
  * The panel containing details about ZRTP call security.

@@ -6,10 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * Implements <tt>OperationSetVideoTelephony</tt> in order to give access to

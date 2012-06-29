@@ -6,16 +6,15 @@
  */
 package net.java.sip.communicator.impl.ldap;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.service.contactsource.ContactSourceService;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.ldap.*;
-import net.java.sip.communicator.service.protocol.PhoneNumberI18nService;
-import net.java.sip.communicator.service.resources.ResourceManagementService;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * Activates the LdapService

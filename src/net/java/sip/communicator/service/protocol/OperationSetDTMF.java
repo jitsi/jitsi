@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import org.jitsi.service.protocol.*;
+
 /**
  * An <tt>OperationSet</tt> that allows other modules to send DMF tones through
  * this protocol provider.

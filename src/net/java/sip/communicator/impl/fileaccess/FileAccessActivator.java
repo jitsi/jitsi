@@ -6,9 +6,8 @@
  */
 package net.java.sip.communicator.impl.fileaccess;
 
+import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
-
-import net.java.sip.communicator.service.fileaccess.*;
 
 /**
  * Invoke "Service Binder" to parse the service XML and register all services.

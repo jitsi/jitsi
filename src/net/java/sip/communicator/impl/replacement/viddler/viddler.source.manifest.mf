@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0
 System-Bundle: yes
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.replacement,
- net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.resources,
+ org.jitsi.service.configuration,
+ org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
  org.apache.http

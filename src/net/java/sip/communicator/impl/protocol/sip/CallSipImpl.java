@@ -14,11 +14,12 @@ import javax.sip.address.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * A SIP implementation of the Call abstract class encapsulating SIP dialogs.

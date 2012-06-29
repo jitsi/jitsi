@@ -17,7 +17,6 @@ import javax.swing.text.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -25,6 +24,11 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.swing.TransparentPanel;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.protocol.event.*;
+import org.jitsi.util.swing.*;
 
 /**
  * The <tt>OneToOneCallPeerPanel</tt> is the panel containing data for a call

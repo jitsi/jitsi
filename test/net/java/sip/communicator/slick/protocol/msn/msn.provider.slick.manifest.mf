@@ -8,10 +8,10 @@ Import-Package: junit.framework,
  org.osgi.framework,
  javax.net.ssl,
  javax.xml.parsers,
- net.java.sip.communicator.service.configuration,
+ org.jitsi.service.configuration,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.service.protocol.msnconstants,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.dns,
- net.java.sip.communicator.service.fileaccess
+ org.jitsi.service.fileaccess

@@ -8,8 +8,9 @@ package net.java.sip.communicator.plugin.update;
 import java.io.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * Implements methods to facilitate dealing with resources in the update

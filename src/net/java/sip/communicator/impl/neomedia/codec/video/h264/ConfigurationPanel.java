@@ -12,10 +12,12 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.neomedia.control.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.impl.neomedia.codec.video.h264.*;
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.control.*;
+import org.jitsi.service.resources.*;
 
 /**
  * Implements the H.264 configuration form (panel).

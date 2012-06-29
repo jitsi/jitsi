@@ -19,13 +19,14 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.transparent.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.device.*;
 
 /**
  * The <tt>CallManager</tt> is the one that handles calls. It contains also
@@ -1170,7 +1171,7 @@ public class CallManager
                         qualityControl.setPreferredRemoteSendMaxPreset(
                                 qualityPreset);
                     }
-                    catch(OperationFailedException e)
+                    catch(org.jitsi.service.protocol.OperationFailedException e)
                     {
                         logger.info("Unable to change video quality.", e);
 

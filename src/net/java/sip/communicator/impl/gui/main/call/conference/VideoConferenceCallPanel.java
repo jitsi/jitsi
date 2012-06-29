@@ -10,7 +10,8 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.call.CallPeerAdapter;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.util.swing.*;
 
 /**
  * The UI for video conference calls. This panel contains all conference peers

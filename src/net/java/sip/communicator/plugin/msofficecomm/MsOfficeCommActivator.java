@@ -6,8 +6,7 @@
  */
 package net.java.sip.communicator.plugin.msofficecomm;
 
-import net.java.sip.communicator.util.*;
-
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**

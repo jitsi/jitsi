@@ -9,12 +9,12 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.fileaccess.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
 import org.dts.spell.dictionary.*;
+import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
 
 /**

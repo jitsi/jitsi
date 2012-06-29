@@ -10,9 +10,10 @@ import java.awt.*;
 import java.util.*;
 
 import net.java.sip.communicator.plugin.generalconfig.*;
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * A Runnable, which permanently looks at the mouse position. If the mouse is

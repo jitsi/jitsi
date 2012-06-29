@@ -9,11 +9,12 @@ package net.java.sip.communicator.service.protocol.media;
 import java.beans.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.event.*;
 
 /**
  * A utility class implementing media control code shared between current

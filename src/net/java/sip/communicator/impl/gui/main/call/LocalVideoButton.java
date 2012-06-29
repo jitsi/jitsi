@@ -8,10 +8,11 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.device.*;
 
 /**
  * The local video button is the button used to start/stop video in a

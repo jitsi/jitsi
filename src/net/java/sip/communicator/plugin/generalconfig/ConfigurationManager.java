@@ -11,10 +11,12 @@ import java.util.*;
 
 import javax.net.ssl.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
 
 public class ConfigurationManager
 {

@@ -13,8 +13,9 @@ import java.lang.reflect.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.osdependent.SystemTray.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.impl.osdependent.SystemTray.SystemTrayPeer;
+
+import org.jitsi.util.*;
 
 /**
  * @author Lubomir Marinov

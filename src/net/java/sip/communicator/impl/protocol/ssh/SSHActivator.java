@@ -13,10 +13,12 @@ package net.java.sip.communicator.impl.protocol.ssh;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * Loads the SSH provider factory and registers its services in the OSGI

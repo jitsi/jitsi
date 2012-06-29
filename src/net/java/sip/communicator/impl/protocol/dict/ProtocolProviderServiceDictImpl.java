@@ -9,9 +9,9 @@ package net.java.sip.communicator.impl.protocol.dict;
 import net.java.dict4j.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.version.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.version.*;
 import org.osgi.framework.*;
 
 /**

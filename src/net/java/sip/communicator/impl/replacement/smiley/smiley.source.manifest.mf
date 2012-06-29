@@ -7,8 +7,8 @@ System-Bundle: yes
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.replacement,
  net.java.sip.communicator.service.replacement.smilies,
- net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.resources,
- net.java.sip.communicator.service.neomedia,
+ org.jitsi.service.configuration,
+ org.jitsi.service.resources, net.java.sip.communicator.service.resources,
+ org.jitsi.service.neomedia,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.gui

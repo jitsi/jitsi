@@ -21,6 +21,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.service.resources.*;
+
 /**
  * The <tt>ChatRoomsListRightButtonMenu</tt> is the menu, opened when user clicks
  * with the right mouse button on the chat rooms list panel. It's the one that

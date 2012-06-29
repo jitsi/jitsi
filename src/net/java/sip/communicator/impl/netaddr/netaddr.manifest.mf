@@ -4,8 +4,9 @@ Bundle-Description: A bundle that provides local address selection and negotiati
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: net.java.sip.communicator.service.configuration,
- net.java.sip.communicator.service.packetlogging,
+Import-Package: org.jitsi.service.configuration,
+ org.jitsi.service.packetlogging,
+ org.jitsi.util,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.dns,
  net.java.sip.communicator.service.sysactivity,

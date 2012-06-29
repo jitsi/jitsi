@@ -9,12 +9,14 @@ package net.java.sip.communicator.impl.protocol.sip;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.sip.net.*;
+import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.util.*;
 
 /**
  * The properties used at the creation of the JAIN-SIP stack.

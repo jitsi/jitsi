@@ -10,9 +10,11 @@ import java.io.*;
 
 import javax.swing.filechooser.*;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.jitsi.util.*;
 
 /**
  * Default FileAccessService implementation.

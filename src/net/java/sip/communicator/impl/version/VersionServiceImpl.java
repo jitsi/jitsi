@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.version;
 
-import net.java.sip.communicator.service.version.*;
+import org.jitsi.service.version.*;
 
 /**
  * The version service keeps track of the SIP Communicator version that we are

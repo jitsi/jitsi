@@ -8,7 +8,7 @@ package net.java.sip.communicator.slick.protocol.rss;
 
 import junit.framework.*;
 import org.osgi.framework.*;
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**

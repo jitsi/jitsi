@@ -1,7 +1,7 @@
 package net.java.sip.communicator.impl.netaddr;
 
-import net.java.sip.communicator.service.packetlogging.*;
 import org.ice4j.stack.*;
+import org.jitsi.service.packetlogging.*;
 
 /**
  * Logs Packets coming and going through ice4j stack.

@@ -10,8 +10,9 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * The master password input dialog.

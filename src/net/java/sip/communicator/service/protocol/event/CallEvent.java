@@ -8,8 +8,9 @@ package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * An event class representing that an incoming or an outgoing call has been

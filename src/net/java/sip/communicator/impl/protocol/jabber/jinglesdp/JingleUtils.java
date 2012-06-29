@@ -11,12 +11,14 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.format.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.CreatorEnum;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.NetworkUtils; //disambiguates with ice4j's network utils.
-import static net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.format.*;
+//disambiguates with ice4j's network utils.
 
 /**
  * The class contains a number of utility methods that are meant to facilitate

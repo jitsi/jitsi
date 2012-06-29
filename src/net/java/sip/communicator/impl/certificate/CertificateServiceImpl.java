@@ -11,7 +11,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
 import java.security.*;
-import java.security.KeyStore.*;
+import java.security.KeyStore.Builder;
 import java.security.cert.*;
 import java.security.cert.Certificate;
 import java.util.*;
@@ -20,17 +20,18 @@ import javax.net.ssl.*;
 import javax.security.auth.callback.*;
 import javax.swing.*;
 
+import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.httputil.*;
+import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.swing.*;
+
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.asn1.x509.X509Extension;
-
-import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.service.httputil.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 
 /**
  * Implementation of the CertificateService. It asks the user to trust a

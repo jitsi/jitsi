@@ -9,11 +9,12 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 
-import ch.imvs.sdes4j.srtp.SrtpCryptoSuite;
-
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.neomedia.*;
+
+import ch.imvs.sdes4j.srtp.*;
 
 /**
  * Contains the security settings for SIP media encryption.

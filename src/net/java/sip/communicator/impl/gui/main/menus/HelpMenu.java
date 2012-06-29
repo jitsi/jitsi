@@ -9,12 +9,12 @@ package net.java.sip.communicator.impl.gui.main.menus;
 import java.awt.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>HelpMenu</tt> is a menu in the main application menu bar.

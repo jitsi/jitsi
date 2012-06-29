@@ -13,9 +13,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.generalconfig.*;
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.resources.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>ConfigurationForm</tt> that would be added in the user interface

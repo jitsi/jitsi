@@ -12,8 +12,9 @@ import java.security.cert.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * Dialog that is shown to the user when a certificate verification failed.

@@ -6,17 +6,19 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
-
-import javax.swing.*;
 import java.awt.*;
 import java.text.*;
 import java.util.*;
 import java.util.Timer;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * @author Damian Minkov

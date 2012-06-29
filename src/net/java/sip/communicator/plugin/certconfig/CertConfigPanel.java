@@ -10,14 +10,15 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 
 /**
  * Advanced configuration form to define client TLS certificate templates.

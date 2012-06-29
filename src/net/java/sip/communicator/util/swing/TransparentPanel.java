@@ -8,25 +8,23 @@ package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 
-import javax.swing.*;
-
 /**
- * @author Yana Stamcheva
+ * Provides compatibility with source code written prior to the inception of
+ * libjitsi.
+ *
+ * @author Lyubomir Marinov
  */
 public class TransparentPanel
-    extends JPanel
+    extends org.jitsi.util.swing.TransparentPanel
 {
     private static final long serialVersionUID = 0L;
 
     public TransparentPanel()
     {
-        this.setOpaque(false);
     }
 
     public TransparentPanel(LayoutManager layout)
     {
         super(layout);
-
-        this.setOpaque(false);
     }
 }

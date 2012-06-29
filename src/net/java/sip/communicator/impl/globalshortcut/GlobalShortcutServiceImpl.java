@@ -6,14 +6,16 @@
  */
 package net.java.sip.communicator.impl.globalshortcut;
 
-import java.util.*;
-import java.util.List; // disambiguation
-
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.keybindings.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.util.*;
+// disambiguation
 
 /**
  * This global shortcut service permits to register listeners for global

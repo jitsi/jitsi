@@ -9,7 +9,7 @@ package net.java.sip.communicator.impl.configuration;
 import java.util.*;
 import java.beans.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 
 /**
  * This is a utility class that can be used by objects that support constrained

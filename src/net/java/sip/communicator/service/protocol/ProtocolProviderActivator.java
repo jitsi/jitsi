@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import org.osgi.framework.*;
-
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.resources.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * Implements <code>BundleActivator</code> for the purposes of

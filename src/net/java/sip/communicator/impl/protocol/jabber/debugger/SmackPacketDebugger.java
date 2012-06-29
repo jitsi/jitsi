@@ -7,7 +7,8 @@
 package net.java.sip.communicator.impl.protocol.jabber.debugger;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
-import net.java.sip.communicator.service.packetlogging.*;
+
+import org.jitsi.service.packetlogging.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 

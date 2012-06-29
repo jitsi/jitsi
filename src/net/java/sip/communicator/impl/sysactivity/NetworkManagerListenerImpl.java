@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.sysactivity;
 
 import net.java.sip.communicator.service.sysactivity.event.*;
 import net.java.sip.communicator.util.*;
+
 import org.freedesktop.*;
 import org.freedesktop.dbus.*;
 import org.freedesktop.dbus.exceptions.*;

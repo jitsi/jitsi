@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.configuration;
 
 import org.osgi.framework.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.util.*;
 
 /**

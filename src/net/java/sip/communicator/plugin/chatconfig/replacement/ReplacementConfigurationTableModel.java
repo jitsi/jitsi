@@ -10,7 +10,7 @@ import java.util.*;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.plugin.chatconfig.*;
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.replacement.*;
 
 /**

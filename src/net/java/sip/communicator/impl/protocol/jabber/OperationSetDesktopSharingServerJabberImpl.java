@@ -6,24 +6,23 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.util.*;
-import java.text.*;
-
 import java.awt.event.*;
+import java.text.*;
+import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
+import net.java.sip.communicator.service.hid.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.device.*;
+import org.jitsi.service.neomedia.format.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
-
-import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
-import net.java.sip.communicator.service.hid.*;
-import net.java.sip.communicator.service.neomedia.*;
-import net.java.sip.communicator.service.neomedia.device.*;
-import net.java.sip.communicator.service.neomedia.format.*;
-import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements all desktop sharing server-side related functions for Jabber

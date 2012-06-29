@@ -13,6 +13,8 @@ import javax.swing.*;
 
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.util.*;
+
 /**
  * The <tt>AuthenticationWindow</tt> is the window where the user should type
  * his user identifier and password to login.

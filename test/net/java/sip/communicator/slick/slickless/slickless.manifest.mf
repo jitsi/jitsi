@@ -4,7 +4,7 @@ Bundle-Description: Unit testing for classes not belonging to any service implem
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: net.java.sip.communicator.service.configuration,
+Import-Package: org.jitsi.service.configuration,
  junit,
  junit.framework,
  junit.swingui,

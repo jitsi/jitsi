@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**

@@ -7,7 +7,7 @@ package net.java.sip.communicator.plugin.pluginmanager;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.gui.*;
 
 import org.osgi.framework.*;

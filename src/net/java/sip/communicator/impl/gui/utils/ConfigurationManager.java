@@ -11,7 +11,7 @@ import java.beans.*;
 import java.util.List;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.service.configuration.*;
+import org.jitsi.service.configuration.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.osgi.framework.*;

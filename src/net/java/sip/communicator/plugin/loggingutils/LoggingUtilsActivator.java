@@ -6,16 +6,17 @@
  */
 package net.java.sip.communicator.plugin.loggingutils;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
+import java.util.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.service.packetlogging.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
-import org.osgi.framework.*;
 
-import java.util.*;
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.jitsi.service.packetlogging.*;
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * Creates and registers logging config form.

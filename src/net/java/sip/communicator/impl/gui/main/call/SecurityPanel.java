@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import net.java.sip.communicator.service.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.service.neomedia.*;
 
 /**
  * Base class for security panels that show encryption specific UI controls.

@@ -8,8 +8,9 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.version;
 
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.version.Version;
 import net.java.sip.communicator.service.protocol.event.*;
+
+import org.jitsi.service.version.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;

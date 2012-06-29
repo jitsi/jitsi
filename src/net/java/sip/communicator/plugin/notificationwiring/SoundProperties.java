@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.plugin.notificationwiring;
 
-import net.java.sip.communicator.service.resources.*;
+import org.jitsi.service.resources.*;
 
 /**
  * Manages the access to the properties file containing all sounds paths.

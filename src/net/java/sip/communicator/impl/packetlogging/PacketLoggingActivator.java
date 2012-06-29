@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.packetlogging;
 
-import net.java.sip.communicator.service.configuration.*;
-import net.java.sip.communicator.service.fileaccess.*;
-import net.java.sip.communicator.service.packetlogging.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.jitsi.service.packetlogging.*;
 import org.osgi.framework.*;
 
 /**

@@ -5,13 +5,13 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
- net.java.sip.communicator.service.audionotifier,
- net.java.sip.communicator.service.configuration,
+ org.jitsi.service.audionotifier,
+ org.jitsi.service.configuration,
  net.java.sip.communicator.service.gui,
  net.java.sip.communicator.service.gui.event,
  net.java.sip.communicator.service.notification,
  net.java.sip.communicator.service.notification.event,
- net.java.sip.communicator.service.resources,
+ org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.swing,
  javax.swing,

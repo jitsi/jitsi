@@ -17,7 +17,8 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.resources.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>NotificationContact</tt> represents a notification entry shown in
