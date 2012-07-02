@@ -12,8 +12,6 @@ import java.util.logging.*;
 
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.util.*;
-
 /**
  * The <tt>LauncherArgHandler</tt> class handles invocation arguments that have
  * been passed to us when running SIP Communicator. The class supports a fixed
@@ -169,7 +167,14 @@ public class LaunchArgHandler
         }
 
         // Start url handler for Mac OS X.
-        if (OSUtils.IS_MAC)
+        /*
+         * XXX The detection of the operating systems is the responsibility of
+         * OSUtils. It used to reside in the util.jar which is in the classpath
+         * but it is now in libjitsi.jar which is not in the classpath.
+         */
+        String osName = System.getProperty("os.name");
+
+        if ((osName != null) && osName.startsWith("Mac"))
             new AEGetURLEventHandler(this);
     }
 

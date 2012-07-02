@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.launcher;
 
-import org.jitsi.util.*;
-
 import com.apple.eio.*;
 
 /**
@@ -57,11 +55,19 @@ public class BrowserLauncher
         {
             try
             {
-                if (OSUtils.IS_MAC)
+                /*
+                 * XXX The detection of the operating systems is the
+                 * responsibility of OSUtils. It used to reside in the util.jar
+                 * which is in the classpath but it is now in libjitsi.jar which
+                 * is not in the classpath.
+                 */
+                String osName = System.getProperty("os.name");
+
+                if ((osName != null) && osName.startsWith("Mac"))
                 {
                     FileManager.openURL(url);
                 }
-                else if (OSUtils.IS_WINDOWS)
+                else if ((osName != null) && osName.startsWith("Windows"))
                 {
                    Runtime.getRuntime().exec(
                        "rundll32 url.dll,FileProtocolHandler " + url);
