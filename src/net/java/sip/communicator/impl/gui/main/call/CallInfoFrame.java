@@ -405,6 +405,15 @@ public class CallInfoFrame
                     + (int) mediaStreamStats.getUploadPercentLoss()
                     + "%"));
 
+        long rttMs = mediaStreamStats.getRttMs();
+        if(rttMs != -1)
+        {
+            stringBuffer.append(
+                getLineString(resources.getI18NString(
+                        "service.gui.callinfo.RTT"),
+                    rttMs + " ms"));
+        }
+
         stringBuffer.append(
             getLineString(resources.getI18NString(
                     "service.gui.callinfo.JITTER"),
