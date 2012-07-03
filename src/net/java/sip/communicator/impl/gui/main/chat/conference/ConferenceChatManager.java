@@ -16,10 +16,10 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 
 import org.jdesktop.swingworker.*;
@@ -1131,7 +1131,7 @@ public class ConferenceChatManager
         ConfigurationManager.updateChatRoomStatus(
             chatRoomWrapper.getParentProvider().getProtocolProvider(),
             chatRoomWrapper.getChatRoomID(),
-            Constants.OFFLINE_STATUS);
+            GlobalStatusEnum.OFFLINE_STATUS);
 
         this.closeChatRoom(existChatRoomWrapper);
     }
@@ -1528,7 +1528,7 @@ public class ConferenceChatManager
             ConfigurationManager.updateChatRoomStatus(
                 chatRoomWrapper.getParentProvider().getProtocolProvider(),
                 chatRoomWrapper.getChatRoomID(),
-                Constants.ONLINE_STATUS);
+                GlobalStatusEnum.ONLINE_STATUS);
 
             String errorMessage = null;
             if(AUTHENTICATION_FAILED.equals(returnCode))
@@ -1665,7 +1665,7 @@ public class ConferenceChatManager
             ConfigurationManager.updateChatRoomStatus(
                 adHocChatRoomWrapper.getParentProvider().getProtocolProvider(),
                 adHocChatRoomWrapper.getAdHocChatRoomID(),
-                Constants.ONLINE_STATUS);
+                GlobalStatusEnum.ONLINE_STATUS);
 
             String errorMessage = null;
             if(PROVIDER_NOT_REGISTERED.equals(returnCode))

@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -23,7 +24,8 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lubomir Marinov
  */
 public class StatusSimpleSelector
-    implements ActionListener
+    implements ActionListener,
+               ItemListener
 {
 
     /**
@@ -48,11 +50,12 @@ public class StatusSimpleSelector
         /* the parent item */
         String text = provider.getAccountID().getDisplayName();
         this.menu = swing ? new JMenu(text) : new Menu(text);
-        updateStatus();
 
         /* the menu itself */
         createMenuItem("service.gui.ONLINE", "online");
         createMenuItem("service.gui.OFFLINE", "offline");
+
+        updateStatus();
     }
 
     private void createMenuItem(String textKey, String name)
@@ -60,16 +63,16 @@ public class StatusSimpleSelector
         String text = Resources.getString(textKey);
         if (menu instanceof JMenu)
         {
-            JMenuItem menuItem = new JMenuItem(text);
+            JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(text);
             menuItem.setName(name);
             menuItem.addActionListener(this);
             ((JMenu) menu).add(menuItem);
         }
         else
         {
-            MenuItem menuItem = new MenuItem(text);
+            CheckboxMenuItem menuItem = new CheckboxMenuItem(text);
             menuItem.setName(name);
-            menuItem.addActionListener(this);
+            menuItem.addItemListener(this);
             ((Menu) menu).add(menuItem);
         }
     }
@@ -86,31 +89,30 @@ public class StatusSimpleSelector
      */
     public void actionPerformed(ActionEvent evt)
     {
-        Object source = evt.getSource();
+        changeStatus(evt.getSource());
+    }
+
+    /**
+     * Changes status corresponding the seelcted object.
+     * @param source the source object selected
+     */
+    private void changeStatus(Object source)
+    {
         String itemName;
         if (source instanceof Component)
             itemName = ((Component) source).getName();
         else
             itemName = ((MenuComponent) source).getName();
 
-        if(itemName.equals("online")) 
+        if(itemName.equals("online"))
         {
-            if(!this.provider.isRegistered()) 
-            {
-                new ProviderRegistration(provider).start();
-            }
+            OsDependentActivator.getGlobalStatusService()
+                .publishStatus(provider, GlobalStatusEnum.ONLINE, true);
         }
         else
         {
-            RegistrationState registrationState
-                = provider.getRegistrationState();
-
-            if(!RegistrationState.UNREGISTERED.equals(registrationState)
-                    && !RegistrationState.UNREGISTERING
-                            .equals(registrationState))
-            {
-                new ProviderUnRegistration(this.provider).start();
-            }
+            OsDependentActivator.getGlobalStatusService()
+                .publishStatus(provider, GlobalStatusEnum.OFFLINE, true);
         }
     }
 
@@ -132,6 +134,84 @@ public class StatusSimpleSelector
                                 LightGrayFilter
                                     .createDisabledImage(icon.getImage()));
                 ((AbstractButton) menu).setIcon(icon);
+            }
+        }
+
+        String onlineText = Resources.getString("service.gui.ONLINE");
+        String offlineText = Resources.getString("service.gui.OFFLINE");
+        if(menu instanceof Menu)
+        {
+            Menu theMenu = (Menu) menu;
+            for(int i =0; i < theMenu.getItemCount(); i++)
+            {
+                MenuItem item = theMenu.getItem(i);
+
+                if(item instanceof CheckboxMenuItem)
+                {
+                    if(item.getLabel().equals(onlineText))
+                    {
+                        if(provider.isRegistered())
+                            ((CheckboxMenuItem)item).setState(true);
+                        else
+                            ((CheckboxMenuItem)item).setState(false);
+                    }
+                    else if(item.getLabel().equals(offlineText))
+                    {
+                        if(provider.isRegistered())
+                            ((CheckboxMenuItem)item).setState(false);
+                        else
+                            ((CheckboxMenuItem)item).setState(true);
+                    }
+                }
+            }
+        }
+        else if(menu instanceof JMenu)
+        {
+            JMenu theMenu = (JMenu) menu;
+            for(int i =0; i < theMenu.getItemCount(); i++)
+            {
+                JMenuItem item = theMenu.getItem(i);
+
+                if(item instanceof JCheckBoxMenuItem)
+                {
+                    if(item.getText().equals(onlineText))
+                    {
+                        if(provider.isRegistered())
+                            item.setSelected(true);
+                        else
+                            item.setSelected(false);
+                    }
+                    else if(item.getText().equals(offlineText))
+                    {
+                        if(provider.isRegistered())
+                            item.setSelected(false);
+                        else
+                            item.setSelected(true);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Listens for changes in item state (CheckboxMenuItem)s.
+     * @param e the event.
+     */
+    public void itemStateChanged(ItemEvent e)
+    {
+        Object soutceItem = e.getSource();
+        if(e.getStateChange() == ItemEvent.SELECTED)
+        {
+            if(soutceItem instanceof CheckboxMenuItem)
+            {
+                changeStatus(soutceItem);
+            }
+        }
+        else if(e.getStateChange() == ItemEvent.DESELECTED)
+        {
+            if(soutceItem instanceof CheckboxMenuItem)
+            {
+                ((CheckboxMenuItem)soutceItem).setState(true);
             }
         }
     }

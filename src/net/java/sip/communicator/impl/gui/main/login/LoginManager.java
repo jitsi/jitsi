@@ -10,9 +10,9 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
-import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
@@ -147,7 +147,7 @@ public class LoginManager
                     .getProtocolProviderLastStatus(protocolProvider);
 
             if (status == null
-                || status.equals(Constants.ONLINE_STATUS)
+                || status.equals(GlobalStatusEnum.ONLINE_STATUS)
                 || ((status instanceof PresenceStatus)
                     && (((PresenceStatus) status)
                     .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)))
@@ -398,7 +398,7 @@ public class LoginManager
             .getProtocolProviderLastStatus(protocolProvider);
 
         if (status == null
-            || status.equals(Constants.ONLINE_STATUS)
+            || status.equals(GlobalStatusEnum.ONLINE_STATUS)
             || ((status instanceof PresenceStatus) && (((PresenceStatus) status)
                 .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)))
         {

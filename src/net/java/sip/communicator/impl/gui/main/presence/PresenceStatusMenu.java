@@ -54,6 +54,11 @@ public class PresenceStatusMenu
     private JLabel titleLabel;
 
     /**
+     * Take care for global status items, that only one is selected.
+     */
+    private ButtonGroup group = new ButtonGroup();
+
+    /**
      * Initializes a new <tt>PresenceStatusMenu</tt> instance which is to
      * depict and change the presence status of a specific
      * <tt>ProtocolProviderService</tt>.
@@ -114,6 +119,26 @@ public class PresenceStatusMenu
         this.add(new StatusMessageMenu(protocolProvider));
 
         this.setSelectedStatus(offlineStatus);
+        updateStatus(offlineStatus);
+    }
+
+    /**
+     * Adds an item to the "choice list" of this selector box.
+     *
+     * @param text The text of the item.
+     * @param icon The icon of the item.
+     * @param actionListener The <tt>ActionListener</tt>, which handles the
+     * case, when the item is selected.
+     */
+    public void addItem(String text, Icon icon, ActionListener actionListener)
+    {
+        JCheckBoxMenuItem item = new JCheckBoxMenuItem(text, icon);
+        item.setName(text);
+        group.add(item);
+
+        item.addActionListener(actionListener);
+
+        this.add(item);
     }
 
     /**
@@ -128,8 +153,6 @@ public class PresenceStatusMenu
         if (e.getSource() instanceof JMenuItem)
         {
             String menuItemText = ((JMenuItem) e.getSource()).getText();
-            LoginManager loginManager
-                = GuiActivator.getUIService().getLoginManager();
 
             Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
 
@@ -139,49 +162,10 @@ public class PresenceStatusMenu
 
                 if (status.getStatusName().equals(menuItemText))
                 {
-                    RegistrationState registrationState
-                        = protocolProvider.getRegistrationState();
+                    GuiActivator.getGlobalStatusService()
+                        .publishStatus(protocolProvider, status, true);
 
-                    if (registrationState == RegistrationState.REGISTERED
-                            && !presence.getPresenceStatus().equals(status))
-                    {
-                        if (status.isOnline())
-                        {
-
-                            new PublishPresenceStatusThread(protocolProvider,
-                                                            status).start();
-                        }
-                        else
-                        {
-                            loginManager.setManuallyDisconnected(true);
-
-                            loginManager.logoff(protocolProvider);
-                        }
-
-                        setSelectedStatus(status);
-                    }
-                    else if (registrationState != RegistrationState.REGISTERED
-                        && registrationState != RegistrationState.REGISTERING
-                        && registrationState != RegistrationState.AUTHENTICATING
-                        && status.isOnline())
-                    {
-                        lastSelectedStatus = status;
-                        loginManager.login(protocolProvider);
-                    }
-                    else if (!status.isOnline()
-                            && !(registrationState
-                                    == RegistrationState.UNREGISTERING))
-                    {
-                            loginManager.setManuallyDisconnected(true);
-
-                            loginManager.logoff(protocolProvider);
-
-                            setSelectedStatus(status);
-                    }
-
-                    saveStatusInformation(
-                        protocolProvider,
-                        status.getStatusName());
+                    setSelectedStatus(status);
 
                     break;
                 }
@@ -210,8 +194,21 @@ public class PresenceStatusMenu
 
         if (protocolProvider.isRegistered()
                 && !presence.getPresenceStatus().equals(presenceStatus))
-            new PublishPresenceStatusThread(protocolProvider, presenceStatus)
-                .start();
+        {
+            GuiActivator.getGlobalStatusService()
+                .publishStatus(protocolProvider, presenceStatus, false);
+        }
+
+        for(int i =0; i < getItemCount(); i++)
+        {
+            JMenuItem item = getItem(i);
+
+            if(item instanceof JCheckBoxMenuItem)
+            {
+                if(item.getText().equals(presenceStatus.getStatusName()))
+                    item.setSelected(true);
+            }
+        }
     }
 
     /**
@@ -264,88 +261,6 @@ public class PresenceStatusMenu
     public PresenceStatus getLastSelectedStatus()
     {
         return lastSelectedStatus;
-    }
-
-    private class PublishPresenceStatusThread
-        extends Thread
-    {
-        ProtocolProviderService protocolProvider;
-
-        PresenceStatus status;
-
-        public PublishPresenceStatusThread(
-            ProtocolProviderService protocolProvider, PresenceStatus status)
-        {
-            this.protocolProvider = protocolProvider;
-            this.status = status;
-        }
-
-        public void run()
-        {
-            try
-            {
-                presence.publishPresenceStatus(status, "");
-            }
-            catch (IllegalArgumentException e1)
-            {
-
-                logger.error("Error - changing status", e1);
-            }
-            catch (IllegalStateException e1)
-            {
-
-                logger.error("Error - changing status", e1);
-            }
-            catch (OperationFailedException e1)
-            {
-
-                if (e1.getErrorCode()
-                        == OperationFailedException.GENERAL_ERROR)
-                {
-                    String msgText =
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_GENERAL_ERROR",
-                            new String[]{
-                                protocolProvider.getAccountID().getUserID(),
-                                protocolProvider.getAccountID().getService()});
-
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.GENERAL_ERROR"), msgText, e1)
-                        .showDialog();
-                }
-                else if (e1.getErrorCode()
-                        == OperationFailedException.NETWORK_FAILURE)
-                {
-                    String msgText =
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
-                            new String[]{
-                                protocolProvider.getAccountID().getUserID(),
-                                protocolProvider.getAccountID().getService()});
-
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                        "service.gui.NETWORK_FAILURE"), msgText, e1)
-                        .showDialog();
-                }
-                else if (e1.getErrorCode()
-                        == OperationFailedException.PROVIDER_NOT_REGISTERED)
-                {
-                    String msgText =
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
-                            new String[]{
-                                protocolProvider.getAccountID().getUserID(),
-                                protocolProvider.getAccountID().getService()});
-
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                        "service.gui.NETWORK_FAILURE"), msgText, e1).showDialog();
-                }
-                logger.error("Error - changing status", e1);
-            }
-        }
     }
 
     /**

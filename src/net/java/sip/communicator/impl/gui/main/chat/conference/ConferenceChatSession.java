@@ -16,6 +16,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 
 /**
  * An implementation of <tt>ChatSession</tt> for conference chatting.
@@ -525,13 +526,13 @@ public class ConferenceChatSession
      */
     public ImageIcon getChatStatusIcon()
     {
-        String status = Constants.OFFLINE_STATUS;
+        PresenceStatus status = GlobalStatusEnum.OFFLINE;
 
         if(chatRoomWrapper.getChatRoom() != null
             && chatRoomWrapper.getChatRoom().isJoined())
-            status = Constants.ONLINE_STATUS;
+            status = GlobalStatusEnum.ONLINE;
 
-        return new ImageIcon(Constants.getStatusIcon(status));
+        return new ImageIcon(status.getStatusIcon());
     }
 
     /**

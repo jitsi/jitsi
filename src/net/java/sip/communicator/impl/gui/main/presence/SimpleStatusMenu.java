@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -33,9 +34,14 @@ public class SimpleStatusMenu
     private static final Logger logger
         = Logger.getLogger(SimpleStatusMenu.class);
 
-    private final JMenuItem onlineItem;
+    private final JCheckBoxMenuItem onlineItem;
 
-    private final JMenuItem offlineItem;
+    private final JCheckBoxMenuItem offlineItem;
+
+    /**
+     * Take care for global status items, that only one is selected.
+     */
+    private ButtonGroup group = new ButtonGroup();
 
     /**
      * Creates an instance of <tt>SimpleStatusMenu</tt>.
@@ -78,11 +84,13 @@ public class SimpleStatusMenu
         onlineItem = createMenuItem(
             "service.gui.ONLINE",
             getIcon(),
-            Constants.ONLINE_STATUS);
+            GlobalStatusEnum.ONLINE_STATUS);
         offlineItem = createMenuItem(
             "service.gui.OFFLINE",
             new ImageIcon(LightGrayFilter.createDisabledImage(onlineImage)),
-            Constants.OFFLINE_STATUS);
+            GlobalStatusEnum.OFFLINE_STATUS);
+        group.add(onlineItem);
+        group.add(offlineItem);
 
         /*
          * Make sure it correctly depicts the status and don't just rely on it
@@ -91,10 +99,11 @@ public class SimpleStatusMenu
         updateStatus();
     }
 
-    private JMenuItem createMenuItem(String textKey, Icon icon, String name)
+    private JCheckBoxMenuItem createMenuItem(
+        String textKey, Icon icon, String name)
     {
-        JMenuItem menuItem =
-            new JMenuItem(
+        JCheckBoxMenuItem menuItem =
+            new JCheckBoxMenuItem(
                 GuiActivator.getResources().getI18NString(textKey),
                 icon);
 
@@ -115,38 +124,16 @@ public class SimpleStatusMenu
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        if (itemName.equals(Constants.ONLINE_STATUS))
+        if (itemName.equals(GlobalStatusEnum.ONLINE_STATUS))
         {
-            if (!protocolProvider.isRegistered())
-            {
-                GuiActivator.getUIService().getLoginManager().login(
-                    protocolProvider);
-            }
+            GuiActivator.getGlobalStatusService()
+                .publishStatus(protocolProvider, GlobalStatusEnum.ONLINE, true);
         }
         else
         {
-            RegistrationState registrationState =
-                protocolProvider.getRegistrationState();
-
-            if (!registrationState.equals(RegistrationState.UNREGISTERED)
-                && !registrationState.equals(RegistrationState.UNREGISTERING))
-            {
-                try
-                {
-                    GuiActivator.getUIService().getLoginManager()
-                        .setManuallyDisconnected(true);
-                    protocolProvider.unregister();
-                }
-                catch (OperationFailedException e1)
-                {
-                    logger.error("Unable to unregister the protocol provider: "
-                        + protocolProvider
-                        + " due to the following exception: " + e1);
-                }
-            }
+            GuiActivator.getGlobalStatusService()
+                .publishStatus(protocolProvider, GlobalStatusEnum.OFFLINE, true);
         }
-
-        saveStatusInformation(protocolProvider, itemName);
     }
 
     /**
@@ -160,8 +147,9 @@ public class SimpleStatusMenu
 
         ImageIcon statusImage
             = ImageLoader.getAccountStatusImage(protocolProvider);
-        JMenuItem menuItem
+        JCheckBoxMenuItem menuItem
             = protocolProvider.isRegistered() ? onlineItem : offlineItem;
+        menuItem.setSelected(true);
 
         setSelected(new SelectedObject(statusImage, menuItem));
         setToolTipText(tooltip.concat("<br>" + menuItem.getText()));

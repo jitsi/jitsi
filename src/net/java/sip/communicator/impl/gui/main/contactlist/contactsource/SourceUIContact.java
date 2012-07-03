@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -117,7 +118,7 @@ public class SourceUIContact
      */
     public ImageIcon getStatusIcon()
     {
-        return new ImageIcon(Constants.getStatusIcon(Constants.OFFLINE_STATUS));
+        return new ImageIcon(GlobalStatusEnum.OFFLINE.getStatusIcon());
     }
 
     /**

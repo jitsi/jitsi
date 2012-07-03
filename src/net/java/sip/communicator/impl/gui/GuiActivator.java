@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.presence.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
@@ -20,6 +21,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.service.shutdown.*;
@@ -81,6 +83,8 @@ public class GuiActivator implements BundleActivator
 
     private static PhoneNumberI18nService phoneNumberService;
 
+    private static GlobalStatusService globalStatusService;
+
     private static AccountManager accountManager;
 
     private static List<ContactSourceService> contactSources;
@@ -119,6 +123,13 @@ public class GuiActivator implements BundleActivator
 
         try
         {
+            if (logger.isInfoEnabled())
+                logger.info("GlobalStatus Service ...[REGISTERED]");
+
+            bundleContext.registerService(GlobalStatusService.class.getName(),
+                                          new GlobalStatusServiceImpl(),
+                                          null);
+
             // Create the ui service
             uiService = new UIServiceImpl();
             uiService.loadApplicationGui();
@@ -541,6 +552,24 @@ public class GuiActivator implements BundleActivator
                         BrowserLauncherService.class);
         }
         return browserLauncherService;
+    }
+
+    /**
+     * Returns the <tt>GlobalStatusService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>GlobalStatusService</tt> obtained from the bundle
+     * context
+     */
+    public static GlobalStatusService getGlobalStatusService()
+    {
+        if (globalStatusService == null)
+        {
+            globalStatusService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        GlobalStatusService.class);
+        }
+        return globalStatusService;
     }
 
     /**

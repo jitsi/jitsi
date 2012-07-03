@@ -10,11 +10,13 @@ import net.java.sip.communicator.impl.osdependent.jdic.*;
 import net.java.sip.communicator.impl.osdependent.macosx.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.Logger;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -39,6 +41,8 @@ public class OsDependentActivator
     private static ConfigurationService configService;
 
     private static ResourceManagementService resourcesService;
+
+    private static GlobalStatusService globalStatusService;
 
     /**
      * The <tt>Logger</tt> used by the <tt>OsDependentActivator</tt> class and
@@ -191,5 +195,23 @@ public class OsDependentActivator
             resourcesService =
                 ResourceManagementServiceUtils.getService(bundleContext);
         return resourcesService;
+    }
+
+    /**
+     * Returns the <tt>GlobalStatusService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>GlobalStatusService</tt> obtained from the bundle
+     * context
+     */
+    public static GlobalStatusService getGlobalStatusService()
+    {
+        if (globalStatusService == null)
+        {
+            globalStatusService
+                = ServiceUtils.getService(
+                bundleContext,
+                GlobalStatusService.class);
+        }
+        return globalStatusService;
     }
 }

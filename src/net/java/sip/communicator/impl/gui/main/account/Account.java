@@ -12,6 +12,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -145,7 +146,7 @@ public class Account
         if (protocolProvider != null)
             return getAccountStatus(protocolProvider);
         else
-            return Constants.OFFLINE_STATUS;
+            return GlobalStatusEnum.OFFLINE_STATUS;
     }
 
     /**

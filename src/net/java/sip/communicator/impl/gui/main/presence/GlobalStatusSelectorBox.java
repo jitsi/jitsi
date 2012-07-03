@@ -9,17 +9,15 @@ package net.java.sip.communicator.impl.gui.main.presence;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
@@ -82,34 +80,6 @@ public class GlobalStatusSelectorBox
      */
     private final MainFrame mainFrame;
 
-//    private ImageIcon dndIcon = new ImageIcon(
-//        ImageLoader.getImage(ImageLoader.USER_DND_ICON));
-
-    /**
-     * The item corresponding to the online status.
-     */
-    private final JMenuItem onlineItem;
-
-    /**
-     * The item corresponding to the offline status.
-     */
-    private final JMenuItem offlineItem;
-
-    /**
-     * The item corresponding to the away status.
-     */
-    private final JMenuItem awayItem;
-
-    /**
-     * The item corresponding to DnD status.
-     */
-    private final JMenuItem dndItem;
-
-    /**
-     * The item corresponding to the free for chat status.
-     */
-    private final JMenuItem ffcItem;
-
     /**
      * The width of the text.
      */
@@ -119,6 +89,11 @@ public class GlobalStatusSelectorBox
      * Indicates if this is the first account added.
      */
     private boolean isFirstAccount = true;
+
+    /**
+     * Take care for global status items, that only one is selected.
+     */
+    private ButtonGroup group = new ButtonGroup();
 
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
@@ -139,37 +114,24 @@ public class GlobalStatusSelectorBox
         this.add(titleLabel);
         this.addSeparator();
 
-        onlineItem
-            = createMenuItem(
-                "service.gui.ONLINE",
-                ImageLoader.USER_ONLINE_ICON,
-                Constants.ONLINE_STATUS);
-        ffcItem
-            = createMenuItem(
-                "service.gui.FFC_STATUS",
-                ImageLoader.USER_FFC_ICON,
-                Constants.FREE_FOR_CHAT_STATUS);
-        awayItem
-            = createMenuItem(
-                "service.gui.AWAY_STATUS",
-                ImageLoader.USER_AWAY_ICON,
-                Constants.AWAY_STATUS);
-        dndItem
-            = createMenuItem(
-                "service.gui.DND_STATUS",
-                ImageLoader.USER_DND_ICON,
-                Constants.DO_NOT_DISTURB_STATUS);
-        offlineItem
-            = createMenuItem(
-                "service.gui.OFFLINE",
-                ImageLoader.USER_OFFLINE_ICON,
-                Constants.OFFLINE_STATUS);
+        PresenceStatus offlineStatus = null;
+        // creates menu item entry for every global status
+        for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
+        {
+            group.add(createMenuItem(status));
+
+            if(status.getStatus() < 1)
+                offlineStatus = status;
+        }
 
         if(!ConfigurationManager.isHideAccountStatusSelectorsEnabled())
             this.addSeparator();
 
         this.setFont(titleLabel.getFont().deriveFont(Font.PLAIN, 11f));
-        this.setIcon(offlineItem.getIcon());
+
+        if(offlineStatus != null)
+            this.setIcon(new ImageIcon(offlineStatus.getStatusIcon()));
+
         this.setIconTextGap(2);
         this.setOpaque(false);
         this.setText("Offline");
@@ -183,22 +145,16 @@ public class GlobalStatusSelectorBox
     /**
      * Creates a menu item with the given <tt>textKey</tt>, <tt>iconID</tt> and
      * <tt>name</tt>.
-     * @param textKey the text of the item
-     * @param iconID the icon of the item
-     * @param name the name of the item
-     * @return the created <tt>JMenuItem</tt>
+     * @return the created <tt>JCheckBoxMenuItem</tt>
      */
-    private JMenuItem createMenuItem(
-        String textKey,
-        ImageID iconID,
-        String name)
+    private JCheckBoxMenuItem createMenuItem(GlobalStatusEnum status)
     {
-        JMenuItem menuItem
-            = new JMenuItem(
-                    GuiActivator.getResources().getI18NString(textKey),
-                    new ImageIcon(ImageLoader.getImage(iconID)));
+        JCheckBoxMenuItem menuItem
+            = new JCheckBoxMenuItem(
+                    GlobalStatusEnum.getI18NStatusName(status),
+                    new ImageIcon(status.getStatusIcon()));
 
-        menuItem.setName(name);
+        menuItem.setName(status.getStatusName());
         menuItem.addActionListener(this);
 
         add(menuItem);
@@ -371,202 +327,8 @@ public class GlobalStatusSelectorBox
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        Iterator<ProtocolProviderService> pProviders
-            = mainFrame.getProtocolProviders();
-
-        while (pProviders.hasNext())
-        {
-            ProtocolProviderService protocolProvider
-                = pProviders.next();
-
-            if(itemName.equals(Constants.ONLINE_STATUS))
-            {
-                if(!protocolProvider.isRegistered())
-                {
-                    saveStatusInformation(  protocolProvider,
-                        onlineItem.getName());
-
-                    GuiActivator.getUIService().getLoginManager()
-                        .login(protocolProvider);
-                }
-                else
-                {
-                    OperationSetPresence presence
-                        = protocolProvider
-                            .getOperationSet(OperationSetPresence.class);
-
-                    if (presence == null)
-                    {
-                        saveStatusInformation(  protocolProvider,
-                                                onlineItem.getName());
-
-                        continue;
-                    }
-
-                    Iterator<PresenceStatus> statusSet
-                        = presence.getSupportedStatusSet();
-
-                    while (statusSet.hasNext())
-                    {
-                        PresenceStatus status = statusSet.next();
-
-                        if( status.getStatus()
-                                < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD
-                            && status.getStatus()
-                                >= PresenceStatus.AVAILABLE_THRESHOLD)
-                        {
-                            new PublishPresenceStatusThread(protocolProvider,
-                                                            presence, status)
-                                .start();
-
-                            this.saveStatusInformation( protocolProvider,
-                                                        status.getStatusName());
-
-                            break;
-                        }
-                    }
-                }
-            }
-            else if (itemName.equals(Constants.OFFLINE_STATUS))
-            {
-                if(    !protocolProvider.getRegistrationState()
-                                .equals(RegistrationState.UNREGISTERED)
-                    && !protocolProvider.getRegistrationState()
-                                .equals(RegistrationState.UNREGISTERING))
-                {
-                    OperationSetPresence presence
-                        = protocolProvider
-                            .getOperationSet(OperationSetPresence.class);
-
-                    if (presence == null)
-                    {
-                        saveStatusInformation(  protocolProvider,
-                                                offlineItem.getName());
-
-                        GuiActivator.getUIService().getLoginManager()
-                            .logoff(protocolProvider);
-
-                        continue;
-                    }
-
-                    Iterator<PresenceStatus> statusSet
-                        = presence.getSupportedStatusSet();
-
-                    while (statusSet.hasNext())
-                    {
-                        PresenceStatus status = statusSet.next();
-
-                        if(status.getStatus()
-                            < PresenceStatus.ONLINE_THRESHOLD)
-                        {
-                            this.saveStatusInformation( protocolProvider,
-                                status.getStatusName());
-
-                            break;
-                        }
-                    }
-
-                    try 
-                    {
-                        GuiActivator.getUIService().getLoginManager()
-                            .setManuallyDisconnected(true);
-
-                        protocolProvider.unregister();
-                    }
-                    catch (OperationFailedException e1)
-                    {
-                        logger.error(
-                            "Unable to unregister the protocol provider: "
-                            + protocolProvider
-                            + " due to the following exception: " + e1);
-                    }
-                }
-            }
-            else if (itemName.equals(Constants.FREE_FOR_CHAT_STATUS))
-            {
-                // we search for highest available status here
-                publishStatus(
-                        protocolProvider,
-                        PresenceStatus.AVAILABLE_THRESHOLD,
-                        PresenceStatus.MAX_STATUS_VALUE);
-            }
-            else if (itemName.equals(Constants.DO_NOT_DISTURB_STATUS))
-            {
-                // status between online and away is DND
-                publishStatus(
-                        protocolProvider,
-                        PresenceStatus.ONLINE_THRESHOLD,
-                        PresenceStatus.AWAY_THRESHOLD);
-            }
-            else if (itemName.equals(Constants.AWAY_STATUS))
-            {
-                // a status in the away interval
-                publishStatus(
-                        protocolProvider,
-                        PresenceStatus.AWAY_THRESHOLD,
-                        PresenceStatus.AVAILABLE_THRESHOLD);
-            }
-        }
-    }
-
-    /**
-     * Publish present status. We search for the highest value in the
-     * given interval.
-     * 
-     * @param protocolProvider the protocol provider to which we
-     * change the status.
-     * @param floorStatusValue the min status value.
-     * @param ceilStatusValue the max status value.
-     */
-    private void publishStatus(
-            ProtocolProviderService protocolProvider,
-            int floorStatusValue, int ceilStatusValue)
-    {
-        if (!protocolProvider.isRegistered())
-            return;
-
-        OperationSetPresence presence
-            = protocolProvider
-                .getOperationSet(OperationSetPresence.class);
-
-        if (presence == null)
-            return;
-
-        Iterator<PresenceStatus> statusSet
-            = presence.getSupportedStatusSet();
-
-        PresenceStatus status = null;
-
-        while (statusSet.hasNext())
-        {
-            PresenceStatus currentStatus = statusSet.next();
-
-            if (status == null
-                && currentStatus.getStatus() < ceilStatusValue
-                && currentStatus.getStatus() >= floorStatusValue)
-            {
-                status = currentStatus;
-            }
-
-            if (status != null)
-            {
-                if (currentStatus.getStatus() < ceilStatusValue
-                    && currentStatus.getStatus() >= floorStatusValue
-                    && currentStatus.getStatus() > status.getStatus())
-                {
-                    status = currentStatus;
-                }
-            }
-        }
-
-        if (status != null)
-        {
-            new PublishPresenceStatusThread(protocolProvider, presence, status)
-                .start();
-
-            this.saveStatusInformation( protocolProvider,
-                status.getStatusName());
-        }
+        GuiActivator.getGlobalStatusService().publishStatus(
+            GlobalStatusEnum.getStatusByName(itemName));
     }
 
     /**
@@ -672,7 +434,8 @@ public class GlobalStatusSelectorBox
                 status = presenceStatus;
         }
 
-        JMenuItem item = getItemFromStatus(status);
+        JCheckBoxMenuItem item = getItemFromStatus(status);
+        item.setSelected(true);
 
         setSelected(new SelectedObject(item.getText(), item.getIcon(), item));
         fitSizeToText();
@@ -719,136 +482,61 @@ public class GlobalStatusSelectorBox
     }
 
     /**
-     * Publishes the given status to the given presence operation set.
+     * Returns the <tt>JCheckBoxMenuItem</tt> corresponding to the given status.
+     * For status constants we use here the values defined in the
+     * <tt>PresenceStatus</tt>, but this is only for convenience.
+     *
+     * @param status the status to which the item should correspond
+     * @return the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
      */
-    private class PublishPresenceStatusThread
-        extends Thread
+    private JCheckBoxMenuItem getItemFromStatus(int status)
     {
-        private ProtocolProviderService protocolProvider;
-
-        private PresenceStatus status;
-
-        private OperationSetPresence presence;
-
-        /**
-         * Publishes the given <tt>status</tt> through the given
-         * <tt>presence</tt> operation set.
-         * @param presence the operation set through which we publish the status
-         * @param status the status to publish
-         */
-        public PublishPresenceStatusThread(
-                                    ProtocolProviderService protocolProvider,
-                                    OperationSetPresence presence,
-                                    PresenceStatus status)
+        if(status < PresenceStatus.ONLINE_THRESHOLD)
         {
-            this.protocolProvider = protocolProvider;
-            this.presence = presence;
-            this.status = status;
+            return getItemFromName(GlobalStatusEnum.OFFLINE_STATUS);
         }
-
-        @Override
-        public void run()
+        else if(status < PresenceStatus.AWAY_THRESHOLD)
         {
-            try
-            {
-                presence.publishPresenceStatus(status, "");
-            }
-            catch (IllegalArgumentException e1)
-            {
-
-                logger.error("Error - changing status", e1);
-            }
-            catch (IllegalStateException e1)
-            {
-
-                logger.error("Error - changing status", e1);
-            }
-            catch (OperationFailedException e1)
-            {
-                if (e1.getErrorCode()
-                    == OperationFailedException.GENERAL_ERROR)
-                {
-                    String msgText =
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_GENERAL_ERROR",
-                            new String[]{
-                                protocolProvider.getAccountID().getUserID(),
-                                protocolProvider.getAccountID().getService()});
-
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                        "service.gui.GENERAL_ERROR"), msgText, e1)
-                    .showDialog();
-                }
-                else if (e1.getErrorCode()
-                    == OperationFailedException.NETWORK_FAILURE)
-                {
-                    String msgText =
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
-                            new String[]{
-                                protocolProvider.getAccountID().getUserID(),
-                                protocolProvider.getAccountID().getService()});
-
-                    new ErrorDialog(null, msgText,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.NETWORK_FAILURE"), e1)
-                    .showDialog();
-                }
-                else if (e1.getErrorCode()
-                        == OperationFailedException.PROVIDER_NOT_REGISTERED)
-                {
-                    String msgText =
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.STATUS_CHANGE_NETWORK_FAILURE",
-                            new String[]{
-                                protocolProvider.getAccountID().getUserID(),
-                                protocolProvider.getAccountID().getService()});
-
-                    new ErrorDialog(null,
-                        GuiActivator.getResources().getI18NString(
-                        "service.gui.NETWORK_FAILURE"), msgText, e1)
-                    .showDialog();
-                }
-                logger.error("Error - changing status", e1);
-            }
+            return getItemFromName(GlobalStatusEnum.DO_NOT_DISTURB_STATUS);
+        }
+        else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
+        {
+            return getItemFromName(GlobalStatusEnum.AWAY_STATUS);
+        }
+        else if(status < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
+        {
+            return getItemFromName(GlobalStatusEnum.ONLINE_STATUS);
+        }
+        else if(status < PresenceStatus.MAX_STATUS_VALUE)
+        {
+            return getItemFromName(GlobalStatusEnum.FREE_FOR_CHAT_STATUS);
+        }
+        else
+        {
+            return getItemFromName(GlobalStatusEnum.OFFLINE_STATUS);
         }
     }
 
     /**
-     * Returns the <tt>JMenuItem</tt> corresponding to the given status. For
-     * status constants we use here the values defined in the
-     * <tt>PresenceStatus</tt>, but this is only for convenience.
-     * 
-     * @param status the status to which the item should correspond
-     * @return the <tt>JMenuItem</tt> corresponding to the given status
+     * Returns the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
+     * name.
+     *
+     * @param statusName the status name to which the item should correspond
+     * @return the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
+     * name.
      */
-    private JMenuItem getItemFromStatus(int status)
+    private JCheckBoxMenuItem getItemFromName(String statusName)
     {
-        if(status < PresenceStatus.ONLINE_THRESHOLD)
+        for(Component c : getMenuComponents())
         {
-            return offlineItem;
+            if(c instanceof JCheckBoxMenuItem
+                && statusName.equals(c.getName()))
+            {
+                return (JCheckBoxMenuItem)c;
+            }
         }
-        else if(status < PresenceStatus.AWAY_THRESHOLD)
-        {
-            return dndItem;
-        }
-        else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
-        {
-            return awayItem;
-        }
-        else if(status < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
-        {
-            return onlineItem;
-        }
-        else if(status < PresenceStatus.MAX_STATUS_VALUE)
-        {
-            return ffcItem;
-        }
-        else
-        {
-            return offlineItem;
-        }
+
+        return null;
     }
 
     /**
@@ -862,27 +550,8 @@ public class GlobalStatusSelectorBox
     public PresenceStatus getLastPresenceStatus(
         ProtocolProviderService protocolProvider)
     {
-        String lastStatus = getLastStatusString(protocolProvider);
-
-        if (lastStatus != null)
-        {
-            OperationSetPresence presence
-                = protocolProvider.getOperationSet(OperationSetPresence.class);
-
-            if (presence == null)
-                return null;
-
-            Iterator<PresenceStatus> i = presence.getSupportedStatusSet();
-            PresenceStatus status;
-
-            while (i.hasNext())
-            {
-                status = i.next();
-                if (status.getStatusName().equals(lastStatus))
-                    return status;
-            }
-        }
-        return null;
+        return GuiActivator.getGlobalStatusService()
+            .getLastPresenceStatus(protocolProvider);
     }
 
     /**
@@ -894,33 +563,8 @@ public class GlobalStatusSelectorBox
      */
     public String getLastStatusString(ProtocolProviderService protocolProvider)
     {
-        // find the last contact status saved in the configuration.
-        String lastStatus = null;
-
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-        String prefix = "net.java.sip.communicator.impl.gui.accounts";
-        List<String> accounts
-            = configService.getPropertyNamesByPrefix(prefix, true);
-        String protocolProviderAccountUID
-            = protocolProvider.getAccountID().getAccountUniqueID();
-
-        for (String accountRootPropName : accounts)
-        {
-            String accountUID = configService.getString(accountRootPropName);
-
-            if (accountUID.equals(protocolProviderAccountUID))
-            {
-                lastStatus =
-                    configService.getString(accountRootPropName
-                        + ".lastAccountStatus");
-
-                if (lastStatus != null)
-                    break;
-            }
-        }
-
-        return lastStatus;
+        return GuiActivator.getGlobalStatusService()
+            .getLastStatusString(protocolProvider);
     }
 
     /**
@@ -1007,21 +651,6 @@ public class GlobalStatusSelectorBox
 
         arrowImage
             = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
-
-        onlineItem.setIcon(new ImageIcon(ImageLoader.getImage(
-                ImageLoader.USER_ONLINE_ICON)));
-
-        ffcItem.setIcon(new ImageIcon(ImageLoader.getImage(
-                ImageLoader.USER_FFC_ICON)));
-
-        dndItem.setIcon(new ImageIcon(ImageLoader.getImage(
-                ImageLoader.USER_DND_ICON)));
-
-        awayItem.setIcon(new ImageIcon(ImageLoader.getImage(
-                ImageLoader.USER_AWAY_ICON)));
-
-        offlineItem.setIcon(new ImageIcon(ImageLoader.getImage(
-                ImageLoader.USER_OFFLINE_ICON)));
 
         updateGlobalStatus();
     }

@@ -356,62 +356,6 @@ public class SystrayServiceJdicImpl
     }
 
     /**
-     * Saves the last status for all accounts. This information is used
-     * on logging. Each time user logs in he's logged with the same status
-     * as he was the last time before closing the application.
-     *
-     * @param protocolProvider  the protocol provider for which we save the
-     * last selected status
-     * @param statusName the status name to save
-     */
-    public void saveStatusInformation(
-        ProtocolProviderService protocolProvider,
-        String statusName)
-    {
-        if (configService != null)
-        {
-            String prefix = "net.java.sip.communicator.impl.gui.accounts";
-
-            List<String> accounts = configService.getPropertyNamesByPrefix(
-                prefix, true);
-
-            boolean savedAccount = false;
-
-            for (String accountRootPropName : accounts)
-            {
-                String accountUID = configService.getString(accountRootPropName);
-
-                if (accountUID.equals(protocolProvider.getAccountID().
-                    getAccountUniqueID()))
-                {
-
-                    configService.setProperty(
-                        accountRootPropName + ".lastAccountStatus",
-                        statusName);
-
-                    savedAccount = true;
-                }
-            }
-
-            if (!savedAccount)
-            {
-                String accNodeName = "acc" + Long.toString(System.
-                    currentTimeMillis());
-
-                String accountPackage =
-                    "net.java.sip.communicator.impl.gui.accounts." + accNodeName;
-
-                configService.setProperty(accountPackage,
-                    protocolProvider.getAccountID().getAccountUniqueID());
-
-                configService.setProperty(
-                    accountPackage + ".lastAccountStatus",
-                    statusName);
-            }
-        }
-    }
-
-    /**
      * Implements <tt>SystraService#showPopupMessage()</tt>
      *
      * @param popupMessage the message we will show

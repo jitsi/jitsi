@@ -96,61 +96,6 @@ public abstract class StatusSelectorMenu
     public void setAccountIndex(int index){}
 
     /**
-     * Saves the last status for all accounts. This information is used
-     * on loging. Each time user logs in he's logged with the same status
-     * as he was the last time before closing the application.
-     * @param protocolProvider the protocol provider to save status information
-     * for
-     * @param statusName the name of the status to save
-     */
-    protected void saveStatusInformation(
-            ProtocolProviderService protocolProvider,
-            String statusName)
-    {
-        ConfigurationService configService
-            = GuiActivator.getConfigurationService();
-
-        String prefix = "net.java.sip.communicator.impl.gui.accounts";
-
-        List<String> accounts = configService
-                .getPropertyNamesByPrefix(prefix, true);
-
-        boolean savedAccount = false;
-
-        for (String accountRootPropName : accounts) {
-            String accountUID
-                = configService.getString(accountRootPropName);
-
-            if(accountUID.equals(protocolProvider
-                    .getAccountID().getAccountUniqueID())) {
-
-                configService.setProperty(
-                        accountRootPropName + ".lastAccountStatus",
-                        statusName);
-
-                savedAccount = true;
-            }
-        }
-
-        if(!savedAccount)
-        {
-            String accNodeName
-                = "acc" + Long.toString(System.currentTimeMillis());
-
-            String accountPackage
-                = "net.java.sip.communicator.impl.gui.accounts."
-                        + accNodeName;
-
-            configService.setProperty(accountPackage,
-                    protocolProvider.getAccountID().getAccountUniqueID());
-
-            configService.setProperty(
-                    accountPackage+".lastAccountStatus",
-                    statusName);
-        }
-    }
-
-    /**
      * Paints this component. If the state of this menu is connecting, paints
      * the connecting icon.
      *

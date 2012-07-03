@@ -132,7 +132,7 @@ public class ProvisioningServiceImpl
              url = getProvisioningUri();
          }
 
-         if(url != null)
+         if(!StringUtils.isNullOrEmpty(url))
          {
              File file = retrieveConfigurationFile(url);
 

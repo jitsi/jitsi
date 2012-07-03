@@ -24,7 +24,8 @@ import net.java.sip.communicator.util.*;
  * @author Lubomir Marinov
  */
 public class StatusSelector
-    implements ActionListener
+    implements ActionListener,
+               ItemListener
 {
     /**
      * A reference of <tt>Systray</tt>
@@ -81,17 +82,23 @@ public class StatusSelector
 
         /* the submenu itself */
 
+        PresenceStatus offlineStatus = null;
         Iterator<PresenceStatus> statusIterator
             = this.presence.getSupportedStatusSet();
 
         while (statusIterator.hasNext())
         {
             PresenceStatus status = statusIterator.next();
+
+            // if connectivity less then 1, this is offline one
+            if(status.getStatus() < 1)
+                offlineStatus = status;
+
             String text = status.getStatusName();
 
             if (menu instanceof Container)
             {
-                JMenuItem item = new JMenuItem(text);
+                JCheckBoxMenuItem item = new JCheckBoxMenuItem(text);
 
                 byte[] icBytes = status.getStatusIcon();
                 if(icBytes != null)
@@ -103,8 +110,8 @@ public class StatusSelector
             }
             else
             {
-                MenuItem item = new MenuItem(text);
-                item.addActionListener(this);
+                CheckboxMenuItem item = new CheckboxMenuItem(text);
+                item.addItemListener(this);
                 ((Menu) menu).add(item);
             }
         }
@@ -113,6 +120,9 @@ public class StatusSelector
 
         StatusSubMenu.addMenuItem(menu, new StatusMessageMenu(provider, swing)
             .getMenu());
+
+        if(offlineStatus != null)
+            updateStatus(offlineStatus);
     }
 
     private void addSeparator()
@@ -142,40 +152,26 @@ public class StatusSelector
         else
             menuItemText = ((MenuItem) source).getLabel();
 
+        changeStatus(menuItemText);
+    }
+
+    /**
+     * Searches for presence status with the supplied name and publish this
+     * status to the provider.
+     * @param statusName
+     */
+    private void changeStatus(String statusName)
+    {
         Iterator<PresenceStatus> statusSet = presence.getSupportedStatusSet();
 
         while (statusSet.hasNext())
         {
             PresenceStatus status = statusSet.next();
 
-            if (status.getStatusName().equals(menuItemText))
+            if (status.getStatusName().equals(statusName))
             {
-                RegistrationState registrationState =
-                    provider.getRegistrationState();
-
-                if (registrationState == RegistrationState.REGISTERED
-                    && !presence.getPresenceStatus().equals(status))
-                {
-                    if (status.isOnline())
-                        new PublishPresenceStatusThread(status).start();
-                    else
-                        new ProviderUnRegistration(this.provider).start();
-                }
-                else if (registrationState != RegistrationState.REGISTERED
-                    && registrationState != RegistrationState.REGISTERING
-                    && registrationState != RegistrationState.AUTHENTICATING
-                    && status.isOnline())
-                {
-                    new ProviderRegistration(provider).start();
-                }
-                else if (!status.isOnline()
-                    && !(registrationState == RegistrationState.UNREGISTERING))
-                {
-                    new ProviderUnRegistration(this.provider).start();
-                }
-
-                parentSystray.saveStatusInformation(provider, status
-                    .getStatusName());
+                OsDependentActivator.getGlobalStatusService()
+                    .publishStatus(provider, status, true);
 
                 break;
             }
@@ -192,59 +188,64 @@ public class StatusSelector
         if (menu instanceof AbstractButton)
             ((AbstractButton) menu).setIcon(new ImageIcon(presenceStatus
                 .getStatusIcon()));
+
+        if(menu instanceof Menu)
+        {
+            Menu theMenu = (Menu) menu;
+            for(int i =0; i < theMenu.getItemCount(); i++)
+            {
+                MenuItem item = theMenu.getItem(i);
+
+                if(item instanceof CheckboxMenuItem)
+                {
+                    if(item.getLabel().equals(presenceStatus.getStatusName()))
+                    {
+                        ((CheckboxMenuItem)item).setState(true);
+                    }
+                    else
+                    {
+                        ((CheckboxMenuItem)item).setState(false);
+                    }
+                }
+            }
+        }
+        else if(menu instanceof JMenu)
+        {
+            JMenu theMenu = (JMenu) menu;
+            for(int i =0; i < theMenu.getItemCount(); i++)
+            {
+                JMenuItem item = theMenu.getItem(i);
+
+                if(item instanceof JCheckBoxMenuItem)
+                {
+                    if(item.getText().equals(presenceStatus.getStatusName()))
+                        item.setSelected(true);
+                    else
+                        item.setSelected(false);
+                }
+            }
+        }
     }
 
     /**
-     *  This class allow to use a thread to change the presence status.
+     * Listens for changes in item state (CheckboxMenuItem)s.
+     * @param e the event.
      */
-    private class PublishPresenceStatusThread extends Thread
+    public void itemStateChanged(ItemEvent e)
     {
-        private final PresenceStatus status;
-
-        public PublishPresenceStatusThread(PresenceStatus status)
+        Object sourceItem = e.getSource();
+        if(e.getStateChange() == ItemEvent.SELECTED)
         {
-            this.status = status;
+            if(sourceItem instanceof CheckboxMenuItem)
+            {
+                changeStatus(((CheckboxMenuItem)sourceItem).getLabel());
+            }
         }
-
-        public void run()
+        else if(e.getStateChange() == ItemEvent.DESELECTED)
         {
-            try {
-                presence.publishPresenceStatus(status, "");
-            }
-            catch (IllegalArgumentException e1)
+            if(sourceItem instanceof CheckboxMenuItem)
             {
-                logger.error("Error - changing status", e1);
-            }
-            catch (IllegalStateException e1)
-            {
-                logger.error("Error - changing status", e1);
-            }
-            catch (OperationFailedException e1)
-            {
-                String msg;
-
-                switch (e1.getErrorCode())
-                {
-                case OperationFailedException.GENERAL_ERROR:
-                    msg
-                        = "General error occured while "
-                            + "publishing presence status.";
-                    break;
-                case OperationFailedException.NETWORK_FAILURE:
-                    msg
-                        = "Network failure occured while "
-                            + "publishing presence status.";
-                    break;
-                case OperationFailedException.PROVIDER_NOT_REGISTERED:
-                    msg
-                        = "Protocol provider must be"
-                            + "registered in order to change status.";
-                    break;
-                default:
-                    return;
-                }
-
-                logger.error(msg, e1);
+                ((CheckboxMenuItem)sourceItem).setState(true);
             }
         }
     }

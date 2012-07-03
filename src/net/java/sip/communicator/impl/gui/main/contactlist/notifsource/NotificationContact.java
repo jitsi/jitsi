@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
 import net.java.sip.communicator.service.protocol.event.*;
 
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import org.jitsi.service.resources.*;
 
 /**
@@ -210,12 +211,10 @@ public class NotificationContact
         }
         else if (protocolProvider.isRegistered())
         {
-            return new ImageIcon(
-                Constants.getStatusIcon(Constants.ONLINE_STATUS));
+            return new ImageIcon(GlobalStatusEnum.ONLINE.getStatusIcon());
         }
 
-        return new ImageIcon(
-            Constants.getStatusIcon(Constants.OFFLINE_STATUS));
+        return new ImageIcon(GlobalStatusEnum.OFFLINE.getStatusIcon());
     }
 
     /**
