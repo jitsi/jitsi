@@ -1104,7 +1104,9 @@ public class UIVideoHandler
         /**
          * {@inheritDoc}
          */
-        public void mouseClicked(MouseEvent event) {}
+        public void mouseClicked(MouseEvent event) {
+            remoteVideo.requestFocus();
+        }
 
         /**
          * {@inheritDoc}
