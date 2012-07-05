@@ -985,6 +985,13 @@ public class UIVideoHandler
             {
                 videoTelephony.disposeLocalVisualComponent(
                         callPeer, localVideo);
+                handleVideoEvent(
+                        callPeer.getCall(),
+                        new VideoEvent(
+                            this,
+                            VideoEvent.VIDEO_REMOVED,
+                            localVideo,
+                            VideoEvent.LOCAL));
                 localVideo = null;
             }
         }
