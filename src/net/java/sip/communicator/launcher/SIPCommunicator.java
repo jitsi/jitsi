@@ -43,10 +43,17 @@ public class SIPCommunicator
 
     /**
      * Legacy home directory names that we can use if current dir name
-     * is the crrently active name (overridableDirName).
+     * is the currently active name (overridableDirName).
      */
     private static String[] legacyDirNames =
         {".sip-communicator", "SIP Communicator"};
+
+    /**
+     * Name of the possible configuration file names (used under macosx).
+     */
+    private static String[] legacyConfigurationFileNames =
+        {"sip-communicator.properties", "jitsi.properties",
+         "sip-communicator.xml", "jitsi.xml"};
 
     /**
      * Starts the SIP Communicator.
@@ -230,21 +237,23 @@ public class SIPCommunicator
             // if we need to check legacy names and there is no
             // current home dir already created
             if(chekLegacyDirNames
-               && !new File(location, name).isDirectory())
+               && !checkHomeFolderExist(location, name, osName))
             {
                 // now check whether some of the legacy dir names
                 // exists, and use it if exist
                 for(int i = 0; i < legacyDirNames.length; i++)
                 {
                     // check the platform specific directory
-                    if(new File(location, legacyDirNames[i]).isDirectory())
+                    if(checkHomeFolderExist(
+                            location, legacyDirNames[i], osName))
                     {
                         name = legacyDirNames[i];
                         break;
                     }
 
                     // now check it and in the default location
-                    if(new File(defaultLocation, legacyDirNames[i]).isDirectory())
+                    if(checkHomeFolderExist(
+                            defaultLocation, legacyDirNames[i], osName))
                     {
                         name = legacyDirNames[i];
                         location = defaultLocation;
@@ -259,6 +268,38 @@ public class SIPCommunicator
  
         // when we end up with the home dirs, make sure we have log dir
         new File(location, name + File.separator + "log").mkdirs();
+    }
+
+    /**
+     * Checks whether home folder exists.
+     * Special situation checked under macosx, due to created folder
+     * of the new version of the updater we may end up with our
+     * settings in 'SIP Communicator' folder and having 'Jitsi' folder
+     * created by the updater(its download location).
+     * So we check not only the folder exist but whether it contains
+     * any of the known configuration files in it.
+     *
+     * @param parent the parent folder
+     * @param name the folder name to check.
+     * @param osName OS name
+     * @return whether folder exists.
+     */
+    static boolean checkHomeFolderExist(
+        String parent, String name, String osName)
+    {
+        if(osName.startsWith("Mac"))
+        {
+            for(int i = 0; i < legacyConfigurationFileNames.length; i++)
+            {
+                if(new File(new File(parent, name)
+                            , legacyConfigurationFileNames[i]).exists())
+                    return true;
+            }
+
+            return false;
+        }
+
+        return new File(parent, name).isDirectory();
     }
 
     /**
