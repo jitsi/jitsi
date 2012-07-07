@@ -1,5 +1,12 @@
 <?xml version="1.0" ?>
 <Include xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<!--
+  Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+
+  Distributable under LGPL license.
+  See terms of license at gnu.org.
+-->
+
 <Fragment>
 <ComponentGroup Id="ComponentGroup_RegistryEntries">
 
@@ -8,11 +15,13 @@
       Directory="TARGETDIR"
       Guid="CF88EDC2-7D07-4269-946C-B8FF917887ED">
     <Condition><![CDATA[CREATE_SIP_REGISTRY_ENTRIES = 1]]></Condition>
-    <RegistryKey Action="createAndRemoveOnUninstall" Key="sip" Root="HKCR">
+    <RegistryKey Key="sip" Root="HKCR">
       <RegistryValue Type="string" Value="URL: SIP Protocol handler" />
       <RegistryValue Name="URL Protocol" Type="string" Value="" />
       <RegistryValue
-          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
+          Key="DefaultIcon"
+          Type="string"
+          Value="[INSTALLDIR]sc-logo.ico" />
       <RegistryValue
           Key="shell\open\command"
           KeyPath="yes"
@@ -25,11 +34,13 @@
       Directory="TARGETDIR"
       Guid="BDB06CF9-F840-4CD6-B8B1-C24AC9CD11AB">
     <Condition><![CDATA[CREATE_FEED_REGISTRY_ENTRIES = 1]]></Condition>
-    <RegistryKey Action="createAndRemoveOnUninstall" Key="feed" Root="HKCR">
+    <RegistryKey Key="feed" Root="HKCR">
       <RegistryValue Type="string" Value="URL: RSS Protocol handler" />
       <RegistryValue Name="URL Protocol" Type="string" Value="" />
       <RegistryValue
-          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
+          Key="DefaultIcon"
+          Type="string"
+          Value="[INSTALLDIR]sc-logo.ico" />
       <RegistryValue
           Key="shell\open\command"
           KeyPath="yes"
@@ -42,11 +53,13 @@
       Directory="TARGETDIR"
       Guid="3C9C09AE-1F57-11DE-B96D-6B8D56D89593">
     <Condition><![CDATA[CREATE_XMPP_REGISTRY_ENTRIES = 1]]></Condition>
-    <RegistryKey Action="createAndRemoveOnUninstall" Key="xmpp" Root="HKCR">
+    <RegistryKey Key="xmpp" Root="HKCR">
       <RegistryValue Type="string" Value="URL: XMPP Protocol handler" />
       <RegistryValue Name="URL Protocol" Type="string" Value="" />
       <RegistryValue
-          Key="DefaultIcon" Type="string" Value="[INSTALLDIR]sc-logo.ico" />
+          Key="DefaultIcon"
+          Type="string"
+          Value="[INSTALLDIR]sc-logo.ico" />
       <RegistryValue
           Key="shell\open\command"
           KeyPath="yes"
@@ -60,10 +73,14 @@
       Directory="TARGETDIR"
       Guid="64F3D56F-62D3-420D-B5A3-C448EB169708">
     <Condition><![CDATA[HAS_STARTUP_REGISTRY]]></Condition>
-    <RegistryKey Action="createAndRemoveOnUninstall"
+    <RegistryKey
         Key="Software\Microsoft\Windows\CurrentVersion\Run"
         Root="HKCU">
-      <RegistryValue Name="@APP_NAME@" Type="string" Value="[INSTALLDIR]run.exe" />
+      <RegistryValue
+          KeyPath="yes"
+          Name="@APP_NAME@"
+          Type="string"
+          Value="[INSTALLDIR]run.exe" />
     </RegistryKey>
   </Component>
 
@@ -73,10 +90,14 @@
       Guid="9a590be3-d2c6-48e6-8d6a-a8ca71ad0aac"
       Win64="no">
     <Condition><![CDATA[CREATE_MSOFFICECOMM_REGISTRY_ENTRIES = 1]]></Condition>
-    <RegistryKey Action="createAndRemoveOnUninstall"
+    <RegistryKey
         Key="SOFTWARE\Microsoft\Office\Outlook\Call Integration"
         Root="HKLM">
-      <RegistryValue Name="IMApplication" Type="string" Value="run.exe" />
+      <RegistryValue
+          KeyPath="yes"
+          Name="IMApplication"
+          Type="string"
+          Value="run.exe" />
     </RegistryKey>
   </Component>
 <?if $(var.Platform) = x64 ?>
@@ -86,10 +107,14 @@
       Guid="ce3c9a0f-1876-470e-823c-a29d7b7fcb26"
       Win64="yes">
     <Condition><![CDATA[CREATE_MSOFFICECOMM_REGISTRY_ENTRIES = 1]]></Condition>
-    <RegistryKey Action="createAndRemoveOnUninstall"
+    <RegistryKey
         Key="SOFTWARE\Microsoft\Office\Outlook\Call Integration"
         Root="HKLM">
-      <RegistryValue Name="IMApplication" Type="string" Value="run.exe" />
+      <RegistryValue
+          KeyPath="yes"
+          Name="IMApplication"
+          Type="string"
+          Value="run.exe" />
     </RegistryKey>
   </Component>
 <?endif ?>
