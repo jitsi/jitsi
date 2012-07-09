@@ -389,6 +389,8 @@ public class HistoryWindow
 
     /**
      * Returns the next date from the history.
+     * When <tt>date</tt> is the last one, we return the current date,
+     * means we are loading today messages (till now).
      * 
      * @param date The date which indicates where to start.
      * @return the date after the given date
@@ -408,8 +410,7 @@ public class HistoryWindow
             }
         }
 
-        long ts = System.currentTimeMillis();
-        return new Date(ts - ts % (24*60*60*1000));
+        return new Date(System.currentTimeMillis());
     }
 
     /**
