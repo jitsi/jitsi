@@ -170,6 +170,7 @@ public abstract class MediaAwareCall<
     protected MediaAwareCall(U parentOpSet)
     {
         super(parentOpSet.getProtocolProvider());
+
         this.parentOpSet = parentOpSet;
 
         /*
@@ -483,29 +484,39 @@ public abstract class MediaAwareCall<
     public MediaDevice getDefaultDevice(MediaType mediaType)
     {
         MediaDevice device;
-        List<Call> callGroupCalls;
-
-        if ((mediaType == MediaType.AUDIO)
-                && (conferenceAudioMixer == null)
-                && (callGroup != null)
-                && ((callGroupCalls = callGroup.getCalls()).size() > 0))
-        {
-            conferenceAudioMixer
-                = ((MediaAwareCall<?,?,?>) callGroupCalls.get(0))
-                    .conferenceAudioMixer;
-            device = conferenceAudioMixer;
-        }
 
         switch (mediaType)
         {
         case AUDIO:
-            device = audioDevice;
+            {
+                /*
+                 * TODO There must be something wrong related to the CallGroup
+                 * functionality because the end product is that the local
+                 * variable device gets assigned a CallGroup-dependent value and
+                 * then it gets overwritten.
+                 */
+                List<Call> callGroupCalls;
+
+                if ((conferenceAudioMixer == null)
+                        && (callGroup != null)
+                        && ((callGroupCalls = callGroup.getCalls()).size() > 0))
+                {
+                    conferenceAudioMixer
+                        = ((MediaAwareCall<?,?,?>) callGroupCalls.get(0))
+                            .conferenceAudioMixer;
+                    device = conferenceAudioMixer;
+                }
+
+                device = audioDevice;
+            }
             break;
         case VIDEO:
             device = videoDevice;
             break;
         default:
-            /* no other type supported */
+            /*
+             * There is no other MediaType value (at the time of this writing).
+             */
             return null;
         }
 
@@ -984,9 +995,11 @@ public abstract class MediaAwareCall<
     }
 
     /**
-     * Set the <tt>MediaDevice</tt> used for the video.
+     * Sets the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for the
+     * video.
      *
-     * @param dev video <tt>MediaDevice</tt>
+     * @param dev the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for
+     * the video
      */
     public void setVideoDevice(MediaDevice dev)
     {
@@ -994,45 +1007,38 @@ public abstract class MediaAwareCall<
     }
 
     /**
-     * Set the <tt>MediaDevice</tt> used for the audio.
+     * Sets the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for the
+     * audio.
      *
-     * @param dev audio <tt>MediaDevice</tt>
+     * @param dev the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for
+     * the audio
      */
     public void setAudioDevice(MediaDevice dev)
     {
         if (audioDevice != dev)
         {
-            MediaDevice oldAudioDevice = audioDevice;
+            /*
+             * XXX While we know the old and the new master/wrapped devices, we
+             * are not sure whether conferenceAudioMixer has been used. Anyway,
+             * we have to report different values in order to have
+             * PropertyChangeSupport really fire the event.
+             */
+            MediaDevice oldValue
+                = (conferenceAudioMixer instanceof MediaDeviceWrapper)
+                    ? ((MediaDeviceWrapper) conferenceAudioMixer)
+                            .getWrappedDevice()
+                    : audioDevice;
 
             audioDevice = dev;
 
-            if (conferenceAudioMixer instanceof MediaDeviceWrapper)
-            {
-                MediaDevice wrappedDevice
-                    = ((MediaDeviceWrapper) conferenceAudioMixer)
-                        .getWrappedDevice();
+            MediaDevice newValue = audioDevice;
 
-                if (wrappedDevice != audioDevice)
-                {
-                    conferenceAudioMixer = null;
-
-                    /*
-                     * XXX While we know the old and the new master/wrapped
-                     * devices, we are not sure whether conferenceAudioMixer has
-                     * been used. Anyway, we have to report different values in
-                     * order to have PropertyChangeSupport really fire the
-                     * event.
-                     */
-                    propertyChangeSupport.firePropertyChange(
-                        DEFAULT_DEVICE,
-                        wrappedDevice, audioDevice);
-                }
-            }
-            else if (conferenceAudioMixer == null)
+            if (oldValue != newValue)
             {
+                conferenceAudioMixer = null;
                 propertyChangeSupport.firePropertyChange(
-                    DEFAULT_DEVICE,
-                    oldAudioDevice, audioDevice);
+                        DEFAULT_DEVICE,
+                        oldValue, newValue);
             }
         }
     }
@@ -1181,8 +1187,8 @@ public abstract class MediaAwareCall<
     /**
      * Notifies this instance about a change of the value of a specific property
      * from a specific old value to a specific new value. At the time of this
-     * writing, <tt>MediaAwareCall</tt> listeners to the property value changes
-     * of <tt>MediaService</tt> in order to track the changes of the default
+     * writing, <tt>MediaAwareCall</tt> listens to the property value changes of
+     * <tt>MediaService</tt> in order to track the changes of the default
      * <tt>MediaDevice</tt>.
      *
      * @param event a <tt>PropertyChangeEvent</tt> which specifies the name of
@@ -1192,31 +1198,31 @@ public abstract class MediaAwareCall<
     {
         if (MediaService.DEFAULT_DEVICE.equals(event.getPropertyName()))
         {
-            // if we change the device, do it only for the first member
-            if(getCallGroup() != null &&
-                this != getCallGroup().getCalls().get(0))
-            {
+            /*
+             * The first Call in a CallGroup will process the property change
+             * for all Calls in the CallGroup (because they share one and the
+             * same device).
+             */
+            CallGroup callGroup = getCallGroup();
+
+            if ((callGroup != null) && (this != callGroup.getCalls().get(0)))
                 return;
-            }
 
             /*
              * XXX We only support changing the default audio device at the time
              * of this writing.
              */
-            MediaDevice oldValue = null;
+            MediaDevice oldValue
+                = (conferenceAudioMixer instanceof MediaDeviceWrapper)
+                    ? ((MediaDeviceWrapper) conferenceAudioMixer)
+                            .getWrappedDevice()
+                    : null;
             MediaDevice newValue
                 = (audioDevice == null)
                     ? ProtocolMediaActivator.getMediaService().getDefaultDevice(
                             MediaType.AUDIO,
                             mediaUseCase)
                     : audioDevice;
-
-            if (conferenceAudioMixer instanceof MediaDeviceWrapper)
-            {
-                oldValue
-                    = ((MediaDeviceWrapper) conferenceAudioMixer)
-                        .getWrappedDevice();
-            }
 
             /*
              * XXX If MediaService#getDefaultDevice(MediaType, MediaUseCase)
@@ -1230,24 +1236,33 @@ public abstract class MediaAwareCall<
                 propertyChangeSupport.firePropertyChange(
                         DEFAULT_DEVICE,
                         oldValue, newValue);
-            }
 
-            // now the first member of the group is configured so let's
-            // configure the others
-            if(getCallGroup() != null)
-            {
-                List<Call> calls = getCallGroup().getCalls();
-
-                for(Call c : calls)
+                /*
+                 * As previously stated, the first Call in a CallGroup will
+                 * process the property change for all Calls in the CallGroup.
+                 * Now that the first Call has responded to the change in the
+                 * DEFAULT_DEVICE, the other Calls in the CallGroup can be
+                 * notified about the change as well and they can consult the
+                 * device configured by the first Call. 
+                 */
+                callGroup = getCallGroup();
+                if (callGroup != null)
                 {
-                    if(c == this)
-                        continue;
+                    List<Call> calls = callGroup.getCalls();
 
-                    MediaAwareCall<?,?,?> call = (MediaAwareCall<?,?,?>)c;
+                    for (Call c : calls)
+                    {
+                        if (c != this)
+                        {
+                            MediaAwareCall<?,?,?> call
+                                = (MediaAwareCall<?,?,?>) c;
 
-                    call.conferenceAudioMixer = null;
-                    call.propertyChangeSupport.firePropertyChange(
-                        DEFAULT_DEVICE, oldValue, newValue);
+                            call.conferenceAudioMixer = null;
+                            call.propertyChangeSupport.firePropertyChange(
+                                    DEFAULT_DEVICE,
+                                    oldValue, newValue);
+                        }
+                    }
                 }
             }
         }

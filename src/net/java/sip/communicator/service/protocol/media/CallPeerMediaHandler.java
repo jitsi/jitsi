@@ -1018,7 +1018,7 @@ public abstract class CallPeerMediaHandler
                 if (oldValue != newValue)
                 {
                     stream.setDevice(newValue);
-                    registerAudioLevelListeners((AudioMediaStream)stream);
+                    registerAudioLevelListeners((AudioMediaStream) stream);
                 }
             }
         }
