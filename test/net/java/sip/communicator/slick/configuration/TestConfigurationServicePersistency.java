@@ -111,16 +111,19 @@ public class TestConfigurationServicePersistency extends TestCase
      */
     protected void setUp() throws Exception
     {
-        String confDirName = 
-            System.getProperty(
-                ConfigurationService.PNAME_SC_HOME_DIR_NAME, 
-                ".sip-communicator");
-        
-        confFile = new File(System.getProperty("user.home")
-                            + File.separator
-                            + confDirName
-                            + File.separator
-                            + ourConfFileName);
+        String confDirLocation
+            = System.getProperty(
+                    ConfigurationService.PNAME_SC_HOME_DIR_LOCATION,
+                    System.getProperty("user.home"));
+        String confDirName
+            = System.getProperty(
+                    ConfigurationService.PNAME_SC_HOME_DIR_NAME,
+                    ".sip-communicator");
+
+        confFile
+            = new File(
+                    confDirLocation + File.separator + confDirName,
+                    ourConfFileName);
 
         configurationService.purgeStoredConfiguration();
         originalConfFileName
@@ -130,6 +133,11 @@ public class TestConfigurationServicePersistency extends TestCase
             ConfigurationService.PNAME_CONFIGURATION_FILE_NAME,
             ourConfFileName);
 
+        /*
+         * We're going to (attempt to) create a new file so (try to) make sure
+         * the parent directory exists.
+         */
+        confFile.getParentFile().mkdir();
         confFile.createNewFile();
 
         FileOutputStream out = new FileOutputStream(confFile);
