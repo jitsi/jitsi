@@ -592,6 +592,10 @@
             <!-- Tell the slick runner where to store test results. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
                          value="${test.reports.dir}"/>
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                value="${test.reports.dir}"/>
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_NAME"
+                value="schome"/>
 
             <!-- Tell the slick runner which Test classes to run. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.TEST_LIST"
@@ -689,6 +693,10 @@
             <!-- Tell the slick runner where to store test results. -->
             <sysproperty key="net.java.sip.communicator.slick.runner.OUTPUT_DIR"
                          value="${test.reports.dir}"/>
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
+                value="${test.reports.dir}"/>
+            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_NAME"
+                value="schome"/>
 
             <!-- use a meta contact list file different to normal client. -->
             <sysproperty key="net.java.sip.communicator.CONTACTLIST_FILE_NAME"

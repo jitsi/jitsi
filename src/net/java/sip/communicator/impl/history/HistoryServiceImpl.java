@@ -94,13 +94,14 @@ public class HistoryServiceImpl
         List<File> vect = new Vector<File>();
         File histDir = null;
         try {
-            String userSetDataDirectory = System.getProperty("HistoryServiceDirectory");
-            if(userSetDataDirectory != null)
-                histDir = this.fileAccessService
-                    .getPrivatePersistentDirectory(userSetDataDirectory);
-            else
-                histDir = this.fileAccessService
-                    .getPrivatePersistentDirectory(DATA_DIRECTORY);
+            String userSetDataDirectory
+                = System.getProperty("HistoryServiceDirectory");
+
+            histDir
+                = getFileAccessService().getPrivatePersistentDirectory(
+                        (userSetDataDirectory == null)
+                            ? DATA_DIRECTORY
+                            : userSetDataDirectory);
 
             findDatFiles(vect, histDir);
         } catch (Exception e)
@@ -259,15 +260,20 @@ public class HistoryServiceImpl
         System.arraycopy(idComponents, 0, dirs, 1, dirs.length - 1);
 
         File directory = null;
-        try {
-            directory = this.fileAccessService
-                    .getPrivatePersistentDirectory(dirs);
-        } catch (Exception e)
+        try
         {
-            throw (IOException) new IOException(
-                    "Could not create history due to file system error")
-                    .initCause(e);
-            }
+            directory
+                = getFileAccessService().getPrivatePersistentDirectory(dirs);
+        }
+        catch (Exception e)
+        {
+            IOException ioe
+                = new IOException(
+                        "Could not create history due to file system error");
+
+            ioe.initCause(e);
+            throw ioe;
+        }
 
         if (!directory.exists() && !directory.mkdirs())
         {
@@ -363,13 +369,9 @@ public class HistoryServiceImpl
     }
 
     private static FileAccessService getFileAccessService(
-        BundleContext bundleContext)
+            BundleContext bundleContext)
     {
-        ServiceReference serviceReference =
-            bundleContext
-                .getServiceReference(FileAccessService.class.getName());
-        return (serviceReference == null) ? null
-            : (FileAccessService) bundleContext.getService(serviceReference);
+        return ServiceUtils.getService(bundleContext, FileAccessService.class);
     }
 
     /**
@@ -416,9 +418,7 @@ public class HistoryServiceImpl
         for (int i = 0; i < dirNames.length; i++)
         {
             if (i > 0)
-            {
                 dirName.append(File.separatorChar);
-            }
             dirName.append(dirNames[i]);
         }
 
@@ -426,18 +426,16 @@ public class HistoryServiceImpl
         File histDir = null;
         try
         {
-            String userSetDataDirectory =
-                System.getProperty("HistoryServiceDirectory");
+            String userSetDataDirectory
+                = System.getProperty("HistoryServiceDirectory");
 
-            if(userSetDataDirectory != null)
-                histDir = this.fileAccessService
-                    .getPrivatePersistentDirectory(userSetDataDirectory);
-            else
-                histDir = this.fileAccessService
-                    .getPrivatePersistentDirectory(DATA_DIRECTORY);
-
-
-        } catch (Exception e)
+            histDir
+                = getFileAccessService().getPrivatePersistentDirectory(
+                        (userSetDataDirectory == null)
+                            ? DATA_DIRECTORY
+                            : userSetDataDirectory);
+        }
+        catch (Exception e)
         {
             logger.error("Error opening directory", e);
         }
