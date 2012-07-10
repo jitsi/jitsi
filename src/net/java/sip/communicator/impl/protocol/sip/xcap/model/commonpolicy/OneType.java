@@ -6,8 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
-import net.java.sip.communicator.util.*;
-
+import org.jitsi.util.*;
 import org.w3c.dom.*;
 
 /**

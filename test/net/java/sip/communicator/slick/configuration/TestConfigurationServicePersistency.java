@@ -11,9 +11,9 @@ import java.io.*;
 import javax.xml.parsers.*;
 
 import junit.framework.*;
-import net.java.sip.communicator.util.xml.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.util.xml.*;
 import org.osgi.framework.*;
 import org.w3c.dom.*;
 

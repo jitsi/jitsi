@@ -1,19 +1,10 @@
 Bundle-Activator: net.java.sip.communicator.impl.fileaccess.FileAccessActivator
-Bundle-Name: File Access Service Provider
 Bundle-Description: A bundle that implements the file access package.
+Bundle-Name: File Access Service Provider
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
+Import-Package: org.jitsi.service.fileaccess,
+ org.jitsi.service.libjitsi,
+ org.osgi.framework
 System-Bundle: yes
-Import-Package: org.osgi.framework,
- org.xml.sax,
- org.w3c.dom,
- javax.xml.transform,
- javax.xml.transform.dom,
- javax.xml.transform.stream,
- javax.xml.parsers,
- javax.swing.filechooser,
- net.java.sip.communicator.util,
- net.java.sip.communicator.util.xml,
- org.jitsi.service.fileaccess,
- org.jitsi.util
-Metadata-Location: /net/java/sip/communicator/impl/fileaccess/fileaccess.metadata.xml
+ 

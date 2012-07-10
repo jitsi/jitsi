@@ -9,8 +9,9 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 import java.util.concurrent.*;
 
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 
+import org.jitsi.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;

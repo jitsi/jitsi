@@ -9,9 +9,9 @@ package net.java.sip.communicator.impl.notification;
 import java.util.*;
 
 import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.audionotifier.*;
+import org.jitsi.util.*;
 
 /**
  * An implementation of the <tt>SoundNotificationHandler</tt> interface.

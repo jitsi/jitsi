@@ -21,6 +21,7 @@ import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**

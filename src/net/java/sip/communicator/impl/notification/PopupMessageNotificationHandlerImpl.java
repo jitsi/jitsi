@@ -8,7 +8,9 @@ package net.java.sip.communicator.impl.notification;
 
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.util.*;
 
 /**
  * An implementation of the <tt>PopupMessageNotificationHandler</tt> interface.

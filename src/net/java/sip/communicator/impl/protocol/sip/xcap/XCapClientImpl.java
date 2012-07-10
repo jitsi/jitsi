@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps.*;
 import net.java.sip.communicator.util.*;
 
 import org.apache.http.*;
+import org.jitsi.util.*;
 
 /**
  * XCAP client implementation.

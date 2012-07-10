@@ -26,7 +26,8 @@ Export-Package: javax.media,
  org.jitsi.service.version,
  org.jitsi.util,
  org.jitsi.util.event,
- org.jitsi.util.swing
+ org.jitsi.util.swing,
+ org.jitsi.util.xml
 Import-Package: apple.awt,
  ch.imvs.sdes4j,
  ch.imvs.sdes4j.srtp,

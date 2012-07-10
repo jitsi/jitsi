@@ -11,9 +11,11 @@ import javax.swing.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.provisioning.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 // disambiguation
 

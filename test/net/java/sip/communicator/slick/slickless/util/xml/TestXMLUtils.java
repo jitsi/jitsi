@@ -12,8 +12,8 @@ import javax.xml.parsers.*;
 import javax.xml.transform.stream.*;
 
 import junit.framework.*;
-import net.java.sip.communicator.util.xml.*;
 
+import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 
 

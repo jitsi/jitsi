@@ -4,7 +4,6 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-
 package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
@@ -13,7 +12,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
+
+import org.jitsi.util.*;
 
 /**
  * A custom panel to handle systray popup notification

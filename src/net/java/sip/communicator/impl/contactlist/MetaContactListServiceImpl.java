@@ -13,8 +13,8 @@ import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.xml.*;
 
+import org.jitsi.util.xml.*;
 import org.osgi.framework.*;
 
 /**

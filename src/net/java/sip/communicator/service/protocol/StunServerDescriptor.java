@@ -14,7 +14,7 @@ import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory
 
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
+import org.jitsi.util.*;
 
 /**
  * A <tt>StunServerDescriptor</tt> stores information necessary to create a

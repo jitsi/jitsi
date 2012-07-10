@@ -13,7 +13,7 @@ import java.util.*;
 
 import javax.net.ssl.*;
 
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.swing.*;
 
 import org.apache.http.*;
@@ -34,6 +34,7 @@ import org.apache.http.message.*;
 import org.apache.http.params.*;
 import org.apache.http.protocol.*;
 import org.apache.http.util.*;
+import org.jitsi.util.*;
 
 /**
  * Common http utils querying http locations, handling redirects, self-signed

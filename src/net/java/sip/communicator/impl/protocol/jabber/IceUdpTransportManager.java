@@ -15,13 +15,14 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.Candidat
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
 import org.ice4j.security.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.xmpp.jnodes.smack.*;
 

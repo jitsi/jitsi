@@ -7,6 +7,7 @@ System-Bundle: yes
 Import-Package: org.osgi.framework,
  org.jitsi.service.configuration,
  org.jitsi.service.fileaccess,
+ org.jitsi.util.xml,
  net.java.sip.communicator.service.history,
  net.java.sip.communicator.service.history.records,
  org.w3c.dom,
@@ -15,8 +16,7 @@ Import-Package: org.osgi.framework,
  javax.xml.transform,
  javax.xml.transform.dom,
  javax.xml.transform.stream,
- net.java.sip.communicator.util,
- net.java.sip.communicator.util.xml
+ net.java.sip.communicator.util
 Export-Package: net.java.sip.communicator.service.history,
  net.java.sip.communicator.service.history.event,
  net.java.sip.communicator.service.history.records

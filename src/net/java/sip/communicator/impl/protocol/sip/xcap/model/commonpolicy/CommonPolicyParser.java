@@ -7,11 +7,11 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAny;
-import static net.java.sip.communicator.util.StringUtils.isNullOrEmpty;
-import static net.java.sip.communicator.util.xml.XMLUtils.createDocument;
-import static net.java.sip.communicator.util.xml.XMLUtils.createXml;
-import static net.java.sip.communicator.util.xml.XMLUtils.getNamespaceUri;
-import static net.java.sip.communicator.util.xml.XMLUtils.isStandartXmlNamespace;
+import static org.jitsi.util.StringUtils.isNullOrEmpty;
+import static org.jitsi.util.xml.XMLUtils.createDocument;
+import static org.jitsi.util.xml.XMLUtils.createXml;
+import static org.jitsi.util.xml.XMLUtils.getNamespaceUri;
+import static org.jitsi.util.xml.XMLUtils.isStandartXmlNamespace;
 
 import java.util.*;
 

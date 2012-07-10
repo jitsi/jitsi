@@ -7,21 +7,18 @@
 package net.java.sip.communicator.impl.fileaccess;
 
 import org.jitsi.service.fileaccess.*;
+import org.jitsi.service.libjitsi.*;
 import org.osgi.framework.*;
 
 /**
  * Invoke "Service Binder" to parse the service XML and register all services.
  *
  * @author Alexander Pelov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class FileAccessActivator
     implements BundleActivator
 {
-    /**
-     * The service registration.
-     */
-    private ServiceRegistration serviceRegistration;
 
     /**
      * Initialize and start file service
@@ -32,9 +29,15 @@ public class FileAccessActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
-        serviceRegistration =
-            bundleContext.registerService(FileAccessService.class.getName(),
-                new FileAccessServiceImpl(), null);
+        FileAccessService fileAccessService = LibJitsi.getFileAccessService();
+
+        if (fileAccessService != null)
+        {
+            bundleContext.registerService(
+                    FileAccessService.class.getName(),
+                    fileAccessService,
+                    null);
+        }
     }
 
     /**
@@ -46,10 +49,5 @@ public class FileAccessActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
-        if (serviceRegistration != null)
-        {
-            serviceRegistration.unregister();
-            serviceRegistration = null;
-        }
     }
 }

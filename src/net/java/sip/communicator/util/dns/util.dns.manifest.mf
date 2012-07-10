@@ -5,11 +5,12 @@ Bundle-Description: A bundle that export packages with DNS utility classes.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: 
+Import-Package: org.jitsi.util, 
  org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.util.swing,
- org.jitsi.service.resources, net.java.sip.communicator.service.resources,
+ org.jitsi.service.resources,
+ net.java.sip.communicator.service.resources,
  org.jitsi.service.configuration,
  net.java.sip.communicator.service.notification,
  sun.net.dns,

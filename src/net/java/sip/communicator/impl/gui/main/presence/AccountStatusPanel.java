@@ -25,6 +25,8 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.util.*;
+
 /**
  * The panel shown on the top of the contact list. It contains user name,
  * current status menu and the avatar of the user.

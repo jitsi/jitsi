@@ -18,10 +18,11 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.MediaType;
+import org.jitsi.util.*;
 // Disambiguation.
 
 /**

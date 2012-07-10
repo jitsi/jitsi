@@ -24,9 +24,11 @@ import net.java.sip.communicator.impl.protocol.sip.security.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.dns.*;
 
 import org.jitsi.service.version.Version;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**

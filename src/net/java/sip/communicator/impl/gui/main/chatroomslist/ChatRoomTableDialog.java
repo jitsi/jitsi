@@ -21,8 +21,9 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.util.*;
 
 /**
  * The dialog containing a list of all chat rooms of the user and

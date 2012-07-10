@@ -25,8 +25,10 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.swing.*;
 
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**

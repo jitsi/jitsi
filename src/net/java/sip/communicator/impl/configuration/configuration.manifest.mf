@@ -4,14 +4,6 @@ Bundle-Description: A bundle that offers configuration utilities
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: org.osgi.framework,
- org.xml.sax,
- org.w3c.dom,
- javax.xml.transform,
- javax.xml.transform.dom,
- javax.xml.transform.stream,
- javax.xml.parsers,
- net.java.sip.communicator.util,
- net.java.sip.communicator.util.xml,
- org.jitsi.service.configuration,
- org.jitsi.service.fileaccess
+Import-Package: org.jitsi.service.configuration,
+ org.jitsi.service.libjitsi,
+ org.osgi.framework

@@ -20,6 +20,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.jitsi.util.*;
+
 /**
  * The dialog created when an incoming call is received.
  *

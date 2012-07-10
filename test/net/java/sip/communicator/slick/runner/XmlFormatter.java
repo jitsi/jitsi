@@ -32,8 +32,8 @@ import javax.xml.parsers.*;
 
 import junit.framework.*;
 import junit.textui.*;
-import net.java.sip.communicator.util.xml.*;
 
+import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 
 

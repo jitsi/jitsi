@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
-import net.java.sip.communicator.util.*;
+import org.jitsi.util.*;
 
 /**
  * The Authorization Rules sphere element.

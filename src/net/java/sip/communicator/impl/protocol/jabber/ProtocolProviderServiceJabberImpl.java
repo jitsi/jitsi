@@ -1361,7 +1361,7 @@ public class ProtocolProviderServiceJabberImpl
                     new Presence(Presence.Type.unavailable);
 
                 if(opSet != null
-                    && !net.java.sip.communicator.util.StringUtils
+                    && !org.jitsi.util.StringUtils
                         .isNullOrEmpty(opSet.getCurrentStatusMessage()))
                 {
                     unavailablePresence.setStatus(

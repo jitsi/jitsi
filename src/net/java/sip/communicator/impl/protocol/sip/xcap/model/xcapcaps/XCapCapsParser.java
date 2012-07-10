@@ -6,10 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps;
 
-import static net.java.sip.communicator.util.StringUtils.isNullOrEmpty;
-import static net.java.sip.communicator.util.xml.XMLUtils.createDocument;
-import static net.java.sip.communicator.util.xml.XMLUtils.getNamespaceUri;
-import static net.java.sip.communicator.util.xml.XMLUtils.isStandartXmlNamespace;
+import static org.jitsi.util.StringUtils.isNullOrEmpty;
+import static org.jitsi.util.xml.XMLUtils.createDocument;
+import static org.jitsi.util.xml.XMLUtils.getNamespaceUri;
+import static org.jitsi.util.xml.XMLUtils.isStandartXmlNamespace;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 
 import org.w3c.dom.*;

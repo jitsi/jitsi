@@ -7,8 +7,9 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
+
+import org.jitsi.util.*;
 
 /**
  * The <tt>SIPAccountRegistrationForm</tt>.

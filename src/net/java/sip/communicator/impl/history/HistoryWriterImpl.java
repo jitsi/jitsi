@@ -12,8 +12,8 @@ import java.util.*;
 
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
-import net.java.sip.communicator.util.xml.XMLUtils;
 
+import org.jitsi.util.xml.XMLUtils;
 import org.w3c.dom.*;
 
 /**

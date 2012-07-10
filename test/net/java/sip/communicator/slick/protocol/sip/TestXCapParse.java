@@ -15,8 +15,8 @@ import net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror.*;
-import net.java.sip.communicator.util.xml.*;
 
+import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 
 /**

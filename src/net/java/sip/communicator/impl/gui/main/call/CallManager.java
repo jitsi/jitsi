@@ -22,11 +22,12 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.swing.transparent.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>CallManager</tt> is the one that handles calls. It contains also

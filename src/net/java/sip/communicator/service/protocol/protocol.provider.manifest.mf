@@ -11,6 +11,7 @@ Import-Package: net.java.sip.communicator.service.credentialsstorage,
  org.jitsi.service.neomedia,
  org.jitsi.service.protocol.event,
  org.jitsi.service.resources,
+ org.jitsi.util,
  org.jitsi.util.event,
  org.osgi.framework
 Export-Package: net.java.sip.communicator.service.protocol,
