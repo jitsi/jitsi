@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.customcontrols;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,13 +13,8 @@ import java.io.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * Implements a <tt>JDialog</tt> which displays an error message and,
@@ -47,11 +42,11 @@ public class ErrorDialog
 
     private JButton okButton
         = new JButton(
-                GuiActivator.getResources().getI18NString("service.gui.OK"));
+                UtilActivator.getResources().getI18NString("service.gui.OK"));
 
     private JLabel iconLabel
-        = new JLabel(
-                new ImageIcon(ImageLoader.getImage(ImageLoader.ERROR_ICON)));
+        = new JLabel(new ImageIcon(
+                UtilActivator.getImage("service.gui.icons.ERROR_ICON")));
 
     private StyledHTMLEditorPane htmlMsgEditorPane = new StyledHTMLEditorPane();
 
@@ -121,8 +116,8 @@ public class ErrorDialog
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
-        this.stackTraceScrollPane.setBorder(
-            new SIPCommBorders.BoldRoundBorder());
+        this.stackTraceScrollPane.setBorder(BorderFactory.createLineBorder(
+            iconLabel.getForeground()));
 
         this.stackTraceScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -226,8 +221,8 @@ public class ErrorDialog
 
         if(type == WARNING)
         {
-            iconLabel.setIcon(new ImageIcon(ImageLoader
-                .getImage(ImageLoader.WARNING_ICON)));
+            iconLabel.setIcon(new ImageIcon(
+                UtilActivator.getImage("service.gui.icons.WARNING_ICON")));
             this.type = type;
         }
     }
@@ -354,11 +349,11 @@ public class ErrorDialog
      */
     public void loadSkin()
     {
-        ImageID icon
+        String icon
             = (type == WARNING)
-                ? ImageLoader.WARNING_ICON
-                : ImageLoader.ERROR_ICON;
+                ? "service.gui.icons.WARNING_ICON"
+                : "service.gui.icons.ERROR_ICON";
 
-        iconLabel.setIcon(new ImageIcon(ImageLoader.getImage(icon)));
+        iconLabel.setIcon(new ImageIcon(UtilActivator.getImage(icon)));
     }
 }

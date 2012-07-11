@@ -14,7 +14,6 @@ import javax.swing.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.table.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.dns.*;
 import net.java.sip.communicator.util.swing.*;

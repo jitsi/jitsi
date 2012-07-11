@@ -341,74 +341,67 @@ public class HttpUtils
                                    ArrayList<String> formParamValues,
                                    int usernameParamIx,
                                    int passwordParamIx)
+        throws Throwable
     {
         DefaultHttpClient httpClient;
         HttpPost postMethod;
         HttpEntity resEntity = null;
-        try
+
+        // if any authentication exception rise while executing
+        // will retry
+        AuthenticationException authEx;
+        HTTPCredentialsProvider credentialsProvider = null;
+        do
         {
-            // if any authentication exception rise while executing
-            // will retry
-            AuthenticationException authEx;
-            HTTPCredentialsProvider credentialsProvider = null;
-            do
+            postMethod = new HttpPost(address);
+            httpClient = getHttpClient(
+                usernamePropertyName, passwordPropertyName,
+                postMethod.getURI().getHost(), credentialsProvider);
+
+            try
             {
-                postMethod = new HttpPost(address);
-                httpClient = getHttpClient(
-                    usernamePropertyName, passwordPropertyName,
-                    postMethod.getURI().getHost(), credentialsProvider);
+                // execute post
+                resEntity = postForm(
+                        httpClient,
+                        postMethod,
+                        address,
+                        usernamePropertyName,
+                        passwordPropertyName,
+                        formParamNames,
+                        formParamValues,
+                        usernameParamIx,
+                        passwordParamIx);
 
-                try
-                {
-                    // execute post
-                    resEntity = postForm(
-                            httpClient,
-                            postMethod,
-                            address,
-                            usernamePropertyName,
-                            passwordPropertyName,
-                            formParamNames,
-                            formParamValues,
-                            usernameParamIx,
-                            passwordParamIx);
-
-                    authEx = null;
-                }
-                catch(AuthenticationException ex)
-                {
-                    authEx = ex;
-
-                    // lets reuse credentialsProvider
-                    credentialsProvider = (HTTPCredentialsProvider)
-                        httpClient.getCredentialsProvider();
-                    String userName = credentialsProvider.authUsername;
-
-                    // clear
-                    credentialsProvider.clear();
-
-                    // lets show the same username
-                    credentialsProvider.authUsername = userName;
-                    credentialsProvider.errorMessage =
-                        HttpUtilActivator.getResources().getI18NString(
-                        "service.gui.AUTHENTICATION_FAILED",
-                        new String[]
-                                {credentialsProvider.usedScope.getHost()});
-                }
+                authEx = null;
             }
-            while(authEx != null);
+            catch(AuthenticationException ex)
+            {
+                authEx = ex;
 
-            // canceled or no result
-            if(resEntity == null)
-                return null;
+                // lets reuse credentialsProvider
+                credentialsProvider = (HTTPCredentialsProvider)
+                    httpClient.getCredentialsProvider();
+                String userName = credentialsProvider.authUsername;
 
-            return new HTTPResponseResult(resEntity, httpClient);
+                // clear
+                credentialsProvider.clear();
+
+                // lets show the same username
+                credentialsProvider.authUsername = userName;
+                credentialsProvider.errorMessage =
+                    HttpUtilActivator.getResources().getI18NString(
+                    "service.gui.AUTHENTICATION_FAILED",
+                    new String[]
+                            {credentialsProvider.usedScope.getHost()});
+            }
         }
-        catch(Throwable e)
-        {
-            logger.error("Error posting form", e);
-        }
+        while(authEx != null);
 
-        return null;
+        // canceled or no result
+        if(resEntity == null)
+            return null;
+
+        return new HTTPResponseResult(resEntity, httpClient);
     }
 
     /**

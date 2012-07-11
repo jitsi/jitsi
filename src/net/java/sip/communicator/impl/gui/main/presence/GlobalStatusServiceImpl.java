@@ -6,11 +6,11 @@
 package net.java.sip.communicator.impl.gui.main.presence;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 import org.jitsi.service.configuration.*;
 
 import java.util.*;

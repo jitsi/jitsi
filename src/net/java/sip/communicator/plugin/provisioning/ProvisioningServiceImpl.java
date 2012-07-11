@@ -430,15 +430,25 @@ public class ProvisioningServiceImpl
                 }
             }
 
-            HttpUtils.HTTPResponseResult res =
-                HttpUtils.postForm(
-                    url,
-                    PROPERTY_PROVISIONING_USERNAME,
-                    PROPERTY_PROVISIONING_PASSWORD,
-                    paramNames,
-                    paramValues,
-                    usernameIx,
-                    passwordIx);
+            HttpUtils.HTTPResponseResult res = null;
+            Throwable errorWhileProvisioning = null;
+            try
+            {
+                res =
+                    HttpUtils.postForm(
+                        url,
+                        PROPERTY_PROVISIONING_USERNAME,
+                        PROPERTY_PROVISIONING_PASSWORD,
+                        paramNames,
+                        paramValues,
+                        usernameIx,
+                        passwordIx);
+            }
+            catch(Throwable t)
+            {
+                logger.error("Error posting form", t);
+                errorWhileProvisioning = t;
+            }
 
             // if there was an error in retrieving stop
             if(res == null)
@@ -457,6 +467,23 @@ public class ProvisioningServiceImpl
                 if(ProvisioningActivator.getConfigurationService().getBoolean(
                     PROPERTY_PROVISIONING_MANDATORY, provisioningMandatory))
                 {
+                    String errorMsg;
+                    if(errorWhileProvisioning != null)
+                        errorMsg = errorWhileProvisioning.getLocalizedMessage();
+                    else
+                        errorMsg = "";
+
+                    ErrorDialog ed = new ErrorDialog(
+                        null,
+                        ProvisioningActivator.getResourceService()
+                            .getI18NString("plugin.provisioning.PROV_FAILED"),
+                        ProvisioningActivator.getResourceService()
+                            .getI18NString("plugin.provisioning.PROV_FAILED_MSG",
+                                            new String[]{errorMsg}),
+                        errorWhileProvisioning);
+                    ed.setModal(true);
+                    ed.showDialog();
+
                     // as shutdown service is not started and other bundles
                     // are scheduled to start, stop all of them
                     {

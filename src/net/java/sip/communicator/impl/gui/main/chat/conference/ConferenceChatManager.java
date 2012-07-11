@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
@@ -22,7 +21,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 
-import org.jdesktop.swingworker.*;
+import net.java.sip.communicator.util.swing.*;
+import org.jdesktop.swingworker.SwingWorker;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 // Java 1.6 has javax.swing.SwingWorker so we have to disambiguate.
