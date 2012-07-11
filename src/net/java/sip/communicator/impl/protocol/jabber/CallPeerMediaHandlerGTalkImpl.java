@@ -562,11 +562,21 @@ public class CallPeerMediaHandlerGTalkImpl
             CandidatesSender candidatesSender)
         throws OperationFailedException
     {
+        long startCandidateHarvestTime = System.currentTimeMillis();
+
         getTransportManager().startCandidateHarvest(
                 local,
                 candidatesSender);
 
         transportManager.wrapupCandidateHarvest();
+
+        long stopCandidateHarvestTime = System.currentTimeMillis();
+        long  candidateHarvestTime
+            = stopCandidateHarvestTime - startCandidateHarvestTime;
+        if (logger.isInfoEnabled())
+            logger.info("End candidate harvest within "
+                    + candidateHarvestTime + " ms");
+
     }
 
     /**

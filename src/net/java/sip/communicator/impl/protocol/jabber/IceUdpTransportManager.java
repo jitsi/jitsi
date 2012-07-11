@@ -97,6 +97,7 @@ public class IceUdpTransportManager
      */
     protected Agent createIceAgent()
     {
+        long startGatheringHarvesterTime = System.currentTimeMillis();
         CallPeerJabberImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
         NetworkAddressManagerService namSer = getNetAddrMgr();
@@ -270,6 +271,12 @@ public class IceUdpTransportManager
             }
         }
 
+        long stopGatheringHarvesterTime = System.currentTimeMillis();
+        long  gatheringHarvesterTime 
+            = stopGatheringHarvesterTime - startGatheringHarvesterTime;
+        if (logger.isInfoEnabled())
+            logger.info("End gathering harvester within "
+                    + gatheringHarvesterTime + " ms");
         return agent;
     }
 

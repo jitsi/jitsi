@@ -1617,6 +1617,8 @@ public class CallPeerMediaHandlerJabberImpl
             TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
+        long startCandidateHarvestTime = System.currentTimeMillis();
+
         TransportManagerJabberImpl transportManager = getTransportManager();
 
         if (remote == null)
@@ -1640,6 +1642,12 @@ public class CallPeerMediaHandlerJabberImpl
                     transportInfoSender);
         }
 
+        long stopCandidateHarvestTime = System.currentTimeMillis();
+        long  candidateHarvestTime 
+            = stopCandidateHarvestTime - startCandidateHarvestTime;
+        if (logger.isInfoEnabled())
+            logger.info("End candidate harvest within "
+                    + candidateHarvestTime + " ms");
         /*
          * TODO Ideally, we wouldn't wrap up that quickly. We need to revisit
          * this.
