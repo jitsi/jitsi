@@ -31,22 +31,13 @@ import org.jivesoftware.smackx.packet.*;
  * @author Lyubomir Marinov
  */
 public class CallJabberImpl
-    extends MediaAwareCall<
-                    CallPeerJabberImpl,
-                    OperationSetBasicTelephonyJabberImpl,
-                    ProtocolProviderServiceJabberImpl>
+    extends AbstractCallJabberGTalkImpl<CallPeerJabberImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallJabberImpl</tt> class and its
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(CallJabberImpl.class);
-
-    /**
-     * Indicates if the <tt>CallPeer</tt> will support <tt>inputevt</tt>
-     * extension (i.e. will be able to be remote-controlled).
-     */
-    private boolean localInputEvtAware = false;
 
     /**
      * The Jitsi VideoBridge conference which the local peer represented by this
@@ -89,26 +80,6 @@ public class CallJabberImpl
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
         parentOpSet.getActiveCallsRepository().addCall(this);
-    }
-
-    /**
-     * Enable or disable <tt>inputevt</tt> support (remote control).
-     *
-     * @param enable new state of inputevt support
-     */
-    public void setLocalInputEvtAware(boolean enable)
-    {
-        localInputEvtAware = enable;
-    }
-
-    /**
-     * Returns if the call support <tt>inputevt</tt> (remote control).
-     *
-     * @return true if the call support <tt>inputevt</tt>, false otherwise
-     */
-    public boolean getLocalInputEvtAware()
-    {
-        return localInputEvtAware;
     }
 
     /**
@@ -379,7 +350,7 @@ public class CallJabberImpl
         /* enable video if it is a video call */
         mediaHandler.setLocalVideoTransmissionEnabled(localVideoAllowed);
         /* enable remote-control if it is a desktop sharing session */
-        mediaHandler.setLocalInputEvtAware(localInputEvtAware);
+        mediaHandler.setLocalInputEvtAware(getLocalInputEvtAware());
 
         //set call state to connecting so that the user interface would start
         //playing the tones. we do that here because we may be harvesting

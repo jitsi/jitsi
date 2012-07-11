@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
@@ -119,9 +120,8 @@ public class OperationSetDesktopSharingServerJabberImpl
     public Call createVideoCall(String uri, MediaDevice device)
         throws OperationFailedException, ParseException
     {
-        CallJabberImpl call
-            = (CallJabberImpl) super.createVideoCall(uri, device);
-        CallPeerJabberImpl callPeer = call.getCallPeers().next();
+        MediaAwareCall call
+            = (MediaAwareCall) super.createVideoCall(uri, device);
 
         size
             = (((VideoMediaFormat)
@@ -149,9 +149,8 @@ public class OperationSetDesktopSharingServerJabberImpl
     public Call createVideoCall(Contact callee, MediaDevice device)
         throws OperationFailedException
     {
-        CallJabberImpl call
-            = (CallJabberImpl) super.createVideoCall(callee, device);
-        CallPeerJabberImpl callPeer = call.getCallPeers().next();
+        MediaAwareCall call
+            = (MediaAwareCall) super.createVideoCall(callee, device);
 
         size
             = ((VideoMediaFormat)
@@ -285,8 +284,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     public void setLocalVideoAllowed(Call call, boolean allowed)
         throws OperationFailedException
     {
-        ((CallJabberImpl)call).setLocalInputEvtAware(allowed);
-        super.setLocalVideoAllowed(call, allowed);
+        this.setLocalVideoAllowed(call, null, allowed);
     }
 
     /**
@@ -309,7 +307,7 @@ public class OperationSetDesktopSharingServerJabberImpl
                                      boolean allowed)
         throws OperationFailedException
     {
-        ((CallJabberImpl)call).setLocalInputEvtAware(allowed);
+        ((AbstractCallJabberGTalkImpl) call).setLocalInputEvtAware(allowed);
         super.setLocalVideoAllowed(call, mediaDevice, allowed);
     }
 
@@ -551,13 +549,7 @@ public class OperationSetDesktopSharingServerJabberImpl
         {
             if(callPeers.contains(callPeer.getAddress()) != enables)
             {
-                DiscoverInfo discoverInfo
-                    = ((CallPeerJabberImpl) callPeer).getDiscoverInfo();
-                if(this.parentProvider.getDiscoveryManager()
-                        .includesFeature(InputEvtIQ.NAMESPACE_SERVER)
-                        && discoverInfo != null
-                        && discoverInfo.containsFeature(
-                            InputEvtIQ.NAMESPACE_CLIENT))
+                if(isRemoteControlAvailable(callPeer))
                 {
                     if(logger.isInfoEnabled())
                         logger.info("Enables remote control: " + enables);
@@ -645,5 +637,28 @@ public class OperationSetDesktopSharingServerJabberImpl
         // Even if the IQ has not been correctly acknowledged, save the
         // callPeer has a peer with remote control revoked.
         callPeers.remove(callPeer.getAddress());
+    }
+
+    /**
+     * Tells if the peer provided can be remotely controlled by this peer:
+     * - The server is able to grant/revoke remote access to its desktop.
+     * - The client (the call peer) is able to send mouse and keyboard events.
+     *
+     * @param callPeer The call peer which may remotely control the shared
+     * desktop.
+     *
+     * @return True if the server and the client are able to respectively grant
+     *  remote access and send mouse/keyboard events. False, if one of the call
+     *  participant (server or client) is not able to deal with remote controls.
+     */
+    public boolean isRemoteControlAvailable(CallPeer callPeer)
+    {
+        DiscoverInfo discoverInfo
+            = ((AbstractCallPeerJabberGTalkImpl) callPeer).getDiscoverInfo();
+        return (this.parentProvider.getDiscoveryManager()
+                .includesFeature(InputEvtIQ.NAMESPACE_SERVER)
+                && discoverInfo != null
+                && discoverInfo.containsFeature(
+                    InputEvtIQ.NAMESPACE_CLIENT));
     }
 }

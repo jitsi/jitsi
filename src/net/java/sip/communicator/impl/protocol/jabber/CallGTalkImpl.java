@@ -23,10 +23,7 @@ import org.jivesoftware.smack.packet.*;
  * @author Sebastien Vincent
  */
 public class CallGTalkImpl
-    extends MediaAwareCall<
-        CallPeerGTalkImpl,
-        OperationSetBasicTelephonyJabberImpl,
-        ProtocolProviderServiceJabberImpl>
+    extends AbstractCallJabberGTalkImpl<CallPeerGTalkImpl>
 {
     /**
      * If the first callPeer is a Google Voice (without resource) ones.
@@ -288,5 +285,20 @@ public class CallGTalkImpl
                 callPeer.setState(CallPeerState.FAILED);
             }
         }
+    }
+
+    /**
+     * Send a <tt>content-modify</tt> message for all current <tt>CallPeer</tt>
+     * to reflect possible video change in media setup.
+     *
+     * @param allowed if the local video is allowed or not
+     * @throws OperationFailedException if problem occurred during message
+     * generation or network problem
+     */
+    public void modifyVideoContent(boolean allowed)
+        throws OperationFailedException
+    {
+        // GTalk is not able to use a "content-modify", thereby this function
+        // does nothing.
     }
 }

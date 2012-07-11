@@ -460,41 +460,48 @@ public class OneToOneCallPanel
      */
     public void addDesktopSharingComponents()
     {
-        if (logger.isTraceEnabled())
-            logger.trace("Add desktop sharing related components.");
-
-        if (enableDesktopRemoteControl == null)
+        OperationSetDesktopSharingServer opSetDesktopSharingServer
+            = callPeer.getProtocolProvider().getOperationSet(
+                OperationSetDesktopSharingServer.class);
+        if(opSetDesktopSharingServer != null
+                && opSetDesktopSharingServer.isRemoteControlAvailable(callPeer))
         {
-            enableDesktopRemoteControl = new JCheckBox(
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.ENABLE_DESKTOP_REMOTE_CONTROL"));
+            if (logger.isTraceEnabled())
+                logger.trace("Add desktop sharing related components.");
 
-            southPanel = new TransparentPanel(
-                new FlowLayout(FlowLayout.CENTER));
-
-            southPanel.add(enableDesktopRemoteControl);
-
-            enableDesktopRemoteControl.setAlignmentX(CENTER_ALIGNMENT);
-            enableDesktopRemoteControl.setOpaque(false);
-
-            enableDesktopRemoteControl.addItemListener(new ItemListener()
+            if (enableDesktopRemoteControl == null)
             {
-                public void itemStateChanged(ItemEvent e)
+                enableDesktopRemoteControl = new JCheckBox(
+                    GuiActivator.getResources().getI18NString(
+                        "service.gui.ENABLE_DESKTOP_REMOTE_CONTROL"));
+
+                southPanel = new TransparentPanel(
+                    new FlowLayout(FlowLayout.CENTER));
+
+                southPanel.add(enableDesktopRemoteControl);
+
+                enableDesktopRemoteControl.setAlignmentX(CENTER_ALIGNMENT);
+                enableDesktopRemoteControl.setOpaque(false);
+
+                enableDesktopRemoteControl.addItemListener(new ItemListener()
                 {
-                    CallManager.enableDesktopRemoteControl(
-                        callPeer, e.getStateChange() == ItemEvent.SELECTED);
-                }
-            });
-        }
+                    public void itemStateChanged(ItemEvent e)
+                    {
+                        CallManager.enableDesktopRemoteControl(
+                            callPeer, e.getStateChange() == ItemEvent.SELECTED);
+                    }
+                });
+            }
 
-        if (OSUtils.IS_MAC)
-        {
-            southPanel.setOpaque(true);
-            southPanel.setBackground(new Color(GuiActivator.getResources()
-                .getColor("service.gui.MAC_PANEL_BACKGROUND")));
-        }
+            if (OSUtils.IS_MAC)
+            {
+                southPanel.setOpaque(true);
+                southPanel.setBackground(new Color(GuiActivator.getResources()
+                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
+            }
 
-        add(southPanel, BorderLayout.SOUTH);
+            add(southPanel, BorderLayout.SOUTH);
+        }
         revalidate();
         repaint();
     }

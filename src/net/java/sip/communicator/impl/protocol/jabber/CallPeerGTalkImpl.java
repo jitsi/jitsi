@@ -24,9 +24,9 @@ import org.jivesoftware.smack.packet.*;
  * @author Sebastien Vincent
  */
 public class CallPeerGTalkImpl
-    extends MediaAwareCallPeer<CallGTalkImpl,
-        CallPeerMediaHandlerGTalkImpl,
-        ProtocolProviderServiceJabberImpl>
+    extends AbstractCallPeerJabberGTalkImpl
+        <CallGTalkImpl,
+        CallPeerMediaHandlerGTalkImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerGTalkImpl</tt> class and its
@@ -39,11 +39,6 @@ public class CallPeerGTalkImpl
      * The {@link SessionIQ} that created the session that this call represents.
      */
     private SessionIQ sessionInitIQ = null;
-
-    /**
-     * The jabber address of this peer
-     */
-    private String peerJID = null;
 
     /**
      * Indicates whether this peer was the one that initiated the session.
@@ -69,9 +64,9 @@ public class CallPeerGTalkImpl
      */
     public CallPeerGTalkImpl(String peerAddress, CallGTalkImpl owningCall)
     {
-        super(owningCall);
-        this.peerJID = peerAddress;
-        setMediaHandler( new CallPeerMediaHandlerGTalkImpl(this) );
+        super(peerAddress, owningCall);
+
+        setMediaHandler(new CallPeerMediaHandlerGTalkImpl(this));
     }
 
     /**
@@ -228,6 +223,14 @@ public class CallPeerGTalkImpl
             setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
             return;
+        }
+
+        // If we do not get the info about the remote peer yet. Get it right
+        // now.
+        if(this.getDiscoverInfo() == null)
+        {
+            String calleeURI = sessionInitIQ.getFrom();
+            retrieveDiscoverInfo(calleeURI);
         }
     }
 

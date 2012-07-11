@@ -26,7 +26,7 @@ import org.jitsi.service.neomedia.format.*;
  * @author Sebastien Vincent
  */
 public class CallPeerMediaHandlerGTalkImpl
-    extends CallPeerMediaHandler<CallPeerGTalkImpl>
+    extends AbstractCallPeerMediaHandlerJabberGTalkImpl<CallPeerGTalkImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerMediaHandlerGTalkImpl</tt>
@@ -76,7 +76,7 @@ public class CallPeerMediaHandlerGTalkImpl
      */
     public CallPeerMediaHandlerGTalkImpl(CallPeerGTalkImpl peer)
     {
-        super(peer, peer);
+        super(peer);
     }
 
     /**

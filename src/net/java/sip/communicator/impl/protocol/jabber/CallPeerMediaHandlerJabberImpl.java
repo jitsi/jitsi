@@ -28,7 +28,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Lyubomir Marinov
  */
 public class CallPeerMediaHandlerJabberImpl
-    extends CallPeerMediaHandler<CallPeerJabberImpl>
+    extends AbstractCallPeerMediaHandlerJabberGTalkImpl<CallPeerJabberImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerMediaHandlerJabberImpl</tt>
@@ -71,12 +71,6 @@ public class CallPeerMediaHandlerJabberImpl
     private boolean remotelyOnHold = false;
 
     /**
-     * Indicates if the <tt>CallPeer</tt> will support </tt>inputevt</tt>
-     * extension (i.e. will be able to be remote-controlled).
-     */
-    private boolean localInputEvtAware = false;
-
-    /**
      * Whether other party is able to change video quality settings.
      * Normally its whether we have detected existence of imageattr in sdp.
      */
@@ -96,7 +90,7 @@ public class CallPeerMediaHandlerJabberImpl
      */
     public CallPeerMediaHandlerJabberImpl(CallPeerJabberImpl peer)
     {
-        super(peer, peer);
+        super(peer);
         qualityControls = new QualityControlWrapper(peer);
     }
 
@@ -125,16 +119,6 @@ public class CallPeerMediaHandlerJabberImpl
                 errorCode,
                 cause,
                 logger);
-    }
-
-    /**
-     * Enable or disable <tt>inputevt</tt> support (remote-control).
-     *
-     * @param enable new state of inputevt support
-     */
-    public void setLocalInputEvtAware(boolean enable)
-    {
-        localInputEvtAware = enable;
     }
 
     /**
@@ -850,7 +834,7 @@ public class CallPeerMediaHandlerJabberImpl
                     RtpDescriptionPacketExtension description
                         = JingleUtils.getRtpDescription(content);
                     if(description.getMedia().equals(MediaType.VIDEO.toString())
-                            && localInputEvtAware)
+                            && getLocalInputEvtAware())
                     {
                         content.addChildExtension(
                                 new InputEvtPacketExtension());

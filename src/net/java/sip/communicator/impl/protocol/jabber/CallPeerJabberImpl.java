@@ -21,7 +21,6 @@ import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.packet.*;
 
 /**
  * Implements a Jabber <tt>CallPeer</tt>.
@@ -30,9 +29,9 @@ import org.jivesoftware.smackx.packet.*;
  * @author Lyubomir Marinov
  */
 public class CallPeerJabberImpl
-    extends MediaAwareCallPeer<CallJabberImpl,
-                               CallPeerMediaHandlerJabberImpl,
-                               ProtocolProviderServiceJabberImpl>
+    extends AbstractCallPeerJabberGTalkImpl
+        <CallJabberImpl,
+        CallPeerMediaHandlerJabberImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerJabberImpl</tt> class and its
@@ -42,19 +41,9 @@ public class CallPeerJabberImpl
         = Logger.getLogger(CallPeerJabberImpl.class);
 
     /**
-     * The jabber address of this peer
-     */
-    private String peerJID = null;
-
-    /**
      * The {@link JingleIQ} that created the session that this call represents.
      */
     private JingleIQ sessionInitIQ;
-
-    /**
-     * Any discovery information that we have for this peer.
-     */
-    private DiscoverInfo discoverInfo;
 
     /**
      * Indicates whether this peer was the one that initiated the session.
@@ -100,10 +89,9 @@ public class CallPeerJabberImpl
     public CallPeerJabberImpl(String         peerAddress,
                               CallJabberImpl owningCall)
     {
-        super(owningCall);
+        super(peerAddress, owningCall);
 
-        this.peerJID = peerAddress;
-        setMediaHandler( new CallPeerMediaHandlerJabberImpl(this) );
+        setMediaHandler(new CallPeerMediaHandlerJabberImpl(this));
     }
 
     /**
@@ -262,20 +250,7 @@ public class CallPeerJabberImpl
         if(this.getDiscoverInfo() == null)
         {
             String calleeURI = sessionInitIQ.getFrom();
-            DiscoverInfo discoverInfo = null;
-            try
-            {
-                discoverInfo = getCall().getProtocolProvider()
-                    .getDiscoveryManager().discoverInfo(calleeURI);
-                if(discoverInfo != null)
-                {
-                    this.setDiscoverInfo(discoverInfo);
-                }
-            }
-            catch (XMPPException ex)
-            {
-                logger.warn("could not retrieve info for " + calleeURI, ex);
-            }
+            retrieveDiscoverInfo(calleeURI);
         }
 
         //send a ringing response
@@ -676,27 +651,6 @@ public class CallPeerJabberImpl
                         type);
 
         getProtocolProvider().getConnection().sendPacket(onHoldIQ);
-    }
-
-    /**
-     * Sets the service discovery information that we have for this peer.
-     *
-     * @param discoverInfo the discovery information that we have obtained for
-     * this peer.
-     */
-    public void setDiscoverInfo(DiscoverInfo discoverInfo)
-    {
-        this.discoverInfo = discoverInfo;
-    }
-
-    /**
-     * Returns the service discovery information that we have for this peer.
-     *
-     * @return the service discovery information that we have for this peer.
-     */
-    public DiscoverInfo getDiscoverInfo()
-    {
-        return discoverInfo;
     }
 
     /**
