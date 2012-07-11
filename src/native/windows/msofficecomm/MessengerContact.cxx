@@ -14,6 +14,7 @@ EXTERN_C const GUID DECLSPEC_SELECTANY IID_IMessengerContactAdvanced
 
 jclass    MessengerContact::_jclass = NULL;
 jmethodID MessengerContact::_jctorMethodID = NULL;
+jmethodID MessengerContact::_jgetPhoneNumberMethodID = NULL;
 jmethodID MessengerContact::_jgetStatusMethodID = NULL;
 jmethodID MessengerContact::_jisSelfMethodID = NULL;
 
@@ -165,7 +166,67 @@ STDMETHODIMP MessengerContact::get_IsTagged(VARIANT_BOOL *pBoolIsTagged)
     STDMETHODIMP_E_NOTIMPL_STUB
 
 STDMETHODIMP MessengerContact::get_PhoneNumber(MPHONE_TYPE PhoneType, BSTR *bstrNumber)
-    STDMETHODIMP_E_NOTIMPL_STUB
+{
+    HRESULT hr;
+
+    if (bstrNumber)
+    {
+        if (_jobject)
+        {
+            JavaVM *vm = OutOfProcessServer::getJavaVM();
+            JNIEnv *env;
+
+            if (vm && !(vm->AttachCurrentThreadAsDaemon((void **) &env, NULL)))
+            {
+                jobject jobj
+                    = env->CallObjectMethod(
+                            _jobject,
+                            _jgetPhoneNumberMethodID,
+                            (jint) PhoneType);
+
+                if (env->ExceptionCheck())
+                {
+                    env->ExceptionClear();
+                    *bstrNumber = NULL;
+                    hr = E_FAIL;
+                }
+                else
+                {
+                    jstring jstr = (jstring) jobj;
+                    const jchar *jchars
+                        = jstr ? env->GetStringChars(jstr, NULL) : NULL;
+
+                    if (jchars)
+                    {
+                        *bstrNumber = ::SysAllocString((LPOLESTR) jchars);
+                        env->ReleaseStringChars(jstr, jchars);
+                        hr = *bstrNumber ? S_OK : E_OUTOFMEMORY;
+                    }
+                    else
+                    {
+                        *bstrNumber = NULL;
+                        hr = E_FAIL;
+                    }
+                    if (env->ExceptionCheck())
+                        env->ExceptionClear();
+                }
+            }
+            else
+            {
+                *bstrNumber = NULL;
+                hr = E_UNEXPECTED;
+            }
+        }
+        else
+        {
+            *bstrNumber = NULL;
+            hr = E_FAIL;
+        }
+    }
+    else
+        hr = RPC_X_NULL_REF_POINTER;
+    return hr;
+}
 
 STDMETHODIMP
 MessengerContact::get_PresenceProperties(VARIANT *pvPresenceProperties)
@@ -410,27 +471,40 @@ HRESULT MessengerContact::start(JNIEnv *env)
 
             if (ctorMethodID)
             {
-                jmethodID getStatusMethodID
-                    = env->GetMethodID(clazz, "getStatus", "()I");
+                jmethodID getPhoneNumberMethodID
+                    = env->GetMethodID(
+                            clazz,
+                            "getPhoneNumber",
+                            "(I)Ljava/lang/String;");
 
-                if (getStatusMethodID)
+                if (getPhoneNumberMethodID)
                 {
-                    jmethodID isSelfMethodID
-                        = env->GetMethodID(clazz, "isSelf", "()Z");
+                    jmethodID getStatusMethodID
+                        = env->GetMethodID(clazz, "getStatus", "()I");
 
-                    if (isSelfMethodID)
+                    if (getStatusMethodID)
                     {
-                        clazz = (jclass) env->NewGlobalRef(clazz);
-                        if (clazz)
+                        jmethodID isSelfMethodID
+                            = env->GetMethodID(clazz, "isSelf", "()Z");
+
+                        if (isSelfMethodID)
                         {
-                            _jclass = clazz;
-                            _jctorMethodID = ctorMethodID;
-                            _jgetStatusMethodID = getStatusMethodID;
-                            _jisSelfMethodID = isSelfMethodID;
-                            hr = S_OK;
+                            clazz = (jclass) env->NewGlobalRef(clazz);
+                            if (clazz)
+                            {
+                                _jclass = clazz;
+                                _jctorMethodID = ctorMethodID;
+                                _jgetPhoneNumberMethodID
+                                    = getPhoneNumberMethodID;
+                                _jgetStatusMethodID = getStatusMethodID;
+                                _jisSelfMethodID = isSelfMethodID;
+                                hr = S_OK;
+                            }
+                            else
+                                hr = E_OUTOFMEMORY;
                         }
                         else
-                            hr = E_OUTOFMEMORY;
+                            hr = E_FAIL;
                     }
                     else
                         hr = E_FAIL;
@@ -455,6 +529,7 @@ HRESULT MessengerContact::stop(JNIEnv *env)
 
     _jclass = NULL;
     _jctorMethodID = NULL;
+    _jgetPhoneNumberMethodID = NULL;
     _jgetStatusMethodID = NULL;
     _jisSelfMethodID = NULL;
     if (clazz)

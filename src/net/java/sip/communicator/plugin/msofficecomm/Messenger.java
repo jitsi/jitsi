@@ -692,14 +692,35 @@ public class Messenger
             }
             else if (opSetClass.equals(OperationSetBasicTelephony.class))
             {
-                Set<PhoneNumberDetail> participantPhoneNumbers
-                        = findPhoneNumbersBySigninName(participant, 1);
+//                Set<PhoneNumberDetail> participantPhoneNumbers
+//                    = findPhoneNumbersBySigninName(participant, 1);
+//
+//                if (participantPhoneNumbers.size() > 0)
+//                {
+//                    contactList.add(
+//                            participantPhoneNumbers.iterator().next()
+//                                    .getNumber());
+//                }
 
-                if (participantPhoneNumbers.size() > 0)
+                /*
+                 * There is no Contact for the specified participant which
+                 * supports OperationSetBasicTelephony. Try without the support
+                 * restriction.
+                 */
+                participantContacts
+                    = findContactsBySigninName(participant, null, 1);
+                if (participantContacts.size() > 0)
                 {
                     contactList.add(
-                            participantPhoneNumbers.iterator().next()
-                                    .getNumber());
+                            getSigninName(participantContacts.get(0), null));
+                }
+                else
+                {
+                    /*
+                     * Well, just try to start a conversation with the
+                     * unresolved contact.
+                     */
+                    contactList.add(participant);
                 }
             }
         }
@@ -1039,7 +1060,9 @@ public class Messenger
          * @param signinName the <tt>IMessengerContact</tt> sign-in name for
          * which the associated <tt>Contact</tt> instances are to be found
          * @param opSetClass the <tt>OperationSet</tt> class to be supported by
-         * the possibly found <tt>Contact</tt> instances
+         * the possibly found <tt>Contact</tt> instances or <tt>null</tt> if no
+         * specific <tt>OperationSet</tt> class is required of the possibly
+         * found <tt>Contact</tt> instances
          * @param limit the maximum number of found <tt>Contact</tt>s at which
          * the search should stop or {@link Integer#MAX_VALUE} if the search is
          * to be unbound with respect to the number of found <tt>Contact</tt>s
@@ -1057,8 +1080,10 @@ public class Messenger
             {
                 ProtocolProviderService pps = e.getKey();
                 OperationSetContactCapabilities contactCapabilitiesOpSet
-                    = pps.getOperationSet(
-                            OperationSetContactCapabilities.class);
+                    = (opSetClass == null)
+                        ? null
+                        : pps.getOperationSet(
+                                OperationSetContactCapabilities.class);
 
                 for (Contact contact
                         : Messenger.findContactsBySigninName(

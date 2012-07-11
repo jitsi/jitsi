@@ -57,6 +57,7 @@ protected:
 private:
     static jclass    _jclass;
     static jmethodID _jctorMethodID;
+    static jmethodID _jgetPhoneNumberMethodID;
     static jmethodID _jgetStatusMethodID;
     static jmethodID _jisSelfMethodID;
 
