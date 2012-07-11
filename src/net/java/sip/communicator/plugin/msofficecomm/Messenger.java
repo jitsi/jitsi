@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.service.protocol.msnconstants.*;
@@ -57,6 +58,23 @@ public class Messenger
     static final int MISTATUS_ONLINE = 0x0002;
 
     static final int MISTATUS_UNKNOWN = 0x0000;
+
+    static final int MPHONE_TYPE_CUSTOM = 3;
+
+    /**
+     * The <tt>MPHONE_TYPE</tt> value which indicates a home phone number.
+     */
+    static final int MPHONE_TYPE_HOME = 0;
+
+    /**
+     * The <tt>MPHONE_TYPE</tt> value which indicates a mobile phone number.
+     */
+    static final int MPHONE_TYPE_MOBILE = 2;
+
+    /**
+     * The <tt>MPHONE_TYPE</tt> value which indicates a work phone number.
+     */
+    static final int MPHONE_TYPE_WORK = 1;
 
     /**
      * The <tt>BundleContext</tt> in which the <tt>msofficecomm</tt> bundle has
@@ -163,16 +181,14 @@ public class Messenger
 
                 if (serverStoredContactInfoOpSet != null)
                 {
-                    for (Iterator<ServerStoredDetails.EmailAddressDetail>
-                                emailAddressDetailIt
-                                    =  serverStoredContactInfoOpSet
-                                        .getDetailsAndDescendants(
-                                                contact,
-                                                ServerStoredDetails
-                                                    .EmailAddressDetail.class);
+                    for (Iterator<EmailAddressDetail> emailAddressDetailIt
+                                =  serverStoredContactInfoOpSet
+                                    .getDetailsAndDescendants(
+                                            contact,
+                                            EmailAddressDetail.class);
                             emailAddressDetailIt.hasNext();)
                     {
-                        ServerStoredDetails.EmailAddressDetail emailAddressDetail
+                        EmailAddressDetail emailAddressDetail
                             = emailAddressDetailIt.next();
 
                         if (signinName.equalsIgnoreCase(
@@ -197,6 +213,9 @@ public class Messenger
      * the associated <tt>Contact</tt> instances are to be found
      * @param opSetClass the <tt>OperationSet</tt> class to be supported by the
      * possibly found <tt>Contact</tt> instances
+     * @param limit the maximum number of found <tt>Contact</tt>s at which the
+     * search should stop or {@link Integer#MAX_VALUE} if the search is to be
+     * unbound with respect to the number of found <tt>Contact</tt>s
      * @return a list of <tt>Contact</tt> instances which are associated with
      * the specified <tt>signinName</tt> and which support the specified
      * <tt>opSetClass</tt> if such <tt>Contact</tt> instances have been found;
@@ -204,13 +223,149 @@ public class Messenger
      */
     private static List<Contact> findContactsBySigninName(
             String signinName,
-            Class<? extends OperationSet> opSetClass)
+            Class<? extends OperationSet> opSetClass,
+            int limit)
     {
         List<Contact> contacts = new ArrayList<Contact>();
 
         for (Self self : selves.values())
-            self.findContactsBySigninName(signinName, opSetClass, contacts);
+        {
+            self.findContactsBySigninName(
+                    signinName, opSetClass, limit,
+                    contacts);
+            /* Obey the specified limit of the number of found Contacts. */
+            if (contacts.size() >= limit)
+                break;
+        }
         return contacts;
+    }
+
+    /**
+     * Gets the <tt>PhoneNumberDetail</tt> instances which are associated with a
+     * specific <tt>IMessengerContact</tt> sign-in name.
+     *
+     * @param signinName the <tt>IMessengerContact</tt> sign-in name for which
+     * the associated <tt>PhoneNumberDetail</tt> instances are to be found
+     * @param limit the maximum number of found <tt>PhoneNumberDetail</tt>s at
+     * which the search should stop or {@link Integer#MAX_VALUE} if the search
+     * is to be unbound with respect to the number of found
+     * <tt>PhoneNumberDetail</tt>s
+     * @return a list of <tt>PhoneNumberDetail</tt> instances which are
+     * associated with the specified <tt>signinName</tt> if such
+     * <tt>PhoneNumberDetail</tt> instances have been found; otherwise, an empty
+     * list
+     */
+    private static Set<PhoneNumberDetail> findPhoneNumbersBySigninName(
+            String signinName,
+            int limit)
+    {
+        /*
+         * XXX The limit is not being obeyed at this time because the
+         * PhoneNumberDetails are ordered by MPHONE_TYPE.
+         */
+
+        Set<PhoneNumberDetail> phoneNumbers
+            = new TreeSet<PhoneNumberDetail>(
+                    new Comparator<PhoneNumberDetail>()
+                    {
+                        public int compare(
+                                PhoneNumberDetail pn1,
+                                PhoneNumberDetail pn2)
+                        {
+                            int so1
+                                = getMPHONE_TYPESortOrder(getMPHONE_TYPE(pn1));
+                            int so2
+                                = getMPHONE_TYPESortOrder(getMPHONE_TYPE(pn2));
+
+                            return
+                                (so1 == so2)
+                                    ? pn1.getNumber().compareTo(
+                                            pn2.getNumber())
+                                    : (so1 - so2);
+                        }
+                    });
+
+        for (Self self : selves.values())
+        {
+            self.findPhoneNumbersBySigninName(
+                    signinName,
+                    Integer.MAX_VALUE,
+                    phoneNumbers);
+        }
+
+        return phoneNumbers;
+    }
+
+    /**
+     * Gets an <tt>MPHONE_TYPE</tt> enumerated type value which indicates the
+     * phone number type of a specific <tt>PhoneNumberDetail</tt>.
+     *
+     * @param phoneNumber the <tt>PhoneNumberDetail</tt> for which a matching
+     * <tt>MPHONE_TYPE</tt> enumerated type value is to be retrieved
+     * @return an <tt>MPHONE_TYPE</tt> enumerated type value which indicates the
+     * phone number type of the speciifed <tt>phoneNumber</tt>
+     */
+    private static int getMPHONE_TYPE(PhoneNumberDetail phoneNumber)
+    {
+        if (phoneNumber.getClass().equals(PhoneNumberDetail.class))
+            return MPHONE_TYPE_HOME;
+        else if (phoneNumber instanceof MobilePhoneDetail)
+            return MPHONE_TYPE_MOBILE;
+        else if (phoneNumber instanceof WorkPhoneDetail)
+            return MPHONE_TYPE_WORK;
+        else
+            return MPHONE_TYPE_CUSTOM; 
+    }
+
+    /**
+     * Gets an <tt>int</tt> value which specifies the sort order position of a
+     * specific <tt>MPHONE_TYPE</tt> enumerated type value which can be used
+     * with a <tt>Comparator</tt> implementation.
+     *
+     * @param mphonetype the <tt>MPHONE_TYPE</tt> enumerated type value for
+     * which the sort order position is to be retrieved
+     * @return an <tt>int</tt> value which specifies the sort order position of
+     * the specified <tt>MPHONE_TYPE</tt> enumerated type value which can be
+     * used with a <tt>Comparator</tt> implementation
+     */
+    private static int getMPHONE_TYPESortOrder(int mphonetype)
+    {
+        switch (mphonetype)
+        {
+        case MPHONE_TYPE_HOME:
+            return 1;
+        case MPHONE_TYPE_MOBILE:
+            return 2;
+        case MPHONE_TYPE_WORK:
+            return 0;
+        default:
+            return 3;
+        }
+    }
+
+    /**
+     * Gets the phone number information of the contact associated with a
+     * specific <tt>MessengerContact</tt> instance.
+     *
+     * @param messengerContact a <tt>MessengerContact</tt> instance which
+     * specifies the contact for which the phone number information is to be
+     * retrieved
+     * @param a member of the <tt>MPHONE_TYPE</tt> enumerated type which
+     * specifies the type of the phone number information to be retrieved
+     * @return the phone number information of the contact associated with the
+     * specified <tt>messengerContact</tt>
+     */
+    static String getPhoneNumber(MessengerContact messengerContact, int type)
+    {
+        Set<PhoneNumberDetail> phoneNumbers
+            = findPhoneNumbersBySigninName(
+                    messengerContact.signinName,
+                    Integer.MAX_VALUE);
+
+        for (PhoneNumberDetail phoneNumber : phoneNumbers)
+            if (getMPHONE_TYPE(phoneNumber) == type)
+                return phoneNumber.getNumber();
+        return null;
     }
 
     /**
@@ -528,12 +683,24 @@ public class Messenger
         for (String participant : participants)
         {
             List<Contact> participantContacts
-                = findContactsBySigninName(participant, opSetClass);
+                = findContactsBySigninName(participant, opSetClass, 1);
 
             if (participantContacts.size() > 0)
             {
                 contactList.add(
                         getSigninName(participantContacts.get(0), null));
+            }
+            else if (opSetClass.equals(OperationSetBasicTelephony.class))
+            {
+                Set<PhoneNumberDetail> participantPhoneNumbers
+                        = findPhoneNumbersBySigninName(participant, 1);
+
+                if (participantPhoneNumbers.size() > 0)
+                {
+                    contactList.add(
+                            participantPhoneNumbers.iterator().next()
+                                    .getNumber());
+                }
             }
         }
 
@@ -873,12 +1040,16 @@ public class Messenger
          * which the associated <tt>Contact</tt> instances are to be found
          * @param opSetClass the <tt>OperationSet</tt> class to be supported by
          * the possibly found <tt>Contact</tt> instances
+         * @param limit the maximum number of found <tt>Contact</tt>s at which
+         * the search should stop or {@link Integer#MAX_VALUE} if the search is
+         * to be unbound with respect to the number of found <tt>Contact</tt>s
          * @param contacts a list with <tt>Contact</tt> element type which is to
          * receive the possibly found <tt>Contact</tt> instances
          */
         void findContactsBySigninName(
                 String signinName,
                 Class<? extends OperationSet> opSetClass,
+                int limit,
                 List<Contact> contacts)
         {
             for (Map.Entry<ProtocolProviderService, OperationSetPresence> e
@@ -900,8 +1071,89 @@ public class Messenger
                                         contact,
                                         opSetClass)
                                     != null))
+                    {
                         contacts.add(contact);
+                        /*
+                         * Obey the specified limit of the number of found
+                         * Contacts.
+                         */
+                        if (contacts.size() >= limit)
+                            break;
+                    }
                 }
+                /* Obey the specified limit of the number of found Contacts. */
+                if (contacts.size() >= limit)
+                    break;
+            }
+        }
+
+        /**
+         * Gets the <tt>PhoneNumberDetail</tt> instances which are associated
+         * with a specific <tt>IMessengerContact</tt> sign-in name.
+         *
+         * @param signinName the <tt>IMessengerContact</tt> sign-in name for
+         * which the associated <tt>PhoneNumberDetail</tt> instances are to be
+         * found
+         * @param limit the maximum number of found <tt>PhoneNumberDetail</tt>s
+         * at which the search should stop or {@link Integer#MAX_VALUE} if the
+         * search is to be unbound with respect to the number of found
+         * <tt>PhoneNumberDetail</tt>s
+         * @param phoneNumbers a list with <tt>PhoneNumberDetail</tt> element
+         * type which is to receive the possibly found
+         * <tt>PhoneNumberDetail</tt> instances
+         */
+        void findPhoneNumbersBySigninName(
+                String signinName,
+                int limit,
+                Set<PhoneNumberDetail> phoneNumbers)
+        {
+            for (Map.Entry<ProtocolProviderService, OperationSetPresence> e
+                    : ppss.entrySet())
+            {
+                ProtocolProviderService pps = e.getKey();
+                OperationSetServerStoredContactInfo serverStoredContactInfoOpSet
+                    = pps.getOperationSet(
+                            OperationSetServerStoredContactInfo.class);
+
+                if (serverStoredContactInfoOpSet == null)
+                    continue;
+
+                for (Contact contact
+                        : Messenger.findContactsBySigninName(
+                                pps,
+                                e.getValue(),
+                                signinName))
+                {
+                    Iterator<PhoneNumberDetail> iter
+                        = serverStoredContactInfoOpSet.getDetailsAndDescendants(
+                                contact,
+                                PhoneNumberDetail.class);
+
+                    if (iter == null)
+                        continue;
+
+                    while (iter.hasNext())
+                    {
+                        PhoneNumberDetail phoneNumber = iter.next();
+
+                        if (getMPHONE_TYPE(phoneNumber) != MPHONE_TYPE_CUSTOM)
+                        {
+                            phoneNumbers.add(phoneNumber);
+                            /*
+                             * Obey the specified limit of the number of found
+                             * PhoneNumberDetails.
+                             */
+                            if (phoneNumbers.size() >= limit)
+                                break;
+                        }
+                    }
+                }
+                /*
+                 * Obey the specified limit of the number of found
+                 * PhoneNumberDetails.
+                 */
+                if (phoneNumbers.size() >= limit)
+                    break;
             }
         }
 
@@ -1033,16 +1285,13 @@ public class Messenger
 
                     if (serverStoredAccountInfoOpSet != null)
                     {
-                        for (Iterator<ServerStoredDetails.EmailAddressDetail>
-                                    emailAddressDetailIt
-                                        = serverStoredAccountInfoOpSet
-                                            .getDetailsAndDescendants(
-                                                    ServerStoredDetails
-                                                        .EmailAddressDetail
-                                                            .class);
+                        for (Iterator<EmailAddressDetail> emailAddressDetailIt
+                                    = serverStoredAccountInfoOpSet
+                                        .getDetailsAndDescendants(
+                                                EmailAddressDetail.class);
                                 emailAddressDetailIt.hasNext();)
                         {
-                            ServerStoredDetails.EmailAddressDetail emailAddressDetail
+                            EmailAddressDetail emailAddressDetail
                                 = emailAddressDetailIt.next();
 
                             if (signinName.equalsIgnoreCase(

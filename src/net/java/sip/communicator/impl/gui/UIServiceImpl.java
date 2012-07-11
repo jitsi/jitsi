@@ -1489,9 +1489,7 @@ public class UIServiceImpl
     public void createCall(String[] participants)
     {
         if (participants.length == 1)
-        {
             CallManager.createCall(participants[0], null);
-        }
         else
             throw new IllegalArgumentException("participants");
     }
@@ -1510,9 +1508,7 @@ public class UIServiceImpl
     public void startChat(String[] participants)
     {
         if (participants.length == 1)
-        {
             getChatWindowManager().startChat(participants[0]);
-        }
         else
             throw new IllegalArgumentException("participants");
     }
