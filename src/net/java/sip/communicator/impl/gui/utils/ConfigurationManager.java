@@ -624,6 +624,10 @@ public class ConfigurationManager
             routeVideoAndDesktopUsingPhoneNumber = Boolean.parseBoolean(
                 routeVideoAndDesktopUsingPhoneNumberDefault);
 
+        routeVideoAndDesktopUsingPhoneNumber = configService.getBoolean(
+            routeVideoAndDesktopUsingPhoneNumberProperty,
+            routeVideoAndDesktopUsingPhoneNumber);
+
         String hideAccountMenuProperty
             = "impl.gui.HIDE_SELECTION_ON_SINGLE_ACCOUNT";
         String hideAccountMenuDefaultValue = GuiActivator.getResources()
