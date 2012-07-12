@@ -21,7 +21,9 @@ import net.java.sip.communicator.service.protocol.msnconstants.*;
 import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.util.xml.*;
 import org.osgi.framework.*;
+import org.w3c.dom.*;
 
 /**
  * Represents the Java counterpart of a native <tt>IMessenger</tt>
@@ -31,6 +33,12 @@ import org.osgi.framework.*;
  */
 public class Messenger
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>Messenger</tt> class and its
+     * instances for logging output.
+     */
+    private static final Logger logger = Logger.getLogger(Messenger.class);
+
     static final int CONVERSATION_TYPE_AUDIO = 8;
 
     static final int CONVERSATION_TYPE_IM = 1;
@@ -653,10 +661,13 @@ public class Messenger
      * type of the conversation to be started
      * @param participants an array of <tt>String</tt> values specifying the
      * other users to start a conversation with
+     * @param conversationData an XML BLOB specifying the phone numbers to be
+     * dialed in order to start the conversation
      */
     public void startConversation(
             final int conversationType,
-            String[] participants)
+            String[] participants,
+            String conversationData)
     {
         /*
          * Firstly, resolve the participants into Contacts which may include
@@ -670,10 +681,103 @@ public class Messenger
         case CONVERSATION_TYPE_PHONE:
         case CONVERSATION_TYPE_PSTN:
             opSetClass = OperationSetBasicTelephony.class;
+
+            if ((conversationData != null) && (conversationData.length() != 0))
+            {
+                if (logger.isTraceEnabled())
+                {
+                    logger.trace(
+                            "conversationData = \"" + conversationData + "\"");
+                }
+
+                // According to MSDN, vConversationData could be an XML BLOB.
+                if (conversationData.startsWith("<"))
+                {
+                    try
+                    {
+                        Document document
+                            = XMLUtils.createDocument(conversationData);
+                        Element documentElement = document.getDocumentElement();
+
+                        if ("TelURIs".equalsIgnoreCase(
+                                documentElement.getTagName()))
+                        {
+                            NodeList childNodes
+                                = documentElement.getChildNodes();
+
+                            if (childNodes != null)
+                            {
+                                int childNodeCount = childNodes.getLength();
+                                List<String> phoneNumbers
+                                    = new ArrayList<String>(childNodeCount);
+
+                                for (int childNodeIndex = 0;
+                                        childNodeIndex < childNodeCount;
+                                        childNodeIndex++)
+                                {
+                                    Node childNode
+                                        = childNodes.item(childNodeIndex);
+
+                                    if (childNode.getNodeType()
+                                            == Node.ELEMENT_NODE)
+                                    {
+                                        phoneNumbers.add(
+                                                childNode.getTextContent());
+                                    }
+                                }
+
+                                int count = participants.length;
+
+                                if (phoneNumbers.size() == count)
+                                {
+                                    for (int i = 0; i < count; i++)
+                                    {
+                                        String phoneNumber
+                                            = phoneNumbers.get(i);
+
+                                        if ((phoneNumber != null)
+                                                && (phoneNumber.length() != 0))
+                                        {
+                                            if (phoneNumber
+                                                    .toLowerCase()
+                                                        .startsWith("tel:"))
+                                            {
+                                                phoneNumber
+                                                    = phoneNumber.substring(4);
+                                            }
+                                            participants[i] = phoneNumber;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.error(
+                                "Failed to parse"
+                                    + " IMessengerAdvanced::StartConversation"
+                                    + " vConversationData: "
+                                    + conversationData,
+                                e);
+                    }
+                }
+                else
+                {
+                    /*
+                     * Practice/testing shows that vConversationData is the
+                     * phone number in the case of a single participant.
+                     */
+                    if (participants.length == 1)
+                        participants[0] = conversationData;
+                }
+            }
+
             break;
         case CONVERSATION_TYPE_IM:
             opSetClass = OperationSetBasicInstantMessaging.class;
             break;
+
         default:
             throw new UnsupportedOperationException();
         }

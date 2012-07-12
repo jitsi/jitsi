@@ -705,7 +705,7 @@ HRESULT Messenger::start(JNIEnv *env)
                     = env->GetMethodID(
                             clazz,
                             "startConversation",
-                            "(I[Ljava/lang/String;)V");
+                            "(I[Ljava/lang/String;Ljava/lang/String;)V");
 
                 if (startConversationMethodID)
                 {
@@ -744,112 +744,52 @@ Messenger::StartConversation
      VARIANT vConversationData,
      VARIANT *pvWndHnd)
 {
+    JavaVM *vm = OutOfProcessServer::getJavaVM();
+    JNIEnv *env;
     HRESULT hr;
 
-    if (VT_ARRAY == (vParticipants.vt & VT_ARRAY))
+    if (vm && !(vm->AttachCurrentThreadAsDaemon((void **) &env, NULL)))
     {
-        SAFEARRAY *sa = vParticipants.parray;
+        jobjectArray participants;
 
-        if (sa
-                && (1 == sa->cDims)
-                && (FADF_VARIANT == (sa->fFeatures & FADF_VARIANT)))
+        hr = toStringArray(env, vParticipants, &participants);
+        if (SUCCEEDED(hr))
         {
-            jbyte *data;
+            jstring conversationData;
 
-            hr = ::SafeArrayAccessData(sa, (PVOID *) &data);
+            hr = toString(env, vConversationData, &conversationData);
+            /*
+             * The MSDN is pretty scarce on the subject of vConversationData
+             * thus we can hardly rely on getting it right.
+             */
+            if (hr == E_INVALIDARG)
+            {
+                conversationData = NULL;
+                hr = S_OK;
+            }
             if (SUCCEEDED(hr))
             {
-                JavaVM *vm = OutOfProcessServer::getJavaVM();
-                JNIEnv *env;
-
-                if (vm
-                        && !(vm->AttachCurrentThreadAsDaemon(
-                                (void **) &env,
-                                NULL)))
+                if (_jobject)
                 {
-                    jclass stringClass = env->FindClass("java/lang/String");
-
-                    if (stringClass)
-                    {
-                        SAFEARRAYBOUND *bound = sa->rgsabound;
-                        ULONG length = bound->cElements;
-                        jobjectArray participants
-                            = env->NewObjectArray(length, stringClass, NULL);
-
-                        if (participants)
-                        {
-                            ULONG elemsize = sa->cbElements;
-
-                            data += bound->lLbound;
-                            for (ULONG i = 0; i < length; i++, data += elemsize)
-                            {
-                                VARIANT *v = (VARIANT *) data;
-                                BSTR bstr;
-
-                                if (VT_BSTR == v->vt)
-                                    bstr = v->bstrVal;
-                                else if ((VT_BSTR | VT_BYREF) == v->vt)
-                                    bstr = *(v->pbstrVal);
-                                else
-                                {
-                                    hr = E_INVALIDARG;
-                                    break;
-                                }
-
-                                jstring participant
-                                    = env->NewString(
-                                            (const jchar *) bstr,
-                                            ::SysStringLen(bstr));
-
-                                if (participant)
-                                {
-                                    env->SetObjectArrayElement(
-                                            participants,
-                                            i,
-                                            participant);
-                                }
-                                else
-                                {
-                                    hr = E_OUTOFMEMORY;
-                                    break;
-                                }
-                            }
-
-                            if (SUCCEEDED(hr))
-                            {
-                                if (_jobject)
-                                {
-                                    env->CallVoidMethod(
-                                            _jobject,
-                                            _jstartConversationMethodID,
-                                            (jint) ConversationType,
-                                            participants);
-                                    if (env->ExceptionCheck())
-                                    {
-                                        env->ExceptionClear();
-                                        hr = E_FAIL;
-                                    }
-                                }
-                                else
-                                    hr = E_FAIL;
-                            }
-                        }
-                        else
-                            hr = E_OUTOFMEMORY;
-                    }
-                    else
-                        hr = E_UNEXPECTED;
+                    env->CallVoidMethod(
+                            _jobject,
+                            _jstartConversationMethodID,
+                            (jint) ConversationType,
+                            participants,
+                            conversationData);
                 }
                 else
-                    hr = E_UNEXPECTED;
-                ::SafeArrayUnaccessData(sa);
+                    hr = E_FAIL;
             }
         }
-        else
-            hr = E_INVALIDARG;
+        if (env->ExceptionCheck())
+        {
+            env->ExceptionClear();
+            hr = E_FAIL;
+        }
     }
     else
-        hr = E_INVALIDARG;
+        hr = E_UNEXPECTED;
     return hr;
 }
 
@@ -870,6 +810,110 @@ HRESULT Messenger::stop(JNIEnv *env)
         env->DeleteGlobalRef(clazz);
 
     return S_OK;
+}
+
+HRESULT Messenger::toString(JNIEnv *env, VARIANT &v, jstring *string)
+{
+    BSTR bstr;
+    HRESULT hr;
+
+    if (VT_BSTR == v.vt)
+    {
+        bstr = v.bstrVal;
+        hr = S_OK;
+    }
+    else if ((VT_BSTR | VT_BYREF) == v.vt)
+    {
+        bstr = *(v.pbstrVal);
+        hr = S_OK;
+    }
+    else
+        hr = E_INVALIDARG;
+
+    if (SUCCEEDED(hr))
+    {
+        if (bstr)
+        {
+            jstring _string
+                = env->NewString((const jchar *) bstr, ::SysStringLen(bstr));
+
+            if (_string)
+                *string = _string;
+            else
+                hr = E_OUTOFMEMORY;
+        }
+        else
+            *string = NULL;
+    }
+
+    return hr;
+}
+
+HRESULT
+Messenger::toStringArray(JNIEnv *env, VARIANT &v, jobjectArray *stringArray)
+{
+    HRESULT hr;
+
+    if (VT_ARRAY == (v.vt & VT_ARRAY))
+    {
+        SAFEARRAY *sa = v.parray;
+
+        if (sa
+                && (1 == sa->cDims)
+                && (FADF_VARIANT == (sa->fFeatures & FADF_VARIANT)))
+        {
+            jbyte *data;
+
+            hr = ::SafeArrayAccessData(sa, (PVOID *) &data);
+            if (SUCCEEDED(hr))
+            {
+                jclass stringClass = env->FindClass("java/lang/String");
+
+                if (stringClass)
+                {
+                    SAFEARRAYBOUND *bound = sa->rgsabound;
+                    ULONG length = bound->cElements;
+                    jobjectArray _stringArray
+                        = env->NewObjectArray(length, stringClass, NULL);
+
+                    if (_stringArray)
+                    {
+                        ULONG elemsize = sa->cbElements;
+
+                        data += bound->lLbound;
+                        for (ULONG i = 0; i < length; i++, data += elemsize)
+                        {
+                            jstring _string;
+
+                            hr = toString(env, *((VARIANT *) data), &_string);
+                            if (SUCCEEDED(hr))
+                            {
+                                env->SetObjectArrayElement(
+                                        _stringArray,
+                                        i,
+                                        _string);
+                            }
+                            else
+                                break;
+                        }
+
+                        if (SUCCEEDED(hr))
+                            *stringArray = _stringArray;
+                    }
+                    else
+                        hr = E_OUTOFMEMORY;
+                }
+                else
+                    hr = E_UNEXPECTED;
+                ::SafeArrayUnaccessData(sa);
+            }
+        }
+        else
+            hr = E_INVALIDARG;
+    }
+    else
+        hr = E_INVALIDARG;
+    return hr;
 }
 
 STDMETHODIMP Messenger::ViewProfile(VARIANT vContact)

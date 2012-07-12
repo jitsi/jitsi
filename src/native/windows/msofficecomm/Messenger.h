@@ -113,6 +113,8 @@ private:
     HRESULT createMessengerContact(BSTR signinName, REFIID iid, PVOID *obj);
     HRESULT destructJobject();
     HRESULT getMessengerContact(BSTR signinName, REFIID iid, PVOID *obj);
+    HRESULT toString(JNIEnv *env, VARIANT &v, jstring *string);
+    HRESULT toStringArray(JNIEnv *env, VARIANT &v, jobjectArray *stringArray);
 
     DMessengerEventsConnectionPoint *_dMessengerEventsConnectionPoint;
     jobject                          _jobject;
