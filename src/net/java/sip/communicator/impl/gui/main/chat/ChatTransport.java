@@ -35,6 +35,15 @@ public interface ChatTransport
      * messaging, otherwise returns <code>false</code>
      */
     public boolean allowsInstantMessage();
+    
+    /**
+     * Returns <tt>true</tt> if this chat transport supports message
+     * corrections and false otherwise.
+     * 
+     * @return <code>true</code> if this chat transport supports message
+     * corrections and false otherwise.
+     */
+    public boolean allowsMessageCorrections();
 
     /**
      * Returns <code>true</code> if this chat transport supports sms
@@ -100,6 +109,20 @@ public interface ChatTransport
     public void sendInstantMessage( String message,
                                     String mimeType)
         throws Exception;
+	
+    /**
+     * Sends <tt>message</tt> as a message correction through this transport,
+     * specifying the mime type (html or plain text) and the id of the
+     * message to replace.
+     * 
+     * @param message The message to send.
+     * @param mimeType The mime type of the message to send: text/html or
+     * text/plain.
+     * @param correctedMessageUID The ID of the message being corrected by
+     * this message.
+     */
+    public void correctInstantMessage(String message, String mimeType,
+            String correctedMessageUID);
 
     /**
      * Determines whether this chat transport supports the supplied content type

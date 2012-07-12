@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -34,6 +35,7 @@ import org.jivesoftware.smackx.packet.*;
  */
 public class OperationSetBasicInstantMessagingJabberImpl
     extends AbstractOperationSetBasicInstantMessaging
+    implements OperationSetMessageCorrection
 {
     /**
      * Our class logger
@@ -129,6 +131,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
         this.jabberProvider = provider;
         provider.addRegistrationStateChangeListener(
                         new RegistrationStateListener());
+
+        ProviderManager man = ProviderManager.getInstance();
+        MessageCorrectionExtensionProvider extProvider =
+                new MessageCorrectionExtensionProvider();
+        man.addExtensionProvider(MessageCorrectionExtension.ELEMENT_NAME,
+                MessageCorrectionExtension.NAMESPACE,
+                extProvider);
     }
 
     /**
@@ -157,6 +166,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
         String encoding, String subject)
     {
         return new MessageJabberImpl(content, contentType, encoding, subject);
+    }
+
+    private Message createMessage(String content, String contentType,
+            String messageUID)
+    {
+        return new MessageJabberImpl(content, contentType,
+                DEFAULT_MIME_ENCODING, null, messageUID);
     }
 
     /**
@@ -350,18 +366,18 @@ public class OperationSetBasicInstantMessagingJabberImpl
     }
 
     /**
-     * Sends the <tt>message</tt> to the destination indicated by the
-     * <tt>to</tt> contact.
-     *
-     * @param to the <tt>Contact</tt> to send <tt>message</tt> to
-     * @param message the <tt>Message</tt> to send.
-     * @throws java.lang.IllegalStateException if the underlying stack is
-     * not registered and initialized.
-     * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
-     * instance of ContactImpl.
+     * Helper function used to send a message to a contact, with the given
+     * extensions attached.
+     * 
+     * @param to The contact to send the message to.
+     * @param message The message to send.
+     * @param extensions The XMPP extensions that should be attached to the
+     * message before sending.
+     * @return The MessageDeliveryEvent that resulted after attempting to
+     * send this message, so the calling function can modify it if needed.
      */
-    public void sendInstantMessage(Contact to, Message message)
-        throws IllegalStateException, IllegalArgumentException
+    private MessageDeliveredEvent sendMessage(Contact to, Message message,
+            PacketExtension[] extensions)
     {
         if( !(to instanceof ContactJabberImpl) )
            throw new IllegalArgumentException(
@@ -382,7 +398,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             Chat chat = obtainChatInstance(toJID);
 
+            msg.setPacketID(message.getMessageUID());
             msg.setTo(toJID);
+
+            for (PacketExtension ext : extensions)
+            {
+                msg.addExtension(ext);
+            }
 
             if (logger.isTraceEnabled())
                 logger.trace("Will send a message to:" + toJID
@@ -396,7 +418,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
 
             if (msgDeliveryPendingEvt == null)
-                return;
+                return null;
 
             String content = msgDeliveryPendingEvt
                                     .getSourceMessage().getContent();
@@ -421,7 +443,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 // this is plain text so keep it as it is.
                 msg.setBody(content);
             }
-
+            
             //msg.addExtension(new Version());
 
             MessageEventManager.
@@ -434,13 +456,50 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
 
-            if (msgDeliveredEvt != null)
-                fireMessageEvent(msgDeliveredEvt);
+            return msgDeliveredEvt;
         }
         catch (XMPPException ex)
         {
-            logger.error("message not send", ex);
+            logger.error("message not sent", ex);
+            return null;
         }
+    }
+
+    /**
+     * Sends the <tt>message</tt> to the destination indicated by the
+     * <tt>to</tt> contact.
+     *
+     * @param to the <tt>Contact</tt> to send <tt>message</tt> to
+     * @param message the <tt>Message</tt> to send.
+     * @throws java.lang.IllegalStateException if the underlying stack is
+     * not registered and initialized.
+     * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
+     * instance of ContactImpl.
+     */
+    public void sendInstantMessage(Contact to, Message message)
+        throws IllegalStateException, IllegalArgumentException
+    {
+        MessageDeliveredEvent msgDelivered =
+                sendMessage(to, message, new PacketExtension[0]);
+        fireMessageEvent(msgDelivered);
+    }
+
+    /**
+     * Replaces the message with ID <tt>correctedMessageUID</tt> sent to
+     * the contact <tt>to</tt> with the message <tt>message</tt>
+     * 
+     * @param to The contact to send the message to.
+     * @param message The new message.
+     * @param correctedMessageUID The ID of the message being replaced.
+     */
+    public void correctMessage(Contact to, Message message,
+            String correctedMessageUID)
+    {
+        PacketExtension[] exts = new PacketExtension[1];
+        exts[0] = new MessageCorrectionExtension(correctedMessageUID);
+        MessageDeliveredEvent msgDelivered = sendMessage(to, message, exts);
+        msgDelivered.setCorrectedMessageUID(correctedMessageUID);
+        fireMessageEvent(msgDelivered);
     }
 
     /**
@@ -581,7 +640,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                              + msg.toXML());
             }
 
-            Message newMessage = createMessage(msg.getBody());
+            Message newMessage = createMessage(msg.getBody(),
+                    DEFAULT_MIME_TYPE, msg.getPacketID());
 
             //check if the message is available in xhtml
             PacketExtension ext = msg.getExtension(
@@ -619,9 +679,18 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     receivedMessage =
                             receivedMessage.replaceAll("&apos;", "&#39;");
 
-                    newMessage =
-                        createMessage(receivedMessage, HTML_MIME_TYPE);
+                    newMessage = createMessage(receivedMessage,
+                            HTML_MIME_TYPE, msg.getPacketID());
                 }
+            }
+
+            PacketExtension correctionExtension =
+                    msg.getExtension(MessageCorrectionExtension.NAMESPACE);
+            String correctedMessageUID = null;
+            if (correctionExtension != null)
+            {
+                correctedMessageUID = ((MessageCorrectionExtension)
+                        correctionExtension).getCorrectedMessageUID();
             }
 
             Contact sourceContact
@@ -652,6 +721,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 MessageDeliveryFailedEvent ev
                     = new MessageDeliveryFailedEvent(newMessage,
                                                      sourceContact,
+                                                     correctedMessageUID,
                                                      errorResultCode);
 
                 // ev = messageDeliveryFailedTransform(ev);
@@ -681,9 +751,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     .createVolatileContact(fromUserID);
             }
 
-            MessageReceivedEvent msgReceivedEvt
-                = new MessageReceivedEvent(
-                    newMessage, sourceContact , System.currentTimeMillis() );
+            MessageReceivedEvent msgReceivedEvt = new MessageReceivedEvent(
+                    newMessage, sourceContact, correctedMessageUID);
 
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
 

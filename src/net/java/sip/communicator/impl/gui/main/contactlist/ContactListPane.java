@@ -238,8 +238,8 @@ public class ContactListPane
 
         if(metaContact != null)
         {
-            messageReceived(protocolContact,
-                metaContact, message, eventType, evt.getTimestamp());
+            messageReceived(protocolContact, metaContact, message, eventType,
+                    evt.getTimestamp(), evt.getCorrectedMessageUID());
         }
         else
         {
@@ -266,7 +266,8 @@ public class ContactListPane
                                  final MetaContact metaContact,
                                  final Message message,
                                  final int eventType,
-                                 final long timestamp)
+                                 final long timestamp,
+                                 final String correctedMessageUID)
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
@@ -274,8 +275,8 @@ public class ContactListPane
             {
                 public void run()
                 {
-                    messageReceived(protocolContact,
-                        metaContact, message, eventType, timestamp);
+                    messageReceived(protocolContact, metaContact, message,
+                            eventType, timestamp, correctedMessageUID);
                 }
             });
             return;
@@ -315,7 +316,9 @@ public class ContactListPane
             timestamp,
             messageType,
             message.getContent(),
-            message.getContentType());
+            message.getContentType(),
+            message.getMessageUID(),
+            correctedMessageUID);
 
         chatWindowManager.openChat(chatPanel, false);
 
@@ -361,7 +364,9 @@ public class ContactListPane
                 evt.getTimestamp(),
                 Chat.OUTGOING_MESSAGE,
                 msg.getContent(),
-                msg.getContentType());
+                msg.getContentType(),
+                msg.getMessageUID(),
+                evt.getCorrectedMessageUID());
         }
     }
 
@@ -429,7 +434,9 @@ public class ContactListPane
                 System.currentTimeMillis(),
                 Chat.OUTGOING_MESSAGE,
                 sourceMessage.getContent(),
-                sourceMessage.getContentType());
+                sourceMessage.getContentType(),
+                sourceMessage.getMessageUID(),
+                evt.getCorrectedMessageUID());
 
         chatPanel.addErrorMessage(
                 metaContact.getDisplayName(),

@@ -75,6 +75,12 @@ public class MessageDeliveryFailedEvent
      private final long timestamp;
 
      /**
+      * The ID of the message being corrected, or null if this was a new message
+      * and not a message correction.
+      */
+     private String correctedMessageUID;
+
+     /**
       * Constructor.
       *
       * @param source the message
@@ -86,6 +92,23 @@ public class MessageDeliveryFailedEvent
                                        int errorCode)
      {
          this(source, to, errorCode, System.currentTimeMillis(), null);
+     }
+     
+     /**
+      * Constructor.
+      *
+      * @param source the message
+      * @param to the "to" contact
+      * @param correctedMessageUID The ID of the message being corrected.
+      * @param errorCode error code
+      */
+     public MessageDeliveryFailedEvent(Message source,
+                                       Contact to,
+                                       String correctedMessageUID,
+                                       int errorCode)
+     {
+         this(source, to, errorCode, System.currentTimeMillis(), null);
+         this.correctedMessageUID = correctedMessageUID;
      }
 
      /**
@@ -189,5 +212,15 @@ public class MessageDeliveryFailedEvent
     public String getReason()
     {
         return reasonPhrase;
+    }
+
+    /**
+     * Sets the ID of the message being corrected to the passed ID.
+     * 
+     * @param correctedMessageUID The ID of the message being corrected.
+     */
+    public String getCorrectedMessageUID()
+    {
+        return correctedMessageUID;
     }
 }

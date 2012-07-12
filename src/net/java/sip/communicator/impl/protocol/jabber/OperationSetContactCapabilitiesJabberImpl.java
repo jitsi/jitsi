@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -70,6 +71,7 @@ public class OperationSetContactCapabilitiesJabberImpl
     static
     {
         OFFLINE_OPERATION_SETS.add(OperationSetBasicInstantMessaging.class);
+        OFFLINE_OPERATION_SETS.add(OperationSetMessageCorrection.class);
 
         OPERATION_SETS_TO_FEATURES.put(
                 OperationSetBasicTelephony.class,
@@ -96,6 +98,13 @@ public class OperationSetContactCapabilitiesJabberImpl
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE,
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP,
                     ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RTP_VIDEO
+                });
+
+        OPERATION_SETS_TO_FEATURES.put(
+                OperationSetMessageCorrection.class,
+                new String[]
+                {
+                    MessageCorrectionExtension.NAMESPACE
                 });
 
         CAPS_OPERATION_SETS_TO_FEATURES.put(

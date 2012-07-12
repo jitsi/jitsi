@@ -20,6 +20,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
+import javax.swing.text.html.HTML.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
@@ -364,6 +365,68 @@ public class ChatConversationPanel
 //    }
 
     /**
+     * Retrieves the contents of the sent message with the given ID.
+     * 
+     * @param messageUID The ID of the message to retrieve.
+     * @return The contents of the message, or null if the message is not found.
+     */
+    public String getMessageContents(String messageUID)
+    {
+        Element root = document.getDefaultRootElement();
+        Element e = document.getElement(root, Attribute.ID, messageUID);
+        if (e == null)
+        {
+            logger.warn("Could not find message with ID" + messageUID);
+            return null;
+        }
+
+        int elemLen = e.getEndOffset() - e.getStartOffset();
+        String res = null;
+        try
+        {
+            res = document.getText(e.getStartOffset(), elemLen);
+        }
+        catch (BadLocationException exc)
+        {
+            logger.warn("Could not get message contents for message "
+                    + "with ID" + messageUID, exc);
+        }
+        return res;
+    }
+
+    /**
+     * Creates a tag that shows the last edit time of a message, in the format
+     *  (Edited at ...).
+     * If <tt>date < 0</tt>, returns an empty tag that serves as a placeholder
+     * for future corrections of this message.
+     * 
+     * @param messageUID The ID of the edited message.
+     * @param date The date when the message was last edited, or -1 to generate
+     * an empty tag.
+     * @return The string representation of the tag.
+     */
+    private String generateEditedAtTag(String messageUID, long date)
+    {
+        StringBuilder res = new StringBuilder();
+        // Use a <cite /> tag here as most of the other inline tags (e.g. h1-7,
+        // b, i) cause different problems when used in setOuterHTML.
+        res.append("<cite id='");
+        res.append(messageUID);
+        res.append("-editedAt'> ");
+        if (date > 0)
+        {
+            res.append("&nbsp;");
+            String contents = GuiActivator.getResources().getI18NString(
+                    "service.gui.EDITED_AT",
+                    new String[] { GuiUtils.formatTime(date) }
+            );
+            res.append(contents);
+        }
+        res.append("</cite>");
+        return res.toString();
+    }
+
+    /**
      * Processes the message given by the parameters.
      *
      * @param chatMessage the message
@@ -384,14 +447,18 @@ public class ChatConversationPanel
         String messageType = chatMessage.getMessageType();
         String messageTitle = chatMessage.getMessageTitle();
         String message = chatMessage.getMessage();
+        String messageUID = chatMessage.getMessageUID();
 
         String msgID = "message";
         String msgHeaderID = "messageHeader";
         String chatString = "";
         String endHeaderTag = "";
         String dateString = getDateString(date);
+        String idAttr = messageUID == null ? "" : " id='" + messageUID + "'";
+        String dateAttr = " date='" + date + "'";
+        String editedAtTag = generateEditedAtTag(messageUID, -1);
 
-        String startDivTag = "<DIV identifier=\"" + msgID + "\">";
+        String startDivTag = "<DIV identifier=\"" + msgID + "\"" + idAttr + ">";
         String startHistoryDivTag
             = "<DIV identifier=\"" + msgID + "\" style=\"color:#707070;\">";
         String startSystemDivTag
@@ -417,7 +484,7 @@ public class ChatConversationPanel
             this.lastIncomingMsgTimestamp = System.currentTimeMillis();
 
             chatString      = "<h2 identifier=\"" + msgHeaderID + "\""
-                                    + " date=\"" + date + "\">"
+                                    + dateAttr + ">"
                                     + "<a style=\"color:#ef7b1e;"
                                     + "font-weight:bold;"
                                     + "text-decoration:none;\" "
@@ -427,8 +494,8 @@ public class ChatConversationPanel
 
             chatString
                 += dateString + contactDisplayName + " at "
-                    + GuiUtils.formatTime(date)
-                    + endHeaderTag + startDivTag + startPlainTextTag
+                    + GuiUtils.formatTime(date) + editedAtTag + endHeaderTag
+                    + startDivTag + startPlainTextTag
                     + formatMessage(message, contentType, keyword)
                     + endPlainTextTag + endDivTag;
         }
@@ -451,7 +518,7 @@ public class ChatConversationPanel
         else if (messageType.equals(Chat.OUTGOING_MESSAGE))
         {
             chatString      = "<h3 identifier=\"" + msgHeaderID + "\""
-                                    + " date=\"" + date + "\">"
+                                    + dateAttr + ">"
                                     + "<a style=\"color:#2e538b;"
                                     + "font-weight:bold;"
                                     + "text-decoration:none;\" "
@@ -461,7 +528,7 @@ public class ChatConversationPanel
 
             chatString
                 += dateString + contactDisplayName + " at "
-                    + GuiUtils.formatTime(date) + endHeaderTag
+                    + GuiUtils.formatTime(date) + editedAtTag + endHeaderTag
                     + startDivTag + startPlainTextTag
                     + formatMessage(message, contentType, keyword)
                     + endPlainTextTag + endDivTag;
@@ -514,7 +581,7 @@ public class ChatConversationPanel
         else if (messageType.equals(Chat.HISTORY_INCOMING_MESSAGE))
         {
             chatString      = "<h2 identifier=\"" + msgHeaderID + "\""
-                                    + " date=\"" + date + "\">"
+                                + dateAttr + ">"
                                 + "<a style=\"color:#ef7b1e;"
                                 + "font-weight:bold;"
                                 + "text-decoration:none;\" "
@@ -524,15 +591,15 @@ public class ChatConversationPanel
 
             chatString
                 += dateString + contactDisplayName
-                    + " at " + GuiUtils.formatTime(date)
-                    + endHeaderTag + startHistoryDivTag + startPlainTextTag
+                    + " at " + GuiUtils.formatTime(date) + endHeaderTag
+                    + editedAtTag + startHistoryDivTag + startPlainTextTag
                     + formatMessage(message, contentType, keyword)
                     + endPlainTextTag + endDivTag;
         }
         else if (messageType.equals(Chat.HISTORY_OUTGOING_MESSAGE))
         {
             chatString      = "<h3 identifier=\"" + msgHeaderID + "\""
-                                    + " date=\"" + date + "\">"
+                                + dateAttr + ">"
                                 + "<a style=\"color:#2e538b;"
                                 + "font-weight:bold;"
                                 + "text-decoration:none;\" "
@@ -542,8 +609,8 @@ public class ChatConversationPanel
 
             chatString
                 += dateString
-                    + contactDisplayName
-                    + " at " + GuiUtils.formatTime(date) + endHeaderTag
+                    + contactDisplayName + " at " + GuiUtils.formatTime(date)
+                    + editedAtTag + endHeaderTag
                     + startHistoryDivTag + startPlainTextTag
                     + formatMessage(message, contentType, keyword)
                     + endPlainTextTag + endDivTag;
@@ -561,6 +628,68 @@ public class ChatConversationPanel
     public String processMessage(ChatMessage chatMessage)
     {
         return processMessage(chatMessage, null);
+    }
+
+    /**
+     * Replaces the contents of the message with ID of the corrected message
+     * specified in chatMessage, with this message.
+     * 
+     * @param chatMessage A <tt>ChatMessage</tt> that contains all the required
+     * information to correct the old message.
+     */
+    public void correctMessage(ChatMessage chatMessage)
+    {
+        String correctedUID = chatMessage.getCorrectedMessageUID();
+        Element root = document.getDefaultRootElement();
+        Element e = document.getElement(root, Attribute.ID, correctedUID);
+        if (e == null)
+        {
+            logger.warn("Could not find message with ID " + correctedUID);
+            return;
+        }
+        int len = e.getEndOffset() - e.getStartOffset();
+        
+        StringBuilder newContents = new StringBuilder();
+        String bgColor = GuiActivator.getResources().getColorString(
+                "service.gui.CHAT_EDIT_MESSAGE_BACKGROUND");
+        newContents.append("<div identifier='message' id='");
+        newContents.append(chatMessage.getMessageUID());
+        newContents.append("' bgcolor='");
+        newContents.append(bgColor);
+        newContents.append("'>");
+        if (chatMessage.getContentType().equals(TEXT_CONTENT_TYPE))
+        {
+            newContents.append(START_PLAINTEXT_TAG);
+            newContents.append(chatMessage.getMessage());
+            newContents.append(END_PLAINTEXT_TAG);
+        }
+        else
+        {
+            newContents.append(chatMessage.getMessage());
+        }
+        newContents.append("</div>");
+        
+        Element header = document.getElement(root, Attribute.ID,
+                correctedUID + "-editedAt");
+        
+        try
+        {
+            if (header != null)
+            {
+                String newHeaderContents = generateEditedAtTag(
+                        chatMessage.getMessageUID(), chatMessage.getDate());
+                document.setOuterHTML(header, newHeaderContents);
+            }
+            document.setOuterHTML(e, newContents.toString());
+        }
+        catch (BadLocationException ex)
+        {
+            logger.error("Could not replace chat message", ex);
+        }
+        catch (IOException ex)
+        {
+            logger.error("Could not replace chat message", ex);
+        }
     }
 
     /**

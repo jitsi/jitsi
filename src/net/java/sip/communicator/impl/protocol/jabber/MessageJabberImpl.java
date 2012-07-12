@@ -33,4 +33,21 @@ public class MessageJabberImpl
     {
         super(content, contentType, contentEncoding, subject);
     }
+    
+    /**
+     * Creates an instance of this Message with the specified parameters.
+     * 
+     * @param content the text content of the message.
+     * @param contentType a MIME string indicating the content type of the
+     *            <tt>content</tt> String.
+     * @param contentEncoding a MIME String indicating the content encoding of
+     *            the <tt>content</tt> String.
+     * @param subject the subject of the message or null for empty.
+     * @param 
+     */
+    public MessageJabberImpl(String content, String contentType,
+        String contentEncoding, String subject, String messageUID)
+    {
+        super(content, contentType, contentEncoding, subject, messageUID);
+    }
 }

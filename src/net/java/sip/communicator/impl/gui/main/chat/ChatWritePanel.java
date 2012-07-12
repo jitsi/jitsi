@@ -674,6 +674,27 @@ public class ChatWritePanel
                 ex.printStackTrace();
             }
         }
+        else if (e.getKeyCode() == KeyEvent.VK_UP)
+        {
+            // Only enters editing mode if the write panel is empty in
+            // order not to lose the current message contents, if any.
+            if (this.chatPanel.getLastSentMessageUID() != null
+                    && this.chatPanel.isWriteAreaEmpty())
+            {
+                this.chatPanel.startLastMessageCorrection();
+            }
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_DOWN)
+        {
+            if (chatPanel.isMessageCorrectionActive())
+            {
+                Document doc = editorPane.getDocument();
+                if (editorPane.getCaretPosition() == doc.getLength())
+                {
+                    chatPanel.stopMessageCorrection();
+                }
+            }
+        }
     }
 
     public void keyReleased(KeyEvent e) {}
@@ -1296,5 +1317,16 @@ public class ChatWritePanel
             smsCharCountLabel.setText(String.valueOf(smsCharCount));
             smsNumberLabel.setText(String.valueOf(smsNumberCount));
         }
+    }
+
+    /**
+     * Sets the background of the write area to the specified color.
+     * 
+     * @param color The color to set the background to.
+     */
+    public void setEditorPaneBackground(Color color)
+    {
+        this.centerPanel.setBackground(color);
+        this.editorPane.setBackground(color);
     }
 }

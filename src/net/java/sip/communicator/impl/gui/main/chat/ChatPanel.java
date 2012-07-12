@@ -138,6 +138,17 @@ public class ChatPanel
      */
     private final Hashtable<String, Object> activeFileTransfers
         = new Hashtable<String, Object>();
+    
+    /**
+     * The ID of the message being corrected, or <tt>null</tt> if
+     * not correcting any message.
+     */
+    private String correctedMessageUID = null;
+    
+    /**
+     * The ID of the last sent message in this chat.
+     */
+    private String lastSentMessageUID = null;
 
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -490,6 +501,17 @@ public class ChatPanel
     }
 
     /**
+     * Returns the ID of the last message sent in this chat, or <tt>null</tt>
+     * if no messages have been sent yet.
+     * 
+     * @return the ID of the last message sent in this chat, or <tt>null</tt>
+     * if no messages have been sent yet.
+     */
+    public String getLastSentMessageUID() {
+        return lastSentMessageUID;
+    }
+
+    /**
      * Every time the chat panel is shown we set it as a current chat panel.
      * This is done here and not in the Tab selection listener, because the tab
      * change event is not fired when the user clicks on the close tab button
@@ -589,7 +611,8 @@ public class ChatPanel
                             evt.getTimestamp(),
                             messageType,
                             evt.getSourceMessage().getContent(),
-                            evt.getSourceMessage().getContentType());
+                            evt.getSourceMessage().getContentType(),
+                            evt.getSourceMessage().getMessageUID());
             }
             else if(o instanceof MessageReceivedEvent)
             {
@@ -612,7 +635,8 @@ public class ChatPanel
                                 evt.getTimestamp(),
                                 messageType,
                                 evt.getSourceMessage().getContent(),
-                                evt.getSourceMessage().getContentType());
+                                evt.getSourceMessage().getContentType(),
+                                evt.getSourceMessage().getMessageUID());
                 }
             }
             else if(o instanceof ChatRoomMessageDeliveredEvent)
@@ -684,7 +708,8 @@ public class ChatPanel
     public void addMessage(String contactName, long date,
             String messageType, String message, String contentType)
     {
-        addMessage(contactName, null, date, messageType, message, contentType);
+        addMessage(contactName, null, date, messageType, message, contentType,
+                null, null);
     }
 
     /**
@@ -701,11 +726,12 @@ public class ChatPanel
      * @param contentType the content type
      */
     public void addMessage(String contactName, String displayName, long date,
-            String messageType, String message, String contentType)
+            String messageType, String message, String contentType,
+            String messageUID, String correctedMessageUID)
     {
-        ChatMessage chatMessage
-            = new ChatMessage(contactName, displayName, date,
-                messageType, message, contentType);
+        ChatMessage chatMessage = new ChatMessage(contactName, displayName,
+                date, messageType, null, message, contentType,
+                messageUID, correctedMessageUID);
 
         this.addChatMessage(chatMessage);
 
@@ -769,11 +795,15 @@ public class ChatPanel
         }
         else
         {
-            appendChatMessage(chatMessage);
+            displayChatMessage(chatMessage);
         }
 
         // change the last history message timestamp after we add one.
         this.lastHistoryMsgTimestamp = chatMessage.getDate();
+        if (chatMessage.getMessageType().equals(Chat.OUTGOING_MESSAGE))
+        {
+            this.lastSentMessageUID = chatMessage.getMessageUID();
+        }
     }
 
     /**
@@ -807,6 +837,20 @@ public class ChatPanel
                 Chat.ERROR_MESSAGE,
                 title,
                 message, "text");
+    }
+
+    private void displayChatMessage(ChatMessage chatMessage)
+    {
+        if (chatMessage.getCorrectedMessageUID() != null
+                && conversationPanel.getMessageContents(
+                chatMessage.getCorrectedMessageUID()) != null)
+        {
+            applyMessageCorrection(chatMessage);
+        }
+        else
+        {
+            appendChatMessage(chatMessage);
+        }
     }
 
     /**
@@ -855,6 +899,17 @@ public class ChatPanel
 
     /**
      * Passes the message to the contained <code>ChatConversationPanel</code>
+     * for processing and replaces the specified message with this one.
+     *
+     * @param chatMessage The message used as a correction.
+     */
+    private void applyMessageCorrection(ChatMessage message)
+    {
+        conversationPanel.correctMessage(message);
+    }
+
+    /**
+     * Passes the message to the contained <code>ChatConversationPanel</code>
      * for processing.
      *
      * @param contactName The name of the contact sending the message.
@@ -875,9 +930,37 @@ public class ChatPanel
                                          String message,
                                          String contentType)
     {
+      return processHistoryMessage(contactName, contactDisplayName,
+              date, messageType, message, contentType, null);
+    }
+
+    /**
+     * Passes the message to the contained <code>ChatConversationPanel</code>
+     * for processing.
+     *
+     * @param contactName The name of the contact sending the message.
+     * @param contactDisplayName the display name of the contact sending the
+     * message
+     * @param date The time at which the message is sent or received.
+     * @param messageType The type of the message. One of OUTGOING_MESSAGE
+     * or INCOMING_MESSAGE.
+     * @param message The message text.
+     * @param contentType the content type of the message (html or plain text)
+     * @param messageId The ID of the message.
+     *
+     * @return a string containing the processed message.
+     */
+    private String processHistoryMessage(String contactName,
+                                         String contactDisplayName,
+                                         long date,
+                                         String messageType,
+                                         String message,
+                                         String contentType,
+                                         String messageId)
+    {
         ChatMessage chatMessage = new ChatMessage(
             contactName, contactDisplayName, date,
-                messageType, null, message, contentType);
+                messageType, null, message, contentType, messageId, null);
 
         String processedMessage =
             this.conversationPanel.processMessage(chatMessage);
@@ -1372,7 +1455,7 @@ public class ChatPanel
                 OperationSetBasicInstantMessaging.HTML_MIME_TYPE).trim();
 
             plainText = getTextFromWriteArea(
-                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
+                OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE).trim();
 
             // clear the message earlier
             // to avoid as much as possible to not sending it twice (double enter)
@@ -1399,8 +1482,19 @@ public class ChatPanel
 
         try
         {
-            chatSession.getCurrentChatTransport()
-                .sendInstantMessage(messageText, mimeType);
+            if (isMessageCorrectionActive()
+                    && chatSession.getCurrentChatTransport()
+                        .allowsMessageCorrections())
+            {
+                chatSession.getCurrentChatTransport().correctInstantMessage(
+                        messageText, mimeType, correctedMessageUID);
+            }
+            else
+            {
+                chatSession.getCurrentChatTransport().sendInstantMessage(
+                        messageText, mimeType);
+            }
+            stopMessageCorrection();
         }
         catch (IllegalStateException ex)
         {
@@ -1456,6 +1550,58 @@ public class ChatPanel
             // Send TYPING STOPPED event before sending the message
             getChatWritePanel().stopTypingTimer();
         }
+    }
+
+    /**
+     * Enters editing mode for the last sent message in this chat.
+     */
+    public void startLastMessageCorrection()
+    {
+        startMessageCorrection(lastSentMessageUID);
+    }
+
+    /**
+     * Enters editing mode for the message with the specified id - puts the
+     * message contents in the write panel and changes the background.
+     * 
+     * @param correctedMessageUID The ID of the message being corrected.
+     */
+    public void startMessageCorrection(String correctedMessageUID)
+    {
+        this.correctedMessageUID = correctedMessageUID;
+        this.refreshWriteArea();
+        String messageContents
+            = conversationPanel.getMessageContents(correctedMessageUID);
+        if (messageContents == null)
+        {
+            this.stopMessageCorrection();
+            return;
+        }
+        Color bgColor = new Color(GuiActivator.getResources()
+                .getColor("service.gui.CHAT_EDIT_MESSAGE_BACKGROUND"));
+        this.writeMessagePanel.setEditorPaneBackground(bgColor);
+        this.setMessage(messageContents);
+    }
+
+    /**
+     * Exits editing mode, clears the write panel and the background.
+     */
+    public void stopMessageCorrection()
+    {
+        this.correctedMessageUID = null;
+        this.writeMessagePanel.setEditorPaneBackground(Color.WHITE);
+        this.refreshWriteArea();
+    }
+
+    /**
+     * Returns whether a message is currently being edited.
+     * 
+     * @return <tt>true</tt> if a message is currently being edited,
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isMessageCorrectionActive()
+    {
+        return correctedMessageUID != null;
     }
 
     /**
@@ -2358,7 +2504,7 @@ public class ChatPanel
 
                 if (incomingEvent instanceof ChatMessage)
                 {
-                    this.appendChatMessage((ChatMessage) incomingEvent);
+                    this.displayChatMessage((ChatMessage) incomingEvent);
                 }
                 else if (incomingEvent instanceof ChatConversationComponent)
                 {

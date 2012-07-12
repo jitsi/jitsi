@@ -68,7 +68,7 @@ public abstract class AbstractMessage
         setEncoding(encoding);
         setContent(content);
 
-        this.messageUID = messageUID;
+        this.messageUID = messageUID == null ? createMessageUID() : messageUID;
     }
 
     protected String createMessageUID()

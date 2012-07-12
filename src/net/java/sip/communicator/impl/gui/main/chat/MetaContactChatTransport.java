@@ -110,9 +110,6 @@ public class MetaContactChatTransport
         }
     }
 
-
-
-
     /**
      * Returns the contact associated with this transport.
      * @return the contact associated with this transport
@@ -194,6 +191,30 @@ public class MetaContactChatTransport
     }
 
     /**
+     * Returns <code>true</code> if this chat transport supports message
+     * corrections and false otherwise.
+     * 
+     * @return <code>true</code> if this chat transport supports message
+     * corrections and false otherwise.
+     */
+    public boolean allowsMessageCorrections()
+    {
+        OperationSetContactCapabilities capOpSet = getProtocolProvider()
+                .getOperationSet(OperationSetContactCapabilities.class);
+
+        if (capOpSet != null)
+        {
+            return capOpSet.getOperationSet(
+                    contact, OperationSetMessageCorrection.class) != null;
+        }
+        else
+        {
+            return contact.getProtocolProvider().getOperationSet(
+                    OperationSetMessageCorrection.class) != null;
+        }
+    }
+
+    /**
      * Returns <code>true</code> if this chat transport supports sms
      * messaging, otherwise returns <code>false</code>.
      * 
@@ -260,8 +281,8 @@ public class MetaContactChatTransport
     }
 
     /**
-     * Sends the given instant message trough this chat transport, by specifying
-     * the mime type (html or plain text).
+     * Sends the given instant message through this chat transport,
+     * by specifying the mime type (html or plain text).
      *
      * @param message The message to send.
      * @param mimeType The mime type of the message to send: text/html or
@@ -296,6 +317,45 @@ public class MetaContactChatTransport
         }
 
         imOpSet.sendInstantMessage(contact, msg);
+    }
+
+    /**
+     * Sends <tt>message</tt> as a message correction through this transport,
+     * specifying the mime type (html or plain text) and the id of the
+     * message to replace.
+     * 
+     * @param message The message to send.
+     * @param mimeType The mime type of the message to send: text/html or
+     * text/plain.
+     * @param correctedMessageUID The ID of the message being corrected by
+     * this message.
+     */
+    public void correctInstantMessage(String message, String mimeType,
+            String correctedMessageUID)
+    {
+        if (!allowsMessageCorrections())
+        {
+            return;
+        }
+
+        OperationSetMessageCorrection mcOpSet = contact.getProtocolProvider()
+                .getOperationSet(OperationSetMessageCorrection.class);
+
+        Message msg;
+        if (mimeType.equals(OperationSetBasicInstantMessaging.HTML_MIME_TYPE)
+                && mcOpSet.isContentTypeSupported(
+                OperationSetBasicInstantMessaging.HTML_MIME_TYPE))
+        {
+            msg = mcOpSet.createMessage(message,
+                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
+                    "utf-8", "");
+        }
+        else
+        {
+            msg = mcOpSet.createMessage(message);
+        }
+
+        mcOpSet.correctMessage(contact, msg, correctedMessageUID);
     }
 
     /**

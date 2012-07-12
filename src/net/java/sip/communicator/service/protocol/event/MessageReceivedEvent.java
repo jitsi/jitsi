@@ -55,6 +55,12 @@ public class MessageReceivedEvent
      * The type of message event that this instance represents.
      */
     private int eventType = -1;
+    
+    /**
+     * The ID of the message being corrected, or null if this is a new message
+     * and not a correction.
+     */
+    private String correctedMessageUID = null;
 
     /**
      * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
@@ -68,6 +74,23 @@ public class MessageReceivedEvent
     public MessageReceivedEvent(Message source, Contact from, long timestamp)
     {
        this(source, from, timestamp, CONVERSATION_MESSAGE_RECEIVED);
+    }
+
+    /**
+     * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
+     * <tt>source</tt> message received from the specified <tt>from</tt>
+     * contact.
+     *
+     * @param source the <tt>Message</tt> whose reception this event represents.
+     * @param from the <tt>Contact</tt> that has sent this message.
+     * @param timestamp the exact date when the event ocurred.
+     */
+    public MessageReceivedEvent(Message source, Contact from,
+            String correctedMessageUID)
+    {
+       this(source, from, System.currentTimeMillis(),
+               CONVERSATION_MESSAGE_RECEIVED);
+       this.correctedMessageUID = correctedMessageUID;
     }
 
     /**
@@ -92,10 +115,10 @@ public class MessageReceivedEvent
     }
 
     /**
-     * Returns a reference to the <tt>Contact</tt> that has send the
+     * Returns a reference to the <tt>Contact</tt> that has sent the
      * <tt>Message</tt> whose reception this event represents.
      *
-     * @return a reference to the <tt>Contact</tt> that has send the
+     * @return a reference to the <tt>Contact</tt> that has sent the
      * <tt>Message</tt> whose reception this event represents.
      */
     public Contact getSourceContact()
@@ -134,5 +157,17 @@ public class MessageReceivedEvent
     public int getEventType()
     {
         return eventType;
+    }
+
+    /**
+     * Returns the correctedMessageUID The ID of the message being corrected,
+     * or null if this is a new message and not a correction.
+     * 
+     * @return the correctedMessageUID The ID of the message being corrected,
+     * or null if this is a new message and not a correction.
+     */
+    public String getCorrectedMessageUID()
+    {
+        return correctedMessageUID;
     }
 }

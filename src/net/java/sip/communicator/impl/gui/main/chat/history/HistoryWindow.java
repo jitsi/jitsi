@@ -278,8 +278,11 @@ public class HistoryWindow
                                 .getAccountDisplayName(protocolProvider),
                             evt.getTimestamp(),
                             Chat.OUTGOING_MESSAGE,
+                            null,
                             evt.getSourceMessage().getContent(),
-                            evt.getSourceMessage().getContentType());
+                            evt.getSourceMessage().getContentType(),
+                            evt.getSourceMessage().getMessageUID(),
+                            null);
                 }
                 else if(o instanceof MessageReceivedEvent)
                 {
@@ -290,8 +293,11 @@ public class HistoryWindow
                         evt.getSourceContact().getDisplayName(),
                         evt.getTimestamp(),
                         Chat.INCOMING_MESSAGE,
+                        null,
                         evt.getSourceMessage().getContent(),
-                        evt.getSourceMessage().getContentType());
+                        evt.getSourceMessage().getContentType(),
+                        evt.getSourceMessage().getMessageUID(),
+                        null);
                 }
                 else if(o instanceof ChatRoomMessageReceivedEvent)
                 {

@@ -49,6 +49,17 @@ public class ChatMessage
      * The content type of the message.
      */
     private final String contentType;
+    
+    /**
+     * A unique identifier for this message.
+     */
+    private String messageUID;
+    
+    /**
+     * The unique identifier of the message that this message should replace,
+     * or <tt>null</tt> if this is a new message.
+     */
+    private String correctedMessageUID;
 
     /**
      * Creates a <tt>ChatMessage</tt> by specifying all parameters of the
@@ -65,7 +76,8 @@ public class ChatMessage
                         String message,
                         String contentType)
     {
-        this(contactName, null, date, messageType, null, message, contentType);
+        this(contactName, null, date, messageType,
+                null, message, contentType, null, null);
     }
 
     /**
@@ -86,7 +98,7 @@ public class ChatMessage
                         String contentType)
     {
         this(contactName, null, date, messageType,
-            messageTitle, message, contentType);
+                messageTitle, message, contentType, null, null);
     }
 
     /**
@@ -107,7 +119,7 @@ public class ChatMessage
                         String contentType)
     {
         this(contactName, contactDisplayName, date, messageType,
-            null, message, contentType);
+                null, message, contentType, null, null);
     }
 
     /**
@@ -119,6 +131,8 @@ public class ChatMessage
      * @param messageType the type (INCOMING or OUTGOING)
      * @param message the content
      * @param contentType the content type (e.g. "text", "text/html", etc.)
+     * @param messageUID The ID of the message.
+     * @param correctedMessageUID The ID of the message being replaced.
      */
     public ChatMessage( String contactName,
                         String contactDisplayName,
@@ -126,7 +140,9 @@ public class ChatMessage
                         String messageType,
                         String messageTitle,
                         String message,
-                        String contentType)
+                        String contentType,
+                        String messageUID,
+                        String correctedMessageUID)
     {
         this.contactName = contactName;
         this.contactDisplayName = contactDisplayName;
@@ -135,6 +151,8 @@ public class ChatMessage
         this.messageTitle = messageTitle;
         this.message = message;
         this.contentType = contentType;
+        this.messageUID = messageUID;
+        this.correctedMessageUID = correctedMessageUID;
     }
 
     /**
@@ -215,5 +233,27 @@ public class ChatMessage
     public String getContentType()
     {
         return contentType;
+    }
+    
+    /**
+     * Returns the UID of this message.
+     * 
+     * @return the UID of this message.
+     */
+    public String getMessageUID()
+    {
+        return messageUID;
+    }
+
+    /**
+     * Returns the UID of the message that this message replaces, or
+     * <tt>null</tt> if this is a new message.
+     * 
+     * @return the UID of the message that this message replaces, or
+     * <tt>null</tt> if this is a new message.
+     */
+    public String getCorrectedMessageUID()
+    {
+        return correctedMessageUID;
     }
 }

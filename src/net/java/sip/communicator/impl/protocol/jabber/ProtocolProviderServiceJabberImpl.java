@@ -25,6 +25,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.impl.protocol.jabber.sasl.*;
 import net.java.sip.communicator.service.certificate.*;
@@ -1786,6 +1787,10 @@ public class ProtocolProviderServiceJabberImpl
             supportedFeatures.add("jabber:iq:version");
             if(versionManager == null)
                 versionManager = new VersionManager(this);
+
+            supportedFeatures.add(MessageCorrectionExtension.NAMESPACE);
+            addSupportedOperationSet(OperationSetMessageCorrection.class,
+                    basicInstantMessaging);
 
             isInitialized = true;
         }
