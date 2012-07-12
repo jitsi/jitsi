@@ -96,6 +96,12 @@ public class GlobalStatusSelectorBox
     private ButtonGroup group = new ButtonGroup();
 
     /**
+     * Ignore protocols that don't have presence operation sets
+     * when looking for global status.
+     */
+    private static boolean ignoreNonPresenceOpSetProtocols = false;
+
+    /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
      *
      * @param mainFrame The main application window.
@@ -113,6 +119,13 @@ public class GlobalStatusSelectorBox
 
         this.add(titleLabel);
         this.addSeparator();
+
+        String ignoreStrValue
+            = GuiActivator.getResources().getSettingsString(
+                "net.java.sip.communicator.service.protocol.globalstatus" +
+                    ".IGNORE_NONPRESENCEOPSET_PROTOCOLS");
+        if(ignoreStrValue != null)
+            ignoreNonPresenceOpSetProtocols = Boolean.valueOf(ignoreStrValue);
 
         PresenceStatus offlineStatus = null;
         // creates menu item entry for every global status
@@ -425,6 +438,10 @@ public class GlobalStatusSelectorBox
 
             OperationSetPresence presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
+
+            if(presence == null && ignoreNonPresenceOpSetProtocols)
+                continue;
+
             int presenceStatus
                 = (presence == null)
                     ? PresenceStatus.AVAILABLE_THRESHOLD

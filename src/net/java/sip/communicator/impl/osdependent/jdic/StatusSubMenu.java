@@ -60,6 +60,12 @@ public class StatusSubMenu
     private static boolean hideAccountStatusSelectors = false;
 
     /**
+     * Ignore protocols that don't have presence operation sets
+     * when looking for global status.
+     */
+    private static boolean ignoreNonPresenceOpSetProtocols = false;
+
+    /**
      * Creates an instance of <tt>StatusSubMenu</tt>.
      * 
      * @param tray a reference of the parent <tt>Systray</tt>
@@ -106,6 +112,13 @@ public class StatusSubMenu
                         hideAccountStatusSelectorsProperty,
                         hideAccountStatusSelectors);
         }
+
+        String ignoreStrValue
+            = OsDependentActivator.getResources().getSettingsString(
+                "net.java.sip.communicator.service.protocol.globalstatus" +
+                    ".IGNORE_NONPRESENCEOPSET_PROTOCOLS");
+        if(ignoreStrValue != null)
+            ignoreNonPresenceOpSetProtocols = Boolean.valueOf(ignoreStrValue);
 
         PresenceStatus offlineStatus = null;
         // creates menu item entry for every global status
@@ -393,6 +406,10 @@ public class StatusSubMenu
 
             OperationSetPresence presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
+
+            if(presence == null && ignoreNonPresenceOpSetProtocols)
+                continue;
+
             int presenceStatus
                 = (presence == null)
                     ? PresenceStatus.AVAILABLE_THRESHOLD
