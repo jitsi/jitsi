@@ -60,12 +60,6 @@ public class StatusSubMenu
     private static boolean hideAccountStatusSelectors = false;
 
     /**
-     * Ignore protocols that don't have presence operation sets
-     * when looking for global status.
-     */
-    private static boolean ignoreNonPresenceOpSetProtocols = false;
-
-    /**
      * Creates an instance of <tt>StatusSubMenu</tt>.
      * 
      * @param tray a reference of the parent <tt>Systray</tt>
@@ -112,13 +106,6 @@ public class StatusSubMenu
                         hideAccountStatusSelectorsProperty,
                         hideAccountStatusSelectors);
         }
-
-        String ignoreStrValue
-            = OsDependentActivator.getResources().getSettingsString(
-                "net.java.sip.communicator.service.protocol.globalstatus" +
-                    ".IGNORE_NONPRESENCEOPSET_PROTOCOLS");
-        if(ignoreStrValue != null)
-            ignoreNonPresenceOpSetProtocols = Boolean.valueOf(ignoreStrValue);
 
         PresenceStatus offlineStatus = null;
         // creates menu item entry for every global status
@@ -389,6 +376,7 @@ public class StatusSubMenu
     private void updateGlobalStatus()
     {
         int status = 0;
+        boolean hasAvailableProvider = false;
 
         for(ProtocolProviderService protocolProvider : getProtocolProviders())
         {
@@ -407,8 +395,11 @@ public class StatusSubMenu
             OperationSetPresence presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
 
-            if(presence == null && ignoreNonPresenceOpSetProtocols)
+            if(presence == null)
+            {
+                hasAvailableProvider = true;
                 continue;
+            }
 
             int presenceStatus
                 = (presence == null)
@@ -418,6 +409,10 @@ public class StatusSubMenu
             if (status < presenceStatus)
                 status = presenceStatus;
         }
+
+        // if we have at least one online provider
+        if(status == 0 && hasAvailableProvider)
+            status = PresenceStatus.AVAILABLE_THRESHOLD;
 
         selectItemFromStatus(status);
     }
