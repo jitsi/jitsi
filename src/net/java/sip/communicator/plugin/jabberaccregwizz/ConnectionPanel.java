@@ -13,6 +13,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.util.swing.*;
+import org.jitsi.util.*;
 
 /**
  *
@@ -31,6 +32,9 @@ public class ConnectionPanel
 
     private final JPanel advancedOpPanel
         = new TransparentPanel(new BorderLayout(10, 10));
+
+    private final JPanel serverOpPanel
+            = new TransparentPanel(new BorderLayout(10, 10));
 
     private final JPanel labelsAdvOpPanel
         = new TransparentPanel(new GridLayout(0, 1, 10, 10));
@@ -60,6 +64,11 @@ public class ConnectionPanel
 
     private final JTextField priorityField
         = new JTextField(JabberAccountRegistration.DEFAULT_PRIORITY);
+
+    private final JCheckBox serverAutoCheckBox = new SIPCommCheckBox(
+            Resources.getString(
+                "plugin.jabberaccregwizz.OVERRIDE_SERVER_DEFAULT_OPTIONS"),
+                JabberAccountRegistration.DEFAULT_RESOURCE_AUTOGEN);
 
     private final JLabel serverLabel
         = new JLabel(Resources.getString("plugin.jabberaccregwizz.SERVER"));
@@ -140,11 +149,31 @@ public class ConnectionPanel
             }
         });
 
+        serverAutoCheckBox.addActionListener(new ActionListener()
+        {
+            /**
+             * Invoked when an action occurs.
+             */
+            public void actionPerformed(ActionEvent e)
+            {
+                enablesServerAutoConfigure(serverAutoCheckBox.isSelected());
+            }
+        });
+        serverAutoCheckBox.setSelected(
+            parentForm.getRegistration().isServerOverridden());
+        enablesServerAutoConfigure(serverAutoCheckBox.isSelected());
+
         labelsAdvOpPanel.add(serverLabel);
         labelsAdvOpPanel.add(portLabel);
 
         valuesAdvOpPanel.add(serverField);
         valuesAdvOpPanel.add(portField);
+
+        serverOpPanel.add(serverAutoCheckBox, BorderLayout.NORTH);
+        serverOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
+        serverOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
+        serverOpPanel.setBorder(BorderFactory.createTitledBorder(
+                Resources.getString("plugin.jabberaccregwizz.SERVER_OPTIONS")));
 
         JPanel checkBoxesPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
@@ -172,8 +201,7 @@ public class ConnectionPanel
         // default for new account
         googleContactsBox.setSelected(true);
         advancedOpPanel.add(checkBoxesPanel, BorderLayout.NORTH);
-        advancedOpPanel.add(labelsAdvOpPanel, BorderLayout.WEST);
-        advancedOpPanel.add(valuesAdvOpPanel, BorderLayout.CENTER);
+        advancedOpPanel.add(serverOpPanel, BorderLayout.CENTER);
         advancedOpPanel.add(resourcePanel, BorderLayout.SOUTH);
 
         if(autoGenerateResource.isSelected())
@@ -193,7 +221,7 @@ public class ConnectionPanel
         mainPanel.add(createDTMFPanel());
 
         String serverAddress = parentForm.getServerAddress();
-        if (serverAddress != null)
+        if (!StringUtils.isNullOrEmpty(serverAddress))
             serverField.setText(serverAddress);
 
         add(mainPanel, BorderLayout.NORTH);
@@ -484,5 +512,38 @@ public class ConnectionPanel
             }
             dtmfMethodBox.setSelectedItem(selString);
         }
+    }
+
+    /**
+     * Sets the <tt>serverOverridden</tt> property.
+     * @param isServerOverridden <tt>true</tt> to indicate that the server is
+     * overridden, <tt>false</tt> - otherwise
+     */
+    void setServerOverridden(boolean isServerOverridden)
+    {
+        this.serverAutoCheckBox.setSelected(isServerOverridden);
+        enablesServerAutoConfigure(serverAutoCheckBox.isSelected());
+    }
+
+    /**
+     * Return <tt>isServerOverridden</tt> property.
+     * @return <tt>isServerOverridden</tt> property.
+     */
+    boolean isServerOverridden()
+    {
+        return this.serverAutoCheckBox.isSelected();
+    }
+
+    /**
+     * Enables/disables the proxy auto-configuration.
+     * @param isEnable <tt>true</tt> to enable proxy auto-configuration,
+     * <tt>false</tt> - otherwise
+     */
+    void enablesServerAutoConfigure(boolean isEnable)
+    {
+        serverAutoCheckBox.setSelected(isEnable);
+        serverField.setEnabled(isEnable);
+        portField.setEnabled(isEnable);
+        parentForm.reValidateInput();
     }
 }

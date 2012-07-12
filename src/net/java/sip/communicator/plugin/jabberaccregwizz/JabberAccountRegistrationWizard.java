@@ -311,15 +311,23 @@ public class JabberAccountRegistrationWizard
             && registration.getServerAddress().length() > 0)
         {
             serverName = registration.getServerAddress();
-
-            if (userName.indexOf(serverName) < 0)
-                accountProperties.put(
-                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
-                    Boolean.toString(true));
         }
         else
         {
             serverName = getServerFromUserName(userName);
+        }
+
+        if(registration.isServerOverridden())
+        {
+            accountProperties.put(
+                ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                Boolean.toString(true));
+        }
+        else
+        {
+            accountProperties.put(
+                ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                Boolean.toString(false));
         }
 
         if (serverName == null || serverName.length() <= 0)

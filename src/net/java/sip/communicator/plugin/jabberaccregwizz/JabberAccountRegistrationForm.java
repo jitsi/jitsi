@@ -268,6 +268,7 @@ public class JabberAccountRegistrationForm
         registration.setPassword(new String(password));
         registration.setRememberPassword(accountPanel.isRememberPassword());
         registration.setServerAddress(serverAddress);
+        registration.setServerOverridden(connectionPanel.isServerOverridden());
         registration.setSendKeepAlive(connectionPanel.isSendKeepAlive());
         registration.setGmailNotificationEnabled(
             connectionPanel.isGmailNotificationsEnabled());
@@ -509,10 +510,12 @@ public class JabberAccountRegistrationForm
 
         connectionPanel.setAllowNonSecure(isAllowNonSecure);
 
-        wizard.getRegistration().setServerOverridden(
+        boolean isServerOverriden =
             accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
-                    false));
+                                ProtocolProviderFactory.IS_SERVER_OVERRIDDEN,
+                                false);
+
+        connectionPanel.setServerOverridden(isServerOverriden);
 
         String telephonyDomain = accountProperties.get("OVERRIDE_PHONE_SUFFIX");
         telephonyConfigPanel.setTelephonyDomain(telephonyDomain);
