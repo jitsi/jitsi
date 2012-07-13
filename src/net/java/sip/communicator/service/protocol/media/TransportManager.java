@@ -75,6 +75,17 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         "net.java.sip.communicator.impl.protocol.RTP_VIDEO_DSCP";
 
     /**
+     * Number of empty UDP packets to send for NAT hole punching.
+     */
+    private static final String HOLE_PUNCH_PKT_COUNT_PROPERTY =
+        "net.java.sip.communicator.impl.protocol.HOLE_PUNCH_PKT_COUNT";
+
+    /**
+     * Number of empty UDP packets to send for NAT hole punching.
+     */
+    private static final int DEFAULT_HOLE_PUNCH_PKT_COUNT = 3;
+
+    /**
      * The {@link MediaAwareCallPeer} whose traffic we will be taking care of.
      */
     private U callPeer;
@@ -360,8 +371,9 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     }
 
     /**
-     * Send empty UDP packet to target destination data/control ports
-     * in order to open port on NAT or RTP proxy if any.
+     * Send empty UDP packets to target destination data/control ports
+     * in order to open ports on NATs or and help RTP proxies latch onto our
+     * RTP ports.
      *
      * @param target <tt>MediaStreamTarget</tt>
      * @param type the {@link MediaType} of the connector we'd like to send
@@ -369,18 +381,30 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     public void sendHolePunchPacket(MediaStreamTarget target, MediaType type)
     {
-        if (logger.isInfoEnabled())
-            logger.info("Try to open port on NAT if any");
+        logger.info("Send NAT hole punch packets");
+
+        //check how many hole punch packets we would be supposed to send:
+        int packetCount = ProtocolMediaActivator.getConfigurationService()
+                    .getInt( HOLE_PUNCH_PKT_COUNT_PROPERTY,
+                             DEFAULT_HOLE_PUNCH_PKT_COUNT);
+
+        if (packetCount < 0)
+            packetCount = DEFAULT_HOLE_PUNCH_PKT_COUNT;
+
         try
         {
             StreamConnector connector = getStreamConnector(type);
 
             synchronized(connector)
             {
-                if(connector.getProtocol() != StreamConnector.Protocol.TCP)
-                {
-                    DatagramSocket socket;
+                if(connector.getProtocol() == StreamConnector.Protocol.TCP)
+                    return;
 
+                DatagramSocket socket;
+
+                //we may want to send more than one packet in case they get lost
+                for(int i=0; i < packetCount; i++)
+                {
                     /* data port (RTP) */
                     if((socket = connector.getDataSocket()) != null)
                     {
