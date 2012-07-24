@@ -64,29 +64,34 @@ public abstract class SecurityPanel<T extends SrtpControl>
      *         controller or an {@link TransparentPanel} if the controller is
      *         unknown or does not have any controls to show.
      */
-    public static SecurityPanel create( CallPeerRenderer peerRenderer,
-                                        CallPeer callPeer,
-                                        SrtpControl srtpControl)
+    public static SecurityPanel<?> create(
+            CallPeerRenderer peerRenderer,
+            CallPeer callPeer,
+            SrtpControl srtpControl)
     {
         if(srtpControl instanceof ZrtpControl)
-            return new ZrtpSecurityPanel(   peerRenderer,
-                                            callPeer,
-                                            (ZrtpControl)srtpControl);
-
-        return new SecurityPanel<SrtpControl>(srtpControl)
         {
-            public void loadSkin()
-            {}
+            return
+                new ZrtpSecurityPanel(
+                        peerRenderer,
+                        callPeer,
+                        (ZrtpControl) srtpControl);
+        }
+        else
+        {
+            return
+                new SecurityPanel<SrtpControl>(srtpControl)
+                {
+                    public void loadSkin() {}
 
-            public void securityOn(CallPeerSecurityOnEvent evt)
-            {}
+                    public void securityOn(CallPeerSecurityOnEvent evt) {}
 
-            public void securityOff(CallPeerSecurityOffEvent evt)
-            {}
+                    public void securityOff(CallPeerSecurityOffEvent evt) {}
 
-            public void securityTimeout(CallPeerSecurityTimeoutEvent evt)
-            {}
-        };
+                    public void securityTimeout(
+                            CallPeerSecurityTimeoutEvent evt) {}
+                };
+        }
     }
 
     /**

@@ -221,39 +221,33 @@ public class OneToOneCallPanel
         CallPeerRendererUtils.setBackground(center, background);
 
         class FullScreenListener
-            implements ContainerListener, KeyListener, WindowStateListener
+            implements ContainerListener,
+                       KeyListener,
+                       WindowStateListener
         {
             public void componentAdded(ContainerEvent event)
             {
-                Component child = event.getChild();
-
-                child.addKeyListener(this);
+                event.getChild().addKeyListener(this);
             }
 
             public void componentRemoved(ContainerEvent event)
             {
-                Component child = event.getChild();
-
-                child.removeKeyListener(this);
+                event.getChild().removeKeyListener(this);
             }
 
             public void keyPressed(KeyEvent event)
             {
                 if (!event.isConsumed()
-                    && (event.getKeyCode() == KeyEvent.VK_ESCAPE))
+                        && (event.getKeyCode() == KeyEvent.VK_ESCAPE))
                 {
                     event.consume();
                     exitFullScreen();
                 }
             }
 
-            public void keyReleased(KeyEvent event)
-            {
-            }
+            public void keyReleased(KeyEvent event) {}
 
-            public void keyTyped(KeyEvent event)
-            {
-            }
+            public void keyTyped(KeyEvent event) {}
 
             public void windowStateChanged(WindowEvent event)
             {

@@ -51,13 +51,6 @@ public class OneToOneCallPeerPanel
     private static final long serialVersionUID = 0L;
 
     /**
-     * The <tt>Logger</tt> used by the <tt>OneToOneCallPeerPanel</tt> class and
-     * its instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(OneToOneCallPeerPanel.class);
-
-    /**
      * The <tt>CallPeerAdapter</tt> that implements all common tt>CallPeer</tt>
      * related listeners.
      */
@@ -114,7 +107,7 @@ public class OneToOneCallPeerPanel
     /**
      * The panel containing security related components.
      */
-    private SecurityPanel securityPanel;
+    private SecurityPanel<?> securityPanel;
 
     /**
      * The <tt>Icon</tt> which represents the avatar of the associated call

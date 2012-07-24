@@ -82,7 +82,7 @@ public class ConferencePeerPanel
     /**
      * The component showing the security details.
      */
-    private SecurityPanel securityPanel;
+    private SecurityPanel<?> securityPanel;
 
     /**
      * The call peer adapter.
@@ -309,7 +309,7 @@ public class ConferencePeerPanel
         {
             try
             {
-                AbstractCallPeer peer = (AbstractCallPeer)evt.getSource();
+                CallPeer peer = (CallPeer) evt.getSource();
                 OperationSetBasicTelephony<?> telephony
                     = peer.getProtocolProvider().getOperationSet(
                             OperationSetBasicTelephony.class);
