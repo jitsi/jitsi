@@ -162,7 +162,7 @@ public final class TrayMenuFactory
             "service.gui.ADD_CONTACT",
             "service.gui.icons.ADD_CONTACT_16x16_ICON", listener, swing));
         addSeparator(trayMenu);
-        add(trayMenu, new StatusSubMenu(tray, swing).getMenu());
+        add(trayMenu, new StatusSubMenu(swing).getMenu());
         addSeparator(trayMenu);
 
         String showHideName;

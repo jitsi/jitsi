@@ -28,10 +28,6 @@ public class StatusSelector
                ItemListener
 {
     /**
-     * A reference of <tt>Systray</tt>
-     */
-    private final SystrayServiceJdicImpl parentSystray;
-    /**
      * The protocol provider
      */
     private final ProtocolProviderService provider;
@@ -48,17 +44,17 @@ public class StatusSelector
     private final Object menu;
 
     /**
-     * Creates an instance of StatusSelector
+     * Initializes a new <tt>StatusSelector</tt> instance.
      *
-     * @param jdicSystray a reference of the parent <tt>Systray</tt>
      * @param provider the protocol provider
      * @param presence the presence status
+     * @param swing
      */
-    public StatusSelector(SystrayServiceJdicImpl jdicSystray,
-        ProtocolProviderService provider, OperationSetPresence presence,
-        boolean swing)
+    public StatusSelector(
+            ProtocolProviderService provider,
+            OperationSetPresence presence,
+            boolean swing)
     {
-        this.parentSystray = jdicSystray;
         this.provider = provider;
         this.presence = presence;
 

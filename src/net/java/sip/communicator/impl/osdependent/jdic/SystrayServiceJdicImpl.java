@@ -10,7 +10,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -36,7 +35,7 @@ import com.apple.eawt.*;
  *
  * @author Nicolas Chamouard
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Symphorien Wanko
  */
 public class SystrayServiceJdicImpl
@@ -46,7 +45,7 @@ public class SystrayServiceJdicImpl
     /**
      * The systray.
      */
-    private SystemTray systray;
+    private final SystemTray systray;
 
     /**
      * The icon in the system tray.
@@ -66,21 +65,22 @@ public class SystrayServiceJdicImpl
     /**
      * A set of usable <tt>PopupMessageHandler</tt>
      */
-    private final Hashtable<String, PopupMessageHandler> popupHandlerSet =
-        new Hashtable<String, PopupMessageHandler>();
+    private final Hashtable<String, PopupMessageHandler> popupHandlerSet
+        = new Hashtable<String, PopupMessageHandler>();
 
     /**
-     * A reference of the <tt>ConfigurationService</tt> obtained from the
-     * <tt>SystrayServiceActivator</tt>
+     * The <tt>ConfigurationService</tt> obtained from the associated
+     * <tt>BundleActivator</tt>.
      */
-    private final ConfigurationService configService = OsDependentActivator.
-        getConfigurationService();
+    private final ConfigurationService cfg
+        = OsDependentActivator.getConfigurationService();
 
     /**
-     * The logger for this class.
+     * The <tt>Logger</tt> used by the <tt>SystrayServiceJdicImpl</tt> class and
+     * its instances for logging output.
      */
-    private static final Logger logger =
-        Logger.getLogger(SystrayServiceJdicImpl.class);
+    private static final Logger logger
+        = Logger.getLogger(SystrayServiceJdicImpl.class);
 
     /**
      * The various icons used on the systray
@@ -121,33 +121,38 @@ public class SystrayServiceJdicImpl
     private boolean initialized = false;
 
     /**
-     * the listener we will use for popup message event (clicks on the popup)
+     * The listener which gets notified about pop-up message events (e.g. clicks
+     * on the pop-up).
      */
-    private final SystrayPopupMessageListener popupMessageListener =
-        new SystrayPopupMessageListenerImpl();
+    private final SystrayPopupMessageListener popupMessageListener
+        = new SystrayPopupMessageListenerImpl();
 
     /**
-     * Creates an instance of <tt>Systray</tt>.
+     * Initializes a new <tt>SystrayServiceJdicImpl</tt> instance.
      */
     public SystrayServiceJdicImpl()
     {
+        SystemTray systray;
+
         try
         {
             systray = SystemTray.getDefaultSystemTray();
-        } catch (Throwable e)
-        {
-            if(!GraphicsEnvironment.isHeadless())
-                logger.error("Failed to create a systray!", e);
         }
-
-        if (systray != null)
+        catch (Throwable t)
         {
-            this.initSystray();
-
-            UIService ui = OsDependentActivator.getUIService();
-            if (ui != null)
-                ui.setExitOnMainWindowClose(false);
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+            {
+                systray = null;
+                if (!GraphicsEnvironment.isHeadless())
+                    logger.error("Failed to create a systray!", t);
+            }
         }
+        this.systray = systray;
+
+        if (this.systray != null)
+            initSystray();
     }
 
     /**
@@ -155,8 +160,34 @@ public class SystrayServiceJdicImpl
      */
     private void initSystray()
     {
-        if(OsDependentActivator.getUIService() == null)
+        UIService uiService = OsDependentActivator.getUIService();
+
+        if (uiService == null)
+        {
+            /*
+             * Delay the call to the #initSystray() method until the UIService
+             * implementation becomes available.
+             */
+            try
+            {
+                OsDependentActivator.bundleContext.addServiceListener(
+                        new DelayedInitSystrayServiceListener(),
+                        '('
+                            + Constants.OBJECTCLASS
+                            + '='
+                            + UIService.class.getName()
+                            + ')');
+            }
+            catch (InvalidSyntaxException ise)
+            {
+                /*
+                 * Oh, it should not really happen. Besides, it is not clear at
+                 * the time of this writing what is supposed to happen in the
+                 * case of such an exception here.
+                 */
+            }
             return;
+        }
 
         menu = TrayMenuFactory.createTrayMenu(this, systray.isSwing());
 
@@ -177,8 +208,11 @@ public class SystrayServiceJdicImpl
                 "service.systray.TRAY_ICON_WINDOWS_DND");
             envelopeIcon = Resources.getImage(
                 "service.systray.MESSAGE_ICON_WINDOWS");
-        } // If we're running under MacOSX, we use a special black and
-        // white icons without background.
+        }
+        /*
+         * If we're running under Mac OS X, we use special black and white icons
+         * without background.
+         */
         else if (isMac)
         {
             logoIcon = Resources.getImage("service.systray.TRAY_ICON_MACOSX");
@@ -206,11 +240,12 @@ public class SystrayServiceJdicImpl
          */
         currentIcon = isMac ? logoIcon : logoIconOffline;
 
-        trayIcon = new TrayIcon(
-            currentIcon,
-            Resources.getApplicationString("service.gui.APPLICATION_NAME"),
-            menu);
-
+        trayIcon
+            = new TrayIcon(
+                    currentIcon,
+                    Resources.getApplicationString(
+                            "service.gui.APPLICATION_NAME"),
+                    menu);
         trayIcon.setIconAutoSize(true);
 
         if (isMac)
@@ -229,68 +264,80 @@ public class SystrayServiceJdicImpl
         }
 
         //Show/hide the contact list when user clicks on the systray.
-        trayIcon.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                UIService uiService = OsDependentActivator.getUIService();
-                ExportedWindow win =
-                    uiService.getExportedWindow(ExportedWindow.MAIN_WINDOW);
-                boolean setIsVisible = !win.isVisible();
+        trayIcon.addActionListener(
+                new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        UIService uiService
+                            = OsDependentActivator.getUIService();
+                        ExportedWindow mainWindow
+                            = uiService.getExportedWindow(
+                                    ExportedWindow.MAIN_WINDOW);
+                        boolean setIsVisible = !mainWindow.isVisible();
+        
+                        uiService.setVisible(setIsVisible);
+                    }
+                });
 
-                uiService.setVisible(setIsVisible);
-            }
-        });
-
-        // Change the MacOSX icon with the white one when the popup
-        // menu appears
+        /*
+         * Change the Mac OS X icon with the white one when the pop-up menu
+         * appears.
+         */
         if (isMac)
         {
-            TrayMenuFactory.addPopupMenuListener(menu, new PopupMenuListener()
-            {
-                public void popupMenuWillBecomeVisible(PopupMenuEvent e)
-                {
-                    ImageIcon newIcon
-                        = (currentIcon == envelopeIcon)
-                            ? envelopeIconWhite
-                            : logoIconWhite;
+            TrayMenuFactory.addPopupMenuListener(
+                    menu,
+                    new PopupMenuListener()
+                    {
+                        public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+                        {
+                            ImageIcon newIcon
+                                = (currentIcon == envelopeIcon)
+                                    ? envelopeIconWhite
+                                    : logoIconWhite;
 
-                    trayIcon.setIcon(newIcon);
-                    currentIcon = newIcon;
-                }
+                            trayIcon.setIcon(newIcon);
+                            currentIcon = newIcon;
+                        }
 
-                public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
-                {
-                    ImageIcon newIcon
-                        = (currentIcon == envelopeIconWhite)
-                            ? envelopeIcon
-                            : logoIcon;
+                        public void popupMenuWillBecomeInvisible(
+                                PopupMenuEvent e)
+                        {
+                            ImageIcon newIcon
+                                = (currentIcon == envelopeIconWhite)
+                                    ? envelopeIcon
+                                    : logoIcon;
 
-                    getTrayIcon().setIcon(newIcon);
-                    currentIcon = newIcon;
-                }
+                            getTrayIcon().setIcon(newIcon);
+                            currentIcon = newIcon;
+                        }
 
-                public void popupMenuCanceled(PopupMenuEvent e)
-                {
-                    popupMenuWillBecomeInvisible(e);
-                }
-            });
+                        public void popupMenuCanceled(PopupMenuEvent e)
+                        {
+                            popupMenuWillBecomeInvisible(e);
+                        }
+                    });
         }
 
-        PopupMessageHandler pph = null;
+        PopupMessageHandler pmh = null;
+
         if (!isMac)
         {
-            pph = new PopupMessageHandlerTrayIconImpl(trayIcon);
-            popupHandlerSet.put(pph.getClass().getName(), pph);
+            pmh = new PopupMessageHandlerTrayIconImpl(trayIcon);
+            popupHandlerSet.put(pmh.getClass().getName(), pmh);
             OsDependentActivator.bundleContext.registerService(
-                PopupMessageHandler.class.getName(),
-                pph, null);
+                    PopupMessageHandler.class.getName(),
+                    pmh,
+                    null);
         }
         try
         {
             OsDependentActivator.bundleContext.addServiceListener(
-                new ServiceListenerImpl(),
-                "(objectclass=" + PopupMessageHandler.class.getName() + ")");
+                    new ServiceListenerImpl(),
+                    "(objectclass="
+                        + PopupMessageHandler.class.getName()
+                        + ")");
         }
         catch (Exception e)
         {
@@ -300,34 +347,43 @@ public class SystrayServiceJdicImpl
         // now we look if some handler has been registered before we start
         // to listen
         ServiceReference[] handlerRefs = null;
+
         try
         {
-            handlerRefs = OsDependentActivator.bundleContext.getServiceReferences(
-                PopupMessageHandler.class.getName(),
-                null);
+            handlerRefs
+                = OsDependentActivator.bundleContext.getServiceReferences(
+                        PopupMessageHandler.class.getName(),
+                        null);
         }
-        catch (InvalidSyntaxException ex)
+        catch (InvalidSyntaxException ise)
         {
-            logger.error("Error while retrieving service refs", ex);
+            logger.error("Error while retrieving service refs", ise);
         }
         if (handlerRefs != null)
         {
-            String configuredHandler = (String) configService.getProperty(
-                "systray.POPUP_HANDLER");
-            for (int i = 0; i < handlerRefs.length; i++)
+            String configuredHandler
+                = (String) cfg.getProperty("systray.POPUP_HANDLER");
+
+            for (ServiceReference handlerRef : handlerRefs)
             {
-                PopupMessageHandler handler =
-                    (PopupMessageHandler) OsDependentActivator.bundleContext.
-                    getService(handlerRefs[i]);
+                PopupMessageHandler handler
+                    = (PopupMessageHandler)
+                        OsDependentActivator.bundleContext.getService(
+                                handlerRef);
                 String handlerName = handler.getClass().getName();
+
                 if (!popupHandlerSet.containsKey(handlerName))
                 {
                     popupHandlerSet.put(handlerName, handler);
                     if (logger.isInfoEnabled())
-                        logger.info("added the following popup handler : " +
-                        handler);
-                    if (configuredHandler != null && 
-                        configuredHandler.equals(handler.getClass().getName()))
+                    {
+                        logger.info(
+                                "added the following popup handler : "
+                                    + handler);
+                    }
+                    if ((configuredHandler != null)
+                            && configuredHandler.equals(
+                                    handler.getClass().getName()))
                     {
                         setActivePopupMessageHandler(handler);
                     }
@@ -335,24 +391,24 @@ public class SystrayServiceJdicImpl
             }
             
             if (configuredHandler == null)
-            {
                 selectBestPopupMessageHandler();
-            }
         }
 
-        // either we have an incorrect config value or the default popup handler
-        // is not yet available. we use the available popup handler and will
-        // auto switch to the configured one when it will be available.
-        // we will be aware of it since we listen for new registered
-        // service in the bundle context.
-        if (activePopupHandler == null && pph != null)
-        {
-            setActivePopupMessageHandler(pph);
-        }
+        /*
+         * Either we have an incorrect configuration value or the default pop-up
+         * handler is not available yet. We will use the available pop-up
+         * handler and will automatically switch to the configured one when it
+         * becomes available. We will be aware of it since we listen for new
+         * registered services in the BundleContext.
+         */
+        if ((activePopupHandler == null) && (pmh != null))
+            setActivePopupMessageHandler(pmh);
 
         systray.addTrayIcon(trayIcon);
 
         initialized = true;
+
+        uiService.setExitOnMainWindowClose(false);
     }
 
     /**
@@ -365,9 +421,7 @@ public class SystrayServiceJdicImpl
         // since popup handler could be loaded and unloader on the fly,
         // we have to check if we currently have a valid one.
         if (activePopupHandler != null)
-        {
             activePopupHandler.showPopupMessage(popupMessage);
-        }
     }
 
     /**
@@ -378,9 +432,7 @@ public class SystrayServiceJdicImpl
     public void addPopupMessageListener(SystrayPopupMessageListener listener)
     {
         if (activePopupHandler != null)
-        {
             activePopupHandler.addPopupMessageListener(listener);
-        }
     }
 
     /**
@@ -391,9 +443,7 @@ public class SystrayServiceJdicImpl
     public void removePopupMessageListener(SystrayPopupMessageListener listener)
     {
         if (activePopupHandler != null)
-        {
             activePopupHandler.removePopupMessageListener(listener);
-        }
     }
 
     /**
@@ -407,91 +457,87 @@ public class SystrayServiceJdicImpl
             return;
 
         boolean isMac = OSUtils.IS_MAC;
-        ImageIcon toChangeSystrayIcon = null;
+        ImageIcon systrayIconToSet = null;
 
-        if (imageType == SystrayService.SC_IMG_TYPE)
+        switch (imageType)
         {
-            toChangeSystrayIcon
+        case SystrayService.SC_IMG_TYPE:
+            systrayIconToSet
                 = (isMac && TrayMenuFactory.isVisible(menu))
                     ? logoIconWhite
                     : logoIcon;
-        }
-        else if (imageType == SystrayService.SC_IMG_OFFLINE_TYPE)
-        {
+            break;
+        case SystrayService.SC_IMG_OFFLINE_TYPE:
             if (!isMac)
-                toChangeSystrayIcon = logoIconOffline;
-        }
-        else if (imageType == SystrayService.SC_IMG_AWAY_TYPE)
-        {
+                systrayIconToSet = logoIconOffline;
+            break;
+        case SystrayService.SC_IMG_AWAY_TYPE:
             if (!isMac)
-                toChangeSystrayIcon = logoIconAway;
-        }
-        else if (imageType == SystrayService.SC_IMG_FFC_TYPE)
-        {
+                systrayIconToSet = logoIconAway;
+            break;
+        case SystrayService.SC_IMG_FFC_TYPE:
             if (!isMac)
-                toChangeSystrayIcon = logoIconFFC;
-        }
-        else if (imageType == SystrayService.SC_IMG_DND_TYPE)
-        {
+                systrayIconToSet = logoIconFFC;
+            break;
+        case SystrayService.SC_IMG_DND_TYPE:
             if (!isMac)
-                toChangeSystrayIcon = logoIconDND;
-        }
-        else if (imageType == SystrayService.ENVELOPE_IMG_TYPE)
-        {
-            toChangeSystrayIcon
+                systrayIconToSet = logoIconDND;
+            break;
+        case SystrayService.ENVELOPE_IMG_TYPE:
+            systrayIconToSet
                 = (isMac && TrayMenuFactory.isVisible(menu))
                     ? envelopeIconWhite
                     : envelopeIcon;
+            break;
         }
 
-        if (toChangeSystrayIcon != null)
+        if (systrayIconToSet != null)
         {
-            this.trayIcon.setIcon(toChangeSystrayIcon);
-            this.currentIcon = toChangeSystrayIcon;
+            this.trayIcon.setIcon(systrayIconToSet);
+            this.currentIcon = systrayIconToSet;
         }
 
         if (isMac)
         {
-            URL toChangeDockIcon = null;
+            URL dockIconURLToSet;
+
             switch (imageType)
             {
-                case SystrayService.SC_IMG_TYPE:
-                    toChangeDockIcon = dockIconOnline;
-                    break;
-                case SystrayService.SC_IMG_OFFLINE_TYPE:
-                    toChangeDockIcon = dockIconOffline;
-                    break;
-                case SystrayService.SC_IMG_AWAY_TYPE:
-                    toChangeDockIcon = dockIconAway;
-                    break;
-                case SystrayService.SC_IMG_FFC_TYPE:
-                    toChangeDockIcon = dockIconFFC;
-                    break;
-                case SystrayService.SC_IMG_DND_TYPE:
-                    toChangeDockIcon = dockIconDND;
-                    break;
+            case SystrayService.SC_IMG_TYPE:
+                dockIconURLToSet = dockIconOnline;
+                break;
+            case SystrayService.SC_IMG_OFFLINE_TYPE:
+                dockIconURLToSet = dockIconOffline;
+                break;
+            case SystrayService.SC_IMG_AWAY_TYPE:
+                dockIconURLToSet = dockIconAway;
+                break;
+            case SystrayService.SC_IMG_FFC_TYPE:
+                dockIconURLToSet = dockIconFFC;
+                break;
+            case SystrayService.SC_IMG_DND_TYPE:
+                dockIconURLToSet = dockIconDND;
+                break;
+            default:
+                dockIconURLToSet = null;
+                break;
             }
-
             try
             {
-                if(OSUtils.IS_MAC)
-                {
-                    if(originalDockImage == null)
-                        originalDockImage =
-                            Application.getApplication().getDockIconImage();
+                Application application = Application.getApplication();
 
-                    if (toChangeDockIcon != null)
-                    {
-                        Application.getApplication().setDockIconImage(
-                            Toolkit.getDefaultToolkit()
-                                .getImage(toChangeDockIcon));
-                    }
-                    else
-                    {
-                        if(originalDockImage != null)
-                            Application.getApplication().setDockIconImage(
-                                originalDockImage);
-                    }
+                if (originalDockImage == null)
+                    originalDockImage = application.getDockIconImage();
+
+                if (dockIconURLToSet != null)
+                {
+                    application.setDockIconImage(
+                            Toolkit.getDefaultToolkit().getImage(
+                                    dockIconURLToSet));
+                }
+                else if (originalDockImage != null)
+                {
+                    application.setDockIconImage(originalDockImage);
                 }
             }
             catch (Exception e)
@@ -523,23 +569,21 @@ public class SystrayServiceJdicImpl
      * @return the previously used popup handler
      */
     public PopupMessageHandler setActivePopupMessageHandler(
-        PopupMessageHandler newHandler)
+            PopupMessageHandler newHandler)
     {
         PopupMessageHandler oldHandler = activePopupHandler;
+
         if (oldHandler != null)
-        {
             oldHandler.removePopupMessageListener(popupMessageListener);
-        }
-
         if (newHandler != null)
-        {
             newHandler.addPopupMessageListener(popupMessageListener);
-        }
         if (logger.isInfoEnabled())
+        {
             logger.info(
-            "setting the following popup handler as active : " + newHandler);
+                    "setting the following popup handler as active: "
+                        + newHandler);
+        }
         activePopupHandler = newHandler;
-
         return oldHandler;
     }
 
@@ -559,13 +603,16 @@ public class SystrayServiceJdicImpl
     {
         PopupMessageHandler preferedHandler = null;
         int highestPrefIndex = 0;
+
         if (!popupHandlerSet.isEmpty())
         {
             Enumeration<String> keys = popupHandlerSet.keys();
+
             while (keys.hasMoreElements())
             {
                 String handlerName = keys.nextElement();
                 PopupMessageHandler h = popupHandlerSet.get(handlerName);
+
                 if (h.getPreferenceIndex() > highestPrefIndex)
                 {
                     highestPrefIndex = h.getPreferenceIndex();
@@ -582,10 +629,10 @@ public class SystrayServiceJdicImpl
     {
 
         /**
-         * Handles a user click on a systray popup message. If the
-         * popup notification was the result of an incoming message from a
-         * contact, the chat window with that contact will be opened if not already,
-         * and brought to front.
+         * Handles a user click on a systray popup message. If the popup
+         * notification was the result of an incoming message from a contact,
+         * the chat window with that contact will be opened, if not already, and
+         * brought to front.
          *
          * @param evt the event triggered when user clicks on a systray popup
          * message
@@ -600,8 +647,9 @@ public class SystrayServiceJdicImpl
         }
     }
 
-    /** an implementation of <tt>ServiceListener</tt> we will use */
-    private class ServiceListenerImpl implements ServiceListener
+    /** An implementation of <tt>ServiceListener</tt> we will use */
+    private class ServiceListenerImpl
+        implements ServiceListener
     {
 
         /**
@@ -626,31 +674,34 @@ public class SystrayServiceJdicImpl
                             "adding the following popup handler : " + handler);
                         popupHandlerSet.put(
                             handler.getClass().getName(), handler);
-                    } else
+                    }
+                    else
                         logger.warn("the following popup handler has not " +
                             "been added since it is already known : " + handler);
 
-                    String configuredHandler = (String) configService.
-                        getProperty("systray.POPUP_HANDLER");
+                    String configuredHandler
+                        = (String) cfg.getProperty("systray.POPUP_HANDLER");
 
-                    if (configuredHandler == null
-                        && (activePopupHandler == null
-                            || (handler.getPreferenceIndex()
-                                > activePopupHandler.getPreferenceIndex())))
+                    if ((configuredHandler == null)
+                            && ((activePopupHandler == null)
+                                || (handler.getPreferenceIndex()
+                                    > activePopupHandler.getPreferenceIndex())))
                     {
                         // The user doesn't have a preferred handler set and new 
                         // handler with better preference index has arrived, 
                         // thus setting it as active.
                         setActivePopupMessageHandler(handler);
                     }
-                    if (configuredHandler != null &&
-                        configuredHandler.equals(handler.getClass().getName()))
+                    if ((configuredHandler != null)
+                            && configuredHandler.equals(
+                                    handler.getClass().getName()))
                     {
                         // The user has a preferred handler set and it just
                         // became available, thus setting it as active
                         setActivePopupMessageHandler(handler);
                     }
-                } else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
+                }
+                else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
                 {
                     if (logger.isInfoEnabled())
                         logger.info(
@@ -667,10 +718,42 @@ public class SystrayServiceJdicImpl
                         selectBestPopupMessageHandler();
                     }
                 }
-            } catch (IllegalStateException e)
+            }
+            catch (IllegalStateException e)
             {
                 if (logger.isDebugEnabled())
                     logger.debug(e);
+            }
+        }
+    }
+
+    /**
+     * Implements a <tt>ServiceListener</tt> which waits for an
+     * <tt>UIService</tt> implementation to become available, invokes
+     * {@link #initSystray()} and unregisters itself.
+     */
+    private class DelayedInitSystrayServiceListener
+        implements ServiceListener
+    {
+        public void serviceChanged(ServiceEvent serviceEvent)
+        {
+            if (serviceEvent.getType() == ServiceEvent.REGISTERED)
+            {
+                UIService uiService = OsDependentActivator.getUIService();
+
+                if (uiService != null)
+                {
+                    /*
+                     * This ServiceListener has successfully waited for an
+                     * UIService implementation to become available so it no
+                     * longer need to listen.
+                     */
+                    OsDependentActivator.bundleContext.removeServiceListener(
+                            this);
+
+                    if (!initialized)
+                        initSystray();
+                }
             }
         }
     }

@@ -18,7 +18,6 @@ import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -27,7 +26,7 @@ import org.osgi.framework.*;
  * for each of the protocol providers registered when the menu appears
  * 
  * @author Nicolas Chamouard
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class StatusSubMenu
     implements ProviderPresenceStatusListener,
@@ -36,21 +35,10 @@ public class StatusSubMenu
                ItemListener
 {
     /**
-     * A reference of <tt>Systray</tt>
-     */
-    private final SystrayServiceJdicImpl parentSystray;
-
-    /**
      * Contains all accounts and corresponding menus.
      */
     private final Map<AccountID, Object> accountSelectors =
         new Hashtable<AccountID, Object>();
-
-    /**
-     * The <tt>Logger</tt> used by the <tt>StatusSubMenu</tt> class and its
-     * instances for logging output.
-     */
-    private static final Logger logger = Logger.getLogger(StatusSubMenu.class);
 
     private final Object menu;
 
@@ -60,25 +48,21 @@ public class StatusSubMenu
     private static boolean hideAccountStatusSelectors = false;
 
     /**
-     * Creates an instance of <tt>StatusSubMenu</tt>.
-     * 
-     * @param tray a reference of the parent <tt>Systray</tt>
+     * Initializes a new <tt>StatusSubMenu</tt> instance.
+     *
      * @param swing <tt>true</tt> to represent this instance with a Swing
-     *            <code>JMenu</code>; <tt>false</tt> to use an AWT
-     *            <code>Menu</code>
+     * <tt>JMenu</tt>; <tt>false</tt> to use an AWT <tt>Menu</tt>
      */
-    public StatusSubMenu(SystrayServiceJdicImpl tray, boolean swing)
+    public StatusSubMenu(boolean swing)
     {
-        parentSystray = tray;
-
         String text = Resources.getString("impl.systray.SET_STATUS");
 
         if (swing)
         {
             JMenu menu = new JMenu(text);
-            menu
-                .setIcon(Resources.getImage("service.systray.STATUS_MENU_ICON"));
 
+            menu.setIcon(
+                    Resources.getImage("service.systray.STATUS_MENU_ICON"));
             /* makes the menu look better */
             menu.setPreferredSize(new java.awt.Dimension(28, 24));
 
@@ -204,9 +188,8 @@ public class StatusSubMenu
         }
         else
         {
-            StatusSelector statusSelector =
-                new StatusSelector(parentSystray, protocolProvider, presence,
-                    swing);
+            StatusSelector statusSelector
+                = new StatusSelector(protocolProvider, presence, swing);
 
             this.accountSelectors.put(protocolProvider.getAccountID(),
                 statusSelector);
@@ -301,9 +284,6 @@ public class StatusSubMenu
         }
         catch (InvalidSyntaxException ex)
         {
-            // this shouldn't happen since we're providing no parameter string
-            // but let's log just in case.
-            //logger .error("Error while retrieving service refs", ex);
             return providers;
         }
         catch(IllegalStateException ise)
