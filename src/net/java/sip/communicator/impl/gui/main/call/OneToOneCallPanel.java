@@ -272,8 +272,16 @@ public class OneToOneCallPanel
         // Exit when the "full screen" looses its focus.
         frame.addWindowStateListener(listener);
 
-        getGraphicsConfiguration().getDevice().setFullScreenWindow(frame);
-        this.fullScreenWindow = frame;
+        GraphicsConfiguration graphicsConfiguration
+            = getGraphicsConfiguration();
+
+        if (graphicsConfiguration != null)
+        {
+            GraphicsDevice graphicsDevice = graphicsConfiguration.getDevice();
+
+            this.fullScreenWindow = frame;
+            graphicsDevice.setFullScreenWindow(frame);
+        }
 
         GuiUtils.addWindow(fullScreenWindow);
     }
@@ -283,18 +291,38 @@ public class OneToOneCallPanel
      */
     public void exitFullScreen()
     {
-        GraphicsConfiguration graphicsConfig = getGraphicsConfiguration();
-        if (graphicsConfig != null)
-            graphicsConfig.getDevice().setFullScreenWindow(null);
-
         if (fullScreenWindow != null)
         {
-            GuiUtils.removeWindow(fullScreenWindow);
+            try
+            {
+                /*
+                 * XXX Attempt to return to windowed mode only if
+                 * fullScreenWindow exists and is the current full-screen window
+                 * (known to the GraphicsDevice of the GraphicsConfiguration).
+                 * Otherwise, a deadlock may be experienced on Mac OS X.
+                 */
+                GraphicsConfiguration graphicsConfiguration
+                    = getGraphicsConfiguration();
 
-            if (fullScreenWindow.isVisible())
-                fullScreenWindow.setVisible(false);
-            fullScreenWindow.dispose();
-            fullScreenWindow = null;
+                if (graphicsConfiguration != null)
+                {
+                    GraphicsDevice graphicsDevice
+                        = graphicsConfiguration.getDevice();
+
+                    if (graphicsDevice.getFullScreenWindow()
+                            == fullScreenWindow)
+                        graphicsDevice.setFullScreenWindow(null);
+                }
+            }
+            finally
+            {
+                GuiUtils.removeWindow(fullScreenWindow);
+
+                if (fullScreenWindow.isVisible())
+                    fullScreenWindow.setVisible(false);
+                fullScreenWindow.dispose();
+                fullScreenWindow = null;
+            }
         }
     }
 

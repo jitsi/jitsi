@@ -136,9 +136,7 @@ public abstract class AbstractOperationSetDesktopSharingClient
         // already been granted and we must call the remoteControlGranted
         // function for this listener.
         if(this.removesNullAndRevokedControlPeer(peer.getPeerID()) != -1)
-        {
             listener.remoteControlGranted(new RemoteControlGrantedEvent(peer));
-        }
     }
 
     /**
@@ -271,29 +269,33 @@ public abstract class AbstractOperationSetDesktopSharingClient
     }
 
     /**
-     * Returns the listener corresponding to the given callPeer given in
-     * parameter, if it exists.
+     * Returns the <tt>RemoteControlListener</tt> corresponding to the given
+     * <tt>callPeer</tt>, if it exists.
      *
-     * @param callPeer The call peer used to identified the seek listener.
-     *
-     * @return The listener corresponding to the given callPeer given in
-     * parameter, if it exists. Null, otherwise.
+     * @param callPeer the <tt>CallPeer</tt> to get the corresponding
+     * <tt>RemoteControlListener</tt> of
+     * @return the <tt>RemoteControlListener</tt> corresponding to the given
+     * <tt>callPeer</tt>, if it exists; <tt>null</tt>, otherwise
      */
     protected RemoteControlListener getListener(CallPeer callPeer)
     {
-        String callPeerID = callPeer.getPeerID();
+        String peerID = callPeer.getPeerID();
+
         synchronized (listeners)
         {
-            for(int i = 0; i < listeners.size(); ++i)
+            Iterator<WeakReference<RemoteControlListener>> i
+                = listeners.iterator();
+
+            while (i.hasNext())
             {
-                if(listeners.get(i).get().getCallPeer().getPeerID()
-                        .equals(callPeerID))
-                {
-                    return listeners.get(i).get();
-                }
+                RemoteControlListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else if (peerID.equals(l.getCallPeer().getPeerID()))
+                    return l;
             }
         }
-        // If no peers corresponds, then return null.
         return null;
     }
 }
