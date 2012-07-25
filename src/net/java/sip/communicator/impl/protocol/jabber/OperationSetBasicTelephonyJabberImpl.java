@@ -506,11 +506,14 @@ public class OperationSetBasicTelephonyJabberImpl
              */
             if (t instanceof ThreadDeath)
                 throw (ThreadDeath) t;
-
-            throw new OperationFailedException(
-                    "Failed to create a call",
-                    OperationFailedException.INTERNAL_ERROR,
-                    t);
+            else
+            {
+                ProtocolProviderServiceJabberImpl.throwOperationFailedException(
+                        "Failed to create a call",
+                        OperationFailedException.INTERNAL_ERROR,
+                        t,
+                        logger);
+            }
         }
 
         return peer;

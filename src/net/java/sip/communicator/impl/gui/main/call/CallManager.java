@@ -1728,7 +1728,7 @@ public class CallManager
         {
             OperationSetTelephonyConferencing confOpSet
                 = protocolProvider.getOperationSet(
-                    OperationSetTelephonyConferencing.class);
+                        OperationSetTelephonyConferencing.class);
 
             /*
              * XXX If we are here and we just discover that
@@ -1739,12 +1739,10 @@ public class CallManager
             if (confOpSet == null)
                 return;
 
-            Throwable exception = null;
-
             if (ConfigurationManager.isNormalizePhoneNumber())
-            {
                 normalizePhoneNumbers(callees);
-            }
+
+            Throwable exception = null;
 
             try
             {
