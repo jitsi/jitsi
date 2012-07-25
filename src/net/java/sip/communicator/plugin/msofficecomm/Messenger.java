@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.protocol.msnconstants.*;
 import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.util.xml.*;
 import org.osgi.framework.*;
 import org.w3c.dom.*;
@@ -85,6 +86,28 @@ public class Messenger
     static final int MPHONE_TYPE_WORK = 1;
 
     /**
+     * The name of the boolean <tt>ConfigurationService</tt> property which
+     * indicates whether {@link #startConversation(int, String[], String)} is
+     * to invoke {@link UIService#createCall(String[])} with a phone number
+     * associated with a specific <tt>IMessengerContact</tt> instead of the
+     * <tt>Contact</tt> address.
+     */
+    private static final String PNAME_CREATE_CALL_BY_PHONE_NUMBER
+        = "net.java.sip.communicator.plugin.msofficecomm."
+            + "CREATE_CALL_BY_PHONE_NUMBER";
+
+    /**
+     * The name of the <tt>String</tt> <tt>ConfigurationService</tt> property
+     * which specifies the sort order of the <tt>MPHONE_TYPE_*</tt> enumerated
+     * type values. The default value orders them as follows:
+     * {@link #MPHONE_TYPE_WORK}, {@link #MPHONE_TYPE_HOME},
+     * {@link #MPHONE_TYPE_MOBILE}, {@link #MPHONE_TYPE_CUSTOM}.
+     */
+    private static final String PNAME_MPHONE_TYPE_SORT_ORDER
+        = "net.java.sip.communicator.plugin.msofficecomm."
+            + "MPHONE_TYPE_SORT_ORDER";
+
+    /**
      * The <tt>BundleContext</tt> in which the <tt>msofficecomm</tt> bundle has
      * been started.
      */
@@ -96,6 +119,19 @@ public class Messenger
      * specific sign-in name.
      */
     private static MetaContactListService metaContactListService;
+
+    /**
+     * The <tt>MPHONE_TYPE_*</tt> enumerated type values indexed by their sort
+     * order position.
+     */
+    private static final int[] MPHONE_TYPE_SORT_ORDER
+        = new int[]
+                {
+                    MPHONE_TYPE_WORK,
+                    MPHONE_TYPE_HOME,
+                    MPHONE_TYPE_MOBILE,
+                    MPHONE_TYPE_CUSTOM
+                };
 
     /**
      * The list of (local) accounts by sign-in name which correspond to
@@ -338,17 +374,10 @@ public class Messenger
      */
     private static int getMPHONE_TYPESortOrder(int mphonetype)
     {
-        switch (mphonetype)
-        {
-        case MPHONE_TYPE_HOME:
-            return 1;
-        case MPHONE_TYPE_MOBILE:
-            return 2;
-        case MPHONE_TYPE_WORK:
-            return 0;
-        default:
-            return 3;
-        }
+        for (int i = 0; i < MPHONE_TYPE_SORT_ORDER.length; i++)
+            if (MPHONE_TYPE_SORT_ORDER[i] == mphonetype)
+                return i;
+        return MPHONE_TYPE_SORT_ORDER.length;
     }
 
     /**
@@ -783,6 +812,13 @@ public class Messenger
         }
 
         List<String> contactList = new ArrayList<String>();
+        ConfigurationService cfg
+            = ServiceUtils.getService(
+                    bundleContext,
+                    ConfigurationService.class);
+        boolean createCallByPhoneNumber
+            = (cfg != null)
+                && cfg.getBoolean(PNAME_CREATE_CALL_BY_PHONE_NUMBER, false);
 
         for (String participant : participants)
         {
@@ -796,35 +832,49 @@ public class Messenger
             }
             else if (opSetClass.equals(OperationSetBasicTelephony.class))
             {
-//                Set<PhoneNumberDetail> participantPhoneNumbers
-//                    = findPhoneNumbersBySigninName(participant, 1);
-//
-//                if (participantPhoneNumbers.size() > 0)
-//                {
-//                    contactList.add(
-//                            participantPhoneNumbers.iterator().next()
-//                                    .getNumber());
-//                }
-
                 /*
-                 * There is no Contact for the specified participant which
-                 * supports OperationSetBasicTelephony. Try without the support
-                 * restriction.
+                 * The boolean ConfigurationService property
+                 * PNAME_CREATE_CALL_BY_PHONE_NUMBER enables instructing whether
+                 * a sign-in name which does not resolve to a Contact with
+                 * support for OperationSetBasicTelephony is to be resolved to
+                 * a phone number (via an associated vCard).
                  */
-                participantContacts
-                    = findContactsBySigninName(participant, null, 1);
-                if (participantContacts.size() > 0)
+                if (createCallByPhoneNumber)
                 {
-                    contactList.add(
-                            getSigninName(participantContacts.get(0), null));
+                    Set<PhoneNumberDetail> participantPhoneNumbers
+                        = findPhoneNumbersBySigninName(participant, 1);
+
+                    if (participantPhoneNumbers.size() > 0)
+                    {
+                        contactList.add(
+                                participantPhoneNumbers.iterator().next()
+                                        .getNumber());
+                    }
                 }
                 else
                 {
                     /*
-                     * Well, just try to start a conversation with the
-                     * unresolved contact.
+                     * There is no Contact for the specified participant which
+                     * supports OperationSetBasicTelephony. Try without the
+                     * support restriction.
                      */
-                    contactList.add(participant);
+                    participantContacts
+                        = findContactsBySigninName(participant, null, 1);
+                    if (participantContacts.size() > 0)
+                    {
+                        contactList.add(
+                                getSigninName(
+                                        participantContacts.get(0),
+                                        null));
+                    }
+                    else
+                    {
+                        /*
+                         * Well, just try to start a conversation with the
+                         * unresolved contact.
+                         */
+                        contactList.add(participant);
+                    }
                 }
             }
         }

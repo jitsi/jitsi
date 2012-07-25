@@ -12,5 +12,6 @@ Import-Package: javax.swing,
  net.java.sip.communicator.service.protocol.msnconstants,
  net.java.sip.communicator.service.protocol.yahooconstants,
  net.java.sip.communicator.util,
+ org.jitsi.service.configuration,
  org.jitsi.util,
  org.osgi.framework
