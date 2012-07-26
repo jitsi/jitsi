@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.awt.Container;
 import java.awt.event.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -1339,13 +1340,24 @@ public class CallPanel
     {
         if (!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(new Runnable()
+            try
             {
-                public void run()
+                SwingUtilities.invokeAndWait(new Runnable()
                 {
-                    enableConferenceInterface(isVideo);
-                }
-            });
+                    public void run()
+                    {
+                        enableConferenceInterface(isVideo);
+                    }
+                });
+            }
+            catch (InterruptedException e)
+            {
+                logger.error("Failed to enable conference interface", e);
+            }
+            catch (InvocationTargetException e)
+            {
+                logger.error("Failed to enable conference interface", e);
+            }
             return;
         }
 
