@@ -150,7 +150,7 @@ public abstract class BasicConferenceParticipantPanel
     /**
      * Indicates if we're in a video interface.
      */
-    private boolean isVideo = false;
+    private boolean isVideo;
 
     /**
      * Creates an instance of <tt>ConferenceParticipantPanel</tt>.
@@ -166,6 +166,8 @@ public abstract class BasicConferenceParticipantPanel
         this.renderer = renderer;
         this.isLocalPeer = isLocalPeer;
         this.isVideo = isVideo;
+
+        constraints.anchor = GridBagConstraints.CENTER;
 
         if (isVideo)
             initVideoConferencePanel();
@@ -183,10 +185,7 @@ public abstract class BasicConferenceParticipantPanel
     public BasicConferenceParticipantPanel( CallRenderer renderer,
                                             boolean isLocalPeer)
     {
-        this.renderer = renderer;
-        this.isLocalPeer = isLocalPeer;
-
-        initAudioConferencePanel();
+        this(renderer, isLocalPeer, false);
     }
 
     /**
@@ -250,9 +249,12 @@ public abstract class BasicConferenceParticipantPanel
      */
     private void initPeerDetailsPanel()
     {
-        ImageIcon avatarIcon = new ImageIcon
-            (ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)
-                .getScaledInstance( AVATAR_WIDTH,
+        ImageIcon avatarIcon
+            = new ImageIcon(
+                    ImageLoader
+                        .getImage(ImageLoader.DEFAULT_USER_PHOTO)
+                            .getScaledInstance(
+                                    AVATAR_WIDTH,
                                     AVATAR_HEIGHT,
                                     Image.SCALE_SMOOTH));
 
@@ -262,7 +264,6 @@ public abstract class BasicConferenceParticipantPanel
         imageLabel.setIcon(avatarIcon);
 
         constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.LINE_START;
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.weightx = 0;
@@ -486,9 +487,12 @@ public abstract class BasicConferenceParticipantPanel
     {
         if(!iconChanged)
         {
-            ImageIcon avatarIcon = new ImageIcon
-                (ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)
-                    .getScaledInstance( AVATAR_WIDTH,
+            ImageIcon avatarIcon
+                = new ImageIcon(
+                        ImageLoader
+                            .getImage(ImageLoader.DEFAULT_USER_PHOTO)
+                                .getScaledInstance(
+                                        AVATAR_WIDTH,
                                         AVATAR_HEIGHT,
                                         Image.SCALE_SMOOTH));
 

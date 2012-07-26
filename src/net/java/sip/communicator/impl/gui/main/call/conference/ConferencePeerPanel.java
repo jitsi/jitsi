@@ -24,14 +24,13 @@ import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.protocol.event.*;
-// disambiguation
 
 /**
  * The <tt>ConferencePeerPanel</tt> renders a single <tt>ConferencePeer</tt>,
  * which is not a conference focus.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Adam Netocny
  */
 public class ConferencePeerPanel
@@ -177,12 +176,12 @@ public class ConferencePeerPanel
         menuBar.add(callPeerMenu);
         this.addToNameBar(menuBar);
 
-        if (isVideo)
-            this.setTitleBackground(Color.DARK_GRAY);
-        else
-            this.setTitleBackground(
-                new Color(GuiActivator.getResources().getColor(
-                    "service.gui.CALL_PEER_NAME_BACKGROUND")));
+        setTitleBackground(
+                isVideo
+                    ? Color.DARK_GRAY
+                    : new Color(
+                            GuiActivator.getResources().getColor(
+                                    "service.gui.CALL_PEER_NAME_BACKGROUND")));
 
         initSecuritySettings();
     }

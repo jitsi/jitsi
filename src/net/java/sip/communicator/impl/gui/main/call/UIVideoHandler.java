@@ -30,6 +30,7 @@ import org.jitsi.util.swing.*;
  * The <tt>UIVideoHandler</tt> is meant to handle all video related events.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class UIVideoHandler
 {
@@ -1606,6 +1607,70 @@ public class UIVideoHandler
         return remoteVideo;
     }
 
+    private Component createDefaultPhotoPanel(
+            ImageIcon photoLabelIcon,
+            Component videoToolbar)
+    {
+        JLabel photoLabel = new JLabel();
+
+        photoLabel.setIcon(photoLabelIcon);
+
+        JPanel photoPanel
+            = new TransparentPanel(new GridBagLayout())
+            {
+                /**
+                 * @{inheritDoc}
+                 */
+                @Override
+                public void paintComponent(Graphics g)
+                {
+                    super.paintComponent(g);
+
+                    g = g.create();
+
+                    try
+                    {
+                        AntialiasingManager.activateAntialiasing(g);
+
+                        g.setColor(Color.GRAY);
+                        g.fillRoundRect(
+                                0, 0, this.getWidth(), this.getHeight(),
+                                6, 6);
+                    }
+                    finally
+                    {
+                        g.dispose();
+                    }
+                }
+            };
+
+        photoPanel.setPreferredSize(new Dimension(320, 240));
+
+        GridBagConstraints photoPanelConstraints = new GridBagConstraints();
+
+        photoPanelConstraints.anchor = GridBagConstraints.CENTER;
+        photoPanelConstraints.fill = GridBagConstraints.NONE;
+        photoPanel.add(photoLabel, photoPanelConstraints);
+
+        JPanel defaultPanel = new TransparentPanel(new GridBagLayout());
+        GridBagConstraints defaultPanelConstraints = new GridBagConstraints();
+
+        defaultPanelConstraints.anchor = GridBagConstraints.CENTER;
+        defaultPanelConstraints.fill = GridBagConstraints.BOTH;
+        defaultPanelConstraints.gridx = 0;
+        defaultPanelConstraints.gridy = 0;
+        defaultPanelConstraints.weightx = 1;
+        defaultPanelConstraints.weighty = 1;
+        defaultPanel.add(photoPanel, defaultPanelConstraints);
+
+        defaultPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+        defaultPanelConstraints.gridy = 1;
+        defaultPanelConstraints.weighty = 0;
+        defaultPanel.add(videoToolbar, defaultPanelConstraints);
+
+        return defaultPanel;
+    }
+
     /**
      * Creates the default photo panel.
      *
@@ -1616,43 +1681,8 @@ public class UIVideoHandler
     private Component createDefaultPhotoPanel(  CallPeer callPeer,
                                                 Component videoToolbar)
     {
-        JPanel defaultPanel = new TransparentPanel(new BorderLayout());
-
-        JPanel photoPanel = new TransparentPanel(new BorderLayout())
-        {
-            /**
-             * @{inheritDoc}
-             */
-            @Override
-            public void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-
-                g = g.create();
-
-                try
-                {
-                    AntialiasingManager.activateAntialiasing(g);
-
-                    g.setColor(Color.GRAY);
-                    g.fillRoundRect(
-                        0, 0, this.getWidth(), this.getHeight(), 6, 6);
-                }
-                finally
-                {
-                    g.dispose();
-                }
-            }
-        };
-
-        JLabel photoLabel = new JLabel(getPhotoLabelIcon(callPeer));
-        photoPanel.add(photoLabel);
-        photoPanel.setPreferredSize(new Dimension(320, 240));
-
-        defaultPanel.add(photoPanel, BorderLayout.CENTER);
-        defaultPanel.add(videoToolbar, BorderLayout.SOUTH);
-
-        return defaultPanel;
+        return
+            createDefaultPhotoPanel(getPhotoLabelIcon(callPeer), videoToolbar);
     }
 
     /**
@@ -1666,44 +1696,12 @@ public class UIVideoHandler
                                             ConferenceMember conferenceMember,
                                             Component videoToolbar)
     {
-        JPanel defaultPanel = new TransparentPanel(new BorderLayout());
-
-        JPanel photoPanel = new TransparentPanel(new BorderLayout())
-        {
-            /**
-             * @{inheritDoc}
-             */
-            @Override
-            public void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-
-                g = g.create();
-
-                try
-                {
-                    AntialiasingManager.activateAntialiasing(g);
-
-                    g.setColor(Color.GRAY);
-                    g.fillRoundRect(
-                        0, 0, this.getWidth(), this.getHeight(), 6, 6);
-                }
-                finally
-                {
-                    g.dispose();
-                }
-            }
-        };
-
-        JLabel photoLabel = new JLabel(new ImageIcon(
-            ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
-        photoPanel.add(photoLabel);
-        photoPanel.setPreferredSize(new Dimension(320, 240));
-
-        defaultPanel.add(photoPanel, BorderLayout.CENTER);
-        defaultPanel.add(videoToolbar, BorderLayout.SOUTH);
-
-        return defaultPanel;
+        return
+            createDefaultPhotoPanel(
+                    new ImageIcon(
+                            ImageLoader.getImage(
+                                    ImageLoader.DEFAULT_USER_PHOTO)),
+                    videoToolbar);
     }
 
     /**
@@ -1716,68 +1714,26 @@ public class UIVideoHandler
     private Component createDefaultPhotoPanel(  ProtocolProviderService pps,
                                                 Component videoToolbar)
     {
-        JPanel defaultPanel = new TransparentPanel(new BorderLayout());
-
-        JPanel photoPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.CENTER))
-        {
-            /**
-             * @{inheritDoc}
-             */
-            @Override
-            public void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-
-                g = g.create();
-
-                try
-                {
-                    AntialiasingManager.activateAntialiasing(g);
-
-                    g.setColor(Color.GRAY);
-                    g.fillRoundRect(
-                        0, 0, this.getWidth(), this.getHeight(), 6, 6);
-                }
-                finally
-                {
-                    g.dispose();
-                }
-            }
-        };
-
-        JLabel photoLabel = new JLabel();
-
-        final OperationSetServerStoredAccountInfo accountInfoOpSet
-            = pps.getOperationSet(
-                    OperationSetServerStoredAccountInfo.class);
+        OperationSetServerStoredAccountInfo accountInfoOpSet
+            = pps.getOperationSet(OperationSetServerStoredAccountInfo.class);
+        ImageIcon photoLabelIcon = null;
 
         if (accountInfoOpSet != null)
         {
-            byte[] accountImage
-                = AccountInfoUtils.getImage(accountInfoOpSet);
+            byte[] accountImage = AccountInfoUtils.getImage(accountInfoOpSet);
 
             // do not set empty images
-            if ((accountImage != null)
-                    && (accountImage.length > 0))
-            {
-                photoLabel.setIcon(new ImageIcon(accountImage));
-            }
+            if ((accountImage != null) && (accountImage.length > 0))
+                photoLabelIcon = new ImageIcon(accountImage);
         }
-
-        if (photoLabel.getIcon() == null)
+        if (photoLabelIcon == null)
         {
-            photoLabel.setIcon(new ImageIcon(
-                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO)));
+            photoLabelIcon
+                = new ImageIcon(
+                        ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO));
         }
 
-        photoPanel.add(photoLabel);
-        photoLabel.setPreferredSize(new Dimension(320, 240));
-
-        defaultPanel.add(photoPanel, BorderLayout.CENTER);
-        defaultPanel.add(localVideoToolbar, BorderLayout.SOUTH);
-
-        return defaultPanel;
+        return createDefaultPhotoPanel(photoLabelIcon, videoToolbar);
     }
 
     private Component createDefaultVideoToolbar(CallPeer callPeer)
