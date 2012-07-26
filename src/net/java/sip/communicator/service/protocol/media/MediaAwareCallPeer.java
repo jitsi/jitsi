@@ -570,10 +570,18 @@ public abstract class MediaAwareCallPeer
      * members sound level.
      *
      * @param listener the <tt>ConferenceMembersSoundLevelListener</tt> to add
+     * @throws NullPointerException if <tt>listener</tt> is <tt>null</tt>
      */
     public void addConferenceMembersSoundLevelListener(
-                                ConferenceMembersSoundLevelListener listener)
+            ConferenceMembersSoundLevelListener listener)
     {
+        /*
+         * XXX The uses of the method at the time of this writing rely on being
+         * able to add a null listener so make it a no-op here.
+         */
+        if (listener == null)
+            return;
+
         synchronized (conferenceMemberAudioLevelListeners)
         {
             if (conferenceMemberAudioLevelListeners.size() == 0)
@@ -597,13 +605,12 @@ public abstract class MediaAwareCallPeer
      * remove
      */
     public void removeConferenceMembersSoundLevelListener(
-        ConferenceMembersSoundLevelListener listener)
+            ConferenceMembersSoundLevelListener listener)
     {
         synchronized (conferenceMemberAudioLevelListeners)
         {
-            conferenceMemberAudioLevelListeners.remove(listener);
-
-            if (conferenceMemberAudioLevelListeners.size() == 0)
+            if (conferenceMemberAudioLevelListeners.remove(listener)
+                    && (conferenceMemberAudioLevelListeners.size() == 0))
             {
                 // if this was the last listener then we also remove ourselves
                 // as a CSRC audio level listener from the handler so that we
