@@ -378,6 +378,21 @@ public class AddContactDialog
             final String contactAddress = contactAddressField.getText();
             final String displayName = displayNameField.getText();
 
+            if (!protocolProvider.isRegistered())
+            {
+                new ErrorDialog(
+                    GuiActivator.getUIService().getMainFrame(),
+                    GuiActivator.getResources().getI18NString(
+                    "service.gui.ADD_CONTACT_ERROR_TITLE"),
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.ADD_CONTACT_NOT_CONNECTED",
+                            new String[]{contactAddress}),
+                    ErrorDialog.WARNING)
+                .showDialog();
+
+                return;
+            }
+
             if (displayName != null && displayName.length() > 0)
             {
                 addRenameListener(  protocolProvider,
