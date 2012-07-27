@@ -380,6 +380,20 @@ public class MetaContactListManager
 
         public void run()
         {
+            if (!contact.getProtocolProvider().isRegistered())
+            {
+                new ErrorDialog(
+                    GuiActivator.getUIService().getMainFrame(),
+                    GuiActivator.getResources().getI18NString(
+                    "service.gui.ADD_CONTACT_ERROR_TITLE"),
+                    GuiActivator.getResources().getI18NString(
+                            "service.gui.REMOVE_CONTACT_NOT_CONNECTED"),
+                    ErrorDialog.WARNING)
+                .showDialog();
+
+                return;
+            }
+
             try
             {
                 if(Constants.REMOVE_CONTACT_ASK)

@@ -385,8 +385,7 @@ public class AddContactDialog
                     GuiActivator.getResources().getI18NString(
                     "service.gui.ADD_CONTACT_ERROR_TITLE"),
                     GuiActivator.getResources().getI18NString(
-                            "service.gui.ADD_CONTACT_NOT_CONNECTED",
-                            new String[]{contactAddress}),
+                            "service.gui.ADD_CONTACT_NOT_CONNECTED"),
                     ErrorDialog.WARNING)
                 .showDialog();
 
