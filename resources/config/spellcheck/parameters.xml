@@ -92,6 +92,7 @@
     <locale label="Frisian (Netherlands)" isoCode="fy,nl" dictionaryUrl="http://dictionaries.jitsi.net/fy_NL.zip"/>
     <locale label="Galician (Spain)" isoCode="gl,es" dictionaryUrl="http://dictionaries.jitsi.net/gl_ES.zip"/>
     <locale label="German (Germany)" isoCode="de,de" dictionaryUrl="http://dictionaries.jitsi.net/de_DE_frami.zip"/>
+    <locale label="Greek (Greece)" isoCode="el,gr" dictionaryUrl="http://dictionaries.jitsi.net/el_gr_v110.zip"/>
     <locale label="Hebrew (Israel)" isoCode="he,il" dictionaryUrl="http://dictionaries.jitsi.net/he_IL.zip"/>
     <locale label="Hindi (India)" isoCode="hi,in" dictionaryUrl="http://dictionaries.jitsi.net/hi_IN.zip"/>
     <locale label="Indonesian (Indonesia)" isoCode="id,id" dictionaryUrl="http://dictionaries.jitsi.net/id_ID.zip"/>
