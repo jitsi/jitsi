@@ -440,6 +440,18 @@ public class JabberAccountRegistrationWizard
             accountProperties.put("DTMF_METHOD",
                 registration.getDefaultDTMFMethod());
 
+        accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                Boolean.toString(registration.isDefaultEncryption()));
+
+        accountProperties.put(ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
+                Boolean.toString(registration.isSipZrtpAttribute()));
+
+        accountProperties.put(ProtocolProviderFactory.SDES_ENABLED,
+            Boolean.toString(registration.isSDesEnabled()));
+
+        accountProperties.put(ProtocolProviderFactory.SDES_CIPHER_SUITES,
+            registration.getSDesCipherSuites());
+
 
         if (isModification())
         {

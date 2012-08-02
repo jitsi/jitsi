@@ -1,3 +1,8 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.awt.*;
@@ -6,6 +11,7 @@ import java.util.List;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
@@ -26,6 +32,8 @@ public class JabberAccountRegistrationForm
     private final AccountPanel accountPanel;
 
     private final ConnectionPanel connectionPanel;
+
+    private final SecurityPanel securityPanel;
 
     private final IceConfigPanel iceConfigPanel;
 
@@ -57,6 +65,8 @@ public class JabberAccountRegistrationForm
 
         connectionPanel = new ConnectionPanel(this);
 
+        securityPanel = new SecurityPanel(this.getRegistration(), false);
+
         iceConfigPanel = new IceConfigPanel();
 
         telephonyConfigPanel = new TelephonyConfigPanel();
@@ -86,6 +96,10 @@ public class JabberAccountRegistrationForm
             if (connectionPanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString("service.gui.CONNECTION"),
                                     connectionPanel);
+
+            if (securityPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(Resources.getString("service.gui.SECURITY"),
+                    securityPanel);
 
             if (iceConfigPanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString("service.gui.ICE"),
@@ -287,6 +301,8 @@ public class JabberAccountRegistrationForm
 
         registration.setDTMFMethod(connectionPanel.getDTMFMethod());
 
+        securityPanel.commitPanel(registration);
+
         registration.setUseIce(iceConfigPanel.isUseIce());
         registration.setUseGoogleIce(iceConfigPanel.isUseGoogleIce());
         registration.setAutoDiscoverStun(iceConfigPanel.isAutoDiscoverStun());
@@ -402,6 +418,8 @@ public class JabberAccountRegistrationForm
 
         connectionPanel.setDTMFMethod(
             accountID.getAccountPropertyString("DTMF_METHOD"));
+
+        securityPanel.loadAccount(accountID);
 
         String useIce =
             accountProperties.get(ProtocolProviderFactory.IS_USE_ICE);

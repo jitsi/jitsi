@@ -54,12 +54,9 @@ public class CallPeerMediaHandlerGTalkImpl
         = new LinkedHashMap<String, List<PayloadTypePacketExtension> >();
 
     /**
-     * The current description of the streams that the remote side has with us.
-     * We use {@link LinkedHashMap}s to make sure that we preserve
-     * the order of the individual content extensions.
+     * The remote DESCRIPTION.
      */
-    private Map<String, List<PayloadTypePacketExtension> > remoteContentMap
-        = new LinkedHashMap<String, List<PayloadTypePacketExtension> >();
+    private RtpDescriptionPacketExtension remoteDescription = null;
 
     /**
      * The <tt>TransportManager</tt> implementation handling our address
@@ -125,6 +122,8 @@ public class CallPeerMediaHandlerGTalkImpl
         throws OperationFailedException,
                IllegalArgumentException
     {
+        this.remoteDescription = offer;
+
         List<PayloadTypePacketExtension> payloadTypes = offer.getPayloadTypes();
         boolean atLeastOneValidDescription = false;
         List<PayloadTypePacketExtension> answer =
@@ -149,21 +148,6 @@ public class CallPeerMediaHandlerGTalkImpl
             }
         }
 
-        EncryptionPacketExtension encryptionPacketExtension
-            = offer.getFirstChildOfType(EncryptionPacketExtension.class);
-        if(encryptionPacketExtension != null)
-        {
-            ZrtpHashPacketExtension zrtpHashPacketExtension =
-                encryptionPacketExtension.getFirstChildOfType(
-                    ZrtpHashPacketExtension.class);
-
-            if(zrtpHashPacketExtension != null
-                && zrtpHashPacketExtension.getValue() != null)
-            {
-                addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
-            }
-        }
-
         for(MediaType mediaType : MediaType.values())
         {
             if(!(isAudio && mediaType == MediaType.AUDIO) &&
@@ -171,8 +155,6 @@ public class CallPeerMediaHandlerGTalkImpl
             {
                 continue;
             }
-
-            remoteContentMap.put(mediaType.toString(), payloadTypes);
 
             MediaDevice dev = getDefaultDevice(mediaType);
 
@@ -321,6 +303,31 @@ public class CallPeerMediaHandlerGTalkImpl
                 }
             }
 
+            // ZRTP
+            boolean isZRTPAddedToDescription = setZrtpEncryptionToDescription(
+                    mediaType,
+                    description,
+                    remoteDescription);
+            if(isZRTPAddedToDescription)
+            {
+                addZRTPAdvertisedEncryptions(
+                        false,
+                        remoteDescription,
+                        mediaType);
+            }
+            else
+            {
+                // SDES
+                addSDESAdvertisedEncryptions(
+                        false,
+                        remoteDescription,
+                        mediaType);
+                setSDesEncryptionToDescription(
+                        mediaType,
+                        description,
+                        remoteDescription);
+            }
+
             initStream(mediaName, connector, dev, format, target,
                     direction, rtpExtensions, masterStream);
         }
@@ -349,21 +356,6 @@ public class CallPeerMediaHandlerGTalkImpl
     {
         List<PayloadTypePacketExtension> lst = answer.getPayloadTypes();
 
-        EncryptionPacketExtension encryptionPacketExtension
-            = answer.getFirstChildOfType(EncryptionPacketExtension.class);
-        if(encryptionPacketExtension != null)
-        {
-            ZrtpHashPacketExtension zrtpHashPacketExtension =
-                encryptionPacketExtension.getFirstChildOfType(
-                    ZrtpHashPacketExtension.class);
-
-            if(zrtpHashPacketExtension != null
-                && zrtpHashPacketExtension.getValue() != null)
-            {
-                addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
-            }
-        }
-
         boolean masterStreamSet = true;
         for(MediaType mediaType : MediaType.values())
         {
@@ -385,6 +377,9 @@ public class CallPeerMediaHandlerGTalkImpl
 
             if(format == null)
                 continue;
+
+            addZRTPAdvertisedEncryptions(true, answer, mediaType);
+            addSDESAdvertisedEncryptions(true, answer, mediaType);
 
             // stream connector
             StreamConnector connector
@@ -527,6 +522,23 @@ public class CallPeerMediaHandlerGTalkImpl
                         description.addChildExtension(ext);
                         mediaDescs.add(ext);
                     }
+                }
+
+                if(mediaType == MediaType.AUDIO || isVideo)
+                {
+                    //SDES
+                    // It is important to set SDES before ZRTP in order to make
+                    // GTALK application able to work with SDES.
+                    setSDesEncryptionToDescription(
+                            mediaType,
+                            description,
+                            null);
+
+                    //ZRTP
+                    setZrtpEncryptionToDescription(
+                            mediaType,
+                            description,
+                            null);
                 }
             }
         }

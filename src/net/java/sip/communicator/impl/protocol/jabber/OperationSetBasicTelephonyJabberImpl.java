@@ -38,6 +38,7 @@ public class OperationSetBasicTelephonyJabberImpl
    implements RegistrationStateChangeListener,
               PacketListener,
               PacketFilter,
+              OperationSetSecureSDesTelephony,
               OperationSetSecureZrtpTelephony,
               OperationSetAdvancedTelephony<ProtocolProviderServiceJabberImpl>
 {
@@ -401,8 +402,8 @@ public class OperationSetBasicTelephonyJabberImpl
                     }
                 }
             }
-            else if (protocolProvider.isGTalkTesting() /* test GTALK property */
-                    /* see if peer supports Google Talk voice */
+            else if (protocolProvider.isGTalkTesting() // test GTALK property
+                    // see if peer supports Google Talk voice
                     && (hasGtalkCaps || alwaysCallGtalk))
             {
                 if(priority > bestPriority)

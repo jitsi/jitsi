@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import ch.imvs.sdes4j.srtp.*;
+
 import java.net.*;
 import java.util.*;
 
@@ -586,8 +588,10 @@ public class CallPeerMediaHandlerSipImpl
                         mutuallySupportedFormats, connector,
                         direction, rtpExtensions);
 
-            if(!updateMediaDescriptionForSDes(mediaType, md, mediaDescription))
-                updateMediaDescriptionForZrtp(mediaType, md);
+            if(!updateMediaDescriptionForZrtp(mediaType, md))
+            {
+                updateMediaDescriptionForSDes(mediaType, md, mediaDescription);
+            }
 
             // create the corresponding stream...
             MediaFormat fmt = findMediaFormat(remoteFormats,
@@ -640,8 +644,10 @@ public class CallPeerMediaHandlerSipImpl
      *
      * @param mediaType the media type.
      * @param md the description to be updated.
+     *
+     * @return True if ZRTP is added tp the media description. False, otherwise.
      */
-    private void updateMediaDescriptionForZrtp(
+    private boolean updateMediaDescriptionForZrtp(
         MediaType mediaType, MediaDescription md)
     {
         MediaAwareCallPeer<?, ?, ?> peer = getPeer();
@@ -670,13 +676,17 @@ public class CallPeerMediaHandlerSipImpl
                 String helloHash = zcontrol.getHelloHash();
 
                 if(helloHash != null && helloHash.length() > 0)
+                {
                     md.setAttribute(SdpUtils.ZRTP_HASH_ATTR, helloHash);
+                    return true;
+                }
             }
             catch (SdpException ex)
             {
                 logger.error("Cannot add zrtp-hash to sdp", ex);
             }
         }
+        return false;
     }
 
     /**
@@ -685,6 +695,8 @@ public class CallPeerMediaHandlerSipImpl
      * @param mediaType the media type.
      * @param localMd the description of the local peer.
      * @param remoteMd the description of the remote peer.
+     *
+     * @return True if SDES is added tp the media description. False, otherwise.
      */
     private boolean updateMediaDescriptionForSDes(
             MediaType mediaType,
@@ -736,64 +748,37 @@ public class CallPeerMediaHandlerSipImpl
             @SuppressWarnings("unchecked")
             Vector<Attribute> atts = localMd.getAttributes(true);
 
-            for (String ca : sdcontrol.getInitiatorCryptoAttributes())
-                atts.add(SdpUtils.createAttribute("crypto", ca));
+            for(SrtpCryptoAttribute ca:
+                    sdcontrol.getInitiatorCryptoAttributes())
+                atts.add(SdpUtils.createAttribute("crypto", ca.encode()));
 
             return true;
         }
         // act as responder
         else
         {
-            @SuppressWarnings("unchecked")
-            Vector<Attribute> atts = remoteMd.getAttributes(true);
-            List<String> peerAttributes = new LinkedList<String>();
+            SrtpCryptoAttribute localAttr
+                = selectSdesCryptoSuite(false, sdcontrol, remoteMd);
 
-            for (Attribute a : atts)
+            if (localAttr != null)
             {
                 try
                 {
-                    if (a.getName().equals("crypto"))
-                        peerAttributes.add(a.getValue());
+                    localMd.setAttribute("crypto", localAttr.encode());
+                    return true;
                 }
-                catch (SdpParseException e)
+                catch (SdpException e)
                 {
-                    logger.error("received an uparsable sdp attribute", e);
-                }
-            }
-            if (peerAttributes.size() > 0)
-            {
-                String localAttr
-                    = sdcontrol.responderSelectAttribute(peerAttributes);
-
-                if (localAttr != null)
-                {
-                    try
-                    {
-                        localMd.setAttribute("crypto", localAttr);
-                        return true;
-                    }
-                    catch (SdpException e)
-                    {
-                        logger.error("unable to add crypto to answer", e);
-                    }
-                }
-                else
-                {
-                    // none of the offered suites match, destroy the sdes
-                    // control
-                    sdcontrol.cleanup();
-                    srtpControls.remove(key);
-                    logger.warn(
-                            "Received unsupported sdes crypto attribute "
-                                + peerAttributes);
+                    logger.error("unable to add crypto to answer", e);
                 }
             }
             else
             {
-                // peer doesn't offer any SDES attribute, destroy the sdes
+                // none of the offered suites match, destroy the sdes
                 // control
                 sdcontrol.cleanup();
                 srtpControls.remove(key);
+                logger.warn("Received unsupported sdes crypto attribute.");
             }
             return false;
         }
@@ -874,8 +859,6 @@ public class CallPeerMediaHandlerSipImpl
         this.setCallInfoURL(SdpUtils.getCallInfoURL(answer));
 
         boolean masterStreamSet = false;
-        boolean hasZrtp = false;
-        boolean hasSdes = false;
         List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
@@ -979,33 +962,14 @@ public class CallPeerMediaHandlerSipImpl
 
             if(scontrol != null)
             {
-                List<String> peerAttributes = new LinkedList<String>();
-                @SuppressWarnings("unchecked")
-                Vector<Attribute> attrs = mediaDescription.getAttributes(true);
-
-                for (Attribute a : attrs)
-                {
-                    try
-                    {
-                        if (a.getName().equals("crypto"))
-                        {
-                            peerAttributes.add(a.getValue());
-                        }
-                    }
-                    catch (SdpParseException e)
-                    {
-                        logger.error("received an unparsable sdp attribute", e);
-                    }
-                }
-                if(!((SDesControl) scontrol).initiatorSelectAttribute(
-                        peerAttributes))
+                if(selectSdesCryptoSuite(
+                            true,
+                            (SDesControl) scontrol,
+                            mediaDescription) == null)
                 {
                     scontrol.cleanup();
                     srtpControls.remove(key);
-                    if(peerAttributes.size() > 0)
-                        logger
-                            .warn("Received unsupported sdes crypto attribute: "
-                                + peerAttributes);
+                    logger.warn("Received unsupported sdes crypto attribute.");
                 }
                 else
                 {
@@ -1028,7 +992,7 @@ public class CallPeerMediaHandlerSipImpl
                         }
                     }
 
-                    hasSdes = true;
+                    addAdvertisedEncryptionMethod(SrtpControlType.SDES);
                 }
             }
 
@@ -1053,8 +1017,11 @@ public class CallPeerMediaHandlerSipImpl
 
             try
             {
-                hasZrtp = mediaDescription.getAttribute(
-                    SdpUtils.ZRTP_HASH_ATTR) != null;
+                if(mediaDescription.getAttribute(SdpUtils.ZRTP_HASH_ATTR)
+                        != null)
+                {
+                    addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
+                }
             }
             catch (SdpParseException e)
             {
@@ -1065,11 +1032,6 @@ public class CallPeerMediaHandlerSipImpl
             initStream(connector, dev, supportedFormats.get(0), target,
                                 direction, rtpExtensions, masterStream);
         }
-        
-        if(hasSdes)
-            addAdvertisedEncryptionMethod(SrtpControlType.SDES);
-        if(hasZrtp)
-            addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
     }
 
     /**
@@ -1238,5 +1200,57 @@ public class CallPeerMediaHandlerSipImpl
     public void setSupportQualityControls(boolean value)
     {
         this.supportQualityControls = value;
+    }
+
+    /**
+     * Returns the selected crypto suite selected.
+     *
+     * @param isInitiator True if the local call instance is the initiator of
+     * the call. False otherwise.
+     * @param sDesControl The SDES based SRTP MediaStream encryption control.
+     * @param encryptionPacketExtension The ENCRYPTION element received from the
+     * remote peer. This contains the SDES crypto suites available for the
+     * remote peer.
+     *
+     * @return The selected SDES crypto suite supported by both the local and
+     * the remote peer. Or null, if there is no crypto suite supported by both
+     * of the peers.
+     */
+    protected SrtpCryptoAttribute selectSdesCryptoSuite(
+            boolean isInitiator,
+            SDesControl sDesControl,
+            MediaDescription mediaDescription)
+    {
+        @SuppressWarnings("unchecked")
+        Vector<Attribute> attrs = mediaDescription.getAttributes(true);
+        Vector<SrtpCryptoAttribute> peerAttributes
+            = new Vector<SrtpCryptoAttribute>(attrs.size());
+
+        Attribute a;
+        for(int i = 0; i < attrs.size(); ++i)
+        {
+            try
+            {
+                a = attrs.get(i);
+                if (a.getName().equals("crypto"))
+                {
+                    peerAttributes.add(
+                            SrtpCryptoAttribute.create(a.getValue()));
+                }
+            }
+            catch (SdpParseException e)
+            {
+                logger.error("received an unparsable sdp attribute", e);
+            }
+        }
+
+        if(isInitiator)
+        {
+            return sDesControl.initiatorSelectAttribute(peerAttributes);
+        }
+        else
+        {
+            return sDesControl.responderSelectAttribute(peerAttributes);
+        }
     }
 }

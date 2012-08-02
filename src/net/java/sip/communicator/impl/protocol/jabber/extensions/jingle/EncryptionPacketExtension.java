@@ -23,8 +23,10 @@ public class EncryptionPacketExtension
 {
     /**
      * The namespace of the "encryption" element.
+     * It it set to "not null" only for Gtalk SDES support (may be set to null
+     * once gtalk supports jingle).
      */
-    public static final String NAMESPACE = null;
+    public static final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:1";
 
     /**
      * The name of the "encryption" element.
@@ -58,7 +60,10 @@ public class EncryptionPacketExtension
      */
     public void addCrypto(CryptoPacketExtension crypto)
     {
-        cryptoList.add(crypto);
+        if(!cryptoList.contains(crypto))
+        {
+            cryptoList.add(crypto);
+        }
     }
 
     /**
@@ -111,8 +116,27 @@ public class EncryptionPacketExtension
     {
         List<PacketExtension> ret = new ArrayList<PacketExtension>();
 
-        ret.addAll(getCryptoList());
         ret.addAll(super.getChildExtensions());
         return ret;
+    }
+
+    /**
+     * Adds the specified <tt>childExtension</tt> to the list of extensions
+     * registered with this packet.
+     * <p/>
+     * Overriding extensions may need to override this method if they would like
+     * to have anything more elaborate than just a list of extensions (e.g.
+     * casting separate instances to more specific.
+     *
+     * @param childExtension the extension we'd like to add here.
+     */
+    public void addChildExtension(PacketExtension childExtension)
+    {
+        super.addChildExtension(childExtension);
+
+        if(childExtension instanceof CryptoPacketExtension)
+        {
+            this.addCrypto(((CryptoPacketExtension) childExtension));
+        }
     }
 }

@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import ch.imvs.sdes4j.srtp.*;
+
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -346,38 +348,26 @@ public class CallPeerMediaHandlerJabberImpl
                         getDynamicPayloadTypes(),
                         getRtpExtensionsRegistry());
 
+            RtpDescriptionPacketExtension localDescription =
+                JingleUtils.getRtpDescription(ourContent);
+
             // ZRTP
-            if(getPeer().getCall().isSipZrtpAttribute())
+            boolean isZRTPAddedToDescription = setZrtpEncryptionToDescription(
+                    mediaType,
+                    localDescription,
+                    description);
+            if(isZRTPAddedToDescription)
             {
-                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                    = getSrtpControls();
-                MediaTypeSrtpControl key
-                    = new MediaTypeSrtpControl(mediaType, SrtpControlType.ZRTP);
-                SrtpControl control = srtpControls.get(key);
-
-                if(control == null)
-                {
-                    control
-                        = JabberActivator.getMediaService().createZrtpControl();
-                    srtpControls.put(key, control);
-                }
-
-                String helloHash[] = ((ZrtpControl)control).getHelloHashSep();
-
-                if(helloHash != null && helloHash[1].length() > 0)
-                {
-                    EncryptionPacketExtension encryption = new
-                        EncryptionPacketExtension();
-                    ZrtpHashPacketExtension hash
-                        = new ZrtpHashPacketExtension();
-                    hash.setVersion(helloHash[0]);
-                    hash.setValue(helloHash[1]);
-
-                    encryption.addChildExtension(hash);
-                    RtpDescriptionPacketExtension rtpDescription =
-                        JingleUtils.getRtpDescription(ourContent);
-                    rtpDescription.setEncryption(encryption);
-                }
+                addZRTPAdvertisedEncryptions(false, description, mediaType);
+            }
+            else
+            {
+                // SDES
+                addSDESAdvertisedEncryptions(false, description, mediaType);
+                setSDesEncryptionToDescription(
+                        mediaType,
+                        localDescription,
+                        description);
             }
 
             // got an content which have inputevt, it means that peer requests
@@ -392,22 +382,6 @@ public class CallPeerMediaHandlerJabberImpl
             localContentMap.put(content.getName(), ourContent);
 
             atLeastOneValidDescription = true;
-
-            EncryptionPacketExtension encryptionPacketExtension
-                = description.getFirstChildOfType(
-                    EncryptionPacketExtension.class);
-            if(encryptionPacketExtension != null)
-            {
-                ZrtpHashPacketExtension zrtpHashPacketExtension =
-                    encryptionPacketExtension.getFirstChildOfType(
-                        ZrtpHashPacketExtension.class);
-
-                if(zrtpHashPacketExtension != null
-                    && zrtpHashPacketExtension.getValue() != null)
-                {
-                    addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
-                }
-            }
         }
 
         if (!atLeastOneValidDescription)
@@ -627,42 +601,22 @@ public class CallPeerMediaHandlerJabberImpl
                         receiveQualityPreset), direction,
                     dev.getSupportedExtensions());
 
+            RtpDescriptionPacketExtension description =
+                JingleUtils.getRtpDescription(content);
+
+            //SDES
+            // It is important to set SDES before ZRTP in order to make GTALK
+            // application able to work with SDES.
+            setSDesEncryptionToDescription(
+                    dev.getMediaType(),
+                    description,
+                    null);
+
             //ZRTP
-            if(getPeer().getCall().isSipZrtpAttribute())
-            {
-                Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                    = getSrtpControls();
-                MediaTypeSrtpControl key
-                    = new MediaTypeSrtpControl(
-                            dev.getMediaType(),
-                            SrtpControlType.ZRTP);
-                SrtpControl control = srtpControls.get(key);
-
-                if(control == null)
-                {
-                    control
-                        = JabberActivator.getMediaService().createZrtpControl();
-                    srtpControls.put(key, control);
-                }
-
-                String helloHash[] = ((ZrtpControl)control).getHelloHashSep();
-
-                if(helloHash != null && helloHash[1].length() > 0)
-                {
-                    EncryptionPacketExtension encryption = new
-                        EncryptionPacketExtension();
-                    ZrtpHashPacketExtension hash
-                        = new ZrtpHashPacketExtension();
-
-                    hash.setVersion(helloHash[0]);
-                    hash.setValue(helloHash[1]);
-
-                    encryption.addChildExtension(hash);
-                    RtpDescriptionPacketExtension description =
-                        JingleUtils.getRtpDescription(content);
-                    description.setEncryption(encryption);
-                }
-            }
+            setZrtpEncryptionToDescription(
+                    dev.getMediaType(),
+                    description,
+                    null);
 
             return content;
         }
@@ -790,49 +744,26 @@ public class CallPeerMediaHandlerJabberImpl
                                 direction,
                                 dev.getSupportedExtensions());
 
+                    RtpDescriptionPacketExtension description =
+                        JingleUtils.getRtpDescription(content);
+
+                    //SDES
+                    // It is important to set SDES before ZRTP in order to make
+                    // GTALK application able to work with SDES.
+                    setSDesEncryptionToDescription(
+                            mediaType,
+                            description,
+                            null);
+
                     //ZRTP
-                    if(getPeer().getCall().isSipZrtpAttribute())
-                    {
-                        Map<MediaTypeSrtpControl, SrtpControl> srtpControls
-                            = getSrtpControls();
-                        MediaTypeSrtpControl key
-                            = new MediaTypeSrtpControl(
-                                    mediaType,
-                                    SrtpControlType.ZRTP);
-                        SrtpControl control = srtpControls.get(key);
-
-                        if(control == null)
-                        {
-                            control
-                                = JabberActivator.getMediaService()
-                                        .createZrtpControl();
-                            srtpControls.put(key, control);
-                        }
-
-                        String helloHash[] =
-                            ((ZrtpControl) control).getHelloHashSep();
-
-                        if(helloHash != null && helloHash[1].length() > 0)
-                        {
-                            EncryptionPacketExtension encryption = new
-                                EncryptionPacketExtension();
-                            ZrtpHashPacketExtension hash
-                                = new ZrtpHashPacketExtension();
-                            hash.setVersion(helloHash[0]);
-                            hash.setValue(helloHash[1]);
-
-                            encryption.addChildExtension(hash);
-                            RtpDescriptionPacketExtension description =
-                                JingleUtils.getRtpDescription(content);
-                            description.setEncryption(encryption);
-                        }
-                    }
+                    setZrtpEncryptionToDescription(
+                            mediaType,
+                            description,
+                            null);
 
                     /* we request a desktop sharing session so add the inputevt
                      * extension in the "video" content
                      */
-                    RtpDescriptionPacketExtension description
-                        = JingleUtils.getRtpDescription(content);
                     if(description.getMedia().equals(MediaType.VIDEO.toString())
                             && getLocalInputEvtAware())
                     {
@@ -1105,6 +1036,9 @@ public class CallPeerMediaHandlerJabberImpl
                  OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
         }
 
+        addZRTPAdvertisedEncryptions(true, description, mediaType);
+        addSDESAdvertisedEncryptions(true, description, mediaType);
+
         StreamConnector connector
             = transportManager.getStreamConnector(mediaType);
 
@@ -1172,21 +1106,6 @@ public class CallPeerMediaHandlerJabberImpl
                             supportedFormats,
                             dev.getSupportedFormats(
                                 sendQualityPreset, receiveQualityPreset));
-            }
-        }
-
-        EncryptionPacketExtension encryptionPacketExtension
-            = description.getFirstChildOfType(EncryptionPacketExtension.class);
-        if(encryptionPacketExtension != null)
-        {
-            ZrtpHashPacketExtension zrtpHashPacketExtension =
-                encryptionPacketExtension.getFirstChildOfType(
-                    ZrtpHashPacketExtension.class);
-
-            if(zrtpHashPacketExtension != null
-                && zrtpHashPacketExtension.getValue() != null)
-            {
-                addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
             }
         }
 

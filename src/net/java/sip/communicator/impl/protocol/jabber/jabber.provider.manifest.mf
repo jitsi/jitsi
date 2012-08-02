@@ -4,7 +4,8 @@ Bundle-Description: An Jabber implementation of the Protocol Provider Service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
-Import-Package: javax.net,
+Import-Package: ch.imvs.sdes4j.srtp,
+ javax.net,
  javax.net.ssl,
  javax.security.auth.callback,
  javax.security.sasl,

@@ -13,6 +13,7 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
  * @author Grigorii Balutsel
  */
 public class SIPAccountRegistration
+    implements SecurityAccountRegistration
 {
     public static String DEFAULT_PORT = "5060";
 
@@ -68,14 +69,26 @@ public class SIPAccountRegistration
 
     private boolean forceP2PMode = false;
 
+    /**
+     * Enables support to encrypt calls.
+     */
     private boolean defaultEncryption = true;
 
+    /**
+     * Enqbles ZRTP encryption.
+     */
     private boolean sipZrtpAttribute = true;
 
+    /**
+     * Tells if SDES is enabled for this SIP account.
+     */
     private boolean sdesEnabled = false;
 
     private int savpOption = 0;
 
+    /**
+     * The list of cipher suites enabled for SDES.
+     */
     private String sdesCipherSuites = null;
 
     private String pollingPeriod = DEFAULT_POLL_PERIOD;
@@ -596,31 +609,61 @@ public class SIPAccountRegistration
         this.sipZrtpAttribute = sipZrtpAttribute;
     }
 
+    /**
+     * Tells if SDES is enabled for this SIP account.
+     *
+     * @return True if SDES is enabled. False, otherwise.
+     */
     public boolean isSDesEnabled()
     {
         return sdesEnabled;
     }
 
+    /**
+     * Enables or disables SDES for this SIP account.
+     *
+     * @param sdesEnabled True to enable SDES. False, otherwise.
+     */
     public void setSDesEnabled(boolean sdesEnabled)
     {
         this.sdesEnabled = sdesEnabled;
     }
 
+    /**
+     * Returns the list of cipher suites enabled for SDES.
+     *
+     * @return The list of cipher suites enabled for SDES. Null if no cipher
+     * suite is enabled.
+     */
     public String getSDesCipherSuites()
     {
         return sdesCipherSuites;
     }
 
+    /**
+     * Sets the list of cipher suites enabled for SDES.
+     *
+     * @param The list of cipher suites enabled for SDES. Null if no cipher
+     * suite is enabled.
+     */
     public void setSDesCipherSuites(String cipherSuites)
     {
         this.sdesCipherSuites = cipherSuites;
     }
 
+    /**
+     * Gets the method used for RTP/SAVP indication.
+     *
+     * @return The method used for RTP/SAVP indication.
+     */
     public int getSavpOption()
     {
         return savpOption;
     }
 
+    /**
+     * Sets the method used for RTP/SAVP indication.
+     */
     public void setSavpOption(int savpOption)
     {
         this.savpOption = savpOption;

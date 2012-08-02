@@ -30,7 +30,7 @@ public class SecurityPanel
      */
     private static final long serialVersionUID = 0L;
 
-    private final SIPAccountRegistrationForm regform;
+    private final SecurityAccountRegistration regform;
 
     private JPanel pnlAdvancedSettings;
     private JCheckBox enableDefaultEncryption;
@@ -40,6 +40,12 @@ public class SecurityPanel
     private JTable tabCiphers;
     private CipherTableModel cipherModel;
     private JLabel cmdExpandAdvancedSettings;
+
+    /**
+     * Boolean used to display or not the SAVP options (only useful for SIP, not
+     * for XMPP).
+     */
+    private boolean displaySavpOtions;
 
     private static class SavpOption
     {
@@ -170,18 +176,32 @@ public class SecurityPanel
                 }
             }
             if(sb.length() == 0)
-                return null;
-            String result = sb.substring(0, sb.length()-1);
-            return (defaultCiphers == null
-                    || defaultCiphers.equals(result)) ? null : result;
+            {
+                return sb.toString();
+            }
+            else
+            {
+                return sb.substring(0, sb.length()-1);
+            }
         }
     }
 
-    public SecurityPanel(SIPAccountRegistrationForm regform)
+    /**
+     * Initiates a panel to configure the security (ZRTP and SDES) for SIP or
+     * XMPP protocols.
+     *
+     * @param regform The registration form of the account to configure.
+     * @param displaySavpOptions Boolean used to display or not the SAVP options
+     * (only useful for SIP, not for XMPP).
+     */
+    public SecurityPanel(
+            SecurityAccountRegistration regform,
+            boolean displaySavpOptions)
     {
         super(new BorderLayout(10, 10));
 
         this.regform = regform;
+        this.displaySavpOtions = displaySavpOptions;
         initComponents();
     }
 
@@ -202,7 +222,7 @@ public class SecurityPanel
         //general encryption option
         enableDefaultEncryption = new SIPCommCheckBox(Resources
             .getString("plugin.sipaccregwizz.ENABLE_DEFAULT_ENCRYPTION"),
-            regform.getRegistration().isDefaultEncryption());
+            regform.isDefaultEncryption());
         enableDefaultEncryption.addActionListener(this);
         mainPanel.add(enableDefaultEncryption, c);
 
@@ -262,7 +282,7 @@ public class SecurityPanel
         //ZRTP
         enableSipZrtpAttribute = new SIPCommCheckBox(Resources
             .getString("plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
-            regform.getRegistration().isSipZrtpAttribute());
+            regform.isSipZrtpAttribute());
         c.gridy++;
         pnlAdvancedSettings.add(enableSipZrtpAttribute, c);
 
@@ -272,10 +292,16 @@ public class SecurityPanel
         lblSavpOption.setText(
             Resources.getString("plugin.sipaccregwizz.SAVP_OPTION"));
         c.gridy++;
-        pnlAdvancedSettings.add(lblSavpOption, c);
+        if(this.displaySavpOtions)
+        {
+            pnlAdvancedSettings.add(lblSavpOption, c);
+        }
         c.gridx = 2;
         c.weightx = 1;
-        pnlAdvancedSettings.add(new JSeparator(), c);
+        if(this.displaySavpOtions)
+        {
+            pnlAdvancedSettings.add(new JSeparator(), c);
+        }
         cboSavpOption = new JComboBox(new SavpOption[]{
             new SavpOption(0),
             new SavpOption(1),
@@ -285,12 +311,15 @@ public class SecurityPanel
         c.gridy++;
         c.insets = new Insets(0, 20, 0, 0);
         c.weightx = 0;
-        pnlAdvancedSettings.add(cboSavpOption, c);
+        if(this.displaySavpOtions)
+        {
+            pnlAdvancedSettings.add(cboSavpOption, c);
+        }
 
         //SDES
         enableSDesAttribute = new SIPCommCheckBox(Resources
             .getString("plugin.sipaccregwizz.ENABLE_SDES_ATTRIBUTE"),
-            regform.getRegistration().isSDesEnabled());
+            regform.isSDesEnabled());
         enableSDesAttribute.addActionListener(this);
         c.gridy++;
         c.gridwidth = 1;
@@ -310,8 +339,7 @@ public class SecurityPanel
             .getString("plugin.sipaccregwizz.CIPHER_SUITES"));
         pnlAdvancedSettings.add(lblCipherInfo, c);
 
-        cipherModel = new CipherTableModel(regform.getRegistration()
-            .getSDesCipherSuites());
+        cipherModel = new CipherTableModel(regform.getSDesCipherSuites());
         tabCiphers = new JTable(cipherModel);
         tabCiphers.setShowGrid(false);
         tabCiphers.setTableHeader(null);
@@ -331,7 +359,7 @@ public class SecurityPanel
      * @param registration the SIPAccountRegistration
      * @return
      */
-    boolean commitPanel(SIPAccountRegistration registration)
+    public boolean commitPanel(SecurityAccountRegistration registration)
     {
         registration.setDefaultEncryption(enableDefaultEncryption.isSelected());
         registration.setSipZrtpAttribute(enableSipZrtpAttribute.isSelected());
@@ -346,7 +374,7 @@ public class SecurityPanel
      * Loads the account with the given identifier.
      * @param accountID the account identifier
      */
-    void loadAccount(AccountID accountID)
+    public void loadAccount(AccountID accountID)
     {
         enableDefaultEncryption.setSelected(
                 accountID.getAccountPropertyBoolean(

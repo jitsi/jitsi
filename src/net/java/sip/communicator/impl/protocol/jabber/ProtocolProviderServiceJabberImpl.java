@@ -1710,6 +1710,9 @@ public class ProtocolProviderServiceJabberImpl
                 addSupportedOperationSet(
                     OperationSetSecureZrtpTelephony.class,
                     basicTelephony);
+                addSupportedOperationSet(
+                    OperationSetSecureSDesTelephony.class,
+                    basicTelephony);
 
                 // initialize video telephony OperationSet
                 addSupportedOperationSet(

@@ -256,14 +256,12 @@ public abstract class AbstractOperationSetBasicAutoAnswer
                         && answerWithVideo
                         && opSetVideoTelephony != null)
                 {
-                    System.out.println("CHENZO: VIDEO");
                     opSetVideoTelephony.answerVideoCallPeer(peer);
                 }
                 // Else sends only audio to the repote peer (the remote peer is
                 // still able to send us its video stream).
                 else if(opSetBasicTelephony != null)
                 {
-                    System.out.println("CHENZO: AUDIO");
                     opSetBasicTelephony.answerCallPeer(peer);
                 }
             }

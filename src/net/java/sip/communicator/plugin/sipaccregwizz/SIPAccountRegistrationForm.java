@@ -53,7 +53,7 @@ public class SIPAccountRegistrationForm
 
         accountPanel = new AccountPanel(this);
         connectionPanel = new ConnectionPanel(this);
-        securityPanel = new SecurityPanel(this);
+        securityPanel = new SecurityPanel(this.getRegistration(), true);
         presencePanel = new PresencePanel(this);
     }
 

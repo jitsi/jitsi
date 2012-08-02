@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.util.*;
 
+import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -17,6 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class JabberAccountRegistration
+    implements SecurityAccountRegistration
 {
     /**
      * The default value of server port for jabber accounts.
@@ -198,6 +200,26 @@ public class JabberAccountRegistration
      * DTMF method.
      */
     private String dtmfMethod = null;
+
+    /**
+     * Enables support to encrypt calls.
+     */
+    private boolean defaultEncryption = true;
+
+    /**
+     * Enqbles ZRTP encryption.
+     */
+    private boolean sipZrtpAttribute = true;
+
+    /**
+     * Tells if SDES is enabled for this Jabber account.
+     */
+    private boolean sdesEnabled = false;
+
+    /**
+     * The list of cipher suites enabledfor SDES.
+     */
+    private String sdesCipherSuites = null;
 
     /**
      * Returns the password of the jabber registration account.
@@ -815,5 +837,96 @@ public class JabberAccountRegistration
     public void setDefaultDTMFMethod(String defaultDTMFMethod)
     {
         this.defaultDTMFMethod = defaultDTMFMethod;
+    }
+
+    /**
+     * Tells if SDES is enabled for this Jabber account.
+     *
+     * @return True if SDES is enabled. False, otherwise.
+     */
+    public boolean isSDesEnabled()
+    {
+        return sdesEnabled;
+    }
+
+    /**
+     * Enables or disables SDES for this Jabber account.
+     *
+     * @param sdesEnabled True to enable SDES. False, otherwise.
+     */
+    public void setSDesEnabled(boolean sdesEnabled)
+    {
+        this.sdesEnabled = sdesEnabled;
+    }
+
+    /**
+     * Returns the list of cipher suites enabled for SDES.
+     *
+     * @return The list of cipher suites enabled for SDES. Null if no cipher
+     * suite is enabled.
+     */
+    public String getSDesCipherSuites()
+    {
+        return sdesCipherSuites;
+    }
+
+    /**
+     * Sets the list of cipher suites enabled for SDES.
+     *
+     * @param The list of cipher suites enabled for SDES. Null if no cipher
+     * suite is enabled.
+     */
+    public void setSDesCipherSuites(String cipherSuites)
+    {
+        this.sdesCipherSuites = cipherSuites;
+    }
+
+    /**
+     * If default call encryption is enabled
+     *
+     * @return If default call encryption is enabled
+     */
+    public boolean isDefaultEncryption()
+    {
+        return defaultEncryption;
+    }
+
+    /**
+     * Sets default call encryption
+     *
+     * @param defaultEncryption if we want to set call encryption on as default
+     */
+    public void setDefaultEncryption(boolean defaultEncryption)
+    {
+        this.defaultEncryption = defaultEncryption;
+    }
+
+    /**
+     * Check if to include the ZRTP attribute to SIP/SDP
+     *
+     * @return include the ZRTP attribute to SIP/SDP
+     */
+    public boolean isSipZrtpAttribute()
+    {
+        return sipZrtpAttribute;
+    }
+
+    /**
+     * Sets SIP ZRTP attribute support
+     *
+     * @param sipZrtpAttribute include the ZRTP attribute to SIP/SDP
+     */
+    public void setSipZrtpAttribute(boolean sipZrtpAttribute)
+    {
+        this.sipZrtpAttribute = sipZrtpAttribute;
+    }
+
+    /**
+     * Sets the method used for RTP/SAVP indication.
+     */
+    public void setSavpOption(int savpOption)
+    {
+        // SAVP option is not useful for XMPP account.
+        // Thereby, do nothing.
     }
 }
