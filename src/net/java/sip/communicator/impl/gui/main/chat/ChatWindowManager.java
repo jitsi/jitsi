@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import java.awt.Component; // disambiguation
 import java.util.*;
 
 import javax.swing.*;
@@ -150,24 +151,9 @@ public class ChatWindowManager
 
                 if (!chatPanel.isWriteAreaEmpty())
                 {
-                    SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.NON_EMPTY_CHAT_WINDOW_CLOSE"));
-                    JComponent textComponent = msgText;
-                    if(OSUtils.IS_LINUX)
-                    {
-                        JScrollPane jScrollPane = new JScrollPane(msgText);
-                        jScrollPane.setBorder(null);
-                        textComponent = jScrollPane;
-                    }
-
-                    int answer = JOptionPane.showConfirmDialog(
-                        null,
-                        textComponent,
-                        GuiActivator.getResources().getI18NString(
-                            "service.gui.WARNING"),
-                        JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
+                    int answer = showWarningMessage(
+                            "service.gui.NON_EMPTY_CHAT_WINDOW_CLOSE",
+                            chatPanel);
 
                     if (answer == JOptionPane.OK_OPTION)
                         closeChatPanel(chatPanel);
@@ -175,55 +161,22 @@ public class ChatWindowManager
                 else if (System.currentTimeMillis() - lastMsgTimestamp
                                                                     < 2 * 1000)
                 {
-                    SIPCommMsgTextArea msgText
-                        = new SIPCommMsgTextArea(GuiActivator.getResources()
-                            .getI18NString(
-                                "service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE"));
-                    JComponent textComponent = msgText;
-                    if(OSUtils.IS_LINUX)
-                    {
-                        JScrollPane jScrollPane = new JScrollPane(msgText);
-                        jScrollPane.setBorder(null);
-                        textComponent = jScrollPane;
-                    }
-
-                    int answer = JOptionPane.showConfirmDialog(
-                        null,
-                        textComponent,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.WARNING"),
-                        JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
+                    int answer = showWarningMessage(
+                            "service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE",
+                            chatPanel);
 
                     if (answer == JOptionPane.OK_OPTION)
                         closeChatPanel(chatPanel);
                 }
                 else if (chatPanel.containsActiveFileTransfers())
                 {
-                    SIPCommMsgTextArea msgText
-                        = new SIPCommMsgTextArea(GuiActivator.getResources()
-                            .getI18NString(
-                                "service.gui.CLOSE_CHAT_ACTIVE_FILE_TRANSFER"));
-                    JComponent textComponent = msgText;
-                    if(OSUtils.IS_LINUX)
-                    {
-                        JScrollPane jScrollPane = new JScrollPane(msgText);
-                        jScrollPane.setBorder(null);
-                        textComponent = jScrollPane;
-                    }
-
-                    int answer = JOptionPane.showConfirmDialog(
-                        null,
-                        textComponent,
-                        GuiActivator.getResources()
-                            .getI18NString("service.gui.WARNING"),
-                        JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
+                    int answer = showWarningMessage(
+                                "service.gui.CLOSE_CHAT_ACTIVE_FILE_TRANSFER",
+                                chatPanel);
 
                     if (answer == JOptionPane.OK_OPTION)
                     {
                         chatPanel.cancelActiveFileTransfers();
-
                         closeChatPanel(chatPanel);
                     }
                 }
@@ -351,50 +304,27 @@ public class ChatWindowManager
 
             if (!activePanel.isWriteAreaEmpty())
             {
-                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                    GuiActivator.getResources().getI18NString(
-                        "service.gui.NON_EMPTY_CHAT_WINDOW_CLOSE"));
-                int answer = JOptionPane.showConfirmDialog(
-                    chatContainer.getFrame(),
-                    msgText,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.WARNING"),
-                    JOptionPane.OK_CANCEL_OPTION,
-                    JOptionPane.WARNING_MESSAGE);
+                int answer = showWarningMessage(
+                        "service.gui.NON_EMPTY_CHAT_WINDOW_CLOSE",
+                        chatContainer.getFrame());
 
                 if (answer == JOptionPane.OK_OPTION)
                     this.closeAllChats(chatContainer);
             }
             else if (System.currentTimeMillis() - lastMsgTimestamp < 2 * 1000)
             {
-                SIPCommMsgTextArea msgText = new SIPCommMsgTextArea(
-                    GuiActivator.getResources()
-                    .getI18NString("service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE"));
-
-                int answer = JOptionPane.showConfirmDialog(
-                    chatContainer.getFrame(),
-                    msgText,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.WARNING"),
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                int answer = showWarningMessage(
+                        "service.gui.CLOSE_CHAT_AFTER_NEW_MESSAGE",
+                        chatContainer.getFrame());
 
                 if (answer == JOptionPane.OK_OPTION)
                     this.closeAllChats(chatContainer);
             }
             else if (activePanel.containsActiveFileTransfers())
             {
-                SIPCommMsgTextArea msgText
-                    = new SIPCommMsgTextArea(GuiActivator.getResources()
-                        .getI18NString(
-                            "service.gui.CLOSE_CHAT_ACTIVE_FILE_TRANSFER"));
-
-                int answer = JOptionPane.showConfirmDialog(
-                    chatContainer.getFrame(),
-                    msgText,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.WARNING"),
-                    JOptionPane.OK_CANCEL_OPTION,
-                    JOptionPane.WARNING_MESSAGE);
+                int answer = showWarningMessage(
+                        "service.gui.CLOSE_CHAT_ACTIVE_FILE_TRANSFER",
+                        chatContainer.getFrame());
 
                 if (answer == JOptionPane.OK_OPTION)
                 {
@@ -1273,5 +1203,39 @@ public class ChatWindowManager
         {
             chatListeners.remove(listener);
         }
+    }
+
+    /**
+     * Displays a custom warning message.
+     *
+     * @param resourceString The resource name of the message to display.
+     * @param parentComponent Determines the Frame in which the dialog is
+     * displayed; if null, or if the parentComponent has no Frame, a default
+     * Frame is used
+     *
+     * @return The integer corresponding to the option choosen by the user.
+     */
+    private static int showWarningMessage(
+            String resourceString,
+            Component parentComponent)
+    {
+        SIPCommMsgTextArea msgText
+            = new SIPCommMsgTextArea(
+                    GuiActivator.getResources().getI18NString(resourceString));
+        JComponent textComponent = msgText;
+        if(OSUtils.IS_LINUX)
+        {
+            JScrollPane jScrollPane = new JScrollPane(msgText);
+            jScrollPane.setBorder(null);
+            textComponent = jScrollPane;
+        }
+
+        return JOptionPane.showConfirmDialog(
+                parentComponent,
+                textComponent,
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.WARNING"),
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE);
     }
 }
