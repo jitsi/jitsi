@@ -26,34 +26,35 @@ public class SystemActivityNotificationsServiceImpl
                Runnable
 {
     /**
-     * The logger.
+     * The <tt>Logger</tt> used by this
+     * <tt>SystemActivityNotificationsServiceImpl</tt> for logging output.
      */
-    private Logger logger = Logger.getLogger(
-        SystemActivityNotificationsServiceImpl.class.getName());
+    private final Logger logger
+        = Logger.getLogger(SystemActivityNotificationsServiceImpl.class);
 
     /**
      * The thread dispatcher of network change events.
      */
-    private SystemActivityEventDispatcher eventDispatcher =
-            new SystemActivityEventDispatcher();
+    private final SystemActivityEventDispatcher eventDispatcher
+        = new SystemActivityEventDispatcher();
 
     /**
      * A list of listeners registered for idle events.
      */
-    private final Map<SystemActivityChangeListener,Long> idleChangeListeners =
-        new HashMap<SystemActivityChangeListener, Long>();
+    private final Map<SystemActivityChangeListener,Long> idleChangeListeners
+        = new HashMap<SystemActivityChangeListener, Long>();
 
     /**
      * Listeners which are fired for idle state and which will be fired
      * with idle end when needed.
      */
     private final List<SystemActivityChangeListener> listenersInIdleState
-            = new ArrayList<SystemActivityChangeListener>();
+        = new ArrayList<SystemActivityChangeListener>();
 
     /**
      * The interval between checks when not idle.
      */
-    private static final int CHECK_FOR_IDLE_DEFAULT = 30*1000;
+    private static final int CHECK_FOR_IDLE_DEFAULT = 30 * 1000;
 
     /**
      * The interval between checks when idle. The interval is shorter
@@ -96,28 +97,32 @@ public class SystemActivityNotificationsServiceImpl
 
         // set the delegate and start notification in new thread
         // make sure we don't block startup process
-        Thread notifystartThread = new Thread(new Runnable() {
-            public void run()
-            {
-                SystemActivityNotifications.setDelegate(
-                    SystemActivityNotificationsServiceImpl.this);
-                SystemActivityNotifications.start();
-            }
-        }, "SystemActivityNotificationsServiceImpl");
+        Thread notifystartThread
+            = new Thread(
+                    new Runnable()
+                    {
+                        public void run()
+                        {
+                            SystemActivityNotifications.setDelegate(
+                                SystemActivityNotificationsServiceImpl.this);
+                            SystemActivityNotifications.start();
+                        }
+                    },
+                    "SystemActivityNotificationsServiceImpl");
         notifystartThread.setDaemon(true);
         notifystartThread.start();
 
         // a thread periodically checks system idle state and if it pass the
         // idle time for a particular listener, will inform it.
-        Thread idleNotifyThread = new Thread(this,
-            "SystemActivityNotificationsServiceImpl.IdleNotifyThread");
+        Thread idleNotifyThread
+            = new Thread(
+                    this,
+                    "SystemActivityNotificationsServiceImpl.IdleNotifyThread");
         idleNotifyThread.setDaemon(true);
         idleNotifyThread.start();
 
-        if(OSUtils.IS_LINUX)
-        {
+        if (OSUtils.IS_LINUX)
             NetworkManagerListenerImpl.getInstance().start();
-        }
     }
 
     /**
@@ -127,10 +132,8 @@ public class SystemActivityNotificationsServiceImpl
     {
         SystemActivityNotifications.stop();
 
-        if(OSUtils.IS_LINUX)
-        {
+        if (OSUtils.IS_LINUX)
             NetworkManagerListenerImpl.getInstance().stop();
-        }
 
         eventDispatcher.stop();
 
@@ -150,7 +153,7 @@ public class SystemActivityNotificationsServiceImpl
      * the underlying system.
      */
     public void addSystemActivityChangeListener(
-        SystemActivityChangeListener listener)
+            SystemActivityChangeListener listener)
     {
         eventDispatcher.addSystemActivityChangeListener(listener);
     }
@@ -162,7 +165,7 @@ public class SystemActivityNotificationsServiceImpl
      * @param listener the listener to remove.
      */
     public void removeSystemActivityChangeListener(
-        SystemActivityChangeListener listener)
+            SystemActivityChangeListener listener)
     {
         eventDispatcher.removeSystemActivityChangeListener(listener);
     }
@@ -178,15 +181,13 @@ public class SystemActivityNotificationsServiceImpl
      * the underlying system.
      */
     public void addIdleSystemChangeListener(
-        long idleTime,
-        SystemActivityChangeListener listener)
+            long idleTime,
+            SystemActivityChangeListener listener)
     {
         synchronized (idleChangeListeners)
         {
             if (!idleChangeListeners.containsKey(listener))
-            {
                 idleChangeListeners.put(listener, idleTime);
-            }
         }
     }
 
@@ -197,7 +198,7 @@ public class SystemActivityNotificationsServiceImpl
      * @param listener the listener to remove.
      */
     public void removeIdleSystemChangeListener(
-        SystemActivityChangeListener listener)
+            SystemActivityChangeListener listener)
     {
         synchronized (idleChangeListeners)
         {
@@ -278,7 +279,7 @@ public class SystemActivityNotificationsServiceImpl
             }
         }
 
-        if(evt != null)
+        if (evt != null)
             fireSystemActivityEvent(evt);
     }
 
@@ -307,11 +308,11 @@ public class SystemActivityNotificationsServiceImpl
      */
     @Override
     public void notifyNetworkChange(
-        int family,
-        long luidIndex,
-        String name,
-        long type,
-        boolean connected)
+            int family,
+            long luidIndex,
+            String name,
+            long type,
+            boolean connected)
     {
         long current = System.currentTimeMillis();
         if(current - lastNetworkChange <= NETWORK_EVENT_SILENT_TIME
@@ -346,26 +347,25 @@ public class SystemActivityNotificationsServiceImpl
                     // check
                     idleTime = SystemActivityNotifications.getLastInput();
 
-                    if(idleTime < idleStateCheckDelay
-                        && listenersInIdleState.size() > 0)
+                    if((idleTime < idleStateCheckDelay)
+                            && (listenersInIdleState.size() > 0))
                     {
-                        for(SystemActivityChangeListener l: listenersInIdleState)
+                        for(SystemActivityChangeListener l
+                                : listenersInIdleState)
                         {
                             fireSystemIdleEndEvent(l);
                         }
                         listenersInIdleState.clear();
                     }
 
-                    for(Map.Entry<SystemActivityChangeListener, Long> entry :
-                        idleChangeListeners.entrySet())
+                    for(Map.Entry<SystemActivityChangeListener, Long> entry
+                            : idleChangeListeners.entrySet())
                     {
                         SystemActivityChangeListener listener =
                             entry.getKey();
 
-                        if(listenersInIdleState.contains(listener))
-                            continue;
-
-                        if(entry.getValue() <= idleTime)
+                        if(!listenersInIdleState.contains(listener)
+                                && (entry.getValue() <= idleTime))
                         {
                             fireSystemIdleEvent(listener);
 
@@ -452,8 +452,10 @@ public class SystemActivityNotificationsServiceImpl
      */
     protected void fireSystemIdleEvent(SystemActivityChangeListener listener)
     {
-        SystemActivityEvent evt = new SystemActivityEvent(
-            this, SystemActivityEvent.EVENT_SYSTEM_IDLE);
+        SystemActivityEvent evt
+            = new SystemActivityEvent(
+                    this,
+                    SystemActivityEvent.EVENT_SYSTEM_IDLE);
 
         if (logger.isDebugEnabled())
             logger.debug("Dispatching SystemActivityEvent evt=" + evt);
@@ -462,9 +464,12 @@ public class SystemActivityNotificationsServiceImpl
         {
             listener.activityChanged(evt);
         }
-        catch (Throwable e)
+        catch (Throwable t)
         {
-            logger.error("Error delivering event", e);
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+                logger.error("Error delivering event", t);
         }
     }
 
@@ -476,8 +481,10 @@ public class SystemActivityNotificationsServiceImpl
     protected void fireSystemIdleEndEvent(
             SystemActivityChangeListener listener)
     {
-        SystemActivityEvent evt = new SystemActivityEvent(
-            this, SystemActivityEvent.EVENT_SYSTEM_IDLE_END);
+        SystemActivityEvent evt
+            = new SystemActivityEvent(
+                    this,
+                    SystemActivityEvent.EVENT_SYSTEM_IDLE_END);
 
         if (logger.isDebugEnabled())
             logger.debug("Dispatching SystemActivityEvent evt=" + evt);
@@ -486,9 +493,12 @@ public class SystemActivityNotificationsServiceImpl
         {
             listener.activityChanged(evt);
         }
-        catch (Throwable e)
+        catch (Throwable t)
         {
-            logger.error("Error delivering event", e);
+            if (t instanceof ThreadDeath)
+                throw (ThreadDeath) t;
+            else
+                logger.error("Error delivering event", t);
         }
     }
 

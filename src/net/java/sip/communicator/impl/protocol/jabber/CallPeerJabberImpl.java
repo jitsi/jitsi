@@ -14,7 +14,6 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentP
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
@@ -883,8 +882,8 @@ public class CallPeerJabberImpl
     public void sendModifyVideoContent(boolean allowed)
     {
         ContentPacketExtension ext = new ContentPacketExtension();
-        ContentPacketExtension remoteContent = getMediaHandler().
-            getRemoteContent(MediaType.VIDEO.toString());
+        ContentPacketExtension remoteContent
+            = getMediaHandler().getRemoteContent(MediaType.VIDEO.toString());
 
         if(remoteContent == null)
         {
@@ -892,11 +891,13 @@ public class CallPeerJabberImpl
                 sendAddVideoContent();
             return;
         }
-        else if(!allowed &&
-                ((!isInitiator &&
-                 remoteContent.getSenders() == SendersEnum.initiator) ||
-                (isInitiator &&
-                 remoteContent.getSenders() == SendersEnum.responder)))
+        else if(!allowed
+                && ((!isInitiator
+                        && (remoteContent.getSenders()
+                                == SendersEnum.initiator))
+                    || (isInitiator
+                        && (remoteContent.getSenders()
+                                == SendersEnum.responder))))
         {
             sendRemoveVideoContent();
             return;
@@ -940,21 +941,27 @@ public class CallPeerJabberImpl
         ext.setCreator(remoteContent.getCreator());
         ext.setName(remoteContent.getName());
 
-        JingleIQ contentIQ = JinglePacketFactory
-            .createContentModify(getProtocolProvider().getOurJID(),
-                            this.peerJID, getJingleSID(), ext);
+        ProtocolProviderServiceJabberImpl protocolProvider
+            = getProtocolProvider();
+        JingleIQ contentIQ
+            = JinglePacketFactory.createContentModify(
+                    protocolProvider.getOurJID(),
+                    this.peerJID,
+                    getJingleSID(),
+                    ext);
 
-        getProtocolProvider().getConnection().sendPacket(contentIQ);
+        protocolProvider.getConnection().sendPacket(contentIQ);
 
         try
         {
-            getMediaHandler().reinitContent(remoteContent.getName(), ext,
-                false);
-            getMediaHandler().start();
+            CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
+
+            mediaHandler.reinitContent(remoteContent.getName(), ext, false);
+            mediaHandler.start();
         }
         catch(Exception e)
         {
-            logger.warn("Exception occurred when media reinitialization", e);
+            logger.warn("Exception occurred during media reinitialization", e);
         }
      }
 

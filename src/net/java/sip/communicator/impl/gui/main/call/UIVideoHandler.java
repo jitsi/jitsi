@@ -351,38 +351,38 @@ public class UIVideoHandler
      * Removes the video listener
      */
     public void removeVideoListener(
-                                CallPeer callPeer,
-                                VideoTelephonyListener videoTelephonyListener)
+            CallPeer callPeer,
+            VideoTelephonyListener videoTelephonyListener)
     {
         final Call call = callPeer.getCall();
         if (call == null)
             return;
 
-        final OperationSetVideoTelephony telephony =
-            call.getProtocolProvider()
-                .getOperationSet(OperationSetVideoTelephony.class);
+        final OperationSetVideoTelephony telephony
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetVideoTelephony.class);
         if (telephony == null)
             return;
 
         if (videoTelephonyListener == null)
             return;
 
-        telephony.removeVideoListener(
-                callPeer, videoTelephonyListener);
+        telephony.removeVideoListener(callPeer, videoTelephonyListener);
 
         telephony.removeVisualComponentResolveListener(
-                callPeer, videoTelephonyListener);
+                callPeer,
+                videoTelephonyListener);
 
         if (!CallManager.isVideoStreaming(call) && isLocalVideoListenerAdded)
         {
             telephony.removePropertyChangeListener(
-                    call, videoTelephonyListener);
+                    call,
+                    videoTelephonyListener);
             isLocalVideoListenerAdded = false;
 
             if (localVideo != null)
             {
-                telephony.disposeLocalVisualComponent(
-                        callPeer, localVideo);
+                telephony.disposeLocalVisualComponent(callPeer, localVideo);
                 localVideo = null;
             }
         }
@@ -390,7 +390,7 @@ public class UIVideoHandler
         synchronized (videoContainers)
         {
             if (!CallManager.isVideoStreaming(call)
-                && telephony.equals(videoTelephony))
+                    && telephony.equals(videoTelephony))
                 videoTelephony = null;
 
             int videoContainerCount;
@@ -410,9 +410,7 @@ public class UIVideoHandler
         if (memberToolbars != null)
         {
             for (ConferenceMember member : callPeer.getConferenceMembers())
-            {
                 memberToolbars.remove(member);
-            }
         }
 
         callRenderer.exitFullScreen();
@@ -510,7 +508,7 @@ public class UIVideoHandler
             CallPanel callContainer = callRenderer.getCallContainer();
 
             if (callContainer.isConference()
-                && !(callRenderer instanceof VideoConferenceCallPanel))
+                    && !(callRenderer instanceof VideoConferenceCallPanel))
             {
                 callContainer.enableConferenceInterface(true);
             }
@@ -524,10 +522,11 @@ public class UIVideoHandler
         public void videoRemoved(VideoEvent event)
         {
             CallPanel callContainer = callRenderer.getCallContainer();
-            if (callContainer.isConference()
-                && callPeer.getCall() != null
-                && !CallManager.isVideoStreaming(callPeer.getCall())
-                && (callRenderer instanceof VideoConferenceCallPanel))
+
+            if (callContainer.isConference() 
+                    && (callPeer.getCall() != null)
+                    && !CallManager.isVideoStreaming(callPeer.getCall())
+                    && (callRenderer instanceof VideoConferenceCallPanel))
             {
                 callContainer.enableConferenceInterface(false);
             }
@@ -557,13 +556,15 @@ public class UIVideoHandler
 
             // If the member is already added in the call we refresh the
             // the video container, otherwise it will be refreshed when added.
-            if ((CallManager.addressesAreEqual( confMember.getAddress(),
-                                                focusCallPeer.getAddress())
-                    && peerToolbars.containsKey(focusCallPeer))
-                || memberToolbars.containsKey(event.getConferenceMember()))
+            if ((CallManager.addressesAreEqual(
+                            confMember.getAddress(),
+                            focusCallPeer.getAddress())
+                        && peerToolbars.containsKey(focusCallPeer))
+                    || memberToolbars.containsKey(event.getConferenceMember()))
             {
                 handleVideoEvent(
-                    confMember.getConferenceFocusCallPeer().getCall(), null);
+                    confMember.getConferenceFocusCallPeer().getCall(),
+                    null);
             }
         }
     }
@@ -576,12 +577,16 @@ public class UIVideoHandler
      * <tt>Component</tt> representing video and the provider it was added into
      * or <tt>null</tt> if such information is not available
      */
-    public void handleVideoEvent(   final Call call,
-                                    final VideoEvent event)
+    public void handleVideoEvent(final Call call, final VideoEvent event)
     {
         if (event != null && logger.isTraceEnabled())
-            logger.trace("UI video event received originated in: "
-                    + event.getOrigin() + " and is of type: " + event.getType());
+        {
+            logger.trace(
+                    "Received UI video event with origin "
+                        + event.getOrigin()
+                        + " and type "
+                        + event.getType());
+        }
 
         if ((event != null) && !event.isConsumed())
         {
@@ -596,11 +601,11 @@ public class UIVideoHandler
                     switch (origin)
                     {
                     case VideoEvent.LOCAL:
-                        this.localVideo = video;
-                        this.closeButton = new CloseButton();
+                        localVideo = video;
+                        closeButton = new CloseButton();
                         break;
                     case VideoEvent.REMOTE:
-                        this.remoteVideo = video;
+                        remoteVideo = video;
                         break;
                     }
 
@@ -619,13 +624,13 @@ public class UIVideoHandler
                     case VideoEvent.LOCAL:
                         if (localVideo == video)
                         {
-                            this.localVideo = null;
-                            this.closeButton = null;
+                            localVideo = null;
+                            closeButton = null;
                         }
                         break;
                     case VideoEvent.REMOTE:
                         if (remoteVideo == video)
-                            this.remoteVideo = null;
+                            remoteVideo = null;
                         break;
                     }
                     break;
@@ -1607,6 +1612,21 @@ public class UIVideoHandler
         return remoteVideo;
     }
 
+    /**
+     * Creates a new <tt>Component</tt> which is to display a specific
+     * <tt>ImageIcon</tt> representing the photo of a participant in a call and
+     * a <tt>Component</tt> depicting a bar of tools related to video.
+     *
+     * @param photoLabelIcon the <tt>ImageIcon</tt> which represents the photo
+     * of a participant in a call and which is to be displayed by the new
+     * <tt>Component</tt>
+     * @param videoToolbar the <tt>Component</tt> which represents a bar of
+     * tools related to the video and associated with the call participant
+     * depicted by <tt>photoLabelIcon</tt> and which is to be added into the new
+     * <tt>Component</tt>
+     * @return a new <tt>Component</tt> which displays the specified
+     * <tt>photoLabelIcon</tt> and <tt>videoToolbar</tt>
+     */
     private Component createDefaultPhotoPanel(
             ImageIcon photoLabelIcon,
             Component videoToolbar)

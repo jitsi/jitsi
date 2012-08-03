@@ -1310,7 +1310,8 @@ public abstract class CallPeerMediaHandler
              */
             firePropertyChange(
                     OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING,
-                    null, this.videoDirectionUserPreference);
+                    null,
+                    this.videoDirectionUserPreference);
 
             if(!stream.isStarted())
             {
@@ -1319,13 +1320,14 @@ public abstract class CallPeerMediaHandler
                         MediaType.VIDEO);
                 stream.start();
 
-                // send empty packet to deblock some kind of RTP proxy to let
-                // just one user sends its video
-                if ((stream instanceof VideoMediaStream)
-                        /* && !isLocalVideoTransmissionEnabled() */)
-                {
+                /*
+                 * Send an empty packet to unblock some kinds of RTP proxies.
+                 * Do not consult whether the local video should be streamed and
+                 * send the hole-punch packet anyway to let the remote video
+                 * reach this local peer.
+                 */
+                if (stream instanceof VideoMediaStream)
                     sendHolePunchPacket(stream.getTarget());
-                }
             }
         }
     }

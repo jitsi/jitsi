@@ -126,8 +126,10 @@ public class AutoAwayConfigurationPanel
             catch(NumberFormatException r){}
         }
 
-        boolean e = configService.getBoolean(Preferences.ENABLE,
-            Boolean.parseBoolean(enabledDefault));
+        boolean e
+            = configService.getBoolean(
+                    Preferences.ENABLE,
+                    Boolean.parseBoolean(enabledDefault));
         this.enable.setSelected(e);
         this.timer.setEnabled(e);
 
@@ -143,9 +145,11 @@ public class AutoAwayConfigurationPanel
         ConfigurationService configService
             = GeneralConfigPluginActivator.getConfigurationService();
 
-        configService.setProperty(Preferences.ENABLE,
-                                  Boolean.toString(enable.isSelected()));
-        configService.setProperty(Preferences.TIMER,
-                                  timer.getValue().toString());
+        configService.setProperty(
+                Preferences.ENABLE,
+                Boolean.toString(enable.isSelected()));
+        configService.setProperty(
+                Preferences.TIMER,
+                timer.getValue().toString());
     }
 }

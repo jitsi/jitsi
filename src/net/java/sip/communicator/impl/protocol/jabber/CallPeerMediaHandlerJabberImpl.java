@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import ch.imvs.sdes4j.srtp.*;
-
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -1008,8 +1006,8 @@ public class CallPeerMediaHandlerJabberImpl
             return;
         }
 
-        List<MediaFormat> supportedFormats = JingleUtils.extractFormats(
-                        description, getDynamicPayloadTypes());
+        List<MediaFormat> supportedFormats
+            = JingleUtils.extractFormats(description, getDynamicPayloadTypes());
 
         MediaDevice dev = getDefaultDevice(mediaType);
 
@@ -1032,8 +1030,10 @@ public class CallPeerMediaHandlerJabberImpl
             //remote party must have messed up our Jingle description.
             //throw an exception.
             ProtocolProviderServiceJabberImpl.throwOperationFailedException(
-                "Remote party sent an invalid Jingle answer.",
-                 OperationFailedException.ILLEGAL_ARGUMENT, null, logger);
+                    "Remote party sent an invalid Jingle answer.",
+                    OperationFailedException.ILLEGAL_ARGUMENT,
+                    null,
+                    logger);
         }
 
         addZRTPAdvertisedEncryptions(true, description, mediaType);
@@ -1045,7 +1045,6 @@ public class CallPeerMediaHandlerJabberImpl
         //determine the direction that we need to announce.
         MediaDirection remoteDirection
             = JingleUtils.getDirection(content, getPeer().isInitiator());
-
         MediaDirection direction
             = devDirection.getDirectionForAnswer(remoteDirection);
 
@@ -1053,22 +1052,20 @@ public class CallPeerMediaHandlerJabberImpl
         List<RTPExtension> remoteRTPExtensions
                 = JingleUtils.extractRTPExtensions(
                         description, getRtpExtensionsRegistry());
-
         List<RTPExtension> supportedExtensions
                 = getExtensionsForType(mediaType);
+        List<RTPExtension> rtpExtensions
+            = intersectRTPExtensions(remoteRTPExtensions, supportedExtensions);
 
-        List<RTPExtension> rtpExtensions = intersectRTPExtensions(
-                        remoteRTPExtensions, supportedExtensions);
+        Map<String, String> adv
+            = supportedFormats.get(0).getAdvancedAttributes();
 
-        Map<String, String> adv = supportedFormats.get(0).getAdvancedAttributes();
         if(adv != null)
         {
             for(Map.Entry<String, String> f : adv.entrySet())
             {
                 if(f.getKey().equals("imageattr"))
-                {
                     supportQualityControls = true;
-                }
             }
         }
 
@@ -1090,7 +1087,7 @@ public class CallPeerMediaHandlerJabberImpl
                     MediaFormat fmt = fmts.get(0);
 
                     ((VideoMediaStream)stream).updateQualityControl(
-                        fmt.getAdvancedAttributes());
+                            fmt.getAdvancedAttributes());
                 }
             }
 
@@ -1103,15 +1100,22 @@ public class CallPeerMediaHandlerJabberImpl
                     = (dev == null)
                         ? null
                         : intersectFormats(
-                            supportedFormats,
-                            dev.getSupportedFormats(
-                                sendQualityPreset, receiveQualityPreset));
+                                supportedFormats,
+                                dev.getSupportedFormats(
+                                        sendQualityPreset,
+                                        receiveQualityPreset));
             }
         }
 
         // create the corresponding stream...
-        initStream(content.getName(), connector, dev,
-                supportedFormats.get(0), target, direction, rtpExtensions,
+        initStream(
+                content.getName(),
+                connector,
+                dev,
+                supportedFormats.get(0),
+                target,
+                direction,
+                rtpExtensions,
                 masterStream);
     }
 

@@ -175,25 +175,26 @@ public class StatusUpdateThread
         ResourceManagementService resources
             = GeneralConfigPluginActivator.getResources();
 
-        String enabledDefault =
-            resources.getSettingsString(Preferences.ENABLE);
+        String enabledDefault = resources.getSettingsString(Preferences.ENABLE);
 
-        String timerDefaultStr =
-            resources.getSettingsString(Preferences.TIMER);
+        String timerDefaultStr = resources.getSettingsString(Preferences.TIMER);
         int timerDefault = 0;
 
-        if(timerDefaultStr != null)
+        if (timerDefaultStr != null)
         {
             try
             {
                 timerDefault = Integer.parseInt(timerDefaultStr);
             }
-            catch(NumberFormatException r){}
+            catch (NumberFormatException r)
+            {
+            }
         }
 
         return
-            configService.getBoolean(Preferences.ENABLE,
-                                     Boolean.valueOf(enabledDefault))
+            configService.getBoolean(
+                    Preferences.ENABLE,
+                    Boolean.parseBoolean(enabledDefault))
                 ? configService.getInt(Preferences.TIMER, timerDefault)
                 : 0;
     }
