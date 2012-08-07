@@ -79,15 +79,7 @@ public class ChatWindowManager
             if(!chatPanel.isShown())
                 chatContainer.addChat(chatPanel);
 
-            if(chatContainer.getFrame().isVisible())
-            {
-                chatContainer.openChat(chatPanel, setSelected);
-            }
-            else
-            {
-                chatContainer.getFrame().setVisible(true);
-                chatContainer.setCurrentChat(chatPanel);
-            }
+            chatContainer.openChat(chatPanel, setSelected);
         }
     }
 

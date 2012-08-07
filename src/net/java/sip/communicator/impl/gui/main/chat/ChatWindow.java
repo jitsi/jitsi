@@ -1141,14 +1141,27 @@ public class ChatWindow
      */
     public void openChat(ChatPanel chatPanel, boolean setSelected)
     {
+        boolean isWindowVisible = isVisible();
+
         if(getExtendedState() != JFrame.ICONIFIED)
         {
             if(ConfigurationManager.isAutoPopupNewMessage() || setSelected)
+            {
+                if (!isVisible())
+                    setVisible(true);
+
                 toFront();
+            }
+            else
+            {
+                setFocusableWindowState(false);
+                setVisible(true);
+                setFocusableWindowState(true);
+            }
         }
         else
         {
-            if(setSelected)
+            if (setSelected)
             {
                 setExtendedState(JFrame.NORMAL);
                 toFront();
@@ -1160,7 +1173,7 @@ public class ChatWindow
                 setTitle("*" + chatWindowTitle);
         }
 
-        if(setSelected)
+        if (setSelected || !isWindowVisible)
         {
             setCurrentChat(chatPanel);
         }
