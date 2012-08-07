@@ -749,4 +749,16 @@ public class JabberAccountRegistrationWizard
     {
         return null;
     }
+
+    /**
+     * Return the wizard's protocolProvider, if the wizard modifies an
+     * account, null if it creates a new one
+     * @return the wizard's protocolProvider
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        if(isModification())
+            return protocolProvider;
+        return null;
+    }
 }

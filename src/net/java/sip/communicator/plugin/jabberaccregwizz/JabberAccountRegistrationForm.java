@@ -365,9 +365,20 @@ public class JabberAccountRegistrationForm
             accountPanel.setPassword(password);
             accountPanel.setRememberPassword(true);
         }
-
+        
         String serverAddress
             = accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
+
+        //The idea here is to not show the "change password" button for
+        //GTalk and Facebook acounts, or accounts in gmail, since we know
+        //they don't support inband password changes.
+        //This is probably a bad way to achieve it...
+        if ( !serverAddress.equals("gmail.com")
+                && !serverAddress.equals("talk.google.com")
+                && !serverAddress.equals("chat.facebook.com"))
+        {
+            accountPanel.showChangePasswordButton();
+        }
 
         connectionPanel.setServerAddress(serverAddress);
 
@@ -698,5 +709,14 @@ public class JabberAccountRegistrationForm
         }
 
         return password;
+    }
+    
+    /**
+     * Returns the wizard that created the form
+     * @return The form wizard
+     */
+    public JabberAccountRegistrationWizard getWizard()
+    {
+        return wizard;
     }
 }
