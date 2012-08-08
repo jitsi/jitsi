@@ -925,14 +925,25 @@
         <delete failonerror="false" file="${macosx.resrc.dir}/felix.client.run.properties"/>
         <symlink action="delete" failonerror="false"
                  link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+
         <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Headers"/>
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Headers"/>
         <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Resources"/>
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Resources"/>
         <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Growl"/>
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Growl"/>
         <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Versions/Current"/>
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/Current"/>
+
+        <symlink action="delete" failonerror="false"
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Headers"/>
+        <symlink action="delete" failonerror="false"
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Resources"/>
+        <symlink action="delete" failonerror="false"
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Growl"/>
+        <symlink action="delete" failonerror="false"
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Versions/Current"/>
+
         <symlink action="delete" failonerror="false"
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Headers"/>
         <symlink action="delete" failonerror="false"
@@ -975,9 +986,6 @@
       <copy file="${lib}/felix.client.run.properties"
             tofile="${macosx.resrc.dir}/felix.client.run.properties"
             overwrite="true"/>
-      <replace file="${macosx.resrc.dir}/felix.client.run.properties"
-            token="org.osgi.framework.system.packages.extra="
-            value="org.osgi.framework.system.packages.extra= org.growl4j;"/>
 
       <replace file="${macosx.resrc.dir}/felix.client.run.properties"
             token="swingnotification.jar">
@@ -1065,6 +1073,7 @@
             <exclude name="lib/bundle/junit.jar" />
             <include name="lib/native/mac/*.jnilib" />
             <include name="lib/native/mac/*.dylib" />
+            <exclude name="lib/native/mac/libgrowl4j.dylib" />
             <exclude name="lib/native/mac/libsparkle_init.dylib" />
             <include name="${bundles.dest}/*.jar" />
             <exclude name="${bundles.dest}/*-slick.jar" />
@@ -1080,16 +1089,25 @@
 
       <!-- Install the Growl Framework in the application package -->
       <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/Frameworks"/>
-      <unzip src="${macosx.resrc.dir}/Growl.framework.zip"
+      <unzip src="${macosx.resrc.dir}/GrowlFramework.zip"
              dest="${macosx.app.dir}/${application.name}.app/Contents/Frameworks"/>
       <!-- Ant unzip tasks does not preserve symlinks, so we recreate them -->
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Versions/Current"
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/Current"
                resource="./A"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Headers"
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Headers"
                resource="./Versions/Current/Headers"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Resources"
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Resources"
                resource="./Versions/Current/Resources"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Growl.framework/Growl"
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Growl"
+               resource="./Versions/Current/Growl"/>
+
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Versions/Current"
+               resource="./A"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Headers"
+               resource="./Versions/Current/Headers"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Resources"
+               resource="./Versions/Current/Resources"/>
+      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Growl"
                resource="./Versions/Current/Growl"/>
 
       <!-- Add the url types in the Info.plist file -->
@@ -1118,6 +1136,19 @@
       </replace>
       <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib"
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+
+      <copy file="lib/native/mac/libgrowl4j.dylib"
+            todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
+      <!-- Growl4j generates "libgrowl4j.dylib" dynamic lirbary which uses the
+      Growl frmework.  This link to the Growl framework must be changed to
+      point to Jitsi embedded Growl framework. -->
+      <exec executable="install_name_tool">
+          <arg value="-change" />
+          <arg value="@loader_path/GrowlFramework/Growl.framework/Versions/A/Growl" />
+          <arg value="@loader_path/../../../../../Frameworks/GrowlFramework/Growl.framework/Versions/A/Growl" />
+          <arg
+          value="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/libgrowl4j.dylib"/>
+      </exec>
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.

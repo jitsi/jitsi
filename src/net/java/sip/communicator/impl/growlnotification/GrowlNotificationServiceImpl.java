@@ -58,29 +58,26 @@ public class GrowlNotificationServiceImpl
         if (logger.isDebugEnabled())
             logger.debug("Starting the Growl Notification implementation.");
 
-        if(Growl.isGrowlRunning())
-        {
-            String[] dict = { "Default", "Welcome message" };
-            byte[] sipIcon =
-                GrowlNotificationActivator.getResources().
-                    getImageInBytes("service.gui.SIP_COMMUNICATOR_LOGO_45x45");
-            growl = new Growl (
+        String[] dict = { "Default", "Welcome message" };
+        byte[] sipIcon = GrowlNotificationActivator.getResources().
+            getImageInBytes("service.gui.SIP_COMMUNICATOR_LOGO_45x45");
+        growl = new Growl (
                 GrowlNotificationActivator.getResources()
                     .getSettingsString("service.gui.APPLICATION_NAME"),
                 "net.sip-communicator",
                 sipIcon,
                 dict,
                 dict);
-            growl.addClickedNotificationsListener(this);
+        growl.addClickedNotificationsListener(this);
 
-            growl.notifyGrowlOf(
+        growl.notifyGrowlOf(
                 GrowlNotificationActivator.getResources()
                     .getSettingsString("service.gui.APPLICATION_NAME"),
                 GrowlNotificationActivator.getResources()
                     .getSettingsString("service.gui.APPLICATION_WEB_SITE"),
                 "Welcome message",
-                null, null);
-        }
+                null,
+                null);
     }
 
     /**
@@ -94,15 +91,6 @@ public class GrowlNotificationServiceImpl
         {
             growl.doFinalCleanUp();
         }
-    }
-
-    /**
-     * Checks if Growl is present on the system
-     * @return <tt>true</tt> if Growl is installed and <tt>false</tt>otherwise
-     */
-    public boolean isGrowlInstalled()
-    {
-        return Growl.isGrowlInstalled();
     }
 
     /**

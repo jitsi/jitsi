@@ -12,6 +12,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.OSUtils; // Disambiguation
 import org.osgi.framework.*;
 
 /**
@@ -59,6 +60,10 @@ public class GrowlNotificationActivator
      */
     public void start(BundleContext bc) throws Exception
     {
+        // This bundle is only available for Mac os.
+        if(!OSUtils.IS_MAC)
+            return;
+
         if (logger.isInfoEnabled())
             logger.info("Growl Notification ...[Starting]");
         bundleContext  = bc;
@@ -67,16 +72,8 @@ public class GrowlNotificationActivator
 
         handler = new GrowlNotificationServiceImpl();
 
-        if (handler.isGrowlInstalled() && handler.isGrowlRunning())
-        {
-            handler.start(bc);
-            bc.registerService(PopupMessageHandler.class.getName(), handler, null);
-        } else
-        {
-            if (logger.isInfoEnabled())
-                logger.info("Growl Notification ...[Aborted]");
-            return;
-        }
+        handler.start(bc);
+        bc.registerService(PopupMessageHandler.class.getName(), handler, null);
 
         if (logger.isInfoEnabled())
             logger.info("Growl Notification ...[Started]");
