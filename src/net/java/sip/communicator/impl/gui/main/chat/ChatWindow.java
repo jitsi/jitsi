@@ -1145,14 +1145,14 @@ public class ChatWindow
 
         if(getExtendedState() != JFrame.ICONIFIED)
         {
-            if(ConfigurationManager.isAutoPopupNewMessage() || setSelected)
+            if (ConfigurationManager.isAutoPopupNewMessage() || setSelected)
             {
                 if (!isVisible())
                     setVisible(true);
 
                 toFront();
             }
-            else
+            else if (!isWindowVisible)
             {
                 setFocusableWindowState(false);
                 setVisible(true);
