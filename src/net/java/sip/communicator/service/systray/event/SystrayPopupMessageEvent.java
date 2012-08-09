@@ -32,7 +32,7 @@ public class SystrayPopupMessageEvent
      */
     public SystrayPopupMessageEvent(Object source)
     {
-        super(source);
+        this(source, null);
     }
 
     /**
