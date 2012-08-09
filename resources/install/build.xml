@@ -1137,18 +1137,8 @@
       <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib"
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
 
-      <copy file="lib/native/mac/libgrowl4j.dylib"
+      <copy file="${macosx.resrc.dir}/libgrowl4j.dylib"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
-      <!-- Growl4j generates "libgrowl4j.dylib" dynamic lirbary which uses the
-      Growl frmework.  This link to the Growl framework must be changed to
-      point to Jitsi embedded Growl framework. -->
-      <exec executable="install_name_tool">
-          <arg value="-change" />
-          <arg value="@loader_path/GrowlFramework/Growl.framework/Versions/A/Growl" />
-          <arg value="@loader_path/../../../../../Frameworks/GrowlFramework/Growl.framework/Versions/A/Growl" />
-          <arg
-          value="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/libgrowl4j.dylib"/>
-      </exec>
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.

@@ -1751,8 +1751,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!--BUNDLE-GROWLNOTIFICATION-->
-    <target name="bundle-growlnotification"
-        depends="link-libgrowl4j-with-growl-framework">
+    <target name="bundle-growlnotification">
         <!-- Creates a bundle for the growlnotification plugin.-->
         <jar compress="false" destfile="${bundles.dest.mac}/growlnotification.jar"
             manifest="${src}/net/java/sip/communicator/impl/growlnotification/growlnotification.manifest.mf">
@@ -2750,17 +2749,5 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msofficecomm"
                     prefix="net/java/sip/communicator/plugin/msofficecomm" />
         </jar>
-    </target>
-
-    <target name="link-libgrowl4j-with-growl-framework" if="is.running.macos">
-        <!-- Growl4j generates "libgrowl4j.dylib" dynamic lirbary which uses the
-        Growl frmework.  This link to the Growl framework must be changed to
-        point to Jitsi embedded Growl framework. -->
-        <exec executable="install_name_tool">
-            <arg value="-change" />
-            <arg value="@executable_path/../Frameworks/Growl.framework/Versions/A/Growl" />
-            <arg value="@loader_path/GrowlFramework/Growl.framework/Versions/A/Growl" />
-            <arg value="lib/native/mac/libgrowl4j.dylib" />
-        </exec>
     </target>
 </project>
