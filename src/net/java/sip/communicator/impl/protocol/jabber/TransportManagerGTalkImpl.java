@@ -264,7 +264,7 @@ public class TransportManagerGTalkImpl
                         }
 
                         String user = relayData.get("username");
-                        String password = relayData.get("passsword");
+                        String password = relayData.get("password");
                         StunServerDescriptor dsc =
                             new StunServerDescriptor(
                                     relayData.get("relay"),
@@ -420,12 +420,14 @@ public class TransportManagerGTalkImpl
                     {
                         harvester = new GoogleTurnSSLCandidateHarvester(
                             addr,
-                            new String(desc.getUsername()));
+                            new String(desc.getUsername()),
+                            new String(desc.getPassword()));
                     }
                     else
                         harvester = new GoogleTurnCandidateHarvester(
                             addr,
-                            new String(desc.getUsername()));
+                            new String(desc.getUsername()),
+                            new String(desc.getPassword()));
                 }
             }
             else

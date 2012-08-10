@@ -339,7 +339,16 @@ public class GTalkPacketFactory
 
         // different username/password for each candidate ?
         packet.setUsername(((LocalCandidate)candidate).getUfrag());
-        packet.setPassword("");
+        if(candidate instanceof GoogleRelayedCandidate)
+        {
+            packet.setPassword(
+                    ((GoogleRelayedCandidate)
+                     candidate).getPassword());
+        }
+        else
+        {
+            packet.setPassword("");
+        }
         packet.setAddress(transportAddress.getHostAddress());
         packet.setPort(transportAddress.getPort());
         if(transportAddress.getPort() != 443)
