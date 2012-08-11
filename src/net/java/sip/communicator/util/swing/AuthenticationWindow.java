@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
 
@@ -26,6 +27,11 @@ public class AuthenticationWindow
     implements ActionListener
 {
     private static final long serialVersionUID = 1L;
+
+    /**
+     * Used for logging.
+     */
+    private static Logger logger = Logger.getLogger(AuthenticationWindow.class);
 
     /**
      * Info text area.
@@ -124,6 +130,11 @@ public class AuthenticationWindow
     private String passwordLabelText = null;
 
     /**
+     * The sign up link if specified.
+     */
+    private String signupLink = null;
+
+    /**
      * Creates an instance of the <tt>LoginWindow</tt>.
      *
      * @param server the server name
@@ -135,7 +146,7 @@ public class AuthenticationWindow
                                 ImageIcon icon)
     {
         this(null, null, server, isUserNameEditable, false,
-             icon, null, null, null, null, null);
+             icon, null, null, null, null, null, null);
     }
     
     /**
@@ -148,6 +159,9 @@ public class AuthenticationWindow
      * @param windowText customized window text
      * @param usernameLabelText customized username field label text
      * @param passwordLabelText customized password field label text
+     * @param errorMessage an error message if this dialog is shown to indicate
+     * the user that something went wrong
+     * @param signupLink an URL that allows the user to sign up
      */
     private AuthenticationWindow(String userName,
                                 char[] password,
@@ -159,7 +173,8 @@ public class AuthenticationWindow
                                 String windowText,
                                 String usernameLabelText,
                                 String passwordLabelText,
-                                String errorMessage)
+                                String errorMessage,
+                                String signupLink)
     {
         super(false);
 
@@ -168,6 +183,7 @@ public class AuthenticationWindow
         this.usernameLabelText = usernameLabelText;
         this.passwordLabelText = passwordLabelText;
         this.isRememberPassword = isRememberPassword;
+        this.signupLink = signupLink;
 
         init(userName, password, server, isUserNameEditable, icon, errorMessage);
     }
@@ -263,7 +279,34 @@ public class AuthenticationWindow
         this(userName, password, server,
                     isUserNameEditable,
                     false,
-                    icon, null, null, null, null, errorMessage);
+                    icon, null, null, null, null, errorMessage, null);
+    }
+
+    /**
+     * Creates an instance of the <tt>LoginWindow</tt>.
+     *
+     * @param userName the user name to set by default
+     * @param password the password to set by default
+     * @param server the server name this authentication window is about
+     * @param isUserNameEditable indicates if the user name should be editable
+     * by the user or not
+     * @param icon the icon displayed on the left of the authentication window
+     * @param errorMessage an error message explaining a reason for opening
+     * the authentication dialog (when a wrong password was provided, etc.)
+     * @param signupLink an URL that allows the user to sign up
+     */
+    public AuthenticationWindow(String userName,
+                                char[] password,
+                                String server,
+                                boolean isUserNameEditable,
+                                ImageIcon icon,
+                                String errorMessage,
+                                String signupLink)
+    {
+        this(userName, password, server,
+                    isUserNameEditable,
+                    false,
+                    icon, null, null, null, null, errorMessage, signupLink);
     }
 
     /**
@@ -283,7 +326,7 @@ public class AuthenticationWindow
                 boolean isUserNameEditable,
                 ImageIcon icon)
     {
-        this(userName, password, server, isUserNameEditable, icon, null);
+        this(userName, password, server, isUserNameEditable, icon, null, null);
     }
 
     /**
@@ -400,17 +443,25 @@ public class AuthenticationWindow
 
         labelsPanel.add(uinLabel);
         labelsPanel.add(passwdLabel);
-        labelsPanel.add(new JLabel());
-
-        this.rememberPassCheckBox.setOpaque(false);
-        this.rememberPassCheckBox.setBorder(null);
 
         TransparentPanel textFieldsPanel
             = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
         textFieldsPanel.add(uinValue);
         textFieldsPanel.add(passwdField);
-        textFieldsPanel.add(rememberPassCheckBox);
+
+        JPanel southFieldsPanel = new TransparentPanel(new GridLayout(1, 2));
+
+        this.rememberPassCheckBox.setOpaque(false);
+        this.rememberPassCheckBox.setBorder(null);
+
+        southFieldsPanel.add(rememberPassCheckBox);
+        if (signupLink != null && signupLink.length() > 0)
+            southFieldsPanel.add(createWebSignupLabel(
+                UtilActivator.getResources().getI18NString(
+                    "plugin.simpleaccregwizz.SIGNUP"), signupLink));
+        else
+            southFieldsPanel.add(new JLabel());
 
         boolean allowRememberPassword = true;
 
@@ -440,9 +491,13 @@ public class AuthenticationWindow
         mainPanel.setBorder(
             BorderFactory.createEmptyBorder(20, 0, 20, 20));
 
+        JPanel mainFieldsPanel = new TransparentPanel(new BorderLayout(0, 10));
+        mainFieldsPanel.add(labelsPanel, BorderLayout.WEST);
+        mainFieldsPanel.add(textFieldsPanel, BorderLayout.CENTER);
+        mainFieldsPanel.add(southFieldsPanel, BorderLayout.SOUTH);
+
         mainPanel.add(infoTextArea, BorderLayout.NORTH);
-        mainPanel.add(labelsPanel, BorderLayout.WEST);
-        mainPanel.add(textFieldsPanel, BorderLayout.CENTER);
+        mainPanel.add(mainFieldsPanel, BorderLayout.CENTER);
         mainPanel.add(southEastPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel, BorderLayout.EAST);
@@ -633,4 +688,45 @@ public class AuthenticationWindow
     {
         return isRememberPassword;
     }
+
+    /**
+     * Creates the subscribe label.
+     * @param linkName the link name
+     * @return the newly created subscribe label
+     */
+    private Component createWebSignupLabel( String linkName,
+                                            final String linkURL)
+    {
+        JLabel subscribeLabel =
+            new JLabel("<html><a href=''>"
+                + linkName
+                + "</a></html>",
+                JLabel.RIGHT);
+
+        subscribeLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        subscribeLabel.setToolTipText(
+            UtilActivator.getResources().getI18NString(
+                "plugin.simpleaccregwizz.SPECIAL_SIGNUP"));
+        subscribeLabel.addMouseListener(new MouseAdapter()
+        {
+            public void mousePressed(MouseEvent e)
+            {
+                try
+                {
+                    UtilActivator.getBrowserLauncher()
+                        .openURL(linkURL);
+                }
+                catch (UnsupportedOperationException ex)
+                {
+                    // This should not happen, because we check if the
+                    // operation is supported, before adding the sign
+                    // up.
+                    logger.error("The web sign up is not supported.",
+                        ex);
+                }
+            }
+        });
+        return subscribeLabel;
+    }
+
 }

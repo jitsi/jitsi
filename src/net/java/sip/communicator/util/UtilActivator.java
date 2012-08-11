@@ -11,6 +11,7 @@ import java.net.*;
 
 import javax.imageio.*;
 
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.resources.*;
@@ -43,6 +44,8 @@ public class UtilActivator
     private static KeybindingsService keybindingsService;
 
     private static ResourceManagementService resourceService;
+
+    private static BrowserLauncherService browserLauncherService;
 
     private static BundleContext bundleContext;
 
@@ -170,6 +173,24 @@ public class UtilActivator
                         NetworkAddressManagerService.class);
         }
         return networkAddressManagerService;
+    }
+
+    /**
+     * Returns the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
+     * context
+     */
+    public static BrowserLauncherService getBrowserLauncher()
+    {
+        if (browserLauncherService == null)
+        {
+            browserLauncherService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        BrowserLauncherService.class);
+        }
+        return browserLauncherService;
     }
 
     /**

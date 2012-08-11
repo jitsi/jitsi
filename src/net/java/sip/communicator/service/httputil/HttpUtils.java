@@ -674,10 +674,13 @@ public class HttpUtils
             // if password is not saved ask user for credentials
             if(pass == null)
             {
+                
                 AuthenticationWindow authWindow =
                     new AuthenticationWindow(
                         authUsername, null,
-                        authscope.getHost(), true, null, errorMessage);
+                        authscope.getHost(), true, null, errorMessage,
+                        HttpUtilActivator.getResources().getSettingsString(
+                            "plugin.provisioning.SIGN_UP_LINK"));
                 authWindow.setVisible(true);
 
                 if(!authWindow.isCanceled())
