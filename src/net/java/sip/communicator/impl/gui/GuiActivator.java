@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
@@ -88,6 +89,8 @@ public class GuiActivator implements BundleActivator
     private static AccountManager accountManager;
 
     private static List<ContactSourceService> contactSources;
+
+    private static List<CustomContactActionsService> contactActionsServices;
 
     private static SecurityAuthority securityAuthority;
 

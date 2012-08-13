@@ -477,7 +477,7 @@
 
             <classpath>
                 <pathelement path="${dest}"/>
-            	<pathelement location="${lib.noinst}/libjitsi.jar"/>
+                <pathelement location="${lib.noinst}/libjitsi.jar"/>
             </classpath>
         </taskdef>
 
@@ -950,7 +950,8 @@
         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
-        bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi"/>
+        bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
+        bundle-customcontactactions"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2750,4 +2751,15 @@ javax.swing.event, javax.swing.border"/>
                     prefix="net/java/sip/communicator/plugin/msofficecomm" />
         </jar>
     </target>
+
+    <!-- BUNDLE-CUSTOM-CONTACT-ACTIONS -->
+    <target name="bundle-customcontactactions">
+        <!-- Creates a bundle containing the contact source interfaces.-->
+        <jar compress="false" destfile="${bundles.dest}/customcontactactions.jar"
+            manifest="${src}/net/java/sip/communicator/service/customcontactactions/customcontactactions.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/customcontactactions"
+                prefix="net/java/sip/communicator/service/customcontactactions"/>
+        </jar>
+    </target>
+
 </project>

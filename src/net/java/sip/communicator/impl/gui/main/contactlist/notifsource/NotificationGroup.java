@@ -13,7 +13,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -30,7 +29,7 @@ public class NotificationGroup
     /**
      * The type of the notification message, identifying this group.
      */
-    private final MessageType type;
+    private final String groupName;
 
     /**
      * The corresponding group node in the contact list component.
@@ -42,9 +41,9 @@ public class NotificationGroup
      * corresponding <tt>ProtocolProviderService</tt>, for which notifications
      * are received.
      */
-    private final Hashtable<ProtocolProviderService, NotificationContact>
+    private final Hashtable<String, NotificationContact>
         contacts
-            = new Hashtable<ProtocolProviderService, NotificationContact>();
+            = new Hashtable<String, NotificationContact>();
 
     /**
      * The group of UI notifications.
@@ -57,9 +56,9 @@ public class NotificationGroup
      *
      * @param type the type of messages that this group would contain
      */
-    public NotificationGroup(MessageType type)
+    public NotificationGroup(String groupName)
     {
-        this.type = type;
+        this.groupName = groupName;
     }
 
     /**
@@ -70,7 +69,7 @@ public class NotificationGroup
      */
     public Object getDescriptor()
     {
-        return type;
+        return groupName;
     }
 
     /**
@@ -81,14 +80,7 @@ public class NotificationGroup
      */
     public String getDisplayName()
     {
-        String displayName;
-        if (type.equals(MessageType.VOICE))
-            displayName = GuiActivator.getResources()
-                .getI18NString("service.gui.VOICEMAIL_TITLE");
-        else
-            displayName = type.toString();
-
-        return displayName;
+        return groupName;
     }
 
     /**
@@ -198,16 +190,6 @@ public class NotificationGroup
     }
 
     /**
-     * Returns the message type indicating the identity of this group.
-     *
-     * @return the message type corresponding to this group
-     */
-    public MessageType getMessageType()
-    {
-        return type;
-    }
-
-    /**
      * Creates all necessary notification contacts coming from the given
      * <tt>MessageWaitingEvent</tt>.
      *
@@ -215,24 +197,76 @@ public class NotificationGroup
      */
     public void messageWaitingNotify(MessageWaitingEvent event)
     {
-        ProtocolProviderService protocolProvider = event.getSourceProvider();
+        Iterator<NotificationMessage> messages = event.getMessages();
 
-        NotificationContact contact = contacts.get(protocolProvider);
-
-        TreeContactList contactList = GuiActivator.getContactList();
-
-        boolean isNew = false;
-        if (contact == null)
+        if (messages != null)
         {
-            contact = new NotificationContact(this, protocolProvider);
-            contacts.put(protocolProvider, contact);
+            while (messages.hasNext())
+            {
+                NotificationMessage message = messages.next();
 
-            isNew = true;
+                if (message.getMessageGroup().equals(groupName))
+                {
+                    String messageIdentifier
+                        = message.getFromContact() + message.getMessageDetails();
+
+                    NotificationContact contact
+                        = contacts.get(messageIdentifier);
+
+                    boolean isNew = false;
+                    if (contact == null)
+                    {
+                        contact = new NotificationContact(
+                            this, event.getSourceProvider(),
+                            event.getMessageType(), message);
+                        contacts.put(messageIdentifier, contact);
+
+                        isNew = true;
+                    }
+
+                    contact.setMessageAccount(event.getAccount());
+                    contact.setUnreadMessageCount(event.getUnreadMessages());
+                    contact.setReadMessageCount(event.getReadMessages());
+
+                    addNotificationContact(contact, isNew);
+                }
+            }
         }
+        else
+        {
+            ProtocolProviderService protocolProvider = event.getSourceProvider();
 
-        contact.setMessageAccount(event.getAccount());
-        contact.setUnreadMessageCount(event.getUnreadMessages());
-        contact.setReadMessageCount(event.getReadMessages());
+            NotificationContact contact
+                = contacts.get(protocolProvider.toString());
+
+            boolean isNew = false;
+            if (contact == null)
+            {
+                contact = new NotificationContact(this, protocolProvider,
+                    event.getMessageType(), null);
+                contacts.put(protocolProvider.toString(), contact);
+
+                isNew = true;
+            }
+
+            contact.setMessageAccount(event.getAccount());
+            contact.setUnreadMessageCount(event.getUnreadMessages());
+            contact.setReadMessageCount(event.getReadMessages());
+
+            addNotificationContact(contact, isNew);
+        }
+    }
+
+    /**
+     * Adds a notification contact this notification group.
+     *
+     * @param contact the <tt>NotificationContact</tt> to add
+     * @param isNew indicates if this is a new contact
+     */
+    private void addNotificationContact(
+        NotificationContact contact, boolean isNew)
+    {
+        TreeContactList contactList = GuiActivator.getContactList();
 
         if (contactList.getCurrentFilter().isMatching(contact))
         {

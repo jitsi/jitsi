@@ -6,18 +6,23 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.contactsource;
 
+import java.awt.event.*;
 import java.util.*;
 import java.util.regex.*;
 
 import javax.swing.*;
 
+import org.osgi.framework.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
+import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>MetaContactListSource</tt> is an abstraction of the
@@ -58,6 +63,17 @@ public class MetaContactListSource
      * directly to the contact list without firing events.
      */
     private final int INITIAL_CONTACT_COUNT = 30;
+
+    /**
+     * The list of action buttons for this meta contact.
+     */
+    private static Map<ContactAction<Contact>, SIPCommButton>
+                                                            customActionButtons;
+
+    /**
+     * Currently selected custom action contact.
+     */
+    private static MetaUIContact customActionContact;
 
     /**
      * The logger.
@@ -943,5 +959,156 @@ public class MetaContactListSource
             if (contactNode != null)
                 GuiActivator.getContactList().nodeChanged(contactNode);
         }
+    }
+
+    /**
+     * Returns all custom action buttons for this meta contact.
+     *
+     * @return a list of all custom action buttons for this meta contact
+     */
+    public static Collection<SIPCommButton> getContactCustomActionButtons(
+            final MetaUIContact metaContact)
+    {
+        customActionContact = metaContact;
+
+        if (customActionButtons == null)
+            initCustomActionButtons();
+
+        return customActionButtons.values();
+    }
+
+    /**
+     * Initializes custom action buttons for this contact source.
+     */
+    private static void initCustomActionButtons()
+    {
+        customActionButtons
+                = new Hashtable<ContactAction<Contact>, SIPCommButton>();
+
+        for (CustomContactActionsService<Contact> ccas
+                : getContactActionsServices())
+        {
+            Iterator<ContactAction<Contact>> actionIterator
+                = ccas.getCustomContactActions();
+
+            while (actionIterator!= null && actionIterator.hasNext())
+            {
+                final ContactAction<Contact> ca = actionIterator.next();
+
+                SIPCommButton actionButton = customActionButtons.get(ca);
+
+                if (actionButton == null)
+                {
+                    actionButton = new SIPCommButton(
+                        new ImageIcon(ca.getIcon()).getImage(),
+                        new ImageIcon(ca.getPressedIcon()).getImage(),
+                        null);
+
+                    actionButton.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            ChooseUIContactDetailPopupMenu
+                                detailsPopupMenu
+                                    = new ChooseUIContactDetailPopupMenu(
+                                        GuiActivator.getContactList(),
+                                        customActionContact.getContactDetails(),
+                                        new MetaContactListSource
+                                            .UIContactDetailCustomAction(ca));
+
+                            detailsPopupMenu.showPopupMenu();
+                        }
+                    });
+
+                    customActionButtons.put(ca, actionButton);
+                }
+            }
+        }
+    }
+
+    /**
+     * An implementation of <tt>UIContactDetail</tt> for a custom action.
+     */
+    private static class UIContactDetailCustomAction
+        implements UIContactDetailAction
+    {
+        /**
+         * The contact action.
+         */
+        private final ContactAction<Contact> contactAction;
+
+        /**
+         * Creates an instance of <tt>UIContactDetailCustomAction</tt>.
+         *
+         * @param contactAction the contact action this detail is about
+         */
+        public UIContactDetailCustomAction(ContactAction<Contact> contactAction)
+        {
+            this.contactAction = contactAction;
+        }
+
+        /**
+         * Performs the contact action on button click.
+         */
+        public void actionPerformed(UIContactDetail contactDetail)
+        {
+            try
+            {
+                contactAction.actionPerformed(
+                    (Contact) contactDetail.getDescriptor());
+            }
+            catch (OperationFailedException e)
+            {
+                new ErrorDialog(null,
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ERROR"),
+                    e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Returns a list of all custom contact action services.
+     *
+     * @return a list of all custom contact action services.
+     */
+    @SuppressWarnings ("unchecked")
+    private static List<CustomContactActionsService<Contact>>
+        getContactActionsServices()
+    {
+        List<CustomContactActionsService<Contact>> contactActionsServices
+            = new ArrayList<CustomContactActionsService<Contact>>();
+
+        ServiceReference[] serRefs = null;
+        try
+        {
+            // get all registered provider factories
+            serRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                    CustomContactActionsService.class.getName(), null);
+        }
+        catch (InvalidSyntaxException e)
+        {
+            logger.error("GuiActivator : " + e);
+        }
+
+        if (serRefs != null)
+        {
+            for (ServiceReference serRef : serRefs)
+            {
+                CustomContactActionsService<?> customActionService
+                    = (CustomContactActionsService<?>)
+                            GuiActivator.bundleContext.getService(serRef);
+
+                if (customActionService.getContactSourceClass()
+                        .equals(Contact.class))
+                {
+                    contactActionsServices.add(
+                        (CustomContactActionsService<Contact>)
+                            customActionService);
+                }
+            }
+        }
+        return contactActionsServices;
     }
 }

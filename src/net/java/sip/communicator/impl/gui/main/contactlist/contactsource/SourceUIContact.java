@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>SourceUIContact</tt> is the implementation of the UIContact for the
@@ -187,6 +188,28 @@ public class SourceUIContact
     }
 
     /**
+     * Returns a list of all contained <tt>UIContactDetail</tt>s.
+     *
+     * @return a list of all contained <tt>UIContactDetail</tt>s
+     */
+    public List<UIContactDetail> getContactDetails()
+    {
+        List<UIContactDetail> resultList
+            = new LinkedList<UIContactDetail>();
+
+        Iterator<ContactDetail> details
+            = sourceContact.getContactDetails().iterator();
+
+        while (details.hasNext())
+        {
+            ContactDetail detail = details.next();
+
+            resultList.add(new SourceContactDetail(detail, null));
+        }
+        return resultList;
+    }
+
+    /**
      * Returns a list of <tt>UIContactDetail</tt>s supporting the given
      * <tt>OperationSet</tt> class.
      * @param opSetClass the <tt>OperationSet</tt> class we're interested in
@@ -270,7 +293,8 @@ public class SourceUIContact
                     detail.getLabels(),
                     null,
                     detail.getPreferredProtocolProvider(opSetClass),
-                    detail.getPreferredProtocol(opSetClass));
+                    detail.getPreferredProtocol(opSetClass),
+                    detail);
 
             ContactSourceService contactSource
                 = sourceContact.getContactSource();
@@ -406,5 +430,15 @@ public class SourceUIContact
 
             toolTip.addLine(jLabels);
         }
+    }
+
+    /**
+     * Returns all custom action buttons for this meta contact.
+     *
+     * @return a list of all custom action buttons for this meta contact
+     */
+    public Collection<SIPCommButton> getContactCustomActionButtons()
+    {
+        return null;
     }
 }

@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
@@ -23,6 +24,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetai
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>MetaUIContact</tt> is the implementation of the UIContact interface
@@ -248,6 +250,27 @@ public class MetaUIContact
 
         Iterator<Contact> contacts
             = metaContact.getContactsForOperationSet(opSetClass).iterator();
+
+        while (contacts.hasNext())
+        {
+            resultList.add(new MetaContactDetail(contacts.next()));
+        }
+        return resultList;
+    }
+
+    /**
+     * Returns a list of all <tt>UIContactDetail</tt>s within this
+     * <tt>UIContact</tt>.
+     *
+     * @return a list of all <tt>UIContactDetail</tt>s within this
+     * <tt>UIContact</tt>
+     */
+    public List<UIContactDetail> getContactDetails()
+    {
+        List<UIContactDetail> resultList
+            = new LinkedList<UIContactDetail>();
+
+        Iterator<Contact> contacts = metaContact.getContacts();
 
         while (contacts.hasNext())
         {
@@ -592,7 +615,8 @@ public class MetaUIContact
                     new ImageIcon(
                         contact.getPresenceStatus().getStatusIcon()),
                     contact.getProtocolProvider(),
-                    contact.getProtocolProvider().getProtocolName());
+                    contact.getProtocolProvider().getProtocolName(),
+                    contact);
 
             this.contact = contact;
         }
@@ -616,5 +640,15 @@ public class MetaUIContact
     public JPopupMenu getRightButtonMenu()
     {
         return new MetaContactRightButtonMenu(metaContact);
+    }
+
+    /**
+     * Returns all custom action buttons for this meta contact.
+     *
+     * @return a list of all custom action buttons for this meta contact
+     */
+    public Collection<SIPCommButton> getContactCustomActionButtons()
+    {
+        return MetaContactListSource.getContactCustomActionButtons(this);
     }
 }

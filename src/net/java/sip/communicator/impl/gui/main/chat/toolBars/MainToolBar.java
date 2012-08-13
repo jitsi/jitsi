@@ -613,7 +613,8 @@ public class MainToolBar
                                         new ArrayList<String>(),
                                         null,
                                         null,
-                                        null)
+                                        null,
+                                        pnd)
                                 {
                                     public PresenceStatus getPresenceStatus()
                                     {

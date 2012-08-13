@@ -63,6 +63,11 @@ public abstract class UIContactDetail
     private final String category;
 
     /**
+     * The underlying object that this class is wrapping
+     */
+    private final Object descriptor;
+
+    /**
      * Creates a <tt>UIContactDetail</tt> by specifying the contact
      * <tt>address</tt>, the <tt>displayName</tt> and <tt>preferredProvider</tt>.
      * @param address the contact address
@@ -73,6 +78,7 @@ public abstract class UIContactDetail
      * @param preferredProvider the preferred protocol provider
      * @param preferredProtocol the preferred protocol if no protocol provider
      * is set
+     * @param descriptor the underlying object that this class is wrapping
      */
     public UIContactDetail(
         String address,
@@ -81,7 +87,8 @@ public abstract class UIContactDetail
         Collection<String> labels,
         ImageIcon statusIcon,
         ProtocolProviderService preferredProvider,
-        String preferredProtocol)
+        String preferredProtocol,
+        Object descriptor)
     {
         this.address = address;
         this.displayName = displayName;
@@ -90,6 +97,7 @@ public abstract class UIContactDetail
         this.statusIcon = statusIcon;
         this.protocolProvider = preferredProvider;
         this.preferredProtocol = preferredProtocol;
+        this.descriptor = descriptor;
     }
 
     /**
@@ -192,6 +200,16 @@ public abstract class UIContactDetail
     public void setPrefix(String prefix)
     {
         this.prefix = prefix;
+    }
+
+    /**
+     * Returns the underlying object that this class is wrapping
+     *
+     * @return the underlying object that this class is wrapping
+     */
+    public Object getDescriptor()
+    {
+        return descriptor;
     }
 
     /**

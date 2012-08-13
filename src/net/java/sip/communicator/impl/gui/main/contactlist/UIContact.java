@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>UIContact</tt> represents the user interface contact contained in the
@@ -146,4 +147,20 @@ public interface UIContact
      */
     public List<UIContactDetail> getContactDetailsForOperationSet(
         Class<? extends OperationSet> opSetClass);
+
+    /**
+     * Returns a list of all <tt>UIContactDetail</tt>s within this
+     * <tt>UIContact</tt>.
+     *
+     * @return a list of all <tt>UIContactDetail</tt>s within this
+     * <tt>UIContact</tt>
+     */
+    public List<UIContactDetail> getContactDetails();
+
+    /**
+     * Returns all custom action buttons for this notification contact.
+     *
+     * @return a list of all custom action buttons for this notification contact
+     */
+    public Collection<SIPCommButton> getContactCustomActionButtons();
 }

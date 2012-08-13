@@ -56,6 +56,11 @@ public class MessageWaitingEvent
     private OperationSetMessageWaiting.MessageType messageType;
 
     /**
+     * The list of notification messages concerned by this event.
+     */
+    private List<NotificationMessage> messageList;
+
+    /**
      * Constructs the Event with the given source, typically the provider and
      * number of messages.
      *
@@ -76,6 +81,39 @@ public class MessageWaitingEvent
             int unreadUrgentMessages,
             int readUrgentMessages)
     {
+        this(   source,
+                messageType,
+                account,
+                unreadMessages,
+                readMessages,
+                unreadUrgentMessages,
+                readUrgentMessages,
+                null);
+    }
+
+    /**
+     * Constructs the Event with the given source, typically the provider and
+     * number of messages.
+     *
+     * @param messageType the message type for this event.
+     * @param source the protocol provider from which this event is coming.
+     * @param account the account URI we can use to reach the messages.
+     * @param unreadMessages the unread messages.
+     * @param readMessages the read messages.
+     * @param unreadUrgentMessages the unread urgent messages.
+     * @param readUrgentMessages the read urgent messages.
+     * @param messages the list of messages that this event is about.
+     */
+    public MessageWaitingEvent(
+            ProtocolProviderService source,
+            OperationSetMessageWaiting.MessageType messageType,
+            String account,
+            int unreadMessages,
+            int readMessages,
+            int unreadUrgentMessages,
+            int readUrgentMessages,
+            List<NotificationMessage> messages)
+    {
         super(source);
 
         this.messageType = messageType;
@@ -84,6 +122,7 @@ public class MessageWaitingEvent
         this.readMessages = readMessages;
         this.unreadUrgentMessages = unreadUrgentMessages;
         this.readUrgentMessages = readUrgentMessages;
+        this.messageList = messages;
     }
 
     /**
@@ -149,5 +188,13 @@ public class MessageWaitingEvent
     public OperationSetMessageWaiting.MessageType getMessageType()
     {
         return messageType;
+    }
+
+    public Iterator<NotificationMessage> getMessages()
+    {
+        if (messageList != null)
+            return messageList.iterator();
+
+        return null;
     }
 }

@@ -15,10 +15,12 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
+import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 import net.java.sip.communicator.service.protocol.globalstatus.*;
+import net.java.sip.communicator.util.swing.*;
+
 import org.jitsi.service.resources.*;
 
 /**
@@ -58,6 +60,11 @@ public class NotificationContact
     private final ProtocolProviderService protocolProvider;
 
     /**
+     * The notification message corresponding to the source message.
+     */
+    private final NotificationMessage notificationMessage;
+
+    /**
      * The corresponding <tt>ContactNode</tt> in the contact list component
      * data model.
      */
@@ -79,17 +86,28 @@ public class NotificationContact
     private int readMessageCount = 0;
 
     /**
+     * The type of the message.
+     */
+    private MessageType messageType;
+
+    /**
      * Creates an instance of <tt>NotificationContact</tt> by specifying the
      * parent group and the corresponding <tt>ProtocolProviderService</tt>.
      *
      * @param group the parent group
      * @param protocolProvider the corresponding protocol provider
+     * @param messageType the type of the message
+     * @param notificationMessage the actual notification message
      */
     public NotificationContact( NotificationGroup group,
-                                ProtocolProviderService protocolProvider)
+                                ProtocolProviderService protocolProvider,
+                                MessageType messageType,
+                                NotificationMessage notificationMessage)
     {
         this.parentGroup = group;
         this.protocolProvider = protocolProvider;
+        this.messageType = messageType;
+        this.notificationMessage = notificationMessage;
 
         protocolProvider.addRegistrationStateChangeListener(this);
 
@@ -117,6 +135,9 @@ public class NotificationContact
      */
     public String getDisplayName()
     {
+        if (notificationMessage != null)
+            return notificationMessage.getFromContact();
+
         return GuiActivator.getUIService().getMainFrame()
                 .getAccountDisplayName(protocolProvider);
     }
@@ -131,6 +152,11 @@ public class NotificationContact
     public String getDisplayDetails()
     {
         String displayDetails;
+
+        if (notificationMessage != null)
+        {
+            return notificationMessage.getMessageDetails();
+        }
 
         ResourceManagementService resources = GuiActivator.getResources();
 
@@ -169,7 +195,7 @@ public class NotificationContact
      */
     public int getSourceIndex()
     {
-        return 0;
+        return -1;
     }
 
     /**
@@ -183,7 +209,7 @@ public class NotificationContact
     public ImageIcon getAvatar(boolean isSelected, int width, int height)
     {
         ImageIcon avatarIcon = null;
-        if (parentGroup.getMessageType().equals(MessageType.VOICE))
+        if (messageType.equals(MessageType.VOICE))
         {
             avatarIcon = GuiActivator.getResources().getImage(
                                 "service.gui.icons.VOICEMAIL");
@@ -336,6 +362,20 @@ public class NotificationContact
     }
 
     /**
+     * Returns a list of all contained <tt>UIContactDetail</tt>s.
+     *
+     * @return a list of all contained <tt>UIContactDetail</tt>s
+     */
+    public List<UIContactDetail> getContactDetails()
+    {
+        List<UIContactDetail> resultList = new LinkedList<UIContactDetail>();
+
+        resultList.add(notificationDetail);
+
+        return resultList;
+    }
+
+    /**
      * Returns a list of <tt>UIContactDetail</tt>s supporting the given
      * <tt>OperationSet</tt> class.
      *
@@ -422,7 +462,8 @@ public class NotificationContact
                     null,
                     ImageLoader.getAccountStatusImage(protocolProvider),
                     protocolProvider,
-                    protocolProvider.getProtocolName());
+                    protocolProvider.getProtocolName(),
+                    notificationMessage);
         }
 
         /**
@@ -466,6 +507,20 @@ public class NotificationContact
         TreeContactList contactList = GuiActivator.getContactList();
 
         contactList.refreshContact(this);
+    }
+
+    /**
+     * Returns all custom action buttons for this notification contact.
+     *
+     * @return a list of all custom action buttons for this notification contact
+     */
+    public Collection<SIPCommButton> getContactCustomActionButtons()
+    {
+        if (notificationMessage != null)
+            return NotificationContactSource
+                    .getContactCustomActionButtons(this);
+
+        return null;
     }
 
     public void providerStatusMessageChanged(PropertyChangeEvent evt) {}

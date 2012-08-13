@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * 
@@ -227,6 +228,16 @@ public class ShowMoreContact
     /**
      * Returns null to indicate that this contact has no contact details.
      *
+     * @return null
+     */
+    public List<UIContactDetail> getContactDetails()
+    {
+        return null;
+    }
+
+    /**
+     * Returns null to indicate that this contact has no contact details.
+     *
      * @param opSetClass the <tt>OperationSet</tt> class, which details we're
      * looking for
      * @return null
@@ -280,4 +291,14 @@ public class ShowMoreContact
     }
 
     public void groupClicked(ContactListEvent evt) {}
+
+    /**
+     * Returns all custom action buttons for this meta contact.
+     *
+     * @return a list of all custom action buttons for this meta contact
+     */
+    public Collection<SIPCommButton> getContactCustomActionButtons()
+    {
+        return null;
+    }
 }
