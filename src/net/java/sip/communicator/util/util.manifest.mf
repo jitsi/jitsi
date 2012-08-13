@@ -1,5 +1,5 @@
 Bundle-Activator: net.java.sip.communicator.util.UtilActivator
-Bundle-Name: SIP Communicator Utility Packages
+Bundle-Name: Jitsi Utility Packages
 Bundle-Description: A bundle that export packages with utility classes.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
