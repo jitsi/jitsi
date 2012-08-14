@@ -38,25 +38,43 @@ public class NotificationMessage
     private final String messageText;
 
     /**
+     * The notification message source.
+     */
+    private final Object source;
+
+    /**
      * Creates an instance of <tt>NotificationMessage</tt> by specifying the
      * name of the contact from which the message is, the message group, any
      * additional details and the message actual text.
      *
+     * @param source the notification message source
      * @param fromContact the contact from which the message is coming
      * @param messageGroup the name of the group of messages to which this
      * message belongs
      * @param messageDetails additional details related to the message
      * @param messageText the text of the message
      */
-    public NotificationMessage( String fromContact,
+    public NotificationMessage( Object source,
+                                String fromContact,
                                 String messageGroup,
                                 String messageDetails,
                                 String messageText)
     {
+        this.source = source;
         this.fromContact = fromContact;
         this.messageGroup = messageGroup;
         this.messageDetails = messageDetails;
         this.messageText = messageText;
+    }
+
+    /**
+     * Returns the notification message source.
+     *
+     * @return the notification message source
+     */
+    public Object getSource()
+    {
+        return source;
     }
 
     /**
