@@ -441,6 +441,12 @@ public class ChatConversationPanel
         if (contactDisplayName == null
                 || contactDisplayName.trim().length() <= 0)
             contactDisplayName = contactName;
+        else
+        {
+            // for some reason &apos; is not rendered correctly from our ui,
+            // lets use its equivalent. Other similar chars(< > & ") seem ok.
+            contactDisplayName = contactDisplayName.replaceAll("&apos;", "&#39;");
+        }
 
         String contentType = chatMessage.getContentType();
         long date = chatMessage.getDate();
