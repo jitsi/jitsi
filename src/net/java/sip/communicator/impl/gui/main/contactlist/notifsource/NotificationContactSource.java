@@ -15,6 +15,7 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.MetaContactListSource.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
@@ -187,15 +188,29 @@ public class NotificationContactSource
                     {
                         public void actionPerformed(ActionEvent e)
                         {
-                            ChooseUIContactDetailPopupMenu
-                                detailsPopupMenu
-                                    = new ChooseUIContactDetailPopupMenu(
-                                        GuiActivator.getContactList(),
-                                        customActionContact.getContactDetails(),
-                                        new NotificationContactSource
-                                            .UIContactDetailCustomAction(ca));
+                            List<UIContactDetail> contactDetails
+                            = customActionContact.getContactDetails();
 
-                            detailsPopupMenu.showPopupMenu();
+                            UIContactDetailCustomAction contactAction
+                                = new UIContactDetailCustomAction(ca);
+
+                            if (contactDetails.size() > 1)
+                            {
+                                ChooseUIContactDetailPopupMenu
+                                    detailsPopupMenu
+                                        = new ChooseUIContactDetailPopupMenu(
+                                            (JButton) e.getSource(),
+                                            customActionContact
+                                                .getContactDetails(),
+                                            contactAction);
+
+                                detailsPopupMenu.showPopupMenu();
+                            }
+                            else if (contactDetails.size() == 1)
+                            {
+                                contactAction.actionPerformed(
+                                    contactDetails.get(0));
+                            }
                         }
                     });
 

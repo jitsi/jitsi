@@ -1008,15 +1008,28 @@ public class MetaContactListSource
                     {
                         public void actionPerformed(ActionEvent e)
                         {
-                            ChooseUIContactDetailPopupMenu
+                            List<UIContactDetail> contactDetails
+                                = customActionContact.getContactDetails();
+
+                            UIContactDetailCustomAction contactAction
+                                = new UIContactDetailCustomAction(ca);
+
+                            if (contactDetails.size() > 1)
+                            {
+                                ChooseUIContactDetailPopupMenu
                                 detailsPopupMenu
                                     = new ChooseUIContactDetailPopupMenu(
-                                        GuiActivator.getContactList(),
+                                        (JButton) e.getSource(),
                                         customActionContact.getContactDetails(),
-                                        new MetaContactListSource
-                                            .UIContactDetailCustomAction(ca));
+                                        contactAction);
 
-                            detailsPopupMenu.showPopupMenu();
+                                detailsPopupMenu.showPopupMenu();
+                            }
+                            else if (contactDetails.size() == 1)
+                            {
+                                contactAction.actionPerformed(
+                                    contactDetails.get(0));
+                            }
                         }
                     });
 
