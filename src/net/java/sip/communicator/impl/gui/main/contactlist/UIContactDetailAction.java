@@ -18,6 +18,8 @@ public interface UIContactDetailAction
      *
      * @param contactDetail the <tt>UIContactDetail</tt> for which this action
      * is performed
+     * @param x the x coordinate of the action
+     * @param y the y coordinate of the action
      */
-    public void actionPerformed (UIContactDetail contactDetail);
+    public void actionPerformed (UIContactDetail contactDetail, int x, int y);
 }

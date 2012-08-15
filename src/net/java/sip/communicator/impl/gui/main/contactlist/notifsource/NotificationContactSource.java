@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.notifsource;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -166,8 +168,9 @@ public class NotificationContactSource
      */
     private static void initCustomActionButtons()
     {
-        customActionButtons = new Hashtable<ContactAction<NotificationMessage>,
-                                            SIPCommButton>();
+        customActionButtons = new LinkedHashMap
+                                        <ContactAction<NotificationMessage>,
+                                         SIPCommButton>();
 
         for (CustomContactActionsService<NotificationMessage> ccas
                 : getNotificationActionsServices())
@@ -194,7 +197,7 @@ public class NotificationContactSource
                         public void actionPerformed(ActionEvent e)
                         {
                             List<UIContactDetail> contactDetails
-                            = customActionContact.getContactDetails();
+                                = customActionContact.getContactDetails();
 
                             UIContactDetailCustomAction contactAction
                                 = new UIContactDetailCustomAction(ca);
@@ -213,8 +216,23 @@ public class NotificationContactSource
                             }
                             else if (contactDetails.size() == 1)
                             {
+                                JButton button = (JButton) e.getSource();
+                                Point location = new Point(button.getX(),
+                                    button.getY() + button.getHeight());
+
+                                SwingUtilities.convertPointToScreen(
+                                    location, GuiActivator.getContactList());
+
+                                location.y = location.y
+                                    + GuiActivator.getContactList()
+                                        .getPathBounds(
+                                            GuiActivator.getContactList()
+                                            .getSelectionPath()).y;
+
                                 contactAction.actionPerformed(
-                                    contactDetails.get(0));
+                                    contactDetails.get(0),
+                                    location.x,
+                                    location.y);
                             }
                         }
                     });
@@ -248,12 +266,12 @@ public class NotificationContactSource
         /**
          * Performs the action on button click.
          */
-        public void actionPerformed(UIContactDetail contactDetail)
+        public void actionPerformed(UIContactDetail contactDetail, int x, int y)
         {
             try
             {
                 contactAction.actionPerformed(
-                    (NotificationMessage) contactDetail.getDescriptor());
+                    (NotificationMessage) contactDetail.getDescriptor(), x, y);
             }
             catch (OperationFailedException e)
             {

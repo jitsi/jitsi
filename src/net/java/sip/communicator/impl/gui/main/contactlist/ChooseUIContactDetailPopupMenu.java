@@ -101,7 +101,8 @@ public class ChooseUIContactDetailPopupMenu
         {
             public void actionPerformed(ActionEvent e)
             {
-                contactDetailAction.actionPerformed(contactDetail);
+                contactDetailAction.actionPerformed(contactDetail,
+                                                    getX(), getY());
 
                 ChooseUIContactDetailPopupMenu.this.setVisible(false);
             }

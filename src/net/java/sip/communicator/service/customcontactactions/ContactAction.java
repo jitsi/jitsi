@@ -21,18 +21,20 @@ public interface ContactAction<T>
      * Invoked when an action occurs.
      *
      * @param actionSource the source of the action
+     * @param int x the x coordinate of the action
+     * @param int y the y coordinate of the action
      */
-    public void actionPerformed(T actionSource)
+    public void actionPerformed(T actionSource, int x, int y)
         throws OperationFailedException;
 
     /**
-     * The icon used by the UI to visualise this action.
+     * The icon used by the UI to visualize this action.
      * @return the button icon.
      */
     public byte[] getIcon();
 
     /**
-     * The icon used by the UI to visualise this action.
+     * The icon used by the UI to visualize this action.
      * @return the button icon.
      */
     public byte[] getPressedIcon();

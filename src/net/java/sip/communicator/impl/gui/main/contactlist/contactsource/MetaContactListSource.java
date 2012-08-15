@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.contactsource;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 import java.util.regex.*;
 
 import javax.swing.*;
@@ -983,7 +985,7 @@ public class MetaContactListSource
     private static void initCustomActionButtons()
     {
         customActionButtons
-                = new Hashtable<ContactAction<Contact>, SIPCommButton>();
+                = new LinkedHashMap<ContactAction<Contact>, SIPCommButton>();
 
         for (CustomContactActionsService<Contact> ccas
                 : getContactActionsServices())
@@ -1027,8 +1029,23 @@ public class MetaContactListSource
                             }
                             else if (contactDetails.size() == 1)
                             {
+                                JButton button = (JButton) e.getSource();
+                                Point location = new Point(button.getX(),
+                                    button.getY() + button.getHeight());
+
+                                SwingUtilities.convertPointToScreen(
+                                    location, GuiActivator.getContactList());
+
+                                location.y = location.y
+                                    + GuiActivator.getContactList()
+                                        .getPathBounds(
+                                            GuiActivator.getContactList()
+                                            .getSelectionPath()).y;
+
                                 contactAction.actionPerformed(
-                                    contactDetails.get(0));
+                                    contactDetails.get(0),
+                                    location.x,
+                                    location.y);
                             }
                         }
                     });
@@ -1063,12 +1080,14 @@ public class MetaContactListSource
         /**
          * Performs the contact action on button click.
          */
-        public void actionPerformed(UIContactDetail contactDetail)
+        public void actionPerformed(UIContactDetail contactDetail,
+                                    int x,
+                                    int y)
         {
             try
             {
                 contactAction.actionPerformed(
-                    (Contact) contactDetail.getDescriptor());
+                    (Contact) contactDetail.getDescriptor(), x, y);
             }
             catch (OperationFailedException e)
             {

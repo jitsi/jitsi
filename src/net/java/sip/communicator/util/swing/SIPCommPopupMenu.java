@@ -46,20 +46,21 @@ public class SIPCommPopupMenu
                     parentWindow
                         = SwingUtilities.getWindowAncestor(getInvoker());
 
-                if (!parentWindow.isActive())
+                if (parentWindow != null)
                 {
-                    setVisible(false);
-                }
+                    if (!parentWindow.isActive())
+                        setVisible(false);
 
-                parentWindow.addWindowListener(new WindowAdapter()
-                {
-                    public void windowDeactivated(WindowEvent e)
+                    parentWindow.addWindowListener(new WindowAdapter()
                     {
-                        if (SIPCommPopupMenu.this != null
-                                && SIPCommPopupMenu.this.isVisible())
-                            SIPCommPopupMenu.this.setVisible(false);
-                    }
-                });
+                        public void windowDeactivated(WindowEvent e)
+                        {
+                            if (SIPCommPopupMenu.this != null
+                                    && SIPCommPopupMenu.this.isVisible())
+                                SIPCommPopupMenu.this.setVisible(false);
+                        }
+                    });
+                }
             }
         });
     }
