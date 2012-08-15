@@ -54,7 +54,7 @@ public class NotificationGroup
      * Creates an instance of <tt>NotificationGroup</tt> by specifying the
      * message type.
      *
-     * @param type the type of messages that this group would contain
+     * @param groupName the group name.
      */
     public NotificationGroup(String groupName)
     {
@@ -201,6 +201,28 @@ public class NotificationGroup
 
         if (messages != null)
         {
+            // find messages that need to be removed
+            Hashtable<String, NotificationContact> contactToRemove =
+                (Hashtable<String, NotificationContact>)contacts.clone();
+            while (messages.hasNext())
+            {
+                NotificationMessage message = messages.next();
+
+                if (message.getMessageGroup().equals(groupName))
+                {
+                    String messageIdentifier
+                        = message.getFromContact() + message.getMessageDetails();
+                    contactToRemove.remove(messageIdentifier);
+                }
+            }
+            // now remove what needs to be removed
+            TreeContactList contactList = GuiActivator.getContactList();
+            for(NotificationContact c : contactToRemove.values())
+            {
+                contactList.removeContact(c);
+            }
+
+            messages = event.getMessages();
             while (messages.hasNext())
             {
                 NotificationMessage message = messages.next();
@@ -225,8 +247,6 @@ public class NotificationGroup
                     }
 
                     contact.setMessageAccount(event.getAccount());
-                    contact.setUnreadMessageCount(event.getUnreadMessages());
-                    contact.setReadMessageCount(event.getReadMessages());
 
                     addNotificationContact(contact, isNew);
                 }
@@ -288,7 +308,7 @@ public class NotificationGroup
             UINotificationManager.addNotification(
                 new UINotification(
                     contact.getDisplayName()
-                    + " : " + contact.getDisplayDetails() ,
+                        + " : " + contact.getDisplayDetails(),
                     new Date(),
                     uiNotificationGroup));
         }

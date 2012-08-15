@@ -15,7 +15,6 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.MetaContactListSource.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
@@ -64,6 +63,33 @@ public class NotificationContactSource
      */
     public void messageWaitingNotify(MessageWaitingEvent evt)
     {
+        MessageType type = evt.getMessageType();
+
+        NotificationGroup group = groups.get(type.toString());
+
+        if (group == null)
+        {
+            String displayName;
+            if (type.equals(MessageType.VOICE))
+                displayName = GuiActivator.getResources()
+                    .getI18NString("service.gui.VOICEMAIL_TITLE");
+            else
+                displayName = type.toString();
+
+            group = new NotificationGroup(displayName);
+            groups.put(type.toString(), group);
+        }
+
+        // mark it as global box by not providing list of messages.
+        group.messageWaitingNotify(
+            new MessageWaitingEvent(evt.getSourceProvider(),
+                                    evt.getMessageType(),
+                                    evt.getAccount(),
+                                    evt.getUnreadMessages(),
+                                    evt.getReadMessages(),
+                                    evt.getUnreadUrgentMessages(),
+                                    evt.getReadUrgentMessages()));
+
         Iterator<NotificationMessage> messages = evt.getMessages();
 
         if (messages != null)
@@ -86,27 +112,6 @@ public class NotificationContactSource
 
                 messageGroup.messageWaitingNotify(evt);
             }
-        }
-        else
-        {
-            MessageType type = evt.getMessageType();
-
-            NotificationGroup group = groups.get(type.toString());
-
-            if (group == null)
-            {
-                String displayName;
-                if (type.equals(MessageType.VOICE))
-                    displayName = GuiActivator.getResources()
-                        .getI18NString("service.gui.VOICEMAIL_TITLE");
-                else
-                    displayName = type.toString();
-
-                group = new NotificationGroup(displayName);
-                groups.put(type.toString(), group);
-            }
-
-            group.messageWaitingNotify(evt);
         }
     }
 
