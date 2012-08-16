@@ -21,8 +21,8 @@ public interface ContactAction<T>
      * Invoked when an action occurs.
      *
      * @param actionSource the source of the action
-     * @param int x the x coordinate of the action
-     * @param int y the y coordinate of the action
+     * @param x the x coordinate of the action
+     * @param y the y coordinate of the action
      */
     public void actionPerformed(T actionSource, int x, int y)
         throws OperationFailedException;
