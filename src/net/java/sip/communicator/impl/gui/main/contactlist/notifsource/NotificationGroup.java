@@ -310,7 +310,8 @@ public class NotificationGroup
                     contact.getDisplayName()
                         + " : " + contact.getDisplayDetails(),
                     new Date(),
-                    uiNotificationGroup));
+                    uiNotificationGroup,
+                    contact.getUnreadMessageCount()));
         }
     }
 }

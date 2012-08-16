@@ -108,7 +108,12 @@ public class UINotificationGroup
     {
         synchronized (unreadNotifications)
         {
-            return unreadNotifications.size();
+            int count = 0;
+
+            for(UINotification n : unreadNotifications)
+                count += n.getUnreadObjects();
+
+            return count;
         }
     }
 }
