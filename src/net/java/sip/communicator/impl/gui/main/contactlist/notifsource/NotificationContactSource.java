@@ -17,6 +17,7 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
@@ -148,9 +149,9 @@ public class NotificationContactSource
     }
 
     /**
-     * Returns all custom action buttons for this meta contact.
+     * Returns all custom action buttons for this notification contact.
      *
-     * @return a list of all custom action buttons for this meta contact
+     * @return a list of all custom action buttons for this notification contact
      */
     public static Collection<SIPCommButton> getContactCustomActionButtons(
             final NotificationContact notificationContact)
@@ -160,7 +161,47 @@ public class NotificationContactSource
         if (customActionButtons == null)
             initCustomActionButtons();
 
-        return customActionButtons.values();
+        Iterator<ContactAction<NotificationMessage>> customActionsIter
+            = customActionButtons.keySet().iterator();
+
+        Collection<SIPCommButton> availableCustomActionButtons
+            = new LinkedList<SIPCommButton>();
+
+        while (customActionsIter.hasNext())
+        {
+            ContactAction<NotificationMessage> contactAction
+                = customActionsIter.next();
+
+            SIPCommButton actionButton = customActionButtons.get(contactAction);
+
+            if (isContactActionVisible( contactAction,
+                                        notificationContact))
+            {
+                availableCustomActionButtons.add(actionButton);
+            }
+        }
+
+        return availableCustomActionButtons;
+    }
+
+    /**
+     * Indicates if the given <tt>ContactAction</tt> should be visible for the
+     * given <tt>NotificationContact</tt>.
+     *
+     * @param contactAction the <tt>ContactAction</tt> to verify
+     * @param notifContact the <tt>NotificationContact</tt> for which we verify
+     * if the given action should be visible
+     * @return <tt>true</tt> if the given <tt>ContactAction</tt> is visible for
+     * the given <tt>NotificationContact</tt>, <tt>false</tt> - otherwise
+     */
+    private static boolean isContactActionVisible(
+                            ContactAction<NotificationMessage> contactAction,
+                            NotificationContact notifContact)
+    {
+        if (contactAction.isVisible(notifContact.getNotificationMessage()))
+            return true;
+
+        return false;
     }
 
     /**

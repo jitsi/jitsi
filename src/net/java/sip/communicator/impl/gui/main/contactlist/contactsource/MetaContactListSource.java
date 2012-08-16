@@ -976,7 +976,50 @@ public class MetaContactListSource
         if (customActionButtons == null)
             initCustomActionButtons();
 
-        return customActionButtons.values();
+        Iterator<ContactAction<Contact>> customActionsIter
+            = customActionButtons.keySet().iterator();
+
+        Collection<SIPCommButton> availableCustomActionButtons
+            = new LinkedList<SIPCommButton>();
+
+        while (customActionsIter.hasNext())
+        {
+            ContactAction<Contact> contactAction = customActionsIter.next();
+            SIPCommButton actionButton = customActionButtons.get(contactAction);
+
+            if (isContactActionVisible(contactAction,
+                (MetaContact) metaContact.getDescriptor()))
+            {
+                availableCustomActionButtons.add(actionButton);
+            }
+        }
+
+        return availableCustomActionButtons;
+    }
+
+    /**
+     * Indicates if the given <tt>ContactAction</tt> should be visible for the
+     * given <tt>MetaContact</tt>.
+     *
+     * @param contactAction the <tt>ContactAction</tt> to verify
+     * @param metaContact the <tt>MetaContact</tt> for which we verify if the
+     * given action should be visible
+     * @return <tt>true</tt> if the given <tt>ContactAction</tt> is visible for
+     * the given <tt>MetaContact</tt>, <tt>false</tt> - otherwise
+     */
+    private static boolean isContactActionVisible(
+                                            ContactAction<Contact> contactAction,
+                                            MetaContact metaContact)
+    {
+        Iterator<Contact> contactDetails = metaContact.getContacts();
+
+        while (contactDetails.hasNext())
+        {
+            if (contactAction.isVisible(contactDetails.next()))
+                return true;
+        }
+
+        return false;
     }
 
     /**

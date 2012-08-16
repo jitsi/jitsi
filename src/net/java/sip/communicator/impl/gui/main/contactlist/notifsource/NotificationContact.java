@@ -437,6 +437,18 @@ public class NotificationContact
     }
 
     /**
+     * Returns the notification message corresponding to this notification
+     * contact.
+     *
+     * @return the <tt>NotificationMessage</tt> corresponding to this
+     * <tt>NotificationContact</tt>
+     */
+    public NotificationMessage getNotificationMessage()
+    {
+        return notificationMessage;
+    }
+
+    /**
      * The implementation of the <tt>UIContactDetail</tt> interface for the
      * external source <tt>ContactDetail</tt>s.
      */
