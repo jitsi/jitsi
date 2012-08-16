@@ -74,6 +74,9 @@ public class UINotificationGroup
     {
         synchronized (unreadNotifications)
         {
+
+            // make sure we override it if we have the same
+            unreadNotifications.remove(notification);
             unreadNotifications.add(notification);
         }
     }

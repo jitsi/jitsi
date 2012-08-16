@@ -28,6 +28,11 @@ public class UINotification
     private final String notificationName;
 
     /**
+     * The display name associated with this notification.
+     */
+    private final String notificationDisplayName;
+
+    /**
      * The time when the notification was received.
      */
     private final Date notificationTime;
@@ -70,7 +75,29 @@ public class UINotification
                             UINotificationGroup parentGroup,
                             int unreadObjects)
     {
-        this.notificationName = displayName;
+        this(displayName, displayName, time, parentGroup, 1);
+    }
+
+    /**
+     * Creates an instance of <tt>UINotification</tt> by specifying the
+     * notification name and time.
+     *
+     * notification belongs
+     * @param name the notification name
+     * @param displayName the name associated to this notification
+     * @param time the time when the notification was received
+     * @param parentGroup the group of notifications, to which this notification
+     * belongs
+     * @param unreadObjects number of unread objects for this notification.
+     */
+    public UINotification(  String name,
+                            String displayName,
+                            Date time,
+                            UINotificationGroup parentGroup,
+                            int unreadObjects)
+    {
+        this.notificationName = name;
+        this.notificationDisplayName = displayName;
         this.notificationTime = time;
         this.parentGroup = parentGroup;
         this.unreadObjects = unreadObjects;
@@ -83,7 +110,7 @@ public class UINotification
      */
     public String getDisplayName()
     {
-        return notificationName;
+        return notificationDisplayName;
     }
 
     /**
@@ -113,5 +140,27 @@ public class UINotification
     public int getUnreadObjects()
     {
         return unreadObjects;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if(this == o)
+            return true;
+        if(o == null || getClass() != o.getClass())
+            return false;
+
+        UINotification that = (UINotification) o;
+
+        if(notificationName != null ?
+                !notificationName.equals(that.notificationName)
+                : that.notificationName != null)
+            return false;
+        if(parentGroup != null ?
+                !parentGroup.equals(that.parentGroup)
+                : that.parentGroup != null)
+            return false;
+
+        return true;
     }
 }

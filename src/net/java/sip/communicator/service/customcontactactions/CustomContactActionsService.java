@@ -29,4 +29,22 @@ public interface CustomContactActionsService<T>
      * @return an iterator over a list of <tt>ContactAction</tt>s
      */
     public Iterator<ContactAction<T>> getCustomContactActions();
+
+    /**
+     * Registers a CustomContactActionsListener with this service so that it gets
+     * notifications of various events.
+     *
+     * @param listener the <tt>CustomContactActionsListener</tt> to register.
+     */
+    public void addCustomContactActionsListener(
+        CustomContactActionsListener listener);
+
+    /**
+     * Unregisters <tt>listener</tt> so that it won't receive any further
+     * notifications.
+     *
+     * @param listener the <tt>CustomContactActionsListener</tt> to unregister.
+     */
+    public void removeCustomContactActionsListener(
+        CustomContactActionsListener listener);
 }

@@ -307,6 +307,7 @@ public class NotificationGroup
 
             UINotificationManager.addNotification(
                 new UINotification(
+                    contact.getDisplayName(),
                     contact.getDisplayName()
                         + " : " + contact.getDisplayDetails(),
                     new Date(),

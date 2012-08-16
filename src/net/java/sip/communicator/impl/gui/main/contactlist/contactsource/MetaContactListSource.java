@@ -1030,9 +1030,14 @@ public class MetaContactListSource
         customActionButtons
                 = new LinkedHashMap<ContactAction<Contact>, SIPCommButton>();
 
+        CustomContactActionsChangeListener changeListener
+            = new CustomContactActionsChangeListener();
+
         for (CustomContactActionsService<Contact> ccas
                 : getContactActionsServices())
         {
+            ccas.addCustomContactActionsListener(changeListener);
+
             Iterator<ContactAction<Contact>> actionIterator
                 = ccas.getCustomContactActions();
 
@@ -1095,6 +1100,45 @@ public class MetaContactListSource
 
                     customActionButtons.put(ca, actionButton);
                 }
+            }
+        }
+    }
+
+    /**
+     * Listens for updates on actions and when received update the contact.
+     */
+    private static class CustomContactActionsChangeListener
+        implements CustomContactActionsListener
+    {
+        /**
+         * Update for custom action has occured.
+         * @param event the event containing the source which was updated.
+         */
+        public void updated(CustomContactActionsEvent event)
+        {
+            if(!(event.getSource() instanceof Contact))
+                return;
+
+            MetaContact metaContact
+                = GuiActivator.getContactListService().findMetaContactByContact(
+                        (Contact)event.getSource());
+
+            if (metaContact == null)
+                return;
+
+            UIContact uiContact;
+            synchronized (metaContact)
+            {
+                uiContact = MetaContactListSource.getUIContact(metaContact);
+            }
+
+            if (uiContact != null)
+            {
+                ContactNode contactNode
+                    = uiContact.getContactNode();
+
+                if (contactNode != null)
+                    GuiActivator.getContactList().nodeChanged(contactNode);
             }
         }
     }
