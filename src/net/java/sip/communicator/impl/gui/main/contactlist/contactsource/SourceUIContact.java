@@ -7,7 +7,6 @@
 package net.java.sip.communicator.impl.gui.main.contactlist.contactsource;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -53,12 +52,6 @@ public class SourceUIContact
      * The search strings for this <tt>UIContact</tt>.
      */
     private final List<String> searchStrings = new LinkedList<String>();
-
-    /**
-     * The list of action buttons for this source contact.
-     */
-    private Map<ContactAction<SourceContact>, SIPCommButton>
-                                    customActionButtons;
 
     /**
      * Creates an instance of <tt>SourceUIContact</tt> by specifying the
@@ -203,6 +196,18 @@ public class SourceUIContact
      */
     public List<UIContactDetail> getContactDetails()
     {
+        return getContactDetails(sourceContact);
+    }
+
+    /**
+     * Returns a list of all contained <tt>UIContactDetail</tt>s.
+     *
+     * @param sourceContact the source contact we get details from.
+     * @return a list of all contained <tt>UIContactDetail</tt>s
+     */
+    public static List<UIContactDetail> getContactDetails(
+        SourceContact sourceContact)
+    {
         List<UIContactDetail> resultList
             = new LinkedList<UIContactDetail>();
 
@@ -213,7 +218,7 @@ public class SourceUIContact
         {
             ContactDetail detail = details.next();
 
-            resultList.add(new SourceContactDetail(detail, null));
+            resultList.add(new SourceContactDetail(detail, null, sourceContact));
         }
         return resultList;
     }
@@ -244,7 +249,8 @@ public class SourceUIContact
             if ((supportedOperationSets != null)
                     && supportedOperationSets.contains(opSetClass))
             {
-                resultList.add(new SourceContactDetail(detail, opSetClass));
+                resultList.add(new SourceContactDetail(
+                    detail, opSetClass, sourceContact));
             }
         }
         return resultList;
@@ -277,13 +283,15 @@ public class SourceUIContact
     public void setContactNode(ContactNode contactNode)
     {
         this.contactNode = contactNode;
+        if (contactNode == null)
+            ExternalContactSource.removeUIContact(sourceContact);
     }
 
     /**
      * The implementation of the <tt>UIContactDetail</tt> interface for the
      * external source <tt>ContactDetail</tt>s.
      */
-    private class SourceContactDetail extends UIContactDetail
+    protected static class SourceContactDetail extends UIContactDetail
     {
         /**
          * Creates an instance of <tt>SourceContactDetail</tt> by specifying
@@ -294,7 +302,8 @@ public class SourceUIContact
          * preferred protocol provider
          */
         public SourceContactDetail( ContactDetail detail,
-                                    Class<? extends OperationSet> opSetClass)
+                                    Class<? extends OperationSet> opSetClass,
+                                    SourceContact sourceContact)
         {
             super(  detail.getContactAddress(),
                     detail.getContactAddress(),
@@ -324,8 +333,10 @@ public class SourceUIContact
          * for it.
          *
          * @param displayName the display name
+         * @param sourceContact the source contact
          */
-        public SourceContactDetail(String displayName)
+        public SourceContactDetail(String displayName,
+                                   SourceContact sourceContact)
         {
             super(  displayName,
                     displayName,
@@ -461,218 +472,16 @@ public class SourceUIContact
     }
 
     /**
-     * Returns all custom action buttons for this meta contact.
+     * Returns all custom action buttons for this notification contact.
      *
-     * @return a list of all custom action buttons for this meta contact
+     * @return a list of all custom action buttons for this notification contact
      */
     public Collection<SIPCommButton> getContactCustomActionButtons()
     {
-        if (customActionButtons == null)
-            initCustomActionButtons();
+        if (sourceContact != null)
+            return ExternalContactSource
+                    .getContactCustomActionButtons(sourceContact);
 
-        Iterator<ContactAction<SourceContact>> customActionsIter
-            = customActionButtons.keySet().iterator();
-
-        Collection<SIPCommButton> availableCustomActionButtons
-            = new LinkedList<SIPCommButton>();
-
-        while (customActionsIter.hasNext())
-        {
-            ContactAction<SourceContact> contactAction
-                = customActionsIter.next();
-
-            SIPCommButton actionButton = customActionButtons.get(contactAction);
-
-            if (isContactActionVisible( contactAction,
-                                        sourceContact))
-            {
-                availableCustomActionButtons.add(actionButton);
-            }
-        }
-
-        return availableCustomActionButtons;
-    }
-
-    /**
-     * Indicates if the given <tt>ContactAction</tt> should be visible for the
-     * given <tt>SourceContact</tt>.
-     *
-     * @param contactAction the <tt>ContactAction</tt> to verify
-     * if the given action should be visible
-     * @return <tt>true</tt> if the given <tt>ContactAction</tt> is visible for
-     * the given <tt>SourceContact</tt>, <tt>false</tt> - otherwise
-     */
-    private static boolean isContactActionVisible(
-                            ContactAction<SourceContact> contactAction,
-                            SourceContact contact)
-    {
-        if (contactAction.isVisible(contact))
-            return true;
-
-        return false;
-    }
-
-    /**
-     * Initializes custom action buttons for this contact source.
-     */
-    private void initCustomActionButtons()
-    {
-        customActionButtons = new LinkedHashMap
-            <ContactAction<SourceContact>, SIPCommButton>();
-
-        for (CustomContactActionsService<SourceContact> ccas
-                : getContactActionsServices())
-        {
-            Iterator<ContactAction<SourceContact>> actionIterator
-                = ccas.getCustomContactActions();
-
-            while (actionIterator!= null && actionIterator.hasNext())
-            {
-                final ContactAction<SourceContact> ca = actionIterator.next();
-
-                SIPCommButton actionButton = customActionButtons.get(ca);
-
-                if (actionButton == null)
-                {
-                    actionButton = new SIPCommButton(
-                        new ImageIcon(ca.getIcon()).getImage(),
-                        new ImageIcon(ca.getPressedIcon()).getImage(),
-                        null);
-
-                    actionButton.addActionListener(new ActionListener()
-                    {
-                        public void actionPerformed(ActionEvent e)
-                        {
-                            List<UIContactDetail> contactDetails
-                                = getContactDetails();
-                            contactDetails.add(new SourceContactDetail(
-                                sourceContact.getDisplayName()));
-
-                            UIContactDetailCustomAction contactAction
-                                = new UIContactDetailCustomAction(ca);
-
-                            if (contactDetails.size() > 1)
-                            {
-                                ChooseUIContactDetailPopupMenu
-                                detailsPopupMenu
-                                    = new ChooseUIContactDetailPopupMenu(
-                                        (JButton) e.getSource(),
-                                        contactDetails,
-                                        contactAction);
-
-                                detailsPopupMenu.showPopupMenu();
-                            }
-                            else if (contactDetails.size() == 1)
-                            {
-                                JButton button = (JButton) e.getSource();
-                                Point location = new Point(button.getX(),
-                                    button.getY() + button.getHeight());
-
-                                SwingUtilities.convertPointToScreen(
-                                    location, GuiActivator.getContactList());
-
-                                location.y = location.y
-                                    + GuiActivator.getContactList()
-                                        .getPathBounds(
-                                            GuiActivator.getContactList()
-                                            .getSelectionPath()).y;
-
-                                contactAction.actionPerformed(
-                                    contactDetails.get(0),
-                                    location.x,
-                                    location.y);
-                            }
-                        }
-                    });
-
-                    customActionButtons.put(ca, actionButton);
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns a list of all custom contact action services.
-     *
-     * @return a list of all custom contact action services.
-     */
-    @SuppressWarnings ("unchecked")
-    private static List<CustomContactActionsService<SourceContact>>
-        getContactActionsServices()
-    {
-        List<CustomContactActionsService<SourceContact>>
-            contactActionsServices
-                = new ArrayList<CustomContactActionsService
-                                    <SourceContact>>();
-
-        ServiceReference[] serRefs = null;
-        try
-        {
-            // get all registered provider factories
-            serRefs
-                = GuiActivator.bundleContext.getServiceReferences(
-                    CustomContactActionsService.class.getName(), null);
-        }
-        catch (InvalidSyntaxException e)
-        {}
-
-        if (serRefs != null)
-        {
-            for (ServiceReference serRef : serRefs)
-            {
-                CustomContactActionsService<?> customActionService
-                    = (CustomContactActionsService<?>)
-                            GuiActivator.bundleContext.getService(serRef);
-
-                if (customActionService.getContactSourceClass()
-                        .equals(SourceContact.class))
-                {
-                    contactActionsServices.add(
-                        (CustomContactActionsService<SourceContact>)
-                            customActionService);
-                }
-            }
-        }
-        return contactActionsServices;
-    }
-
-    /**
-     * An implementation of <tt>UIContactDetail</tt> for a custom action.
-     */
-    private static class UIContactDetailCustomAction
-        implements UIContactDetailAction
-    {
-        /**
-         * The contact action.
-         */
-        private final ContactAction<SourceContact> contactAction;
-
-        /**
-         * Creates an instance of <tt>UIContactDetailCustomAction</tt>.
-         */
-        public UIContactDetailCustomAction(
-            ContactAction<SourceContact> contactAction)
-        {
-            this.contactAction = contactAction;
-        }
-
-        /**
-         * Performs the action on button click.
-         */
-        public void actionPerformed(UIContactDetail contactDetail, int x, int y)
-        {
-            try
-            {
-                contactAction.actionPerformed(
-                    (SourceContact) contactDetail.getDescriptor(), x, y);
-            }
-            catch (OperationFailedException e)
-            {
-                new ErrorDialog(null,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.ERROR"),
-                    e.getMessage());
-            }
-        }
+        return null;
     }
 }

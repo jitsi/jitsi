@@ -20,7 +20,9 @@ import net.java.sip.communicator.util.*;
  *
  * @author Yana Stamcheva
  */
-public class CallHistorySourceContact implements SourceContact
+public class CallHistorySourceContact
+    extends DataObject
+    implements SourceContact
 {
     /**
      * The parent <tt>CallHistoryContactSource</tt>, where this contact is

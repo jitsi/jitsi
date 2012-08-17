@@ -4,5 +4,6 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 System-Bundle: yes
 Import-Package: org.osgi.framework,
+ net.java.sip.communicator.util,
  net.java.sip.communicator.service.protocol
 Export-Package: net.java.sip.communicator.service.contactsource

@@ -9,6 +9,7 @@ package net.java.sip.communicator.service.contactsource;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implements a generic <tt>SourceContact</tt> for the purposes of the support
@@ -17,6 +18,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Lyubomir Marinov
  */
 public class GenericSourceContact
+    extends DataObject
     implements SourceContact
 {
     /**

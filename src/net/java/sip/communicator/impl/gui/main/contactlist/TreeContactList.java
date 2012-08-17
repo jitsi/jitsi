@@ -195,7 +195,10 @@ public class TreeContactList
                 sourceUI.getUIGroup(), false);
         }
         else
+        {
+            ExternalContactSource.removeUIContact(sourceContact);
             uiContact = null;
+        }
     }
 
     /**

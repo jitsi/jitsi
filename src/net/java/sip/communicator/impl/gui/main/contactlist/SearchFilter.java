@@ -251,6 +251,8 @@ public class SearchFilter
                 false,
                 true);
         }
+        else
+            ExternalContactSource.removeUIContact(sourceContact);
     }
 
     /**
