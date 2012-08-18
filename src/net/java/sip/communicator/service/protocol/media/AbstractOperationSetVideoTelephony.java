@@ -93,37 +93,17 @@ public abstract class AbstractOperationSetVideoTelephony<
 
     /**
      * Implements
-     * {@link OperationSetVideoTelephony#createLocalVisualComponent(CallPeer,
-     * VideoListener)}.
+     * {@link OperationSetVideoTelephony#createLocalVisualComponent(CallPeer)}.
      *
      * @param peer the <tt>CallPeer</tt> that we are sending our local video to.
-     * @param listener the <tt>VideoListener</tt> where we'd like to retrieve
-     * the <tt>Component</tt> containing the local video.
      * @return the <tt>Component</tt> containing the local video.
      * @throws OperationFailedException if we fail extracting the local video.
      */
     @SuppressWarnings("unchecked") // work with MediaAware* in media package
-    public Component createLocalVisualComponent(
-            CallPeer peer,
-            VideoListener listener)
+    public Component getLocalVisualComponent(CallPeer peer)
         throws OperationFailedException
     {
-        return ((W)peer).getMediaHandler().createLocalVisualComponent();
-    }
-
-    /**
-     * Implements
-     * {@link OperationSetVideoTelephony#disposeLocalVisualComponent(CallPeer,
-     * Component)}.
-     *
-     * @param peer the <tt>CallPeer</tt> whose local video component we'd like
-     * to dispose of.
-     * @param component the <tt>Component</tt> that we'll be disposing of.
-     */
-    @SuppressWarnings("unchecked") // work with MediaAware* in media package
-    public void disposeLocalVisualComponent(CallPeer peer, Component component)
-    {
-        ((W)peer).getMediaHandler().disposeLocalVisualComponent(component);
+        return ((W)peer).getMediaHandler().getLocalVisualComponent();
     }
 
     /**

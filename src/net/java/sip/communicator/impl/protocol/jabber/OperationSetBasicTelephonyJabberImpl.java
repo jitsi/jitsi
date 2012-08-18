@@ -277,9 +277,9 @@ public class OperationSetBasicTelephonyJabberImpl
         boolean isGoogle = protocolProvider.isGmailOrGoogleAppsAccount();
         boolean isGoogleVoice = false;
 
-        if(isGoogle)
+        if (isGoogle)
         {
-            if(!calleeAddress.contains("@"))
+            if (!calleeAddress.contains("@"))
             {
                 calleeAddress += "@" + GOOGLE_VOICE_DOMAIN;
                 isGoogleVoice = true;
@@ -293,34 +293,30 @@ public class OperationSetBasicTelephonyJabberImpl
         // if address is not suffixed by @domain, add the default domain
         // corresponding to account domain or via the OVERRIDE_PHONE_SUFFIX
         // property if defined
-        if(calleeAddress.indexOf('@') == -1)
+        AccountID accountID = getProtocolProvider().getAccountID();
+
+        if (calleeAddress.indexOf('@') == -1)
         {
+            String phoneSuffix
+                = accountID.getAccountPropertyString("OVERRIDE_PHONE_SUFFIX");
             String serviceName = null;
 
-            String phoneSuffix =
-                (String)getProtocolProvider().getAccountID().getAccountProperty(
-                    "OVERRIDE_PHONE_SUFFIX");
-
-            if(phoneSuffix == null || phoneSuffix.length() == 0)
-            {
-                serviceName = "@" + StringUtils.parseServer(
-                    getProtocolProvider().getAccountID().getUserID());
-            }
+            if ((phoneSuffix == null) || (phoneSuffix.length() == 0))
+                serviceName = StringUtils.parseServer(accountID.getUserID());
             else
-            {
-                serviceName = "@" + phoneSuffix;
-            }
-
-            calleeAddress += serviceName;
+                serviceName = phoneSuffix;
+            calleeAddress = calleeAddress + "@" + serviceName;
         }
 
-        AccountID accountID = getProtocolProvider().getAccountID();
         String bypassDomain = accountID.getAccountPropertyString(
             "TELEPHONY_BYPASS_GTALK_CAPS");
 
-        boolean alwaysCallGtalk = ((bypassDomain != null) &&
-                bypassDomain.equals(calleeAddress.substring(
-                    calleeAddress.indexOf('@') + 1))) || isGoogleVoice;
+        boolean alwaysCallGtalk
+            = ((bypassDomain != null)
+                    && bypassDomain.equals(
+                            calleeAddress.substring(
+                                    calleeAddress.indexOf('@') + 1)))
+                || isGoogleVoice;
 
         // we determine on which resource the remote user is connected if the
         // resource isn't already provided
@@ -337,9 +333,9 @@ public class OperationSetBasicTelephonyJabberImpl
                 OperationFailedException.NOT_FOUND);
         }
 
-        Iterator<Presence> it =
-            getProtocolProvider().getConnection().getRoster().getPresences(
-                calleeAddress);
+        Iterator<Presence> it
+            = getProtocolProvider().getConnection().getRoster().getPresences(
+                    calleeAddress);
 
         String calleeURI = null;
         boolean isGingle = false;
@@ -352,17 +348,19 @@ public class OperationSetBasicTelephonyJabberImpl
         while(it.hasNext())
         {
             Presence presence = it.next();
-            int priority = (presence.getPriority() == Integer.MIN_VALUE) ? 0 :
-                presence.getPriority();
+            int priority
+                = (presence.getPriority() == Integer.MIN_VALUE)
+                    ? 0
+                    : presence.getPriority();
             calleeURI = presence.getFrom();
             DiscoverInfo discoverInfo = null;
 
             try
             {
                 // check if the remote client supports telephony.
-                discoverInfo =
-                    protocolProvider.getDiscoveryManager().
-                        discoverInfo(calleeURI);
+                discoverInfo
+                    = protocolProvider.getDiscoveryManager().discoverInfo(
+                            calleeURI);
             }
             catch (XMPPException ex)
             {
@@ -489,7 +487,7 @@ public class OperationSetBasicTelephonyJabberImpl
                             fullCalleeURI,
                             sessionInitiateExtensions);
             }
-            else if(di != null)
+            else if (di != null)
             {
                 peer
                     = call.initiateSession(
@@ -498,7 +496,7 @@ public class OperationSetBasicTelephonyJabberImpl
                             sessionInitiateExtensions);
             }
         }
-        catch(Throwable t)
+        catch (Throwable t)
         {
             /*
              * The Javadoc on ThreadDeath says: If ThreadDeath is caught by a
@@ -626,7 +624,7 @@ public class OperationSetBasicTelephonyJabberImpl
         throws ClassCastException,
                OperationFailedException
     {
-        this.hangupCallPeer(peer, HANGUP_REASON_NORMAL_CLEARING, null);
+        hangupCallPeer(peer, HANGUP_REASON_NORMAL_CLEARING, null);
     }
 
     /**
@@ -649,14 +647,15 @@ public class OperationSetBasicTelephonyJabberImpl
         // if we are failing a peer and have a reason, add the reason packet
         // extension
         ReasonPacketExtension reasonPacketExt = null;
-        if(failed && reasonText != null)
+
+        if (failed && (reasonText != null))
         {
             Reason reason = convertReasonCodeToSIPCode(reasonCode);
 
-            if(reason != null)
+            if (reason != null)
             {
-                reasonPacketExt = new ReasonPacketExtension(
-                    reason, reasonText, null);
+                reasonPacketExt
+                    = new ReasonPacketExtension(reason, reasonText, null);
             }
         }
 
@@ -892,10 +891,6 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     public void processPacket(Packet packet)
     {
-        //this is not supposed to happen because of the filter ... but still
-        if (! (packet instanceof JingleIQ) && !(packet instanceof SessionIQ))
-            return;
-
         if(packet instanceof JingleIQ)
         {
             JingleIQ jingleIQ = (JingleIQ)packet;

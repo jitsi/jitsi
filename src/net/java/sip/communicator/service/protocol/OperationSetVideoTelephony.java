@@ -42,46 +42,20 @@ public interface OperationSetVideoTelephony
     public void addVideoListener( CallPeer peer, VideoListener listener);
 
     /**
-     * Creates a visual <tt>Component</tt> which depicts the local video
-     * being streamed to a specific <tt>CallPeer</tt>. The returned
-     * visual <tt>Component</tt> should be disposed when it is no longer
-     * required through {@link #disposeLocalVisualComponent(CallPeer,
-     * Component) disposeLocalVisualComponent}.
+     * Gets the visual <tt>Component</tt> which depicts the local video
+     * being streamed to a specific <tt>CallPeer</tt>.
      *
      * @param peer the <tt>CallPeer</tt> to whom the local video which is to be
      * depicted by the returned visual <tt>Component</tt> is being streamed
-     * @param listener if not <tt>null</tt>, a <tt>VideoListener</tt> to track
-     * the progress of the creation in case this telephony chooses to perform it
-     * asynchronously and to not return the created visual <tt>Component</tt>
-     * immediately/as the result of this method call
-     *
      * @return a visual <tt>Component</tt> which depicts the local video being
      * streamed to the specified <tt>CallPeer</tt> if this telephony chooses to
      * carry out the creation synchronously; <tt>null</tt> if this telephony
-     * chooses to create the requested visual <tt>Component</tt> asynchronously.
-     *
+     * chooses to create the requested visual <tt>Component</tt> asynchronously
      * @throws OperationFailedException if creating the component fails for
      * whatever reason.
      */
-    public Component createLocalVisualComponent(CallPeer      peer,
-                                                VideoListener listener)
+    public Component getLocalVisualComponent(CallPeer peer)
         throws OperationFailedException;
-
-    /**
-     * Disposes of a visual <tt>Component</tt> depicting the local video for
-     * a specific <tt>CallPeer</tt> (previously obtained through
-     * {@link #createLocalVisualComponent(CallPeer, VideoListener)
-     * createLocalVisualComponent}).
-     * The disposal may include, but is not limited to, releasing the
-     * <tt>Player</tt> which provides the <tt>component</tt> and renders
-     * the local video into it, disconnecting from the video capture device.
-     *
-     * @param peer the <tt>CallPeer</tt> for whom the visual <tt>Component</tt>
-     * depicts the local video
-     * @param component the visual <tt>Component</tt> depicting the local video
-     * to be disposed
-     */
-    public void disposeLocalVisualComponent(CallPeer peer, Component component);
 
     /**
      * Gets the visual/video <tt>Component</tt> available in this telephony for

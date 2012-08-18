@@ -390,9 +390,9 @@ public class ProviderManagerExt
      * @param provider the IQ provider class.
      */
     private void addProvider(
-                    String elementName,
-                    String namespace,
-                    Class provider)
+            String elementName,
+            String namespace,
+            Class<?> provider)
     {
         // Attempt to load the provider class and then create
         // a new instance if it's an IQProvider. Otherwise, if it's
@@ -425,8 +425,10 @@ public class ProviderManagerExt
      * @param namespace the XML namespace.
      * @param provider the extension provider class.
      */
-    public void addExtProvider(String elementName, String namespace,
-            Class provider)
+    public void addExtProvider(
+            String elementName,
+            String namespace,
+            Class<?> provider)
     {
         // Attempt to load the provider class and then create
         // a new instance if it's a Provider. Otherwise, if it's
@@ -436,11 +438,12 @@ public class ProviderManagerExt
         try
         {
             // Add the provider to the map.
-            if (PacketExtensionProvider.class.isAssignableFrom(
-                    provider))
+            if (PacketExtensionProvider.class.isAssignableFrom(provider))
             {
                 addExtensionProvider(
-                    elementName, namespace, provider.newInstance());
+                        elementName,
+                        namespace,
+                        provider.newInstance());
             }
             else if (PacketExtension.class.isAssignableFrom(
                     provider))

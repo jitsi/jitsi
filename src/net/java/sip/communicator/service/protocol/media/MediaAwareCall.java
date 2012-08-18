@@ -205,7 +205,7 @@ public abstract class MediaAwareCall<
             if(getCallPeersVector().isEmpty())
             {
                 callPeer.getMediaHandler().setLocalUserAudioLevelListener(
-                                localAudioLevelDelegator);
+                        localAudioLevelDelegator);
             }
         }
 

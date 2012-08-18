@@ -963,7 +963,7 @@ public class CallPeerJabberImpl
         {
             logger.warn("Exception occurred during media reinitialization", e);
         }
-     }
+    }
 
     /**
      * Processes the content-add {@link JingleIQ}.
@@ -980,8 +980,15 @@ public class CallPeerJabberImpl
         boolean noCands = false;
 
         logger.info("nocand " + noCands);
-
         logger.info("run code");
+
+        /*
+         * If a remote peer turns her video on in a conference which is hosted
+         * by the local peer and the local peer is not streaming her local
+         * video, reinvite the other remote peers to enable RTP translation.
+         */
+        MediaStream oldVideoStream = mediaHandler.getStream(MediaType.VIDEO);
+
         try
         {
             if(!contentAddWithNoCands)
@@ -1063,6 +1070,30 @@ public class CallPeerJabberImpl
 
         getProtocolProvider().getConnection().sendPacket(contentIQ);
         mediaHandler.start();
+
+        /*
+         * If a remote peer turns her video on in a conference which is hosted
+         * by the local peer and the local peer is not streaming her local
+         * video, reinvite the other remote peers to enable RTP translation.
+         */
+        if (oldVideoStream == null)
+        {
+            MediaStream newVideoStream
+                = mediaHandler.getStream(MediaType.VIDEO);
+
+            if ((newVideoStream != null)
+                    && mediaHandler.isRTPTranslationEnabled())
+            {
+                try
+                {
+                    getCall().modifyVideoContent(true);
+                }
+                catch (OperationFailedException ofe)
+                {
+                    logger.error("Failed to enable RTP translation", ofe);
+                }
+            }
+        }
     }
 
     /**
@@ -1111,8 +1142,8 @@ public class CallPeerJabberImpl
         try
         {
             boolean modify = false;
-            if(ext.getFirstChildOfType(RtpDescriptionPacketExtension.class) !=
-                null)
+            if(ext.getFirstChildOfType(RtpDescriptionPacketExtension.class)
+                    != null)
             {
                 modify = true;
             }

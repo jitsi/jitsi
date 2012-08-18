@@ -11,12 +11,10 @@ import ch.imvs.sdes4j.srtp.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.impl.neomedia.transform.sdes.*;
 import org.jitsi.service.neomedia.*;
 
 import org.jivesoftware.smack.packet.*;
@@ -248,30 +246,21 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             SDesControl sDesControl,
             EncryptionPacketExtension encryptionPacketExtension)
     {
-        List<CryptoPacketExtension> cryptoPacketExtensions =
-            encryptionPacketExtension.getCryptoList();
+        List<CryptoPacketExtension> cryptoPacketExtensions
+            = encryptionPacketExtension.getCryptoList();
         Vector<SrtpCryptoAttribute> peerAttributes
             = new Vector<SrtpCryptoAttribute>(cryptoPacketExtensions.size());
 
-        for(int i = 0; i < cryptoPacketExtensions.size(); ++i)
-        {
-            peerAttributes.add(
-                    cryptoPacketExtensions.get(i).toSrtpCryptoAttribute());
-        }
+        for (CryptoPacketExtension cpe : cryptoPacketExtensions)
+            peerAttributes.add(cpe.toSrtpCryptoAttribute());
 
-        if(peerAttributes == null)
-        {
+        if (peerAttributes == null)
             return null;
-        }
 
-        if(isInitiator)
-        {
+        if (isInitiator)
             return sDesControl.initiatorSelectAttribute(peerAttributes);
-        }
         else
-        {
             return sDesControl.responderSelectAttribute(peerAttributes);
-        }
     }
 
     /**

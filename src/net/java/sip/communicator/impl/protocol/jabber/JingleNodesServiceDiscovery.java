@@ -178,7 +178,7 @@ public class JingleNodesServiceDiscovery
             for(Map.Entry<String, TrackerEntry> entry
                     : service.getTrackerEntries().entrySet())
             {
-                service.deepSearch(
+                SmackServiceNode.deepSearch(
                     xmppConnection,
                     maxEntries,
                     entry.getValue().getJid(),
@@ -209,7 +209,7 @@ public class JingleNodesServiceDiscovery
                     return mappedNodes;
 
                 // Request to Server
-                service.deepSearch(
+                SmackServiceNode.deepSearch(
                     xmppConnection,
                     maxEntries,
                     xmppConnection.getHost(),
@@ -232,7 +232,7 @@ public class JingleNodesServiceDiscovery
                             final Presence presence = i.next();
                             if (presence.isAvailable())
                             {
-                                service.deepSearch(
+                                SmackServiceNode.deepSearch(
                                     xmppConnection,
                                     maxEntries,
                                     presence.getFrom(),
@@ -314,7 +314,7 @@ public class JingleNodesServiceDiscovery
                         if( !StringUtils.isNullOrEmpty(pref)
                             && item.getEntityID().startsWith(pref.trim()))
                         {
-                            service.deepSearch(
+                            SmackServiceNode.deepSearch(
                                 xmppConnection,
                                 maxEntries,
                                 item.getEntityID(),
@@ -339,7 +339,7 @@ public class JingleNodesServiceDiscovery
                     // we may searched already this node if it starts
                     // with some of the prefixes
                     if(!visited.containsKey(item.getEntityID()))
-                        service.deepSearch(
+                        SmackServiceNode.deepSearch(
                             xmppConnection,
                             maxEntries,
                             item.getEntityID(),

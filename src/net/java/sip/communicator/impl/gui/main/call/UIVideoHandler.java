@@ -249,10 +249,9 @@ public class UIVideoHandler
 
                 if (!isLocalVideoListenerAdded)
                 {
+                    isLocalVideoListenerAdded = true;
                     telephony.addPropertyChangeListener(
                             call, videoTelephonyListener);
-
-                    isLocalVideoListenerAdded = true;
                 }
 
                 synchronized (videoContainers)
@@ -381,10 +380,7 @@ public class UIVideoHandler
             isLocalVideoListenerAdded = false;
 
             if (localVideo != null)
-            {
-                telephony.disposeLocalVisualComponent(callPeer, localVideo);
                 localVideo = null;
-            }
         }
 
         synchronized (videoContainers)
@@ -976,8 +972,7 @@ public class UIVideoHandler
                 {
                     try
                     {
-                        videoTelephony.createLocalVisualComponent(
-                                callPeer, listener);
+                        videoTelephony.getLocalVisualComponent(callPeer);
                     }
                     catch (OperationFailedException ex)
                     {
@@ -989,8 +984,6 @@ public class UIVideoHandler
             }
             else if (localVideo != null)
             {
-                videoTelephony.disposeLocalVisualComponent(
-                        callPeer, localVideo);
                 handleVideoEvent(
                         callPeer.getCall(),
                         new VideoEvent(
@@ -1452,19 +1445,19 @@ public class UIVideoHandler
             return;
         }
 
-        if(videoType == VideoEvent.LOCAL && localVideo != null)
+        switch (videoType)
         {
-            localVideo.addMouseMotionListener(
-                localVideoListener);
-            localVideo.addMouseListener(
-                localVideoListener);
-        }
-        else if(videoType == VideoEvent.REMOTE)
-        {
-            if(allowRemoteControl)
+        case VideoEvent.LOCAL:
+            if (localVideo != null)
             {
-                addMouseAndKeyListeners();
+                localVideo.addMouseMotionListener(localVideoListener);
+                localVideo.addMouseListener(localVideoListener);
             }
+            break;
+        case VideoEvent.REMOTE:
+            if (allowRemoteControl)
+                addMouseAndKeyListeners();
+            break;
         }
     }
 
@@ -1480,13 +1473,10 @@ public class UIVideoHandler
         {
             this.localVideoVisible = isVisible;
 
-            if (isVisible
-                != callRenderer.getCallContainer()
-                    .isShowHideVideoButtonSelected())
-            {
-                callRenderer.getCallContainer()
-                    .setShowHideVideoButtonSelected(isVisible);
-            }
+            CallPanel callContainer = callRenderer.getCallContainer();
+
+            if (isVisible != callContainer.isShowHideVideoButtonSelected())
+                callContainer.setShowHideVideoButtonSelected(isVisible);
 
             int videoContainerCount;
 

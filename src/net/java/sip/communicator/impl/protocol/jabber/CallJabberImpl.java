@@ -170,7 +170,7 @@ public class CallJabberImpl
                         CoinPacketExtension.ELEMENT_NAME,
                         CoinPacketExtension.NAMESPACE);
 
-        if(coin != null)
+        if (coin != null)
         {
             boolean b
                 = Boolean.parseBoolean(
@@ -186,21 +186,23 @@ public class CallJabberImpl
 
         // if paranoia is set, to accept the call we need to know that
         // the other party has support for media encryption
-        if(getProtocolProvider().getAccountID().getAccountPropertyBoolean(
+        if (getProtocolProvider().getAccountID().getAccountPropertyBoolean(
                 ProtocolProviderFactory.MODE_PARANOIA, false)
-            && callPeer.getMediaHandler().getAdvertisedEncryptionMethods().length
+            && callPeer.getMediaHandler().getAdvertisedEncryptionMethods()
+                    .length
                 == 0)
         {
             //send an error response;
-            String reasonText =
-                JabberActivator.getResources().getI18NString(
-                    "service.gui.security.encryption.required");
-            JingleIQ errResp = JinglePacketFactory.createSessionTerminate(
-                jingleIQ.getTo(),
-                jingleIQ.getFrom(),
-                jingleIQ.getSID(),
-                Reason.SECURITY_ERROR,
-                reasonText);
+            String reasonText
+                = JabberActivator.getResources().getI18NString(
+                        "service.gui.security.encryption.required");
+            JingleIQ errResp
+                = JinglePacketFactory.createSessionTerminate(
+                        jingleIQ.getTo(),
+                        jingleIQ.getFrom(),
+                        jingleIQ.getSID(),
+                        Reason.SECURITY_ERROR,
+                        reasonText);
 
             callPeer.setState(CallPeerState.FAILED, reasonText);
             getProtocolProvider().getConnection().sendPacket(errResp);
@@ -208,13 +210,13 @@ public class CallJabberImpl
             return null;
         }
 
-        if( callPeer.getState() == CallPeerState.FAILED)
+        if (callPeer.getState() == CallPeerState.FAILED)
             return null;
 
         callPeer.setState( CallPeerState.INCOMING_CALL );
 
         // in case of attended transfer, auto answer the call
-        if(autoAnswer)
+        if (autoAnswer)
         {
             /* answer directly */
             try
@@ -256,35 +258,36 @@ public class CallJabberImpl
         directions.put(MediaType.AUDIO, MediaDirection.INACTIVE);
         directions.put(MediaType.VIDEO, MediaDirection.INACTIVE);
 
-        for(ContentPacketExtension c : offer)
+        for (ContentPacketExtension c : offer)
         {
             String contentName = c.getName();
             MediaDirection remoteDirection
                 = JingleUtils.getDirection(c, callPeer.isInitiator());
 
-            if(MediaType.AUDIO.toString().equals(contentName))
+            if (MediaType.AUDIO.toString().equals(contentName))
                 directions.put(MediaType.AUDIO, remoteDirection);
-            else if(MediaType.VIDEO.toString().equals(contentName))
+            else if (MediaType.VIDEO.toString().equals(contentName))
                 directions.put(MediaType.VIDEO, remoteDirection);
         }
 
         // if this was the first peer we added in this call then the call is
         // new and we also need to notify everyone of its creation.
-        if(this.getCallPeerCount() == 1 && getCallGroup() == null)
-            parentOpSet.fireCallEvent(CallEvent.CALL_RECEIVED, this,
-                directions);
+        if ((getCallPeerCount() == 1) && (getCallGroup() == null))
+        {
+            parentOpSet.fireCallEvent(
+                    CallEvent.CALL_RECEIVED,
+                    this,
+                    directions);
+        }
 
         // Manages auto answer with "audio only", or "audio / video" answer.
         OperationSetAutoAnswerJabberImpl autoAnswerOpSet
             = (OperationSetAutoAnswerJabberImpl)
-            this.getProtocolProvider()
-            .getOperationSet(OperationSetBasicAutoAnswer.class);
+                getProtocolProvider().getOperationSet(
+                    OperationSetBasicAutoAnswer.class);
 
-        if(autoAnswerOpSet != null)
-        {
+        if (autoAnswerOpSet != null)
             autoAnswerOpSet.autoAnswer(this, directions);
-        }
-
 
         return callPeer;
     }
@@ -352,9 +355,11 @@ public class CallJabberImpl
         /* enable remote-control if it is a desktop sharing session */
         mediaHandler.setLocalInputEvtAware(getLocalInputEvtAware());
 
-        //set call state to connecting so that the user interface would start
-        //playing the tones. we do that here because we may be harvesting
-        //STUN/TURN addresses in initiateSession() which would take a while.
+        /*
+         * Set call state to connecting so that the user interface would start
+         * playing the tones. We do that here because we may be harvesting
+         * STUN/TURN addresses in initiateSession() which would take a while.
+         */
         callPeer.setState(CallPeerState.CONNECTING);
 
         // if initializing session fails, set peer to failed
@@ -375,21 +380,25 @@ public class CallJabberImpl
     }
 
     /**
-     * Send a <tt>content-modify</tt> message for all current <tt>CallPeer</tt>
-     * to reflect possible video change in media setup.
+     * Sends a <tt>content-modify</tt> message to each of the current
+     * <tt>CallPeer</tt>s to reflect a possible change in the media setup
+     * related to video.
      *
-     * @param allowed if the local video is allowed or not
-     * @throws OperationFailedException if problem occurred during message
-     * generation or network problem
+     * @param allowed <tt>true</tt> if the streaming of the local video to the
+     * remote peer is allowed; otherwise, <tt>false</tt>
+     * @throws OperationFailedException if a problem occurred during message
+     * generation or there was a network problem
      */
     public void modifyVideoContent(boolean allowed)
         throws OperationFailedException
     {
-        if(logger.isInfoEnabled())
-            logger.info(allowed ? "Start local video streaming" :
-                "Stop local video streaming");
+        if (logger.isInfoEnabled())
+        {
+            logger.info(
+                    (allowed ? "Start" : "Stop") + " local video streaming");
+        }
 
-        for(CallPeerJabberImpl peer : getCallPeersVector())
+        for (CallPeerJabberImpl peer : getCallPeersVector())
             peer.sendModifyVideoContent(allowed);
     }
 

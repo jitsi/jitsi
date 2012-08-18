@@ -462,15 +462,16 @@ public class OperationSetTelephonyConferencingJabberImpl
         if (!wasConferenceFocus && call.isConferenceFocus())
         {
             /*
-             * Re-INVITE existing CallPeers to inform them that from now
-             * the specified call is a conference call.
+             * Re-INVITE existing CallPeers to inform them that from now the
+             * specified call is a conference call.
              */
             Iterator<CallPeerJabberImpl> callPeerIter = call.getCallPeers();
 
             while (callPeerIter.hasNext())
             {
                 CallPeerJabberImpl callPeer = callPeerIter.next();
-                if(callPeer.getState() == CallPeerState.CONNECTED)
+
+                if (callPeer.getState() == CallPeerState.CONNECTED)
                     callPeer.sendCoinSessionInfo(true);
             }
         }
@@ -551,31 +552,27 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     public void processPacket(Packet packet)
     {
-        CoinIQ coinIQ = (CoinIQ)packet;
+        CoinIQ coinIQ = (CoinIQ) packet;
 
         //first ack all "set" requests.
-        if(coinIQ.getType() == IQ.Type.SET)
+        if (coinIQ.getType() == IQ.Type.SET)
         {
             IQ ack = IQ.createResultIQ(coinIQ);
+
             parentProvider.getConnection().sendPacket(ack);
         }
 
         String sid = coinIQ.getSID();
 
-        if(sid == null)
+        if (sid != null)
         {
-            return;
+            CallPeerJabberImpl callPeer
+                = getBasicTelephony().getActiveCallsRepository().findCallPeer(
+                        sid);
+
+            if (callPeer != null)
+                handleCoin(coinIQ, callPeer);
         }
-
-        CallPeerJabberImpl callPeer
-            = getBasicTelephony().getActiveCallsRepository().findCallPeer(sid);
-
-        if(callPeer == null)
-        {
-            return;
-        }
-
-        handleCoin(coinIQ, callPeer);
     }
 
     /**

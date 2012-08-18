@@ -122,7 +122,7 @@ public class OperationSetDesktopStreamingJabberImpl
     {
         Call call = createOutgoingVideoCall(uri);
         MediaDevice device
-            = ((MediaAwareCall) call).getDefaultDevice(MediaType.VIDEO);
+            = ((MediaAwareCall<?,?,?>) call).getDefaultDevice(MediaType.VIDEO);
         size = (((VideoMediaFormat)device.getFormat()).getSize());
         origin = getOriginForMediaDevice(device);
         return call;
@@ -146,7 +146,7 @@ public class OperationSetDesktopStreamingJabberImpl
     {
         Call call = createOutgoingVideoCall(callee.getAddress());
         MediaDevice device
-            = ((MediaAwareCall) call).getDefaultDevice(MediaType.VIDEO);
+            = ((MediaAwareCall<?,?,?>) call).getDefaultDevice(MediaType.VIDEO);
         size = (((VideoMediaFormat)device.getFormat()).getSize());
         origin = getOriginForMediaDevice(device);
         return call;
@@ -192,8 +192,8 @@ public class OperationSetDesktopStreamingJabberImpl
                                      boolean allowed)
         throws OperationFailedException
     {
-        AbstractCallJabberGTalkImpl callImpl
-            = (AbstractCallJabberGTalkImpl) call;
+        AbstractCallJabberGTalkImpl<?> callImpl
+            = (AbstractCallJabberGTalkImpl<?>) call;
 
         if (mediaDevice == null)
         {
@@ -228,8 +228,9 @@ public class OperationSetDesktopStreamingJabberImpl
      */
     public boolean isLocalVideoAllowed(Call call)
     {
-        return ((MediaAwareCall<?, ?, ?>)call).
-            isLocalVideoAllowed(MediaUseCase.DESKTOP);
+        return
+            ((MediaAwareCall<?, ?, ?>)call).isLocalVideoAllowed(
+                    MediaUseCase.DESKTOP);
     }
 
     /**
@@ -275,16 +276,13 @@ public class OperationSetDesktopStreamingJabberImpl
      */
     public boolean isPartialStreaming(Call call)
     {
-        MediaAwareCall callImpl = (MediaAwareCall)call;
+        MediaAwareCall<?,?,?> callImpl = (MediaAwareCall<?,?,?>) call;
         MediaDevice device = callImpl.getDefaultDevice(MediaType.VIDEO);
 
-        if(device != null)
-        {
-            MediaService mediaService = JabberActivator.getMediaService();
-            return mediaService.isPartialStreaming(device);
-        }
-
-        return false;
+        return
+            (device == null)
+                ? false
+                : JabberActivator.getMediaService().isPartialStreaming(device);
     }
 
     /**
@@ -297,13 +295,14 @@ public class OperationSetDesktopStreamingJabberImpl
      */
     public void movePartialDesktopStreaming(Call call, int x, int y)
     {
-        AbstractCallJabberGTalkImpl callImpl
-            = (AbstractCallJabberGTalkImpl) call;
-        AbstractCallPeerJabberGTalkImpl callPeerImpl
-            = (AbstractCallPeerJabberGTalkImpl) callImpl.getCallPeers().next();
-        VideoMediaStream videoStream = (VideoMediaStream)
-            callPeerImpl.getMediaHandler().getStream(
-                MediaType.VIDEO);
+        AbstractCallJabberGTalkImpl<?> callImpl
+            = (AbstractCallJabberGTalkImpl<?>) call;
+        AbstractCallPeerJabberGTalkImpl<?,?> callPeerImpl
+            = (AbstractCallPeerJabberGTalkImpl<?,?>)
+                callImpl.getCallPeers().next();
+        VideoMediaStream videoStream 
+            = (VideoMediaStream)
+                callPeerImpl.getMediaHandler().getStream(MediaType.VIDEO);
 
         if(videoStream != null)
         {

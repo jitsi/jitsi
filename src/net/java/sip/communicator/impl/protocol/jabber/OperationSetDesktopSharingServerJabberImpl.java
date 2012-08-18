@@ -120,8 +120,8 @@ public class OperationSetDesktopSharingServerJabberImpl
     public Call createVideoCall(String uri, MediaDevice device)
         throws OperationFailedException, ParseException
     {
-        MediaAwareCall call
-            = (MediaAwareCall) super.createVideoCall(uri, device);
+        MediaAwareCall<?,?,?> call
+            = (MediaAwareCall<?,?,?>) super.createVideoCall(uri, device);
 
         size
             = (((VideoMediaFormat)
@@ -149,8 +149,8 @@ public class OperationSetDesktopSharingServerJabberImpl
     public Call createVideoCall(Contact callee, MediaDevice device)
         throws OperationFailedException
     {
-        MediaAwareCall call
-            = (MediaAwareCall) super.createVideoCall(callee, device);
+        MediaAwareCall<?,?,?> call
+            = (MediaAwareCall<?,?,?>) super.createVideoCall(callee, device);
 
         size
             = ((VideoMediaFormat)
@@ -226,8 +226,10 @@ public class OperationSetDesktopSharingServerJabberImpl
             else
             {
                 if (logger.isInfoEnabled())
-                    logger.info(fullCalleeURI +
-                            ": remote-control not supported!");
+                {
+                    logger.info(
+                            fullCalleeURI + ": remote-control not supported!");
+                }
 
                 // TODO fail or not?
                 /*
@@ -262,8 +264,7 @@ public class OperationSetDesktopSharingServerJabberImpl
 
         basicTelephony.createOutgoingCall(call, calleeAddress);
 
-        CallPeerJabberImpl callPeer
-            = new CallPeerJabberImpl(calleeAddress, call);
+        new CallPeerJabberImpl(calleeAddress, call);
 
         return call;
     }
@@ -307,7 +308,7 @@ public class OperationSetDesktopSharingServerJabberImpl
                                      boolean allowed)
         throws OperationFailedException
     {
-        ((AbstractCallJabberGTalkImpl) call).setLocalInputEvtAware(allowed);
+        ((AbstractCallJabberGTalkImpl<?>) call).setLocalInputEvtAware(allowed);
         super.setLocalVideoAllowed(call, mediaDevice, allowed);
     }
 
@@ -654,11 +655,13 @@ public class OperationSetDesktopSharingServerJabberImpl
     public boolean isRemoteControlAvailable(CallPeer callPeer)
     {
         DiscoverInfo discoverInfo
-            = ((AbstractCallPeerJabberGTalkImpl) callPeer).getDiscoverInfo();
-        return (this.parentProvider.getDiscoveryManager()
-                .includesFeature(InputEvtIQ.NAMESPACE_SERVER)
-                && discoverInfo != null
-                && discoverInfo.containsFeature(
-                    InputEvtIQ.NAMESPACE_CLIENT));
+            = ((AbstractCallPeerJabberGTalkImpl<?,?>) callPeer)
+                .getDiscoverInfo();
+
+        return
+            parentProvider.getDiscoveryManager().includesFeature(
+                    InputEvtIQ.NAMESPACE_SERVER)
+                && (discoverInfo != null)
+                && discoverInfo.containsFeature(InputEvtIQ.NAMESPACE_CLIENT);
     }
 }

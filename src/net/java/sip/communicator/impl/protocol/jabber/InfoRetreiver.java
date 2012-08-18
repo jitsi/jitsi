@@ -40,10 +40,6 @@ public class InfoRetreiver
     private static final String TAG_FN_OPEN = "<FN>";
     private static final String TAG_FN_CLOSE = "</FN>";
 
-    // the uin of the account using us,
-    // used when sending commands for user info to the server
-    private final String ownerUin;
-
     /**
      * The timeout to wait before considering vcard has time outed.
      */
@@ -54,7 +50,6 @@ public class InfoRetreiver
             String ownerUin)
     {
         this.jabberProvider = jabberProvider;
-        this.ownerUin = ownerUin;
 
         vcardTimeoutReply
             = JabberActivator.getConfigurationService().getLong(
