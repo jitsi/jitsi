@@ -14,8 +14,8 @@
 class ClassFactory;
 
 /**
- * Implements the jmsoutlookcomm application which is an out-of-process local COM
- * server.
+ * Implements the jmsoutlookcomm application which is an out-of-process local
+ * COM server.
  *
  * @author Lyubomir Marinov
  */
@@ -53,7 +53,7 @@ private:
     static DWORD setIMProvidersCommunicatorUpAndRunning(DWORD dw);
 
     static CRITICAL_SECTION _criticalSection;
-    static ITypeLib *       _iTypeLib;
+    static LPTYPELIB        _iTypeLib;
     static ClassFactory *   _messengerClassFactory;
     static LPSTR            _packageName;
     static HANDLE           _threadHandle;

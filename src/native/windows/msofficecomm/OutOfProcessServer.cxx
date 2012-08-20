@@ -71,7 +71,7 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved)
 }
 
 CRITICAL_SECTION OutOfProcessServer::_criticalSection;
-ITypeLib *       OutOfProcessServer::_iTypeLib;
+LPTYPELIB        OutOfProcessServer::_iTypeLib;
 ClassFactory *   OutOfProcessServer::_messengerClassFactory = NULL;
 LPSTR            OutOfProcessServer::_packageName;
 HANDLE           OutOfProcessServer::_threadHandle;
@@ -225,7 +225,12 @@ jint OutOfProcessServer::JNI_OnLoad(JavaVM *vm)
 
 HRESULT OutOfProcessServer::loadRegTypeLib()
 {
-    ITypeLib *iTypeLib;
+    /*
+     * Microsoft Office will need the Office Communicator 2007 API to be able to
+     * talk to us. Make sure it is available.
+     */
+
+    LPTYPELIB iTypeLib;
     HRESULT hr = ::LoadRegTypeLib(LIBID_CommunicatorUA, 1, 0, 0, &iTypeLib);
 
     if (SUCCEEDED(hr))
@@ -233,6 +238,8 @@ HRESULT OutOfProcessServer::loadRegTypeLib()
     else
     {
         HMODULE module;
+
+        _iTypeLib = NULL;
 
         if (::GetModuleHandleEx(
                 GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
@@ -253,7 +260,7 @@ HRESULT OutOfProcessServer::loadRegTypeLib()
 
                     if (oleaut32)
                     {
-                        typedef HRESULT (*RTLFU)(LPTYPELIB,LPOLESTR,LPOLESTR);
+                        typedef HRESULT (WINAPI *RTLFU)(LPTYPELIB,LPOLESTR,LPOLESTR);
                         RTLFU registerTypeLibForUser
                             = (RTLFU)
                                 ::GetProcAddress(
@@ -264,18 +271,37 @@ HRESULT OutOfProcessServer::loadRegTypeLib()
                         {
                             hr = registerTypeLibForUser(iTypeLib, path, NULL);
                             if (SUCCEEDED(hr))
-                                _iTypeLib = iTypeLib;
+                            {
+                                /*
+                                 * The whole point of what has been done till
+                                 * now is securing the success of future calls
+                                 * to LoadRegTypeLib. Make sure that is indeed
+                                 * the case.
+                                 */
+
+                                iTypeLib->Release();
+
+                                hr
+                                    = ::LoadRegTypeLib(
+                                            LIBID_CommunicatorUA,
+                                            1,
+                                            0,
+                                            0,
+                                            &iTypeLib);
+                                if (SUCCEEDED(hr))
+                                    _iTypeLib = iTypeLib;
+                            }
                         }
                         else
                             hr = E_UNEXPECTED;
                     }
                     else
                         hr = E_UNEXPECTED;
+                    if (iTypeLib != _iTypeLib)
+                        iTypeLib->Release();
                 }
             }
         }
-        if (_iTypeLib != iTypeLib)
-            iTypeLib->Release();
     }
     return hr;
 }
@@ -422,7 +448,7 @@ unsigned __stdcall OutOfProcessServer::run(void *)
                         {
                             /*
                              * Enable the use of the QueueUserAPC function by
-                             * entering an altertable state.
+                             * entering an alertable state.
                              */
                             if ((WAIT_FAILED
                                         == ::MsgWaitForMultipleObjectsEx(
