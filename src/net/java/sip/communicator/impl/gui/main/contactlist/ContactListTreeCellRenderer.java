@@ -910,7 +910,7 @@ public class ContactListTreeCellRenderer
         int xBounds)
     {
         // Reinit the labels to take the whole horizontal space.
-        addLabels(5 + contactActionButtons.size());
+        addLabels(gridX + contactActionButtons.size());
 
         Iterator<SIPCommButton> actionsIter = contactActionButtons.iterator();
         while (actionsIter.hasNext())
