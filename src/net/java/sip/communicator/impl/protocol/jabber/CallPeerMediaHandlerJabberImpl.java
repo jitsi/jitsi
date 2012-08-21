@@ -496,8 +496,9 @@ public class CallPeerMediaHandlerJabberImpl
 
             //let's now see what was the format we announced as first and
             //configure the stream with it.
+            String contentName = ourContent.getName();
             ContentPacketExtension theirContent
-                = this.remoteContentMap.get(ourContent.getName());
+                = this.remoteContentMap.get(contentName);
             RtpDescriptionPacketExtension theirDescription
                 = JingleUtils.getRtpDescription(theirContent);
             MediaFormat format = null;
@@ -560,7 +561,7 @@ public class CallPeerMediaHandlerJabberImpl
 
             // create the corresponding stream...
             initStream(
-                    ourContent.getName(),
+                    contentName,
                     connector,
                     dev,
                     format,

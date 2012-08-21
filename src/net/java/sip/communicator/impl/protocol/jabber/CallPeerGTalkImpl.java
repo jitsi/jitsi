@@ -12,7 +12,6 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.packet.*;
@@ -21,11 +20,11 @@ import org.jivesoftware.smack.packet.*;
  * Implements a Google Talk <tt>CallPeer</tt>.
  *
  * @author Sebastien Vincent
+ * @author Lyubomir Marinov
  */
 public class CallPeerGTalkImpl
     extends AbstractCallPeerJabberGTalkImpl
-        <CallGTalkImpl,
-        CallPeerMediaHandlerGTalkImpl>
+        <CallGTalkImpl, CallPeerMediaHandlerGTalkImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerGTalkImpl</tt> class and its
@@ -35,25 +34,49 @@ public class CallPeerGTalkImpl
         = Logger.getLogger(CallPeerGTalkImpl.class);
 
     /**
-     * The {@link SessionIQ} that created the session that this call represents.
+     * Returns whether or not the <tt>CallPeer</tt> is an Android phone or
+     * a call pass throught Google Voice or uses Google Talk client.
+     *
+     * We base the detection of the JID's resource which in the case of Android
+     * is android/Vtok/Talk.vXXXXXXX (where XXXXXX is a suite of
+     * numbers/letters).
      */
-    private SessionIQ sessionInitIQ = null;
+    private static boolean isAndroidOrVtokOrTalkClient(String fullJID)
+    {
+        int idx = fullJID.indexOf('/');
 
-    /**
-     * Indicates whether this peer was the one that initiated the session.
-     */
-    protected boolean isInitiator = false;
+        if(idx != -1)
+        {
+            String res = fullJID.substring(idx + 1);
+            if(res.startsWith("android") || res.startsWith("Vtok") ||
+                res.startsWith("Talk.v"))
+            {
+                return true;
+            }
+        }
 
-    /**
-     * Session ID.
-     */
-    private String sid = null;
+        if(fullJID.contains(
+            "@" + ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN))
+            return true;
+
+        return false;
+    }
 
     /**
      * Temporary variable for handling client like FreeSwitch that sends
      * "accept" message before sending candidates.
      */
     private SessionIQ sessAcceptedWithNoCands = null;
+
+    /**
+     * The {@link SessionIQ} that created the session that this call represents.
+     */
+    private SessionIQ sessionInitIQ = null;
+
+    /**
+     * Session ID.
+     */
+    private String sid = null;
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -66,537 +89,6 @@ public class CallPeerGTalkImpl
         super(peerAddress, owningCall);
 
         setMediaHandler(new CallPeerMediaHandlerGTalkImpl(this));
-    }
-
-    /**
-     * Returns a String locator for that peer.
-     *
-     * @return the peer's address or phone number.
-     */
-    public String getAddress()
-    {
-        return peerJID;
-    }
-
-    /**
-     * Returns full URI of the address.
-     *
-     * @return full URI of the address
-     */
-    public String getURI()
-    {
-        return "xmpp:" + peerJID;
-    }
-
-    /**
-     * Specifies the address, phone number, or other protocol specific
-     * identifier that represents this call peer. This method is to be
-     * used by service users and MUST NOT be called by the implementation.
-     *
-     * @param address The address of this call peer.
-     */
-    public void setAddress(String address)
-    {
-        String oldAddress = getAddress();
-
-        if(peerJID.equals(address))
-            return;
-
-        this.peerJID = address;
-        //Fire the Event
-        fireCallPeerChangeEvent(
-                CallPeerChangeEvent.CALL_PEER_ADDRESS_CHANGE,
-                oldAddress,
-                address);
-    }
-
-    /**
-     * Returns a human readable name representing this peer.
-     *
-     * @return a String containing a name for that peer.
-     */
-    public String getDisplayName()
-    {
-        if (getCall() != null)
-        {
-            Contact contact = getContact();
-
-            if (contact != null)
-                return contact.getDisplayName();
-        }
-        return peerJID;
-    }
-
-    /**
-     * Determines whether this peer was the one that initiated the session. Note
-     * that if this peer is the initiator of the session then this means we are
-     * the responder!
-     *
-     * @return <tt>true</tt> if this peer is the one that initiated the session
-     * and <tt>false</tt> otherwise (i.e. if _we_ initiated the session).
-     */
-    public boolean isInitiator()
-    {
-        return isInitiator;
-    }
-
-    /**
-     * Returns the contact corresponding to this peer or null if no
-     * particular contact has been associated.
-     * <p>
-     * @return the <tt>Contact</tt> corresponding to this peer or null
-     * if no particular contact has been associated.
-     */
-    public Contact getContact()
-    {
-        ProtocolProviderService pps = getCall().getProtocolProvider();
-        OperationSetPresence opSetPresence
-            = pps.getOperationSet(OperationSetPresence.class);
-
-        return opSetPresence.findContactByID(getAddress());
-    }
-
-    /**
-     * Processes the session initiation {@link SessionIQ} that we were created
-     * with, passing its content to the media handler and then sends either a
-     * "session-info/ringing" or a "terminate" response.
-     *
-     * @param sessionInitIQ The {@link SessionIQ} that created the session that
-     * we are handling here.
-     */
-    protected synchronized void processSessionInitiate(SessionIQ sessionInitIQ)
-    {
-        // Do initiate the session.
-        this.sessionInitIQ = sessionInitIQ;
-        this.isInitiator = true;
-
-        RtpDescriptionPacketExtension description = null;
-
-        for(PacketExtension ext : sessionInitIQ.getExtensions())
-        {
-            if(ext.getElementName().equals(
-                    RtpDescriptionPacketExtension.ELEMENT_NAME))
-            {
-                description = (RtpDescriptionPacketExtension)ext;
-                break;
-            }
-        }
-
-        if(description == null)
-        {
-            logger.info("No description in incoming session initiate");
-
-            //send an error response;
-            String reasonText = "Error: no description";
-            SessionIQ errResp
-                = GTalkPacketFactory.createSessionTerminate(
-                        sessionInitIQ.getTo(),
-                        sessionInitIQ.getFrom(),
-                        sessionInitIQ.getID(),
-                        Reason.INCOMPATIBLE_PARAMETERS,
-                        reasonText);
-
-            setState(CallPeerState.FAILED, reasonText);
-            getProtocolProvider().getConnection().sendPacket(errResp);
-            return;
-        }
-
-        try
-        {
-            getMediaHandler().processOffer(description);
-        }
-        catch(Exception ex)
-        {
-            logger.info("Failed to process an incoming session initiate", ex);
-
-            //send an error response;
-            String reasonText = "Error: " + ex.getMessage();
-            SessionIQ errResp
-                = GTalkPacketFactory.createSessionTerminate(
-                        sessionInitIQ.getTo(),
-                        sessionInitIQ.getFrom(),
-                        sessionInitIQ.getID(),
-                        Reason.INCOMPATIBLE_PARAMETERS,
-                        reasonText);
-
-            setState(CallPeerState.FAILED, reasonText);
-            getProtocolProvider().getConnection().sendPacket(errResp);
-            return;
-        }
-
-        // If we do not get the info about the remote peer yet. Get it right
-        // now.
-        if(this.getDiscoverInfo() == null)
-        {
-            String calleeURI = sessionInitIQ.getFrom();
-            retrieveDiscoverInfo(calleeURI);
-        }
-    }
-
-    /**
-     * Initiate a Google Talk session {@link SessionIQ}.
-     *
-     * @param sessionInitiateExtensions a collection of additional and optional
-     * <tt>PacketExtension</tt>s to be added to the <tt>initiate</tt>
-     * {@link SessionIQ} which is to initiate the session with this
-     * <tt>CallPeerGTalkImpl</tt>
-     * @throws OperationFailedException exception
-     */
-    protected synchronized void initiateSession(
-            Iterable<PacketExtension> sessionInitiateExtensions)
-        throws OperationFailedException
-    {
-        sid = SessionIQ.generateSID();
-        isInitiator = false;
-
-        //Create the media description that we'd like to send to the other side.
-        RtpDescriptionPacketExtension offer
-            = getMediaHandler().createDescription();
-
-        ProtocolProviderServiceJabberImpl protocolProvider
-            = getProtocolProvider();
-
-        sessionInitIQ
-            = GTalkPacketFactory.createSessionInitiate(
-                    protocolProvider.getOurJID(),
-                    this.peerJID,
-                    sid,
-                    offer);
-
-        if (sessionInitiateExtensions != null)
-        {
-            for (PacketExtension sessionInitiateExtension
-                    : sessionInitiateExtensions)
-            {
-                sessionInitIQ.addExtension(sessionInitiateExtension);
-            }
-        }
-
-        protocolProvider.getConnection().sendPacket(sessionInitIQ);
-
-        // for Google Voice JID without resource we do not harvest and send
-        // candidates
-        if(getAddress().endsWith(
-            ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN))
-        {
-            return;
-        }
-
-        getMediaHandler().harvestCandidates(offer.getPayloadTypes(),
-                new CandidatesSender()
-        {
-            public void sendCandidates(
-                    Iterable<GTalkCandidatePacketExtension> candidates)
-            {
-                CallPeerGTalkImpl.this.sendCandidates(candidates);
-            }
-        });
-    }
-
-    /**
-     * Puts this peer into a {@link CallPeerState#DISCONNECTED}, indicating a
-     * reason to the user, if there is one.
-     *
-     * @param sessionIQ the {@link SessionIQ} that's terminating our session.
-     */
-    public void processSessionReject(SessionIQ sessionIQ)
-    {
-        processSessionTerminate(sessionIQ);
-    }
-
-    /**
-     * Puts this peer into a {@link CallPeerState#DISCONNECTED}, indicating a
-     * reason to the user, if there is one.
-     *
-     * @param sessionIQ the {@link SessionIQ} that's terminating our session.
-     */
-    public void processSessionTerminate(SessionIQ sessionIQ)
-    {
-        String reasonStr = "Call ended by remote side.";
-        ReasonPacketExtension reasonExt = sessionIQ.getReason();
-
-        if(reasonStr != null && reasonExt != null)
-        {
-            Reason reason = reasonExt.getReason();
-
-            if(reason != null)
-                reasonStr += " Reason: " + reason.toString() + ".";
-
-            String text = reasonExt.getText();
-
-            if(text != null)
-                reasonStr += " " + text;
-        }
-
-        getMediaHandler().getTransportManager().close();
-        setState(CallPeerState.DISCONNECTED, reasonStr);
-    }
-
-    /**
-     * Processes the session initiation {@link SessionIQ} that we were created
-     * with, passing its content to the media handler.
-     *
-     * @param sessionInitIQ The {@link SessionIQ} that created the session that
-     * we are handling here.
-     */
-    public void processSessionAccept(SessionIQ sessionInitIQ)
-    {
-        this.sessionInitIQ = sessionInitIQ;
-
-        CallPeerMediaHandlerGTalkImpl mediaHandler = getMediaHandler();
-        Collection<PacketExtension> extensions =
-            sessionInitIQ.getExtensions();
-        RtpDescriptionPacketExtension answer = null;
-
-        for(PacketExtension ext : extensions)
-        {
-            if(ext.getElementName().equalsIgnoreCase(
-                    RtpDescriptionPacketExtension.ELEMENT_NAME))
-            {
-                answer = (RtpDescriptionPacketExtension)ext;
-                break;
-            }
-        }
-
-        try
-        {
-            mediaHandler.getTransportManager().
-                wrapupConnectivityEstablishment();
-            mediaHandler.processAnswer(answer);
-        }
-        catch(IllegalArgumentException e)
-        {
-            // HACK for FreeSwitch that send accept message before sending
-            // candidates
-            sessAcceptedWithNoCands = sessionInitIQ;
-            return;
-        }
-        catch(Exception exc)
-        {
-            if (logger.isInfoEnabled())
-                logger.info("Failed to process a session-accept", exc);
-
-            //send an error response
-            String reasonText = "Error: " + exc.getMessage();
-            SessionIQ errResp
-                = GTalkPacketFactory.createSessionTerminate(
-                        sessionInitIQ.getTo(),
-                        sessionInitIQ.getFrom(),
-                        sessionInitIQ.getID(),
-                        Reason.GENERAL_ERROR,
-                        reasonText);
-
-            getMediaHandler().getTransportManager().close();
-            setState(CallPeerState.FAILED, reasonText);
-            getProtocolProvider().getConnection().sendPacket(errResp);
-            return;
-        }
-
-        //tell everyone we are connecting so that the audio notifications would
-        //stop
-        setState(CallPeerState.CONNECTED);
-
-        mediaHandler.start();
-    }
-
-    /**
-     * Process candidates received.
-     *
-     * @param sessionInitIQ The {@link SessionIQ} that created the session we
-     * are handling here
-     */
-    public void processCandidates(SessionIQ sessionInitIQ)
-    {
-        Collection<PacketExtension> extensions = sessionInitIQ.getExtensions();
-        List<GTalkCandidatePacketExtension> candidates =
-            new ArrayList<GTalkCandidatePacketExtension>();
-
-        for(PacketExtension ext : extensions)
-        {
-            if(ext.getElementName().equalsIgnoreCase(
-                    GTalkCandidatePacketExtension.ELEMENT_NAME))
-            {
-                GTalkCandidatePacketExtension cand =
-                    (GTalkCandidatePacketExtension)ext;
-                candidates.add(cand);
-            }
-        }
-
-        try
-        {
-            getMediaHandler().processCandidates(candidates);
-        }
-        catch (OperationFailedException ofe)
-        {
-            logger.warn("Failed to process an incoming candidates", ofe);
-
-            //send an error response
-            String reasonText = "Error: " + ofe.getMessage();
-            SessionIQ errResp
-                = GTalkPacketFactory.createSessionTerminate(
-                        sessionInitIQ.getTo(),
-                        sessionInitIQ.getFrom(),
-                        sessionInitIQ.getID(),
-                        Reason.GENERAL_ERROR,
-                        reasonText);
-
-            getMediaHandler().getTransportManager().close();
-            setState(CallPeerState.FAILED, reasonText);
-            getProtocolProvider().getConnection().sendPacket(errResp);
-            return;
-        }
-
-        // HACK for FreeSwitch that send accept message before sending
-        // candidates
-        if(sessAcceptedWithNoCands != null)
-        {
-            if(!isInitiator)
-            {
-                final SessionIQ sess = sessAcceptedWithNoCands;
-                sessAcceptedWithNoCands = null;
-
-                // run in another thread to not block smack receive thread and
-                // possibly delay others candidates messages.
-                new Thread()
-                {
-                    public void run()
-                    {
-                        processSessionAccept(sess);
-                    }
-                }.start();
-            }
-            else
-            {
-                try
-                {
-                    answer();
-                }
-                catch(OperationFailedException e)
-                {
-                    logger.info("Failed to answer call (FreeSwitch hack)");
-                }
-            }
-            sessAcceptedWithNoCands = null;
-        }
-    }
-
-    /**
-     * Returns the session ID of the Jingle session associated with this call.
-     *
-     * @return the session ID of the Jingle session associated with this call.
-     */
-    public String getSessionID()
-    {
-        return sessionInitIQ != null ? sessionInitIQ.getID() : sid;
-    }
-
-    /**
-     * Returns the IQ ID of the Jingle session-initiate packet associated with
-     * this call.
-     *
-     * @return the IQ ID of the Jingle session-initiate packet associated with
-     * this call.
-     */
-    public String getSessInitID()
-    {
-        return sessionInitIQ != null ? sessionInitIQ.getPacketID() : null;
-    }
-
-    /**
-     * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
-     * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
-     * and set the new state to DISCONNECTED.
-     *
-     * @param failed indicates if the hangup is following to a call failure or
-     * simply a disconnect
-     * @param reasonText the text, if any, to be set on the
-     * <tt>ReasonPacketExtension</tt> as the value of its
-     * @param reasonOtherExtension the <tt>PacketExtension</tt>, if any, to be
-     * set on the <tt>ReasonPacketExtension</tt> as the value of its
-     * <tt>otherExtension</tt> property
-     */
-    public void hangup(boolean failed,
-                       String reasonText,
-                       PacketExtension reasonOtherExtension)
-    {
-        // do nothing if the call is already ended
-        if (CallPeerState.DISCONNECTED.equals(getState())
-            || CallPeerState.FAILED.equals(getState()))
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("Ignoring a request to hangup a call peer "
-                        + "that is already DISCONNECTED");
-            return;
-        }
-
-        CallPeerState prevPeerState = getState();
-        getMediaHandler().getTransportManager().close();
-
-        if (failed)
-            setState(CallPeerState.FAILED, reasonText);
-        else
-            setState(CallPeerState.DISCONNECTED, reasonText);
-
-        SessionIQ responseIQ = null;
-
-        if (prevPeerState.equals(CallPeerState.CONNECTED)
-            || CallPeerState.isOnHold(prevPeerState))
-        {
-            responseIQ = GTalkPacketFactory.createBye(
-                getProtocolProvider().getOurJID(), peerJID, getSessionID());
-            responseIQ.setInitiator(isInitiator() ? getAddress() :
-                getProtocolProvider().getOurJID());
-        }
-        else if (CallPeerState.CONNECTING.equals(prevPeerState)
-            || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(prevPeerState)
-            || CallPeerState.ALERTING_REMOTE_SIDE.equals(prevPeerState))
-        {
-            responseIQ = GTalkPacketFactory.createCancel(
-                getProtocolProvider().getOurJID(), peerJID, getSessionID());
-            responseIQ.setInitiator(isInitiator() ? getAddress() :
-                getProtocolProvider().getOurJID());
-        }
-        else if (prevPeerState.equals(CallPeerState.INCOMING_CALL))
-        {
-            responseIQ = GTalkPacketFactory.createBusy(
-                getProtocolProvider().getOurJID(), peerJID, getSessionID());
-            responseIQ.setInitiator(isInitiator() ? getAddress() :
-                getProtocolProvider().getOurJID());
-        }
-        else if (prevPeerState.equals(CallPeerState.BUSY)
-                 || prevPeerState.equals(CallPeerState.FAILED))
-        {
-            // For FAILED and BUSY we only need to update CALL_STATUS
-            // as everything else has been done already.
-        }
-        else
-        {
-            logger.info("Could not determine call peer state!");
-        }
-
-        if (responseIQ != null)
-        {
-            if (reasonOtherExtension != null)
-            {
-                ReasonPacketExtension reason
-                    = (ReasonPacketExtension)
-                        responseIQ.getExtension(
-                                ReasonPacketExtension.ELEMENT_NAME,
-                                ReasonPacketExtension.NAMESPACE);
-
-                if (reason != null)
-                {
-                    reason.setOtherExtension(reasonOtherExtension);
-                }
-                else if(reason instanceof ReasonPacketExtension)
-                {
-                    responseIQ.setReason(
-                        (ReasonPacketExtension)reasonOtherExtension);
-                }
-            }
-
-            getProtocolProvider().getConnection().sendPacket(responseIQ);
-        }
     }
 
     /**
@@ -700,32 +192,446 @@ public class CallPeerGTalkImpl
     }
 
     /**
-     * Returns whether or not the <tt>CallPeer</tt> is an Android phone or
-     * a call pass throught Google Voice or uses Google Talk client.
+     * Returns the IQ ID of the Jingle session-initiate packet associated with
+     * this call.
      *
-     * We base the detection of the JID's resource which in the case of Android
-     * is android/Vtok/Talk.vXXXXXXX (where XXXXXX is a suite of
-     * numbers/letters).
+     * @return the IQ ID of the Jingle session-initiate packet associated with
+     * this call.
      */
-    private static boolean isAndroidOrVtokOrTalkClient(String fullJID)
+    public String getSessInitID()
     {
-        int idx = fullJID.indexOf('/');
+        return sessionInitIQ != null ? sessionInitIQ.getPacketID() : null;
+    }
 
-        if(idx != -1)
+    /**
+     * Returns the session ID of the Jingle session associated with this call.
+     *
+     * @return the session ID of the Jingle session associated with this call.
+     */
+    public String getSessionID()
+    {
+        return sessionInitIQ != null ? sessionInitIQ.getID() : sid;
+    }
+
+    /**
+     * Ends the call with for this <tt>CallPeer</tt>. Depending on the state
+     * of the peer the method would send a CANCEL, BYE, or BUSY_HERE message
+     * and set the new state to DISCONNECTED.
+     *
+     * @param failed indicates if the hangup is following to a call failure or
+     * simply a disconnect
+     * @param reasonText the text, if any, to be set on the
+     * <tt>ReasonPacketExtension</tt> as the value of its
+     * @param reasonOtherExtension the <tt>PacketExtension</tt>, if any, to be
+     * set on the <tt>ReasonPacketExtension</tt> as the value of its
+     * <tt>otherExtension</tt> property
+     */
+    public void hangup(boolean failed,
+                       String reasonText,
+                       PacketExtension reasonOtherExtension)
+    {
+        // do nothing if the call is already ended
+        if (CallPeerState.DISCONNECTED.equals(getState())
+            || CallPeerState.FAILED.equals(getState()))
         {
-            String res = fullJID.substring(idx + 1);
-            if(res.startsWith("android") || res.startsWith("Vtok") ||
-                res.startsWith("Talk.v"))
+            if (logger.isDebugEnabled())
+                logger.debug("Ignoring a request to hangup a call peer "
+                        + "that is already DISCONNECTED");
+            return;
+        }
+
+        CallPeerState prevPeerState = getState();
+        getMediaHandler().getTransportManager().close();
+
+        if (failed)
+            setState(CallPeerState.FAILED, reasonText);
+        else
+            setState(CallPeerState.DISCONNECTED, reasonText);
+
+        SessionIQ responseIQ = null;
+
+        if (prevPeerState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.isOnHold(prevPeerState))
+        {
+            responseIQ = GTalkPacketFactory.createBye(
+                getProtocolProvider().getOurJID(), peerJID, getSessionID());
+            responseIQ.setInitiator(isInitiator() ? getAddress() :
+                getProtocolProvider().getOurJID());
+        }
+        else if (CallPeerState.CONNECTING.equals(prevPeerState)
+            || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(prevPeerState)
+            || CallPeerState.ALERTING_REMOTE_SIDE.equals(prevPeerState))
+        {
+            responseIQ = GTalkPacketFactory.createCancel(
+                getProtocolProvider().getOurJID(), peerJID, getSessionID());
+            responseIQ.setInitiator(isInitiator() ? getAddress() :
+                getProtocolProvider().getOurJID());
+        }
+        else if (prevPeerState.equals(CallPeerState.INCOMING_CALL))
+        {
+            responseIQ = GTalkPacketFactory.createBusy(
+                getProtocolProvider().getOurJID(), peerJID, getSessionID());
+            responseIQ.setInitiator(isInitiator() ? getAddress() :
+                getProtocolProvider().getOurJID());
+        }
+        else if (prevPeerState.equals(CallPeerState.BUSY)
+                 || prevPeerState.equals(CallPeerState.FAILED))
+        {
+            // For FAILED and BUSY we only need to update CALL_STATUS
+            // as everything else has been done already.
+        }
+        else
+        {
+            logger.info("Could not determine call peer state!");
+        }
+
+        if (responseIQ != null)
+        {
+            if (reasonOtherExtension != null)
             {
-                return true;
+                ReasonPacketExtension reason
+                    = (ReasonPacketExtension)
+                        responseIQ.getExtension(
+                                ReasonPacketExtension.ELEMENT_NAME,
+                                ReasonPacketExtension.NAMESPACE);
+
+                if (reason != null)
+                {
+                    reason.setOtherExtension(reasonOtherExtension);
+                }
+                else if(reason instanceof ReasonPacketExtension)
+                {
+                    responseIQ.setReason(
+                        (ReasonPacketExtension)reasonOtherExtension);
+                }
+            }
+
+            getProtocolProvider().getConnection().sendPacket(responseIQ);
+        }
+    }
+
+    /**
+     * Initiate a Google Talk session {@link SessionIQ}.
+     *
+     * @param sessionInitiateExtensions a collection of additional and optional
+     * <tt>PacketExtension</tt>s to be added to the <tt>initiate</tt>
+     * {@link SessionIQ} which is to initiate the session with this
+     * <tt>CallPeerGTalkImpl</tt>
+     * @throws OperationFailedException exception
+     */
+    protected synchronized void initiateSession(
+            Iterable<PacketExtension> sessionInitiateExtensions)
+        throws OperationFailedException
+    {
+        sid = SessionIQ.generateSID();
+        initiator = false;
+
+        //Create the media description that we'd like to send to the other side.
+        RtpDescriptionPacketExtension offer
+            = getMediaHandler().createDescription();
+
+        ProtocolProviderServiceJabberImpl protocolProvider
+            = getProtocolProvider();
+
+        sessionInitIQ
+            = GTalkPacketFactory.createSessionInitiate(
+                    protocolProvider.getOurJID(),
+                    this.peerJID,
+                    sid,
+                    offer);
+
+        if (sessionInitiateExtensions != null)
+        {
+            for (PacketExtension sessionInitiateExtension
+                    : sessionInitiateExtensions)
+            {
+                sessionInitIQ.addExtension(sessionInitiateExtension);
             }
         }
 
-        if(fullJID.contains(
-            "@" + ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN))
-            return true;
+        protocolProvider.getConnection().sendPacket(sessionInitIQ);
 
-        return false;
+        // for Google Voice JID without resource we do not harvest and send
+        // candidates
+        if(getAddress().endsWith(
+            ProtocolProviderServiceJabberImpl.GOOGLE_VOICE_DOMAIN))
+        {
+            return;
+        }
+
+        getMediaHandler().harvestCandidates(offer.getPayloadTypes(),
+                new CandidatesSender()
+        {
+            public void sendCandidates(
+                    Iterable<GTalkCandidatePacketExtension> candidates)
+            {
+                CallPeerGTalkImpl.this.sendCandidates(candidates);
+            }
+        });
+    }
+
+    /**
+     * Process candidates received.
+     *
+     * @param sessionInitIQ The {@link SessionIQ} that created the session we
+     * are handling here
+     */
+    public void processCandidates(SessionIQ sessionInitIQ)
+    {
+        Collection<PacketExtension> extensions = sessionInitIQ.getExtensions();
+        List<GTalkCandidatePacketExtension> candidates =
+            new ArrayList<GTalkCandidatePacketExtension>();
+
+        for(PacketExtension ext : extensions)
+        {
+            if(ext.getElementName().equalsIgnoreCase(
+                    GTalkCandidatePacketExtension.ELEMENT_NAME))
+            {
+                GTalkCandidatePacketExtension cand =
+                    (GTalkCandidatePacketExtension)ext;
+                candidates.add(cand);
+            }
+        }
+
+        try
+        {
+            getMediaHandler().processCandidates(candidates);
+        }
+        catch (OperationFailedException ofe)
+        {
+            logger.warn("Failed to process an incoming candidates", ofe);
+
+            //send an error response
+            String reasonText = "Error: " + ofe.getMessage();
+            SessionIQ errResp
+                = GTalkPacketFactory.createSessionTerminate(
+                        sessionInitIQ.getTo(),
+                        sessionInitIQ.getFrom(),
+                        sessionInitIQ.getID(),
+                        Reason.GENERAL_ERROR,
+                        reasonText);
+
+            getMediaHandler().getTransportManager().close();
+            setState(CallPeerState.FAILED, reasonText);
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
+
+        // HACK for FreeSwitch that send accept message before sending
+        // candidates
+        if(sessAcceptedWithNoCands != null)
+        {
+            if(isInitiator())
+            {
+                try
+                {
+                    answer();
+                }
+                catch(OperationFailedException e)
+                {
+                    logger.info("Failed to answer call (FreeSwitch hack)");
+                }
+            }
+            else
+            {
+                final SessionIQ sess = sessAcceptedWithNoCands;
+                sessAcceptedWithNoCands = null;
+
+                // run in another thread to not block smack receive thread and
+                // possibly delay others candidates messages.
+                new Thread()
+                {
+                    public void run()
+                    {
+                        processSessionAccept(sess);
+                    }
+                }.start();
+            }
+            sessAcceptedWithNoCands = null;
+        }
+    }
+
+    /**
+     * Processes the session initiation {@link SessionIQ} that we were created
+     * with, passing its content to the media handler.
+     *
+     * @param sessionInitIQ The {@link SessionIQ} that created the session that
+     * we are handling here.
+     */
+    public void processSessionAccept(SessionIQ sessionInitIQ)
+    {
+        this.sessionInitIQ = sessionInitIQ;
+
+        CallPeerMediaHandlerGTalkImpl mediaHandler = getMediaHandler();
+        Collection<PacketExtension> extensions =
+            sessionInitIQ.getExtensions();
+        RtpDescriptionPacketExtension answer = null;
+
+        for(PacketExtension ext : extensions)
+        {
+            if(ext.getElementName().equalsIgnoreCase(
+                    RtpDescriptionPacketExtension.ELEMENT_NAME))
+            {
+                answer = (RtpDescriptionPacketExtension)ext;
+                break;
+            }
+        }
+
+        try
+        {
+            mediaHandler.getTransportManager().
+                wrapupConnectivityEstablishment();
+            mediaHandler.processAnswer(answer);
+        }
+        catch(IllegalArgumentException e)
+        {
+            // HACK for FreeSwitch that send accept message before sending
+            // candidates
+            sessAcceptedWithNoCands = sessionInitIQ;
+            return;
+        }
+        catch(Exception exc)
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Failed to process a session-accept", exc);
+
+            //send an error response
+            String reasonText = "Error: " + exc.getMessage();
+            SessionIQ errResp
+                = GTalkPacketFactory.createSessionTerminate(
+                        sessionInitIQ.getTo(),
+                        sessionInitIQ.getFrom(),
+                        sessionInitIQ.getID(),
+                        Reason.GENERAL_ERROR,
+                        reasonText);
+
+            getMediaHandler().getTransportManager().close();
+            setState(CallPeerState.FAILED, reasonText);
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
+
+        //tell everyone we are connecting so that the audio notifications would
+        //stop
+        setState(CallPeerState.CONNECTED);
+
+        mediaHandler.start();
+    }
+
+    /**
+     * Processes the session initiation {@link SessionIQ} that we were created
+     * with, passing its content to the media handler and then sends either a
+     * "session-info/ringing" or a "terminate" response.
+     *
+     * @param sessionInitIQ The {@link SessionIQ} that created the session that
+     * we are handling here.
+     */
+    protected synchronized void processSessionInitiate(SessionIQ sessionInitIQ)
+    {
+        // Do initiate the session.
+        this.sessionInitIQ = sessionInitIQ;
+        this.initiator = true;
+
+        RtpDescriptionPacketExtension description = null;
+
+        for(PacketExtension ext : sessionInitIQ.getExtensions())
+        {
+            if(ext.getElementName().equals(
+                    RtpDescriptionPacketExtension.ELEMENT_NAME))
+            {
+                description = (RtpDescriptionPacketExtension)ext;
+                break;
+            }
+        }
+
+        if(description == null)
+        {
+            logger.info("No description in incoming session initiate");
+
+            //send an error response;
+            String reasonText = "Error: no description";
+            SessionIQ errResp
+                = GTalkPacketFactory.createSessionTerminate(
+                        sessionInitIQ.getTo(),
+                        sessionInitIQ.getFrom(),
+                        sessionInitIQ.getID(),
+                        Reason.INCOMPATIBLE_PARAMETERS,
+                        reasonText);
+
+            setState(CallPeerState.FAILED, reasonText);
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
+
+        try
+        {
+            getMediaHandler().processOffer(description);
+        }
+        catch(Exception ex)
+        {
+            logger.info("Failed to process an incoming session initiate", ex);
+
+            //send an error response;
+            String reasonText = "Error: " + ex.getMessage();
+            SessionIQ errResp
+                = GTalkPacketFactory.createSessionTerminate(
+                        sessionInitIQ.getTo(),
+                        sessionInitIQ.getFrom(),
+                        sessionInitIQ.getID(),
+                        Reason.INCOMPATIBLE_PARAMETERS,
+                        reasonText);
+
+            setState(CallPeerState.FAILED, reasonText);
+            getProtocolProvider().getConnection().sendPacket(errResp);
+            return;
+        }
+
+        // If we do not get the info about the remote peer yet. Get it right
+        // now.
+        if(this.getDiscoverInfo() == null)
+        {
+            String calleeURI = sessionInitIQ.getFrom();
+            retrieveDiscoverInfo(calleeURI);
+        }
+    }
+
+    /**
+     * Puts this peer into a {@link CallPeerState#DISCONNECTED}, indicating a
+     * reason to the user, if there is one.
+     *
+     * @param sessionIQ the {@link SessionIQ} that's terminating our session.
+     */
+    public void processSessionReject(SessionIQ sessionIQ)
+    {
+        processSessionTerminate(sessionIQ);
+    }
+
+    /**
+     * Puts this peer into a {@link CallPeerState#DISCONNECTED}, indicating a
+     * reason to the user, if there is one.
+     *
+     * @param sessionIQ the {@link SessionIQ} that's terminating our session.
+     */
+    public void processSessionTerminate(SessionIQ sessionIQ)
+    {
+        String reasonStr = "Call ended by remote side.";
+        ReasonPacketExtension reasonExt = sessionIQ.getReason();
+
+        if(reasonStr != null && reasonExt != null)
+        {
+            Reason reason = reasonExt.getReason();
+
+            if(reason != null)
+                reasonStr += " Reason: " + reason.toString() + ".";
+
+            String text = reasonExt.getText();
+
+            if(text != null)
+                reasonStr += " " + text;
+        }
+
+        getMediaHandler().getTransportManager().close();
+        setState(CallPeerState.DISCONNECTED, reasonStr);
     }
 
     /**
