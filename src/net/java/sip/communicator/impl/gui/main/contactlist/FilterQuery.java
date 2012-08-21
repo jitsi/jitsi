@@ -330,6 +330,14 @@ public class FilterQuery
         contactReceived(event.getQuerySource(), event.getContact());
     }
 
+    /**
+     * Indicates that a contact has been removed after a search.
+     * @param event the <tt>ContactQueryEvent</tt> containing information
+     * about the received <tt>SourceContact</tt>
+     */
+    public void contactRemoved(ContactRemovedEvent event)
+    {}
+
     public void metaContactReceived(MetaContactQueryEvent event) {}
 
     public void metaGroupReceived(MetaGroupQueryEvent event) {}

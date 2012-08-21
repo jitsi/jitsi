@@ -202,6 +202,14 @@ public class TreeContactList
     }
 
     /**
+     * Indicates that a contact has been removed after a search.
+     * @param event the <tt>ContactQueryEvent</tt> containing information
+     * about the received <tt>SourceContact</tt>
+     */
+    public void contactRemoved(ContactRemovedEvent event)
+    {}
+
+    /**
      * Indicates that a <tt>MetaContact</tt> has been received for a search in
      * the <tt>MetaContactListService</tt>.
      * @param event the received <tt>MetaContactQueryEvent</tt>
@@ -1536,6 +1544,15 @@ public class TreeContactList
                             imageSearchCanceled = true;
                         }
                     }
+
+                    /**
+                     * Indicates that a contact has been removed after a search.
+                     * @param event the <tt>ContactQueryEvent</tt> containing
+                     *              information
+                     * about the received <tt>SourceContact</tt>
+                     */
+                    public void contactRemoved(ContactRemovedEvent event)
+                    {}
                 });
 
                 // If the image search has been canceled from one of the

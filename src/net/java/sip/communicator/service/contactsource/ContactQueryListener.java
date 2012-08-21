@@ -28,4 +28,11 @@ public interface ContactQueryListener
      * about the status change
      */
     public void queryStatusChanged(ContactQueryStatusEvent event);
+
+    /**
+     * Indicates that a contact has been removed after a search.
+     * @param event the <tt>ContactQueryEvent</tt> containing information
+     * about the received <tt>SourceContact</tt>
+     */
+    public void contactRemoved(ContactRemovedEvent event);
 }
