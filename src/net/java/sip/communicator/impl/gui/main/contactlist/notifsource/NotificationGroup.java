@@ -201,25 +201,31 @@ public class NotificationGroup
 
         if (messages != null)
         {
-            // find messages that need to be removed
-            Hashtable<String, NotificationContact> contactToRemove =
-                (Hashtable<String, NotificationContact>)contacts.clone();
-            while (messages.hasNext())
+            // Removes contacts that are no longer available.
+            Enumeration<String> contactIdentifiers = contacts.keys();
+            while (contactIdentifiers.hasMoreElements())
             {
-                NotificationMessage message = messages.next();
+                String identifier = contactIdentifiers.nextElement();
 
-                if (message.getMessageGroup().equals(groupName))
+                boolean toRemove = true;
+                messages = event.getMessages();
+                while (messages.hasNext())
                 {
+                    NotificationMessage message = messages.next();
                     String messageIdentifier
-                        = message.getFromContact() + message.getMessageDetails();
-                    contactToRemove.remove(messageIdentifier);
+                        = message.getFromContact()
+                            + message.getMessageDetails();
+
+                    if (identifier.equals(messageIdentifier))
+                    {
+                        toRemove = false;
+                        break;
+                    }
                 }
-            }
-            // now remove what needs to be removed
-            TreeContactList contactList = GuiActivator.getContactList();
-            for(NotificationContact c : contactToRemove.values())
-            {
-                contactList.removeContact(c);
+                if (toRemove)
+                {
+                    removeNotificationContact(contacts.get(identifier));
+                }
             }
 
             messages = event.getMessages();
@@ -313,6 +319,21 @@ public class NotificationGroup
                     new Date(),
                     uiNotificationGroup,
                     contact.getUnreadMessageCount()));
+        }
+    }
+
+    /**
+     * Removes the given <tt>NotificationContact</tt>.
+     *
+     * @param contact the <tt>NotificationContact</tt> to remove
+     */
+    private void removeNotificationContact(NotificationContact contact)
+    {
+        TreeContactList contactList = GuiActivator.getContactList();
+
+        if (contactList.getCurrentFilter().isMatching(contact))
+        {
+            contactList.removeContact(contact);
         }
     }
 }
