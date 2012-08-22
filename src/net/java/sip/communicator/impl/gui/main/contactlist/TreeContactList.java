@@ -207,7 +207,32 @@ public class TreeContactList
      * about the received <tt>SourceContact</tt>
      */
     public void contactRemoved(ContactRemovedEvent event)
-    {}
+    {
+        final SourceContact sourceContact = event.getContact();
+
+        ContactSourceService contactSource
+            = sourceContact.getContactSource();
+
+        ExternalContactSource sourceUI
+            = TreeContactList.getContactSource(contactSource);
+
+        if (sourceUI == null)
+            return;
+
+        UIContact uiContact
+            = ExternalContactSource.getUIContact(sourceContact);
+
+        if(uiContact == null)
+            return;
+
+        // ExtendedContactSourceService has already matched the
+        // SourceContact over the pattern
+        if((contactSource instanceof ExtendedContactSourceService)
+            || currentFilter.isMatching(uiContact))
+        {
+            removeContact(uiContact, false);
+        }
+    }
 
     /**
      * Indicates that a <tt>MetaContact</tt> has been received for a search in
@@ -499,8 +524,9 @@ public class TreeContactList
      * Removes the node corresponding to the given <tt>MetaContact</tt> from
      * this list.
      * @param contact the <tt>UIContact</tt> to remove
+     * @param removeEmptyGroup whether we should delete the group if is empty
      */
-    public void removeContact(final UIContact contact)
+    public void removeContact(final UIContact contact, final boolean removeEmptyGroup)
     {
         if (!SwingUtilities.isEventDispatchThread())
         {
@@ -508,7 +534,7 @@ public class TreeContactList
             {
                 public void run()
                 {
-                    removeContact(contact);
+                    removeContact(contact, removeEmptyGroup);
                 }
             });
             return;
@@ -528,13 +554,23 @@ public class TreeContactList
         parentGroupNode.removeContact(contact);
 
         // If the parent group is empty remove it.
-        if (parentGroupNode.getChildCount() == 0)
+        if (removeEmptyGroup && parentGroupNode.getChildCount() == 0)
         {
             GroupNode parent = (GroupNode) parentGroupNode.getParent();
 
             if (parent != null)
                 parent.removeContactGroup(parentGroup);
         }
+    }
+
+    /**
+     * Removes the node corresponding to the given <tt>MetaContact</tt> from
+     * this list.
+     * @param contact the <tt>UIContact</tt> to remove
+     */
+    public void removeContact(UIContact contact)
+    {
+        removeContact(contact, true);
     }
 
     /**
@@ -1732,7 +1768,7 @@ public class TreeContactList
      * Listens for adding and removing of <tt>ContactSourceService</tt>
      * implementations.
      */
-    private static class ContactSourceServiceListener
+    private class ContactSourceServiceListener
         implements ServiceListener
     {
         public void serviceChanged(ServiceEvent event)
@@ -1751,19 +1787,30 @@ public class TreeContactList
             if (!(service instanceof ContactSourceService))
                 return;
 
+            boolean changed = false;
             switch (event.getType())
             {
             case ServiceEvent.REGISTERED:
                 ExternalContactSource contactSource
                     = new ExternalContactSource((ContactSourceService) service);
                 contactSources.add(contactSource);
+                changed = true;
                 break;
             case ServiceEvent.UNREGISTERING:
                 ExternalContactSource cSource
                     = getContactSource((ContactSourceService) service);
                 if (cSource != null)
                     contactSources.remove(cSource);
+                changed = true;
                 break;
+            }
+
+            if(changed)
+            {
+                if(currentFilter.equals(defaultFilter))
+                    applyDefaultFilter();
+                else
+                    applyFilter(currentFilter);
             }
         }
     }
