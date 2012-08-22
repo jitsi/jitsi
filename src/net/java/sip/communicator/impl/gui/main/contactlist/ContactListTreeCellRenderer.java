@@ -230,7 +230,7 @@ public class ContactListTreeCellRenderer
         constraints.weighty = 1f;
         this.add(statusLabel, constraints);
 
-        addLabels(5);
+        addLabels(1);
 
         callButton.addActionListener(new ActionListener()
         {
@@ -694,12 +694,13 @@ public class ContactListTreeCellRenderer
 
         // Re-initialize the x grid.
         constraints.gridx = 0;
+        int gridX = 0;
 
         if (imContact != null)
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 1;
+            constraints.gridx = ++gridX;
             constraints.gridy = 2;
             constraints.gridwidth = 1;
             constraints.gridheight = 1;
@@ -788,7 +789,7 @@ public class ContactListTreeCellRenderer
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 2;
+            constraints.gridx = ++gridX;
             constraints.gridy = 2;
             constraints.gridwidth = 1;
             constraints.gridheight = 1;
@@ -819,7 +820,7 @@ public class ContactListTreeCellRenderer
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 3;
+            constraints.gridx = ++gridX;
             constraints.gridy = 2;
             constraints.gridwidth = 1;
             constraints.gridheight = 1;
@@ -849,7 +850,7 @@ public class ContactListTreeCellRenderer
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 4;
+            constraints.gridx = ++gridX;
             constraints.gridy = 2;
             constraints.gridwidth = 1;
             constraints.gridheight = 1;
@@ -869,7 +870,7 @@ public class ContactListTreeCellRenderer
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 5;
+            constraints.gridx = ++gridX;
             constraints.gridy = 2;
             constraints.gridwidth = 1;
             constraints.gridheight = 1;
@@ -891,7 +892,11 @@ public class ContactListTreeCellRenderer
 
         if (contactActions != null)
         {
-            initContactActionButtons(contactActions, constraints.gridx, x);
+            initContactActionButtons(contactActions, gridX, x);
+        }
+        else
+        {
+            addLabels(gridX);
         }
 
         this.setBounds(0, 0, tree.getWidth(), getPreferredSize().height);
