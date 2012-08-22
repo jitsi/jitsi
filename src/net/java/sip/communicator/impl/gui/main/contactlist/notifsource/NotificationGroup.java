@@ -225,6 +225,7 @@ public class NotificationGroup
                 if (toRemove)
                 {
                     removeNotificationContact(contacts.get(identifier));
+                    contacts.remove(identifier);
                 }
             }
 

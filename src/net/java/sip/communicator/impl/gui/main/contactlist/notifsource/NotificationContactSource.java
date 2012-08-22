@@ -17,7 +17,6 @@ import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
@@ -307,20 +306,35 @@ public class NotificationContactSource
         /**
          * Performs the action on button click.
          */
-        public void actionPerformed(UIContactDetail contactDetail, int x, int y)
+        public void actionPerformed(final UIContactDetail contactDetail,
+                                    final int x,
+                                    final int y)
         {
-            try
+            new Thread()
             {
-                contactAction.actionPerformed(
-                    (NotificationMessage) contactDetail.getDescriptor(), x, y);
-            }
-            catch (OperationFailedException e)
-            {
-                new ErrorDialog(null,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.ERROR"),
-                    e.getMessage());
-            }
+                public void run()
+                {
+                    try
+                    {
+                        contactAction.actionPerformed(
+                            (NotificationMessage) contactDetail.getDescriptor(),
+                            x, y);
+                    }
+                    catch (final OperationFailedException e)
+                    {
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                new ErrorDialog(null,
+                                    GuiActivator.getResources()
+                                        .getI18NString("service.gui.ERROR"),
+                                    e.getMessage()).setVisible(true);
+                            }
+                        });
+                    }
+                }
+            }.start();
         }
     }
 
