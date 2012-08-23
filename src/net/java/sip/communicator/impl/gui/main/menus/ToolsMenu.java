@@ -122,10 +122,16 @@ public class ToolsMenu
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component = (PluginComponent) GuiActivator
+                final PluginComponent component = (PluginComponent) GuiActivator
                     .bundleContext.getService(serRef);
 
-                this.add((Component)component.getComponent());
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        add((Component) component.getComponent());
+                    }
+                });
             }
         }
 
@@ -212,11 +218,17 @@ public class ToolsMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        final PluginComponent c = event.getPluginComponent();
 
         if(c.getContainer().equals(Container.CONTAINER_TOOLS_MENU))
         {
-            this.add((Component) c.getComponent());
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    add((Component) c.getComponent());
+                }
+            });
 
             this.revalidate();
             this.repaint();
@@ -230,11 +242,17 @@ public class ToolsMenu
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        final PluginComponent c = event.getPluginComponent();
 
         if(c.getContainer().equals(Container.CONTAINER_TOOLS_MENU))
         {
-            this.remove((Component) c.getComponent());
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    remove((Component) c.getComponent());
+                }
+            });
         }
     }
 
