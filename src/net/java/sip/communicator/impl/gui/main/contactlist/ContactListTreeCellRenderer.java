@@ -634,6 +634,7 @@ public class ContactListTreeCellRenderer
      */
     private void initDisplayDetails(UIContact contact)
     {
+        remove(displayDetailsLabel);
         displayDetailsLabel.setText("");
 
         String displayDetails = contact.getDisplayDetails();
@@ -646,6 +647,17 @@ public class ContactListTreeCellRenderer
 
             displayDetailsLabel.setText(displayDetails);
         }
+
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.weightx = 0f;
+        constraints.weighty = 0f;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+
+        this.add(displayDetailsLabel, constraints);
     }
 
     /**
