@@ -591,6 +591,7 @@ public class ContactListTreeCellRenderer
     {
         remove(nameLabel);
         remove(rightLabel);
+        remove(displayDetailsLabel);
 
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.NONE;
@@ -612,6 +613,17 @@ public class ContactListTreeCellRenderer
         constraints.weightx = 0f;
         constraints.weighty = 1f;
         this.add(rightLabel, constraints);
+
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.weightx = 0f;
+        constraints.weighty = 0f;
+        constraints.gridwidth = nameLabelGridWidth;
+        constraints.gridheight = 1;
+
+        this.add(displayDetailsLabel, constraints);
     }
 
     /**
@@ -623,7 +635,6 @@ public class ContactListTreeCellRenderer
     private void initDisplayDetails(UIContact contact)
     {
         displayDetailsLabel.setText("");
-        this.remove(displayDetailsLabel);
 
         String displayDetails = contact.getDisplayDetails();
 
@@ -634,17 +645,6 @@ public class ContactListTreeCellRenderer
             displayDetails = displayDetails.replaceAll("\n|<br>|<br/>", " / ");
 
             displayDetailsLabel.setText(displayDetails);
-
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 1;
-            constraints.gridy = 1;
-            constraints.weightx = 0f;
-            constraints.weighty = 0f;
-            constraints.gridwidth = 5;
-            constraints.gridheight = 1;
-
-            this.add(displayDetailsLabel, constraints);
         }
     }
 
