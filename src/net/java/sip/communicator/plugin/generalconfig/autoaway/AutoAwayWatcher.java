@@ -90,7 +90,37 @@ public class AutoAwayWatcher
                 }
             }
         );
+    }
 
+    /**
+     * Starts and add needed listeners.
+     */
+    private void start()
+    {
+        if(idleListener == null)
+        {
+
+            idleListener = new IdleListener();
+
+            SystemActivityNotificationsService
+                systemActivityNotificationsService
+                    =  getSystemActivityNotificationsService();
+
+            systemActivityNotificationsService.addIdleSystemChangeListener(
+                    StatusUpdateThread.getTimer() * 60 * 1000,
+                    idleListener);
+            systemActivityNotificationsService
+                .addSystemActivityChangeListener(idleListener);
+
+            startListeningForNewProviders();
+        }
+    }
+
+    /**
+     * Start listening for new providers and their registration states.
+     */
+    private void startListeningForNewProviders()
+    {
         // listen for new providers
         GeneralConfigPluginActivator.bundleContext.addServiceListener(this);
 
@@ -100,7 +130,7 @@ public class AutoAwayWatcher
         {
             protocolProviderRefs = GeneralConfigPluginActivator.bundleContext
                 .getServiceReferences(ProtocolProviderService.class.getName(),
-                                      null);
+                    null);
         }
         catch (InvalidSyntaxException ex)
         {
@@ -126,23 +156,41 @@ public class AutoAwayWatcher
     }
 
     /**
-     * Starts and add needed listeners.
+     * Stop listening for new providers and their registration states.
      */
-    private void start()
+    private void stopListeningForNewProviders()
     {
-        if(idleListener == null)
+        // stop listen for new providers
+        GeneralConfigPluginActivator.bundleContext.removeServiceListener(this);
+
+        // lets check current providers and remove registration state listener
+        ServiceReference[] protocolProviderRefs = null;
+        try
         {
-            idleListener = new IdleListener();
+            protocolProviderRefs = GeneralConfigPluginActivator.bundleContext
+                .getServiceReferences(ProtocolProviderService.class.getName(),
+                    null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            // this shouldn't happen since we're providing no parameter string
+            // but let's log just in case.
+            logger.error(
+                "Error while retrieving service refs", ex);
+            return;
+        }
 
-            SystemActivityNotificationsService
-                systemActivityNotificationsService
-                    =  getSystemActivityNotificationsService();
+        // in case we found any
+        if (protocolProviderRefs != null)
+        {
+            for (int i = 0; i < protocolProviderRefs.length; i++)
+            {
+                ProtocolProviderService provider = (ProtocolProviderService)
+                    GeneralConfigPluginActivator.bundleContext
+                        .getService(protocolProviderRefs[i]);
 
-            systemActivityNotificationsService.addIdleSystemChangeListener(
-                    StatusUpdateThread.getTimer() * 60 * 1000,
-                    idleListener);
-            systemActivityNotificationsService
-                .addSystemActivityChangeListener(idleListener);
+                this.handleProviderRemoved(provider);
+            }
         }
     }
 
@@ -156,7 +204,7 @@ public class AutoAwayWatcher
     }
 
     /**
-     * Stops and removes the listeners, without the global service listener.
+     * Stops and removes the listeners.
      */
     private void stopInner()
     {
@@ -170,6 +218,8 @@ public class AutoAwayWatcher
                     idleListener);
             systemActivityNotificationsService
                 .removeSystemActivityChangeListener(idleListener);
+
+            stopListeningForNewProviders();
 
             idleListener = null;
         }
@@ -329,9 +379,6 @@ public class AutoAwayWatcher
         ProtocolProviderService provider)
     {
         lastStates.remove(provider);
-
-        if(lastStates.size() == 0)
-            stopInner();
     }
 
     /**
