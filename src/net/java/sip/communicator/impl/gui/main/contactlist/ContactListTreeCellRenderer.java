@@ -80,9 +80,19 @@ public class ContactListTreeCellRenderer
     private static final int LEFT_BORDER = 5;
 
     /**
+     * Left border value.
+     */
+    private static final int TOP_BORDER = 2;
+
+    /**
      * Status label right border.
      */
     private static final int STATUS_RIGHT_BORDER = 2;
+
+    /**
+     * Status label top border.
+     */
+    private static final int STATUS_TOP_BORDER = 2;
 
     /**
      * The icon used for opened groups.
@@ -206,8 +216,18 @@ public class ContactListTreeCellRenderer
     {
         super(new GridBagLayout());
 
-        this.setBorder(BorderFactory.createEmptyBorder(2, LEFT_BORDER, 2, 2));
+        /*
+         * !!! When changing border values we should make sure that we
+         * recalculate the X and Y coordinates of the buttons added in
+         * initButtonsPanel and initContactActionButtons functions. If not
+         * correctly calculated problems may occur when clicking buttons!
+         */
+        this.setBorder(BorderFactory
+            .createEmptyBorder(TOP_BORDER, LEFT_BORDER, 2, 2));
 
+        statusLabel.setBorder(
+            BorderFactory.createEmptyBorder(STATUS_TOP_BORDER,
+                                            0, 0, STATUS_RIGHT_BORDER));
         loadSkin();
 
         this.setOpaque(true);
@@ -217,9 +237,6 @@ public class ContactListTreeCellRenderer
         this.displayDetailsLabel.setForeground(Color.GRAY);
 
         this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
-
-        statusLabel.setBorder(
-            BorderFactory.createEmptyBorder(2, 0, 0, STATUS_RIGHT_BORDER));
 
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.NONE;
@@ -692,6 +709,9 @@ public class ContactListTreeCellRenderer
         else
             statusMessageLabelHeight = 15;
 
+        int y = TOP_BORDER + STATUS_TOP_BORDER
+            + nameLabel.getHeight() + statusMessageLabelHeight;
+
         UIContactDetail imContact = null;
         // For now we support instance messaging only for contacts in our
         // contact list until it's implemented for external source contacts.
@@ -721,9 +741,7 @@ public class ContactListTreeCellRenderer
             this.chatButton.setBorder(null);
             this.add(chatButton, constraints);
 
-            chatButton.setBounds(x,
-                nameLabel.getHeight() + statusMessageLabelHeight,
-                28, 28);
+            chatButton.setBounds(x, y, 28, 28);
 
             x += chatButton.getWidth();
         }
@@ -810,8 +828,7 @@ public class ContactListTreeCellRenderer
             this.callButton.setBorder(null);
             this.add(callButton, constraints);
 
-            callButton.setBounds(x,
-                nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+            callButton.setBounds(x, y, 28, 28);
             callButton.setEnabled(telephonyContact != null || hasPhone);
 
             x += callButton.getWidth();
@@ -841,8 +858,7 @@ public class ContactListTreeCellRenderer
             this.callVideoButton.setBorder(null);
             this.add(callVideoButton, constraints);
 
-            callVideoButton.setBounds(x,
-                nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+            callVideoButton.setBounds(x, y, 28, 28);
 
             x += callVideoButton.getWidth();
         }
@@ -871,8 +887,7 @@ public class ContactListTreeCellRenderer
             this.desktopSharingButton.setBorder(null);
             this.add(desktopSharingButton, constraints);
 
-            desktopSharingButton.setBounds(x,
-                nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+            desktopSharingButton.setBounds(x, y, 28, 28);
 
             x += desktopSharingButton.getWidth();
         }
@@ -891,8 +906,7 @@ public class ContactListTreeCellRenderer
             this.addContactButton.setBorder(null);
             this.add(addContactButton, constraints);
 
-            addContactButton.setBounds(x,
-                nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+            addContactButton.setBounds(x, y, 28, 28);
 
             x += addContactButton.getWidth();
         }
@@ -957,7 +971,8 @@ public class ContactListTreeCellRenderer
                 statusMessageLabelHeight = 15;
 
             actionButton.setBounds(xBounds,
-                nameLabel.getHeight() + statusMessageLabelHeight, 28, 28);
+                nameLabel.getHeight() + statusMessageLabelHeight
+                 + TOP_BORDER + STATUS_TOP_BORDER, 28, 28);
 
             xBounds += actionButton.getWidth();
         }
