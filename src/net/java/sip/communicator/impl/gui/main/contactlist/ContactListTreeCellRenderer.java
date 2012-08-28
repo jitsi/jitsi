@@ -635,7 +635,7 @@ public class ContactListTreeCellRenderer
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridx = 1;
         constraints.gridy = 1;
-        constraints.weightx = 0f;
+        constraints.weightx = 1f;
         constraints.weighty = 0f;
         constraints.gridwidth = nameLabelGridWidth;
         constraints.gridheight = 1;
@@ -669,7 +669,7 @@ public class ContactListTreeCellRenderer
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridx = 1;
         constraints.gridy = 1;
-        constraints.weightx = 0f;
+        constraints.weightx = 1f;
         constraints.weighty = 0f;
         constraints.gridwidth = 1;
         constraints.gridheight = 1;
