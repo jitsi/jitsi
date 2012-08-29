@@ -905,7 +905,12 @@ public class MainFrame
         try
         {
             if (accountInfoOpSet != null)
-                return AccountInfoUtils.getDisplayName(accountInfoOpSet);
+            {
+                String displayName
+                    = AccountInfoUtils.getDisplayName(accountInfoOpSet);
+                if(displayName != null && displayName.length() > 0)
+                    return displayName;
+            }
         }
         catch(Throwable e)
         {
