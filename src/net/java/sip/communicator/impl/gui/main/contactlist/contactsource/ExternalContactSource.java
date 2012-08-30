@@ -225,33 +225,11 @@ public class ExternalContactSource
 
                     actionButton.addActionListener(new ActionListener()
                     {
-                        public void actionPerformed(ActionEvent e)
+                        public void actionPerformed(ActionEvent event)
                         {
-                            List<UIContactDetail> contactDetails
-                                = SourceUIContact.getContactDetails(
-                                    customActionContact);
-                            contactDetails.add(
-                                new SourceUIContact.SourceContactDetail(
-                                        customActionContact.getDisplayName(),
-                                        customActionContact));
-
-                            UIContactDetailCustomAction contactAction
-                                = new UIContactDetailCustomAction(ca);
-
-                            if (contactDetails.size() > 1)
+                            try
                             {
-                                ChooseUIContactDetailPopupMenu
-                                detailsPopupMenu
-                                    = new ChooseUIContactDetailPopupMenu(
-                                        (JButton) e.getSource(),
-                                        contactDetails,
-                                        contactAction);
-
-                                detailsPopupMenu.showPopupMenu();
-                            }
-                            else if (contactDetails.size() == 1)
-                            {
-                                JButton button = (JButton) e.getSource();
+                                JButton button = (JButton)event.getSource();
                                 Point location = new Point(button.getX(),
                                     button.getY() + button.getHeight());
 
@@ -266,10 +244,17 @@ public class ExternalContactSource
                                         + contactListTree.getPathBounds(
                                             selectionPath).y;
 
-                                contactAction.actionPerformed(
-                                    contactDetails.get(0),
+                                ca.actionPerformed(
+                                    customActionContact,
                                     location.x,
                                     location.y);
+                            }
+                            catch (OperationFailedException e)
+                            {
+                                new ErrorDialog(null,
+                                    GuiActivator.getResources()
+                                        .getI18NString("service.gui.ERROR"),
+                                    e.getMessage());
                             }
                         }
                     });
@@ -463,46 +448,6 @@ public class ExternalContactSource
         public JPopupMenu getRightButtonMenu()
         {
             return null;
-        }
-    }
-
-    /**
-     * An implementation of <tt>UIContactDetail</tt> for a custom action.
-     */
-    private static class UIContactDetailCustomAction
-        implements UIContactDetailAction
-    {
-        /**
-         * The contact action.
-         */
-        private final ContactAction<SourceContact> contactAction;
-
-        /**
-         * Creates an instance of <tt>UIContactDetailCustomAction</tt>.
-         */
-        public UIContactDetailCustomAction(
-            ContactAction<SourceContact> contactAction)
-        {
-            this.contactAction = contactAction;
-        }
-
-        /**
-         * Performs the action on button click.
-         */
-        public void actionPerformed(UIContactDetail contactDetail, int x, int y)
-        {
-            try
-            {
-                contactAction.actionPerformed(
-                    (SourceContact) contactDetail.getDescriptor(), x, y);
-            }
-            catch (OperationFailedException e)
-            {
-                new ErrorDialog(null,
-                    GuiActivator.getResources()
-                        .getI18NString("service.gui.ERROR"),
-                    e.getMessage());
-            }
         }
     }
 }

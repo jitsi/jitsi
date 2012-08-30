@@ -32,7 +32,7 @@ import org.jitsi.service.resources.*;
  * @author Yana Stamcheva
  */
 public class NotificationContact
-    extends  UIContact
+    extends  UIContactImpl
     implements  RegistrationStateChangeListener,
                 ProviderPresenceStatusListener
 {

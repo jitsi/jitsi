@@ -25,7 +25,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Yana Stamcheva
  */
 public class NotificationGroup
-    extends UIGroup
+    extends UIGroupImpl
 {
     /**
      * The type of the notification message, identifying this group.
