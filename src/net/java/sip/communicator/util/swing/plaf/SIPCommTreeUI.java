@@ -4,9 +4,10 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.lookandfeel;
+package net.java.sip.communicator.util.swing.plaf;
 
 import java.awt.*;
+import java.awt.Container;
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -14,9 +15,6 @@ import javax.swing.event.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.tree.*;
-
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 
 /**
  * SIPCommTreeUI implementation.
@@ -188,21 +186,7 @@ public class SIPCommTreeUI
      */
     protected void selectPathForEvent(TreePath path, MouseEvent event)
     {
-        Object lastComponent = path.getLastPathComponent();
-
-        // Open right button menu when right mouse is pressed.
-        if (lastComponent instanceof ContactNode)
-        {
-            UIContact uiContact
-                = ((ContactNode) lastComponent).getContactDescriptor();
-
-            if (!(uiContact instanceof ShowMoreContact))
-            {
-                super.selectPathForEvent(path, event);
-            }
-        }
-        else
-            super.selectPathForEvent(path, event);
+        super.selectPathForEvent(path, event);
     }
 
     /**

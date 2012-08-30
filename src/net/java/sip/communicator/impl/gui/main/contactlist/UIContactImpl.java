@@ -1,0 +1,56 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
+package net.java.sip.communicator.impl.gui.main.contactlist;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.service.gui.*;
+
+public abstract class UIContactImpl
+    extends UIContact
+{
+    /**
+     * Returns the corresponding <tt>ContactNode</tt>. The <tt>ContactNode</tt>
+     * is the real node that is stored in the contact list component data model.
+     *
+     * @return the corresponding <tt>ContactNode</tt>
+     */
+    public abstract ContactNode getContactNode();
+
+    /**
+     * Sets the given <tt>contactNode</tt>. The <tt>ContactNode</tt>
+     * is the real node that is stored in the contact list component data model.
+     *
+     * @param contactNode the <tt>ContactNode</tt> that corresponds to this
+     * <tt>UIGroup</tt>
+     */
+    public abstract void setContactNode(ContactNode contactNode);
+
+    /**
+     * Returns the general status icon of the given MetaContact. Detects the
+     * status using the priority status table. The priority is defined on
+     * the "availability" factor and here the most "available" status is
+     * returned.
+     *
+     * @return PresenceStatus The most "available" status from all
+     * sub-contact statuses.
+     */
+    public abstract ImageIcon getStatusIcon();
+
+    /**
+     * Gets the avatar of a specific <tt>MetaContact</tt> in the form of an
+     * <tt>ImageIcon</tt> value.
+     *
+     * @param isSelected indicates if the contact is selected
+     * @param width the desired icon width
+     * @param height the desired icon height
+     * @return an <tt>ImageIcon</tt> which represents the avatar of the
+     * specified <tt>MetaContact</tt>
+     */
+    public abstract ImageIcon getAvatar(
+        boolean isSelected, int width, int height);
+}

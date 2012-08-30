@@ -4,9 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist;
+package net.java.sip.communicator.service.gui.event;
 
 import java.util.*;
+
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>ContactListEvent</tt> is triggered when a contact or a group is
@@ -29,6 +31,18 @@ public class ContactListEvent
      * a group in the contact list.
      */
     public static final int GROUP_CLICKED = 2;
+
+    /**
+     * Indicates that the ContactListEvent instance was triggered by
+     * selecting a contact in the contact list.
+     */
+    public static final int CONTACT_SELECTED = 3;
+
+    /**
+     * Indicates that the ContactListEvent instance was triggered by selecting
+     * a group in the contact list.
+     */
+    public static final int GROUP_SELECTED = 4;
 
     /**
      * Indicated the number of click accompanying the event

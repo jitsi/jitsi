@@ -26,6 +26,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
@@ -1196,6 +1197,16 @@ public class MetaContactRightButtonMenu
 
         this.moveContact((MetaContact) descriptor.getDescriptor());
     }
+
+    /**
+     * We're not interested in group selection events here.
+     */
+    public void groupSelected(ContactListEvent evt) {}
+
+    /**
+     * We're not interested in contact selection events here.
+     */
+    public void contactSelected(ContactListEvent evt) {}
 
     /**
      * Moves the previously chosen sub-contact in the given toMetaContact.

@@ -11,6 +11,8 @@ import java.lang.reflect.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
+import net.java.sip.communicator.service.gui.*;
+
 /**
  * The data model of the contact list.
  *
@@ -40,7 +42,7 @@ public class ContactListTreeModel
 
         this.parentTree = tree;
 
-        RootUIGroup rootDescriptor = new RootUIGroup();
+        UIGroupImpl rootDescriptor = new RootUIGroup();
         rootGroupNode = new GroupNode(this, rootDescriptor);
         rootDescriptor.setGroupNode(rootGroupNode);
 
@@ -157,7 +159,7 @@ public class ContactListTreeModel
      * The <tt>RootUIGroup</tt> is the root group in this contact list model.
      */
     private static class RootUIGroup
-        implements UIGroup
+        extends UIGroupImpl
     {
         /**
          * The corresponding group node.

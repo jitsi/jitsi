@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -503,7 +502,7 @@ public class OneToOneCallPeerPanel
     {
         if (image == null || image.length <= 0)
         {
-            TreeContactList.setSourceContactImage(
+            GuiActivator.getContactList().setSourceContactImage(
                 peerName, photoLabel, 100, 100);
         }
         else

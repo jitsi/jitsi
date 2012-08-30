@@ -11,13 +11,16 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 
 /**
  * The <tt>FilterQuery</tt> gives information about a current filtering.
  *
  * @author Yana Stamcheva
  */
-public class FilterQuery
+public class UIFilterQuery
+    extends FilterQuery
     implements  ContactQueryListener,
                 MetaContactQueryListener
 {
@@ -315,7 +318,8 @@ public class FilterQuery
             GuiActivator.getContactList().addContact(
                 query,
                 moreInfoContact,
-                TreeContactList.getContactSource(contactSource).getUIGroup(),
+                GuiActivator.getContactList()
+                    .getContactSource(contactSource).getUIGroup(),
                 false);
         }
     }
@@ -336,6 +340,14 @@ public class FilterQuery
      * about the received <tt>SourceContact</tt>
      */
     public void contactRemoved(ContactRemovedEvent event)
+    {}
+
+    /**
+     * Indicates that a contact has been updated after a search.
+     * @param event the <tt>ContactQueryEvent</tt> containing information
+     * about the updated <tt>SourceContact</tt>
+     */
+    public void contactChanged(ContactChangedEvent event)
     {}
 
     public void metaContactReceived(MetaContactQueryEvent event) {}

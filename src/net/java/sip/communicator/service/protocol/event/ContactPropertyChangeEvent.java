@@ -36,6 +36,12 @@ public class ContactPropertyChangeEvent
     public static final String PROPERTY_PERSISTENT_DATA = "PersistentData";
 
     /**
+     * Indicates that a change has occurred in the display details of the source
+     * contact.
+     */
+    public static final String PROPERTY_DISPLAY_DETAILS = "DisplayDetails";
+
+    /**
      * Creates a ContactPropertyChangeEvent indicating that a change has
      * occurred for property <tt>propertyName</tt> in the <tt>source</tt>
      * contact and that its value has changed from <tt>oldValue</tt> to

@@ -4,13 +4,12 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist;
+package net.java.sip.communicator.service.gui;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
-import javax.swing.*;
-
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -20,21 +19,21 @@ import net.java.sip.communicator.util.swing.*;
  *
  * @author Yana Stamcheva
  */
-public interface UIContact
+public abstract class UIContact
 {
     /**
      * Returns the descriptor of this contact.
      *
      * @return the descriptor of this contact
      */
-    public Object getDescriptor();
+    public abstract Object getDescriptor();
 
     /**
      * Returns the display name of this contact.
      *
      * @return the display name of this contact
      */
-    public String getDisplayName();
+    public abstract String getDisplayName();
 
     /**
      * Returns the display details of this contact. These would be shown
@@ -42,33 +41,14 @@ public interface UIContact
      *
      * @return the display details of this contact
      */
-    public String getDisplayDetails();
+    public abstract String getDisplayDetails();
 
     /**
      * Returns the index of this contact in its source.
      *
      * @return the source index
      */
-    public int getSourceIndex();
-
-    /**
-     * Returns the avatar of this contact.
-     *
-     * @param isSelected indicates if the contact is selected
-     * @param width the width of the avatar
-     * @param height the height of the avatar
-     * @return  the avatar of this contact
-     */
-    public ImageIcon getAvatar(boolean isSelected, int width, int height);
-
-    /**
-     * Returns the status icon of this contact or null if no status is
-     * available.
-     *
-     * @return the status icon of this contact or null if no status is
-     * available
-     */
-    public ImageIcon getStatusIcon();
+    public abstract int getSourceIndex();
 
     /**
      * Creates a tool tip for this contact. If such tooltip is
@@ -76,21 +56,21 @@ public interface UIContact
      *
      * @return the tool tip for this contact descriptor
      */
-    public ExtendedTooltip getToolTip();
+    public abstract ExtendedTooltip getToolTip();
 
     /**
      * Returns the right button menu component.
      *
      * @return the right button menu component
      */
-    public JPopupMenu getRightButtonMenu();
+    public abstract Component getRightButtonMenu();
 
     /**
      * Returns the parent group.
      *
      * @return the parent group
      */
-    public UIGroup getParentGroup();
+    public abstract UIGroup getParentGroup();
 
     /**
      * Sets the given <tt>UIGroup</tt> to be the parent group of this
@@ -98,7 +78,7 @@ public interface UIContact
      *
      * @param parentGroup the parent <tt>UIGroup</tt> of this contact
      */
-    public void setParentGroup(UIGroup parentGroup);
+    public abstract void setParentGroup(UIGroup parentGroup);
 
     /**
      * Returns an <tt>Iterator</tt> over a list of the search strings of this
@@ -107,24 +87,7 @@ public interface UIContact
      * @return an <tt>Iterator</tt> over a list of the search strings of this
      * contact
      */
-    public Iterator<String> getSearchStrings();
-
-    /**
-     * Returns the corresponding <tt>ContactNode</tt>. The <tt>ContactNode</tt>
-     * is the real node that is stored in the contact list component data model.
-     *
-     * @return the corresponding <tt>ContactNode</tt>
-     */
-    public ContactNode getContactNode();
-
-    /**
-     * Sets the given <tt>contactNode</tt>. The <tt>ContactNode</tt>
-     * is the real node that is stored in the contact list component data model.
-     *
-     * @param contactNode the <tt>ContactNode</tt> that corresponds to this
-     * <tt>UIGroup</tt>
-     */
-    public void setContactNode(ContactNode contactNode);
+    public abstract Iterator<String> getSearchStrings();
 
     /**
      * Returns the default <tt>ContactDetail</tt> to use for any operations
@@ -134,7 +97,7 @@ public interface UIContact
      * @return the default <tt>ContactDetail</tt> to use for any operations
      * depending to the given <tt>OperationSet</tt> class
      */
-    public UIContactDetail getDefaultContactDetail(
+    public abstract UIContactDetail getDefaultContactDetail(
         Class<? extends OperationSet> opSetClass);
 
     /**
@@ -145,7 +108,7 @@ public interface UIContact
      * @return a list of all <tt>UIContactDetail</tt>s corresponding to the
      * given <tt>OperationSet</tt> class
      */
-    public List<UIContactDetail> getContactDetailsForOperationSet(
+    public abstract List<UIContactDetail> getContactDetailsForOperationSet(
         Class<? extends OperationSet> opSetClass);
 
     /**
@@ -155,12 +118,22 @@ public interface UIContact
      * @return a list of all <tt>UIContactDetail</tt>s within this
      * <tt>UIContact</tt>
      */
-    public List<UIContactDetail> getContactDetails();
+    public abstract List<UIContactDetail> getContactDetails();
 
     /**
      * Returns all custom action buttons for this notification contact.
      *
      * @return a list of all custom action buttons for this notification contact
      */
-    public Collection<SIPCommButton> getContactCustomActionButtons();
+    public abstract Collection<SIPCommButton> getContactCustomActionButtons();
+
+    /**
+     * Returns the preferred height of this group in the contact list.
+     *
+     * @return the preferred height of this group in the contact list
+     */
+    public int getPreferredHeight()
+    {
+        return -1;
+    }
 }

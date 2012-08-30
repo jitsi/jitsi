@@ -349,4 +349,14 @@ public class CallHistorySourceContact
 
         return time;
     }
+
+    /**
+     * Returns the status of the source contact. And null if such information
+     * is not available.
+     * @return the PresenceStatus representing the state of this source contact.
+     */
+    public PresenceStatus getPresenceStatus()
+    {
+        return null;
+    }
 }

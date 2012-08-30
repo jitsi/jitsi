@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import javax.swing.tree.*;
 
+import net.java.sip.communicator.service.gui.*;
+
 /**
  * The <tt>ContactNode</tt> is a <tt>ContactListNode</tt> corresponding to a
  * given <tt>UIContact</tt>.
@@ -31,21 +33,22 @@ public class ContactNode
     /**
      * Creates a <tt>ContactNode</tt> by specifying the corresponding
      * <tt>contact</tt>.
-     * @param contact the <tt>UIContact</tt> corresponding to this node
+     * @param contact the <tt>UIContactImpl</tt> corresponding to this node
      */
-    public ContactNode(UIContact contact)
+    public ContactNode(UIContactImpl contact)
     {
         super(contact);
         this.contact = contact;
     }
 
     /**
-     * Returns the corresponding <tt>UIContact</tt>.
-     * @return the corresponding <tt>UIContact</tt>
+     * Returns the corresponding <tt>UIContactImpl</tt>.
+     *
+     * @return the corresponding <tt>UIContactImpl</tt>
      */
-    public UIContact getContactDescriptor()
+    public UIContactImpl getContactDescriptor()
     {
-        return (UIContact) getUserObject();
+        return (UIContactImpl) getUserObject();
     }
 
     /**

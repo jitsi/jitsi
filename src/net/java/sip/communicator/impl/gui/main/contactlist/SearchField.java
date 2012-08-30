@@ -13,6 +13,8 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 import net.java.sip.communicator.util.swing.event.*;

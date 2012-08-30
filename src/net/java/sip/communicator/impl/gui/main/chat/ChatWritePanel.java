@@ -71,7 +71,7 @@ public class ChatWritePanel
     private final ArrayList<ChatMenuListener> menuListeners
         = new ArrayList<ChatMenuListener>();
 
-    private final SCScrollPane scrollPane = new SCScrollPane();
+    private final SIPCommScrollPane scrollPane = new SIPCommScrollPane();
 
     private ChatTransportSelectorBox transportSelectorBox;
 

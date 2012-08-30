@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
@@ -34,7 +35,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class MetaUIContact
-    implements UIContact
+    extends UIContactImpl
 {
     /**
      * The key of the user data in <tt>MetaContact</tt> which specifies
@@ -593,7 +594,8 @@ public class MetaUIContact
      * The implementation of the <tt>UIContactDetail</tt> interface for the
      * <tt>MetaContactListService</tt>.
      */
-    private class MetaContactDetail extends UIContactDetail
+    private class MetaContactDetail
+        extends UIContactDetailImpl
     {
         /**
          * The underlying protocol contact.
@@ -612,8 +614,7 @@ public class MetaUIContact
                     contact.getDisplayName(),
                     null,
                     null,
-                    new ImageIcon(
-                        contact.getPresenceStatus().getStatusIcon()),
+                    new ImageIcon(contact.getPresenceStatus().getStatusIcon()),
                     contact.getProtocolProvider(),
                     contact.getProtocolProvider().getProtocolName(),
                     contact);

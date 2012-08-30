@@ -129,7 +129,7 @@ public class ReceivedCallDialog
                     {
                         public void run()
                         {
-                            TreeContactList
+                            GuiActivator.getContactList()
                                 .setSourceContactImage( peer.getAddress(),
                                                         callLabel[0],
                                                         50, 50);

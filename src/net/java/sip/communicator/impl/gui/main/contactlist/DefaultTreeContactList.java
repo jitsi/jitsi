@@ -18,9 +18,10 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.skin.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * DeafultContactlist used to display <code>JList</code>s with contacts.
@@ -47,7 +48,7 @@ public class DefaultTreeContactList
     static
     {
         UIManager.getDefaults().put(uiClassID,
-            SIPCommTreeUI.class.getName());
+            ExtendedTreeUI.class.getName());
     }
 
     /**

@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
@@ -182,7 +183,7 @@ public class ContactListTreeCellRenderer
     /**
      * The icon showing the contact status.
      */
-    protected ImageIcon statusIcon = new ImageIcon();
+    protected Icon statusIcon = new ImageIcon();
 
     /**
      * Indicates if the current list cell is selected.
@@ -372,7 +373,7 @@ public class ContactListTreeCellRenderer
         // Make appropriate adjustments for contact nodes and group nodes.
         if (value instanceof ContactNode)
         {
-            UIContact contact
+            UIContactImpl contact
                 = ((ContactNode) value).getContactDescriptor();
 
             String displayName = contact.getDisplayName();
@@ -387,10 +388,13 @@ public class ContactListTreeCellRenderer
 
             this.nameLabel.setText(displayName);
 
-            if(statusIcon != null && contactList.isContactActive(contact))
-                statusIcon.setImage(msgReceivedImage);
+            if(statusIcon != null
+                && contactList.isContactActive(contact)
+                && statusIcon instanceof ImageIcon)
+                ((ImageIcon) statusIcon).setImage(msgReceivedImage);
             else
                 statusIcon = contact.getStatusIcon();
+
             this.statusLabel.setIcon(statusIcon);
 
             this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
@@ -400,7 +404,7 @@ public class ContactListTreeCellRenderer
 
             // Initializes status message components if the given meta contact
             // contains a status message.
-            this.initDisplayDetails(contact);
+            this.initDisplayDetails(contact.getDisplayDetails());
 
             this.initButtonsPanel(contact);
 
@@ -417,7 +421,7 @@ public class ContactListTreeCellRenderer
                 avatarHeight = AVATAR_HEIGHT;
             }
 
-            ImageIcon avatar
+            Icon avatar
                 = contact.getAvatar(isSelected, avatarWidth, avatarHeight);
 
             if (avatar != null)
@@ -441,7 +445,7 @@ public class ContactListTreeCellRenderer
         }
         else if (value instanceof GroupNode)
         {
-            UIGroup groupItem
+            UIGroupImpl groupItem
                 = ((GroupNode) value).getGroupDescriptor();
 
             this.nameLabel.setText(groupItem.getDisplayName());
@@ -485,6 +489,7 @@ public class ContactListTreeCellRenderer
                                         + "/" + groupItem.countChildContacts());
             }
 
+            this.initDisplayDetails(groupItem.getDisplayDetails());
             this.setToolTipText(groupItem.getDescriptor().toString());
         }
 
@@ -579,21 +584,36 @@ public class ContactListTreeCellRenderer
     public Dimension getPreferredSize()
     {
         Dimension preferredSize = new Dimension();
+        int preferredHeight;
 
         if (treeNode instanceof ContactNode)
         {
             UIContact contact
                 = ((ContactNode) treeNode).getContactDescriptor();
 
-            if (contact instanceof ShowMoreContact)
+            preferredHeight = contact.getPreferredHeight();
+
+            if (preferredHeight > 0)
+                preferredSize.height = preferredHeight;
+            else if (contact instanceof ShowMoreContact)
                 preferredSize.height = 18;
             else if (isSelected)
                 preferredSize.height = 70;
             else
                 preferredSize.height = 30;
         }
-        else
-            preferredSize.height = 18;
+        else if (treeNode instanceof GroupNode)
+        {
+            UIGroup group
+                = ((GroupNode) treeNode).getGroupDescriptor();
+
+            preferredHeight = group.getPreferredHeight();
+
+            if (preferredHeight > 0)
+                preferredSize.height = preferredHeight;
+            else
+                preferredSize.height = 18;
+        }
 
         return preferredSize;
     }
@@ -646,15 +666,12 @@ public class ContactListTreeCellRenderer
     /**
      * Initializes the display details component for the given
      * <tt>UIContact</tt>.
-     * @param contact the <tt>UIContact</tt>, for which we initialize the
-     * details component
+     * @param details the display details to show
      */
-    private void initDisplayDetails(UIContact contact)
+    private void initDisplayDetails(String displayDetails)
     {
         remove(displayDetailsLabel);
         displayDetailsLabel.setText("");
-
-        String displayDetails = contact.getDisplayDetails();
 
         if (displayDetails != null && displayDetails.length() > 0)
         {
@@ -829,6 +846,7 @@ public class ContactListTreeCellRenderer
             this.add(callButton, constraints);
 
             callButton.setBounds(x, y, 28, 28);
+
             callButton.setEnabled(telephonyContact != null || hasPhone);
 
             x += callButton.getWidth();
@@ -1415,7 +1433,7 @@ public class ContactListTreeCellRenderer
                                 phones.add(pnd.getNumber());
 
                                 UIContactDetail cd =
-                                    new UIContactDetail(
+                                    new UIContactDetailImpl(
                                         pnd.getNumber(),
                                         pnd.getNumber() +
                                         " (" + localizedType + ")",

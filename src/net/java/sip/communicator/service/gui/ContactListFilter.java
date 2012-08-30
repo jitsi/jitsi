@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist;
+package net.java.sip.communicator.service.gui;
 
 /**
  * The <tt>ContactListFilter</tt> is an interface meant to be implemented by

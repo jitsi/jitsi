@@ -2492,6 +2492,8 @@ public class MetaContactListServiceImpl
                                 (byte[])evt.getNewValue());
             }
             else if(ContactPropertyChangeEvent.PROPERTY_PERSISTENT_DATA
+                            .equals(evt.getPropertyName())
+                    || ContactPropertyChangeEvent.PROPERTY_DISPLAY_DETAILS
                             .equals(evt.getPropertyName()))
             {
                 // if persistent data changed fire an event to store it

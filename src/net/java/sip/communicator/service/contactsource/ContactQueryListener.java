@@ -35,4 +35,11 @@ public interface ContactQueryListener
      * about the received <tt>SourceContact</tt>
      */
     public void contactRemoved(ContactRemovedEvent event);
+
+    /**
+     * Indicates that a contact has been updated after a search.
+     * @param event the <tt>ContactQueryEvent</tt> containing information
+     * about the updated <tt>SourceContact</tt>
+     */
+    public void contactChanged(ContactChangedEvent event);
 }

@@ -11,11 +11,11 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
+import net.java.sip.communicator.util.swing.*;
 
 /**
  * The <tt>ChatContactListPanel</tt> is the panel added on the right of the
@@ -99,7 +99,7 @@ public class ChatRoomMemberListPanel
         }
 
 
-        JScrollPane contactsScrollPane = new SCScrollPane();
+        JScrollPane contactsScrollPane = new SIPCommScrollPane();
         contactsScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         contactsScrollPane.setOpaque(false);

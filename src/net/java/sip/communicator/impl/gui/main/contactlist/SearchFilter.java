@@ -12,6 +12,7 @@ import java.util.regex.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>SearchFilter</tt> is a <tt>ContactListFilter</tt> that filters the
@@ -50,7 +51,7 @@ public class SearchFilter
     /**
      * The list of external contact sources to search in.
      */
-    private Collection<ExternalContactSource> contactSources;
+    private Collection<UIContactSource> contactSources;
 
     /**
      * The type of the search source. One of the above defined DEFAUT_SOURCE or
@@ -88,13 +89,14 @@ public class SearchFilter
         if (filterQuery.isCanceled())
             return;
 
-        Iterator<ExternalContactSource> filterSources
+        Iterator<UIContactSource> filterSources
              = getContactSources().iterator();
 
         // Then we apply the filter on all its contact sources.
         while (filterSources.hasNext())
         {
-            final ExternalContactSource filterSource = filterSources.next();
+            final UIContactSource filterSource
+                = filterSources.next();
 
             // If we have stopped filtering in the mean time we return here.
             if (filterQuery.isCanceled())
@@ -115,7 +117,7 @@ public class SearchFilter
      * filter to
      * @return the <tt>ContactQuery</tt> that tracks this filter
      */
-    public ContactQuery applyFilter(ExternalContactSource contactSource)
+    public ContactQuery applyFilter(UIContactSource contactSource)
     {
         ContactSourceService sourceService
             = contactSource.getContactSourceService();
@@ -236,8 +238,9 @@ public class SearchFilter
     {
         ContactSourceService contactSource
             = sourceContact.getContactSource();
-        ExternalContactSource sourceUI
-            = TreeContactList.getContactSource(contactSource);
+
+        UIContactSource sourceUI
+            = GuiActivator.getContactList().getContactSource(contactSource);
 
         if (sourceUI != null
             // ExtendedContactSourceService has already matched the
@@ -252,7 +255,7 @@ public class SearchFilter
                 true);
         }
         else
-            ExternalContactSource.removeUIContact(sourceContact);
+            sourceUI.removeUIContact(sourceContact);
     }
 
     /**
@@ -266,14 +269,15 @@ public class SearchFilter
         switch(searchSourceType)
         {
             case DEFAULT_SOURCE:
-                contactSources = TreeContactList.getContactSources();
+                contactSources
+                    = GuiActivator.getContactList().getContactSources();
                 break;
             case HISTORY_SOURCE:
             {
-                Collection<ExternalContactSource> historySources
-                    = new LinkedList<ExternalContactSource>();
-                ExternalContactSource historySource
-                    = TreeContactList.getContactSource(
+                Collection<UIContactSource> historySources
+                    = new LinkedList<UIContactSource>();
+                UIContactSource historySource
+                    = GuiActivator.getContactList().getContactSource(
                         ContactSourceService.CALL_HISTORY);
 
                 historySources.add(historySource);
@@ -289,10 +293,10 @@ public class SearchFilter
      * @return the list of <tt>ExternalContactSource</tt> this filter searches
      * in
      */
-    public Collection<ExternalContactSource> getContactSources()
+    public Collection<UIContactSource> getContactSources()
     {
         if (contactSources == null)
-            contactSources = TreeContactList.getContactSources();
+            contactSources = GuiActivator.getContactList().getContactSources();
         return contactSources;
     }
 

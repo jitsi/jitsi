@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lubomir Marinov
  */
 public class DatesPanel
-    extends SCScrollPane
+    extends SIPCommScrollPane
     implements ListSelectionListener
 {
     private final JList datesList = new JList();

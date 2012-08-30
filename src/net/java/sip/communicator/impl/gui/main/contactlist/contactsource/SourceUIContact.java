@@ -16,12 +16,11 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
-import net.java.sip.communicator.service.customcontactactions.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
-import org.osgi.framework.*;
 
 /**
  * The <tt>SourceUIContact</tt> is the implementation of the UIContact for the
@@ -30,7 +29,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class SourceUIContact
-    implements UIContact
+    extends UIContactImpl
 {
     /**
      * The corresponding <tt>SourceContact</tt>, on which this abstraction is
@@ -46,7 +45,7 @@ public class SourceUIContact
     /**
      * The parent <tt>UIGroup</tt>.
      */
-    private UIGroup uiGroup;
+    private ExternalContactSource.SourceUIGroup uiGroup;
 
     /**
      * The search strings for this <tt>UIContact</tt>.
@@ -63,7 +62,7 @@ public class SourceUIContact
      * @param parentGroup the parent <tt>UIGroup</tt>
      */
     public SourceUIContact( SourceContact contact,
-                            UIGroup parentGroup)
+                            ExternalContactSource.SourceUIGroup parentGroup)
     {
         this.sourceContact = contact;
         this.uiGroup = parentGroup;
@@ -121,6 +120,11 @@ public class SourceUIContact
      */
     public ImageIcon getStatusIcon()
     {
+        PresenceStatus status = sourceContact.getPresenceStatus();
+
+        if (status != null)
+            return new ImageIcon(Constants.getStatusIcon(status));
+
         return new ImageIcon(GlobalStatusEnum.OFFLINE.getStatusIcon());
     }
 
@@ -284,14 +288,15 @@ public class SourceUIContact
     {
         this.contactNode = contactNode;
         if (contactNode == null)
-            ExternalContactSource.removeUIContact(sourceContact);
+            uiGroup.getParentUISource().removeUIContact(sourceContact);
     }
 
     /**
      * The implementation of the <tt>UIContactDetail</tt> interface for the
      * external source <tt>ContactDetail</tt>s.
      */
-    protected static class SourceContactDetail extends UIContactDetail
+    protected static class SourceContactDetail
+        extends UIContactDetailImpl
     {
         /**
          * Creates an instance of <tt>SourceContactDetail</tt> by specifying
@@ -479,7 +484,7 @@ public class SourceUIContact
     public Collection<SIPCommButton> getContactCustomActionButtons()
     {
         if (sourceContact != null)
-            return ExternalContactSource
+            return uiGroup.getParentUISource()
                     .getContactCustomActionButtons(sourceContact);
 
         return null;

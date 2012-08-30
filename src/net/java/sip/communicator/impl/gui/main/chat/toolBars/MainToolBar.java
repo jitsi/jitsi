@@ -605,7 +605,7 @@ public class MainToolBar
                                 }
                                     
                                 UIContactDetail cd =
-                                    new UIContactDetail(
+                                    new UIContactDetailImpl(
                                         pnd.getNumber(),
                                         pnd.getNumber() + 
                                         " (" + localizedType + ")",

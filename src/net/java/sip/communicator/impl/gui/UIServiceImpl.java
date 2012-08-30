@@ -31,6 +31,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.ContactList;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -1511,5 +1512,15 @@ public class UIServiceImpl
             getChatWindowManager().startChat(participants[0]);
         else
             throw new IllegalArgumentException("participants");
+    }
+
+    /**
+     * Creates a contact list component.
+     *
+     * @return the created <tt>ContactList</tt>
+     */
+    public ContactList createContactListComponent()
+    {
+        return new TreeContactList();
     }
 }

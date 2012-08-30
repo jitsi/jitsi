@@ -30,7 +30,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Lyubomir Marinov
  */
 public class ChatRoomTableUI
-    extends SCScrollPane
+    extends SIPCommScrollPane
     implements MouseListener
 {
     /**

@@ -4,11 +4,9 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist;
+package net.java.sip.communicator.service.gui;
 
 import java.util.*;
-
-import javax.swing.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
@@ -35,11 +33,6 @@ public abstract class UIContactDetail
      * The display name of this detail.
      */
     private final String displayName;
-
-    /**
-     * The status icon of this contact detail.
-     */
-    private final ImageIcon statusIcon;
 
     /**
      * The <tt>ProtocolProviderService</tt> corresponding to this detail.
@@ -85,7 +78,6 @@ public abstract class UIContactDetail
         String displayName,
         String category,
         Collection<String> labels,
-        ImageIcon statusIcon,
         ProtocolProviderService preferredProvider,
         String preferredProtocol,
         Object descriptor)
@@ -94,7 +86,6 @@ public abstract class UIContactDetail
         this.displayName = displayName;
         this.category = category;
         this.labels = labels;
-        this.statusIcon = statusIcon;
         this.protocolProvider = preferredProvider;
         this.preferredProtocol = preferredProtocol;
         this.descriptor = descriptor;
@@ -144,16 +135,6 @@ public abstract class UIContactDetail
             return labels.iterator();
 
         return null;
-    }
-
-    /**
-     * Returns the status icon of this contact detail.
-     *
-     * @return the status icon of this contact detail
-     */
-    public ImageIcon getStatusIcon()
-    {
-        return statusIcon;
     }
 
     /**

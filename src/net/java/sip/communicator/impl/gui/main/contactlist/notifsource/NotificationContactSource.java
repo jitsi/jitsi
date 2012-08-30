@@ -18,6 +18,7 @@ import org.osgi.framework.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.customcontactactions.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
 import net.java.sip.communicator.service.protocol.event.*;

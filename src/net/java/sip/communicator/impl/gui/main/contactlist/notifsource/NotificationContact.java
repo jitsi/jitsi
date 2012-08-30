@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -31,8 +32,8 @@ import org.jitsi.service.resources.*;
  * @author Yana Stamcheva
  */
 public class NotificationContact
-    implements  UIContact,
-                RegistrationStateChangeListener,
+    extends  UIContact
+    implements  RegistrationStateChangeListener,
                 ProviderPresenceStatusListener
 {
     /**
@@ -453,7 +454,7 @@ public class NotificationContact
      * external source <tt>ContactDetail</tt>s.
      */
     private class MessageWaitingDetail
-        extends UIContactDetail
+        extends UIContactDetailImpl
     {
         /**
          * Creates an instance of <tt>SourceContactDetail</tt> by specifying

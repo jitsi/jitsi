@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.utils;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -14,7 +14,6 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.swing.*;
 
 /**
  * The tooltip shown over a contact in the contact list.

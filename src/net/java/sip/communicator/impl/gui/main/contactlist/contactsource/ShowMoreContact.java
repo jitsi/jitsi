@@ -14,6 +14,8 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -22,8 +24,8 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class ShowMoreContact
-    implements  UIContact,
-                ContactListListener
+    extends UIContactImpl
+    implements ContactListListener
 {
     /**
      * The string associated with this contact.
@@ -54,7 +56,7 @@ public class ShowMoreContact
     /**
      * The count of shown contacts corresponding to the underlying query.
      */
-    private int shownResultsCount = FilterQuery.MAX_EXTERNAL_RESULT_COUNT;
+    private int shownResultsCount = UIFilterQuery.MAX_EXTERNAL_RESULT_COUNT;
 
     /**
      * Creates an instance of <tt>MoreInfoContact</tt>.
@@ -262,7 +264,7 @@ public class ShowMoreContact
                 = new ArrayList<SourceContact>(queryResults);
 
             int newCount
-                = shownResultsCount + FilterQuery.MAX_EXTERNAL_RESULT_COUNT;
+                = shownResultsCount + UIFilterQuery.MAX_EXTERNAL_RESULT_COUNT;
 
             int resultSize = contacts.size();
 
@@ -283,7 +285,7 @@ public class ShowMoreContact
                 GuiActivator.getContactList().addContact(
                     contactQuery,
                     this,
-                    TreeContactList.getContactSource(
+                    GuiActivator.getContactList().getContactSource(
                         contactQuery.getContactSource()).getUIGroup(),
                     false);
 
@@ -291,6 +293,16 @@ public class ShowMoreContact
     }
 
     public void groupClicked(ContactListEvent evt) {}
+
+    /**
+     * We're not interested in group selection events here.
+     */
+    public void groupSelected(ContactListEvent evt) {}
+
+    /**
+     * We're not interested in contact selection events here.
+     */
+    public void contactSelected(ContactListEvent evt) {}
 
     /**
      * Returns all custom action buttons for this meta contact.

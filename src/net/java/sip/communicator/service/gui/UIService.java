@@ -455,4 +455,11 @@ public interface UIService
      * participants to be included into the newly created <tt>Chat</tt>
      */
     public void startChat(String[] participants);
+
+    /**
+     * Creates a contact list component.
+     *
+     * @return the created <tt>ContactList</tt>
+     */
+    public ContactList createContactListComponent();
 }

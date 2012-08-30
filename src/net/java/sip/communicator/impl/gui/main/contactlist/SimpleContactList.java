@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
@@ -32,7 +33,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  */
-public class ContactList
+public class SimpleContactList
     extends DefaultContactList
     implements  MetaContactListListener,
                 MouseListener
@@ -48,7 +49,7 @@ public class ContactList
 
     private static final String MODIFY_OPERATION = "ModifyOperation";
 
-    private final Logger logger = Logger.getLogger(ContactList.class);
+    private final Logger logger = Logger.getLogger(SimpleContactList.class);
 
     private final MetaContactListService contactListService;
 
@@ -91,7 +92,7 @@ public class ContactList
      *
      * @param mainFrame The main application window.
      */
-    public ContactList(MainFrame mainFrame)
+    public SimpleContactList(MainFrame mainFrame)
     {
         this.mainFrame = mainFrame;
 

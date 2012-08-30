@@ -7,11 +7,13 @@
 package net.java.sip.communicator.impl.gui.main.contactlist.contactsource;
 
 import javax.swing.*;
+import javax.swing.tree.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.customcontactactions.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 import org.osgi.framework.*;
@@ -28,6 +30,7 @@ import java.util.List;
  * @author Yana Stamcheva
  */
 public class ExternalContactSource
+    implements UIContactSource
 {
     /**
      * The data key of the SourceContactDescriptor object used to store a
@@ -57,6 +60,8 @@ public class ExternalContactSource
     private static Map<ContactAction<SourceContact>, SIPCommButton>
                                     customActionButtons;
 
+    private final JTree contactListTree;
+
     /**
      * Creates an <tt>ExternalContactSource</tt> based on the given
      * <tt>ContactSourceService</tt>.
@@ -64,11 +69,13 @@ public class ExternalContactSource
      * @param contactSource the <tt>ContactSourceService</tt>, on which this
      * <tt>ExternalContactSource</tt> is based
      */
-    public ExternalContactSource(ContactSourceService contactSource)
+    public ExternalContactSource(   ContactSourceService contactSource,
+                                    JTree contactListTree)
     {
         this.contactSource = contactSource;
+        this.contactListTree = contactListTree;
 
-        sourceUIGroup = new SourceUIGroup(contactSource.getDisplayName());
+        sourceUIGroup = new SourceUIGroup(contactSource.getDisplayName(), this);
     }
 
     /**
@@ -116,7 +123,7 @@ public class ExternalContactSource
      * @param sourceContact the <tt>SourceContact</tt>, which corresponding UI
      * contact we would like to remove
      */
-    public static void removeUIContact(SourceContact sourceContact)
+    public void removeUIContact(SourceContact sourceContact)
     {
         sourceContact.setData(UI_CONTACT_DATA_KEY, null);
     }
@@ -129,7 +136,7 @@ public class ExternalContactSource
      * @return the <tt>UIContact</tt> corresponding to the given
      * <tt>MetaContact</tt>
      */
-    public static UIContact getUIContact(SourceContact sourceContact)
+    public UIContact getUIContact(SourceContact sourceContact)
     {
         return (UIContact) sourceContact.getData(UI_CONTACT_DATA_KEY);
     }
@@ -139,7 +146,7 @@ public class ExternalContactSource
      *
      * @return a list of all custom action buttons for this meta contact
      */
-    public static Collection<SIPCommButton> getContactCustomActionButtons(
+    public Collection<SIPCommButton> getContactCustomActionButtons(
         final SourceContact sourceContact)
     {
         customActionContact = sourceContact;
@@ -192,19 +199,14 @@ public class ExternalContactSource
     /**
      * Initializes custom action buttons for this contact source.
      */
-    private static void initCustomActionButtons()
+    private void initCustomActionButtons()
     {
         customActionButtons = new LinkedHashMap
             <ContactAction<SourceContact>, SIPCommButton>();
 
-        CustomContactActionsChangeListener changeListener
-                    = new CustomContactActionsChangeListener();
-
         for (CustomContactActionsService<SourceContact> ccas
                 : getContactActionsServices())
         {
-            ccas.addCustomContactActionsListener(changeListener);
-
             Iterator<ContactAction<SourceContact>> actionIterator
                 = ccas.getCustomContactActions();
 
@@ -254,13 +256,15 @@ public class ExternalContactSource
                                     button.getY() + button.getHeight());
 
                                 SwingUtilities.convertPointToScreen(
-                                    location, GuiActivator.getContactList());
+                                    location, contactListTree);
 
-                                location.y = location.y
-                                    + GuiActivator.getContactList()
-                                        .getPathBounds(
-                                            GuiActivator.getContactList()
-                                            .getSelectionPath()).y;
+                                TreePath selectionPath
+                                    = contactListTree.getSelectionPath();
+
+                                if (selectionPath != null)
+                                    location.y = location.y
+                                        + contactListTree.getPathBounds(
+                                            selectionPath).y;
 
                                 contactAction.actionPerformed(
                                     contactDetails.get(0),
@@ -326,8 +330,8 @@ public class ExternalContactSource
      * <tt>ExternalContactSource</tt>. It takes the name of the source and
      * sets it as a group name.
      */
-    private class SourceUIGroup
-        implements UIGroup
+    public class SourceUIGroup
+        extends UIGroupImpl
     {
         /**
          * The display name of the group.
@@ -339,13 +343,22 @@ public class ExternalContactSource
          */
         private GroupNode groupNode;
 
+        private ExternalContactSource parentUISource;
+
         /**
          * Creates an instance of <tt>SourceUIGroup</tt>.
          * @param name the name of the group
          */
-        public SourceUIGroup(String name)
+        public SourceUIGroup(   String name,
+                                ExternalContactSource parentUISource)
         {
             this.displayName = name;
+            this.parentUISource = parentUISource;
+        }
+
+        public ExternalContactSource getParentUISource()
+        {
+            return parentUISource;
         }
 
         /**
@@ -413,7 +426,7 @@ public class ExternalContactSource
          */
         public Object getDescriptor()
         {
-            return displayName;
+            return contactSource;
         }
 
         /**
@@ -450,29 +463,6 @@ public class ExternalContactSource
         public JPopupMenu getRightButtonMenu()
         {
             return null;
-        }
-    }
-
-    /**
-     * Listens for updates on actions and when received update the source contact.
-     */
-    private static class CustomContactActionsChangeListener
-        implements CustomContactActionsListener
-    {
-        /**
-         * Update for custom action has occurred.
-         * @param event the event containing the source which was updated.
-         */
-        public void updated(CustomContactActionsEvent event)
-        {
-            if(!(event.getSource() instanceof SourceContact))
-                return;
-
-            ContactNode contactNode
-                = getUIContact((SourceContact)event.getSource()).getContactNode();
-
-            if (contactNode != null)
-                GuiActivator.getContactList().nodeChanged(contactNode);
         }
     }
 

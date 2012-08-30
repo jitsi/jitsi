@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -24,7 +25,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * @author Yana Stamcheva
  */
 public class NotificationGroup
-    implements UIGroup
+    extends UIGroup
 {
     /**
      * The type of the notification message, identifying this group.

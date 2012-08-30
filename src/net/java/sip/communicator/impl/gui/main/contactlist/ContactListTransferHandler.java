@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 

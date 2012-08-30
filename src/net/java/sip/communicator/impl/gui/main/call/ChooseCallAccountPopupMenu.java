@@ -147,8 +147,9 @@ public class ChooseCallAccountPopupMenu
 
         for (Object o : telephonyObjects)
         {
-            if (o instanceof UIContactDetail)
-                this.addTelephonyContactItem((UIContactDetail) o, opSetClass);
+            if (o instanceof UIContactDetailImpl)
+                this.addTelephonyContactItem(
+                    (UIContactDetailImpl) o, opSetClass);
             else if (o instanceof ChatTransport)
                 this.addTelephonyChatTransportItem((ChatTransport) o,
                         opSetClass);
@@ -225,7 +226,7 @@ public class ChooseCallAccountPopupMenu
      * would be performed when an item is selected
      */
     private void addTelephonyContactItem(
-        final UIContactDetail telephonyContact,
+        final UIContactDetailImpl telephonyContact,
         final Class<? extends OperationSet> opSetClass)
     {
         final ContactMenuItem contactItem
@@ -473,9 +474,9 @@ public class ChooseCallAccountPopupMenu
          */
         private static final long serialVersionUID = 0L;
 
-        private final UIContactDetail contact;
+        private final UIContactDetailImpl contact;
 
-        public ContactMenuItem(UIContactDetail contact)
+        public ContactMenuItem(UIContactDetailImpl contact)
         {
             this.contact = contact;
 

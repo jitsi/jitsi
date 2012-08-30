@@ -689,9 +689,6 @@ public class GuiActivator implements BundleActivator
      */
     public static List<ContactSourceService> getContactSources()
     {
-        if (contactSources != null)
-            return contactSources;
-
         contactSources = new Vector<ContactSourceService>();
 
         ServiceReference[] serRefs = null;

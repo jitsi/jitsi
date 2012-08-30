@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>ContactListSourceFilter</tt> is a <tt>ContactListFilter</tt> that
@@ -17,7 +18,8 @@ import net.java.sip.communicator.service.contactsource.*;
  *
  * @author Yana Stamcheva
  */
-public interface ContactListSourceFilter extends ContactListFilter
+public interface ContactListSourceFilter
+    extends ContactListFilter
 {
     /**
      * Applies this filter to the given <tt>contactSource</tt>.

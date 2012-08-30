@@ -4,7 +4,9 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist;
+package net.java.sip.communicator.service.gui.event;
+
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>FilterQueryListener</tt> is notified when a filter query finishes.

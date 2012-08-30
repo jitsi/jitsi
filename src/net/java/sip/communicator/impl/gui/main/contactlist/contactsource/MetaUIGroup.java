@@ -12,6 +12,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>MetaUIGroup</tt> is the implementation of the UIGroup for the
@@ -21,7 +22,7 @@ import net.java.sip.communicator.service.contactlist.*;
  * @author Yana Stamcheva
  */
 public class MetaUIGroup
-    implements UIGroup
+    extends UIGroupImpl
 {
     /**
      * The <tt>MetaContactGroup</tt>, on which this UI group is based.

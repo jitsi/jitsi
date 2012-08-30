@@ -47,7 +47,7 @@ import net.java.sip.communicator.util.swing.SwingWorker;
  * @author Adam Netocny
  */
 public class ChatConversationPanel
-    extends SCScrollPane
+    extends SIPCommScrollPane
     implements  HyperlinkListener,
                 MouseListener,
                 ClipboardOwner,

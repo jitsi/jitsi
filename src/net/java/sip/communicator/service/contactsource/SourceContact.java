@@ -123,4 +123,11 @@ public interface SourceContact
      * specified <tt>key</tt>
      */
     public void setData(Object key, Object value);
+
+    /**
+     * Returns the status of the source contact. And null if such information
+     * is not available.
+     * @return the PresenceStatus representing the state of this source contact.
+     */
+    public PresenceStatus getPresenceStatus();
 }

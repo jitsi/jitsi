@@ -12,8 +12,9 @@ import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.tree.*;
 
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.swing.plaf.*;
 
 /**
  * The <tt>GroupNode</tt> is a <tt>ContactListNode</tt> corresponding to a
@@ -39,7 +40,7 @@ public class GroupNode
     /**
      * The corresponding <tt>UIGroup</tt>.
      */
-    private final UIGroup group;
+    private final UIGroupImpl group;
 
     /**
      * The <tt>ContactListNode</tt> <tt>Comparator</tt> used to sort the list of
@@ -62,10 +63,10 @@ public class GroupNode
      * and the corresponding <tt>uiGroup</tt>.
      *
      * @param treeModel the parent tree model containing this group
-     * @param uiGroup the corresponding <tt>UIGroup</tt>
+     * @param uiGroup the corresponding <tt>UIGroupImpl</tt>
      */
     public GroupNode(   ContactListTreeModel treeModel,
-                        UIGroup uiGroup)
+                        UIGroupImpl uiGroup)
     {
         super(uiGroup, true);
 
@@ -78,10 +79,10 @@ public class GroupNode
     /**
      * Creates a <tt>ContactNode</tt> for the given <tt>uiContact</tt>
      * and adds it to this group.
-     * @param uiContact the <tt>UIContact</tt> to add
+     * @param uiContact the <tt>UIContactImpl</tt> to add
      * @return the created <tt>ContactNode</tt>
      */
-    public ContactNode addContact(UIContact uiContact)
+    public ContactNode addContact(UIContactImpl uiContact)
     {
         if (logger.isDebugEnabled())
             logger.debug("Group node add contact: "
@@ -107,11 +108,11 @@ public class GroupNode
     /**
      * Creates a <tt>ContactNode</tt> for the given <tt>uiContact</tt>,
      * adds it to this group and performs a sort at the end.
-     * @param uiContact the <tt>UIContact</tt> to add
+     * @param uiContact the <tt>UIContactImpl</tt> to add
      * @return the created <tt>ContactNode</tt>
      */
     @SuppressWarnings("unchecked")
-    public ContactNode sortedAddContact(UIContact uiContact)
+    public ContactNode sortedAddContact(UIContactImpl uiContact)
     {
         if (logger.isDebugEnabled())
             logger.debug("Group node sorted add contact: "
@@ -136,9 +137,9 @@ public class GroupNode
     /**
      * Removes the node corresponding to the given <tt>uiContact</tt> from this
      * group.
-     * @param uiContact the <tt>UIContact</tt> to remove
+     * @param uiContact the <tt>UIContactImpl</tt> to remove
      */
-    public void removeContact(UIContact uiContact)
+    public void removeContact(UIContactImpl uiContact)
     {
         final ContactNode contactNode = uiContact.getContactNode();
 
@@ -164,10 +165,10 @@ public class GroupNode
     /**
      * Creates a <tt>GroupNode</tt> for the given <tt>uiGroup</tt> and
      * adds it to this group.
-     * @param uiGroup the <tt>UIGroup</tt> to add
+     * @param uiGroup the <tt>UIGroupImpl</tt> to add
      * @return the created <tt>GroupNode</tt>
      */
-    public GroupNode addContactGroup(UIGroup uiGroup)
+    public GroupNode addContactGroup(UIGroupImpl uiGroup)
     {
         int selectedIndex = getLeadSelectionRow();
 
@@ -189,9 +190,9 @@ public class GroupNode
     /**
      * Removes the node corresponding to the given <tt>uiGroup</tt> from this
      * group node.
-     * @param uiGroup the <tt>UIGroup</tt> to remove
+     * @param uiGroup the <tt>UIGroupImpl</tt> to remove
      */
-    public void removeContactGroup(UIGroup uiGroup)
+    public void removeContactGroup(UIGroupImpl uiGroup)
     {
         GroupNode groupNode = uiGroup.getGroupNode();
 
@@ -216,11 +217,11 @@ public class GroupNode
     /**
      * Creates a <tt>GroupNode</tt> for the given <tt>uiGroup</tt>,
      * adds it to this group node and performs a sort at the end.
-     * @param uiGroup the <tt>UIGroup</tt> to add
+     * @param uiGroup the <tt>UIGroupImpl</tt> to add
      * @return the created <tt>GroupNode</tt>
      */
     @SuppressWarnings("unchecked")
-    public GroupNode sortedAddContactGroup(UIGroup uiGroup)
+    public GroupNode sortedAddContactGroup(UIGroupImpl uiGroup)
     {
         GroupNode groupNode = new GroupNode(treeModel, uiGroup);
 
@@ -243,9 +244,9 @@ public class GroupNode
      * Returns the <tt>UIGroup</tt> corresponding to this <tt>GroupNode</tt>.
      * @return the <tt>UIGroup</tt> corresponding to this <tt>GroupNode</tt>
      */
-    public UIGroup getGroupDescriptor()
+    public UIGroupImpl getGroupDescriptor()
     {
-        return (UIGroup) getUserObject();
+        return (UIGroupImpl) getUserObject();
     }
 
     /**

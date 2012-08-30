@@ -16,6 +16,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -61,7 +62,8 @@ public class ChooseUIContactDetailPopupMenu
 
         for (UIContactDetail detail : contactDetails)
         {
-            this.addContactDetailItem(detail, action);
+            if (detail instanceof UIContactDetailImpl)
+                this.addContactDetailItem((UIContactDetailImpl) detail, action);
         }
     }
 
@@ -91,7 +93,7 @@ public class ChooseUIContactDetailPopupMenu
      * would be performed when an item is selected
      */
     private void addContactDetailItem(
-        final UIContactDetail contactDetail,
+        final UIContactDetailImpl contactDetail,
         final UIContactDetailAction contactDetailAction)
     {
         final ContactMenuItem contactItem
@@ -168,9 +170,9 @@ public class ChooseUIContactDetailPopupMenu
          */
         private static final long serialVersionUID = 0L;
 
-        private final UIContactDetail contact;
+        private final UIContactDetailImpl contact;
 
-        public ContactMenuItem(UIContactDetail contact)
+        public ContactMenuItem(UIContactDetailImpl contact)
         {
             this.contact = contact;
 

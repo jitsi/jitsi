@@ -14,7 +14,6 @@ import javax.swing.*;
 import javax.swing.Timer;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -22,6 +21,7 @@ import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -37,7 +37,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class ContactListPane
-    extends SCScrollPane
+    extends SIPCommScrollPane
     implements  MessageListener,
                 TypingNotificationsListener,
                 FileTransferListener,
@@ -212,8 +212,17 @@ public class ContactListPane
      * Implements the ContactListListener.groupSelected method.
      * @param evt the <tt>ContactListEvent</tt> that notified us
      */
-    public void groupClicked(ContactListEvent evt)
-    {}
+    public void groupClicked(ContactListEvent evt) {}
+
+    /**
+     * We're not interested in group selection events here.
+     */
+    public void groupSelected(ContactListEvent evt) {}
+
+    /**
+     * We're not interested in contact selection events here.
+     */
+    public void contactSelected(ContactListEvent evt) {}
 
     /**
      * When a message is received determines whether to open a new chat window

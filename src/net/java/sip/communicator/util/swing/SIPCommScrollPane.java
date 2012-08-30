@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.customcontrols;
+package net.java.sip.communicator.util.swing;
 
 import java.awt.*;
 import java.awt.image.*;
@@ -13,10 +13,8 @@ import java.lang.reflect.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.util.*;
 
@@ -29,7 +27,7 @@ import org.jitsi.util.*;
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
-public class SCScrollPane
+public class SIPCommScrollPane
     extends JScrollPane
     implements Skinnable
 {
@@ -38,7 +36,7 @@ public class SCScrollPane
     /**
      * Creates an <tt>SCSCrollPane</tt>.
      */
-    public SCScrollPane()
+    public SIPCommScrollPane()
     {
         this.setBorder(BorderFactory.createMatteBorder(
             1, 0, 1, 0, Color.GRAY));
@@ -110,7 +108,7 @@ public class SCScrollPane
         {
             return
                 Boolean.parseBoolean(
-                        GuiActivator.getResources().getSettingsString(key));
+                        UtilActivator.getResources().getSettingsString(key));
         }
 
         /**
@@ -166,7 +164,7 @@ public class SCScrollPane
             if(getSettingsBoolean("impl.gui.IS_CONTACT_LIST_IMG_BG_ENABLED"))
             {
                 bgImage =
-                    ImageLoader.getImage(ImageLoader.MAIN_WINDOW_BACKGROUND);
+                    UtilActivator.getImage("service.gui.MAIN_WINDOW_BACKGROUND");
 
                 if (getSettingsBoolean(
                     "impl.gui.IS_CONTACT_LIST_TEXTURE_BG_ENABLED")
@@ -182,7 +180,7 @@ public class SCScrollPane
                 {
                     texture = null;
                     color =
-                        new Color(GuiActivator.getResources().getColor(
+                        new Color(UtilActivator.getResources().getColor(
                             "service.gui.CONTACT_LIST_BACKGROUND"));
                 }
             }

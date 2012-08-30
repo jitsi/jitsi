@@ -9,9 +9,9 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.notifsource.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.gui.*;
 
 /**
  * The <tt>CallHistoryFilter</tt> is a filter over the history contact sources.
@@ -36,11 +36,11 @@ public class CallHistoryFilter
         if (notificationSource != null)
             addMatching(notificationSource);
 
-        Collection<ExternalContactSource> contactSources
-            = TreeContactList.getContactSources();
+        Collection<UIContactSource> contactSources
+            = GuiActivator.getContactList().getContactSources();
 
         // Then add Call history contact source.
-        for (ExternalContactSource contactSource : contactSources)
+        for (UIContactSource contactSource : contactSources)
         {
             ContactSourceService sourceService
                 = contactSource.getContactSourceService();
@@ -54,8 +54,8 @@ public class CallHistoryFilter
             filterQuery.addContactQuery(query);
 
             // Add first available results.
-            this.addMatching(   query.getQueryResults(),
-                                contactSource);
+            addMatching(query.getQueryResults(),
+                        contactSource);
 
             // We know that this query should be finished here and we do not
             // expect any further results from it.
@@ -109,7 +109,7 @@ public class CallHistoryFilter
      * we're adding
      */
     private void addMatching(   List<SourceContact> sourceContacts,
-                                ExternalContactSource uiSource)
+                                UIContactSource uiSource)
     {
         Iterator<SourceContact> contactsIter = sourceContacts.iterator();
 

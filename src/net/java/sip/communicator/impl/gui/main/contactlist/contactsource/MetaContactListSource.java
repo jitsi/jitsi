@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.customcontactactions.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -91,9 +92,9 @@ public class MetaContactListSource
      * @return the <tt>UIContact</tt> corresponding to the given
      * <tt>MetaContact</tt>
      */
-    public static UIContact getUIContact(MetaContact metaContact)
+    public static UIContactImpl getUIContact(MetaContact metaContact)
     {
-        return (UIContact) metaContact.getData(UI_CONTACT_DATA_KEY);
+        return (UIContactImpl) metaContact.getData(UI_CONTACT_DATA_KEY);
     }
 
     /**
@@ -101,12 +102,12 @@ public class MetaContactListSource
      * <tt>MetaContactGroup</tt>.
      * @param metaGroup the <tt>MetaContactGroup</tt>, which UI group we're
      * looking for
-     * @return the <tt>UIGroup</tt> corresponding to the given
+     * @return the <tt>UIGroupImpl</tt> corresponding to the given
      * <tt>MetaContactGroup</tt>
      */
-    public static UIGroup getUIGroup(MetaContactGroup metaGroup)
+    public static UIGroupImpl getUIGroup(MetaContactGroup metaGroup)
     {
-        return (UIGroup) metaGroup.getData(UI_GROUP_DATA_KEY);
+        return (UIGroupImpl) metaGroup.getData(UI_GROUP_DATA_KEY);
     }
 
     /**
@@ -126,7 +127,7 @@ public class MetaContactListSource
      * create an <tt>UIContact</tt>
      * @return an <tt>UIContact</tt> for the given <tt>metaContact</tt>
      */
-    public static UIContact createUIContact(final MetaContact metaContact)
+    public static UIContactImpl createUIContact(final MetaContact metaContact)
     {
         final MetaUIContact descriptor
             = new MetaUIContact(metaContact);
@@ -367,7 +368,7 @@ public class MetaContactListSource
 
         boolean uiContactCreated = false;
 
-        UIContact uiContact;
+        UIContactImpl uiContact;
 
         synchronized (metaContact)
         {
@@ -439,7 +440,7 @@ public class MetaContactListSource
     public void childContactsReordered(MetaContactGroupEvent evt)
     {
         MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
-        UIGroup uiGroup;
+        UIGroupImpl uiGroup;
 
         ContactListTreeModel treeModel
             = GuiActivator.getContactList().getTreeModel();
@@ -577,7 +578,7 @@ public class MetaContactListSource
     {
         final MetaContactGroup metaGroup = evt.getSourceMetaContactGroup();
 
-        UIGroup uiGroup;
+        UIGroupImpl uiGroup;
         synchronized (metaGroup)
         {
             uiGroup = MetaContactListSource.getUIGroup(metaGroup);
@@ -622,7 +623,7 @@ public class MetaContactListSource
     {
         MetaContact metaContact = evt.getSourceMetaContact();
 
-        UIContact uiContact;
+        UIContactImpl uiContact;
         synchronized (metaContact)
         {
             uiContact = MetaContactListSource.getUIContact(metaContact);
@@ -744,7 +745,7 @@ public class MetaContactListSource
     {
         MetaContact metaContact = evt.getSourceMetaContact();
 
-        UIContact uiContact;
+        UIContactImpl uiContact;
         synchronized (metaContact)
         {
             uiContact = MetaContactListSource.getUIContact(metaContact);
@@ -768,7 +769,7 @@ public class MetaContactListSource
     {
         MetaContact metaContact = evt.getSourceMetaContact();
 
-        UIContact uiContact;
+        UIContactImpl uiContact;
         synchronized (metaContact)
         {
             uiContact = MetaContactListSource.getUIContact(metaContact);
@@ -850,7 +851,7 @@ public class MetaContactListSource
     {
         MetaContact metaContact = evt.getNewParent();
 
-        UIContact uiContact;
+        UIContactImpl uiContact;
         synchronized (metaContact)
         {
             uiContact = MetaContactListSource.getUIContact(metaContact);
@@ -948,7 +949,7 @@ public class MetaContactListSource
     {
         final MetaContact oldParent = evt.getOldParent();
 
-        UIContact oldUIContact;
+        UIContactImpl oldUIContact;
         synchronized (oldParent)
         {
             oldUIContact = MetaContactListSource.getUIContact(oldParent);
@@ -1030,14 +1031,9 @@ public class MetaContactListSource
         customActionButtons
                 = new LinkedHashMap<ContactAction<Contact>, SIPCommButton>();
 
-        CustomContactActionsChangeListener changeListener
-            = new CustomContactActionsChangeListener();
-
         for (CustomContactActionsService<Contact> ccas
                 : getContactActionsServices())
         {
-            ccas.addCustomContactActionsListener(changeListener);
-
             Iterator<ContactAction<Contact>> actionIterator
                 = ccas.getCustomContactActions();
 
@@ -1100,45 +1096,6 @@ public class MetaContactListSource
 
                     customActionButtons.put(ca, actionButton);
                 }
-            }
-        }
-    }
-
-    /**
-     * Listens for updates on actions and when received update the contact.
-     */
-    private static class CustomContactActionsChangeListener
-        implements CustomContactActionsListener
-    {
-        /**
-         * Update for custom action has occured.
-         * @param event the event containing the source which was updated.
-         */
-        public void updated(CustomContactActionsEvent event)
-        {
-            if(!(event.getSource() instanceof Contact))
-                return;
-
-            MetaContact metaContact
-                = GuiActivator.getContactListService().findMetaContactByContact(
-                        (Contact)event.getSource());
-
-            if (metaContact == null)
-                return;
-
-            UIContact uiContact;
-            synchronized (metaContact)
-            {
-                uiContact = MetaContactListSource.getUIContact(metaContact);
-            }
-
-            if (uiContact != null)
-            {
-                ContactNode contactNode
-                    = uiContact.getContactNode();
-
-                if (contactNode != null)
-                    GuiActivator.getContactList().nodeChanged(contactNode);
             }
         }
     }

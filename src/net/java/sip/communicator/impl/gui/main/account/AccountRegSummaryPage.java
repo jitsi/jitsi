@@ -24,7 +24,7 @@ import net.java.sip.communicator.util.swing.*;
  * @author Yana Stamcheva
  */
 public class AccountRegSummaryPage
-    extends SCScrollPane
+    extends SIPCommScrollPane
     implements WizardPage
 {
     private final Logger logger = Logger.getLogger(AccountRegSummaryPage.class);
