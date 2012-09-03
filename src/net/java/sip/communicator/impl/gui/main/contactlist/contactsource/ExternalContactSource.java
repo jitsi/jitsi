@@ -214,54 +214,64 @@ public class ExternalContactSource
             {
                 final ContactAction<SourceContact> ca = actionIterator.next();
 
-                SIPCommButton actionButton = customActionButtons.get(ca);
-
-                if (actionButton == null)
-                {
-                    actionButton = new SIPCommButton(
-                        new ImageIcon(ca.getIcon()).getImage(),
-                        new ImageIcon(ca.getPressedIcon()).getImage(),
-                        null);
-
-                    actionButton.addActionListener(new ActionListener()
-                    {
-                        public void actionPerformed(ActionEvent event)
-                        {
-                            try
-                            {
-                                JButton button = (JButton)event.getSource();
-                                Point location = new Point(button.getX(),
-                                    button.getY() + button.getHeight());
-
-                                SwingUtilities.convertPointToScreen(
-                                    location, contactListTree);
-
-                                TreePath selectionPath
-                                    = contactListTree.getSelectionPath();
-
-                                if (selectionPath != null)
-                                    location.y = location.y
-                                        + contactListTree.getPathBounds(
-                                            selectionPath).y;
-
-                                ca.actionPerformed(
-                                    customActionContact,
-                                    location.x,
-                                    location.y);
-                            }
-                            catch (OperationFailedException e)
-                            {
-                                new ErrorDialog(null,
-                                    GuiActivator.getResources()
-                                        .getI18NString("service.gui.ERROR"),
-                                    e.getMessage());
-                            }
-                        }
-                    });
-
-                    customActionButtons.put(ca, actionButton);
-                }
+                initActionButton(ca);
             }
+        }
+    }
+
+    /**
+     * Initializes an action button.
+     *
+     * @param ca the <tt>ContactAction</tt> corresponding to the button.
+     */
+    private void initActionButton(final ContactAction<SourceContact> ca)
+    {
+        SIPCommButton actionButton = customActionButtons.get(ca);
+
+        if (actionButton == null)
+        {
+            actionButton = new SIPCommButton(
+                new ImageIcon(ca.getIcon()).getImage(),
+                new ImageIcon(ca.getPressedIcon()).getImage(),
+                null);
+
+            actionButton.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent event)
+                {
+                    try
+                    {
+                        JButton button = (JButton)event.getSource();
+                        Point location = new Point(button.getX(),
+                            button.getY() + button.getHeight());
+
+                        SwingUtilities.convertPointToScreen(
+                            location, contactListTree);
+
+                        TreePath selectionPath
+                            = contactListTree.getSelectionPath();
+
+                        if (selectionPath != null)
+                            location.y = location.y
+                                + contactListTree.getPathBounds(
+                                    selectionPath).y;
+
+                        ca.actionPerformed(
+                            customActionContact,
+                            location.x,
+                            location.y);
+                    }
+                    catch (OperationFailedException e)
+                    {
+                        new ErrorDialog(null,
+                            GuiActivator.getResources()
+                                .getI18NString("service.gui.ERROR"),
+                            e.getMessage());
+                    }
+                }
+            });
+
+            customActionButtons.put(ca, actionButton);
         }
     }
 
@@ -271,7 +281,7 @@ public class ExternalContactSource
      * @return a list of all custom contact action services.
      */
     @SuppressWarnings ("unchecked")
-    private static List<CustomContactActionsService<SourceContact>>
+    private List<CustomContactActionsService<SourceContact>>
         getContactActionsServices()
     {
         List<CustomContactActionsService<SourceContact>>
@@ -307,6 +317,10 @@ public class ExternalContactSource
                 }
             }
         }
+
+        GuiActivator.bundleContext.addServiceListener(
+            new ContactActionsServiceListener());
+
         return contactActionsServices;
     }
 
@@ -448,6 +462,54 @@ public class ExternalContactSource
         public JPopupMenu getRightButtonMenu()
         {
             return null;
+        }
+    }
+
+    /**
+     * The <tt>ContactActionsServiceListener</tt> listens for service changes
+     * in order to update the list of custom action buttons when a new
+     * <tt>CustomContactActionsService</tt> is registered or unregistered.
+     */
+    private class ContactActionsServiceListener
+        implements ServiceListener
+    {
+        public void serviceChanged(ServiceEvent event)
+        {
+            ServiceReference serviceRef = event.getServiceReference();
+
+            // if the event is caused by a bundle being stopped, we don't want to
+            // know
+            if (serviceRef.getBundle().getState() == Bundle.STOPPING)
+            {
+                return;
+            }
+
+            Object service = GuiActivator.bundleContext.getService(serviceRef);
+
+            // we don't care if the source service is not a protocol provider
+            if (!(service instanceof CustomContactActionsService))
+            {
+                return;
+            }
+
+            @SuppressWarnings("unchecked")
+            Iterator<ContactAction<SourceContact>> actionIterator
+                = ((CustomContactActionsService<SourceContact>) service)
+                    .getCustomContactActions();
+            while (actionIterator!= null && actionIterator.hasNext())
+            {
+                final ContactAction<SourceContact> ca = actionIterator.next();
+
+                switch (event.getType())
+                {
+                    case ServiceEvent.REGISTERED:
+                        initActionButton(ca);
+                        break;
+                    case ServiceEvent.UNREGISTERING:
+                        customActionButtons.remove(ca);
+                        break;
+                }
+            }
         }
     }
 }
