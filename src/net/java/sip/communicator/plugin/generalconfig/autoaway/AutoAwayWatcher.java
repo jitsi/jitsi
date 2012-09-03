@@ -47,25 +47,15 @@ public class AutoAwayWatcher
 
     /**
      * Creates AutoAway handler.
-     * @param configurationService the config service.
      */
-    public AutoAwayWatcher(ConfigurationService configurationService)
+    public AutoAwayWatcher()
     {
-        // if enabled start
-        String enabledDefault
-            = GeneralConfigPluginActivator.getResources().getSettingsString(
-                    Preferences.ENABLE);
-
-        if (configurationService.getBoolean(
-                Preferences.ENABLE,
-                Boolean.parseBoolean(enabledDefault)))
+        if (Preferences.isEnabled())
         {
             start();
         }
 
-        // listens for changes in configuration enable/disable
-        configurationService.addPropertyChangeListener(
-                Preferences.ENABLE,
+        Preferences.addEnableChangeListener(
                 new PropertyChangeListener()
                 {
                     public void propertyChange(PropertyChangeEvent evt)
@@ -79,8 +69,7 @@ public class AutoAwayWatcher
         );
 
         // listens for changes in configured value.
-        configurationService.addPropertyChangeListener(
-            Preferences.TIMER,
+        Preferences.addTimerChangeListener(
             new PropertyChangeListener()
             {
                 public void propertyChange(PropertyChangeEvent evt)
@@ -107,7 +96,7 @@ public class AutoAwayWatcher
                     =  getSystemActivityNotificationsService();
 
             systemActivityNotificationsService.addIdleSystemChangeListener(
-                    StatusUpdateThread.getTimer() * 60 * 1000,
+                    Preferences.getTimer() * 60 * 1000,
                     idleListener);
             systemActivityNotificationsService
                 .addSystemActivityChangeListener(idleListener);
@@ -423,7 +412,7 @@ public class AutoAwayWatcher
                     // or check are we away
                     if(getSystemActivityNotificationsService()
                         .getTimeSinceLastInput()
-                            > StatusUpdateThread.getTimer()*60*1000)
+                            > Preferences.getTimer()*60*1000)
                     {
                         // we are away, so update the newly registered provider
                         // do it in new thread to give the provider

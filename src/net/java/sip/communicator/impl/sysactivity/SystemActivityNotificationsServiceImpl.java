@@ -186,7 +186,8 @@ public class SystemActivityNotificationsServiceImpl
     {
         synchronized (idleChangeListeners)
         {
-            if (!idleChangeListeners.containsKey(listener))
+            if (idleTime > 0
+                && !idleChangeListeners.containsKey(listener))
                 idleChangeListeners.put(listener, idleTime);
         }
     }

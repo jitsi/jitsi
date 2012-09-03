@@ -77,7 +77,7 @@ public class StatusUpdateThread
                                 lastStates.remove(protocolProviderService);
                             }
                         }
-                        timer = getTimer() * 1000 * 60;
+                        timer = Preferences.getTimer() * 1000 * 60;
                     } else
                     {
                         // position has not changed!
@@ -166,37 +166,6 @@ public class StatusUpdateThread
             }
         }
         return status;
-    }
-
-    static int getTimer()
-    {
-        ConfigurationService configService
-            = GeneralConfigPluginActivator.getConfigurationService();
-        ResourceManagementService resources
-            = GeneralConfigPluginActivator.getResources();
-
-        String enabledDefault = resources.getSettingsString(Preferences.ENABLE);
-
-        String timerDefaultStr = resources.getSettingsString(Preferences.TIMER);
-        int timerDefault = 0;
-
-        if (timerDefaultStr != null)
-        {
-            try
-            {
-                timerDefault = Integer.parseInt(timerDefaultStr);
-            }
-            catch (NumberFormatException r)
-            {
-            }
-        }
-
-        return
-            configService.getBoolean(
-                    Preferences.ENABLE,
-                    Boolean.parseBoolean(enabledDefault))
-                ? configService.getInt(Preferences.TIMER, timerDefault)
-                : 0;
     }
 
     public boolean isRunning()

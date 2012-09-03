@@ -275,7 +275,7 @@ public class GeneralConfigPluginActivator
     private static void startThread()
     {
         if (runner == null)
-            runner = new AutoAwayWatcher(getConfigurationService());
+            runner = new AutoAwayWatcher();
     }
 
     /**
