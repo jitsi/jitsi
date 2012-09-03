@@ -443,11 +443,32 @@ public class JabberAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                 Boolean.toString(registration.isDefaultEncryption()));
 
+        List<String> enabledEncryptionProtocols
+            = registration.getEncryptionProtocols(true);
+        String enabledEncryptionProtocolsString = "";
+        for(int i = 0; i < enabledEncryptionProtocols.size(); ++i)
+        {
+            enabledEncryptionProtocolsString
+                += enabledEncryptionProtocols.get(i) + " ";
+        }
+        accountProperties.put(
+                ProtocolProviderFactory.ENABLED_ENCRYPTION_PROTOCOLS,
+                enabledEncryptionProtocolsString);
+
+        List<String> disabledEncryptionProtocols
+            = registration.getEncryptionProtocols(false);
+        String disabledEncryptionProtocolsString = "";
+        for(int i = 0; i < disabledEncryptionProtocols.size(); ++i)
+        {
+            disabledEncryptionProtocolsString
+                += disabledEncryptionProtocols.get(i) + " ";
+        }
+        accountProperties.put(
+                ProtocolProviderFactory.DISABLED_ENCRYPTION_PROTOCOLS,
+                disabledEncryptionProtocolsString);
+
         accountProperties.put(ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
                 Boolean.toString(registration.isSipZrtpAttribute()));
-
-        accountProperties.put(ProtocolProviderFactory.SDES_ENABLED,
-            Boolean.toString(registration.isSDesEnabled()));
 
         accountProperties.put(ProtocolProviderFactory.SDES_CIPHER_SUITES,
             registration.getSDesCipherSuites());

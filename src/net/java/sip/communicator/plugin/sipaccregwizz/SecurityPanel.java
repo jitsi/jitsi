@@ -1,3 +1,8 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.awt.*;
@@ -8,7 +13,9 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
+import javax.swing.event.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 
@@ -20,10 +27,12 @@ import ch.imvs.sdes4j.srtp.*;
  * Contains the security settings for SIP media encryption.
  *
  * @author Ingo Bauersachs
+ * @author Vincent Lucas
  */
 public class SecurityPanel
     extends TransparentPanel
-    implements ActionListener
+    implements ActionListener,
+        TableModelListener
 {
     /**
      * Serial version UID.
@@ -35,11 +44,26 @@ public class SecurityPanel
     private JPanel pnlAdvancedSettings;
     private JCheckBox enableDefaultEncryption;
     private JCheckBox enableSipZrtpAttribute;
-    private JCheckBox enableSDesAttribute;
     private JComboBox cboSavpOption;
     private JTable tabCiphers;
     private CipherTableModel cipherModel;
     private JLabel cmdExpandAdvancedSettings;
+
+    /**
+     * The TableModel used to configure the encryption protocols preferences.
+     */
+    private EncryptionConfigurationTableModel encryptionConfigurationTableModel;
+
+    /**
+     * JTable with 2 buttons (up and down) which able to enable encryption
+     * protocols and to choose their priority order.
+     */
+    private PriorityTable encryptionProtocolPreferences;
+
+    /**
+     * The encryption protocols managed by this SecurityPanel. 
+     */
+    private static final String[] encryptionProtocols = {"ZRTP", "SDES"};
 
     /**
      * Boolean used to display or not the SAVP options (only useful for SIP, not
@@ -275,68 +299,72 @@ public class SecurityPanel
         c = new GridBagConstraints();
         c.gridx = 0;
         c.gridy = 0;
-        c.anchor = GridBagConstraints.LINE_START;
         c.gridwidth = 2;
+        c.gridheight = 1;
+        c.anchor = GridBagConstraints.LINE_START;
         c.fill = GridBagConstraints.HORIZONTAL;
+        pnlAdvancedSettings.add(new JSeparator(), c);
+
+        // Encryption protcol preferences.
+        JLabel lblEncryptionProtocolPreferences = new JLabel();
+        lblEncryptionProtocolPreferences.setText(Resources
+            .getString("plugin.sipaccregwizz.ENCRYPTION_PROTOCOL_PREFERENCES"));
+        c.gridy++;
+        pnlAdvancedSettings.add(lblEncryptionProtocolPreferences, c);
+
+        int nbEncryptionProtocols = this.encryptionProtocols.length;
+        String[] encryptions = new String[nbEncryptionProtocols];
+        boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
+
+        this.encryptionConfigurationTableModel
+            = new EncryptionConfigurationTableModel(
+                    selectedEncryptions,
+                    encryptions);
+        this.encryptionProtocolPreferences = new PriorityTable(
+                    this.encryptionConfigurationTableModel,
+                    60);
+        this.encryptionConfigurationTableModel.addTableModelListener(this);
+        c.gridy++;
+        pnlAdvancedSettings.add(this.encryptionProtocolPreferences, c);
 
         //ZRTP
+        JLabel lblZrtpOption = new JLabel();
+        lblZrtpOption.setBorder(new EmptyBorder(5, 5, 5, 0));
+        lblZrtpOption.setText(
+                Resources.getString("plugin.sipaccregwizz.ZRTP_OPTION"));
+        c.gridx = 0;
+        c.gridy++;
+        c.gridwidth = 1;
+        pnlAdvancedSettings.add(lblZrtpOption, c);
+        c.gridx = 1;
+        pnlAdvancedSettings.add(new JSeparator(), c);
+
         enableSipZrtpAttribute = new SIPCommCheckBox(Resources
             .getString("plugin.sipaccregwizz.ENABLE_SIPZRTP_ATTRIBUTE"),
             regform.isSipZrtpAttribute());
+        c.gridx = 0;
         c.gridy++;
+        c.gridwidth = 2;
         pnlAdvancedSettings.add(enableSipZrtpAttribute, c);
 
-        //SAVP selection
-        JLabel lblSavpOption = new JLabel();
-        lblSavpOption.setBorder(new EmptyBorder(5, 5, 5, 0));
-        lblSavpOption.setText(
-            Resources.getString("plugin.sipaccregwizz.SAVP_OPTION"));
-        c.gridy++;
-        if(this.displaySavpOtions)
-        {
-            pnlAdvancedSettings.add(lblSavpOption, c);
-        }
-        c.gridx = 2;
-        c.weightx = 1;
-        if(this.displaySavpOtions)
-        {
-            pnlAdvancedSettings.add(new JSeparator(), c);
-        }
-        cboSavpOption = new JComboBox(new SavpOption[]{
-            new SavpOption(0),
-            new SavpOption(1),
-            new SavpOption(2)
-        });
-        c.gridx = 1;
-        c.gridy++;
-        c.insets = new Insets(0, 20, 0, 0);
-        c.weightx = 0;
-        if(this.displaySavpOtions)
-        {
-            pnlAdvancedSettings.add(cboSavpOption, c);
-        }
-
         //SDES
-        enableSDesAttribute = new SIPCommCheckBox(Resources
-            .getString("plugin.sipaccregwizz.ENABLE_SDES_ATTRIBUTE"),
-            regform.isSDesEnabled());
-        enableSDesAttribute.addActionListener(this);
+        JLabel lblSDesOption = new JLabel();
+        lblSDesOption.setBorder(new EmptyBorder(5, 5, 5, 0));
+        lblSDesOption.setText(
+                Resources.getString("plugin.sipaccregwizz.SDES_OPTION"));
+        c.gridx = 0;
         c.gridy++;
         c.gridwidth = 1;
-        c.insets = new Insets(15, 0, 0, 0);
-        pnlAdvancedSettings.add(enableSDesAttribute, c);
-        c.gridx = 2;
-        c.weightx = 1;
+        pnlAdvancedSettings.add(lblSDesOption, c);
+        c.gridx = 1;
         pnlAdvancedSettings.add(new JSeparator(), c);
 
-
-        c.gridy++;
-        c.gridx = 1;
-        c.gridwidth = 2;
-        c.insets = new Insets(0, 20, 0, 0);
         JLabel lblCipherInfo = new JLabel();
         lblCipherInfo.setText(Resources
             .getString("plugin.sipaccregwizz.CIPHER_SUITES"));
+        c.gridx = 0;
+        c.gridy++;
+        c.gridwidth = 2;
         pnlAdvancedSettings.add(lblCipherInfo, c);
 
         cipherModel = new CipherTableModel(regform.getSDesCipherSuites());
@@ -346,11 +374,42 @@ public class SecurityPanel
         TableColumnModel tableColumnModel = tabCiphers.getColumnModel();
         TableColumn tableColumn = tableColumnModel.getColumn(0);
         tableColumn.setMaxWidth(tableColumn.getMinWidth());
-        c.gridy++;
-        c.insets = new Insets(0, 20, 0, 0);
         JScrollPane scrollPane = new JScrollPane(tabCiphers);
         scrollPane.setPreferredSize(new Dimension(tabCiphers.getWidth(), 100));
+        c.gridy++;
         pnlAdvancedSettings.add(scrollPane, c);
+
+        //SAVP selection
+        c.gridx = 0;
+        c.gridwidth = 1;
+        JLabel lblSavpOption = new JLabel();
+        lblSavpOption.setBorder(new EmptyBorder(5, 5, 5, 0));
+        lblSavpOption.setText(
+            Resources.getString("plugin.sipaccregwizz.SAVP_OPTION"));
+        if(this.displaySavpOtions)
+        {
+            c.gridy++;
+            pnlAdvancedSettings.add(lblSavpOption, c);
+        }
+        c.gridx = 1;
+        if(this.displaySavpOtions)
+        {
+            pnlAdvancedSettings.add(new JSeparator(), c);
+        }
+
+        cboSavpOption = new JComboBox(new SavpOption[]{
+            new SavpOption(0),
+            new SavpOption(1),
+            new SavpOption(2)
+        });
+        c.gridx = 0;
+        c.gridwidth = 2;
+        c.insets = new Insets(0, 20, 0, 0);
+        if(this.displaySavpOtions)
+        {
+            c.gridy++;
+            pnlAdvancedSettings.add(cboSavpOption, c);
+        }
     }
 
     /**
@@ -362,11 +421,14 @@ public class SecurityPanel
     public boolean commitPanel(SecurityAccountRegistration registration)
     {
         registration.setDefaultEncryption(enableDefaultEncryption.isSelected());
+        registration.setEncryptionProtocols(
+                encryptionConfigurationTableModel.getLabels(true),
+                encryptionConfigurationTableModel.getLabels(false));
         registration.setSipZrtpAttribute(enableSipZrtpAttribute.isSelected());
         registration.setSavpOption(((SavpOption) cboSavpOption
             .getSelectedItem()).option);
-        registration.setSDesEnabled(enableSDesAttribute.isSelected());
         registration.setSDesCipherSuites(cipherModel.getEnabledCiphers());
+
         return true;
     }
 
@@ -380,6 +442,9 @@ public class SecurityPanel
                 accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true));
+        this.loadEncryptionProtocols(
+                accountID.getEncryptionProtocols(true),
+                accountID.getEncryptionProtocols(false));
         enableSipZrtpAttribute.setSelected(
                 accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
@@ -388,10 +453,6 @@ public class SecurityPanel
                 accountID.getAccountPropertyInt(
                         ProtocolProviderFactory.SAVP_OPTION,
                         ProtocolProviderFactory.SAVP_OFF));
-        enableSDesAttribute.setSelected(
-                accountID.getAccountPropertyBoolean(
-                        ProtocolProviderFactory.SDES_ENABLED,
-                        false));
         cipherModel.loadData(
                 accountID.getAccountPropertyString(
                         ProtocolProviderFactory.SDES_CIPHER_SUITES));
@@ -400,8 +461,7 @@ public class SecurityPanel
 
     public void actionPerformed(ActionEvent e)
     {
-        if((e.getSource() == enableDefaultEncryption)
-                || (e.getSource() == enableSDesAttribute))
+        if(e.getSource() == enableDefaultEncryption)
         {
             loadStates();
         }
@@ -411,12 +471,81 @@ public class SecurityPanel
         }
     }
 
+    public void tableChanged(TableModelEvent e)
+    {
+        if(e.getSource() == this.encryptionConfigurationTableModel)
+        {
+            loadStates();
+        }
+    }
+
     private void loadStates()
     {
         boolean b = enableDefaultEncryption.isSelected();
-        enableSipZrtpAttribute.setEnabled(b);
         cboSavpOption.setEnabled(b);
-        enableSDesAttribute.setEnabled(b);
-        tabCiphers.setEnabled(b && enableSDesAttribute.isSelected());
+        this.encryptionProtocolPreferences.setEnabled(b);
+        enableSipZrtpAttribute.setEnabled(
+                b
+                && this.encryptionConfigurationTableModel.isEnabledLabel("ZRTP"));
+        tabCiphers.setEnabled(
+                b
+                && this.encryptionConfigurationTableModel.isEnabledLabel("SDES"));
+    }
+
+    /**
+     * Loads the list of enabled and disabled encryption protocols with their
+     * priority.
+     *
+     * @param enabledEncryptionProtocols The list of enabled encryption protocol
+     * available for this account.
+     * @param disabledEncryptionProtocols The list of disabled encryption protocol
+     * available for this account.
+     */
+    private void loadEncryptionProtocols(
+            List<String> enabledEncryptionProtocols,
+            List<String> disabledEncryptionProtocols)
+    {
+        int nbEncryptionProtocols = this.encryptionProtocols.length;
+        String[] encryptions = new String[nbEncryptionProtocols];
+        boolean[] selectedEncryptions = new boolean[nbEncryptionProtocols];
+
+        List<String> availableEncryptionProtocols =
+            Arrays.asList(this.encryptionProtocols);
+        int index = 0;
+        for(int i = 0; i < enabledEncryptionProtocols.size(); ++i)
+        {
+            if(availableEncryptionProtocols.contains(
+                        enabledEncryptionProtocols.get(i)))
+            {
+                encryptions[index] = enabledEncryptionProtocols.get(i);
+                selectedEncryptions[index] = true;
+                ++index;
+            }
+        }
+        for(int i = 0; i < disabledEncryptionProtocols.size(); ++i)
+        {
+            if(availableEncryptionProtocols.contains(
+                        disabledEncryptionProtocols.get(i)))
+            {
+                encryptions[index] = disabledEncryptionProtocols.get(i);
+                selectedEncryptions[index] = false;
+                ++index;
+            }
+        }
+        List<String> alreadyLoadedEncryptionProtocols =
+            Arrays.asList(encryptions);
+        for(int i = 0; i < this.encryptionProtocols.length; ++i)
+        {
+            if(!alreadyLoadedEncryptionProtocols.contains(encryptionProtocols[i]))
+            {
+                encryptions[index] = encryptionProtocols[i];
+                selectedEncryptions[index] = false;
+                ++index;
+            }
+        }
+
+        this.encryptionConfigurationTableModel.init(
+                selectedEncryptions,
+                encryptions);
     }
 }

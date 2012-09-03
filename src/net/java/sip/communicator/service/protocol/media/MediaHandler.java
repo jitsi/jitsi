@@ -408,7 +408,9 @@ public class MediaHandler
             break;
         }
 
-        if (call.isDefaultEncrypted())
+        if (call.isDefaultEncrypted()
+                && call.getProtocolProvider().getAccountID()
+                    .isEncryptionProtocolEnabled("ZRTP"))
         {
             /*
              * We'll use the audio stream as the master stream when using SRTP

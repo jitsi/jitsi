@@ -5,6 +5,8 @@
  */
 package net.java.sip.communicator.plugin.sipaccregwizz;
 
+import java.util.*;
+
 /**
  * The <tt>SIPAccountRegistration</tt> is used to store all user input data
  * through the <tt>SIPAccountRegistrationWizard</tt>.
@@ -75,6 +77,16 @@ public class SIPAccountRegistration
     private boolean defaultEncryption = true;
 
     /**
+     * The list of enabled encryption protocols in the priority order.
+     */
+    private List<String> enabledEncryptionProtocols;
+
+    /**
+     * The list of disabled encryption protocols in the priority order.
+     */
+    private List<String> disabledEncryptionProtocols;
+
+    /**
      * Enqbles ZRTP encryption.
      */
     private boolean sipZrtpAttribute = true;
@@ -129,6 +141,17 @@ public class SIPAccountRegistration
      * Whether message waiting indications is enabled.
      */
     private boolean messageWaitingIndications = true;
+
+    /**
+     * Initializes a new SIPAccountRegistration.
+     */
+    public SIPAccountRegistration()
+    {
+        // Sets the default values.
+        this.enabledEncryptionProtocols = new ArrayList<String>(1);
+        this.enabledEncryptionProtocols.add("ZRTP");
+        this.disabledEncryptionProtocols = new ArrayList<String>(0);
+    }
 
     public String getPreferredTransport()
     {
@@ -948,5 +971,44 @@ public class SIPAccountRegistration
     public void setMessageWaitingIndications(boolean messageWaitingIndications)
     {
         this.messageWaitingIndications = messageWaitingIndications;
+    }
+
+    /**
+     * Returns the list of the enabled or disabled encryption protocols in the
+     * priority order.
+     *
+     * @param enabled If true this function will return the enabled encryption
+     * protocol list. Otherwise, it will return the disabled list.
+     *
+     * @return the list of the enabled or disabled encryption protocols in the
+     * priority order.
+     */
+    public List<String> getEncryptionProtocols(boolean enabled)
+    {
+        if(enabled)
+        {
+            return enabledEncryptionProtocols;
+        }
+        else
+        {
+            return disabledEncryptionProtocols;
+        }
+    }
+
+    /**
+     * Sets the list of the enabled and disabled encryption protocols in the
+     * priority order.
+     *
+     * @param enabledEncrpytionProtools The list of the enabled encryption
+     * protocols in the priority order.
+     * @param disabledEncrpytionProtools The list of the disabled encryption
+     * protocols in the priority order.
+     */
+    public void setEncryptionProtocols(
+            List<String> enabledEncryptionProtocols,
+            List<String> disabledEncryptionProtocols)
+    {
+        this.enabledEncryptionProtocols = enabledEncryptionProtocols;
+        this.disabledEncryptionProtocols = disabledEncryptionProtocols;
     }
 }

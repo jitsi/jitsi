@@ -10,6 +10,8 @@ import java.util.*;
 
 import javax.swing.table.*;
 
+import net.java.sip.communicator.util.swing.*;
+
 import org.jitsi.impl.neomedia.*;
 import org.jitsi.impl.neomedia.codec.*;
 import org.jitsi.impl.neomedia.format.*;
@@ -22,7 +24,7 @@ import org.jitsi.service.neomedia.format.*;
  * @author Lyubomir Marinov
  */
 public class EncodingConfigurationTableModel
-    extends AbstractTableModel
+    extends MoveableTableModel
 {
     /**
      * Serial version UID.

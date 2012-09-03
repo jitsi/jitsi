@@ -350,24 +350,11 @@ public class CallPeerMediaHandlerJabberImpl
             RtpDescriptionPacketExtension localDescription =
                 JingleUtils.getRtpDescription(ourContent);
 
-            // ZRTP
-            boolean isZRTPAddedToDescription = setZrtpEncryptionToDescription(
+            // Sets ZRTP or SDES, depending on the preferences for this account.
+            setAndAddPreferredEncryptionProtocol(
                     mediaType,
                     localDescription,
                     description);
-            if(isZRTPAddedToDescription)
-            {
-                addZRTPAdvertisedEncryptions(false, description, mediaType);
-            }
-            else
-            {
-                // SDES
-                addSDESAdvertisedEncryptions(false, description, mediaType);
-                setSDesEncryptionToDescription(
-                        mediaType,
-                        localDescription,
-                        description);
-            }
 
             // Got a content which has inputevt. It means that the peer requests
             // a desktop sharing session so tell it we support inputevt.

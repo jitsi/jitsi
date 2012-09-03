@@ -303,30 +303,11 @@ public class CallPeerMediaHandlerGTalkImpl
                 }
             }
 
-            // ZRTP
-            boolean isZRTPAddedToDescription = setZrtpEncryptionToDescription(
+            // Sets ZRTP or SDES, depending on the preferences for this account.
+            setAndAddPreferredEncryptionProtocol(
                     mediaType,
                     description,
                     remoteDescription);
-            if(isZRTPAddedToDescription)
-            {
-                addZRTPAdvertisedEncryptions(
-                        false,
-                        remoteDescription,
-                        mediaType);
-            }
-            else
-            {
-                // SDES
-                addSDESAdvertisedEncryptions(
-                        false,
-                        remoteDescription,
-                        mediaType);
-                setSDesEncryptionToDescription(
-                        mediaType,
-                        description,
-                        remoteDescription);
-            }
 
             initStream(mediaName, connector, dev, format, target,
                     direction, rtpExtensions, masterStream);

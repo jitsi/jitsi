@@ -203,6 +203,20 @@ public abstract class ProtocolProviderFactory
     public static final String DEFAULT_ENCRYPTION = "DEFAULT_ENCRYPTION";
 
     /**
+     * The name of the property that indicates the enabled encryption protocols
+     * for this account.
+     */
+    public static final String ENABLED_ENCRYPTION_PROTOCOLS
+        = "ENABLED_ENCRYPTION_PROTOCOL";
+
+    /**
+     * The name of the property that indicates the disabled encryption protocols
+     * for this account.
+     */
+    public static final String DISABLED_ENCRYPTION_PROTOCOLS
+        = "DISABLED_ENCRYPTION_PROTOCOL";
+
+    /**
      * The name of the property which defines if to include the ZRTP attribute
      * to SIP/SDP
      */
@@ -487,12 +501,6 @@ public abstract class ProtocolProviderFactory
      * Enabled suites are listed as CSV by their RFC name.
      */
     public static final String SDES_CIPHER_SUITES = "SDES_CIPHER_SUITES";
-
-    /**
-     * The name of the property that indicates if SDES is enabled for this
-     * account.
-     */
-    public static final String SDES_ENABLED = "SDES_ENABLED";
 
     /**
      * Creates a new <tt>ProtocolProviderFactory</tt>.

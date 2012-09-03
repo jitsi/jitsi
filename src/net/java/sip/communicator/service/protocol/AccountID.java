@@ -435,4 +435,99 @@ public abstract class AccountID
     {
         this.accountProperties = accountProperties;
     }
+
+    /**
+     * Returns if the encryption protocol given in parameter is enabled.
+     *
+     * @param encryptionProtocolName The name of the encryption protocol
+     * ("ZRTP", "SDES" or "MIKEY").
+     */
+    public boolean isEncryptionProtocolEnabled(String encryptionProtocolName)
+    {
+        List<String> encryptionProtocolList = this.getEncryptionProtocols(true);
+        for(int i = 0; i < encryptionProtocolList.size(); ++i)
+        {
+            if(encryptionProtocolName.equals(encryptionProtocolList.get(i)))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the enabled or disabled (depending on the enabled parameter)
+     * encryption protocol list.
+     *
+     * @param enabled Set this parameter to true in order to get the enabled
+     * protocol list. Otherwise, when this parameter is set to false, returns
+     * the disabled list.
+
+     * @return The enabled or disabled encryption protocol list.
+     */
+    public List<String> getEncryptionProtocols(boolean enabled)
+    {
+        String encryptionProtocols;
+        if(enabled)
+        {
+            encryptionProtocols = getAccountPropertyString(
+                    ProtocolProviderFactory.ENABLED_ENCRYPTION_PROTOCOLS);
+            // If this property is not set yet, activate ZRTP only by default
+            if(encryptionProtocols == null)
+            {
+                ArrayList<String> result = new ArrayList<String>(1);
+                result.add("ZRTP");
+                return result;
+            }
+        }
+        else
+        {
+            encryptionProtocols = getAccountPropertyString(
+                    ProtocolProviderFactory.DISABLED_ENCRYPTION_PROTOCOLS);
+            if(encryptionProtocols == null)
+            {
+                return new ArrayList<String>(0);
+            }
+        }
+    
+
+        String[] tmp = encryptionProtocols.split(" ");
+        ArrayList<String> encryptionProtocolList
+            = new ArrayList<String>(tmp.length);
+
+        for(int i = 0; i < tmp.length; ++i)
+        {
+            encryptionProtocolList.add(tmp[i]);
+        }
+
+        return encryptionProtocolList;
+    }
+
+    /**
+     * Sorts the enabled encryption protocol list given in parameter to match
+     * the preferences set for this account.
+     *
+     * @param encryptionProtocolList The list of the encryption protocol to
+     * check.
+     *
+     * @return Sorts the enabled encryption protocol list given in parameter to
+     * match the preferences set for this account.
+     */
+    public List<String> getSortedEnabledEncryptionProtocolList(
+            List<String> encryptionProtocolList)
+    {
+        List<String> enabledEncryptionProtocolList
+            = this.getEncryptionProtocols(true);
+        ArrayList<String> result
+            = new ArrayList<String>(enabledEncryptionProtocolList.size()); 
+        for(int i = 0; i < enabledEncryptionProtocolList.size(); ++i)
+        {
+            if(encryptionProtocolList.contains(
+                        enabledEncryptionProtocolList.get(i)))
+            {
+                result.add(enabledEncryptionProtocolList.get(i));
+            }
+        }
+        return result;
+    }
 }

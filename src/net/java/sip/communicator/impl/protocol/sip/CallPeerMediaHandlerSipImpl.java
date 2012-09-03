@@ -588,10 +588,11 @@ public class CallPeerMediaHandlerSipImpl
                         mutuallySupportedFormats, connector,
                         direction, rtpExtensions);
 
-            if(!updateMediaDescriptionForZrtp(mediaType, md))
-            {
-                updateMediaDescriptionForSDes(mediaType, md, mediaDescription);
-            }
+            // Sets ZRTP or SDES, depending on the preferences for this account.
+            this.setAndAddPreferredEncryptionProtocol(
+                    mediaType,
+                    md,
+                    mediaDescription);
 
             // create the corresponding stream...
             MediaFormat fmt = findMediaFormat(remoteFormats,
@@ -655,6 +656,8 @@ public class CallPeerMediaHandlerSipImpl
         if(peer.getProtocolProvider().getAccountID().getAccountPropertyBoolean(
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
+                && peer.getProtocolProvider().getAccountID()
+                    .isEncryptionProtocolEnabled("ZRTP")
                 && peer.getCall().isSipZrtpAttribute())
         {
             try
@@ -706,9 +709,7 @@ public class CallPeerMediaHandlerSipImpl
         AccountID accountID = getPeer().getProtocolProvider().getAccountID();
 
         // check if SDES and encryption is enabled at all
-        if (!accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.SDES_ENABLED,
-                    false)
+        if(!accountID.isEncryptionProtocolEnabled("SDES")
                 || !accountID.getAccountPropertyBoolean(
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true))
@@ -1251,6 +1252,53 @@ public class CallPeerMediaHandlerSipImpl
         else
         {
             return sDesControl.responderSelectAttribute(peerAttributes);
+        }
+    }
+
+    /**
+     * Selects the preferred encryption protocol (only used by the callee).
+     *
+     * @param mediaType The type of media (AUDIO or VIDEO).
+     * @param localMd the description of the local peer.
+     * @param remoteMd the description of the remote peer.
+     */
+    protected void setAndAddPreferredEncryptionProtocol(
+            MediaType mediaType,
+            MediaDescription localMd,
+            MediaDescription remoteMd)
+    {
+        // Sets ZRTP or SDES, depending on the preferences for this account.
+        ArrayList<String> encryptionProtocolList = new ArrayList<String>(2);
+        encryptionProtocolList.add("ZRTP");
+        encryptionProtocolList.add("SDES");
+        List<String> preferredEncryptionProtocols = getPeer()
+            .getProtocolProvider()
+            .getAccountID()
+            .getSortedEnabledEncryptionProtocolList(encryptionProtocolList);
+
+        for(int i = 0; i < preferredEncryptionProtocols.size(); ++i)
+        {
+            // ZRTP
+            if(preferredEncryptionProtocols.get(i).equals("ZRTP"))
+            {
+                if(updateMediaDescriptionForZrtp(mediaType, localMd))
+                {
+                    // Stops once an encryption advertisement has been choosen.
+                    return;
+                }
+            }
+            // SDES
+            else if(preferredEncryptionProtocols.get(i).equals("SDES"))
+            {
+                if(updateMediaDescriptionForSDes(
+                            mediaType,
+                            localMd,
+                            remoteMd))
+                {
+                    // Stops once an encryption advertisement has been choosen.
+                    return;
+                }
+            }
         }
     }
 }

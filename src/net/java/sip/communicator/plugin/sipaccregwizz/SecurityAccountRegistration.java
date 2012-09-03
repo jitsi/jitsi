@@ -5,6 +5,8 @@
  */
 package net.java.sip.communicator.plugin.sipaccregwizz;
 
+import java.util.*;
+
 /**
  * The <tt>SecurityAccountRegistration</tt> is used to determine security
  * options for different registration protocol (Jabber, SIP). Useful fot the
@@ -76,4 +78,29 @@ public interface SecurityAccountRegistration
      * Sets the method used for RTP/SAVP indication.
      */
     public void setSavpOption(int savpOption);
+
+    /**
+     * Returns the list of the enabled or disabled encryption protocols in the
+     * priority order.
+     *
+     * @param enabled If true this function will return the enabled encryption
+     * protocol list. Otherwise, it will return the disabled list.
+     *
+     * @return the list of the enabled or disabled encryption protocols in the
+     * priority order.
+     */
+    public List<String> getEncryptionProtocols(boolean enabled);
+
+    /**
+     * Sets the list of the enabled and disabled encryption protocols in the
+     * priority order.
+     *
+     * @param enabledEncrpytionProtools The list of the enabled encryption
+     * protocols in the priority order.
+     * @param disabledEncrpytionProtools The list of the disabled encryption
+     * protocols in the priority order.
+     */
+    public void setEncryptionProtocols(
+            List<String> enabledEncryptionProtocols,
+            List<String> disabledEncryptionProtocols);
 }
