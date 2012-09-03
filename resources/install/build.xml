@@ -1288,6 +1288,9 @@
       </exec>
       <!-- Add a symbolic link to the Applications directory -->
       <symlink link="${release}/${application.name}" resource="/Applications"/>
+
+      <antcall target="macosx-sign-app"/>
+
       <!-- Detach the temporary image -->
       <exec executable="/usr/bin/hdiutil" os="Mac OS X" failonerror="true">
         <arg value="detach"/>
@@ -1310,6 +1313,38 @@
       <antcall target="macosx-sparkle-files"/>
       <antcall target="macosx-sparkle-delta-updates"/>
       <antcall target="macosx-sparkle-files-finish"/>
+
+    </target>
+
+    <!--
+        If there is a property enabling the keychain name
+        we can sign.
+     -->
+    <target name="macosx-sign-app" if="macosx.sign.keychain">
+        <echo message="Signing application!"/>
+
+        <!-- unlocking the keychain -->
+        <exec executable="/usr/bin/security" os="Mac OS X" failonerror="false">
+            <arg value="unlock-keychain"/>
+            <arg value="-p"/>
+            <arg value=""/>
+            <arg value="${macosx.sign.keychain}"/>
+        </exec>
+
+        <!-- signing -->
+        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="false">
+            <arg value="-s"/>
+            <arg value="${macosx.sign.certid}"/>
+            <arg value="--keychain"/>
+            <arg value="${macosx.sign.keychain}"/>
+            <arg value="${release}/${application.name}/${application.name}.app"/>
+        </exec>
+
+        <!-- locking again -->
+        <exec executable="/usr/bin/security" os="Mac OS X" failonerror="false">
+            <arg value="lock-keychain"/>
+            <arg value="${macosx.sign.keychain}"/>
+        </exec>
 
     </target>
 
