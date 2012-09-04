@@ -1324,7 +1324,7 @@
         <echo message="Signing application!"/>
 
         <!-- unlocking the keychain -->
-        <exec executable="/usr/bin/security" os="Mac OS X" failonerror="false">
+        <exec executable="/usr/bin/security" os="Mac OS X" failonerror="true">
             <arg value="unlock-keychain"/>
             <arg value="-p"/>
             <arg value=""/>
@@ -1332,7 +1332,7 @@
         </exec>
 
         <!-- signing -->
-        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="false">
+        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="true">
             <arg value="-s"/>
             <arg value="${macosx.sign.certid}"/>
             <arg value="--keychain"/>
@@ -1341,7 +1341,7 @@
         </exec>
 
         <!-- locking again -->
-        <exec executable="/usr/bin/security" os="Mac OS X" failonerror="false">
+        <exec executable="/usr/bin/security" os="Mac OS X" failonerror="true">
             <arg value="lock-keychain"/>
             <arg value="${macosx.sign.keychain}"/>
         </exec>
