@@ -604,6 +604,10 @@ public class ProvisioningServiceImpl
                 String key = (String)entry.getKey();
                 Object value = entry.getValue();
 
+                // skip empty keys, prevent them going into the configuration
+                if(key.trim().length() == 0)
+                    continue;
+
                 if(key.equals(PROVISIONING_ALLOW_PREFIX_PROP))
                 {
                     String prefixes[] = ((String)value).split("\\|");
