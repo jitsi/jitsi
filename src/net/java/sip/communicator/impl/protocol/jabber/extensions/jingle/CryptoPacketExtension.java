@@ -91,33 +91,13 @@ public class CryptoPacketExtension
         this.setCryptoSuite(cryptoAttribute.getCryptoSuite().encode());
 
         // Encode the key-params element.
-        StringBuffer keyParamsString = new StringBuffer();
-        SrtpKeyParam[] keyParams = cryptoAttribute.getKeyParams();
-        for(int i = 0; i < keyParams.length; ++i)
-        {
-            keyParamsString.append(keyParams[i].encode());
-            if (i < keyParams.length - 1)
-            {
-                keyParamsString.append(';');
-            }
-        }
-        this.setKeyParams(keyParamsString.toString());
+        this.setKeyParams(cryptoAttribute.getKeyParamsString());
 
         // Encode the session-params element (optional).
-        SrtpSessionParam[] sessionParams = cryptoAttribute.getSessionParams();
-        if (sessionParams != null)
+        String sessionParamsString = cryptoAttribute.getSessionParamsString();
+        if (sessionParamsString != null)
         {
-            StringBuffer sessionParamsString = new StringBuffer();
-            for(int i = 0; i < sessionParams.length; ++i)
-            {
-                sessionParamsString.append(
-                        sessionParams[i].encode());
-                if (i < sessionParams.length - 1)
-                {
-                    sessionParamsString.append(' ');
-                }
-            }
-            this.setSessionParams(sessionParamsString.toString());
+            this.setSessionParams(sessionParamsString);
         }
     }
 
@@ -290,41 +270,12 @@ public class CryptoPacketExtension
      */
     public SrtpCryptoAttribute toSrtpCryptoAttribute()
     {
-        // Decode the tag element.
-        int tag = Integer.parseInt(this.getTag());
-
-        // Decode the crypto-suite element.
-        SrtpCryptoSuite cryptoSuite
-            = new SrtpCryptoSuite(this.getCryptoSuite());
-
-        // Decode the key-params element.
-        String[] stringKeyParams = this.getKeyParams().split(";");
-        SrtpKeyParam[] keyParams = new SrtpKeyParam[stringKeyParams.length];
-        for(int i = 0; i < stringKeyParams.length; ++i)
-        {
-            keyParams[i] = new SrtpKeyParam(stringKeyParams[i]);
-        }
-
-        // Decode the session-params element (optional).
-        String tmpStringSessionParams = this.getSessionParams();
-        SrtpSessionParam[] sessionParams = null;
-        if(tmpStringSessionParams != null)
-        {
-            String[] stringSessionParams = tmpStringSessionParams.split(" ");
-            sessionParams = new SrtpSessionParam[stringSessionParams.length];
-            for(int i = 0; i < stringSessionParams.length; ++i)
-            {
-                sessionParams[i]
-                    = SrtpSessionParam.create(stringSessionParams[i]);
-            }
-        }
-
         // Creaates the new SrtpCryptoAttribute.
-        return new SrtpCryptoAttribute(
-                tag,
-                cryptoSuite,
-                keyParams,
-                sessionParams);
+        return SrtpCryptoAttribute.create(
+                this.getTag(),
+                this.getCryptoSuite(),
+                this.getKeyParams(),
+                this.getSessionParams());
     }
 
     /**
