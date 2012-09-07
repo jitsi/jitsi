@@ -398,8 +398,13 @@ class NotificationServiceImpl
             }
             else if (actionType.equals(ACTION_SOUND))
             {
-                ((SoundNotificationHandler) handler)
-                    .start((SoundNotificationAction) action, data);
+                SoundNotificationAction soundNotificationAction
+                    = (SoundNotificationAction) action;
+                if(soundNotificationAction.isSoundEnabled())
+                {
+                    ((SoundNotificationHandler) handler)
+                        .start((SoundNotificationAction) action, data);
+                }
             }
             else if (actionType.equals(ACTION_COMMAND))
             {
@@ -586,6 +591,10 @@ class NotificationServiceImpl
             configProperties.put(
                 actionTypeNodeName + ".loopInterval",
                 soundAction.getLoopInterval());
+
+            configProperties.put(
+                actionTypeNodeName + ".isSoundEnabled",
+                soundAction.isSoundEnabled());
         }
         else if(action instanceof PopupMessageNotificationAction)
         {
@@ -662,9 +671,15 @@ class NotificationServiceImpl
                         = configService.getString(
                             actionPropName + ".loopInterval");
 
+                    boolean isSoundEnabled
+                        = configService.getBoolean(
+                            actionPropName + ".isSoundEnabled",
+                            (soundFileDescriptor != null));
+
                     action = new SoundNotificationAction(
                         soundFileDescriptor,
-                        Integer.parseInt(loopInterval));
+                        Integer.parseInt(loopInterval),
+                        isSoundEnabled);
                 }
                 else if(actionType.equals(ACTION_POPUP_MESSAGE))
                 {

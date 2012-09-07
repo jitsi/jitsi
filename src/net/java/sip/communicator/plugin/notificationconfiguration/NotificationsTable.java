@@ -156,10 +156,17 @@ public class NotificationsTable
             NotificationEntry entry = new NotificationEntry(
                 notificationService.isActive(eventType),
                 programHandler != null && programHandler.isEnabled(),
-                (programHandler != null) ? programHandler.getDescriptor() : null,
-                popupHandler != null && popupHandler.isEnabled(),
-                soundHandler != null && soundHandler.isEnabled(),
-                (soundHandler != null) ? soundHandler.getDescriptor() : null,
+                (programHandler != null)
+                    ? programHandler.getDescriptor()
+                    : null,
+                popupHandler != null
+                    && popupHandler.isEnabled(),
+                soundHandler != null
+                    && soundHandler.isEnabled()
+                    && soundHandler.isSoundEnabled(),
+                (soundHandler != null)
+                    ? soundHandler.getDescriptor()
+                    : null,
                 eventType);
 
             addEntry(entry);
@@ -507,20 +514,14 @@ public class NotificationsTable
                 boolean isSound = notifTable.getValueAt(row, 3).equals(ENABLED);
                 entry.setSound(isSound);
 
-                if (isSound)
-                {
-                    notificationService.registerNotificationForEvent(
+                SoundNotificationAction soundNotificationAction
+                    = (SoundNotificationAction)
+                    notificationService.getEventNotificationAction(
+                            entry.getEvent(), NotificationAction.ACTION_SOUND);
+                soundNotificationAction.setSoundEnabled(isSound);
+                notificationService.registerNotificationForEvent(
                         entry.getEvent(),
-                        NotificationAction.ACTION_SOUND,
-                        entry.getSoundFile(),
-                        "");
-                }
-                else
-                {
-                    notificationService.removeEventNotificationAction(
-                        entry.getEvent(),
-                        NotificationAction.ACTION_SOUND);
-                }
+                        soundNotificationAction);
                 break;
             };
 

@@ -26,6 +26,11 @@ public class SoundNotificationAction
     private String soundFileDescriptor;
 
     /**
+     * The boolean telling if this sound is activated or not.
+     */
+    private boolean isSoundEnabled;
+
+    /**
      * Creates an instance of <tt>SoundNotification</tt> by
      * specifying the sound file descriptor. The sound is played once.
      * 
@@ -33,7 +38,20 @@ public class SoundNotificationAction
      */
     public SoundNotificationAction(String soundDescriptor)
     {
-        this(soundDescriptor, -1);
+        this(soundDescriptor, -1, (soundDescriptor != null));
+    }
+
+    /**
+     * Creates an instance of <tt>SoundNotification</tt> by
+     * specifying the sound file descriptor and the loop interval.
+     *
+     * @param soundDescriptor the sound file descriptor
+     * @param loopInterval the loop interval
+     */
+    public SoundNotificationAction( String soundDescriptor,
+                                    int loopInterval)
+    {
+        this(soundDescriptor, loopInterval, (soundDescriptor != null));
     }
 
     /**
@@ -42,13 +60,16 @@ public class SoundNotificationAction
      * 
      * @param soundDescriptor the sound file descriptor
      * @param loopInterval the loop interval
+     * @param isSoundEnabled True if this sound is activated. False Otherwise.
      */
     public SoundNotificationAction( String soundDescriptor,
-                                            int loopInterval)
+                                            int loopInterval,
+                                            boolean isSoundEnabled)
     {
         super(NotificationAction.ACTION_SOUND);
         this.soundFileDescriptor = soundDescriptor;
         this.loopInterval = loopInterval;
+        this.isSoundEnabled = isSoundEnabled;
     }
 
     /**
@@ -71,5 +92,25 @@ public class SoundNotificationAction
     public String getDescriptor()
     {
         return soundFileDescriptor;
+    }
+
+    /**
+     * Returns if this sound is activated or not.
+     *
+     * @return True if this sound is activated. False Otherwise.
+     */
+    public boolean isSoundEnabled()
+    {
+        return isSoundEnabled;
+    }
+
+    /**
+     * Enables or disables this sound notification.
+     *
+     * @param isSoundEnabled True if this sound is activated. False Otherwise.
+     */
+    public void setSoundEnabled(boolean isSoundEnabled)
+    {
+        this.isSoundEnabled = isSoundEnabled;
     }
 }
