@@ -16,11 +16,15 @@ import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.device.*;
 import org.jitsi.util.*;
 
 import com.explodingpixels.macwidgets.*;
 
 /**
+ * The <tt>PreCallDialog</tt> is a dialog allowing to pick-up or hangup a call.
+ * This is the parent dialog of the <tt>ReceivedCallDialog</tt> and the
+ * <tt>ChooseCallAccountDialog</tt>.
  *
  * @author Yana Stamcheva
  */
@@ -153,9 +157,13 @@ public abstract class PreCallDialog
         this.video = video;
         this.mergeCall = existingCall;
 
+        MediaDevice mediaDevice
+            = GuiActivator.getMediaService().getDefaultDevice(
+                    MediaType.VIDEO, MediaUseCase.CALL);
+
         // check whether we have device enabled for capturing(sending)
-        this.video = video && GuiActivator.getMediaService().getDefaultDevice(
-            MediaType.VIDEO, MediaUseCase.CALL).getDirection().allowsSending();
+        if (mediaDevice != null)
+            this.video = video && mediaDevice.getDirection().allowsSending();
 
         this.initComponents();
     }
