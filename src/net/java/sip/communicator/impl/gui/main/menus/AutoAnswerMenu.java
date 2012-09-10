@@ -681,7 +681,8 @@ public class AutoAnswerMenu
 
             c.gridy = currentRow++;
             mainPanel.add(
-                getTitlePanel(R.getI18NString("service.gui.AUTO_ANSWER")), c);
+                getTitlePanel(R.getI18NString("service.gui.AUTO_ANSWER_LABEL")),
+                c);
 
             c.gridy = currentRow++;
             alwaysAnswerRadio = new SIPCommRadioButton(
