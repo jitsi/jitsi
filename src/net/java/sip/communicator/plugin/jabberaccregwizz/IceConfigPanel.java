@@ -425,6 +425,13 @@ public class IceConfigPanel
                     String portStr = portField.getText();
                     StunServerDescriptor stunServer = null;
 
+                    //Don't proceed with an invalid port field
+                    if(!portVerifier.verify(portField))
+                    {
+                        loadErrorMessage(Resources.getSettingsString(
+                                "plugin.jabberaccregwizz.PORT_FIELD_INVALID"));
+                        return;
+                    }
                     int port = -1;
                     if(portStr != null && portStr.trim().length() > 0)
                         port = Integer.parseInt( portField.getText() );
