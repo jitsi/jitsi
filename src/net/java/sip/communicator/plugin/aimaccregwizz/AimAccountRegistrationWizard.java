@@ -309,10 +309,7 @@ public class AimAccountRegistrationWizard
     public void webSignup()
     {
         AimAccRegWizzActivator
-        .getBrowserLauncher()
-        .openURL(
-            "https://reg.my.screenname.aol.com/_cqr/registration/" +
-            "initRegistration.psp?sitedomain=www.aim.com&createSn=1");
+            .getBrowserLauncher().openURL("https://new.aol.com");
     }
 
     /**
