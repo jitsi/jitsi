@@ -12,6 +12,7 @@ import java.net.*;
 import javax.imageio.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.resources.*;
@@ -46,6 +47,8 @@ public class UtilActivator
     private static ResourceManagementService resourceService;
 
     private static BrowserLauncherService browserLauncherService;
+    
+    private static UIService uiService;
 
     private static BundleContext bundleContext;
 
@@ -218,5 +221,19 @@ public class UtilActivator
         }
 
         return image;
+    }
+    
+    /**
+     * Gets the <tt>UIService</tt> instance registered in the
+     * <tt>BundleContext</tt> of the <tt>UtilActivator</tt>.
+     *
+     * @return the <tt>UIService</tt> instance registered in the
+     * <tt>BundleContext</tt> of the <tt>UtilActivator</tt>
+     */
+    public static UIService getUIService()
+    {
+        if (uiService == null)
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
+        return uiService;
     }
 }

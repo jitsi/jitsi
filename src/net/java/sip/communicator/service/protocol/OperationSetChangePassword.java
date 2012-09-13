@@ -23,4 +23,10 @@ public interface OperationSetChangePassword
      */
     public void changePassword(String newPass)
             throws IllegalStateException, OperationFailedException;
+    
+    /**
+     * Whether password changes are supported.
+     * @return True if the server supports password change, false otherwise.
+     */
+    public boolean supportsPasswordChange();
 }

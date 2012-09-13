@@ -70,4 +70,19 @@ public class OperationSetChangePasswordJabberImpl
                     e);
         }
     }
+    
+    /**
+     * Returns true if the server supports password changes. This uses smack's
+     * <tt>AccountManager#supportsAccountCreation</tt> method, which checks for
+     * XEP-0077 (inband registrations) support. 
+     * @return True if the server supports password changes, false otherwise.
+     */
+    public boolean supportsPasswordChange()
+    {
+        org.jivesoftware.smack.AccountManager accountManager
+                = new org.jivesoftware.smack.AccountManager(
+                                        protocolProvider.getConnection());
+                
+        return accountManager.supportsAccountCreation();
+    }
 }
