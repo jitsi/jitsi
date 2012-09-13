@@ -312,7 +312,8 @@ public class AccountList
         Account account = (Account) getModel().getElementAt(mouseIndex);
 
         if (logger.isTraceEnabled())
-            logger.trace("Account list: element at mouse index:" + account);
+            logger.trace("Account list: element at mouse index:"
+                    + account.getName());
 
         AccountListCellRenderer renderer
             = (AccountListCellRenderer) getCellRenderer()
