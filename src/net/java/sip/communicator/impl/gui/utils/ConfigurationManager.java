@@ -230,6 +230,9 @@ public class ConfigurationManager
      */
     private static boolean autoAnswerDisableSubmenu = false;
 
+    private static final String SHOW_SMILEYS_PROPERTY
+            = "net.java.sip.communicator.service.replacement.SMILEY.enable";
+
     /**
      * Loads all user interface configurations.
      */
@@ -507,7 +510,7 @@ public class ConfigurationManager
         // Load the "isShowSmileys" property
         isShowSmileys
             = configService.getBoolean(
-                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showSmileys",
+                SHOW_SMILEYS_PROPERTY,
                 true);
 
         // Load the "lastContactParent" property.
@@ -1346,7 +1349,7 @@ public class ConfigurationManager
         isShowSmileys = isVisible;
 
         configService.setProperty(
-                "net.java.sip.communicator.impl.gui.chat.ChatWindow.showSmileys",
+                SHOW_SMILEYS_PROPERTY,
                 Boolean.toString(isShowSmileys));
     }
 
