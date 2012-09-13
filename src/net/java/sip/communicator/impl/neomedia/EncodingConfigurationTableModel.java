@@ -16,6 +16,7 @@ import org.jitsi.impl.neomedia.*;
 import org.jitsi.impl.neomedia.codec.*;
 import org.jitsi.impl.neomedia.format.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.format.*;
 
 /**
@@ -36,6 +37,8 @@ public class EncodingConfigurationTableModel
     private MediaFormat[] encodings;
 
     private final MediaType type;
+    
+    private final boolean autoUpdateConfig;
 
     /**
      * Constructor.
@@ -43,12 +46,15 @@ public class EncodingConfigurationTableModel
      * @param encodingConfiguration the encoding configuration
      * @param type media type
      */
-    public EncodingConfigurationTableModel(
-        EncodingConfiguration encodingConfiguration, int type)
+    public EncodingConfigurationTableModel(int type,
+        EncodingConfiguration encodingConfiguration,
+        boolean autoUpdateConfig)
     {
         if (encodingConfiguration == null)
             throw new IllegalArgumentException("encodingConfiguration");
         this.encodingConfiguration = encodingConfiguration;
+        
+        this.autoUpdateConfig = autoUpdateConfig;
 
         switch (type)
         {
@@ -250,8 +256,8 @@ public class EncodingConfigurationTableModel
             throw new IllegalArgumentException("priorities");
         for (int i = 0; i < count; i++)
         {
-            encodingConfiguration.setPriority(encodings[i], priorities[i]);
-            encodingConfiguration.setPriorityConfig(encodings[i], priorities[i]);
+            encodingConfiguration.setPriority(encodings[i], priorities[i],
+                    autoUpdateConfig);
         }
     }
 
@@ -264,13 +270,13 @@ public class EncodingConfigurationTableModel
                 = ((Boolean) value) ? (getPriorities().length - rowIndex) : 0;
             MediaFormat encoding = encodings[rowIndex];
 
-            encodingConfiguration.setPriority(encoding, priority);
 
             // We fire the update event before setting the configuration
             // property in order to have more reactive user interface.
             fireTableCellUpdated(rowIndex, columnIndex);
 
-            encodingConfiguration.setPriorityConfig(encoding, priority);
+            encodingConfiguration.setPriority(encoding, priority,
+                    autoUpdateConfig);
         }
     }
 }

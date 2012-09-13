@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.resources.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -47,7 +48,7 @@ public class UtilActivator
     private static ResourceManagementService resourceService;
 
     private static BrowserLauncherService browserLauncherService;
-    
+
     private static UIService uiService;
 
     private static BundleContext bundleContext;
@@ -222,7 +223,7 @@ public class UtilActivator
 
         return image;
     }
-    
+
     /**
      * Gets the <tt>UIService</tt> instance registered in the
      * <tt>BundleContext</tt> of the <tt>UtilActivator</tt>.
@@ -235,5 +236,18 @@ public class UtilActivator
         if (uiService == null)
             uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
+    }
+
+    /**
+     * Returns the {@link MediaConfigurationService} instance registered in the
+     * <tt>BundleContext</tt> of the <tt>UtilActivator</tt>.
+     *
+     * @return the <tt>UIService</tt> instance registered in the
+     * <tt>BundleContext</tt> of the <tt>UtilActivator</tt>
+     */
+    public static MediaConfigurationService getMediaConfiguration()
+    {
+        return ServiceUtils.getService(bundleContext, 
+                MediaConfigurationService.class);
     }
 }

@@ -447,6 +447,16 @@ public abstract class ProtocolProviderFactory
      * indicated as such.
      */
     public static final String MODE_PARANOIA = "MODE_PARANOIA";
+    
+    /**
+     * The name of the "override encodings" property
+     */
+    public static final String OVERRIDE_ENCODINGS = "OVERRIDE_ENCODINGS";
+    
+    /**
+     * The prefix used to store account encoding properties 
+     */
+    public static final String ENCODING_PROP_PREFIX = "Encodings";
 
     /**
      * The <code>BundleContext</code> containing (or to contain) the service

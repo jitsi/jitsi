@@ -8,6 +8,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.plugin.wizard.*;
 
 import org.jitsi.util.*;
 
@@ -29,6 +30,11 @@ public class SIPAccountRegistrationForm
     private final ConnectionPanel connectionPanel;
     private final SecurityPanel securityPanel;
     private final PresencePanel presencePanel;
+
+    /**
+     * The panel for encoding settings
+     */
+    private final EncodingsPanel encodingsPanel;
 
     private boolean isModification;
 
@@ -55,6 +61,8 @@ public class SIPAccountRegistrationForm
         connectionPanel = new ConnectionPanel(this);
         securityPanel = new SecurityPanel(this.getRegistration(), true);
         presencePanel = new PresencePanel(this);
+        
+        encodingsPanel = new EncodingsPanel();
     }
 
     /**
@@ -87,6 +95,12 @@ public class SIPAccountRegistrationForm
             if (presencePanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString("service.gui.PRESENCE"),
                                     presencePanel);
+            
+            if (encodingsPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(
+                      Resources.getString("plugin.jabberaccregwizz.ENCODINGS"),
+                      encodingsPanel);
+            
 
             if (tabbedPane.getParent() != this)
                 this.add(tabbedPane, BorderLayout.NORTH);
@@ -316,6 +330,8 @@ public class SIPAccountRegistrationForm
         registration.setVoicemailURI(connectionPanel.getVoicemailURI());
         registration.setVoicemailCheckURI(connectionPanel.getVoicemailCheckURI());
 
+        encodingsPanel.commitPanel(registration);
+        
         return true;
     }
 
@@ -490,6 +506,8 @@ public class SIPAccountRegistrationForm
             presencePanel.setClistOptionPassword(
                     accountID.getAccountPropertyString("XIVO_PASSWORD"));
         }
+        
+        encodingsPanel.loadAccount(accountID.getAccountProperties());
     }
 
     /**

@@ -272,8 +272,8 @@ public class CallPeerMediaHandlerJabberImpl
 
             // intersect the MediaFormats of our device with remote ones
             List<MediaFormat> mutuallySupportedFormats
-                = intersectFormats(remoteFormats, dev.getSupportedFormats());
-
+                = intersectFormats(remoteFormats, getLocallySupportedFormats(dev));
+            
             // check whether we will be exchanging any RTP extensions.
             List<RTPExtension> offeredRTPExtensions
                     = JingleUtils.extractRTPExtensions(
@@ -600,7 +600,7 @@ public class CallPeerMediaHandlerJabberImpl
         {
             ContentPacketExtension content
                 = createContentForOffer(
-                        dev.getSupportedFormats(
+                        getLocallySupportedFormats(dev,
                                 sendQualityPreset,
                                 receiveQualityPreset),
                         direction,
@@ -746,7 +746,7 @@ public class CallPeerMediaHandlerJabberImpl
                 {
                     ContentPacketExtension content
                         = createContentForOffer(
-                                dev.getSupportedFormats(),
+                                getLocallySupportedFormats(dev),
                                 direction,
                                 dev.getSupportedExtensions());
                     RtpDescriptionPacketExtension description
@@ -1109,7 +1109,7 @@ public class CallPeerMediaHandlerJabberImpl
                         ? null
                         : intersectFormats(
                                 supportedFormats,
-                                dev.getSupportedFormats(
+                                getLocallySupportedFormats(dev,
                                         sendQualityPreset,
                                         receiveQualityPreset));
             }

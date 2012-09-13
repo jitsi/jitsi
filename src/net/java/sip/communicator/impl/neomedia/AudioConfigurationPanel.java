@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.neomedia;
 import java.awt.*;
 
 import net.java.sip.communicator.util.swing.*;
+import org.jitsi.service.neomedia.*;
 
 /**
  * The audio configuration form.
@@ -28,7 +29,8 @@ public class AudioConfigurationPanel
     public AudioConfigurationPanel()
     {
         super(new BorderLayout());
-
-        add(MediaConfiguration.createAudioConfigPanel(), BorderLayout.NORTH);
+        MediaConfigurationService mediaConfiguration
+                = NeomediaActivator.getMediaConfiguration();
+        add(mediaConfiguration.createAudioConfigPanel(), BorderLayout.NORTH);
     }
 }

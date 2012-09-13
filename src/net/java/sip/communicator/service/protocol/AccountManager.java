@@ -142,7 +142,7 @@ public class AccountManager
                 logger.debug("Loading account " + storedAccount);
 
             List<String> storedAccountProperties =
-                configService.getPropertyNamesByPrefix(storedAccount, true);
+                configService.getPropertyNamesByPrefix(storedAccount, false);
             Map<String, String> accountProperties =
                 new Hashtable<String, String>();
             boolean disabled = false;
@@ -158,8 +158,9 @@ public class AccountManager
                 String property = storedAccountPropertyIter.next();
                 String value = configService.getString(property);
 
-                property = stripPackagePrefix(property);
-
+                //strip the package prefix
+                property = property.substring(storedAccount.length() + 1);
+                
                 if (ProtocolProviderFactory.IS_ACCOUNT_DISABLED.equals(property))
                     disabled = Boolean.parseBoolean(value);
                 // Decode passwords.

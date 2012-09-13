@@ -20,12 +20,14 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.impl.neomedia.*;
+import org.jitsi.impl.neomedia.codec.*;
 import org.jitsi.impl.neomedia.device.*;
 import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.libjitsi.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
@@ -36,6 +38,7 @@ import org.osgi.framework.*;
  * @author Martin Andre
  * @author Emil Ivov
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class NeomediaActivator
     implements BundleActivator
@@ -127,6 +130,11 @@ public class NeomediaActivator
      * Audio configuration dialog.
      */
     private static SIPCommDialog audioConfigDialog = null;
+    
+    /**
+     * A {@link MediaConfigurationService} instance.
+     */
+    private static MediaConfigurationImpl mediaConfiguration;
 
     /**
      * Starts the execution of the neomedia bundle in the specified context.
@@ -153,7 +161,15 @@ public class NeomediaActivator
                 null);
         if (logger.isDebugEnabled())
             logger.debug("Media Service ... [REGISTERED]");
-
+        
+        mediaConfiguration = new MediaConfigurationImpl();
+        bundleContext.registerService(
+                MediaConfigurationService.class.getName(),
+                getMediaConfiguration(),
+                null);
+        if (logger.isDebugEnabled())
+            logger.debug("Media Configuration ... [REGISTERED]");
+        
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();
         Dictionary<String, String> mediaProps = new Hashtable<String, String>();
 
@@ -382,7 +398,7 @@ public class NeomediaActivator
                             + ".AUDIO_DEVICE_CONNECTED_REMOVED"));
 
         JPanel preview = new TransparentPanel(new GridBagLayout());
-        MediaConfiguration.createAudioSystemControls(
+        mediaConfiguration.createAudioSystemControls(
             mediaServiceImpl.getDeviceConfiguration().getAudioSystem(),
             preview);
 
@@ -492,6 +508,11 @@ public class NeomediaActivator
     public static MediaServiceImpl getMediaServiceImpl()
     {
         return mediaServiceImpl;
+    }
+    
+    public static MediaConfigurationService getMediaConfiguration()
+    {
+        return mediaConfiguration;
     }
 
     /**

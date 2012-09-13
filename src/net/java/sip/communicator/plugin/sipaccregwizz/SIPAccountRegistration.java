@@ -7,15 +7,19 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.util.*;
 
+import java.util.*;
+import net.java.sip.communicator.util.plugin.wizard.*;
 /**
  * The <tt>SIPAccountRegistration</tt> is used to store all user input data
  * through the <tt>SIPAccountRegistrationWizard</tt>.
  *
  * @author Yana Stamcheva
  * @author Grigorii Balutsel
+ * @author Boris Grozev
  */
 public class SIPAccountRegistration
-    implements SecurityAccountRegistration
+    implements SecurityAccountRegistration,
+               EncodingsRegistration
 {
     public static String DEFAULT_PORT = "5060";
 
@@ -141,6 +145,17 @@ public class SIPAccountRegistration
      * Whether message waiting indications is enabled.
      */
     private boolean messageWaitingIndications = true;
+    
+     /**
+     * Whether to override global encoding settings.
+     */
+    private boolean overrideEncodingSettings = false;
+    
+    /**
+     * Encoding properties associated with this account.
+     */
+    private Map<String, String> encodingProperties 
+            = new HashMap<String, String>();
 
     /**
      * Initializes a new SIPAccountRegistration.
@@ -666,7 +681,7 @@ public class SIPAccountRegistration
     /**
      * Sets the list of cipher suites enabled for SDES.
      *
-     * @param The list of cipher suites enabled for SDES. Null if no cipher
+     * @param cipherSuites The list of cipher suites enabled for SDES. Null if no cipher
      * suite is enabled.
      */
     public void setSDesCipherSuites(String cipherSuites)
@@ -999,9 +1014,9 @@ public class SIPAccountRegistration
      * Sets the list of the enabled and disabled encryption protocols in the
      * priority order.
      *
-     * @param enabledEncrpytionProtools The list of the enabled encryption
+     * @param enabledEncryptionProtocols The list of the enabled encryption
      * protocols in the priority order.
-     * @param disabledEncrpytionProtools The list of the disabled encryption
+     * @param disabledEncryptionProtocols The list of the disabled encryption
      * protocols in the priority order.
      */
     public void setEncryptionProtocols(
@@ -1010,5 +1025,41 @@ public class SIPAccountRegistration
     {
         this.enabledEncryptionProtocols = enabledEncryptionProtocols;
         this.disabledEncryptionProtocols = disabledEncryptionProtocols;
+    }
+    
+      /**
+    * Whether override encodings is enabled
+    * @return Whether override encodings is enabled
+    */
+    public boolean isOverrideEncodings()
+    {
+        return overrideEncodingSettings;
+    }
+    
+    /**
+    * Set the override encodings setting to <tt>override</tt>
+    * @param override The value to set the override ecoding settings to.
+    */
+    public void setOverrideEncodings(boolean override)
+    {
+        overrideEncodingSettings = override;
+    }
+    
+    /**
+    * Get the stored encoding properties
+    * @return The stored encoding properties.
+    */
+    public Map<String, String> getEncodingProperties()
+    {
+        return encodingProperties;
+    }
+    
+    /**
+    * Set the encoding properties
+    * @param encodingProperties The encoding properties to set.
+    */
+    public void setEncodingProperties(Map<String, String> encodingProperties)
+    {
+        this.encodingProperties = encodingProperties;
     }
 }

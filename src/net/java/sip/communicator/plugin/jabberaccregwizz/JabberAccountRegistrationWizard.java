@@ -147,7 +147,7 @@ public class JabberAccountRegistrationWizard
             firstWizardPage = new FirstWizardPage(this);
 
         pages.add(firstWizardPage);
-
+       
         return pages.iterator();
     }
 
@@ -472,6 +472,11 @@ public class JabberAccountRegistrationWizard
 
         accountProperties.put(ProtocolProviderFactory.SDES_CIPHER_SUITES,
             registration.getSDesCipherSuites());
+        
+        accountProperties.put(ProtocolProviderFactory.OVERRIDE_ENCODINGS,
+                Boolean.toString(registration.isOverrideEncodings()));
+        
+        accountProperties.putAll(registration.getEncodingProperties());
 
 
         if (isModification())

@@ -193,7 +193,7 @@ public class CallPeerMediaHandlerSipImpl
                     MediaDescription md =
                         createMediaDescription(
                             profileName,
-                            dev.getSupportedFormats(
+                            getLocallySupportedFormats(dev,
                                     sendQualityPreset,
                                     receiveQualityPreset),
                             getTransportManager().getStreamConnector(mediaType),
@@ -485,8 +485,8 @@ public class CallPeerMediaHandlerSipImpl
                     ? null
                     : intersectFormats(
                             remoteFormats,
-                            dev.getSupportedFormats());
-
+                            getLocallySupportedFormats(dev));
+            
             // stream target
             MediaStreamTarget target
                 = SdpUtils.extractDefaultTarget(mediaDescription, offer);
@@ -532,7 +532,7 @@ public class CallPeerMediaHandlerSipImpl
                 if(stream != null && dev != null)
                 {
                     List<MediaFormat> fmts = intersectFormats(
-                        dev.getSupportedFormats(),
+                        getLocallySupportedFormats(dev),
                         remoteFormats);
 
                     if(fmts.size() > 0)
@@ -558,8 +558,9 @@ public class CallPeerMediaHandlerSipImpl
                             ? null
                             : intersectFormats(
                                 mutuallySupportedFormats,
-                                dev.getSupportedFormats(
-                                    sendQualityPreset, receiveQualityPreset));
+                                getLocallySupportedFormats(dev,
+                                    sendQualityPreset,
+                                    receiveQualityPreset));
                 }
 
                 supportQualityControls =

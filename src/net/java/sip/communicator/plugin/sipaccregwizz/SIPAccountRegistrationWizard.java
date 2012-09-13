@@ -525,7 +525,11 @@ public class SIPAccountRegistrationWizard
         else
             accountProperties.put("DTMF_METHOD",
                 registration.getDefaultDTMFMethod());
-
+        
+        accountProperties.put(ProtocolProviderFactory.OVERRIDE_ENCODINGS,
+                Boolean.toString(registration.isOverrideEncodings()));
+        accountProperties.putAll(registration.getEncodingProperties());
+        
         accountProperties.put("XIVO_ENABLE",
                 Boolean.toString(registration.isXiVOEnable()));
         accountProperties.put("XCAP_ENABLE",

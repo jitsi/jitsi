@@ -168,7 +168,8 @@ public class CallPeerMediaHandlerGTalkImpl
 
             // intersect the MediaFormats of our device with remote ones
             List<MediaFormat> mutuallySupportedFormats
-                = intersectFormats(remoteFormats, dev.getSupportedFormats());
+                = intersectFormats(remoteFormats,
+                                   getLocallySupportedFormats(dev));
 
             List<PayloadTypePacketExtension> contents
                 = createPayloadTypesForOffer(
@@ -483,7 +484,7 @@ public class CallPeerMediaHandlerGTalkImpl
                     List<PayloadTypePacketExtension> contents
                         = createPayloadTypesForOffer(
                                 getNameForMediaType(mediaType),
-                                dev.getSupportedFormats());
+                                getLocallySupportedFormats(dev));
 
                     for(PayloadTypePacketExtension ext : contents)
                     {

@@ -8,7 +8,7 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.util.*;
 
-import net.java.sip.communicator.plugin.sipaccregwizz.*;
+import net.java.sip.communicator.util.plugin.wizard.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -16,9 +16,11 @@ import net.java.sip.communicator.service.protocol.*;
  * through the <tt>JabberAccountRegistrationWizard</tt>.
  *
  * @author Yana Stamcheva
+ * @author Boris Grozev
  */
 public class JabberAccountRegistration
-    implements SecurityAccountRegistration
+    implements SecurityAccountRegistration,
+               EncodingsRegistration
 {
     /**
      * The default value of server port for jabber accounts.
@@ -227,7 +229,7 @@ public class JabberAccountRegistration
     private boolean sdesEnabled = false;
 
     /**
-     * The list of cipher suites enabledfor SDES.
+     * The list of cipher suites enabled for SDES.
      */
     private String sdesCipherSuites = null;
 
@@ -241,6 +243,17 @@ public class JabberAccountRegistration
         this.enabledEncryptionProtocols.add("ZRTP");
         this.disabledEncryptionProtocols = new ArrayList<String>(0);
     }
+
+     /**
+      *  Whether to override global encoding settings.
+      */
+	 private boolean overrideEncodingSettings = false;
+	 /**
+	  * Encoding properties associated with this account.
+	  */
+    private Map<String, String> encodingProperties
+	    = new HashMap<String, String>();
+
 
     /**
      * Returns the password of the jabber registration account.
@@ -988,5 +1001,41 @@ public class JabberAccountRegistration
     {
         this.enabledEncryptionProtocols = enabledEncryptionProtocols;
         this.disabledEncryptionProtocols = disabledEncryptionProtocols;
+    }
+    
+    /**
+    * Whether override encodings is enabled
+    * @return Whether override encodings is enabled
+    */
+    public boolean isOverrideEncodings()
+    {
+        return overrideEncodingSettings;
+    }
+    
+    /**
+    * Set the override encodings setting to <tt>override</tt>
+    * @param override The value to set the override ecoding settings to.
+    */
+    public void setOverrideEncodings(boolean override)
+    {
+        overrideEncodingSettings = override;
+    }
+    
+    /**
+    * Get the stored encoding properties
+    * @return The stored encoding properties.
+    */
+    public Map<String, String> getEncodingProperties()
+    {
+        return encodingProperties;
+    }
+    
+    /**
+    * Set the encoding properties
+    * @param encodingProperties The encoding properties to set.
+    */
+    public void setEncodingProperties(Map<String, String> encodingProperties)
+    {
+        this.encodingProperties = encodingProperties;
     }
 }

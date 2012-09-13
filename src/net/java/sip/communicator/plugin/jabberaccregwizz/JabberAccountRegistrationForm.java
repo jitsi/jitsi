@@ -11,10 +11,10 @@ import java.util.List;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.plugin.sipaccregwizz.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
+import net.java.sip.communicator.util.plugin.wizard.*;
 
 /**
  * The <tt>JabberAccountRegistrationForm</tt>.
@@ -38,6 +38,11 @@ public class JabberAccountRegistrationForm
     private final IceConfigPanel iceConfigPanel;
 
     private final TelephonyConfigPanel telephonyConfigPanel;
+
+    /**
+     * The panel for encoding settings
+     */
+    private final EncodingsPanel encodingsPanel;
 
     private boolean isModification;
 
@@ -70,6 +75,8 @@ public class JabberAccountRegistrationForm
         iceConfigPanel = new IceConfigPanel();
 
         telephonyConfigPanel = new TelephonyConfigPanel();
+        
+        encodingsPanel = new EncodingsPanel();
     }
 
     /**
@@ -108,6 +115,11 @@ public class JabberAccountRegistrationForm
             if (telephonyConfigPanel.getParent() != tabbedPane)
                 tabbedPane.addTab(Resources.getString("service.gui.TELEPHONY"),
                                     telephonyConfigPanel);
+            
+            if (encodingsPanel.getParent() != tabbedPane)
+                tabbedPane.addTab(Resources.getString(""
+                        + "plugin.jabberaccregwizz.ENCODINGS"),
+                                    encodingsPanel);
 
             if (tabbedPane.getParent() != this)
                 this.add(tabbedPane, BorderLayout.NORTH);
@@ -341,6 +353,8 @@ public class JabberAccountRegistrationForm
             telephonyConfigPanel.getTelephonyDomainBypassCaps());
         registration.setOverridePhoneSufix(
             telephonyConfigPanel.getTelephonyDomain());
+        
+        encodingsPanel.commitPanel(registration);
         return true;
     }
 
@@ -543,7 +557,9 @@ public class JabberAccountRegistrationForm
         String bypassCapsDomain = accountProperties.get(
             "TELEPHONY_BYPASS_GTALK_CAPS");
         telephonyConfigPanel.setTelephonyDomainBypassCaps(bypassCapsDomain);
-    }
+      
+        encodingsPanel.loadAccount(accountProperties);
+}
 
     /**
      * Returns a simple version of this registration form.
