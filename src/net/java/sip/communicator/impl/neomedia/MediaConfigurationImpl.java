@@ -633,7 +633,6 @@ public class MediaConfigurationImpl implements MediaConfigurationService
      * <tt>MediaType.VIDEO</tt>
      * @return The component for encodings configuration.
      */
-    @Override
     public Component createEncodingControls(MediaType mediaType,
             EncodingConfiguration encodingConfiguration,
             boolean autoUpdateConfig)
