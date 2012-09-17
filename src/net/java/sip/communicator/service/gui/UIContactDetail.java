@@ -172,7 +172,9 @@ public abstract class UIContactDetail
     public ProtocolProviderService getPreferredProtocolProvider(
         Class<? extends OperationSet> opSetClass)
     {
-        return preferredProviders.get(opSetClass);
+        if (preferredProviders != null)
+            return preferredProviders.get(opSetClass);
+        return null;
     }
 
     /**
@@ -203,7 +205,9 @@ public abstract class UIContactDetail
      */
     public String getPreferredProtocol(Class<? extends OperationSet> opSetClass)
     {
-        return preferredProtocols.get(opSetClass);
+        if (preferredProtocols != null)
+            return preferredProtocols.get(opSetClass);
+        return null;
     }
 
     /**
