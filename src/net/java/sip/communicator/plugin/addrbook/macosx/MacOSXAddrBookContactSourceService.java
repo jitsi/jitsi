@@ -65,11 +65,11 @@ public class MacOSXAddrBookContactSourceService
      *
      * @return a <tt>String</tt> which uniquely identifies the instances of the
      * <tt>MacOSXAddrBookContactSourceService</tt> implementation
-     * @see ContactSourceService#getIdentifier()
+     * @see ContactSourceService#getType()
      */
-    public String getIdentifier()
+    public int getType()
     {
-        return "MacOSXAddressBook";
+        return SEARCH_TYPE;
     }
 
     /**
@@ -126,6 +126,16 @@ public class MacOSXAddrBookContactSourceService
     {
         return AddrBookActivator.getConfigService()
                 .getString(MACOSX_ADDR_BOOK_PREFIX);
+    }
+
+    /**
+     * Returns the index of the contact source in the result list.
+     *
+     * @return the index of the contact source in the result list
+     */
+    public int getIndex()
+    {
+        return -1;
     }
 
     /**

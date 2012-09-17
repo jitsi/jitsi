@@ -211,6 +211,48 @@ public abstract class AbstractProtocolProviderService
         return new Hashtable<String, OperationSet>(supportedOperationSets);
     }
 
+
+    /**
+     * Returns a collection containing all operation sets classes supported by
+     * the current implementation. When querying this method users must be
+     * prepared to receive any subset of the OperationSet-s defined by this
+     * service. They MUST ignore any OperationSet-s that they are not aware of
+     * and that may be defined by future versions of this service. Such
+     * "unknown" OperationSet-s though not encouraged, may also be defined by
+     * service implementors.
+     *
+     * @return a {@link Collection} containing instances of all supported
+     * operation set classes (e.g. <tt>OperationSetPresence.class</tt>.
+     */
+    @SuppressWarnings("unchecked")
+    public Collection<Class<? extends OperationSet>>
+                                            getSupportedOperationSetClasses()
+    {
+        Collection<Class<? extends OperationSet>> opSetClasses
+            = new ArrayList<Class<? extends OperationSet>>();
+
+        Iterator<String> opSets
+            = getSupportedOperationSets().keySet().iterator();
+
+        while (opSets.hasNext())
+        {
+            String opSetClassName = opSets.next();
+            try
+            {
+                opSetClasses.add(
+                    (Class<? extends OperationSet>) getSupportedOperationSets()
+                        .get(opSetClassName).getClass().getClassLoader()
+                            .loadClass(opSetClassName));
+            }
+            catch (ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return opSetClasses;
+    }
+
     /**
      * Indicates whether or not this provider is registered
      *

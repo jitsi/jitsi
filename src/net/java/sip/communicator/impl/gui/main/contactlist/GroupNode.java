@@ -241,6 +241,20 @@ public class GroupNode
     }
 
     /**
+     * Returns a collection of all direct children of this <tt>GroupNode</tt>.
+     *
+     * @return a collection of all direct children of this <tt>GroupNode</tt>
+     */
+    @SuppressWarnings("unchecked")
+    public Collection<ContactNode> getContacts()
+    {
+        if (children != null)
+            return Collections.unmodifiableCollection(children);
+
+        return null;
+    }
+
+    /**
      * Returns the <tt>UIGroup</tt> corresponding to this <tt>GroupNode</tt>.
      * @return the <tt>UIGroup</tt> corresponding to this <tt>GroupNode</tt>
      */

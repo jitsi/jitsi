@@ -13,6 +13,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -49,6 +50,7 @@ public class PresenceFilter
     /**
      * Applies this filter. This filter is applied over the
      * <tt>MetaContactListService</tt>.
+     *
      * @param filterQuery the query which keeps track of the filtering results
      */
     public void applyFilter(FilterQuery filterQuery)
@@ -76,6 +78,7 @@ public class PresenceFilter
 
     /**
      * Indicates if the given <tt>uiContact</tt> is matching this filter.
+     *
      * @param uiContact the <tt>UIContact</tt> to check
      * @return <tt>true</tt> if the given <tt>uiContact</tt> is matching
      * this filter, otherwise returns <tt>false</tt>
@@ -91,6 +94,7 @@ public class PresenceFilter
 
     /**
      * Indicates if the given <tt>uiGroup</tt> is matching this filter.
+     *
      * @param uiGroup the <tt>UIGroup</tt> to check
      * @return <tt>true</tt> if the given <tt>uiGroup</tt> is matching
      * this filter, otherwise returns <tt>false</tt>
@@ -106,6 +110,7 @@ public class PresenceFilter
 
     /**
      * Sets the show offline property.
+     *
      * @param isShowOffline indicates if offline contacts are shown
      */
     public void setShowOffline(boolean isShowOffline)
@@ -118,6 +123,7 @@ public class PresenceFilter
     /**
      * Returns <tt>true</tt> if offline contacts are shown, otherwise returns
      * <tt>false</tt>.
+     *
      * @return <tt>true</tt> if offline contacts are shown, otherwise returns
      * <tt>false</tt>
      */
@@ -129,6 +135,7 @@ public class PresenceFilter
     /**
      * Returns <tt>true</tt> if offline contacts are shown or if the given
      * <tt>MetaContact</tt> is online, otherwise returns false.
+     *
      * @param metaContact the <tt>MetaContact</tt> to check
      * @return <tt>true</tt> if the given <tt>MetaContact</tt> is matching this
      * filter
@@ -141,6 +148,7 @@ public class PresenceFilter
     /**
      * Returns <tt>true</tt> if offline contacts are shown or if the given
      * <tt>MetaContactGroup</tt> contains online contacts.
+     *
      * @param metaGroup the <tt>MetaContactGroup</tt> to check
      * @return <tt>true</tt> if the given <tt>MetaContactGroup</tt> is matching
      * this filter
@@ -176,6 +184,7 @@ public class PresenceFilter
     /**
      * Adds all contacts contained in the given <tt>MetaContactGroup</tt>
      * matching the current filter and not contained in the contact list.
+     *
      * @param metaGroup the <tt>MetaContactGroup</tt>, which matching contacts
      * to add
      * @param query the <tt>MetaContactQuery</tt> that notifies interested

@@ -124,7 +124,7 @@ public class TreeContactList
      */
     private MouseListener[] originalMouseListeners;
 
-    private final Collection<UIContactSource>
+    private final LinkedList<UIContactSource>
         contactSources = new LinkedList<UIContactSource>();
 
     private static NotificationContactSource notificationSource;
@@ -137,6 +137,11 @@ public class TreeContactList
      * Indicates that the received call image search has been canceled.
      */
     private static boolean imageSearchCanceled = false;
+
+    /**
+     * Indicates if the contact buttons should be disabled.
+     */
+    private boolean isContactButtonsVisible = true;
 
     /**
      * Creates the <tt>TreeContactList</tt>.
@@ -319,7 +324,7 @@ public class TreeContactList
         }
 
         if (uiGroup != null)
-            GuiActivator.getContactList().addGroup(uiGroup, true);
+            this.addGroup(uiGroup, true);
     }
 
     /**
@@ -737,6 +742,45 @@ public class TreeContactList
     }
 
     /**
+     * Returns a collection of all direct child <tt>UIContact</tt>s of the given
+     * <tt>UIGroup</tt>.
+     *
+     * @param group the parent <tt>UIGroup</tt>
+     * @return a collection of all direct child <tt>UIContact</tt>s of the given
+     * <tt>UIGroup</tt>
+     */
+    public Collection<UIContact> getContacts(final UIGroup group)
+    {
+        if (group != null && !(group instanceof UIGroupImpl))
+            return null;
+
+        GroupNode groupNode;
+
+        if (group == null)
+            groupNode = treeModel.getRoot();
+        else
+            groupNode = ((UIGroupImpl) group).getGroupNode();
+
+        if (groupNode == null)
+            return null;
+
+        Collection<ContactNode> contactNodes = groupNode.getContacts();
+
+        if (contactNodes == null)
+            return null;
+
+        Collection<UIContact> childContacts = new ArrayList<UIContact>();
+
+        Iterator<ContactNode> contactNodesIter = contactNodes.iterator();
+        while (contactNodesIter.hasNext())
+        {
+            childContacts.add(contactNodesIter.next().getContactDescriptor());
+        }
+
+        return childContacts;
+    }
+
+    /**
      * Adds a listener for <tt>ContactListEvent</tt>s.
      *
      * @param listener the listener to add
@@ -822,7 +866,7 @@ public class TreeContactList
         if (currentFilterQuery != null && !currentFilterQuery.isCanceled())
             currentFilterQuery.cancel();
 
-        currentFilterQuery = new UIFilterQuery();
+        currentFilterQuery = new UIFilterQuery(this);
 
         if (filterThread == null)
         {
@@ -911,13 +955,16 @@ public class TreeContactList
     public void setDefaultFilter(ContactListFilter filter)
     {
         this.defaultFilter = filter;
+    }
 
-        if (defaultFilter.equals(presenceFilter))
-            TreeContactList.searchFilter
-                .setSearchSourceType(SearchFilter.DEFAULT_SOURCE);
-        else if (defaultFilter.equals(historyFilter))
-            TreeContactList.searchFilter
-                .setSearchSourceType(SearchFilter.HISTORY_SOURCE);
+    /**
+     * Gets the default filter for this contact list.
+     *
+     * @return the default filter for this contact list
+     */
+    public ContactListFilter getDefaultFilter()
+    {
+        return defaultFilter;
     }
 
     /**
@@ -927,6 +974,15 @@ public class TreeContactList
     public ContactListFilter getCurrentFilter()
     {
         return currentFilter;
+    }
+
+    /**
+     * Returns the currently applied filter.
+     * @return the currently applied filter
+     */
+    public FilterQuery getCurrentFilterQuery()
+    {
+        return currentFilterQuery;
     }
 
     /**
@@ -1508,7 +1564,14 @@ public class TreeContactList
         for (ContactSourceService contactSource
                 : GuiActivator.getContactSources())
         {
-            contactSources.add(new ExternalContactSource(contactSource, this));
+            ExternalContactSource extContactSource
+                = new ExternalContactSource(contactSource, this);
+
+            int sourceIndex = contactSource.getIndex();
+            if (sourceIndex >= 0 && contactSources.size() >= sourceIndex)
+                contactSources.add(sourceIndex, extContactSource);
+            else
+                contactSources.add(extContactSource);
         }
         GuiActivator.bundleContext.addServiceListener(
             new ContactSourceServiceListener());
@@ -1521,6 +1584,47 @@ public class TreeContactList
     public Collection<UIContactSource> getContactSources()
     {
         return contactSources;
+    }
+
+    /**
+     * Adds the given contact source to the list of available contact sources.
+     *
+     * @param contactSource the <tt>ContactSourceService</tt> 
+     */
+    public void addContactSource(ContactSourceService contactSource)
+    {
+        contactSources.add(new ExternalContactSource(contactSource, this));
+    }
+
+    /**
+     * Removes the given contact source from the list of available contact
+     * sources.
+     *
+     * @param contactSource
+     */
+    public void removeContactSource(ContactSourceService contactSource)
+    {
+        Iterator<UIContactSource> extSourcesIter
+            = contactSources.iterator();
+
+        while (extSourcesIter.hasNext())
+        {
+            UIContactSource extSource = extSourcesIter.next();
+
+            if (extSource.getContactSourceService().equals(contactSource))
+            {
+                contactSources.remove(extSource);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Removes all stored contact sources.
+     */
+    public void removeAllContactSources()
+    {
+        contactSources.clear();
     }
 
     /**
@@ -1559,12 +1663,15 @@ public class TreeContactList
     }
 
     /**
-     * Returns the contact source with the given identifier.
-     * @param identifier the identifier we're looking for
-     * @return the contact source with the given identifier
+     * Returns all <tt>UIContactSource</tt>s of the given type.
+     *
+     * @param type the type of sources we're looking for
+     * @return a list of all <tt>UIContactSource</tt>s of the given type
      */
-    public UIContactSource getContactSource(String identifier)
+    public List<UIContactSource> getContactSources(int type)
     {
+        List<UIContactSource> sources = new ArrayList<UIContactSource>();
+
         Iterator<UIContactSource> extSourcesIter
             = contactSources.iterator();
 
@@ -1572,11 +1679,10 @@ public class TreeContactList
         {
             UIContactSource extSource = extSourcesIter.next();
 
-            if (extSource.getContactSourceService().getIdentifier()
-                    .equals(identifier))
-                return extSource;
+            if (extSource.getContactSourceService().getType() == type)
+                sources.add(extSource);
         }
-        return null;
+        return sources;
     }
 
     /**
@@ -2038,6 +2144,33 @@ public class TreeContactList
     }
 
     /**
+     * Returns the list of selected contacts.
+     *
+     * @return the list of selected contacts
+     */
+    public List<UIContact> getSelectedContacts()
+    {
+        TreePath[] selectionPaths = getSelectionPaths();
+
+        if (selectionPaths == null)
+            return null;
+
+        List<UIContact> selectedContacts = new ArrayList<UIContact>();
+
+        for (TreePath selectionPath : selectionPaths)
+        {
+            if (selectionPath.getLastPathComponent() instanceof ContactNode)
+            {
+                selectedContacts.add(
+                    ((ContactNode) selectionPath.getLastPathComponent())
+                        .getContactDescriptor());
+            }
+        }
+
+        return selectedContacts;
+    }
+
+    /**
      * Returns the currently selected <tt>UIGroup</tt> if there's one.
      *
      * @return the currently selected <tt>UIGroup</tt> if there's one.
@@ -2054,6 +2187,33 @@ public class TreeContactList
         }
 
         return null;
+    }
+
+    /**
+     * Enables/disables multiple selection.
+     *
+     * @param isEnabled <tt>true</tt> to enable multiple selection,
+     * <tt>false</tt> - otherwise
+     */
+    public void setMultipleSelectionEnabled(boolean isEnabled)
+    {
+        if (isEnabled)
+            getSelectionModel().setSelectionMode(
+                TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+        else
+            getSelectionModel().setSelectionMode(
+                TreeSelectionModel.SINGLE_TREE_SELECTION);
+    }
+
+    /**
+     * Removes the current selection.
+     */
+    public void removeSelection()
+    {
+        TreePath[] selectionPaths = getSelectionPaths();
+
+        if (selectionPaths != null)
+            removeSelectionPaths(selectionPaths);
     }
 
     /**
@@ -2079,5 +2239,27 @@ public class TreeContactList
                     selectedContact, ContactListEvent.GROUP_SELECTED, 0);
             }
         }
+    }
+
+    /**
+     * Shows/hides buttons shown in contact row.
+     *
+     * @param isVisible <tt>true</tt> to show contact buttons, <tt>false</tt> -
+     * otherwise.
+     */
+    public void setContactButtonsVisible(boolean isVisible)
+    {
+        this.isContactButtonsVisible = isVisible;
+    }
+
+    /**
+     * Shows/hides buttons shown in contact row.
+     *
+     * return <tt>true</tt> to indicate that contact buttons are shown,
+     * <tt>false</tt> - otherwise.
+     */
+    public boolean isContactButtonsVisible()
+    {
+        return isContactButtonsVisible;
     }
 }

@@ -26,10 +26,8 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.FaxDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.MobilePhoneDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PagerDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
@@ -203,7 +201,7 @@ public class ContactListTreeCellRenderer
     /**
      * The parent tree.
      */
-    private TreeContactList tree;
+    private TreeContactList treeContactList;
 
     /**
      * A list of the custom action buttons.
@@ -342,7 +340,7 @@ public class ContactListTreeCellRenderer
         boolean selected, boolean expanded, boolean leaf, int row,
         boolean hasFocus)
     {
-        this.tree = (TreeContactList)tree;
+        this.treeContactList = (TreeContactList) tree;
         this.row = row;
         this.isSelected = selected;
         this.treeNode = (TreeNode) value;
@@ -406,11 +404,12 @@ public class ContactListTreeCellRenderer
             // contains a status message.
             this.initDisplayDetails(contact.getDisplayDetails());
 
-            this.initButtonsPanel(contact);
+            if (this.treeContactList.isContactButtonsVisible())
+                this.initButtonsPanel(contact);
 
             int avatarWidth, avatarHeight;
 
-            if (isSelected)
+            if (isSelected && treeContactList.isContactButtonsVisible())
             {
                 avatarWidth = EXTENDED_AVATAR_WIDTH;
                 avatarHeight = EXTENDED_AVATAR_HEIGHT;
@@ -574,7 +573,7 @@ public class ContactListTreeCellRenderer
      */
     public int getIconWidth()
     {
-        return tree.getWidth() + 10;
+        return treeContactList.getWidth() + 10;
     }
 
     /**
@@ -597,7 +596,7 @@ public class ContactListTreeCellRenderer
                 preferredSize.height = preferredHeight;
             else if (contact instanceof ShowMoreContact)
                 preferredSize.height = 18;
-            else if (isSelected)
+            else if (isSelected && treeContactList.isContactButtonsVisible())
                 preferredSize.height = 70;
             else
                 preferredSize.height = 30;
@@ -943,7 +942,7 @@ public class ContactListTreeCellRenderer
             addLabels(gridX);
         }
 
-        this.setBounds(0, 0, tree.getWidth(), getPreferredSize().height);
+        this.setBounds(0, 0, treeContactList.getWidth(), getPreferredSize().height);
     }
 
     /**
@@ -1078,12 +1077,21 @@ public class ContactListTreeCellRenderer
      */
     private void call(TreeNode treeNode)
     {
+        if (!(treeNode instanceof ContactNode))
+            return;
+
+        UIContactImpl contactDescriptor
+            = ((ContactNode) treeNode).getContactDescriptor();
+
         List<UIContactDetail> telephonyContacts
-            = ((ContactNode) treeNode).getContactDescriptor()
-                .getContactDetailsForOperationSet(
+            = contactDescriptor.getContactDetailsForOperationSet(
                     OperationSetBasicTelephony.class);
 
-        telephonyContacts.addAll(getAdditionalNumbers());
+        if(contactDescriptor.getDescriptor() instanceof MetaContact)
+        {
+            telephonyContacts.addAll(CallManager.getAdditionalNumbers(
+                (MetaContact) contactDescriptor.getDescriptor()));
+        }
 
         ChooseCallAccountPopupMenu chooseAccountDialog = null;
 
@@ -1122,13 +1130,13 @@ public class ContactListTreeCellRenderer
                 }
                 else if (providersCount > 1)
                     chooseAccountDialog = new ChooseCallAccountPopupMenu(
-                            tree, detail.getAddress(), providers);
+                            treeContactList, detail.getAddress(), providers);
             }
         }
         else if (telephonyContacts.size() > 1)
         {
             chooseAccountDialog
-                = new ChooseCallAccountPopupMenu(tree, telephonyContacts);
+                = new ChooseCallAccountPopupMenu(treeContactList, telephonyContacts);
         }
 
         // If the choose dialog is created we're going to show it.
@@ -1137,10 +1145,10 @@ public class ContactListTreeCellRenderer
             Point location = new Point(callButton.getX(),
                 callButton.getY() + callButton.getHeight());
 
-            SwingUtilities.convertPointToScreen(location, tree);
+            SwingUtilities.convertPointToScreen(location, treeContactList);
 
             location.y = location.y
-                + tree.getPathBounds(tree.getSelectionPath()).y;
+                + treeContactList.getPathBounds(treeContactList.getSelectionPath()).y;
 
             chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
         }
@@ -1152,13 +1160,19 @@ public class ContactListTreeCellRenderer
      */
     private void callVideo(TreeNode treeNode)
     {
+        UIContactImpl contactDescriptor
+            = ((ContactNode) treeNode).getContactDescriptor();
+
         List<UIContactDetail> videoContacts
-            = ((ContactNode) treeNode).getContactDescriptor()
-                .getContactDetailsForOperationSet(
+            = contactDescriptor.getContactDetailsForOperationSet(
                     OperationSetVideoTelephony.class);
 
-        if(ConfigurationManager.isRouteVideoAndDesktopUsingPhoneNumberEnabled())
-            videoContacts.addAll(getAdditionalNumbers());
+        if(ConfigurationManager.isRouteVideoAndDesktopUsingPhoneNumberEnabled()
+            && contactDescriptor.getDescriptor() instanceof MetaContact)
+        {
+            videoContacts.addAll(CallManager.getAdditionalNumbers(
+                (MetaContact) contactDescriptor.getDescriptor()));
+        }
 
         ChooseCallAccountPopupMenu chooseAccountDialog = null;
 
@@ -1228,14 +1242,14 @@ public class ContactListTreeCellRenderer
                 }
                 else if (providersCount > 1)
                     chooseAccountDialog = new ChooseCallAccountPopupMenu(
-                            tree, detail.getAddress(), providers,
+                            treeContactList, detail.getAddress(), providers,
                             OperationSetVideoTelephony.class);
             }
         }
         else if (videoContacts.size() > 1)
         {
             chooseAccountDialog
-                = new ChooseCallAccountPopupMenu(tree, videoContacts,
+                = new ChooseCallAccountPopupMenu(treeContactList, videoContacts,
                     OperationSetVideoTelephony.class);
         }
 
@@ -1245,10 +1259,10 @@ public class ContactListTreeCellRenderer
             Point location = new Point(callVideoButton.getX(),
                 callVideoButton.getY() + callVideoButton.getHeight());
 
-            SwingUtilities.convertPointToScreen(location, tree);
+            SwingUtilities.convertPointToScreen(location, treeContactList);
 
             location.y = location.y
-                + tree.getPathBounds(tree.getSelectionPath()).y;
+                + treeContactList.getPathBounds(treeContactList.getSelectionPath()).y;
 
             chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
         }
@@ -1262,13 +1276,19 @@ public class ContactListTreeCellRenderer
      */
     private void shareDesktop(TreeNode treeNode)
     {
+        UIContactImpl contactDescriptor
+            = ((ContactNode) treeNode).getContactDescriptor();
+
         List<UIContactDetail> desktopContacts
-            = ((ContactNode) treeNode).getContactDescriptor()
-                .getContactDetailsForOperationSet(
+            = contactDescriptor.getContactDetailsForOperationSet(
                     OperationSetDesktopSharingServer.class);
 
-        if(ConfigurationManager.isRouteVideoAndDesktopUsingPhoneNumberEnabled())
-            desktopContacts.addAll(getAdditionalNumbers());
+        if(ConfigurationManager.isRouteVideoAndDesktopUsingPhoneNumberEnabled()
+            && contactDescriptor.getDescriptor() instanceof MetaContact)
+        {
+            desktopContacts.addAll(CallManager.getAdditionalNumbers(
+                (MetaContact) contactDescriptor.getDescriptor()));
+        }
 
         ChooseCallAccountPopupMenu chooseAccountDialog = null;
 
@@ -1338,14 +1358,14 @@ public class ContactListTreeCellRenderer
                 }
                 else if (providersCount > 1)
                     chooseAccountDialog = new ChooseCallAccountPopupMenu(
-                            tree, detail.getAddress(), providers,
+                            treeContactList, detail.getAddress(), providers,
                             OperationSetDesktopSharingServer.class);
             }
         }
         else if (desktopContacts.size() > 1)
         {
             chooseAccountDialog
-                = new ChooseCallAccountPopupMenu(tree, desktopContacts,
+                = new ChooseCallAccountPopupMenu(treeContactList, desktopContacts,
                     OperationSetDesktopSharingServer.class);
         }
 
@@ -1355,109 +1375,13 @@ public class ContactListTreeCellRenderer
             Point location = new Point(desktopSharingButton.getX(),
                 desktopSharingButton.getY() + desktopSharingButton.getHeight());
 
-            SwingUtilities.convertPointToScreen(location, tree);
+            SwingUtilities.convertPointToScreen(location, treeContactList);
 
             location.y = location.y
-                + tree.getPathBounds(tree.getSelectionPath()).y;
+                + treeContactList.getPathBounds(treeContactList.getSelectionPath()).y;
 
             chooseAccountDialog.showPopupMenu(location.x + 8, location.y - 8);
         }
-    }
-
-    /**
-     * Searches for additional phone numbers found in contact information
-     * @return additional phone numbers found in contact information;
-     */
-    private List<UIContactDetail> getAdditionalNumbers()
-    {
-        List<UIContactDetail> telephonyContacts
-            = new ArrayList<UIContactDetail>();
-
-        // Adds additional phone numbers found in contact information
-        ContactNode n = (ContactNode)treeNode;
-        MetaContact metaContact = null;
-
-        if(n.getContactDescriptor().getDescriptor() instanceof MetaContact)
-        {
-            metaContact = (MetaContact)n.getContactDescriptor().getDescriptor();
-            Iterator<Contact> contacts = metaContact.getContacts();
-
-            while(contacts.hasNext())
-            {
-                Contact contact = contacts.next();
-                OperationSetServerStoredContactInfo infoOpSet =
-                    contact.getProtocolProvider().getOperationSet(
-                        OperationSetServerStoredContactInfo.class);
-                Iterator<GenericDetail> details;
-                ArrayList<String> phones = new ArrayList<String>();
-
-                if(infoOpSet != null)
-                {
-                    details = infoOpSet.getAllDetailsForContact(contact);
-
-                    while(details.hasNext())
-                    {
-                        GenericDetail d = details.next();
-                        if(d instanceof PhoneNumberDetail &&
-                            !(d instanceof PagerDetail) &&
-                            !(d instanceof FaxDetail))
-                        {
-                            PhoneNumberDetail pnd = (PhoneNumberDetail)d;
-                            if(pnd.getNumber() != null &&
-                                pnd.getNumber().length() > 0)
-                            {
-                                String localizedType = null;
-
-                                if(d instanceof WorkPhoneDetail)
-                                {
-                                    localizedType =
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.WORK_PHONE");
-                                }
-                                else if(d instanceof MobilePhoneDetail)
-                                {
-                                    localizedType =
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.MOBILE_PHONE");
-                                }
-                                else
-                                {
-                                    localizedType =
-                                        GuiActivator.getResources().
-                                            getI18NString(
-                                                "service.gui.PHONE");
-                                }
-
-                                phones.add(pnd.getNumber());
-
-                                UIContactDetail cd =
-                                    new UIContactDetailImpl(
-                                        pnd.getNumber(),
-                                        pnd.getNumber() +
-                                        " (" + localizedType + ")",
-                                        null,
-                                        new ArrayList<String>(),
-                                        null,
-                                        null,
-                                        null,
-                                        pnd)
-                                {
-                                    public PresenceStatus getPresenceStatus()
-                                    {
-                                        return null;
-                                    }
-                                };
-                                telephonyContacts.add(cd);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return telephonyContacts;
     }
 
     /**
@@ -1506,15 +1430,15 @@ public class ContactListTreeCellRenderer
             popupMenu.insert(new Separator(), 1);
 
             popupMenu.setFocusable(true);
-            popupMenu.setInvoker(tree);
+            popupMenu.setInvoker(treeContactList);
 
             Point location = new Point(addContactButton.getX(),
                 addContactButton.getY() + addContactButton.getHeight());
 
-            SwingUtilities.convertPointToScreen(location, tree);
+            SwingUtilities.convertPointToScreen(location, treeContactList);
 
             location.y = location.y
-                + tree.getPathBounds(tree.getSelectionPath()).y;
+                + treeContactList.getPathBounds(treeContactList.getSelectionPath()).y;
 
             popupMenu.setLocation(location.x + 8, location.y - 8);
             popupMenu.setVisible(true);
@@ -1694,7 +1618,7 @@ public class ContactListTreeCellRenderer
                             {
                                 callButton.setEnabled(true);
 
-                                tree.refreshContact(uiContact);
+                                treeContactList.refreshContact(uiContact);
                             }
                         });
 

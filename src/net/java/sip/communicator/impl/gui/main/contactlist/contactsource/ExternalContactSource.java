@@ -376,8 +376,12 @@ public class ExternalContactSource
          */
         public int getSourceIndex()
         {
-            if (contactSource.getIdentifier()
-                .equals(ContactSourceService.CALL_HISTORY))
+            int sourceIndex = contactSource.getIndex();
+
+            if (sourceIndex >= 0)
+                return sourceIndex;
+
+            if (contactSource.getType() == ContactSourceService.HISTORY_TYPE)
                 return Integer.MAX_VALUE;
 
             return Integer.MAX_VALUE - 1;

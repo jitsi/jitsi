@@ -7,7 +7,10 @@ System-Bundle: yes
 Import-Package: org.osgi.framework,
  org.jitsi.service.resources,
  net.java.sip.communicator.service.resources,
- net.java.sip.communicator.util
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.contactsource,
+ net.java.sip.communicator.service.contactlist,
+ net.java.sip.communicator.service.protocol
 Export-Package: net.java.sip.communicator.service.gui,
  net.java.sip.communicator.service.gui.event,
  net.java.sip.communicator.service.shutdown

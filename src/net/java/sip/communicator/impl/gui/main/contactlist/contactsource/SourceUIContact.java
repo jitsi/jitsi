@@ -98,10 +98,10 @@ public class SourceUIContact
 
     /**
      * The parent group of source contacts could not be changed.
+     *
      * @param parentGroup the parent group to set
      */
-    public void setParentGroup(UIGroup parentGroup)
-    {}
+    public void setParentGroup(UIGroup parentGroup) {}
 
     /**
      * Returns -1 to indicate that the source index of the underlying
@@ -160,6 +160,7 @@ public class SourceUIContact
     /**
      * Returns the default <tt>ContactDetail</tt> to use for any operations
      * depending to the given <tt>OperationSet</tt> class.
+     *
      * @param opSetClass the <tt>OperationSet</tt> class we're interested in
      * @return the default <tt>ContactDetail</tt> to use for any operations
      * depending to the given <tt>OperationSet</tt> class
@@ -199,18 +200,6 @@ public class SourceUIContact
      * @return a list of all contained <tt>UIContactDetail</tt>s
      */
     public List<UIContactDetail> getContactDetails()
-    {
-        return getContactDetails(sourceContact);
-    }
-
-    /**
-     * Returns a list of all contained <tt>UIContactDetail</tt>s.
-     *
-     * @param sourceContact the source contact we get details from.
-     * @return a list of all contained <tt>UIContactDetail</tt>s
-     */
-    public static List<UIContactDetail> getContactDetails(
-        SourceContact sourceContact)
     {
         List<UIContactDetail> resultList
             = new LinkedList<UIContactDetail>();
@@ -315,8 +304,8 @@ public class SourceUIContact
                     detail.getCategory(),
                     detail.getLabels(),
                     null,
-                    detail.getPreferredProtocolProvider(opSetClass),
-                    detail.getPreferredProtocol(opSetClass),
+                    null,
+                    null,
                     detail);
 
             ContactSourceService contactSource
@@ -330,6 +319,11 @@ public class SourceUIContact
                 if (prefix != null)
                     setPrefix(prefix);
             }
+
+            addPreferredProtocolProvider(opSetClass,
+                detail.getPreferredProtocolProvider(opSetClass));
+            addPreferredProtocol(opSetClass,
+                detail.getPreferredProtocol(opSetClass));
         }
 
         /**

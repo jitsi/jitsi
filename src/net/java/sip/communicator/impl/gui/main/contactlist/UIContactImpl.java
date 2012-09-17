@@ -31,18 +31,15 @@ public abstract class UIContactImpl
     public abstract void setContactNode(ContactNode contactNode);
 
     /**
-     * Returns the general status icon of the given MetaContact. Detects the
-     * status using the priority status table. The priority is defined on
-     * the "availability" factor and here the most "available" status is
-     * returned.
+     * Returns the general status icon of the given UIContact.
      *
-     * @return PresenceStatus The most "available" status from all
+     * @return PresenceStatus the most "available" status from all
      * sub-contact statuses.
      */
     public abstract ImageIcon getStatusIcon();
 
     /**
-     * Gets the avatar of a specific <tt>MetaContact</tt> in the form of an
+     * Gets the avatar of a specific <tt>UIContact</tt> in the form of an
      * <tt>ImageIcon</tt> value.
      *
      * @param isSelected indicates if the contact is selected

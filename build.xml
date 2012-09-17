@@ -951,7 +951,7 @@
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
-        bundle-customcontactactions"/>
+        bundle-customcontactactions, bundle-phonenumbercontactsource"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2762,4 +2762,13 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-PHONE-NUMBER-CONTACT-SOURCE -->
+    <target name="bundle-phonenumbercontactsource">
+        <!-- Creates a bundle containing the contact source interfaces.-->
+        <jar compress="false" destfile="${bundles.dest}/phonenumbercontactsource.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/phonenumbercontactsource/phonenumbercontactsource.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/phonenumbercontactsource"
+                prefix="net/java/sip/communicator/plugin/phonenumbercontactsource"/>
+        </jar>
+    </target>
 </project>

@@ -37,20 +37,17 @@ public class CallHistoryFilter
             addMatching(notificationSource);
 
         Collection<UIContactSource> contactSources
-            = GuiActivator.getContactList().getContactSources();
+            = GuiActivator.getContactList()
+                .getContactSources(ContactSourceService.HISTORY_TYPE);
 
         // Then add Call history contact source.
         for (UIContactSource contactSource : contactSources)
         {
-            ContactSourceService sourceService
-                = contactSource.getContactSourceService();
-
-            if (!sourceService.getIdentifier()
-                    .equals(ContactSourceService.CALL_HISTORY))
-                continue;
-
             // We're in a case of call history contact source.
-            ContactQuery query = sourceService.queryContactSource("", 50);
+            ContactQuery query
+                = contactSource.getContactSourceService()
+                    .queryContactSource("", 50);
+
             filterQuery.addContactQuery(query);
 
             // Add first available results.
@@ -80,8 +77,8 @@ public class CallHistoryFilter
         {
             SourceContact sourceContact = (SourceContact) descriptor;
 
-            if (sourceContact.getContactSource().getIdentifier()
-                    .equals(ContactSourceService.CALL_HISTORY))
+            if (sourceContact.getContactSource().getType()
+                     == ContactSourceService.HISTORY_TYPE)
                 return true;
         }
         else if (uiContact instanceof NotificationContact)

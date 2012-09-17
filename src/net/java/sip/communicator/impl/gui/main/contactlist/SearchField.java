@@ -53,15 +53,30 @@ public class SearchField
     private final MainFrame mainFrame;
 
     /**
-     * Creates the <tt>SearchField</tt>.
-     * @param frame the main application window
+     * The contact list on which we apply the filter.
      */
-    public SearchField(MainFrame frame)
+    private ContactList contactList;
+
+    /**
+     * The filter to apply on search.
+     */
+    private final ContactListSearchFilter searchFilter;
+
+    /**
+     * Creates the <tt>SearchField</tt>.
+     *
+     * @param frame the main application window
+     * @param contactList the contact list, which we're searching
+     * @param searchFilter the filter to apply on search
+     */
+    public SearchField( MainFrame frame,
+                        ContactListSearchFilter searchFilter)
     {
         super(GuiActivator.getResources()
                 .getI18NString("service.gui.ENTER_NAME_OR_NUMBER"));
 
         this.mainFrame = frame;
+        this.searchFilter = searchFilter;
 
         if(getUI() instanceof  SearchFieldUI)
             ((SearchFieldUI)getUI()).setDeleteButtonEnabled(true);
@@ -82,7 +97,8 @@ public class SearchField
             {
                 setText("");
 
-                SearchField.this.mainFrame.requestFocusInCenterPanel();
+                if (SearchField.this.mainFrame != null)
+                    SearchField.this.mainFrame.requestFocusInCenterPanel();
             }
         });
 
@@ -128,17 +144,15 @@ public class SearchField
 
         boolean isDefaultFilter = false;
 
+        searchFilter.setFilterString(filterString.trim());
+
         if (filterString != null && filterString.length() > 0)
         {
-            TreeContactList.searchFilter
-                .setFilterString(filterString.trim());
-
-            filterQuery = GuiActivator.getContactList()
-                .applyFilter(TreeContactList.searchFilter);
+            filterQuery = contactList.applyFilter(searchFilter);
         }
         else
         {
-            filterQuery = GuiActivator.getContactList().applyDefaultFilter();
+            filterQuery = contactList.applyDefaultFilter();
             isDefaultFilter = true;
         }
 
@@ -156,13 +170,16 @@ public class SearchField
                 filterQuery.setQueryListener(this);
         }
         else
+        {
             // If the query is null or is canceled, we would simply check the
             // contact list content.
-            enableUnknownContactView(GuiActivator.getContactList().isEmpty());
+            closeFilterQuery(filterQuery, !contactList.isEmpty());
+        }
     }
 
     /**
      * Sets the unknown contact view to the main contact list window.
+     *
      * @param isEnabled indicates if the unknown contact view should be enabled
      * or disabled.
      */
@@ -172,14 +189,26 @@ public class SearchField
         {
             public void run()
             {
-                mainFrame.enableUnknownContactView(isEnabled);
+                if (mainFrame != null)
+                    mainFrame.enableUnknownContactView(isEnabled);
             }
         });
     }
 
     /**
+     * Sets the contact list, in which the search is performed.
+     *
+     * @param contactList the contact list in which the search is performed
+     */
+    public void setContactList(ContactList contactList)
+    {
+        this.contactList = contactList;
+    }
+
+    /**
      * Indicates that the given <tt>query</tt> has finished with failure, i.e.
      * no results for the filter were found.
+     *
      * @param query the <tt>FilterQuery</tt>, where this listener is registered
      */
     public void filterQueryFailed(FilterQuery query)
@@ -194,17 +223,12 @@ public class SearchField
     /**
      * Indicates that the given <tt>query</tt> has finished with success, i.e.
      * the filter has returned results.
+     *
      * @param query the <tt>FilterQuery</tt>, where this listener is registered
      */
     public void filterQuerySucceeded(FilterQuery query)
     {
-        // If the unknown contact view was previously enabled, but we
-        // have found matching contacts we enter the normal view.
-        enableUnknownContactView(false);
-
-        GuiActivator.getContactList().selectFirstContact();
-
-        query.setQueryListener(null);
+        closeFilterQuery(query, !contactList.isEmpty());
     }
 
     /**
@@ -226,5 +250,17 @@ public class SearchField
     public String getUIClassID()
     {
         return uiClassID;
+    }
+
+    private void closeFilterQuery(FilterQuery query, boolean hasResults)
+    {
+        // If the unknown contact view was previously enabled, but we
+        // have found matching contacts we enter the normal view.
+        enableUnknownContactView(!hasResults);
+
+        if (hasResults)
+            contactList.selectFirstContact();
+
+        query.setQueryListener(null);
     }
 }

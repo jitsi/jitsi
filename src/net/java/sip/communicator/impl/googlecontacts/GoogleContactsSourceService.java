@@ -319,14 +319,13 @@ public class GoogleContactsSourceService
     }
 
     /**
-     * Returns the identifier of this contact source. Some of the common
-     * identifiers are defined here (For example the CALL_HISTORY identifier
-     * should be returned by all call history implementations of this interface)
+     * Returns SEARCH_TYPE to indicate that this contact source
+     *
      * @return the identifier of this contact source
      */
-    public String getIdentifier()
+    public int getType()
     {
-        return "GoogleContacts";
+        return SEARCH_TYPE;
     }
 
     /**
@@ -415,5 +414,15 @@ public class GoogleContactsSourceService
     public void setPhoneNumberPrefix(String phoneNumberprefix)
     {
         this.phoneNumberprefix = phoneNumberprefix;
+    }
+
+    /**
+     * Returns the index of the contact source in the result list.
+     *
+     * @return the index of the contact source in the result list
+     */
+    public int getIndex()
+    {
+        return -1;
     }
 }

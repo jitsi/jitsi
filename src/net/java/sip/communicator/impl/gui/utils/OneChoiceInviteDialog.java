@@ -10,12 +10,12 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.swing.*;
 
 /**
@@ -26,6 +26,7 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class OneChoiceInviteDialog
     extends SIPCommDialog
+    implements ContactListContainer
 {
     /**
      * The information text area.
@@ -52,38 +53,12 @@ public class OneChoiceInviteDialog
     /**
      * The contact list.
      */
-    private DefaultContactList contactList;
+    protected ContactList contactList;
 
     /**
-     * The contact list model.
+     * The search field.
      */
-    private final DefaultListModel contactListModel = new DefaultListModel();
-
-    /**
-     * The new contact field.
-     */
-    private final SIPCommTextField newContactField
-        = new SIPCommTextField(GuiActivator.getResources()
-            .getI18NString("service.gui.OR_ENTER_PHONE_NUMBER"));
-
-    /**
-     * Constructs an <tt>OneChoiceInviteDialog</tt>, by specifying the initial
-     * list of contacts available.
-     *
-     * @param title the title to show on the top of this dialog
-     * @param metaContacts the list of contacts available for invite
-     */
-    public OneChoiceInviteDialog(String title,
-                                java.util.List<MetaContact> metaContacts)
-    {
-        this(title);
-
-        // Initialize contacts list.
-        for(MetaContact metaContact : metaContacts)
-        {
-            this.addMetaContact(metaContact);
-        }
-    }
+    private final SearchField searchField;
 
     /**
      * Constructs an <tt>OneChoiceInviteDialog</tt>.
@@ -125,7 +100,15 @@ public class OneChoiceInviteDialog
 
         Component contactListComponent = createContactListComponent();
 
-        newContactField.addFocusListener(new FocusAdapter()
+        ContactListSearchFilter inviteFilter
+            = new InviteContactListFilter(contactList);
+
+        contactList.setDefaultFilter(inviteFilter);
+
+        searchField = new SearchField(null, inviteFilter);
+        searchField.setPreferredSize(new Dimension(200, 25));
+        searchField.setContactList(contactList);
+        searchField.addFocusListener(new FocusAdapter()
         {
             /**
              * Removes all other selections.
@@ -133,60 +116,42 @@ public class OneChoiceInviteDialog
              */
             public void focusGained(FocusEvent e)
             {
-                contactList.removeSelectionInterval(
-                    contactList.getMinSelectionIndex(),
-                    contactList.getMaxSelectionIndex());
+                contactList.removeSelection();
             }
         });
 
         TransparentPanel listPanel = new TransparentPanel(new BorderLayout());
         listPanel.setBorder(SIPCommBorders.getRoundBorder());
         listPanel.add(contactListComponent);
-        listPanel.add(newContactField, BorderLayout.SOUTH);
+
+        northPanel.add(searchField, BorderLayout.SOUTH);
 
         mainPanel.add(northPanel, BorderLayout.NORTH);
         mainPanel.add(listPanel, BorderLayout.CENTER);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
-    }
 
-    /**
-     * Adds the given <tt>metaContact</tt> to the left list of contacts
-     * available for invite.
-     * @param metaContact the <tt>MetaContact</tt> to add
-     */
-    public void addMetaContact(MetaContact metaContact)
-    {
-        contactListModel.addElement(metaContact);
-    }
+        KeyboardFocusManager keyManager
+            = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
-    /**
-     * Removes the given <tt>metaContact</tt> from the left list of contacts
-     * available for invite.
-     * @param metaContact the <tt>MetaContact</tt> to add
-     */
-    public void removeMetaContact(MetaContact metaContact)
-    {
-        contactListModel.removeElement(metaContact);
-    }
+        ContactListSearchKeyDispatcher clKeyDispatcher
+                        = new ContactListSearchKeyDispatcher(   keyManager,
+                                                                searchField,
+                                                                this);
 
-    /**
-     * Removes all <tt>MetaContact</tt>-s from the left list of contacts
-     * available for invite.
-     */
-    public void removeAllMetaContacts()
-    {
-        contactListModel.removeAllElements();
+        clKeyDispatcher.setContactList(contactList);
+
+        keyManager.addKeyEventDispatcher(clKeyDispatcher);
     }
 
     /**
      * Returns an enumeration of the list of selected <tt>MetaContact</tt>s.
      * @return an enumeration of the list of selected <tt>MetaContact</tt>s
      */
-    public MetaContact getSelectedMetaContact()
+    public UIContact getSelectedContact()
     {
-        return (MetaContact) contactList.getSelectedValue();
+        return contactList.getSelectedContact();
     }
 
     /**
@@ -195,7 +160,7 @@ public class OneChoiceInviteDialog
      */
     public String getSelectedString()
     {
-        return newContactField.getText();
+        return searchField.getText();
     }
 
     /**
@@ -276,28 +241,71 @@ public class OneChoiceInviteDialog
      */
     private Component createContactListComponent()
     {
-        contactList = new DefaultContactList();
+        contactList
+            = GuiActivator.getUIService().createContactListComponent();
 
-        contactList.setModel(contactListModel);
-
-        contactList.addListSelectionListener(new ListSelectionListener()
+        contactList.setContactButtonsVisible(false);
+        contactList.addContactListListener(new ContactListListener()
         {
-            public void valueChanged(ListSelectionEvent e)
+            public void groupSelected(ContactListEvent evt) {}
+
+            public void groupClicked(ContactListEvent evt) {}
+
+            public void contactSelected(ContactListEvent evt) {}
+
+            public void contactClicked(ContactListEvent evt)
             {
-                if (contactList.getSelectedIndex() >= 0)
-                    newContactField.setText("");
+                int clickCount = evt.getClickCount();
+
+                if (clickCount > 1)
+                {
+                    okButton.doClick();
+                }
             }
         });
 
+        // By default we set the current filter to be the presence filter.
         JScrollPane contactListScrollPane = new JScrollPane();
 
         contactListScrollPane.setOpaque(false);
         contactListScrollPane.getViewport().setOpaque(false);
-        contactListScrollPane.getViewport().add(contactList);
+        contactListScrollPane.getViewport().add(contactList.getComponent());
         contactListScrollPane.getViewport().setBorder(null);
         contactListScrollPane.setViewportBorder(null);
         contactListScrollPane.setBorder(null);
 
         return contactListScrollPane;
     }
+
+    /**
+     * Adds the given contact to this contact list.
+     *
+     * @param contact
+     */
+    protected void addContact(UIContact contact)
+    {
+        contactList.addContact(contact, null, true, false);
+    }
+
+    /**
+     * Called when the ENTER key was typed when this container was the focused
+     * container. Performs the appropriate actions depending on the current
+     * state of the contained contact list.
+     */
+    public void enterKeyTyped()
+    {
+        UIContact selectedContact = contactList.getSelectedContact();
+
+        if (selectedContact != null)
+        {
+            okButton.doClick();
+        }
+    }
+
+    /**
+     * Called when the CTRL-ENTER or CMD-ENTER keys were typed when this
+     * container was the focused container. Performs the appropriate actions
+     * depending on the current state of the contained contact list.
+     */
+    public void ctrlEnterKeyTyped() {}
 }

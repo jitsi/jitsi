@@ -8,15 +8,15 @@ package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * Represents a <code>Dialog</code> which allows specifying the target contact
+ * Represents a <tt>Dialog</tt> which allows specifying the target contact
  * address of a transfer-call operation.
  * 
  * @author Yana Stamcheva
@@ -25,6 +25,11 @@ public class TransferCallDialog
     extends OneChoiceInviteDialog
 {
     /**
+     * The peer to transfer.
+     */
+    private final CallPeer transferPeer;
+
+    /**
      * Creates a <tt>TransferCallDialog</tt> by specifying the peer to transfer
      * @param peer the peer to transfer
      */
@@ -32,6 +37,8 @@ public class TransferCallDialog
     {
         super(GuiActivator.getResources()
             .getI18NString("service.gui.TRANSFER_CALL_TITLE"));
+
+        this.transferPeer = peer;
 
         this.initContactListData(peer.getProtocolProvider());
 
@@ -52,16 +59,11 @@ public class TransferCallDialog
                     CallManager.transferCall(peer, transferString);
                 else
                 {
-                    MetaContact metaContact = getSelectedMetaContact();
+                    UIContact uiContact = getSelectedContact();
 
-                    if (metaContact != null)
+                    if (uiContact != null)
                     {
-                        Iterator<Contact> contactsIter = metaContact
-                            .getContactsForProvider(peer.getProtocolProvider());
-
-                        if (contactsIter.hasNext())
-                            CallManager.transferCall(peer,
-                                contactsIter.next().getAddress());
+                        transferToContact(uiContact);
                     }
                 }
                 setVisible(false);
@@ -81,32 +83,34 @@ public class TransferCallDialog
     /**
      * Initializes the left contact list with the contacts that could be added
      * to the current chat session.
+     *
      * @param protocolProvider the protocol provider from which to initialize
      * the contact list data
      */
     private void initContactListData(ProtocolProviderService protocolProvider)
     {
-        MetaContactListService metaContactListService
-            = GuiActivator.getContactListService();
+        contactList.addContactSource(
+            new ProtocolContactSourceServiceImpl(
+                protocolProvider, OperationSetBasicTelephony.class));
+        contactList.addContactSource(
+            new StringContactSourceServiceImpl(
+                protocolProvider, OperationSetBasicTelephony.class));
 
-        Iterator<MetaContact> contactListIter = metaContactListService
-            .findAllMetaContactsForProvider(protocolProvider);
-
-        while (contactListIter.hasNext())
-        {
-            MetaContact metaContact = contactListIter.next();
-
-            this.addMetaContact(metaContact);
-        }
+        contactList.applyDefaultFilter();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * net.java.sip.communicator.impl.gui.customcontrols.SIPCommDialog#close
-     * (boolean)
+    /**
+     * Transfer the transfer peer to the given <tt>UIContact</tt>.
+     *
+     * @param uiContact the contact to transfer to
      */
-    @Override
-    protected void close(boolean isEscaped) {}
+    private void transferToContact(UIContact uiContact)
+    {
+        UIContactDetail contactDetail = uiContact
+            .getDefaultContactDetail(
+                OperationSetBasicTelephony.class);
+
+        CallManager.transferCall(   transferPeer,
+                                    contactDetail.getAddress());
+    }
 }

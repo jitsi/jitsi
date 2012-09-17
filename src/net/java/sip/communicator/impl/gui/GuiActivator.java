@@ -313,7 +313,8 @@ public class GuiActivator implements BundleActivator
      * <tt>protocolName</tt> and supporting the given <tt>operationSetClass</tt>
      */
     public static List<ProtocolProviderService> getRegisteredProviders(
-        String protocolName, Class<? extends OperationSet> operationSetClass)
+        String protocolName,
+        Class<? extends OperationSet> operationSetClass)
     {
         List<ProtocolProviderService> opSetProviders
             = new LinkedList<ProtocolProviderService>();

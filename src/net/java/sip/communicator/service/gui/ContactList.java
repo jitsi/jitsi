@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.gui;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -20,6 +21,8 @@ import net.java.sip.communicator.service.gui.event.*;
  * @author Yana Stamcheva
  */
 public interface ContactList
+    extends ContactQueryListener,
+            MetaContactQueryListener
 {
     /**
      * Returns the actual component corresponding to the contact list.
@@ -30,6 +33,7 @@ public interface ContactList
 
     /**
      * Returns the list of registered contact sources to search in.
+     *
      * @return the list of registered contact sources to search in
      */
     public Collection<UIContactSource> getContactSources();
@@ -37,6 +41,7 @@ public interface ContactList
     /**
      * Returns the <tt>ExternalContactSource</tt> corresponding to the given
      * <tt>ContactSourceService</tt>.
+     *
      * @param contactSource the <tt>ContactSourceService</tt>, which
      * corresponding external source implementation we're looking for
      * @return the <tt>ExternalContactSource</tt> corresponding to the given
@@ -45,7 +50,49 @@ public interface ContactList
     public UIContactSource getContactSource(ContactSourceService contactSource);
 
     /**
+     * Adds the given contact source to the list of available contact sources.
+     *
+     * @param contactSource the <tt>ContactSourceService</tt> 
+     */
+    public void addContactSource(ContactSourceService contactSource);
+
+    /**
+     * Removes the given contact source from the list of available contact
+     * sources.
+     *
+     * @param contactSource
+     */
+    public void removeContactSource(ContactSourceService contactSource);
+
+    /**
+     * Removes all stored contact sources.
+     */
+    public void removeAllContactSources();
+
+    /**
+     * Sets the default filter to the given <tt>filter</tt>.
+     * @param filter the <tt>ContactListFilter</tt> to set as default
+     */
+    public void setDefaultFilter(ContactListFilter filter);
+
+    /**
+     * Gets the default filter for this contact list.
+     *
+     * @return the default filter for this contact list
+     */
+    public ContactListFilter getDefaultFilter();
+
+    /**
+     * Returns all <tt>UIContactSource</tt>s of the given type.
+     *
+     * @param type the type of sources we're looking for
+     * @return a list of all <tt>UIContactSource</tt>s of the given type
+     */
+    public List<UIContactSource> getContactSources(int type);
+
+    /**
      * Adds the given group to this list.
+     *
      * @param group the <tt>UIGroup</tt> to add
      * @param isSorted indicates if the contact should be sorted regarding to
      * the <tt>GroupNode</tt> policy
@@ -54,12 +101,14 @@ public interface ContactList
 
     /**
      * Removes the given group and its children from the list.
+     *
      * @param group the <tt>UIGroup</tt> to remove
      */
     public void removeGroup(final UIGroup group);
 
     /**
      * Adds the given <tt>contact</tt> to this list.
+     *
      * @param contact the <tt>UIContact</tt> to add
      * @param group the <tt>UIGroup</tt> to add to
      * @param isContactSorted indicates if the contact should be sorted
@@ -75,6 +124,7 @@ public interface ContactList
 
     /**
      * Adds the given <tt>contact</tt> to this list.
+     *
      * @param query the <tt>ContactQuery</tt> that adds the given contact
      * @param contact the <tt>UIContact</tt> to add
      * @param group the <tt>UIGroup</tt> to add to
@@ -89,6 +139,7 @@ public interface ContactList
     /**
      * Removes the node corresponding to the given <tt>MetaContact</tt> from
      * this list.
+     *
      * @param contact the <tt>UIContact</tt> to remove
      * @param removeEmptyGroup whether we should delete the group if is empty
      */
@@ -98,18 +149,38 @@ public interface ContactList
     /**
      * Removes the node corresponding to the given <tt>MetaContact</tt> from
      * this list.
+     *
      * @param contact the <tt>UIContact</tt> to remove
      */
     public void removeContact(UIContact contact);
 
     /**
+     * Returns a collection of all direct child <tt>UIContact</tt>s of the given
+     * <tt>UIGroup</tt>.
+     *
+     * @param group the parent <tt>UIGroup</tt>
+     * @return a collection of all direct child <tt>UIContact</tt>s of the given
+     * <tt>UIGroup</tt>
+     */
+    public Collection<UIContact> getContacts(final UIGroup group);
+
+    /**
      * Returns the currently applied filter.
+     *
      * @return the currently applied filter
      */
     public ContactListFilter getCurrentFilter();
 
     /**
+     * Returns the currently applied filter.
+     *
+     * @return the currently applied filter
+     */
+    public FilterQuery getCurrentFilterQuery();
+
+    /**
      * Applies the given <tt>filter</tt>.
+     *
      * @param filter the <tt>ContactListFilter</tt> to apply.
      * @return the filter query
      */
@@ -117,16 +188,25 @@ public interface ContactList
 
     /**
      * Applies the default filter.
+     *
      * @return the filter query that keeps track of the filtering results
      */
     public FilterQuery applyDefaultFilter();
 
     /**
-     * Returns the currently selected <tt>UIContact</tt> if there's one.
+     * Returns the currently selected <tt>UIContact</tt>. In case of a multiple
+     * selection returns the first contact in the selection.
      *
      * @return the currently selected <tt>UIContact</tt> if there's one.
      */
     public UIContact getSelectedContact();
+
+    /**
+     * Returns the list of selected contacts.
+     *
+     * @return the list of selected contacts
+     */
+    public List<UIContact> getSelectedContacts();
 
     /**
      * Returns the currently selected <tt>UIGroup</tt> if there's one.
@@ -150,6 +230,17 @@ public interface ContactList
     public void setSelectedGroup(UIGroup uiGroup);
 
     /**
+     * Selects the first found contact node from the beginning of the contact
+     * list.
+     */
+    public void selectFirstContact();
+
+    /**
+     * Removes the current selection.
+     */
+    public void removeSelection();
+
+    /**
      * Adds a listener for <tt>ContactListEvent</tt>s.
      *
      * @param listener the listener to add
@@ -169,4 +260,44 @@ public interface ContactList
      * @param uiContact the contact to refresh
      */
     public void refreshContact(UIContact uiContact);
+
+    /**
+     * Indicates if this contact list is empty.
+     *
+     * @return <tt>true</tt> if this contact list contains no children,
+     * otherwise returns <tt>false</tt>
+     */
+    public boolean isEmpty();
+
+    /**
+     * Shows/hides buttons shown in contact row.
+     *
+     * @param isVisible <tt>true</tt> to show contact buttons, <tt>false</tt> -
+     * otherwise.
+     */
+    public void setContactButtonsVisible(boolean isVisible);
+
+    /**
+     * Shows/hides buttons shown in contact row.
+     *
+     * return <tt>true</tt> to indicate that contact buttons are shown,
+     * <tt>false</tt> - otherwise.
+     */
+    public boolean isContactButtonsVisible();
+
+    /**
+     * Enables/disables multiple selection.
+     *
+     * @param isEnabled <tt>true</tt> to enable multiple selection,
+     * <tt>false</tt> - otherwise
+     */
+    public void setMultipleSelectionEnabled(boolean isEnabled);
+
+    /**
+     * Enables/disables drag operations on this contact list.
+     *
+     * @param isEnabled <tt>true</tt> to enable drag operations, <tt>false</tt>
+     * otherwise
+     */
+    public void setDragEnabled(boolean isEnabled);
 }

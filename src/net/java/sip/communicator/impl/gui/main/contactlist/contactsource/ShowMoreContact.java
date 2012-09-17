@@ -12,7 +12,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -56,19 +55,27 @@ public class ShowMoreContact
     /**
      * The count of shown contacts corresponding to the underlying query.
      */
-    private int shownResultsCount = UIFilterQuery.MAX_EXTERNAL_RESULT_COUNT;
+    private int shownResultsCount;
+
+    /**
+     * The maximum result count by show.
+     */
+    private int maxResultCount;
 
     /**
      * Creates an instance of <tt>MoreInfoContact</tt>.
      *
-     * @param contactQuery
-     * @param queryResults
+     * @param contactQuery the contact query
+     * @param queryResults the result list
+     * @param maxResultCount the maximum result count
      */
     public ShowMoreContact( ContactQuery contactQuery,
-                            List<SourceContact> queryResults)
+                            List<SourceContact> queryResults,
+                            int maxResultCount)
     {
         this.contactQuery = contactQuery;
         this.queryResults = queryResults;
+        this.maxResultCount = maxResultCount;
 
         GuiActivator.getContactList().addContactListListener(this);
     }
@@ -264,7 +271,7 @@ public class ShowMoreContact
                 = new ArrayList<SourceContact>(queryResults);
 
             int newCount
-                = shownResultsCount + UIFilterQuery.MAX_EXTERNAL_RESULT_COUNT;
+                = shownResultsCount + maxResultCount;
 
             int resultSize = contacts.size();
 

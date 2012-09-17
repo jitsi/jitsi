@@ -17,6 +17,11 @@ import net.java.sip.communicator.service.gui.event.*;
 public abstract class FilterQuery
 {
     /**
+     * The maximum result count for each contact source.
+     */
+    private int maxResultCount = 10;
+
+    /**
      * A listener, which is notified when this query finishes.
      */
     private FilterQueryListener filterQueryListener;
@@ -45,6 +50,13 @@ public abstract class FilterQuery
      * @return <tt>true</tt> if this query is canceled, <tt>false</tt> otherwise
      */
     public abstract boolean isCanceled();
+
+    /**
+     * Indicates if this query is canceled.
+     *
+     * @return <tt>true</tt> if this query is canceled, <tt>false</tt> otherwise
+     */
+    public abstract boolean isRunning();
 
     /**
      * Cancels this filter query.
@@ -81,4 +93,25 @@ public abstract class FilterQuery
      * filter query, <tt>false</tt> - otherwise
      */
     public abstract boolean containsQuery(Object query);
+
+
+    /**
+     * Sets the maximum result count shown.
+     *
+     * @param resultCount the maximum result count shown
+     */
+    public void setMaxResultShown(int resultCount)
+    {
+        this.maxResultCount = resultCount;
+    }
+
+    /**
+     * Gets the maximum result count shown.
+     *
+     * @return the maximum result count shown
+     */
+    public int getMaxResultShown()
+    {
+        return maxResultCount;
+    }
 }

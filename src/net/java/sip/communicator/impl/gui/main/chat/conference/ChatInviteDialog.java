@@ -11,9 +11,9 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -70,20 +70,12 @@ public class ChatInviteDialog
     {
         this.inviteChatTransport = chatPanel.findInviteChatTransport();
 
-        MetaContactListService metaContactListService
-            = GuiActivator.getContactListService();
+        srcContactList.addContactSource(
+            new ProtocolContactSourceServiceImpl(
+                inviteChatTransport.getProtocolProvider(),
+                OperationSetMultiUserChat.class));
 
-        Iterator<MetaContact> contactListIter = metaContactListService
-            .findAllMetaContactsForProvider(
-                inviteChatTransport.getProtocolProvider());
-
-        while (contactListIter.hasNext())
-        {
-            MetaContact metaContact = contactListIter.next();
-
-            if(TreeContactList.presenceFilter.isMatching(metaContact))
-                this.addMetaContact(metaContact);
-        }
+        srcContactList.applyDefaultFilter();
     }
 
     /**
@@ -91,41 +83,30 @@ public class ChatInviteDialog
      */
     private void inviteContacts()
     {
-        java.util.List<String> selectedContactAddresses =
-            new ArrayList<String>();
+        Collection<String> selectedContactAddresses = new ArrayList<String>();
 
         // Obtain selected contacts.
-        Enumeration<MetaContact> selectedContacts = getSelectedMetaContacts();
+        Iterator<UIContact> selectedContacts
+            = destContactList.getContacts(null).iterator();
 
         if (selectedContacts != null)
         {
-            while (selectedContacts.hasMoreElements())
+            while (selectedContacts.hasNext())
             {
-                MetaContact metaContact
-                    = selectedContacts.nextElement();
+                UIContact uiContact = selectedContacts.next();
 
-                Iterator<Contact> contactsIter = metaContact
-                    .getContactsForProvider(
-                        inviteChatTransport.getProtocolProvider());
+                Iterator<UIContactDetail> contactsIter
+                    = uiContact.getContactDetailsForOperationSet(
+                        OperationSetMultiUserChat.class).iterator();
 
                 // We invite the first protocol contact that corresponds to the
                 // invite provider.
                 if (contactsIter.hasNext())
                 {
-                    Contact inviteContact = contactsIter.next();
+                    UIContactDetail inviteDetail = contactsIter.next();
 
-                    selectedContactAddresses.add(inviteContact.getAddress());
+                    selectedContactAddresses.add(inviteDetail.getAddress());
                 }
-            }
-        }
-
-        // Obtain selected strings.
-        Enumeration<String> selectedStrings = getSelectedStrings();
-        if (selectedStrings != null)
-        {
-            while (selectedStrings.hasMoreElements())
-            {
-                selectedContactAddresses.add(selectedStrings.nextElement());
             }
         }
 

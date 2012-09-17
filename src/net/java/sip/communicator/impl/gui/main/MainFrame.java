@@ -56,7 +56,8 @@ import com.explodingpixels.macwidgets.*;
  */
 public class MainFrame
     extends SIPCommFrame
-    implements  ExportedWindow,
+    implements  ContactListContainer,
+                ExportedWindow,
                 PluginComponentListener,
                 Skinnable
 {
@@ -96,7 +97,7 @@ public class MainFrame
     /**
      * The search field shown above the contact list.
      */
-    private final SearchField searchField;
+    private SearchField searchField;
 
     /**
      * A mapping of <tt>ProtocolProviderService</tt>s and their indexes.
@@ -165,6 +166,11 @@ public class MainFrame
     private CallListener uiCallListener;
 
     /**
+     * Contact list search key dispatcher;
+     */
+    private final ContactListSearchKeyDispatcher clKeyDispatcher;
+
+    /**
      * Creates an instance of <tt>MainFrame</tt>.
      */
     public MainFrame()
@@ -174,11 +180,11 @@ public class MainFrame
             this.setUndecorated(true);
         }
 
-        this.searchField = new SearchField(this);
-
         this.contactListPanel = new ContactListPane(this);
 
         this.accountStatusPanel = new AccountStatusPanel(this);
+
+        this.searchField = new SearchField(this, TreeContactList.searchFilter);
 
         menu = new MainMenu(this);
 
@@ -233,7 +239,11 @@ public class MainFrame
 
         KeyboardFocusManager keyManager
             = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        keyManager.addKeyEventDispatcher(new MainKeyDispatcher(keyManager));
+
+        clKeyDispatcher = new ContactListSearchKeyDispatcher(   keyManager,
+                                                                searchField,
+                                                                this);
+        keyManager.addKeyEventDispatcher(clKeyDispatcher);
 
         this.init();
 
@@ -471,6 +481,9 @@ public class MainFrame
     public void setContactList(MetaContactListService contactList)
     {
         contactListPanel.initList(contactList);
+
+        searchField.setContactList(GuiActivator.getContactList());
+        clKeyDispatcher.setContactList(GuiActivator.getContactList());
     }
 
     /**
@@ -1826,144 +1839,11 @@ public class MainFrame
     }
 
     /**
-     * The <tt>MainKeyDispatcher</tt> is added to pre-listen KeyEvents before
-     * they're delivered to the current focus owner in order to introduce a
-     * specific behavior for the <tt>SearchField</tt> on top of the contact
-     * list.
-     */
-    private class MainKeyDispatcher implements KeyEventDispatcher
-    {
-        private KeyboardFocusManager keyManager;
-
-        /**
-         * Creates an instance of <tt>MainKeyDispatcher</tt>.
-         * @param keyManager the parent <tt>KeyboardFocusManager</tt>
-         */
-        public MainKeyDispatcher(KeyboardFocusManager keyManager)
-        {
-            this.keyManager = keyManager;
-        }
-
-        /**
-         * Dispatches the given <tt>KeyEvent</tt>.
-         * @param e the <tt>KeyEvent</tt> to dispatch
-         * @return <tt>true</tt> if the KeyboardFocusManager should take no
-         * further action with regard to the KeyEvent; <tt>false</tt>
-         * otherwise
-         */
-        public boolean dispatchKeyEvent(KeyEvent e)
-        {
-            // If this window is not the focus window  or if the event is not
-            // of type PRESSED we have nothing more to do here.
-            if (!isFocused()
-                || (e.getID() != KeyEvent.KEY_PRESSED
-                    && e.getID() != KeyEvent.KEY_TYPED)
-                || (GuiActivator.getUIService()
-                        .getSingleWindowContainer() != null)
-                    && GuiActivator.getUIService()
-                        .getSingleWindowContainer().containsFocus())
-                return false;
-
-            // Ctrl-Enter || Cmd-Enter typed when this window is the focused
-            // window.
-            //
-            // Tried to make this with key bindings first, but has a problem
-            // with enter key binding. When the popup menu containing call
-            // contacts was opened the default keyboard manager was prioritizing
-            // the window ENTER key, which will open a chat and we wanted that
-            // the enter starts a call with the selected contact from the menu.
-            // This is why we need to do it here and to check if the
-            // permanent focus owner is equal to the focus owner, which is not
-            // the case when a popup menu is opened.
-            if (e.getKeyCode() == KeyEvent.VK_ENTER
-                && (e.isControlDown() || e.isMetaDown()))
-            {
-                ctrlEnterKeyTyped();
-                return false;
-            }
-            else if (e.getKeyCode() == KeyEvent.VK_ENTER
-                && keyManager.getFocusOwner()
-                .equals(keyManager.getPermanentFocusOwner()))
-            {
-                enterKeyTyped();
-                return false;
-            }
-
-            TreeContactList contactList
-                = getContactListPanel().getContactList();
-
-            // If the search field is the focus owner.
-            if (searchField.isFocusOwner()
-                && (e.getKeyCode() == KeyEvent.VK_UP
-                    || e.getKeyCode() == KeyEvent.VK_DOWN
-                    || e.getKeyCode() == KeyEvent.VK_PAGE_UP
-                    || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN))
-            {
-                contactList.selectFirstContact();
-                contactList.requestFocus();
-                return false;
-            }
-
-            // If the contact list is the focus owner.
-            if (contactList.isFocusOwner()
-                && e.getKeyCode() == KeyEvent.VK_ESCAPE)
-            {
-                // Removes all current selections.
-                contactList.removeSelectionRows(contactList.getSelectionRows());
-
-                if (searchField.getText() != null)
-                {
-                    searchField.requestFocus();
-                }
-                return false;
-            }
-
-            Object selectedObject = contactList.getSelectedValue();
-
-            // No matter who is the focus owner.
-            if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED
-                || e.getKeyCode() == KeyEvent.VK_ENTER
-                || e.getKeyCode() == KeyEvent.VK_DELETE
-                || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
-                || e.getKeyCode() == KeyEvent.VK_TAB
-                || e.getKeyCode() == KeyEvent.VK_SPACE
-                || (selectedObject != null
-                    && selectedObject instanceof GroupNode
-                    && (e.getKeyChar() == '+'
-                        || e.getKeyChar() == '-')))
-            {
-                return false;
-            }
-
-            boolean singleWindowRule
-                = GuiActivator.getUIService().getSingleWindowContainer() == null
-                    || contactList.isFocusOwner();
-
-            if (!searchField.isFocusOwner()
-                && keyManager.getFocusOwner() != null
-                && singleWindowRule
-                && keyManager.getFocusOwner()
-                    .equals(keyManager.getPermanentFocusOwner()))
-            {
-                // Request the focus in the search field if a letter is typed.
-                searchField.requestFocusInWindow();
-
-                // We re-dispatch the event to search field.
-                keyManager.redispatchEvent(searchField, e);
-
-                // We don't want to dispatch further this event.
-                return true;
-            }
-            return false;
-        }
-    }
-
-    /**
      * Called when the ENTER key was typed when this window was the focused
      * window. Performs the appropriate actions depending on the current state
      * of the contact list.
      */
-    private void enterKeyTyped()
+    public void enterKeyTyped()
     {
         if (unknownContactPanel != null && unknownContactPanel.isVisible())
         {

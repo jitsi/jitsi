@@ -471,12 +471,20 @@ public class NotificationContact
         {
             super(  messageAccount,
                     messageAccount,
-                    null,
-                    null,
                     ImageLoader.getAccountStatusImage(protocolProvider),
-                    protocolProvider,
-                    protocolProvider.getProtocolName(),
                     notificationMessage);
+
+            Iterator<Class<? extends OperationSet>> opSetClasses
+                = protocolProvider.getSupportedOperationSetClasses().iterator();
+
+            while (opSetClasses.hasNext())
+            {
+                Class<? extends OperationSet> opSetClass = opSetClasses.next();
+
+                addPreferredProtocolProvider(opSetClass, protocolProvider);
+                addPreferredProtocol(opSetClass,
+                    protocolProvider.getProtocolName());
+            }
         }
 
         /**

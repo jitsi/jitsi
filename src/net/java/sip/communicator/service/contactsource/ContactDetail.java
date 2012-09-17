@@ -315,6 +315,7 @@ public class ContactDetail
      * Returns a list of all supported <tt>OperationSet</tt> classes, which
      * would indicate what are the supported actions by this contact
      * (e.g. write a message, make a call, etc.)
+     *
      * @return a list of all supported <tt>OperationSet</tt> classes
      */
     public List<Class<? extends OperationSet>> getSupportedOperationSets()

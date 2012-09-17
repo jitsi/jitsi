@@ -37,13 +37,14 @@ public abstract class UIContactDetail
     /**
      * The <tt>ProtocolProviderService</tt> corresponding to this detail.
      */
-    private final ProtocolProviderService protocolProvider;
+    private Map<Class<? extends OperationSet>, ProtocolProviderService>
+                                                    preferredProviders;
 
     /**
      * The protocol to be used for this contact detail if no protocol provider
      * is set.
      */
-    private final String preferredProtocol;
+    private Map<Class<? extends OperationSet>, String> preferredProtocols;
 
     /**
      * The collection of labels associated with this detail.
@@ -63,6 +64,29 @@ public abstract class UIContactDetail
     /**
      * Creates a <tt>UIContactDetail</tt> by specifying the contact
      * <tt>address</tt>, the <tt>displayName</tt> and <tt>preferredProvider</tt>.
+     *
+     * @param address the contact address
+     * @param displayName the contact display name
+     * @param descriptor the underlying object that this class is wrapping
+     */
+    public UIContactDetail(
+        String address,
+        String displayName,
+        Object descriptor)
+    {
+        this(   address,
+                displayName,
+                null,
+                null,
+                null,
+                null,
+                descriptor);
+    }
+
+    /**
+     * Creates a <tt>UIContactDetail</tt> by specifying the contact
+     * <tt>address</tt>, the <tt>displayName</tt> and <tt>preferredProvider</tt>.
+     *
      * @param address the contact address
      * @param displayName the contact display name
      * @param category the category of the underlying contact detail
@@ -78,16 +102,17 @@ public abstract class UIContactDetail
         String displayName,
         String category,
         Collection<String> labels,
-        ProtocolProviderService preferredProvider,
-        String preferredProtocol,
+        Map<Class<? extends OperationSet>, ProtocolProviderService> 
+                                                            preferredProviders,
+        Map<Class<? extends OperationSet>, String> preferredProtocols,
         Object descriptor)
     {
         this.address = address;
         this.displayName = displayName;
         this.category = category;
         this.labels = labels;
-        this.protocolProvider = preferredProvider;
-        this.preferredProtocol = preferredProtocol;
+        this.preferredProviders = preferredProviders;
+        this.preferredProtocols = preferredProtocols;
         this.descriptor = descriptor;
     }
 
@@ -147,7 +172,25 @@ public abstract class UIContactDetail
     public ProtocolProviderService getPreferredProtocolProvider(
         Class<? extends OperationSet> opSetClass)
     {
-        return protocolProvider;
+        return preferredProviders.get(opSetClass);
+    }
+
+    /**
+     * Adds a preferred protocol provider for a given OperationSet class.
+     *
+     * @param opSetClass the <tt>OperationSet</tt> class for which we're looking
+     * for protocol
+     * @param protocol the preferred protocol provider to add
+     */
+    public void addPreferredProtocolProvider(
+                                    Class<? extends OperationSet> opSetClass,
+                                    ProtocolProviderService protocolProvider)
+    {
+        if (preferredProviders == null)
+            preferredProviders = new HashMap<   Class<? extends OperationSet>,
+                                                ProtocolProviderService>();
+
+        preferredProviders.put(opSetClass, protocolProvider);
     }
 
     /**
@@ -160,7 +203,25 @@ public abstract class UIContactDetail
      */
     public String getPreferredProtocol(Class<? extends OperationSet> opSetClass)
     {
-        return preferredProtocol;
+        return preferredProtocols.get(opSetClass);
+    }
+
+    /**
+     * Adds a preferred protocol for a given OperationSet class.
+     *
+     * @param opSetClass the <tt>OperationSet</tt> class for which we're looking
+     * for protocol
+     * @param protocol the preferred protocol to add
+     */
+    public void addPreferredProtocol(
+                                    Class<? extends OperationSet> opSetClass,
+                                    String protocol)
+    {
+        if (preferredProtocols == null)
+            preferredProtocols = new HashMap<   Class<? extends OperationSet>,
+                                                String>();
+
+        preferredProtocols.put(opSetClass, protocol);
     }
 
     /**

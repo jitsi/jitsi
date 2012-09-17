@@ -605,6 +605,7 @@ public class MetaUIContact
         /**
          * Creates an instance of <tt>MetaContactDetail</tt> by specifying the
          * underlying protocol <tt>Contact</tt>.
+         *
          * @param contact the protocol contact, on which this implementation
          * is based
          */
@@ -612,14 +613,25 @@ public class MetaUIContact
         {
             super(  contact.getAddress(),
                     contact.getDisplayName(),
-                    null,
-                    null,
                     new ImageIcon(contact.getPresenceStatus().getStatusIcon()),
-                    contact.getProtocolProvider(),
-                    contact.getProtocolProvider().getProtocolName(),
                     contact);
 
             this.contact = contact;
+
+            ProtocolProviderService parentProvider
+                = contact.getProtocolProvider();
+
+            Iterator<Class<? extends OperationSet>> opSetClasses
+                = parentProvider.getSupportedOperationSetClasses().iterator();
+
+            while (opSetClasses.hasNext())
+            {
+                Class<? extends OperationSet> opSetClass = opSetClasses.next();
+
+                addPreferredProtocolProvider(opSetClass, parentProvider);
+                addPreferredProtocol(opSetClass,
+                                    parentProvider.getProtocolName());
+            }
         }
 
         /**

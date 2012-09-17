@@ -93,11 +93,11 @@ public class MsOutlookAddrBookContactSourceService
      *
      * @return a <tt>String</tt> which uniquely identifies the instances of the
      * <tt>MsOutlookAddrBookContactSourceService</tt> implementation
-     * @see ContactSourceService#getIdentifier()
+     * @see ContactSourceService#getType()
      */
-    public String getIdentifier()
+    public int getType()
     {
-        return "MsOutlookAddressBook";
+        return SEARCH_TYPE;
     }
 
     private static native void MAPIInitialize(long version, long flags)
@@ -205,5 +205,15 @@ public class MsOutlookAddrBookContactSourceService
             if (queries.remove(msoabcq))
                 queries.notify();
         }
+    }
+
+    /**
+     * Returns the index of the contact source in the result list.
+     *
+     * @return the index of the contact source in the result list
+     */
+    public int getIndex()
+    {
+        return -1;
     }
 }

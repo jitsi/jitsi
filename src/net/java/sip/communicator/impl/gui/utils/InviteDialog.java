@@ -8,17 +8,19 @@ package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.swing.*;
 
+import java.util.*;
+import java.util.List;
 /**
  * The invite dialog is a widget that shows a list of contacts, from which the
  * user could pick in order to create a conference chat or call.
@@ -28,26 +30,52 @@ import net.java.sip.communicator.util.swing.*;
  */
 public class InviteDialog
     extends SIPCommDialog
-    implements Skinnable
+    implements  Skinnable,
+                ContactListContainer
 {
     private static final long serialVersionUID = 0L;
 
+    /**
+     * Text area where user can specify a reason for the invitation.
+     */
     private final JTextArea reasonArea = new JTextArea();
 
+    /**
+     * The button, which performs the invite.
+     */
     private final JButton inviteButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.INVITE"));
 
+    /**
+     * The button, which cancels the operation.
+     */
     private final JButton cancelButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-    private final DefaultListModel contactListModel = new DefaultListModel();
+    /**
+     * The search field.
+     */
+    private final SearchField searchField;
 
-    protected final DefaultListModel selectedContactListModel
-        = new DefaultListModel();
+    /**
+     * The source contact list.
+     */
+    protected ContactList srcContactList;
 
-    protected final SIPCommTextField newContactField
-        = new SIPCommTextField(GuiActivator.getResources()
-            .getI18NString("service.gui.OR_ENTER_PHONE_NUMBER"));
+    /**
+     * The destination contact list.
+     */
+    protected ContactList destContactList;
+
+    /**
+     * The invite contact transfer handler.
+     */
+    private InviteContactTransferHandler inviteContactTransferHandler;
+
+    /**
+     * Currently selected protocol provider.
+     */
+    private ProtocolProviderService currentProvider;
 
     /**
      * Icon label.
@@ -55,25 +83,8 @@ public class InviteDialog
     private final JLabel iconLabel;
 
     /**
-     * Constructs an <tt>InviteDialog</tt>, by specifying the initial list of
-     * contacts available for invite.
-     *
-     * @param title the title to show on the top of this dialog
-     * @param metaContacts the list of contacts available for invite
-     */
-    public InviteDialog(String title, java.util.List<MetaContact> metaContacts)
-    {
-        this(title);
-
-        // Initialize contacts list.
-        for(MetaContact metaContact : metaContacts)
-        {
-            this.addMetaContact(metaContact);
-        }
-    }
-
-    /**
      * Constructs an <tt>InviteDialog</tt>.
+     *
      * @param title the title to show on the top of this dialog
      */
     public InviteDialog (String title)
@@ -120,78 +131,22 @@ public class InviteDialog
         buttonsPanel.add(inviteButton);
         buttonsPanel.add(cancelButton);
 
-        this.getRootPane().setDefaultButton(inviteButton);
         inviteButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.INVITE"));
         cancelButton.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
 
-        final DefaultContactList contactList = new DefaultContactList();
-        final DefaultContactList selectedContactList = new DefaultContactList();
+        Component contactListComponent = createSrcContactListComponent();
 
-        contactList.setModel(contactListModel);
-        contactList.setDragEnabled(true);
-        contactList.setTransferHandler(new InviteContactTransferHandler(this,
-            false));
-        selectedContactList.setModel(selectedContactListModel);
-        selectedContactList.setTransferHandler(
-            new InviteContactTransferHandler(this, true));
-        selectedContactList.setDragEnabled(true);
+        ContactListSearchFilter inviteFilter
+            = new InviteContactListFilter(srcContactList);
 
-        contactList.addMouseListener(new MouseAdapter()
-        {
-            public void mouseClicked(MouseEvent e)
-            {
-                if (e.getClickCount() > 1)
-                {
-                    Object[] metaContacts = contactList.getSelectedValues();
+        srcContactList.setDefaultFilter(inviteFilter);
 
-                    moveContactsFromLeftToRight(metaContacts);
-                }
-            }
-        });
-
-        selectedContactList.addMouseListener(new MouseAdapter()
-        {
-            public void mouseClicked(MouseEvent e)
-            {
-                if (e.getClickCount() > 1)
-                {
-                    Object[] metaContacts
-                        = selectedContactList.getSelectedValues();
-
-                    moveContactsFromRightToLeft(metaContacts);
-                }
-            }
-        });
-
-        JScrollPane contactListScrollPane = new JScrollPane();
-
-        contactListScrollPane.setOpaque(false);
-        contactListScrollPane.getViewport().setOpaque(false);
-        contactListScrollPane.getViewport().add(contactList);
-        contactListScrollPane.getViewport().setBorder(null);
-        contactListScrollPane.setViewportBorder(null);
-        contactListScrollPane.setBorder(null);
-
-        JScrollPane selectedListScrollPane = new JScrollPane();
-
-        selectedListScrollPane.setOpaque(false);
-        selectedListScrollPane.getViewport().setOpaque(false);
-        selectedListScrollPane.getViewport().add(selectedContactList);
-        selectedListScrollPane.getViewport().setBorder(null);
-        selectedListScrollPane.setViewportBorder(null);
-        selectedListScrollPane.setBorder(
-            SIPCommBorders.getRoundBorder());
-
-        // New contact text field panel.
-        newContactField.getInputMap().put(
-            KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
-            "moveStringFromLeftToRight");
-        newContactField.getActionMap().put("moveStringFromLeftToRight",
-            new MoveStringToRight());
-
-        newContactField.addFocusListener(new FocusAdapter()
+        searchField = new SearchField(null, inviteFilter);
+        searchField.setPreferredSize(new Dimension(200, 25));
+        searchField.setContactList(srcContactList);
+        searchField.addFocusListener(new FocusAdapter()
         {
             /**
              * Removes all other selections.
@@ -199,21 +154,20 @@ public class InviteDialog
              */
             public void focusGained(FocusEvent e)
             {
-                contactList.removeSelectionInterval(
-                    0, contactList.getMaxSelectionIndex());
+                srcContactList.removeSelection();
             }
         });
 
-        TransparentPanel leftPanel = new TransparentPanel(new BorderLayout());
-        leftPanel.setBorder(SIPCommBorders.getRoundBorder());
-        leftPanel.add(contactListScrollPane);
-        leftPanel.add(newContactField, BorderLayout.SOUTH);
+        TransparentPanel leftPanel
+            = new TransparentPanel(new BorderLayout(5, 5));
+        leftPanel.add(searchField, BorderLayout.NORTH);
+        leftPanel.add(contactListComponent);
 
         JPanel listPanel = new JPanel(new GridLayout(0, 2, 5, 5));
         listPanel.setPreferredSize(new Dimension(400, 200));
 
         listPanel.add(leftPanel);
-        listPanel.add(selectedListScrollPane);
+        listPanel.add(createDestContactListComponent());
         listPanel.setOpaque(false);
 
         // Add remove buttons panel.
@@ -233,12 +187,11 @@ public class InviteDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                Object[] metaContacts = contactList.getSelectedValues();
+                List<UIContact> selectedContacts
+                    = srcContactList.getSelectedContacts();
 
-                if (metaContacts != null && metaContacts.length > 0)
-                    moveContactsFromLeftToRight(metaContacts);
-
-                moveStringFromLeftToRight();
+                if (selectedContacts != null && selectedContacts.size() > 0)
+                    moveContactsFromLeftToRight(selectedContacts.iterator());
             }
         });
 
@@ -246,10 +199,11 @@ public class InviteDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                Object[] metaContacts = selectedContactList.getSelectedValues();
+                List<UIContact> selectedContacts
+                    = destContactList.getSelectedContacts();
 
-                if (metaContacts != null && metaContacts.length > 0)
-                    moveContactsFromRightToLeft(metaContacts);
+                if (selectedContacts != null && selectedContacts.size() > 0)
+                    moveContactsFromRightToLeft(selectedContacts.iterator());
             }
         });
 
@@ -267,110 +221,25 @@ public class InviteDialog
         mainPanel.add(southPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
-    }
 
-    /**
-     * Adds the given <tt>metaContact</tt> to the right list (selected) of
-     * contacts for invite.
-     * @param metaContact the <tt>MetaContact</tt> to add
-     */
-    public void addSelectedMetaContact(MetaContact metaContact)
-    {
-        selectedContactListModel.addElement(metaContact);
-    }
+        initTransferHandler();
 
-    /**
-     * Removes the given <tt>metaContact</tt> from the right list (selected) of
-     * contacts available for invite.
-     * @param metaContact the <tt>MetaContact</tt> to remove
-     */
-    public void removeSelectedMetaContact(MetaContact metaContact)
-    {
-        selectedContactListModel.removeElement(metaContact);
-    }
+        KeyboardFocusManager keyManager
+            = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
-    /**
-     * Adds the given <tt>metaContact</tt> to the left list of contacts
-     * available for invite.
-     * @param metaContact the <tt>MetaContact</tt> to add
-     */
-    public void addMetaContact(MetaContact metaContact)
-    {
-        contactListModel.addElement(metaContact);
-    }
+        ContactListSearchKeyDispatcher clKeyDispatcher
+                        = new ContactListSearchKeyDispatcher(   keyManager,
+                                                                searchField,
+                                                                this);
 
-    /**
-     * Removes the given <tt>metaContact</tt> from the left list of contacts
-     * available for invite.
-     * @param metaContact the <tt>MetaContact</tt> to remove
-     */
-    public void removeMetaContact(MetaContact metaContact)
-    {
-        contactListModel.removeElement(metaContact);
-    }
+        clKeyDispatcher.setContactList(srcContactList);
 
-    /**
-     * Removes all <tt>MetaContact</tt>-s from the left list of contacts
-     * available for invite.
-     */
-    public void removeAllMetaContacts()
-    {
-        contactListModel.removeAllElements();
-    }
-
-    /**
-     * Removes all <tt>MetaContact</tt>-s from the right list of selected
-     * contacts for invite.
-     */
-    public void removeAllSelectedContacts()
-    {
-        selectedContactListModel.removeAllElements();
-    }
-
-    /**
-     * Returns an enumeration of the list of selected <tt>MetaContact</tt>s.
-     * @return an enumeration of the list of selected <tt>MetaContact</tt>s
-     */
-    public Enumeration<MetaContact> getSelectedMetaContacts()
-    {
-        if (selectedContactListModel.getSize() == 0)
-            return null;
-
-        Vector<MetaContact> selectedMetaContacts = new Vector<MetaContact>();
-        Enumeration<?> selectedContacts = selectedContactListModel.elements();
-        while(selectedContacts.hasMoreElements())
-        {
-            Object contact = selectedContacts.nextElement();
-            if (contact instanceof MetaContact)
-                selectedMetaContacts.add((MetaContact)contact);
-        }
-
-        return selectedMetaContacts.elements();
-    }
-
-    /**
-     * Returns an enumeration of the list of selected Strings.
-     * @return an enumeration of the list of selected Strings
-     */
-    public Enumeration<String> getSelectedStrings()
-    {
-        if (selectedContactListModel.getSize() == 0)
-            return null;
-
-        Vector<String> selectedStrings = new Vector<String>();
-        Enumeration<?> selectedContacts = selectedContactListModel.elements();
-        while(selectedContacts.hasMoreElements())
-        {
-            Object contact = selectedContacts.nextElement();
-            if (contact instanceof String)
-                selectedStrings.add((String)contact);
-        }
-
-        return selectedStrings.elements();
+        keyManager.addKeyEventDispatcher(clKeyDispatcher);
     }
 
     /**
      * Returns the reason of this invite, if the user has specified one.
+     *
      * @return the reason of this invite
      */
     public String getReason()
@@ -380,6 +249,7 @@ public class InviteDialog
 
     /**
      * Adds an <tt>ActionListener</tt> to the contained "Invite" button.
+     *
      * @param l the <tt>ActionListener</tt> to add
      */
     public void addInviteButtonListener(ActionListener l)
@@ -389,6 +259,7 @@ public class InviteDialog
 
     /**
      * Adds an <tt>ActionListener</tt> to the contained "Cancel" button.
+     *
      * @param l the <tt>ActionListener</tt> to add
      */
     public void addCancelButtonListener(ActionListener l)
@@ -398,6 +269,7 @@ public class InviteDialog
 
     /**
      * Closes this dialog by clicking on the "Cancel" button.
+     *
      * @param isEscaped indicates if this <tt>close</tt> is provoked by an
      * escape
      */
@@ -407,63 +279,63 @@ public class InviteDialog
     }
 
     /**
+     * Sets the current provider selected for this invite dialog.
+     *
+     * @param protocolProvider the protocol provider selected for this invite
+     * dialog
+     */
+    protected void setCurrentProvider(ProtocolProviderService protocolProvider)
+    {
+        this.currentProvider = protocolProvider;
+
+        inviteContactTransferHandler.setBackupProvider(currentProvider);
+    }
+
+    /**
      * Moves contacts from the left list to the right.
      *
-     * @param metaContacts the contacts to move.
+     * @param contacts an Iterator over a list of <tt>UIContact</tt>s
      */
-    private void moveContactsFromLeftToRight(Object[] metaContacts)
+    private void moveContactsFromLeftToRight(Iterator<UIContact> contacts)
     {
-        for (Object metaContact : metaContacts)
+        while (contacts.hasNext())
         {
-            contactListModel.removeElement(metaContact);
-
-            selectedContactListModel.addElement(metaContact);
+            moveContactFromLeftToRight(contacts.next());
         }
     }
 
     /**
-     * Moves a string from left to right.
-     */
-    protected void moveStringFromLeftToRight()
-    {
-        String newContactText = newContactField.getText();
-
-        if (newContactText != null && newContactText.length() > 0)
-            selectedContactListModel.addElement(newContactField.getText());
-
-        newContactField.setText("");
-    }
-
-    /**
-     * Moves a contact from the right list to the left.
+     * Moves the given <tt>UIContact</tt> from left list to the right.
      *
-     * @param contacts the contact to move.
+     * @param uiContact the contact to move
      */
-    protected void moveContactsFromRightToLeft(Object[] contacts)
+    private void moveContactFromLeftToRight(UIContact uiContact)
     {
-        for (Object contact : contacts)
-        {
-            selectedContactListModel.removeElement(contact);
+        destContactList.addContact(
+            new InviteUIContact(uiContact, currentProvider), null, false, false);
+    }
 
-            // If this is a MetaContact re-add it in the left list.
-            if (contact instanceof MetaContact)
-                contactListModel.addElement(contact);
+    /**
+     * Moves contacts from the right list to the left.
+     *
+     * @param contacts an Iterator over a list of <tt>UIContact</tt>s
+     */
+    protected void moveContactsFromRightToLeft(Iterator<UIContact> contacts)
+    {
+        while (contacts.hasNext())
+        {
+            moveContactFromRightToLeft(contacts.next());
         }
     }
 
     /**
-     * The <tt>MoveStringToRight</tt> is an <tt>AbstractAction</tt> that moves
-     * the text to right panel containing selected contacts.
+     * Moves the given <tt>UIContact</tt> from left list to the right.
+     *
+     * @param uiContact the contact to move
      */
-    private class MoveStringToRight
-        extends UIAction
+    private void moveContactFromRightToLeft(UIContact uiContact)
     {
-        private static final long serialVersionUID = 0L;
-
-        public void actionPerformed(ActionEvent e)
-        {
-            moveStringFromLeftToRight();
-        }
+        destContactList.removeContact(uiContact);
     }
 
     /**
@@ -473,5 +345,127 @@ public class InviteDialog
     {
         iconLabel.setIcon(new ImageIcon(
                 ImageLoader.getImage(ImageLoader.INVITE_DIALOG_ICON)));
+    }
+
+    /**
+     * Creates the source contact list component.
+     *
+     * @return the created contact list component
+     */
+    private Component createSrcContactListComponent()
+    {
+        srcContactList
+            = GuiActivator.getUIService().createContactListComponent();
+
+        srcContactList.setDragEnabled(true);
+        srcContactList.setContactButtonsVisible(false);
+        srcContactList.setMultipleSelectionEnabled(true);
+        srcContactList.addContactListListener(new ContactListListener()
+        {
+            public void groupSelected(ContactListEvent evt) {}
+
+            public void groupClicked(ContactListEvent evt) {}
+
+            public void contactSelected(ContactListEvent evt) {}
+
+            public void contactClicked(ContactListEvent evt)
+            {
+                if (evt.getClickCount() > 1)
+                    moveContactFromLeftToRight(evt.getSourceContact());
+            }
+        });
+
+        // By default we set the current filter to be the presence filter.
+        JScrollPane contactListScrollPane = new JScrollPane();
+
+        contactListScrollPane.setOpaque(false);
+        contactListScrollPane.getViewport().setOpaque(false);
+        contactListScrollPane.getViewport().add(srcContactList.getComponent());
+        contactListScrollPane.getViewport().setBorder(null);
+        contactListScrollPane.setViewportBorder(null);
+        contactListScrollPane.setBorder(null);
+
+        return contactListScrollPane;
+    }
+
+    /**
+     * Creates the destination contact list component.
+     *
+     * @return the created contact list component
+     */
+    private Component createDestContactListComponent()
+    {
+        destContactList
+            = GuiActivator.getUIService().createContactListComponent();
+
+        destContactList.setContactButtonsVisible(false);
+        destContactList.setMultipleSelectionEnabled(true);
+        destContactList.addContactListListener(new ContactListListener()
+        {
+            public void groupSelected(ContactListEvent evt) {}
+
+            public void groupClicked(ContactListEvent evt) {}
+
+            public void contactSelected(ContactListEvent evt) {}
+
+            public void contactClicked(ContactListEvent evt)
+            {
+                if (evt.getClickCount() > 1)
+                    moveContactFromRightToLeft(evt.getSourceContact());
+            }
+        });
+
+        // By default we set the current filter to be the presence filter.
+        JScrollPane contactListScrollPane = new JScrollPane();
+
+        contactListScrollPane.setOpaque(false);
+        contactListScrollPane.getViewport().setOpaque(false);
+        contactListScrollPane.getViewport().add(destContactList.getComponent());
+        contactListScrollPane.getViewport().setBorder(null);
+        contactListScrollPane.setViewportBorder(null);
+        contactListScrollPane.setBorder(null);
+
+        return contactListScrollPane;
+    }
+
+    /**
+     * Called when the ENTER key was typed when this container was the focused
+     * container. Performs the appropriate actions depending on the current
+     * state of the contained contact list.
+     */
+    public void enterKeyTyped()
+    {
+        List<UIContact> selectedContacts = srcContactList.getSelectedContacts();
+
+        if (selectedContacts == null)
+            return;
+
+        moveContactsFromLeftToRight(selectedContacts.iterator());
+    }
+
+    /**
+     * Called when the CTRL-ENTER or CMD-ENTER keys were typed when this
+     * container was the focused container. Performs the appropriate actions
+     * depending on the current state of the contained contact list.
+     */
+    public void ctrlEnterKeyTyped() {}
+
+    /**
+     * Initializes the transfer handler.
+     */
+    private void initTransferHandler()
+    {
+        inviteContactTransferHandler
+            = new InviteContactTransferHandler( srcContactList,
+                                                destContactList,
+                                                true);
+
+        if (srcContactList.getComponent() instanceof JComponent)
+            ((JComponent) srcContactList).setTransferHandler(
+                inviteContactTransferHandler);
+
+        if (destContactList.getComponent() instanceof JComponent)
+            ((JComponent) destContactList).setTransferHandler(
+                inviteContactTransferHandler);
     }
 }

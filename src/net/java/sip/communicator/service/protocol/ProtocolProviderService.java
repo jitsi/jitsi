@@ -146,6 +146,21 @@ public interface ProtocolProviderService
     public Map<String, OperationSet> getSupportedOperationSets();
 
     /**
+     * Returns a collection containing all operation sets classes supported by
+     * the current implementation. When querying this method users must be
+     * prepared to receive any subset of the OperationSet-s defined by this
+     * service. They MUST ignore any OperationSet-s that they are not aware of
+     * and that may be defined by future versions of this service. Such
+     * "unknown" OperationSet-s though not encouraged, may also be defined by
+     * service implementors.
+     *
+     * @return a {@link Collection} containing instances of all supported
+     * operation set classes (e.g. <tt>OperationSetPresence.class</tt>.
+     */
+    public Collection<Class<? extends OperationSet>>
+                                            getSupportedOperationSetClasses();
+
+    /**
      * Returns the operation set corresponding to the specified class or
      * <tt>null</tt> if this operation set is not supported by the provider
      * implementation.

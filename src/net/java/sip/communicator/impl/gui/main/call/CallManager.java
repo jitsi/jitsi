@@ -19,7 +19,9 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.Logger;
@@ -1330,6 +1332,95 @@ public class CallManager
 
         return CallManager.addressesAreEqual(
             conferenceMember.getAddress(), localUserAddress);
+    }
+
+    /**
+     * Searches for additional phone numbers found in contact information
+     * @return additional phone numbers found in contact information;
+     */
+    public static List<UIContactDetail> getAdditionalNumbers(
+                                                        MetaContact metaContact)
+    {
+        List<UIContactDetail> telephonyContacts
+            = new ArrayList<UIContactDetail>();
+
+        Iterator<Contact> contacts = metaContact.getContacts();
+
+        while(contacts.hasNext())
+        {
+            Contact contact = contacts.next();
+            OperationSetServerStoredContactInfo infoOpSet =
+                contact.getProtocolProvider().getOperationSet(
+                    OperationSetServerStoredContactInfo.class);
+            Iterator<GenericDetail> details;
+            ArrayList<String> phones = new ArrayList<String>();
+
+            if(infoOpSet != null)
+            {
+                details = infoOpSet.getAllDetailsForContact(contact);
+
+                while(details.hasNext())
+                {
+                    GenericDetail d = details.next();
+                    if(d instanceof PhoneNumberDetail &&
+                        !(d instanceof PagerDetail) &&
+                        !(d instanceof FaxDetail))
+                    {
+                        PhoneNumberDetail pnd = (PhoneNumberDetail)d;
+                        if(pnd.getNumber() != null &&
+                            pnd.getNumber().length() > 0)
+                        {
+                            String localizedType = null;
+
+                            if(d instanceof WorkPhoneDetail)
+                            {
+                                localizedType =
+                                    GuiActivator.getResources().
+                                        getI18NString(
+                                            "service.gui.WORK_PHONE");
+                            }
+                            else if(d instanceof MobilePhoneDetail)
+                            {
+                                localizedType =
+                                    GuiActivator.getResources().
+                                        getI18NString(
+                                            "service.gui.MOBILE_PHONE");
+                            }
+                            else
+                            {
+                                localizedType =
+                                    GuiActivator.getResources().
+                                        getI18NString(
+                                            "service.gui.PHONE");
+                            }
+
+                            phones.add(pnd.getNumber());
+
+                            UIContactDetail cd =
+                                new UIContactDetailImpl(
+                                    pnd.getNumber(),
+                                    pnd.getNumber() +
+                                    " (" + localizedType + ")",
+                                    null,
+                                    new ArrayList<String>(),
+                                    null,
+                                    null,
+                                    null,
+                                    pnd)
+                            {
+                                public PresenceStatus getPresenceStatus()
+                                {
+                                    return null;
+                                }
+                            };
+                            telephonyContacts.add(cd);
+                        }
+                    }
+                }
+            }
+        }
+
+        return telephonyContacts;
     }
 
     /**

@@ -274,13 +274,23 @@ public class CallHistoryContactSource
     }
 
     /**
-     * Returns the identifier of this contact source. Some of the common
-     * identifiers are defined here (For example the CALL_HISTORY identifier
-     * should be returned by all call history implementations of this interface)
-     * @return the identifier of this contact source
+     * Returns default type to indicate that this contact source can be queried
+     * by default filters.
+     *
+     * @return the type of this contact source
      */
-    public String getIdentifier()
+    public int getType()
     {
-        return CALL_HISTORY;
+        return HISTORY_TYPE;
+    }
+
+    /**
+     * Returns the index of the contact source in the result list.
+     *
+     * @return the index of the contact source in the result list
+     */
+    public int getIndex()
+    {
+        return 0;
     }
 }

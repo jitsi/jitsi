@@ -16,26 +16,37 @@ package net.java.sip.communicator.service.contactsource;
 public interface ContactSourceService
 {
     /**
-     * Constants to identify <tt>ContactSource</tt> in call history.
+     * Type of a default source.
      */
-    public static final String CALL_HISTORY = "CallHistory";
+    public static final int DEFAULT_TYPE = 0;
 
     /**
-     * Returns the identifier of this contact source. Some of the common
-     * identifiers are defined here (For example the CALL_HISTORY identifier
-     * should be returned by all call history implementations of this interface)
-     * @return the identifier of this contact source
+     * Type of a search source. Queried only when searches are performed.
      */
-    public String getIdentifier();
+    public static final int SEARCH_TYPE = 1;
+
+    /**
+     * Type of a history source. Queries only when history should be shown.
+     */
+    public static final int HISTORY_TYPE = 2;
+
+    /**
+     * Returns the type of this contact source.
+     *
+     * @return the type of this contact source
+     */
+    public int getType();
 
     /**
      * Returns a user-friendly string that identifies this contact source.
+     * 
      * @return the display name of this contact source
      */
     public String getDisplayName();
 
     /**
      * Queries this search source for the given <tt>queryString</tt>.
+     *
      * @param queryString the string to search for
      * @return the created query
      */
@@ -50,4 +61,11 @@ public interface ContactSourceService
      */
     public ContactQuery queryContactSource(String queryString,
             int contactCount);
+
+    /**
+     * Returns the index of the contact source in the result list.
+     *
+     * @return the index of the contact source in the result list
+     */
+    public int getIndex();
 }

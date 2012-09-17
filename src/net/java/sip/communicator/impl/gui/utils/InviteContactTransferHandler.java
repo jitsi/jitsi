@@ -13,7 +13,6 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -24,6 +23,7 @@ import net.java.sip.communicator.util.swing.*;
  * simple string addresses to the conference invite dialog.
  *
  * @author Sebastien Vincent
+ * @author Yana Stamcheva
  */
 public class InviteContactTransferHandler
     extends ExtendedTransferHandler
@@ -46,15 +46,19 @@ public class InviteContactTransferHandler
         = new DataFlavor(UIContact.class, "UIContact");
 
     /**
-     * The data flavor used when transferring <tt>UIContact</tt>s.
+     * The source contact list.
      */
-    protected static final DataFlavor metaContactDataFlavor
-        = new DataFlavor(MetaContact.class, "MetaContact");
+    private final ContactList srcContactList;
 
     /**
-     * The invite dialog.
+     * The destination contact list.
      */
-    private final InviteDialog dialog;
+    private final ContactList destContactList;
+
+    /**
+     * The backup provider to use if no provider is specified.
+     */
+    private ProtocolProviderService backupProvider;
 
     /**
      * If the component is the selected contact list or not
@@ -67,15 +71,19 @@ public class InviteContactTransferHandler
      * @param dialog the invite dialog
      * @param selected if the column is the selected ones
      */
-    public InviteContactTransferHandler(InviteDialog dialog, boolean selected)
+    public InviteContactTransferHandler(ContactList srcContactList,
+                                        ContactList destContactList,
+                                        boolean selected)
     {
-        this.dialog = dialog;
+        this.srcContactList = srcContactList;
+        this.destContactList = destContactList;
         this.selected = selected;
     }
 
     /**
      * Creates a transferable for text pane components in order to enable drag
      * and drop of text.
+     *
      * @param component the component for which to create a
      * <tt>Transferable</tt>
      * @return the created <tt>Transferable</tt>
@@ -83,11 +91,12 @@ public class InviteContactTransferHandler
     @Override
     protected Transferable createTransferable(JComponent component)
     {
-        if (component instanceof DefaultContactList)
+        if (component instanceof ContactList)
         {
-            MetaContact c =
-                (MetaContact)((DefaultContactList)component).getSelectedValue();
-            return new MetaContactTransferable(c);
+            List<UIContact> c = ((ContactList) component).getSelectedContacts();
+
+            if (c != null)
+                return new UIContactTransferable(c);
         }
 
         return super.createTransferable(component);
@@ -109,10 +118,9 @@ public class InviteContactTransferHandler
     {
         for (int i = 0, n = flavor.length; i < n; i++)
         {
-            if (flavor[i].equals(uiContactDataFlavor) ||
-                flavor[i].equals(metaContactDataFlavor))
+            if (flavor[i].equals(uiContactDataFlavor))
             {
-                if (comp instanceof DefaultContactList)
+                if (comp instanceof ContactList)
                 {
                     return true;
                 }
@@ -156,102 +164,111 @@ public class InviteContactTransferHandler
                     logger.debug("Failed to drop meta contact.", e);
             }
 
-            if (o instanceof ContactNode)
+            if (o instanceof Collection)
             {
-                UIContact uiContact
-                    = ((ContactNode) o).getContactDescriptor();
+                Iterator<?> c = ((Collection<?>) o).iterator();
 
-                Object obj = uiContact.getDescriptor();
+                while (c.hasNext())
+                {
+                    Object nextO = c.next();
 
-                if(!(obj instanceof MetaContact))
-                    return false;
+                    if (nextO instanceof UIContact)
+                    {
+                        destContactList.addContact(
+                            new InviteUIContact((UIContact) nextO,
+                                                backupProvider),
+                            null, false, false);
+                    }
+                }
 
-                Iterator<UIContactDetail> contactDetails
-                    = uiContact.getContactDetailsForOperationSet(
-                        OperationSetBasicTelephony.class).iterator();
-                if(!contactDetails.hasNext())
-                    return false;
-
-                MetaContact metaContact =
-                    (MetaContact)uiContact.getDescriptor();
-
-                dialog.addSelectedMetaContact(metaContact);
                 return true;
             }
-        }
-        else if(t.isDataFlavorSupported(metaContactDataFlavor))
-        {
-            MetaContact c = null;
+            else if (o instanceof UIContact)
+            {
+                destContactList.addContact(
+                    new InviteUIContact((UIContact) o,
+                                        backupProvider),
+                    null, false, false);
 
-            try
-            {
-                c = (MetaContact)t.getTransferData(metaContactDataFlavor);
-            }
-            catch(Exception e)
-            {
-                e.printStackTrace();
-            }
-
-            if(selected)
-            {
-                dialog.removeMetaContact(c);
-                dialog.addSelectedMetaContact(c);
                 return true;
             }
-            else
+            else if (o instanceof ContactNode)
             {
-                dialog.removeSelectedMetaContact(c);
-                dialog.addMetaContact(c);
+                UIContact uiContact = ((ContactNode) o).getContactDescriptor();
+
+                if (uiContact != null)
+                {
+                    destContactList.addContact(
+                        new InviteUIContact(uiContact,
+                                            backupProvider),
+                        null, false, false);
+
+                    return true;
+                }
             }
-            return true;
         }
         return false;
     }
 
     /**
-     * Transferable for DefaultContactList that enables drag and drop of
-     * meta contacts.
+     * The backup provider to use if no provider has been specified.
+     *
+     * @param backupProvider the backup provider to use if no provider has been
+     * specified
      */
-    public class MetaContactTransferable
+    public void setBackupProvider(ProtocolProviderService backupProvider)
+    {
+        this.backupProvider = backupProvider;
+    }
+
+    /**
+     * Transferable for TreeContactList that enables drag and drop of
+     * ui contacts.
+     */
+    public class UIContactTransferable
         implements Transferable
     {
         /**
-         * The meta contact.
+         * The ui contact.
          */
-        private final MetaContact metaContact;
+        private final List<UIContact> uiContacts;
 
         /**
-         * Creates an instance of <tt>MetaContactTransferable</tt>.
-         * @param metaContact the meta contact to transfer
+         * Creates an instance of <tt>UIContactTransferable</tt>.
+         *
+         * @param uiContacts the ui contacts to transfer
          */
-        public MetaContactTransferable(MetaContact metaContact)
+        public UIContactTransferable(List<UIContact> uiContacts)
         {
-            this.metaContact = metaContact;
+            this.uiContacts = uiContacts;
         }
 
         /**
          * Returns supported flavors.
+         *
          * @return an array of supported flavors
          */
         public DataFlavor[] getTransferDataFlavors()
         {
-            return new DataFlavor[] {   metaContactDataFlavor};
+            return new DataFlavor[] {uiContactDataFlavor};
         }
 
         /**
          * Returns <tt>true</tt> if the given <tt>flavor</tt> is supported,
          * otherwise returns <tt>false</tt>.
+         *
          * @param flavor the data flavor to verify
          * @return <tt>true</tt> if the given <tt>flavor</tt> is supported,
          * otherwise returns <tt>false</tt>
          */
         public boolean isDataFlavorSupported(DataFlavor flavor)
         {
-            return metaContactDataFlavor.equals(flavor);
+            return uiContactDataFlavor.equals(flavor);
         }
 
         /**
          * Returns the selected text.
+         *
          * @param flavor the flavor
          * @return the selected text
          * @exception UnsupportedFlavorException if the requested data flavor
@@ -263,17 +280,17 @@ public class InviteContactTransferHandler
             throws  UnsupportedFlavorException,
                     IOException
         {
-            return metaContact;
+            return uiContacts;
         }
 
         /**
-         * Returns meta contact.
+         * Returns the ui contacts.
          *
-         * @return meta contact
+         * @return the ui contacts
          */
-        public MetaContact getMetaContact()
+        public List<UIContact> getUIContacts()
         {
-            return metaContact;
+            return uiContacts;
         }
     }
 }

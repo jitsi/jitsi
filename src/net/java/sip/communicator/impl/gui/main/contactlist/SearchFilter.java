@@ -13,6 +13,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.gui.event.*;
 
 /**
  * The <tt>SearchFilter</tt> is a <tt>ContactListFilter</tt> that filters the
@@ -21,27 +22,17 @@ import net.java.sip.communicator.service.gui.*;
  * @author Yana Stamcheva
  */
 public class SearchFilter
-    implements ContactListFilter
+    implements ContactListSearchFilter
 {
-    /**
-     * The default contact source search type.
-     */
-    public static final int DEFAULT_SOURCE = 0;
-
-    /**
-     * The history contact source search type.
-     */
-    public static final int HISTORY_SOURCE = 1;
-
     /**
      * The string, which we're searching.
      */
-    private String filterString;
+    protected String filterString;
 
     /**
      * The pattern to filter.
      */
-    private Pattern filterPattern;
+    protected Pattern filterPattern;
 
     /**
      * The <tt>MetaContactListSource</tt> to search in.
@@ -49,15 +40,9 @@ public class SearchFilter
     private final MetaContactListSource mclSource;
 
     /**
-     * The list of external contact sources to search in.
+     * The source contact list.
      */
-    private Collection<UIContactSource> contactSources;
-
-    /**
-     * The type of the search source. One of the above defined DEFAUT_SOURCE or
-     * HISTORY_SOURCE.
-     */
-    private int searchSourceType = DEFAULT_SOURCE;
+    protected ContactList sourceContactList;
 
     /**
      * Creates an instance of <tt>SearchFilter</tt>.
@@ -68,29 +53,47 @@ public class SearchFilter
     }
 
     /**
+     * Creates an instance of <tt>SearchFilter</tt>.
+     */
+    public SearchFilter(ContactList sourceContactList)
+    {
+        this.mclSource = null;
+        this.sourceContactList = sourceContactList;
+    }
+
+    /**
      * Applies this filter to the default contact source.
      * @param filterQuery the query that tracks this filter.
      */
     public void applyFilter(FilterQuery filterQuery)
     {
-        // If the filter has a default contact source, we apply it first.
-        if (searchSourceType == DEFAULT_SOURCE)
+        if (sourceContactList == null)
+            sourceContactList = GuiActivator.getContactList();
+
+        Iterator<UIContactSource> filterSources
+            = sourceContactList.getContactSources().iterator();
+
+        if (sourceContactList.getDefaultFilter()
+                .equals(TreeContactList.presenceFilter))
         {
             MetaContactQuery defaultQuery
                 = mclSource.queryMetaContactSource(filterPattern);
 
-            defaultQuery.addContactQueryListener(GuiActivator.getContactList());
+            defaultQuery.addContactQueryListener(sourceContactList);
 
             // First add the MetaContactListSource
             filterQuery.addContactQuery(defaultQuery);
+        }
+        else if (sourceContactList.getDefaultFilter()
+                    .equals(TreeContactList.historyFilter))
+        {
+            filterSources = sourceContactList.getContactSources(
+                ContactSourceService.HISTORY_TYPE).iterator();
         }
 
         // If we have stopped filtering in the mean time we return here.
         if (filterQuery.isCanceled())
             return;
-
-        Iterator<UIContactSource> filterSources
-             = getContactSources().iterator();
 
         // Then we apply the filter on all its contact sources.
         while (filterSources.hasNext())
@@ -102,12 +105,17 @@ public class SearchFilter
             if (filterQuery.isCanceled())
                 return;
 
-            filterQuery.addContactQuery(
-                applyFilter(filterSource));
+            ContactQuery query = applyFilter(filterSource);
+
+            if (query.getStatus() == ContactQuery.QUERY_IN_PROGRESS)
+                filterQuery.addContactQuery(query);
         }
 
         // Closes this filter to indicate that we finished adding queries to it.
-        filterQuery.close();
+        if (filterQuery.isRunning())
+            filterQuery.close();
+        else if (!sourceContactList.isEmpty())
+            sourceContactList.selectFirstContact();
     }
 
     /**
@@ -133,7 +141,7 @@ public class SearchFilter
         // Add first available results.
         this.addMatching(contactQuery.getQueryResults());
 
-        contactQuery.addContactQueryListener(GuiActivator.getContactList());
+        contactQuery.addContactQueryListener(sourceContactList);
 
         return contactQuery;
     }
@@ -215,7 +223,10 @@ public class SearchFilter
      */
     private boolean isMatching(String text)
     {
-        return filterPattern.matcher(text).find();
+        if (filterPattern != null)
+            return filterPattern.matcher(text).find();
+
+        return true;
     }
 
     /**
@@ -240,7 +251,7 @@ public class SearchFilter
             = sourceContact.getContactSource();
 
         UIContactSource sourceUI
-            = GuiActivator.getContactList().getContactSource(contactSource);
+            = sourceContactList.getContactSource(contactSource);
 
         if (sourceUI != null
             // ExtendedContactSourceService has already matched the
@@ -248,7 +259,7 @@ public class SearchFilter
             && (contactSource instanceof ExtendedContactSourceService)
                 || isMatching(sourceContact))
         {
-            GuiActivator.getContactList().addContact(
+            sourceContactList.addContact(
                 sourceUI.createUIContact(sourceContact),
                 sourceUI.getUIGroup(),
                 false,
@@ -256,57 +267,5 @@ public class SearchFilter
         }
         else
             sourceUI.removeUIContact(sourceContact);
-    }
-
-    /**
-     * Sets the search source type: DEFAULT_SOURCE or HISTORY_SOURCE.
-     * @param searchSourceType the type of the search source to set
-     */
-    public void setSearchSourceType(int searchSourceType)
-    {
-        this.searchSourceType = searchSourceType;
-
-        switch(searchSourceType)
-        {
-            case DEFAULT_SOURCE:
-                contactSources
-                    = GuiActivator.getContactList().getContactSources();
-                break;
-            case HISTORY_SOURCE:
-            {
-                Collection<UIContactSource> historySources
-                    = new LinkedList<UIContactSource>();
-                UIContactSource historySource
-                    = GuiActivator.getContactList().getContactSource(
-                        ContactSourceService.CALL_HISTORY);
-
-                historySources.add(historySource);
-                contactSources = historySources;
-                break;
-            }
-        }
-    }
-
-    /**
-     * Returns the list of <tt>ExternalContactSource</tt> this filter searches
-     * in.
-     * @return the list of <tt>ExternalContactSource</tt> this filter searches
-     * in
-     */
-    public Collection<UIContactSource> getContactSources()
-    {
-        if (contactSources == null)
-            contactSources = GuiActivator.getContactList().getContactSources();
-        return contactSources;
-    }
-
-    /**
-     * Indicates if this filter contains a default source.
-     * @return <tt>true</tt> if this filter contains a default source,
-     * <tt>false</tt> otherwise
-     */
-    public boolean hasDefaultSource()
-    {
-        return (searchSourceType == DEFAULT_SOURCE);
     }
 }

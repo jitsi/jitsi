@@ -29,6 +29,32 @@ public class UIContactDetailImpl
     /**
      * Creates a <tt>UIContactDetailImpl</tt> by specifying the contact
      * <tt>address</tt>, the <tt>displayName</tt> and <tt>preferredProvider</tt>.
+     *
+     * @param address the contact address
+     * @param displayName the contact display name
+     * @param statusIcon the status icon of this contact detail
+     * @param descriptor the underlying object that this class is wrapping
+     */
+    public UIContactDetailImpl(
+        String address,
+        String displayName,
+        ImageIcon statusIcon,
+        Object descriptor)
+    {
+        super(  address,
+                displayName,
+                null,
+                null,
+                null,
+                null,
+                descriptor);
+
+        setStatusIcon(statusIcon);
+    }
+
+    /**
+     * Creates a <tt>UIContactDetailImpl</tt> by specifying the contact
+     * <tt>address</tt>, the <tt>displayName</tt> and <tt>preferredProvider</tt>.
      * @param address the contact address
      * @param displayName the contact display name
      * @param category the category of the underlying contact detail
@@ -45,12 +71,13 @@ public class UIContactDetailImpl
         String category,
         Collection<String> labels,
         ImageIcon statusIcon,
-        ProtocolProviderService preferredProvider,
-        String preferredProtocol,
+        Map<Class<? extends OperationSet>, ProtocolProviderService> 
+                                                        preferredProviders,
+        Map<Class<? extends OperationSet>, String> preferredProtocols,
         Object descriptor)
     {
-        super(address, displayName, category, labels, preferredProvider,
-            preferredProtocol, descriptor);
+        super(address, displayName, category, labels, preferredProviders,
+            preferredProtocols, descriptor);
 
         setStatusIcon(statusIcon);
     }

@@ -88,6 +88,7 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
         }
         if (changed)
             fireContactReceived(sourceContact);
+
         return changed;
     }
 

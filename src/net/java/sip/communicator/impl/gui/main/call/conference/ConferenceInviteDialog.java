@@ -15,8 +15,10 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.swing.*;
 // disambiguation
@@ -49,6 +51,16 @@ public class ConferenceInviteDialog
      * The call.
      */
     private final Call call;
+
+    /**
+     * The current provider contact source.
+     */
+    private ContactSourceService currentProviderContactSource;
+
+    /**
+     * The current string contact source.
+     */
+    private ContactSourceService currentStringContactSource;
 
     /**
      * Creates <tt>ConferenceInviteDialog</tt> by specifying the call, to which
@@ -128,8 +140,6 @@ public class ConferenceInviteDialog
                 {
                     lastSelectedAccount = accountSelectorBoxSelectedItem;
 
-                    //removeAllSelectedContacts();
-
                     initContactListData(
                         (ProtocolProviderService) accountSelectorBox
                             .getSelectedItem());
@@ -141,14 +151,16 @@ public class ConferenceInviteDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                if (getSelectedMetaContacts() != null
-                    || getSelectedStrings() != null)
+                Collection<UIContact> selectedContacts
+                    = destContactList.getContacts(null);
+
+                if (selectedContacts != null && selectedContacts.size() > 0)
                 {
                     ProtocolProviderService selectedProvider
                         = (ProtocolProviderService) accountSelectorBox
                             .getSelectedItem();
 
-                    inviteContacts();
+                    inviteContacts(selectedContacts);
 
                     // Store the last used account in order to pre-select it
                     // next time.
@@ -226,94 +238,73 @@ public class ConferenceInviteDialog
      */
     private void initContactListData(ProtocolProviderService protocolProvider)
     {
-        // re-init list.
-        this.removeAllMetaContacts();
+        this.setCurrentProvider(protocolProvider);
 
-        MetaContactListService metaContactListService
-            = GuiActivator.getContactListService();
+        srcContactList.removeContactSource(currentProviderContactSource);
+        srcContactList.removeContactSource(currentStringContactSource);
 
-        Iterator<MetaContact> contactListIter = metaContactListService
-            .findAllMetaContactsForProvider(protocolProvider);
+        currentProviderContactSource
+            = new ProtocolContactSourceServiceImpl(
+                                            protocolProvider,
+                                            OperationSetBasicTelephony.class);
+        currentStringContactSource
+            = new StringContactSourceServiceImpl(
+                                            protocolProvider,
+                                            OperationSetBasicTelephony.class);
 
-        while (contactListIter.hasNext())
-        {
-            MetaContact metaContact = contactListIter.next();
+        srcContactList.addContactSource(currentProviderContactSource);
+        srcContactList.addContactSource(currentStringContactSource);
 
-            if (!containsContact(metaContact))
-            {
-                if (metaContact.getDefaultContact(
-                    OperationSetBasicTelephony.class) != null)
-                    addMetaContact(metaContact);
-            }
-        }
+        srcContactList.applyDefaultFilter();
     }
 
     /**
      * Invites the contacts to the chat conference.
+     *
+     * @param contacts the list of contacts to invite
      */
-    private void inviteContacts()
+    private void inviteContacts(Collection<UIContact> contacts)
     {
         ProtocolProviderService selectedProvider = null;
-        Map<ProtocolProviderService, List<String>> selectedProviderCallees =
-            new HashMap<ProtocolProviderService, List<String>>();
+        Map<ProtocolProviderService, List<String>> selectedProviderCallees
+            = new HashMap<ProtocolProviderService, List<String>>();
         List<String> callees = null;
 
-        // Obtain selected contacts.
-        Enumeration<MetaContact> selectedContacts = getSelectedMetaContacts();
+        Iterator<UIContact> contactsIter = contacts.iterator();
 
-        if (selectedContacts != null)
+        while (contactsIter.hasNext())
         {
-            while (selectedContacts.hasMoreElements())
+            UIContact uiContact = contactsIter.next();
+
+            Iterator<UIContactDetail> contactDetailsIter = uiContact
+                .getContactDetailsForOperationSet(
+                    OperationSetBasicTelephony.class).iterator();
+
+            // We invite the first protocol contact that corresponds to the
+            // invite provider.
+            if (contactDetailsIter.hasNext())
             {
-                MetaContact metaContact
-                    = selectedContacts.nextElement();
+                UIContactDetail inviteDetail = contactDetailsIter.next();
+                selectedProvider = inviteDetail
+                    .getPreferredProtocolProvider(
+                        OperationSetBasicTelephony.class);
 
-                Iterator<Contact> contactsIter = metaContact.getContacts();
+                if (selectedProvider == null)
+                    selectedProvider
+                        = (ProtocolProviderService) accountSelectorBox
+                            .getSelectedItem();
 
-                // We invite the first protocol contact that corresponds to the
-                // invite provider.
-                if (contactsIter.hasNext())
-                {
-                    Contact inviteContact = contactsIter.next();
-                    selectedProvider = inviteContact.getProtocolProvider();
-
-                    if(selectedProviderCallees.get(selectedProvider) != null)
-                    {
-                        callees = selectedProviderCallees.get(selectedProvider);
-                    }
-                    else
-                    {
-                         callees = new ArrayList<String>();
-                    }
-
-                    callees.add(inviteContact.getAddress());
-                    selectedProviderCallees.put(selectedProvider, callees);
-                }
-            }
-        }
-
-        // Obtain selected strings.
-        Enumeration<ContactWithProvider> selectedContactWithProvider =
-            getSelectedContactsWithProvider();
-
-        if (selectedContactWithProvider != null)
-        {
-            while (selectedContactWithProvider.hasMoreElements())
-            {
-                ContactWithProvider c =
-                    selectedContactWithProvider.nextElement();
-                selectedProvider = c.getProvider();
-
-                if(selectedProviderCallees.get(selectedProvider) != null)
+                if(selectedProvider != null
+                    && selectedProviderCallees.get(selectedProvider) != null)
                 {
                     callees = selectedProviderCallees.get(selectedProvider);
                 }
                 else
                 {
-                     callees = new ArrayList<String>();
+                    callees = new ArrayList<String>();
                 }
 
-                callees.add(c.getAddress());
+                callees.add(inviteDetail.getAddress());
                 selectedProviderCallees.put(selectedProvider, callees);
             }
         }
@@ -321,7 +312,7 @@ public class ConferenceInviteDialog
         if(call != null)
         {
             Map.Entry<ProtocolProviderService, List<String>> entry;
-            if(selectedProviderCallees.size() == 1
+            if (selectedProviderCallees.size() == 1
                 && (entry = selectedProviderCallees.entrySet().iterator().next())
                         != null
                 && call.getProtocolProvider().equals(entry.getKey()))
@@ -344,6 +335,7 @@ public class ConferenceInviteDialog
                 // one provider, normal conf call
                 Map.Entry<ProtocolProviderService, List<String>> entry =
                     selectedProviderCallees.entrySet().iterator().next();
+
                 CallManager.createConferenceCall(
                     entry.getValue().toArray(
                                         new String[entry.getValue().size()]),
@@ -354,133 +346,6 @@ public class ConferenceInviteDialog
                 CallManager.createCrossProtocolConferenceCall(
                     selectedProviderCallees);
             }
-        }
-    }
-
-    /**
-     * Check if the given <tt>metaContact</tt> is already contained in the call.
-     *
-     * @param metaContact the <tt>Contact</tt> to check for
-     * @return <tt>true</tt> if the given <tt>metaContact</tt> is already
-     * contained in the call, otherwise - returns <tt>false</tt>
-     */
-    private boolean containsContact(MetaContact metaContact)
-    {
-        // If the call is not yet created we just return false.
-        if (call == null)
-            return false;
-
-        Iterator<? extends CallPeer> callPeers = call.getCallPeers();
-
-        while(callPeers.hasNext())
-        {
-            CallPeer callPeer = callPeers.next();
-
-            if(metaContact.containsContact(callPeer.getContact()))
-                return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Moves a string from left to right.
-     */
-    @Override
-    protected void moveStringFromLeftToRight()
-    {
-        String newContactText = newContactField.getText();
-
-        ContactWithProvider c = new ContactWithProvider(
-            newContactText, (ProtocolProviderService) accountSelectorBox
-            .getSelectedItem());
-        if (newContactText != null && newContactText.length() > 0)
-            selectedContactListModel.addElement(c);
-
-        newContactField.setText("");
-    }
-
-    /**
-     * Returns an enumeration of the list of selected Strings.
-     * @return an enumeration of the list of selected Strings
-     */
-    public Enumeration<ContactWithProvider> getSelectedContactsWithProvider()
-    {
-        if (selectedContactListModel.getSize() == 0)
-            return null;
-
-        Vector<ContactWithProvider> selectedStrings =
-            new Vector<ContactWithProvider>();
-        Enumeration<?> selectedContacts = selectedContactListModel.elements();
-        while(selectedContacts.hasMoreElements())
-        {
-            Object contact = selectedContacts.nextElement();
-            if (contact instanceof ContactWithProvider)
-                selectedStrings.add((ContactWithProvider)contact);
-        }
-
-        return selectedStrings.elements();
-    }
-
-    /**
-     * Contact with the provider to call him.
-     *
-     * @author Sebastien Vincent
-     */
-    private class ContactWithProvider
-    {
-        /**
-         * The provider.
-         */
-        private final ProtocolProviderService provider;
-
-        /**
-         * The contact.
-         */
-        private final String contact;
-
-        /**
-         * Constructor.
-         *
-         * @param contact the contact
-         * @param provider the provider
-         */
-        public ContactWithProvider(String contact,
-            ProtocolProviderService provider)
-        {
-            this.contact = contact;
-            this.provider = provider;
-        }
-
-        /**
-         * Returns the contact
-         *
-         * @return the contact
-         */
-        public String getAddress()
-        {
-            return contact;
-        }
-
-        /**
-         * Returns the provider.
-         *
-         * @return the provider
-         */
-        public ProtocolProviderService getProvider()
-        {
-            return provider;
-        }
-
-        /**
-         * Returns <tt>String</tt> representation.
-         *
-         * @return <tt>String</tt> representation
-         */
-        @Override
-        public String toString()
-        {
-            return contact;
         }
     }
 }

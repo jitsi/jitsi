@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
@@ -25,11 +24,6 @@ public class UIFilterQuery
                 MetaContactQueryListener
 {
     /**
-     * The maximum result count for each contact source.
-     */
-    public static final int MAX_EXTERNAL_RESULT_COUNT = 10;
-
-    /**
      * A listener, which is notified when this query finishes.
      */
     private FilterQueryListener filterQueryListener;
@@ -44,6 +38,11 @@ public class UIFilterQuery
      * Indicates if this query has been canceled.
      */
     private boolean isCanceled = false;
+
+    /**
+     * Indicates if this query is currently running.
+     */
+    private boolean isRunning = false;
 
     /**
      * Indicates if this query is closed, means no more queries could be added
@@ -64,6 +63,23 @@ public class UIFilterQuery
      * Indicates the number of running queries.
      */
     private int runningQueries = 0;
+
+    /**
+     * The parent contact list of this query.
+     */
+    private final ContactList contactList;
+
+    /**
+     * Creates an instance of <tt>UIFilterQuery</tt> by specifying the parent
+     * <tt>ContactList</tt>.
+     *
+     * @param contactList the <tt>ContactList</tt> on which the query is
+     * performed
+     */
+    public UIFilterQuery(ContactList contactList)
+    {
+        this.contactList = contactList;
+    }
 
     /**
      * Adds the given <tt>contactQuery</tt> to the list of filterQueries.
@@ -99,6 +115,7 @@ public class UIFilterQuery
             else if (contactQuery instanceof MetaContactQuery)
                 ((MetaContactQuery) contactQuery).addContactQueryListener(this);
 
+            isRunning = true;
             filterQueries.put(contactQuery, queryResults);
             runningQueries++;
         }
@@ -132,6 +149,19 @@ public class UIFilterQuery
         synchronized (filterQueries)
         {
             return isCanceled;
+        }
+    }
+
+    /**
+     * Indicates if this query is canceled.
+     *
+     * @return <tt>true</tt> if this query is canceled, <tt>false</tt> otherwise
+     */
+    public boolean isRunning()
+    {
+        synchronized (filterQueries)
+        {
+            return isRunning;
         }
     }
 
@@ -178,6 +208,8 @@ public class UIFilterQuery
      */
     private void fireFilterQueryEvent()
     {
+        isRunning = false;
+
         if (filterQueryListener == null)
             return;
 
@@ -264,8 +296,7 @@ public class UIFilterQuery
         {
             ContactQuery contactQuery = (ContactQuery) query;
             contactQuery.cancel();
-            contactQuery.removeContactQueryListener(
-                GuiActivator.getContactList());
+            contactQuery.removeContactQueryListener(contactList);
             if (!isSucceeded && contactQuery.getQueryResults().size() > 0)
                 isSucceeded = true;
         }
@@ -273,8 +304,7 @@ public class UIFilterQuery
         {
             MetaContactQuery metaContactQuery = (MetaContactQuery) query;
             metaContactQuery.cancel();
-            metaContactQuery.removeContactQueryListener(
-                GuiActivator.getContactList());
+            metaContactQuery.removeContactQueryListener(contactList);
             if (!isSucceeded && metaContactQuery.getResultCount() > 0)
                 isSucceeded = true;
         }
@@ -306,20 +336,20 @@ public class UIFilterQuery
 
         queryResults.add(contact);
 
-        if (queryResults.size() == MAX_EXTERNAL_RESULT_COUNT)
+        if (getMaxResultShown() > -1
+            && queryResults.size() == getMaxResultShown())
         {
-            query.removeContactQueryListener(GuiActivator.getContactList());
+            query.removeContactQueryListener(contactList);
 
             ShowMoreContact moreInfoContact
-                = new ShowMoreContact(query, queryResults);
+                = new ShowMoreContact(query, queryResults, getMaxResultShown());
 
             ContactSourceService contactSource = query.getContactSource();
 
-            GuiActivator.getContactList().addContact(
+            contactList.addContact(
                 query,
                 moreInfoContact,
-                GuiActivator.getContactList()
-                    .getContactSource(contactSource).getUIGroup(),
+                contactList.getContactSource(contactSource).getUIGroup(),
                 false);
         }
     }

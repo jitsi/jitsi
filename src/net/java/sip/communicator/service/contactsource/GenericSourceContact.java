@@ -38,6 +38,16 @@ public class GenericSourceContact
     private final String displayName;
 
     /**
+     * The display details of this contact.
+     */
+    private String displayDetails;
+
+    /**
+     * The presence status of this contact.
+     */
+    private PresenceStatus presenceStatus;
+
+    /**
      * The image/avatar of this <tt>SourceContact</tt>
      */
     private byte[] image;
@@ -139,8 +149,17 @@ public class GenericSourceContact
      */
     public String getDisplayDetails()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return displayDetails;
+    }
+
+    /**
+     * Sets the display details of this <tt>SourceContact</tt>.
+     *
+     * @param displayDetails the display details of this <tt>SourceContact</tt>
+     */
+    public String setDisplayDetails(String displayDetails)
+    {
+        return this.displayDetails = displayDetails;
     }
 
     /**
@@ -200,6 +219,16 @@ public class GenericSourceContact
      */
     public PresenceStatus getPresenceStatus()
     {
-        return null;
+        return presenceStatus;
+    }
+
+    /**
+     * Sets the status of the source contact.
+     *
+     * @param presenceStatus the status of this contact
+     */
+    public void setPresenceStatus(PresenceStatus presenceStatus)
+    {
+        this.presenceStatus = presenceStatus;
     }
 }

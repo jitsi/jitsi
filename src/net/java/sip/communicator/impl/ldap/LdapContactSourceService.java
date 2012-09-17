@@ -114,9 +114,9 @@ public class LdapContactSourceService
      * should be returned by all call history implementations of this interface)
      * @return the identifier of this contact source
      */
-    public String getIdentifier()
+    public int getType()
     {
-        return "LDAP";
+        return SEARCH_TYPE;
     }
 
     /**
@@ -204,5 +204,15 @@ public class LdapContactSourceService
             if (queries.remove(query))
                 queries.notify();
         }
+    }
+
+    /**
+     * Returns the index of the contact source in the result list.
+     *
+     * @return the index of the contact source in the result list
+     */
+    public int getIndex()
+    {
+        return -1;
     }
 }
