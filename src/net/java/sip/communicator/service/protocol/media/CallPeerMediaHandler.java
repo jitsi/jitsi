@@ -1652,7 +1652,7 @@ public abstract class CallPeerMediaHandler
         boolean accountOverridesEncodings = false;
         EncodingConfiguration encodingConfiguration
                 = ProtocolMediaActivator.getMediaService()
-                            .getNewEncodingConfiguration();;
+                            .getNewEncodingConfiguration();
         
         Map<String, String> properties 
                 = getPeer().getProtocolProvider()

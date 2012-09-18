@@ -41,8 +41,8 @@ import org.jitsi.util.swing.*;
 public class MediaConfigurationImpl implements MediaConfigurationService
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>MediaConfigurationImpl</tt> class for
-     * logging output.
+     * The <tt>Logger</tt> used by the <tt>MediaConfigurationServiceImpl</tt>
+     * class for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(MediaConfigurationImpl.class);
