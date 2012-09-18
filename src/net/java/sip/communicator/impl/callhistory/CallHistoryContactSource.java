@@ -291,6 +291,6 @@ public class CallHistoryContactSource
      */
     public int getIndex()
     {
-        return 0;
+        return -1;
     }
 }

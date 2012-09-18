@@ -213,11 +213,7 @@ public class SearchField
      */
     public void filterQueryFailed(FilterQuery query)
     {
-        /// If don't have matching contacts we enter the unknown contact
-        // view.
-        enableUnknownContactView(true);
-
-        query.setQueryListener(null);
+        closeFilterQuery(query, !contactList.isEmpty());
     }
 
     /**

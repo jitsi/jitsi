@@ -114,6 +114,7 @@ public class SearchFilter
         // Closes this filter to indicate that we finished adding queries to it.
         if (filterQuery.isRunning())
             filterQuery.close();
+
         else if (!sourceContactList.isEmpty())
             sourceContactList.selectFirstContact();
     }
