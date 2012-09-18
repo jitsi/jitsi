@@ -1117,7 +1117,6 @@ public class CallManager
         call.addCallChangeListener(callChangeListener);
         try
         {
-            dialog.setModal(true);
             dialog.pack();
             dialog.setVisible(true);
         }

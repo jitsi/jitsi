@@ -53,19 +53,13 @@ public class TransferCallDialog
         {
             public void actionPerformed(ActionEvent e)
             {
-                String transferString = getSelectedString();
+                UIContact uiContact = getSelectedContact();
 
-                if (transferString != null && transferString.length() > 0)
-                    CallManager.transferCall(peer, transferString);
-                else
+                if (uiContact != null)
                 {
-                    UIContact uiContact = getSelectedContact();
-
-                    if (uiContact != null)
-                    {
-                        transferToContact(uiContact);
-                    }
+                    transferToContact(uiContact);
                 }
+
                 setVisible(false);
                 dispose();
             }
