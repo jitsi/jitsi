@@ -19,6 +19,7 @@ import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.*;
 
 /**
  * Implements a Jabber <tt>CallPeer</tt>.
@@ -836,7 +837,18 @@ public class CallPeerJabberImpl
                     OperationFailedException.ILLEGAL_ARGUMENT);
         }
 
-        putOnHold(true);
+        // Checks if the transfer remote peer is contained by the roster of this
+        // account.
+        Roster roster = getProtocolProvider().getConnection().getRoster();
+        if(!roster.contains(StringUtils.parseBareAddress(calleeAddress)))
+        {
+            String failedMessage =
+                    "Tranfer impossible:\n"
+                    + "Account roster does not contain tansfer peer: "
+                    + StringUtils.parseBareAddress(calleeAddress);
+            setState(CallPeerState.FAILED, failedMessage);
+            logger.info(failedMessage);
+        }
 
         OperationSetBasicTelephonyJabberImpl basicTelephony
             = (OperationSetBasicTelephonyJabberImpl)
@@ -856,11 +868,6 @@ public class CallPeerJabberImpl
                 calleeCall,
                 calleeAddress,
                 Arrays.asList(new PacketExtension[] { calleeTransfer }));
-
-        hangup(
-            false,
-            ((sid == null) ? "Unattended" : "Attended") + " transfer success",
-            new TransferredPacketExtension());
     }
 
     /**
@@ -1288,6 +1295,43 @@ public class CallPeerJabberImpl
 
         transferSessionInfo.addExtension(transfer);
 
+        Connection connection = protocolProvider.getConnection();
+        PacketCollector collector = connection.createPacketCollector(
+                new PacketIDFilter(transferSessionInfo.getPacketID()));
         protocolProvider.getConnection().sendPacket(transferSessionInfo);
+
+        Packet result
+            = collector.nextResult(SmackConfiguration.getPacketReplyTimeout());
+
+        if(result == null)
+        {
+            // Log the failed transfer call and notify the user.
+            throw new OperationFailedException(
+                    "No response to the \"transfer\" request.",
+                    OperationFailedException.ILLEGAL_ARGUMENT);
+        }
+        else if (((IQ) result).getType() != IQ.Type.RESULT)
+        {
+            // Log the failed transfer call and notify the user.
+            throw new OperationFailedException(
+                    "Remote peer does not manage call \"transfer\"."
+                    + "Response to the \"transfer\" request is: "
+                    + ((IQ) result).getType(),
+                    OperationFailedException.ILLEGAL_ARGUMENT);
+        }
+        else
+        {
+            String message = ((sid == null) ? "Unattended" : "Attended")
+                + " transfer to: "
+                + to;
+            // Implements the SIP behavior: once the transfer is accepted, the
+            // current call is closed.
+            hangup(
+                false,
+                message,
+                new ReasonPacketExtension(Reason.SUCCESS,
+                    message,
+                    new TransferredPacketExtension()));
+        }
     }
 }
