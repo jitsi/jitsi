@@ -24,7 +24,7 @@ import org.jivesoftware.smack.packet.*;
  */
 public class CallPeerGTalkImpl
     extends AbstractCallPeerJabberGTalkImpl
-        <CallGTalkImpl, CallPeerMediaHandlerGTalkImpl>
+        <CallGTalkImpl, CallPeerMediaHandlerGTalkImpl, SessionIQ>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerGTalkImpl</tt> class and its
@@ -67,11 +67,6 @@ public class CallPeerGTalkImpl
      * "accept" message before sending candidates.
      */
     private SessionIQ sessAcceptedWithNoCands = null;
-
-    /**
-     * The {@link SessionIQ} that created the session that this call represents.
-     */
-    private SessionIQ sessionInitIQ = null;
 
     /**
      * Session ID.
@@ -123,7 +118,7 @@ public class CallPeerGTalkImpl
                 = GTalkPacketFactory.createSessionAccept(
                     sessionInitIQ.getTo(),
                     sessionInitIQ.getFrom(),
-                    getSessionID(),
+                    getSID(),
                     answer);
 
             getProtocolProvider().getConnection().sendPacket(response);
@@ -152,7 +147,7 @@ public class CallPeerGTalkImpl
             = GTalkPacketFactory.createSessionAccept(
                     sessionInitIQ.getTo(),
                     sessionInitIQ.getFrom(),
-                    getSessionID(),
+                    getSID(),
                     answer);
 
         //send the packet first and start the stream later  in case the media
@@ -192,23 +187,11 @@ public class CallPeerGTalkImpl
     }
 
     /**
-     * Returns the IQ ID of the Jingle session-initiate packet associated with
-     * this call.
-     *
-     * @return the IQ ID of the Jingle session-initiate packet associated with
-     * this call.
-     */
-    public String getSessInitID()
-    {
-        return sessionInitIQ != null ? sessionInitIQ.getPacketID() : null;
-    }
-
-    /**
      * Returns the session ID of the Jingle session associated with this call.
      *
      * @return the session ID of the Jingle session associated with this call.
      */
-    public String getSessionID()
+    public String getSID()
     {
         return sessionInitIQ != null ? sessionInitIQ.getID() : sid;
     }
@@ -254,7 +237,7 @@ public class CallPeerGTalkImpl
             || CallPeerState.isOnHold(prevPeerState))
         {
             responseIQ = GTalkPacketFactory.createBye(
-                getProtocolProvider().getOurJID(), peerJID, getSessionID());
+                getProtocolProvider().getOurJID(), peerJID, getSID());
             responseIQ.setInitiator(isInitiator() ? getAddress() :
                 getProtocolProvider().getOurJID());
         }
@@ -263,14 +246,14 @@ public class CallPeerGTalkImpl
             || CallPeerState.ALERTING_REMOTE_SIDE.equals(prevPeerState))
         {
             responseIQ = GTalkPacketFactory.createCancel(
-                getProtocolProvider().getOurJID(), peerJID, getSessionID());
+                getProtocolProvider().getOurJID(), peerJID, getSID());
             responseIQ.setInitiator(isInitiator() ? getAddress() :
                 getProtocolProvider().getOurJID());
         }
         else if (prevPeerState.equals(CallPeerState.INCOMING_CALL))
         {
             responseIQ = GTalkPacketFactory.createBusy(
-                getProtocolProvider().getOurJID(), peerJID, getSessionID());
+                getProtocolProvider().getOurJID(), peerJID, getSID());
             responseIQ.setInitiator(isInitiator() ? getAddress() :
                 getProtocolProvider().getOurJID());
         }
@@ -654,7 +637,7 @@ public class CallPeerGTalkImpl
         candidatesIQ.setFrom(protocolProvider.getOurJID());
         candidatesIQ.setInitiator(isInitiator() ? getAddress() :
             protocolProvider.getOurJID());
-        candidatesIQ.setID(getSessionID());
+        candidatesIQ.setID(getSID());
         candidatesIQ.setTo(getAddress());
         candidatesIQ.setType(IQ.Type.SET);
 

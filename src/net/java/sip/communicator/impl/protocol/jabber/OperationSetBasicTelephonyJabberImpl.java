@@ -60,15 +60,19 @@ public class OperationSetBasicTelephonyJabberImpl
     /**
      * Contains references for all currently active (non ended) calls.
      */
-    private ActiveCallsRepositoryJabberImpl activeCallsRepository
-        = new ActiveCallsRepositoryJabberImpl(this);
+    private ActiveCallsRepositoryJabberGTalkImpl
+        <CallJabberImpl, CallPeerJabberImpl> activeCallsRepository
+            = new ActiveCallsRepositoryJabberGTalkImpl
+                <CallJabberImpl, CallPeerJabberImpl>(this);
 
     /**
      * Contains references for all currently active (non ended) Google Talk
      * calls.
      */
-    private ActiveCallsRepositoryGTalkImpl activeGTalkCallsRepository
-        = new ActiveCallsRepositoryGTalkImpl(this);
+    private ActiveCallsRepositoryJabberGTalkImpl
+        <CallGTalkImpl, CallPeerGTalkImpl> activeGTalkCallsRepository
+            = new ActiveCallsRepositoryJabberGTalkImpl
+                <CallGTalkImpl, CallPeerGTalkImpl>(this);
 
     /**
      * Google Voice domain.
@@ -863,7 +867,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
             //if this is not a session-initiate we'll only take it if we've
             //already seen its session ID.
-            return (activeCallsRepository.findJingleSID(sid) != null);
+            return (activeCallsRepository.findSID(sid) != null);
         }
         else if(packet instanceof SessionIQ)
         {
@@ -878,7 +882,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
             //if this is not a session's initiate we'll only take it if we've
             //already seen its session ID.
-            return (activeGTalkCallsRepository.findSessionID(sid) != null);
+            return (activeGTalkCallsRepository.findSID(sid) != null);
         }
         return false;
     }
@@ -1008,7 +1012,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 if (sid != null)
                 {
                     CallJabberImpl attendantCall
-                        =  getActiveCallsRepository().findJingleSID(sid);
+                        =  getActiveCallsRepository().findSID(sid);
 
                     if (attendantCall != null)
                     {
@@ -1268,7 +1272,9 @@ public class OperationSetBasicTelephonyJabberImpl
      * @return a reference to the {@link ActiveCallsRepositoryJabberImpl} that
      * we are currently using.
      */
-    protected ActiveCallsRepositoryJabberImpl getActiveCallsRepository()
+    protected ActiveCallsRepositoryJabberGTalkImpl
+        <CallJabberImpl, CallPeerJabberImpl>
+            getActiveCallsRepository()
     {
         return activeCallsRepository;
     }
@@ -1280,7 +1286,9 @@ public class OperationSetBasicTelephonyJabberImpl
      * @return a reference to the {@link ActiveCallsRepositoryGTalkImpl} that
      * we are currently using.
      */
-    protected ActiveCallsRepositoryGTalkImpl getGTalkActiveCallsRepository()
+    protected ActiveCallsRepositoryJabberGTalkImpl
+        <CallGTalkImpl, CallPeerGTalkImpl>
+            getGTalkActiveCallsRepository()
     {
         return activeGTalkCallsRepository;
     }
@@ -1328,8 +1336,9 @@ public class OperationSetBasicTelephonyJabberImpl
     public void transfer(CallPeer peer, CallPeer target)
         throws OperationFailedException
     {
-        CallPeerJabberImpl targetJabberImpl = (CallPeerJabberImpl) target;
-        String to = getFullCalleeURI(targetJabberImpl.getAddress());
+        AbstractCallPeerJabberGTalkImpl targetJabberGTalkImpl
+            = (AbstractCallPeerJabberGTalkImpl) target;
+        String to = getFullCalleeURI(targetJabberGTalkImpl.getAddress());
 
         /*
          * XEP-0251: Jingle Session Transfer says: Before doing
@@ -1360,7 +1369,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
         transfer(
             peer,
-            to, targetJabberImpl.getJingleSID());
+            to, targetJabberGTalkImpl.getSID());
     }
 
     /**

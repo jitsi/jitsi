@@ -51,58 +51,6 @@ public class CallGTalkImpl
     }
 
     /**
-     * Determines if this call contains a peer whose corresponding session has
-     * the specified <tt>sid</tt>.
-     *
-     * @param sid the ID of the session whose peer we are looking for.
-     *
-     * @return <tt>true</tt> if this call contains a peer with the specified
-     * Google Talk <tt>sid</tt> and false otherwise.
-     */
-    public boolean containsSessionID(String sid)
-    {
-        return (getPeer(sid) != null);
-    }
-
-    /**
-     * Returns the peer whose corresponding session has the specified
-     * <tt>sid</tt>.
-     *
-     * @param sid the ID of the session whose peer we are looking for.
-     *
-     * @return the {@link CallPeerGTalkImpl} with the specified Google Talk
-     * <tt>sid</tt> and <tt>null</tt> if no such peer exists in this call.
-     */
-    public CallPeerGTalkImpl getPeer(String sid)
-    {
-        for(CallPeerGTalkImpl peer : getCallPeersVector())
-        {
-            if (peer.getSessionID().equals(sid))
-                return peer;
-        }
-        return null;
-    }
-
-    /**
-     * Returns the peer whose corresponding session-init ID has the specified
-     * <tt>id</tt>.
-     *
-     * @param id the ID of the session-init IQ whose peer we are looking for.
-     *
-     * @return the {@link CallPeerGTalkImpl} with the specified IQ
-     * <tt>id</tt> and <tt>null</tt> if no such peer exists in this call.
-     */
-    public CallPeerGTalkImpl getPeerBySessInitPacketID(String id)
-    {
-        for(CallPeerGTalkImpl peer : getCallPeersVector())
-        {
-            if (peer.getSessInitID().equals(id))
-                return peer;
-        }
-        return null;
-    }
-
-    /**
      * Creates a new Google Talk call peer and sends a RINGING response.
      *
      * @param sessionIQ the {@link SessionIQ} that created the session.

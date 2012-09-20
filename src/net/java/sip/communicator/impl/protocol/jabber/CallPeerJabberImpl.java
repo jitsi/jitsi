@@ -29,7 +29,7 @@ import org.jivesoftware.smack.util.*;
  */
 public class CallPeerJabberImpl
     extends AbstractCallPeerJabberGTalkImpl
-        <CallJabberImpl, CallPeerMediaHandlerJabberImpl>
+        <CallJabberImpl, CallPeerMediaHandlerJabberImpl, JingleIQ>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerJabberImpl</tt> class and its
@@ -62,11 +62,6 @@ public class CallPeerJabberImpl
      * Synchronization object.
      */
     private final Object sessionInitiateSyncRoot = new Object();
-
-    /**
-     * The {@link JingleIQ} that created the session that this call represents.
-     */
-    private JingleIQ sessionInitIQ;
 
     /**
      * Synchronization object for SID.
@@ -146,7 +141,7 @@ public class CallPeerJabberImpl
             = JinglePacketFactory.createSessionAccept(
                     sessionInitIQ.getTo(),
                     sessionInitIQ.getFrom(),
-                    getJingleSID(),
+                    getSID(),
                     answer);
 
         //send the packet first and start the stream later  in case the media
@@ -188,21 +183,9 @@ public class CallPeerJabberImpl
      *
      * @return the session ID of the Jingle session associated with this call.
      */
-    public String getJingleSID()
+    public String getSID()
     {
         return sessionInitIQ != null ? sessionInitIQ.getSID() : null;
-    }
-
-    /**
-     * Returns the IQ ID of the Jingle session-initiate packet associated with
-     * this call.
-     *
-     * @return the IQ ID of the Jingle session-initiate packet associated with
-     * this call.
-     */
-    public String getSessInitID()
-    {
-        return sessionInitIQ != null ? sessionInitIQ.getPacketID() : null;
     }
 
     /**
@@ -256,13 +239,13 @@ public class CallPeerJabberImpl
             || CallPeerState.isOnHold(prevPeerState))
         {
             responseIQ = JinglePacketFactory.createBye(
-                getProtocolProvider().getOurJID(), peerJID, getJingleSID());
+                getProtocolProvider().getOurJID(), peerJID, getSID());
         }
         else if (CallPeerState.CONNECTING.equals(prevPeerState)
             || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(prevPeerState)
             || CallPeerState.ALERTING_REMOTE_SIDE.equals(prevPeerState))
         {
-            String jingleSID = getJingleSID();
+            String jingleSID = getSID();
 
             if(jingleSID == null)
             {
@@ -277,12 +260,12 @@ public class CallPeerJabberImpl
             }
 
             responseIQ = JinglePacketFactory.createCancel(
-                getProtocolProvider().getOurJID(), peerJID, getJingleSID());
+                getProtocolProvider().getOurJID(), peerJID, getSID());
         }
         else if (prevPeerState.equals(CallPeerState.INCOMING_CALL))
         {
             responseIQ = JinglePacketFactory.createBusy(
-                getProtocolProvider().getOurJID(), peerJID, getJingleSID());
+                getProtocolProvider().getOurJID(), peerJID, getSID());
         }
         else if (prevPeerState.equals(CallPeerState.BUSY)
                  || prevPeerState.equals(CallPeerState.FAILED))
@@ -499,7 +482,7 @@ public class CallPeerJabberImpl
                 = JinglePacketFactory.createContentReject(
                         getProtocolProvider().getOurJID(),
                         this.peerJID,
-                        getJingleSID(),
+                        getSID(),
                         answerContents);
         }
 
@@ -510,7 +493,7 @@ public class CallPeerJabberImpl
                 = JinglePacketFactory.createContentAccept(
                         getProtocolProvider().getOurJID(),
                         this.peerJID,
-                        getJingleSID(),
+                        getSID(),
                         answerContents);
         }
 
@@ -962,7 +945,7 @@ public class CallPeerJabberImpl
         JingleIQ onHoldIQ = JinglePacketFactory.createSessionInfo(
                         getProtocolProvider().getOurJID(),
                         peerJID,
-                        getJingleSID(),
+                        getSID(),
                         type);
 
         getProtocolProvider().getConnection().sendPacket(onHoldIQ);
@@ -991,7 +974,7 @@ public class CallPeerJabberImpl
             = JinglePacketFactory.createContentAdd(
                     protocolProvider.getOurJID(),
                     this.peerJID,
-                    getJingleSID(),
+                    getSID(),
                     contents);
 
         protocolProvider.getConnection().sendPacket(contentIQ);
@@ -1007,7 +990,7 @@ public class CallPeerJabberImpl
     {
         JingleIQ sessionInfoIQ = JinglePacketFactory.createSessionInfo(
                         getProtocolProvider().getOurJID(),
-                        this.peerJID, getJingleSID());
+                        this.peerJID, getSID());
         CoinPacketExtension coinExt = new CoinPacketExtension(isConference);
         sessionInfoIQ.addExtension(coinExt);
 
@@ -1103,7 +1086,7 @@ public class CallPeerJabberImpl
             = JinglePacketFactory.createContentModify(
                     protocolProvider.getOurJID(),
                     this.peerJID,
-                    getJingleSID(),
+                    getSID(),
                     ext);
 
         protocolProvider.getConnection().sendPacket(contentIQ);
@@ -1157,7 +1140,7 @@ public class CallPeerJabberImpl
             = JinglePacketFactory.createContentModify(
                     protocolProvider.getOurJID(),
                     this.peerJID,
-                    getJingleSID(),
+                    getSID(),
                     content);
 
         protocolProvider.getConnection().sendPacket(contentIQ);
@@ -1195,7 +1178,7 @@ public class CallPeerJabberImpl
             = JinglePacketFactory.createContentRemove(
                     protocolProvider.getOurJID(),
                     this.peerJID,
-                    getJingleSID(),
+                    getSID(),
                     Arrays.asList(content));
 
         protocolProvider.getConnection().sendPacket(contentIQ);
@@ -1227,7 +1210,7 @@ public class CallPeerJabberImpl
 
         transportInfo.setAction(JingleAction.TRANSPORT_INFO);
         transportInfo.setFrom(protocolProvider.getOurJID());
-        transportInfo.setSID(getJingleSID());
+        transportInfo.setSID(getSID());
         transportInfo.setTo(getAddress());
         transportInfo.setType(IQ.Type.SET);
 
@@ -1275,7 +1258,7 @@ public class CallPeerJabberImpl
 
         transferSessionInfo.setAction(JingleAction.SESSION_INFO);
         transferSessionInfo.setFrom(protocolProvider.getOurJID());
-        transferSessionInfo.setSID(getJingleSID());
+        transferSessionInfo.setSID(getSID());
         transferSessionInfo.setTo(getAddress());
         transferSessionInfo.setType(IQ.Type.SET);
 

@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.packet.*;
 
 /**
@@ -23,7 +24,8 @@ import org.jivesoftware.smackx.packet.*;
  */
 public abstract class AbstractCallPeerJabberGTalkImpl
         <T extends AbstractCallJabberGTalkImpl<?>,
-         U extends AbstractCallPeerMediaHandlerJabberGTalkImpl<?>>
+         U extends AbstractCallPeerMediaHandlerJabberGTalkImpl<?>,
+         V extends IQ>
     extends MediaAwareCallPeer<T, U, ProtocolProviderServiceJabberImpl>
 {
     /**
@@ -48,6 +50,11 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      * The jabber address of this peer
      */
     protected String peerJID;
+
+    /**
+     * The {@link JingleIQ} that created the session that this call represents.
+     */
+    protected V sessionInitIQ;
 
     /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
@@ -195,5 +202,24 @@ public abstract class AbstractCallPeerJabberGTalkImpl
     public void setDiscoverInfo(DiscoverInfo discoverInfo)
     {
         this.discoverInfo = discoverInfo;
+    }
+
+    /**
+     * Returns the session ID of the Jingle session associated with this call.
+     *
+     * @return the session ID of the Jingle session associated with this call.
+     */
+    public abstract String getSID();
+
+    /**
+     * Returns the IQ ID of the Jingle session-initiate packet associated with
+     * this call.
+     *
+     * @return the IQ ID of the Jingle session-initiate packet associated with
+     * this call.
+     */
+    public String getSessInitID()
+    {
+        return sessionInitIQ != null ? sessionInitIQ.getPacketID() : null;
     }
 }

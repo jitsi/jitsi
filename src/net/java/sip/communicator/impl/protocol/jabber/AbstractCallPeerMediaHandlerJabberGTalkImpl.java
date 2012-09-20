@@ -26,7 +26,7 @@ import org.jivesoftware.smack.packet.*;
  * @author Vincent Lucas
  */
 public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
-        <T extends AbstractCallPeerJabberGTalkImpl<?,?>>
+        <T extends AbstractCallPeerJabberGTalkImpl<?,?,?>>
     extends CallPeerMediaHandler<T>
 {
     /**

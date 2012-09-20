@@ -134,7 +134,7 @@ public class CallJabberImpl
                     CallJabberImpl attendantCall
                         = basicTelephony
                             .getActiveCallsRepository()
-                                .findJingleSID(sid);
+                                .findSID(sid);
 
                     if (attendantCall != null)
                     {
@@ -400,58 +400,6 @@ public class CallJabberImpl
 
         for (CallPeerJabberImpl peer : getCallPeersVector())
             peer.sendModifyVideoContent(allowed);
-    }
-
-    /**
-     * Determines if this call contains a peer whose corresponding session has
-     * the specified <tt>sid</tt>.
-     *
-     * @param sid the ID of the session whose peer we are looking for.
-     *
-     * @return <tt>true</tt> if this call contains a peer with the specified
-     * jingle <tt>sid</tt> and false otherwise.
-     */
-    public boolean containsJingleSID(String sid)
-    {
-        return (getPeer(sid) != null);
-    }
-
-    /**
-     * Returns the peer whose corresponding session has the specified
-     * <tt>sid</tt>.
-     *
-     * @param sid the ID of the session whose peer we are looking for.
-     *
-     * @return the {@link CallPeerJabberImpl} with the specified jingle
-     * <tt>sid</tt> and <tt>null</tt> if no such peer exists in this call.
-     */
-    public CallPeerJabberImpl getPeer(String sid)
-    {
-        for(CallPeerJabberImpl peer : getCallPeersVector())
-        {
-            if (peer.getJingleSID().equals(sid))
-                return peer;
-        }
-        return null;
-    }
-
-    /**
-     * Returns the peer whose corresponding session-init ID has the specified
-     * <tt>id</tt>.
-     *
-     * @param id the ID of the session-init IQ whose peer we are looking for.
-     *
-     * @return the {@link CallPeerJabberImpl} with the specified IQ
-     * <tt>id</tt> and <tt>null</tt> if no such peer exists in this call.
-     */
-    public CallPeerJabberImpl getPeerBySessInitPacketID(String id)
-    {
-        for(CallPeerJabberImpl peer : getCallPeersVector())
-        {
-            if (peer.getSessInitID().equals(id))
-                return peer;
-        }
-        return null;
     }
 
     /**

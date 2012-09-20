@@ -655,7 +655,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     public boolean isRemoteControlAvailable(CallPeer callPeer)
     {
         DiscoverInfo discoverInfo
-            = ((AbstractCallPeerJabberGTalkImpl<?,?>) callPeer)
+            = ((AbstractCallPeerJabberGTalkImpl<?,?,?>) callPeer)
                 .getDiscoverInfo();
 
         return

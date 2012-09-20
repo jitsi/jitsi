@@ -17,10 +17,12 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Emil Ivov
  * @author Symphorien Wanko
+ * @author Vincent Lucas
  */
-public class ActiveCallsRepositoryJabberImpl
-    extends ActiveCallsRepository<CallJabberImpl,
-                                  OperationSetBasicTelephonyJabberImpl>
+public class ActiveCallsRepositoryJabberGTalkImpl
+        <T extends AbstractCallJabberGTalkImpl<U>,
+        U extends AbstractCallPeerJabberGTalkImpl<T, ?, ?>>
+        extends ActiveCallsRepository<T, OperationSetBasicTelephonyJabberImpl>
 {
     /**
      * It's where we store all active calls
@@ -28,7 +30,7 @@ public class ActiveCallsRepositoryJabberImpl
      * @param opSet the <tt>OperationSetBasicTelphony</tt> instance which has
      * been used to create calls in this repository
      */
-    public ActiveCallsRepositoryJabberImpl(
+    public ActiveCallsRepositoryJabberGTalkImpl(
                                     OperationSetBasicTelephonyJabberImpl opSet)
     {
         super(opSet);
@@ -45,14 +47,14 @@ public class ActiveCallsRepositoryJabberImpl
      * specified <tt>sid</tt> or <tt>null</tt> if we couldn't find one matching
      * it.
      */
-    public CallJabberImpl findJingleSID(String sid)
+    public T findSID(String sid)
     {
-        Iterator<CallJabberImpl> calls = getActiveCalls();
+        Iterator<T> calls = getActiveCalls();
 
         while (calls.hasNext())
         {
-            CallJabberImpl call = calls.next();
-            if (call.containsJingleSID(sid))
+            T call = calls.next();
+            if (call.containsSID(sid))
                 return call;
         }
 
@@ -66,16 +68,16 @@ public class ActiveCallsRepositoryJabberImpl
      * @param sid the jingle <tt>sid</tt> we're looking for.
      *
      * @return the {@link CallPeerJabberImpl} with the specified <tt>sid</tt>
-     * or  tt>null</tt> if we couldn't find one matching it.
+     * or  <tt>null</tt> if we couldn't find one matching it.
      */
-    public CallPeerJabberImpl findCallPeer(String sid)
+    public U findCallPeer(String sid)
     {
-        Iterator<CallJabberImpl> calls = getActiveCalls();
+        Iterator<T> calls = getActiveCalls();
 
         while (calls.hasNext())
         {
-            CallJabberImpl call = calls.next();
-            CallPeerJabberImpl peer = call.getPeer(sid);
+            T call = calls.next();
+            U peer = call.getPeer(sid);
             if ( peer != null )
                 return peer;
         }
@@ -92,14 +94,14 @@ public class ActiveCallsRepositoryJabberImpl
      * @return the {@link CallPeerJabberImpl} with the specified <tt>id</tt>
      * or <tt>null</tt> if we couldn't find one matching it.
      */
-    public CallPeerJabberImpl findCallPeerBySessInitPacketID(String id)
+    public U findCallPeerBySessInitPacketID(String id)
     {
-        Iterator<CallJabberImpl> calls = getActiveCalls();
+        Iterator<T> calls = getActiveCalls();
 
         while (calls.hasNext())
         {
-            CallJabberImpl call = calls.next();
-            CallPeerJabberImpl peer = call.getPeerBySessInitPacketID(id);
+            T call = calls.next();
+            U peer = call.getPeerBySessInitPacketID(id);
             if ( peer != null )
                 return peer;
         }

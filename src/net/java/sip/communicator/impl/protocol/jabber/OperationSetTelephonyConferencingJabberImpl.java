@@ -335,9 +335,9 @@ public class OperationSetTelephonyConferencingJabberImpl
         iq.setVersion(version);
         iq.setState(StateType.full);
 
-        if(callPeer.getJingleSID() == null)
+        if(callPeer.getSID() == null)
             return null;
-        iq.setSID(callPeer.getJingleSID());
+        iq.setSID(callPeer.getSID());
 
         // conference-description
         iq.addExtension(new DescriptionPacketExtension());

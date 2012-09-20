@@ -297,8 +297,8 @@ public class OperationSetDesktopStreamingJabberImpl
     {
         AbstractCallJabberGTalkImpl<?> callImpl
             = (AbstractCallJabberGTalkImpl<?>) call;
-        AbstractCallPeerJabberGTalkImpl<?,?> callPeerImpl
-            = (AbstractCallPeerJabberGTalkImpl<?,?>)
+        AbstractCallPeerJabberGTalkImpl<?,?,?> callPeerImpl
+            = (AbstractCallPeerJabberGTalkImpl<?,?,?>)
                 callImpl.getCallPeers().next();
         VideoMediaStream videoStream 
             = (VideoMediaStream)
