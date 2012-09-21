@@ -38,6 +38,7 @@ import org.jitsi.util.*;
  * outgoing calls from and to the call operation set.
  *
  * @author Yana Stamcheva
+ * @author Lyubomir Marinov
  */
 public class CallManager
 {
@@ -777,13 +778,7 @@ public class CallManager
 
         // Removes special characters from phone numbers.
         if (ConfigurationManager.isNormalizePhoneNumber())
-        {
-            String normalizedContact[] = new String[1];
-            normalizedContact[0] = callString;
-
-            normalizePhoneNumbers(normalizedContact);
-            callString = normalizedContact[0];
-        }
+            callString = normalizePhoneNumber(callString);
 
         List<ProtocolProviderService> telephonyProviders
             = CallManager.getTelephonyProviders();
@@ -1495,13 +1490,7 @@ public class CallManager
                 callString = stringContact;
 
             if(ConfigurationManager.isNormalizePhoneNumber())
-            {
-                String normalizedContact[] = new String[1];
-
-                normalizedContact[0] = callString;
-                normalizePhoneNumbers(normalizedContact);
-                callString = normalizedContact[0];
-            }
+                callString = normalizePhoneNumber(callString);
 
             try
             {
@@ -1899,9 +1888,7 @@ public class CallManager
                 return;
 
             if (ConfigurationManager.isNormalizePhoneNumber())
-            {
                 normalizePhoneNumbers(callees);
-            }
 
             for (String callee : callees)
             {
@@ -2090,9 +2077,7 @@ public class CallManager
                     contacts.toArray(contactAddressStrings);
 
                     if (ConfigurationManager.isNormalizePhoneNumber())
-                    {
                         normalizePhoneNumbers(contactAddressStrings);
-                    }
 
                     try
                     {
@@ -2493,32 +2478,56 @@ public class CallManager
     }
 
     /**
-     * Normalizes the phone numbers (if any) in a list of <tt>String</tt>s.
+     * Normalizes a <tt>String</tt> contact address or phone number for the
+     * purposes of establishing a <tt>Call</tt>.
+     * 
+     * @param callee the <tt>String</tt> contact address or phone number to be
+     * normalized for the purposes of establishing a <tt>Call</tt>
+     * @return the normalized form of the specified <tt>callee</tt> appropriate
+     * for establishing a <tt>Call</tt>
+     */
+    private static String normalizePhoneNumber(String callee)
+    {
+        return
+            normalizePhoneNumber(callee, GuiActivator.getPhoneNumberService());
+    }
+
+    /**
+     * Normalizes a <tt>String</tt> contact address or phone number for the
+     * purposes of establishing a <tt>Call</tt>.
+     * 
+     * @param addr the <tt>String</tt> contact address or phone number to be
+     * normalized for the purposes of establishing a <tt>Call</tt>
+     * @param phoneNumberService the <tt>PhoneNumberI18nService</tt> to perform
+     * the normalization if the specified <tt>addr</tt> is recognized as a
+     * phone number
+     * @return the normalized form of the specified <tt>addr</tt> appropriate
+     * for establishing a <tt>Call</tt>
+     */
+    private static String normalizePhoneNumber(
+            String addr,
+            PhoneNumberI18nService phoneNumberService)
+    {
+        addr = StringUtils.concatenateWords(addr);
+        if (!StringUtils.containsLetters(addr)
+                && phoneNumberService.isPhoneNumber(addr))
+            addr = phoneNumberService.normalize(addr);
+        return addr;
+    }
+
+    /**
+     * Normalizes the phone numbers (if any) in a list of <tt>String</tt>
+     * contact addresses or phone numbers.
      *
-     * @param callees list of contact addresses or phone numbers
+     * @param callees the list of contact addresses or phone numbers to be
+     * normalized
      */
     private static void normalizePhoneNumbers(String callees[])
     {
-        PhoneNumberI18nService phoneNumberService =
-            GuiActivator.getPhoneNumberService();
+        PhoneNumberI18nService phoneNumberService
+            = GuiActivator.getPhoneNumberService();
 
-        for(int i = 0 ; i < callees.length ; i++)
-        {
-            if (!StringUtils.containsLetters(callees[i]) &&
-                GuiActivator.getPhoneNumberService().isPhoneNumber(callees[i]))
-            {
-                String addr = callees[i];
-                if(phoneNumberService.isPhoneNumber(addr))
-                {
-                    addr = phoneNumberService.normalize(addr);
-                }
-                else
-                {
-                    addr = StringUtils.concatenateWords(callees[i]);
-                }
-
-                callees[i] = addr;
-            }
-        }
+        for (int i = 0 ; i < callees.length ; i++)
+            callees[i] = normalizePhoneNumber(callees[i], phoneNumberService);
     }
 }
