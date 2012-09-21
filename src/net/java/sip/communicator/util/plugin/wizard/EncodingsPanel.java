@@ -30,61 +30,62 @@ public class EncodingsPanel extends TransparentPanel
      * logging output.
      */
     private static final Logger logger = Logger.getLogger(EncodingsPanel.class);
-    
+
     /**
      * The <tt>ResourceManagementService</tt> used by this class
      */
     private static ResourceManagementService resourceService
             = UtilActivator.getResources();
-    
+
     /**
      * The "override global settings" checkbox.
      */
     private final JCheckBox overrideCheckBox;
-            
+
     /**
      * The <tt>MediaConfiguration</tt> instance we'll use to obtain most of the
      * <tt>Component</tt>s for the panel
      */
     private final MediaConfigurationService mediaConfiguration;
-    
+
     /**
      * A panel to hold the audio encodings table
      */
     private JPanel audioPanel;
-    
+
     /**
      * The audio encodings table (and "up"/"down" buttons)
      */
     private Component audioControls;
-    
+
     /**
      * A panel to hold the video encodings table
      */
     private JPanel videoPanel;
-    
+
     /**
      * The video encodings table (and "up"/"down" buttons)
      */
     private Component videoControls;
-    
+
     /**
      * Holds the properties we need to get/set for the encoding preferences
      */
-    private Map<String, String> encodingProperties;
-    
+    private Map<String, String> encodingProperties
+            = new HashMap<String, String>();
+
     /**
      * An <tt>EncodingConfiguration</tt> we'll be using to manage preferences
      * for us
      */
     private EncodingConfiguration encodingConfiguration;
-    
+
     /**
      * The "reset" button
      */
     private JButton resetButton = new JButton(resourceService.getI18NString(
             "plugin.jabberaccregwizz.RESET"));
-    
+
     /**
      * Builds an object, loads the tables with the global configuration..
      */
@@ -98,26 +99,25 @@ public class EncodingsPanel extends TransparentPanel
     
         mediaConfiguration 
                 = UtilActivator.getMediaConfiguration();
-        
+
         //by default (on account creation) use an <tt>EncodingConfiguration</tt>
-        //loaded with the global preferences
-        encodingConfiguration 
-                = mediaConfiguration.getNewEncodingConfiguration();
-        encodingConfiguration.loadConfig();
-        encodingProperties = encodingConfiguration.getEncodingProperties();
-        
+        //loaded with the global preferences. But make a new instance, because
+        //we do not want to change the current one
+        encodingConfiguration = mediaConfiguration.getMediaService()
+                .createEmptyEncodingConfiguration();
+        encodingConfiguration.loadEncodingConfiguration(mediaConfiguration
+                .getMediaService().getCurrentEncodingConfiguration());
+
         audioControls = mediaConfiguration.
                 createEncodingControls(MediaType.AUDIO,
                 encodingConfiguration, false);
         videoControls = mediaConfiguration.
                 createEncodingControls(MediaType.VIDEO,
                 encodingConfiguration, false);
-        
-        
+
         JPanel mainPanel = new TransparentPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         add(mainPanel, BorderLayout.NORTH);
-        
 
         JPanel checkBoxPanel
             = new TransparentPanel(new BorderLayout());
@@ -130,13 +130,15 @@ public class EncodingsPanel extends TransparentPanel
         {
             public void actionPerformed(ActionEvent e)
             {
-                encodingConfiguration =
-                        mediaConfiguration.getNewEncodingConfiguration();
-                encodingConfiguration.loadConfig();
-                resetTables(encodingConfiguration);
+                encodingConfiguration.loadEncodingConfiguration(
+                        mediaConfiguration.getMediaService()
+                                .getCurrentEncodingConfiguration());
+                encodingConfiguration.storeProperties(encodingProperties,
+                        ProtocolProviderFactory.ENCODING_PROP_PREFIX+".");
+                resetTables();
             }
         });
-            
+
         audioPanel = new TransparentPanel(new BorderLayout(10, 10));
         audioPanel.setBorder(BorderFactory.createTitledBorder(
                resourceService.getI18NString("plugin.jabberaccregwizz.AUDIO")));
@@ -151,7 +153,7 @@ public class EncodingsPanel extends TransparentPanel
         mainPanel.add(audioPanel);
         mainPanel.add(videoPanel);
     }
-    
+
     /**
      * Saves the settings we hold in <tt>registration</tt>
      * @param registration the <tt>EncodingsRegistration</tt> to use
@@ -160,17 +162,12 @@ public class EncodingsPanel extends TransparentPanel
     {
         registration.setOverrideEncodings(overrideCheckBox.isSelected());
         
-        encodingProperties = encodingConfiguration.getEncodingProperties();
-        Map<String, String> enc = new HashMap<String, String>();
-        for(String key : encodingProperties.keySet())
-        {
-            enc.put(ProtocolProviderFactory.ENCODING_PROP_PREFIX
-                    + "." + key,
-                    encodingProperties.get(key));
-        }
-        registration.setEncodingProperties(enc);
+        encodingConfiguration.storeProperties(encodingProperties,
+                ProtocolProviderFactory.ENCODING_PROP_PREFIX+".");
+
+        registration.setEncodingProperties(encodingProperties);
     }
-    
+
     /**
      * Checks the given <tt>accountProperties</tt> for encoding configuration
      * and loads it.
@@ -182,44 +179,23 @@ public class EncodingsPanel extends TransparentPanel
                 ProtocolProviderFactory.OVERRIDE_ENCODINGS);
         boolean isOverrideEncodings = Boolean.parseBoolean(overrideEncodings);
         overrideCheckBox.setSelected(isOverrideEncodings);
-        
-        encodingProperties = new HashMap<String, String>();
-        for(String key : accountProperties.keySet())
-        {
-            if(key.startsWith(ProtocolProviderFactory.ENCODING_PROP_PREFIX
-                    + "."))
-            {
-                encodingProperties.put(
-                        key.substring(key.indexOf(".") + 1),
-                        accountProperties.get(key));
-            }
-        }
-        
-        if(encodingProperties.isEmpty())
-        {
-            //no encoding properties found for this account, leave the table
-            //as it is (with the global preferences)
-        }
-        else
-        {
-            //found encodings properties for the account, use them
-            
-            //get a clean EncodingConfiguration
-            encodingConfiguration = mediaConfiguration.
-                    getNewEncodingConfiguration();
-            //load what we found in accountProperties
-            encodingConfiguration.loadProperties(encodingProperties);
-            
-            resetTables(encodingConfiguration);
-        }
+
+        encodingConfiguration = mediaConfiguration.getMediaService()
+                .createEmptyEncodingConfiguration();
+        encodingConfiguration.loadProperties(accountProperties,
+                ProtocolProviderFactory.ENCODING_PROP_PREFIX);
+        encodingConfiguration.storeProperties(encodingProperties,
+                ProtocolProviderFactory.ENCODING_PROP_PREFIX+".");
+
+        resetTables();
+
     }
-    
+
     /**
-     * Recreates the audio and video controls, necessary when 
+     * Recreates the audio and video controls. Necessary when
      * our encodingConfiguration reference has changed.
-     * @param encodingConfiguration 
      */
-    private void resetTables(EncodingConfiguration encodingConfiguration)
+    private void resetTables()
     {
         audioPanel.remove(audioControls);
         videoPanel.remove(videoControls);

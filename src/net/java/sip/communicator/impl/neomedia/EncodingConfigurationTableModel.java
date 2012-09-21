@@ -13,7 +13,6 @@ import javax.swing.table.*;
 import net.java.sip.communicator.util.swing.*;
 
 import org.jitsi.impl.neomedia.*;
-import org.jitsi.impl.neomedia.codec.*;
 import org.jitsi.impl.neomedia.format.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
@@ -89,7 +88,7 @@ public class EncodingConfigurationTableModel
             return encodings;
 
         MediaFormat[] availableEncodings
-            = encodingConfiguration.getAvailableEncodings(type);
+            = encodingConfiguration.getAllEncodings(type);
         int encodingCount = availableEncodings.length;
 
         if (encodingCount < 1)

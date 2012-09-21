@@ -639,10 +639,10 @@ public class MediaConfigurationImpl implements MediaConfigurationService
     {
         if(encodingConfiguration == null)
         {
-            encodingConfiguration = getNewEncodingConfiguration();
-            encodingConfiguration.loadConfig();
+            encodingConfiguration =
+                    mediaService.getCurrentEncodingConfiguration();
         }
-        
+
         if(mediaType == MediaType.AUDIO)
         {
             return createEncodingControls(
@@ -671,10 +671,10 @@ public class MediaConfigurationImpl implements MediaConfigurationService
     {
         if(encodingConfiguration == null)
         {
-            encodingConfiguration = getNewEncodingConfiguration();
-            encodingConfiguration.loadConfig();
+            encodingConfiguration
+                    = mediaService.getCurrentEncodingConfiguration();
         }
-        
+
         ResourceManagementService resources = NeomediaActivator.getResources();
         String key;
 
@@ -1127,11 +1127,16 @@ public class MediaConfigurationImpl implements MediaConfigurationService
         return centerAdvancedPanel;
     }
 
-    public EncodingConfiguration getNewEncodingConfiguration()
+    /**
+     * Returns the <tt>MediaService</tt> instance
+     *
+     * @return the <tt>MediaService</tt> instance
+     */
+    public MediaService getMediaService()
     {
-        return NeomediaServiceUtils
-                .getMediaServiceImpl().getNewEncodingConfiguration();
+        return mediaService;
     }
+
     /**
      * Renders the available resolutions in the combo box.
      */

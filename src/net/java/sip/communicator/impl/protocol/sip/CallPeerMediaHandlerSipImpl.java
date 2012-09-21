@@ -141,12 +141,12 @@ public class CallPeerMediaHandlerSipImpl
     }
 
     /**
-     * Creates a <tt>Vector</tt> containing the <tt>MediaSescription</tt> of
+     * Creates a <tt>Vector</tt> containing the <tt>MediaDescription</tt>s of
      * streams that this handler is prepared to initiate depending on available
      * <tt>MediaDevice</tt>s and local on-hold and video transmission
      * preferences.
      *
-     * @return a <tt>Vector</tt> containing the <tt>MediaSescription</tt> of
+     * @return a <tt>Vector</tt> containing the <tt>MediaDescription</tt>s of
      * streams that this handler is prepared to initiate.
      *
      * @throws OperationFailedException if we fail to create the descriptions
@@ -176,7 +176,7 @@ public class CallPeerMediaHandlerSipImpl
         {
             MediaDevice dev = getDefaultDevice(mediaType);
 
-            if (dev == null)
+            if (!isDeviceActive(dev, sendQualityPreset, receiveQualityPreset))
                 continue;
 
             MediaDirection direction = dev.getDirection().and(
@@ -895,7 +895,7 @@ public class CallPeerMediaHandlerSipImpl
 
             MediaDevice dev = getDefaultDevice(mediaType);
 
-            if(dev == null)
+            if(!isDeviceActive(dev))
             {
                 closeStream(mediaType);
                 continue;

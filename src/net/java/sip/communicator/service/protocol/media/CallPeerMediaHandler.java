@@ -1613,17 +1613,22 @@ public abstract class CallPeerMediaHandler
         }
         return false;
     }
-    
+
     /**
-     * Returns a list of locally supported <tt>MediaFormat</tt>s for the 
+     * Returns a list of locally supported <tt>MediaFormat</tt>s for the
      * given <tt>MediaDevice</tt>, ordered in descending priority. Takes into
      * account the configuration obtained from the <tt>ProtocolProvider</tt>
-     * instance associated this media handler -- if its set up to override the 
-     * global encoding settings, uses that configuration, otherwise uses the 
+     * instance associated this media handler -- if its set up to override the
+     * global encoding settings, uses that configuration, otherwise uses the
      * global configuration.
+     *
      * @param mediaDevice the <tt>MediaDevice</tt>.
-     * @return a list of locally supported <tt>MediaFormat</tt>s for the 
-     * <tt>MediaDevice</tt> given, in order of priority.
+     *
+     * @return a non-null list of locally supported <tt>MediaFormat</tt>s for
+     * <tt>mediaDevice</tt>, in decreasing order of priority.
+     *
+     * @see CallPeerMediaHandler#getLocallySupportedFormats(MediaDevice,
+     * QualityPreset, QualityPreset)
      */
     public List<MediaFormat> getLocallySupportedFormats(MediaDevice mediaDevice)
     {
@@ -1637,55 +1642,85 @@ public abstract class CallPeerMediaHandler
      * instance associated this media handler -- if its set up to override the 
      * global encoding settings, uses that configuration, otherwise uses the 
      * global configuration.
+     *
      * @param mediaDevice the <tt>MediaDevice</tt>.
      * @param sendPreset the preset used to set some of the format parameters,
      * used for video and settings.
      * @param receivePreset the preset used to set the receive format
      * parameters, used for video and settings.
-     * @return a list of locally supported <tt>MediaFormat</tt>s for the 
-     * <tt>MediaDevice</tt> given, in order of priority.
+     *
+     * @return a non-null list of locally supported <tt>MediaFormat</tt>s for
+     * <tt>mediaDevice</tt>, in decreasing order of priority.
      */
     public List<MediaFormat> getLocallySupportedFormats(MediaDevice mediaDevice,
             QualityPreset sendPreset,
             QualityPreset receivePreset)
     {
+        if(mediaDevice == null)
+            return new LinkedList<MediaFormat>();
+
         boolean accountOverridesEncodings = false;
-        EncodingConfiguration encodingConfiguration
-                = ProtocolMediaActivator.getMediaService()
-                            .getNewEncodingConfiguration();
-        
-        Map<String, String> properties 
+
+        Map<String, String> accountProperties
                 = getPeer().getProtocolProvider()
-                .getAccountID().getAccountProperties();
-        if(properties.containsKey(ProtocolProviderFactory.OVERRIDE_ENCODINGS)
-                && Boolean.parseBoolean(properties.get
-                         (ProtocolProviderFactory.OVERRIDE_ENCODINGS)))
+                    .getAccountID().getAccountProperties();
+
+        if(accountProperties.containsKey(ProtocolProviderFactory.OVERRIDE_ENCODINGS)
+                && Boolean.parseBoolean(accountProperties.get
+                (ProtocolProviderFactory.OVERRIDE_ENCODINGS)))
         {
                 accountOverridesEncodings = true;
         }
-        
-        if(accountOverridesEncodings)
-        {
-            Map<String, String> encodingProperties
-                    = new HashMap<String, String>();
-            for(String key : properties.keySet())
-            {
-                if(key.startsWith(ProtocolProviderFactory.ENCODING_PROP_PREFIX
-                    + "."))
-                {
-                    encodingProperties.put(key.substring(key.indexOf(".") + 1),
-                                           properties.get(key));
-                }
-            }
-            encodingConfiguration.loadProperties(encodingProperties);
-        }
-        else
-        {
-            encodingConfiguration.loadConfig();
-        }
 
-        return mediaDevice.getSupportedFormats(sendPreset,
-                receivePreset,
-                encodingConfiguration);
+        if(accountOverridesEncodings)  /* use account configuration */
+        {
+            EncodingConfiguration encodingConfiguration
+                    = ProtocolMediaActivator.getMediaService().
+                        createEmptyEncodingConfiguration();
+            encodingConfiguration.loadProperties(accountProperties,
+                    ProtocolProviderFactory.ENCODING_PROP_PREFIX);
+
+            return mediaDevice.getSupportedFormats(sendPreset, receivePreset,
+                    encodingConfiguration);
+        }
+        else    /* use global configuration */
+        {
+            return mediaDevice.getSupportedFormats(sendPreset, receivePreset);
+        }
+    }
+
+    /**
+     * Checks whether <tt>dev</tt> can be used for a call.
+     *
+     * @return <tt>true</tt> if the device is not null, and it has at least
+     * one enabled format. Otherwise <tt>false</tt>
+     */
+    public boolean isDeviceActive(MediaDevice dev)
+    {
+        if (dev != null && !getLocallySupportedFormats(dev).isEmpty())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks whether <tt>dev</tt> can be used for a call, using
+     * <tt>sendPreset</tt> and <tt>reveicePreset</tt>
+     *
+     * @return <tt>true</tt> if the device is not null, and it has at least
+     * one enabled format. Otherwise <tt>false</tt>
+     */
+    public boolean isDeviceActive(MediaDevice dev, QualityPreset sendPreset,
+                                  QualityPreset receivePreset)
+    {
+        if (dev != null &&
+                !getLocallySupportedFormats(dev,
+                        sendPreset, receivePreset)
+                    .isEmpty())
+        {
+            return true;
+        }
+        return false;
     }
 }
