@@ -1264,6 +1264,7 @@ public class CallPeerJabberImpl
 
         TransferPacketExtension transfer = new TransferPacketExtension();
 
+        // Attended transfer.
         if (sid != null)
         {
             /*
@@ -1273,6 +1274,25 @@ public class CallPeerJabberImpl
              */
             transfer.setFrom(protocolProvider.getOurJID());
             transfer.setSID(sid);
+
+            // Puts on hold the 2 calls before making the attended transfer.
+            OperationSetBasicTelephonyJabberImpl basicTelephony
+                = (OperationSetBasicTelephonyJabberImpl)
+                    protocolProvider.getOperationSet(
+                        OperationSetBasicTelephony.class);
+            CallPeerJabberImpl callPeer = basicTelephony.getActiveCallPeer(sid);
+            if(callPeer != null)
+            {
+                if(!CallPeerState.isOnHold(callPeer.getState()))
+                {
+                    callPeer.putOnHold(true);
+                }
+            }
+
+            if(!CallPeerState.isOnHold(this.getState()))
+            {
+                this.putOnHold(true);
+            }
         }
         transfer.setTo(to);
 

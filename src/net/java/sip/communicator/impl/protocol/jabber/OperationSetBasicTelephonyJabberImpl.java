@@ -561,6 +561,36 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
+     * Returns the active call peer corresponding to the given sid.
+     *
+     * @param sid the Jingle session ID of the active <tt>Call</tt> between the
+     * local peer and the callee in the case of attended transfer; <tt>null</tt>
+     * in the case of unattended transfer
+     *
+     * @return The active call peer corresponding to the given sid. "null" if
+     * there is no such call.
+     */
+    public CallPeerJabberImpl getActiveCallPeer(String sid)
+    {
+        return activeCallsRepository.findCallPeer(sid);
+    }
+
+    /**
+     * Returns the active call peer corresponding to the given sid.
+     *
+     * @param sid the Jingle session ID of the active <tt>Call</tt> between the
+     * local peer and the callee in the case of attended transfer; <tt>null</tt>
+     * in the case of unattended transfer
+     *
+     * @return The active call peer corresponding to the given sid. "null" if
+     * there is no such call.
+     */
+    public CallPeerGTalkImpl getGTalkActiveCallPeer(String sid)
+    {
+        return activeGTalkCallsRepository.findCallPeer(sid);
+    }
+
+    /**
      * Resumes communication with a call peer previously put on hold.
      *
      * @param peer the call peer to put on hold.
